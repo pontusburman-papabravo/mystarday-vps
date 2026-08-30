@@ -401,6 +401,10 @@
     const titleEl = document.getElementById('deleteChildModalTitle');
     const cancelBtn = document.getElementById('deleteChildCancelBtn');
     const confirmBtn = document.getElementById('deleteChildConfirmBtn');
+    if (!childRow || childRow.role !== 'primary') {
+      if (btn) btn.classList.add('hidden');
+      return;
+    }
     if (!btn || !modal || !titleEl || !confirmBtn) return;
 
     function closeDeleteModal() {

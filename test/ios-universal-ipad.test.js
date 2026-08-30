@@ -34,12 +34,12 @@ describe('iOS universal iPad support', () => {
     assert.match(css, /#dashTourCard/);
   });
 
-  it('iOS marketing version is 1.3 build 30', () => {
+  it('iOS marketing version is 1.4.3 build 30', () => {
     const pbx = fs.readFileSync(
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
-    assert.match(pbx, /MARKETING_VERSION = 1\.3;/);
+    assert.match(pbx, /MARKETING_VERSION = 1\.4\.3;/);
     assert.match(pbx, /CURRENT_PROJECT_VERSION = 30;/);
   });
 

@@ -152,6 +152,7 @@
     "scopeFreeze": "docs/process/contracts/SCOPE_FREEZE.md",
     "externalTruth": "docs/process/contracts/EXTERNAL_TRUTH.md",
     "independentReview": "docs/process/contracts/INDEPENDENT_REVIEW.md",
-    "featureLifecycle": "docs/process/contracts/FEATURE_LIFECYCLE.md"
+    "featureLifecycle": "docs/process/contracts/FEATURE_LIFECYCLE.md",
+    "testExecutionStop": "docs/process/contracts/TEST_EXECUTION_STOP_RULE.md"
   }
 }

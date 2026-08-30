@@ -7,7 +7,8 @@
 
 const express = require('express');
 const db = require('../../lib/db');
-const { deleteAvatarForChildRecord, deleteAvatarForParentRecord } = require('../../lib/avatar-service');
+const { deleteAvatarForParentRecord } = require('../../lib/avatar-service');
+const childDeletion = require('../../lib/child-deletion');
 const { validate } = require('../../middleware/validate');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { UpdateFamilyMemberSchema } = require('../../lib/schemas');
@@ -278,67 +279,32 @@ router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, re
 });
 
 // ─── DELETE /api/family/children/:id ───────────────────
-// Explicit cascading delete — older FK constraints lack ON DELETE CASCADE
-// Blocked for pedagog-only parents
+// Canonical child-deletion: active primary for THIS child only.
 router.delete('/children/:id', requireNotPedagogOnly, async (req, res) => {
   const client = await db.getClient();
+  let capturedAvatarKeys = [];
+  let committed = false;
   try {
-    const childId = req.params.id;
-
-    // Verify child belongs to this family
-    const childResult = await client.query(
-      'SELECT id FROM child WHERE id = $1 AND family_id = $2',
-      [childId, req.user.familyId]
-    );
-    if (childResult.rows.length === 0) {
-      client.release();
-      return res.status(404).json({ error: 'Barn hittades inte' });
+    const outcome = await childDeletion.performChildDeletionInTransaction(client, {
+      callerParentId: req.user.id,
+      callerFamilyId: req.user.familyId,
+      childId: req.params.id,
+    });
+    if (!outcome.ok) {
+      return res.status(outcome.status).json({ error: outcome.error });
     }
-
-    await client.query('BEGIN');
-
-    // Delete related records in dependency order (tables without ON DELETE CASCADE)
-    await client.query('DELETE FROM streak WHERE child_id = $1', [childId]);
-    await client.query('DELETE FROM parent_note WHERE child_id = $1', [childId]);
-    await client.query('DELETE FROM reward_redemption WHERE child_id = $1', [childId]);
-
-    // daily_log_item ratings → daily_log_items → daily_logs
-    await client.query(
-      `DELETE FROM rating WHERE daily_log_item_id IN (
-         SELECT dli.id FROM daily_log_item dli
-         JOIN daily_log dl ON dl.id = dli.daily_log_id
-         WHERE dl.child_id = $1
-       )`, [childId]
-    );
-    await client.query(
-      `DELETE FROM daily_log_item WHERE daily_log_id IN (
-         SELECT id FROM daily_log WHERE child_id = $1
-       )`, [childId]
-    );
-    await client.query('DELETE FROM daily_log WHERE child_id = $1', [childId]);
-
-    // weekly_schedule_items → weekly_schedules
-    await client.query(
-      `DELETE FROM weekly_schedule_item WHERE weekly_schedule_id IN (
-         SELECT id FROM weekly_schedule WHERE child_id = $1
-       )`, [childId]
-    );
-    await client.query('DELETE FROM weekly_schedule WHERE child_id = $1', [childId]);
-
-    await deleteAvatarForChildRecord(childId);
-
-    // parent-child links and child record
-    await client.query('DELETE FROM parent_child WHERE child_id = $1', [childId]);
-    await client.query('DELETE FROM child WHERE id = $1', [childId]);
-
-    await client.query('COMMIT');
-    res.json({ message: 'Barn borttaget' });
+    capturedAvatarKeys = outcome.capturedAvatarKeys;
+    committed = true;
   } catch (err) {
-    await client.query('ROLLBACK');
     console.error('[FAMILY] Child delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   } finally {
     client.release();
+  }
+
+  if (committed) {
+    await childDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
+    return res.json({ message: 'Barn borttaget' });
   }
 });
 

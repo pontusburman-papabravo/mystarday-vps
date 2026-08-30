@@ -48,6 +48,21 @@ Do **not** reflexively run `npm test` or full `test:gate` for small changes.
 
 Path suggestion in `config/process/global-core.json`. `--min-risk` cannot auto-downgrade.
 
+## Test execution stop (hangs / locks)
+
+If a test command hangs, waits on a DB advisory lock, produces no output >5 min, or exceeds **2×** known runtime — **do not** treat as a normal failure or increase timeouts.
+
+1. Stop safely (specific PID — never `pkill -f`)
+2. Classify: `PRODUCT_CODE` | `TEST_HARNESS` | `DB_LOCK` | `RESOURCE_LEAK` | `CI_INFRA` | `NOT_YET_DETERMINED`
+3. Inspect `setupTestDb()` / `listenApp()` cleanup; run smallest isolated reproducer
+4. Report diagnosis before resuming implementation
+
+**Retries:** 1 for deterministic failures; **0** blind reruns for hangs/locks/leaks.
+
+**R3:** hang/leak = blocker — harness must be clean before product work resumes.
+
+Full rule: `docs/process/contracts/TEST_EXECUTION_STOP_RULE.md`
+
 ## Architecture
 
 ```

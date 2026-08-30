@@ -270,11 +270,13 @@
       '</div>' +
       transitionBlock +
       advancedSettingsHtml(child) +
-      '<div class="pt-4 mt-2 border-t border-lavender">' +
-      '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
-      '🗑 Radera barn permanent</button>' +
-      '<p class="text-xs text-text-soft text-center mt-2">Tar bort schema, stjärnor och all historik för barnet.</p>' +
-      '</div>' +
+      (child.role === 'primary'
+        ? '<div class="pt-4 mt-2 border-t border-lavender">' +
+          '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
+          '🗑 Radera barn permanent</button>' +
+          '<p class="text-xs text-text-soft text-center mt-2">Tar bort schema, stjärnor och all historik för barnet.</p>' +
+          '</div>'
+        : '') +
       '</div>';
   }
 

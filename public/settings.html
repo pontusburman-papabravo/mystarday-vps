@@ -440,8 +440,9 @@
         <section id="deletionSection">
           <h3 class="text-xl font-heading font-bold text-navy mb-2">Radera konto</h3>
           <div class="bg-coral rounded-xl p-4 mb-4">
-            <p class="text-sm text-navy font-semibold mb-1">⚠️ Permanent radering</p>
-            <p class="text-sm text-navy">Alla dina data — familj, barn, scheman, aktiviteter, betyg och belöningar — raderas omedelbart och permanent. Det går inte att ångra.</p>
+            <p class="text-sm text-navy font-semibold mb-1">⚠️ Permanent åtgärd</p>
+            <p id="deletionSummaryText" class="text-sm text-navy">Laddar information om vad som händer…</p>
+            <p id="deletionStoreBillingNote" class="text-sm text-navy mt-2 hidden">Om du har prenumeration via App Store eller Google Play avslutas den inte automatiskt när kontot raderas. Hantera eller avsluta prenumerationen i butiken.</p>
           </div>
           <button id="deleteAccountBtn" class="w-full px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors">Radera mitt konto</button>
           <div id="deletionMsg" class="text-sm min-h-[1.4em] mt-2"></div>
@@ -564,18 +565,15 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
       <div class="bg-red-500 px-6 py-4 flex items-center gap-3">
         <span class="text-2xl">⚠️</span>
-        <h3 class="text-xl font-heading font-bold text-white">Radera konto permanent</h3>
+        <h3 id="deleteModalTitle" class="text-xl font-heading font-bold text-white">Radera konto permanent</h3>
       </div>
       <div class="p-6">
         <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
-          <p class="text-sm text-red-700 font-semibold mb-1">Är du säker? ALL data raderas permanent.</p>
-          <ul class="text-sm text-red-600 list-disc list-inside space-y-0.5">
-            <li>Föräldrakontot</li>
-            <li>Alla barn kopplade till familjen</li>
-            <li>Alla scheman och aktiviteter</li>
-            <li>Alla dagliga loggar och stjärnor</li>
-            <li>Alla belöningar och inlösningar</li>
+          <p id="deleteModalLead" class="text-sm text-red-700 font-semibold mb-1">Är du säker?</p>
+          <ul id="deleteModalBullets" class="text-sm text-red-600 list-disc list-inside space-y-0.5">
+            <li>Ditt föräldrakonto och din åtkomst</li>
           </ul>
+          <p id="deleteModalStoreBilling" class="text-sm text-red-700 mt-2 hidden">Prenumeration via App Store eller Google Play avslutas inte automatiskt — hantera den i butiken.</p>
           <p class="text-sm text-red-700 font-semibold mt-2">Detta kan inte ångras.</p>
         </div>
         <div class="mb-4">
@@ -598,6 +596,50 @@
 
   <script>
     let familyChildren = [];
+    let familyParents = [];
+    let deletionImpactMode = null;
+
+    function isSelfLeaveDeletion() {
+      return deletionImpactMode === 'self';
+    }
+
+    function refreshDeletionCopy() {
+      const multi = isSelfLeaveDeletion();
+      const summaryEl = document.getElementById('deletionSummaryText');
+      const storeNote = document.getElementById('deletionStoreBillingNote');
+      if (summaryEl) {
+        summaryEl.textContent = multi
+          ? 'Du tar bort ditt eget konto och din åtkomst. Familjen, barnen, scheman och data för övriga vuxna finns kvar. Det går inte att ångra.'
+          : 'Du är sista vuxna med administrativ åtkomst. Hela familjen och all tillhörande data — barn, scheman, aktiviteter, stjärnor och belöningar — raderas omedelbart och permanent. Det går inte att ångra.';
+      }
+      if (storeNote) storeNote.classList.remove('hidden');
+    }
+
+    function refreshDeletionModalCopy() {
+      const multi = isSelfLeaveDeletion();
+      const title = document.getElementById('deleteModalTitle');
+      const lead = document.getElementById('deleteModalLead');
+      const bullets = document.getElementById('deleteModalBullets');
+      const storeBilling = document.getElementById('deleteModalStoreBilling');
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      if (title) {
+        title.textContent = multi ? 'Lämna familjen' : 'Radera familj och konto';
+      }
+      if (lead) {
+        lead.textContent = multi
+          ? 'Du tar bort bara ditt eget konto och din åtkomst.'
+          : 'Du raderar hela familjen och all tillhörande data.';
+      }
+      if (bullets) {
+        bullets.innerHTML = multi
+          ? '<li>Ditt föräldrakonto och din åtkomst</li><li>Familjen, barnen och övriga vuxna finns kvar</li>'
+          : '<li>Föräldrakontot</li><li>Alla barn i familjen</li><li>Alla scheman, aktiviteter och belöningar</li><li>All daglig historik och stjärnor</li>';
+      }
+      if (storeBilling) storeBilling.classList.remove('hidden');
+      if (confirmBtn && confirmBtn.disabled === false) {
+        confirmBtn.textContent = multi ? 'Lämna familjen' : 'Radera allt permanent';
+      }
+    }
 
     function bindCriticalAccountActions() {
       if (document.body.dataset.criticalAccountActionsBound === 'true') return;
@@ -670,6 +712,9 @@
         document.getElementById('familyName').value = fam.name || '';
         document.getElementById('soundEnabled').checked = fam.sound_enabled !== false;
         familyChildren = fam.children || [];
+        familyParents = fam.parents || [];
+        deletionImpactMode = fam.deletion_impact && fam.deletion_impact.mode;
+        refreshDeletionCopy();
         initPedagogInviteSection();
         if (window.bootSettingsCoParent) bootSettingsCoParent(me, fam);
       }
@@ -857,6 +902,7 @@
 
     // Delete account → show confirmation modal
     document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+      refreshDeletionModalCopy();
       document.getElementById('deleteModal').classList.remove('hidden');
     });
 
@@ -879,11 +925,11 @@
       if (match) {
         btn.disabled = false;
         btn.className = 'flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors';
-        btn.textContent = 'Radera allt permanent';
+        btn.textContent = isSelfLeaveDeletion() ? 'Lämna familjen' : 'Radera allt permanent';
       } else {
         btn.disabled = true;
         btn.className = 'flex-1 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold transition-colors cursor-not-allowed';
-        btn.textContent = 'Radera allt permanent';
+        btn.textContent = isSelfLeaveDeletion() ? 'Lämna familjen' : 'Radera allt permanent';
       }
     }
     document.getElementById('deleteConfirmText').addEventListener('input', (e) => {

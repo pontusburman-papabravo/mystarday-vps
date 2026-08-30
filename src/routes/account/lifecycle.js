@@ -2,102 +2,24 @@
 
 const express = require('express');
 const db = require('../../lib/db');
-const { hashPassword, comparePassword } = require('../../lib/hash');
 const { requireParent } = require('../../middleware/auth');
-const { revokeAllRefreshTokens } = require('../../lib/refresh-tokens');
-const { sendAccountDeletionRequestedEmail } = require('../../lib/email');
-const { resolveCommunicationLocale } = require('../../lib/communication-locale');
-const { t } = require('../../lib/i18n');
 
 const router = express.Router();
 
+const LEGACY_DELETION_GONE = {
+  error: 'Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto.',
+};
+
 // ─── POST /api/account/delete ───────────────────────────
-router.post('/delete', requireParent, async (req, res) => {
-  try {
-    // Check if already pending deletion
-    const existing = await db.query(
-      `SELECT pending_deletion, deletion_requested_at FROM parent WHERE id = $1`,
-      [req.user.id]
-    );
-
-    if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
-    }
-
-    if (existing.rows[0].pending_deletion) {
-      const familyLocale = await db.query(
-        'SELECT preferred_locale FROM family WHERE id = $1',
-        [req.user.familyId || req.user.family_id]
-      );
-      const locale = resolveCommunicationLocale(familyLocale.rows[0]?.preferred_locale);
-      return res.json({
-        message: t(locale, 'api.account.alreadyPending'),
-        pending_deletion: true,
-        deletion_requested_at: existing.rows[0].deletion_requested_at,
-      });
-    }
-
-    // Set soft delete
-    const now = new Date();
-    await db.query(
-      `UPDATE parent SET pending_deletion = true, deletion_requested_at = $1 WHERE id = $2`,
-      [now, req.user.id]
-    );
-
-    // Get email for notification
-    const parentResult = await db.query(
-      `SELECT p.email, f.preferred_locale FROM parent p
-       JOIN family f ON f.id = p.family_id
-       WHERE p.id = $1`,
-      [req.user.id]
-    );
-    const { email, preferred_locale: preferredLocale } = parentResult.rows[0];
-    const locale = resolveCommunicationLocale(preferredLocale);
-    const firstName = email.split('@')[0].split('.')[0];
-
-    sendAccountDeletionRequestedEmail(email, firstName, locale).catch(err => {
-      console.warn('[ACCOUNT] Failed to send deletion email:', err.message);
-    });
-
-    res.json({
-      message: t(locale, 'api.account.deletionPending'),
-      pending_deletion: true,
-      deletion_requested_at: now.toISOString(),
-      days_remaining: 30,
-    });
-  } catch (err) {
-    console.error('[ACCOUNT] Delete account error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
-  }
+// Legacy 30-day soft-delete write path — no active clients. Settings uses
+// DELETE /api/family/delete-account with canonical administrative authority.
+router.post('/delete', requireParent, async (_req, res) => {
+  return res.status(410).json(LEGACY_DELETION_GONE);
 });
 
 // ─── POST /api/account/cancel-deletion ─────────────────
-router.post('/cancel-deletion', requireParent, async (req, res) => {
-  try {
-    const result = await db.query(
-      `SELECT pending_deletion FROM parent WHERE id = $1`,
-      [req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
-    }
-
-    if (!result.rows[0].pending_deletion) {
-      return res.json({ message: 'Ingen radering att avbryta.' });
-    }
-
-    // Cancel the deletion
-    await db.query(
-      `UPDATE parent SET pending_deletion = false, deletion_requested_at = NULL WHERE id = $1`,
-      [req.user.id]
-    );
-
-    res.json({ message: 'Raderingen har avbrutits. Ditt konto är nu aktivt igen.' });
-  } catch (err) {
-    console.error('[ACCOUNT] Cancel deletion error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
-  }
+router.post('/cancel-deletion', requireParent, async (_req, res) => {
+  return res.status(410).json(LEGACY_DELETION_GONE);
 });
 
 // ─── GET /api/account/widget-order ────────────────────────
@@ -275,157 +197,11 @@ router.post('/attribution', requireParent, async (req, res) => {
 });
 
 // ─── POST /api/account/delete-immediate ─────────────────
-// GDPR: Immediate, permanent hard deletion with password confirmation.
-// Deletes the entire family and all associated data in dependency order.
-// No deletion is logged (GDPR requirement: data must be fully gone).
-router.post('/delete-immediate', requireParent, async (req, res) => {
-  const { password } = req.body;
-  if (!password) {
-    return res.status(400).json({ error: 'Lösenord krävs för att bekräfta radering' });
-  }
-
-  const client = await db.getClient();
-  try {
-    // 1. Verify password before doing anything destructive
-    const parentRow = await client.query(
-      'SELECT id, email, family_id, password_hash FROM parent WHERE id = $1',
-      [req.user.id]
-    );
-    if (parentRow.rows.length === 0) {
-      client.release();
-      return res.status(404).json({ error: 'Konto hittades inte' });
-    }
-
-    const { email, family_id, password_hash } = parentRow.rows[0];
-    const valid = await comparePassword(password, password_hash);
-    if (!valid) {
-      client.release();
-      return res.status(401).json({ error: 'Fel lösenord. Försök igen.' });
-    }
-
-    // 2. Delete all family data in dependency order (no ON DELETE CASCADE in schema)
-    await client.query('BEGIN');
-
-    // Ratings (references daily_log_item)
-    await client.query(`
-      DELETE FROM rating WHERE daily_log_item_id IN (
-        SELECT dli.id FROM daily_log_item dli
-        JOIN daily_log dl ON dli.daily_log_id = dl.id
-        JOIN child c ON dl.child_id = c.id
-        WHERE c.family_id = $1
-      )`, [family_id]);
-
-    // Daily log items (references daily_log, activity_template)
-    await client.query(`
-      DELETE FROM daily_log_item WHERE daily_log_id IN (
-        SELECT dl.id FROM daily_log dl
-        JOIN child c ON dl.child_id = c.id
-        WHERE c.family_id = $1
-      )`, [family_id]);
-
-    // Daily logs (references child)
-    await client.query(`
-      DELETE FROM daily_log WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-
-    // Reward redemptions (references reward, child, parent)
-    await client.query(`
-      DELETE FROM reward_redemption WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-    await client.query(`
-      DELETE FROM reward_redemption WHERE reward_id IN (
-        SELECT id FROM reward WHERE family_id = $1
-      )`, [family_id]);
-
-    // Weekly schedule items (references weekly_schedule, activity_template)
-    await client.query(`
-      DELETE FROM weekly_schedule_item WHERE weekly_schedule_id IN (
-        SELECT ws.id FROM weekly_schedule ws
-        JOIN child c ON ws.child_id = c.id
-        WHERE c.family_id = $1
-      )`, [family_id]);
-
-    // Weekly schedules (references child)
-    await client.query(`
-      DELETE FROM weekly_schedule WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-
-    // Streaks (references child)
-    await client.query(`
-      DELETE FROM streak WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-
-    // Parent notes (references child, parent)
-    await client.query(`
-      DELETE FROM parent_note WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-
-    // Notification preferences (references parent)
-    await client.query(`
-      DELETE FROM notification_preference WHERE parent_id IN (
-        SELECT id FROM parent WHERE family_id = $1
-      )`, [family_id]);
-
-    // Parent-child relationships
-    await client.query(`
-      DELETE FROM parent_child WHERE parent_id IN (
-        SELECT id FROM parent WHERE family_id = $1
-      )`, [family_id]);
-    await client.query(`
-      DELETE FROM parent_child WHERE child_id IN (
-        SELECT id FROM child WHERE family_id = $1
-      )`, [family_id]);
-
-    // Rewards (references family)
-    await client.query(`DELETE FROM reward WHERE family_id = $1`, [family_id]);
-
-    // Activity templates (references family)
-    await client.query(`DELETE FROM activity_template WHERE family_id = $1`, [family_id]);
-
-    // Categories (references family)
-    await client.query(`DELETE FROM category WHERE family_id = $1`, [family_id]);
-
-    // Family invites (references family)
-    await client.query(`DELETE FROM family_invite WHERE family_id = $1`, [family_id]);
-
-    // Email verification tokens (no FK, delete by parent_id)
-    await client.query(`
-      DELETE FROM email_verification WHERE parent_id IN (
-        SELECT id FROM parent WHERE family_id = $1
-      )`, [family_id]);
-
-    // Password reset tokens (no FK, delete by parent_id)
-    await client.query(`
-      DELETE FROM password_reset WHERE parent_id IN (
-        SELECT id FROM parent WHERE family_id = $1
-      )`, [family_id]);
-
-    // Children (references family)
-    await client.query(`DELETE FROM child WHERE family_id = $1`, [family_id]);
-
-    // Parents (references family)
-    await client.query(`DELETE FROM parent WHERE family_id = $1`, [family_id]);
-
-    // Family (root)
-    await client.query(`DELETE FROM family WHERE id = $1`, [family_id]);
-
-    await client.query('COMMIT');
-
-    // 3. Clear auth cookie so the client is immediately logged out
-    res.clearCookie('token');
-    res.json({ message: 'Kontot och all tillhörande data har raderats permanent.' });
-  } catch (err) {
-    await client.query('ROLLBACK').catch(() => {});
-    console.error('[ACCOUNT] Immediate delete error:', err);
-    res.status(500).json({ error: 'Något gick fel vid radering. Försök igen.' });
-  } finally {
-    client.release();
-  }
+// Legacy bypass removed — use Settings → DELETE /api/family/delete-account.
+router.post('/delete-immediate', requireParent, async (_req, res) => {
+  return res.status(410).json({
+    error: 'Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto.',
+  });
 });
 
 module.exports = router;

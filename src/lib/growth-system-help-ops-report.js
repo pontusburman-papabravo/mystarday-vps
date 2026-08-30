@@ -16,18 +16,27 @@ const STATE_KEY = 'growth_system_help_ops_report_state';
 const SUPPORT_MESSAGE_PREFIX = '[Systemhjälp — Rapportera problem]';
 const OUTCOME_WINDOW_MS = 72 * 60 * 60 * 1000;
 const TECH_ERROR_EVENT = 'system_help_api_error';
+const PROGRESSED_EVENT = 'system_help_progressed';
+const RECENT_OUTCOME_LIMIT = 5;
+
+/** metadata.outcome values that mean the family actually moved. */
+const PROGRESSED_OUTCOMES = Object.freeze([
+  'progressed_24h',
+  'progressed_72h',
+  'progressed_after_72h',
+]);
 
 const EVENT_TYPES = Object.freeze([
   'system_help_shown',
   'system_help_engaged',
   'system_help_support_requested',
-  'system_help_progressed',
+  PROGRESSED_EVENT,
 ]);
 
 const SUMMARY_EVENT_TYPES = Object.freeze([
   'system_help_engaged',
   'system_help_support_requested',
-  'system_help_progressed',
+  PROGRESSED_EVENT,
 ]);
 
 function reportEmail() {
@@ -133,7 +142,9 @@ async function queryCompletedOutcomes(outcomeWindowEnd) {
            AND progression_outcome = 'no_progress'
        )::int AS no_progress_outcomes,
        count(*) FILTER (
-         WHERE progression_outcome IN ('progressed_24h', 'progressed_72h')
+         WHERE system_help_shown_at IS NOT NULL
+           AND system_help_shown_at <= $1
+           AND progression_outcome IN ('progressed_24h', 'progressed_72h')
        )::int AS progressed_outcomes
      FROM family_system_help_state`,
     [outcomeWindowEnd]
@@ -143,6 +154,45 @@ async function queryCompletedOutcomes(outcomeWindowEnd) {
     no_progress_outcomes: 0,
     progressed_outcomes: 0,
   };
+}
+
+/**
+ * Split system_help_progressed events by metadata.outcome.
+ * finalizeNoProgressOutcomes reuses that event name with outcome=no_progress.
+ */
+async function queryProgressedOutcomeCounts(since = null) {
+  const params = [PROGRESSED_EVENT, PROGRESSED_OUTCOMES];
+  let sql = `SELECT
+       count(*) FILTER (
+         WHERE COALESCE(metadata->>'outcome', '') = 'no_progress'
+       )::int AS no_progress,
+       count(*) FILTER (
+         WHERE COALESCE(metadata->>'outcome', '') = ANY($2::text[])
+       )::int AS progressed,
+       count(*)::int AS total
+     FROM analytics_events
+     WHERE event_type = $1`;
+  if (since) {
+    sql += ' AND created_at > $3';
+    params.push(since);
+  }
+  const { rows } = await db.query(sql, params);
+  return rows[0] || { no_progress: 0, progressed: 0, total: 0 };
+}
+
+async function queryRecentCompletedOutcomes(outcomeWindowEnd, limit = RECENT_OUTCOME_LIMIT) {
+  const { rows } = await db.query(
+    `SELECT family_id, blocking_step, help_type, progression_outcome,
+            system_help_shown_at, next_milestone_at, updated_at
+     FROM family_system_help_state
+     WHERE system_help_shown_at IS NOT NULL
+       AND system_help_shown_at <= $1
+       AND progression_outcome IS NOT NULL
+     ORDER BY updated_at DESC
+     LIMIT $2`,
+    [outcomeWindowEnd, limit]
+  );
+  return rows;
 }
 
 async function collectMetrics(now = new Date()) {
@@ -161,6 +211,9 @@ async function collectMetrics(now = new Date()) {
     completedOutcomes,
     techErrors1h,
     supportReportsTotal,
+    outcomeTotals,
+    outcome24h,
+    recentCompletedOutcomes,
   ] = await Promise.all([
     db.query('SELECT enabled, updated_at FROM feature_flag WHERE key = $1 LIMIT 1', [FLAG_KEY]),
     db.query('SELECT count(*)::int AS c FROM family_feature_override WHERE feature_key = $1', [FLAG_KEY]),
@@ -193,6 +246,9 @@ async function collectMetrics(now = new Date()) {
        WHERE message LIKE $1 AND status IS DISTINCT FROM 'archived'`,
       [`${SUPPORT_MESSAGE_PREFIX}%`]
     ),
+    queryProgressedOutcomeCounts(),
+    queryProgressedOutcomeCounts(since24h),
+    queryRecentCompletedOutcomes(outcomeWindowEnd),
   ]);
 
   const shown = totals.system_help_shown || 0;
@@ -225,6 +281,15 @@ async function collectMetrics(now = new Date()) {
     },
     support_rate: shown > 0 ? supportRequested / shown : 0,
     tech_errors_1h: techErrors1h,
+    analytics_outcome_totals: {
+      progressed: outcomeTotals.progressed || 0,
+      no_progress: outcomeTotals.no_progress || 0,
+    },
+    analytics_outcome_24h: {
+      progressed: outcome24h.progressed || 0,
+      no_progress: outcome24h.no_progress || 0,
+    },
+    recent_completed_outcomes: recentCompletedOutcomes,
   };
 }
 
@@ -252,6 +317,41 @@ function hasShownOnlyDelta(delta) {
 }
 
 /**
+ * Split system_help_progressed event delta into progressed vs no_progress.
+ * If previous state has no breakdown yet, attribute the event delta only when
+ * the current mix is unambiguous (one side is zero).
+ */
+function outcomeBreakdownDelta(metrics, previousState, progressedEventDelta) {
+  const cur = metrics?.analytics_outcome_totals || { progressed: 0, no_progress: 0 };
+  const prev = previousState?.analytics_outcome_totals;
+  if (prev) {
+    return {
+      progressed: (cur.progressed || 0) - (prev.progressed || 0),
+      no_progress: (cur.no_progress || 0) - (prev.no_progress || 0),
+    };
+  }
+  const progressed = cur.progressed || 0;
+  const noProgress = cur.no_progress || 0;
+  if (progressedEventDelta <= 0) {
+    return { progressed: 0, no_progress: 0 };
+  }
+  if (noProgress > 0 && progressed === 0) {
+    return { progressed: 0, no_progress: progressedEventDelta };
+  }
+  if (progressed > 0 && noProgress === 0) {
+    return { progressed: progressedEventDelta, no_progress: 0 };
+  }
+  return { progressed: 0, no_progress: 0 };
+}
+
+function isNoProgressOnlySummary(delta, outcomeDeltas) {
+  if ((delta.system_help_engaged || 0) > 0) return false;
+  if ((delta.system_help_support_requested || 0) > 0) return false;
+  if ((delta[PROGRESSED_EVENT] || 0) <= 0) return false;
+  return (outcomeDeltas.no_progress || 0) > 0 && (outcomeDeltas.progressed || 0) <= 0;
+}
+
+/**
  * Pure decision logic — unit tested.
  * @param {{ metrics: object, previousState: object|null, now?: Date }} input
  */
@@ -266,12 +366,19 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
       seedOnly: true,
       emailKind: null,
       deltas: Object.fromEntries(EVENT_TYPES.map((k) => [k, 0])),
+      outcomeDeltas: { progressed: 0, no_progress: 0 },
       alerts,
       reasons: ['initial_baseline_seed'],
+      noProgressOnly: false,
     };
   }
 
   const { delta } = diffCounts(metrics.analytics_totals, previousState.analytics_totals);
+  const outcomeDeltas = outcomeBreakdownDelta(
+    metrics,
+    previousState,
+    delta[PROGRESSED_EVENT] || 0
+  );
 
   const newSupportId = metrics.latest_support_message_id > (previousState.latest_support_message_id || 0);
   if (newSupportId) {
@@ -324,8 +431,11 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
   }
 
   const meaningfulSummary = hasMeaningfulActivityDelta(delta);
+  const noProgressOnly = isNoProgressOnlySummary(delta, outcomeDeltas);
 
-  if (meaningfulSummary) {
+  if (noProgressOnly) {
+    reasons.push('no_progress_outcome');
+  } else if (meaningfulSummary) {
     reasons.push('activity_summary');
   }
 
@@ -343,6 +453,7 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
   else if (newSupportId) emailKind = 'support_report';
   else if (alerts.some((a) => a.level === 'warn')) emailKind = 'warning';
   else if (firstOutcomeSummary) emailKind = 'outcome_summary';
+  else if (noProgressOnly) emailKind = 'no_progress_outcome';
   else if (meaningfulSummary) emailKind = 'activity_summary';
 
   return {
@@ -351,17 +462,40 @@ function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
     seedOnly: false,
     emailKind,
     deltas: delta,
+    outcomeDeltas,
     alerts,
     reasons,
     firstOutcomeSummary,
+    noProgressOnly,
   };
 }
 
-function formatDeltaLine(deltas) {
+function formatDeltaLine(deltas, outcomeDeltas = null) {
   return EVENT_TYPES
     .filter((k) => (deltas[k] || 0) > 0)
-    .map((k) => `+${deltas[k]} ${k}`)
+    .map((k) => {
+      if (k === PROGRESSED_EVENT && outcomeDeltas) {
+        const bits = [];
+        if ((outcomeDeltas.progressed || 0) > 0) {
+          bits.push(`+${outcomeDeltas.progressed} progressed`);
+        }
+        if ((outcomeDeltas.no_progress || 0) > 0) {
+          bits.push(`+${outcomeDeltas.no_progress} no_progress`);
+        }
+        if (bits.length) {
+          return `+${deltas[k]} ${k} (${bits.join(', ')})`;
+        }
+      }
+      return `+${deltas[k]} ${k}`;
+    })
     .join(', ');
+}
+
+function formatRecentOutcomeLine(row) {
+  const shown = row.system_help_shown_at instanceof Date
+    ? row.system_help_shown_at.toISOString()
+    : (row.system_help_shown_at || '—');
+  return `  ${row.progression_outcome} · ${row.blocking_step || '—'} · shown ${shown} · family ${row.family_id}`;
 }
 
 function adminIncidentsUrl() {
@@ -407,7 +541,19 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     `Support-rapporter (24h): ${metrics.support_reports_24h}`,
     `Support-rapporter (totalt): ${metrics.support_reports_total}`,
     `support_requested/shown: ${(metrics.support_rate * 100).toFixed(1)}%`,
+    '  (klick i appen — inte samma sak som inskickad support-rapport)',
   ];
+
+  const outcomeTotals = metrics.analytics_outcome_totals || { progressed: 0, no_progress: 0 };
+  const outcome24h = metrics.analytics_outcome_24h || { progressed: 0, no_progress: 0 };
+  lines.push(
+    '',
+    'system_help_progressed uppdelat (metadata.outcome):',
+    `  totalt progressed: ${outcomeTotals.progressed || 0}`,
+    `  totalt no_progress: ${outcomeTotals.no_progress || 0}`,
+    `  24h progressed: ${outcome24h.progressed || 0}`,
+    `  24h no_progress: ${outcome24h.no_progress || 0}`
+  );
 
   if (metrics.new_support_reports?.length) {
     lines.push('', 'Nya support-rapporter:');
@@ -429,10 +575,19 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     'Hjälp-state:',
     `  familjer med shown: ${metrics.help_state.families_shown}`,
     `  familjer med engaged: ${metrics.help_state.families_engaged}`,
-    `  no_progress (state): ${metrics.help_state.families_no_progress}`
+    `  no_progress (state): ${metrics.help_state.families_no_progress}`,
+    '  (Hjälp-state = nuvarande episod; analytics = totalt över episoder)'
   );
 
-  const deltaLine = formatDeltaLine(decision.deltas);
+  const recent = metrics.recent_completed_outcomes || [];
+  if (recent.length) {
+    lines.push('', 'Senaste färdiga outcomes:');
+    for (const row of recent) {
+      lines.push(formatRecentOutcomeLine(row));
+    }
+  }
+
+  const deltaLine = formatDeltaLine(decision.deltas, decision.outcomeDeltas);
   if (deltaLine) {
     lines.push('', `Ny aktivitet sedan senaste rapport: ${deltaLine}`);
   }
@@ -473,6 +628,8 @@ function buildEmailSubject({ decision, rollbackPerformed, metrics }) {
       return '[Systemhjälp] VARNING — tröskel närmar sig';
     case 'outcome_summary':
       return '[Systemhjälp] Första outcome-sammanställning';
+    case 'no_progress_outcome':
+      return '[Systemhjälp] Outcome: no_progress';
     case 'activity_summary':
       return '[Systemhjälp] Aktivitetssammanfattning';
     default:
@@ -494,6 +651,7 @@ async function loadPreviousState() {
 async function saveState(metrics, extra = {}) {
   const payload = {
     analytics_totals: metrics.analytics_totals,
+    analytics_outcome_totals: metrics.analytics_outcome_totals || { progressed: 0, no_progress: 0 },
     latest_support_message_id: metrics.latest_support_message_id,
     last_report_at: extra.last_report_at || null,
     last_rollback_at: extra.last_rollback_at || null,
@@ -623,4 +781,10 @@ module.exports = {
   saveState,
   hasMeaningfulActivityDelta,
   hasShownOnlyDelta,
+  outcomeBreakdownDelta,
+  isNoProgressOnlySummary,
+  formatDeltaLine,
+  formatRecentOutcomeLine,
+  PROGRESSED_EVENT,
+  PROGRESSED_OUTCOMES,
 };
