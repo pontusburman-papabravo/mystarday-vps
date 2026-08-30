@@ -60,12 +60,14 @@ describe('App Review IAP eligibility contract', () => {
 
   it('preview route remains admin-only and non-purchasable', () => {
     const routes = fs.readFileSync(path.join(__dirname, '../src/routes/index.js'), 'utf8');
-    assert.match(routes, /\/review\/subscription-preview/);
-    assert.match(routes, /requireAdmin/);
+    assert.match(routes, /app\.get\('\/review\/subscription-preview',\s*requireAdmin/);
     const previewJs = fs.readFileSync(path.join(__dirname, '../public/js/review-subscription-preview.js'), 'utf8');
-    assert.doesNotMatch(previewJs, /IAPManager/);
-    assert.doesNotMatch(previewJs, /purchasePackage/);
-    assert.doesNotMatch(previewJs, /\/api\/iap\/config/);
+    const executable = previewJs.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    assert.doesNotMatch(executable, /window\.IAPManager/);
+    assert.doesNotMatch(executable, /purchasePackage\s*\(/);
+    assert.doesNotMatch(executable, /\/api\/iap\/config/);
+    assert.doesNotMatch(executable, /Purchases\.configure/);
+    assert.doesNotMatch(executable, /restorePurchases\s*\(/);
   });
 
   it('ordinary family remains purchase-blocked under READY BUT OFF', async () => {

@@ -41,6 +41,9 @@
         "public/login.html",
         "public/register.html",
         "public/child-login.html",
+        "public/js/country-choice.js",
+        "public/js/registration-country-gate.js",
+        "public/js/register-apple-auth.js",
         "public/js/*login*.js",
         "public/js/*auth*.js",
         "public/js/parental-gate.js",
@@ -53,7 +56,8 @@
       "l1Tests": [
         "test/auth.test.js",
         "test/auth-integration.test.js",
-        "test/credential-leak-guard.test.js"
+        "test/credential-leak-guard.test.js",
+        "test/register-oauth-country-gate.test.js"
       ],
       "testGlobs": [
         "test/*auth*.test.js",
@@ -71,7 +75,8 @@
         "test/authz*.test.js",
         "test/credential-leak-guard.test.js",
         "test/r4-final-security-blockers.integration.test.js",
-        "test/r4-final-authority.integration.test.js"
+        "test/r4-final-authority.integration.test.js",
+        "test/register-oauth-country-gate.test.js"
       ]
     },
     "payments-iap": {
@@ -89,7 +94,8 @@
       "l1Tests": [
         "test/iap-config-route.test.js",
         "test/paywall-model-contract.test.js",
-        "test/iap-webhook.test.js"
+        "test/iap-webhook.test.js",
+        "test/iap-app-review-eligibility.test.js"
       ],
       "testGlobs": [
         "test/iap*.test.js",
