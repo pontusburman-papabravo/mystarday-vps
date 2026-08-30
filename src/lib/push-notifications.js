@@ -212,12 +212,23 @@ async function sendAPNs(deviceToken, { title, body, url }, deps = {}) {
     return deliveryFailure('not_configured');
   }
 
-  const signer = crypto.createSign('SHA256');
-  signer.update(signingInput);
-  const signature = signer.sign(privateKey, 'der'); // DER-encoded ECDSA signature
-  // Convert DER to raw r||s format (required by Apple)
-  const rawSig = derToRawEcdsa(signature, 32); // 32-byte r + 32-byte s for P-256
-  const jwt = `${signingInput}.${Buffer.from(rawSig).toString('base64url')}`;
+  let signature;
+  try {
+    const signer = crypto.createSign('SHA256');
+    signer.update(signingInput);
+    signature = signer.sign(privateKey);
+  } catch (err) {
+    console.error('[PUSH-APNs] Failed to sign APNs JWT: %s', err.message);
+    return deliveryFailure('not_configured');
+  }
+  let jwt;
+  try {
+    const rawSig = derToRawEcdsa(signature, 32);
+    jwt = `${signingInput}.${Buffer.from(rawSig).toString('base64url')}`;
+  } catch (err) {
+    console.error('[PUSH-APNs] Failed to encode APNs JWT: %s', err.message);
+    return deliveryFailure('not_configured');
+  }
 
   // ── Build APNs payload ─────────────────────────────────────────
   const apsPayload = {
