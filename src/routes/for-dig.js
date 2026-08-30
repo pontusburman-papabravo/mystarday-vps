@@ -7,6 +7,7 @@
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
+const authz = require('../middleware/authz');
 const db = require('../lib/db');
 const { validateLocale } = require('../lib/locale');
 const analytics = require('../../db/analytics');
@@ -50,7 +51,7 @@ router.get('/goals', async (req, res) => {
 
 router.get('/installs', async (req, res) => {
   try {
-    const rows = await feedbackDb.getInstallsForFamily(req.user.familyId);
+    const rows = await feedbackDb.getInstallsForParent(req.user.id);
     res.json({ installs: rows });
   } catch (err) {
     console.error('[FOR-DIG] installs error:', err);
@@ -147,6 +148,13 @@ router.post('/feedback', async (req, res) => {
   }
 
   try {
+    if (childId) {
+      const child = await authz.getChildAccess(req.user.id, childId);
+      if (!child) {
+        return res.status(403).json({ error: 'Du har inte åtkomst till ett av valda barn.' });
+      }
+    }
+
     await feedbackDb.insertFeedback({
       familyId: req.user.familyId,
       parentId: req.user.id,

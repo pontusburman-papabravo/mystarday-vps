@@ -71,12 +71,16 @@ async function logInstall(goalSlug, familyId, childId, parentId = null) {
   );
 }
 
-async function getInstallsForFamily(familyId) {
+async function getInstallsForParent(parentId) {
   const result = await db.query(
-    `SELECT goal_slug, child_id, installed_at
-     FROM for_dig_goal_install
-     WHERE family_id = $1`,
-    [familyId]
+    `SELECT i.goal_slug, i.child_id, i.installed_at
+     FROM for_dig_goal_install i
+     JOIN parent_child pc
+       ON pc.child_id = i.child_id
+      AND pc.parent_id = $1
+      AND pc.revoked_at IS NULL
+     ORDER BY i.installed_at DESC`,
+    [parentId]
   );
   return result.rows;
 }
@@ -464,7 +468,7 @@ module.exports = {
   insertFeedback,
   clearFeedbackForReactivation,
   logInstall,
-  getInstallsForFamily,
+  getInstallsForParent,
   getPendingOutcomes,
   getAdminStats,
   listResponses,
