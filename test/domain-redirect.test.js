@@ -105,3 +105,12 @@ test('redirect contract: bare .app apex is served without redirect loop', () => 
   assert.equal(status, undefined);
   assert.equal(location, undefined);
 });
+
+test('domain redirect strips pin query keys', () => {
+  const { status, location } = runRedirect(`www.${MAIN_DOMAIN}`, '/child-wizard?id=abc&pin=2580&name=A');
+  assert.equal(status, 301);
+  assert.equal(location.includes('pin='), false);
+  assert.equal(location.includes('2580'), false);
+  assert.ok(location.includes('/child-wizard'));
+  assert.ok(location.includes('id=abc'));
+});

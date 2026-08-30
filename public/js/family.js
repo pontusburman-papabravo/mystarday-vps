@@ -1201,7 +1201,7 @@
         document.querySelectorAll('.add-emoji-opt').forEach(b => b.classList.remove('border-gold', 'bg-gold-light'));
         // Redirect to wizard onboarding so parent can review the seeded schedule
         if (data.wizard && data.id) {
-          window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
+          window.location.href = `/child-wizard?id=${data.id}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
           return;
         }
         const pinMsg = data && data.pin ? ` PIN: ${data.pin}` : '';

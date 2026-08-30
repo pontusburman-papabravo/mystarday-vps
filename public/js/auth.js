@@ -549,11 +549,31 @@ const Auth = {
   /**
    * Redirect to appropriate dashboard based on user type.
    */
+  _sanitizeReturnUrl(raw) {
+    if (typeof window !== 'undefined' && typeof window.sanitizeReturnUrl === 'function') {
+      return window.sanitizeReturnUrl(raw);
+    }
+    if (!raw || typeof raw !== 'string') return '/';
+    if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+    return raw.split('?')[0] || '/';
+  },
+
+  _currentSafeReturnPath() {
+    if (typeof window !== 'undefined' && typeof window.currentSafeReturnPath === 'function') {
+      return window.currentSafeReturnPath();
+    }
+    return this._sanitizeReturnUrl(
+      (typeof window !== 'undefined' && window.location)
+        ? window.location.pathname + window.location.search
+        : '/'
+    );
+  },
+
   _getLoginNextUrlFromLocation() {
     try {
       const next = new URLSearchParams(window.location.search).get('next');
       if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
-      return next;
+      return this._sanitizeReturnUrl(next);
     } catch (_) {
       return null;
     }
@@ -796,7 +816,9 @@ const Auth = {
     const intentApi = window.ParentBackupLoginIntent;
     const canonical = intentApi && typeof intentApi.canonicalizeParentPath === 'function'
       ? intentApi.canonicalizeParentPath(nextPath)
-      : ((nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) ? nextPath : '/dashboard');
+      : this._sanitizeReturnUrl(
+        (nextPath && nextPath.startsWith('/') && !nextPath.startsWith('//')) ? nextPath : '/dashboard'
+      );
     if (intentApi && typeof intentApi.storeIntent === 'function') {
       intentApi.storeIntent(canonical);
     } else if (window.AppEntryOrchestrator
@@ -1615,9 +1637,8 @@ const Auth = {
         if (overlayRestorePending) return;
         if (overlay.parentNode) document.body.removeChild(overlay);
         const backupNext = opts.backupNext
-          || ((typeof window !== 'undefined' && window.location)
-            ? window.location.pathname + window.location.search
-            : '/home');
+          || Auth._currentSafeReturnPath()
+          || '/home';
         Auth.redirectToParentBackupLogin(backupNext);
       });
       card.appendChild(forgotBtn);
@@ -1815,18 +1836,18 @@ window.authGuard = async function() {
         return restored.user;
       }
       if (restored.code === 'PARENT_PIN_REQUIRED') {
-        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        const next = encodeURIComponent(Auth._currentSafeReturnPath());
         window.location.href = '/login?parent=1&next=' + next;
         return null;
       }
       if (restored.code === 'NO_SAVED_PARENT_SESSION') {
         Auth.clearAuth();
-        const next = encodeURIComponent(window.location.pathname + window.location.search);
+        const next = encodeURIComponent(Auth._currentSafeReturnPath());
         window.location.href = '/login?next=' + next;
         return null;
       }
       Auth.clearAuth();
-      window.location.href = '/login?parent=1&next=' + encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.href = '/login?parent=1&next=' + encodeURIComponent(Auth._currentSafeReturnPath());
       return null;
     }
     if (redirectIncompleteOnboarding(user)) return null;

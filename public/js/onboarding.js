@@ -922,16 +922,19 @@ async function emailLoginInfo() {
     const brand = tOnboarding('onboarding.common.brand');
     const appUrl = window.location.origin;
     const subject = encodeURIComponent(tOnboarding('onboarding.handoff.emailSubject', { brand, childName }));
-    const body = encodeURIComponent(
-      tOnboarding('onboarding.handoff.emailBody', {
-        brand,
-        childName,
-        username: childUsername,
-        pin: childPin,
-        appUrl,
-      })
-    );
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    const text = tOnboarding('onboarding.handoff.emailBody', {
+      brand,
+      childName,
+      username: childUsername,
+      pin: childPin,
+      appUrl,
+    });
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (_err) {
+      alert(tOnboarding('onboarding.handoff.copyManual', { text }));
+    }
+    window.location.href = `mailto:${email}?subject=${subject}`;
   } catch {
     alert(tOnboarding('onboarding.handoff.emailFallbackAlert', {
       childName,
@@ -1633,7 +1636,9 @@ function trackLegacyOnboardingIfNeeded() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const addChildReturnUrl = window.location.pathname + window.location.search;
+  const addChildReturnUrl = (typeof currentSafeReturnPath === 'function')
+    ? currentSafeReturnPath()
+    : window.location.pathname;
   const resumeHandoff = !IS_ADD_CHILD &&
     window.OnboardingHandoffResume &&
     typeof OnboardingHandoffResume.isResumeHandoffQuery === 'function' &&

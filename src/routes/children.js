@@ -21,6 +21,7 @@ const { getChildrenForParent } = require('../../db/parent-access');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { avatarApiFields } = require('../lib/avatar-api');
 const childDeletion = require('../lib/child-deletion');
+const wizardPinReveal = require('../lib/wizard-pin-reveal');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { resolveDefaultScheduleName, seedChildDefaultSchedule } = require('../lib/seed-child-default-schedule');
 const {
@@ -501,6 +502,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
       const defaultScheduleName = resolveDefaultScheduleName(birthday);
 
       await client.query('COMMIT');
+      wizardPinReveal.rememberCreatedPin(child.id, req.user.id, rawPin);
 
       // Schedule seeding is best-effort — child must exist even if library/schema seeding fails.
       let seeded = false;
@@ -887,6 +889,25 @@ router.post('/:id/unlock-pin', validateParams(UUIDParam), requireChildAccess('id
     res.json({ message: 'Låsning upphävd. Barnet kan logga in igen.' });
   } catch (err) {
     console.error('[CHILDREN] Unlock PIN error:', err);
+    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  }
+});
+
+// ─── GET /api/children/:id/wizard-pin ───────────────────
+// One-time plaintext PIN reveal after create. Never accepted from URL.
+router.get('/:id/wizard-pin', validateParams(UUIDParam), async (req, res) => {
+  try {
+    const access = await getChildAccess(req.user.id, req.params.id);
+    if (!access) {
+      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    }
+    const pin = wizardPinReveal.consumeCreatedPin(req.params.id, req.user.id);
+    if (!pin) {
+      return res.status(404).json({ error: 'PIN är inte tillgänglig' });
+    }
+    res.json({ pin });
+  } catch (err) {
+    console.error('[CHILDREN] wizard-pin error:', err.message);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
   }
 });

@@ -534,8 +534,8 @@
       if (statusResult.body && statusResult.body.pinRequiredForUnlock === false) {
         return Promise.reject(new Error('ADULT_PIN_SETUP_REQUIRED'));
       }
-      const backupNext = (typeof window !== 'undefined' && window.location)
-        ? window.location.pathname + window.location.search
+      const backupNext = (typeof window !== 'undefined' && typeof window.currentSafeReturnPath === 'function')
+        ? window.currentSafeReturnPath()
         : '/home';
       return runPinGate({ allowBackupLogin: true, backupNext: backupNext });
     }).then(function (pinResult) {

@@ -6,6 +6,7 @@
 
 const familySubscriptions = require('../../db/family-subscriptions');
 const { hasPremiumAccess } = require('../lib/family-entitlements');
+const { sanitizeReturnUrl } = require('../lib/sanitize-return-url');
 
 /**
  * Redirect HTML navigations when the family lacks a subscription component.
@@ -17,7 +18,7 @@ function gateComponentHtml(componentName, fallbackPath = '/upgrade') {
 
     const familyId = req.user?.familyId || req.user?.family_id;
     if (!familyId) {
-      const nextUrl = req.originalUrl || '/';
+      const nextUrl = sanitizeReturnUrl(req.originalUrl || '/');
       return res.redirect('/login?next=' + encodeURIComponent(nextUrl));
     }
 

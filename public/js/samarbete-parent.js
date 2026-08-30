@@ -15,7 +15,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (tookOver) return;
     }
     window.location.href = '/login?next=' + encodeURIComponent(
-      '/samarbete' + window.location.search
+      (typeof sanitizeReturnUrl === 'function')
+        ? sanitizeReturnUrl('/samarbete' + window.location.search)
+        : '/samarbete'
     );
     return;
   }
