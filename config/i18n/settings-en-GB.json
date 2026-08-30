@@ -5,7 +5,7 @@
   "familySettings": "Family settings",
   "groups": {
     "profile": { "title": "Profile & account", "sub": "Login, PIN and account" },
-    "family": { "title": "Family", "sub": "Add adult, names and educators" },
+    "family": { "title": "Family", "sub": "Name and language. People are managed under Family." },
     "device": { "title": "This device", "sub": "Child phone, adult phone or shared phone" },
     "appearance": { "title": "Appearance", "sub": "Dark or light theme" },
     "app": { "title": "App", "sub": "Notifications, push and privacy" },

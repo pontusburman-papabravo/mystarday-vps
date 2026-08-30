@@ -230,19 +230,13 @@
     if (modal) modal.classList.add('hidden');
   }
 
-  function shouldShowInvite(me, fam) {
-    if (!me || me.account_type === 'educator') return false;
-    const parentCount = (fam && fam.parents) ? fam.parents.length : 0;
-    return parentCount < 2;
-  }
-
   function initSettingsSection(me, fam) {
     const section = global.document.getElementById('coParentInviteSection');
     const hr = global.document.getElementById('coParentInviteHr');
     const openBtn = global.document.getElementById('coParentInviteOpenBtn');
     if (!section) return;
 
-    if (!shouldShowInvite(me, fam)) return;
+    if (!me || me.account_type === 'educator') return;
 
     section.classList.remove('hidden');
     if (hr) hr.classList.remove('hidden');
@@ -256,7 +250,7 @@
       hint.classList.remove('hidden');
     }
 
-    if (openBtn && !_settingsBound) {
+    if (openBtn && openBtn.tagName === 'BUTTON' && !_settingsBound) {
       _settingsBound = true;
       openBtn.addEventListener('click', function () {
         openCoParentInviteModal();

@@ -372,54 +372,25 @@
 
         <hr class="border-lavender">
 
-        <!-- Medförälder / lägg till vuxen -->
-        <section id="coParentInviteSection" class="hidden">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Lägg till vuxen</h3>
-          <p class="text-sm text-text-soft mb-3">Bjud in en medförälder via e-post. Hen får en länk och skapar själv sitt lösenord.</p>
+        <!-- People/access live on Familj — Settings only links there (E1+E3). -->
+        <section id="coParentInviteSection" class="hidden" data-settings-people="family">
+          <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Vuxna och åtkomst</h3>
+          <p class="text-sm text-text-soft mb-3">Bjud in medförälder och se vem som har tillgång under Familj.</p>
           <p id="coParentInvitePendingHint" class="text-sm text-text-soft mb-3 hidden"></p>
-          <button type="button" id="coParentInviteOpenBtn"
-            class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
-            + Lägg till vuxen
-          </button>
+          <a href="/family" id="coParentInviteOpenBtn"
+            class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            Öppna Familj
+          </a>
         </section>
 
         <hr class="border-lavender hidden" id="coParentInviteHr">
 
-        <!-- Pedagog Invite — only shown to primary parents -->
-        <section id="pedagogInviteSection" class="hidden">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👩‍🏫 Pedagog-inbjudan</h3>
-          <p class="text-sm text-text-soft mb-4">Bjud in en pedagog (förskola, skola, terapeut) att lägga till observationer för ett eller flera barn.</p>
-
-          <!-- Invite form -->
-          <form id="pedagogInviteForm" class="space-y-3 mb-4 p-4 bg-sky rounded-xl">
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Barn att dela med pedagogen</label>
-              <div id="pedagogChildCheckboxes" class="space-y-2"></div>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">E-postadress</label>
-              <input type="email" id="pedagogEmail" required placeholder="pedagog@forskola.se"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Namn (valfritt)</label>
-              <input type="text" id="pedagogName" placeholder="T.ex. Lisa Andersson"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-              Skicka inbjudan
-            </button>
-            <div id="pedagogInviteMsg" class="text-sm min-h-[1.2em]"></div>
-          </form>
-
-          <!-- Connected pedagogen -->
-          <div id="pedagogList" class="space-y-3 mb-4"></div>
-
-          <!-- Pending invites -->
-          <div id="pedagogPendingSection" class="hidden">
-            <h4 class="text-sm font-semibold text-text-soft uppercase tracking-wide mb-2">Väntande inbjudningar</h4>
-            <div id="pedagogPendingList" class="space-y-2"></div>
-          </div>
+        <section id="pedagogInviteSection" class="hidden" data-settings-people="pedagog">
+          <h3 class="text-xl font-heading font-bold text-navy mb-2">👩‍🏫 Pedagoger</h3>
+          <p class="text-sm text-text-soft mb-4">Pedagoginbjudningar och åtkomst hanteras under Familj.</p>
+          <a href="/family" class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            Öppna Familj
+          </a>
         </section>
 
         <hr class="border-lavender">
@@ -1418,6 +1389,15 @@
     // ── Pedagog invite section ──────────────────────────────────────────
     async function initPedagogInviteSection() {
       const section = document.getElementById('pedagogInviteSection');
+      if (!section) return;
+      if (!document.getElementById('pedagogInviteForm')) {
+        try {
+          const me = await Auth.api('/api/auth/me');
+          if (me.account_type === 'educator') return;
+        } catch (_) { /* still offer the Familj link */ }
+        section.classList.remove('hidden');
+        return;
+      }
       const checkboxesEl = document.getElementById('pedagogChildCheckboxes');
       const listEl = document.getElementById('pedagogList');
       const pendingSection = document.getElementById('pedagogPendingSection');
