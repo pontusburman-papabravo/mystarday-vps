@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta property="og:title" content="Min Stjärndag — Notis-arkiv">
-  <meta property="og:description" content="Dina senaste meddelanden och notiser">
+  <meta property="og:description" content="Lyckade push-notiser de senaste 7 dagarna">
   <meta property="og:type" content="website">
   <title>Notis-arkiv - Min Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,7 +60,7 @@
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex items-center justify-between parent-magic-legacy-hide">
         <div>
           <h2 class="text-xl font-heading font-bold text-navy">🔔 Notis-arkiv</h2>
-          <p class="text-sm text-text-soft mt-1">Dina senaste 7 dagarnas meddelanden</p>
+          <p class="text-sm text-text-soft mt-1">Lyckade push-notiser de senaste 7 dagarna</p>
         </div>
         <button id="markAllReadBtn"
           class="hidden px-4 py-2 text-sm bg-navy text-white rounded-lg hover:bg-navy-soft transition-colors font-semibold">
@@ -69,24 +69,28 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1 p-4 md:p-8 max-w-2xl w-full">
+      <div id="notiserRoot" class="flex-1 p-4 md:p-8 max-w-2xl w-full" data-notiser-state="loading">
 
         <!-- Loading state -->
         <div id="loadingState" class="flex flex-col items-center justify-center py-16 text-text-soft">
           <div class="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p class="text-sm">Hämtar meddelanden…</p>
+          <p class="text-sm">Hämtar push-arkiv…</p>
         </div>
 
         <!-- Error state -->
         <div id="errorState" class="hidden bg-coral rounded-xl p-4 text-sm text-navy">
-          Kunde inte ladda meddelanden. Försök igen om en stund.
+          <p>Kunde inte ladda push-arkivet. Det betyder inte att du saknar notiser.</p>
+          <button type="button" id="notiserRetryBtn"
+            class="mt-3 px-4 py-2 text-sm bg-navy text-white rounded-lg font-semibold min-h-[44px]">
+            Försök igen
+          </button>
         </div>
 
         <!-- Empty state -->
         <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 text-center">
           <div class="text-5xl mb-4">🔔</div>
-          <p class="text-lg font-heading font-bold text-navy mb-2">Inga meddelanden</p>
-          <p class="text-sm text-text-soft">Inga meddelanden de senaste 7 dagarna.<br>Push-notiser sparas här när du tar emot dem.</p>
+          <p class="text-lg font-heading font-bold text-navy mb-2">Inga push-notiser</p>
+          <p class="text-sm text-text-soft">Inga lyckade push-notiser de senaste 7 dagarna.<br>Misslyckade eller avstängda utskick visas inte här.</p>
         </div>
 
         <!-- Notification list -->
@@ -222,44 +226,42 @@
       document.getElementById('markAllReadBtn').classList.toggle('hidden', !hasUnread);
     }
 
+    function setNotiserState(state) {
+      const root = document.getElementById('notiserRoot');
+      if (root) root.dataset.notiserState = state;
+      document.getElementById('loadingState').classList.toggle('hidden', state !== 'loading');
+      document.getElementById('errorState').classList.toggle('hidden', state !== 'error');
+      document.getElementById('emptyState').classList.toggle('hidden', state !== 'empty');
+      document.getElementById('notificationList').classList.toggle('hidden', state !== 'items');
+    }
+
     // ── Load and render ──────────────────────────────────────
     async function loadNotifications() {
-      const loading = document.getElementById('loadingState');
-      const error   = document.getElementById('errorState');
-      const empty   = document.getElementById('emptyState');
-      const list    = document.getElementById('notificationList');
-
-      loading.classList.remove('hidden');
-      error.classList.add('hidden');
-      empty.classList.add('hidden');
-      list.classList.add('hidden');
+      const list = document.getElementById('notificationList');
+      setNotiserState('loading');
 
       let notifications;
       try {
         notifications = await Auth.api('/api/notifications');
       } catch (err) {
-        loading.classList.add('hidden');
-        error.classList.remove('hidden');
+        setNotiserState('error');
         return;
       }
 
-      loading.classList.add('hidden');
+      if (!Array.isArray(notifications)) {
+        setNotiserState('error');
+        return;
+      }
 
-      if (!notifications || notifications.length === 0) {
-        empty.classList.remove('hidden');
+      if (notifications.length === 0) {
+        setNotiserState('empty');
         return;
       }
 
       list.innerHTML = notifications.map(buildCard).join('');
-      list.classList.remove('hidden');
+      setNotiserState('items');
 
       updateMarkAllBtn();
-
-      // Click to mark as read
-      list.addEventListener('click', (e) => {
-        const card = e.target.closest('.notification-card');
-        if (card) markRead(card.dataset.id);
-      });
     }
 
     // ── Init ─────────────────────────────────────────────────
@@ -276,6 +278,11 @@
       });
 
       document.getElementById('markAllReadBtn').addEventListener('click', markAllRead);
+      document.getElementById('notiserRetryBtn').addEventListener('click', loadNotifications);
+      document.getElementById('notificationList').addEventListener('click', (e) => {
+        const card = e.target.closest('.notification-card');
+        if (card) markRead(card.dataset.id);
+      });
 
       await loadNotifications();
     });

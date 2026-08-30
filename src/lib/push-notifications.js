@@ -109,7 +109,7 @@ async function sendPushNotification(parentId, { title, body, icon, url, type = '
 
   const totalSent = webSent + nativeSent;
 
-  // Archive notification for the parent's inbox (best-effort — never block send)
+  // Archive only successful deliveries (best-effort — never block send)
   if (totalSent > 0) {
     notificationLog.logNotification(parentId, { title, body, type, url, metadata }).catch((err) => {
       console.error('[PUSH] Failed to log notification to archive:', err.message);
