@@ -384,6 +384,7 @@ async function finalizeNoProgressOutcomes(now = new Date()) {
     if (!stuck.blockingStep) continue;
     const row = await helpDb.markNoProgress(candidate.family_id);
     if (!row) continue;
+    // Same event name as milestone progress — ops report splits on metadata.outcome.
     analytics.track(row.family_id, 'system_help_progressed', {
       blocking_step: row.blocking_step,
       help_type: row.help_type,
