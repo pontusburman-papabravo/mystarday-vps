@@ -104,6 +104,61 @@ async function hardDeleteChildData(client, childId) {
 }
 
 /**
+ * Pending invites store child UUIDs in arrays with no FK. Empty family
+ * child_ids means "all remaining children" on accept — never leave that
+ * after deleting the only invited child. Accepted rows are left alone.
+ * @param {import('pg').PoolClient} client
+ */
+async function cleanupPendingInviteChildRefs(client, childId) {
+  await client.query(
+    `SELECT id FROM family_invite
+     WHERE accepted = false AND $1::uuid = ANY(child_ids)
+     ORDER BY id
+     FOR UPDATE`,
+    [childId]
+  );
+  await client.query(
+    `SELECT id FROM pedagog_invite
+     WHERE accepted = false AND $1::uuid = ANY(child_ids)
+     ORDER BY id
+     FOR UPDATE`,
+    [childId]
+  );
+
+  await client.query(
+    `UPDATE family_invite
+     SET child_ids = array_remove(child_ids, $1::uuid)
+     WHERE accepted = false
+       AND $1::uuid = ANY(child_ids)
+       AND cardinality(array_remove(child_ids, $1::uuid)) > 0`,
+    [childId]
+  );
+  await client.query(
+    `DELETE FROM family_invite
+     WHERE accepted = false
+       AND $1::uuid = ANY(child_ids)
+       AND cardinality(array_remove(child_ids, $1::uuid)) = 0`,
+    [childId]
+  );
+
+  await client.query(
+    `UPDATE pedagog_invite
+     SET child_ids = array_remove(child_ids, $1::uuid)
+     WHERE accepted = false
+       AND $1::uuid = ANY(child_ids)
+       AND cardinality(array_remove(child_ids, $1::uuid)) > 0`,
+    [childId]
+  );
+  await client.query(
+    `DELETE FROM pedagog_invite
+     WHERE accepted = false
+       AND $1::uuid = ANY(child_ids)
+       AND cardinality(array_remove(child_ids, $1::uuid)) = 0`,
+    [childId]
+  );
+}
+
+/**
  * Transaction-scoped child deletion. Caller owns the client and must COMMIT
  * only via this function. Denied/not-found paths ROLLBACK.
  *
@@ -139,6 +194,7 @@ async function performChildDeletionInTransaction(client, { callerParentId, calle
     }
 
     const key = await module.exports.collectChildAvatarStorageKey(client, childId);
+    await module.exports.cleanupPendingInviteChildRefs(client, childId);
     await module.exports.hardDeleteChildData(client, childId);
     await client.query('COMMIT');
     return {
@@ -159,6 +215,7 @@ async function cleanupAvatarStorageKeysAfterCommit(keys) {
 module.exports = {
   callerHasActivePrimaryForChild,
   collectChildAvatarStorageKey,
+  cleanupPendingInviteChildRefs,
   hardDeleteChildData,
   performChildDeletionInTransaction,
   cleanupAvatarStorageKeysAfterCommit,

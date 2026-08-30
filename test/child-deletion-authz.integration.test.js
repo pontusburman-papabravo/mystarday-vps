@@ -145,6 +145,33 @@ async function familyMemberSnapshot(db, familyId) {
   };
 }
 
+async function insertPendingFamilyInvite(db, { familyId, email, childIds, accepted = false }) {
+  const token = `p02-fi-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const row = await db.query(
+    `INSERT INTO family_invite (family_id, email, child_ids, token, expires_at, accepted, invitee_name)
+     VALUES ($1, $2, $3::uuid[], $4, NOW() + INTERVAL '7 days', $5, 'Invitee')
+     RETURNING id, token, child_ids, accepted`,
+    [familyId, email.toLowerCase(), childIds, token, accepted]
+  );
+  return row.rows[0];
+}
+
+async function insertPendingPedagogInvite(db, { familyId, inviterParentId, email, childIds }) {
+  const token = `p02-pi-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const row = await db.query(
+    `INSERT INTO pedagog_invite
+       (family_id, inviter_parent_id, email, invitee_name, child_ids, token, expires_at, accepted)
+     VALUES ($1, $2, $3, 'Pedagog Invitee', $4::uuid[], $5, NOW() + INTERVAL '7 days', false)
+     RETURNING id, token, child_ids, accepted`,
+    [familyId, inviterParentId, email.toLowerCase(), childIds, token]
+  );
+  return row.rows[0];
+}
+
+function sortedIds(ids) {
+  return [...(ids || [])].map(String).sort();
+}
+
 async function seedChildDependents(db, childId) {
   await db.query(
     `INSERT INTO daily_log (child_id, date) VALUES ($1, CURRENT_DATE)
@@ -662,6 +689,264 @@ describe('P0.2 child deletion avatar + concurrency', () => {
   });
 });
 
+describe('P0.2 pending invite child_ids integrity', () => {
+  test('family invite with [A, B] keeps B only and acceptance grants B only', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'InviteMulti' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childA = await createChild(http.baseUrl, primary, { name: 'A', emoji: '🅰️' });
+      const childB = await createChild(http.baseUrl, primary, { name: 'B', emoji: '🅱️' });
+      const inviteEmail = `fam-multi-${Date.now()}@example.com`;
+      const invite = await insertPendingFamilyInvite(db, {
+        familyId,
+        email: inviteEmail,
+        childIds: [childA, childB],
+      });
+      const stayInvite = await insertPendingFamilyInvite(db, {
+        familyId,
+        email: `fam-stay-${Date.now()}@example.com`,
+        childIds: [childB],
+      });
+
+      const delRes = await deleteChild(http.baseUrl, primary, childA, FAMILY_PATH);
+      assert.equal(delRes.status, 200, await delRes.text());
+      assert.equal((await childStateSnapshot(db, childA)).exists, false);
+      assert.equal((await childStateSnapshot(db, childB)).exists, true);
+
+      const after = await db.query(
+        'SELECT id, child_ids, accepted FROM family_invite WHERE id = $1',
+        [invite.id]
+      );
+      assert.equal(after.rows.length, 1);
+      assert.equal(after.rows[0].accepted, false);
+      assert.deepEqual(sortedIds(after.rows[0].child_ids), [childB]);
+      const stay = await db.query('SELECT child_ids FROM family_invite WHERE id = $1', [stayInvite.id]);
+      assert.deepEqual(sortedIds(stay.rows[0].child_ids), [childB]);
+
+      const acceptRes = await fetch(`${http.baseUrl}/api/family/invite/accept-new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: invite.token, password: 'coparent-pass-12' }),
+      });
+      assert.equal(acceptRes.status, 201, await acceptRes.text());
+      const newParentId = await lookupParentId(db, inviteEmail);
+      const links = await db.query(
+        `SELECT child_id, role, revoked_at IS NOT NULL AS revoked
+         FROM parent_child WHERE parent_id = $1 ORDER BY child_id`,
+        [newParentId]
+      );
+      assert.deepEqual(links.rows.map((r) => r.child_id), [childB]);
+      assert.ok(links.rows.every((r) => !r.revoked));
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('family invite with only deleted child is removed and cannot expand to all children', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'InviteSolo' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const childA = await createChild(http.baseUrl, primary, { name: 'A', emoji: '🅰️' });
+      const childB = await createChild(http.baseUrl, primary, { name: 'B', emoji: '🅱️' });
+      const inviteEmail = `fam-solo-${Date.now()}@example.com`;
+      const invite = await insertPendingFamilyInvite(db, {
+        familyId,
+        email: inviteEmail,
+        childIds: [childA],
+      });
+
+      const delRes = await deleteChild(http.baseUrl, primary, childA, CHILDREN_PATH);
+      assert.equal(delRes.status, 200, await delRes.text());
+
+      const leftover = await db.query(
+        'SELECT id, child_ids, accepted FROM family_invite WHERE id = $1 OR token = $2',
+        [invite.id, invite.token]
+      );
+      assert.equal(leftover.rows.length, 0);
+      const emptyPending = await db.query(
+        `SELECT id FROM family_invite
+         WHERE family_id = $1 AND accepted = false AND COALESCE(cardinality(child_ids), 0) = 0`,
+        [familyId]
+      );
+      assert.equal(emptyPending.rows.length, 0);
+
+      const acceptRes = await fetch(`${http.baseUrl}/api/family/invite/accept-new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: invite.token, password: 'coparent-pass-12' }),
+      });
+      assert.ok(acceptRes.status === 404 || acceptRes.status === 400, await acceptRes.text());
+      const sneakyParent = await db.query(
+        'SELECT id FROM parent WHERE LOWER(email) = $1',
+        [inviteEmail]
+      );
+      assert.equal(sneakyParent.rows.length, 0);
+      const bLinks = await db.query(
+        'SELECT parent_id FROM parent_child WHERE child_id = $1',
+        [childB]
+      );
+      const primaryId = await lookupParentId(db, primary.email);
+      assert.deepEqual(bLinks.rows.map((r) => r.parent_id), [primaryId]);
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('pedagog invite with [A, B] keeps B only', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'PedMulti' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const primaryId = await lookupParentId(db, primary.email);
+      const childA = await createChild(http.baseUrl, primary, { name: 'A', emoji: '🅰️' });
+      const childB = await createChild(http.baseUrl, primary, { name: 'B', emoji: '🅱️' });
+      const invite = await insertPendingPedagogInvite(db, {
+        familyId,
+        inviterParentId: primaryId,
+        email: `ped-multi-${Date.now()}@example.com`,
+        childIds: [childA, childB],
+      });
+
+      const delRes = await deleteChild(http.baseUrl, primary, childA, FAMILY_PATH);
+      assert.equal(delRes.status, 200, await delRes.text());
+
+      const after = await db.query(
+        'SELECT id, child_ids, accepted FROM pedagog_invite WHERE id = $1',
+        [invite.id]
+      );
+      assert.equal(after.rows.length, 1);
+      assert.equal(after.rows[0].accepted, false);
+      assert.deepEqual(sortedIds(after.rows[0].child_ids), [childB]);
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('pedagog invite with only deleted child is removed', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'PedSolo' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const primaryId = await lookupParentId(db, primary.email);
+      const childA = await createChild(http.baseUrl, primary, { name: 'A', emoji: '🅰️' });
+      await createChild(http.baseUrl, primary, { name: 'B', emoji: '🅱️' });
+      const invite = await insertPendingPedagogInvite(db, {
+        familyId,
+        inviterParentId: primaryId,
+        email: `ped-solo-${Date.now()}@example.com`,
+        childIds: [childA],
+      });
+
+      const delRes = await deleteChild(http.baseUrl, primary, childA, CHILDREN_PATH);
+      assert.equal(delRes.status, 200, await delRes.text());
+
+      const leftover = await db.query(
+        'SELECT id, child_ids FROM pedagog_invite WHERE id = $1 OR token = $2',
+        [invite.id, invite.token]
+      );
+      assert.equal(leftover.rows.length, 0);
+      const emptyPending = await db.query(
+        `SELECT id FROM pedagog_invite
+         WHERE family_id = $1 AND accepted = false AND COALESCE(cardinality(child_ids), 0) = 0`,
+        [familyId]
+      );
+      assert.equal(emptyPending.rows.length, 0);
+    } finally {
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('rollback after invite cleanup leaves invites and child unchanged', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    let http;
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    const origHardDelete = childDeletion.hardDeleteChildData;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    childDeletion.hardDeleteChildData = async () => {
+      throw new Error('forced child delete failure after invite cleanup');
+    };
+    try {
+      const { createApp } = require('../app');
+      http = await listenApp(createApp);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'InviteRollback' });
+      const familyId = await lookupFamilyId(db, primary.email);
+      const primaryId = await lookupParentId(db, primary.email);
+      const childA = await createChild(http.baseUrl, primary, { name: 'A', emoji: '🅰️' });
+      const childB = await createChild(http.baseUrl, primary, { name: 'B', emoji: '🅱️' });
+      const childKey = `avatars-private/p02-invite-rollback-${childA}.jpg`;
+      await db.query('UPDATE child SET avatar_storage_key = $2 WHERE id = $1', [childA, childKey]);
+      const familyInvite = await insertPendingFamilyInvite(db, {
+        familyId,
+        email: `fam-rb-${Date.now()}@example.com`,
+        childIds: [childA, childB],
+      });
+      const pedagogInvite = await insertPendingPedagogInvite(db, {
+        familyId,
+        inviterParentId: primaryId,
+        email: `ped-rb-${Date.now()}@example.com`,
+        childIds: [childA],
+      });
+      const beforeFamily = await db.query(
+        'SELECT id, child_ids, accepted FROM family_invite WHERE id = $1',
+        [familyInvite.id]
+      );
+      const beforePedagog = await db.query(
+        'SELECT id, child_ids, accepted FROM pedagog_invite WHERE id = $1',
+        [pedagogInvite.id]
+      );
+      const beforeChild = await childStateSnapshot(db, childA);
+
+      const delRes = await deleteChild(http.baseUrl, primary, childA, FAMILY_PATH);
+      assert.equal(delRes.status, 500, await delRes.text());
+      assert.deepEqual(await childStateSnapshot(db, childA), beforeChild);
+      const afterFamily = await db.query(
+        'SELECT id, child_ids, accepted FROM family_invite WHERE id = $1',
+        [familyInvite.id]
+      );
+      const afterPedagog = await db.query(
+        'SELECT id, child_ids, accepted FROM pedagog_invite WHERE id = $1',
+        [pedagogInvite.id]
+      );
+      assert.deepEqual(sortedIds(afterFamily.rows[0].child_ids), sortedIds(beforeFamily.rows[0].child_ids));
+      assert.equal(afterFamily.rows[0].accepted, beforeFamily.rows[0].accepted);
+      assert.deepEqual(sortedIds(afterPedagog.rows[0].child_ids), sortedIds(beforePedagog.rows[0].child_ids));
+      assert.equal(afterPedagog.rows.length, 1);
+      assert.deepEqual(deleted, []);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      childDeletion.hardDeleteChildData = origHardDelete;
+      if (http) await http.close();
+      await db.cleanup();
+    }
+  });
+});
+
 describe('P0.2 static contracts', () => {
   test('both DELETE routes use the canonical helper and post-COMMIT cleanup', () => {
     const familySrc = fs.readFileSync(path.join(ROOT, 'src/routes/family/members.js'), 'utf8');
@@ -673,13 +958,16 @@ describe('P0.2 static contracts', () => {
       assert.doesNotMatch(src, /deleteAvatarForChildRecord/);
     }
     assert.match(helperSrc, /collectChildAvatarStorageKey/);
+    assert.match(helperSrc, /cleanupPendingInviteChildRefs/);
     assert.match(helperSrc, /hardDeleteChildData/);
     assert.match(helperSrc, /revoked_at IS NULL/);
     assert.match(helperSrc, /role = 'primary'/);
-    const collectIdx = helperSrc.indexOf('collectChildAvatarStorageKey');
-    const deleteIdx = helperSrc.indexOf('hardDeleteChildData');
-    const commitIdx = helperSrc.indexOf("await client.query('COMMIT')");
-    assert.ok(collectIdx > 0 && deleteIdx > collectIdx);
+    const performSrc = helperSrc.slice(helperSrc.indexOf('async function performChildDeletionInTransaction'));
+    const collectIdx = performSrc.indexOf('collectChildAvatarStorageKey');
+    const inviteIdx = performSrc.indexOf('cleanupPendingInviteChildRefs');
+    const deleteIdx = performSrc.indexOf('hardDeleteChildData');
+    const commitIdx = performSrc.indexOf("await client.query('COMMIT')");
+    assert.ok(collectIdx > 0 && inviteIdx > collectIdx && deleteIdx > inviteIdx);
     assert.ok(commitIdx > deleteIdx);
   });
 
