@@ -48,6 +48,10 @@ describe('push reminder scheduler contracts', () => {
     assert.ok(src.includes("metadata->>'child_id'"), 'must dedupe star milestones via metadata.child_id');
     assert.ok(src.includes("metadata->>'milestone'"), 'must dedupe star milestones via metadata.milestone');
     assert.ok(src.includes('metadata: { child_id: child.id, milestone }'), 'must persist milestone metadata on send');
+    assert.ok(src.includes("type: 'inactivity_nudge'"), 'inactivity nudge is a child-scoped send');
+    assert.ok(src.includes("type: 'backfill_reminder'"), 'backfill reminder is a child-scoped send');
+    assert.match(src, /type: 'inactivity_nudge'[\s\S]*metadata: \{ child_id: child\.id \}/);
+    assert.match(src, /type: 'backfill_reminder'[\s\S]*metadata: \{ child_id: child\.id \}/);
   });
 
   it('migration adds notification_log.metadata column', () => {

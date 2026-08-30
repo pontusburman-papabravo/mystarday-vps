@@ -20,6 +20,12 @@ function childIdFromMetadata(metadata) {
   return id || null;
 }
 
+function accessibleChildIdSet(accessibleChildIds) {
+  return new Set(
+    (accessibleChildIds || []).map((id) => String(id).trim()).filter(Boolean)
+  );
+}
+
 /**
  * Child-scoped rows stay visible only while the parent still has access.
  * Rows without child_id (family/news) remain parent-scoped.
@@ -29,7 +35,7 @@ function childIdFromMetadata(metadata) {
 function isArchiveRowVisible(row, accessibleChildIds) {
   const childId = childIdFromMetadata(row && row.metadata);
   if (!childId) return true;
-  return Array.isArray(accessibleChildIds) && accessibleChildIds.includes(childId);
+  return accessibleChildIdSet(accessibleChildIds).has(childId);
 }
 
 function filterArchiveForCurrentAccess(rows, accessibleChildIds) {

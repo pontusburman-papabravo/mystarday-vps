@@ -11,6 +11,7 @@ const webpush = require('web-push');
 const db = require('./db');
 const notificationLog = require('../../db/notification-log');
 const pushSubscriptions = require('../../db/push-subscriptions');
+const { shouldArchiveSuccessfulPush } = require('./notification-archive');
 
 // Configure web-push with VAPID keys once on module load.
 // Keys are set as env vars — see migrations/046_push_subscriptions.js for table schema.
@@ -110,7 +111,7 @@ async function sendPushNotification(parentId, { title, body, icon, url, type = '
   const totalSent = webSent + nativeSent;
 
   // Archive only successful deliveries (best-effort — never block send)
-  if (totalSent > 0) {
+  if (shouldArchiveSuccessfulPush(totalSent)) {
     notificationLog.logNotification(parentId, { title, body, type, url, metadata }).catch((err) => {
       console.error('[PUSH] Failed to log notification to archive:', err.message);
     });

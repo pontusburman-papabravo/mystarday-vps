@@ -303,6 +303,7 @@ async function sendInactivityNudges() {
           body: t(locale, 'push.inactivityNudge.body'),
           type: 'inactivity_nudge',
           url: '/dashboard',
+          metadata: { child_id: child.id },
         });
         console.log(`[PUSH-REMINDER] Inactivity nudge sent for ${child.name} to parent ${parent_id}`);
       }
@@ -439,6 +440,7 @@ async function sendBackfillReminders() {
           body: t(locale, 'push.backfillReminder.body'),
           type: 'backfill_reminder',
           url: '/daily-log',
+          metadata: { child_id: child.id },
         });
         console.log(`[PUSH-REMINDER] Backfill reminder sent for ${child.name} to parent ${parent_id}`);
       }

@@ -24,7 +24,7 @@ async function accessibleChildIdsForArchive(parentId) {
   const children = await getChildrenForParent(parentId, {
     allowedRoles: ['primary', 'shared', 'pedagog'],
   });
-  return children.map((child) => child.id);
+  return children.map((child) => String(child.id));
 }
 
 function visibleArchiveRows(rows, accessibleChildIds) {
