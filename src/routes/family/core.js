@@ -9,6 +9,7 @@
 const express = require('express');
 const db = require('../../lib/db');
 const { mapChildForFamilyApi, mapParentForFamilyApi } = require('../../lib/avatar-api');
+const { deletionConsequenceForCaller } = require('../../lib/family-deletion');
 const { requireParent } = require('../../middleware/auth');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { getChildrenForParent } = require('../../../db/parent-access');
@@ -100,6 +101,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     }));
 
     const allChildrenPublic = allChildrenResult.rows.map((c) => mapChildForFamilyApi(c));
+    const deletionImpact = await deletionConsequenceForCaller(db, req.user.id, req.user.familyId);
 
     res.json({
       ...family,
@@ -107,6 +109,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       children: childrenWithPin,
       allChildren: allChildrenPublic,
       pendingInvites: invitesResult.rows,
+      deletion_impact: { mode: deletionImpact.mode },
     });
   } catch (err) {
     console.error('[FAMILY] Get error:', err);

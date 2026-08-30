@@ -15,6 +15,7 @@ const { sendAccountDeletedEmail } = require('./email');
 const { resolveCommunicationLocale } = require('./communication-locale');
 const { DELETION_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
+const familyDeletion = require('./family-deletion');
 
 let _timer = null;
 
@@ -63,12 +64,13 @@ async function runDeletionJob() {
 }
 
 /**
- * Execute the full cascade delete for a single family.
- * Deletes the family row — CASCADE constraints handle all child rows.
- * Then deletes the parent.
+ * Execute due pending_deletion using the same administrative-authority
+ * rules as DELETE /api/family/delete-account.
  */
-async function executeCascadeDelete({ id: parentId, email, family_id, deletion_requested_at }) {
+async function executeCascadeDelete({ id: parentId, email, family_id }) {
   const client = await db.getClient();
+  let capturedAvatarKeys = [];
+  let committed = false;
 
   try {
     await client.query('BEGIN');
@@ -79,31 +81,31 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
     );
     const communicationLocale = resolveCommunicationLocale(familyLocaleResult.rows[0]?.preferred_locale);
 
-    // First check if this is the last active parent in the family
-    const otherParents = await client.query(
-      `SELECT id FROM parent
-       WHERE family_id = $1 AND id != $2 AND pending_deletion = false`,
-      [family_id, parentId]
-    );
+    await familyDeletion.lockFamilyDeletionAuthority(client, family_id);
+    const impact = await familyDeletion.deletionConsequenceForCaller(client, parentId, family_id);
 
-    const isLastParent = otherParents.rows.length === 0;
-
-    if (isLastParent) {
-      // Delete the family — CASCADE handles:
-      // child, parent_child, category, activity_template,
-      // weekly_schedule + weekly_schedule_item,
-      // daily_log + daily_log_item, rating,
-      // reward + reward_redemption, streak, parent_note
-      await client.query(`DELETE FROM family WHERE id = $1`, [family_id]);
-      console.log(`[DELETION-SCHEDULER] Deleted family ${family_id} (cascade)`);
+    if (impact.mode === 'family') {
+      capturedAvatarKeys = await familyDeletion.collectFamilyAvatarStorageKeys(client, family_id);
+      await familyDeletion.hardDeleteFamilyData(client, family_id);
+      console.log(`[DELETION-SCHEDULER] Deleted family ${family_id} (last authorized adult)`);
+    } else if (impact.mode === 'self') {
+      const parentKey = await familyDeletion.collectParentAvatarStorageKey(client, parentId);
+      capturedAvatarKeys = parentKey ? [parentKey] : [];
+      await familyDeletion.removeParentFromFamily(client, {
+        parentId,
+        familyId: family_id,
+        revokedBy: parentId,
+      });
+      console.log(`[DELETION-SCHEDULER] Removed parent ${parentId} (other authorized adults remain)`);
     } else {
-      // Not the last parent — just mark the parent account for deletion
-      // (other parents in the family remain active)
-      await client.query(`DELETE FROM parent WHERE id = $1`, [parentId]);
-      console.log(`[DELETION-SCHEDULER] Deleted parent ${parentId} (non-last parent)`);
+      const parentKey = await familyDeletion.collectParentAvatarStorageKey(client, parentId);
+      capturedAvatarKeys = parentKey ? [parentKey] : [];
+      await client.query('DELETE FROM parent_child WHERE parent_id = $1', [parentId]);
+      await client.query('DELETE FROM notification_preference WHERE parent_id = $1', [parentId]);
+      await client.query('DELETE FROM parent WHERE id = $1', [parentId]);
+      console.log(`[DELETION-SCHEDULER] Deleted parent ${parentId} (no administrative authority)`);
     }
 
-    // Record the deletion job
     await client.query(
       `INSERT INTO deletion_job (parent_id, family_id, status, deleted_at)
        VALUES ($1, $2, 'completed', NOW())
@@ -113,6 +115,7 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
     );
 
     await client.query('COMMIT');
+    committed = true;
 
     // Send deletion confirmation email (non-blocking)
     const firstName = email.split('@')[0].split('.')[0]; // rough extraction
@@ -126,6 +129,10 @@ async function executeCascadeDelete({ id: parentId, email, family_id, deletion_r
     throw err;
   } finally {
     client.release();
+  }
+
+  if (committed) {
+    await familyDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
   }
 }
 
