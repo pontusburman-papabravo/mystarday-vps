@@ -30,6 +30,12 @@ const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const { getFamilyPreferredLocale } = require('../../lib/family-locale');
 const { localizeActivityRow, localizeRewardRow } = require('../../lib/family-content-display');
 const { selectNearestReward } = require('../../lib/reward-visible-children');
+const { listPedagogLinks, listPendingInvites } = require('../../../db/pedagog-invite');
+const {
+  viewerHasPrimaryRole,
+  scopePedagogsToViewer,
+  scopeInvitesToViewer,
+} = require('../../lib/family-people-access');
 
 const router = express.Router();
 
@@ -72,27 +78,37 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     const linksByParent = {};
     for (const link of parentChildLinks.rows) {
       if (!linksByParent[link.parent_id]) linksByParent[link.parent_id] = [];
-      linksByParent[link.parent_id].push(link.child_id);
+      linksByParent[link.parent_id].push({ child_id: link.child_id, role: link.role });
     }
     for (const p of parentsResult.rows) {
-      p.linked_child_ids = linksByParent[p.id] || [];
+      const linked = linksByParent[p.id] || [];
+      p.linked_children = linked;
+      p.linked_child_ids = linked.map((row) => row.child_id);
     }
 
     const children = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
     const childrenWithPin = children.map((c) => mapChildForFamilyApi(c, {
       has_pin: c.pin != null && c.pin !== '',
+      role: c.role,
     }));
+    const scopedChildIds = childrenWithPin.map((c) => c.id);
 
     const invitesResult = await db.query(
-      `SELECT id, email, expires_at, accepted, created_at
+      `SELECT id, email, child_ids, expires_at, accepted, created_at
        FROM family_invite
        WHERE family_id = $1 AND accepted = false AND expires_at > NOW()
        ORDER BY created_at DESC`,
       [req.user.familyId]
     );
 
+    const [pedagogLinks, pendingPedagogRows] = await Promise.all([
+      listPedagogLinks(req.user.familyId),
+      listPendingInvites(req.user.familyId),
+    ]);
+
     const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, {
       linked_child_ids: p.linked_child_ids,
+      linked_children: p.linked_children,
     }));
 
     const deletionImpact = await deletionConsequenceForCaller(db, req.user.id, req.user.familyId);
@@ -103,6 +119,9 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       children: childrenWithPin,
       allChildren: childrenWithPin,
       pendingInvites: invitesResult.rows,
+      pedagogs: scopePedagogsToViewer(pedagogLinks, scopedChildIds),
+      pendingPedagogInvites: scopeInvitesToViewer(pendingPedagogRows, scopedChildIds),
+      viewer_has_primary: viewerHasPrimaryRole(childrenWithPin),
       deletion_impact: { mode: deletionImpact.mode },
     });
   } catch (err) {

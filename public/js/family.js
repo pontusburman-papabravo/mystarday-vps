@@ -80,13 +80,24 @@
       return role.labelKey ? fpt(role.labelKey) : role.label || role.value;
     }
 
-    function setFamilyLoading(loading) {
+    function setFamilyPeopleSurface(state) {
       const skeleton = document.getElementById('familyLoadingSkeleton');
       const dataSections = document.getElementById('familyDataSections');
-      if (skeleton) skeleton.classList.toggle('hidden', !loading);
-      if (dataSections) dataSections.classList.toggle('hidden', loading);
+      const errorBanner = document.getElementById('familyLoadError');
+      const showLoading = state === 'loading';
+      const showPeople = state === 'ok_items' || state === 'ok_empty';
+      if (skeleton) skeleton.classList.toggle('hidden', !showLoading);
+      if (dataSections) {
+        dataSections.classList.toggle('hidden', !showPeople);
+        dataSections.setAttribute('data-people-state', state);
+      }
+      if (errorBanner && state !== 'error') errorBanner.classList.add('hidden');
       const summary = document.getElementById('familyHubSummary');
-      if (summary && loading && !familyCache) summary.textContent = fpt('family.shell.loading');
+      if (summary && showLoading && !familyCache) summary.textContent = fpt('family.shell.loading');
+    }
+
+    function setFamilyLoading(loading) {
+      setFamilyPeopleSurface(loading ? 'loading' : (familyData ? 'ok_items' : 'ok_empty'));
     }
 
     function fetchFamily() {
@@ -194,11 +205,17 @@
           if (familyCache) {
             renderAll(familyCache);
             showToast(fpt('family.errors.loadFamily') + ' ' + err.message, true);
+            setFamilyPeopleSurface('ok_items');
           } else {
             showFamilyLoadError(err, function () { init({ force: true }); });
+            setFamilyPeopleSurface('error');
           }
         } finally {
-          setFamilyLoading(false);
+          if (familyData || familyCache) {
+            setFamilyLoading(false);
+          } else {
+            setFamilyPeopleSurface('error');
+          }
           initInFlight = null;
         }
       })();
@@ -281,18 +298,35 @@
       const pendingList = document.getElementById('pendingInvitesList');
       if (pending.length > 0) {
         pendingSection.classList.remove('hidden');
-        pendingList.innerHTML = pending.map(inv => `
+        pendingList.innerHTML = pending.map(inv => {
+          const Access = window.FamilyPeopleAccess || {};
+          const cap = Access.inviteAccessCaption
+            ? Access.inviteAccessCaption(inv.child_ids || inv.childIds, children)
+            : { kind: 'unspecified', names: [] };
+          let accessNote = '';
+          if (cap.kind === 'child_specific') {
+            accessNote = '<p class="text-xs text-text-soft mt-0.5">' +
+              fpt('family.access.pendingForChildren') + ' ' +
+              cap.names.map(function (n) { return escHtml(n); }).join(', ') + '</p>';
+          } else if (cap.kind === 'child_specific_hidden') {
+            accessNote = '<p class="text-xs text-text-soft mt-0.5">' +
+              fpt('family.access.pendingChildSpecific') + '</p>';
+          }
+          return `
           <div class="flex items-center justify-between bg-lavender dark:bg-navy-soft rounded-xl px-4 py-3" data-invite-state="pending">
             <div>
               <span class="font-medium text-navy dark:text-white">${escapeHtml(inv.email)}</span>
               <span class="ml-2 text-xs text-text-soft italic">${fpt('family.shell.waiting')}</span>
+              ${accessNote}
             </div>
             <button onclick="withdrawInvite('${escapeHtml(inv.id)}')" class="text-xs text-red-500 hover:text-red-600 font-semibold">${fpt('family.shell.withdrawInvite')}</button>
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
       } else {
         pendingSection.classList.add('hidden');
       }
+
+      renderPedagogPeople(data);
 
       if (window.ParentMagicPageHub && window.ParentMagicShell && ParentMagicShell.isMagic()) {
         ParentMagicPageHub.refresh('family', true);
@@ -905,9 +939,24 @@
 
     // ─── Adult card ─────────────────────────────────────
     function renderAdultCard(parent, children) {
+      const Access = window.FamilyPeopleAccess || {};
       const isSelf = parent.id === user?.id;
       const isOnlyAdult = (familyData?.parents || []).length === 1;
-      const canDelete = !isOnlyAdult && !isSelf && !!(user && user.isAdmin);
+      const viewerHasPrimary = familyData && familyData.viewer_has_primary != null
+        ? !!familyData.viewer_has_primary
+        : !!(Access.viewerHasPrimaryRole && Access.viewerHasPrimaryRole(children));
+      const canDelete = Access.canDeleteMember
+        ? Access.canDeleteMember({
+          viewerHasPrimary: viewerHasPrimary,
+          viewerIsAdmin: !!(user && user.isAdmin),
+          isSelf: isSelf,
+          isOnlyAdult: isOnlyAdult,
+          targetIsAdmin: !!parent.is_admin,
+        })
+        : (!isOnlyAdult && !isSelf && viewerHasPrimary);
+      const canEditLinks = Access.canEditMemberAccess
+        ? Access.canEditMemberAccess({ viewerHasPrimary: viewerHasPrimary })
+        : viewerHasPrimary;
       const roleOptions = ROLES.map(r =>
         `<option value="${r.value}" ${parent.family_role === r.value ? 'selected' : ''}>${roleOptionLabel(r)}</option>`
       ).join('');
@@ -935,17 +984,20 @@
           <!-- Child visibility: only the caller's accessible children (never allChildren). -->
           ${(() => {
             const scoped = familyData?.children || [];
-            const linkedIds = parent.linked_child_ids || [];
-            const visibleLinked = scoped.filter(function (c) { return linkedIds.indexOf(c.id) >= 0; });
-            const canEditLinks = !!(user && user.isAdmin);
-            if (!scoped.length && !visibleLinked.length) return '';
-            if (!canEditLinks) {
-              if (!visibleLinked.length) {
-                return '<p class="text-xs text-text-soft mb-3" data-access-readonly="1">' + fpt('family.access.noneVisible') + '</p>';
-              }
+            const shown = Access.accessPresentation
+              ? Access.accessPresentation({ scopedChildren: scoped, parent: parent, canEdit: canEditLinks })
+              : { kind: canEditLinks ? 'edit' : 'readonly-none', children: scoped, visible: [] };
+            if (shown.kind === 'readonly-none') {
+              return '<p class="text-xs text-text-soft mb-3" data-access-readonly="1">' + fpt('family.access.noneVisible') + '</p>';
+            }
+            if (shown.kind === 'readonly-names') {
               return '<div class="mb-3" data-access-readonly="1"><p class="text-xs text-text-soft mb-1">' +
                 fpt('family.access.seesThese') + '</p><p class="text-sm text-navy">' +
-                visibleLinked.map(function (c) { return escHtml(c.name); }).join(', ') +
+                shown.visible.map(function (c) {
+                  const roleBit = c.role === 'primary' ? ' (' + fpt('family.access.rolePrimary') + ')'
+                    : (c.role === 'shared' ? ' (' + fpt('family.access.roleShared') + ')' : '');
+                  return escHtml(c.name) + roleBit;
+                }).join(', ') +
                 '</p></div>';
             }
             return `
@@ -953,7 +1005,7 @@
               <label class="block text-xs text-text-soft mb-1">${fpt('family.access.seesThese')}</label>
               <div class="space-y-1">
                 ${scoped.map(c => {
-                  const linked = linkedIds.indexOf(c.id) >= 0;
+                  const linked = (parent.linked_child_ids || []).map(String).indexOf(String(c.id)) >= 0;
                   return `<label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" class="pc-cb w-4 h-4 rounded border-lavender text-gold focus:ring-gold"
                       data-parent-id="${parent.id}" data-child-id="${c.id}" ${linked ? 'checked' : ''}
@@ -976,6 +1028,58 @@
           ` : ''}
         </div>
       `;
+    }
+
+    function renderPedagogPeople(data) {
+      const mount = document.getElementById('familyPedagogPeople');
+      if (!mount) return;
+      const pedagogs = data.pedagogs || [];
+      const pendingPed = data.pendingPedagogInvites || [];
+      if (!pedagogs.length && !pendingPed.length) {
+        mount.classList.add('hidden');
+        mount.innerHTML = '';
+        return;
+      }
+      const children = data.children || [];
+      const canManage = !!(data.viewer_has_primary);
+      const cards = pedagogs.map(function (p) {
+        const names = children.filter(function (c) {
+          return (p.childIds || []).map(String).indexOf(String(c.id)) >= 0;
+        }).map(function (c) { return escHtml(c.name); }).join(', ');
+        const revoke = canManage
+          ? '<button type="button" class="text-xs text-red-500 font-semibold mt-2" data-revoke-pedagog="' +
+            escHtml(p.parentId) + '" data-child-id="' + escHtml((p.childIds || [])[0] || '') + '">' +
+            fpt('family.access.revokePedagog') + '</button>'
+          : '';
+        return '<div class="bg-sky dark:bg-navy-soft rounded-2xl p-4" data-people-role="pedagog">' +
+          '<p class="font-heading font-bold text-navy dark:text-white">' + escHtml(p.name || p.email || '') + '</p>' +
+          '<p class="text-xs text-text-soft">' + fpt('family.access.rolePedagog') +
+          (names ? ' · ' + names : '') + '</p>' + revoke + '</div>';
+      }).join('');
+      const pendingHtml = pendingPed.map(function (inv) {
+        return '<div class="flex items-center justify-between bg-lavender dark:bg-navy-soft rounded-xl px-4 py-3" data-invite-state="pending" data-invite-kind="pedagog">' +
+          '<span class="font-medium text-navy dark:text-white">' + escHtml(inv.email) +
+          ' <span class="text-xs italic text-text-soft">' + fpt('family.shell.waiting') + '</span></span></div>';
+      }).join('');
+      mount.classList.remove('hidden');
+      mount.innerHTML = '<h3 class="text-lg font-heading font-bold text-navy dark:text-white mb-3">' +
+        fpt('family.shell.pedagogsHeading') + '</h3><div class="space-y-3">' + cards + pendingHtml + '</div>';
+      mount.querySelectorAll('[data-revoke-pedagog]').forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          try {
+            await Auth.api('/api/family/pedagog-access/revoke', {
+              method: 'POST',
+              body: JSON.stringify({
+                pedagogParentId: btn.getAttribute('data-revoke-pedagog'),
+                childId: btn.getAttribute('data-child-id'),
+              }),
+            });
+            init({ force: true });
+          } catch (err) {
+            showToast(fpt('family.errors.save') + ' ' + err.message, true);
+          }
+        });
+      });
     }
 
     // ─── Actions ─────────────────────────────────────────
