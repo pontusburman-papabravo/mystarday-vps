@@ -279,10 +279,10 @@
 
       const pendingSection = document.getElementById('pendingInvitesSection');
       const pendingList = document.getElementById('pendingInvitesList');
-      if (user?.isAdmin && pending.length > 0) {
+      if (pending.length > 0) {
         pendingSection.classList.remove('hidden');
         pendingList.innerHTML = pending.map(inv => `
-          <div class="flex items-center justify-between bg-lavender dark:bg-navy-soft rounded-xl px-4 py-3">
+          <div class="flex items-center justify-between bg-lavender dark:bg-navy-soft rounded-xl px-4 py-3" data-invite-state="pending">
             <div>
               <span class="font-medium text-navy dark:text-white">${escapeHtml(inv.email)}</span>
               <span class="ml-2 text-xs text-text-soft italic">${fpt('family.shell.waiting')}</span>
@@ -907,7 +907,7 @@
     function renderAdultCard(parent, children) {
       const isSelf = parent.id === user?.id;
       const isOnlyAdult = (familyData?.parents || []).length === 1;
-      const canDelete = !isOnlyAdult && !isSelf;
+      const canDelete = !isOnlyAdult && !isSelf && !!(user && user.isAdmin);
       const roleOptions = ROLES.map(r =>
         `<option value="${r.value}" ${parent.family_role === r.value ? 'selected' : ''}>${roleOptionLabel(r)}</option>`
       ).join('');
@@ -932,33 +932,38 @@
             </select>
           </div>
 
-          <!-- Child visibility -->
+          <!-- Child visibility: only the caller's accessible children (never allChildren). -->
           ${(() => {
-            const manageable = (familyData?.children && familyData.children.length)
-              ? familyData.children
-              : (familyData?.allChildren || []);
-            return manageable.length > 0;
-          })() ? `
+            const scoped = familyData?.children || [];
+            const linkedIds = parent.linked_child_ids || [];
+            const visibleLinked = scoped.filter(function (c) { return linkedIds.indexOf(c.id) >= 0; });
+            const canEditLinks = !!(user && user.isAdmin);
+            if (!scoped.length && !visibleLinked.length) return '';
+            if (!canEditLinks) {
+              if (!visibleLinked.length) {
+                return '<p class="text-xs text-text-soft mb-3" data-access-readonly="1">' + fpt('family.access.noneVisible') + '</p>';
+              }
+              return '<div class="mb-3" data-access-readonly="1"><p class="text-xs text-text-soft mb-1">' +
+                fpt('family.access.seesThese') + '</p><p class="text-sm text-navy">' +
+                visibleLinked.map(function (c) { return escHtml(c.name); }).join(', ') +
+                '</p></div>';
+            }
+            return `
             <div class="mb-3">
-              <label class="block text-xs text-text-soft mb-1">Ser dessa barn</label>
+              <label class="block text-xs text-text-soft mb-1">${fpt('family.access.seesThese')}</label>
               <div class="space-y-1">
-                ${(() => {
-                  const manageable = (familyData?.children && familyData.children.length)
-                    ? familyData.children
-                    : (familyData?.allChildren || []);
-                  return manageable.map(c => {
-                  const linked = (parent.linked_child_ids || []).includes(c.id);
+                ${scoped.map(c => {
+                  const linked = linkedIds.indexOf(c.id) >= 0;
                   return `<label class="flex items-center gap-2 text-sm cursor-pointer">
                     <input type="checkbox" class="pc-cb w-4 h-4 rounded border-lavender text-gold focus:ring-gold"
                       data-parent-id="${parent.id}" data-child-id="${c.id}" ${linked ? 'checked' : ''}
                       onchange="updateParentChildren('${parent.id}')">
                     ${childAvatarHtml(c, 20)} ${escHtml(c.name)}
                   </label>`;
-                }).join('');
-                })()}
+                }).join('')}
               </div>
-            </div>
-          ` : ''}
+            </div>`;
+          })()}
 
           <!-- Delete -->
           ${canDelete ? `

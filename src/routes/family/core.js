@@ -83,12 +83,6 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       has_pin: c.pin != null && c.pin !== '',
     }));
 
-    const allChildrenResult = await db.query(
-      `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at
-       FROM child WHERE family_id = $1 ORDER BY sort_order ASC, created_at ASC`,
-      [req.user.familyId]
-    );
-
     const invitesResult = await db.query(
       `SELECT id, email, expires_at, accepted, created_at
        FROM family_invite
@@ -101,14 +95,13 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       linked_child_ids: p.linked_child_ids,
     }));
 
-    const allChildrenPublic = allChildrenResult.rows.map((c) => mapChildForFamilyApi(c));
     const deletionImpact = await deletionConsequenceForCaller(db, req.user.id, req.user.familyId);
 
     res.json({
       ...family,
       parents: parentsPublic,
       children: childrenWithPin,
-      allChildren: allChildrenPublic,
+      allChildren: childrenWithPin,
       pendingInvites: invitesResult.rows,
       deletion_impact: { mode: deletionImpact.mode },
     });

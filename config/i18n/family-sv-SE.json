@@ -25,6 +25,10 @@
     "bonusParent": "Bonusförälder",
     "other": "Annan"
   },
+  "access": {
+    "seesThese": "Ser dessa barn",
+    "noneVisible": "Ingen barnåtkomst som du kan se"
+  },
   "summary": {
     "childrenOne": "1 barn",
     "childrenMany": "{{count}} barn",

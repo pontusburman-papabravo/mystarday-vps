@@ -25,6 +25,10 @@
     "bonusParent": "Bonus parent",
     "other": "Other"
   },
+  "access": {
+    "seesThese": "Sees these children",
+    "noneVisible": "No child access you can see"
+  },
   "summary": {
     "childrenOne": "1 child",
     "childrenMany": "{{count}} children",
