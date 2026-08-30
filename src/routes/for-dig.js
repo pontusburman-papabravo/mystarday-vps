@@ -148,17 +148,21 @@ router.post('/feedback', async (req, res) => {
   }
 
   try {
+    let familyId = req.user.familyId;
+    let scopedChildId = childId || null;
     if (childId) {
       const child = await authz.getChildAccess(req.user.id, childId);
       if (!child) {
         return res.status(403).json({ error: 'Du har inte åtkomst till ett av valda barn.' });
       }
+      familyId = child.family_id;
+      scopedChildId = child.id;
     }
 
     await feedbackDb.insertFeedback({
-      familyId: req.user.familyId,
+      familyId,
       parentId: req.user.id,
-      childId: childId || null,
+      childId: scopedChildId,
       goalSlug,
       phase,
       intentReason: intentReason || null,
@@ -167,19 +171,19 @@ router.post('/feedback', async (req, res) => {
     });
 
     if (phase === 'intent') {
-      trackEvent(req.user.familyId, 'for_dig_feedback_intent', {
+      trackEvent(familyId, 'for_dig_feedback_intent', {
         goal_slug: goalSlug,
         intent_reason: intentReason,
-        child_id: childId,
+        child_id: scopedChildId,
       });
     } else if (phase === 'outcome') {
-      trackEvent(req.user.familyId, 'for_dig_feedback_outcome', {
+      trackEvent(familyId, 'for_dig_feedback_outcome', {
         goal_slug: goalSlug,
         outcome_score: outcomeScore,
-        child_id: childId,
+        child_id: scopedChildId,
       });
     } else {
-      trackEvent(req.user.familyId, 'for_dig_feedback_suggestion', {
+      trackEvent(familyId, 'for_dig_feedback_suggestion', {
         goal_slug: goalSlug,
         free_text: freeText ? '(provided)' : null,
       });

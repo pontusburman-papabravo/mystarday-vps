@@ -95,6 +95,14 @@ async function lookupFamilyId(db, email) {
   return row.rows[0].family_id;
 }
 
+async function lookupParentId(db, email) {
+  const row = await db.query(
+    'SELECT id FROM parent WHERE LOWER(email) = $1',
+    [email.toLowerCase()]
+  );
+  return row.rows[0].id;
+}
+
 async function seedScopedFamily(db, http) {
   const tag = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   await enableForDig(db);
@@ -222,6 +230,7 @@ describe('P0.4 För Dig authorization', () => {
     assert.doesNotMatch(dbSrc, /function getInstallsForFamily/);
     assert.match(routeSrc, /getInstallsForParent\(req\.user\.id\)/);
     assert.match(routeSrc, /authz\.getChildAccess\(req\.user\.id, childId\)/);
+    assert.match(routeSrc, /familyId = child\.family_id/);
     assert.match(routeSrc, /Du har inte åtkomst till ett av valda barn\./);
   });
 
@@ -349,6 +358,89 @@ describe('P0.4 För Dig authorization', () => {
       const pendingIds = primaryPending.json.map((row) => row.child_id).sort();
       assert.ok(pendingIds.includes(fx.childAId));
       assert.ok(pendingIds.includes(fx.childBId));
+    } finally {
+      await http.close();
+      await db.cleanup();
+    }
+  });
+
+  test('cross-family pedagog writes child A rows to family A, then 403 after revoke', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      await enableForDig(db);
+      const primary = await registerAndLogin(http.baseUrl, { name: 'P04 Family A' });
+      const familyAId = await lookupFamilyId(db, primary.email);
+      const childAId = await createChild(http.baseUrl, primary, {
+        name: 'Barn A',
+        birthday: '2018-01-15',
+      });
+
+      const pedagog = await registerAndLogin(http.baseUrl, { name: 'P04 Pedagog B' });
+      const familyBId = await lookupFamilyId(db, pedagog.email);
+      const pedagogId = await lookupParentId(db, pedagog.email);
+      assert.notEqual(familyAId, familyBId);
+
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'pedagog')`,
+        [pedagogId, childAId]
+      );
+
+      const intent = await postIntent(http, pedagog, childAId);
+      assert.equal(intent.res.status, 201, intent.text);
+      const outcome = await postOutcome(http, pedagog, childAId);
+      assert.equal(outcome.res.status, 201, outcome.text);
+
+      const stored = await db.query(
+        `SELECT family_id, child_id, parent_id, phase
+         FROM for_dig_goal_feedback
+         WHERE child_id = $1
+         ORDER BY phase`,
+        [childAId]
+      );
+      assert.equal(stored.rows.length, 2);
+      assert.deepEqual(
+        stored.rows.map((row) => row.phase).sort(),
+        ['intent', 'outcome']
+      );
+      for (const row of stored.rows) {
+        assert.equal(row.child_id, childAId);
+        assert.equal(row.family_id, familyAId);
+        assert.equal(row.parent_id, pedagogId);
+        assert.notEqual(row.family_id, familyBId);
+      }
+
+      const familyBRows = await db.query(
+        `SELECT id FROM for_dig_goal_feedback
+         WHERE family_id = $1 AND child_id = $2`,
+        [familyBId, childAId]
+      );
+      assert.equal(familyBRows.rows.length, 0);
+
+      await db.query(
+        `UPDATE parent_child SET revoked_at = NOW()
+         WHERE parent_id = $1 AND child_id = $2`,
+        [pedagogId, childAId]
+      );
+
+      assertDenied(await postIntent(http, pedagog, childAId), 'revoked pedagog intent');
+      assertDenied(await postOutcome(http, pedagog, childAId), 'revoked pedagog outcome');
+
+      const afterRevoke = await db.query(
+        `SELECT family_id, child_id, parent_id, phase
+         FROM for_dig_goal_feedback
+         WHERE child_id = $1`,
+        [childAId]
+      );
+      assert.equal(afterRevoke.rows.length, 2);
+      const familyBAfter = await db.query(
+        `SELECT id FROM for_dig_goal_feedback
+         WHERE family_id = $1 AND child_id = $2`,
+        [familyBId, childAId]
+      );
+      assert.equal(familyBAfter.rows.length, 0);
     } finally {
       await http.close();
       await db.cleanup();
