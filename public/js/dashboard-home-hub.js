@@ -91,11 +91,21 @@
    * Home read-only mode — daily log / child profile owns check-off (B-08).
    * Barn med aktiviteter idag → dagens daglig logg; annars barnprofil.
    */
+  function localYmd(date) {
+    if (window.LocaleDateTime && typeof LocaleDateTime.localYmd === 'function') {
+      return LocaleDateTime.localYmd(date);
+    }
+    const d = date instanceof Date ? date : new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
   function childRowHref(c) {
     const total = c.today_total || 0;
     if (total > 0) {
-      const today = new Date().toISOString().slice(0, 10);
-      return '/daily-log?childId=' + encodeURIComponent(c.id) + '&date=' + encodeURIComponent(today);
+      return '/daily-log?childId=' + encodeURIComponent(c.id) + '&date=' + encodeURIComponent(localYmd(new Date()));
     }
     return '/family/child/' + encodeURIComponent(c.id);
   }
@@ -114,28 +124,28 @@
 
   function buildWeekSeries(children) {
     const today = new Date();
+    const todayStr = localYmd(today);
     const dow = today.getDay();
     const mondayOffset = dow === 0 ? -6 : 1 - dow;
     const series = [];
 
     for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + mondayOffset + i);
-      const dateStr = d.toISOString().slice(0, 10);
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + mondayOffset + i);
+      const dateStr = localYmd(d);
       let totalCompleted = 0;
-      children.forEach(function (c) {
+      (children || []).forEach(function (c) {
         const hist = c.history || [];
         const row = hist.find(function (h) { return h.date === dateStr; });
         if (row) totalCompleted += row.completed || 0;
-        else if (dateStr === today.toISOString().slice(0, 10)) {
+        else if (dateStr === todayStr) {
           totalCompleted += c.today_completed || 0;
         }
       });
       series.push({
         label: dayLabels()[i],
         value: totalCompleted,
-        isToday: dateStr === today.toISOString().slice(0, 10),
-        isFuture: d > today && dateStr !== today.toISOString().slice(0, 10),
+        isToday: dateStr === todayStr,
+        isFuture: dateStr > todayStr,
       });
     }
     return series;
@@ -208,9 +218,9 @@
   }
 
   function offsetIsoDate(days) {
-    const d = new Date();
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 10);
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days);
+    return localYmd(d);
   }
 
   function retroactiveLogHref(children) {

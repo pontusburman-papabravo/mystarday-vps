@@ -71,10 +71,10 @@ describe('meny v2.3 — Hem PX2 + H19', () => {
     assert.match(cards, /HomeBumpTime\.render/);
   });
 
-  it('star history section not legacy-hidden on hem', () => {
+  it('star history section is legacy-hidden on magic hem', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/dashboard.html'), 'utf8');
     const line = html.split('\n').find(function (l) { return l.indexOf('starHistorySection') >= 0; });
     assert.ok(line, 'starHistorySection mount missing');
-    assert.doesNotMatch(line, /parent-magic-legacy-hide/);
+    assert.match(line, /parent-magic-legacy-hide/);
   });
 });

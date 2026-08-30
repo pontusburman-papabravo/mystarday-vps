@@ -13,7 +13,7 @@
       label: 'Hem',
       labelKey: 'nav.primary.home',
       icon: 'hem',
-      paths: ['/dashboard'],
+      paths: ['/dashboard', '/home'],
     },
     {
       id: 'planning',
@@ -37,7 +37,7 @@
       label: 'Belöningar',
       labelKey: 'nav.primary.rewards',
       icon: 'beloningar',
-      paths: ['/rewards', '/skattkammaren-parent'],
+      paths: ['/rewards', '/skattkammaren'],
     },
     {
       id: 'for_you',
