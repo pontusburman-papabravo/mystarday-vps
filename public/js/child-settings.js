@@ -974,6 +974,12 @@ function renderPage(child) {
 function initDeleteChild(child) {
   const btn = document.getElementById('deleteChildBtn');
   if (!btn) return;
+  if (!child || child.role !== 'primary') {
+    const zone = btn.closest('.section-card');
+    if (zone) zone.classList.add('hidden');
+    else btn.classList.add('hidden');
+    return;
+  }
 
   btn.addEventListener('click', () => {
     const name = child.name || 'barnet';

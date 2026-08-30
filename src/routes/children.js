@@ -20,7 +20,7 @@ const pinLockout = require('../../db/pin-lockout');
 const { getChildrenForParent } = require('../../db/parent-access');
 const { checkChildNameInFamily } = require('../lib/family-duplicates');
 const { avatarApiFields } = require('../lib/avatar-api');
-const { deleteAvatarForChildRecord } = require('../lib/avatar-service');
+const childDeletion = require('../lib/child-deletion');
 const { getOrGenerateDailyLog } = require('../lib/daily-log-generator');
 const { resolveDefaultScheduleName, seedChildDefaultSchedule } = require('../lib/seed-child-default-schedule');
 const {
@@ -780,68 +780,30 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
 
 // ─── DELETE /api/children/:id ───────────────────────────
 router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
+  const client = await db.getClient();
+  let capturedAvatarKeys = [];
+  let committed = false;
   try {
-    // Verify parent has primary access
-    const access = await db.query(
-      `SELECT role FROM parent_child WHERE parent_id = $1 AND child_id = $2 AND role = 'primary'`,
-      [req.user.id, req.params.id]
-    );
-    if (access.rows.length === 0) {
-      return res.status(403).json({ error: 'Bara primär förälder kan ta bort barn' });
+    const outcome = await childDeletion.performChildDeletionInTransaction(client, {
+      callerParentId: req.user.id,
+      callerFamilyId: req.user.familyId,
+      childId: req.params.id,
+    });
+    if (!outcome.ok) {
+      return res.status(outcome.status).json({ error: outcome.error });
     }
-
-    const client = await db.getClient();
-    try {
-      await client.query('BEGIN');
-
-      // Delete related records in order of dependencies
-      await client.query('DELETE FROM streak WHERE child_id = $1', [req.params.id]);
-      await client.query('DELETE FROM parent_note WHERE child_id = $1', [req.params.id]);
-      await client.query('DELETE FROM reward_redemption WHERE child_id = $1', [req.params.id]);
-
-      // Delete daily log items (via daily_log)
-      await client.query(
-        `DELETE FROM rating WHERE daily_log_item_id IN (
-           SELECT dli.id FROM daily_log_item dli
-           JOIN daily_log dl ON dl.id = dli.daily_log_id
-           WHERE dl.child_id = $1
-         )`,
-        [req.params.id]
-      );
-      await client.query(
-        `DELETE FROM daily_log_item WHERE daily_log_id IN (
-           SELECT id FROM daily_log WHERE child_id = $1
-         )`,
-        [req.params.id]
-      );
-      await client.query('DELETE FROM daily_log WHERE child_id = $1', [req.params.id]);
-
-      // Delete weekly schedule items and schedules
-      await client.query(
-        `DELETE FROM weekly_schedule_item WHERE weekly_schedule_id IN (
-           SELECT id FROM weekly_schedule WHERE child_id = $1
-         )`,
-        [req.params.id]
-      );
-      await client.query('DELETE FROM weekly_schedule WHERE child_id = $1', [req.params.id]);
-
-      await deleteAvatarForChildRecord(req.params.id);
-
-      // Delete parent-child links and child
-      await client.query('DELETE FROM parent_child WHERE child_id = $1', [req.params.id]);
-      await client.query('DELETE FROM child WHERE id = $1', [req.params.id]);
-
-      await client.query('COMMIT');
-      res.json({ message: 'Barnet har tagits bort' });
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
-    } finally {
-      client.release();
-    }
+    capturedAvatarKeys = outcome.capturedAvatarKeys;
+    committed = true;
   } catch (err) {
     console.error('[CHILDREN] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+  } finally {
+    client.release();
+  }
+
+  if (committed) {
+    await childDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
+    return res.json({ message: 'Barn borttaget' });
   }
 });
 

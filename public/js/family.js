@@ -894,7 +894,7 @@
 
     function confirmDeleteDrawerChild() {
       const child = familyChildren.find(c => c.id === drawerChildId);
-      if (!child) return;
+      if (!child || child.role !== 'primary') return;
       pendingDeleteType = 'child';
       pendingDeleteId = drawerChildId;
       document.getElementById('deleteTargetName').textContent = child.name;
