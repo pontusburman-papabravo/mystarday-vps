@@ -7,7 +7,7 @@
 
   function allow(CountryChoice) {
     try {
-      if (!CountryChoice) return true;
+      if (!CountryChoice) return false;
       if (typeof CountryChoice.requireSelection !== 'function') return false;
       return CountryChoice.requireSelection() === true;
     } catch (_) {

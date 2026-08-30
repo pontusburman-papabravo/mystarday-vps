@@ -115,12 +115,52 @@ describe('CountryChoice public registration gate', () => {
 
   it('RegistrationCountryGate.allow never throws when requireSelection is missing', () => {
     const { RegistrationCountryGate } = loadRegistrationModules();
-    assert.equal(RegistrationCountryGate.allow(undefined), true);
-    assert.equal(RegistrationCountryGate.allow({}), false);
+    assert.doesNotThrow(() => RegistrationCountryGate.allow(undefined));
+    assert.doesNotThrow(() => RegistrationCountryGate.allow({}));
     assert.equal(RegistrationCountryGate.allow({ requireSelection: 'not-a-function' }), false);
     assert.equal(RegistrationCountryGate.allow({
       requireSelection() { throw new Error('boom'); },
     }), false);
+  });
+});
+
+describe('RegistrationCountryGate.allow is fail-closed', () => {
+  function loadGateOnly() {
+    const window = { document: { querySelector() { return null; } } };
+    const context = { window, document: window.document };
+    context.global = window;
+    vm.createContext(context);
+    vm.runInContext(
+      fs.readFileSync(path.join(ROOT, 'public/js/registration-country-gate.js'), 'utf8'),
+      context
+    );
+    return context.window.RegistrationCountryGate;
+  }
+
+  it('allow(null) === false', () => {
+    assert.equal(loadGateOnly().allow(null), false);
+  });
+
+  it('allow(undefined) === false', () => {
+    assert.equal(loadGateOnly().allow(undefined), false);
+  });
+
+  it('object without requireSelection → false', () => {
+    assert.equal(loadGateOnly().allow({}), false);
+  });
+
+  it('throwing requireSelection → false', () => {
+    assert.equal(loadGateOnly().allow({
+      requireSelection() { throw new Error('boom'); },
+    }), false);
+  });
+
+  it('requireSelection() === false → false', () => {
+    assert.equal(loadGateOnly().allow({ requireSelection: () => false }), false);
+  });
+
+  it('requireSelection() === true → true', () => {
+    assert.equal(loadGateOnly().allow({ requireSelection: () => true }), true);
   });
 });
 
@@ -187,6 +227,22 @@ describe('Apple register preflight — signIn is not called when denied', () => 
     });
     assert.equal(pre.ok, false);
     assert.equal(pre.reason, 'unavailable');
+  });
+
+  it('missing CountryChoice module denies Apple register (fail-closed)', () => {
+    const { RegisterAppleAuth } = loadRegistrationModules();
+    let signInCalls = 0;
+    const Platform = {
+      isIOS: () => true,
+      appleSignIn: {
+        isAvailable: () => true,
+        signIn: async () => { signInCalls += 1; return { idToken: 'tok' }; },
+      },
+    };
+    const pre = RegisterAppleAuth.preflight(Platform, null);
+    assert.equal(pre.ok, false);
+    assert.equal(pre.reason, 'country');
+    assert.equal(signInCalls, 0);
   });
 });
 
