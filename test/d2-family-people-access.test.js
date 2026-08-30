@@ -131,6 +131,35 @@ describe('D2 Familj people/access honesty', () => {
       assert.equal(shown.length, 1);
       assert.equal(shown[0].id, 2);
       assert.deepEqual(shown[0].childIds, [CHILD_A]);
+      assert.deepEqual(shown[0].child_ids, [CHILD_A]);
+      assert.ok(!JSON.stringify(shown).includes(CHILD_B));
+    });
+
+    it('family-wide empty child_ids stay visible; hidden-only invites are omitted', () => {
+      const invites = [
+        { id: 'ia', email: 'hidden@example.com', child_ids: [CHILD_B] },
+        { id: 'ifamily', email: 'family@example.com', child_ids: [] },
+      ];
+      const shown = access.scopeInvitesToViewer(invites, [CHILD_A]);
+      assert.deepEqual(shown.map((inv) => inv.id), ['ifamily']);
+      assert.ok(!JSON.stringify(shown).includes('hidden@example.com'));
+      assert.ok(!JSON.stringify(shown).includes(CHILD_B));
+    });
+
+    it('scopeParentLinksToViewer strips hidden child ids from family adults', () => {
+      const parent = {
+        id: 'p1',
+        name: 'Anna',
+        linked_child_ids: [CHILD_A, CHILD_B],
+        linked_children: [
+          { child_id: CHILD_A, role: 'primary' },
+          { child_id: CHILD_B, role: 'shared' },
+        ],
+      };
+      const scoped = access.scopeParentLinksToViewer(parent, [CHILD_B]);
+      assert.deepEqual(scoped.linked_child_ids, [CHILD_B]);
+      assert.deepEqual(scoped.linked_children.map((c) => c.child_id), [CHILD_B]);
+      assert.ok(!JSON.stringify(scoped).includes(CHILD_A));
     });
   });
 
@@ -142,6 +171,9 @@ describe('D2 Familj people/access honesty', () => {
     assert.match(core, /linked_children/);
     assert.match(core, /viewer_has_primary/);
     assert.match(core, /scopePedagogsToViewer/);
+    assert.match(core, /scopeInvitesToViewer/);
+    assert.match(core, /scopeParentLinksToViewer/);
+    assert.match(core, /pendingInvites:\s*scopeInvitesToViewer\(invitesResult\.rows/);
     assert.match(core, /child_ids/);
     assert.doesNotMatch(core, /FROM child WHERE family_id = \$1 ORDER BY sort_order ASC, created_at ASC/);
   });

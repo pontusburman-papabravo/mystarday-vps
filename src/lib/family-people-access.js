@@ -120,19 +120,43 @@ function scopePedagogsToViewer(links, scopedChildIds) {
   return Object.values(byParent);
 }
 
+function inviteChildIds(inv) {
+  const raw = inv && (inv.child_ids || inv.childIds);
+  return Array.isArray(raw) ? raw : [];
+}
+
+/**
+ * Empty child_ids is the legacy family-wide invite (all remaining children on accept).
+ * Child-specific invites are visible only when the viewer can see at least one target.
+ * Returned ids are viewer-scoped so hidden children never serialize.
+ */
 function scopeInvitesToViewer(invites, scopedChildIds) {
   const allow = new Set((scopedChildIds || []).map(String));
   return (invites || []).filter((inv) => {
-    const ids = Array.isArray(inv.child_ids || inv.childIds) ? (inv.child_ids || inv.childIds) : [];
+    const ids = inviteChildIds(inv);
     if (!ids.length) return true;
     return ids.some((id) => allow.has(String(id)));
   }).map((inv) => {
-    const ids = Array.isArray(inv.child_ids || inv.childIds) ? (inv.child_ids || inv.childIds) : [];
+    const ids = inviteChildIds(inv);
+    const visibleIds = ids.length ? ids.filter((id) => allow.has(String(id))) : [];
     return {
       ...inv,
-      childIds: ids.filter((id) => allow.has(String(id))),
+      child_ids: visibleIds,
+      childIds: visibleIds,
     };
   });
+}
+
+/** Adults stay visible; their child-link fields are viewer-scoped. */
+function scopeParentLinksToViewer(parent, scopedChildIds) {
+  const allow = new Set((scopedChildIds || []).map(String));
+  const linked = (parent && parent.linked_children ? parent.linked_children : []).filter((row) => (
+    allow.has(String(row.child_id || row.id))
+  ));
+  return {
+    linked_children: linked,
+    linked_child_ids: linked.map((row) => row.child_id || row.id),
+  };
 }
 
 function shouldShowPeopleSections(outcome) {
@@ -158,6 +182,7 @@ module.exports = {
   activeFamilyLinks,
   scopePedagogsToViewer,
   scopeInvitesToViewer,
+  scopeParentLinksToViewer,
   shouldShowPeopleSections,
   settingsPeopleEntryVisible,
 };

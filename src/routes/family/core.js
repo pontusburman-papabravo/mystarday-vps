@@ -35,6 +35,7 @@ const {
   viewerHasPrimaryRole,
   scopePedagogsToViewer,
   scopeInvitesToViewer,
+  scopeParentLinksToViewer,
 } = require('../../lib/family-people-access');
 
 const router = express.Router();
@@ -106,10 +107,9 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       listPendingInvites(req.user.familyId),
     ]);
 
-    const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, {
-      linked_child_ids: p.linked_child_ids,
-      linked_children: p.linked_children,
-    }));
+    const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, (
+      scopeParentLinksToViewer(p, scopedChildIds)
+    )));
 
     const deletionImpact = await deletionConsequenceForCaller(db, req.user.id, req.user.familyId);
 
@@ -118,7 +118,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
       parents: parentsPublic,
       children: childrenWithPin,
       allChildren: childrenWithPin,
-      pendingInvites: invitesResult.rows,
+      pendingInvites: scopeInvitesToViewer(invitesResult.rows, scopedChildIds),
       pedagogs: scopePedagogsToViewer(pedagogLinks, scopedChildIds),
       pendingPedagogInvites: scopeInvitesToViewer(pendingPedagogRows, scopedChildIds),
       viewer_has_primary: viewerHasPrimaryRole(childrenWithPin),
