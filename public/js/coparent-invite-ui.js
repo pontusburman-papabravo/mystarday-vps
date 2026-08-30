@@ -236,7 +236,12 @@
     const openBtn = global.document.getElementById('coParentInviteOpenBtn');
     if (!section) return;
 
-    if (!me || me.account_type === 'educator') return;
+    const Access = global.FamilyPeopleAccess || {};
+    const accountType = me && me.account_type;
+    const showEntry = Access.settingsPeopleEntryVisible
+      ? Access.settingsPeopleEntryVisible({ accountType: accountType })
+      : accountType !== 'educator';
+    if (!showEntry) return;
 
     section.classList.remove('hidden');
     if (hr) hr.classList.remove('hidden');
@@ -271,6 +276,8 @@
       }
     } catch (err) {
       console.warn('[CO-PARENT] settings boot failed:', err);
+      const fallbackMe = meArg || (global.Auth && global.Auth.getUser && global.Auth.getUser());
+      initSettingsSection(fallbackMe, null);
     }
   }
 

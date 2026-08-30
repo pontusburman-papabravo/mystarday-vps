@@ -31,6 +31,23 @@ describe('E1+E3 Settings configuration vs Familj people', () => {
   it('coparent settings boot does not open a modal from the Familj link', () => {
     const src = read('public/js/coparent-invite-ui.js');
     assert.match(src, /openBtn\.tagName === 'BUTTON'/);
-    assert.match(src, /account_type === 'educator'/);
+    assert.match(src, /settingsPeopleEntryVisible|account_type !== 'educator'/);
+  });
+
+  it('family load failure still offers Familj entry and does not render invite forms', () => {
+    const html = read('public/settings.html');
+    assert.match(html, /revealSettingsPeopleEntry/);
+    assert.doesNotMatch(html, /pedagog-child-check/);
+    assert.doesNotMatch(html, /revoke-pedagog-btn/);
+    const lib = require('../src/lib/family-people-access');
+    assert.equal(lib.settingsPeopleEntryVisible({ accountType: 'educator' }), false);
+    assert.equal(lib.settingsPeopleEntryVisible({ accountType: 'family' }), true);
+    assert.equal(lib.settingsPeopleEntryVisible({ accountType: 'family', loadFailed: true }), true);
+  });
+
+  it('Familj points configuration back to Settings', () => {
+    const html = read('public/family.html');
+    assert.match(html, /data-family-config="settings"/);
+    assert.match(html, /href="\/settings"/);
   });
 });
