@@ -121,6 +121,7 @@
     "searchPlaceholder": "🔍 Search reward…",
     "allChildren": "All children",
     "childrenCount": "{{count}} children",
+    "hiddenFromAll": "Hidden from all children",
     "inactive": "Inactive"
   },
   "rewardsHub": {

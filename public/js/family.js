@@ -518,11 +518,11 @@
       }
 
       // ── Populate goal select ──────────────────────────
-      const rewards = rewardsData.rewards || [];
+      const rewards = (rewardsData.rewards || []).filter(r => r.is_active !== false);
       const goalSelect = document.getElementById('goalRewardSelect');
       if (goalSelect) {
         goalSelect.innerHTML = '<option value="">' + fpt('family.drawer.chooseReward') + '</option>' +
-          rewards.filter(r => r.is_active).map(r =>
+          rewards.map(r =>
             `<option value="${r.id}" ${childGoal && childGoal.reward_id === r.id ? 'selected' : ''}>${r.icon || '🎁'} ${escHtml(r.name)} — ${r.star_cost} ⭐</option>`
           ).join('');
       }

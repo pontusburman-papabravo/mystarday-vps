@@ -121,6 +121,7 @@
     "searchPlaceholder": "🔍 Sök belöning…",
     "allChildren": "Alla barn",
     "childrenCount": "{{count}} barn",
+    "hiddenFromAll": "Dold för alla barn",
     "inactive": "Inaktiv"
   },
   "rewardsHub": {

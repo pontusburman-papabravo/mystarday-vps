@@ -300,7 +300,9 @@
     try {
       const resp = await window.apiFetch('/api/rewards');
       const data = resp.ok ? await resp.json() : {};
-      const rewards = Array.isArray(data) ? data : (data.rewards || []);
+      const rewards = (Array.isArray(data) ? data : (data.rewards || [])).filter(function (r) {
+        return r && r.is_active !== false;
+      });
       if (!rewards.length) {
         mount.innerHTML = '<p class="text-sm text-text-soft">Inga belöningar ännu.</p>';
         return;

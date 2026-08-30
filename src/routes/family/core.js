@@ -29,6 +29,7 @@ const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const { getFamilyPreferredLocale } = require('../../lib/family-locale');
 const { localizeActivityRow, localizeRewardRow } = require('../../lib/family-content-display');
+const { selectNearestReward } = require('../../lib/reward-visible-children');
 
 const router = express.Router();
 
@@ -333,7 +334,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
 
     // Get parent's children
     const childrenResult = await db.query(
-      `SELECT c.id, c.name, c.emoji, c.timezone, c.birthday
+      `SELECT c.id, c.name, c.emoji, c.timezone, c.birthday, c.family_id
        FROM child c
        JOIN parent_child pc ON pc.child_id = c.id
        WHERE pc.parent_id = $1 AND pc.revoked_at IS NULL
@@ -540,15 +541,14 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       }
     }
 
-    // Nearest reward per child (lowest star_cost, visible + active, for parent's family)
+    // Active rewards for the children's families — visibility is applied per child below.
+    const familyIds = [...new Set(children.map((c) => c.family_id).filter(Boolean))];
     const rewardsResult = await db.query(
-      `SELECT r.id, r.name, r.icon, r.star_cost FROM reward r
-       JOIN parent_child pc ON pc.child_id = ANY($1)
-       JOIN child c ON c.id = pc.child_id
-       WHERE r.family_id = c.family_id AND r.is_active = true
-       GROUP BY r.id, r.name, r.icon, r.star_cost
+      `SELECT r.id, r.name, r.icon, r.star_cost, r.family_id, r.visible_to_children, r.is_active
+       FROM reward r
+       WHERE r.family_id = ANY($1::uuid[]) AND r.is_active = true
        ORDER BY r.star_cost ASC`,
-      [childIds]
+      [familyIds]
     );
     const allRewards = rewardsResult.rows;
 
@@ -632,8 +632,11 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         }, familyLocale);
       }));
 
-      // Nearest reward: first reward whose cost > balance (not yet earned), else first reward
-      const nearestReward = allRewards.find(r => r.star_cost > balance) || allRewards[0] || null;
+      const nearestReward = selectNearestReward(allRewards, {
+        childId: c.id,
+        familyId: c.family_id,
+        balance,
+      });
       const nearestRewardOut = nearestReward
         ? await localizeRewardRow(nearestReward, familyLocale)
         : null;
