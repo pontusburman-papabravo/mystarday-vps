@@ -1062,7 +1062,9 @@
         }
       }
       if (res.status === 401 || res.status === 403) {
-        const returnPath = window.location.pathname + window.location.search;
+        const returnPath = (typeof currentSafeReturnPath === 'function')
+          ? currentSafeReturnPath()
+          : window.location.pathname;
         window.location.href = '/login?next=' + encodeURIComponent(returnPath);
       }
       return null;

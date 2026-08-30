@@ -207,9 +207,13 @@
 
     const params = new URLSearchParams(window.location.search);
     const childId = params.get('id');
-    const pin = params.get('pin');
     const childName = params.get('name') || 'Barnet';
     const scheduleName = params.get('schedule') || '';
+    if (params.has('pin')) {
+      params.delete('pin');
+      const clean = params.toString();
+      history.replaceState(null, '', window.location.pathname + (clean ? '?' + clean : '') + window.location.hash);
+    }
 
     let currentStep = 1;
     let schemaPickerLoaded = false;
@@ -228,7 +232,16 @@
       const allowed = await checkChildWizardFeature();
       if (allowed === false) return;
 
-      // Populate step 1
+      // Populate step 1 — PIN comes from one-time parent session reveal, never URL.
+      let pin = '';
+      if (childId) {
+        try {
+          const reveal = await Auth.api('/api/children/' + childId + '/wizard-pin');
+          pin = (reveal && reveal.pin) || '';
+        } catch (_err) {
+          pin = '';
+        }
+      }
       document.getElementById('wizardPin').textContent = pin || '----';
       document.getElementById('wizardChildName').textContent = childName;
       document.getElementById('confirmName').textContent = childName;

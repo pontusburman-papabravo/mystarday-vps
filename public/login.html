@@ -439,7 +439,7 @@
       var params = new URLSearchParams(window.location.search);
       var next = params.get('next');
       if (!next || !next.startsWith('/') || next.startsWith('//')) return null;
-      return next;
+      return (typeof sanitizeReturnUrl === 'function') ? sanitizeReturnUrl(next) : next.split('?')[0];
     }
 
     function redirectAfterParentLogin() {

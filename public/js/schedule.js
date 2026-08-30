@@ -232,7 +232,7 @@ async function bootSchedulePage() {
             msg.textContent = data.error || spt('schedule.errors.network'); msg.className = 'text-sm text-red-500';
           } else {
             if (data.wizard && data.id) {
-              window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
+              window.location.href = `/child-wizard?id=${data.id}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
             } else {
               showToast(spt('schedule.addChild.success', { name: data.name, pin: data.pin }));
               document.getElementById('addChildModal').classList.add('hidden');

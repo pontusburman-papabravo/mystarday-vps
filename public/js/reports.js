@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (tookOver) return;
     }
     window.location.href = '/login?next=' + encodeURIComponent(
-      window.location.pathname + window.location.search
+      (typeof currentSafeReturnPath === 'function' ? currentSafeReturnPath() : window.location.pathname)
     );
     return;
   }

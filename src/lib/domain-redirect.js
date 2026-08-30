@@ -15,20 +15,23 @@ const EU_REDIRECT_DOMAINS = new Set([ // pragma: allowlist secret
   'mystarday.eu', 'www.mystarday.eu', // pragma: allowlist secret
 ]);
 
+const { sanitizeReturnUrl } = require('./sanitize-return-url');
+
 function createDomainRedirect() {
   return function domainRedirect(req, res, next) {
     const host = (req.headers.host || '').split(':')[0].toLowerCase();
+    const safePath = sanitizeReturnUrl(req.originalUrl || '/');
     if (host === `www.${MAIN_DOMAIN}`) {
-      return res.redirect(301, `https://${MAIN_DOMAIN}${req.originalUrl}`);
+      return res.redirect(301, `https://${MAIN_DOMAIN}${safePath}`);
     }
     if (host === `www.${APP_DOMAIN}`) {
-      return res.redirect(301, `https://${APP_DOMAIN}${req.originalUrl}`);
+      return res.redirect(301, `https://${APP_DOMAIN}${safePath}`);
     }
     if (host && EU_REDIRECT_DOMAINS.has(host)) {
-      return res.redirect(301, `https://${APP_DOMAIN}${req.originalUrl}`);
+      return res.redirect(301, `https://${APP_DOMAIN}${safePath}`);
     }
     if (host && REDIRECT_TO_MAIN.has(host)) {
-      return res.redirect(301, `https://${MAIN_DOMAIN}${req.originalUrl}`);
+      return res.redirect(301, `https://${MAIN_DOMAIN}${safePath}`);
     }
     next();
   };

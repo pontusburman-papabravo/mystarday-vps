@@ -144,7 +144,9 @@
     const enrollSource = inviteToken ? 'email_reactivation' : 'onboarding_complete';
 
     try {
-      await Auth.requireAuth('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+      await Auth.requireAuth('/login?redirect=' + encodeURIComponent(
+        (typeof currentSafeReturnPath === 'function') ? currentSafeReturnPath() : window.location.pathname
+      ));
     } catch (_) {
       return;
     }

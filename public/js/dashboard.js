@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         // Redirect to wizard onboarding so parent can review the seeded schedule
         if (data.wizard && data.id) {
-          window.location.href = `/child-wizard?id=${data.id}&pin=${encodeURIComponent(data.pin)}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
+          window.location.href = `/child-wizard?id=${data.id}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
         } else {
           showToast(`${data.name} har lagts till! PIN: ${data.pin}`);
           document.getElementById('addChildModal').classList.add('hidden');

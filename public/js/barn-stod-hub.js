@@ -15,7 +15,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (tookOver) return;
     }
     window.location.href = '/login?next=' + encodeURIComponent(
-      '/barn-stod' + window.location.search
+      (typeof sanitizeReturnUrl === 'function')
+        ? sanitizeReturnUrl('/barn-stod' + window.location.search)
+        : '/barn-stod'
     );
     return;
   }

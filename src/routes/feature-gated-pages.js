@@ -15,12 +15,13 @@ const { optionalAuth } = require('../middleware/auth');
 const { gateHtmlPage } = require('../middleware/feature-gate');
 const { gateComponentHtml } = require('../middleware/require-component');
 const db = require('../lib/db');
+const { sanitizeReturnUrl } = require('../lib/sanitize-return-url');
 
 const router = express.Router();
 
 function requireParentPage(req, res, next) {
   if (!req.user || req.user.type !== 'parent') {
-    return res.redirect('/login?next=' + encodeURIComponent(req.originalUrl || '/dashboard'));
+    return res.redirect('/login?next=' + encodeURIComponent(sanitizeReturnUrl(req.originalUrl || '/dashboard')));
   }
   next();
 }
