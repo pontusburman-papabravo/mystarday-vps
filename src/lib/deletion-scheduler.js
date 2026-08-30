@@ -15,12 +15,7 @@ const { sendAccountDeletedEmail } = require('./email');
 const { resolveCommunicationLocale } = require('./communication-locale');
 const { DELETION_SCHEDULER_LOCK_ID } = require('./scheduler-constants');
 const { withAdvisoryLock } = require('./scheduler-lock');
-const {
-  deletionConsequenceForCaller,
-  lockFamilyDeletionAuthority,
-  hardDeleteFamilyData,
-  removeParentFromFamily,
-} = require('./family-deletion');
+const familyDeletion = require('./family-deletion');
 
 let _timer = null;
 
@@ -74,6 +69,8 @@ async function runDeletionJob() {
  */
 async function executeCascadeDelete({ id: parentId, email, family_id }) {
   const client = await db.getClient();
+  let capturedAvatarKeys = [];
+  let committed = false;
 
   try {
     await client.query('BEGIN');
@@ -84,20 +81,25 @@ async function executeCascadeDelete({ id: parentId, email, family_id }) {
     );
     const communicationLocale = resolveCommunicationLocale(familyLocaleResult.rows[0]?.preferred_locale);
 
-    await lockFamilyDeletionAuthority(client, family_id);
-    const impact = await deletionConsequenceForCaller(client, parentId, family_id);
+    await familyDeletion.lockFamilyDeletionAuthority(client, family_id);
+    const impact = await familyDeletion.deletionConsequenceForCaller(client, parentId, family_id);
 
     if (impact.mode === 'family') {
-      await hardDeleteFamilyData(client, family_id);
+      capturedAvatarKeys = await familyDeletion.collectFamilyAvatarStorageKeys(client, family_id);
+      await familyDeletion.hardDeleteFamilyData(client, family_id);
       console.log(`[DELETION-SCHEDULER] Deleted family ${family_id} (last authorized adult)`);
     } else if (impact.mode === 'self') {
-      await removeParentFromFamily(client, {
+      const parentKey = await familyDeletion.collectParentAvatarStorageKey(client, parentId);
+      capturedAvatarKeys = parentKey ? [parentKey] : [];
+      await familyDeletion.removeParentFromFamily(client, {
         parentId,
         familyId: family_id,
         revokedBy: parentId,
       });
       console.log(`[DELETION-SCHEDULER] Removed parent ${parentId} (other authorized adults remain)`);
     } else {
+      const parentKey = await familyDeletion.collectParentAvatarStorageKey(client, parentId);
+      capturedAvatarKeys = parentKey ? [parentKey] : [];
       await client.query('DELETE FROM parent_child WHERE parent_id = $1', [parentId]);
       await client.query('DELETE FROM notification_preference WHERE parent_id = $1', [parentId]);
       await client.query('DELETE FROM parent WHERE id = $1', [parentId]);
@@ -113,6 +115,7 @@ async function executeCascadeDelete({ id: parentId, email, family_id }) {
     );
 
     await client.query('COMMIT');
+    committed = true;
 
     // Send deletion confirmation email (non-blocking)
     const firstName = email.split('@')[0].split('.')[0]; // rough extraction
@@ -126,6 +129,10 @@ async function executeCascadeDelete({ id: parentId, email, family_id }) {
     throw err;
   } finally {
     client.release();
+  }
+
+  if (committed) {
+    await familyDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
   }
 }
 

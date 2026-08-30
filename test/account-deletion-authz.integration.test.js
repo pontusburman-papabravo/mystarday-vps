@@ -949,6 +949,222 @@ describe('P0.1 avatar rollback safety', () => {
   });
 });
 
+describe('P0.1 scheduler avatar cleanup', () => {
+  test('scheduler family deletion cleans captured family avatar keys', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    try {
+      await ensureDeletionJobTable(db);
+      const passwordHash = await hashPassword('sched-pass-12');
+      const familyId = (await db.query(`INSERT INTO family (name) VALUES ('Sched Avatar Fam') RETURNING id`)).rows[0].id;
+      const adminId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion, deletion_requested_at)
+           VALUES ($1, $2, $3, 'Admin', true, true, true, NOW() - INTERVAL '31 days') RETURNING id`,
+          [`sched-av-admin-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const pedagogId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, account_type, pending_deletion)
+           VALUES ($1, $2, $3, 'Pedagog', true, true, 'educator', false) RETURNING id`,
+          [`sched-av-ped-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const childId = (
+        await db.query(`INSERT INTO child (family_id, name, emoji) VALUES ($1, 'Kid', '⭐') RETURNING id`, [familyId])
+      ).rows[0].id;
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary'), ($3, $2, 'pedagog')`,
+        [adminId, childId, pedagogId]
+      );
+      const adminKey = `avatars-private/sched-fam-admin-${adminId}.jpg`;
+      const pedagogKey = `avatars-private/sched-fam-ped-${pedagogId}.jpg`;
+      const childKey = `avatars-private/sched-fam-child-${childId}.jpg`;
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [adminId, adminKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [pedagogId, pedagogKey]);
+      await db.query('UPDATE child SET avatar_storage_key = $2 WHERE id = $1', [childId, childKey]);
+      const captured = await familyDeletion.collectFamilyAvatarStorageKeys(db, familyId);
+      assert.deepEqual([...captured].sort(), [adminKey, pedagogKey, childKey].sort());
+      const { runDeletionJob } = require('../src/lib/deletion-scheduler');
+      await runDeletionJob();
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, false);
+      assert.deepEqual([...deleted].sort(), [adminKey, pedagogKey, childKey].sort());
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      await db.cleanup();
+    }
+  });
+
+  test('scheduler self-removal cleans only caller avatar key', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    try {
+      await ensureDeletionJobTable(db);
+      const passwordHash = await hashPassword('sched-pass-12');
+      const familyId = (await db.query(`INSERT INTO family (name) VALUES ('Sched Avatar Self') RETURNING id`)).rows[0].id;
+      const pendingId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion, deletion_requested_at)
+           VALUES ($1, $2, $3, 'Pending', true, true, true, NOW() - INTERVAL '31 days') RETURNING id`,
+          [`sched-av-pending-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const stayId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion)
+           VALUES ($1, $2, $3, 'Stay', true, true, false) RETURNING id`,
+          [`sched-av-stay-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const childId = (
+        await db.query(`INSERT INTO child (family_id, name, emoji) VALUES ($1, 'Kid', '⭐') RETURNING id`, [familyId])
+      ).rows[0].id;
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary'), ($3, $2, 'shared')`,
+        [pendingId, childId, stayId]
+      );
+      const callerKey = `avatars-private/sched-self-pending-${pendingId}.jpg`;
+      const stayKey = `avatars-private/sched-self-stay-${stayId}.jpg`;
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [pendingId, callerKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [stayId, stayKey]);
+      const { runDeletionJob } = require('../src/lib/deletion-scheduler');
+      await runDeletionJob();
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, true);
+      assert.ok(after.parentIds.includes(stayId));
+      assert.ok(!after.parentIds.includes(pendingId));
+      assert.deepEqual(deleted, [callerKey]);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      await db.cleanup();
+    }
+  });
+
+  test('scheduler revoked parent cleanup cleans only that parent avatar key', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    try {
+      await ensureDeletionJobTable(db);
+      const passwordHash = await hashPassword('sched-pass-12');
+      const familyId = (await db.query(`INSERT INTO family (name) VALUES ('Sched Avatar Revoked') RETURNING id`)).rows[0].id;
+      const adminId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion)
+           VALUES ($1, $2, $3, 'Admin', true, true, false) RETURNING id`,
+          [`sched-av-keep-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const revokedId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion, deletion_requested_at)
+           VALUES ($1, $2, $3, 'Revoked', true, true, true, NOW() - INTERVAL '31 days') RETURNING id`,
+          [`sched-av-revoked-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const childId = (
+        await db.query(`INSERT INTO child (family_id, name, emoji) VALUES ($1, 'Kid', '⭐') RETURNING id`, [familyId])
+      ).rows[0].id;
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role, revoked_at, revoked_by)
+         VALUES ($1, $2, 'primary', NULL, NULL), ($3, $2, 'shared', NOW(), $1)`,
+        [adminId, childId, revokedId]
+      );
+      const revokedKey = `avatars-private/sched-revoked-${revokedId}.jpg`;
+      const adminKey = `avatars-private/sched-revoked-admin-${adminId}.jpg`;
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [revokedId, revokedKey]);
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [adminId, adminKey]);
+      const { runDeletionJob } = require('../src/lib/deletion-scheduler');
+      await runDeletionJob();
+      const after = await familyStateSnapshot(db, familyId);
+      assert.equal(after.familyExists, true);
+      assert.ok(after.parentIds.includes(adminId));
+      assert.ok(!after.parentIds.includes(revokedId));
+      assert.deepEqual(deleted, [revokedKey]);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      await db.cleanup();
+    }
+  });
+
+  test('scheduler rollback after key capture does not delete storage objects', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) return t.skip('No real DATABASE_URL');
+    const deleted = [];
+    const origDelete = avatarStorage.deletePrivateObject;
+    const origHardDelete = familyDeletion.hardDeleteFamilyData;
+    avatarStorage.deletePrivateObject = async (key) => {
+      deleted.push(key);
+    };
+    familyDeletion.hardDeleteFamilyData = async () => {
+      throw new Error('forced scheduler family delete failure');
+    };
+    try {
+      await ensureDeletionJobTable(db);
+      const passwordHash = await hashPassword('sched-pass-12');
+      const familyId = (await db.query(`INSERT INTO family (name) VALUES ('Sched Avatar Rollback') RETURNING id`)).rows[0].id;
+      const adminId = (
+        await db.query(
+          `INSERT INTO parent (email, password_hash, family_id, name, verified, onboarding_completed, pending_deletion, deletion_requested_at)
+           VALUES ($1, $2, $3, 'Admin', true, true, true, NOW() - INTERVAL '31 days') RETURNING id`,
+          [`sched-av-roll-${Date.now()}@example.com`, passwordHash, familyId]
+        )
+      ).rows[0].id;
+      const childId = (
+        await db.query(`INSERT INTO child (family_id, name, emoji) VALUES ($1, 'Kid', '⭐') RETURNING id`, [familyId])
+      ).rows[0].id;
+      await db.query(
+        `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary')`,
+        [adminId, childId]
+      );
+      const adminKey = `avatars-private/sched-roll-admin-${adminId}.jpg`;
+      const childKey = `avatars-private/sched-roll-child-${childId}.jpg`;
+      await db.query('UPDATE parent SET avatar_storage_key = $2 WHERE id = $1', [adminId, adminKey]);
+      await db.query('UPDATE child SET avatar_storage_key = $2 WHERE id = $1', [childId, childKey]);
+      const before = await familyStateSnapshot(db, familyId);
+      const captured = await familyDeletion.collectFamilyAvatarStorageKeys(db, familyId);
+      assert.deepEqual([...captured].sort(), [adminKey, childKey].sort());
+      const { runDeletionJob } = require('../src/lib/deletion-scheduler');
+      await runDeletionJob();
+      const after = await familyStateSnapshot(db, familyId);
+      assert.deepEqual(after, before);
+      assert.deepEqual(deleted, []);
+    } finally {
+      avatarStorage.deletePrivateObject = origDelete;
+      familyDeletion.hardDeleteFamilyData = origHardDelete;
+      await db.cleanup();
+    }
+  });
+
+  test('scheduler collects keys before COMMIT and cleans after', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'src/lib/deletion-scheduler.js'), 'utf8');
+    assert.match(src, /collectFamilyAvatarStorageKeys/);
+    assert.match(src, /collectParentAvatarStorageKey/);
+    assert.match(src, /cleanupAvatarStorageKeysAfterCommit/);
+    const collectIdx = src.indexOf('collectFamilyAvatarStorageKeys');
+    const commitIdx = src.indexOf("await client.query('COMMIT')");
+    const cleanupIdx = src.indexOf('cleanupAvatarStorageKeysAfterCommit');
+    assert.ok(collectIdx > 0 && collectIdx < commitIdx);
+    assert.ok(cleanupIdx > commitIdx);
+  });
+});
+
 describe('P0.1 settings deletion consequence', () => {
   test('settings copy uses server deletion_impact not raw parent count', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/settings.html'), 'utf8');
