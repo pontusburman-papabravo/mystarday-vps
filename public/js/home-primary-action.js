@@ -66,10 +66,18 @@
     return Boolean(p && p.enabled && p.authority === 'journey_retention');
   }
 
-  function resolveWinner() {
-    if (window.EngineClient &&
+  function safetyBlocksCoach() {
+    if (window.HomeReadiness && typeof HomeReadiness.getLoadOutcome === 'function') {
+      const outcome = HomeReadiness.getLoadOutcome();
+      if (outcome === 'error' || outcome === 'loading' || outcome === 'ok_items') return true;
+    }
+    return window.EngineClient &&
       typeof EngineClient.isReadinessBlockingCoach === 'function' &&
-      EngineClient.isReadinessBlockingCoach()) {
+      EngineClient.isReadinessBlockingCoach();
+  }
+
+  function resolveWinner() {
+    if (safetyBlocksCoach()) {
       return { winner: 'none', reason: 'readiness' };
     }
     if (activationRetentionOwnsHome()) {
@@ -102,6 +110,7 @@
     apply,
     resolveWinner,
     journeyHasRelevantStep,
+    safetyBlocksCoach,
     COACH_MOUNT_IDS,
   };
 })();
