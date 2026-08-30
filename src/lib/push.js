@@ -6,23 +6,29 @@
  */
 
 const db = require('./db');
-const { sendPushNotification } = require('./push-notifications');
+const pushNotifications = require('./push-notifications');
 const { t } = require('./i18n');
-const { validateLocale } = require('./locale');
 const { resolveCommunicationLocale } = require('./communication-locale');
 
 /**
- * Get all parents in a family with their push_preferences and locale.
+ * Parents with an active parent_child link to this child.
+ * Revoked / unlinked / other-family rows are excluded.
+ * Optional familyId fail-closes if the child is not in that family.
  */
-async function getFamilyParents(familyId) {
+async function getLinkedParentsForChild(childId, familyId = null) {
   try {
     const result = await db.query(
       `SELECT p.id, p.push_preferences, p.admin_push_enabled,
               COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
        FROM parent p
+       JOIN parent_child pc
+         ON pc.parent_id = p.id
+        AND pc.child_id = $1
+        AND pc.revoked_at IS NULL
+       JOIN child c ON c.id = $1 AND c.family_id = p.family_id
        JOIN family f ON f.id = p.family_id
-       WHERE p.family_id = $1`,
-      [familyId]
+       WHERE ($2::uuid IS NULL OR p.family_id = $2)`,
+      [childId, familyId]
     );
     return result.rows;
   } catch (_) {
@@ -53,16 +59,15 @@ const DEBOUNCE_MS = 2 * 60 * 1000; // 2 minutes
 const BATCH_THRESHOLD = 3;
 const _pendingCompletions = new Map();
 
-function _flushCompletionBatch(key, familyId, childId, excludeParentId) {
+async function _flushCompletionBatch(key, familyId, childId, excludeParentId) {
   const pending = _pendingCompletions.get(key);
   if (!pending) return;
   _pendingCompletions.delete(key);
 
   const { childName, activities } = pending;
-  let title, body;
 
   if (activities.length >= BATCH_THRESHOLD) {
-    _sendParentsPush(
+    await _sendParentsPush(
       familyId,
       childId,
       excludeParentId,
@@ -73,7 +78,7 @@ function _flushCompletionBatch(key, familyId, childId, excludeParentId) {
   }
 
   for (const activityName of activities) {
-    _sendParentsPush(
+    await _sendParentsPush(
       familyId,
       childId,
       excludeParentId,
@@ -85,18 +90,18 @@ function _flushCompletionBatch(key, familyId, childId, excludeParentId) {
 
 async function _sendParentsPush(familyId, childId, excludeParentId, titleFn, bodyFn) {
   try {
-    const parents = await getFamilyParents(familyId);
-    for (const parent of parents) {
-      if (excludeParentId && parent.id === excludeParentId) continue;
-      if (!isPushEnabledForChild(parent, childId)) continue;
+    const parents = await getLinkedParentsForChild(childId, familyId);
+    await Promise.all(parents.map(async (parent) => {
+      if (excludeParentId && parent.id === excludeParentId) return;
+      if (!isPushEnabledForChild(parent, childId)) return;
       const lang = parentLocale(parent);
-      sendPushNotification(parent.id, {
+      await pushNotifications.sendPushNotification(parent.id, {
         title: titleFn(lang),
         body: bodyFn(lang),
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});
-    }
+    }));
   } catch (err) {
     console.error('[PUSH] _sendParentsPush error:', err.message);
   }
@@ -117,7 +122,7 @@ async function notifyParentsChildCompleted(familyId, childId, childName, activit
 
       if (existing.activities.length === BATCH_THRESHOLD) {
         clearTimeout(existing.timer);
-        _flushCompletionBatch(key, familyId, childId, excludeParentId);
+        await _flushCompletionBatch(key, familyId, childId, excludeParentId);
       }
     } else {
       const timer = setTimeout(() => _flushCompletionBatch(key, familyId, childId, excludeParentId), DEBOUNCE_MS);
@@ -137,16 +142,13 @@ async function notifyParentsChildCompleted(familyId, childId, childName, activit
  */
 async function notifyChildStarGranted(childId, childName, starCount, parentName) {
   try {
-    const result = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
-    if (!result.rows[0]) return;
-    const familyId = result.rows[0].family_id;
-    const parents = await getFamilyParents(familyId);
+    const parents = await getLinkedParentsForChild(childId);
     const starLabelKey = starCount > 1 ? 'push.starLabelMany' : 'push.starLabelOne';
-    for (const parent of parents) {
-      if (!isPushEnabled(parent)) continue;
+    await Promise.all(parents.map(async (parent) => {
+      if (!isPushEnabled(parent)) return;
       const lang = parentLocale(parent);
       const starLabel = t(lang, starLabelKey);
-      sendPushNotification(parent.id, {
+      await pushNotifications.sendPushNotification(parent.id, {
         title: t(lang, 'push.starGranted.title', { starCount: String(starCount), childName }),
         body: t(lang, 'push.starGranted.body', {
           parentName,
@@ -157,44 +159,44 @@ async function notifyChildStarGranted(childId, childName, starCount, parentName)
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});
-    }
+    }));
   } catch (err) {
     console.error('[PUSH] notifyChildStarGranted error:', err.message);
   }
 }
 
 /**
- * Notify all parents in a family when a child requests a reward redemption.
+ * Notify parents linked to this child when the child requests a reward.
  */
 async function notifyParentsRewardRequest(familyId, childId, childName, rewardName) {
   try {
-    const result = await db.query(
-      `SELECT p.id, p.push_preferences, p.admin_push_enabled,
-              COALESCE(f.preferred_locale, 'sv-SE') AS preferred_locale
-       FROM parent p
-       JOIN parent_child pc ON pc.parent_id = p.id AND pc.child_id = $2 AND pc.revoked_at IS NULL
-       JOIN family f ON f.id = p.family_id
-       WHERE p.family_id = $1`,
-      [familyId, childId]
-    );
-    const parents = result.rows;
-    for (const parent of parents) {
-      if (!isPushEnabledForChild(parent, childId)) continue;
+    const parents = await getLinkedParentsForChild(childId, familyId);
+    await Promise.all(parents.map(async (parent) => {
+      if (!isPushEnabledForChild(parent, childId)) return;
       const lang = parentLocale(parent);
-      sendPushNotification(parent.id, {
+      await pushNotifications.sendPushNotification(parent.id, {
         title: t(lang, 'push.rewardRequest.title', { childName }),
         body: t(lang, 'push.rewardRequest.body', { childName, rewardName }),
         icon: '/icon-192.png',
         url: '/dashboard',
       }).catch(() => {});
-    }
+    }));
   } catch (err) {
     console.error('[PUSH] notifyParentsRewardRequest error:', err.message);
   }
 }
 
+function clearPendingCompletions() {
+  for (const pending of _pendingCompletions.values()) {
+    clearTimeout(pending.timer);
+  }
+  _pendingCompletions.clear();
+}
+
 module.exports = {
+  getLinkedParentsForChild,
   notifyParentsChildCompleted,
   notifyChildStarGranted,
   notifyParentsRewardRequest,
+  clearPendingCompletions,
 };
