@@ -244,4 +244,15 @@ describe('register.html wires preflight before native signIn', () => {
     assert.ok(signIdx > preIdx, 'signIn must be after preflight');
     assert.doesNotMatch(handler, /CountryChoice\.requireSelection\(\)/);
   });
+
+  it('script-scope t() exists so confirmed-country Apple tap cannot throw ReferenceError', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/register.html'), 'utf8');
+    const scriptStart = html.lastIndexOf('<script>');
+    const script = html.slice(scriptStart);
+    const tIdx = script.indexOf('function t(');
+    const dcIdx = script.indexOf("document.addEventListener('DOMContentLoaded'");
+    const appleIdx = script.indexOf('async function handleAppleRegister');
+    assert.ok(tIdx > 0 && tIdx < dcIdx, 't() must be defined at script scope before DOMContentLoaded');
+    assert.ok(appleIdx > tIdx, 'handleAppleRegister must see script-scope t()');
+  });
 });

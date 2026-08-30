@@ -312,6 +312,16 @@
       });
     }
 
+    // Script-scope: handleAppleRegister is outside DOMContentLoaded and must
+    // never throw ReferenceError when looking up copy.
+    function t(key, params) {
+      try {
+        if (window.authT) return window.authT(key, params);
+        if (window.I18n && typeof window.I18n.t === 'function') return window.I18n.t(key, params);
+      } catch (_) { /* keep key */ }
+      return key;
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       // Check if already logged in
       if (Auth.isLoggedIn()) {
@@ -393,10 +403,6 @@
 
       // Track whether family name has been manually edited
       let familyNameEdited = false;
-
-      function t(key, params) {
-        return (window.authT || ((k) => k))(key, params);
-      }
 
       // Auto-generate family name from parent name
       function updateFamilyName() {
