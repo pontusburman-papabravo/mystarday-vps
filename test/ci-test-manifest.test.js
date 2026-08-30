@@ -32,6 +32,7 @@ const CRITICAL_INTEGRATION = [
   'test/fas-5-widget-family-device.integration.test.js',
   'test/r45-closure-blockers.integration.test.js',
   'test/iap-webhook-ordering.integration.test.js',
+  'test/iap-app-review-eligibility.test.js',
   'test/standard-library-v11-foundation.test.js',
 ];
 
@@ -48,6 +49,7 @@ const CRITICAL_UNIT = [
   'test/android-aab-release-gate.test.js',
   'test/pre-public-release-gate.test.js',
   'test/iap-client-config.test.js',
+  'test/register-oauth-country-gate.test.js',
   'test/scheduler-registry-contract.test.js',
 ];
 
