@@ -62,7 +62,7 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 ## Versioning
 
-Keep `MARKETING_VERSION` **1.4.3** unless App Store Connect cannot accept another 1.4.3 build. Submit a new Xcode Cloud build **1123+**. Do not reuse 1122.
+Keep `MARKETING_VERSION` **1.4.3** unless App Store Connect cannot accept another 1.4.3 build. Latest uploaded build: **1139**. Select **1.4.3 (1139)** in the submission. Do not reuse 1122 or any older 1.4.3 build.
 
 ## Review notes
 
@@ -79,5 +79,6 @@ Paste-ready reviewer notes (secret **names** only) live in `docs/app-store-revie
 | Prior sandbox E2E purchase (yearly) | PASS — `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` (2026-08-28) |
 | Subscription / paywall follow in-app language | PASS — live SW `stjarndag-v914` |
 | Complimentary account stays non-purchasable | unchanged (grandfathered / complimentary) |
+| Latest binary | **1.4.3 (1139)** |
 
 Do **not** put the complimentary review family or the founder Apple account on `REVENUECAT_SANDBOX_FAMILY_IDS`.

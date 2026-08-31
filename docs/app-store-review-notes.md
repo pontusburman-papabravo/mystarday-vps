@@ -1,7 +1,7 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-08-31 | IAP reviewer path (READY BUT OFF + dedicated sandbox family)
+> Last updated: 2026-08-31 | IAP reviewer path — submit **1.4.3 (1139)** (READY BUT OFF + dedicated sandbox family)
 
 ---
 
@@ -11,12 +11,14 @@
 
 Ordinary families cannot purchase. Billing stays off (`payment_enabled = false`, `BILLING_UI_DISABLED = true`). App Store Connect already has auto-renewable Monthly and Yearly products, so reviewers must be able to reach those sheets on a **dedicated** account.
 
+**Build to select in App Store Connect:** **1.4.3 (1139)**. Do not submit an older 1.4.3 build.
+
 **Founder device proof (2026-08-31, `EVIDENCE_SOURCE: founder_observation`):** Monthly/Yearly prices distinct after yearly availability; Sandbox Account sign-in reaches the StoreKit sheet; prior sandbox E2E purchase recorded in `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`. Subscription copy follows the in-app language (live SW `stjarndag-v914`). Do **not** submit until the founder says to submit.
 
 ### Paste into App Review Information → Notes
 
 ```
-Thank you for reviewing My Starday.
+Thank you for reviewing My Starday 1.4.3 (1139).
 
 This build uses Apple In-App Purchase (StoreKit) for Premium. There is no web checkout.
 
