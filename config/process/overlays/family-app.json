@@ -109,7 +109,8 @@
         "test/billing*.test.js",
         "test/limited-account-paywall*.test.js",
         "test/review-subscription*.test.js",
-        "test/prebilling-launch-access.test.js"
+        "test/prebilling-launch-access.test.js",
+        "test/prebilling-market-e2e.test.js"
       ]
     },
     "i18n-markets-legal": {
@@ -140,7 +141,8 @@
         "test/eea-launch*.test.js",
         "test/english-app*.test.js",
         "test/grandfather-country*.test.js",
-        "test/prebilling-launch-access.test.js"
+        "test/prebilling-launch-access.test.js",
+        "test/prebilling-market-e2e.test.js"
       ]
     },
     "planning-schedule": {
@@ -206,7 +208,8 @@
         "test/skattkammaren*.test.js",
         "test/fas-4a-daily-child-ux.test.js",
         "test/child-treasure*.test.js",
-        "test/child-substep*.test.js"
+        "test/child-substep*.test.js",
+        "test/prebilling-market-e2e.test.js"
       ]
     },
     "parent-experience": {
