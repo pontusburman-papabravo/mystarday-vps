@@ -3,9 +3,10 @@
  * Verify Android native patches are present before Play upload.
  *
  * When android/app/src/main/AndroidManifest.xml exists, App Links are checked
- * against the generated XML (not this script's source): autoVerify, host,
- * every APP_LINK_PATHS entry, and mandatory /open/child.
- * https://developer.android.com/training/app-links/verify-android-applinks
+ * against the generated XML (not this script's source): autoVerify, VIEW,
+ * DEFAULT, BROWSABLE, both http and https, exact host, every APP_LINK_PATHS
+ * entry, and mandatory /open/child.
+ * https://developer.android.com/training/app-links/add-applinks
  */
 import fs from 'fs';
 import path from 'path';
@@ -121,7 +122,7 @@ if (fs.existsSync(androidDir) && !fs.existsSync(manifestPath)) {
     }
   } else {
     ok(
-      `MainActivity HTTPS App Links complete (autoVerify, host=${appLinks.host}, ` +
+      `MainActivity App Links complete (autoVerify, http+https, host=${appLinks.host}, ` +
         `${APP_LINK_PATHS.length} paths including ${OPEN_CHILD_PATH})`
     );
   }

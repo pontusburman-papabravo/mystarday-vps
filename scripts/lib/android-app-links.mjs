@@ -2,17 +2,26 @@
  * Shared Android App Links helpers for patch + verify.
  *
  * Official sources this module implements:
- * - App Links / intent-filter data + autoVerify:
+ * - App Link intent-filters MUST declare both http and https schemes:
+ *   https://developer.android.com/training/app-links/add-applinks
+ * - Auto-verify + VIEW / DEFAULT / BROWSABLE:
  *   https://developer.android.com/training/app-links/verify-android-applinks
  * - Digital Asset Links (host must match live assetlinks.json):
  *   https://developers.google.com/digital-asset-links/v1/getting-started
  * - pathPrefix matching on <data> elements:
  *   https://developer.android.com/guide/topics/manifest/data-element
  *
+ * Android merges every <data> element in the same intent-filter into all
+ * combinations of scheme × host × path. This module therefore uses one
+ * canonical host, scheme-only <data> tags for http and https, and
+ * pathPrefix-only <data> tags — never a second host.
+ *
  * The canonical App Link host is the live HTTPS host. Tests override
  * ANDROID_APP_LINK_HOST so fixtures never depend on a specific domain string.
  */
 export const OPEN_CHILD_PATH = '/open/child';
+
+export const REQUIRED_APP_LINK_SCHEMES = Object.freeze(['http', 'https']);
 
 export const APP_LINK_PATHS = Object.freeze([
   '/accept-invite',
@@ -84,55 +93,82 @@ function collectAttrValues(xml, attr) {
   return findAll(xml, new RegExp(`android:${escapeRe(attr)}="([^"]+)"`, 'g')).map((m) => m[1]);
 }
 
-function isHttpsAutoVerifyFilter(filter) {
+function isAppLinkAutoVerifyFilter(filter) {
   if (!/\bandroid:autoVerify\s*=\s*"true"/.test(filter.attrs)) return false;
   if (!filter.inner.includes('android.intent.action.VIEW')) return false;
   if (!filter.inner.includes('android.intent.category.DEFAULT')) return false;
   if (!filter.inner.includes('android.intent.category.BROWSABLE')) return false;
   const schemes = collectAttrValues(filter.inner, 'scheme');
-  return schemes.includes('https');
+  return schemes.includes('http') || schemes.includes('https');
 }
 
-export function findHttpsAppLinkFilter(activityXml, host = getAppLinkHost()) {
+export function findAppLinkFilter(activityXml, host = getAppLinkHost()) {
   const filters = parseIntentFilters(activityXml);
-  const httpsAuto = filters.filter(isHttpsAutoVerifyFilter);
-  if (httpsAuto.length > 1) {
+  const appLinkFilters = filters.filter(isAppLinkAutoVerifyFilter);
+  if (appLinkFilters.length > 1) {
     throw new Error(
-      `MainActivity has ${httpsAuto.length} HTTPS autoVerify App Link filters — cannot verify safely`
+      `MainActivity has ${appLinkFilters.length} autoVerify App Link filters — cannot verify safely`
     );
   }
-  if (httpsAuto.length === 0) return null;
+  if (appLinkFilters.length === 0) return null;
 
-  const filter = httpsAuto[0];
+  const filter = appLinkFilters[0];
   const hosts = [...new Set(collectAttrValues(filter.inner, 'host'))];
   if (hosts.length === 0) {
-    throw new Error('MainActivity HTTPS autoVerify filter has no android:host — cannot verify safely');
+    throw new Error('MainActivity App Link filter has no android:host — cannot verify safely');
   }
   if (hosts.length > 1 || hosts[0] !== host) {
     throw new Error(
-      `MainActivity HTTPS autoVerify host is ${hosts.join(',')} — expected ${host}`
+      `MainActivity App Link host is ${hosts.join(',')} — expected ${host}`
+    );
+  }
+  const schemes = [...new Set(collectAttrValues(filter.inner, 'scheme'))];
+  const unexpected = schemes.filter((s) => !REQUIRED_APP_LINK_SCHEMES.includes(s));
+  if (unexpected.length > 0) {
+    throw new Error(
+      `MainActivity App Link filter has unexpected scheme(s) ${unexpected.join(',')} — cannot verify safely`
     );
   }
   return filter;
+}
+
+/** @deprecated Use findAppLinkFilter — HTTPS-only is no longer sufficient. */
+export function findHttpsAppLinkFilter(activityXml, host = getAppLinkHost()) {
+  return findAppLinkFilter(activityXml, host);
 }
 
 export function collectPathPrefixes(filterInnerXml) {
   return collectAttrValues(filterInnerXml, 'pathPrefix');
 }
 
-function dataLine(host, prefix) {
-  return `                <data android:scheme="https" android:host="${host}" android:pathPrefix="${prefix}" />`;
+export function collectSchemes(filterInnerXml) {
+  return collectAttrValues(filterInnerXml, 'scheme');
+}
+
+function schemeDataLine(scheme) {
+  return `                <data android:scheme="${scheme}" />`;
+}
+
+function hostDataLine(host) {
+  return `                <data android:host="${host}" />`;
+}
+
+function pathDataLine(prefix) {
+  return `                <data android:pathPrefix="${prefix}" />`;
 }
 
 export function buildAppLinkIntentFilter(host = getAppLinkHost()) {
   assertOpenChildRequired();
-  const dataLines = APP_LINK_PATHS.map((prefix) => dataLine(host, prefix)).join('\n');
+  const schemeLines = REQUIRED_APP_LINK_SCHEMES.map(schemeDataLine).join('\n');
+  const pathLines = APP_LINK_PATHS.map(pathDataLine).join('\n');
   return `
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-${dataLines}
+${schemeLines}
+${hostDataLine(host)}
+${pathLines}
             </intent-filter>`;
 }
 
@@ -152,12 +188,28 @@ function insertFilterAfterLauncher(activityXml, filterXml) {
   return activityXml.slice(0, insertAt) + filterXml + activityXml.slice(insertAt);
 }
 
-function addMissingPathData(filterXml, host, missingPaths) {
-  const lines = missingPaths.map((prefix) => `\n${dataLine(host, prefix)}`).join('');
+function addMissingSchemes(filterXml, missingSchemes) {
+  const lines = missingSchemes.map(schemeDataLine).join('\n');
+  const dataIdx = filterXml.search(/<data\b/);
+  if (dataIdx !== -1) {
+    return filterXml.slice(0, dataIdx) + `${lines}\n` + filterXml.slice(dataIdx);
+  }
+  if (!/<\/intent-filter>\s*$/.test(filterXml)) {
+    throw new Error('App Link intent-filter is missing a closing tag');
+  }
+  return filterXml.replace(/<\/intent-filter>\s*$/, `\n${lines}\n            </intent-filter>`);
+}
+
+function addMissingPathData(filterXml, missingPaths) {
+  const lines = missingPaths.map((prefix) => `\n${pathDataLine(prefix)}`).join('');
   if (!/<\/intent-filter>\s*$/.test(filterXml)) {
     throw new Error('App Link intent-filter is missing a closing tag');
   }
   return filterXml.replace(/<\/intent-filter>\s*$/, `${lines}\n            </intent-filter>`);
+}
+
+function unique(values) {
+  return [...new Set(values)];
 }
 
 export function verifyGeneratedAppLinks(manifestXml, host = getAppLinkHost()) {
@@ -167,19 +219,36 @@ export function verifyGeneratedAppLinks(manifestXml, host = getAppLinkHost()) {
   let filter;
   try {
     activity = findMainActivityElement(manifestXml);
-    filter = findHttpsAppLinkFilter(activity.xml, host);
+    filter = findAppLinkFilter(activity.xml, host);
   } catch (err) {
-    return { ok: false, errors: [err.message], paths: [], host, autoVerify: false };
+    return { ok: false, errors: [err.message], paths: [], schemes: [], host, autoVerify: false };
   }
 
   if (!filter) {
-    errors.push('MainActivity is missing an HTTPS App Links intent-filter with android:autoVerify="true"');
-    return { ok: false, errors, paths: [], host, autoVerify: false };
+    errors.push('MainActivity is missing an App Links intent-filter with android:autoVerify="true"');
+    return { ok: false, errors, paths: [], schemes: [], host, autoVerify: false };
   }
 
   const paths = collectPathPrefixes(filter.inner);
+  const schemes = unique(collectSchemes(filter.inner));
+
   if (!/\bandroid:autoVerify\s*=\s*"true"/.test(filter.attrs)) {
     errors.push('MainActivity App Links filter is missing android:autoVerify="true"');
+  }
+  if (!filter.inner.includes('android.intent.action.VIEW')) {
+    errors.push('MainActivity App Links filter is missing android.intent.action.VIEW');
+  }
+  if (!filter.inner.includes('android.intent.category.DEFAULT')) {
+    errors.push('MainActivity App Links filter is missing android.intent.category.DEFAULT');
+  }
+  if (!filter.inner.includes('android.intent.category.BROWSABLE')) {
+    errors.push('MainActivity App Links filter is missing android.intent.category.BROWSABLE');
+  }
+  if (!schemes.includes('http')) {
+    errors.push('MainActivity App Links filter is missing scheme http');
+  }
+  if (!schemes.includes('https')) {
+    errors.push('MainActivity App Links filter is missing scheme https');
   }
   if (!paths.includes(OPEN_CHILD_PATH)) {
     errors.push(`MainActivity App Links filter is missing mandatory path ${OPEN_CHILD_PATH}`);
@@ -197,6 +266,7 @@ export function verifyGeneratedAppLinks(manifestXml, host = getAppLinkHost()) {
     ok: errors.length === 0,
     errors,
     paths,
+    schemes,
     host,
     autoVerify: true,
   };
@@ -205,21 +275,31 @@ export function verifyGeneratedAppLinks(manifestXml, host = getAppLinkHost()) {
 export function ensureMainActivityAppLinks(manifestXml, host = getAppLinkHost()) {
   assertOpenChildRequired();
   const activity = findMainActivityElement(manifestXml);
-  const existing = findHttpsAppLinkFilter(activity.xml, host);
+  const existing = findAppLinkFilter(activity.xml, host);
   let nextActivity = activity.xml;
   const added = [];
 
   if (!existing) {
     nextActivity = insertFilterAfterLauncher(nextActivity, buildAppLinkIntentFilter(host));
-    added.push(...APP_LINK_PATHS);
+    added.push(...REQUIRED_APP_LINK_SCHEMES, ...APP_LINK_PATHS);
   } else {
-    const present = new Set(collectPathPrefixes(existing.inner));
-    const missing = APP_LINK_PATHS.filter((p) => !present.has(p));
-    if (missing.length > 0) {
-      const nextFilter = addMissingPathData(existing.xml, host, missing);
+    const presentPaths = new Set(collectPathPrefixes(existing.inner));
+    const missingPaths = APP_LINK_PATHS.filter((p) => !presentPaths.has(p));
+    const presentSchemes = new Set(collectSchemes(existing.inner));
+    const missingSchemes = REQUIRED_APP_LINK_SCHEMES.filter((s) => !presentSchemes.has(s));
+
+    let nextFilter = existing.xml;
+    if (missingSchemes.length > 0) {
+      nextFilter = addMissingSchemes(nextFilter, missingSchemes);
+      added.push(...missingSchemes);
+    }
+    if (missingPaths.length > 0) {
+      nextFilter = addMissingPathData(nextFilter, missingPaths);
+      added.push(...missingPaths);
+    }
+    if (nextFilter !== existing.xml) {
       nextActivity =
         nextActivity.slice(0, existing.start) + nextFilter + nextActivity.slice(existing.end);
-      added.push(...missing);
     }
   }
 
