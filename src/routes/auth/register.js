@@ -27,12 +27,11 @@ const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection'
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 const {
   resolveRegistrationCountry,
-  isMarketOpenForRegistration,
   isKnownRegistrationCountryCode,
   normalizeCountryCode,
-  marketClosedCode,
 } = require('../../lib/market-region');
 const { getMarketConfig } = require('../../lib/market-config');
+const { assertRegistrationMarketOpen } = require('../../lib/registration-market-context');
 
 const router = express.Router();
 
@@ -90,16 +89,14 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       return res.status(400).json({ error: authApiMessage(familyLocale, 'errors.invalidCountry') });
     }
 
-    const marketOpen = await isMarketOpenForRegistration(countryResolved.country_code);
-    if (!marketOpen) {
-      const code = marketClosedCode(countryResolved.country_code);
-      const region = countryResolved.market_region;
-      const country = countryResolved.country_code;
-      return res.status(403).json({
-        error: authApiMessage(familyLocale, `errors.marketClosed.${code}`),
-        code,
-        market_region: region,
-        country_code: country,
+    const marketGate = await assertRegistrationMarketOpen(
+      countryResolved.country_code,
+      familyLocale
+    );
+    if (!marketGate.ok) {
+      return res.status(marketGate.status).json({
+        ...marketGate.body,
+        market_region: countryResolved.market_region,
       });
     }
 

@@ -22,6 +22,7 @@ const LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/public/',
   '/api/landing',
   '/api/i18n',
+  '/api/family/delete-account',
 ];
 
 /** Child sessions without Premium may still reach auth, subscription read, and parent-restore flows. */

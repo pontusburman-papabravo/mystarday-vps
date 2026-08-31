@@ -143,6 +143,7 @@
   "allowedProductionHosts": [],
 
   "expectedLiveMarketCountryCodes": ["SE"],
+  "launchReadyClosedCountryCodes": ["IE", "FI"],
 
   "localeFiles": [
     "src/locales/sv-SE.json",

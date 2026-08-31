@@ -22,6 +22,13 @@ describe('legal-routing', () => {
     assert.equal(routes.status, 'live');
   });
 
+  it('FI sv-SE uses Swedish live legal routes (Finland is a Swedish-speaking market)', () => {
+    const routes = resolveLegalRoutes({ countryCode: 'FI', marketRegion: 'EU', locale: 'sv-SE' });
+    assert.equal(routes.privacy, '/privacy');
+    assert.equal(routes.terms, '/terms');
+    assert.equal(routes.status, 'live');
+  });
+
   it('FI en-GB uses the same English EEA legal routes with live status (Track 1 extended to FI)', () => {
     const routes = resolveLegalRoutes({ countryCode: 'FI', marketRegion: 'EU', locale: 'en-GB' });
     assert.equal(routes.privacy, '/en/eea/privacy');

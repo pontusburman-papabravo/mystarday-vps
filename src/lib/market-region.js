@@ -139,6 +139,7 @@ const MARKET_CLOSED_MESSAGES = Object.freeze({
   MARKET_UK_CLOSED: 'My Starday is not available in the United Kingdom yet.',
   MARKET_US_CLOSED: 'My Starday is not available in the United States yet.',
   MARKET_OTHER_CLOSED: 'My Starday is not available in your country yet.',
+  MARKET_BILLING_NOT_READY: 'Köp är inte tillgängliga i det här landet ännu, så vi kan inte skapa ett konto som du inte kan använda.',
 });
 
 function marketClosedMessage(code) {

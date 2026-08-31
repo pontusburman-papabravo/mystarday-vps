@@ -135,6 +135,7 @@ async function main() {
     const { runLegalUrlChecks } = require('./lib/release-compliance/check-legal-urls.cjs');
     const { runPlaceholderScan } = require('./lib/release-compliance/check-placeholder-scan.cjs');
     const { runMarketConsistencyChecks } = require('./lib/release-compliance/check-market-consistency.cjs');
+    const { runLaunchReadyMarketChecks } = require('./lib/release-compliance/check-launch-ready-markets.cjs');
     const { runAuthReviewAccessChecks } = require('./lib/release-compliance/check-auth-review-access.cjs');
     const { runAccountDeletionChecks } = require('./lib/release-compliance/check-account-deletion.cjs');
     const { runIapChecks } = require('./lib/release-compliance/check-iap.cjs');
@@ -147,6 +148,7 @@ async function main() {
       runLegalUrlChecks(ROOT),
       runPlaceholderScan(ROOT),
       runMarketConsistencyChecks(ROOT),
+      runLaunchReadyMarketChecks(ROOT),
       runAuthReviewAccessChecks(ROOT),
       runAccountDeletionChecks(ROOT),
       runIapChecks(ROOT),

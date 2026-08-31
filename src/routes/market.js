@@ -14,6 +14,12 @@ const {
 const { getMarketConfig } = require('../lib/market-config');
 const { resolveLegalRoutes } = require('../lib/legal-routing');
 const { REGISTRATION_COUNTRIES } = require('../../config/market-countries');
+const { isEnglishAppGlobalEnabled } = require('../lib/english-app-global-flag');
+const {
+  isPublicBillingUsable,
+  evaluateSignupCompleteness,
+} = require('../lib/market-launch-invariants');
+const { getPaymentStartAt } = require('../lib/payment-settings');
 
 const router = express.Router();
 
@@ -22,6 +28,7 @@ router.get('/registration-gates', async (req, res) => {
   try {
     const [
       se, ie, fi, no, dk, eu, uk, us, other,
+      publicBillingUsable, paymentStartAt, englishAvailable,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
@@ -32,7 +39,24 @@ router.get('/registration-gates', async (req, res) => {
       isMarketOpenForRegistration('GB'),
       isMarketOpenForRegistration('US'),
       isMarketOpenForRegistration('ZZ'),
+      isPublicBillingUsable(),
+      getPaymentStartAt(),
+      isEnglishAppGlobalEnabled(),
     ]);
+    const now = new Date();
+    const signupAllowed = {};
+    for (const [code, open] of [
+      ['SE', se], ['IE', ie], ['FI', fi], ['NO', no], ['DK', dk],
+      ['DE', eu], ['GB', uk], ['US', us], ['ZZ', other],
+    ]) {
+      signupAllowed[code] = evaluateSignupCompleteness({
+        countryCode: code,
+        marketOpen: open,
+        publicBillingUsable,
+        paymentStartAt,
+        now,
+      }).allowed;
+    }
     res.json({
       market_se_open: se,
       market_ie_open: ie,
@@ -43,6 +67,9 @@ router.get('/registration-gates', async (req, res) => {
       market_uk_open: uk,
       market_us_open: us,
       market_other_open: other,
+      public_billing_usable: publicBillingUsable,
+      english_available: englishAvailable,
+      signup_allowed: signupAllowed,
     });
   } catch (err) {
     console.error('[MARKET] registration-gates error:', err);

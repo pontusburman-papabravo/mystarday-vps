@@ -427,7 +427,8 @@
           "MARKET_EU_CLOSED": "My Starday is not available in your country yet. We will notify you when we open more EU countries.",
           "MARKET_UK_CLOSED": "My Starday is not available in the United Kingdom yet.",
           "MARKET_US_CLOSED": "My Starday is not available in the United States yet.",
-          "MARKET_OTHER_CLOSED": "My Starday is not available in your country yet."
+          "MARKET_OTHER_CLOSED": "My Starday is not available in your country yet.",
+          "MARKET_BILLING_NOT_READY": "Purchases are not available yet in this country, so we cannot create an account you would be unable to use."
         }
       },
       "success": {

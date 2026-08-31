@@ -57,7 +57,7 @@ describe('getMarketConfig timezone contract', () => {
     const cfg = getMarketConfig({ countryCode: 'FI' });
     assert.equal(cfg.timezone, 'Europe/Helsinki');
     assert.equal(cfg.currency, 'EUR');
-    assert.equal(cfg.defaultLocale, 'en-GB');
+    assert.equal(cfg.defaultLocale, 'sv-SE');
     assert.equal(cfg.localeSupported, true);
   });
 

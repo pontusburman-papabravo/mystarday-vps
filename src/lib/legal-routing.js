@@ -27,7 +27,7 @@ function resolveLegalRoutes(input = {}) {
     };
   }
 
-  if (locale === 'sv-SE' && countryCode === 'SE') {
+  if (locale === 'sv-SE' && (countryCode === 'SE' || countryCode === 'FI')) {
     return {
       privacy: '/privacy',
       terms: '/terms',
@@ -37,7 +37,7 @@ function resolveLegalRoutes(input = {}) {
     };
   }
 
-  // English UI — EEA baseline (IE + FI overlays use same route family until country-specific copy ships)
+  // English UI — EEA baseline (IE + FI English overlays use same route family)
   const LIVE_EEA_COUNTRY_CODES = new Set(['IE', 'FI']);
   return {
     privacy: '/en/eea/privacy',

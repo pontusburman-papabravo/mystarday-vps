@@ -281,6 +281,12 @@ describe('release-compliance-gate — orchestrator smoke test', () => {
     assert.notEqual(result.status, STATUS.FAIL, JSON.stringify(result.evidence));
   });
 
+  test('runLaunchReadyMarketChecks passes for IE/FI closed-but-ready defaults', () => {
+    const { runLaunchReadyMarketChecks } = require('../scripts/lib/release-compliance/check-launch-ready-markets.cjs');
+    const result = runLaunchReadyMarketChecks(REPO_ROOT);
+    assert.equal(result.status, STATUS.PASS, JSON.stringify(result.evidence));
+  });
+
   test('runVersionBuildCacheChecks finds SW cache version in sync with config', () => {
     const { runVersionBuildCacheChecks } = require('../scripts/lib/release-compliance/check-version-build-cache.cjs');
     const result = runVersionBuildCacheChecks(REPO_ROOT);

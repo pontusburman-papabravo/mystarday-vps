@@ -31,6 +31,11 @@ describe('locale normalization', () => {
     assert.equal(normalizeLocale(''), null);
   });
 
+  it('maps fi-FI to sv-SE (Finland Swedish-speaking market, no Finnish locale)', () => {
+    assert.equal(normalizeLocale('fi-FI'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi-FI'), 'sv-SE');
+  });
+
   it('validateLocale falls back to sv-SE', () => {
     assert.equal(validateLocale('bogus'), DEFAULT_LOCALE);
     assert.equal(validateLocale('en-GB'), 'en-GB');

@@ -7,6 +7,7 @@ const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { deriveMarketRegion, MARKET_REGIONS } = require('../src/lib/market-region');
 const { resolveLegalRoutes } = require('../src/lib/legal-routing');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -71,7 +72,7 @@ test('market_ie_open OFF denies IE registration (B)', async (t) => {
   }
 });
 
-test('market_ie_open ON accepts IE registration (C)', async (t) => {
+test('market_ie_open ON + billing OFF rejects IE to prevent 402 deadlock', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -80,6 +81,30 @@ test('market_ie_open ON accepts IE registration (C)', async (t) => {
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, body } = await registerCountry(http.baseUrl, 'IE');
+    assert.equal(res.status, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+  } finally {
+    await setMarketFlag(pg, 'market_ie_open', false);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_ie_open ON accepts IE registration when public billing is usable (C)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_ie_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+  const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -96,12 +121,13 @@ test('market_ie_open ON accepts IE registration (C)', async (t) => {
     assert.equal(fam.rows[0].timezone, 'Europe/Dublin');
   } finally {
     await setMarketFlag(pg, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
     await http.close();
     await db.cleanup();
   }
 });
 
-test('market_eu_open OFF + market_ie_open ON still accepts IE (D)', async (t) => {
+test('market_eu_open OFF + market_ie_open ON still accepts IE when billing usable (D)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -110,6 +136,7 @@ test('market_eu_open OFF + market_ie_open ON still accepts IE (D)', async (t) =>
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+  const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -118,6 +145,7 @@ test('market_eu_open OFF + market_ie_open ON still accepts IE (D)', async (t) =>
     assert.equal(res.status, 201, text);
   } finally {
     await setMarketFlag(pg, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
     await http.close();
     await db.cleanup();
   }
@@ -145,7 +173,7 @@ test('market_fi_open OFF denies FI registration', async (t) => {
   }
 });
 
-test('market_fi_open ON accepts FI registration with Europe/Helsinki', async (t) => {
+test('market_fi_open ON + billing OFF rejects FI to prevent 402 deadlock', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -158,16 +186,9 @@ test('market_fi_open ON accepts FI registration with Europe/Helsinki', async (t)
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    const { res, email } = await registerCountry(http.baseUrl, 'FI');
-    assert.equal(res.status, 201, res.text);
-
-    const fam = await pg.query(
-      `SELECT country_code, timezone FROM family f
-       JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
-      [email.toLowerCase()]
-    );
-    assert.equal(fam.rows[0].country_code, 'FI');
-    assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
+    const { res, body } = await registerCountry(http.baseUrl, 'FI', { preferred_locale: 'sv-SE' });
+    assert.equal(res.status, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
   } finally {
     await setMarketFlag(pg, 'market_fi_open', false);
     await http.close();
@@ -175,7 +196,7 @@ test('market_fi_open ON accepts FI registration with Europe/Helsinki', async (t)
   }
 });
 
-test('market_eu_open OFF + market_fi_open ON still accepts FI', async (t) => {
+test('market_fi_open ON accepts FI Swedish registration with Europe/Helsinki when billing usable', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -184,14 +205,49 @@ test('market_eu_open OFF + market_fi_open ON still accepts FI', async (t) => {
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_fi_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+  const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    const { res, text } = await registerCountry(http.baseUrl, 'FI');
+    const { res, email } = await registerCountry(http.baseUrl, 'FI', { preferred_locale: 'sv-SE' });
+    assert.equal(res.status, 201, res.text);
+
+    const fam = await pg.query(
+      `SELECT country_code, timezone, preferred_locale FROM family f
+       JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].country_code, 'FI');
+    assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
+    assert.equal(fam.rows[0].preferred_locale, 'sv-SE');
+  } finally {
+    await setMarketFlag(pg, 'market_fi_open', false);
+    await disablePublicBillingForTest(billingSnap);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_eu_open OFF + market_fi_open ON still accepts FI when billing usable', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_fi_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+  const billingSnap = await enablePublicBillingForTest();
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, text } = await registerCountry(http.baseUrl, 'FI', { preferred_locale: 'sv-SE' });
     assert.equal(res.status, 201, text);
   } finally {
     await setMarketFlag(pg, 'market_fi_open', false);
+    await disablePublicBillingForTest(billingSnap);
     await http.close();
     await db.cleanup();
   }
@@ -229,6 +285,7 @@ test('IE child inherits Europe/Dublin from family (F)', async (t) => {
   }
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
+  const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -280,6 +337,7 @@ test('IE child inherits Europe/Dublin from family (F)', async (t) => {
     void parentId;
   } finally {
     await setMarketFlag(pg, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
     await http.close();
     await db.cleanup();
   }
@@ -382,6 +440,10 @@ test('registration-gates API exposes market_ie_open', async (t) => {
     assert.equal(typeof body.market_dk_open, 'boolean');
     assert.equal(body.market_ie_open, false, 'market_ie_open must default OFF');
     assert.equal(body.market_fi_open, false, 'market_fi_open must default OFF');
+    assert.equal(body.signup_allowed.IE, false);
+    assert.equal(body.signup_allowed.FI, false);
+    assert.equal(typeof body.public_billing_usable, 'boolean');
+    assert.equal(typeof body.english_available, 'boolean');
   } finally {
     await http.close();
     await db.cleanup();

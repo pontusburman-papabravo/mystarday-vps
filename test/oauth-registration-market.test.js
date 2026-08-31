@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const path = require('path');
 const crypto = require('crypto');
 const { setupTestDb } = require('./helpers/setup.js');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 
 const parentDbPath = path.join(__dirname, '../db/parent.js');
 const googleAuthPath = path.join(__dirname, '../src/lib/google-auth.js');
@@ -187,10 +188,41 @@ test('IE Google new signup blocked while market_ie_open=false', async () => {
   await db.cleanup();
 });
 
+test('IE Google new signup blocked when gate ON but public billing is off', async () => {
+  const db = await setupTestDb();
+  if (db.skip) return;
+  await setMarketFlag(db, 'market_ie_open', true);
+
+  const handler = getGoogleHandler();
+  const req = {
+    body: {
+      idToken: 'valid-token',
+      country_code: 'IE',
+      preferred_locale: 'en-GB',
+    },
+    ip: '127.0.0.1',
+    headers: {},
+  };
+  let statusCode = 200;
+  let body = null;
+  const res = {
+    status(code) { statusCode = code; return this; },
+    json(payload) { body = payload; },
+  };
+
+  await handler(req, res);
+  assert.equal(statusCode, 403);
+  assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+  assert.equal(mockCreateParent, null);
+  await setMarketFlag(db, 'market_ie_open', false);
+  await db.cleanup();
+});
+
 test('IE Google new signup passes market context when gate enabled in test', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   await setMarketFlag(db, 'market_ie_open', true);
+  const billingSnap = await enablePublicBillingForTest();
 
   const handler = getGoogleHandler();
   const req = {
@@ -215,6 +247,7 @@ test('IE Google new signup passes market context when gate enabled in test', asy
   assert.equal(mockCreateParent.familyLocale, 'en-GB');
   assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
   await setMarketFlag(db, 'market_ie_open', false);
+  await disablePublicBillingForTest(billingSnap);
   await db.cleanup();
 });
 
@@ -339,6 +372,7 @@ test('IE Apple new signup passes market context when gate enabled in test', asyn
   const db = await setupTestDb();
   if (db.skip) return;
   await setMarketFlag(db, 'market_ie_open', true);
+  const billingSnap = await enablePublicBillingForTest();
 
   const handler = getAppleHandler();
   const req = {
@@ -365,6 +399,7 @@ test('IE Apple new signup passes market context when gate enabled in test', asyn
   assert.equal(mockCreateParent.familyLocale, 'en-GB');
   assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
   await setMarketFlag(db, 'market_ie_open', false);
+  await disablePublicBillingForTest(billingSnap);
   await db.cleanup();
 });
 
