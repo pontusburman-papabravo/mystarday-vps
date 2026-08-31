@@ -17,6 +17,7 @@ const {
 } = require('./payment-settings');
 const { isBillingUiEnabled } = require('./billing-ui');
 const { appendPaymentAudit } = require('./payment-audit');
+const { attachPaidTransition } = require('./paid-transition');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
 const ACTIVE_STORE_STATUSES = new Set(['trial', 'active', 'grace_period']);
@@ -192,12 +193,12 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
       expires_at: null,
       metadata: { computed_fallback: true },
     });
-    return {
+    return attachPaidTransition({
       premium: computed,
       payment_start_at: paymentStartIso,
       requires_paywall: false,
       access_kind: 'grandfathered',
-    };
+    }, { now, publicBillingUsable });
   }
 
   if (
@@ -212,15 +213,15 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     })
   ) {
     const computed = buildPrebillingPremium(familyRow.created_at, paymentStartAt);
-    return {
+    return attachPaidTransition({
       premium: computed,
       payment_start_at: paymentStartIso,
       requires_paywall: false,
       access_kind: 'prebilling',
-    };
+    }, { now, publicBillingUsable });
   }
 
-  return {
+  return attachPaidTransition({
     premium,
     payment_start_at: paymentStartIso,
     requires_paywall: Boolean(
@@ -240,7 +241,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
       })
     ),
     access_kind: accessKindFromPremium(premium),
-  };
+  }, { now, publicBillingUsable });
 }
 
 async function hasPremiumAccess(familyId, now = new Date()) {

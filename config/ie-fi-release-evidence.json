@@ -1,0 +1,25 @@
+{
+  "unit_tests_pass": true,
+  "code_defaults_markets_closed": true,
+  "prebilling_code_ready": true,
+  "public_surfaces_ready": true,
+  "paid_transition_code_ready": true,
+  "founder_open_approved_ie": false,
+  "founder_open_approved_fi": false,
+  "paid_rollout_approved_ie": false,
+  "paid_rollout_approved_fi": false,
+  "apple_iap_ie": "NOT VERIFIED",
+  "apple_iap_fi": "NOT VERIFIED",
+  "play_named_skus_ie": "NOT VERIFIED",
+  "play_named_skus_fi": "NOT VERIFIED",
+  "revenuecat": "BLOCKED",
+  "android_sandbox_e2e": "MANUAL_VERIFICATION_REQUIRED",
+  "ios_device_ie": "NO",
+  "ios_device_fi": "NO",
+  "apple_paid_download_unresolved_p0": true,
+  "notes": [
+    "unit_tests_pass must never promote READY_TO_OPEN or BILLING_READY.",
+    "Flip founder_open_approved_* only as an explicit ops decision. This file is not a live flag.",
+    "Do not set market_ie_open or market_fi_open from this evidence file."
+  ]
+}

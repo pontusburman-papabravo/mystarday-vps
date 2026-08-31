@@ -1109,6 +1109,7 @@
     "restoreSuccess": "Purchases restored! Welcome back.",
     "restoreNone": "No active purchases were found to restore.",
     "giftSuccess": "Gift card redeemed!",
-    "giftFailed": "Could not redeem the code."
+    "giftFailed": "Could not redeem the code.",
+    "launchEnded": "Launch access has ended. Subscribe in the app to keep full access."
   }
 }

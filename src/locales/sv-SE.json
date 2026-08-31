@@ -1109,6 +1109,7 @@
     "restoreSuccess": "Köp återställda! Välkommen in.",
     "restoreNone": "Inga aktiva köp hittades att återställa.",
     "giftSuccess": "Presentkortet är inlöst!",
-    "giftFailed": "Kunde inte lösa in koden."
+    "giftFailed": "Kunde inte lösa in koden.",
+    "launchEnded": "Lanseringsåtkomsten har tagit slut. Prenumerera i appen för att behålla full tillgång."
   }
 }

@@ -12,18 +12,54 @@
   function formatDate(iso) {
     if (!iso) return '';
     try {
-      return new Date(iso).toLocaleDateString('sv-SE');
+      const locale = (window.I18n && typeof I18n.getLocale === 'function')
+        ? I18n.getLocale()
+        : 'sv-SE';
+      return new Date(iso).toLocaleDateString(locale === 'en-GB' ? 'en-GB' : 'sv-SE');
     } catch (_) {
       return iso;
     }
   }
 
-  function describePremium(premium) {
+  function describePremium(premium, paidTransition, billingUiEnabled) {
     const locale = (window.I18n && typeof I18n.getLocale === 'function')
       ? I18n.getLocale()
       : 'sv-SE';
     const isEn = String(locale).toLowerCase().indexOf('en') === 0;
+    const transition = paidTransition || {};
+    if (premium && premium.source === 'prebilling') {
+      const cutoff = formatDate(transition.cutoff_at || premium.expires_at);
+      if (transition.kind === 'hold') {
+        return {
+          title: isEn ? 'Launch access — billing is not live yet' : 'Lanseringsåtkomst — betalning är inte live än',
+          body: isEn
+            ? 'You can keep using the app. A subscription is not required while billing is off.'
+            : 'Ni kan fortsätta använda appen. Prenumeration krävs inte medan betalning är avstängd.',
+          cta: null,
+        };
+      }
+      return {
+        title: isEn ? 'Launch access' : 'Lanseringsåtkomst',
+        body: isEn
+          ? (cutoff
+            ? 'You can use the app now. A subscription is not required yet. Paid start: ' + cutoff + '.'
+            : 'You can use the app now. A subscription is not required yet.')
+          : (cutoff
+            ? 'Ni kan använda appen nu. Prenumeration krävs inte än. Betalstart: ' + cutoff + '.'
+            : 'Ni kan använda appen nu. Prenumeration krävs inte än.'),
+        cta: null,
+      };
+    }
     if (!premium || !premium.active) {
+      if (billingUiEnabled !== true) {
+        return {
+          title: isEn ? 'No active Premium' : 'Ingen aktiv Premium',
+          body: isEn
+            ? 'A subscription is not required yet. Billing is not live.'
+            : 'Prenumeration krävs inte än. Betalning är inte live.',
+          cta: null,
+        };
+      }
       return {
         title: isEn ? 'No active Premium' : 'Ingen aktiv Premium',
         body: isEn ? 'Activate Premium for full access to the app.' : 'Aktivera Premium för full tillgång till appen.',
@@ -121,7 +157,7 @@
       if (section) section.classList.remove('hidden');
 
       const premium = status.premium || {};
-      const copy = describePremium(premium);
+      const copy = describePremium(premium, status.paid_transition, status.billing_ui_enabled);
       const nativePurchaseEligible = status.native_purchase_eligible === true;
       const billingUiEnabled = status.billing_ui_enabled === true;
       const nativeEligibleOnDevice = isNative() && nativePurchaseEligible

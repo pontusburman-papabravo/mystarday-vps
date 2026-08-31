@@ -12,11 +12,27 @@ Use one of:
 
 ## Ireland flow (acceptance)
 
-Ireland → English (`en-GB`) → register (admin/test) → child → schedule → child view → paywall (EUR store `priceString`) → sandbox purchase → entitlement → restore.
+Print the executable checklist:
+
+```bash
+node scripts/ie-fi-device-rc.mjs --country IE --lang en-GB
+```
+
+Ireland → English (`en-GB`) → EUR → admin/test family (do not flip public flags):
+
+1. T0 temporary access (`access_kind=prebilling`, no Subscribe now).
+2. T1 approaching paid start (settings shows launch access + cutoff date).
+3. T2 paid transition with billing ON: paywall → sandbox purchase → entitlement → restore.
+4. Failure: cutoff reached, billing OFF → hold, no mass 402.
+5. App restart, parent session, child session.
 
 ## Finland flow (acceptance)
 
-Finland → Svenska (`sv-SE`) → same loop. Do **not** test FI in English as the acceptance language.
+```bash
+node scripts/ie-fi-device-rc.mjs --country FI --lang sv-SE
+```
+
+Finland → Svenska (`sv-SE`) → EUR → same T0/T1/T2/hold loop. Do **not** test FI in English as the acceptance language.
 
 If the device locale is `fi-FI`, expect Swedish (`sv-SE`) via `src/lib/locale.js` — there is no Finnish locale.
 

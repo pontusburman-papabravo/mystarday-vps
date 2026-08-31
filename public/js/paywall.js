@@ -384,6 +384,10 @@
         window.location.href = '/dashboard';
         return;
       }
+      if (status.paid_transition && status.paid_transition.kind === 'paywall') {
+        const sub = document.getElementById('paywallSubtitle');
+        if (sub) sub.textContent = t('paywall.launchEnded');
+      }
     } catch (_) { /* continue */ }
 
     if (!isNative()) {

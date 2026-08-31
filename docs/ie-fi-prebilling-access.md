@@ -71,8 +71,14 @@ A family created **after** that country’s paid-start is never prebilling-eligi
 
 ## Release states (do not collapse)
 
-1. **CODE READY** — deploy while IE/FI stay closed.
-2. **PREBILLING MARKET READY** — may open IE/FI during the free window.
-3. **BILLING READY** — Store/RC/device paid path verified; then enable public billing at/before `market_*_payment_start_at`.
+Canonical evaluator: `src/lib/ie-fi-release-gates.js` / `docs/ie-fi-release-gates.md`.
 
-Expected ops sequence: deploy → keep closed → verify prebilling → open IE/FI → free window → finish Store/RC/device → enable paid later. No product-code PR is required between open and paid if these dates/flags are used.
+1. **CLOSED_CODE_READY** — deploy while IE/FI stay closed.
+2. **PREBILLING_MARKET_READY** — product path proven for a later open with billing OFF. This is **not** permission to flip flags.
+3. **BILLING_READY** — Store / RevenueCat / device paid path verified. Never inferred from unit tests.
+4. **READY_TO_OPEN** — explicit founder/ops approval. Green CI does not set this.
+5. **PAID_ROLLOUT_READY** — billing ready plus explicit paid-rollout approval.
+
+Expected ops sequence: deploy (closed) → verify prebilling → **explicit** open IE/FI → free window → finish Store/RC/device → enable paid later. No product-code PR is required between open and paid if these dates/flags are used.
+
+Hold policy: a clock crossing `market_*_payment_start_at` does **not** 402 launch-window families while public billing is unusable. That is deliberate ops-late safety (Constitution 2 + 5). Paywall starts only when cutoff is reached **and** billing is usable.

@@ -29,6 +29,14 @@ Do **not** report `IE_BILLING_READY` / `FI_BILLING_READY` as full PASS until thi
 
 Product IDs: see `config/iap-product-contract.js` (`monthly` / `yearly` + storefront appendix).
 
+## IE/FI paid-transition extras (same family)
+
+11. Before Play billing is usable: confirm `paid_transition.kind` is `upcoming` or `hold`, not paywall.
+12. After cutoff with Play/billing still OFF: confirm the family is **held** (no 402 lockout).
+13. After Play/billing is usable: purchase → webhook → restore as above, EUR `priceString`.
+
+This environment cannot complete steps 1–10 without a physical Play tester. Keep `ANDROID_SANDBOX_E2E = MANUAL_VERIFICATION_REQUIRED`.
+
 ## Pass criteria
 
 All of: purchase UI, store price string, webhook, reconcile, restart persistence, restore.
