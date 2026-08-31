@@ -102,6 +102,16 @@
     return y + '-' + m + '-' + day;
   }
 
+  function familyChildPinEditorHref(childId) {
+    if (!childId) return '/family';
+    return '/family/child/' + encodeURIComponent(childId) + '?tab=setup';
+  }
+
+  function changePinHref(children) {
+    const c = (children || []).find(function (x) { return x && x.id; });
+    return familyChildPinEditorHref(c && c.id);
+  }
+
   function childRowHref(c) {
     const total = c.today_total || 0;
     if (total > 0) {
@@ -400,6 +410,7 @@
       '</div>' +
       '<div class="parent-handoff-actions">' +
       '<button type="button" class="parent-handoff-primary" data-action="child-login">' + escHtml(pt('home.handoff.childLogin')) + '</button>' +
+      '<a class="parent-handoff-secondary parent-handoff-change-pin no-underline" data-action="change-pin" href="' + escHtml(changePinHref(children)) + '" aria-label="' + escHtml(pt('home.handoff.changePinAria')) + '">' + escHtml(pt('home.handoff.changePin')) + '</a>' +
       '<button type="button" class="parent-handoff-secondary" data-action="parent-logout">' + escHtml(pt('home.handoff.parentLogout')) + '</button>' +
       '</div></section>' +
       (loadError ? '' :
@@ -512,5 +523,6 @@
     shouldUse: shouldUse,
     restoreMounts: restoreMounts,
     relocateMounts: relocateMounts,
+    familyChildPinEditorHref: familyChildPinEditorHref,
   };
 })();

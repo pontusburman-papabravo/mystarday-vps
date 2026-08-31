@@ -350,6 +350,15 @@ body.parent-magic-dashboard .parent-bottom-nav-btn.is-active {
   cursor: pointer;
 }
 
+a.parent-handoff-secondary {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  min-height: 44px;
+  line-height: 28px;
+}
+
 .parent-schedule-card-head {
   display: flex;
   align-items: center;
