@@ -965,6 +965,34 @@
             </div>
           </div>
           <div id="growthStuckSummary" class="mb-6">Laddar…</div>
+          <div id="growthStuckSendsPanel" class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div>
+                <h4 class="text-lg font-heading font-bold text-navy">Barnvy-mejl</h4>
+                <p class="text-xs text-text-soft mt-0.5">Leverans, öppning, copy och svar. Svar till info@ landar i Gmail — in-app-kontakt syns här.</p>
+              </div>
+              <button type="button" id="growthStuckSendsReloadBtn" class="px-3 py-1.5 rounded-xl border-2 border-lavender text-xs font-semibold text-navy">↺ Utskick</button>
+            </div>
+            <div id="growthStuckSendsSummary" class="text-sm text-text-soft mb-3">Laddar…</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-text-soft border-b border-lavender">
+                    <th class="py-2 pr-2">Mottagare</th>
+                    <th class="py-2 pr-2">Skickat</th>
+                    <th class="py-2 pr-2">Levererat</th>
+                    <th class="py-2 pr-2">Öppnat</th>
+                    <th class="py-2 pr-2">Mejl</th>
+                    <th class="py-2 pr-2">Uppföljning</th>
+                    <th class="py-2 pr-2">Barninlogg</th>
+                  </tr>
+                </thead>
+                <tbody id="growthStuckSendsBody">
+                  <tr><td colspan="7">Öppna fliken för att ladda</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
           <div class="bg-white rounded-2xl border-2 border-lavender p-4 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
@@ -2264,7 +2292,7 @@ Använd dubbla radbrytningar för nya stycken.
 
   <script src="/admin/admin-retention.js"></script>
   <script src="/admin/admin-activation-program.js"></script>
-  <script src="/admin/admin-growth-stuck.js"></script>
+  <script src="/admin/admin-growth-stuck.js?v=1.1.0"></script>
   <script src="/admin/admin-l1-governance.js?v=1.1.0"></script>
   <script src="/admin/admin-for-dig.js?v=2.3.0"></script>
   <script src="/admin/admin-email-stats.js"></script>

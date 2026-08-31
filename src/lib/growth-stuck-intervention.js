@@ -8,8 +8,8 @@
 const db = require('./db');
 const config = require('./config');
 const { sendEmail } = require('./email');
-const { LEGACY_GENERIC_PARENT_ROLE_SQL } = require('./family-role-legacy');
 const { mapGrowthStuckFamily } = require('./growth-stuck-work-queue');
+const { recordSend } = require('../../db/newsletter-email-tracking');
 const { evaluateCommunicationGate } = require('./journey/communication-gate');
 const {
   buildInterventionEmail,
@@ -156,7 +156,9 @@ async function loadParentRecipient(familyId) {
      FROM parent p
      JOIN family f ON f.id = p.family_id
      LEFT JOIN notification_preference np ON np.parent_id = p.id
-     WHERE p.family_id = $1 AND ${LEGACY_GENERIC_PARENT_ROLE_SQL}
+     WHERE p.family_id = $1
+       AND p.email IS NOT NULL
+       AND btrim(p.email) <> ''
      ORDER BY p.created_at ASC
      LIMIT 1`,
     [familyId]
@@ -190,7 +192,7 @@ function isInterventionGoalMet(interventionKey, row) {
   return isFamilyActivated(row);
 }
 
-async function evaluateStuckIntervention(familyId) {
+async function evaluateStuckIntervention(familyId, opts = {}) {
   const blockers = [];
   const row = await loadStuckFamilyRow(familyId);
 
@@ -282,7 +284,7 @@ async function evaluateStuckIntervention(familyId) {
     blockers.push({ code: 'support_in_progress', message: formatBlockerMessage('support_in_progress') });
   }
 
-  if (interventionKey && blockers.length === 0) {
+  if (interventionKey && blockers.length === 0 && opts.skipGate !== true) {
     const gate = await evaluateCommunicationGate(familyId, {
       channel: 'email',
       intent: 'stuck_intervention',
@@ -313,6 +315,7 @@ async function evaluateStuckIntervention(familyId) {
     cohort: row.blocking_step,
     interventionKey,
     recipientEmail: parent?.email || null,
+    recipientParentId: parent?.id || null,
     emailPreview: emailPreview
       ? {
           subject: emailPreview.subject,
@@ -350,8 +353,8 @@ async function previewStuckIntervention(familyId, { track = true } = {}) {
   return result;
 }
 
-async function sendStuckIntervention(familyId, adminParentId) {
-  const evaluated = await evaluateStuckIntervention(familyId);
+async function sendStuckIntervention(familyId, adminParentId, opts = {}) {
+  const evaluated = await evaluateStuckIntervention(familyId, opts);
   if (!evaluated.eligible || !evaluated.emailPreview) {
     return { ok: false, ...evaluated };
   }
@@ -368,6 +371,8 @@ async function sendStuckIntervention(familyId, adminParentId) {
     sentBy: adminParentId,
     subjectSnapshot: evaluated.emailPreview.subject,
     bodyVersion: evaluated.emailPreview.bodyVersion,
+    bodyHtmlSnapshot: evaluated.emailPreview.html,
+    recipientEmail: evaluated.recipientEmail,
     idempotencyKey,
   });
 
@@ -422,6 +427,10 @@ async function sendStuckIntervention(familyId, adminParentId) {
       html: evaluated.emailPreview.html,
       from: evaluated.emailPreview.from || config.email.from,
       idempotencyKey: claimed.idempotency_key || idempotencyKey,
+      tags: [
+        { name: 'category', value: 'stuck_intervention' },
+        { name: 'intervention_key', value: evaluated.interventionKey },
+      ],
     });
   } catch (err) {
     await interventionDb.markInterventionFailed(claimed.id, err.message);
@@ -447,7 +456,9 @@ async function sendStuckIntervention(familyId, adminParentId) {
     };
   }
 
-  const sent = await interventionDb.markInterventionSent(claimed.id);
+  const sent = await interventionDb.markInterventionSent(claimed.id, {
+    providerEmailId: emailResult.emailId || null,
+  });
   if (!sent) {
     await interventionDb.markInterventionUnknown(
       claimed.id,
@@ -466,6 +477,20 @@ async function sendStuckIntervention(familyId, adminParentId) {
       interventionKey: evaluated.interventionKey,
       commsHistory: evaluated.commsHistory,
     };
+  }
+
+  if (emailResult.emailId) {
+    try {
+      await recordSend({
+        campaignType: 'stuck_child_view',
+        campaignId: sent.id,
+        parentId: evaluated.recipientParentId || null,
+        recipientEmail: evaluated.recipientEmail,
+        resendEmailId: emailResult.emailId,
+      });
+    } catch (err) {
+      console.error('[growth-stuck-intervention] recordSend failed:', err.message);
+    }
   }
 
   analytics.track(familyId, 'stuck_intervention_sent', {

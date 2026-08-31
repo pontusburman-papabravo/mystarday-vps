@@ -104,7 +104,7 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
-  '1810440000000_schedule_period': {
+  '1810450000000_family_growth_intervention_tracking': {
     backwardCompatible: true,
     schemaOnly: true,
   },

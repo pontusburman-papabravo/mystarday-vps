@@ -497,6 +497,7 @@ describe('migration-aware snapshot compare', () => {
     for (const name of [
       '1810420000000_family_growth_intervention',
       '1810420000001_family_growth_intervention_delivery',
+      '1810450000000_family_growth_intervention_tracking',
     ]) {
       const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
       assert.ok(contract, name);
