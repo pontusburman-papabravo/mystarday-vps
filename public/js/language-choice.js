@@ -19,10 +19,11 @@
     if (location.pathname === '/en' || location.pathname.startsWith('/en/')) {
       return 'en-GB';
     }
-    if (!window.I18n) return 'sv-SE';
+    const i18n = window.I18n;
+    if (!i18n) return 'sv-SE';
     const nav = navigator.languages || [navigator.language || ''];
     for (const l of nav) {
-      const n = I18n._normalize ? I18n._normalize(l) : null;
+      const n = i18n._normalize ? i18n._normalize(l) : null;
       if (n) return n;
     }
     return 'sv-SE';
@@ -30,7 +31,8 @@
 
   function localeBundleReady() {
     try {
-      return Boolean(window.I18n && I18n.locale && Object.keys(I18n.locale).length > 0);
+      const i18n = window.I18n;
+      return Boolean(i18n && i18n.locale && Object.keys(i18n.locale).length > 0);
     } catch (_) {
       return false;
     }
@@ -38,8 +40,9 @@
 
   function displayedLocale() {
     try {
-      if (!localeBundleReady() || typeof I18n.getCurrentLang !== 'function') return null;
-      const lang = I18n.getCurrentLang();
+      const i18n = window.I18n;
+      if (!localeBundleReady() || typeof i18n.getCurrentLang !== 'function') return null;
+      const lang = i18n.getCurrentLang();
       if (lang === 'sv-SE' || lang === 'en-GB') return lang;
     } catch (_) { /* ignore */ }
     return null;
@@ -59,7 +62,7 @@
 
   function markConfirmed(locale) {
     sessionStorage.setItem(CONFIRMED_KEY, '1');
-    sessionStorage.setItem(I18n.STORAGE_KEY, locale);
+    sessionStorage.setItem((window.I18n && window.I18n.STORAGE_KEY) || 'sd_preferred_locale', locale);
     try {
       sessionStorage.setItem(
         (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice',
@@ -125,11 +128,11 @@
   async function mount(container) {
     if (!container || container.dataset.languageChoiceMounted) return;
     injectStyles();
-    await I18n.init();
+    await window.I18n.init();
     const selectedLocale = acceptDisplayedLocale();
     container.dataset.languageChoiceMounted = '1';
     container.innerHTML = buildHtml(selectedLocale);
-    I18n.apply(container);
+    window.I18n.apply(container);
 
     const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
@@ -155,8 +158,8 @@
         });
         selected = locale;
         markConfirmed(locale);
-        await I18n.load(locale);
-        I18n.apply(document);
+        await window.I18n.load(locale);
+        window.I18n.apply(document);
         if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
