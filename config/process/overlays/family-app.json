@@ -142,7 +142,8 @@
         "test/english-app*.test.js",
         "test/grandfather-country*.test.js",
         "test/prebilling-launch-access.test.js",
-        "test/prebilling-market-e2e.test.js"
+        "test/prebilling-market-e2e.test.js",
+        "test/public-launch-state.test.js"
       ]
     },
     "planning-schedule": {

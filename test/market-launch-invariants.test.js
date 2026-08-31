@@ -244,6 +244,7 @@ describe('public EEA pages are not internal-status markers', () => {
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /signup_allowed/);
     assert.match(js, /english_available/);
+    assert.match(js, /launch_state/);
     const country = fs.readFileSync(path.join(__dirname, '../public/js/country-choice.js'), 'utf8');
     assert.match(country, /signup_allowed/);
   });

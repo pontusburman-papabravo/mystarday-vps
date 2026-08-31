@@ -489,6 +489,8 @@ test('registration-gates API exposes market_ie_open', async (t) => {
     assert.equal(body.market_fi_open, false, 'market_fi_open must default OFF');
     assert.equal(body.signup_allowed.IE, false);
     assert.equal(body.signup_allowed.FI, false);
+    assert.equal(body.launch_state.IE, 'closed');
+    assert.equal(body.launch_state.FI, 'closed');
     assert.equal(typeof body.public_billing_usable, 'boolean');
     assert.equal(typeof body.english_available, 'boolean');
   } finally {
