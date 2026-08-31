@@ -10,7 +10,7 @@ Admin → Meddelanden (`GET /api/admin/contact-messages`). Inloggning: `ADMIN_EM
 
 Detta fångar `/kontakt`, support-bubblan, in-app-feedback och systemhjälp → "Rapportera problem".
 
-**Lucka:** ett vanligt mejlsvar (Reply i Mail) till avsändaren syns **inte** i inkorgen. Be användaren klicka **Svara i ärendet** i vårt supportmejl (`/support/svar/…`). Det öppnar ärendet igen som oläst (`status=new`, `user_reply` i tråden och i events). Hämta `GET /api/admin/contact-messages/:id` **och** `…/:id/events` så du ser uppföljningen — inte bara första meddelandet.
+**Lucka:** Reply i Mail till supportadressen syns **inte** i inkorgen (ingen inbound-mejl). Be användaren klicka **Öppna konversationen** i vårt supportmejl (`/support/svar/…`). Där ser de hela tråden och kan skriva tillbaka. Det öppnar ärendet igen som oläst (`status=new`, `user_reply`). Hämta `GET /api/admin/contact-messages/:id` **och** `…/:id/events`.
 
 ## Beslut
 
@@ -52,7 +52,7 @@ Läs docs/support-ooo-sept-2026.md och följ den exakt.
 
 1. Logga in mot den live sajten med ADMIN_EMAIL / ADMIN_PASSWORD.
 2. Hämta olästa och aktiva contact_messages (inbox=unread och inbox=active).
-3. För varje ärende: läs allt — detalj + events. Användarsvar via **Svara i ärendet** ligger i samma ärende (`--- Användarsvar ---` i message, event `user_reply`). Matcha först mot verifierade hur-till i docs/support-ooo-sept-2026.md. "Jag kan inte X" + känd funktion = skicka stegen, inte bara OOO.
+3. För varje ärende: läs allt — detalj + events. Användarsvar via **Öppna konversationen** ligger i samma ärende (`--- Användarsvar ---` i message, event `user_reply`). Matcha först mot verifierade hur-till i docs/support-ooo-sept-2026.md. "Jag kan inte X" + känd funktion = skicka stegen, inte bara OOO.
 4. Bara det du inte kan verifiera får replyFallback från config/support-ooo.js. Hitta inte på.
 5. Betalning är inte påslagen.
 6. Sammanfatta i svaret: id, typ, vad du svarade eller varför OOO, ev. bugg att fixa.
