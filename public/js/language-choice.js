@@ -1,6 +1,7 @@
 /**
- * Mandatory language choice for new users (P-i18n-Language-Launch-Foundation).
- * Browser locale may suggest but user must actively confirm.
+ * Language switcher for new users (P-i18n-Language-Launch-Foundation).
+ * The language already on screen is the selection. Buttons change it.
+ * Browser locale must not highlight a different language than the one displayed.
  */
 (function languageChoiceModule() {
   'use strict';
@@ -18,22 +19,50 @@
     if (location.pathname === '/en' || location.pathname.startsWith('/en/')) {
       return 'en-GB';
     }
-    if (!window.I18n) return 'sv-SE';
+    const i18n = window.I18n;
+    if (!i18n) return 'sv-SE';
     const nav = navigator.languages || [navigator.language || ''];
     for (const l of nav) {
-      const n = I18n._normalize ? I18n._normalize(l) : null;
+      const n = i18n._normalize ? i18n._normalize(l) : null;
       if (n) return n;
     }
     return 'sv-SE';
   }
 
+  function localeBundleReady() {
+    try {
+      const i18n = window.I18n;
+      return Boolean(i18n && i18n.locale && Object.keys(i18n.locale).length > 0);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function displayedLocale() {
+    try {
+      const i18n = window.I18n;
+      if (!localeBundleReady() || typeof i18n.getCurrentLang !== 'function') return null;
+      const lang = i18n.getCurrentLang();
+      if (lang === 'sv-SE' || lang === 'en-GB') return lang;
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+
+  function sessionConfirmed() {
+    try {
+      return sessionStorage.getItem(CONFIRMED_KEY) === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
   function isConfirmed() {
-    return sessionStorage.getItem(CONFIRMED_KEY) === '1';
+    return sessionConfirmed() || Boolean(displayedLocale());
   }
 
   function markConfirmed(locale) {
     sessionStorage.setItem(CONFIRMED_KEY, '1');
-    sessionStorage.setItem(I18n.STORAGE_KEY, locale);
+    sessionStorage.setItem((window.I18n && window.I18n.STORAGE_KEY) || 'sd_preferred_locale', locale);
     try {
       sessionStorage.setItem(
         (window.LoginLocale && LoginLocale.EXPLICIT_KEY) || 'sd_locale_explicit_choice',
@@ -42,14 +71,21 @@
     } catch (_) { /* ignore */ }
   }
 
-  function buildHtml(suggest) {
-    const svActive = suggest === 'sv-SE' ? ' language-choice__btn--suggested' : '';
-    const enActive = suggest === 'en-GB' ? ' language-choice__btn--suggested' : '';
+  function acceptDisplayedLocale() {
+    const locale = displayedLocale() || suggestedLocale();
+    if (locale === 'sv-SE' || locale === 'en-GB') {
+      markConfirmed(locale);
+    }
+    return locale;
+  }
+
+  function buildHtml(selected) {
+    const svActive = selected === 'sv-SE' ? ' language-choice__btn--selected' : '';
+    const enActive = selected === 'en-GB' ? ' language-choice__btn--selected' : '';
     return `
       <section class="language-choice" role="group" aria-labelledby="languageChoiceHeading">
         <h2 id="languageChoiceHeading" class="language-choice__title">
-          <span data-i18n="language.choice.title">Välj språk</span>
-          <span class="language-choice__title-en" lang="en" data-hide-when-en="1"> / Choose your language</span>
+          <span data-i18n="language.choice.title">Språk</span>
         </h2>
         <p class="language-choice__desc" data-i18n="language.choice.description">
           Du kan ändra språk senare i Inställningar.
@@ -74,7 +110,6 @@
     style.textContent = `
       .language-choice { text-align: center; margin: 1rem 0 1.25rem; }
       .language-choice__title { font-size: 1.125rem; font-weight: 700; color: #1B2340; margin-bottom: 0.35rem; }
-      .language-choice__title-en { font-weight: 500; color: #5A6178; font-size: 0.95rem; }
       .language-choice__desc { font-size: 0.8125rem; color: #5A6178; margin-bottom: 0.75rem; }
       .language-choice__buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
       .language-choice__btn {
@@ -82,7 +117,6 @@
         border: 2px solid #EDE7F6; background: #fff; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
         display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
       }
-      .language-choice__btn--suggested { border-color: #F5A623; box-shadow: 0 0 0 1px #F5A62333; }
       .language-choice__btn--selected { border-color: #F5A623; background: #FFF8EB; }
       .language-choice__label { font-weight: 700; color: #1B2340; font-size: 1rem; }
       .language-choice__child-note { font-size: 0.75rem; color: #5A6178; margin-top: 0.5rem; line-height: 1.45; }
@@ -94,27 +128,26 @@
   async function mount(container) {
     if (!container || container.dataset.languageChoiceMounted) return;
     injectStyles();
-    await I18n.init();
-    const suggest = suggestedLocale();
+    await window.I18n.init();
+    const selectedLocale = acceptDisplayedLocale();
     container.dataset.languageChoiceMounted = '1';
-    container.innerHTML = buildHtml(suggest);
-    I18n.apply(container);
-    syncBilingualTitle(container);
+    container.innerHTML = buildHtml(selectedLocale);
+    window.I18n.apply(container);
 
     const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
-    let selected = isConfirmed() ? I18n.getCurrentLang() : null;
+    let selected = selectedLocale;
 
-    if (selected) {
-      const btn = container.querySelector(`[data-locale-choice="${selected}"]`);
-      if (btn) btn.classList.add('language-choice__btn--selected');
-      if (selected === 'en-GB' && childNote) childNote.hidden = false;
-    }
+    if (selected === 'en-GB' && childNote) childNote.hidden = false;
 
     if (!sessionStorage.getItem(VIEWED_SESSION_KEY)) {
-      track('language_choice_viewed', { suggested_locale: suggest, route: location.pathname });
+      track('language_choice_viewed', { suggested_locale: suggestedLocale(), route: location.pathname });
       sessionStorage.setItem(VIEWED_SESSION_KEY, '1');
-      track('language_selected', { locale: suggest, selection_source: 'browser_suggestion', beta_shown: suggest === 'en-GB' });
+      track('language_selected', {
+        locale: selectedLocale,
+        selection_source: 'displayed_locale',
+        beta_shown: selectedLocale === 'en-GB',
+      });
     }
 
     container.querySelectorAll('[data-locale-choice]').forEach((btn) => {
@@ -125,9 +158,8 @@
         });
         selected = locale;
         markConfirmed(locale);
-        await I18n.load(locale);
-        I18n.apply(document);
-        syncBilingualTitle(container);
+        await window.I18n.load(locale);
+        window.I18n.apply(document);
         if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
@@ -150,8 +182,8 @@
     // Registration uses combined language + country gate in country-choice.js.
     if (document.body.dataset.countryChoiceGate === 'register') return;
     const formCard = document.getElementById('formCard');
-    const mount = document.querySelector('[data-language-choice-mount]');
-    if (!formCard || !mount) return;
+    const mountEl = document.querySelector('[data-language-choice-mount]');
+    if (!formCard || !mountEl) return;
 
     const hideForm = () => {
       formCard.style.opacity = '0.45';
@@ -166,14 +198,6 @@
     document.addEventListener('language-choice-confirmed', showForm);
   }
 
-  function syncBilingualTitle(container) {
-    try {
-      const enBits = (container || document).querySelectorAll('[data-hide-when-en]');
-      const isEn = window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB';
-      enBits.forEach((el) => { el.hidden = !!isEn; });
-    } catch (_) { /* ignore */ }
-  }
-
   function autoMount() {
     const mounts = document.querySelectorAll('[data-language-choice-mount]');
     if (!mounts.length) return;
@@ -186,12 +210,16 @@
   }
 
   /**
-   * Registration language gate. Fail-closed. Never throws.
-   * Same contract as the former mount-local requireSelection.
+   * Registration language gate. The language already on screen counts.
+   * Fail-closed only when no locale is available. Never throws.
    */
   function requireSelection() {
     try {
-      if (isConfirmed()) return true;
+      if (sessionConfirmed()) return true;
+      if (displayedLocale()) {
+        acceptDisplayedLocale();
+        return true;
+      }
       const errorEl = document.querySelector('[data-language-choice-error]');
       if (errorEl) {
         let msg = 'Välj språk för att fortsätta';
