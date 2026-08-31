@@ -49,11 +49,11 @@ describe('onboarding locale fragments', () => {
     assert.deepEqual(enKeys, svKeys);
   });
 
-  it('each locale fragment has 408 leaf keys', () => {
+  it('each locale fragment has 415 leaf keys', () => {
     const sv = JSON.parse(fs.readFileSync(path.join(FRAGMENTS_DIR, 'onboarding-sv-SE.json'), 'utf8'));
     const en = JSON.parse(fs.readFileSync(path.join(FRAGMENTS_DIR, 'onboarding-en-GB.json'), 'utf8'));
-    assert.equal(countLeafKeys(sv), 408);
-    assert.equal(countLeafKeys(en), 408);
+    assert.equal(countLeafKeys(sv), 415);
+    assert.equal(countLeafKeys(en), 415);
   });
 
   it('no empty English onboarding values', () => {

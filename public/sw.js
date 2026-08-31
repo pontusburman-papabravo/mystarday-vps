@@ -286,6 +286,7 @@
 // stjarndag-v917: contact receipt + on-page link to follow the support thread
 // stjarndag-v916: support web thread on the same signed link
 // stjarndag-v915: support follow-up link so user replies land on the ticket
+// stjarndag-v915: Slim signup shows child PIN once; Hem PIN reset CTA to Familj
 // stjarndag-v914: support OOO copy 1–10 september 2026
 // stjarndag-v913: Register language = language already on screen (no fake suggested gold)
 // stjarndag-v912: Register country picker always visible, independent of language

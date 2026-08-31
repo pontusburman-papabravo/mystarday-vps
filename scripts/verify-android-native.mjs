@@ -1,9 +1,20 @@
 #!/usr/bin/env node
 /**
  * Verify Android native patches are present before Play upload.
+ *
+ * When android/app/src/main/AndroidManifest.xml exists, App Links are checked
+ * against the generated XML (not this script's source): autoVerify, VIEW,
+ * DEFAULT, BROWSABLE, both http and https, exact host, every APP_LINK_PATHS
+ * entry, and mandatory /open/child.
+ * https://developer.android.com/training/app-links/add-applinks
  */
 import fs from 'fs';
 import path from 'path';
+import {
+  APP_LINK_PATHS,
+  OPEN_CHILD_PATH,
+  verifyGeneratedAppLinks,
+} from './lib/android-app-links.mjs';
 
 const ROOT = process.cwd();
 let failed = false;
@@ -84,8 +95,11 @@ if (fs.existsSync(capSettings)) {
   }
 }
 
+const androidDir = path.join(ROOT, 'android');
 const manifestPath = path.join(ROOT, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
-if (fs.existsSync(manifestPath)) {
+if (fs.existsSync(androidDir) && !fs.existsSync(manifestPath)) {
+  fail('android/ exists but android/app/src/main/AndroidManifest.xml is missing');
+} else if (fs.existsSync(manifestPath)) {
   const manifest = fs.readFileSync(manifestPath, 'utf8');
   const launchModeMatch = manifest.match(
     /<activity\s[^>]*android:name="\.MainActivity"[^>]*android:launchMode="([^"]+)"/
@@ -99,6 +113,18 @@ if (fs.existsSync(manifestPath)) {
     );
   } else {
     ok(`MainActivity launchMode is RevenueCat-compatible (${launchModeMatch[1]})`);
+  }
+
+  const appLinks = verifyGeneratedAppLinks(manifest);
+  if (!appLinks.ok) {
+    for (const err of appLinks.errors) {
+      fail(err);
+    }
+  } else {
+    ok(
+      `MainActivity App Links complete (autoVerify, http+https, host=${appLinks.host}, ` +
+        `${APP_LINK_PATHS.length} paths including ${OPEN_CHILD_PATH})`
+    );
   }
 }
 

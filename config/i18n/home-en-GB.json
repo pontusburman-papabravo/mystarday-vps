@@ -47,6 +47,8 @@
     "title": "Time for your child to log in?",
     "sub": "Switch to child view with PIN.",
     "childLogin": "👶 Child logs in",
+    "changePin": "Change child's PIN",
+    "changePinAria": "Open Family and change the child's PIN",
     "parentLogout": "Log out",
     "regionAria": "Switch to child login",
     "dismissTitle": "Close",

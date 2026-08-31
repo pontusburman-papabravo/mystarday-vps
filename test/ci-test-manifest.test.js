@@ -47,10 +47,22 @@ const CRITICAL_UNIT = [
   'test/family-device-prod-pilot-harness.test.js',
   'test/r4-runtime-release-gates.test.js',
   'test/android-aab-release-gate.test.js',
+  'test/android-app-links-patch.test.js',
   'test/pre-public-release-gate.test.js',
   'test/iap-client-config.test.js',
   'test/register-oauth-country-gate.test.js',
   'test/scheduler-registry-contract.test.js',
+  'test/a1-hem-stale-links.test.js',
+  'test/b1-error-not-empty.test.js',
+  'test/b2-hem-attention-ladder.test.js',
+  'test/a4-d1-rewards-canonical.test.js',
+  'test/c1-for-dig-scope.test.js',
+  'test/d2-family-people-access.test.js',
+  'test/e1-e3-settings-familj-ownership.test.js',
+  'test/e2-push-delivery-result.test.js',
+  'test/e2-notification-archive.test.js',
+  'test/activation-slim-handoff.test.js',
+  'test/a2-pin-url-static-scan.test.js',
 ];
 
 test('critical integration tests are listed in test:gate:db', () => {

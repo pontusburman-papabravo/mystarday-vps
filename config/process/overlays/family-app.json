@@ -277,6 +277,7 @@
         "scripts/cap*",
         "scripts/patch-ios*.mjs",
         "scripts/patch-android*.mjs",
+        "scripts/lib/android-app-links.mjs",
         "scripts/build-android*.mjs",
         "scripts/prepare-*-native.mjs",
         "public/js/platform.js",
@@ -286,7 +287,9 @@
       "l1Tests": [
         "test/native-bridge-contract.test.js",
         "test/platform-runtime-flag.test.js",
-        "test/capacitor-webview-background.test.js"
+        "test/capacitor-webview-background.test.js",
+        "test/android-app-links-patch.test.js",
+        "test/android-aab-release-gate.test.js"
       ],
       "testGlobs": [
         "test/*ios*.test.js",
