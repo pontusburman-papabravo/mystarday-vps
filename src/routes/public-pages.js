@@ -32,6 +32,10 @@ router.get('/kontakt', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public', 'kontakt.html'));
 });
 
+router.get('/support/svar/:token', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public', 'support-svar.html'));
+});
+
 // About page (founder story)
 router.get('/om-oss', (req, res) => {
   const htmlPath = path.join(__dirname, '../../public', 'om-oss.html');

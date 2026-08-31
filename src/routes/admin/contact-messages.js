@@ -6,6 +6,7 @@ const contactMessages = require('../../../db/contact-messages');
 const messageEvents = require('../../../db/contact-message-events');
 const { sendEmail } = require('../../lib/email');
 const { buildReplySubject, buildReplyBodies } = require('../../lib/contact-message-reply');
+const { supportFollowUpUrl } = require('../../lib/support-follow-up-token');
 const {
   ROOT_CAUSES,
   RESOLUTION_TYPES,
@@ -214,6 +215,7 @@ router.post('/contact-messages/:id/reply', async (req, res, next) => {
       recipientName: message.name,
       originalMessage: message.message,
       replyBody,
+      followUpUrl: supportFollowUpUrl(message.id),
     });
 
     const emailResult = await sendEmail({

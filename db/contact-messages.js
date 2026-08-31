@@ -311,6 +311,33 @@ async function recordMessageReply(id, { replyBody, adminId, emailId }) {
   return row;
 }
 
+async function recordUserFollowUp(id, { body }) {
+  const text = String(body || '').trim();
+  const stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  const block = [`--- Användarsvar ${stamp} ---`, text.slice(0, 5000)].join('\n');
+  const { rows } = await db.query(
+    `UPDATE contact_message SET
+       status = 'new',
+       is_read = false,
+       archived_at = NULL,
+       archived_by = NULL,
+       message = CASE
+         WHEN message IS NULL OR message = '' THEN $2
+         ELSE message || E'\n\n' || $2
+       END
+     WHERE id = $1
+     RETURNING *`,
+    [id, block]
+  );
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'user_reply', {
+      payload: { body: text.slice(0, 5000), source: 'follow_up_link' },
+    });
+  }
+  return row;
+}
+
 async function deleteMessage(id) {
   const { rows } = await db.query(
     'DELETE FROM contact_message WHERE id = $1 RETURNING id',
@@ -588,6 +615,7 @@ module.exports = {
   getMessageDetail,
   getMessageById,
   recordMessageReply,
+  recordUserFollowUp,
   saveResolution,
   archiveMessage,
   getSupportAnalytics,
