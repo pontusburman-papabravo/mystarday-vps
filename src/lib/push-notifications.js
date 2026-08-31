@@ -366,6 +366,31 @@ function cleanupAndClose(client) {
   try { client.close(); } catch (_) {}
 }
 
+const FCM_INVALID_TOKEN_ERRORS = new Set(['NotRegistered', 'InvalidRegistration']);
+
+function parseJsonObject(rawText) {
+  try {
+    const parsed = JSON.parse(String(rawText || ''));
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/** Legacy FCM /fcm/send: HTTP 2xx is not enough — require success/failure counts. */
+function legacyFcmProvesSuccess(parsed) {
+  return Number.isInteger(parsed.success)
+    && parsed.success >= 1
+    && Number.isInteger(parsed.failure)
+    && parsed.failure === 0;
+}
+
+function legacyFcmHasInvalidToken(parsed) {
+  const results = Array.isArray(parsed.results) ? parsed.results : [];
+  return results.some((row) => row && FCM_INVALID_TOKEN_ERRORS.has(row.error));
+}
+
 /**
  * Send via FCM (Android). Requires firebase-admin or FCM server key.
  * Stubbed out — enable once FCM credentials are configured.
@@ -399,14 +424,29 @@ async function sendFCM(deviceToken, { title, body, url }, deps = {}) {
     console.error('[PUSH-FCM] transport error:', err.message);
     return deliveryFailure('transport_error');
   }
+  const text = await res.text().catch(() => '');
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
     console.error('[PUSH-FCM] send failed', res.status, String(text).slice(0, 200));
     if (res.status === 400) {
       subscriptions.deleteNativeSubscriptionByToken(deviceToken, 'android').catch((cleanupErr) => {
         console.error('[PUSH-FCM] Failed to delete invalid token from DB:', cleanupErr.message);
       });
     }
+    return deliveryFailure('provider_error');
+  }
+
+  const parsed = parseJsonObject(text);
+  if (!parsed) {
+    console.error('[PUSH-FCM] unparseable 2xx response');
+    return deliveryFailure('provider_error');
+  }
+  if (legacyFcmHasInvalidToken(parsed)) {
+    subscriptions.deleteNativeSubscriptionByToken(deviceToken, 'android').catch((cleanupErr) => {
+      console.error('[PUSH-FCM] Failed to delete invalid token from DB:', cleanupErr.message);
+    });
+  }
+  if (!legacyFcmProvesSuccess(parsed)) {
+    console.error('[PUSH-FCM] provider did not prove success');
     return deliveryFailure('provider_error');
   }
   return DELIVERY_OK;

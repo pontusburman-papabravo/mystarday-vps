@@ -176,23 +176,80 @@ describe('E2 native delivery result contract', () => {
   });
 
   describe('sendFCM', () => {
+    function fcmFetch(body, { ok = true, status = 200 } = {}) {
+      return async () => ({
+        ok,
+        status,
+        text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
+      });
+    }
+
     it('returns not_configured when FCM_SERVER_KEY is missing at call time', async () => {
       const result = await sendFCM('android-token', PAYLOAD, { env: {} });
       assert.deepEqual(result, { delivered: false, reason: 'not_configured' });
     });
 
-    it('returns delivered true only after an FCM 2xx response', async () => {
+    it('A. HTTP 200 with success=1 failure=0 is delivered', async () => {
       const result = await sendFCM('android-token', PAYLOAD, {
         env: { FCM_SERVER_KEY: 'test-fcm-key' },
-        fetch: async () => ({ ok: true, status: 200, text: async () => 'ok' }),
+        fetch: fcmFetch({ success: 1, failure: 0, results: [{ message_id: '1:ok' }] }),
       });
       assert.deepEqual(result, { delivered: true });
     });
 
-    it('returns provider_error on FCM non-2xx and transport_error on fetch failure', async () => {
+    it('B. HTTP 200 with success=0 failure=1 is not delivered', async () => {
+      const result = await sendFCM('android-token', PAYLOAD, {
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: fcmFetch({ success: 0, failure: 1, results: [{ error: 'Unavailable' }] }),
+      });
+      assert.deepEqual(result, { delivered: false, reason: 'provider_error' });
+    });
+
+    it('C. HTTP 200 malformed/non-JSON body fails closed', async () => {
+      const result = await sendFCM('android-token', PAYLOAD, {
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: fcmFetch('ok'),
+      });
+      assert.deepEqual(result, { delivered: false, reason: 'provider_error' });
+    });
+
+    it('D. HTTP 200 missing success proof fails closed', async () => {
+      const missingCounts = await sendFCM('android-token', PAYLOAD, {
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: fcmFetch({ multicast_id: 1, results: [{ message_id: '1:maybe' }] }),
+      });
+      assert.deepEqual(missingCounts, { delivered: false, reason: 'provider_error' });
+
+      const stringCounts = await sendFCM('android-token', PAYLOAD, {
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: fcmFetch({ success: '1', failure: '0' }),
+      });
+      assert.deepEqual(stringCounts, { delivered: false, reason: 'provider_error' });
+    });
+
+    it('E. invalid/unregistered token is not delivered and is cleaned up', async () => {
+      const deleted = [];
+      const result = await sendFCM('android-token', PAYLOAD, {
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: fcmFetch({
+          success: 0,
+          failure: 1,
+          results: [{ error: 'NotRegistered' }],
+        }),
+        pushSubscriptions: {
+          async deleteNativeSubscriptionByToken(token, platform) {
+            deleted.push({ token, platform });
+          },
+        },
+      });
+      assert.deepEqual(result, { delivered: false, reason: 'provider_error' });
+      assert.deepEqual(deleted, [{ token: 'android-token', platform: 'android' }]);
+    });
+
+    it('F. HTTP non-2xx and transport failure stay not delivered', async () => {
       const non2xx = await sendFCM('android-token', PAYLOAD, {
         env: { FCM_SERVER_KEY: 'test-fcm-key' },
-        fetch: async () => ({ ok: false, status: 503, text: async () => 'unavailable' }),
+        fetch: fcmFetch('unavailable', { ok: false, status: 503 }),
       });
       assert.deepEqual(non2xx, { delivered: false, reason: 'provider_error' });
 
@@ -289,6 +346,96 @@ describe('E2 native delivery result contract', () => {
       });
       assert.equal(result.sent, 0);
       assert.deepEqual(archived, []);
+    });
+
+    it('A. FCM HTTP 200 success=1 failure=0 archives and increments sent', async () => {
+      const { result, archived } = await sendWithArchive({
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'android', nativeToken: 'atok' }],
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: async () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            success: 1,
+            failure: 0,
+            results: [{ message_id: '1:ok' }],
+          }),
+        }),
+      });
+      assert.equal(result.sent, 1);
+      assert.equal(archived.length, 1);
+    });
+
+    it('B. FCM HTTP 200 success=0 failure=1 does not archive', async () => {
+      const { result, archived } = await sendWithArchive({
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'android', nativeToken: 'atok' }],
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: async () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            success: 0,
+            failure: 1,
+            results: [{ error: 'Unavailable' }],
+          }),
+        }),
+      });
+      assert.equal(result.sent, 0);
+      assert.deepEqual(archived, []);
+    });
+
+    it('C. FCM HTTP 200 malformed body does not archive', async () => {
+      const { result, archived } = await sendWithArchive({
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'android', nativeToken: 'atok' }],
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: async () => ({ ok: true, status: 200, text: async () => 'ok' }),
+      });
+      assert.equal(result.sent, 0);
+      assert.deepEqual(archived, []);
+    });
+
+    it('D. FCM HTTP 200 ambiguous body does not archive', async () => {
+      const { result, archived } = await sendWithArchive({
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'android', nativeToken: 'atok' }],
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: async () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({ results: [{ message_id: '1:maybe' }] }),
+        }),
+      });
+      assert.equal(result.sent, 0);
+      assert.deepEqual(archived, []);
+    });
+
+    it('E. FCM invalid token HTTP 200 does not archive and cleans up', async () => {
+      const deleted = [];
+      const { result, archived } = await sendWithArchive({
+        getWebSubscriptions: async () => [],
+        getNativeSubscriptions: async () => [{ id: 'n1', platform: 'android', nativeToken: 'dead-token' }],
+        env: { FCM_SERVER_KEY: 'test-fcm-key' },
+        fetch: async () => ({
+          ok: true,
+          status: 200,
+          text: async () => JSON.stringify({
+            success: 0,
+            failure: 1,
+            results: [{ error: 'InvalidRegistration' }],
+          }),
+        }),
+        pushSubscriptions: {
+          async deleteNativeSubscriptionByToken(token, platform) {
+            deleted.push({ token, platform });
+          },
+        },
+      });
+      assert.equal(result.sent, 0);
+      assert.deepEqual(archived, []);
+      assert.deepEqual(deleted, [{ token: 'dead-token', platform: 'android' }]);
     });
 
     it('8. no successful delivery anywhere => archive not called', async () => {
