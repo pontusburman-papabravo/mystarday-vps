@@ -28,6 +28,11 @@
     if (titleEl) titleEl.textContent = pt(prefix + 'title');
     if (subEl) subEl.textContent = pt(prefix + 'sub');
     if (childBtn) childBtn.textContent = pt(prefix + 'childLogin');
+    const changePin = el.querySelector('[data-action="change-pin"]');
+    if (changePin) {
+      changePin.textContent = pt('home.handoff.changePin');
+      changePin.setAttribute('aria-label', pt('home.handoff.changePinAria'));
+    }
     if (logoutBtn) logoutBtn.textContent = pt('home.handoff.parentLogout');
     el.setAttribute('aria-label', pt(prefix + 'regionAria'));
     if (dismissBtn) dismissBtn.setAttribute('title', pt('home.handoff.dismissTitle'));
@@ -45,6 +50,11 @@
     if (titleEl) titleEl.textContent = pt(prefix + 'title');
     if (subEl) subEl.textContent = pt(prefix + 'sub');
     if (childBtn) childBtn.textContent = pt(prefix + 'childLogin');
+    const changePin = handoffRoot.querySelector('[data-action="change-pin"]');
+    if (changePin) {
+      changePin.textContent = pt('home.handoff.changePin');
+      changePin.setAttribute('aria-label', pt('home.handoff.changePinAria'));
+    }
     if (logoutBtn) {
       logoutBtn.textContent = pt('home.handoff.parentLogout');
       logoutBtn.classList.toggle('hidden', Boolean(postSchema));

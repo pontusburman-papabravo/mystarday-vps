@@ -334,6 +334,17 @@ const ACTIVITY_GUIDE_PRESETS = {
   },
 };
 
+async function ingestRoutineAndSeededRewards(familyId) {
+  const ingest = require('../lib/journey/ingest');
+  const { ingestRewardsReadyIfSeeded } = require('../lib/journey/ingest-rewards-ready-if-seeded');
+  try {
+    await ingest.ingestMilestone({ familyId, milestone: 'routine_ready' });
+    await ingestRewardsReadyIfSeeded(familyId);
+  } catch (err) {
+    console.error('[ONBOARDING] journey ingest after schedule failed:', err.message);
+  }
+}
+
 /** ACT-1 slim/starter paths skip the activity-guide screen — enable NU/NÄSTA by default. */
 async function applyOnboardingDefaultChildUxIfUnset(childId) {
   const row = await db.query(
@@ -451,10 +462,7 @@ router.post('/schedule', async (req, res) => {
         await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
           console.error('[ONBOARDING] mark onboarding complete after schema:', err.message);
         });
-        require('../lib/journey/ingest').ingestMilestoneAsync({
-          familyId,
-          milestone: 'routine_ready',
-        });
+        await ingestRoutineAndSeededRewards(familyId);
 
         await applyOnboardingDefaultChildUxIfUnset(child_id).catch((err) => {
           console.error('[ONBOARDING] default child UX after schedule:', err.message);
@@ -714,10 +722,7 @@ router.post('/schedule', async (req, res) => {
       await markParentOnboardingComplete(req.user.id, familyId).catch((err) => {
         console.error('[ONBOARDING] mark onboarding complete after schema:', err.message);
       });
-      require('../lib/journey/ingest').ingestMilestoneAsync({
-        familyId,
-        milestone: 'routine_ready',
-      });
+      await ingestRoutineAndSeededRewards(familyId);
 
       await applyOnboardingDefaultChildUxIfUnset(child_id).catch((err) => {
         console.error('[ONBOARDING] default child UX after schedule:', err.message);
