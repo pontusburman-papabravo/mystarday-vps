@@ -60,13 +60,24 @@ export function assertAndroidReleaseSigningPreconditions() {
     process.exit(1);
   }
   const expectedFp = process.env.ANDROID_UPLOAD_CERT_SHA256;
-  if (expectedFp) {
-    const actual = sha256Fingerprint(keystorePath, storePass, keyAlias);
-    const norm = (s) => s.replace(/\s/g, '').toUpperCase();
-    if (!actual || norm(actual) !== norm(expectedFp)) {
-      console.error('\n❌ Release AAB: keystore fingerprint mismatch.\n');
-      process.exit(1);
-    }
+  if (!expectedFp) {
+    console.error(
+      '\n❌ Release AAB: ANDROID_UPLOAD_CERT_SHA256 required.\n' +
+        '   Set it to the upload-certificate SHA-256 (Play Console → App integrity → App signing).\n' +
+        '   https://support.google.com/googleplay/android-developer/answer/9842756\n'
+    );
+    process.exit(1);
+  }
+  const actual = sha256Fingerprint(keystorePath, storePass, keyAlias);
+  const norm = (s) => String(s || '').replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+  const expectedNorm = norm(expectedFp);
+  if (expectedNorm.length !== 64) {
+    console.error('\n❌ Release AAB: ANDROID_UPLOAD_CERT_SHA256 must be a 64-char hex SHA-256.\n');
+    process.exit(1);
+  }
+  if (!actual || norm(actual) !== expectedNorm) {
+    console.error('\n❌ Release AAB: keystore fingerprint mismatch.\n');
+    process.exit(1);
   }
 
   return {

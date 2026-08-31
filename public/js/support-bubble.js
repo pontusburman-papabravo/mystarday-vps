@@ -18,6 +18,33 @@
     return key;
   }
 
+  // Keep FROM/THROUGH in sync with config/support-ooo.js
+  var SUPPORT_OOO_FROM = '2026-09-01';
+  var SUPPORT_OOO_THROUGH = '2026-09-11';
+
+  function supportOooPreviewForced() {
+    try {
+      return new URLSearchParams(window.location.search || '').get('support_ooo') === 'preview';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function isSupportOooActive(now) {
+    if (window.SupportOoo && typeof window.SupportOoo.isActive === 'function') {
+      return window.SupportOoo.isActive(now);
+    }
+    if (supportOooPreviewForced()) return true;
+    var date = now instanceof Date ? now : new Date();
+    var stamp = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Stockholm',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+    return stamp >= SUPPORT_OOO_FROM && stamp <= SUPPORT_OOO_THROUGH;
+  }
+
   // ─── Styles ────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
@@ -246,10 +273,18 @@
     const title = document.getElementById('sbTitle');
     const subtitle = document.getElementById('sbSubtitle');
     if (title) title.textContent = t('auth.supportBubble.title');
-    if (subtitle) subtitle.textContent = t('auth.supportBubble.subtitle');
+    if (subtitle) {
+      subtitle.textContent = isSupportOooActive()
+        ? t('auth.supportBubble.oooSubtitle')
+        : t('auth.supportBubble.subtitle');
+    }
 
     const successEl = document.getElementById('sbSuccess');
-    if (successEl) successEl.textContent = t('auth.supportBubble.success');
+    if (successEl) {
+      successEl.textContent = isSupportOooActive()
+        ? t('auth.supportBubble.oooSuccess')
+        : t('auth.supportBubble.success');
+    }
 
     const nameLabel = document.getElementById('sbNameLabel');
     const emailLabel = document.getElementById('sbEmailLabel');
