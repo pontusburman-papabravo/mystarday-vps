@@ -30,6 +30,15 @@
     return new Date().toISOString().slice(0, 10);
   }
 
+  /** Calendar Y-M-D in the device timezone (not UTC). Hem links/charts use this. */
+  function localYmd(date) {
+    const d = date instanceof Date ? date : new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
   function formatWithIntl(date, options) {
     return new Intl.DateTimeFormat(lang(), options).format(date);
   }
@@ -131,6 +140,7 @@
   window.LocaleDateTime = {
     lang,
     getTodayStr,
+    localYmd,
     normalizeIsoDate,
     parseLocalNoon,
     formatDateHeader,

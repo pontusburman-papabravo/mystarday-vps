@@ -16,6 +16,7 @@ const FAMILY_ELEMENT_IDS = [
   'familyNameInput', 'todayLabel', 'drawerEditBirthdayYear', 'drawerEditBirthdayMonth',
   'drawerEditBirthdayDay', 'drawerEditBirthday', 'noChildrenState', 'childrenGrid',
   'noAdultsState', 'adultsGrid', 'pendingInvitesSection', 'pendingInvitesList', 'childDrawer',
+  'familyPedagogPeople',
 ];
 
 const ROUTER_SCRIPT_MAP = {
@@ -28,6 +29,7 @@ const ROUTER_SCRIPT_MAP = {
   '/js/family-chest-setting.js': null,
   '/js/custody-settings.js': null,
   '/js/family-hub.js': null,
+  '/js/family-people-access.js': 'public/js/family-people-access.js',
   '/js/family.js': 'public/js/family.js',
   '/js/coparent-invite-ui.js': null,
   '/js/planning-back-nav.js': null,
@@ -253,6 +255,7 @@ function loadFamilyRuntime(sandbox, tracker, dom) {
   sandbox.ParentMagicPageBoot = { register: function () {} };
   loadModule(sandbox, 'public/js/api-error-classification.js');
   loadModule(sandbox, 'public/js/shared-family-fetch.js');
+  loadModule(sandbox, 'public/js/family-people-access.js');
   loadModule(sandbox, 'public/js/family.js');
   return dom;
 }
@@ -670,6 +673,7 @@ async function runFamilyHardLoad(payload) {
   sandbox.authGuard = async function () { return { preferred_locale: 'sv-SE' }; };
   loadModule(sandbox, 'public/js/api-error-classification.js');
   loadModule(sandbox, 'public/js/shared-family-fetch.js');
+  loadModule(sandbox, 'public/js/family-people-access.js');
   loadModule(sandbox, 'public/js/family.js');
   await new Promise(function (resolve) { setImmediate(resolve); });
   await new Promise(function (resolve) { setImmediate(resolve); });
@@ -709,6 +713,7 @@ async function runFamilyHardLoadAsyncPageBootRace(payload) {
   };
   loadModule(sandbox, 'public/js/api-error-classification.js');
   loadModule(sandbox, 'public/js/shared-family-fetch.js');
+  loadModule(sandbox, 'public/js/family-people-access.js');
   loadModule(sandbox, 'public/js/family.js');
   const hooks = sandbox.__FamilyRuntimeTestHooks;
   loadModule(sandbox, 'public/js/parent-magic-page-boot.js');

@@ -94,6 +94,11 @@
     isReadinessBlockingCoach: function () {
       if (!window.DashboardHomeHub || typeof DashboardHomeHub.shouldUse !== 'function') return false;
       if (!DashboardHomeHub.shouldUse()) return false;
+      if (window.HomeReadiness && typeof HomeReadiness.getLoadOutcome === 'function') {
+        const outcome = HomeReadiness.getLoadOutcome();
+        if (outcome === 'error' || outcome === 'loading' || outcome === 'ok_items') return true;
+        if (outcome === 'ok_empty') return false;
+      }
       return readDomAuthorityState().readinessVisible;
     },
     clearCache: function () { cache = { at: 0, data: null }; },

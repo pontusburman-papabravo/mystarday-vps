@@ -88,6 +88,16 @@ async function loadDashboardCards() {
       if (isAndroid && typeof window.androidStabilityLog === 'function') {
         window.androidStabilityLog('dashboard_stats_failed', { status: res.status });
       }
+      const cached = window.dashboardStats || dashboardStats;
+      if (window.DashboardHomeHub && typeof DashboardHomeHub.render === 'function') {
+        DashboardHomeHub.render(cached, { loadError: !cached });
+      }
+      if (!cached) {
+        const container = document.getElementById('childCardsGrid');
+        if (container) {
+          container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
+        }
+      }
       return;
     }
     const stats = await res.json();
@@ -105,9 +115,13 @@ async function loadDashboardCards() {
     if (document.documentElement.classList.contains('is-native-android') && typeof window.androidStabilityLog === 'function') {
       window.androidStabilityLog('dashboard_stats_error', { message: e && e.message });
     }
+    const cached = window.dashboardStats || dashboardStats;
+    if (window.DashboardHomeHub && typeof DashboardHomeHub.render === 'function') {
+      DashboardHomeHub.render(cached, { loadError: !cached });
+    }
     const container = document.getElementById('childCardsGrid');
-    if (container) {
-      container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
+    if (container && !cached) {
+      container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
     }
   }
 }

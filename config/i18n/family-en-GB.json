@@ -15,6 +15,7 @@
     "waiting": "Waiting…",
     "withdrawInvite": "Withdraw",
     "parentsHeading": "Adults",
+    "pedagogsHeading": "Educators",
     "scanQr": "Scan QR",
     "logout": "Log out"
   },
@@ -24,6 +25,16 @@
     "pappa": "Dad",
     "bonusParent": "Bonus parent",
     "other": "Other"
+  },
+  "access": {
+    "seesThese": "Sees these children",
+    "noneVisible": "No child access you can see",
+    "rolePrimary": "primary",
+    "roleShared": "shared",
+    "rolePedagog": "educator",
+    "pendingForChildren": "Applies to:",
+    "pendingChildSpecific": "Applies to specific children, not the whole family",
+    "revokePedagog": "Revoke access"
   },
   "summary": {
     "childrenOne": "1 child",

@@ -21,6 +21,8 @@
   let goals = [];
   let children = [];
   let installs = [];
+  let childrenOutcome = 'loading';
+  let installsOutcome = 'loading';
   let popular = [];
   let favorites = { goals: [], activities: [], rewards: [], schedules: [] };
   let goalFavoriteSlugs = new Set();
@@ -73,20 +75,59 @@
   }
 
   function isInstalled(slug, childId) {
-    return installs.some((i) => i.goal_slug === slug && i.child_id === childId);
+    return installs.some((i) => i.goal_slug === slug && String(i.child_id) === String(childId));
   }
 
   function installedChildren(slug) {
     return children.filter((c) => isInstalled(slug, c.id));
   }
 
+  function scopeInstallsToChildren() {
+    const allow = new Set(children.map(function (c) { return String(c.id); }));
+    installs = installs.filter(function (row) { return allow.has(String(row.child_id)); });
+  }
+
+  function canClaimAllLinkedChildren(installedCount) {
+    return childrenOutcome === 'ok_items'
+      && installsOutcome !== 'error'
+      && installsOutcome !== 'loading'
+      && children.length > 1
+      && installedCount === children.length;
+  }
+
+  function filterPreselectedChild(preselectedChildId) {
+    if (!preselectedChildId) return null;
+    return children.some(function (c) { return String(c.id) === String(preselectedChildId); })
+      ? preselectedChildId
+      : null;
+  }
+
+  function scopeErrorHtml() {
+    const parts = [];
+    if (childrenOutcome === 'error' && children.length === 0) {
+      parts.push(pt('forDig.errors.loadChildren'));
+    }
+    if (installsOutcome === 'error' && installs.length === 0) {
+      parts.push(pt('forDig.errors.loadInstalls'));
+    }
+    if (!parts.length) return '';
+    return (
+      '<div class="for-dig-scope-error mb-4" data-fordig-scope="error" role="alert">' +
+      parts.map(function (p) { return '<p class="text-sm text-coral mb-2">' + esc(p) + '</p>'; }).join('') +
+      '<button type="button" class="text-sm font-semibold text-gold underline min-h-[44px]" data-action="retry-scope">' +
+      esc(pt('forDig.errors.retry')) +
+      '</button></div>'
+    );
+  }
+
   function installedBadgeHtml(goal) {
+    if (installsOutcome === 'error' && installs.length === 0) return '';
     const installed = installedChildren(goal.slug);
     if (installed.length === 0) return '';
     if (installed.length === 1) {
       return `<span class="for-dig-badge for-dig-badge--child">${esc(pt('forDig.badges.forChild', { name: installed[0].name }))}</span>`;
     }
-    if (installed.length === children.length && children.length > 1) {
+    if (canClaimAllLinkedChildren(installed.length)) {
       return '<span class="for-dig-badge for-dig-badge--child">' + esc(pt('forDig.badges.allChildren')) + '</span>';
     }
     return `<span class="for-dig-badge for-dig-badge--child">${esc(pt('forDig.badges.childrenCount', { count: installed.length }))}</span>`;
@@ -344,6 +385,12 @@
     const mount = document.getElementById('forDigRecommendations');
     if (!mount) return;
 
+    const scopeErr = scopeErrorHtml();
+    if (childrenOutcome === 'error' && children.length === 0) {
+      mount.innerHTML = scopeErr;
+      return;
+    }
+
     const withBirthday = children.filter((c) => c.birthday);
     if (children.length > 0 && withBirthday.length === 0) {
       mount.innerHTML = `
@@ -467,7 +514,7 @@
       ? displayed.map((g) => renderGoalCard(g))
       : hero ? [renderGoalCard(hero, { hero: true })] : [];
 
-    mount.innerHTML = `
+    mount.innerHTML = scopeErrorHtml() + `
       <div class="for-dig-section">
         <h2 class="for-dig-section-title">${esc(pt('forDig.goal.catalogTitle'))}</h2>
         <p class="for-dig-section-sub">${esc(pt('forDig.goal.catalogSub'))}</p>
@@ -578,6 +625,11 @@
   }
 
   async function confirmActivation(goal, preselectedChildId) {
+    const safePreselected = filterPreselectedChild(preselectedChildId);
+    if (childrenOutcome === 'error' && children.length === 0) {
+      window.showToast && showToast(pt('forDig.activation.scopeLoadError'), true);
+      return null;
+    }
     if (children.length === 0) {
       window.showToast && showToast(pt('forDig.activation.addChildFirst'), true);
       return null;
@@ -588,11 +640,11 @@
     }
 
     const initialIds = new Set();
-    if (preselectedChildId) initialIds.add(preselectedChildId);
+    if (safePreselected) initialIds.add(safePreselected);
     else if (children.length === 1) initialIds.add(children[0].id);
 
     return new Promise((resolve) => {
-      let phase = shouldSkipChildPicker(preselectedChildId) ? 'confirm' : 'pick';
+      let phase = shouldSkipChildPicker(safePreselected) ? 'confirm' : 'pick';
       const selectedChildIds = initialIds;
       let preview = null;
       let plan = null;
@@ -772,6 +824,7 @@
 
       window.showToast && showToast(data.message || pt('forDig.activation.done'));
       await loadInstalls();
+      scopeInstallsToChildren();
       renderGoals();
       renderRecommendations();
       await showPostActivationModal(data, slug, selectedChildren, goalHeadline(goal));
@@ -882,17 +935,34 @@
   }
 
   async function loadChildren() {
-    const res = await window.apiFetch('/api/children');
-    if (!res.ok) return;
-    children = await res.json();
-    if (!Array.isArray(children)) children = children.children || [];
+    try {
+      const res = await window.apiFetch('/api/children');
+      if (!res.ok) {
+        if (!children.length) childrenOutcome = 'error';
+        return;
+      }
+      let next = await res.json();
+      if (!Array.isArray(next)) next = next.children || [];
+      children = next;
+      childrenOutcome = children.length ? 'ok_items' : 'ok_empty';
+    } catch (_) {
+      if (!children.length) childrenOutcome = 'error';
+    }
   }
 
   async function loadInstalls() {
-    const res = await window.apiFetch('/api/for-dig/installs');
-    if (!res.ok) return;
-    const data = await res.json();
-    installs = data.installs || [];
+    try {
+      const res = await window.apiFetch('/api/for-dig/installs');
+      if (!res.ok) {
+        if (!installs.length) installsOutcome = 'error';
+        return;
+      }
+      const data = await res.json();
+      installs = data.installs || [];
+      installsOutcome = installs.length ? 'ok_items' : 'ok_empty';
+    } catch (_) {
+      if (!installs.length) installsOutcome = 'error';
+    }
   }
 
   async function loadPopular() {
@@ -938,6 +1008,19 @@
 
     document.addEventListener('click', (ev) => {
       if (!document.getElementById('forDigGoals')) return;
+
+      const retryScope = ev.target.closest('[data-action="retry-scope"]');
+      if (retryScope) {
+        void Promise.all([loadChildren(), loadInstalls()]).then(function () {
+          scopeInstallsToChildren();
+          if (installsOutcome !== 'error') {
+            installsOutcome = installs.length ? 'ok_items' : 'ok_empty';
+          }
+          renderRecommendations();
+          renderGoals();
+        });
+        return;
+      }
 
       const favMount = document.getElementById('forDigFavorites');
       if (favMount && favMount.contains(ev.target)) {
@@ -1099,6 +1182,10 @@
     try {
       await Promise.all([loadGoals(), loadChildren(), loadInstalls(), loadPopular(), loadFavorites()]);
       if (gen !== _forDigInitGen) return;
+      scopeInstallsToChildren();
+      if (installsOutcome !== 'error') {
+        installsOutcome = installs.length ? 'ok_items' : 'ok_empty';
+      }
       renderRecommendations();
       renderGoals();
       renderFavorites();

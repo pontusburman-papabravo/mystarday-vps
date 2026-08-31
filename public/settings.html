@@ -299,7 +299,7 @@
             <span class="text-xl">🔔</span>
             <div class="flex-1">
               <p class="text-sm font-semibold text-navy">Notis-arkiv</p>
-              <p class="text-xs text-text-soft">Visa alla dina notiser de senaste 7 dagarna</p>
+              <p class="text-xs text-text-soft">Lyckade push-notiser de senaste 7 dagarna</p>
             </div>
             <span class="text-text-soft text-sm">→</span>
           </a>
@@ -372,54 +372,25 @@
 
         <hr class="border-lavender">
 
-        <!-- Medförälder / lägg till vuxen -->
-        <section id="coParentInviteSection" class="hidden">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Lägg till vuxen</h3>
-          <p class="text-sm text-text-soft mb-3">Bjud in en medförälder via e-post. Hen får en länk och skapar själv sitt lösenord.</p>
+        <!-- People/access live on Familj — Settings only links there (E1+E3). -->
+        <section id="coParentInviteSection" class="hidden" data-settings-people="family">
+          <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Vuxna och åtkomst</h3>
+          <p class="text-sm text-text-soft mb-3">Bjud in medförälder och se vem som har tillgång under Familj.</p>
           <p id="coParentInvitePendingHint" class="text-sm text-text-soft mb-3 hidden"></p>
-          <button type="button" id="coParentInviteOpenBtn"
-            class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
-            + Lägg till vuxen
-          </button>
+          <a href="/family" id="coParentInviteOpenBtn"
+            class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            Öppna Familj
+          </a>
         </section>
 
         <hr class="border-lavender hidden" id="coParentInviteHr">
 
-        <!-- Pedagog Invite — only shown to primary parents -->
-        <section id="pedagogInviteSection" class="hidden">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👩‍🏫 Pedagog-inbjudan</h3>
-          <p class="text-sm text-text-soft mb-4">Bjud in en pedagog (förskola, skola, terapeut) att lägga till observationer för ett eller flera barn.</p>
-
-          <!-- Invite form -->
-          <form id="pedagogInviteForm" class="space-y-3 mb-4 p-4 bg-sky rounded-xl">
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Barn att dela med pedagogen</label>
-              <div id="pedagogChildCheckboxes" class="space-y-2"></div>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">E-postadress</label>
-              <input type="email" id="pedagogEmail" required placeholder="pedagog@forskola.se"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Namn (valfritt)</label>
-              <input type="text" id="pedagogName" placeholder="T.ex. Lisa Andersson"
-                class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
-            </div>
-            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">
-              Skicka inbjudan
-            </button>
-            <div id="pedagogInviteMsg" class="text-sm min-h-[1.2em]"></div>
-          </form>
-
-          <!-- Connected pedagogen -->
-          <div id="pedagogList" class="space-y-3 mb-4"></div>
-
-          <!-- Pending invites -->
-          <div id="pedagogPendingSection" class="hidden">
-            <h4 class="text-sm font-semibold text-text-soft uppercase tracking-wide mb-2">Väntande inbjudningar</h4>
-            <div id="pedagogPendingList" class="space-y-2"></div>
-          </div>
+        <section id="pedagogInviteSection" class="hidden" data-settings-people="pedagog">
+          <h3 class="text-xl font-heading font-bold text-navy mb-2">👩‍🏫 Pedagoger</h3>
+          <p class="text-sm text-text-soft mb-4">Pedagoginbjudningar och åtkomst hanteras under Familj.</p>
+          <a href="/family" class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            Öppna Familj
+          </a>
         </section>
 
         <hr class="border-lavender">
@@ -715,7 +686,7 @@
         familyParents = fam.parents || [];
         deletionImpactMode = fam.deletion_impact && fam.deletion_impact.mode;
         refreshDeletionCopy();
-        initPedagogInviteSection();
+        initPedagogInviteSection(me);
         if (window.bootSettingsCoParent) bootSettingsCoParent(me, fam);
       }
 
@@ -727,6 +698,8 @@
         }
         if (familyResult.err) {
           SettingsPageBootstrap.showFamilyLoadError(familyResult.err, retrySettingsFamilyLoad);
+          revealSettingsPeopleEntry(me);
+          if (window.bootSettingsCoParent) bootSettingsCoParent(me, null);
         }
       }
 
@@ -735,6 +708,8 @@
         await applyFamilyToSettings(familyResult.fam);
       } else if (familyResult.err) {
         SettingsPageBootstrap.showFamilyLoadError(familyResult.err, retrySettingsFamilyLoad);
+        revealSettingsPeopleEntry(me);
+        if (window.bootSettingsCoParent) bootSettingsCoParent(me, null);
       }
 
       if (me && me.account_type === 'dual') {
@@ -1415,196 +1390,19 @@
       });
     }
 
-    // ── Pedagog invite section ──────────────────────────────────────────
-    async function initPedagogInviteSection() {
-      const section = document.getElementById('pedagogInviteSection');
-      const checkboxesEl = document.getElementById('pedagogChildCheckboxes');
-      const listEl = document.getElementById('pedagogList');
-      const pendingSection = document.getElementById('pedagogPendingSection');
-      const pendingListEl = document.getElementById('pedagogPendingList');
-      const formMsg = document.getElementById('pedagogInviteMsg');
+    function revealSettingsPeopleEntry(me) {
+      const Access = window.FamilyPeopleAccess;
+      const accountType = me && me.account_type;
+      const show = Access && Access.settingsPeopleEntryVisible
+        ? Access.settingsPeopleEntryVisible({ accountType: accountType })
+        : accountType !== 'educator';
+      if (!show) return;
+      const pedagog = document.getElementById('pedagogInviteSection');
+      if (pedagog) pedagog.classList.remove('hidden');
+    }
 
-      // Only primary parents see the section; show it even if API fails so they can still invite
-      try {
-        const me = await Auth.api('/api/auth/me');
-        if (me.account_type === 'educator') return; // pedagog-only — no invite UI
-
-        // Always show section for non-educator parents
-        section.classList.remove('hidden');
-
-        // Populate child checkboxes from familyChildren (always render form)
-        if (familyChildren && familyChildren.length > 0) {
-          checkboxesEl.innerHTML = familyChildren.map(c =>
-          `<label class="checkbox-touch text-sm">
-            <input type="checkbox" class="pedagog-child-check" value="${c.id}">
-            <span>${c.emoji || ''} ${c.name}</span>
-          </label>`
-        ).join('');
-        }
-
-        // Render connected pedagogen
-        function renderPedagogList(pedagogs) {
-          if (!pedagogs || pedagogs.length === 0) {
-            listEl.innerHTML = '<p class="text-sm text-text-soft">Inga pedagoger kopplade.</p>';
-            return;
-          }
-          // Map childId → childName for display
-          const childMap = {};
-          if (familyChildren) familyChildren.forEach(c => { childMap[c.id] = c; });
-
-          listEl.innerHTML = pedagogs.map(p => {
-            const childNames = (p.childIds || [])
-              .map(cid => childMap[cid] ? (childMap[cid].emoji + ' ' + childMap[cid].name) : cid)
-              .join(', ') || 'Okänt barn';
-
-            const connectedAt = p.connectedAt
-              ? new Date(p.connectedAt).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' })
-              : 'Okänt';
-
-            return `
-              <div class="flex items-center justify-between p-3 bg-white border border-lavender rounded-xl">
-                <div class="flex-1">
-                  <p class="text-sm font-semibold text-navy">${p.name || p.email}</p>
-                  <p class="text-xs text-text-soft">${childNames} · ${connectedAt}</p>
-                </div>
-                <button type="button" class="revoke-pedagog-btn px-3 py-1.5 bg-coral hover:bg-red-200 text-navy rounded-lg text-sm font-semibold transition-colors"
-                  data-pedagog-parent-id="${p.parentId}" data-child-id="${(p.childIds || [])[0] || ''}">
-                  Återkalla
-                </button>
-              </div>`;
-          }).join('');
-
-          // Wire revoke buttons
-          listEl.querySelectorAll('.revoke-pedagog-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-              if (!confirm('Återkalla åtkomst för denna pedagog?')) return;
-              btn.disabled = true;
-              try {
-                await Auth.api('/api/family/pedagog-access/revoke', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    pedagogParentId: btn.dataset.pedagogParentId,
-                    childId: btn.dataset.childId,
-                  }),
-                });
-                // Reload the section
-                await refreshPedagogData();
-              } catch (err) {
-                btn.disabled = false;
-                formMsg.textContent = 'Kunde inte återkalla: ' + (err.message || '');
-                formMsg.className = 'text-sm text-red-500';
-              }
-            });
-          });
-        }
-
-        // Render pending invites
-        function renderPendingList(pending) {
-          if (!pending || pending.length === 0) {
-            pendingSection.classList.add('hidden');
-            return;
-          }
-          pendingSection.classList.remove('hidden');
-          pendingListEl.innerHTML = pending.map(inv => {
-            const expiresAt = inv.expiresAt
-              ? new Date(inv.expiresAt).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
-              : '';
-            return `
-              <div class="flex items-center justify-between p-3 bg-sky border border-lavender rounded-xl">
-                <div>
-                  <p class="text-sm font-semibold text-navy">${inv.email} ${inv.inviteeName ? '(' + inv.inviteeName + ')' : ''}</p>
-                  <p class="text-xs text-text-soft">Går ut ${expiresAt}</p>
-                </div>
-                <button type="button" class="revoke-invite-btn px-3 py-1.5 bg-coral hover:bg-red-200 text-navy rounded-lg text-sm font-semibold transition-colors"
-                  data-invite-id="${inv.inviteId}">
-                  Ta bort
-                </button>
-              </div>`;
-          }).join('');
-
-          pendingListEl.querySelectorAll('.revoke-invite-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-              if (!confirm('Ta bort denna inbjudan?')) return;
-              btn.disabled = true;
-              try {
-                await Auth.api('/api/family/invite-pedagog/' + btn.dataset.inviteId, { method: 'DELETE' });
-                await refreshPedagogData();
-              } catch (err) {
-                btn.disabled = false;
-                formMsg.textContent = 'Kunde inte ta bort: ' + (err.message || '');
-                formMsg.className = 'text-sm text-red-500';
-              }
-            });
-          });
-        }
-
-        async function refreshPedagogData() {
-          const data = await Auth.api('/api/family/invite-pedagog');
-          renderPedagogList(data.pedagogs);
-          renderPendingList(data.pending);
-        }
-
-        // Invite form submit
-        const form = document.getElementById('pedagogInviteForm');
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (window.PackageInterestTriggers) {
-            const ok = await PackageInterestTriggers.guardAction('pedagog', 'contextual_trigger');
-            if (!ok) return;
-          }
-          const email = document.getElementById('pedagogEmail').value.trim();
-          const name = document.getElementById('pedagogName').value.trim();
-          const checked = Array.from(
-            document.querySelectorAll('.pedagog-child-check:checked')
-          ).map(cb => cb.value);
-
-          if (checked.length === 0) {
-            formMsg.textContent = 'Välj minst ett barn';
-            formMsg.className = 'text-sm text-red-500';
-            return;
-          }
-
-          formMsg.textContent = 'Skickar...';
-          formMsg.className = 'text-sm text-text-soft';
-          try {
-            await Auth.api('/api/family/invite-pedagog', {
-              method: 'POST',
-              body: JSON.stringify({ email, name: name || undefined, childIds: checked }),
-            });
-            formMsg.textContent = '✅ Inbjudan skickad!';
-            formMsg.className = 'text-sm text-green-600';
-            form.reset();
-            await refreshPedagogData();
-          } catch (err) {
-            formMsg.textContent = err.message || 'Något gick fel';
-            formMsg.className = 'text-sm text-red-500';
-          }
-        });
-
-        // Fetch invite data — show error inline if it fails, but keep form visible
-        let inviteData = null;
-        try {
-          inviteData = await Auth.api('/api/family/invite-pedagog');
-          renderPedagogList(inviteData.pedagogs || []);
-          renderPendingList(inviteData.pending || []);
-        } catch (apiErr) {
-          if (formMsg) {
-            formMsg.innerHTML = '<span class="text-red-500">Kunde inte ladda pedagog-listan.</span> Du kan fortfarande bjuda in en ny pedagog.';
-            formMsg.className = 'text-sm';
-          }
-          // Still show any existing pedagogen/pending from a partial response
-          if (inviteData) {
-            renderPedagogList(inviteData.pedagogs || []);
-            renderPendingList(inviteData.pending || []);
-          }
-        }
-      } catch (err) {
-        // Auth error or unexpected — still show section with form so parent can still invite
-        if (formMsg) {
-          formMsg.innerHTML = '<span class="text-red-500">Kunde inte ladda pedagog-listan.</span> Du kan fortfarande bjuda in en ny pedagog.';
-          formMsg.className = 'text-sm';
-        }
-      }
+    function initPedagogInviteSection(me) {
+      revealSettingsPeopleEntry(me);
     }
 
     function toggleDarkMode() {
@@ -1614,6 +1412,7 @@
   <script src="/js/preview-shell.js?v=1.0.0"></script>
   <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>
+  <script src="/js/family-people-access.js?v=1"></script>
   <script src="/js/coparent-invite-ui.js?v=1"></script>
   <script src="/js/icon-system.js?v=1"></script>
   <script src="/js/parent-magic-page-hubs.js?v=1.1.1"></script>

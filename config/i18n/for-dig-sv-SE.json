@@ -17,7 +17,7 @@
   },
   "badges": {
     "forChild": "För {{name}}",
-    "allChildren": "Alla barn",
+    "allChildren": "Alla dina barn",
     "childrenCount": "{{count}} barn",
     "activated": "Aktiverad ✓",
     "popular": "Populärt"
@@ -78,6 +78,9 @@
     "loadPlan": "Kunde inte ladda planen",
     "loadCustomize": "Kunde inte ladda anpassning",
     "loadGoals": "Kunde inte ladda mål",
+    "loadChildren": "Kunde inte ladda barnen. Det betyder inte att familjen saknar barn.",
+    "loadInstalls": "Kunde inte läsa vilka mål som är aktiverade.",
+    "retry": "Försök igen",
     "activationFailed": "Aktivering misslyckades",
     "saveFavorite": "Kunde inte spara favorit",
     "generic": "Något gick fel",
@@ -85,6 +88,7 @@
   },
   "activation": {
     "addChildFirst": "Lägg till ett barn först under Familjen.",
+    "scopeLoadError": "Kunde inte ladda barnen, så aktivering kan inte göras just nu.",
     "activating": "Aktiverar…",
     "done": "Klart!",
     "nothingToCustomize": "Inget att anpassa för detta mål just nu.",

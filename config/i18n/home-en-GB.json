@@ -13,6 +13,8 @@
     "noSchedule": "No routine",
     "progressDone": "{{done}}/{{total}} done",
     "emptyChildren": "Add a child under Family to see status here.",
+    "loadError": "Could not load children's status. That does not mean you have no children.",
+    "retry": "Try again",
     "viewActivitiesAria": "{{name}} — view today's activities"
   },
   "ready": {
@@ -190,6 +192,8 @@
   "readiness": {
     "heading": "Needs attention",
     "warningsOnly": "Warnings only",
+    "loadError": "Could not check what needs attention.",
+    "retry": "Try again",
     "items": {
       "pendingInviteTitleOne": "1 pending co-parent invite",
       "pendingInviteTitleMany": "{{count}} pending co-parent invites",

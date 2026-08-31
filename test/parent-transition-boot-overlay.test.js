@@ -200,13 +200,13 @@ describe('P1 — dashboard-home-hub.js clears the overlay on real render', () =>
   const src = read('public/js/dashboard-home-hub.js');
 
   it('render() calls the clear hook before/while showing real content', () => {
-    const fnStart = src.indexOf('function render(stats)');
+    const fnStart = src.indexOf('function render(stats');
     const fnBody = src.slice(fnStart, fnStart + 800);
     assert.match(fnBody, /__stjarndagClearParentTransitionBoot/);
   });
 
   it('the clear call happens unconditionally (both magic and legacy render branches)', () => {
-    const fnStart = src.indexOf('function render(stats)');
+    const fnStart = src.indexOf('function render(stats');
     const shouldUseIdx = src.indexOf('shouldUse()', fnStart);
     const clearIdx = src.indexOf('__stjarndagClearParentTransitionBoot', fnStart);
     assert.ok(clearIdx > -1 && clearIdx < shouldUseIdx, 'clear call must run before the shouldUse() branch split');

@@ -15,6 +15,7 @@
     "waiting": "Väntar...",
     "withdrawInvite": "Återkalla",
     "parentsHeading": "Vuxna",
+    "pedagogsHeading": "Pedagoger",
     "scanQr": "Skanna QR",
     "logout": "Logga ut"
   },
@@ -24,6 +25,16 @@
     "pappa": "Pappa",
     "bonusParent": "Bonusförälder",
     "other": "Annan"
+  },
+  "access": {
+    "seesThese": "Ser dessa barn",
+    "noneVisible": "Ingen barnåtkomst som du kan se",
+    "rolePrimary": "huvudförälder",
+    "roleShared": "delad",
+    "rolePedagog": "pedagog",
+    "pendingForChildren": "Gäller:",
+    "pendingChildSpecific": "Gäller specifika barn, inte hela familjen",
+    "revokePedagog": "Återkalla åtkomst"
   },
   "summary": {
     "childrenOne": "1 barn",

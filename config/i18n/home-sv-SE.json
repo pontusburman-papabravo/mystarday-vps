@@ -13,6 +13,8 @@
     "noSchedule": "Inget schema",
     "progressDone": "{{done}}/{{total}} klara",
     "emptyChildren": "Lägg till barn under Familj för att se status här.",
+    "loadError": "Kunde inte ladda barnens status. Det betyder inte att ni saknar barn.",
+    "retry": "Försök igen",
     "viewActivitiesAria": "{{name}} — visa dagens aktiviteter"
   },
   "ready": {
@@ -190,6 +192,8 @@
   "readiness": {
     "heading": "Kräver åtgärd",
     "warningsOnly": "Bara varningar",
+    "loadError": "Kunde inte kontrollera vad som kräver åtgärd.",
+    "retry": "Försök igen",
     "items": {
       "pendingInviteTitleOne": "1 väntande medförälder-inbjudan",
       "pendingInviteTitleMany": "{{count}} väntande medförälder-inbjudningar",

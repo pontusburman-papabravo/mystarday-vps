@@ -32,7 +32,7 @@ async function logNotification(parentId, { title, body, type = 'general', url = 
  */
 async function getNotifications(parentId) {
   const result = await db.query(
-    `SELECT id, title, body, type, url, is_read, created_at
+    `SELECT id, title, body, type, url, is_read, created_at, metadata
      FROM notification_log
      WHERE parent_id = $1
        AND created_at > NOW() - INTERVAL '7 days'

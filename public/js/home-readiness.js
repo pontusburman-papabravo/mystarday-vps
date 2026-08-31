@@ -5,6 +5,7 @@
   'use strict';
 
   const FILTER_KEY = 'homeReadinessWarningsOnly';
+  let loadOutcome = 'loading';
 
   function esc(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
@@ -79,21 +80,62 @@
     });
   }
 
+  function renderLoadError(mount, magic) {
+    loadOutcome = 'error';
+    mount.classList.remove('hidden');
+    mount.setAttribute('data-hem-load', 'error');
+    const retryLabel = esc(pt('home.readiness.retry'));
+    const body = esc(pt('home.readiness.loadError'));
+    if (magic) {
+      mount.innerHTML = '<div class="parent-readiness-card parent-glass-card p-4 mb-2" data-readiness-error="1" role="alert">' +
+        '<p class="font-semibold text-base mb-1">⚠️ ' + esc(pt('home.readiness.heading')) + '</p>' +
+        '<p class="text-sm opacity-80 mb-3">' + body + '</p>' +
+        '<button type="button" class="parent-handoff-secondary" data-readiness-retry="1">' + retryLabel + '</button></div>';
+    } else {
+      mount.innerHTML = '<div class="p-4 mb-3 bg-white rounded-2xl border border-lavender" data-readiness-error="1" role="alert">' +
+        '<p class="font-semibold text-navy">' + esc(pt('home.readiness.heading')) + '</p>' +
+        '<p class="text-sm text-text-soft mb-3">' + body + '</p>' +
+        '<button type="button" class="px-4 py-2 bg-gold text-white rounded-xl text-sm font-semibold" data-readiness-retry="1">' + retryLabel + '</button></div>';
+    }
+    const retry = mount.querySelector('[data-readiness-retry]');
+    if (retry) {
+      retry.addEventListener('click', function (e) {
+        e.preventDefault();
+        load();
+      });
+    }
+    if (window.HomePrimaryAction && typeof HomePrimaryAction.apply === 'function') {
+      HomePrimaryAction.apply();
+    }
+  }
+
   async function load() {
     const mount = document.getElementById('homeReadinessMount');
     if (!mount) return;
     const magic = isMagicHome();
+    loadOutcome = 'loading';
+    mount.setAttribute('data-hem-load', 'loading');
     try {
       const res = await window.apiFetch('/api/family/readiness');
-      if (!res.ok) return;
+      if (!res.ok) {
+        renderLoadError(mount, magic);
+        return;
+      }
       const data = await res.json();
       let items = data.items || [];
       items = filterItems(items);
       if (!items.length) {
+        loadOutcome = 'ok_empty';
+        mount.setAttribute('data-hem-load', 'ok_empty');
         mount.classList.add('hidden');
         mount.innerHTML = '';
+        if (window.HomePrimaryAction && typeof HomePrimaryAction.apply === 'function') {
+          HomePrimaryAction.apply();
+        }
         return;
       }
+      loadOutcome = 'ok_items';
+      mount.setAttribute('data-hem-load', 'ok_items');
       mount.classList.remove('hidden');
       const filterOn = warningsOnlyEnabled();
       let html = '';
@@ -125,7 +167,7 @@
         });
       }
     } catch (_) {
-      mount.classList.add('hidden');
+      renderLoadError(mount, magic);
     }
   }
 
@@ -133,6 +175,7 @@
     warningsOnlyEnabled: warningsOnlyEnabled,
     isExceptionItem: isExceptionItem,
     reload: load,
+    getLoadOutcome: function () { return loadOutcome; },
   };
 
   if (document.readyState === 'loading') {

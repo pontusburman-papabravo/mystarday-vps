@@ -429,7 +429,9 @@ async function loadRewards() {
   try {
     const resp = await Auth.api('/api/rewards');
     // API returns { rewards: [...], children: [...] } or just array
-    rewardsData = Array.isArray(resp) ? resp : (resp.rewards || []);
+    rewardsData = (Array.isArray(resp) ? resp : (resp.rewards || [])).filter(function (r) {
+      return r && r.is_active !== false;
+    });
     if (rewardsData.length === 0) {
       container.innerHTML = '<p class="text-sm text-text-soft italic">Inga belöningar. <a href="/library" class="text-gold underline">Skapa i Biblioteket.</a></p>';
       return;

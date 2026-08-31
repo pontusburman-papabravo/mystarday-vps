@@ -1454,9 +1454,13 @@ function renderRewards() {
 function renderRewardItem(r) {
   const isActive = r.is_active !== false;
   const isFavorite = r.is_favorite === true;
-  const visLabel = !r.visible_to_children || r.visible_to_children.length === 0
-    ? lpt('library.rewards.allChildren')
-    : lpt('library.rewards.childrenCount', { count: r.visible_to_children.length });
+  const vtc = r.visible_to_children;
+  let visLabel = lpt('library.rewards.allChildren');
+  if (Array.isArray(vtc) && vtc.length === 0) {
+    visLabel = lpt('library.rewards.hiddenFromAll');
+  } else if (Array.isArray(vtc) && vtc.length > 0) {
+    visLabel = lpt('library.rewards.childrenCount', { count: vtc.length });
+  }
   return `
     <div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ${!isActive ? 'opacity-50' : ''}" data-id="${r.id}">
       <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -1468,7 +1472,7 @@ function renderRewardItem(r) {
             <span class="font-semibold text-sm text-navy">${escHtml(r.display_name || r.name)}</span>
             <span class="text-xs bg-gold-light text-navy px-2 py-0.5 rounded-full font-semibold">${r.star_cost} ⭐</span>
             ${r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">' + lpt('library.modal.approvalBadge') + '</span>' : ''}
-            ${!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">Inaktiv</span>' : ''}
+            ${!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">' + lpt('library.rewards.inactive') + '</span>' : ''}
           </div>
           <div class="text-xs text-text-soft mt-0.5">${visLabel}</div>
         </div>
@@ -1569,7 +1573,17 @@ function openRewardModal(r) {
     btn.classList.toggle('bg-white', btn.textContent === icon);
   });
   const visContainer = document.getElementById('rewardVisibilityContainer');
-  const currentVisible = r && r.visible_to_children ? r.visible_to_children : [];
+  const vtc = r ? r.visible_to_children : null;
+  const childIds = rewardChildren.map(function (child) { return String(child.id); });
+  let checkedIds;
+  if (vtc == null) {
+    checkedIds = childIds.slice();
+  } else if (Array.isArray(vtc)) {
+    const allow = new Set(vtc.map(String));
+    checkedIds = childIds.filter(function (id) { return allow.has(id); });
+  } else {
+    checkedIds = childIds.slice();
+  }
   if (rewardChildren.length === 0) {
     visContainer.innerHTML = '<p class="text-sm text-text-soft">' + lpt('library.empty.noChildren') + '</p>';
   } else {
@@ -1579,9 +1593,8 @@ function openRewardModal(r) {
         <span class="text-sm font-semibold text-navy">${child.emoji || '🧒'} ${escHtml(child.name)}</span>
       </label>
     `).join('');
-  // Set .checked property directly — do not rely on HTML attribute alone
   visContainer.querySelectorAll('.reward-child-checkbox').forEach(cb => {
-    if (currentVisible.includes(cb.value)) cb.checked = true;
+    cb.checked = checkedIds.indexOf(cb.value) >= 0;
   });
   }
   document.getElementById('rewardModal').classList.remove('hidden');
@@ -1600,7 +1613,17 @@ async function submitReward(e) {
   const star_cost = parseInt(document.getElementById('rewardStarCost').value, 10);
   const requires_approval = document.getElementById('rewardRequiresApproval').value === 'true';
   const checked = Array.from(document.querySelectorAll('.reward-child-checkbox:checked')).map(cb => cb.value);
-  const visible_to_children = checked.length > 0 ? checked : null;
+  const childCount = rewardChildren.length;
+  let visible_to_children = null;
+  if (childCount > 0) {
+    if (checked.length === 0) {
+      visible_to_children = id ? [] : null;
+    } else if (checked.length >= childCount) {
+      visible_to_children = null;
+    } else {
+      visible_to_children = checked;
+    }
+  }
   const btn = document.getElementById('rewardSubmitBtn');
   const errEl = document.getElementById('rewardError');
   errEl.classList.add('hidden');

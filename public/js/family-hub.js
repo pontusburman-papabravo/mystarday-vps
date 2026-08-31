@@ -33,9 +33,11 @@
       if (!caps.length) {
         mount.classList.add('hidden');
         mount.innerHTML = '';
+        mount.removeAttribute('data-pedagog-interest-state');
         return;
       }
       mount.classList.remove('hidden');
+      mount.setAttribute('data-pedagog-interest-state', 'ok');
       mount.innerHTML =
         '<section class="magic-hub-section">' +
         '<h2 class="magic-hub-section-label">Pedagoger</h2>' +
@@ -45,8 +47,10 @@
         '<span class="text-sm text-text-soft">Samarbeta med skola eller behandlare</span></span></a>' +
         '</section>';
     } catch (_) {
-      mount.classList.add('hidden');
-      mount.innerHTML = '';
+      mount.classList.remove('hidden');
+      mount.setAttribute('data-pedagog-interest-state', 'error');
+      mount.innerHTML =
+        '<p class="text-sm text-navy dark:text-white" role="alert">Kunde inte ladda pedagogsamarbete just nu.</p>';
     }
   }
 

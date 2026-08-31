@@ -12,7 +12,17 @@
     return (typeof window.pt === 'function') ? window.pt(key, params) : key;
   }
 
+  function shouldSkipLegacyStarChart() {
+    return window.DashboardHomeHub && typeof DashboardHomeHub.shouldUse === 'function'
+      && DashboardHomeHub.shouldUse();
+  }
+
+  function weekNumberLabel(weekLabel) {
+    return String(weekLabel || '').replace(/^[VW]/i, '');
+  }
+
   async function loadStarHistory() {
+    if (shouldSkipLegacyStarChart()) return;
     try {
       const res = await window.apiFetch('/api/family/star-history');
       if (!res.ok) return;
@@ -24,6 +34,7 @@
   }
 
   function renderStarHistory() {
+    if (shouldSkipLegacyStarChart()) return;
     if (!starHistoryData) return;
     const { children: ch, weeks } = starHistoryData;
     if (!ch || ch.length === 0 || !weeks || weeks.length === 0) return;
@@ -67,7 +78,7 @@
 
           const weekTotal = ch.reduce((sum, c) => sum + (w.child_totals[c.id] || 0), 0);
           const isEmpty = weekTotal === 0;
-          return `<div class="week-day-col" style="min-width:60px;" title="${pt('home.starHistory.weekTooltip', { week: w.week_label, count: weekTotal })}">
+          return `<div class="week-day-col" style="min-width:60px;" title="${pt('home.starHistory.weekTooltip', { week: weekNumberLabel(w.week_label), count: weekTotal })}">
             <div class="text-[10px] font-bold text-center mb-1 ${isEmpty ? 'text-text-soft' : 'text-gold'}">${weekTotal}⭐</div>
             <div class="flex gap-1 justify-center mb-1">${bars}</div>
             <div class="text-[10px] font-bold text-center ${w.is_current ? 'text-gold' : 'text-text-soft'}">${w.week_label}</div>

@@ -29,6 +29,14 @@ const { getLocalDateStr, getOrGenerateDailyLog } = require('../../lib/daily-log-
 const { enrichLogItemsWithForDigGoal } = require('../../lib/for-dig-goal-meta');
 const { getFamilyPreferredLocale } = require('../../lib/family-locale');
 const { localizeActivityRow, localizeRewardRow } = require('../../lib/family-content-display');
+const { selectNearestReward } = require('../../lib/reward-visible-children');
+const { listPedagogLinks, listPendingInvites } = require('../../../db/pedagog-invite');
+const {
+  viewerHasPrimaryRole,
+  scopePedagogsToViewer,
+  scopeInvitesToViewer,
+  scopeParentLinksToViewer,
+} = require('../../lib/family-people-access');
 
 const router = express.Router();
 
@@ -71,44 +79,49 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     const linksByParent = {};
     for (const link of parentChildLinks.rows) {
       if (!linksByParent[link.parent_id]) linksByParent[link.parent_id] = [];
-      linksByParent[link.parent_id].push(link.child_id);
+      linksByParent[link.parent_id].push({ child_id: link.child_id, role: link.role });
     }
     for (const p of parentsResult.rows) {
-      p.linked_child_ids = linksByParent[p.id] || [];
+      const linked = linksByParent[p.id] || [];
+      p.linked_children = linked;
+      p.linked_child_ids = linked.map((row) => row.child_id);
     }
 
     const children = await getChildrenForParent(req.user.id, { allowedRoles: ['primary', 'shared'] });
     const childrenWithPin = children.map((c) => mapChildForFamilyApi(c, {
       has_pin: c.pin != null && c.pin !== '',
+      role: c.role,
     }));
-
-    const allChildrenResult = await db.query(
-      `SELECT id, name, emoji, avatar_storage_key, avatar_updated_at
-       FROM child WHERE family_id = $1 ORDER BY sort_order ASC, created_at ASC`,
-      [req.user.familyId]
-    );
+    const scopedChildIds = childrenWithPin.map((c) => c.id);
 
     const invitesResult = await db.query(
-      `SELECT id, email, expires_at, accepted, created_at
+      `SELECT id, email, child_ids, expires_at, accepted, created_at
        FROM family_invite
        WHERE family_id = $1 AND accepted = false AND expires_at > NOW()
        ORDER BY created_at DESC`,
       [req.user.familyId]
     );
 
-    const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, {
-      linked_child_ids: p.linked_child_ids,
-    }));
+    const [pedagogLinks, pendingPedagogRows] = await Promise.all([
+      listPedagogLinks(req.user.familyId),
+      listPendingInvites(req.user.familyId),
+    ]);
 
-    const allChildrenPublic = allChildrenResult.rows.map((c) => mapChildForFamilyApi(c));
+    const parentsPublic = parentsResult.rows.map((p) => mapParentForFamilyApi(p, (
+      scopeParentLinksToViewer(p, scopedChildIds)
+    )));
+
     const deletionImpact = await deletionConsequenceForCaller(db, req.user.id, req.user.familyId);
 
     res.json({
       ...family,
       parents: parentsPublic,
       children: childrenWithPin,
-      allChildren: allChildrenPublic,
-      pendingInvites: invitesResult.rows,
+      allChildren: childrenWithPin,
+      pendingInvites: scopeInvitesToViewer(invitesResult.rows, scopedChildIds),
+      pedagogs: scopePedagogsToViewer(pedagogLinks, scopedChildIds),
+      pendingPedagogInvites: scopeInvitesToViewer(pendingPedagogRows, scopedChildIds),
+      viewer_has_primary: viewerHasPrimaryRole(childrenWithPin),
       deletion_impact: { mode: deletionImpact.mode },
     });
   } catch (err) {
@@ -333,7 +346,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
 
     // Get parent's children
     const childrenResult = await db.query(
-      `SELECT c.id, c.name, c.emoji, c.timezone, c.birthday
+      `SELECT c.id, c.name, c.emoji, c.timezone, c.birthday, c.family_id
        FROM child c
        JOIN parent_child pc ON pc.child_id = c.id
        WHERE pc.parent_id = $1 AND pc.revoked_at IS NULL
@@ -540,15 +553,14 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
       }
     }
 
-    // Nearest reward per child (lowest star_cost, visible + active, for parent's family)
+    // Active rewards for the children's families — visibility is applied per child below.
+    const familyIds = [...new Set(children.map((c) => c.family_id).filter(Boolean))];
     const rewardsResult = await db.query(
-      `SELECT r.id, r.name, r.icon, r.star_cost FROM reward r
-       JOIN parent_child pc ON pc.child_id = ANY($1)
-       JOIN child c ON c.id = pc.child_id
-       WHERE r.family_id = c.family_id AND r.is_active = true
-       GROUP BY r.id, r.name, r.icon, r.star_cost
+      `SELECT r.id, r.name, r.icon, r.star_cost, r.family_id, r.visible_to_children, r.is_active
+       FROM reward r
+       WHERE r.family_id = ANY($1::uuid[]) AND r.is_active = true
        ORDER BY r.star_cost ASC`,
-      [childIds]
+      [familyIds]
     );
     const allRewards = rewardsResult.rows;
 
@@ -632,8 +644,11 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
         }, familyLocale);
       }));
 
-      // Nearest reward: first reward whose cost > balance (not yet earned), else first reward
-      const nearestReward = allRewards.find(r => r.star_cost > balance) || allRewards[0] || null;
+      const nearestReward = selectNearestReward(allRewards, {
+        childId: c.id,
+        familyId: c.family_id,
+        balance,
+      });
       const nearestRewardOut = nearestReward
         ? await localizeRewardRow(nearestReward, familyLocale)
         : null;

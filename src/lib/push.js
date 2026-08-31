@@ -100,6 +100,7 @@ async function _sendParentsPush(familyId, childId, excludeParentId, titleFn, bod
         body: bodyFn(lang),
         icon: '/icon-192.png',
         url: '/dashboard',
+        metadata: { child_id: childId },
       }).catch(() => {});
     }));
   } catch (err) {
@@ -158,6 +159,7 @@ async function notifyChildStarGranted(childId, childName, starCount, parentName)
         }),
         icon: '/icon-192.png',
         url: '/dashboard',
+        metadata: { child_id: childId },
       }).catch(() => {});
     }));
   } catch (err) {
@@ -179,6 +181,7 @@ async function notifyParentsRewardRequest(familyId, childId, childName, rewardNa
         body: t(lang, 'push.rewardRequest.body', { childName, rewardName }),
         icon: '/icon-192.png',
         url: '/dashboard',
+        metadata: { child_id: childId },
       }).catch(() => {});
     }));
   } catch (err) {

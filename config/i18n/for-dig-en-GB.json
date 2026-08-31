@@ -17,7 +17,7 @@
   },
   "badges": {
     "forChild": "For {{name}}",
-    "allChildren": "All children",
+    "allChildren": "All your children",
     "childrenCount": "{{count}} children",
     "activated": "Activated ✓",
     "popular": "Popular"
@@ -78,6 +78,9 @@
     "loadPlan": "Could not load plan",
     "loadCustomize": "Could not load customisation",
     "loadGoals": "Could not load goals",
+    "loadChildren": "Could not load children. That does not mean the family has none.",
+    "loadInstalls": "Could not read which goals are activated.",
+    "retry": "Try again",
     "activationFailed": "Activation failed",
     "saveFavorite": "Could not save favourite",
     "generic": "Something went wrong",
@@ -85,6 +88,7 @@
   },
   "activation": {
     "addChildFirst": "Add a child first under Family.",
+    "scopeLoadError": "Children could not be loaded, so activation cannot run right now.",
     "activating": "Activating…",
     "done": "Done!",
     "nothingToCustomize": "Nothing to customise for this goal right now.",
