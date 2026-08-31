@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('../lib/db');
 const { sendEmail, isTestMailbox } = require('../lib/email');
 const { maskEmail } = require('../lib/log-redact');
+const { shouldSendSupportReceipt, publicThreadFor, buildReceiptBodies } = require('../lib/support-receipt');
 const { createProfessionalInterest } = require('../../db/professional-interest');
 const {
   addWaitlistEntry,
@@ -81,10 +82,12 @@ router.post('/contact', async (req, res) => {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Store in DB with message_type = 'contact'
-    await db.query(
-      'INSERT INTO contact_message (name, email, message, message_type) VALUES ($1, $2, $3, $4)',
+    const inserted = await db.query(
+      'INSERT INTO contact_message (name, email, message, message_type) VALUES ($1, $2, $3, $4) RETURNING id',
       [name.trim(), normalizedEmail, message.trim(), 'contact']
     );
+    const messageId = inserted.rows[0] && inserted.rows[0].id;
+    const thread = messageId ? publicThreadFor(messageId) : null;
 
     if (!isTestMailbox(normalizedEmail)) {
       const safeName = escapeHtml(name.trim());
@@ -107,7 +110,30 @@ router.post('/contact', async (req, res) => {
       console.log(`[CONTACT] Skipping owner email for test mailbox ${maskEmail(normalizedEmail)}`);
     }
 
-    res.json({ message: 'Tack! Vi har tagit emot ditt meddelande.' });
+    if (thread && shouldSendSupportReceipt(normalizedEmail) && !isTestMailbox(normalizedEmail)) {
+      try {
+        const locale = typeof req.body?.locale === 'string' ? req.body.locale : '';
+        const receipt = buildReceiptBodies({
+          recipientName: name.trim(),
+          followUpUrl: thread.followUpUrl,
+          locale,
+        });
+        await sendEmail({
+          to: normalizedEmail,
+          subject: receipt.subject,
+          body: receipt.text,
+          html: receipt.html,
+          tags: [{ name: 'category', value: 'support_receipt' }],
+        });
+      } catch (receiptErr) {
+        console.error('[CONTACT] Receipt email failed:', receiptErr.message);
+      }
+    }
+
+    res.json({
+      message: 'Tack! Vi har tagit emot ditt meddelande.',
+      threadUrl: thread ? thread.threadUrl : undefined,
+    });
   } catch (err) {
     console.error('[CONTACT] Error:', err);
     res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });

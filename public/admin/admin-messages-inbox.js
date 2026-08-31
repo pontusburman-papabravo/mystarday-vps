@@ -37,6 +37,7 @@
   const EVENT_LABELS = {
     status_changed: 'Status ändrad',
     reply_sent: 'Svar skickat',
+    user_reply: 'Användaren svarade',
     note_saved: 'Anteckning sparad',
     resolution_set: 'Klassificering sparad',
     archived: 'Arkiverat',
@@ -526,7 +527,10 @@
           const when = new Date(ev.created_at).toLocaleString('sv-SE');
           const label = EVENT_LABELS[ev.event_type] || ev.event_type;
           const who = ev.admin_name ? ` · ${ev.admin_name}` : '';
-          return `<div class="py-1 border-b border-lavender/40">${esc(when)} · ${esc(label)}${esc(who)}</div>`;
+          const body = ev.payload && ev.payload.body
+            ? `<div class="mt-1 whitespace-pre-wrap text-navy">${esc(String(ev.payload.body).slice(0, 400))}</div>`
+            : '';
+          return `<div class="py-1 border-b border-lavender/40">${esc(when)} · ${esc(label)}${esc(who)}${body}</div>`;
         }).join('')
         : '<div>Ingen historik ännu</div>';
       eventCache.set(String(id), html);

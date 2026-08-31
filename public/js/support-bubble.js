@@ -188,6 +188,11 @@
       border: 1px solid #EF4444;
       color: #991B1B;
     }
+    .sb-alert a {
+      color: inherit;
+      font-weight: 600;
+      text-decoration: underline;
+    }
 
     .sb-close {
       position: absolute;
@@ -363,7 +368,12 @@
         const res = await fetch('/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, email: email, message: message }),
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            message: message,
+            locale: (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'sv',
+          }),
         });
 
         const data = await res.json();
@@ -372,6 +382,19 @@
           throw new Error(data.error || t('auth.supportBubble.genericError'));
         }
 
+        successEl.textContent = isSupportOooActive()
+          ? t('auth.supportBubble.oooSuccess')
+          : t('auth.supportBubble.success');
+        const threadPath = typeof data.threadUrl === 'string' && data.threadUrl.indexOf('/support/svar/sf1.') === 0
+          ? data.threadUrl
+          : '';
+        if (threadPath) {
+          successEl.appendChild(document.createTextNode(' '));
+          const link = document.createElement('a');
+          link.href = threadPath;
+          link.textContent = t('auth.supportBubble.openThread');
+          successEl.appendChild(link);
+        }
         successEl.style.display = 'block';
         form.reset();
       } catch (err) {

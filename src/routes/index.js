@@ -97,6 +97,7 @@ function registerRoutes(app) {
   app.use(require('./landing-news-archive'));
   app.use(require('./landing'));
   app.use('/api', require('./public'));
+  app.use('/api/support', require('./support-follow-up'));
   app.use('/api/market', require('./market'));
   app.use('/api/feedback', require('./feedback'));
   app.use('/api/growth/feedback', require('./growth-feedback'));

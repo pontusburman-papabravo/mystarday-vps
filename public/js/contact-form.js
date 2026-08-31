@@ -30,6 +30,7 @@
       submitting: en ? 'Sending…' : 'Skickar…',
       submit: en ? 'Send' : 'Skicka',
       genericError: en ? 'Something went wrong. Try again.' : 'Något gick fel. Försök igen.',
+      openThread: en ? 'Open your conversation' : 'Öppna ditt ärende',
     };
     return strings[key] || key;
   }
@@ -68,12 +69,27 @@
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, message: message }),
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          message: message,
+          locale: isEnglishPage() ? 'en' : 'sv',
+        }),
       });
       const data = await res.json().catch(function () { return {}; });
       if (!res.ok) throw new Error(data.error || ct('genericError'));
       form.style.display = 'none';
       if (successEl) successEl.style.display = 'block';
+      const threadPath = typeof data.threadUrl === 'string' && data.threadUrl.indexOf('/support/svar/sf1.') === 0
+        ? data.threadUrl
+        : '';
+      const threadLink = document.getElementById('contactThreadLink');
+      const threadWrap = document.getElementById('contactThreadWrap');
+      if (threadPath && threadLink) {
+        threadLink.href = threadPath;
+        threadLink.textContent = ct('openThread');
+        if (threadWrap) threadWrap.style.display = 'block';
+      }
     } catch (err) {
       if (errorEl) {
         errorEl.textContent = err.message || ct('genericError');

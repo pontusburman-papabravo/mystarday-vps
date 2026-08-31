@@ -3,6 +3,7 @@
  */
 const db = require('../src/lib/db');
 const events = require('./contact-message-events');
+const { buildPublicSupportThread } = require('../src/lib/support-thread');
 const {
   isValidRootCause,
   isValidResolutionType,
@@ -305,7 +306,55 @@ async function recordMessageReply(id, { replyBody, adminId, emailId }) {
   if (row) {
     await events.logEvent(id, 'reply_sent', {
       adminId,
-      payload: { email_id: emailId || null },
+      payload: { email_id: emailId || null, body: String(replyBody || '').trim().slice(0, 5000) },
+    });
+  }
+  return row;
+}
+
+async function getPublicThread(id) {
+  const { rows } = await db.query(
+    `SELECT id, message, created_at, internal_note
+     FROM contact_message
+     WHERE id = $1`,
+    [id]
+  );
+  const row = rows[0];
+  if (!row) return null;
+  const eventRows = await events.listEventsForMessage(id, 100);
+  return {
+    id: row.id,
+    thread: buildPublicSupportThread({
+      createdAt: row.created_at,
+      message: row.message,
+      internalNote: row.internal_note,
+      events: eventRows,
+    }),
+  };
+}
+
+async function recordUserFollowUp(id, { body }) {
+  const text = String(body || '').trim();
+  const stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  const block = [`--- Användarsvar ${stamp} ---`, text.slice(0, 5000)].join('\n');
+  const { rows } = await db.query(
+    `UPDATE contact_message SET
+       status = 'new',
+       is_read = false,
+       archived_at = NULL,
+       archived_by = NULL,
+       message = CASE
+         WHEN message IS NULL OR message = '' THEN $2
+         ELSE message || E'\n\n' || $2
+       END
+     WHERE id = $1
+     RETURNING *`,
+    [id, block]
+  );
+  const row = rows[0] || null;
+  if (row) {
+    await events.logEvent(id, 'user_reply', {
+      payload: { body: text.slice(0, 5000), source: 'follow_up_link' },
     });
   }
   return row;
@@ -588,6 +637,8 @@ module.exports = {
   getMessageDetail,
   getMessageById,
   recordMessageReply,
+  getPublicThread,
+  recordUserFollowUp,
   saveResolution,
   archiveMessage,
   getSupportAnalytics,
