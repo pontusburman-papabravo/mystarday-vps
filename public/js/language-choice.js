@@ -49,7 +49,7 @@
       <section class="language-choice" role="group" aria-labelledby="languageChoiceHeading">
         <h2 id="languageChoiceHeading" class="language-choice__title">
           <span data-i18n="language.choice.title">Välj språk</span>
-          <span class="language-choice__title-en" lang="en"> / Choose your language</span>
+          <span class="language-choice__title-en" lang="en" data-hide-when-en="1"> / Choose your language</span>
         </h2>
         <p class="language-choice__desc" data-i18n="language.choice.description">
           Du kan ändra språk senare i Inställningar.
@@ -99,6 +99,7 @@
     container.dataset.languageChoiceMounted = '1';
     container.innerHTML = buildHtml(suggest);
     I18n.apply(container);
+    syncBilingualTitle(container);
 
     const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
@@ -126,6 +127,7 @@
         markConfirmed(locale);
         await I18n.load(locale);
         I18n.apply(document);
+        syncBilingualTitle(container);
         if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
@@ -139,14 +141,7 @@
 
     return {
       getSelected: () => selected,
-      requireSelection: () => {
-        if (selected) return true;
-        if (errorEl) {
-          errorEl.textContent = I18n.t('language.choice.required');
-          errorEl.hidden = false;
-        }
-        return false;
-      },
+      requireSelection,
       isConfirmed: () => Boolean(selected) || isConfirmed(),
     };
   }
@@ -171,6 +166,14 @@
     document.addEventListener('language-choice-confirmed', showForm);
   }
 
+  function syncBilingualTitle(container) {
+    try {
+      const enBits = (container || document).querySelectorAll('[data-hide-when-en]');
+      const isEn = window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB';
+      enBits.forEach((el) => { el.hidden = !!isEn; });
+    } catch (_) { /* ignore */ }
+  }
+
   function autoMount() {
     const mounts = document.querySelectorAll('[data-language-choice-mount]');
     if (!mounts.length) return;
@@ -182,9 +185,49 @@
     }
   }
 
+  /**
+   * Registration language gate. Fail-closed. Never throws.
+   * Same contract as the former mount-local requireSelection.
+   */
+  function requireSelection() {
+    try {
+      if (isConfirmed()) return true;
+      const errorEl = document.querySelector('[data-language-choice-error]');
+      if (errorEl) {
+        let msg = 'Välj språk för att fortsätta';
+        try {
+          if (window.I18n && typeof window.I18n.t === 'function') {
+            msg = window.I18n.t('language.choice.required') || msg;
+          }
+        } catch (_) { /* keep fallback */ }
+        errorEl.textContent = msg;
+        errorEl.hidden = false;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function revealLanguageError() {
+    try {
+      requireSelection();
+      const mountEl = document.querySelector('[data-language-choice-mount]');
+      if (mountEl && typeof mountEl.scrollIntoView === 'function') {
+        mountEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     autoMount();
   });
 
-  window.LanguageChoice = { mount, autoMount, isConfirmed };
+  window.LanguageChoice = {
+    mount,
+    autoMount,
+    isConfirmed,
+    requireSelection,
+    revealLanguageError,
+  };
 })();
