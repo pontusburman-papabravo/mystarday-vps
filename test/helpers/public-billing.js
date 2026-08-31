@@ -2,8 +2,8 @@
 
 /**
  * Isolated test helper: simulate public billing usable without touching prod flags.
+ * Requires app-settings on each call so a reloaded src/lib/db pool is used.
  */
-const appSettings = require('../../db/app-settings');
 
 function snapshotBillingEnv() {
   return {
@@ -17,15 +17,19 @@ function restoreBillingEnv(snap) {
   else process.env.BILLING_UI_DISABLED = snap.BILLING_UI_DISABLED;
 }
 
+function appSettings() {
+  return require('../../db/app-settings');
+}
+
 async function enablePublicBillingForTest() {
   const snap = snapshotBillingEnv();
   delete process.env.BILLING_UI_DISABLED;
-  await appSettings.setPaymentEnabled(true);
+  await appSettings().setPaymentEnabled(true);
   return snap;
 }
 
 async function disablePublicBillingForTest(snap) {
-  await appSettings.setPaymentEnabled(false);
+  await appSettings().setPaymentEnabled(false);
   restoreBillingEnv(snap);
 }
 

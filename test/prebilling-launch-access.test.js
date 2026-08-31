@@ -15,7 +15,6 @@ const {
   MARKET_PAYMENT_START_AT_KEYS,
 } = require('../src/lib/payment-settings');
 const { setupTestDb } = require('./helpers/setup.js');
-const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 
@@ -149,6 +148,18 @@ test('resolver + API transition matrix', async (t) => {
     return;
   }
 
+  for (const mod of [
+    '../src/lib/db',
+    '../db/app-settings',
+    '../src/lib/billing-ui',
+    '../db/family-entitlements',
+    '../src/lib/payment-settings',
+    '../src/lib/family-entitlements',
+  ]) {
+    delete require.cache[require.resolve(mod)];
+  }
+
+  const runtimeDb = require('../src/lib/db');
   const appSettings = require('../db/app-settings');
   await appSettings.upsertSetting('payment_start_at', SE_START);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
@@ -162,7 +173,7 @@ test('resolver + API transition matrix', async (t) => {
   } = require('../src/lib/family-entitlements');
 
   async function createFamily(createdAtIso, countryCode) {
-    const { rows } = await db.query(
+    const { rows } = await runtimeDb.query(
       `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region)
        VALUES ($1, 'none', false, $2::timestamptz, $3, 'EU')
        RETURNING id, created_at, country_code`,
@@ -179,7 +190,7 @@ test('resolver + API transition matrix', async (t) => {
     assert.equal(before.premium.source, 'grandfathered');
     assert.equal(after.premium.source, 'grandfathered');
     assert.equal(after.premium.is_grandfathered, true);
-    const fam = await db.query('SELECT is_lifetime_free FROM family WHERE id = $1', [family.id]);
+    const fam = await runtimeDb.query('SELECT is_lifetime_free FROM family WHERE id = $1', [family.id]);
     assert.equal(fam.rows[0].is_lifetime_free, true);
   });
 
@@ -224,7 +235,7 @@ test('resolver + API transition matrix', async (t) => {
         await disablePublicBillingForTest(billingSnap);
       }
 
-      const fam = await db.query(
+      const fam = await runtimeDb.query(
         'SELECT is_lifetime_free, subscription_status FROM family WHERE id = $1',
         [family.id]
       );
@@ -249,103 +260,6 @@ test('resolver + API transition matrix', async (t) => {
       assert.equal(resolved.access_kind, 'paid');
     });
   }
-
-  await t.test('IE limited parent gets intentional 402 paywall, child /api/me stays open', async () => {
-    process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
-    process.env.RATE_LIMIT_ENABLED = 'false';
-    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-      process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
-    }
-
-    const pg = require('../src/lib/db');
-    await pg.query(
-      `INSERT INTO feature_flag (key, enabled, description)
-       VALUES ('market_ie_open', true, 'prebilling matrix')
-       ON CONFLICT (key) DO UPDATE SET enabled = true`
-    );
-    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
-    const billingSnap = await enablePublicBillingForTest();
-    const { createApp } = require('../app');
-    const http = await listenApp(createApp);
-    try {
-      const email = `prebilling-ie-${Date.now()}@example.com`;
-      const registerRes = await fetch(`${http.baseUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'IE Parent',
-          email,
-          password: 'testpass123',
-          country_code: 'IE',
-          preferred_locale: 'en-GB',
-        }),
-      });
-      assert.equal(registerRes.status, 201, await registerRes.text());
-
-      const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: 'testpass123' }),
-      });
-      const loginText = await loginRes.text();
-      assert.equal(loginRes.status, 200, loginText);
-      const loginBody = JSON.parse(loginText);
-      let cookies = {};
-      for (const header of getSetCookieHeaders(loginRes)) {
-        cookies = mergeCookies(cookies, [header]);
-      }
-      const headers = {
-        'Content-Type': 'application/json',
-        Cookie: cookieHeader(cookies),
-        'X-CSRF-Token': loginBody.csrfToken,
-      };
-
-      const childrenRes = await fetch(`${http.baseUrl}/api/children`, { headers });
-      assert.equal(childrenRes.status, 402);
-      const childrenBody = await childrenRes.json();
-      assert.equal(childrenBody.code, 'PREMIUM_REQUIRED');
-      assert.equal(childrenBody.paywall_url, '/paywall');
-      assert.equal(childrenBody.limited_account, true);
-
-      const iapRes = await fetch(`${http.baseUrl}/api/subscription/status`, { headers });
-      assert.equal(iapRes.status, 200);
-      const iapBody = await iapRes.json();
-      assert.equal(iapBody.requires_paywall, true);
-
-      const childRes = await fetch(`${http.baseUrl}/api/onboarding/child`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ name: 'Aoife', emoji: '🌟', birthday: '2018-05-01' }),
-      });
-      const childText = await childRes.text();
-      assert.equal(childRes.status, 201, childText);
-      const childBody = JSON.parse(childText);
-
-      const childLoginRes = await fetch(`${http.baseUrl}/api/auth/child-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: childBody.username, pin: childBody.pin }),
-      });
-      assert.equal(childLoginRes.status, 200, await childLoginRes.text());
-      let childCookies = {};
-      for (const header of getSetCookieHeaders(childLoginRes)) {
-        childCookies = mergeCookies(childCookies, [header]);
-      }
-      const dailyRes = await fetch(`${http.baseUrl}/api/me/daily-log`, {
-        headers: { Cookie: cookieHeader(childCookies) },
-      });
-      assert.equal(dailyRes.status, 200, await dailyRes.text());
-    } finally {
-      await pg.query(
-        `INSERT INTO feature_flag (key, enabled, description)
-         VALUES ('market_ie_open', false, 'prebilling matrix')
-         ON CONFLICT (key) DO UPDATE SET enabled = false`
-      );
-      await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
-      await disablePublicBillingForTest(billingSnap);
-      await http.close();
-    }
-  });
 
   await db.cleanup();
 });

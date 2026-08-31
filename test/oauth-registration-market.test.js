@@ -23,8 +23,9 @@ let mockParentByGoogle = null;
 let mockCreateParent = null;
 let mockCompleteLoginArgs = null;
 
-async function setMarketFlag(db, key, enabled) {
-  await db.query(
+async function setMarketFlag(_db, key, enabled) {
+  const pg = require('../src/lib/db');
+  await pg.query(
     `INSERT INTO feature_flag (key, enabled, description)
      VALUES ($1, $2, 'oauth-registration-market test')
      ON CONFLICT (key) DO UPDATE SET enabled = EXCLUDED.enabled`,
@@ -191,63 +192,73 @@ test('IE Google new signup blocked while market_ie_open=false', async () => {
 test('IE Google new signup allowed when gate ON and prebilling window is open', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
-  await setMarketFlag(db, 'market_ie_open', true);
+  const appSettings = require('../db/app-settings');
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
 
-  const handler = getGoogleHandler();
-  const req = {
-    body: {
-      idToken: 'valid-token',
-      country_code: 'IE',
-      preferred_locale: 'en-GB',
-    },
-    ip: '127.0.0.1',
-    headers: {},
-  };
-  let statusCode = 200;
-  const res = {
-    status(code) { statusCode = code; return this; },
-    json() {},
-  };
+    const handler = getGoogleHandler();
+    const req = {
+      body: {
+        idToken: 'valid-token',
+        country_code: 'IE',
+        preferred_locale: 'en-GB',
+      },
+      ip: '127.0.0.1',
+      headers: {},
+    };
+    let statusCode = 200;
+    let body = null;
+    const res = {
+      status(code) { statusCode = code; return this; },
+      json(payload) { body = payload; },
+    };
 
-  await handler(req, res);
-  assert.equal(statusCode, 200);
-  assert.ok(mockCreateParent);
-  assert.equal(mockCreateParent.countryCode, 'IE');
-  await setMarketFlag(db, 'market_ie_open', false);
-  await db.cleanup();
+    await handler(req, res);
+    assert.equal(statusCode, 200, JSON.stringify(body));
+    assert.ok(mockCreateParent);
+    assert.equal(mockCreateParent.countryCode, 'IE');
+  } finally {
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+    await setMarketFlag(db, 'market_ie_open', false);
+    await db.cleanup();
+  }
 });
 
 test('IE Google new signup blocked when gate ON after payment_start and billing is off', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   const appSettings = require('../db/app-settings');
-  await setMarketFlag(db, 'market_ie_open', true);
-  await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
 
-  const handler = getGoogleHandler();
-  const req = {
-    body: {
-      idToken: 'valid-token',
-      country_code: 'IE',
-      preferred_locale: 'en-GB',
-    },
-    ip: '127.0.0.1',
-    headers: {},
-  };
-  let statusCode = 200;
-  let body = null;
-  const res = {
-    status(code) { statusCode = code; return this; },
-    json(payload) { body = payload; },
-  };
+    const handler = getGoogleHandler();
+    const req = {
+      body: {
+        idToken: 'valid-token',
+        country_code: 'IE',
+        preferred_locale: 'en-GB',
+      },
+      ip: '127.0.0.1',
+      headers: {},
+    };
+    let statusCode = 200;
+    let body = null;
+    const res = {
+      status(code) { statusCode = code; return this; },
+      json(payload) { body = payload; },
+    };
 
-  await handler(req, res);
-  assert.equal(statusCode, 403);
-  assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
-  assert.equal(mockCreateParent, null);
-  await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
-  await setMarketFlag(db, 'market_ie_open', false);
-  await db.cleanup();
+    await handler(req, res);
+    assert.equal(statusCode, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+    assert.equal(mockCreateParent, null);
+  } finally {
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+    await setMarketFlag(db, 'market_ie_open', false);
+    await db.cleanup();
+  }
 });
 
 test('IE Google new signup passes market context when gate enabled in test', async () => {
