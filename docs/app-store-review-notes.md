@@ -17,24 +17,21 @@ Ordinary families cannot purchase. Billing stays off (`payment_enabled = false`,
 
 ### Paste into App Review Information → Notes
 
+Use this when **Sign-In Information is already the IAP review account** (preferred for subscription review). Do not put the literal word `PASSWORD` in the password field — paste the real value from the secret store / VPS `data/app-review-iap.secret`.
+
 ```
 Thank you for reviewing My Starday 1.4.3 (1139).
 
 This build uses Apple In-App Purchase (StoreKit) for Premium. There is no web checkout.
 
-Two test accounts (credentials in App Review Information — Sign-In Information, and the second account below):
-
-1) Complimentary review account
-- Full Premium at no cost (founding / complimentary family).
-- Settings may show Premium as included. There is no Monthly/Yearly purchase sheet on this account.
-
-2) IAP review account (use this to test subscriptions)
-- Email: APP_REVIEW_IAP_EMAIL
-- Password: APP_REVIEW_IAP_PASSWORD
-- After login: Settings → Subscription (or the Premium / paywall screen).
-- Monthly and Yearly are purchased through Apple’s system sheet.
+The Sign-In Information account is the IAP review account. After login:
+- Stay in the parent experience.
+- Open Settings → Subscription (or the Premium / paywall screen).
+- Monthly and Yearly open Apple’s system purchase sheet.
 - Restore Purchases is on the same screen.
-- Sign in to a Sandbox Apple ID first: iOS Settings → App Store → Sandbox Account (bottom). The purchase sheet should show Environment: Sandbox.
+- Sign in to a Sandbox Apple ID first: iOS Settings → App Store → Sandbox Account (bottom). The sheet should show Environment: Sandbox.
+
+A separate complimentary review account (founding / free Premium, no purchase sheet) is available on request if you need to verify the non-paying family path.
 
 Sign in with Apple is on Create account. Choose language and country first, then tap Continue with Apple. The system sheet must appear on iPhone and iPad.
 
@@ -50,7 +47,7 @@ https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 ### App Review Information — Sign-In Information
 
-Put the **complimentary** account (`APP_REVIEW_EMAIL` / `APP_REVIEW_PASSWORD`) in the official username/password fields. Put the **IAP** account in the Notes block above (replace the secret names with values from the secret store / VPS `data/app-review-iap.secret`). Never commit those values.
+For this submission, put the **IAP** account in the official username/password fields (`APP_REVIEW_IAP_EMAIL` / `APP_REVIEW_IAP_PASSWORD` from the secret store or VPS `data/app-review-iap.secret`). Never commit those values. Never leave the password as the placeholder word `PASSWORD`.
 
 ---
 
