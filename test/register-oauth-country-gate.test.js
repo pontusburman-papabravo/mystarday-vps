@@ -54,6 +54,7 @@ function loadRegistrationModules(opts) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'public/js/registration-country-gate.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'public/js/register-apple-auth.js'), 'utf8'), context);
   return {
+    window: context.window,
     CountryChoice: context.window.CountryChoice,
     RegistrationCountryGate: context.window.RegistrationCountryGate,
     RegisterAppleAuth: context.window.RegisterAppleAuth,
@@ -275,6 +276,59 @@ describe('Google register uses the same fail-closed gate', () => {
   });
 });
 
+describe('Apple register language-before-country', () => {
+  const iosPlatform = {
+    isIOS: () => true,
+    appleSignIn: {
+      isAvailable: () => true,
+      signIn: async () => ({ idToken: 'tok' }),
+    },
+  };
+
+  it('unconfirmed language => reason language, signIn not reached', () => {
+    const sessionStorage = memStorage();
+    confirmCountry(sessionStorage, 'SE');
+    const { window, RegisterAppleAuth, CountryChoice } = loadRegistrationModules({ sessionStorage });
+    window.LanguageChoice = {
+      isConfirmed: () => false,
+      requireSelection: () => false,
+    };
+    const pre = RegisterAppleAuth.preflight(iosPlatform, CountryChoice);
+    assert.equal(pre.ok, false);
+    assert.equal(pre.reason, 'language');
+  });
+
+  it('applyDeniedPreflight language/country does not paint the Apple error box', () => {
+    const { RegisterAppleAuth } = loadRegistrationModules();
+    let appleErrorCalls = 0;
+    RegisterAppleAuth.applyDeniedPreflight(
+      { ok: false, reason: 'language', message: 'language.choice.required' },
+      () => { appleErrorCalls += 1; }
+    );
+    RegisterAppleAuth.applyDeniedPreflight(
+      { ok: false, reason: 'country', message: 'market.choice.required' },
+      () => { appleErrorCalls += 1; }
+    );
+    assert.equal(appleErrorCalls, 0);
+  });
+
+  it('applyDeniedPreflight plugin failure still uses the Apple error box', () => {
+    const { RegisterAppleAuth } = loadRegistrationModules();
+    let appleErrorCalls = 0;
+    RegisterAppleAuth.applyDeniedPreflight(
+      { ok: false, reason: 'unavailable', message: 'auth.login.apple.unavailable' },
+      () => { appleErrorCalls += 1; }
+    );
+    assert.equal(appleErrorCalls, 1);
+  });
+
+  it('country autoMount starts immediately when language is already confirmed', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/country-choice.js'), 'utf8');
+    assert.match(src, /LanguageChoice\.isConfirmed\(\)/);
+    assert.match(src, /language-choice-confirmed/);
+  });
+});
+
 describe('Apple login remains unchanged', () => {
   it('login Apple handler does not use the registration country gate', () => {
     const login = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
@@ -299,6 +353,7 @@ describe('register.html wires preflight before native signIn', () => {
     assert.ok(preIdx > 0, 'preflight must be called');
     assert.ok(signIdx > preIdx, 'signIn must be after preflight');
     assert.doesNotMatch(handler, /CountryChoice\.requireSelection\(\)/);
+    assert.match(handler, /RegisterAppleAuth\.applyDeniedPreflight/);
   });
 
   it('script-scope t() exists so confirmed-country Apple tap cannot throw ReferenceError', () => {

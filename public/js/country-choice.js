@@ -227,9 +227,13 @@
   function autoMount() {
     const mounts = document.querySelectorAll('[data-country-choice-mount]');
     if (!mounts.length) return;
-    document.addEventListener('language-choice-confirmed', () => {
+    const start = () => {
       mounts.forEach((el) => mount(el));
-    }, { once: true });
+    };
+    document.addEventListener('language-choice-confirmed', start, { once: true });
+    if (window.LanguageChoice && typeof LanguageChoice.isConfirmed === 'function' && LanguageChoice.isConfirmed()) {
+      start();
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {

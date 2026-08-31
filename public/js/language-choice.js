@@ -139,14 +139,7 @@
 
     return {
       getSelected: () => selected,
-      requireSelection: () => {
-        if (selected) return true;
-        if (errorEl) {
-          errorEl.textContent = I18n.t('language.choice.required');
-          errorEl.hidden = false;
-        }
-        return false;
-      },
+      requireSelection,
       isConfirmed: () => Boolean(selected) || isConfirmed(),
     };
   }
@@ -182,9 +175,49 @@
     }
   }
 
+  /**
+   * Registration language gate. Fail-closed. Never throws.
+   * Same contract as the former mount-local requireSelection.
+   */
+  function requireSelection() {
+    try {
+      if (isConfirmed()) return true;
+      const errorEl = document.querySelector('[data-language-choice-error]');
+      if (errorEl) {
+        let msg = 'Välj språk för att fortsätta';
+        try {
+          if (window.I18n && typeof window.I18n.t === 'function') {
+            msg = window.I18n.t('language.choice.required') || msg;
+          }
+        } catch (_) { /* keep fallback */ }
+        errorEl.textContent = msg;
+        errorEl.hidden = false;
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function revealLanguageError() {
+    try {
+      requireSelection();
+      const mountEl = document.querySelector('[data-language-choice-mount]');
+      if (mountEl && typeof mountEl.scrollIntoView === 'function') {
+        mountEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     autoMount();
   });
 
-  window.LanguageChoice = { mount, autoMount, isConfirmed };
+  window.LanguageChoice = {
+    mount,
+    autoMount,
+    isConfirmed,
+    requireSelection,
+    revealLanguageError,
+  };
 })();
