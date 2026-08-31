@@ -20,6 +20,7 @@ const {
   evaluateSignupCompleteness,
 } = require('../lib/market-launch-invariants');
 const { getPaymentStartAt, getPaymentStartAtForCountry } = require('../lib/payment-settings');
+const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 
 const router = express.Router();
 
@@ -77,6 +78,11 @@ router.get('/registration-gates', async (req, res) => {
       public_billing_usable: publicBillingUsable,
       english_available: englishAvailable,
       signup_allowed: signupAllowed,
+      launch_state: resolvePublicLaunchStates({
+        signupAllowedByCountry: signupAllowed,
+        publicBillingUsable,
+        countryCodes: ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
+      }),
       payment_start_at: {
         SE: sePaymentStartAt.toISOString(),
         IE: iePaymentStartAt.toISOString(),

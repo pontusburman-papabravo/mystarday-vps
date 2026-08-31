@@ -24,10 +24,9 @@
   }
 
   function suggestedCountry() {
-    const nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-    if (/^sv/i.test(nav) || location.pathname === '/' || (!location.pathname.startsWith('/en'))) {
-      return 'SE';
-    }
+    const path = location.pathname || '';
+    const lang = (document.documentElement.lang || '').toLowerCase();
+    if (path.startsWith('/en') || lang === 'en' || lang === 'en-gb') return '';
     return 'SE';
   }
 
@@ -46,12 +45,13 @@
       ? getCountries()
       : [{ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }];
 
-    const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
-    const eu = countries.filter((c) => !['SE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
+    const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
+    const eu = countries.filter((c) => !['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
 
     let options = `<option value="">${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
-    options += `<option value="SE">${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
-    options += `<option value="FI">${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
+    options += `<option value="SE"${suggest === 'SE' ? ' selected' : ''}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
+    options += `<option value="IE"${suggest === 'IE' ? ' selected' : ''}>${labelFor({ code: 'IE', labels: { 'sv-SE': 'Irland', 'en-GB': 'Ireland' } }, locale)}</option>`;
+    options += `<option value="FI"${suggest === 'FI' ? ' selected' : ''}>${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
       eu.forEach((c) => {
