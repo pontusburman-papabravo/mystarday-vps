@@ -47,6 +47,7 @@ const CRITICAL_UNIT = [
   'test/family-device-prod-pilot-harness.test.js',
   'test/r4-runtime-release-gates.test.js',
   'test/android-aab-release-gate.test.js',
+  'test/android-app-links-patch.test.js',
   'test/pre-public-release-gate.test.js',
   'test/iap-client-config.test.js',
   'test/register-oauth-country-gate.test.js',
