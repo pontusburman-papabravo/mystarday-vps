@@ -21,8 +21,10 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 }
 
 const PASSWORD = 'testpass123';
-const FUTURE_START = '2026-10-15T00:00:00+02:00';
-const PAST_START = '2020-01-01T00:00:00+02:00';
+const DEFAULT_IE_FI_START = '2026-10-15T00:00:00+02:00';
+const FUTURE_START = '2099-10-15T00:00:00+02:00';
+const LAUNCH_CREATED = '2026-07-01T00:00:00+02:00';
+const CUTOFF_IN_PAST = '2026-08-01T00:00:00+02:00';
 
 function uniqueEmail(prefix) {
   return `${prefix}-${crypto.randomBytes(6).toString('hex')}@example.com`;
@@ -105,11 +107,12 @@ describe('same-family paid transition simulation', () => {
       await appSettings.upsertSetting('market_fi_payment_start_at', FUTURE_START);
       await setMarketFlag(pg, spec.flag, true);
 
-      const app = require('../app');
-      const http = await listenApp(app);
+      const { createApp } = require('../app');
       const email = uniqueEmail(`pt-${spec.countryCode.toLowerCase()}`);
+      let http;
 
       try {
+        http = await listenApp(createApp);
         const register = await parseJson(await fetch(`${http.baseUrl}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -131,6 +134,10 @@ describe('same-family paid transition simulation', () => {
           [email.toLowerCase()]
         );
         const familyId = parentRow.rows[0].family_id;
+        await pg.query(
+          'UPDATE family SET created_at = $2::timestamptz WHERE id = $1',
+          [familyId, LAUNCH_CREATED]
+        );
 
         const t0 = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
           headers: jsonHeaders(parent),
@@ -175,7 +182,7 @@ describe('same-family paid transition simulation', () => {
         }));
         assert.equal(familyT0.status, 200, familyT0.text);
 
-        await appSettings.upsertSetting(startKey, PAST_START);
+        await appSettings.upsertSetting(startKey, CUTOFF_IN_PAST);
 
         const hold = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
           headers: jsonHeaders(parent),
@@ -291,9 +298,9 @@ describe('same-family paid transition simulation', () => {
       } finally {
         await setMarketFlag(pg, spec.flag, false);
         await appSettings.setPaymentEnabled(false);
-        await appSettings.upsertSetting('market_ie_payment_start_at', FUTURE_START);
-        await appSettings.upsertSetting('market_fi_payment_start_at', FUTURE_START);
-        await http.close();
+        await appSettings.upsertSetting('market_ie_payment_start_at', DEFAULT_IE_FI_START);
+        await appSettings.upsertSetting('market_fi_payment_start_at', DEFAULT_IE_FI_START);
+        if (http) await http.close();
         await db.cleanup();
       }
     });
