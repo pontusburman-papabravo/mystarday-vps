@@ -56,6 +56,13 @@ describe('support OOO window (Sept 2026)', () => {
     assert.equal(en.auth.supportBubble.oooSuccess, ooo.COPY['en-GB'].success);
   });
 
+  it('playbook requires how-to for known tasks even when typed as bug', () => {
+    const doc = fs.readFileSync(path.join(ROOT, 'docs/support-ooo-sept-2026.md'), 'utf8');
+    assert.match(doc, /message_type=bug/);
+    assert.match(doc, /jag kan inte/i);
+    assert.match(doc, /Namn & emoji/);
+  });
+
   it('contact pages load support-ooo.js', () => {
     const sv = fs.readFileSync(path.join(ROOT, 'public/kontakt.html'), 'utf8');
     const en = fs.readFileSync(path.join(ROOT, 'public/en-contact.html'), 'utf8');

@@ -15,22 +15,23 @@ Detta fångar `/kontakt`, support-bubblan, in-app-feedback och systemhjälp → 
 ## Beslut
 
 1. Läs hela ärendet. Kolla ev. kopplad familj. Impersonation är **read-only**.
-2. Svara bara om du kan verifiera i kod, docs eller admin-data.
-3. Annars skicka exakt:
+2. Matcha mot tabellen **Verifierat** först. `message_type=bug` eller formuleringen "jag kan inte" är **inte** skäl att hoppa över hur-till.
+3. Känd funktion (t.ex. byta namn, ny PIN): skicka stegen. Om det låter som att de redan försökt: lägg till en fråga om vad som händer (feltext, saknad knapp, namnet hoppar tillbaka). Hitta inte på en orsak.
+4. Bara den del du **inte** kan verifiera får OOO-texten:
 
 > Tack för att du hör av dig. Vi är bortresta just nu och återkommer så snart vi kan, senast 11 september.
 
 Engelska ärenden: motsvarande text i `config/support-ooo.js` (`replyFallback`).
 
-4. Klassificera `root_cause` när du är säker. Lämna `unknown` hellre än gissa.
-5. Lova inte funktioner, datum eller att data kan återskapas.
+5. Klassificera `root_cause` när du är säker. Lämna `unknown` hellre än gissa.
+6. Lova inte funktioner, datum eller att data kan återskapas.
 
 ## Verifierat (får användas)
 
 | Fråga | Svar |
 |-------|------|
 | Barnets PIN | Vi kan inte läsa ut PIN (hashad). Föräldern sätter en ny 4-siffrig PIN under barnets inställningar. |
-| Byta barnets namn | Barnprofil → Inställningar → namn. |
+| Byta barnets namn | Familj → barnets kort → fliken med **Namn & emoji** → fältet Barnets namn → spara. |
 | Betalning / prenumeration | Betalning är inte påslagen. |
 | Vi har tagit emot rapporten | Ja — bekräfta och hänvisa till OOO om du inte kan felsöka klart. |
 
@@ -51,8 +52,8 @@ Läs docs/support-ooo-sept-2026.md och följ den exakt.
 
 1. Logga in mot den live sajten med ADMIN_EMAIL / ADMIN_PASSWORD.
 2. Hämta olästa och aktiva contact_messages (inbox=unread och inbox=active).
-3. För varje ärende: läs allt. Svara bara om du kan verifiera svaret i kod, docs eller admin-data. Hitta inte på.
-4. Kan du inte svara: skicka replyFallback från config/support-ooo.js.
+3. För varje ärende: läs allt. Matcha först mot verifierade hur-till i docs/support-ooo-sept-2026.md. "Jag kan inte X" + känd funktion = skicka stegen, inte bara OOO.
+4. Bara det du inte kan verifiera får replyFallback från config/support-ooo.js. Hitta inte på.
 5. Betalning är inte påslagen.
 6. Sammanfatta i svaret: id, typ, vad du svarade eller varför OOO, ev. bugg att fixa.
 7. Inga ärenden = skriv det och sluta. Ändra inte produktkod om inget ärende kräver det.
