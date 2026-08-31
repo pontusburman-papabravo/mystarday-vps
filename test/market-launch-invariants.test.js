@@ -192,9 +192,26 @@ describe('legal + limited-account recovery', () => {
 
   it('limited child sessions can reach first-star /api/me without Premium', () => {
     assert.equal(isChildLimitedAccountPath('/api/me/daily-log'), true);
-    assert.equal(isChildLimitedAccountPath('/api/me/rewards'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/daily-log/reorder'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/daily-log-items/x/complete'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/weekly-schedule'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/view-type'), true);
     assert.equal(isChildLimitedAccountPath('/api/features'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/rewards'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/garden'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/family'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/goal'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/universe'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/journey-context'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/morgonhus'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/memory-hall'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/activation-program'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/profile-photo'), false);
     assert.equal(isChildLimitedAccountPath('/api/messages'), false);
+    assert.equal(isChildLimitedAccountPath('/api/iap/sync'), false);
+    assert.equal(isChildLimitedAccountPath('/api/account/export-data'), false);
+    assert.equal(isChildLimitedAccountPath('/api/family/delete-account'), false);
+    assert.equal(isChildLimitedAccountPath('/api/admin/families'), false);
     assert.equal(isChildLimitedAccountPath('/api/children/x/view-config'), false);
   });
 });

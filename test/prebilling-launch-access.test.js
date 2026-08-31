@@ -368,9 +368,14 @@ describe('transition surfaces are explicit product policy', () => {
 
   it('child first-star /api/me stays reachable; messages do not', () => {
     assert.equal(isChildLimitedAccountPath('/api/me/daily-log'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/daily-log-items/x/complete'), true);
     assert.equal(isChildLimitedAccountPath('/api/subscription/status'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/rewards'), false);
+    assert.equal(isChildLimitedAccountPath('/api/me/garden'), false);
     assert.equal(isChildLimitedAccountPath('/api/messages'), false);
     assert.equal(isChildLimitedAccountPath('/api/children'), false);
+    assert.equal(isChildLimitedAccountPath('/api/iap/sync'), false);
+    assert.equal(isChildLimitedAccountPath('/api/family/delete-account'), false);
   });
 
   it('402/503 codes are declared, not accidental raw middleware', () => {

@@ -66,7 +66,7 @@ A family created **after** that country’s paid-start is never prebilling-eligi
 ### Other paths
 
 - **Webhook grandfather skip** is unchanged: only an existing `grandfathered` row is skipped. IE/FI have no auto grandfather row.
-- **Child after expiry:** `/api/me/` stays allowlisted (first-star / daily-log read). `/api/messages` and other child product APIs are not allowlisted and return 402.
+- **Child after expiry:** only explicit first-star prefixes stay allowlisted (`/api/me/daily-log`, `/api/me/weekly-schedule`, `/api/me/view-type`) plus auth, subscription read, and parent-restore. A broad `/api/me/` prefix is not used — rewards, garden, family hall, universe, journey, and other Premium child surfaces return `402`. `/api/messages`, `/api/iap/*`, `/api/account/*`, `/api/admin/*`, and `/api/family/delete-account` stay parent/admin-gated.
 - **Lifetime free:** prebilling never sets `family.is_lifetime_free`.
 
 ## Release states (do not collapse)

@@ -25,7 +25,42 @@ const LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/family/delete-account',
 ];
 
-/** Child sessions without Premium may still reach auth, subscription read, and parent-restore flows. */
+/**
+ * Child sessions without Premium may still reach first-star daily view + parent-restore.
+ *
+ * Do not use a broad `/api/me/` prefix. `/api/me` mounts both first-star child-self
+ * routes and Premium/world surfaces. Limited children must stay on the explicit
+ * first-star prefixes below.
+ *
+ * Matched `/api/me` first-star prefixes (startsWith):
+ *   /api/me/daily-log          GET daily-log, PUT daily-log/reorder
+ *   /api/me/daily-log-items/   complete, uncomplete, sub-steps, rate, rating
+ *     (covered by `/api/me/daily-log` because `daily-log-items` starts with `daily-log`)
+ *   /api/me/weekly-schedule    read-only child week view
+ *   /api/me/view-type          child's own day-view preference
+ *
+ * Denied `/api/me` mounts (limited child → 402 PREMIUM_REQUIRED):
+ *   /api/me/journey-context    parent Journey (also requireParent)
+ *   /api/me/platform-feedback
+ *   /api/me/morgonhus
+ *   /api/me/garden
+ *   /api/me/memory-hall
+ *   /api/me/rewards            list + redeem
+ *   /api/me/goal               + change-request + /api/me/manual-stars
+ *   /api/me/transition-support
+ *   /api/me/activation-program
+ *   /api/me/universe           + avatar/house/pet/collectibles
+ *   /api/me/family             family hall
+ *   /api/me/profile-photo
+ *
+ * Other child denials (role and/or not on this list):
+ *   /api/account/*             parent account/export (requireParent)
+ *   /api/admin/*               admin
+ *   /api/iap/*                 billing management (requireParent)
+ *   /api/messages              parent messages (requireParent)
+ *   /api/family/delete-account destructive parent action (requireParent)
+ *   /api/children              parent child-admin
+ */
 const CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/auth/',
   '/api/subscription/',
@@ -40,7 +75,9 @@ const CHILD_LIMITED_ACCOUNT_ALLOWED_PREFIXES = [
   '/api/features',
   '/api/events',
   '/api/widget/',
-  '/api/me/',
+  '/api/me/daily-log',
+  '/api/me/weekly-schedule',
+  '/api/me/view-type',
   '/api/family/verify-pin',
   '/api/family/restore-parent-session',
   '/api/family/activate-saved-parent-session',
