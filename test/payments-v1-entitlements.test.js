@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const { hashPassword } = require('../src/lib/hash');
 const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
@@ -294,6 +295,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('33 expired family limited API gate', async () => {
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const billingSnap = await enablePublicBillingForTest();
     delete require.cache[require.resolve('../app')];
     delete require.cache[require.resolve('../src/lib/db')];
     const { createApp } = require('../app');
@@ -308,6 +310,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       assert.equal(body.code, 'PREMIUM_REQUIRED');
     } finally {
       await http.close();
+      await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
     }
   });
@@ -333,6 +336,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(resolved.premium.active, false);
 
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const billingSnap = await enablePublicBillingForTest();
     process.env.REVENUECAT_SECRET_API_KEY = 'test-rc-secret';
     const originalFetch = global.fetch;
     global.fetch = async (url, init) => {
@@ -384,6 +388,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       global.fetch = originalFetch;
       delete process.env.REVENUECAT_SECRET_API_KEY;
       await http.close();
+      await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
     }
   });
@@ -518,9 +523,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       const dailyLogRes = await fetch(`${http.baseUrl}/api/me/daily-log`, {
         headers: { Cookie: cookieHeader(childCookies) },
       });
-      assert.equal(dailyLogRes.status, 402);
-      const body = JSON.parse(await dailyLogRes.text());
-      assert.equal(body.code, 'PREMIUM_REQUIRED');
+      assert.equal(dailyLogRes.status, 200, await dailyLogRes.text());
     } finally {
       await http.close();
       await setPaymentStart('2026-10-01T00:00:00+02:00');

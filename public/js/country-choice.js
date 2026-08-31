@@ -117,16 +117,23 @@
       const res = await fetch('/api/market/registration-gates');
       if (!res.ok) return;
       const data = await res.json();
+      const signup = data.signup_allowed || null;
+      function canSignup(code, marketOpen, seDefaultOpen) {
+        if (signup && Object.prototype.hasOwnProperty.call(signup, code)) {
+          return signup[code] === true;
+        }
+        return seDefaultOpen ? marketOpen !== false : marketOpen === true;
+      }
       gateMap = {
-        SE: data.market_se_open !== false,
-        IE: data.market_ie_open === true,
-        FI: data.market_fi_open === true,
-        NO: data.market_no_open === true,
-        DK: data.market_dk_open === true,
-        EU: data.market_eu_open === true,
-        UK: data.market_uk_open === true,
-        US: data.market_us_open === true,
-        OTHER: data.market_other_open === true,
+        SE: canSignup('SE', data.market_se_open, true),
+        IE: canSignup('IE', data.market_ie_open, false),
+        FI: canSignup('FI', data.market_fi_open, false),
+        NO: canSignup('NO', data.market_no_open, false),
+        DK: canSignup('DK', data.market_dk_open, false),
+        EU: canSignup('DE', data.market_eu_open, false),
+        UK: canSignup('GB', data.market_uk_open, false),
+        US: canSignup('US', data.market_us_open, false),
+        OTHER: canSignup('ZZ', data.market_other_open, false),
       };
     } catch (_) { /* keep defaults */ }
   }

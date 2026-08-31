@@ -11,6 +11,7 @@ const jwt = require('jsonwebtoken');
 const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader } = require('./helpers/http.js');
 const { registerAndLogin } = require('./helpers/auth-session.js');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const { ensureCanonicalStandardLibrary } = require('./helpers/golden-path-fas6.js');
 const config = require('../src/lib/config');
 
@@ -162,9 +163,11 @@ test('limited onboarding authorization integration A–J', async (t) => {
   await ensureCanonicalStandardLibrary(db);
   const savedPaymentStart = '2026-10-01T00:00:00+02:00';
   let limitedHttp;
+  let billingSnap;
 
   try {
     await setPaymentStart('2020-01-01T00:00:00+02:00', db);
+    billingSnap = await enablePublicBillingForTest();
     const { getPaymentStartAt } = require('../src/lib/payment-settings');
     const cutoff = await getPaymentStartAt();
     assert.ok(cutoff.getFullYear() <= 2020, `expected paywall cutoff 2020, got ${cutoff.toISOString()}`);
@@ -414,6 +417,7 @@ test('limited onboarding authorization integration A–J', async (t) => {
     });
   } finally {
     if (limitedHttp) await limitedHttp.close();
+    if (billingSnap) await disablePublicBillingForTest(billingSnap);
     await setPaymentStart(savedPaymentStart, db);
     await db.cleanup();
   }

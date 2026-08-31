@@ -22,6 +22,7 @@
 
   function hideStaleEnglishComingSoon() {
     document.querySelectorAll('.store-locale-note').forEach((el) => {
+      if (el.id === 'landingMarketState') return;
       el.hidden = true;
     });
     document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
@@ -31,12 +32,29 @@
     if (heroBody) {
       heroBody.innerHTML = 'The app is live on the App Store and Google Play in Swedish and English. Create an account if your country is open, or join the waitlist if it is not.';
     }
+    document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
+      if (!/Swedish only|English is coming soon|English coming soon/i.test(el.textContent || '')) return;
+      el.textContent = 'The App Store and Google Play apps are available in Swedish and English. Create an account if your country is open, or join the waitlist if it is not. You can also use the browser version and add it to your home screen as a PWA.';
+    });
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => {
+      try {
+        const data = JSON.parse(el.textContent);
+        if (!data || data['@type'] !== 'FAQPage' || !Array.isArray(data.mainEntity)) return;
+        data.mainEntity.forEach((item) => {
+          const answer = item && item.acceptedAnswer && item.acceptedAnswer.text;
+          if (typeof answer === 'string' && /Swedish only|English is coming soon/i.test(answer)) {
+            item.acceptedAnswer.text = 'The App Store and Google Play apps are available in Swedish and English. Create an account if your country is open, or join the waitlist if it is not. You can also use the browser version and add it to your home screen as a PWA.';
+          }
+        });
+        el.textContent = JSON.stringify(data);
+      } catch (_) { /* leave JSON-LD as authored */ }
+    });
   }
 
   function retargetPrimaryCtas(ieOpen, fiOpen, englishAvailable) {
     const canDirectRegister = englishAvailable || ieOpen || fiOpen;
     if (!canDirectRegister) return;
-    document.querySelectorAll('a.btn-primary[href="#waitlist"]').forEach((el, index) => {
+    document.querySelectorAll('a.btn-primary[href="#waitlist"], a.btn-primary[href="/en#waitlist"]').forEach((el, index) => {
       if (index > 2) return;
       el.setAttribute('href', '/register');
       if (el.textContent && /waitlist/i.test(el.textContent)) {
@@ -51,7 +69,10 @@
       strip = document.createElement('p');
       strip.id = 'landingMarketState';
       strip.className = 'store-locale-note store-locale-note--live-state';
-      const host = document.querySelector('.landing-hero__ctas') || document.querySelector('.landing-hero__copy');
+      const host = document.querySelector('.landing-hero__ctas')
+        || document.querySelector('.landing-hero__copy')
+        || document.querySelector('main')
+        || document.body;
       if (host) host.insertBefore(strip, host.firstChild);
       else return;
     }

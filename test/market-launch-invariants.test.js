@@ -11,7 +11,7 @@ const { GATE_DEFAULTS } = require('../src/lib/market-region');
 const { normalizeLocale, parseAcceptLanguage, resolvePreAuthLocale } = require('../src/lib/locale');
 const { COUNTRY_DEFAULTS } = require('../src/lib/market-config');
 const { resolveLegalRoutes } = require('../src/lib/legal-routing');
-const { isLimitedAccountPath } = require('../src/middleware/require-premium');
+const { isLimitedAccountPath, isChildLimitedAccountPath } = require('../src/middleware/require-premium');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -163,6 +163,14 @@ describe('legal + limited-account recovery', () => {
     assert.equal(isLimitedAccountPath('/api/subscription/status'), true);
     assert.equal(isLimitedAccountPath('/api/children'), false);
   });
+
+  it('limited child sessions can reach first-star /api/me without Premium', () => {
+    assert.equal(isChildLimitedAccountPath('/api/me/daily-log'), true);
+    assert.equal(isChildLimitedAccountPath('/api/me/rewards'), true);
+    assert.equal(isChildLimitedAccountPath('/api/features'), true);
+    assert.equal(isChildLimitedAccountPath('/api/messages'), false);
+    assert.equal(isChildLimitedAccountPath('/api/children/x/view-config'), false);
+  });
 });
 
 describe('public EEA pages are not internal-status markers', () => {
@@ -193,5 +201,7 @@ describe('public EEA pages are not internal-status markers', () => {
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /signup_allowed/);
     assert.match(js, /english_available/);
+    const country = fs.readFileSync(path.join(__dirname, '../public/js/country-choice.js'), 'utf8');
+    assert.match(country, /signup_allowed/);
   });
 });

@@ -11,6 +11,7 @@ const jwt = require('jsonwebtoken');
 const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader } = require('./helpers/http.js');
 const { registerAndLogin } = require('./helpers/auth-session.js');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const {
   isLimitedParentSecurityRequestAllowed,
   normalizePathname,
@@ -116,8 +117,10 @@ test('limited parent PIN security access integration A–I', async (t) => {
   }
 
   let http;
+  let billingSnap;
   try {
     await setPaymentStart('2020-01-01T00:00:00+02:00', db);
+    billingSnap = await enablePublicBillingForTest();
     const { createApp } = require('../app');
     http = await listenApp(createApp);
 
@@ -258,6 +261,7 @@ test('limited parent PIN security access integration A–I', async (t) => {
     });
   } finally {
     if (http) await http.close();
+    if (billingSnap) await disablePublicBillingForTest(billingSnap);
     await db.cleanup();
   }
 });

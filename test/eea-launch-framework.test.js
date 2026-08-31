@@ -450,6 +450,77 @@ test('registration-gates API exposes market_ie_open', async (t) => {
   }
 });
 
+test('future IE open: limited child can load daily-log before purchase (no 402 deadlock)', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  await setMarketFlag(pg, 'market_ie_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+  const billingSnap = await enablePublicBillingForTest();
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, email } = await registerCountry(http.baseUrl, 'IE');
+    assert.equal(res.status, 201, res.text);
+
+    const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: 'testpass123' }),
+    });
+    const loginText = await loginRes.text();
+    assert.equal(loginRes.status, 200, loginText);
+    const loginBody = JSON.parse(loginText);
+    let parentCookies = {};
+    for (const header of getSetCookieHeaders(loginRes)) {
+      parentCookies = mergeCookies(parentCookies, [header]);
+    }
+    const parentHeaders = {
+      'Content-Type': 'application/json',
+      Cookie: cookieHeader(parentCookies),
+      'X-CSRF-Token': loginBody.csrfToken,
+    };
+
+    const blocked = await fetch(`${http.baseUrl}/api/children`, { headers: parentHeaders });
+    assert.equal(blocked.status, 402, 'parent /api/children must stay premium-gated');
+
+    const childRes = await fetch(`${http.baseUrl}/api/onboarding/child`, {
+      method: 'POST',
+      headers: parentHeaders,
+      body: JSON.stringify({ name: 'Aoife', emoji: '🌟', birthday: '2018-05-01' }),
+    });
+    const childText = await childRes.text();
+    assert.equal(childRes.status, 201, childText);
+    const childBody = JSON.parse(childText);
+
+    const childLoginRes = await fetch(`${http.baseUrl}/api/auth/child-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: childBody.username, pin: childBody.pin }),
+    });
+    const childLoginText = await childLoginRes.text();
+    assert.equal(childLoginRes.status, 200, childLoginText);
+    let childCookies = {};
+    for (const header of getSetCookieHeaders(childLoginRes)) {
+      childCookies = mergeCookies(childCookies, [header]);
+    }
+
+    const dailyRes = await fetch(`${http.baseUrl}/api/me/daily-log`, {
+      headers: { Cookie: cookieHeader(childCookies) },
+    });
+    assert.equal(dailyRes.status, 200, await dailyRes.text());
+  } finally {
+    await setMarketFlag(pg, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('GET /api/market/config IE without locale keeps defaultLocale en-GB (pre-auth locale sv-SE)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
