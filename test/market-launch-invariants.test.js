@@ -15,9 +15,11 @@ const { isLimitedAccountPath, isChildLimitedAccountPath } = require('../src/midd
 const fs = require('node:fs');
 const path = require('node:path');
 
-const CUTOFF = '2026-10-01T00:00:00+02:00';
+const SE_CUTOFF = '2026-10-01T00:00:00+02:00';
+const IE_FI_CUTOFF = '2026-10-15T00:00:00+02:00';
 const BEFORE = new Date('2026-09-01T00:00:00+02:00');
-const AFTER = new Date('2026-10-02T00:00:00+02:00');
+const AFTER_SE = new Date('2026-10-02T00:00:00+02:00');
+const AFTER_IE_FI = new Date('2026-10-16T00:00:00+02:00');
 
 describe('signup completeness invariant', () => {
   it('closed IE cannot public-signup', () => {
@@ -25,7 +27,7 @@ describe('signup completeness invariant', () => {
       countryCode: 'IE',
       marketOpen: false,
       publicBillingUsable: true,
-      paymentStartAt: CUTOFF,
+      paymentStartAt: IE_FI_CUTOFF,
       now: BEFORE,
     });
     assert.equal(r.allowed, false);
@@ -37,44 +39,68 @@ describe('signup completeness invariant', () => {
       countryCode: 'FI',
       marketOpen: false,
       publicBillingUsable: true,
-      paymentStartAt: CUTOFF,
+      paymentStartAt: IE_FI_CUTOFF,
       now: BEFORE,
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, 'MARKET_FI_CLOSED');
   });
 
-  it('open IE without billing is rejected (no 402 deadlock)', () => {
+  it('open IE during prebilling window can signup with billing off', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: CUTOFF,
+      paymentStartAt: IE_FI_CUTOFF,
       now: BEFORE,
     });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, BILLING_NOT_READY_CODE);
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'prebilling_launch_access');
   });
 
-  it('open FI without billing is rejected (no 402 deadlock)', () => {
+  it('open FI during prebilling window can signup with billing off', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'FI',
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: CUTOFF,
+      paymentStartAt: IE_FI_CUTOFF,
       now: BEFORE,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'prebilling_launch_access');
+  });
+
+  it('open IE after payment_start without billing is rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      now: AFTER_IE_FI,
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, BILLING_NOT_READY_CODE);
   });
 
-  it('open IE with billing can complete signup', () => {
+  it('open FI after payment_start without billing is rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'FI',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, false);
+    assert.equal(r.code, BILLING_NOT_READY_CODE);
+  });
+
+  it('open IE with billing can complete signup after payment_start', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
       publicBillingUsable: true,
-      paymentStartAt: CUTOFF,
-      now: BEFORE,
+      paymentStartAt: IE_FI_CUTOFF,
+      now: AFTER_IE_FI,
     });
     assert.equal(r.allowed, true);
     assert.equal(r.reason, 'billing_usable');
@@ -85,7 +111,7 @@ describe('signup completeness invariant', () => {
       countryCode: 'SE',
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: CUTOFF,
+      paymentStartAt: SE_CUTOFF,
       now: BEFORE,
     });
     assert.equal(r.allowed, true);
@@ -97,8 +123,8 @@ describe('signup completeness invariant', () => {
       countryCode: 'SE',
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: CUTOFF,
-      now: AFTER,
+      paymentStartAt: SE_CUTOFF,
+      now: AFTER_SE,
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, BILLING_NOT_READY_CODE);
@@ -108,13 +134,13 @@ describe('signup completeness invariant', () => {
 describe('Sweden grandfather isolation', () => {
   it('IE and FI are never grandfather-eligible', () => {
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'IE', createdAt: BEFORE, paymentStartAt: CUTOFF,
+      countryCode: 'IE', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
     }), false);
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'FI', createdAt: BEFORE, paymentStartAt: CUTOFF,
+      countryCode: 'FI', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
     }), false);
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'SE', createdAt: BEFORE, paymentStartAt: CUTOFF,
+      countryCode: 'SE', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
     }), true);
   });
 

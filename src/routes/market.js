@@ -19,7 +19,7 @@ const {
   isPublicBillingUsable,
   evaluateSignupCompleteness,
 } = require('../lib/market-launch-invariants');
-const { getPaymentStartAt } = require('../lib/payment-settings');
+const { getPaymentStartAt, getPaymentStartAtForCountry } = require('../lib/payment-settings');
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.get('/registration-gates', async (req, res) => {
   try {
     const [
       se, ie, fi, no, dk, eu, uk, us, other,
-      publicBillingUsable, paymentStartAt, englishAvailable,
+      publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
@@ -41,9 +41,16 @@ router.get('/registration-gates', async (req, res) => {
       isMarketOpenForRegistration('ZZ'),
       isPublicBillingUsable(),
       getPaymentStartAt(),
+      getPaymentStartAtForCountry('IE'),
+      getPaymentStartAtForCountry('FI'),
       isEnglishAppGlobalEnabled(),
     ]);
     const now = new Date();
+    const paymentStartByCountry = {
+      SE: sePaymentStartAt,
+      IE: iePaymentStartAt,
+      FI: fiPaymentStartAt,
+    };
     const signupAllowed = {};
     for (const [code, open] of [
       ['SE', se], ['IE', ie], ['FI', fi], ['NO', no], ['DK', dk],
@@ -53,7 +60,7 @@ router.get('/registration-gates', async (req, res) => {
         countryCode: code,
         marketOpen: open,
         publicBillingUsable,
-        paymentStartAt,
+        paymentStartAt: paymentStartByCountry[code] || sePaymentStartAt,
         now,
       }).allowed;
     }
@@ -70,6 +77,11 @@ router.get('/registration-gates', async (req, res) => {
       public_billing_usable: publicBillingUsable,
       english_available: englishAvailable,
       signup_allowed: signupAllowed,
+      payment_start_at: {
+        SE: sePaymentStartAt.toISOString(),
+        IE: iePaymentStartAt.toISOString(),
+        FI: fiPaymentStartAt.toISOString(),
+      },
     });
   } catch (err) {
     console.error('[MARKET] registration-gates error:', err);

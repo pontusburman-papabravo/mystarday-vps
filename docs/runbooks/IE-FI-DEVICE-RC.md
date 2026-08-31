@@ -26,4 +26,6 @@ Until this runbook has a dated PASS log (like payments v1 iOS):
 
 - `IE_DEVICE_VERIFIED = NOT VERIFIED`
 - `FI_DEVICE_VERIFIED = NOT VERIFIED`
-- `READY_TO_OPEN` cannot be YES
+- `IRELAND_BILLING_READY` / `FINLAND_BILLING_READY` cannot be YES
+
+Missing paid-store/device verification does **not** block CODE READY or PREBILLING MARKET READY. See `docs/ie-fi-prebilling-access.md`.

@@ -129,7 +129,7 @@ async function createParentFromOAuth(opts) {
     await client.query('BEGIN');
 
     const finalFamilyName = familyName || buildAutoFamilyName(displayName, familyLocale);
-    const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('./family-entitlements');
+    const { syncCreatedFamilyAccessMirrors } = require('./family-entitlements');
 
     const familyResult = await client.query(
       `INSERT INTO family (
@@ -172,13 +172,7 @@ async function createParentFromOAuth(opts) {
     await client.query('INSERT INTO notification_preference (parent_id) VALUES ($1)', [parent.id]);
     await createNewsletterSubscription(client, parent.id, parent.email);
 
-    const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
-      client,
-      countryCode,
-    });
-    if (!grandfatherRow) {
-      await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
-    }
+    await syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, { client });
 
     await client.query('COMMIT');
     await runOAuthSignupSideEffects(familyId, parent, displayName, email, attribution);

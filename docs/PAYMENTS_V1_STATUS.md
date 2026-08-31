@@ -7,9 +7,9 @@
 ## Done (code, shipped)
 
 - Canonical `family_entitlements` + `payment_audit_log` migrations with idempotent grandfather backfill
-- `resolveFamilyEntitlements()` single resolver with precedence: grandfathered → admin → store (apple/google) → gift → none
+- `resolveFamilyEntitlements()` single resolver with precedence: grandfathered → admin → store (apple/google) → gift → computed IE/FI `prebilling` → none
 - Legacy mirror sync (`family.subscription_status`, `family_subscriptions.components`) — not source of truth, kept in sync via `syncMirrorsFromResolver()`
-- Registration/OAuth signup uses `payment_start_at` cutoff (founder count removed from access; grandfathering is SE-only)
+- Registration/OAuth signup uses country payment-start: SE grandfather via `payment_start_at`; IE/FI temporary launch access via `market_ie_payment_start_at` / `market_fi_payment_start_at` (see `docs/ie-fi-prebilling-access.md`)
 - RevenueCat webhook writes canonical store rows + audit (skips grandfathered families; skips sandbox events for non-allowlisted families)
 - Monthly **and** yearly SKUs live in `config/iap-product-contract.js` + `/api/iap/config`
 - **`POST /api/iap/sync` — trusted reconciliation only** (`src/lib/iap-reconcile.js`): server fetches the RevenueCat subscriber via REST; client body is ignored; fails closed (503) without `REVENUECAT_SECRET_API_KEY` or on verify errors

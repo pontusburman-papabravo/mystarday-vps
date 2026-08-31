@@ -72,7 +72,7 @@ test('market_ie_open OFF denies IE registration (B)', async (t) => {
   }
 });
 
-test('market_ie_open ON + billing OFF rejects IE to prevent 402 deadlock', async (t) => {
+test('market_ie_open ON + billing OFF accepts IE during prebilling window', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -85,10 +85,47 @@ test('market_ie_open ON + billing OFF rejects IE to prevent 402 deadlock', async
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
+    const { res, email, body } = await registerCountry(http.baseUrl, 'IE');
+    assert.equal(res.status, 201, JSON.stringify(body));
+    const fam = await pg.query(
+      `SELECT f.id, f.country_code, f.is_lifetime_free, f.subscription_status
+       FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].country_code, 'IE');
+    assert.equal(fam.rows[0].is_lifetime_free, false);
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+    const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
+    assert.equal(resolved.premium.source, 'prebilling');
+    assert.equal(resolved.premium.is_grandfathered, false);
+    assert.equal(resolved.premium.active, true);
+  } finally {
+    await setMarketFlag(pg, 'market_ie_open', false);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_ie_open ON + billing OFF after payment_start rejects IE', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  const appSettings = require('../db/app-settings');
+  await setMarketFlag(pg, 'market_ie_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+  await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
     const { res, body } = await registerCountry(http.baseUrl, 'IE');
     assert.equal(res.status, 403, JSON.stringify(body));
     assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
   } finally {
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
     await setMarketFlag(pg, 'market_ie_open', false);
     await http.close();
     await db.cleanup();
@@ -173,7 +210,7 @@ test('market_fi_open OFF denies FI registration', async (t) => {
   }
 });
 
-test('market_fi_open ON + billing OFF rejects FI to prevent 402 deadlock', async (t) => {
+test('market_fi_open ON + billing OFF accepts FI during prebilling window', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -186,9 +223,19 @@ test('market_fi_open ON + billing OFF rejects FI to prevent 402 deadlock', async
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    const { res, body } = await registerCountry(http.baseUrl, 'FI', { preferred_locale: 'sv-SE' });
-    assert.equal(res.status, 403, JSON.stringify(body));
-    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+    const { res, email, body } = await registerCountry(http.baseUrl, 'FI', { preferred_locale: 'sv-SE' });
+    assert.equal(res.status, 201, JSON.stringify(body));
+    const fam = await pg.query(
+      `SELECT f.id, f.country_code, f.is_lifetime_free
+       FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].country_code, 'FI');
+    assert.equal(fam.rows[0].is_lifetime_free, false);
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+    const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
+    assert.equal(resolved.premium.source, 'prebilling');
+    assert.equal(resolved.premium.is_grandfathered, false);
   } finally {
     await setMarketFlag(pg, 'market_fi_open', false);
     await http.close();
@@ -459,6 +506,8 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+  const appSettings = require('../db/app-settings');
+  await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
   const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
@@ -515,6 +564,7 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
     assert.equal(dailyRes.status, 200, await dailyRes.text());
   } finally {
     await setMarketFlag(pg, 'market_ie_open', false);
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
     await disablePublicBillingForTest(billingSnap);
     await http.close();
     await db.cleanup();

@@ -110,13 +110,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1b IE family before Swedish cutoff → not grandfathered', async () => {
+  await t.test('1b IE family before Swedish cutoff → prebilling, not grandfathered', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'IE' });
     assert.equal(row, null);
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
+      family.id,
+      new Date('2026-09-15T00:00:00+02:00')
+    );
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
   });
 
   await t.test('1c explicit IE grandfather row remains premium', async () => {
@@ -129,13 +135,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1d FI family before Swedish cutoff → not grandfathered', async () => {
+  await t.test('1d FI family before Swedish cutoff → prebilling, not grandfathered', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'FI');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'FI' });
     assert.equal(row, null);
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
+      family.id,
+      new Date('2026-09-15T00:00:00+02:00')
+    );
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
   });
 
   await t.test('2 family after cutoff → no access before valid entitlement', async () => {

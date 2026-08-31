@@ -13,6 +13,18 @@ const DEFAULT_PAYMENT_START_AT = '2026-10-01T00:00:00+02:00';
 /** Swedish payment_start_at grandfathering applies to SE families only (not worldwide). */
 const GRANDFATHER_ELIGIBLE_COUNTRY_CODES = Object.freeze(new Set(['SE']));
 
+/**
+ * IE/FI may open before public billing. Temporary prebilling access ends at this
+ * country-specific cutoff — not the Swedish grandfather date, and not a grandfather row.
+ */
+const PREBILLING_LAUNCH_COUNTRY_CODES = Object.freeze(new Set(['IE', 'FI']));
+const MARKET_PAYMENT_START_AT_KEYS = Object.freeze({
+  IE: 'market_ie_payment_start_at',
+  FI: 'market_fi_payment_start_at',
+});
+/** CONFIGURED default until ops sets the real IE/FI paid-start date. */
+const DEFAULT_PREBILLING_PAYMENT_START_AT = '2026-10-15T00:00:00+02:00';
+
 const GIFT_DEFAULTS = Object.freeze({
   gift_cards_enabled: true,
   gift_cards_sales_enabled: true,
@@ -89,15 +101,110 @@ function isFamilyEligibleForGrandfathering({ countryCode, createdAt, paymentStar
   return isFamilyBeforePaymentStart(createdAt, paymentStartAt);
 }
 
+function parsePaymentStartValue(raw, fallbackIso) {
+  if (raw == null || raw === '') {
+    return new Date(fallbackIso);
+  }
+  const iso = typeof raw === 'string' ? raw : String(raw).replace(/^"|"$/g, '');
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return new Date(fallbackIso);
+  }
+  return d;
+}
+
+/**
+ * Canonical paid-start instant for a country.
+ * SE uses existing payment_start_at. IE/FI use market_* keys (independent dates).
+ */
+async function getPaymentStartAtForCountry(countryCode) {
+  const cc = normalizeCountryCode(countryCode) || 'SE';
+  const marketKey = MARKET_PAYMENT_START_AT_KEYS[cc];
+  if (!marketKey) {
+    return getPaymentStartAt();
+  }
+  const raw = await appSettings.getSetting(marketKey);
+  return parsePaymentStartValue(raw, DEFAULT_PREBILLING_PAYMENT_START_AT);
+}
+
+async function setPaymentStartAtForCountry(countryCode, isoString, { updatedByAdminId } = {}) {
+  const cc = normalizeCountryCode(countryCode) || 'SE';
+  if (cc === 'SE') {
+    return setPaymentStartAt(isoString, { updatedByAdminId });
+  }
+  const marketKey = MARKET_PAYMENT_START_AT_KEYS[cc];
+  if (!marketKey) {
+    throw new Error(`No market payment start key for ${cc}`);
+  }
+  if (!isoString || Number.isNaN(new Date(isoString).getTime())) {
+    throw new Error(`Invalid ${marketKey}`);
+  }
+  await appSettings.upsertSetting(marketKey, isoString);
+  await appConfig.set(marketKey, isoString, {
+    description: `Paid-start cutoff for ${cc} prebilling launch access`,
+    updatedBy: updatedByAdminId || null,
+  }).catch(() => {});
+  return new Date(isoString);
+}
+
+/**
+ * Temporary IE/FI launch access — never Swedish grandfathering.
+ */
+function isFamilyEligibleForPrebillingAccess({ countryCode, createdAt, paymentStartAt }) {
+  const cc = normalizeCountryCode(countryCode);
+  if (!PREBILLING_LAUNCH_COUNTRY_CODES.has(cc)) {
+    return false;
+  }
+  return isFamilyBeforePaymentStart(createdAt, paymentStartAt);
+}
+
+function isPrebillingLaunchWindowOpen(countryCode, now, paymentStartAt) {
+  const cc = normalizeCountryCode(countryCode);
+  if (!PREBILLING_LAUNCH_COUNTRY_CODES.has(cc)) {
+    return false;
+  }
+  return isFamilyBeforePaymentStart(now, paymentStartAt);
+}
+
+/**
+ * Temporary launch access for an existing IE/FI family.
+ * Ends at country payment_start_at. If billing is still unusable after that
+ * instant, access is held until public billing becomes usable (ops-late safety).
+ * Never Swedish grandfathering.
+ */
+function isPrebillingAccessActive({
+  countryCode,
+  createdAt,
+  paymentStartAt,
+  now,
+  publicBillingUsable,
+}) {
+  if (!isFamilyEligibleForPrebillingAccess({ countryCode, createdAt, paymentStartAt })) {
+    return false;
+  }
+  if (isPrebillingLaunchWindowOpen(countryCode, now, paymentStartAt)) {
+    return true;
+  }
+  return publicBillingUsable === false;
+}
+
 module.exports = {
   PAYMENT_START_AT_KEY,
   DEFAULT_PAYMENT_START_AT,
+  DEFAULT_PREBILLING_PAYMENT_START_AT,
   GIFT_DEFAULTS,
   GRANDFATHER_ELIGIBLE_COUNTRY_CODES,
+  PREBILLING_LAUNCH_COUNTRY_CODES,
+  MARKET_PAYMENT_START_AT_KEYS,
   getPaymentStartAt,
   setPaymentStartAt,
+  getPaymentStartAtForCountry,
+  setPaymentStartAtForCountry,
   getGiftSettings,
   setGiftSetting,
   isFamilyBeforePaymentStart,
   isFamilyEligibleForGrandfathering,
+  isFamilyEligibleForPrebillingAccess,
+  isPrebillingLaunchWindowOpen,
+  isPrebillingAccessActive,
 };

@@ -106,7 +106,8 @@
         "test/payments*.test.js",
         "test/billing*.test.js",
         "test/limited-account-paywall*.test.js",
-        "test/review-subscription*.test.js"
+        "test/review-subscription*.test.js",
+        "test/prebilling-launch-access.test.js"
       ]
     },
     "i18n-markets-legal": {
@@ -136,7 +137,8 @@
         "test/cookie*.test.js",
         "test/eea-launch*.test.js",
         "test/english-app*.test.js",
-        "test/grandfather-country*.test.js"
+        "test/grandfather-country*.test.js",
+        "test/prebilling-launch-access.test.js"
       ]
     },
     "planning-schedule": {

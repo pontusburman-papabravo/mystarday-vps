@@ -137,10 +137,8 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     try {
       await client.query('BEGIN');
 
-      // PAYMENTS V1 — grandfather by payment_start_at cutoff (not founder count).
-      const { grantGrandfatheredOnCreate, syncAllLegacyMirrors, emptyPremium } = require('../../lib/family-entitlements');
-      const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('../../lib/payment-settings');
-      const paymentStartAt = await getPaymentStartAt();
+      // PAYMENTS V1 — SE grandfather, IE/FI prebilling, or limited/paywall cohort.
+      const { syncCreatedFamilyAccessMirrors } = require('../../lib/family-entitlements');
 
       // Create family — no DB trial for post-cutoff cohort (store trial via RevenueCat only).
       const marketConfig = getMarketConfig({
@@ -170,17 +168,10 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       );
       const familyId = familyResult.rows[0].id;
       const familyCreatedAt = familyResult.rows[0].created_at;
-      const isPreCutoff = isFamilyEligibleForGrandfathering({
-        countryCode: countryResolved.country_code,
-        createdAt: familyCreatedAt,
-        paymentStartAt,
-      });
 
       if (familyLocale === 'en-GB') {
         await enableEnglishAppForFamily(familyId, { client });
       }
-
-      console.log(`[AUTH] Family created — payment_start cutoff: ${isPreCutoff ? 'grandfathered' : 'paywall cohort'}`);
 
       // New parents always start unverified. They get a 24h grace period to log in
       // while they verify their email. After 24h, login is blocked until verified.
@@ -335,13 +326,13 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       await createNewsletterSubscription(client, parentId, normalizedEmail);
 
-      const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
-        client,
-        countryCode: countryResolved.country_code,
-      });
-      if (!grandfatherRow) {
-        await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
-      }
+      const createdAccess = await syncCreatedFamilyAccessMirrors(
+        familyId,
+        familyCreatedAt,
+        countryResolved.country_code,
+        { client }
+      );
+      console.log(`[AUTH] Family created — access: ${createdAccess.kind}`);
 
       await client.query('COMMIT');
 

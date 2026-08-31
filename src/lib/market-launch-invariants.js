@@ -3,15 +3,22 @@
 /**
  * Launch invariants for public signup vs premium vs billing.
  *
- * market open ⇒ signup usable
- * premium required ⇒ billing must be publicly usable (or the family is SE-grandfather eligible)
- * market closed ⇒ public signup cannot enter an unsupported state
+ * signup_allowed =
+ *   market_open &&
+ *   (SE grandfather path || IE/FI prebilling window || public billing usable)
+ *
+ * An open market must never permit signup into an unusable account.
+ * A pre-billing launch market must not require billing to be live.
  *
  * Does not open markets or enable paid rollout. Fail-closed.
  */
 
 const { isBillingUiEnabled } = require('./billing-ui');
-const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('./payment-settings');
+const {
+  getPaymentStartAtForCountry,
+  isFamilyEligibleForGrandfathering,
+  isPrebillingLaunchWindowOpen,
+} = require('./payment-settings');
 const {
   isMarketOpenForRegistration,
   marketClosedCode,
@@ -48,13 +55,18 @@ function evaluateSignupCompleteness(input) {
     };
   }
 
+  const now = input.now || new Date();
   const grandfatherEligible = isFamilyEligibleForGrandfathering({
     countryCode,
-    createdAt: input.now || new Date(),
+    createdAt: now,
     paymentStartAt: input.paymentStartAt,
   });
   if (grandfatherEligible) {
     return { allowed: true, reason: 'grandfather_eligible', code: null };
+  }
+
+  if (isPrebillingLaunchWindowOpen(countryCode, now, input.paymentStartAt)) {
+    return { allowed: true, reason: 'prebilling_launch_access', code: null };
   }
 
   if (!input.publicBillingUsable) {
@@ -77,7 +89,7 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
   const [marketOpen, publicBillingUsable, paymentStartAt] = await Promise.all([
     isMarketOpenForRegistration(countryCode),
     isPublicBillingUsable(),
-    getPaymentStartAt(),
+    getPaymentStartAtForCountry(countryCode),
   ]);
   return evaluateSignupCompleteness({
     countryCode,
