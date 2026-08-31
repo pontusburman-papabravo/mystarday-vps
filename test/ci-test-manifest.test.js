@@ -61,6 +61,7 @@ const CRITICAL_UNIT = [
   'test/e2-push-delivery-result.test.js',
   'test/e2-notification-archive.test.js',
   'test/activation-slim-handoff.test.js',
+  'test/a2-pin-url-static-scan.test.js',
 ];
 
 test('critical integration tests are listed in test:gate:db', () => {
