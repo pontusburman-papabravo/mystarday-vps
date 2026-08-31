@@ -394,7 +394,9 @@
           escapeHtml(s.familyId) + '">' + name + '</button>' +
           '<p class="text-xs text-text-soft mt-0.5">' + email + '</p></td>' +
           '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(formatShortDate(s.sentAt)) + '</td>' +
-          '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(trackingLabel(s.deliveredAt, 'väntar')) + '</td>' +
+          '<td class="py-3 pr-2 whitespace-nowrap">' +
+          escapeHtml(s.bounced ? 'studsade' : trackingLabel(s.deliveredAt, 'väntar')) +
+          '</td>' +
           '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(trackingLabel(s.openedAt, 'nej')) + '</td>' +
           '<td class="py-3 pr-2">' + escapeHtml(s.subject || '—') + '<br>' + copyBtn + '</td>' +
           '<td class="py-3 pr-2 text-xs">' + follow + '</td>' +
