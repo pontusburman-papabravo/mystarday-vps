@@ -131,7 +131,7 @@ router.post('/interest', requireParent, validate(InterestBodySchema), async (req
 router.get('/status', requireParent, async (req, res) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
-    const [{ premium, requires_paywall, payment_start_at }, sub] = await Promise.all([
+    const [{ premium, requires_paywall, access_kind, payment_start_at }, sub] = await Promise.all([
       resolveFamilyEntitlements(familyId),
       familySubscriptions.getByFamilyId(familyId),
     ]);
@@ -149,6 +149,7 @@ router.get('/status', requireParent, async (req, res) => {
     res.json({
       tier: premium.is_grandfathered ? 'lifetime_free' : (premium.active ? (premium.trial ? 'trial' : 'paid') : 'expired'),
       premium,
+      access_kind: access_kind || (premium.active ? (premium.is_grandfathered ? 'grandfathered' : 'paid') : 'limited'),
       requires_paywall: !!requires_paywall,
       payment_start_at,
       trial_days_remaining: premium.trial && premium.expires_at

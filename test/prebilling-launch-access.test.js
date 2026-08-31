@@ -259,7 +259,131 @@ test('resolver + API transition matrix', async (t) => {
       assert.equal(resolved.premium.is_grandfathered, false);
       assert.equal(resolved.access_kind, 'paid');
     });
+
+    await t.test(`${code} cancellation keeps paid until expiry, then returns to prebilling in-window`, async () => {
+      const family = await createFamily(CREATED_LAUNCH, code);
+      await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
+      await applyStoreEntitlementFromWebhook(family.id, {
+        subscriptionStatus: 'active',
+        eventType: 'INITIAL_PURCHASE',
+        event: { id: `evt_${code.toLowerCase()}_buy`, period_type: 'NORMAL', store: 'APP_STORE' },
+        productId: STORE_PRODUCT_MONTHLY,
+        expirationAtMs: Date.now() + 7 * 86400000,
+      });
+
+      await applyStoreEntitlementFromWebhook(family.id, {
+        subscriptionStatus: 'active',
+        eventType: 'CANCELLATION',
+        event: { id: `evt_${code.toLowerCase()}_cancel`, period_type: 'NORMAL', store: 'APP_STORE' },
+        productId: STORE_PRODUCT_MONTHLY,
+        expirationAtMs: Date.now() + 3 * 86400000,
+      });
+      const cancelled = await resolveFamilyEntitlements(family.id, BEFORE);
+      assert.equal(cancelled.premium.source, 'apple');
+      assert.equal(cancelled.access_kind, 'paid');
+      assert.equal(cancelled.premium.is_grandfathered, false);
+
+      await applyStoreEntitlementFromWebhook(family.id, {
+        subscriptionStatus: 'expired',
+        eventType: 'EXPIRATION',
+        event: { id: `evt_${code.toLowerCase()}_exp`, period_type: 'NORMAL', store: 'APP_STORE' },
+        productId: STORE_PRODUCT_MONTHLY,
+        expirationAtMs: Date.now() - 1000,
+      });
+      const expiredInWindow = await resolveFamilyEntitlements(family.id, BEFORE);
+      assert.equal(expiredInWindow.premium.source, 'prebilling');
+      assert.equal(expiredInWindow.access_kind, 'prebilling');
+      assert.equal(expiredInWindow.requires_paywall, false);
+      assert.equal(expiredInWindow.premium.is_grandfathered, false);
+
+      const heldAfterCutoff = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
+      assert.equal(heldAfterCutoff.premium.source, 'prebilling');
+      assert.equal(heldAfterCutoff.requires_paywall, false);
+
+      const billingSnap = await enablePublicBillingForTest();
+      try {
+        const afterPaidStart = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
+        assert.equal(afterPaidStart.premium.active, false);
+        assert.equal(afterPaidStart.premium.source, 'none');
+        assert.equal(afterPaidStart.access_kind, 'limited');
+        assert.equal(afterPaidStart.requires_paywall, true);
+        const fam = await runtimeDb.query(
+          'SELECT is_lifetime_free FROM family WHERE id = $1',
+          [family.id]
+        );
+        assert.equal(fam.rows[0].is_lifetime_free, false);
+      } finally {
+        await disablePublicBillingForTest(billingSnap);
+      }
+    });
+
+    await t.test(`${code} family created after paid-start never gets computed prebilling`, async () => {
+      const family = await createFamily(CREATED_IE_POST, code);
+      const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
+      assert.equal(created.kind, 'limited');
+      const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
+      assert.equal(resolved.premium.active, false);
+      assert.equal(resolved.access_kind, 'limited');
+      assert.equal(resolved.requires_paywall, true);
+      assert.notEqual(resolved.premium.source, 'prebilling');
+      assert.notEqual(resolved.premium.source, 'grandfathered');
+    });
   }
 
+  await t.test('SE grandfather skip on store webhook is unchanged', async () => {
+    const family = await createFamily(CREATED_LAUNCH, 'SE');
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
+    const result = await applyStoreEntitlementFromWebhook(family.id, {
+      subscriptionStatus: 'expired',
+      eventType: 'EXPIRATION',
+      event: { id: 'evt_se_skip', period_type: 'NORMAL', store: 'APP_STORE' },
+      productId: STORE_PRODUCT_MONTHLY,
+      expirationAtMs: Date.now() - 1000,
+    });
+    assert.equal(result.skipped, true);
+    const resolved = await resolveFamilyEntitlements(family.id, AFTER_SE);
+    assert.equal(resolved.premium.source, 'grandfathered');
+    assert.equal(resolved.access_kind, 'grandfathered');
+  });
+
   await db.cleanup();
+});
+
+describe('transition surfaces are explicit product policy', () => {
+  const {
+    isLimitedAccountPath,
+    isChildLimitedAccountPath,
+  } = require('../src/middleware/require-premium');
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  it('parent restore + subscription status stay reachable after expiry', () => {
+    assert.equal(isLimitedAccountPath('/api/iap/sync'), true);
+    assert.equal(isLimitedAccountPath('/api/subscription/status'), true);
+    assert.equal(isLimitedAccountPath('/api/auth/refresh'), true);
+    assert.equal(isLimitedAccountPath('/api/children'), false);
+    assert.equal(isLimitedAccountPath('/api/schedules'), false);
+  });
+
+  it('child first-star /api/me stays reachable; messages do not', () => {
+    assert.equal(isChildLimitedAccountPath('/api/me/daily-log'), true);
+    assert.equal(isChildLimitedAccountPath('/api/subscription/status'), true);
+    assert.equal(isChildLimitedAccountPath('/api/messages'), false);
+    assert.equal(isChildLimitedAccountPath('/api/children'), false);
+  });
+
+  it('402/503 codes are declared, not accidental raw middleware', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../src/middleware/require-premium.js'), 'utf8');
+    assert.match(src, /code: 'PREMIUM_REQUIRED'/);
+    assert.match(src, /paywall_url: '\/paywall'/);
+    assert.match(src, /limited_account: true/);
+    assert.match(src, /status\(503\)/);
+    const iap = fs.readFileSync(path.join(__dirname, '../src/routes/iap.js'), 'utf8');
+    assert.match(iap, /RC_NOT_CONFIGURED/);
+    assert.match(iap, /status\(503\)/);
+    const status = fs.readFileSync(path.join(__dirname, '../src/routes/subscription.js'), 'utf8');
+    assert.match(status, /access_kind/);
+    assert.match(status, /requires_paywall/);
+    assert.match(status, /upgrade_url/);
+  });
 });
