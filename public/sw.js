@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v914: support OOO copy 1–10 september 2026
  * v882: semantic /open/child deep link + stuck intervention v4 CTA
  * v819: Fas 2B app-entry-orchestrator + session-gate entry wiring
  * v772: aktivitetstimer i dagsvy (Morgon/Dag/Kväll) — Starta timer synlig
@@ -279,6 +280,7 @@
 // stjarndag-v892: App Store 2.2 fix — remove "Beta" badge/label from English language selection (locale-switcher, language-choice)
 // stjarndag-v893: Phase 4 — Weekly Schedule chrome: advanced view modes + PDF export tucked under a "Visa" disclosure
 // stjarndag-v894: Phase 4 closure — Kalender links to Specialdagar as an explicit secondary bridge
+// stjarndag-v914: support OOO copy 1–10 september 2026
 // stjarndag-v913: Register language = language already on screen (no fake suggested gold)
 // stjarndag-v912: Register country picker always visible, independent of language
 // stjarndag-v911: Register Apple tap — language/country denials are not Apple errors
@@ -297,7 +299,7 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
-const CACHE_NAME = 'stjarndag-v913';
+const CACHE_NAME = 'stjarndag-v914';
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
