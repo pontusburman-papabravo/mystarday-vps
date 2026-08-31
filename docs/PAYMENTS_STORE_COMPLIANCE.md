@@ -6,9 +6,9 @@ Max ~2 pages. **Do not enable paid gift sales or in-app external purchase CTAs u
 
 | Area | Requirement | Status |
 |------|-------------|--------|
-| Apple subscriptions | Monthly + yearly in one subscription group; 14-day introductory trial; Swedish pricing | **EXTERNAL_VERIFICATION_REQUIRED** |
-| Google subscriptions | Monthly + yearly base plans; 14-day trial offer; Swedish pricing | **EXTERNAL_VERIFICATION_REQUIRED** |
-| RevenueCat | Entitlement `basic`; offering `default`; monthly + yearly packages; webhook auth | **EXTERNAL_VERIFICATION_REQUIRED** |
+| Apple subscriptions | Monthly + yearly in one subscription group; 14-day introductory trial; Swedish pricing | **NOT VERIFIED** — IE/FI App Store listing is a **paid download** (€5.99 / 5,99 €) with `hasInAppPurchases=false`. That €5.99 is **not** IAP. P0 commercial blocker if the model is free app + subscription. See `docs/ie-fi-billing-external-matrix.md`. |
+| Google subscriptions | Monthly + yearly base plans; 14-day trial offer; Swedish pricing | **PARTIAL** — Play IE/FI listings are free + IAP range (`€5.99–€59.00` IE, `€5.90–€59.00` FI). Named SKUs / base-plan active state **NOT VERIFIED**. |
+| RevenueCat | Entitlement `basic`; offering `default`; monthly + yearly packages; webhook auth | **BLOCKED** externally (no RC credentials in agent env). Contract remains **CONFIGURED**. |
 | Ordinary Premium on web | Must **not** sell auto-renewing Premium on web — app stores only | Implemented (web → app direction) |
 | Gift card **sale** in iOS app | Digital gift codes sold **inside** iOS app must use IAP unless eligible external program | **EXTERNAL_VERIFICATION_REQUIRED** — web-only sale path planned |
 | Gift card **sale** promoted from Android | External offers / Billing Choice enrollment if linking to web checkout | **EXTERNAL_VERIFICATION_REQUIRED** |

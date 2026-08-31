@@ -86,6 +86,8 @@
       "pathGlobs": [
         "src/routes/iap.js",
         "config/iap-product-contract.js",
+        "src/lib/storefront-billing-evidence.js",
+        "docs/ie-fi-billing-external-matrix.md",
         "config/subscription-components.js",
         "public/js/iap*.js",
         "public/js/paywall*.js",

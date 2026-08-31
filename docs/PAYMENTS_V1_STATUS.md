@@ -38,9 +38,9 @@
 
 ## Blocked externally (cannot be verified or completed from this repo)
 
-- App Store Connect: subscription group, monthly + yearly products, 14-day trial, pricing/localization, banking/tax agreements — **EXTERNAL_VERIFICATION_REQUIRED**
-- Google Play Console: subscription product + monthly/yearly base plans, 14-day trial, pricing — **EXTERNAL_VERIFICATION_REQUIRED**
-- RevenueCat dashboard: offering/packages/webhook destination configuration matching `config/iap-product-contract.js` — **EXTERNAL_VERIFICATION_REQUIRED**
+- App Store Connect: subscription group, monthly + yearly products, 14-day trial, pricing/localization, banking/tax agreements — **NOT VERIFIED**. Public IE/FI listings are **paid app download** €5.99 with **no IAP shelf** (`docs/ie-fi-billing-external-matrix.md`). P0 if the commercial model is free download + IAP. Do not change prices without founder approval.
+- Google Play Console: subscription product + monthly/yearly base plans, 14-day trial, pricing — named plans **NOT VERIFIED**. Public IE/FI listings show free install + a Play-billed IAP *range* only.
+- RevenueCat dashboard: offering/packages/webhook destination configuration matching `config/iap-product-contract.js` — **BLOCKED** without RC API credentials in this environment.
 - Gift card sale/redemption Apple and Google compliance sign-off — see `PAYMENTS_STORE_COMPLIANCE.md`
 - **Sandbox E2E purchase on a real device/build has not been executed.** See `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` — it remains an empty template. Do not treat sandbox E2E as passed until it has actually been run and the results pasted in.
 

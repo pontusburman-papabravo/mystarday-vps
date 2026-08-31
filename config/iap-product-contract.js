@@ -52,7 +52,12 @@ const PACKAGE_YEARLY = '$rc_annual';
 const PREMIUM_PRICE_MONTHLY_SEK = 59;
 const PREMIUM_PRICE_YEARLY_SEK = 590;
 
-/** Portal target prices (Ireland) — documentation / store setup only */
+/**
+ * Portal IAP *targets* (not app download, not runtime UI).
+ * Runtime paywall must use store `priceString`.
+ * Apple IE/FI software listing is a separate paid-download fact — see
+ * docs/ie-fi-billing-external-matrix.md. Do not treat €5.99 listing as IAP.
+ */
 const PREMIUM_PRICE_MONTHLY_EUR_TARGET = 5.99;
 const PREMIUM_PRICE_YEARLY_EUR_TARGET = 59.99;
 
