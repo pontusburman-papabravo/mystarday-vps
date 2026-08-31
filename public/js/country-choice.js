@@ -227,9 +227,14 @@
   function autoMount() {
     const mounts = document.querySelectorAll('[data-country-choice-mount]');
     if (!mounts.length) return;
+    mounts.forEach((el) => mount(el));
     document.addEventListener('language-choice-confirmed', () => {
-      mounts.forEach((el) => mount(el));
-    }, { once: true });
+      mounts.forEach((el) => {
+        delete el.dataset.countryChoiceMounted;
+        el.innerHTML = '';
+        mount(el);
+      });
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {

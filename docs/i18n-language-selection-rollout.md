@@ -2,8 +2,8 @@
 
 ## New users
 
-1. **Mandatory choice** on `/register` and `/en/register` via `public/js/language-choice.js`.
-2. Browser locale **suggests** highlight only — user must tap Svenska or English (Beta).
+1. **Language switcher** on `/register` and `/en/register` via `public/js/language-choice.js`.
+2. The locale already on screen **is** the selection (no extra confirm tap). Browser locale must not highlight a different button. Tapping Svenska or English changes the page language.
 3. Choice stored in `sessionStorage` (`sd_locale_confirmed`, `sd_preferred_locale`).
 4. Registration sends `preferred_locale`; server sets:
    - `family.preferred_locale`
