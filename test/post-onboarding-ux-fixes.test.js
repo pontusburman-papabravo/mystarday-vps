@@ -107,10 +107,14 @@ describe('post-onboarding UX fixes — copy', () => {
   const FIRST_STAR_LIB = read('src/lib/first-star-mode.js');
 
   it('9: grandfathered sv-SE copy exact', () => {
+    const SETTINGS_SV = JSON.parse(read('config/i18n/settings-sv-SE.json'));
+    const SETTINGS_EN = JSON.parse(read('config/i18n/settings-en-GB.json'));
     assert.match(SUB, /Premium ingår permanent/);
     assert.match(SUB, /Din familj har full tillgång utan kostnad\./);
-    assert.match(SUB, /Premium included permanently/);
-    assert.match(SUB, /Your family has full access at no cost\./);
+    assert.equal(SETTINGS_SV.subscription.grandfatheredTitle, 'Premium ingår permanent');
+    assert.equal(SETTINGS_SV.subscription.grandfatheredBody, 'Din familj har full tillgång utan kostnad.');
+    assert.equal(SETTINGS_EN.subscription.grandfatheredTitle, 'Premium included permanently');
+    assert.equal(SETTINGS_EN.subscription.grandfatheredBody, 'Your family has full access at no cost.');
   });
 
   it('10–11: First Star copy sv-SE exact and en-GB natural', () => {

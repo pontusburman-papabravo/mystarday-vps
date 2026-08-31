@@ -182,6 +182,11 @@ const I18n = {
     return this.lang;
   },
 
+  /** Alias used by settings, growth, and paywall surfaces. */
+  getLocale() {
+    return this.getCurrentLang();
+  },
+
   /**
    * Raw lookup — strings, arrays, or nested objects (for coach tips, etc.).
    * @param {string} key

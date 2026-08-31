@@ -1,5 +1,7 @@
 /**
  * settings-subscription.js — Premium / prenumeration UI (legacy settings + Magic settings hub).
+ * Copy follows the displayed family locale (settings.subscription.*). Swedish fallbacks
+ * keep the card readable if I18n has not loaded yet.
  */
 (function () {
   'use strict';
@@ -9,62 +11,91 @@
       (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
   }
 
+  function currentLocale() {
+    if (window.I18n) {
+      if (typeof I18n.getCurrentLang === 'function') return I18n.getCurrentLang();
+      if (typeof I18n.getLocale === 'function') return I18n.getLocale();
+    }
+    return 'sv-SE';
+  }
+
+  function t(key, fallback, params) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const translated = I18n.t(key, params || {});
+      if (translated && translated !== key) return translated;
+    }
+    if (typeof fallback === 'string' && params) {
+      return fallback.replace(/\{\{(\w+)\}\}/g, function (_, name) {
+        return params[name] == null ? '' : String(params[name]);
+      });
+    }
+    return fallback || key;
+  }
+
   function formatDate(iso) {
     if (!iso) return '';
     try {
-      return new Date(iso).toLocaleDateString('sv-SE');
+      const locale = String(currentLocale()).toLowerCase().indexOf('en') === 0 ? 'en-GB' : 'sv-SE';
+      return new Date(iso).toLocaleDateString(locale);
     } catch (_) {
       return iso;
     }
   }
 
   function describePremium(premium) {
-    const locale = (window.I18n && typeof I18n.getLocale === 'function')
-      ? I18n.getLocale()
-      : 'sv-SE';
-    const isEn = String(locale).toLowerCase().indexOf('en') === 0;
     if (!premium || !premium.active) {
       return {
-        title: isEn ? 'No active Premium' : 'Ingen aktiv Premium',
-        body: isEn ? 'Activate Premium for full access to the app.' : 'Aktivera Premium för full tillgång till appen.',
-        cta: { href: '/paywall', label: isEn ? 'Activate Premium' : 'Aktivera Premium' },
+        title: t('settings.subscription.inactiveTitle', 'Ingen aktiv Premium'),
+        body: t('settings.subscription.inactiveBody', 'Aktivera Premium för full tillgång till appen.'),
+        cta: { href: '/paywall', label: t('settings.subscription.activateCta', 'Aktivera Premium') },
       };
     }
     if (premium.is_grandfathered) {
       return {
-        title: isEn ? 'Premium included permanently' : 'Premium ingår permanent',
-        body: isEn ? 'Your family has full access at no cost.' : 'Din familj har full tillgång utan kostnad.',
+        title: t('settings.subscription.grandfatheredTitle', 'Premium ingår permanent'),
+        body: t('settings.subscription.grandfatheredBody', 'Din familj har full tillgång utan kostnad.'),
         cta: null,
       };
     }
     if (premium.trial) {
       return {
-        title: 'Premium – gratis provperiod',
-        body: 'Slutar ' + formatDate(premium.expires_at),
+        title: t('settings.subscription.trialTitle', 'Premium – gratis provperiod'),
+        body: t('settings.subscription.trialEnds', 'Slutar {{date}}', { date: formatDate(premium.expires_at) }),
         cta: null,
       };
     }
     if (premium.source === 'gift') {
       return {
-        title: 'Premium – presentkort',
-        body: 'Gäller till ' + formatDate(premium.expires_at),
+        title: t('settings.subscription.giftTitle', 'Premium – presentkort'),
+        body: t('settings.subscription.validUntil', 'Gäller till {{date}}', { date: formatDate(premium.expires_at) }),
         cta: null,
       };
     }
     if (premium.status === 'grace_period') {
+      const store = premium.store === 'google' ? 'Google Play' : 'App Store';
       return {
-        title: 'Premium – betalning behöver uppdateras',
-        body: 'Tillgången fungerar fortfarande, men betalningen behöver åtgärdas i ' +
-          (premium.store === 'google' ? 'Google Play' : 'App Store') + '.',
-        cta: { href: '#manage-subscription', label: 'Hantera abonnemang' },
+        title: t('settings.subscription.graceTitle', 'Premium – betalning behöver uppdateras'),
+        body: t(
+          'settings.subscription.graceBody',
+          'Tillgången fungerar fortfarande, men betalningen behöver åtgärdas i {{store}}.',
+          { store: store }
+        ),
+        cta: { href: '#manage-subscription', label: t('settings.subscription.manage', 'Hantera abonnemang') },
       };
     }
     const storeLabel = premium.store === 'google' ? 'Google Play' : 'Apple';
-    const planLabel = premium.plan === 'yearly' ? 'årsabonnemang' : 'månadsabonnemang';
+    const planLabel = premium.plan === 'yearly'
+      ? t('settings.subscription.planYearly', 'årsabonnemang')
+      : t('settings.subscription.planMonthly', 'månadsabonnemang');
     return {
-      title: 'Premium – ' + planLabel + ' via ' + storeLabel,
-      body: premium.expires_at ? ('Gäller till ' + formatDate(premium.expires_at)) : '',
-      cta: { href: '#manage-subscription', label: 'Hantera abonnemang' },
+      title: t('settings.subscription.planTitle', 'Premium – {{plan}} via {{store}}', {
+        plan: planLabel,
+        store: storeLabel,
+      }),
+      body: premium.expires_at
+        ? t('settings.subscription.validUntil', 'Gäller till {{date}}', { date: formatDate(premium.expires_at) })
+        : '',
+      cta: { href: '#manage-subscription', label: t('settings.subscription.manage', 'Hantera abonnemang') },
     };
   }
 
@@ -133,8 +164,9 @@
         iapPurchaseReady = IAPManager.canPurchase();
       }
 
+      const heading = t('settings.subscription.heading', 'Prenumeration');
       let html =
-        '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
+        '<h3 class="text-xl font-heading font-bold text-navy mb-2">' + heading + '</h3>' +
         '<p class="text-sm font-semibold text-navy mb-1">' + copy.title + '</p>' +
         '<p class="text-sm text-text-soft mb-4">' + copy.body + '</p>';
 
@@ -153,13 +185,17 @@
       if (iapPurchaseReady) {
         html +=
           '<div class="mt-4 flex flex-col gap-2">' +
-          '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">Återställ köp</button>' +
-          '<button type="button" id="manageSubscriptionBtn" class="text-sm font-semibold text-navy underline text-left">Hantera abonnemang</button>' +
+          '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">' +
+          t('settings.subscription.restore', 'Återställ köp') + '</button>' +
+          '<button type="button" id="manageSubscriptionBtn" class="text-sm font-semibold text-navy underline text-left">' +
+          t('settings.subscription.manage', 'Hantera abonnemang') + '</button>' +
           '</div>';
       } else if (!premium.active && billingUiEnabled && !isNative()) {
         html +=
-          '<p class="text-sm text-text-soft mt-4">Premium aktiveras i iPhone- eller Android-appen.</p>' +
-          '<a href="/paywall" class="inline-flex mt-3 px-5 py-2.5 bg-navy text-white rounded-xl font-heading font-bold">Så här aktiverar du Premium</a>';
+          '<p class="text-sm text-text-soft mt-4">' +
+          t('settings.subscription.webActivateHint', 'Premium aktiveras i iPhone- eller Android-appen.') + '</p>' +
+          '<a href="/paywall" class="inline-flex mt-3 px-5 py-2.5 bg-navy text-white rounded-xl font-heading font-bold">' +
+          t('settings.subscription.webActivateCta', 'Så här aktiverar du Premium') + '</a>';
       }
 
       mount.innerHTML = html;
@@ -172,10 +208,15 @@
           await renderSubscription(mount);
           // Restoring while Premium is already active leaves the card looking
           // unchanged — without this, the button appears to do nothing.
-          notify('Köpet är återställt. Premium är aktivt.', false);
+          notify(t('settings.subscription.restoreSuccess', 'Köpet är återställt. Premium är aktivt.'), false);
           return;
         }
-        notify(result.ok && !result.active ? 'Inga köp hittades att återställa.' : 'Kunde inte återställa köp.', true);
+        notify(
+          result.ok && !result.active
+            ? t('settings.subscription.restoreNone', 'Inga köp hittades att återställa.')
+            : t('settings.subscription.restoreFailed', 'Kunde inte återställa köp.'),
+          true
+        );
       });
       document.getElementById('manageSubscriptionBtn')?.addEventListener('click', function () {
         openManageSubscription().catch(function () {});
@@ -190,8 +231,10 @@
       return { visible: true, status: status };
     } catch (err) {
       mount.innerHTML =
-        '<h3 class="text-xl font-heading font-bold text-navy mb-2">Prenumeration</h3>' +
-        '<p class="text-sm text-text-soft">Kunde inte ladda prenumerationsstatus.</p>';
+        '<h3 class="text-xl font-heading font-bold text-navy mb-2">' +
+        t('settings.subscription.heading', 'Prenumeration') + '</h3>' +
+        '<p class="text-sm text-text-soft">' +
+        t('settings.subscription.loadError', 'Kunde inte ladda prenumerationsstatus.') + '</p>';
       console.error('[settings-subscription]', err);
       return { visible: true, error: err };
     }
@@ -222,5 +265,14 @@
       renderSubscription();
       scrollToHash();
     }
+    document.addEventListener('parent-i18n-ready', function () {
+      renderSubscription();
+    });
+    document.addEventListener('settings-parent-i18n-ready', function () {
+      renderSubscription();
+    });
+    document.addEventListener('locale-changed', function () {
+      renderSubscription();
+    });
   }
 })();
