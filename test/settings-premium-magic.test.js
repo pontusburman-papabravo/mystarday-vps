@@ -219,7 +219,7 @@ describe('settings premium magic — client wiring', () => {
     assert.match(SUB, /window\.showSuccessToast/);
     assert.match(SUB, /window\.showToast\(msg, true\)/);
     assert.match(SUB, /notify\(t\('settings\.subscription\.restoreSuccess'/);
-    assert.match(SUB, /notify\(result\.ok && !result\.active/);
+    assert.match(SUB, /notify\(\s*result\.ok && !result\.active/);
   });
 
   it('settings-subscription gates on subscription_ui_visible', () => {
