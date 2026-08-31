@@ -57,7 +57,8 @@
         "test/auth.test.js",
         "test/auth-integration.test.js",
         "test/credential-leak-guard.test.js",
-        "test/register-oauth-country-gate.test.js"
+        "test/register-oauth-country-gate.test.js",
+        "test/register-language-displayed.test.js"
       ],
       "testGlobs": [
         "test/*auth*.test.js",
@@ -76,7 +77,8 @@
         "test/credential-leak-guard.test.js",
         "test/r4-final-security-blockers.integration.test.js",
         "test/r4-final-authority.integration.test.js",
-        "test/register-oauth-country-gate.test.js"
+        "test/register-oauth-country-gate.test.js",
+        "test/register-language-displayed.test.js"
       ]
     },
     "payments-iap": {
@@ -116,6 +118,7 @@
         "src/lib/market-config.js",
         "public/en.html",
         "public/js/i18n*.js",
+        "public/js/language-choice.js",
         "public/js/cookie*.js",
         "locales/**",
         "config/markets/**"
@@ -123,7 +126,8 @@
       "l1Tests": [
         "test/market-region.test.js",
         "test/legal-routing.test.js",
-        "test/i18n-locale.test.js"
+        "test/i18n-locale.test.js",
+        "test/register-language-displayed.test.js"
       ],
       "testGlobs": [
         "test/i18n*.test.js",
