@@ -125,5 +125,30 @@
     "sessionExpired": "Session expired — enter current PIN again",
     "enterPassword": "Enter your password",
     "wrongPassword": "Incorrect password"
+  },
+  "subscription": {
+    "heading": "Subscription",
+    "inactiveTitle": "No active Premium",
+    "inactiveBody": "Activate Premium for full access to the app.",
+    "activateCta": "Activate Premium",
+    "grandfatheredTitle": "Premium included permanently",
+    "grandfatheredBody": "Your family has full access at no cost.",
+    "trialTitle": "Premium – free trial",
+    "trialEnds": "Ends {{date}}",
+    "giftTitle": "Premium – gift card",
+    "validUntil": "Valid until {{date}}",
+    "graceTitle": "Premium – payment needs updating",
+    "graceBody": "Access still works, but payment needs to be updated in {{store}}.",
+    "planTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "yearly subscription",
+    "planMonthly": "monthly subscription",
+    "manage": "Manage subscription",
+    "restore": "Restore purchases",
+    "webActivateHint": "Premium is activated in the iPhone or Android app.",
+    "webActivateCta": "How to activate Premium",
+    "loadError": "Could not load subscription status.",
+    "restoreSuccess": "Purchase restored. Premium is active.",
+    "restoreNone": "No purchases were found to restore.",
+    "restoreFailed": "Could not restore purchases."
   }
 }

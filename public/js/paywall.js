@@ -372,7 +372,16 @@
     await Auth.requireAuth();
 
     if (window.I18n) {
-      await I18n.init();
+      let preferredLocale = null;
+      const cached = typeof Auth.getUser === 'function' ? Auth.getUser() : null;
+      if (cached && cached.preferred_locale) preferredLocale = cached.preferred_locale;
+      if (!preferredLocale && typeof Auth.api === 'function') {
+        try {
+          const me = await Auth.api('/api/auth/me');
+          if (me && me.preferred_locale) preferredLocale = me.preferred_locale;
+        } catch (_) { /* continue with stored / navigator locale */ }
+      }
+      await I18n.init(preferredLocale || undefined);
       applyStaticI18n();
     }
 

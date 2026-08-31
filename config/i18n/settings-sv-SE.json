@@ -125,5 +125,30 @@
     "sessionExpired": "Sessionen har gått ut — ange nuvarande PIN igen",
     "enterPassword": "Ange ditt lösenord",
     "wrongPassword": "Felaktigt lösenord"
+  },
+  "subscription": {
+    "heading": "Prenumeration",
+    "inactiveTitle": "Ingen aktiv Premium",
+    "inactiveBody": "Aktivera Premium för full tillgång till appen.",
+    "activateCta": "Aktivera Premium",
+    "grandfatheredTitle": "Premium ingår permanent",
+    "grandfatheredBody": "Din familj har full tillgång utan kostnad.",
+    "trialTitle": "Premium – gratis provperiod",
+    "trialEnds": "Slutar {{date}}",
+    "giftTitle": "Premium – presentkort",
+    "validUntil": "Gäller till {{date}}",
+    "graceTitle": "Premium – betalning behöver uppdateras",
+    "graceBody": "Tillgången fungerar fortfarande, men betalningen behöver åtgärdas i {{store}}.",
+    "planTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "årsabonnemang",
+    "planMonthly": "månadsabonnemang",
+    "manage": "Hantera abonnemang",
+    "restore": "Återställ köp",
+    "webActivateHint": "Premium aktiveras i iPhone- eller Android-appen.",
+    "webActivateCta": "Så här aktiverar du Premium",
+    "loadError": "Kunde inte ladda prenumerationsstatus.",
+    "restoreSuccess": "Köpet är återställt. Premium är aktivt.",
+    "restoreNone": "Inga köp hittades att återställa.",
+    "restoreFailed": "Kunde inte återställa köp."
   }
 }

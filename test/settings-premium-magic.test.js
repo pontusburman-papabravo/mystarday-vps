@@ -218,7 +218,7 @@ describe('settings premium magic — client wiring', () => {
     assert.match(SUB, /function notify\(/);
     assert.match(SUB, /window\.showSuccessToast/);
     assert.match(SUB, /window\.showToast\(msg, true\)/);
-    assert.match(SUB, /notify\('Köpet är återställt\. Premium är aktivt\.', false\)/);
+    assert.match(SUB, /notify\(t\('settings\.subscription\.restoreSuccess'/);
     assert.match(SUB, /notify\(result\.ok && !result\.active/);
   });
 
