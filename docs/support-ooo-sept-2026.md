@@ -10,7 +10,7 @@ Admin → Meddelanden (`GET /api/admin/contact-messages`). Inloggning: `ADMIN_EM
 
 Detta fångar `/kontakt`, support-bubblan, in-app-feedback och systemhjälp → "Rapportera problem".
 
-**Lucka:** Reply i Mail till supportadressen syns **inte** i inkorgen (ingen inbound-mejl). Be användaren klicka **Öppna konversationen** i vårt supportmejl (`/support/svar/…`). Där ser de hela tråden och kan skriva tillbaka. Det öppnar ärendet igen som oläst (`status=new`, `user_reply`). Hämta `GET /api/admin/contact-messages/:id` **och** `…/:id/events`.
+**Lucka:** Reply i Mail till supportadressen syns **inte** i inkorgen (ingen inbound-mejl). Användaren får en länk till webtråden (`/support/svar/…`) redan när ärendet skapas, och igen i våra svar (**Öppna konversationen** / **Öppna ditt ärende**). Där följer de ärendet och skriver tillbaka. Det öppnar ärendet igen som oläst (`status=new`, `user_reply`). Hämta `GET /api/admin/contact-messages/:id` **och** `…/:id/events`.
 
 ## Beslut
 

@@ -371,6 +371,7 @@
       "oooSubtitle": "Vi är bortresta 1–10 september",
       "success": "Tack! Vi har tagit emot ditt meddelande och återkommer snart.",
       "oooSuccess": "Tack! Vi har tagit emot ditt meddelande. Vi är bortresta 1–10 september och återkommer så snart vi kan, senast 11 september.",
+      "openThread": "Öppna ditt ärende",
       "nameLabel": "Namn",
       "namePlaceholder": "Ditt namn",
       "emailLabel": "E-post",
@@ -391,7 +392,8 @@
       "messageTooShort": "Meddelandet är för kort (minst 5 tecken).",
       "submitting": "Skickar…",
       "submit": "Skicka",
-      "genericError": "Något gick fel. Försök igen."
+      "genericError": "Något gick fel. Försök igen.",
+      "openThread": "Öppna ditt ärende"
     },
     "api": {
       "errors": {

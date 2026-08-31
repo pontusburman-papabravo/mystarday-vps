@@ -61,6 +61,27 @@ describe('support follow-up link', () => {
     assert.equal(thread.some((t) => /Ringde|Resend/.test(t.body)), false);
   });
 
+  it('builds a receipt that points at the signed thread', () => {
+    const { buildReceiptBodies, shouldSendSupportReceipt, threadPath } = require('../src/lib/support-receipt');
+    assert.equal(shouldSendSupportReceipt('landing-share@example.se'), false);
+    assert.equal(shouldSendSupportReceipt('parent@example.com'), true);
+    assert.match(threadPath(4), /\/support\/svar\/sf1\.4\./);
+    const sv = buildReceiptBodies({
+      recipientName: 'Anna',
+      followUpUrl: 'https://example.test/support/svar/token',
+      locale: 'sv',
+    });
+    assert.match(sv.subject, /ärende/i);
+    assert.match(sv.text, /example\.test\/support\/svar\/token/);
+    assert.match(sv.html, /Öppna ditt ärende/);
+    const en = buildReceiptBodies({
+      recipientName: 'Anna',
+      followUpUrl: 'https://example.test/support/svar/token',
+      locale: 'en',
+    });
+    assert.match(en.html, /Open your conversation/);
+  });
+
   it('falls back to stored blocks when events have no body', () => {
     const { buildPublicSupportThread } = require('../src/lib/support-thread');
     const thread = buildPublicSupportThread({

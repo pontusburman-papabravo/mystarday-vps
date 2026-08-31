@@ -4,7 +4,8 @@ const express = require('express');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/feature-gate');
-const { sendEmail } = require('../lib/email');
+const { sendEmail, isTestMailbox } = require('../lib/email');
+const { shouldSendSupportReceipt, publicThreadFor, buildReceiptBodies } = require('../lib/support-receipt');
 const { validate } = require('../middleware/validate');
 const { FeedbackSchema } = require('../lib/schemas');
 const { validateLocale } = require('../lib/locale');
@@ -152,8 +153,30 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
       `,
     });
 
+    const commLocale = resolveCommunicationLocale(familyLocale);
+    const thread = publicThreadFor(insertedId);
+    if (shouldSendSupportReceipt(parentEmail) && !isTestMailbox(parentEmail)) {
+      try {
+        const receipt = buildReceiptBodies({
+          recipientName: parentName.trim(),
+          followUpUrl: thread.followUpUrl,
+          locale: commLocale,
+        });
+        await sendEmail({
+          to: parentEmail,
+          subject: receipt.subject,
+          body: receipt.text,
+          html: receipt.html,
+          tags: [{ name: 'category', value: 'support_receipt' }],
+        });
+      } catch (receiptErr) {
+        console.error('[FEEDBACK] Receipt email failed:', receiptErr.message);
+      }
+    }
+
     res.status(201).json({
-      message: t(resolveCommunicationLocale(familyLocale), 'api.feedbackAck'),
+      message: t(commLocale, 'api.feedbackAck'),
+      threadUrl: thread.threadUrl,
     });
   } catch (err) {
     if (err.code === 'METADATA_TOO_LARGE') {

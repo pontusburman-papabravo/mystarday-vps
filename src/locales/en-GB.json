@@ -371,6 +371,7 @@
       "oooSubtitle": "We are away 1–10 September",
       "success": "Thanks! We received your message and will get back to you soon.",
       "oooSuccess": "Thanks! We received your message. We are away 1–10 September and will get back as soon as we can, by 11 September at the latest.",
+      "openThread": "Open your conversation",
       "nameLabel": "Name",
       "namePlaceholder": "Your name",
       "emailLabel": "Email",
@@ -391,7 +392,8 @@
       "messageTooShort": "Message is too short (at least 5 characters).",
       "submitting": "Sending…",
       "submit": "Send",
-      "genericError": "Something went wrong. Try again."
+      "genericError": "Something went wrong. Try again.",
+      "openThread": "Open your conversation"
     },
     "api": {
       "errors": {

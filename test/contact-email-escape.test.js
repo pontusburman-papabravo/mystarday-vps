@@ -13,11 +13,11 @@ const { injectMockDb } = require('./helpers/setup.js');
 
 test('contact route escapes HTML in outgoing owner email', async () => {
   const mock = injectMockDb();
-  let capturedHtml = null;
+  const capturedHtml = [];
 
   mock.setQuery(async (sql) => {
     if (String(sql).includes('INSERT INTO contact_message')) {
-      return { rows: [] };
+      return { rows: [{ id: 99 }] };
     }
     return { rows: [] };
   });
@@ -30,7 +30,7 @@ test('contact route escapes HTML in outgoing owner email', async () => {
     loaded: true,
     exports: {
       sendEmail: async ({ html }) => {
-        capturedHtml = html;
+        capturedHtml.push(html);
         return { success: true };
       },
       isTestMailbox: () => false,
@@ -65,9 +65,12 @@ test('contact route escapes HTML in outgoing owner email', async () => {
     });
 
     assert.equal(res.status, 200);
-    assert.ok(capturedHtml, 'sendEmail should have been called');
-    assert.doesNotMatch(capturedHtml, /<img src=x onerror=alert\(1\)>/);
-    assert.match(capturedHtml, /&lt;img src=x onerror=alert\(1\)&gt;/);
+    assert.ok(capturedHtml.length >= 1, 'sendEmail should have been called');
+    const joined = capturedHtml.join('\n');
+    assert.doesNotMatch(joined, /<img src=x onerror=alert\(1\)>/);
+    assert.match(joined, /&lt;img src=x onerror=alert\(1\)&gt;/);
+    const body = await res.json();
+    assert.match(body.threadUrl || '', /\/support\/svar\/sf1\.99\./);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     if (previousEmail) require.cache[emailPath] = previousEmail;
@@ -83,4 +86,6 @@ test('public.js contact handler uses escapeHtml for email body fields', () => {
   assert.match(src, /const safeMessage = escapeHtml\(message\.trim\(\)\)/);
   assert.match(src, /const safeName = escapeHtml\(name\.trim\(\)\)/);
   assert.match(src, /const safeEmail = escapeHtml\(normalizedEmail\)/);
+  assert.match(src, /buildReceiptBodies/);
+  assert.match(src, /threadUrl/);
 });
