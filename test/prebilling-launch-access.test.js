@@ -154,6 +154,7 @@ test('resolver + API transition matrix', async (t) => {
     '../src/lib/billing-ui',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
+    '../src/lib/payment-audit',
     '../src/lib/family-entitlements',
   ]) {
     delete require.cache[require.resolve(mod)];
