@@ -11,7 +11,7 @@ const { openChildEntryUrl, OPEN_CHILD_ENTRY_PATH } = require('./open-child-entry
 
 const BODY_VERSION = 'v1';
 
-const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v4';
+const SCHEMA_CHILD_ACCESS_BODY_VERSION = 'v5';
 
 /** Future semantic intents (not used in this PR):
  *  onboarding_incomplete → parent onboarding resume (/onboarding or /open/onboarding)
@@ -134,26 +134,24 @@ const TEMPLATES = Object.freeze({
     build({ parentName }) {
       const name = greetingName(parentName);
       const product = escapeHtml(productName());
-      const openAppLabel = `Öppna ${productName()}`;
+      const ctaLabel = 'Öppna barnets vy';
       const childEntry = semanticChildEntryUrl();
-      const subject = 'Nästa steg tar bara någon minut — så kommer barnet igång';
+      const subject = 'Barnet har inte sett sitt schema än';
       const html = wrapFounderHtml(`
         <p>Hej ${name},</p>
-        <p>Jag heter Pontus och är den som byggt ${product}.</p>
-        <p>Jag såg att ni redan satt upp ett schema — bra jobbat! Det som ofta återstår är att <strong>låta barnet testa appen</strong> och se sitt schema.</p>
-        <p>Öppna ${product} på barnets enhet. Om enheten redan är kopplad till familjen öppnas barnets vy direkt. Annars hjälper appen er att koppla enheten första gången.</p>
-        <p>Det tar oftast bara ett par minuter tillsammans — barnet kan samla den första stjärnan när en aktivitet är klar.</p>
-        ${founderPrimaryCta(childEntry, openAppLabel)}
+        <p>Jag heter Pontus och har byggt ${product}.</p>
+        <p>Jag såg att ni redan använder schemat hemma. Det som saknas är att barnet får se samma dag.</p>
+        <p>Öppna appen på barnets telefon eller surfplatta. Då kommer barnet in i sin egen vy och kan bocka av nästa aktivitet själv. Det tar oftast bara någon minut tillsammans.</p>
+        ${founderPrimaryCta(childEntry, ctaLabel)}
         ${webFallbackParagraph(OPEN_CHILD_ENTRY_PATH, 'Fortsätt i webbläsaren')}
-        <p style="font-size:13px;color:#5A6178;">Om appen ber er koppla barnets enhet första gången, följ instruktionerna i appen.</p>
-        <p>Om något strular svara gärna på det här mejlet så hjälper jag.</p>
+        <p>Om något strular kan du svara på det här mejlet. Det kommer till mig.</p>
       `);
       return {
         subject,
         html,
         from: founderFromHeader(),
         ctaUrl: childEntry,
-        ctaLabel: openAppLabel,
+        ctaLabel,
       };
     },
   },

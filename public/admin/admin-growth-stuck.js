@@ -73,7 +73,10 @@
       parts.push('Nudge ' + formatShortDate(hist.activationNudgeSentAt));
     }
     if (hist.lastStuckIntervention && hist.lastStuckIntervention.sentAt) {
-      parts.push('Stuck-mejl ' + formatShortDate(hist.lastStuckIntervention.sentAt));
+      const subj = hist.lastStuckIntervention.subjectSnapshot
+        ? ' · ' + hist.lastStuckIntervention.subjectSnapshot
+        : '';
+      parts.push('Stuck-mejl ' + formatShortDate(hist.lastStuckIntervention.sentAt) + subj);
     }
     if (!parts.length) return 'Ingen tidigare growth-mejl';
     return parts.join(' · ');
@@ -202,6 +205,7 @@
       const filter = document.getElementById('growthStuckCohortFilter');
       loadGrowthStuckTable(filter ? filter.value || null : null);
       loadGrowthStuckSummary();
+      if (typeof loadGrowthStuckSends === 'function') loadGrowthStuckSends();
       if (typeof window.showToast === 'function') {
         window.showToast('Stuck-mejl skickat', 'success');
       }
@@ -339,8 +343,101 @@
       .replace(/"/g, '&quot;');
   }
 
+  function trackingLabel(iso, empty) {
+    if (!iso) return empty || '—';
+    return formatShortDate(iso);
+  }
+
+  async function loadGrowthStuckSends() {
+    const tbody = document.getElementById('growthStuckSendsBody');
+    const summaryEl = document.getElementById('growthStuckSendsSummary');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7">Laddar…</td></tr>';
+    try {
+      const data = await Auth.api(
+        '/api/admin/growth/stuck-cohorts/sends?interventionKey=schema_without_child_access'
+      );
+      const sends = data.sends || [];
+      const delivered = sends.filter(function (s) { return s.deliveredAt; }).length;
+      const opened = sends.filter(function (s) { return s.openedAt; }).length;
+      const followUp = sends.filter(function (s) { return s.followUp && s.followUp.length; }).length;
+      const progressed = sends.filter(function (s) { return s.progressed; }).length;
+      if (summaryEl) {
+        summaryEl.textContent =
+          sends.length + ' skickade · ' +
+          delivered + ' levererade · ' +
+          opened + ' öppnade · ' +
+          followUp + ' svar · ' +
+          progressed + ' barninlogg efter mejl';
+      }
+      if (!sends.length) {
+        tbody.innerHTML = '<tr><td colspan="7">Inga barnvy-mejl skickade ännu</td></tr>';
+        return;
+      }
+      tbody.innerHTML = sends.map(function (s) {
+        const name = escapeHtml(s.familyName || s.familyId || '');
+        const email = escapeHtml(s.recipientEmail || '—');
+        const follow = (s.followUp && s.followUp.length)
+          ? s.followUp.map(function (f) {
+              return escapeHtml((f.type || 'kontakt') + ' · ' + formatShortDate(f.createdAt));
+            }).join('<br>')
+          : '<span class="text-text-soft">Ingen ännu</span>';
+        const copyBtn =
+          '<button type="button" class="js-stuck-send-copy text-xs font-semibold text-gold hover:underline" data-send-id="' +
+          escapeHtml(s.id) + '">Visa copy</button>';
+        const access = s.progressed
+          ? ('Ja · ' + (s.hoursToAccess != null ? s.hoursToAccess + ' tim' : formatShortDate(s.childAccessAt)))
+          : 'Nej';
+        return (
+          '<tr class="align-top border-b border-lavender/60" data-send-id="' + escapeHtml(s.id) + '">' +
+          '<td class="py-3 pr-2"><button type="button" class="js-stuck-open-family font-semibold text-navy hover:text-gold text-left" data-family-id="' +
+          escapeHtml(s.familyId) + '">' + name + '</button>' +
+          '<p class="text-xs text-text-soft mt-0.5">' + email + '</p></td>' +
+          '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(formatShortDate(s.sentAt)) + '</td>' +
+          '<td class="py-3 pr-2 whitespace-nowrap">' +
+          escapeHtml(s.bounced ? 'studsade' : trackingLabel(s.deliveredAt, 'väntar')) +
+          '</td>' +
+          '<td class="py-3 pr-2 whitespace-nowrap">' + escapeHtml(trackingLabel(s.openedAt, 'nej')) + '</td>' +
+          '<td class="py-3 pr-2">' + escapeHtml(s.subject || '—') + '<br>' + copyBtn + '</td>' +
+          '<td class="py-3 pr-2 text-xs">' + follow + '</td>' +
+          '<td class="py-3 pr-2 text-xs">' + escapeHtml(access) + '</td>' +
+          '</tr>' +
+          '<tr class="hidden js-stuck-send-body" data-send-body="' + escapeHtml(s.id) + '">' +
+          '<td colspan="7" class="pb-4"><iframe title="Skickat mejl" class="w-full min-h-[220px] rounded-xl border border-lavender bg-white"></iframe></td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      const htmlById = {};
+      sends.forEach(function (s) { htmlById[s.id] = s.bodyHtml || ''; });
+      tbody.querySelectorAll('.js-stuck-open-family').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openFamily(btn.getAttribute('data-family-id'));
+        });
+      });
+      tbody.querySelectorAll('.js-stuck-send-copy').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const id = btn.getAttribute('data-send-id');
+          const row = tbody.querySelector('[data-send-body="' + id + '"]');
+          if (!row) return;
+          const hidden = row.classList.contains('hidden');
+          row.classList.toggle('hidden', !hidden);
+          if (hidden) {
+            const frame = row.querySelector('iframe');
+            if (frame) frame.srcdoc = htmlById[id] || '<p>Ingen copy sparad</p>';
+          }
+        });
+      });
+    } catch (err) {
+      if (summaryEl) summaryEl.textContent = err.message || 'Kunde inte hämta utskick.';
+      tbody.innerHTML =
+        '<tr><td colspan="7">' + escapeHtml(err.message || 'Kunde inte hämta utskick') + '</td></tr>';
+    }
+  }
+
   window.loadGrowthStuckSummary = loadGrowthStuckSummary;
   window.loadGrowthStuckTable = loadGrowthStuckTable;
+  window.loadGrowthStuckSends = loadGrowthStuckSends;
 
   document.addEventListener('DOMContentLoaded', function () {
     const filter = document.getElementById('growthStuckCohortFilter');
@@ -350,12 +447,22 @@
         const cohort = filter ? filter.value : '';
         loadGrowthStuckSummary();
         loadGrowthStuckTable(cohort || null);
+        loadGrowthStuckSends();
+      });
+    }
+    const sendsReload = document.getElementById('growthStuckSendsReloadBtn');
+    if (sendsReload) {
+      sendsReload.addEventListener('click', function () {
+        loadGrowthStuckSends();
       });
     }
     if (filter) {
       filter.addEventListener('change', function () {
         loadGrowthStuckTable(filter.value || null);
       });
+    }
+    if (document.getElementById('growthStuckSendsBody')) {
+      loadGrowthStuckSends();
     }
   });
 })();

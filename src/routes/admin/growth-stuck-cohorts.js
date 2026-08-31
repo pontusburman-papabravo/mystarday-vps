@@ -15,6 +15,7 @@ const {
   summarizeGrowthStuckCohorts,
   COHORTS,
 } = require('../../../db/growth-stuck-cohorts');
+const { listStuckInterventionSends } = require('../../../db/family-growth-intervention');
 
 const router = express.Router();
 
@@ -37,6 +38,28 @@ router.get('/growth/stuck-cohorts/summary', async (req, res) => {
   } catch (err) {
     console.error('[ADMIN growth-stuck] summary error:', err);
     res.status(500).json({ error: 'Kunde inte hämta kohort-sammanfattning', detail: err.message });
+  }
+});
+
+router.get('/growth/stuck-cohorts/sends', async (req, res) => {
+  try {
+    const interventionKey = typeof req.query.interventionKey === 'string'
+      ? req.query.interventionKey
+      : null;
+    const bodyVersion = typeof req.query.bodyVersion === 'string'
+      ? req.query.bodyVersion
+      : null;
+    const sends = await listStuckInterventionSends({ interventionKey, bodyVersion });
+    res.json({
+      generatedAt: new Date().toISOString(),
+      count: sends.length,
+      interventionKey: interventionKey || 'all',
+      bodyVersion: bodyVersion || 'all',
+      sends,
+    });
+  } catch (err) {
+    console.error('[ADMIN growth-stuck] sends error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta utskick', detail: err.message });
   }
 });
 

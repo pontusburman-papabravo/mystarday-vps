@@ -86,6 +86,7 @@
       if (name === 'growthStuck') {
         if (typeof loadGrowthStuckSummary === 'function') loadGrowthStuckSummary();
         if (typeof loadGrowthStuckTable === 'function') loadGrowthStuckTable(null);
+        if (typeof loadGrowthStuckSends === 'function') loadGrowthStuckSends();
       }
       if (name === 'l1Governance' && typeof loadL1GovernanceAdmin === 'function') {
         loadL1GovernanceAdmin();

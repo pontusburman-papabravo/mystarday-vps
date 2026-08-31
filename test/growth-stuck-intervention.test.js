@@ -28,7 +28,7 @@ describe('growth-stuck-intervention templates', () => {
     assert.equal(interventionKeyForCohort('core_flow_errors'), null);
   });
 
-  it('builds trusted-device schema_without_child_access email with semantic /open/child CTA', () => {
+  it('builds founder schema_without_child_access email that names the missing child view', () => {
     const prev = process.env.APP_URL;
     process.env.APP_URL = 'https://example.test'; // pragma: allowlist secret
     try {
@@ -36,20 +36,20 @@ describe('growth-stuck-intervention templates', () => {
         parentName: 'Anna',
       });
       assert.ok(built);
-      assert.match(built.subject, /barnet/i);
+      assert.equal(built.subject, 'Barnet har inte sett sitt schema än');
       assert.match(built.html, /Pontus Burman/);
-      assert.match(built.html, /kopplad till familjen/);
-      assert.match(built.html, /koppla enheten första gången/);
-      assert.match(built.html, /Öppna .* på barnets enhet/);
-      assert.match(built.html, /följ instruktionerna i appen/);
+      assert.match(built.html, /redan använder schemat hemma/);
+      assert.match(built.html, /barnet får se samma dag/);
+      assert.match(built.html, /Öppna barnets vy/);
       assert.match(built.html, /href="https:\/\/example\.test\/open\/child"/);
       assert.match(built.html, /Fortsätt i webbläsaren/);
       assert.doesNotMatch(built.html, /\/child-login/);
       assert.doesNotMatch(built.html, /PIN/);
       assert.doesNotMatch(built.html, /QR/);
-      assert.doesNotMatch(built.html, /👉.*example\.test/);
-      assert.equal(built.bodyVersion, 'v4');
-      assert.equal(built.ctaLabel, `Öppna ${require('../src/lib/config').email?.fromName || 'appen'}`);
+      assert.doesNotMatch(built.html, /Behöver du hjälp/);
+      assert.doesNotMatch(built.html, /bra jobbat/i);
+      assert.equal(built.bodyVersion, 'v5');
+      assert.equal(built.ctaLabel, 'Öppna barnets vy');
       assert.match(built.from, /Pontus Burman/);
       assert.equal(built.ctaUrl, 'https://example.test/open/child');
     } finally {
@@ -172,5 +172,44 @@ describe('growth-stuck-intervention admin routes', () => {
     assert.match(route, /intervention\/skip/);
     assert.doesNotMatch(route, /isActivationFlagEnabled\([^)]*growth_stuck_cohorts_v1/);
     assert.match(route, /manualOnly: true/);
+  });
+});
+
+describe('child-view handoff batch', () => {
+  it('selects any parent with email and can skip journey gate for founder batch', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'src/lib/growth-stuck-intervention.js'),
+      'utf8'
+    );
+    assert.doesNotMatch(src, /LEGACY_GENERIC_PARENT_ROLE/);
+    assert.match(src, /opts\.skipGate !== true/);
+    assert.match(src, /recordSend/);
+    assert.match(src, /stuck_child_view/);
+  });
+
+  it('batch script is dry-run unless --execute', () => {
+    const src = fs.readFileSync(
+      path.join(ROOT, 'scripts/send-schema-child-view-batch.js'),
+      'utf8'
+    );
+    assert.match(src, /--execute/);
+    assert.match(src, /skipGate: true/);
+    assert.match(src, /evaluateStuckIntervention/);
+    assert.match(src, /blocked_test_email/);
+    assert.match(src, /@peng\.se/);
+  });
+
+  it('admin shows send tracking panel and sends API', () => {
+    const ui = fs.readFileSync(path.join(ROOT, 'public/admin/admin-growth-stuck.js'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, 'public/admin/index.html'), 'utf8');
+    const route = fs.readFileSync(
+      path.join(ROOT, 'src/routes/admin/growth-stuck-cohorts.js'),
+      'utf8'
+    );
+    assert.match(html, /growthStuckSendsBody/);
+    assert.match(ui, /loadGrowthStuckSends/);
+    assert.match(ui, /stuck-cohorts\/sends/);
+    assert.match(route, /stuck-cohorts\/sends/);
+    assert.match(route, /listStuckInterventionSends/);
   });
 });
