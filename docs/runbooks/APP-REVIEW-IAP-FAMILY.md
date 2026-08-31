@@ -66,4 +66,18 @@ Keep `MARKETING_VERSION` **1.4.3** unless App Store Connect cannot accept anothe
 
 ## Review notes
 
-Only paste App Review notes after both reviewer paths above are proven on the submitted build. Draft navigation lives in the PR — do not send until verified. Do not write secrets into `docs/app-store-review-notes.md` until that proof exists.
+Paste-ready reviewer notes (secret **names** only) live in `docs/app-store-review-notes.md` (2026-08-31 section). Replace names with values only in App Store Connect. Do not submit until the founder says to submit.
+
+### Founder device proof (2026-08-31)
+
+`EVIDENCE_SOURCE: founder_observation`
+
+| Check | Result |
+|---|---|
+| Monthly vs Yearly prices distinct after yearly ASC availability | PASS |
+| Sandbox Account sign-in reaches StoreKit sheet | PASS |
+| Prior sandbox E2E purchase (yearly) | PASS — `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` (2026-08-28) |
+| Subscription / paywall follow in-app language | PASS — live SW `stjarndag-v914` |
+| Complimentary account stays non-purchasable | unchanged (grandfathered / complimentary) |
+
+Do **not** put the complimentary review family or the founder Apple account on `REVENUECAT_SANDBOX_FAMILY_IDS`.

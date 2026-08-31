@@ -24,8 +24,12 @@ Canonical flow: [`founder-qa-test-account.md`](founder-qa-test-account.md)
 | `APP_REVIEW_PASSWORD` | Review parent password |
 | `APP_REVIEW_CHILD_PIN` | Child Anna PIN |
 | `APP_REVIEW_PARENT_PIN` | Parental gate PIN when configured |
+| `APP_REVIEW_IAP_EMAIL` | Dedicated IAP review parent (sandbox purchase path) |
+| `APP_REVIEW_IAP_PASSWORD` | Dedicated IAP review password |
 
-Canonical flow: [`app-store-demo-konto.md`](app-store-demo-konto.md)
+IAP values may exist only as a VPS file `data/app-review-iap.secret` (mode `600`) until copied into the secret store. Canonical IAP family procedure: [`runbooks/APP-REVIEW-IAP-FAMILY.md`](runbooks/APP-REVIEW-IAP-FAMILY.md).
+
+Canonical complimentary flow: [`app-store-demo-konto.md`](app-store-demo-konto.md)
 
 ## RC-1 automation fixture (separate from founder/review)
 
