@@ -322,10 +322,11 @@ describe('Apple register language-before-country', () => {
     assert.equal(appleErrorCalls, 1);
   });
 
-  it('country autoMount starts immediately when language is already confirmed', () => {
+  it('country autoMounts immediately and stays independent from language', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/country-choice.js'), 'utf8');
-    assert.match(src, /LanguageChoice\.isConfirmed\(\)/);
-    assert.match(src, /language-choice-confirmed/);
+    assert.match(src, /mounts\.forEach\(\(el\) => mount\(el\)\)/);
+    assert.match(src, /Det är inte samma sak som språkval/);
+    assert.doesNotMatch(src, /addEventListener\('language-choice-confirmed', start/);
   });
 });
 

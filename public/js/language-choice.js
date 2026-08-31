@@ -49,7 +49,7 @@
       <section class="language-choice" role="group" aria-labelledby="languageChoiceHeading">
         <h2 id="languageChoiceHeading" class="language-choice__title">
           <span data-i18n="language.choice.title">Välj språk</span>
-          <span class="language-choice__title-en" lang="en"> / Choose your language</span>
+          <span class="language-choice__title-en" lang="en" data-hide-when-en="1"> / Choose your language</span>
         </h2>
         <p class="language-choice__desc" data-i18n="language.choice.description">
           Du kan ändra språk senare i Inställningar.
@@ -99,6 +99,7 @@
     container.dataset.languageChoiceMounted = '1';
     container.innerHTML = buildHtml(suggest);
     I18n.apply(container);
+    syncBilingualTitle(container);
 
     const childNote = container.querySelector('.language-choice__child-note');
     const errorEl = container.querySelector('[data-language-choice-error]');
@@ -126,6 +127,7 @@
         markConfirmed(locale);
         await I18n.load(locale);
         I18n.apply(document);
+        syncBilingualTitle(container);
         if (childNote) childNote.hidden = locale !== 'en-GB';
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
@@ -162,6 +164,14 @@
 
     if (!isConfirmed()) hideForm();
     document.addEventListener('language-choice-confirmed', showForm);
+  }
+
+  function syncBilingualTitle(container) {
+    try {
+      const enBits = (container || document).querySelectorAll('[data-hide-when-en]');
+      const isEn = window.I18n && I18n.getCurrentLang && I18n.getCurrentLang() === 'en-GB';
+      enBits.forEach((el) => { el.hidden = !!isEn; });
+    } catch (_) { /* ignore */ }
   }
 
   function autoMount() {

@@ -227,13 +227,14 @@
   function autoMount() {
     const mounts = document.querySelectorAll('[data-country-choice-mount]');
     if (!mounts.length) return;
-    const start = () => {
-      mounts.forEach((el) => mount(el));
-    };
-    document.addEventListener('language-choice-confirmed', start, { once: true });
-    if (window.LanguageChoice && typeof LanguageChoice.isConfirmed === 'function' && LanguageChoice.isConfirmed()) {
-      start();
-    }
+    mounts.forEach((el) => mount(el));
+    document.addEventListener('language-choice-confirmed', () => {
+      mounts.forEach((el) => {
+        delete el.dataset.countryChoiceMounted;
+        el.innerHTML = '';
+        mount(el);
+      });
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
