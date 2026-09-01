@@ -15,6 +15,7 @@ const {
   loginParentEnglish,
   loginChildFromParentSession,
 } = require('./helpers/puppeteer-browser');
+const { openCollectionView } = require('./helpers/open-collection-view');
 
 async function waitForChildShellReady(page) {
   await page.waitForFunction(() => {
@@ -55,21 +56,6 @@ async function openSettingsView(page) {
   await page.waitForFunction(() => {
     const mount = document.getElementById('settingsViewMount');
     return mount && /My space/i.test((mount.textContent || '').trim());
-  }, { timeout: 45000 });
-}
-
-async function openCollectionView(page) {
-  await page.evaluate(() => {
-    if (window.ChildLayerRouter && ChildLayerRouter.navigateToLayer) {
-      ChildLayerRouter.navigateToLayer('collection');
-    }
-    if (window.ChildSamlingView && ChildSamlingView.refresh) {
-      ChildSamlingView.refresh({ force: true });
-    }
-  });
-  await page.waitForFunction(() => {
-    const title = document.querySelector('.bsp-title');
-    return title && /collection/i.test((title.textContent || '').trim());
   }, { timeout: 45000 });
 }
 
