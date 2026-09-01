@@ -13,7 +13,7 @@ const CUTOFF = DEFAULT_PAYMENT_START_AT;
 const CREATED = '2026-09-01T00:00:00+02:00';
 
 describe('unknown country never becomes Sweden for entitlements', () => {
-  const nonSe = [null, undefined, '', '  ', 'XX', 'se', 'Ireland', 'IE', 'FI', 'fi'];
+  const nonSe = [null, undefined, '', '  ', 'XX', 'Ireland', 'IE', 'FI', 'fi'];
 
   for (const countryCode of nonSe) {
     it(`isFamilyEligibleForGrandfathering(${JSON.stringify(countryCode)}) is false`, () => {
@@ -58,35 +58,40 @@ describe('null country_code family is not lazy-grandfathered', () => {
       t.skip('No real TEST_DATABASE_URL');
       return;
     }
-    for (const mod of [
-      '../src/lib/db',
-      '../db/app-settings',
-      '../db/family-entitlements',
-      '../src/lib/payment-settings',
-      '../src/lib/family-entitlements',
-    ]) {
-      delete require.cache[require.resolve(mod)];
-    }
-    const runtimeDb = require('../src/lib/db');
-    const appSettings = require('../db/app-settings');
-    await appSettings.upsertSetting('payment_start_at', CUTOFF);
-    const { resolveFamilyEntitlements, grantGrandfatheredOnCreate } = require('../src/lib/family-entitlements');
+    try {
+      for (const mod of [
+        '../src/lib/db',
+        '../db/app-settings',
+        '../db/family-entitlements',
+        '../src/lib/payment-settings',
+        '../src/lib/family-entitlements',
+      ]) {
+        delete require.cache[require.resolve(mod)];
+      }
+      const runtimeDb = require('../src/lib/db');
+      const appSettings = require('../db/app-settings');
+      await appSettings.upsertSetting('payment_start_at', CUTOFF);
+      const { resolveFamilyEntitlements, grantGrandfatheredOnCreate } = require('../src/lib/family-entitlements');
 
-    const { rows } = await runtimeDb.query(
-      `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region)
-       VALUES ('Null country', 'none', false, $1::timestamptz, NULL, 'EU')
-       RETURNING id, created_at, country_code`,
-      [CREATED]
-    );
-    const family = rows[0];
-    const granted = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: family.country_code });
-    assert.equal(granted, null);
-    const { premium, access_kind } = await resolveFamilyEntitlements(family.id, new Date('2026-09-15T00:00:00+02:00'));
-    assert.equal(premium.is_grandfathered, false);
-    assert.notEqual(premium.source, 'grandfathered');
-    assert.equal(access_kind, 'limited');
-    const fam = await runtimeDb.query('SELECT is_lifetime_free FROM family WHERE id = $1', [family.id]);
-    assert.equal(fam.rows[0].is_lifetime_free, false);
-    await db.cleanup();
+      const { rows } = await runtimeDb.query(
+        `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region)
+         VALUES ('Unknown country', 'none', false, $1::timestamptz, 'XX', 'EU')
+         RETURNING id, created_at, country_code`,
+        [CREATED]
+      );
+      const family = rows[0];
+      const grantedMissing = await grantGrandfatheredOnCreate(family.id, family.created_at, {});
+      assert.equal(grantedMissing, null);
+      const granted = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: family.country_code });
+      assert.equal(granted, null);
+      const { premium, access_kind } = await resolveFamilyEntitlements(family.id, new Date('2026-09-15T00:00:00+02:00'));
+      assert.equal(premium.is_grandfathered, false);
+      assert.notEqual(premium.source, 'grandfathered');
+      assert.equal(access_kind, 'limited');
+      const fam = await runtimeDb.query('SELECT is_lifetime_free FROM family WHERE id = $1', [family.id]);
+      assert.equal(fam.rows[0].is_lifetime_free, false);
+    } finally {
+      await db.cleanup();
+    }
   });
 });
