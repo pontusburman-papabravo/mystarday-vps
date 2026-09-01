@@ -15,9 +15,10 @@ const {
   isFamilyEligibleForPrebillingAccess,
   isPrebillingAccessActive,
 } = require('./payment-settings');
-const { isBillingUiEnabled } = require('./billing-ui');
+const { isPublicBillingUsable } = require('./market-launch-invariants');
 const { appendPaymentAudit } = require('./payment-audit');
 const { attachPaidTransition } = require('./paid-transition');
+const { normalizeCountryCode } = require('./market-region');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
 const ACTIVE_STORE_STATUSES = new Set(['trial', 'active', 'grace_period']);
@@ -146,12 +147,12 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client }),
     q('SELECT id, created_at, is_lifetime_free, country_code FROM family WHERE id = $1', [familyId])
       .then((r) => r.rows[0] || null),
-    isBillingUiEnabled(),
+    isPublicBillingUsable(),
   ]);
 
   let workingRows = rows;
 
-  const familyCountryCode = familyRow?.country_code || 'SE';
+  const familyCountryCode = normalizeCountryCode(familyRow?.country_code);
   const paymentStartAt = await getPaymentStartAtForCountry(familyCountryCode);
 
   // Lazy grandfather for pre-cutoff SE families missing row (should not happen post-migration)
@@ -173,7 +174,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
 
   const winner = pickWinner(workingRows, nowMs);
   const premium = winner ? buildPremiumFromRow(winner) : emptyPremium();
-  const paymentStartIso = paymentStartAt.toISOString();
+  const paymentStartIso = paymentStartAt ? paymentStartAt.toISOString() : null;
 
   if (
     !premium.active &&
@@ -363,7 +364,7 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
   return { kind: 'limited' };
 }
 
-async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = 'SE' } = {}) {
+async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = null } = {}) {
   const paymentStartAt = await getPaymentStartAt();
   if (!isFamilyEligibleForGrandfathering({
     countryCode,

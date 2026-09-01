@@ -111,12 +111,15 @@ async function readMarketGateFlag(key) {
  * Per-country gates (IE/NO/DK) override the aggregate EU gate.
  */
 async function isMarketOpenForRegistration(countryCode) {
-  const key = gateKeyForCountry(countryCode);
+  const code = normalizeCountryCode(countryCode);
+  if (!code) return false;
+  const key = gateKeyForCountry(code);
   return readMarketGateFlag(key);
 }
 
 function marketClosedCode(countryCode) {
-  const code = normalizeCountryCode(countryCode) || 'SE';
+  const code = normalizeCountryCode(countryCode);
+  if (!code) return 'MARKET_COUNTRY_REQUIRED';
   if (code === 'IE') return 'MARKET_IE_CLOSED';
   if (code === 'FI') return 'MARKET_FI_CLOSED';
   if (code === 'NO') return 'MARKET_NO_CLOSED';
@@ -139,6 +142,7 @@ const MARKET_CLOSED_MESSAGES = Object.freeze({
   MARKET_UK_CLOSED: 'My Starday is not available in the United Kingdom yet.',
   MARKET_US_CLOSED: 'My Starday is not available in the United States yet.',
   MARKET_OTHER_CLOSED: 'My Starday is not available in your country yet.',
+  MARKET_COUNTRY_REQUIRED: 'Choose a country to continue.',
   MARKET_BILLING_NOT_READY: 'Köp är inte tillgängliga i det här landet ännu, så vi kan inte skapa ett konto som du inte kan använda.',
 });
 

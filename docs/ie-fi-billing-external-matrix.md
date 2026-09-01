@@ -8,20 +8,19 @@ Internal config is never promoted to verified.
 
 Re-run public Apple/Play checks: `node scripts/verify-storefront-billing.mjs`.
 
-## P0 — Apple app download is paid
+## Apple download price — REVIEW_REQUIRED
 
-`€5.99` on Ireland and Finland is the **software listing / app download price**, not an IAP subscription.
+Public sources conflict. Do not infer store truth.
 
-| Key | Value | Status |
+| Source (2026-08-31) | Ireland | Finland |
 |---|---|---|
-| `APP_DOWNLOAD_PRICE_IE` | €5.99 | VERIFIED EXTERNALLY |
-| `APP_DOWNLOAD_PRICE_FI` | 5,99 € | VERIFIED EXTERNALLY |
+| iTunes lookup `kind=software` | `price=5.99` EUR / `€5.99` | `price=5.99` EUR / `5,99 €` |
+| App Store HTML | `hasInAppPurchases:true`, CTA “Get” | same pattern |
+| App Store Connect | **not opened** | **not opened** |
 
-Sources: iTunes Search API `kind=software` (`https://itunes.apple.com/lookup?id=6774493098&country=ie\|fi`) and Apple product-page `offerType=app` (`isFree=false`, `priceFormatted`, `buyParams price=5990`, `pricingParameters=STDQ`).
+`APPLE_DOWNLOAD_PRICE = REVIEW_REQUIRED`
 
-Apple product page for this adamId also has **`hasInAppPurchases: false`**.
-
-This is a **P0 commercial blocker** if the intended model is free download + paid subscription. Do not change store prices or commercial terms without founder approval.
+Named monthly/yearly SKUs and IE/FI EUR subscription prices remain **NOT VERIFIED**. Do not replace Store truth with portal targets.
 
 Sweden (context only): App Store listing is **59,00 kr** paid download (`kind=software`). Play SE IAP range is `59,00 kr - 590,00 kr if billed through Play`.
 

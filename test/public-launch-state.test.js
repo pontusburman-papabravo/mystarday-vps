@@ -37,6 +37,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(js, /subscription is not required yet/);
     assert.doesNotMatch(js, /index > 2/);
     assert.match(js, /\/api\/market\/registration-gates/);
+    assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
+    assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
   });
 
   it('English landing does not claim English is coming soon', () => {

@@ -63,7 +63,9 @@ describe('IE/FI release gates cannot be conflated', () => {
     for (const cc of ['IE', 'FI']) {
       assert.equal(gates[cc].CLOSED_CODE_READY, true);
       assert.equal(gates[cc].PREBILLING_MARKET_READY, true);
+      assert.equal(gates[cc].BILLING_CONFIGURATION_READY, false);
       assert.equal(gates[cc].BILLING_READY, false);
+      assert.equal(gates[cc].DEVICE_VERIFIED, false);
       assert.equal(gates[cc].READY_TO_OPEN, false);
       assert.equal(gates[cc].PAID_ROLLOUT_READY, false);
     }

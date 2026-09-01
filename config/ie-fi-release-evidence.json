@@ -16,10 +16,13 @@
   "android_sandbox_e2e": "MANUAL_VERIFICATION_REQUIRED",
   "ios_device_ie": "NO",
   "ios_device_fi": "NO",
+  "apple_download_price": "REVIEW_REQUIRED",
   "apple_paid_download_unresolved_p0": true,
   "notes": [
-    "unit_tests_pass must never promote READY_TO_OPEN or BILLING_READY.",
+    "Committed JSON never grants READY_TO_OPEN or PAID_ROLLOUT_READY.",
+    "unit_tests_pass must never promote READY_TO_OPEN, BILLING_CONFIGURATION_READY, or PAID_ROLLOUT_READY.",
     "Flip founder_open_approved_* only as an explicit ops decision. This file is not a live flag.",
-    "Do not set market_ie_open or market_fi_open from this evidence file."
+    "Do not set market_ie_open or market_fi_open from this evidence file.",
+    "APPLE_DOWNLOAD_PRICE stays REVIEW_REQUIRED until App Store Connect is checked."
   ]
 }

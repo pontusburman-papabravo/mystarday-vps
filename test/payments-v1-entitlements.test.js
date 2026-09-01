@@ -100,6 +100,9 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
   }
 
   await setPaymentStart('2026-10-01T00:00:00+02:00');
+  const appSettingsForMarkets = require('../db/app-settings');
+  await appSettingsForMarkets.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+  await appSettingsForMarkets.upsertSetting('market_fi_payment_start_at', '2026-10-15T00:00:00+02:00');
 
   await t.test('1 family before cutoff → grandfathered forever', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'SE');
@@ -208,7 +211,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('7 grandfather + expired store → still access', async () => {
     const family = await createFamilyDirect(db, '2026-05-01T00:00:00+02:00');
-    await grantGrandfatheredOnCreate(family.id, family.created_at);
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
     await applyStoreEntitlementFromWebhook(family.id, {
       subscriptionStatus: 'expired',
       eventType: 'EXPIRATION',
@@ -267,7 +270,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('13 webhook cannot remove grandfathering', async () => {
     const family = await createFamilyDirect(db, '2026-04-01T00:00:00+02:00');
-    await grantGrandfatheredOnCreate(family.id, family.created_at);
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
 
     const dbModule = require('../src/lib/db');
     const event = {

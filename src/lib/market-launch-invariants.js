@@ -7,6 +7,9 @@
  *   market_open &&
  *   (SE grandfather path || IE/FI prebilling window || public billing usable)
  *
+ * publicBillingUsable =
+ *   payment_enabled && !BILLING_UI_DISABLED && iap_paid_rollout_ready
+ *
  * An open market must never permit signup into an unusable account.
  * A pre-billing launch market must not require billing to be live.
  *
@@ -14,6 +17,7 @@
  */
 
 const { isBillingUiEnabled } = require('./billing-ui');
+const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
 const {
   getPaymentStartAtForCountry,
   isFamilyEligibleForGrandfathering,
@@ -32,7 +36,11 @@ const BILLING_NOT_READY_CODE = 'MARKET_BILLING_NOT_READY';
  * Same conditions as global rollout in getNativePurchaseEligibility.
  */
 async function isPublicBillingUsable() {
-  return isBillingUiEnabled();
+  const [billingUi, paidRolloutReady] = await Promise.all([
+    isBillingUiEnabled(),
+    isIapPaidRolloutReady(),
+  ]);
+  return billingUi === true && paidRolloutReady === true;
 }
 
 /**
@@ -46,7 +54,14 @@ async function isPublicBillingUsable() {
  * }} input
  */
 function evaluateSignupCompleteness(input) {
-  const countryCode = normalizeCountryCode(input.countryCode) || 'SE';
+  const countryCode = normalizeCountryCode(input.countryCode);
+  if (!countryCode) {
+    return {
+      allowed: false,
+      reason: 'unknown_country',
+      code: marketClosedCode(null),
+    };
+  }
   if (!input.marketOpen) {
     return {
       allowed: false,

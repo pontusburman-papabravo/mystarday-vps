@@ -17,17 +17,20 @@ IE/FI are never auto-grandfathered. An existing explicit grandfather row (manual
 | Key | Default | Scope |
 |---|---|---|
 | `payment_start_at` | `2026-10-01T00:00:00+02:00` | Sweden grandfather cutoff only |
-| `market_ie_payment_start_at` | `2026-10-15T00:00:00+02:00` | Ireland paid-start (ops override) |
-| `market_fi_payment_start_at` | `2026-10-15T00:00:00+02:00` | Finland paid-start (ops override) |
+| `market_ie_payment_start_at` | **unset** (fail closed) | Ireland paid-start. Store an absolute ISO instant or `YYYY-MM-DD` (Dublin civil midnight). No commercial date is committed. |
+| `market_fi_payment_start_at` | **unset** (fail closed) | Finland paid-start. Absolute ISO or `YYYY-MM-DD` (Helsinki civil midnight). |
 
 Helpers: `getPaymentStartAtForCountry()`, `setPaymentStartAtForCountry()`.
 
 ## Signup
 
 ```
+publicBillingUsable =
+  payment_enabled && !BILLING_UI_DISABLED && iap_paid_rollout_ready
+
 signup_allowed =
   market_open &&
-  (SE grandfather path || IE/FI prebilling window || public billing usable)
+  (SE grandfather path || IE/FI prebilling window || publicBillingUsable)
 ```
 
 Closed market → no public signup.  

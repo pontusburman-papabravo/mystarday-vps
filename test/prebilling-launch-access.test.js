@@ -11,7 +11,6 @@ const {
   isFamilyEligibleForPrebillingAccess,
   isPrebillingAccessActive,
   DEFAULT_PAYMENT_START_AT,
-  DEFAULT_PREBILLING_PAYMENT_START_AT,
   MARKET_PAYMENT_START_AT_KEYS,
 } = require('../src/lib/payment-settings');
 const { setupTestDb } = require('./helpers/setup.js');
@@ -19,7 +18,7 @@ const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./h
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
 
 const SE_START = DEFAULT_PAYMENT_START_AT;
-const IE_FI_START = DEFAULT_PREBILLING_PAYMENT_START_AT;
+const IE_FI_START = '2026-10-15T00:00:00+02:00';
 const BEFORE = new Date('2026-09-01T00:00:00+02:00');
 const ON_IE_FI_START = new Date('2026-10-15T00:00:00+02:00');
 const AFTER_IE_FI = new Date('2026-10-16T00:00:00+02:00');

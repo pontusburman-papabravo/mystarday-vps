@@ -61,7 +61,7 @@ router.get('/registration-gates', async (req, res) => {
         countryCode: code,
         marketOpen: open,
         publicBillingUsable,
-        paymentStartAt: paymentStartByCountry[code] || sePaymentStartAt,
+        paymentStartAt: paymentStartByCountry[code],
         now,
       }).allowed;
     }
@@ -84,9 +84,9 @@ router.get('/registration-gates', async (req, res) => {
         countryCodes: ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
       }),
       payment_start_at: {
-        SE: sePaymentStartAt.toISOString(),
-        IE: iePaymentStartAt.toISOString(),
-        FI: fiPaymentStartAt.toISOString(),
+        SE: sePaymentStartAt ? sePaymentStartAt.toISOString() : null,
+        IE: iePaymentStartAt ? iePaymentStartAt.toISOString() : null,
+        FI: fiPaymentStartAt ? fiPaymentStartAt.toISOString() : null,
       },
     });
   } catch (err) {
