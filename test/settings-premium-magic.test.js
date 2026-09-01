@@ -61,7 +61,7 @@ describe('subscription UI visibility — server contract', () => {
     restoreEnv();
   });
 
-  it('B2: normal family + billing UI on + payment enabled → native_purchase_eligible', async (t) => {
+  it('B2: payment+UI without paid rollout stays ineligible', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -69,17 +69,55 @@ describe('subscription UI visibility — server contract', () => {
     }
     const familyId = '66666666-6666-4666-8666-666666666666';
     delete process.env.BILLING_UI_DISABLED;
+    delete process.env.IAP_PAID_ROLLOUT_READY;
     process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
     process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
+    for (const mod of ['../src/lib/db', '../db/app-settings', '../src/lib/billing-ui', '../src/lib/iap-paid-rollout', '../src/lib/iap-native-purchase-gate', '../src/lib/subscription-ui-visibility']) {
+      delete require.cache[require.resolve(mod)];
+    }
     const appSettings = require('../db/app-settings');
+    const { resolveSubscriptionUiVisibility: resolveVis } = require('../src/lib/subscription-ui-visibility');
     await appSettings.setPaymentEnabled(true);
+    await appSettings.setIapPaidRolloutReady(false);
     try {
-      const vis = await resolveSubscriptionUiVisibility(familyId, { active: false });
+      const vis = await resolveVis(familyId, { active: false });
+      assert.equal(vis.billing_ui_enabled, true);
+      assert.equal(vis.native_purchase_eligible, false);
+      assert.equal(vis.subscription_ui_visible, true, 'settings remain visible; purchase is not publicly usable');
+    } finally {
+      await appSettings.setPaymentEnabled(false);
+      await appSettings.setIapPaidRolloutReady(false);
+      restoreEnv();
+      await db.cleanup();
+    }
+  });
+
+  it('B3: payment+UI+paid rollout → native_purchase_eligible', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real DATABASE_URL');
+      return;
+    }
+    const familyId = '77777777-7777-4777-8777-777777777777';
+    delete process.env.BILLING_UI_DISABLED;
+    delete process.env.IAP_PAID_ROLLOUT_READY;
+    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
+    process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
+    for (const mod of ['../src/lib/db', '../db/app-settings', '../src/lib/billing-ui', '../src/lib/iap-paid-rollout', '../src/lib/iap-native-purchase-gate', '../src/lib/subscription-ui-visibility']) {
+      delete require.cache[require.resolve(mod)];
+    }
+    const appSettings = require('../db/app-settings');
+    const { resolveSubscriptionUiVisibility: resolveVis } = require('../src/lib/subscription-ui-visibility');
+    await appSettings.setPaymentEnabled(true);
+    await appSettings.setIapPaidRolloutReady(true);
+    try {
+      const vis = await resolveVis(familyId, { active: false });
       assert.equal(vis.billing_ui_enabled, true);
       assert.equal(vis.native_purchase_eligible, true);
       assert.equal(vis.subscription_ui_visible, true);
     } finally {
       await appSettings.setPaymentEnabled(false);
+      await appSettings.setIapPaidRolloutReady(false);
       restoreEnv();
       await db.cleanup();
     }

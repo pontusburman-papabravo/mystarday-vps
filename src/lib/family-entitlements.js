@@ -365,9 +365,15 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
 }
 
 async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = null } = {}) {
+  let resolvedCountry = countryCode;
+  if (resolvedCountry == null || resolvedCountry === '') {
+    const q = client ? client.query.bind(client) : db.query.bind(db);
+    const fam = await q('SELECT country_code FROM family WHERE id = $1', [familyId]);
+    resolvedCountry = fam.rows[0] ? fam.rows[0].country_code : null;
+  }
   const paymentStartAt = await getPaymentStartAt();
   if (!isFamilyEligibleForGrandfathering({
-    countryCode,
+    countryCode: resolvedCountry,
     createdAt: familyCreatedAt,
     paymentStartAt,
   })) {
