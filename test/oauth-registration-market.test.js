@@ -23,14 +23,69 @@ let mockParentByGoogle = null;
 let mockCreateParent = null;
 let mockCompleteLoginArgs = null;
 
-async function setMarketFlag(_db, key, enabled) {
-  const pg = require('../src/lib/db');
-  await pg.query(
-    `INSERT INTO feature_flag (key, enabled, description)
+async function setMarketFlag(db, key, enabled) {
+  const sql = `INSERT INTO feature_flag (key, enabled, description)
      VALUES ($1, $2, 'oauth-registration-market test')
-     ON CONFLICT (key) DO UPDATE SET enabled = EXCLUDED.enabled`,
-    [key, enabled]
-  );
+     ON CONFLICT (key) DO UPDATE SET enabled = EXCLUDED.enabled`;
+  const params = [key, enabled];
+  if (db && typeof db.query === 'function') {
+    await db.query(sql, params);
+  }
+  const runtime = require('../src/lib/db');
+  if (!db || runtime.query !== db.query) {
+    await runtime.query(sql, params);
+  }
+}
+
+function reloadDbBoundModules() {
+  for (const mod of [
+    '../src/lib/db',
+    '../db/app-settings',
+    '../src/lib/payment-settings',
+    '../src/lib/family-entitlements',
+    '../src/lib/create-oauth-parent',
+    '../src/lib/market-region',
+    '../src/lib/market-config',
+    '../src/lib/billing-ui',
+    '../src/lib/iap-paid-rollout',
+    '../src/lib/market-launch-invariants',
+    '../src/lib/registration-market-context',
+    '../src/routes/auth/oauth-google',
+    '../src/routes/auth/oauth-apple',
+  ]) {
+    try {
+      delete require.cache[require.resolve(mod)];
+    } catch {
+      // optional in this file
+    }
+  }
+  delete require.cache[createOAuthPath];
+  delete require.cache[oauthGooglePath];
+  installCreateOAuthMock();
+}
+
+function installCreateOAuthMock() {
+  mockCreateParent = null;
+  require.cache[createOAuthPath] = {
+    id: createOAuthPath,
+    filename: createOAuthPath,
+    loaded: true,
+    exports: {
+      createParentFromOAuth: async (opts) => {
+        mockCreateParent = opts;
+        return {
+          id: 'parent-new',
+          family_id: 'family-new',
+          email: opts.email,
+          name: opts.displayName,
+          onboarding_completed: false,
+        };
+      },
+    },
+    children: [],
+    parent: null,
+    paths: [],
+  };
 }
 
 beforeEach(() => {
@@ -70,26 +125,7 @@ beforeEach(() => {
     paths: [],
   };
 
-  require.cache[createOAuthPath] = {
-    id: createOAuthPath,
-    filename: createOAuthPath,
-    loaded: true,
-    exports: {
-      createParentFromOAuth: async (opts) => {
-        mockCreateParent = opts;
-        return {
-          id: 'parent-new',
-          family_id: 'family-new',
-          email: opts.email,
-          name: opts.displayName,
-          onboarding_completed: false,
-        };
-      },
-    },
-    children: [],
-    parent: null,
-    paths: [],
-  };
+  installCreateOAuthMock();
 
   const sessionPath = require.resolve('../src/routes/auth/session');
   require.cache[sessionPath] = {
@@ -163,6 +199,7 @@ test('New Google OAuth without country_code rejected (fail closed)', async () =>
 test('IE Google new signup blocked while market_ie_open=false', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
   await setMarketFlag(db, 'market_ie_open', false);
 
   const handler = getGoogleHandler();
@@ -192,6 +229,7 @@ test('IE Google new signup blocked while market_ie_open=false', async () => {
 test('IE Google new signup allowed when gate ON and prebilling window is open', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
   const appSettings = require('../db/app-settings');
   try {
     await setMarketFlag(db, 'market_ie_open', true);
@@ -228,6 +266,7 @@ test('IE Google new signup allowed when gate ON and prebilling window is open', 
 test('IE Google new signup blocked when gate ON after payment_start and billing is off', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
   const appSettings = require('../db/app-settings');
   try {
     await setMarketFlag(db, 'market_ie_open', true);
@@ -264,34 +303,38 @@ test('IE Google new signup blocked when gate ON after payment_start and billing 
 test('IE Google new signup passes market context when gate enabled in test', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
-  await setMarketFlag(db, 'market_ie_open', true);
+  reloadDbBoundModules();
   const billingSnap = await enablePublicBillingForTest();
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
 
-  const handler = getGoogleHandler();
-  const req = {
-    body: {
-      idToken: 'valid-token',
-      country_code: 'IE',
-      preferred_locale: 'en-GB',
-    },
-    ip: '127.0.0.1',
-    headers: {},
-  };
-  let statusCode = 200;
-  const res = {
-    status(code) { statusCode = code; return this; },
-    json() {},
-  };
+    const handler = getGoogleHandler();
+    const req = {
+      body: {
+        idToken: 'valid-token',
+        country_code: 'IE',
+        preferred_locale: 'en-GB',
+      },
+      ip: '127.0.0.1',
+      headers: {},
+    };
+    let statusCode = 200;
+    const res = {
+      status(code) { statusCode = code; return this; },
+      json() {},
+    };
 
-  await handler(req, res);
-  assert.equal(statusCode, 200);
-  assert.ok(mockCreateParent);
-  assert.equal(mockCreateParent.countryCode, 'IE');
-  assert.equal(mockCreateParent.familyLocale, 'en-GB');
-  assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
-  await setMarketFlag(db, 'market_ie_open', false);
-  await disablePublicBillingForTest(billingSnap);
-  await db.cleanup();
+    await handler(req, res);
+    assert.equal(statusCode, 200);
+    assert.ok(mockCreateParent);
+    assert.equal(mockCreateParent.countryCode, 'IE');
+    assert.equal(mockCreateParent.familyLocale, 'en-GB');
+    assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
+  } finally {
+    await setMarketFlag(db, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
+    await db.cleanup();
+  }
 });
 
 test('existing Google parent login unaffected by IE gate', async () => {
@@ -382,6 +425,7 @@ test('IE Apple new signup blocked while market_ie_open=false', async () => {
 
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
   await setMarketFlag(db, 'market_ie_open', false);
 
   const handler = getAppleHandler();
@@ -414,36 +458,40 @@ test('IE Apple new signup passes market context when gate enabled in test', asyn
 
   const db = await setupTestDb();
   if (db.skip) return;
-  await setMarketFlag(db, 'market_ie_open', true);
+  reloadDbBoundModules();
   const billingSnap = await enablePublicBillingForTest();
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
 
-  const handler = getAppleHandler();
-  const req = {
-    body: {
-      idToken: 'valid-token',
-      country_code: 'IE',
-      preferred_locale: 'en-GB',
-      firstName: 'Aoife',
-      lastName: 'Murphy',
-    },
-    ip: '127.0.0.1',
-    headers: {},
-  };
-  let statusCode = 200;
-  const res = {
-    status(code) { statusCode = code; return this; },
-    json() {},
-  };
+    const handler = getAppleHandler();
+    const req = {
+      body: {
+        idToken: 'valid-token',
+        country_code: 'IE',
+        preferred_locale: 'en-GB',
+        firstName: 'Aoife',
+        lastName: 'Murphy',
+      },
+      ip: '127.0.0.1',
+      headers: {},
+    };
+    let statusCode = 200;
+    const res = {
+      status(code) { statusCode = code; return this; },
+      json() {},
+    };
 
-  await handler(req, res);
-  assert.equal(statusCode, 200);
-  assert.ok(mockCreateParent);
-  assert.equal(mockCreateParent.countryCode, 'IE');
-  assert.equal(mockCreateParent.familyLocale, 'en-GB');
-  assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
-  await setMarketFlag(db, 'market_ie_open', false);
-  await disablePublicBillingForTest(billingSnap);
-  await db.cleanup();
+    await handler(req, res);
+    assert.equal(statusCode, 200);
+    assert.ok(mockCreateParent);
+    assert.equal(mockCreateParent.countryCode, 'IE');
+    assert.equal(mockCreateParent.familyLocale, 'en-GB');
+    assert.equal(mockCreateParent.timezone, 'Europe/Dublin');
+  } finally {
+    await setMarketFlag(db, 'market_ie_open', false);
+    await disablePublicBillingForTest(billingSnap);
+    await db.cleanup();
+  }
 });
 
 test('existing Apple parent login unaffected by IE gate', async () => {
@@ -476,109 +524,153 @@ test('existing Apple parent login unaffected by IE gate', async () => {
 test('IE OAuth family is not Swedish-grandfathered before payment_start_at', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
+  delete require.cache[createOAuthPath];
 
-  await setMarketFlag(db, 'market_ie_open', true);
   const appSettings = require('../db/app-settings');
-  await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15');
 
-  for (const mod of [
-    '../src/lib/db',
-    '../db/app-settings',
-    '../src/lib/payment-settings',
-    '../src/lib/family-entitlements',
-    '../src/lib/create-oauth-parent',
-  ]) {
-    delete require.cache[require.resolve(mod)];
+    const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+
+    const email = `ie-oauth-${Date.now()}@example.com`;
+    const parent = await createParentFromOAuth({
+      displayName: 'IE OAuth Parent',
+      email,
+      googleUserId: `google-ie-${Date.now()}`,
+      familyLocale: 'en-GB',
+      countryCode: 'IE',
+      marketRegion: 'EU',
+      timezone: 'Europe/Dublin',
+      localeSelectionSource: 'registration',
+      englishBetaOfferState: 'registration_decided',
+      countrySelectionSource: 'registration',
+    });
+
+    assert.notEqual(parent.family_id, 'family-new', 'OAuth create mock leaked into entitlement test');
+    const { getPaymentStartAtForCountry } = require('../src/lib/payment-settings');
+    const ieStart = await getPaymentStartAtForCountry('IE');
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(parent.family_id);
+    assert.equal(
+      premium.active,
+      true,
+      JSON.stringify({
+        premium,
+        access_kind,
+        requires_paywall,
+        familyId: parent.family_id,
+        ieStart: ieStart && ieStart.toISOString(),
+      })
+    );
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
+
+    const fam = await db.query(
+      'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
+      [parent.family_id]
+    );
+    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].country_code, 'IE');
+    assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+    assert.equal(fam.rows[0].timezone, 'Europe/Dublin');
+  } finally {
+    await setMarketFlag(db, 'market_ie_open', false);
+    await db.cleanup();
   }
+});
 
-  const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
-  const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+test('IE OAuth family is not prebilled when market payment start is missing', async () => {
+  const db = await setupTestDb();
+  if (db.skip) return;
+  reloadDbBoundModules();
+  delete require.cache[createOAuthPath];
 
-  const email = `ie-oauth-${Date.now()}@example.com`;
-  const parent = await createParentFromOAuth({
-    displayName: 'IE OAuth Parent',
-    email,
-    googleUserId: `google-ie-${Date.now()}`,
-    familyLocale: 'en-GB',
-    countryCode: 'IE',
-    marketRegion: 'EU',
-    timezone: 'Europe/Dublin',
-    localeSelectionSource: 'registration',
-    englishBetaOfferState: 'registration_decided',
-    countrySelectionSource: 'registration',
-  });
+  const appSettings = require('../db/app-settings');
+  try {
+    await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+    // IE/FI paid start is not configured — fail closed (no Sweden fallback).
 
-  const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(parent.family_id);
-  assert.equal(premium.active, true);
-  assert.equal(premium.source, 'prebilling');
-  assert.equal(premium.is_grandfathered, false);
-  assert.equal(requires_paywall, false);
-  assert.equal(access_kind, 'prebilling');
+    const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
 
-  const fam = await db.query(
-    'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
-    [parent.family_id]
-  );
-  assert.equal(fam.rows[0].is_lifetime_free, false);
-  assert.equal(fam.rows[0].country_code, 'IE');
-  assert.equal(fam.rows[0].preferred_locale, 'en-GB');
-  assert.equal(fam.rows[0].timezone, 'Europe/Dublin');
+    const email = `ie-oauth-nostart-${Date.now()}@example.com`;
+    const parent = await createParentFromOAuth({
+      displayName: 'IE OAuth No Start',
+      email,
+      googleUserId: `google-ie-nostart-${Date.now()}`,
+      familyLocale: 'en-GB',
+      countryCode: 'IE',
+      marketRegion: 'EU',
+      timezone: 'Europe/Dublin',
+      localeSelectionSource: 'registration',
+      englishBetaOfferState: 'registration_decided',
+      countrySelectionSource: 'registration',
+    });
 
-  await setMarketFlag(db, 'market_ie_open', false);
-  await db.cleanup();
+    const { premium, access_kind } = await resolveFamilyEntitlements(parent.family_id);
+    assert.equal(premium.active, false);
+    assert.notEqual(premium.source, 'prebilling');
+    assert.notEqual(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(access_kind, 'limited');
+  } finally {
+    await setMarketFlag(db, 'market_ie_open', false);
+    await db.cleanup();
+  }
 });
 
 test('FI OAuth family is not Swedish-grandfathered before payment_start_at', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
+  reloadDbBoundModules();
+  delete require.cache[createOAuthPath];
 
-  await setMarketFlag(db, 'market_fi_open', true);
   const appSettings = require('../db/app-settings');
-  await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+  try {
+    await setMarketFlag(db, 'market_fi_open', true);
+    await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+    await appSettings.upsertSetting('market_fi_payment_start_at', '2026-10-15');
 
-  for (const mod of [
-    '../src/lib/db',
-    '../db/app-settings',
-    '../src/lib/payment-settings',
-    '../src/lib/family-entitlements',
-    '../src/lib/create-oauth-parent',
-  ]) {
-    delete require.cache[require.resolve(mod)];
+    const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+
+    const email = `fi-oauth-${Date.now()}@example.com`;
+    const parent = await createParentFromOAuth({
+      displayName: 'FI OAuth Parent',
+      email,
+      googleUserId: `google-fi-${Date.now()}`,
+      familyLocale: 'en-GB',
+      countryCode: 'FI',
+      marketRegion: 'EU',
+      timezone: 'Europe/Helsinki',
+      localeSelectionSource: 'registration',
+      englishBetaOfferState: 'registration_decided',
+      countrySelectionSource: 'registration',
+    });
+
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(parent.family_id);
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
+
+    const fam = await db.query(
+      'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
+      [parent.family_id]
+    );
+    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].country_code, 'FI');
+    assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+    assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
+  } finally {
+    await setMarketFlag(db, 'market_fi_open', false);
+    await db.cleanup();
   }
-
-  const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
-  const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
-
-  const email = `fi-oauth-${Date.now()}@example.com`;
-  const parent = await createParentFromOAuth({
-    displayName: 'FI OAuth Parent',
-    email,
-    googleUserId: `google-fi-${Date.now()}`,
-    familyLocale: 'en-GB',
-    countryCode: 'FI',
-    marketRegion: 'EU',
-    timezone: 'Europe/Helsinki',
-    localeSelectionSource: 'registration',
-    englishBetaOfferState: 'registration_decided',
-    countrySelectionSource: 'registration',
-  });
-
-  const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(parent.family_id);
-  assert.equal(premium.active, true);
-  assert.equal(premium.source, 'prebilling');
-  assert.equal(premium.is_grandfathered, false);
-  assert.equal(requires_paywall, false);
-  assert.equal(access_kind, 'prebilling');
-
-  const fam = await db.query(
-    'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
-    [parent.family_id]
-  );
-  assert.equal(fam.rows[0].is_lifetime_free, false);
-  assert.equal(fam.rows[0].country_code, 'FI');
-  assert.equal(fam.rows[0].preferred_locale, 'en-GB');
-  assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');
-
-  await setMarketFlag(db, 'market_fi_open', false);
-  await db.cleanup();
 });
