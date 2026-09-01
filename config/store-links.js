@@ -8,7 +8,9 @@ const { APP_APPLICATION_ID } = require('./iap-product-contract');
  * is available — an unverified numeric id can 404 ("App ej tillgänglig").
  */
 const APPLE_APP_STORE_SHORT_URL = 'https://apple.co/4v2ESuH';
-const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || '';
+/** Verified externally 2026-08-31 via iTunes lookup trackId (IE + FI listings). */
+const APPLE_APP_STORE_TRACK_ID = '6774493098';
+const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || APPLE_APP_STORE_TRACK_ID;
 
 function androidPackageName() {
   if (process.env.ANDROID_PACKAGE_NAME) return process.env.ANDROID_PACKAGE_NAME;
@@ -30,4 +32,5 @@ module.exports = {
   androidPackageName,
   APPLE_APP_STORE_ID,
   APPLE_APP_STORE_SHORT_URL,
+  APPLE_APP_STORE_TRACK_ID,
 };

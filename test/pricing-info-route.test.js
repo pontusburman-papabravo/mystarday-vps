@@ -124,7 +124,7 @@ test('English landing mirrors Swedish layout with EN waitlist funnel', () => {
   assert.match(en, /My Starday/);
   assert.match(en, /landing-nav__lang-label">Svenska</);
   assert.match(en, /href="\/en\/faq"/);
-  assert.match(en, /href="#waitlist"/);
+  assert.match(en, /href="\/register"/);
   assert.match(en, /id="waitlist"/);
   assert.match(en, /waitlist-form/);
   assert.match(landingJs, /serveLandingHtml\(res, 'en\.html'\)/);

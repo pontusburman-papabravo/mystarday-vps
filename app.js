@@ -72,7 +72,7 @@ function createApp() {
     const { getEnglishGlobalAvailabilityReadiness } = require('./src/lib/english-app-global-flag');
     const { cacheName } = require('./config/cache-version.json');
     const gitSha = readDeployedSha();
-    const iap = getIapReadinessSnapshot();
+    const iap = await getIapReadinessSnapshot();
     const englishGlobal = await getEnglishGlobalAvailabilityReadiness();
     res.json({
       status: 'healthy',

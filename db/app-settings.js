@@ -26,6 +26,14 @@ function setPaymentEnabled(enabled) {
   return upsertSetting('payment_enabled', enabled);
 }
 
+function getIapPaidRolloutReady() {
+  return getSetting('iap_paid_rollout_ready').then((v) => v ?? false);
+}
+
+function setIapPaidRolloutReady(ready) {
+  return upsertSetting('iap_paid_rollout_ready', ready === true);
+}
+
 function getBasicPrice() {
   return getSetting('basic_price_sek').then(v => v ?? 59);
 }
@@ -60,6 +68,7 @@ function getAllSettings() {
 module.exports = {
   getSetting, upsertSetting,
   getPaymentEnabled, setPaymentEnabled,
+  getIapPaidRolloutReady, setIapPaidRolloutReady,
   getBasicPrice, setBasicPrice,
   getBasicTrialDays, setBasicTrialDays,
   getFounderFamilyLimit, setFounderFamilyLimit,

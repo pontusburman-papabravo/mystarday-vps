@@ -7,9 +7,9 @@
 ## Done (code, shipped)
 
 - Canonical `family_entitlements` + `payment_audit_log` migrations with idempotent grandfather backfill
-- `resolveFamilyEntitlements()` single resolver with precedence: grandfathered → admin → store (apple/google) → gift → none
+- `resolveFamilyEntitlements()` single resolver with precedence: grandfathered → admin → store (apple/google) → gift → computed IE/FI `prebilling` → none
 - Legacy mirror sync (`family.subscription_status`, `family_subscriptions.components`) — not source of truth, kept in sync via `syncMirrorsFromResolver()`
-- Registration/OAuth signup uses `payment_start_at` cutoff (founder count removed from access; grandfathering is SE-only)
+- Registration/OAuth signup uses country payment-start: SE grandfather via `payment_start_at`; IE/FI temporary launch access via `market_ie_payment_start_at` / `market_fi_payment_start_at` (see `docs/ie-fi-prebilling-access.md`)
 - RevenueCat webhook writes canonical store rows + audit (skips grandfathered families; skips sandbox events for non-allowlisted families)
 - Monthly **and** yearly SKUs live in `config/iap-product-contract.js` + `/api/iap/config`
 - **`POST /api/iap/sync` — trusted reconciliation only** (`src/lib/iap-reconcile.js`): server fetches the RevenueCat subscriber via REST; client body is ignored; fails closed (503) without `REVENUECAT_SECRET_API_KEY` or on verify errors
@@ -38,9 +38,9 @@
 
 ## Blocked externally (cannot be verified or completed from this repo)
 
-- App Store Connect: subscription group, monthly + yearly products, 14-day trial, pricing/localization, banking/tax agreements — **EXTERNAL_VERIFICATION_REQUIRED**
-- Google Play Console: subscription product + monthly/yearly base plans, 14-day trial, pricing — **EXTERNAL_VERIFICATION_REQUIRED**
-- RevenueCat dashboard: offering/packages/webhook destination configuration matching `config/iap-product-contract.js` — **EXTERNAL_VERIFICATION_REQUIRED**
+- App Store Connect: subscription group, monthly + yearly products, 14-day trial, pricing/localization, banking/tax agreements — **NOT VERIFIED**. Public IE/FI listings are **paid app download** €5.99 with **no IAP shelf** (`docs/ie-fi-billing-external-matrix.md`). P0 if the commercial model is free download + IAP. Do not change prices without founder approval.
+- Google Play Console: subscription product + monthly/yearly base plans, 14-day trial, pricing — named plans **NOT VERIFIED**. Public IE/FI listings show free install + a Play-billed IAP *range* only.
+- RevenueCat dashboard: offering/packages/webhook destination configuration matching `config/iap-product-contract.js` — **BLOCKED** without RC API credentials in this environment.
 - Gift card sale/redemption Apple and Google compliance sign-off — see `PAYMENTS_STORE_COMPLIANCE.md`
 - **Sandbox E2E purchase on a real device/build has not been executed.** See `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` — it remains an empty template. Do not treat sandbox E2E as passed until it has actually been run and the results pasted in.
 

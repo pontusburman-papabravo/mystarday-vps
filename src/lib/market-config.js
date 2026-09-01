@@ -31,7 +31,7 @@ const COUNTRY_DEFAULTS = Object.freeze({
   FI: Object.freeze({
     timezone: 'Europe/Helsinki',
     currency: 'EUR',
-    defaultLocale: 'en-GB',
+    defaultLocale: 'sv-SE',
     localeSupported: true,
   }),
   NO: Object.freeze({

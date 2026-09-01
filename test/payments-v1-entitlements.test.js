@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
+const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const { hashPassword } = require('../src/lib/hash');
 const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
 const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
@@ -99,6 +100,9 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
   }
 
   await setPaymentStart('2026-10-01T00:00:00+02:00');
+  const appSettingsForMarkets = require('../db/app-settings');
+  await appSettingsForMarkets.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+  await appSettingsForMarkets.upsertSetting('market_fi_payment_start_at', '2026-10-15T00:00:00+02:00');
 
   await t.test('1 family before cutoff → grandfathered forever', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'SE');
@@ -109,13 +113,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1b IE family before Swedish cutoff → not grandfathered', async () => {
+  await t.test('1b IE family before Swedish cutoff → prebilling, not grandfathered', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'IE' });
     assert.equal(row, null);
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
+      family.id,
+      new Date('2026-09-15T00:00:00+02:00')
+    );
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
   });
 
   await t.test('1c explicit IE grandfather row remains premium', async () => {
@@ -128,13 +138,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1d FI family before Swedish cutoff → not grandfathered', async () => {
+  await t.test('1d FI family before Swedish cutoff → prebilling, not grandfathered', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'FI');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'FI' });
     assert.equal(row, null);
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
+      family.id,
+      new Date('2026-09-15T00:00:00+02:00')
+    );
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'prebilling');
+    assert.equal(premium.is_grandfathered, false);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'prebilling');
   });
 
   await t.test('2 family after cutoff → no access before valid entitlement', async () => {
@@ -195,7 +211,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('7 grandfather + expired store → still access', async () => {
     const family = await createFamilyDirect(db, '2026-05-01T00:00:00+02:00');
-    await grantGrandfatheredOnCreate(family.id, family.created_at);
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
     await applyStoreEntitlementFromWebhook(family.id, {
       subscriptionStatus: 'expired',
       eventType: 'EXPIRATION',
@@ -254,7 +270,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('13 webhook cannot remove grandfathering', async () => {
     const family = await createFamilyDirect(db, '2026-04-01T00:00:00+02:00');
-    await grantGrandfatheredOnCreate(family.id, family.created_at);
+    await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'SE' });
 
     const dbModule = require('../src/lib/db');
     const event = {
@@ -294,6 +310,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('33 expired family limited API gate', async () => {
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const billingSnap = await enablePublicBillingForTest();
     delete require.cache[require.resolve('../app')];
     delete require.cache[require.resolve('../src/lib/db')];
     const { createApp } = require('../app');
@@ -308,6 +325,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       assert.equal(body.code, 'PREMIUM_REQUIRED');
     } finally {
       await http.close();
+      await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
     }
   });
@@ -333,6 +351,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(resolved.premium.active, false);
 
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const billingSnap = await enablePublicBillingForTest();
     process.env.REVENUECAT_SECRET_API_KEY = 'test-rc-secret';
     const originalFetch = global.fetch;
     global.fetch = async (url, init) => {
@@ -384,6 +403,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       global.fetch = originalFetch;
       delete process.env.REVENUECAT_SECRET_API_KEY;
       await http.close();
+      await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
     }
   });
@@ -518,9 +538,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       const dailyLogRes = await fetch(`${http.baseUrl}/api/me/daily-log`, {
         headers: { Cookie: cookieHeader(childCookies) },
       });
-      assert.equal(dailyLogRes.status, 402);
-      const body = JSON.parse(await dailyLogRes.text());
-      assert.equal(body.code, 'PREMIUM_REQUIRED');
+      assert.equal(dailyLogRes.status, 200, await dailyLogRes.text());
     } finally {
       await http.close();
       await setPaymentStart('2026-10-01T00:00:00+02:00');

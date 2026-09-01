@@ -14,6 +14,13 @@ const {
 const { getMarketConfig } = require('../lib/market-config');
 const { resolveLegalRoutes } = require('../lib/legal-routing');
 const { REGISTRATION_COUNTRIES } = require('../../config/market-countries');
+const { isEnglishAppGlobalEnabled } = require('../lib/english-app-global-flag');
+const {
+  isPublicBillingUsable,
+  evaluateSignupCompleteness,
+} = require('../lib/market-launch-invariants');
+const { getPaymentStartAt, getPaymentStartAtForCountry } = require('../lib/payment-settings');
+const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 
 const router = express.Router();
 
@@ -22,6 +29,7 @@ router.get('/registration-gates', async (req, res) => {
   try {
     const [
       se, ie, fi, no, dk, eu, uk, us, other,
+      publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
@@ -32,7 +40,31 @@ router.get('/registration-gates', async (req, res) => {
       isMarketOpenForRegistration('GB'),
       isMarketOpenForRegistration('US'),
       isMarketOpenForRegistration('ZZ'),
+      isPublicBillingUsable(),
+      getPaymentStartAt(),
+      getPaymentStartAtForCountry('IE'),
+      getPaymentStartAtForCountry('FI'),
+      isEnglishAppGlobalEnabled(),
     ]);
+    const now = new Date();
+    const paymentStartByCountry = {
+      SE: sePaymentStartAt,
+      IE: iePaymentStartAt,
+      FI: fiPaymentStartAt,
+    };
+    const signupAllowed = {};
+    for (const [code, open] of [
+      ['SE', se], ['IE', ie], ['FI', fi], ['NO', no], ['DK', dk],
+      ['DE', eu], ['GB', uk], ['US', us], ['ZZ', other],
+    ]) {
+      signupAllowed[code] = evaluateSignupCompleteness({
+        countryCode: code,
+        marketOpen: open,
+        publicBillingUsable,
+        paymentStartAt: paymentStartByCountry[code],
+        now,
+      }).allowed;
+    }
     res.json({
       market_se_open: se,
       market_ie_open: ie,
@@ -43,6 +75,19 @@ router.get('/registration-gates', async (req, res) => {
       market_uk_open: uk,
       market_us_open: us,
       market_other_open: other,
+      public_billing_usable: publicBillingUsable,
+      english_available: englishAvailable,
+      signup_allowed: signupAllowed,
+      launch_state: resolvePublicLaunchStates({
+        signupAllowedByCountry: signupAllowed,
+        publicBillingUsable,
+        countryCodes: ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
+      }),
+      payment_start_at: {
+        SE: sePaymentStartAt ? sePaymentStartAt.toISOString() : null,
+        IE: iePaymentStartAt ? iePaymentStartAt.toISOString() : null,
+        FI: fiPaymentStartAt ? fiPaymentStartAt.toISOString() : null,
+      },
     });
   } catch (err) {
     console.error('[MARKET] registration-gates error:', err);

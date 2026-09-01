@@ -13,6 +13,7 @@ const {
   getStrictSandboxFamilyAllowlist,
 } = require('./iap-sandbox-allowlist');
 const { envBillingUiDisabled } = require('./billing-ui');
+const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
 
 function envTruthy(name) {
   const v = process.env[name];
@@ -26,7 +27,7 @@ function webhookAuthConfigured() {
   );
 }
 
-function getIapReadinessSnapshot() {
+async function getIapReadinessSnapshot() {
   const webhook = getIapWebhookReadiness();
   const { ids, invalidEntries } = getStrictSandboxFamilyAllowlist();
   const iosKey = !!getPublicSdkKeyForPlatform('ios');
@@ -36,7 +37,7 @@ function getIapReadinessSnapshot() {
   const sandboxFlag = isSandboxPurchasesFlagEnabled();
   const sandboxReady = sandboxFlag && ids.size > 0 && invalidEntries.length === 0 && iosKey && androidKey;
 
-  const globalPurchasesRolloutReady = false;
+  const globalPurchasesRolloutReady = await isIapPaidRolloutReady();
 
   return {
     iap_webhook_ready: webhook.webhookReady,

@@ -2,6 +2,7 @@
 
 const appSettings = require('../../db/app-settings');
 const { isBillingUiEnabled, envBillingUiDisabled } = require('./billing-ui');
+const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
 const {
   isSandboxPurchasesFlagEnabled,
   normalizeFamilyId,
@@ -12,7 +13,8 @@ const {
 /**
  * Native StoreKit / Play Billing (via RevenueCat SDK).
  *
- * General (non-sandbox) families: fail closed until global rollout (payment_enabled + billing UI).
+ * General (non-sandbox) families: fail closed until global rollout
+ * (payment_enabled + billing UI + iap_paid_rollout_ready).
  * Sandbox QA: requires REVENUECAT_SANDBOX_PURCHASES_ENABLED + strict UUID allowlist.
  *
  * @param {string | null | undefined} familyId
@@ -47,6 +49,9 @@ async function getNativePurchaseEligibility(familyId, opts = {}) {
   const paymentEnabled = await appSettings.getPaymentEnabled();
   if (!paymentEnabled) {
     return { allowed: false, reason: 'payment_disabled' };
+  }
+  if (!(await isIapPaidRolloutReady())) {
+    return { allowed: false, reason: 'paid_rollout_not_ready' };
   }
 
   return { allowed: true, reason: 'global_rollout' };

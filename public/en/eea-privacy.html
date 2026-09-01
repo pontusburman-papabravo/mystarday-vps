@@ -82,10 +82,6 @@
         <h1>EEA Privacy Notice</h1>
         <p class="updated">Last updated: August 2026</p>
 
-        <div class="review-notice" role="status">
-            <p>Version 0.1 (August 2026). Internal compliance sign-off — not externally legally verified.</p>
-        </div>
-
         <div class="highlight-box">
             <p>We care about your privacy. My Starday collects only what is needed to run the service. We do not sell your information. Sharing outside the service happens only when you actively choose it (for example, professional share links) or when required for operation through our processors. Optional analytics and marketing run only with your consent.</p>
         </div>
@@ -174,8 +170,8 @@
             <li><strong>Meta (Facebook Pixel)</strong> (optional, consent-gated) &mdash; marketing measurement (United States when enabled; Meta Data Processing Terms + EU transfer addendum; off by default).</li>
             <li><strong>Google Ads</strong> (optional, consent-gated) &mdash; conversion measurement (United States when enabled; off by default).</li>
         </ul>
-        <p><strong>Not currently active on prod VPS:</strong> Neon database hosting (our live database runs on the VPS above, not Neon). RevenueCat subscription sync and Google FCM push are configured in code but not enabled on our prod server until native in-app purchase rollout; when enabled, RevenueCat will process subscription entitlement data under its DPA including EU SCCs, and store billing remains via Apple App Store / Google Play.</p>
-        <p>Vendor data processing agreements and transfer mechanisms are documented in our internal compliance registers. This notice reflects verified prod VPS configuration as of August 2026.</p>
+        <p><strong>RevenueCat</strong> processes subscription entitlement data (Apple App Store / Google Play as merchant of record) under RevenueCat&rsquo;s DPA including EU SCCs. Paid public rollout may still be off even when entitlement sync is configured. <strong>Not currently active:</strong> Neon database hosting (live database runs on the VPS above) and Google FCM push.</p>
+        <p>Vendor processing is described above. For broader privacy information, see this notice in full and our <a href="/en/tracking-choices">tracking choices</a> page.</p>
 
         <h2>Push notifications</h2>
         <p>If you enable push notifications, we store a device token linked to your account to deliver notifications to the correct device. Tokens are removed when you log out or when the platform reports the token is invalid (for example, after uninstalling the app). You can disable notifications in <strong>Settings &rarr; Push notifications</strong> or in your device system settings.</p>
@@ -224,7 +220,7 @@
         </ul>
 
         <h2>Security</h2>
-        <p>We aim to host core application data in the EU/EEA where applicable. Some service providers may process data outside the EEA; international transfers and applicable safeguards are described below and are being verified before Ireland launch. We use encrypted connections (HTTPS) and industry-standard practices. Passwords and PINs are stored using bcrypt hashing. Child-scoped API access is enforced on the server. Destructive parent actions require CSRF protection.</p>
+        <p>We aim to host core application data in the EU/EEA where applicable. Some service providers may process data outside the EEA; international transfers and applicable safeguards are described in the processors section above. We use encrypted connections (HTTPS) and industry-standard practices. Passwords and PINs are stored using bcrypt hashing. Child-scoped API access is enforced on the server. Destructive parent actions require CSRF protection.</p>
 
         <h2>Your rights under GDPR</h2>
         <p>If you are in the EEA, you have the following rights regarding your personal data:</p>
@@ -235,15 +231,13 @@
             <li><strong>Restriction and objection</strong> &mdash; contact us if you wish to restrict or object to certain processing</li>
             <li><strong>Data portability</strong> &mdash; receive your data in a structured format via export</li>
             <li><strong>Withdraw consent</strong> &mdash; for optional analytics and marketing at any time via the cookie banner or Settings</li>
-            <li><strong>Complaint to a supervisory authority</strong> &mdash; see the Ireland section below</li>
+            <li><strong>Complaint to a supervisory authority</strong> &mdash; you may lodge a complaint with your national supervisory authority in the EEA. Irish residents: see the Ireland section below</li>
         </ul>
         <p>To exercise any right, use in-app settings where available or contact us via the <a href="/en/contact">contact form</a>.</p>
 
         <h2>Ireland</h2>
         <p>If you are in Ireland, you have the right to lodge a complaint with the <strong>Data Protection Commission (DPC)</strong>, the Irish supervisory authority for data protection. Visit <a href="https://www.dataprotection.ie/" rel="noopener noreferrer">dataprotection.ie</a> for contact details and guidance.</p>
-        <div class="review-notice" style="margin-top: 1rem;">
-            <p>Papa Bravo AB is established in Sweden. Integritetsskyddsmyndigheten (IMY) is our lead supervisory authority for cross-border processing. If you are in Ireland, you may also lodge a complaint with the Data Protection Commission (DPC).</p>
-        </div>
+        <p>Papa Bravo AB is established in Sweden. Integritetsskyddsmyndigheten (IMY) is our lead supervisory authority for cross-border processing. If you are in Ireland, you may also lodge a complaint with the Data Protection Commission (DPC). Families elsewhere in the EEA may lodge a complaint with their own national supervisory authority.</p>
 
         <h2>Related documents</h2>
         <ul>

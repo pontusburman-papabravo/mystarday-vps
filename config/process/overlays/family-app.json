@@ -86,6 +86,8 @@
       "pathGlobs": [
         "src/routes/iap.js",
         "config/iap-product-contract.js",
+        "src/lib/storefront-billing-evidence.js",
+        "docs/ie-fi-billing-external-matrix.md",
         "config/subscription-components.js",
         "public/js/iap*.js",
         "public/js/paywall*.js",
@@ -106,7 +108,11 @@
         "test/payments*.test.js",
         "test/billing*.test.js",
         "test/limited-account-paywall*.test.js",
-        "test/review-subscription*.test.js"
+        "test/review-subscription*.test.js",
+        "test/prebilling-launch-access.test.js",
+        "test/prebilling-market-e2e.test.js",
+        "test/paid-transition.test.js",
+        "test/paid-transition-simulation.test.js"
       ]
     },
     "i18n-markets-legal": {
@@ -136,7 +142,12 @@
         "test/cookie*.test.js",
         "test/eea-launch*.test.js",
         "test/english-app*.test.js",
-        "test/grandfather-country*.test.js"
+        "test/grandfather-country*.test.js",
+        "test/prebilling-launch-access.test.js",
+        "test/prebilling-market-e2e.test.js",
+        "test/public-launch-state.test.js",
+        "test/paid-transition.test.js",
+        "test/paid-transition-simulation.test.js"
       ]
     },
     "planning-schedule": {
@@ -202,7 +213,8 @@
         "test/skattkammaren*.test.js",
         "test/fas-4a-daily-child-ux.test.js",
         "test/child-treasure*.test.js",
-        "test/child-substep*.test.js"
+        "test/child-substep*.test.js",
+        "test/prebilling-market-e2e.test.js"
       ]
     },
     "parent-experience": {

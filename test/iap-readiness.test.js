@@ -5,8 +5,8 @@ const assert = require('node:assert/strict');
 const { getIapReadinessSnapshot } = require('../src/lib/iap-readiness');
 const { WEBHOOK_PRODUCT_IDS } = require('../config/iap-product-contract');
 
-test('iap readiness snapshot exposes boolean signals only', () => {
-  const snap = getIapReadinessSnapshot();
+test('iap readiness snapshot exposes boolean signals only', async () => {
+  const snap = await getIapReadinessSnapshot();
   assert.equal(typeof snap.iap_webhook_ready, 'boolean');
   assert.equal(snap.iap_paid_rollout_ready, false);
   assert.equal(typeof snap.iap_readiness.webhook_auth_configured, 'boolean');

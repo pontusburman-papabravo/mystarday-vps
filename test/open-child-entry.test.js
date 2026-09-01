@@ -35,7 +35,7 @@ describe('open-child semantic entry', () => {
           assert.equal(res.status, 200);
           const html = await res.text();
           assert.match(html, /Fortsätt i webbläsaren/);
-          assert.match(html, /apple\.co\//);
+          assert.match(html, /apps\.apple\.com\/app\/id|apple\.co\//);
           assert.match(html, /play\.google\.com/);
           assert.match(html, /open-child-entry\.js/);
           assert.match(html, /app-entry-orchestrator\.js/);
@@ -77,7 +77,7 @@ describe('open-child semantic entry', () => {
     const html = renderOpenChildPage();
     assert.doesNotMatch(html, /__APPLE_STORE_URL__/);
     assert.doesNotMatch(html, /__PLAY_STORE_URL__/);
-    assert.match(html, /apple\.co\//);
+    assert.match(html, /apps\.apple\.com\/app\/id|apple\.co\//);
     assert.match(html, /play\.google\.com/);
   });
 });

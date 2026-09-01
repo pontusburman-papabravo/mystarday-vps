@@ -8,8 +8,17 @@ const entitlementsDb = require('../../db/family-entitlements');
 const familySubscriptions = require('../../db/family-subscriptions');
 const { PREMIUM_ENTITLEMENT_KEY, PREMIUM_V1_COMPONENTS } = require('../../config/entitlements');
 const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY, planFromStoreProductId } = require('../../config/iap-product-contract');
-const { getPaymentStartAt, isFamilyEligibleForGrandfathering } = require('./payment-settings');
+const {
+  getPaymentStartAt,
+  getPaymentStartAtForCountry,
+  isFamilyEligibleForGrandfathering,
+  isFamilyEligibleForPrebillingAccess,
+  isPrebillingAccessActive,
+} = require('./payment-settings');
+const { isPublicBillingUsable } = require('./market-launch-invariants');
 const { appendPaymentAudit } = require('./payment-audit');
+const { attachPaidTransition } = require('./paid-transition');
+const { normalizeCountryCode } = require('./market-region');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
 const ACTIVE_STORE_STATUSES = new Set(['trial', 'active', 'grace_period']);
@@ -65,6 +74,7 @@ function buildPremiumFromRow(row) {
   if (isGrandfathered) label = 'Premium ingår permanent';
   else if (row.source === 'gift') label = 'Premium – presentkort';
   else if (trial) label = 'Premium – gratis provperiod';
+  else if (row.source === 'prebilling') label = 'Premium – lanseringsperiod';
   else if (row.source === 'apple') label = plan === 'yearly' ? 'Premium – årsabonnemang via Apple' : 'Premium – månadsabonnemang via Apple';
   else if (row.source === 'google') label = plan === 'yearly' ? 'Premium – årsabonnemang via Google Play' : 'Premium – månadsabonnemang via Google Play';
   else if (row.status === 'grace_period') label = 'Premium – betalning behöver uppdateras';
@@ -84,6 +94,30 @@ function buildPremiumFromRow(row) {
     entitlement_row_id: row.id,
     metadata: meta,
   };
+}
+
+function buildPrebillingPremium(familyCreatedAt, paymentStartAt) {
+  const expiresAt = paymentStartAt instanceof Date ? paymentStartAt : new Date(paymentStartAt);
+  return {
+    active: true,
+    source: 'prebilling',
+    status: 'active',
+    starts_at: familyCreatedAt || null,
+    expires_at: expiresAt,
+    is_grandfathered: false,
+    store: null,
+    plan: null,
+    trial: false,
+    limited_account: false,
+    label: 'Premium – lanseringsperiod',
+  };
+}
+
+function accessKindFromPremium(premium) {
+  if (!premium || !premium.active) return 'limited';
+  if (premium.is_grandfathered || premium.source === 'grandfathered') return 'grandfathered';
+  if (premium.source === 'prebilling') return 'prebilling';
+  return 'paid';
 }
 
 function pickWinner(rows, nowMs) {
@@ -109,16 +143,17 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   const { client = null } = opts;
   const q = client ? client.query.bind(client) : db.query.bind(db);
   const nowMs = now.getTime();
-  const [rows, paymentStartAt, familyRow] = await Promise.all([
+  const [rows, familyRow, publicBillingUsable] = await Promise.all([
     entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client }),
-    getPaymentStartAt(),
     q('SELECT id, created_at, is_lifetime_free, country_code FROM family WHERE id = $1', [familyId])
       .then((r) => r.rows[0] || null),
+    isPublicBillingUsable(),
   ]);
 
   let workingRows = rows;
 
-  const familyCountryCode = familyRow?.country_code || 'SE';
+  const familyCountryCode = normalizeCountryCode(familyRow?.country_code);
+  const paymentStartAt = await getPaymentStartAtForCountry(familyCountryCode);
 
   // Lazy grandfather for pre-cutoff SE families missing row (should not happen post-migration)
   if (
@@ -139,6 +174,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
 
   const winner = pickWinner(workingRows, nowMs);
   const premium = winner ? buildPremiumFromRow(winner) : emptyPremium();
+  const paymentStartIso = paymentStartAt ? paymentStartAt.toISOString() : null;
 
   if (
     !premium.active &&
@@ -149,32 +185,64 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
       paymentStartAt,
     })
   ) {
-    // Safety net — cutoff families must never lose access
-    return {
-      premium: {
-        ...buildPremiumFromRow({
-          source: 'grandfathered',
-          status: 'grandfathered',
-          granted_at: familyRow.created_at,
-          starts_at: familyRow.created_at,
-          expires_at: null,
-          metadata: { computed_fallback: true },
-        }),
-      },
-      payment_start_at: paymentStartAt.toISOString(),
-    };
+    // Safety net — SE cutoff families must never lose access
+    const computed = buildPremiumFromRow({
+      source: 'grandfathered',
+      status: 'grandfathered',
+      granted_at: familyRow.created_at,
+      starts_at: familyRow.created_at,
+      expires_at: null,
+      metadata: { computed_fallback: true },
+    });
+    return attachPaidTransition({
+      premium: computed,
+      payment_start_at: paymentStartIso,
+      requires_paywall: false,
+      access_kind: 'grandfathered',
+    }, { now, publicBillingUsable });
   }
 
-  return {
+  if (
+    !premium.active &&
+    familyRow &&
+    isPrebillingAccessActive({
+      countryCode: familyCountryCode,
+      createdAt: familyRow.created_at,
+      paymentStartAt,
+      now,
+      publicBillingUsable,
+    })
+  ) {
+    const computed = buildPrebillingPremium(familyRow.created_at, paymentStartAt);
+    return attachPaidTransition({
+      premium: computed,
+      payment_start_at: paymentStartIso,
+      requires_paywall: false,
+      access_kind: 'prebilling',
+    }, { now, publicBillingUsable });
+  }
+
+  return attachPaidTransition({
     premium,
-    payment_start_at: paymentStartAt.toISOString(),
-    requires_paywall: !premium.active && familyRow &&
+    payment_start_at: paymentStartIso,
+    requires_paywall: Boolean(
+      !premium.active &&
+      familyRow &&
       !isFamilyEligibleForGrandfathering({
         countryCode: familyCountryCode,
         createdAt: familyRow.created_at,
         paymentStartAt,
-      }),
-  };
+      }) &&
+      !isPrebillingAccessActive({
+        countryCode: familyCountryCode,
+        createdAt: familyRow.created_at,
+        paymentStartAt,
+        now,
+        publicBillingUsable,
+      })
+    ),
+    access_kind: accessKindFromPremium(premium),
+  }, { now, publicBillingUsable });
 }
 
 async function hasPremiumAccess(familyId, now = new Date()) {
@@ -187,6 +255,15 @@ async function syncLegacyFamilyMirror(familyId, premium, { client = null } = {})
   if (premium.is_grandfathered || premium.source === 'grandfathered') {
     await q(
       `UPDATE family SET is_lifetime_free = true, subscription_status = 'none', updated_at = NOW()
+       WHERE id = $1`,
+      [familyId]
+    );
+    return;
+  }
+
+  if (premium.source === 'prebilling') {
+    await q(
+      `UPDATE family SET is_lifetime_free = false, subscription_status = 'none', updated_at = NOW()
        WHERE id = $1`,
       [familyId]
     );
@@ -232,6 +309,7 @@ async function syncSubscriptionComponentsMirror(familyId, premium, { client = nu
 
   let tier = 'expired';
   if (premium.is_grandfathered) tier = 'lifetime_free';
+  else if (premium.source === 'prebilling') tier = 'trial';
   else if (premium.active && premium.trial) tier = 'trial';
   else if (premium.active && premium.source === 'gift') tier = 'paid';
   else if (premium.active) tier = 'paid';
@@ -262,10 +340,40 @@ async function syncMirrorsFromResolver(familyId, opts = {}) {
   return premium;
 }
 
-async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = 'SE' } = {}) {
+async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, { client = null } = {}) {
+  const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
+    client,
+    countryCode,
+  });
+  if (grandfatherRow) {
+    return { kind: 'grandfathered', row: grandfatherRow };
+  }
+
+  const paymentStartAt = await getPaymentStartAtForCountry(countryCode);
+  if (isFamilyEligibleForPrebillingAccess({
+    countryCode,
+    createdAt: familyCreatedAt,
+    paymentStartAt,
+  })) {
+    const premium = buildPrebillingPremium(familyCreatedAt, paymentStartAt);
+    await syncAllLegacyMirrors(familyId, premium, { client });
+    return { kind: 'prebilling', premium };
+  }
+
+  await syncAllLegacyMirrors(familyId, emptyPremium(), { client });
+  return { kind: 'limited' };
+}
+
+async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = null, countryCode = null } = {}) {
+  let resolvedCountry = countryCode;
+  if (resolvedCountry == null || resolvedCountry === '') {
+    const q = client ? client.query.bind(client) : db.query.bind(db);
+    const fam = await q('SELECT country_code FROM family WHERE id = $1', [familyId]);
+    resolvedCountry = fam.rows[0] ? fam.rows[0].country_code : null;
+  }
   const paymentStartAt = await getPaymentStartAt();
   if (!isFamilyEligibleForGrandfathering({
-    countryCode,
+    countryCode: resolvedCountry,
     createdAt: familyCreatedAt,
     paymentStartAt,
   })) {
@@ -390,7 +498,10 @@ module.exports = {
   syncSubscriptionComponentsMirror,
   syncAllLegacyMirrors,
   syncMirrorsFromResolver,
+  syncCreatedFamilyAccessMirrors,
   grantGrandfatheredOnCreate,
+  buildPrebillingPremium,
+  accessKindFromPremium,
   grantAdminPremium,
   applyStoreEntitlementFromWebhook,
   buildPremiumFromRow,

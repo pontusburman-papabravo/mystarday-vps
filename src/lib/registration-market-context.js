@@ -9,12 +9,11 @@ const { resolveAuthApiLocale, authApiMessage } = require('./auth-api-messages');
 const { SELECTION_SOURCES, OFFER_STATES } = require('./locale-selection');
 const {
   resolveRegistrationCountry,
-  isMarketOpenForRegistration,
   isKnownRegistrationCountryCode,
   normalizeCountryCode,
-  marketClosedCode,
 } = require('./market-region');
 const { getMarketConfig } = require('./market-config');
+const { evaluatePublicSignupReadiness } = require('./market-launch-invariants');
 
 /**
  * @param {import('express').Request} req
@@ -81,18 +80,18 @@ function resolveNewAccountRegistrationContext(req, body = {}, opts = {}) {
 }
 
 async function assertRegistrationMarketOpen(countryCode, familyLocale) {
-  const marketOpen = await isMarketOpenForRegistration(countryCode);
-  if (marketOpen) {
-    return { ok: true };
+  const readiness = await evaluatePublicSignupReadiness(countryCode);
+  if (readiness.allowed) {
+    return { ok: true, readiness };
   }
-  const code = marketClosedCode(countryCode);
   return {
     ok: false,
     status: 403,
     body: {
-      error: authApiMessage(familyLocale, `errors.marketClosed.${code}`),
-      code,
+      error: authApiMessage(familyLocale, `errors.marketClosed.${readiness.code}`),
+      code: readiness.code,
       country_code: countryCode,
+      reason: readiness.reason,
     },
   };
 }

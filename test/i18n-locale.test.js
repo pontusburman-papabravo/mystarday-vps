@@ -31,6 +31,22 @@ describe('locale normalization', () => {
     assert.equal(normalizeLocale(''), null);
   });
 
+  it('maps every Finnish tag to sv-SE (no Finnish locale exists)', () => {
+    assert.equal(normalizeLocale('fi'), 'sv-SE');
+    assert.equal(normalizeLocale('fi-FI'), 'sv-SE');
+    assert.equal(normalizeLocale('fi-fi'), 'sv-SE');
+    assert.equal(normalizeLocale('fi_FI'), 'sv-SE');
+    assert.equal(normalizeLocale('fi_fi'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi-FI'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi_FI'), 'sv-SE');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'sv-SE');
+    assert.equal(SUPPORTED_LOCALES.includes('fi'), false);
+    assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), false);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+  });
+
   it('validateLocale falls back to sv-SE', () => {
     assert.equal(validateLocale('bogus'), DEFAULT_LOCALE);
     assert.equal(validateLocale('en-GB'), 'en-GB');
