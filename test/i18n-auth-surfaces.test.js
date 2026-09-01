@@ -165,6 +165,9 @@ describe('auth i18n — locale bundles', () => {
       'auth.register.successTitle',
       'auth.api.errors.userNotFound',
       'auth.api.errors.invalidResetLink',
+      'auth.login.oauthCountry.title',
+      'auth.login.oauthCountry.body',
+      'auth.login.oauthCountry.continue',
     ];
     for (const key of keys) {
       const sv = t('sv-SE', key);

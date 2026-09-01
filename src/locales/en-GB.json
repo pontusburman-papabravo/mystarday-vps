@@ -118,6 +118,13 @@
         "wrongPassword": "Incorrect password.",
         "failed": "Linking failed."
       },
+      "oauthCountry": {
+        "title": "One more step",
+        "body": "New accounts need a country so we can show the right terms. Sweden is the currently available market.",
+        "continue": "Continue",
+        "continuing": "Continuing…",
+        "retryFailed": "Something went wrong. Please try again."
+      },
       "apple": {
         "unavailable": "Apple sign-in is not available right now. Try again or sign in with email.",
         "notEnabled": "Apple sign-in is not enabled. Update the app to the latest version.",

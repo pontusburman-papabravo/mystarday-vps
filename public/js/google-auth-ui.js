@@ -172,8 +172,8 @@
   }
 
   async function handleGoogleLogin(opts) {
-    if (!window.Platform || !Platform.googleSignIn) return;
     opts = opts || {};
+    if (!opts.existingIdToken && (!window.Platform || !Platform.googleSignIn)) return;
     const errEl = opts.errorEl || document.getElementById('googleLoginError') || document.getElementById('googleRegisterError');
     if (errEl) {
       errEl.style.display = 'none';
@@ -181,6 +181,9 @@
       if (errEl.classList) errEl.classList.add('hidden');
     }
     dismissGoogleLinking();
+    if (!opts.existingIdToken && window.LoginOAuthCountry && typeof LoginOAuthCountry.hide === 'function') {
+      LoginOAuthCountry.hide();
+    }
 
     if (pageKind() === 'register') {
       var countryOk = false;
@@ -205,19 +208,24 @@
     }
 
     const btn = opts.buttonEl || document.getElementById('googleLoginBtn') || document.getElementById('googleRegisterBtn');
-    setGoogleBtnLoading(btn, true);
+    if (!opts.existingIdToken) setGoogleBtnLoading(btn, true);
     if (window.AppEntry && typeof AppEntry.trackAuthMethod === 'function') {
       AppEntry.trackAuthMethod('google');
     }
 
     try {
-      const result = await Platform.googleSignIn.signIn();
-      if (!result || !result.idToken) return;
+      let idToken = opts.existingIdToken || null;
+      if (!idToken) {
+        if (!window.Platform || !Platform.googleSignIn) return;
+        const result = await Platform.googleSignIn.signIn();
+        if (!result || !result.idToken) return;
+        idToken = result.idToken;
+      }
 
       const attr =
         (window.UtmCapture && UtmCapture.toRegisterFields && UtmCapture.toRegisterFields()) || {};
       const googleBody = Object.assign(
-        { idToken: result.idToken },
+        { idToken: idToken },
         attr,
         {
           referral_code:
@@ -238,7 +246,18 @@
       });
       const data = await res.json().catch(function () { return {}; });
 
+      if (pageKind() === 'login' && window.LoginOAuthCountry && LoginOAuthCountry.isCountryRequired(res.status, data)) {
+        LoginOAuthCountry.reveal({ provider: 'google', idToken: idToken });
+        return;
+      }
+      if (pageKind() === 'login' && window.LoginOAuthCountry && LoginOAuthCountry.isMarketClosed(res.status, data)) {
+        LoginOAuthCountry.reveal({ provider: 'google', idToken: idToken });
+        LoginOAuthCountry.showServerError(data.error || t('auth.login.oauthCountry.retryFailed'));
+        return;
+      }
+
       if (res.ok && data.user) {
+        if (window.LoginOAuthCountry) LoginOAuthCountry.clearPending();
         if (window.AppEntry && typeof AppEntry.trackAuthSuccess === 'function') {
           AppEntry.trackAuthSuccess('google');
         }
@@ -249,7 +268,7 @@
         }
         if (pageKind() === 'login' && document.getElementById('googleLinkingPrompt')) {
           _googlePendingEmail = data.email || '';
-          _googlePendingIdToken = result.idToken;
+          _googlePendingIdToken = idToken;
           showGoogleLinkingPrompt();
         } else {
           showErr(errEl, t('auth.login.google.emailConflictSettings'));
@@ -268,7 +287,7 @@
       }
       showErr(errEl, msg || t('auth.login.google.signInFailed'));
     } finally {
-      setGoogleBtnLoading(btn, false);
+      if (!opts.existingIdToken) setGoogleBtnLoading(btn, false);
     }
   }
 
@@ -316,6 +335,12 @@
   window.closeGoogleLinkModal = closeGoogleLinkModal;
   window.submitGoogleLink = submitGoogleLink;
   window.dismissGoogleLinking = dismissGoogleLinking;
+
+  if (window.LoginOAuthCountry && typeof LoginOAuthCountry.registerRetry === 'function') {
+    LoginOAuthCountry.registerRetry('google', function retryGoogleAfterCountry(pending) {
+      return handleGoogleLogin({ existingIdToken: pending && pending.idToken });
+    });
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initButtons);

@@ -118,6 +118,13 @@
         "wrongPassword": "Fel lösenord.",
         "failed": "Länkning misslyckades."
       },
+      "oauthCountry": {
+        "title": "Ett steg till",
+        "body": "Nya konton behöver ett land så att vi kan visa rätt villkor. Just nu är Sverige den tillgängliga marknaden.",
+        "continue": "Fortsätt",
+        "continuing": "Fortsätter…",
+        "retryFailed": "Något gick fel. Försök igen."
+      },
       "apple": {
         "unavailable": "Apple-inloggning är inte tillgänglig just nu. Försök igen eller logga in med e-post.",
         "notEnabled": "Apple-inloggning är inte aktiverad. Uppdatera appen till senaste versionen.",
