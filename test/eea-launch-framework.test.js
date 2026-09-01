@@ -79,8 +79,10 @@ test('market_ie_open ON + billing OFF accepts IE during prebilling window', asyn
     return;
   }
   const pg = require('../src/lib/db');
+  const appSettings = require('../db/app-settings');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+  await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -217,8 +219,10 @@ test('market_fi_open ON + billing OFF accepts FI during prebilling window', asyn
     return;
   }
   const pg = require('../src/lib/db');
+  const appSettings = require('../db/app-settings');
   await setMarketFlag(pg, 'market_fi_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
+  await appSettings.upsertSetting('market_fi_payment_start_at', '2026-10-15');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);

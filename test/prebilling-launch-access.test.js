@@ -151,6 +151,8 @@ test('resolver + API transition matrix', async (t) => {
     '../src/lib/db',
     '../db/app-settings',
     '../src/lib/billing-ui',
+    '../src/lib/iap-paid-rollout',
+    '../src/lib/market-launch-invariants',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
     '../src/lib/payment-audit',

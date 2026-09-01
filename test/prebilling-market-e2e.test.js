@@ -85,13 +85,25 @@ function reloadRuntimeModules() {
     '../src/lib/db',
     '../db/app-settings',
     '../src/lib/billing-ui',
+    '../src/lib/iap-paid-rollout',
+    '../src/lib/market-region',
+    '../src/lib/market-launch-invariants',
+    '../src/lib/registration-market-context',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
     '../src/lib/payment-audit',
     '../src/lib/family-entitlements',
+    '../src/routes/auth/register',
+    '../src/routes/market',
+    '../src/routes/family',
+    '../src/middleware/require-premium',
     '../app',
   ]) {
-    delete require.cache[require.resolve(mod)];
+    try {
+      delete require.cache[require.resolve(mod)];
+    } catch {
+      // optional
+    }
   }
 }
 

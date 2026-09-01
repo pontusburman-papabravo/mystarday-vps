@@ -79,35 +79,47 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       failures.push(`${code} legal status is ${legal.status}, expected live`);
     }
 
-    const countryPaymentStart = paymentSettings.DEFAULT_PREBILLING_PAYMENT_START_AT;
-    const beforePaidStart = new Date('2026-09-01T00:00:00+02:00');
-    const afterPaidStart = new Date('2026-10-20T00:00:00+02:00');
+    // Fixture instant only — no committed commercial IE/FI paid-start date.
+    const fixturePaymentStart = '2026-10-15T00:00:00Z';
+    const beforePaidStart = new Date('2026-09-01T00:00:00Z');
+    const afterPaidStart = new Date('2026-10-16T00:00:00Z');
 
     const closed = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: false,
       publicBillingUsable: true,
-      paymentStartAt: countryPaymentStart,
+      paymentStartAt: fixturePaymentStart,
       now: beforePaidStart,
     });
     if (closed.allowed) failures.push(`${code} signup allowed while market closed`);
+
+    const missingStart = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: null,
+      now: beforePaidStart,
+    });
+    if (missingStart.allowed) {
+      failures.push(`${code} signup allowed with missing payment start (must fail closed)`);
+    }
 
     const openPrebillingNoBilling = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: countryPaymentStart,
+      paymentStartAt: fixturePaymentStart,
       now: beforePaidStart,
     });
     if (!openPrebillingNoBilling.allowed) {
-      failures.push(`${code} prebilling signup blocked while billing off — launch window must allow signup`);
+      failures.push(`${code} prebilling signup blocked while billing off — configured launch window must allow signup`);
     }
 
     const openAfterPaidStartNoBilling = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: countryPaymentStart,
+      paymentStartAt: fixturePaymentStart,
       now: afterPaidStart,
     });
     if (openAfterPaidStartNoBilling.allowed) {
@@ -149,7 +161,7 @@ function runLaunchReadyMarketChecks(repoRoot) {
     summary:
       status === STATUS.FAIL
         ? 'IE/FI are not launch-ready-but-closed, or a gate default would open them unexpectedly.'
-        : 'IE/FI stay closed by default, have live legal/config, allow prebilling signup, and block post-cutoff signup without billing.',
+        : 'IE/FI stay closed by default, have live legal/config, fail closed without a configured paid start, allow prebilling signup when a start is set, and block post-cutoff signup without billing.',
     evidence: { checks },
   };
 }
