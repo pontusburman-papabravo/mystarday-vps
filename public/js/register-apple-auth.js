@@ -1,6 +1,7 @@
 /**
- * Account-creation Sign in with Apple preflight.
- * Login uses handleAppleLogin in login.html and is intentionally unchanged.
+ * Account-creation Sign in with Apple preflight (register page).
+ * Login does not preflight country (existing users must still sign in).
+ * New accounts from login recover via login-oauth-country.js.
  */
 (function () {
   'use strict';

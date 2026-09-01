@@ -46,13 +46,16 @@
   <script src="/js/i18n.js?v=2.12.0"></script>
   <script src="/js/login-locale.js?v=2"></script>
   <script src="/js/oauth-registration-payload.js?v=1"></script>
+  <script src="/js/market-countries-data.js?v=1"></script>
+  <script src="/js/country-choice.js?v=5"></script>
+  <script src="/js/login-oauth-country.js?v=1"></script>
   <script src="/js/locale-switcher.js?v=4"></script>
   <script src="/js/auth-entry-i18n.js?v=2"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
   <script src="/js/app-entry.js?v=286"></script>
   <script src="/js/login-magic.js?v=157"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
-  <script src="/js/google-auth-ui.js?v=2026-08-30" defer></script>
+  <script src="/js/google-auth-ui.js?v=2026-09-01" defer></script>
   <style>
     #auth-entry-fallback { display: none !important; pointer-events: none !important; }
     /* WCAG 2.5.8: min 44×44px touch target */
@@ -243,7 +246,7 @@
           </button>
           <p class="ios-caption" data-i18n="auth.login.apple_caption"></p>
 
-          <!-- Apple error -->
+          <!-- Apple error — not used for COUNTRY_REQUIRED (login OAuth country panel) -->
           <div id="appleLoginError" class="magic-error-box" style="display:none;margin-top:12px;"></div>
 
           <!-- Apple linking prompt -->
@@ -331,6 +334,14 @@
           </div>
 
           <div class="magic-divider" style="margin:18px 0;"><span data-i18n="auth.login.orDivider"></span></div>
+        </div>
+
+        <div id="loginOAuthCountryPanel" hidden data-country-choice-gate="login-oauth">
+          <p class="login-oauth-country__title" data-i18n="auth.login.oauthCountry.title">One more step</p>
+          <p class="login-oauth-country__body" data-i18n="auth.login.oauthCountry.body">New accounts need a country so we can show the right terms. Sweden is the currently available market.</p>
+          <div data-country-choice-mount></div>
+          <p id="loginOAuthCountryServerError" class="login-oauth-country__server-error" hidden role="alert"></p>
+          <button type="button" id="loginOAuthCountryContinue" class="login-oauth-country__continue" data-i18n="auth.login.oauthCountry.continue">Continue</button>
         </div>
 
         <div class="my-5 flex justify-center" data-locale-switcher-mount></div>
@@ -715,6 +726,9 @@
       if (window.AppEntry) AppEntry.trackAuthMethod('apple');
       diag.hideErrors();
       diag.hideLinkingPrompts();
+      if (window.LoginOAuthCountry && typeof LoginOAuthCountry.hide === 'function') {
+        LoginOAuthCountry.hide();
+      }
 
       if (Platform.isIOS() && !Platform.appleSignIn.isAvailable()) {
         diag.log('step_1b_plugin_unavailable');
@@ -761,7 +775,22 @@
           body: JSON.stringify(applePayload),
         });
         const data = await res.json().catch(() => ({}));
-        diag.log('step_4_backend_response', { status: res.status, error: data.error || null });
+        diag.log('step_4_backend_response', { status: res.status, error: data.error || null, code: data.code || null });
+
+        if (window.LoginOAuthCountry && LoginOAuthCountry.isCountryRequired(res.status, data)) {
+          diag.log('step_4c_country_required');
+          diag.hideErrors();
+          LoginOAuthCountry.reveal({ provider: 'apple', idToken: result.idToken, name: result.name });
+          return;
+        }
+
+        if (window.LoginOAuthCountry && LoginOAuthCountry.isMarketClosed(res.status, data)) {
+          diag.log('step_4d_market_closed', { code: data.code || null });
+          diag.hideErrors();
+          LoginOAuthCountry.reveal({ provider: 'apple', idToken: result.idToken, name: result.name });
+          LoginOAuthCountry.showServerError(data.error || t('auth.login.oauthCountry.retryFailed'));
+          return;
+        }
 
         if (res.ok && data.user) {
           Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
@@ -815,6 +844,60 @@
           btn.textContent = orig;
         }
       }
+    }
+
+    if (window.LoginOAuthCountry && typeof LoginOAuthCountry.registerRetry === 'function') {
+      LoginOAuthCountry.registerRetry('apple', async function retryAppleAfterCountry(pending) {
+        if (!pending || !pending.idToken) return;
+        var diag = window.AppleSignInDiagnostics;
+        const applePayload = (window.OAuthRegistrationPayload && OAuthRegistrationPayload.withOAuthRegistrationFields)
+          ? OAuthRegistrationPayload.withOAuthRegistrationFields({ idToken: pending.idToken, name: pending.name })
+          : ((window.LoginLocale && LoginLocale.withLoginLocale)
+            ? LoginLocale.withLoginLocale({ idToken: pending.idToken, name: pending.name })
+            : { idToken: pending.idToken, name: pending.name });
+        const res = await fetch('/api/auth/apple', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(applePayload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (diag) diag.log('step_4_country_retry', { status: res.status, error: data.error || null, code: data.code || null });
+
+        if (window.LoginOAuthCountry && LoginOAuthCountry.isCountryRequired(res.status, data)) {
+          LoginOAuthCountry.reveal({ provider: 'apple', idToken: pending.idToken, name: pending.name });
+          return;
+        }
+        if (window.LoginOAuthCountry && LoginOAuthCountry.isMarketClosed(res.status, data)) {
+          LoginOAuthCountry.reveal({ provider: 'apple', idToken: pending.idToken, name: pending.name });
+          LoginOAuthCountry.showServerError(data.error || t('auth.login.oauthCountry.retryFailed'));
+          return;
+        }
+        if (res.ok && data.user) {
+          if (window.LoginOAuthCountry) LoginOAuthCountry.clearPending();
+          Auth.setAuth(null, data.user, data.csrfToken, data.expiresAt);
+          if (data.user.onboarding_completed === false || data.isNewAccount) {
+            if (window.Pixel) window.Pixel.lead();
+            if (window.MarketingEvents) MarketingEvents.trackSignup('apple');
+            if (window.AppEntry) {
+              AppEntry.trackAuthSuccess('apple');
+              if (data.isNewAccount) AppEntry.track('signup_completed', { method: 'apple' });
+            }
+            window.location.href = '/onboarding';
+            return;
+          }
+          if (window.AppEntry) AppEntry.trackAuthSuccess('apple');
+          redirectAfterParentLogin();
+          return;
+        }
+        if (res.status === 409 && data.error === 'email_conflict') {
+          _applePendingEmail = data.email;
+          _applePendingIdToken = pending.idToken;
+          if (diag) diag.showLinkingPrompt();
+          return;
+        }
+        if (diag) diag.showError(data.error || t('auth.login.apple.genericError'));
+      });
     }
 
     function openAppleLinkModal() {

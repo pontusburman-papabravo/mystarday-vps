@@ -1,7 +1,47 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-08-28 | Metadata rejection — missing Terms of Use (EULA) link (corrected)
+> Last updated: 2026-09-01 | Guideline 2.1(a) — Sign in with Apple country step on login
+
+---
+
+## Guideline 2.1(a) — Sign in with Apple on login (2026-09-01)
+
+**Rejection:** Version **1.4.3 (1139)** on **iPad Air 11-inch (M3) / iPadOS 26.6.1**. App Review tapped **Continue with Apple** on the parent login screen and saw *"Choose your country before creating an account"*.
+
+**Root cause:** Sign in with Apple on **login** also creates a new parent account when the Apple ID is new (Guideline 4.8 / first-time reviewer). New accounts require an explicit country (ADR-018). The login screen had no country picker, so the server correctly returned `COUNTRY_REQUIRED` and the client painted that as a red Apple error with no way to continue.
+
+Register already collected country before Apple. Login did not — existing users must still be able to sign in without picking a country.
+
+**Fix (web — remote WebView, no native binary required):**
+- After Apple/Google login returns `COUNTRY_REQUIRED`, show a **next-step country panel** (not an Apple error).
+- Keep the Apple identity token and retry `/api/auth/apple` after the reviewer confirms country.
+- Sweden is suggested because it is the currently open market. Closed markets still fail closed.
+- Existing Apple users still log in with no country step.
+
+**How to review Sign in with Apple now:**
+1. Open the app → **Sign in as a parent** → **Continue with Apple**.
+2. If this Apple ID is new, choose **Sweden** (current market) and tap **Continue**.
+3. The account is created and onboarding starts.
+4. Email/password review account remains available (see `docs/app-store-demo-konto.md`).
+
+Apple also wrote that this 2.1(a) item is eligible to approve on the current submission if we reply that we want approval now. Prefer the web fix above before the next resubmit so the reviewer does not hit the same dead-end.
+
+**Paste into App Review Information → Notes (or as a reply):**
+```
+Thank you for the screenshot and the Guideline 2.1(a) note.
+
+The message "Choose your country before creating an account" appeared because Sign in with Apple on the login screen created a new account, and new accounts require a country for the correct terms. The login screen did not yet show that country step.
+
+We have fixed this in the live web app (the iOS app loads the current UI over the network):
+- Existing Apple users still sign in immediately.
+- A first-time Apple ID now sees a country step and can continue with the same Apple sign-in — it is not an error.
+- Please choose Sweden (currently available market) if asked, then Continue.
+
+Email/password review credentials are unchanged in App Review Information.
+
+Thank you for reviewing.
+```
 
 ---
 

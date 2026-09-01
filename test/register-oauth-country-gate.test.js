@@ -330,7 +330,7 @@ describe('Apple register language-before-country', () => {
   });
 });
 
-describe('Apple login remains unchanged', () => {
+describe('Apple login does not preflight the registration country gate', () => {
   it('login Apple handler does not use the registration country gate', () => {
     const login = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
     const start = login.indexOf('async function handleAppleLogin');
@@ -340,6 +340,7 @@ describe('Apple login remains unchanged', () => {
     assert.doesNotMatch(fn, /RegistrationCountryGate/);
     assert.doesNotMatch(fn, /RegisterAppleAuth/);
     assert.match(fn, /Platform\.isIOS\(\) && !Platform\.appleSignIn\.isAvailable\(\)/);
+    assert.match(fn, /LoginOAuthCountry\.isCountryRequired/);
   });
 });
 
