@@ -283,7 +283,7 @@
 // stjarndag-v892: App Store 2.2 fix — remove "Beta" badge/label from English language selection (locale-switcher, language-choice)
 // stjarndag-v893: Phase 4 — Weekly Schedule chrome: advanced view modes + PDF export tucked under a "Visa" disclosure
 // stjarndag-v894: Phase 4 closure — Kalender links to Specialdagar as an explicit secondary bridge
-// stjarndag-v923: Register country — displayed open country (Sverige) counts without a change tap
+// stjarndag-v923: Register country — placeholder until explicit choice; suggestion never auto-confirms
 // stjarndag-v922: paid-rollout runtime gate + landing CTA follows signup_allowed
 // stjarndag-v921: IE/FI paid-transition notices + release-gate separation
 // stjarndag-v919: IE/FI limited child /api/me first-star + landing/country signup_allowed
