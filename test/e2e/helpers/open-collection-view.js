@@ -73,6 +73,13 @@ async function openCollectionView(page) {
 
     try {
       await page.waitForFunction(collectionViewReady, { timeout: perAttemptTimeout });
+      await page.waitForFunction(() => {
+        const view = document.getElementById('collectionView');
+        if (!view) return false;
+        const text = (view.textContent || '').trim();
+        if (/Laddar/i.test(text) && !/Loading/i.test(text)) return false;
+        return /First week|Collection/i.test(text);
+      }, { timeout: perAttemptTimeout });
       return;
     } catch (err) {
       if (attempt === 1) throw err;

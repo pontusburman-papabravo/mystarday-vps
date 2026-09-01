@@ -55,7 +55,10 @@ async function openSettingsView(page) {
   });
   await page.waitForFunction(() => {
     const mount = document.getElementById('settingsViewMount');
-    return mount && /My space/i.test((mount.textContent || '').trim());
+    if (!mount) return false;
+    const text = (mount.textContent || '').trim();
+    if (/Laddar/i.test(text) && !/Loading/i.test(text)) return false;
+    return /My space/i.test(text);
   }, { timeout: 45000 });
 }
 
@@ -149,6 +152,13 @@ describe('i18n child UI leaks — mobile smoke', () => {
 
       // Collection — localized trophy names
       await openCollectionView(page);
+      await page.waitForFunction(() => {
+        const view = document.getElementById('collectionView');
+        if (!view) return false;
+        const text = (view.textContent || '').trim();
+        if (/Laddar/i.test(text) && !/Loading/i.test(text)) return false;
+        return /First week/i.test(text);
+      }, { timeout: 45000 });
       const collectionText = await getVisibleTextInSelectors(page, ['#collectionView']);
       assert.match(collectionText, /First week/i, 'first_week trophy name');
       assert.match(collectionText, /Reward fan/i, 'reward_fan trophy name');
