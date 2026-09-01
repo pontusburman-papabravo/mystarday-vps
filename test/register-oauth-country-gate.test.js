@@ -239,6 +239,27 @@ describe('CountryChoice public registration gate', () => {
     assert.equal(CountryChoice.requireSelection(), false, 'IE is closed by default gates');
   });
 
+  it('H: stale confirmed closed market is cleared on mount, placeholder restored', async () => {
+    const sessionStorage = memStorage();
+    confirmCountry(sessionStorage, 'IE');
+    const { CountryChoice, container, selectEl, tracked } = loadRegistrationModules({
+      sessionStorage,
+      lang: 'sv-SE',
+    });
+    assert.equal(CountryChoice.isConfirmed(), true, 'stale session still looks confirmed before mount');
+    await CountryChoice.mount(container);
+    assert.equal(selectEl.value, '');
+    assert.match(container.innerHTML, /<option value="" selected>/);
+    assert.doesNotMatch(container.innerHTML, /<option value="IE" selected>/);
+    assert.doesNotMatch(container.innerHTML, /<option value="SE" selected>/);
+    assert.equal(CountryChoice.isConfirmed(), false);
+    assert.equal(CountryChoice.getCountryCode(), null);
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), null);
+    assert.equal(sessionStorage.getItem('sd_country_code'), null);
+    assert.equal(tracked.length, 0);
+  });
+
   it('RegistrationCountryGate.allow never throws when requireSelection is missing', () => {
     const { RegistrationCountryGate } = loadRegistrationModules();
     assert.doesNotThrow(() => RegistrationCountryGate.allow(undefined));

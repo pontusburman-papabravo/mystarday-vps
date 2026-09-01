@@ -205,16 +205,16 @@
     if (window.I18n && typeof window.I18n.init === 'function') await window.I18n.init();
     await loadGates();
     const confirmedCode = confirmedCountryCode();
+    const restorableCode = isOpenCountry(confirmedCode) ? confirmedCode : null;
+    if (confirmedCode && !restorableCode) clearConfirmation();
     container.dataset.countryChoiceMounted = '1';
-    container.innerHTML = buildHtml(confirmedCode);
+    container.innerHTML = buildHtml(restorableCode);
     if (window.I18n && typeof window.I18n.apply === 'function') window.I18n.apply(container);
 
     const select = container.querySelector('#countryChoiceSelect');
     const hint = container.querySelector('.country-choice__hint');
     const errorEl = container.querySelector('[data-country-choice-error]');
-    let selected = isOpenCountry(confirmedCode) ? confirmedCode : null;
-
-    if (confirmedCode && select) select.value = confirmedCode;
+    let selected = restorableCode;
 
     function updateHint() {
       const code = select.value;
