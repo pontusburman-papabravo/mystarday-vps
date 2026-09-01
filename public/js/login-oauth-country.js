@@ -88,8 +88,8 @@
   }
 
   function hideAppleGoogleErrors() {
-    if (window.AppleSignInDiagnostics && typeof AppleSignInDiagnostics.hideErrors === 'function') {
-      AppleSignInDiagnostics.hideErrors();
+    if (window.AppleSignInDiagnostics && typeof window.AppleSignInDiagnostics.hideErrors === 'function') {
+      window.AppleSignInDiagnostics.hideErrors();
     }
     ['appleLoginError', 'googleLoginError'].forEach((id) => {
       const el = document.getElementById(id);
@@ -102,8 +102,8 @@
 
   function applyPanelCopy(el) {
     if (!el) return;
-    if (window.I18n && typeof I18n.apply === 'function') {
-      I18n.apply(el);
+    if (window.I18n && typeof window.I18n.apply === 'function') {
+      window.I18n.apply(el);
     }
     const title = el.querySelector('[data-i18n="auth.login.oauthCountry.title"]');
     const body = el.querySelector('[data-i18n="auth.login.oauthCountry.body"]');
@@ -122,13 +122,18 @@
 
   function confirmSelectedCountry() {
     const select = document.getElementById('countryChoiceSelect');
-    if (select && select.value) {
-      select.dispatchEvent(new Event('change', { bubbles: true }));
+    if (select && select.value && typeof select.dispatchEvent === 'function') {
+      try {
+        const evt = (typeof Event === 'function')
+          ? new Event('change', { bubbles: true })
+          : { type: 'change', bubbles: true };
+        select.dispatchEvent(evt);
+      } catch (_) { /* CountryChoice still runs requireSelection below */ }
     }
-    if (!window.CountryChoice || typeof CountryChoice.requireSelection !== 'function') {
+    if (!window.CountryChoice || typeof window.CountryChoice.requireSelection !== 'function') {
       return false;
     }
-    return CountryChoice.requireSelection() === true;
+    return window.CountryChoice.requireSelection() === true;
   }
 
   function showServerError(message) {
