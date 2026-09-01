@@ -57,6 +57,7 @@
         "test/auth.test.js",
         "test/auth-integration.test.js",
         "test/credential-leak-guard.test.js",
+        "test/register-form-gate.test.js",
         "test/register-oauth-country-gate.test.js",
         "test/register-language-displayed.test.js"
       ],
@@ -77,6 +78,7 @@
         "test/credential-leak-guard.test.js",
         "test/r4-final-security-blockers.integration.test.js",
         "test/r4-final-authority.integration.test.js",
+        "test/register-form-gate.test.js",
         "test/register-oauth-country-gate.test.js",
         "test/register-language-displayed.test.js"
       ]

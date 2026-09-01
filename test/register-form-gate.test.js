@@ -15,6 +15,9 @@ test('register page never blocks form with pointer-events gate', () => {
   assert.doesNotMatch(countryChoice, /gateRegisterForm/);
   assert.doesNotMatch(countryChoice, /formCard\.style\.pointerEvents/);
   assert.doesNotMatch(countryChoice, /suggest === 'SE' \? ' selected'/);
+  assert.doesNotMatch(countryChoice, /acceptDisplayedCountry/);
+  assert.doesNotMatch(countryChoice, /displayed_country/);
+  assert.match(countryChoice, /data-suggested-country/);
   assert.match(registerHtml, /authEntryInlineUnlock/);
   assert.match(registerHtml, /#auth-entry-fallback \{ display: none !important/);
   assert.match(registerHtml, /fetchWithTimeout/);

@@ -21,10 +21,41 @@ function loadRegistrationModules(opts) {
   opts = opts || {};
   const sessionStorage = opts.sessionStorage || memStorage();
   const errorEl = { textContent: '', hidden: true };
+  const hintEl = { textContent: '', hidden: true };
+  const tracked = [];
+  const selectEl = {
+    value: '',
+    listeners: {},
+    addEventListener(ev, fn) { this.listeners[ev] = fn; },
+    dispatchChange() {
+      if (this.listeners.change) this.listeners.change();
+    },
+  };
+  let containerHtml = '';
+  const container = {
+    dataset: {},
+    querySelector(sel) {
+      if (sel === '#countryChoiceSelect') return selectEl;
+      if (sel === '.country-choice__hint') return hintEl;
+      if (sel === '[data-country-choice-error]') return errorEl;
+      return null;
+    },
+  };
+  Object.defineProperty(container, 'innerHTML', {
+    get() { return containerHtml; },
+    set(html) {
+      containerHtml = String(html);
+      const selectedMatch = containerHtml.match(/<option value="([^"]*)"[^>]*\sselected/);
+      selectEl.value = selectedMatch ? selectedMatch[1] : '';
+    },
+  });
+
   const document = {
+    documentElement: { lang: opts.lang || 'sv-SE' },
     querySelector(sel) {
       if (sel === '[data-country-choice-error]') return errorEl;
       if (sel === '[data-country-choice-mount]') return { scrollIntoView() { document._scrolled = true; } };
+      if (sel === '#countryChoiceSelect') return selectEl;
       return null;
     },
     querySelectorAll() { return []; },
@@ -32,20 +63,32 @@ function loadRegistrationModules(opts) {
     getElementById() { return null; },
     head: { appendChild() {} },
     createElement() { return { textContent: '', id: '' }; },
+    dispatchEvent() {},
     _scrolled: false,
   };
+  const location = { pathname: opts.pathname || '/register' };
   const window = {
     sessionStorage,
     document,
-    I18n: { t(key) { return key; } },
+    location,
+    I18n: {
+      t(key) { return key; },
+      getCurrentLang() { return opts.lang === 'en-GB' ? 'en-GB' : 'sv-SE'; },
+    },
     MarketCountries: { REGISTRATION_COUNTRIES: [] },
-    analytics: { track() {} },
+    analytics: { track(familyId, eventType, metadata) { tracked.push({ eventType, metadata }); } },
   };
+  function CustomEvent(type, init) {
+    this.type = type;
+    this.detail = init && init.detail;
+  }
   const context = {
     window,
     document,
     sessionStorage,
+    location,
     console,
+    CustomEvent,
     fetch: async () => { throw new Error('no fetch'); },
   };
   context.global = window;
@@ -61,12 +104,25 @@ function loadRegistrationModules(opts) {
     errorEl,
     document,
     sessionStorage,
+    container,
+    selectEl,
+    tracked,
   };
 }
 
 function confirmCountry(sessionStorage, code) {
   sessionStorage.setItem('sd_country_confirmed', '1');
   sessionStorage.setItem('sd_country_code', code);
+}
+
+function iosPlatform() {
+  return {
+    isIOS: () => true,
+    appleSignIn: {
+      isAvailable: () => true,
+      signIn: async () => ({ idToken: 'tok' }),
+    },
+  };
 }
 
 describe('CountryChoice public registration gate', () => {
@@ -78,6 +134,15 @@ describe('CountryChoice public registration gate', () => {
     assert.match(src, /UK:\s*false/);
     assert.match(src, /US:\s*false/);
     assert.match(src, /OTHER:\s*false/);
+  });
+
+  it('never visually pre-selects a suggested country', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/country-choice.js'), 'utf8');
+    assert.doesNotMatch(src, /suggest === 'SE' \? ' selected'/);
+    assert.doesNotMatch(src, /acceptDisplayedCountry/);
+    assert.doesNotMatch(src, /displayed_country/);
+    assert.match(src, /data-suggested-country/);
+    assert.match(src, /selection_source: 'active_choice'/);
   });
 
   it('exports requireSelection as a function that never throws', () => {
@@ -97,7 +162,44 @@ describe('CountryChoice public registration gate', () => {
     assert.ok(errorEl.textContent);
   });
 
-  it('confirmed open country (SE, default gate) allows registration', () => {
+  it('A: fresh Swedish mount keeps placeholder and does not confirm the SE suggestion', async () => {
+    const { CountryChoice, container, selectEl, sessionStorage, tracked } = loadRegistrationModules({
+      lang: 'sv-SE',
+      pathname: '/register',
+    });
+    await CountryChoice.mount(container);
+    assert.match(container.innerHTML, /data-suggested-country="SE"/);
+    assert.match(container.innerHTML, /<option value="" selected>/);
+    assert.doesNotMatch(container.innerHTML, /<option value="SE" selected>/);
+    assert.equal(selectEl.value, '');
+    assert.equal(CountryChoice.isConfirmed(), false);
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(CountryChoice.getCountryCode(), null);
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), null);
+    assert.equal(sessionStorage.getItem('sd_country_code'), null);
+    assert.equal(tracked.length, 0);
+  });
+
+  it('B: explicit SE change persists confirmation and opens the gate', async () => {
+    const { CountryChoice, container, selectEl, sessionStorage, errorEl, tracked } = loadRegistrationModules({
+      lang: 'sv-SE',
+    });
+    await CountryChoice.mount(container);
+    selectEl.value = 'SE';
+    selectEl.dispatchChange();
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), '1');
+    assert.equal(sessionStorage.getItem('sd_country_code'), 'SE');
+    assert.equal(CountryChoice.isConfirmed(), true);
+    assert.equal(CountryChoice.requireSelection(), true);
+    assert.equal(CountryChoice.getCountryCode(), 'SE');
+    assert.equal(errorEl.hidden, true);
+    assert.equal(tracked.length, 1);
+    assert.equal(tracked[0].eventType, 'country_selected');
+    assert.equal(tracked[0].metadata.selection_source, 'active_choice');
+    assert.equal(tracked[0].metadata.country_code, 'SE');
+  });
+
+  it('F: restored explicitly confirmed open country is allowed', () => {
     const sessionStorage = memStorage();
     confirmCountry(sessionStorage, 'SE');
     const { CountryChoice, errorEl } = loadRegistrationModules({ sessionStorage });
@@ -106,12 +208,56 @@ describe('CountryChoice public registration gate', () => {
     assert.equal(errorEl.hidden, true);
   });
 
-  it('confirmed closed country is fail-closed (isConfirmed alone is not enough)', () => {
+  it('F: remount restores a confirmed open country visually', async () => {
+    const sessionStorage = memStorage();
+    confirmCountry(sessionStorage, 'SE');
+    const { CountryChoice, container, selectEl } = loadRegistrationModules({ sessionStorage, lang: 'sv-SE' });
+    await CountryChoice.mount(container);
+    assert.match(container.innerHTML, /<option value="SE" selected>/);
+    assert.equal(selectEl.value, 'SE');
+    assert.equal(CountryChoice.isConfirmed(), true);
+    assert.equal(CountryChoice.requireSelection(), true);
+  });
+
+  it('E: displayed closed country without confirmation is fail-closed', async () => {
+    const { CountryChoice, container, selectEl, errorEl, sessionStorage } = loadRegistrationModules();
+    await CountryChoice.mount(container);
+    selectEl.value = 'IE';
+    selectEl.dispatchChange();
+    assert.equal(CountryChoice.isConfirmed(), false);
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(errorEl.hidden, false);
+    assert.ok(errorEl.textContent);
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), null);
+  });
+
+  it('E: confirmed closed country is fail-closed (isConfirmed alone is not enough)', () => {
     const sessionStorage = memStorage();
     confirmCountry(sessionStorage, 'IE');
     const { CountryChoice } = loadRegistrationModules({ sessionStorage });
     assert.equal(CountryChoice.isConfirmed(), true, 'session still looks confirmed');
     assert.equal(CountryChoice.requireSelection(), false, 'IE is closed by default gates');
+  });
+
+  it('H: stale confirmed closed market is cleared on mount, placeholder restored', async () => {
+    const sessionStorage = memStorage();
+    confirmCountry(sessionStorage, 'IE');
+    const { CountryChoice, container, selectEl, tracked } = loadRegistrationModules({
+      sessionStorage,
+      lang: 'sv-SE',
+    });
+    assert.equal(CountryChoice.isConfirmed(), true, 'stale session still looks confirmed before mount');
+    await CountryChoice.mount(container);
+    assert.equal(selectEl.value, '');
+    assert.match(container.innerHTML, /<option value="" selected>/);
+    assert.doesNotMatch(container.innerHTML, /<option value="IE" selected>/);
+    assert.doesNotMatch(container.innerHTML, /<option value="SE" selected>/);
+    assert.equal(CountryChoice.isConfirmed(), false);
+    assert.equal(CountryChoice.getCountryCode(), null);
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), null);
+    assert.equal(sessionStorage.getItem('sd_country_code'), null);
+    assert.equal(tracked.length, 0);
   });
 
   it('RegistrationCountryGate.allow never throws when requireSelection is missing', () => {
@@ -166,8 +312,9 @@ describe('RegistrationCountryGate.allow is fail-closed', () => {
 });
 
 describe('Apple register preflight — signIn is not called when denied', () => {
-  it('missing country => visible country reason, signIn call count 0', async () => {
-    const { RegisterAppleAuth, CountryChoice } = loadRegistrationModules();
+  it('C: Apple preflight before explicit country choice is blocked, signIn call count 0', async () => {
+    const { RegisterAppleAuth, CountryChoice, container } = loadRegistrationModules({ lang: 'sv-SE' });
+    await CountryChoice.mount(container);
     let signInCalls = 0;
     const Platform = {
       isIOS: () => true,
@@ -181,6 +328,25 @@ describe('Apple register preflight — signIn is not called when denied', () => 
     assert.equal(pre.reason, 'country');
     if (pre.ok) await Platform.appleSignIn.signIn();
     assert.equal(signInCalls, 0);
+  });
+
+  it('D: Apple preflight after explicit SE choice allows native signIn', async () => {
+    const { RegisterAppleAuth, CountryChoice, container, selectEl } = loadRegistrationModules({ lang: 'sv-SE' });
+    await CountryChoice.mount(container);
+    selectEl.value = 'SE';
+    selectEl.dispatchChange();
+    let signInCalls = 0;
+    const Platform = {
+      isIOS: () => true,
+      appleSignIn: {
+        isAvailable: () => true,
+        signIn: async () => { signInCalls += 1; return { idToken: 'tok' }; },
+      },
+    };
+    const pre = RegisterAppleAuth.preflight(Platform, CountryChoice);
+    assert.equal(pre.ok, true);
+    if (pre.ok) await Platform.appleSignIn.signIn();
+    assert.equal(signInCalls, 1);
   });
 
   it('confirmed open country => preflight ok so signIn is reachable', async () => {
@@ -247,6 +413,34 @@ describe('Apple register preflight — signIn is not called when denied', () => 
   });
 });
 
+describe('G: email signup and Apple signup share the same country gate', () => {
+  it('register.html email submit and Apple preflight both go through RegistrationCountryGate.allow', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/register.html'), 'utf8');
+    const apple = fs.readFileSync(path.join(ROOT, 'public/js/register-apple-auth.js'), 'utf8');
+    const google = fs.readFileSync(path.join(ROOT, 'public/js/google-auth-ui.js'), 'utf8');
+    assert.match(html, /RegistrationCountryGate/);
+    assert.match(html, /RegistrationCountryGate\.allow\(window\.CountryChoice\)/);
+    assert.doesNotMatch(html.slice(html.indexOf('async function handleAppleRegister')), /CountryChoice\.requireSelection\(\)/);
+    assert.match(apple, /RegistrationCountryGate/);
+    assert.match(apple, /gate\.allow\(CountryChoice\)/);
+    assert.match(google, /RegistrationCountryGate\.allow/);
+  });
+
+  it('the same requireSelection result drives email allow and Apple preflight', async () => {
+    const fresh = loadRegistrationModules({ lang: 'sv-SE' });
+    await fresh.CountryChoice.mount(fresh.container);
+    assert.equal(fresh.RegistrationCountryGate.allow(fresh.CountryChoice), false);
+    assert.equal(fresh.RegisterAppleAuth.preflight(iosPlatform(), fresh.CountryChoice).ok, false);
+
+    const picked = loadRegistrationModules({ lang: 'sv-SE' });
+    await picked.CountryChoice.mount(picked.container);
+    picked.selectEl.value = 'SE';
+    picked.selectEl.dispatchChange();
+    assert.equal(picked.RegistrationCountryGate.allow(picked.CountryChoice), true);
+    assert.equal(picked.RegisterAppleAuth.preflight(iosPlatform(), picked.CountryChoice).ok, true);
+  });
+});
+
 describe('Google register uses the same fail-closed gate', () => {
   it('google-auth-ui no longer calls CountryChoice.requireSelection() unsafely', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/google-auth-ui.js'), 'utf8');
@@ -277,14 +471,6 @@ describe('Google register uses the same fail-closed gate', () => {
 });
 
 describe('Apple register language-before-country', () => {
-  const iosPlatform = {
-    isIOS: () => true,
-    appleSignIn: {
-      isAvailable: () => true,
-      signIn: async () => ({ idToken: 'tok' }),
-    },
-  };
-
   it('unconfirmed language => reason language, signIn not reached', () => {
     const sessionStorage = memStorage();
     confirmCountry(sessionStorage, 'SE');
@@ -293,7 +479,7 @@ describe('Apple register language-before-country', () => {
       isConfirmed: () => false,
       requireSelection: () => false,
     };
-    const pre = RegisterAppleAuth.preflight(iosPlatform, CountryChoice);
+    const pre = RegisterAppleAuth.preflight(iosPlatform(), CountryChoice);
     assert.equal(pre.ok, false);
     assert.equal(pre.reason, 'language');
   });

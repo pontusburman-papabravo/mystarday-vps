@@ -1,6 +1,10 @@
 /**
  * Mandatory country-of-residence choice for new users (P-i18n market model).
  * Independent from language — see ADR-018.
+ *
+ * Country is an explicit user choice. A browser/path suggestion must never
+ * appear selected or become confirmed. isConfirmed() means the user picked
+ * a country in this session, not that one is merely displayed.
  */
 (function countryChoiceModule() {
   'use strict';
@@ -13,8 +17,8 @@
   }
 
   function track(eventType, metadata) {
-    if (typeof window.analytics !== 'undefined' && analytics.track) {
-      analytics.track(null, eventType, metadata || {});
+    if (window.analytics && typeof window.analytics.track === 'function') {
+      window.analytics.track(null, eventType, metadata || {});
     }
   }
 
@@ -30,8 +34,20 @@
     return 'SE';
   }
 
+  function sessionConfirmed() {
+    try {
+      return sessionStorage.getItem(CONFIRMED_KEY) === '1' && Boolean(sessionStorage.getItem(STORAGE_KEY));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function confirmedCountryCode() {
+    return sessionConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
+  }
+
   function isConfirmed() {
-    return sessionStorage.getItem(CONFIRMED_KEY) === '1' && Boolean(sessionStorage.getItem(STORAGE_KEY));
+    return sessionConfirmed();
   }
 
   function markConfirmed(code) {
@@ -39,32 +55,43 @@
     sessionStorage.setItem(STORAGE_KEY, code);
   }
 
-  function buildHtml(suggest) {
-    const locale = (window.I18n && I18n.getCurrentLang()) || 'sv-SE';
+  function clearConfirmation() {
+    sessionStorage.removeItem(CONFIRMED_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
+  }
+
+  function selectedAttr(code, confirmedCode) {
+    return confirmedCode === code ? ' selected' : '';
+  }
+
+  function buildHtml(confirmedCode) {
+    const locale = (window.I18n && typeof window.I18n.getCurrentLang === 'function' && window.I18n.getCurrentLang()) || 'sv-SE';
     const countries = getCountries().length
       ? getCountries()
       : [{ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }];
 
     const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
     const eu = countries.filter((c) => !['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
+    const suggest = suggestedCountry();
 
-    let options = `<option value="">${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
-    options += `<option value="SE"${suggest === 'SE' ? ' selected' : ''}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
-    options += `<option value="IE"${suggest === 'IE' ? ' selected' : ''}>${labelFor({ code: 'IE', labels: { 'sv-SE': 'Irland', 'en-GB': 'Ireland' } }, locale)}</option>`;
-    options += `<option value="FI"${suggest === 'FI' ? ' selected' : ''}>${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
+    const placeholderSelected = confirmedCode ? '' : ' selected';
+    let options = `<option value=""${placeholderSelected}>${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
+    options += `<option value="SE"${selectedAttr('SE', confirmedCode)}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
+    options += `<option value="IE"${selectedAttr('IE', confirmedCode)}>${labelFor({ code: 'IE', labels: { 'sv-SE': 'Irland', 'en-GB': 'Ireland' } }, locale)}</option>`;
+    options += `<option value="FI"${selectedAttr('FI', confirmedCode)}>${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
       eu.forEach((c) => {
-        options += `<option value="${c.code}"${suggest === c.code ? ' selected' : ''}>${labelFor(c, locale)}</option>`;
+        options += `<option value="${c.code}"${selectedAttr(c.code, confirmedCode)}>${labelFor(c, locale)}</option>`;
       });
       options += '</optgroup>';
     }
     const gb = featured.find((c) => c.code === 'GB') || { code: 'GB', labels: { 'sv-SE': 'Storbritannien', 'en-GB': 'United Kingdom' } };
     const us = featured.find((c) => c.code === 'US') || { code: 'US', labels: { 'sv-SE': 'USA', 'en-GB': 'United States' } };
     const other = featured.find((c) => c.code === 'ZZ') || { code: 'ZZ', labels: { 'sv-SE': 'Annat land', 'en-GB': 'Other country' } };
-    options += `<option value="GB">${labelFor(gb, locale)}</option>`;
-    options += `<option value="US">${labelFor(us, locale)}</option>`;
-    options += `<option value="ZZ">${labelFor(other, locale)}</option>`;
+    options += `<option value="GB"${selectedAttr('GB', confirmedCode)}>${labelFor(gb, locale)}</option>`;
+    options += `<option value="US"${selectedAttr('US', confirmedCode)}>${labelFor(us, locale)}</option>`;
+    options += `<option value="ZZ"${selectedAttr('ZZ', confirmedCode)}>${labelFor(other, locale)}</option>`;
 
     return `
       <section class="country-choice" role="group" aria-labelledby="countryChoiceHeading">
@@ -73,7 +100,7 @@
           Vi använder detta för rätt villkor och integritetsinformation. Det är inte samma sak som språkval.
         </p>
         <label class="country-choice__label" for="countryChoiceSelect" data-i18n="market.choice.label">Land</label>
-        <select id="countryChoiceSelect" class="country-choice__select" aria-describedby="countryChoiceHint">
+        <select id="countryChoiceSelect" class="country-choice__select" aria-describedby="countryChoiceHint" data-suggested-country="${suggest}">
           ${options}
         </select>
         <p id="countryChoiceHint" class="country-choice__hint" data-i18n="market.choice.hint" hidden></p>
@@ -168,22 +195,26 @@
     return 'My Starday is not available in your country yet.';
   }
 
+  function isOpenCountry(code) {
+    return Boolean(code) && isCountryOpen(code) && !closedMarketMessage(code);
+  }
+
   async function mount(container) {
     if (!container || container.dataset.countryChoiceMounted) return;
     injectStyles();
-    if (window.I18n) await I18n.init();
+    if (window.I18n && typeof window.I18n.init === 'function') await window.I18n.init();
     await loadGates();
-    const suggest = sessionStorage.getItem(STORAGE_KEY) || suggestedCountry();
+    const confirmedCode = confirmedCountryCode();
+    const restorableCode = isOpenCountry(confirmedCode) ? confirmedCode : null;
+    if (confirmedCode && !restorableCode) clearConfirmation();
     container.dataset.countryChoiceMounted = '1';
-    container.innerHTML = buildHtml(suggest);
-    if (window.I18n) I18n.apply(container);
+    container.innerHTML = buildHtml(restorableCode);
+    if (window.I18n && typeof window.I18n.apply === 'function') window.I18n.apply(container);
 
     const select = container.querySelector('#countryChoiceSelect');
     const hint = container.querySelector('.country-choice__hint');
     const errorEl = container.querySelector('[data-country-choice-error]');
-    let selected = isConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
-
-    if (selected && select) select.value = selected;
+    let selected = restorableCode;
 
     function updateHint() {
       const code = select.value;
@@ -198,7 +229,7 @@
       const code = select.value;
       if (!code) {
         selected = null;
-        sessionStorage.removeItem(CONFIRMED_KEY);
+        clearConfirmation();
         if (errorEl) errorEl.hidden = true;
         updateHint();
         return;
@@ -206,7 +237,7 @@
       const closed = closedMarketMessage(code);
       if (closed || !isCountryOpen(code)) {
         selected = null;
-        sessionStorage.removeItem(CONFIRMED_KEY);
+        clearConfirmation();
         if (errorEl) {
           errorEl.textContent = closed;
           errorEl.hidden = false;
@@ -261,18 +292,32 @@
     errorEl.hidden = false;
   }
 
+  function showGateError(code) {
+    const errorEl = document.querySelector('[data-country-choice-error]');
+    const closed = code ? closedMarketMessage(code) : '';
+    if (closed && errorEl) {
+      errorEl.textContent = closed;
+      errorEl.hidden = false;
+      return;
+    }
+    showSelectionError();
+  }
+
   /**
    * Registration country gate. Fail-closed. Never throws.
    *
-   * isConfirmed() alone is not enough: it only reads sessionStorage and does
-   * not re-check current market-open state. This public function is the same
-   * contract as the former mount-local requireSelection.
+   * Only an explicit session confirmation of an open country passes.
+   * A visible suggestion or an unconfirmed select value is not enough.
    */
   function requireSelection() {
     try {
-      const code = isConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
-      if (code && !closedMarketMessage(code) && isCountryOpen(code)) return true;
-      showSelectionError();
+      const code = confirmedCountryCode();
+      if (isOpenCountry(code)) {
+        const errorEl = document.querySelector('[data-country-choice-error]');
+        if (errorEl) errorEl.hidden = true;
+        return true;
+      }
+      showGateError(code);
       return false;
     } catch (_) {
       return false;
@@ -285,7 +330,7 @@
     isConfirmed,
     getCountryCode: () => {
       try {
-        return sessionStorage.getItem(STORAGE_KEY);
+        return confirmedCountryCode();
       } catch (_) {
         return null;
       }
