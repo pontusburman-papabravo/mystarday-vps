@@ -21,15 +21,20 @@ function loadRegistrationModules(opts) {
   opts = opts || {};
   const sessionStorage = opts.sessionStorage || memStorage();
   const errorEl = { textContent: '', hidden: true };
+  const selectEl = opts.selectValue != null ? { value: opts.selectValue } : null;
   const document = {
     querySelector(sel) {
       if (sel === '[data-country-choice-error]') return errorEl;
       if (sel === '[data-country-choice-mount]') return { scrollIntoView() { document._scrolled = true; } };
+      if (sel === '#countryChoiceSelect') return selectEl;
       return null;
     },
     querySelectorAll() { return []; },
     addEventListener() {},
-    getElementById() { return null; },
+    getElementById(id) {
+      if (id === 'countryChoiceSelect') return selectEl;
+      return null;
+    },
     head: { appendChild() {} },
     createElement() { return { textContent: '', id: '' }; },
     _scrolled: false,
@@ -104,6 +109,24 @@ describe('CountryChoice public registration gate', () => {
     assert.equal(CountryChoice.isConfirmed(), true);
     assert.equal(CountryChoice.requireSelection(), true);
     assert.equal(errorEl.hidden, true);
+  });
+
+  it('displayed open country (Sverige in the select) allows registration without a change event', () => {
+    const { CountryChoice, errorEl, sessionStorage } = loadRegistrationModules({ selectValue: 'SE' });
+    assert.equal(CountryChoice.isConfirmed(), true);
+    assert.equal(CountryChoice.requireSelection(), true);
+    assert.equal(errorEl.hidden, true);
+    assert.equal(CountryChoice.getCountryCode(), 'SE');
+    assert.equal(sessionStorage.getItem('sd_country_confirmed'), '1');
+    assert.equal(sessionStorage.getItem('sd_country_code'), 'SE');
+  });
+
+  it('displayed closed country is fail-closed even if the select shows a value', () => {
+    const { CountryChoice, errorEl } = loadRegistrationModules({ selectValue: 'IE' });
+    assert.equal(CountryChoice.isConfirmed(), false);
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(errorEl.hidden, false);
+    assert.ok(errorEl.textContent);
   });
 
   it('confirmed closed country is fail-closed (isConfirmed alone is not enough)', () => {
@@ -181,6 +204,22 @@ describe('Apple register preflight — signIn is not called when denied', () => 
     assert.equal(pre.reason, 'country');
     if (pre.ok) await Platform.appleSignIn.signIn();
     assert.equal(signInCalls, 0);
+  });
+
+  it('displayed open country without session confirm => preflight ok so signIn is reachable', async () => {
+    const { RegisterAppleAuth, CountryChoice } = loadRegistrationModules({ selectValue: 'SE' });
+    let signInCalls = 0;
+    const Platform = {
+      isIOS: () => true,
+      appleSignIn: {
+        isAvailable: () => true,
+        signIn: async () => { signInCalls += 1; return { idToken: 'tok' }; },
+      },
+    };
+    const pre = RegisterAppleAuth.preflight(Platform, CountryChoice);
+    assert.equal(pre.ok, true);
+    if (pre.ok) await Platform.appleSignIn.signIn();
+    assert.equal(signInCalls, 1);
   });
 
   it('confirmed open country => preflight ok so signIn is reachable', async () => {

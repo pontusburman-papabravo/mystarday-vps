@@ -1,6 +1,8 @@
 /**
  * Mandatory country-of-residence choice for new users (P-i18n market model).
  * Independent from language — see ADR-018.
+ * The country already shown in the select is the selection (Constitution 2+5).
+ * Browser/path suggestion must not look selected unless it also passes the gate.
  */
 (function countryChoiceModule() {
   'use strict';
@@ -30,8 +32,42 @@
     return 'SE';
   }
 
+  function sessionConfirmed() {
+    try {
+      return sessionStorage.getItem(CONFIRMED_KEY) === '1' && Boolean(sessionStorage.getItem(STORAGE_KEY));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function displayedCountryCode() {
+    try {
+      const select = document.getElementById('countryChoiceSelect');
+      if (select && typeof select.value === 'string' && select.value) return select.value;
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+
+  function isOpenCountry(code) {
+    return Boolean(code) && isCountryOpen(code) && !closedMarketMessage(code);
+  }
+
+  function resolveOpenCountry() {
+    const displayed = displayedCountryCode();
+    if (isOpenCountry(displayed)) return displayed;
+    const stored = sessionConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
+    if (isOpenCountry(stored)) return stored;
+    return null;
+  }
+
+  function acceptDisplayedCountry() {
+    const code = resolveOpenCountry();
+    if (code) markConfirmed(code);
+    return code;
+  }
+
   function isConfirmed() {
-    return sessionStorage.getItem(CONFIRMED_KEY) === '1' && Boolean(sessionStorage.getItem(STORAGE_KEY));
+    return sessionConfirmed() || isOpenCountry(displayedCountryCode());
   }
 
   function markConfirmed(code) {
@@ -181,9 +217,14 @@
     const select = container.querySelector('#countryChoiceSelect');
     const hint = container.querySelector('.country-choice__hint');
     const errorEl = container.querySelector('[data-country-choice-error]');
-    let selected = isConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
+    const alreadyConfirmed = sessionConfirmed();
+    let selected = acceptDisplayedCountry();
 
     if (selected && select) select.value = selected;
+    if (selected && !alreadyConfirmed) {
+      track('country_selected', { country_code: selected, selection_source: 'displayed_country' });
+      document.dispatchEvent(new CustomEvent('country-choice-confirmed', { detail: { country_code: selected } }));
+    }
 
     function updateHint() {
       const code = select.value;
@@ -261,18 +302,33 @@
     errorEl.hidden = false;
   }
 
+  function showGateError(code) {
+    const errorEl = document.querySelector('[data-country-choice-error]');
+    const closed = code ? closedMarketMessage(code) : '';
+    if (closed && errorEl) {
+      errorEl.textContent = closed;
+      errorEl.hidden = false;
+      return;
+    }
+    showSelectionError();
+  }
+
   /**
    * Registration country gate. Fail-closed. Never throws.
    *
-   * isConfirmed() alone is not enough: it only reads sessionStorage and does
-   * not re-check current market-open state. This public function is the same
-   * contract as the former mount-local requireSelection.
+   * The country already shown in the select counts, same as language-choice.
+   * isConfirmed() / sessionStorage alone is not enough: we re-check market-open
+   * state so a stored closed country cannot pass.
    */
   function requireSelection() {
     try {
-      const code = isConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null;
-      if (code && !closedMarketMessage(code) && isCountryOpen(code)) return true;
-      showSelectionError();
+      const code = acceptDisplayedCountry();
+      if (code) {
+        const errorEl = document.querySelector('[data-country-choice-error]');
+        if (errorEl) errorEl.hidden = true;
+        return true;
+      }
+      showGateError(displayedCountryCode() || (sessionConfirmed() ? sessionStorage.getItem(STORAGE_KEY) : null));
       return false;
     } catch (_) {
       return false;
@@ -285,7 +341,7 @@
     isConfirmed,
     getCountryCode: () => {
       try {
-        return sessionStorage.getItem(STORAGE_KEY);
+        return sessionStorage.getItem(STORAGE_KEY) || displayedCountryCode();
       } catch (_) {
         return null;
       }
