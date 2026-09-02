@@ -54,6 +54,24 @@ test('WidgetOpenAppReceiver opens child today without completion deep link', () 
   assert.doesNotMatch(src, /complete-action/);
 });
 
+test('WidgetOpenAppReceiver prefers reusing the existing app task and surfacing MainActivity (source-contract check)', () => {
+  const src = fs.readFileSync(path.join(WIDGET_JAVA, 'WidgetOpenAppReceiver.java'), 'utf8');
+  // This asserts the intent flags are present in source — it does not launch
+  // an Activity or verify real task/back-stack behavior on a device/emulator.
+  // NEW_TASK targets a task by taskAffinity (MainActivity has none custom);
+  // CLEAR_TOP additionally drops any activity above MainActivity in that
+  // task before delivering the intent. Combined with MainActivity's
+  // singleTop launchMode (scripts/patch-android-manifest.mjs, required by
+  // RevenueCat), this is intended to make a widget tap reuse the existing
+  // app task rather than layering a new instance on top — real runtime
+  // confirmation still requires a device/emulator smoke test.
+  const launchCalls = src.match(/\.addFlags\(Intent\.FLAG_ACTIVITY_NEW_TASK[^)]*\)/g) || [];
+  assert.ok(launchCalls.length >= 2, 'expected both the primary launch and the fallback launcher intent to set flags');
+  for (const call of launchCalls) {
+    assert.match(call, /FLAG_ACTIVITY_CLEAR_TOP/);
+  }
+});
+
 test('verify-widget-bridge-native checks Android widget layout', () => {
   const src = fs.readFileSync(path.join(ROOT, 'scripts/verify-widget-bridge-native.mjs'), 'utf8');
   assert.match(src, /RoutineWidgetProvider/);
