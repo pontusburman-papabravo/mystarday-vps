@@ -39,6 +39,10 @@ After child login:
 - Child daily view (Idag)
 - Stars and rewards per family configuration
 
+## Second account — IAP purchase path
+
+This complimentary family must **not** be used to buy Monthly/Yearly. For App Review subscription testing use `APP_REVIEW_IAP_EMAIL` / `APP_REVIEW_IAP_PASSWORD` (see [`runbooks/APP-REVIEW-IAP-FAMILY.md`](runbooks/APP-REVIEW-IAP-FAMILY.md) and the 2026-08-31 section in [`app-store-review-notes.md`](app-store-review-notes.md)). Never put that family on the complimentary allowlist, and never put this Anna family on `REVENUECAT_SANDBOX_FAMILY_IDS`.
+
 ## Store Connect / Play Console
 
 Paste **secret names** in internal runbooks; paste **actual values** only in App Store Connect / Play Console secure fields or 1Password — never in git.

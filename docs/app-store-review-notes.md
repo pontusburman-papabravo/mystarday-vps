@@ -1,7 +1,53 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-08-28 | Metadata rejection — missing Terms of Use (EULA) link (corrected)
+> Last updated: 2026-08-31 | IAP reviewer path — submit **1.4.3 (1139)** (READY BUT OFF + dedicated sandbox family)
+
+---
+
+## 2026-08-31 — IAP reviewer path (READY BUT OFF)
+
+**Do not paste secret values into git.** Replace the secret *names* with live values only in App Store Connect → App Review Information.
+
+Ordinary families cannot purchase. Billing stays off (`payment_enabled = false`, `BILLING_UI_DISABLED = true`). App Store Connect already has auto-renewable Monthly and Yearly products, so reviewers must be able to reach those sheets on a **dedicated** account.
+
+**Build to select in App Store Connect:** **1.4.3 (1139)**. Do not submit an older 1.4.3 build.
+
+**Founder device proof (2026-08-31, `EVIDENCE_SOURCE: founder_observation`):** Monthly/Yearly prices distinct after yearly availability; Sandbox Account sign-in reaches the StoreKit sheet; prior sandbox E2E purchase recorded in `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`. Subscription copy follows the in-app language (live SW `stjarndag-v914`). Do **not** submit until the founder says to submit.
+
+### Paste into App Review Information → Notes
+
+Use this when **Sign-In Information is already the IAP review account** (preferred for subscription review). Do not put the literal word `PASSWORD` in the password field — paste the real value from the secret store / VPS `data/app-review-iap.secret`.
+
+```
+Thank you for reviewing My Starday 1.4.3 (1139).
+
+This build uses Apple In-App Purchase (StoreKit) for Premium. There is no web checkout.
+
+The Sign-In Information account is the IAP review account. After login:
+- Stay in the parent experience.
+- Open Settings → Subscription (or the Premium / paywall screen).
+- Monthly and Yearly open Apple’s system purchase sheet.
+- Restore Purchases is on the same screen.
+- Sign in to a Sandbox Apple ID first: iOS Settings → App Store → Sandbox Account (bottom). The sheet should show Environment: Sandbox.
+
+A separate complimentary review account (founding / free Premium, no purchase sheet) is available on request if you need to verify the non-paying family path.
+
+Sign in with Apple is on Create account. Choose language and country first, then tap Continue with Apple. The system sheet must appear on iPhone and iPad.
+
+App language is set in Settings and applies to Subscription / Premium copy. StoreKit sheet language follows the device language.
+
+Children cannot purchase (PIN login only). One subscription covers the household.
+
+Founding and complimentary families keep free Premium and are never charged through IAP.
+
+Terms of Use (Apple Standard EULA):
+https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+```
+
+### App Review Information — Sign-In Information
+
+For this submission, put the **IAP** account in the official username/password fields (`APP_REVIEW_IAP_EMAIL` / `APP_REVIEW_IAP_PASSWORD` from the secret store or VPS `data/app-review-iap.secret`). Never commit those values. Never leave the password as the placeholder word `PASSWORD`.
 
 ---
 
