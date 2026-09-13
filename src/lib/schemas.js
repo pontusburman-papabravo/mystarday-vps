@@ -599,6 +599,8 @@ const futureExpiresAt = z.string({ required_error: 'expiresAt krävs' })
     }
   });
 
+// Discriminated on `type`: permanent has no expiresAt field. `.strict()` then
+// rejects expiresAt (and adminId) instead of stripping them.
 const AdminPremiumGrantSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('temporary'),

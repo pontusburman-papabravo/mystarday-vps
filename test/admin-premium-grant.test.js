@@ -90,7 +90,7 @@ describe('admin premium grant source contracts', () => {
     assert.match(route, /req\.user\.id/);
   });
 
-  test('admin unique migration has down() and deterministic keep-newest cleanup', () => {
+  test('admin unique migration has down() and live-over-expired cleanup', () => {
     const mig = require('../migrations/1810490000000_family_entitlements_admin_unique');
     assert.equal(typeof mig.up, 'function');
     assert.equal(typeof mig.down, 'function');
@@ -99,11 +99,40 @@ describe('admin premium grant source contracts', () => {
       path.join(__dirname, '../migrations/1810490000000_family_entitlements_admin_unique.js'),
       'utf8'
     );
-    assert.match(src, /granted_at DESC, created_at DESC, id DESC/);
+    assert.match(src, /expires_at IS NULL OR expires_at > NOW\(\)/);
     assert.match(src, /WHERE source = 'admin'/);
     assert.match(src, /idx_family_entitlements_admin_unique/);
     assert.doesNotMatch(src, /WHERE source = 'grandfathered'/);
     assert.doesNotMatch(src, /WHERE source = 'intro_year'/);
+  });
+
+  test('permanent grant schema is a discriminated union that forbids expiresAt', () => {
+    const { AdminPremiumGrantSchema } = require('../src/lib/schemas');
+    const ok = AdminPremiumGrantSchema.safeParse({
+      type: 'permanent',
+      reason: 'support without end',
+    });
+    assert.equal(ok.success, true);
+
+    const withExpires = AdminPremiumGrantSchema.safeParse({
+      type: 'permanent',
+      reason: 'support without end',
+      expiresAt: new Date(Date.now() + 86400000).toISOString(),
+    });
+    assert.equal(withExpires.success, false);
+
+    const missingExpires = AdminPremiumGrantSchema.safeParse({
+      type: 'temporary',
+      reason: 'week of support',
+    });
+    assert.equal(missingExpires.success, false);
+
+    const unknownKey = AdminPremiumGrantSchema.safeParse({
+      type: 'permanent',
+      reason: 'support without end',
+      adminId: 'not-from-body',
+    });
+    assert.equal(unknownKey.success, false);
   });
 });
 
@@ -155,7 +184,7 @@ test('admin premium grant/revoke DB + HTTP merge gate', async (t) => {
     assert.equal(await activeAdminCount(db, family.id), 1);
   });
 
-  await t.test('dedupe keeps newest granted_at admin row only', async () => {
+  await t.test('dedupe keeps oldest live admin row among two unrevoked live grants', async () => {
     const family = await createFamilyDirect(db, POST_CUTOFF);
     const client = await db.pool.connect();
     try {
@@ -189,20 +218,90 @@ test('admin premium grant/revoke DB + HTTP merge gate', async (t) => {
         [family.id]
       );
       assert.equal(active.rowCount, 1);
-      assert.equal(active.rows[0].id, newer.rows[0].id);
+      assert.equal(active.rows[0].id, older.rows[0].id);
       const intro = await client.query(
         `SELECT revoked_at FROM family_entitlements
          WHERE family_id = $1 AND source = 'intro_year'`,
         [family.id]
       );
       assert.equal(intro.rows[0].revoked_at, null);
-      const old = await client.query(
+      const newerRow = await client.query(
         `SELECT revoked_at FROM family_entitlements WHERE id = $1`,
-        [older.rows[0].id]
+        [newer.rows[0].id]
       );
-      assert.ok(old.rows[0].revoked_at);
-      await client.query('ROLLBACK');
+      assert.ok(newerRow.rows[0].revoked_at);
     } finally {
+      try { await client.query('ROLLBACK'); } catch { /* not in a txn */ }
+      client.release();
+    }
+  });
+
+  await t.test('dedupe keeps live admin over a newer expired unrevoked row; resolver source unchanged', async () => {
+    const family = await createFamilyDirect(db, POST_CUTOFF);
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DROP INDEX IF EXISTS idx_family_entitlements_admin_unique');
+      const live = await client.query(
+        `INSERT INTO family_entitlements (
+           family_id, entitlement_key, source, status, granted_at, expires_at, metadata
+         ) VALUES (
+           $1, 'basic', 'admin', 'active', NOW() - INTERVAL '10 days',
+           NOW() + INTERVAL '20 days', '{"reason":"still live"}'::jsonb
+         ) RETURNING id`,
+        [family.id]
+      );
+      const expiredNewer = await client.query(
+        `INSERT INTO family_entitlements (
+           family_id, entitlement_key, source, status, granted_at, expires_at, metadata
+         ) VALUES (
+           $1, 'basic', 'admin', 'active', NOW() - INTERVAL '1 hour',
+           NOW() - INTERVAL '1 day', '{"reason":"expired newer"}'::jsonb
+         ) RETURNING id`,
+        [family.id]
+      );
+      await client.query(
+        `INSERT INTO family_entitlements (
+           family_id, entitlement_key, source, status, starts_at, expires_at, granted_at, metadata
+         ) VALUES (
+           $1, 'basic', 'intro_year', 'active', NOW() - INTERVAL '1 day',
+           NOW() + INTERVAL '300 days', NOW() - INTERVAL '30 days', '{"reason":"intro"}'::jsonb
+         )`,
+        [family.id]
+      );
+      const before = await resolveFamilyEntitlements(family.id, new Date(), { client });
+      assert.equal(before.premium.active, true);
+      assert.equal(before.premium.source, 'admin');
+      assert.equal(before.premium.entitlement_row_id, live.rows[0].id);
+
+      const mig = require('../migrations/1810490000000_family_entitlements_admin_unique');
+      await mig.dedupeActiveAdminEntitlements(client);
+
+      const unrevoked = await client.query(
+        `SELECT id, expires_at FROM family_entitlements
+         WHERE family_id = $1 AND source = 'admin' AND revoked_at IS NULL`,
+        [family.id]
+      );
+      assert.equal(unrevoked.rowCount, 1);
+      assert.equal(unrevoked.rows[0].id, live.rows[0].id);
+      const expired = await client.query(
+        `SELECT revoked_at FROM family_entitlements WHERE id = $1`,
+        [expiredNewer.rows[0].id]
+      );
+      assert.ok(expired.rows[0].revoked_at);
+      const intro = await client.query(
+        `SELECT revoked_at FROM family_entitlements
+         WHERE family_id = $1 AND source = 'intro_year'`,
+        [family.id]
+      );
+      assert.equal(intro.rows[0].revoked_at, null);
+
+      const after = await resolveFamilyEntitlements(family.id, new Date(), { client });
+      assert.equal(after.premium.active, true);
+      assert.equal(after.premium.source, 'admin');
+      assert.equal(after.premium.entitlement_row_id, live.rows[0].id);
+    } finally {
+      try { await client.query('ROLLBACK'); } catch { /* not in a txn */ }
       client.release();
     }
   });
@@ -738,6 +837,67 @@ test('admin premium grant/revoke DB + HTTP merge gate', async (t) => {
       }
     } finally {
       await http.close();
+    }
+  });
+
+  await t.test('HTTP Hub: active intro_year stays Premium Aktiv after admin revoke', async () => {
+    const { setLifetimeFreeUntil } = require('../src/lib/payment-settings');
+    await setLifetimeFreeUntil('2020-01-01T00:00:00+02:00');
+    delete require.cache[require.resolve('../app')];
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      const adminSession = await loginAsAdmin(http.baseUrl, db, await registerAndLogin(http.baseUrl));
+      const target = await createFamilyDirect(db, '2026-01-15T08:00:00+02:00');
+      await resolveFamilyEntitlements(target.id);
+
+      const before = await fetch(`${http.baseUrl}/api/admin/families/${target.id}/overview`, {
+        headers: { Cookie: cookieHeader(adminSession.cookies) },
+      });
+      const beforeText = await before.text();
+      assert.equal(before.status, 200, beforeText);
+      const beforeBody = JSON.parse(beforeText);
+      assert.equal(beforeBody.premium.active, true);
+      assert.equal(beforeBody.premium.source, 'intro_year');
+
+      const granted = await fetch(`${http.baseUrl}/api/admin/families/${target.id}/premium-grant`, {
+        method: 'POST',
+        headers: headers(adminSession),
+        body: JSON.stringify({
+          type: 'permanent',
+          reason: 'temporary overlap with live intro year',
+        }),
+      });
+      const grantedText = await granted.text();
+      assert.equal(granted.status, 200, grantedText);
+      const grantedBody = JSON.parse(grantedText);
+      assert.equal(grantedBody.premium.active, true);
+      assert.equal(grantedBody.premium.source, 'admin');
+
+      const revoked = await fetch(`${http.baseUrl}/api/admin/families/${target.id}/premium-grant/revoke`, {
+        method: 'POST',
+        headers: headers(adminSession),
+        body: JSON.stringify({ reason: 'restore intro year' }),
+      });
+      const revokedText = await revoked.text();
+      assert.equal(revoked.status, 200, revokedText);
+      const revokedBody = JSON.parse(revokedText);
+      assert.equal(revokedBody.premium.active, true);
+      assert.equal(revokedBody.premium.source, 'intro_year');
+
+      const after = await fetch(`${http.baseUrl}/api/admin/families/${target.id}/overview`, {
+        headers: { Cookie: cookieHeader(adminSession.cookies) },
+      });
+      const afterBody = JSON.parse(await after.text());
+      assert.equal(afterBody.premium.active, true);
+      assert.equal(afterBody.premium.source, 'intro_year');
+      const intro = (afterBody.entitlements || []).find((row) => row.source === 'intro_year');
+      assert.ok(intro);
+      assert.equal(intro.active, true);
+      assert.equal(intro.effective, true);
+    } finally {
+      await http.close();
+      await setLifetimeFreeUntil('2026-09-14T00:00:00+02:00');
     }
   });
 

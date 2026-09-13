@@ -1,10 +1,15 @@
 'use strict';
 
 /**
- * One active admin Premium grant per family+key.
- * Duplicate unrevoked admin rows are collapsed before the unique index:
- * keep the newest granted_at (then created_at, then id). History stays.
- * Does not touch grandfather, intro_year, apple, google, or gift rows.
+ * One unrevoked admin Premium grant per family+key.
+ *
+ * Duplicate unrevoked admin rows are collapsed before the unique index.
+ * Keeper is the row the resolver would already treat as effective:
+ *   1. semantically live (expires_at IS NULL OR expires_at > NOW())
+ *   2. among live rows, oldest granted_at (resolver scans granted_at ASC)
+ *   3. if none are live, newest expired row (history only)
+ *
+ * History stays. Does not touch grandfather, intro_year, apple, google, or gift.
  */
 
 async function dedupeActiveAdminEntitlements(client) {
@@ -22,7 +27,16 @@ async function dedupeActiveAdminEntitlements(client) {
       FROM family_entitlements
       WHERE source = 'admin'
         AND revoked_at IS NULL
-      ORDER BY family_id, entitlement_key, granted_at DESC, created_at DESC, id DESC
+      ORDER BY
+        family_id,
+        entitlement_key,
+        (expires_at IS NULL OR expires_at > NOW()) DESC,
+        CASE
+          WHEN expires_at IS NULL OR expires_at > NOW() THEN granted_at
+        END ASC NULLS LAST,
+        granted_at DESC,
+        created_at DESC,
+        id DESC
     ) keeper
     WHERE fe.source = 'admin'
       AND fe.revoked_at IS NULL
