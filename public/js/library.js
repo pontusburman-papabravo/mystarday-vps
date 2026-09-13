@@ -1009,6 +1009,11 @@ function openActivityModalById(id) {
   if (act) openActivityModal(act);
 }
 
+function openRewardModalById(id) {
+  const reward = rewards.find((r) => String(r.id) === String(id));
+  if (reward) openRewardModal(reward);
+}
+
 async function openActivityModal(act) {
   document.getElementById('activityId').value = act ? act.id : '';
   document.getElementById('activityName').value = act ? act.name : '';
@@ -1354,7 +1359,7 @@ async function onRewardSearch(query) {
             <div class="text-xs text-text-soft">${r.star_cost} ⭐</div>
           </div>
         </div>
-        <button onclick='openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})'
+        <button onclick="openRewardModalById('${r.id}')"
           class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ Redigera</button>
       </div>
     `).join('');
@@ -1484,7 +1489,7 @@ function renderRewardItem(r) {
           class="reward-toggle px-2 py-1 ${isActive ? 'bg-mint text-green-700' : 'bg-gray-100 text-text-soft'} hover:opacity-80 rounded-lg text-sm transition-colors">
           ${isActive ? '✓' : '○'}
         </button>
-        <button onclick='openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})'
+        <button onclick="openRewardModalById('${r.id}')"
           class="icon-btn px-2 py-1 bg-lavender hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors text-text-soft">✏️</button>
         <button onclick="deleteReward('${r.id}', '${escHtml(r.name)}')"
           class="icon-btn px-2 py-1 border border-coral/40 hover:border-red-400 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors text-red-400">✕</button>
@@ -1494,7 +1499,7 @@ function renderRewardItem(r) {
         <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-r-${r.id}')" aria-label="Fler alternativ">⋯</button>
         <div id="omenu-r-${r.id}" class="overflow-menu-popup">
           <button onclick="closeOverflowMenus();toggleRewardActive('${r.id}', ${isActive})">${isActive ? '○ Inaktivera' : '✓ Aktivera'}</button>
-          <button onclick="closeOverflowMenus();openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})">✏️ Redigera</button>
+          <button onclick="closeOverflowMenus();openRewardModalById('${r.id}')">✏️ Redigera</button>
           <button class="danger" onclick="closeOverflowMenus();deleteReward('${r.id}', '${escHtml(r.name)}')">✕ Ta bort</button>
         </div>
       </div>
@@ -1697,6 +1702,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Magic hub modules resolve these on window (Capacitor WebView-safe).
 window.openActivityModal = openActivityModal;
 window.openActivityModalById = openActivityModalById;
+window.openRewardModalById = openRewardModalById;
 window.openRewardModal = openRewardModal;
 window.selectSchemaTab = selectSchemaTab;
 window.loadActivities = loadActivities;

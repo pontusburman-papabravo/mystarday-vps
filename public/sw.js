@@ -318,7 +318,7 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
-const CACHE_NAME = 'stjarndag-v956'; // Remove founder + for-dig outcome banners from Hem
+const CACHE_NAME = 'stjarndag-v957'; // fix(library): reward Redigera on mobile overflow menu
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -705,6 +705,7 @@ const CACHE_NAME = 'stjarndag-v956'; // Remove founder + for-dig outcome banners
 // stjarndag-v954: Rapid Entry seed-name reuse before create + native tab bar height token
 // stjarndag-v953: Rapid Entry overlapping Save queue + schedule bottom-nav clearance
 // stjarndag-v956: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v957: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
