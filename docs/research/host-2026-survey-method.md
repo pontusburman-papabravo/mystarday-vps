@@ -40,4 +40,15 @@ Kort intern läsanvisning. Inte akademisk forskning.
 - **Incentive bias:** presentkortet kan locka andra än "typiska" blivande användare, och kan ge snabbare/mindre genomtänkta svar.
 - **Kampanjtrafik:** Meta-annonskohort, inte slumpurval.
 
+## Datum (utlottning vs Premium)
+
+Utlottningen och Premium-erbjudandet är inte samma sak. Offentlig copy säger "senast 30 september" / "kl. 23:59 svensk tid" utan att påstå att klockslagen är identiska.
+
+| Händelse | Instant | Europe/Stockholm (CEST, UTC+2) |
+|---|---|---|
+| Sista giltiga utlottningsanmälan | `2026-09-30T21:59:59.000Z` | 30 september 2026 23:59:59 |
+| Premium-cutoff (`payment_start_at`) | `2026-10-01T00:00:00+02:00` = `2026-09-30T22:00:00.000Z` | 1 oktober 2026 00:00:00 |
+
+Utlottningen stänger **en sekund** före Premium-cutoff — inte en timme. `21:59:59Z` är 23:59:59 svensk sommartid, inte 23:59 UTC.
+
 Admin: Enkäter → `host-2026` → rapport (fördelning, fritext) + tävlingspanel (antal e-post). Inga nya dashboards.

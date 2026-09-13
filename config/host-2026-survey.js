@@ -7,7 +7,12 @@
 
 const HOST_2026_SURVEY_SLUG = 'host-2026';
 
-/** Last moment to enter: 30 Sep 2026 23:59:59 Europe/Stockholm (CEST, UTC+2). */
+/**
+ * Last valid lottery entry: 30 Sep 2026 23:59:59 Europe/Stockholm (CEST, UTC+2).
+ * Instant `2026-09-30T21:59:59.000Z` is one second before Premium
+ * `payment_start_at` (`2026-10-01T00:00:00+02:00` = `2026-09-30T22:00:00.000Z`),
+ * not one hour.
+ */
 const HOST_2026_CLOSES_AT = '2026-09-30T21:59:59.000Z';
 
 const TEXT_LONG_MAX = 1000;

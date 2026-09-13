@@ -13,6 +13,7 @@ const privacy = fs.readFileSync(path.join(ROOT, 'public/privacy.html'), 'utf8');
 const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
 const publicSurveys = fs.readFileSync(path.join(ROOT, 'src/routes/surveys/public.js'), 'utf8');
 const methodDoc = fs.readFileSync(path.join(ROOT, 'docs/research/host-2026-survey-method.md'), 'utf8');
+const paymentSettingsSrc = fs.readFileSync(path.join(ROOT, 'src/lib/payment-settings.js'), 'utf8');
 const seed = require('../config/host-2026-survey');
 const { isAllowlistedPublicSurveySlug } = require('../src/lib/survey-public-access');
 
@@ -96,4 +97,16 @@ test('method doc states directional research and no price decisions', () => {
   assert.match(methodDoc, /directional product research/);
   assert.match(methodDoc, /självselekterade/);
   assert.match(methodDoc, /Prisbeslut/);
+  assert.match(methodDoc, /en sekund/);
+  assert.doesNotMatch(methodDoc, /en timme före/);
+});
+
+test('lottery close is one second before Premium cutoff, not one hour', () => {
+  assert.equal(seed.HOST_2026_CLOSES_AT, '2026-09-30T21:59:59.000Z');
+  assert.match(paymentSettingsSrc, /DEFAULT_PAYMENT_START_AT = '2026-10-01T00:00:00\+02:00'/);
+  const lotteryClose = Date.parse(seed.HOST_2026_CLOSES_AT);
+  const premiumCutoff = Date.parse('2026-10-01T00:00:00+02:00');
+  assert.equal(premiumCutoff - lotteryClose, 1000);
+  assert.equal(new Date(premiumCutoff).toISOString(), '2026-09-30T22:00:00.000Z');
+  assert.doesNotMatch(methodDoc, /en timme före/);
 });
