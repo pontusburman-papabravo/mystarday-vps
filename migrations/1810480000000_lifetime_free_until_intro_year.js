@@ -10,6 +10,10 @@ const DEFAULT_LIFETIME_FREE_UNTIL = '2026-09-14T00:00:00+02:00';
 
 module.exports = {
   name: '1810480000000_lifetime_free_until_intro_year',
+  snapshotContract: {
+    backwardCompatible: true,
+    allowedBusinessTableFingerprintChanges: ['family'],
+  },
   up: async (client) => {
     await client.query(`
       INSERT INTO app_settings (key, value, updated_at)
