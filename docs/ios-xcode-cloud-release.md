@@ -19,7 +19,8 @@ Normal iOS releases: **Cursor/GitHub → merge `main` → `ios-v*` tag → Xcode
 7. **TestFlight** — verify distribution from Xcode Cloud / App Store Connect.
 8. **Physical-device smoke** on TestFlight (iPhone): fresh install, login/signup, parent/child core flow, **no ATT popup**, no Meta/privacy crash, supported iOS versions OK, **no widget** in this build.
 9. **App Store Connect privacy** — data collected must be accurate; **no data marked “Used for Tracking”** if shipping the no-tracking contract (no cross-app tracking, no ATT, no IDFA).
-10. **App Review** — submit with review note (see below).
+10. **App Store Connect version 1.4.4** — Apple copies metadata from the current version. Verify Swedish + English (UK). Replace screenshots on **this** version (not on live 1.4.3). Check Monthly/Yearly **ASC status**; add them to the same draft **only if not yet approved**. Do not reuse build 1182.
+11. **App Review** — Review Notes, both review accounts, SIWA, physical IAP path, then Submit. No extra product in this binary.
 
 ## Product decisions (1.4)
 

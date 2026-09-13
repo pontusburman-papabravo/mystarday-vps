@@ -3,7 +3,7 @@
 > **Beta listing copy** for English-speaking families in **Sweden only**.
 > App name: **My Starday**. Do not imply UK/US/EU availability outside Sweden.
 
-> **⚠️ EULA fix (2026-08-28):** The Terms of Use line below links to **Apple's Standard EULA** (`https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`) — we use the standard agreement, not a custom one, and our own `/terms` page (platform-neutral, also covers Android) must not be described as Apple's EULA. Update this **Description** under the current iOS app version in App Store Connect (not the app-level *App Information* tab), for the English (UK) localization, and resubmit the same build. See `docs/app-store-connect-metadata.md` for the primary (Swedish) fix and `docs/app-store-review-notes.md` for the reviewer reply.
+> **EULA line (kept from Apple’s 2026-08-28 rejection, not a generic 3.1.2(c) reading):** Description includes Apple’s Standard EULA URL. Do not label our `/terms` as Apple’s EULA. On a **new version**, metadata copies from the current version — **verify the line transferred**. Live 1.4.3 SE listing already has the Swedish equivalent.
 
 ---
 

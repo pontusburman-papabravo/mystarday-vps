@@ -1,11 +1,13 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-09-13 | ITMS-90186 / ITMS-90062 closed train 1.4.3 → ship 1.4.4
+> Last updated: 2026-09-13 | 1.4.4 = version bump + screenshots + ASC submission. No new product.
 
 ---
 
-## Version 1.4.4 — ITMS-90186 / ITMS-90062 Invalid Pre-Release Train (2026-09-13)
+## Version 1.4.4 — closed train 1.4.3 (ITMS-90186 / ITMS-90062)
+
+**Scope:** versionsbump + nya screenshots + korrekt ASC-submission + redan beslutade review-fixar. **Ingen ny produktfunktion.**
 
 **Delivery rejection (version 1.4.3, build 1182):**
 
@@ -14,14 +16,29 @@
 
 **Root cause:** Apple already approved marketing version 1.4.3. A new binary cannot reuse that train.
 
-**Fix (repo + new binary):**
+### Release gate (human)
 
-1. `MARKETING_VERSION` is **1.4.4** in `ios/App/App.xcodeproj/project.pbxproj` (`npm run ios:xcode-cloud:version -- 1.4.4`).
-2. Merge to `main`, tag **`ios-v1.4.4`**, archive with Xcode Cloud (new `CI_BUILD_NUMBER`; do not reuse 1182).
-3. Create App Store Connect version **1.4.4** and attach the new build.
-4. Closed train `1.4.3` is encoded in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions` so Check I fails if we try to ship it again.
+1. Merge the 1.4.4 marketing-version PR. No extra product PRs.
+2. Tag **`ios-v1.4.4`** on merged `main`. Archive a **new** Xcode Cloud build — do **not** reuse 1182.
+3. Create ASC version **1.4.4**. Apple **transfers metadata from the current version automatically** ([Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version)). **Verify** Swedish + English (UK) Description, URLs, and the Standard EULA line actually copied. Do not treat the new version as blank and re-key everything.
+4. **Replace screenshots now.** After a version is Ready for Distribution, screenshots on that live version cannot be swapped without a new version. That is why newer captures did not replace the public 1.4.3 set.
+5. **Subscriptions:** check Monthly + Yearly **status in ASC**. The first auto-renewable subscription of that type must be submitted **with an app version**; after that type is approved, later items can be submitted separately ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** assume products must be “re-linked” to 1.4.4. Put them in the **same draft submission as 1.4.4 only if they are not yet approved**.
+6. Before Submit: Review Notes (both accounts), review login, Sign in with Apple, physical IAP path.
 
-This is a **version-train** rejection, not a Guideline 2.1/3.1 product defect. Keep the IAP/EULA review notes below when submitting 1.4.4.
+Closed train `1.4.3` is encoded in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
+
+### Public store evidence (2026-09-13) — not ASC console status
+
+| Fact | Evidence | Status |
+|---|---|---|
+| App version live | iTunes lookup `id=6774493098` country=SE/IE/FI → `version=1.4.3`, `currentVersionReleaseDate=2026-09-13T05:51:54Z`, price free | **FACT** |
+| Standard EULA line on product page | Live SE Description ends with `Användarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/` | **FACT** |
+| Named subscriptions on public shelf | Live SE listing: **Premium Årsvis 590,00 kr** + **Premium Månadsvis 59,00 kr**, subtitle “Köp inuti app” | **FACT** (public page) |
+| Exact ASC enum (Approved / Waiting for Review / Developer Action Needed) | No App Store Connect API in this environment | **NOT_VERIFIED** |
+
+Implication: first auto-renewable subscription type **appears already sellable** on the public 1.4.3 listing, so 1.4.4 should **not** default to attaching Monthly/Yearly. Open ASC → Subscriptions and confirm. Add them to the 1.4.4 draft **only** if they are still waiting on first approval (or were returned with the 1.4.3 review thread).
+
+This is a **version-train** rejection, not a new Guideline 2.1/3.1 product defect. Keep the existing IAP locate notes and the **rejection-specific** EULA line (below) when submitting 1.4.4.
 
 ---
 
@@ -29,9 +46,13 @@ This is a **version-train** rejection, not a Guideline 2.1/3.1 product defect. K
 
 **Rejection:** *"The submission did not include all the required information for apps offering auto-renewable subscriptions… a functional link to the Terms of Use (EULA)… in the App Store metadata."*
 
-**Root cause (verified):** App Store Connect **Description** is missing Apple's Standard EULA URL. We use **Apple's Standard EULA** (no custom License Agreement). The in-app Premium screen already shows subscription title, duration, StoreKit price, and functional Privacy + Terms links — this rejection is **metadata-first**, not a binary defect.
+**Guideline vs this rejection:** Review Guideline **3.1.2(c)** requires clear subscription information and Apple’s subscription-agreement rules. It does **not** literally say “put Apple’s Standard EULA URL in the App Description.” We keep that URL because **this review rejection required a functional Terms of Use (EULA) link in App Store metadata.** Do not document it as a generic 3.1.2(c) interpretation.
 
-**Fix — App Store Connect only, no new build:**
+**Root cause (verified for that submission):** App Store Connect **Description** lacked Apple's Standard EULA URL. We use **Apple's Standard EULA** (no custom License Agreement). The in-app Premium screen already shows subscription title, duration, StoreKit price, and functional Privacy + Terms links — that rejection was **metadata-first**, not a binary defect. The live 1.4.3 SE listing now includes the line; for 1.4.4 **verify it copied**, do not assume the field is empty.
+
+**Fix — App Store Connect only, no new build (historical 1.4.3 steps):**
+
+For **1.4.4**, do not re-append this line by default — **verify it copied** from live 1.4.3. The numbered steps below were for the then-current 1.4.3 submission.
 
 1. Open the **current iOS app version** (not the app-level *App Information* tab).
 2. For **every active localization** (min. Swedish + English UK), append to **Description** on its own line:
@@ -201,7 +222,7 @@ Historical only: build 1139 failed because login tried to create an account with
 
 **Rejection:** *"The submission offers auto-renewable subscriptions but does not include a functional link to the Terms of Use (EULA) in the app metadata that appears on the app's App Store product page."*
 
-**Root cause:** This is the first submission with Apple subscription products live in App Store Connect (see `docs/PAYMENTS_V1_STATUS.md` — in-app billing UI is still off, but the ASC subscription group/products now exist, which triggers Apple's EULA-link requirement on the product page). The **App Description** pasted into App Store Connect never included a link to any Terms of Use / EULA, and no custom EULA is set in App Store Connect → License Agreement, so App Review found neither.
+**Root cause:** This was the first submission where Apple subscription products existed in App Store Connect (see `docs/PAYMENTS_V1_STATUS.md` — in-app billing UI still off). App Review’s **written rejection** required a functional Terms of Use (EULA) link in App Store metadata. Guideline 3.1.2(c) itself is about subscription information and Apple’s subscription-agreement rules; it does not literally prescribe this Description URL. The **App Description** at the time had no Terms of Use / EULA link, and no custom EULA was set under License Agreement.
 
 **Correction (2026-08-28):** An earlier version of this fix linked the Description to our own `/terms` page and labelled it "EULA." That was wrong and has been corrected:
 - We use **Apple's Standard EULA** — not a custom license agreement — so the Description must link to **Apple's own standard EULA URL**, not to our app's Terms of Use.

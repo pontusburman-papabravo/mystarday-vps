@@ -153,7 +153,8 @@
   "appleEula": {
     "mode": "standard",
     "standardUrl": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
-    "forbiddenSelfHostedEulaPaths": ["/terms"]
+    "forbiddenSelfHostedEulaPaths": ["/terms"],
+    "retentionReason": "Kept because Apple’s 2026-08-28 review rejection required a functional Terms of Use (EULA) link in App Store metadata. Not a generic reading of Guideline 3.1.2(c)."
   },
 
   "expectedLegalRoutePaths": [

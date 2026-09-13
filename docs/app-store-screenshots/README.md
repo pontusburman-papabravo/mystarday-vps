@@ -28,6 +28,8 @@ Playwright-skriptet (`capture-app-store-screenshots.mjs`) fångar **mobil webb/P
 
 **Ta screenshots i Xcode Simulator eller TestFlight på iPhone** — se [`NATIVE-CAPTURE.md`](./NATIVE-CAPTURE.md).
 
+After a version is **Ready for Distribution**, Apple does not let you replace that version’s screenshots. Upload replacements on the **next** version (1.4.4). Public 1.4.3 still shows the `Min_Stjarndag_V3_*` set for that reason.
+
 ---
 
 ## Web-referens (internt only)
