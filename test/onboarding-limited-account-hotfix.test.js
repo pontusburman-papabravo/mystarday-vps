@@ -26,6 +26,26 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
+async function expireIntroYearForEmail(email) {
+  const runtimeDb = require('../src/lib/db');
+  await runtimeDb.query(
+    `UPDATE family_entitlements fe
+     SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+     FROM parent p
+     WHERE p.email = $1
+       AND fe.family_id = p.family_id
+       AND fe.source = 'intro_year'
+       AND fe.revoked_at IS NULL`,
+    [email.toLowerCase()]
+  );
+}
+
+async function registerLimited(baseUrl) {
+  const session = await registerAndLogin(baseUrl);
+  await expireIntroYearForEmail(session.email);
+  return session;
+}
+
 async function setPaymentStart(iso, db) {
   for (const key of Object.keys(require.cache)) {
     if (
@@ -167,6 +187,8 @@ test('limited onboarding authorization integration A–J', async (t) => {
 
   try {
     await setPaymentStart('2020-01-01T00:00:00+02:00', db);
+    const { setLifetimeFreeUntil } = require('../src/lib/payment-settings');
+    await setLifetimeFreeUntil('2020-01-01T00:00:00+02:00');
     billingSnap = await enablePublicBillingForTest();
     const { getPaymentStartAt } = require('../src/lib/payment-settings');
     const cutoff = await getPaymentStartAt();
@@ -179,7 +201,7 @@ test('limited onboarding authorization integration A–J', async (t) => {
       assert.equal(res.status, 401);
     });
 
-    const session = await registerAndLogin(limitedHttp.baseUrl);
+    const session = await registerLimited(limitedHttp.baseUrl);
     const headers = parentHeaders(session);
 
     await t.test('A: first-run GET template-groups → 200', async () => {
@@ -214,13 +236,13 @@ test('limited onboarding authorization integration A–J', async (t) => {
     });
 
     await t.test('D: full first-run client sequence succeeds without Premium', async () => {
-      const fresh = await registerAndLogin(limitedHttp.baseUrl);
+      const fresh = await registerLimited(limitedHttp.baseUrl);
       const child = await runLimitedFirstRunBootstrap(limitedHttp, fresh);
       assert.ok(child.id);
     });
 
     await t.test('E: completed limited parent cannot POST second child', async () => {
-      const finished = await registerAndLogin(limitedHttp.baseUrl);
+      const finished = await registerLimited(limitedHttp.baseUrl);
       await runLimitedFirstRunBootstrap(limitedHttp, finished);
       const res = await fetch(`${limitedHttp.baseUrl}/api/onboarding/child`, {
         method: 'POST',
@@ -233,7 +255,7 @@ test('limited onboarding authorization integration A–J', async (t) => {
     });
 
     await t.test('F: completed limited parent cannot mutate via onboarding reward/schedule', async () => {
-      const finished = await registerAndLogin(limitedHttp.baseUrl);
+      const finished = await registerLimited(limitedHttp.baseUrl);
       const child = await runLimitedFirstRunBootstrap(limitedHttp, finished);
       const h = parentHeaders(finished);
 
@@ -317,7 +339,7 @@ test('limited onboarding authorization integration A–J', async (t) => {
     });
 
     await t.test('L: complete retry-safe when markParentOnboardingComplete fails once', async () => {
-      const retrySession = await registerAndLogin(limitedHttp.baseUrl);
+      const retrySession = await registerLimited(limitedHttp.baseUrl);
       const child = await runLimitedFirstRunBootstrapBeforeComplete(limitedHttp, retrySession);
       const appDb = require('../src/lib/db');
       const familyRow = await appDb.query(
@@ -373,7 +395,7 @@ test('limited onboarding authorization integration A–J', async (t) => {
     });
 
     await t.test('M: complete retry-safe when bootstrap marker write fails once', async () => {
-      const retrySession = await registerAndLogin(limitedHttp.baseUrl);
+      const retrySession = await registerLimited(limitedHttp.baseUrl);
       await runLimitedFirstRunBootstrapBeforeComplete(limitedHttp, retrySession);
       const appDb = require('../src/lib/db');
       const familyRow = await appDb.query(
@@ -419,6 +441,8 @@ test('limited onboarding authorization integration A–J', async (t) => {
     if (limitedHttp) await limitedHttp.close();
     if (billingSnap) await disablePublicBillingForTest(billingSnap);
     await setPaymentStart(savedPaymentStart, db);
+    const { setLifetimeFreeUntil } = require('../src/lib/payment-settings');
+    await setLifetimeFreeUntil('2026-09-14T00:00:00+02:00');
     await db.cleanup();
   }
 });
