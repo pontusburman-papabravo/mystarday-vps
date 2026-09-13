@@ -209,6 +209,10 @@ function renderSubscriptionSettings() {
   toggle.checked = !!subscriptionData.payment_enabled;
   document.getElementById('paymentToggleLabel').textContent = subscriptionData.payment_enabled ? 'PÅ' : 'AV';
 
+  if (typeof window.renderPaymentGoLivePanel === 'function') {
+    window.renderPaymentGoLivePanel(subscriptionData.payment_go_live);
+  }
+
   // Add-ons
   renderAddons(subscriptionData.addons || []);
 }

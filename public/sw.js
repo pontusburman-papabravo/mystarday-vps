@@ -318,7 +318,7 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
-const CACHE_NAME = 'stjarndag-v958'; // Host 2026 survey + lottery on /kampanj/host-2026
+const CACHE_NAME = 'stjarndag-v959'; // Sweden paid go-live 1 Oct 2026 admin panel
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages

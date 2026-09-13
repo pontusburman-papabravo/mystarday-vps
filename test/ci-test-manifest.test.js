@@ -53,6 +53,7 @@ const CRITICAL_UNIT = [
   'test/android-app-links-patch.test.js',
   'test/pre-public-release-gate.test.js',
   'test/iap-client-config.test.js',
+  'test/payment-go-live.test.js',
   'test/register-form-gate.test.js',
   'test/register-oauth-country-gate.test.js',
   'test/scheduler-registry-contract.test.js',

@@ -69,11 +69,16 @@ function createApp() {
   app.get('/health', async (req, res) => {
     const { readDeployedSha } = require('./src/lib/deployed-sha');
     const { getIapReadinessSnapshot } = require('./src/lib/iap-readiness');
+    const { getPaymentGoLiveSnapshot } = require('./src/lib/payment-go-live');
     const { getEnglishGlobalAvailabilityReadiness } = require('./src/lib/english-app-global-flag');
     const { cacheName } = require('./config/cache-version.json');
     const gitSha = readDeployedSha();
     const iap = await getIapReadinessSnapshot();
     const englishGlobal = await getEnglishGlobalAvailabilityReadiness();
+    const paymentGoLive = await getPaymentGoLiveSnapshot().catch((err) => {
+      console.error('[health] payment go-live snapshot error:', err.message);
+      return { action: 'blocked', blockers: ['snapshot_error'] };
+    });
     res.json({
       status: 'healthy',
       version: '2.3.1',
@@ -81,6 +86,7 @@ function createApp() {
       ...(gitSha ? { git_sha: gitSha } : {}),
       ...iap,
       ...englishGlobal,
+      payment_go_live: paymentGoLive,
     });
   });
 

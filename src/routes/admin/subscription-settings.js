@@ -6,6 +6,7 @@ const appSettings = require('../../../db/app-settings');
 const addons = require('../../../db/subscription-addons');
 const appConfig = require('../../../db/app-config');
 const { normalizeRolloutMode, getRolloutFlags } = require('../../lib/package-access');
+const { getPaymentGoLiveSnapshot, setPaymentGoLiveArmed } = require('../../lib/payment-go-live');
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get('/', async (req, res, next) => {
       addonsResult,
       founder_family_limit,
       rolloutEntry,
+      payment_go_live,
     ] = await Promise.all([
       appSettings.getPaymentEnabled().catch((err) => {
         console.error('[admin:subscription] payment_enabled read error:', err.message);
@@ -60,6 +62,20 @@ router.get('/', async (req, res, next) => {
         console.error('[admin:subscription] rollout read error:', err.message);
         return null;
       }),
+      getPaymentGoLiveSnapshot().catch((err) => {
+        console.error('[admin:subscription] payment go-live snapshot error:', err.message);
+        return {
+          action: 'blocked',
+          blockers: ['snapshot_error'],
+          cutoff_at: null,
+          armed: false,
+          applied_at: null,
+          payment_enabled: false,
+          iap_paid_rollout_ready: false,
+          billing_ui_disabled: true,
+          public_billing_would_be_usable: false,
+        };
+      }),
     ]);
     res.json({
       payment_enabled,
@@ -67,6 +83,7 @@ router.get('/', async (req, res, next) => {
       basic_trial_days,
       founder_family_limit,
       addons: addonsResult.rows,
+      payment_go_live,
       ...buildRolloutPayload(rolloutEntry),
     });
   } catch (err) { next(err); }
@@ -113,6 +130,17 @@ router.patch('/payment-enabled', async (req, res, next) => {
     if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'enabled must be a boolean' });
     await appSettings.setPaymentEnabled(enabled);
     res.json({ payment_enabled: enabled });
+  } catch (err) { next(err); }
+});
+
+// PATCH /api/admin/subscription-settings/payment-go-live-armed
+router.patch('/payment-go-live-armed', async (req, res, next) => {
+  try {
+    const { armed } = req.body;
+    if (typeof armed !== 'boolean') return res.status(400).json({ error: 'armed must be a boolean' });
+    await setPaymentGoLiveArmed(armed);
+    const payment_go_live = await getPaymentGoLiveSnapshot();
+    res.json({ payment_go_live_armed: armed, payment_go_live });
   } catch (err) { next(err); }
 });
 

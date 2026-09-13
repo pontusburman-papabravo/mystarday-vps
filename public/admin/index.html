@@ -1645,6 +1645,24 @@
             </form>
           </div>
 
+          <!-- Sweden paid go-live 1 Oct 2026 -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl" id="paymentGoLiveCard">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">1 oktober — slå på betalningen</h4>
+            <p class="text-sm text-text-soft mb-3">Svenska familjer skapade före 1 okt 2026 00:00 (Stockholm) förblir gratis. Nya svenska familjer betalar via Apple/Google. Irland/Finland öppnas inte av detta.</p>
+            <p id="paymentGoLiveStatus" class="text-sm font-semibold text-navy mb-2">Laddar…</p>
+            <p id="paymentGoLiveCutoff" class="text-xs text-text-soft mb-3"></p>
+            <ul id="paymentGoLiveBlockers" class="text-sm text-red-700 space-y-1 mb-4"></ul>
+            <div class="flex items-center gap-4 mb-2">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="paymentGoLiveArmedToggle" class="sr-only peer">
+                <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gold"></div>
+              </label>
+              <span id="paymentGoLiveArmedLabel" class="text-sm font-semibold text-navy">Armerad</span>
+            </div>
+            <p class="text-xs text-text-soft">Armerad = servern slår på IAP automatiskt vid cutoff om RevenueCat är redo och <code>BILLING_UI_DISABLED</code> är av. Av = behåll kill-switch.</p>
+            <div id="paymentGoLiveMsg" class="text-sm mt-2"></div>
+          </div>
+
           <!-- Payment toggle -->
           <div class="bg-white rounded-2xl border-2 border-lavender p-6 max-w-2xl">
             <h4 class="text-lg font-heading font-bold text-navy mb-4">💳 Betalning aktiverad</h4>
@@ -1655,7 +1673,7 @@
               </label>
               <span id="paymentToggleLabel" class="text-sm font-semibold text-navy">AV</span>
             </div>
-            <p class="text-xs text-text-soft">På = IAP aktivt i appen (familj {gräns+1}+ betalar). Av = ingen IAP-köpväg (under granskning).</p>
+            <p class="text-xs text-text-soft">Nödbrytare efter go-live. På = IAP tillåtet (om paid rollout och billing-UI också är på). Av = ingen köpväg. Före 1 oktober ska denna stå AV — scheduler slår på den automatiskt.</p>
             <div id="paymentToggleMsg" class="text-sm mt-2"></div>
           </div>
 
@@ -2258,6 +2276,7 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
   <script src="/admin/admin-family-hub.js?v=1.1.0"></script>
   <script src="/admin/admin-command-palette.js?v=1.1.0"></script>
+  <script src="/admin/admin-payment-go-live.js?v=1.0.0"></script>
   <script src="/admin/admin-subscription-settings.js?v=1.0.2"></script>
   <script src="/admin/admin-market-gates.js?v=1.0.0"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
