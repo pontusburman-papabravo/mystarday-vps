@@ -3,6 +3,10 @@
 /**
  * Launch-ready-but-closed markets (IE, FI): verify they can open later via
  * flags alone, and that GATE_DEFAULTS keep them closed.
+ *
+ * Open-market signup after the lifetime cutoff is intro-year complete even
+ * when public billing is off. This check must not require payment_start_at
+ * or usable billing for hypothetical IE/FI opens, and must not flip gates.
  */
 
 const path = require('node:path');
@@ -80,8 +84,12 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
     }
 
     // Fixture instant only — no committed commercial IE/FI paid-start date.
+    // Signup completeness for *open* markets is lifetime/intro-year, not billing.
+    // Fail-closed for IE/FI remains GATE_DEFAULTS + marketOpen:false.
+    const lifetimeFreeUntil = paymentSettings.DEFAULT_LIFETIME_FREE_UNTIL;
     const fixturePaymentStart = '2026-10-15T00:00:00Z';
-    const beforePaidStart = new Date('2026-09-01T00:00:00Z');
+    const beforeLifetimeCutoff = new Date('2026-09-13T12:00:00+02:00');
+    const afterLifetimeCutoff = new Date('2026-09-14T08:00:00+02:00');
     const afterPaidStart = new Date('2026-10-16T00:00:00Z');
 
     const closed = invariants.evaluateSignupCompleteness({
@@ -89,19 +97,33 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       marketOpen: false,
       publicBillingUsable: true,
       paymentStartAt: fixturePaymentStart,
-      now: beforePaidStart,
+      lifetimeFreeUntil,
+      now: beforeLifetimeCutoff,
     });
     if (closed.allowed) failures.push(`${code} signup allowed while market closed`);
 
-    const missingStart = invariants.evaluateSignupCompleteness({
+    const closedAfterCutoff = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: false,
+      publicBillingUsable: true,
+      paymentStartAt: fixturePaymentStart,
+      lifetimeFreeUntil,
+      now: afterPaidStart,
+    });
+    if (closedAfterCutoff.allowed) {
+      failures.push(`${code} signup allowed while market closed after lifetime cutoff`);
+    }
+
+    const openBeforeCutoffNoStart = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
       publicBillingUsable: false,
       paymentStartAt: null,
-      now: beforePaidStart,
+      lifetimeFreeUntil,
+      now: beforeLifetimeCutoff,
     });
-    if (missingStart.allowed) {
-      failures.push(`${code} signup allowed with missing payment start (must fail closed)`);
+    if (!openBeforeCutoffNoStart.allowed || openBeforeCutoffNoStart.reason !== 'grandfather_eligible') {
+      failures.push(`${code} hypothetical open-market signup before lifetime cutoff must grandfather without billing`);
     }
 
     const openPrebillingNoBilling = invariants.evaluateSignupCompleteness({
@@ -109,10 +131,23 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       marketOpen: true,
       publicBillingUsable: false,
       paymentStartAt: fixturePaymentStart,
-      now: beforePaidStart,
+      lifetimeFreeUntil,
+      now: beforeLifetimeCutoff,
     });
     if (!openPrebillingNoBilling.allowed) {
       failures.push(`${code} prebilling signup blocked while billing off — configured launch window must allow signup`);
+    }
+
+    const openAfterCutoffNoBilling = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: null,
+      lifetimeFreeUntil,
+      now: afterLifetimeCutoff,
+    });
+    if (!openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'intro_year') {
+      failures.push(`${code} hypothetical open-market signup after lifetime cutoff must use intro year without billing`);
     }
 
     const openAfterPaidStartNoBilling = invariants.evaluateSignupCompleteness({
@@ -120,10 +155,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       marketOpen: true,
       publicBillingUsable: false,
       paymentStartAt: fixturePaymentStart,
+      lifetimeFreeUntil,
       now: afterPaidStart,
     });
-    if (openAfterPaidStartNoBilling.allowed) {
-      failures.push(`${code} signup allowed after payment_start while billing unusable`);
+    if (!openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'intro_year') {
+      failures.push(`${code} hypothetical open-market signup after payment_start must still allow intro year without billing`);
     }
 
     evidence.push({
@@ -161,7 +197,7 @@ function runLaunchReadyMarketChecks(repoRoot) {
     summary:
       status === STATUS.FAIL
         ? 'IE/FI are not launch-ready-but-closed, or a gate default would open them unexpectedly.'
-        : 'IE/FI stay closed by default, have live legal/config, fail closed without a configured paid start, allow prebilling signup when a start is set, and block post-cutoff signup without billing.',
+        : 'IE/FI stay closed by default, have live legal/config, and if hypothetically opened allow grandfather/intro-year signup without requiring public billing.',
     evidence: { checks },
   };
 }
