@@ -300,8 +300,12 @@ async function getSurveyStats(surveyId) {
 }
 
 async function getSurveyResponses(surveyId) {
+  // FILTER avoids json_agg([null]) for submitted rows with no answers.
   const result = await db.query(
-    `SELECT sr.*, json_agg(sra ORDER BY sra.created_at) AS answers
+    `SELECT sr.*, COALESCE(
+       json_agg(sra ORDER BY sra.created_at) FILTER (WHERE sra.id IS NOT NULL),
+       '[]'::json
+     ) AS answers
      FROM survey_responses sr
      LEFT JOIN survey_response_answers sra ON sra.response_id = sr.id
      WHERE sr.survey_id = $1 AND sr.status = 'submitted'
