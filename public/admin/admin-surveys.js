@@ -556,7 +556,7 @@ async function viewResponses(surveyId) {
 
   try {
     const responses = await Auth.api(`/api/admin/surveys/${surveyId}/responses`);
-    if (responses.length === 0) {
+    if (!Array.isArray(responses) || responses.length === 0) {
       document.getElementById('responsesContainer').innerHTML = '<p class="text-text-soft text-sm py-4">Inga inskickade svar ännu.</p>';
       return;
     }
@@ -571,31 +571,47 @@ async function viewResponses(surveyId) {
           ${r.gdpr_consent ? '<span class="text-xs bg-mint text-green-800 px-2 py-0.5 rounded-full">GDPR ✓</span>' : ''}
         </div>
         <div class="space-y-2">
-          ${(r.answers || []).map(a => {
-            const q = questions.find(q => q.id === a.question_id);
-            const opts = q?.options || [];
-            let answerDisplay = '';
-            if (a.scale_value != null) answerDisplay = `⭐ ${a.scale_value}`;
-            else if (a.selected_option_ids && a.selected_option_ids.length > 0) {
-              answerDisplay = a.selected_option_ids.map(oid => {
-                const opt = opts.find(o => o.id === oid);
-                return opt ? opt.option_text : oid;
-              }).join(', ');
-              if (a.freetext_value) answerDisplay += ` (${a.freetext_value})`;
-            } else {
-              answerDisplay = a.answer_text || '—';
-            }
-            return `<div class="bg-sky/50 rounded-lg px-3 py-2">
-              <p class="text-xs text-text-soft">${q ? escHtml(q.question_text) : 'Fråga'}</p>
-              <p class="text-sm font-medium text-navy mt-0.5">${escHtml(answerDisplay)}</p>
-            </div>`;
-          }).join('')}
+          ${renderSurveyAnswerCards(r.answers, questions)}
         </div>
       </div>
     `).join('');
-  } catch (_err) {
-    document.getElementById('responsesContainer').innerHTML = '<p class="text-red-500 text-sm">Kunde inte ladda svar.</p>';
+  } catch (err) {
+    console.error('[admin-surveys] viewResponses', err);
+    const msg = escHtml(err.message || 'Okänt fel');
+    document.getElementById('responsesContainer').innerHTML = `<p class="text-red-500 text-sm">Kunde inte ladda svar. ${msg}</p>`;
   }
+}
+
+function renderSurveyAnswerCards(rawAnswers, questions) {
+  const answers = (Array.isArray(rawAnswers) ? rawAnswers : []).filter((a) => a && typeof a === 'object');
+  if (answers.length === 0) {
+    return '<p class="text-xs text-text-soft">Inga svar sparade på den här inskickningen.</p>';
+  }
+  const optsByQuestion = questions || [];
+  return answers.map((a) => {
+    const q = optsByQuestion.find((question) => qMatchId(question.id, a.question_id));
+    const opts = q?.options || [];
+    let answerDisplay = '';
+    const optionIds = Array.isArray(a.selected_option_ids) ? a.selected_option_ids : [];
+    if (a.scale_value != null) answerDisplay = `⭐ ${a.scale_value}`;
+    else if (optionIds.length > 0) {
+      answerDisplay = optionIds.map((oid) => {
+        const opt = opts.find((o) => qMatchId(o.id, oid));
+        return opt ? opt.option_text : oid;
+      }).join(', ');
+      if (a.freetext_value) answerDisplay += ` (${a.freetext_value})`;
+    } else {
+      answerDisplay = a.answer_text || '—';
+    }
+    return `<div class="bg-sky/50 rounded-lg px-3 py-2">
+      <p class="text-xs text-text-soft">${q ? escHtml(q.question_text) : 'Fråga'}</p>
+      <p class="text-sm font-medium text-navy mt-0.5">${escHtml(answerDisplay)}</p>
+    </div>`;
+  }).join('');
+}
+
+function qMatchId(a, b) {
+  return a != null && b != null && String(a) === String(b);
 }
 
 function closeResponsesModal() {
