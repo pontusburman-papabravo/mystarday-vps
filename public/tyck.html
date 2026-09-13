@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
   <title>Undersökning — Min Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,6 +39,9 @@
   <main class="max-w-xl mx-auto px-4 py-8">
 
     <!-- Loading state -->
+    <noscript>
+      <p class="text-center text-text-soft py-8">Enkäten kräver JavaScript. Du kan fortfarande <a href="/kampanj/host-2026" class="underline">gå tillbaka till kampanjen</a> och ladda ned appen.</p>
+    </noscript>
     <div id="loadingState" class="text-center py-16">
       <div class="text-4xl mb-4 animate-pulse">📋</div>
       <p class="text-text-soft">Laddar enkät…</p>
@@ -140,6 +144,25 @@
           Säkra din gratisplats →
         </a>
       </div>
+      <div id="lotteryOptIn" class="hidden mt-8 text-left bg-white border-2 border-lavender rounded-2xl p-5">
+        <h3 class="text-lg font-heading font-bold text-navy mb-2">Vill du vara med i utlottningen av ett Zalando-presentkort värt 500 kr?</h3>
+        <p class="text-sm text-text-soft mb-3">Frivilligt. Kostar inget. Köp eller appinstallation krävs inte. Utlottningen är separat från Premium.</p>
+        <label class="flex items-start gap-3 cursor-pointer mb-3">
+          <input type="checkbox" id="lotteryAge18" class="mt-1 w-4 h-4 accent-navy">
+          <span class="text-sm text-navy">Jag är 18 år eller äldre</span>
+        </label>
+        <label class="flex items-start gap-3 cursor-pointer mb-3">
+          <input type="checkbox" id="lotteryConsent" class="mt-1 w-4 h-4 accent-navy">
+          <span class="text-sm text-navy">Jag vill vara med i utlottningen. Min e-post används bara för utlottningen, inte för marknadsföring.</span>
+        </label>
+        <label class="block text-sm font-medium text-navy mb-1" for="lotteryEmail">E-post</label>
+        <input type="email" id="lotteryEmail" autocomplete="email" placeholder="din@email.se"
+          class="w-full border border-lavender rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold">
+        <p class="text-xs text-text-soft mt-2"><a id="lotteryTermsLink" href="/kampanj/host-2026/utlottning" class="underline">Villkor för utlottningen</a>. Zalando är inte sponsor eller administratör av utlottningen.</p>
+        <button type="button" id="lotterySubmitBtn" onclick="submitLottery()"
+          class="mt-4 w-full py-3 bg-gold text-navy font-heading font-bold rounded-2xl">Var med i utlottningen</button>
+        <p id="lotteryStatus" class="text-sm mt-3" aria-live="polite"></p>
+      </div>
     </div>
 
   </main>
@@ -185,9 +208,13 @@
         document.getElementById('surveyDesc').textContent = survey.description;
         document.getElementById('surveyDesc').classList.remove('hidden');
       }
-      if (survey.target_tag) {
+      if (survey.target_tag && !survey.contest_collect_after_submit) {
         document.getElementById('surveyTargetTag').textContent = survey.target_tag;
         document.getElementById('surveyTargetTag').classList.remove('hidden');
+      }
+      if (survey.contest_collect_after_submit && survey.thank_you_cta_url) {
+        const brandLink = document.querySelector('header a');
+        if (brandLink) brandLink.setAttribute('href', survey.thank_you_cta_url);
       }
       if (survey.closes_at) {
         const remaining = msUntil(survey.closes_at);
@@ -199,8 +226,7 @@
 
       document.getElementById('surveyHeader').classList.remove('hidden');
 
-      // Del 4: show contest banner if enabled
-      if (survey.contest_enabled && survey.contest_prize_description) {
+      if (survey.contest_enabled && survey.contest_prize_description && !survey.contest_collect_after_submit) {
         document.getElementById('contestBannerTitle').textContent = `Tävla om ${survey.contest_prize_description}!`;
         document.getElementById('contestPrizeDesc').textContent = 'Fyll i din e-postadress för att vara med i utlottningen.';
         if (survey.contest_closes_at) {
@@ -271,11 +297,19 @@
       const total = allVisibleQuestions.length;
       const idx = currentQuestionIndex;
       const question = allVisibleQuestions[idx];
+      const requiredQuestions = allVisibleQuestions.filter(q => q.is_required !== false);
+      const requiredIdx = requiredQuestions.findIndex(q => q.id === question.id);
 
-      // Progress
-      const pct = total > 0 ? Math.round((idx / total) * 100) : 0;
-      document.getElementById('progressBar').style.width = pct + '%';
-      document.getElementById('progressLabel').textContent = `Fråga ${idx + 1} av ${total}`;
+      if (!question.is_required) {
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('progressLabel').textContent = 'Valfritt';
+      } else {
+        const reqTotal = requiredQuestions.length || total;
+        const reqPos = requiredIdx >= 0 ? requiredIdx : idx;
+        const pct = reqTotal > 0 ? Math.round((reqPos / reqTotal) * 100) : 0;
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressLabel').textContent = `Fråga ${reqPos + 1} av ${reqTotal}`;
+      }
       document.getElementById('progressLabel').classList.remove('hidden');
 
       const existing = answers[question.id] || {};
@@ -298,7 +332,7 @@
       document.getElementById('questionsContainer').innerHTML = `
         <div class="slide-in">
           <div class="mb-6">
-            <span class="text-xs font-semibold text-text-soft uppercase tracking-wide">${questionTypeLabel(question.question_type)}</span>
+            <span class="text-xs font-semibold text-text-soft uppercase tracking-wide">${questionTypeLabel(question)}</span>
             <h2 class="text-xl font-heading font-bold text-navy mt-1 leading-snug">${escHtml(question.question_text)}</h2>
             ${!question.is_required ? '<p class="text-xs text-text-soft mt-1">Frivillig fråga</p>' : ''}
           </div>
@@ -318,7 +352,10 @@
       `;
     }
 
-    function questionTypeLabel(type) {
+    function questionTypeLabel(question) {
+      const type = question.question_type;
+      if (type === 'checkbox' && question.max_selections) return `Välj upp till ${question.max_selections}`;
+      if (type === 'checkbox') return 'Välj alla som passar';
       const map = { radio: 'Välj ett', checkbox: 'Välj ett eller flera', text_short: 'Kort svar', text_long: 'Öppet svar', scale: 'Skala' };
       return map[type] || type;
     }
@@ -328,6 +365,7 @@
       return `<div class="space-y-3">
         ${(q.options || []).map(opt => `
           <button type="button" onclick="selectRadio('${q.id}','${opt.id}',${opt.allows_freetext})"
+            aria-pressed="${selected === opt.id ? 'true' : 'false'}"
             class="option-btn w-full text-left px-5 py-4 rounded-2xl border-2 border-lavender bg-white hover:border-gold/50 transition flex items-center gap-4 ${selected === opt.id ? 'selected' : ''}">
             <span class="option-check w-5 h-5 rounded-full bg-gold items-center justify-center shrink-0">
               <svg class="w-3 h-3 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
@@ -348,6 +386,7 @@
       return `<div class="space-y-3">
         ${(q.options || []).map(opt => `
           <button type="button" onclick="toggleCheckbox('${q.id}','${opt.id}',${opt.allows_freetext})"
+            aria-pressed="${selected.includes(opt.id) ? 'true' : 'false'}"
             class="option-btn w-full text-left px-5 py-4 rounded-2xl border-2 border-lavender bg-white hover:border-gold/50 transition flex items-center gap-4 ${selected.includes(opt.id) ? 'selected' : ''}">
             <span class="option-check w-5 h-5 rounded bg-gold items-center justify-center shrink-0">
               <svg class="w-3 h-3 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
@@ -370,8 +409,20 @@
     }
 
     function renderTextLong(q, existing) {
-      return `<textarea id="textAnswer_${q.id}" rows="5" placeholder="Ditt svar…"
-        class="w-full border-2 border-lavender rounded-2xl px-5 py-4 text-base focus:outline-none focus:border-gold bg-white resize-none">${escHtml(existing.answer_text || '')}</textarea>`;
+      const val = existing.answer_text || '';
+      const max = 1000;
+      return `<div>
+        <textarea id="textAnswer_${q.id}" rows="5" maxlength="${max}" placeholder="Ditt svar…"
+          oninput="updateTextCount('${q.id}', ${max})"
+          class="w-full border-2 border-lavender rounded-2xl px-5 py-4 text-base focus:outline-none focus:border-gold bg-white resize-none">${escHtml(val)}</textarea>
+        <p id="textCount_${q.id}" class="text-xs text-text-soft mt-1 text-right">${String(val).length} / ${max}</p>
+      </div>`;
+    }
+
+    function updateTextCount(qid, max) {
+      const el = document.getElementById(`textAnswer_${qid}`);
+      const count = document.getElementById(`textCount_${qid}`);
+      if (el && count) count.textContent = `${el.value.length} / ${max}`;
     }
 
     function renderScale(q, existing) {
@@ -405,11 +456,23 @@
     }
 
     function toggleCheckbox(qid, optId, allowsFreetext) {
+      const question = (survey.questions || []).find(q => q.id === qid);
       const current = answers[qid]?.selected_option_ids || [];
       const idx = current.indexOf(optId);
       let next;
-      if (idx === -1) next = [...current, optId];
-      else next = current.filter(id => id !== optId);
+      if (idx === -1) {
+        const max = question && question.max_selections ? Number(question.max_selections) : null;
+        if (max && current.length >= max) {
+          const btn = document.getElementById('nextBtn');
+          if (btn) {
+            const prev = btn.textContent;
+            btn.textContent = `Du kan välja högst ${max}`;
+            setTimeout(() => { btn.textContent = prev; }, 1600);
+          }
+          return;
+        }
+        next = [...current, optId];
+      } else next = current.filter(id => id !== optId);
       answers[qid] = { ...(answers[qid] || {}), selected_option_ids: next };
       saveAnswer(qid);
       renderCurrentQuestion();
@@ -513,9 +576,9 @@
       const gdprConsent = document.getElementById('gdprCheck')?.checked || false;
       const email = document.getElementById('respondentEmail')?.value.trim() || null;
 
-      // Del 4: contest entry
       const contestGdpr = document.getElementById('contestGdprCheck')?.checked || false;
       const contestEmail = document.getElementById('contestEmail')?.value.trim() || null;
+      const afterSubmitContest = !!survey.contest_collect_after_submit;
 
       document.getElementById('questionsContainer').innerHTML = `
         <div class="text-center py-12">
@@ -529,8 +592,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             gdpr_consent: gdprConsent,
-            respondent_email: email || contestEmail, // contest email doubles as respondent email
-            contest_gdpr_consent: contestGdpr,
+            respondent_email: afterSubmitContest ? null : (email || contestEmail),
+            contest_gdpr_consent: afterSubmitContest ? false : contestGdpr,
           }),
         });
         const data = await res.json();
@@ -561,7 +624,7 @@
           // Grupp B — registered but inactive
           document.getElementById('reactivateCta').classList.remove('hidden');
           document.getElementById('thankYouEmoji').textContent = '👋';
-        } else if (tag.includes('c') || tag.includes('inte registrerade') || tag.includes('registrerade')) {
+        } else if (!data.contest_collect_after_submit && (tag.includes('c') || tag.includes('inte registrerade') || tag.includes('registrerade'))) {
           // Grupp C — unregistered visitors (more specific check for "inte registrerade")
           if (tag.includes('inte')) {
             document.getElementById('conversionCta').classList.remove('hidden');
@@ -574,6 +637,14 @@
           document.getElementById('thankYouCtaLink').href = data.thank_you_cta_url;
           document.getElementById('thankYouCta').classList.remove('hidden');
         }
+
+        if (data.contest_collect_after_submit && data.contest_enabled) {
+          if (data.contest_terms_url) {
+            document.getElementById('lotteryTermsLink').href = data.contest_terms_url;
+          }
+          document.getElementById('lotteryOptIn').classList.remove('hidden');
+        }
+
         document.getElementById('thankYouState').classList.remove('hidden');
       } catch (e) {
         document.getElementById('questionsContainer').innerHTML = `
@@ -582,6 +653,59 @@
             <p class="text-red-500 font-semibold mb-4">Kunde inte skicka in svaret. Försök igen.</p>
             <button onclick="submitSurvey()" class="px-6 py-3 bg-gold text-navy font-bold rounded-2xl">Försök igen</button>
           </div>`;
+      }
+    }
+
+
+    async function submitLottery() {
+      const status = document.getElementById('lotteryStatus');
+      const btn = document.getElementById('lotterySubmitBtn');
+      status.textContent = '';
+      if (!document.getElementById('lotteryAge18').checked) {
+        status.textContent = 'Du måste vara 18 år eller äldre.';
+        return;
+      }
+      if (!document.getElementById('lotteryConsent').checked) {
+        status.textContent = 'Bekräfta att e-postadressen bara används för utlottningen.';
+        return;
+      }
+      const email = (document.getElementById('lotteryEmail').value || '').trim();
+      if (!email || !email.includes('@')) {
+        status.textContent = 'Ange en giltig e-postadress.';
+        return;
+      }
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/surveys/responses/${responseId}/contest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            age_confirmed_18: true,
+            contest_gdpr_consent: true,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 409) {
+          status.textContent = data.error || 'Den här adressen är redan anmäld.';
+          document.getElementById('contestConfirmBox').classList.remove('hidden');
+          return;
+        }
+        if (res.status === 429) {
+          status.textContent = data.error || 'För många försök. Försök igen senare.';
+          return;
+        }
+        if (!res.ok) {
+          status.textContent = data.error || 'Kunde inte anmäla. Försök igen.';
+          return;
+        }
+        document.getElementById('lotteryOptIn').classList.add('hidden');
+        document.getElementById('contestConfirmBox').classList.remove('hidden');
+        document.getElementById('contestConfirmMsg').textContent = 'Vi kontaktar vinnaren via e-post.';
+      } catch (_err) {
+        status.textContent = 'Kunde inte anmäla. Försök igen.';
+      } finally {
+        btn.disabled = false;
       }
     }
 

@@ -47,6 +47,7 @@ async function updateSurvey(id, fields) {
     'popup_registered_after', 'popup_registered_before',
     'contest_enabled', 'contest_prize_description', 'contest_prize_image_url',
     'contest_winner_count', 'contest_closes_at',
+    'contest_collect_after_submit', 'contest_terms_url',
   ];
   const sets = [];
   const vals = [];
@@ -81,19 +82,19 @@ async function getQuestionsForSurvey(surveyId) {
   return result.rows;
 }
 
-async function createQuestion({ survey_id, sort_order, question_text, question_type, scale_min, scale_max, scale_min_label, scale_max_label, is_required, condition_question_id, condition_option_id }) {
+async function createQuestion({ survey_id, sort_order, question_text, question_type, scale_min, scale_max, scale_min_label, scale_max_label, is_required, condition_question_id, condition_option_id, max_selections }) {
   const result = await db.query(
     `INSERT INTO survey_questions
-       (survey_id, sort_order, question_text, question_type, scale_min, scale_max, scale_min_label, scale_max_label, is_required, condition_question_id, condition_option_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       (survey_id, sort_order, question_text, question_type, scale_min, scale_max, scale_min_label, scale_max_label, is_required, condition_question_id, condition_option_id, max_selections)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
      RETURNING *`,
-    [survey_id, sort_order ?? 0, question_text, question_type, scale_min ?? null, scale_max ?? null, scale_min_label ?? null, scale_max_label ?? null, is_required ?? true, condition_question_id ?? null, condition_option_id ?? null]
+    [survey_id, sort_order ?? 0, question_text, question_type, scale_min ?? null, scale_max ?? null, scale_min_label ?? null, scale_max_label ?? null, is_required ?? true, condition_question_id ?? null, condition_option_id ?? null, max_selections ?? null]
   );
   return result.rows[0];
 }
 
 async function updateQuestion(id, fields) {
-  const allowed = ['sort_order', 'question_text', 'question_type', 'scale_min', 'scale_max', 'scale_min_label', 'scale_max_label', 'is_required', 'condition_question_id', 'condition_option_id'];
+  const allowed = ['sort_order', 'question_text', 'question_type', 'scale_min', 'scale_max', 'scale_min_label', 'scale_max_label', 'is_required', 'condition_question_id', 'condition_option_id', 'max_selections'];
   const sets = [];
   const vals = [];
   let idx = 1;
@@ -220,6 +221,11 @@ async function createResponse({ survey_id, fingerprint }) {
 
 async function getResponse(id) {
   const result = await db.query(`SELECT * FROM survey_responses WHERE id = $1`, [id]);
+  return result.rows[0] || null;
+}
+
+async function getQuestion(id) {
+  const result = await db.query(`SELECT * FROM survey_questions WHERE id = $1`, [id]);
   return result.rows[0] || null;
 }
 
@@ -584,6 +590,74 @@ async function upsertContestEntry({ surveyId, responseId, respondentEmail }) {
   return res.rows[0];
 }
 
+/**
+ * Lottery entry after survey submit. Does not write email onto survey_responses.
+ */
+async function createSeparatedContestEntry({ surveyId, responseId, respondentEmail, ageConfirmed18 }) {
+  const res = await db.query(
+    `INSERT INTO survey_contest_entries (survey_id, response_id, respondent_email, age_confirmed_18)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, survey_id, created_at`,
+    [surveyId, responseId, respondentEmail, ageConfirmed18 === true]
+  );
+  return res.rows[0];
+}
+
+async function getContestEntryByResponse(responseId) {
+  const res = await db.query(
+    `SELECT id FROM survey_contest_entries WHERE response_id = $1 LIMIT 1`,
+    [responseId]
+  );
+  return res.rows[0] || null;
+}
+
+async function getContestEntryByEmail(surveyId, email) {
+  const res = await db.query(
+    `SELECT id FROM survey_contest_entries
+     WHERE survey_id = $1 AND lower(respondent_email) = lower($2)
+     LIMIT 1`,
+    [surveyId, email]
+  );
+  return res.rows[0] || null;
+}
+
+async function countContestEntries(surveyId) {
+  const res = await db.query(
+    `SELECT COUNT(*)::int AS n FROM survey_contest_entries WHERE survey_id = $1`,
+    [surveyId]
+  );
+  return res.rows[0]?.n || 0;
+}
+
+async function pruneHost2026ContestEntries(now = new Date()) {
+  const { HOST_2026_SURVEY_SLUG, CONTEST_RETENTION_NON_WINNER, CONTEST_RETENTION_WINNER } = require('../config/host-2026-survey');
+  const survey = await getSurveyBySlug(HOST_2026_SURVEY_SLUG);
+  if (!survey) return 0;
+  const instant = now instanceof Date ? now : new Date(now);
+  const nonWinnerCutoff = new Date(CONTEST_RETENTION_NON_WINNER);
+  const winnerCutoff = new Date(CONTEST_RETENTION_WINNER);
+  let deleted = 0;
+  if (instant >= nonWinnerCutoff) {
+    const res = await db.query(
+      `DELETE FROM survey_contest_entries
+       WHERE survey_id = $1 AND is_winner = false
+       RETURNING id`,
+      [survey.id]
+    );
+    deleted += res.rowCount;
+  }
+  if (instant >= winnerCutoff) {
+    const res = await db.query(
+      `DELETE FROM survey_contest_entries
+       WHERE survey_id = $1 AND is_winner = true
+       RETURNING id`,
+      [survey.id]
+    );
+    deleted += res.rowCount;
+  }
+  return deleted;
+}
+
 async function getContestEntries(surveyId) {
   const res = await db.query(
     `SELECT sce.*, sr.submitted_at
@@ -625,7 +699,7 @@ module.exports = {
   getQuestionsForSurvey, createQuestion, updateQuestion, deleteQuestion, reorderQuestions,
   getOptionsForQuestion, getOptionsForQuestions, createOption, updateOption, deleteOption,
   getSurveyFull, getSurveyFullBySlug,
-  createResponse, getResponse, submitResponse, upsertAnswer, getAnswersForResponse,
+  createResponse, getResponse, getQuestion, submitResponse, upsertAnswer, getAnswersForResponse,
   checkDuplicate, recordParticipant,
   getSurveyStats, getSurveyResponses,
   // Del 2
@@ -634,4 +708,6 @@ module.exports = {
   getPopupInteraction, getAnonymousPopupInteraction, recordPopupInteraction,
   getActivePopupSurveyForLoggedIn, getActivePopupSurveyForLanding, getPopupStats,
   upsertContestEntry, getContestEntries, pickContestWinners, markContestEntryContacted,
+  createSeparatedContestEntry, getContestEntryByResponse, getContestEntryByEmail,
+  countContestEntries, pruneHost2026ContestEntries,
 };

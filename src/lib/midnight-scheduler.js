@@ -80,6 +80,16 @@ async function runMidnightJob() {
       console.error('[MIDNIGHT-SCHEDULER] Notification prune failed:', err.message);
     }
 
+    try {
+      const surveysDb = require('../../db/surveys');
+      const contestPruned = await surveysDb.pruneHost2026ContestEntries();
+      if (contestPruned > 0) {
+        console.log(`[MIDNIGHT-SCHEDULER] Pruned ${contestPruned} host-2026 contest emails`);
+      }
+    } catch (err) {
+      console.error('[MIDNIGHT-SCHEDULER] Host-2026 contest prune failed:', err.message);
+    }
+
     // Prune schedule_apply_operation idempotency records older than 30 days (§7 retention)
     try {
       const { cleanupExpiredScheduleApplyOperations } = require('./schedule-apply');
