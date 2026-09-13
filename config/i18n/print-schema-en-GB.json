@@ -61,6 +61,14 @@
       "Look for a file starting with <strong>{{prefix}}</strong> and today's date."
     ]
   },
+  "overlay": {
+    "title": "Your PDF",
+    "hint": "The PDF is shown here. Tap Share to save to Files or print.",
+    "share": "Share / save",
+    "close": "Close",
+    "closeAria": "Close",
+    "iframeTitle": "Schedule PDF"
+  },
   "layout": {
     "titleSchedule": "Schedule",
     "titleMyDays": "My days",
@@ -84,6 +92,8 @@
     "pdfCancelled": "PDF save cancelled",
     "shareHint": "Choose Save to Files in the share sheet",
     "mobileSavedHint": "PDF ready — save it to Files",
+    "nativeViewerHint": "PDF ready — share or save from this view",
+    "shareUnavailable": "Could not open sharing — use the view above",
     "desktopSavedHint": "PDF saved to Downloads",
     "pdfLibsMissing": "PDF tools missing — reload the page and try again",
     "createPdfError": "Could not create the PDF"

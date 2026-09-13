@@ -113,6 +113,10 @@ describe('i18n print-schema', () => {
     loadLocales();
     assert.ok(t('en-GB', 'printSchema.layout.titleSchedule'));
     assert.ok(t('sv-SE', 'printSchema.layout.titleSchedule'));
+    assert.equal(t('sv-SE', 'printSchema.overlay.title'), 'Din PDF');
+    assert.equal(t('en-GB', 'printSchema.overlay.share'), 'Share / save');
+    assert.ok(t('sv-SE', 'printSchema.toasts.nativeViewerHint'));
+    assert.ok(t('en-GB', 'printSchema.toasts.shareUnavailable'));
     assert.notEqual(
       t('sv-SE', 'printSchema.layout.titleSchedule'),
       t('en-GB', 'printSchema.layout.titleSchedule')

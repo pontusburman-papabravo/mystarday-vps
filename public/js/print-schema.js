@@ -42,6 +42,62 @@
     return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
   }
 
+  function isNativeApp() {
+    try {
+      if (document.documentElement && document.documentElement.classList.contains('is-native')) return true;
+    } catch (_) { /* ignore */ }
+    return !!(window.Platform && typeof Platform.isNative === 'function' && Platform.isNative());
+  }
+
+  let _pdfViewerUrl = null;
+  let _pdfViewerBlob = null;
+  let _pdfViewerFilename = '';
+
+  function closePdfViewer() {
+    const modal = document.getElementById('pdfViewerModal');
+    const frame = document.getElementById('pdfViewerFrame');
+    if (modal) modal.classList.add('hidden');
+    if (frame) frame.removeAttribute('src');
+    if (_pdfViewerUrl) {
+      try { URL.revokeObjectURL(_pdfViewerUrl); } catch (_) { /* ignore */ }
+      _pdfViewerUrl = null;
+    }
+    _pdfViewerBlob = null;
+    _pdfViewerFilename = '';
+  }
+
+  function openPdfViewerOverlay(blob, filename) {
+    const modal = document.getElementById('pdfViewerModal');
+    const frame = document.getElementById('pdfViewerFrame');
+    if (!modal || !frame || !blob) return;
+    if (_pdfViewerUrl) {
+      try { URL.revokeObjectURL(_pdfViewerUrl); } catch (_) { /* ignore */ }
+    }
+    _pdfViewerBlob = blob;
+    _pdfViewerFilename = filename || '';
+    _pdfViewerUrl = URL.createObjectURL(blob);
+    frame.src = _pdfViewerUrl;
+    modal.classList.remove('hidden');
+  }
+
+  async function sharePdfViewerBlob() {
+    if (!_pdfViewerBlob) return;
+    const filename = _pdfViewerFilename || t('printSchema.filename.fallbackSlug') + '.pdf';
+    if (typeof navigator.share !== 'function') {
+      showToast(t('printSchema.toasts.shareUnavailable'));
+      return;
+    }
+    try {
+      const shareFile = (typeof File === 'function')
+        ? new File([_pdfViewerBlob], filename, { type: 'application/pdf' })
+        : _pdfViewerBlob;
+      await navigator.share({ files: [shareFile], title: filename });
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+      showToast(t('printSchema.toasts.shareUnavailable'));
+    }
+  }
+
   function setupPdfSaveHelp() {
     const mobile = isMobileDevice();
     document.getElementById('pdfSaveHelpMobile').classList.toggle('hidden', !mobile);
@@ -233,11 +289,13 @@
         if (typeof window.showSuccessToast === 'function') {
           window.showSuccessToast(t('printSchema.toasts.shareHint'), 8000);
         }
-      } else if (isMobileDevice()) {
-        if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast(t('printSchema.toasts.mobileSavedHint'), 5000);
+      } else if (isNativeApp() || isMobileDevice()) {
+        if (result && result.blob) {
+          openPdfViewerOverlay(result.blob, result.filename);
         }
-        openPdfHelpModal('preview', result && result.filename);
+        if (typeof window.showSuccessToast === 'function') {
+          window.showSuccessToast(t('printSchema.toasts.nativeViewerHint'), 6000);
+        }
       } else {
         if (typeof window.showSuccessToast === 'function') {
           window.showSuccessToast(t('printSchema.toasts.desktopSavedHint'));
@@ -302,6 +360,20 @@
     document.getElementById('pdfHelpModal').addEventListener('click', function (e) {
       if (e.target.id === 'pdfHelpModal') closePdfHelpModal();
     });
+    const pdfViewerClose = document.getElementById('pdfViewerCloseBtn');
+    const pdfViewerClose2 = document.getElementById('pdfViewerCloseBtn2');
+    const pdfViewerShare = document.getElementById('pdfViewerShareBtn');
+    const pdfViewerModal = document.getElementById('pdfViewerModal');
+    if (pdfViewerClose) pdfViewerClose.addEventListener('click', closePdfViewer);
+    if (pdfViewerClose2) pdfViewerClose2.addEventListener('click', closePdfViewer);
+    if (pdfViewerShare) pdfViewerShare.addEventListener('click', function () {
+      sharePdfViewerBlob();
+    });
+    if (pdfViewerModal) {
+      pdfViewerModal.addEventListener('click', function (e) {
+        if (e.target.id === 'pdfViewerModal') closePdfViewer();
+      });
+    }
   }
 
   async function bootAfterI18n() {

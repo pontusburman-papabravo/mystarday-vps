@@ -14,6 +14,7 @@ describe('magic shell assets on all parent pages', () => {
     assert.match(src, /parent-magic-auto\.js/);
     assert.match(src, /parent-magic-i18n\.js/);
     assert.match(src, /parent-app-i18n\.js/);
+    assert.match(src, /\/js\/i18n\.js/);
     assert.match(src, /app-view-toggle\.css/);
   });
 
