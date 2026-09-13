@@ -707,6 +707,7 @@ const CACHE_NAME = 'stjarndag-v960'; // Lifetime free through 13 Sep 2026; intro
 // stjarndag-v956: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v957: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v958: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v960: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
