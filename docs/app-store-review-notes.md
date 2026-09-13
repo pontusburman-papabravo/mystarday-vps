@@ -22,7 +22,7 @@
 2. Tag **`ios-v1.4.4`** on merged `main`. Archive a **new** Xcode Cloud build — do **not** reuse 1182.
 3. Create ASC version **1.4.4**. Apple **transfers metadata from the current version automatically** ([Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version)). **Verify** Swedish + English (UK) Description, URLs, and the Standard EULA line actually copied. Do not treat the new version as blank and re-key everything.
 4. **Replace screenshots now.** After a version is Ready for Distribution, screenshots on that live version cannot be swapped without a new version. That is why newer captures did not replace the public 1.4.3 set.
-5. **Subscriptions:** check Monthly + Yearly **status in ASC**. The first auto-renewable subscription of that type must be submitted **with an app version**; after that type is approved, later items can be submitted separately ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** assume products must be “re-linked” to 1.4.4. Put them in the **same draft submission as 1.4.4 only if they are not yet approved**.
+5. **Subscriptions:** public 1.4.3 already lists Monthly + Yearly with prices, so **do not attach them to 1.4.4 by default**. Glance ASC → Subscriptions at Submit. Same-draft only if first-of-type is still unapproved or was returned with the 1.4.3 review thread ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** “re-link” approved products.
 6. Before Submit: Review Notes (both accounts), review login, Sign in with Apple, physical IAP path.
 
 Closed train `1.4.3` is encoded in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
@@ -33,10 +33,12 @@ Closed train `1.4.3` is encoded in `config/release-compliance-gate.json` → `ve
 |---|---|---|
 | App version live | iTunes lookup `id=6774493098` country=SE/IE/FI → `version=1.4.3`, `currentVersionReleaseDate=2026-09-13T05:51:54Z`, price free | **FACT** |
 | Standard EULA line on product page | Live SE Description ends with `Användarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/` | **FACT** |
-| Named subscriptions on public shelf | Live SE listing: **Premium Årsvis 590,00 kr** + **Premium Månadsvis 59,00 kr**, subtitle “Köp inuti app” | **FACT** (public page) |
-| Exact ASC enum (Approved / Waiting for Review / Developer Action Needed) | No App Store Connect API in this environment | **NOT_VERIFIED** |
+| Named subscriptions on public shelf | Live SE App Store page (`apps.apple.com/se/app/…/id6774493098`): **Köp inuti app: Ja**, **Premium Årsvis 590,00 kr**, **Premium Månadsvis 59,00 kr** | **FACT** (public page) |
+| Exact ASC enum (Ready for Sale / Waiting for Review / Developer Action Needed) | No App Store Connect API / ASC keys in this environment | **NOT_VERIFIED** |
 
-Implication: first auto-renewable subscription type **appears already sellable** on the public 1.4.3 listing, so 1.4.4 should **not** default to attaching Monthly/Yearly. Open ASC → Subscriptions and confirm. Add them to the 1.4.4 draft **only** if they are still waiting on first approval (or were returned with the 1.4.3 review thread).
+**Merge-gate verdict:** attaching Monthly/Yearly to the 1.4.4 draft is **not a requirement**. Apple’s public product page lists both auto-renewable products with prices on live **1.4.3**. That is evidence the **first subscription of that type already shipped with an approved app version**. The earlier “koppla IAP-produkterna till den nya versionen” step is therefore unnecessary work unless the ASC console still shows an unapproved first-of-type (or a return from the 1.4.3 review thread).
+
+Do **not** block merge of the 1.4.4 version bump on the missing console enum. At Submit, glance ASC → Subscriptions (30 seconds): Ready for Sale → leave them off the 1.4.4 draft; Waiting for Review / Developer Action Needed / Missing Metadata on first approval → include in the same draft.
 
 This is a **version-train** rejection, not a new Guideline 2.1/3.1 product defect. Keep the existing IAP locate notes and the **rejection-specific** EULA line (below) when submitting 1.4.4.
 
