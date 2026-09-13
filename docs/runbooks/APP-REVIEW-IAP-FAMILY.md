@@ -60,7 +60,9 @@ This is a **review-access fix** — not the start of paid rollout. Do **not** fl
 | 8 | Ordinary live-app families unaffected; billing stays **OFF** | VPS: global payment switch off + billing UI disabled | ☐ |
 | 9 | App Store Connect Review Information lists **both accounts with explicit labels** (IAP vs complimentary) | Paste from `docs/app-store-review-notes.md` § Build 1160 | ☐ |
 
-**No new binary** is required for this fix if deployed web assets (SW v942+) reach build 1160 as intended. Reply on the **existing** review thread — do not resubmit unless Apple asks.
+**1.4.3 train is closed** (ITMS-90186 / ITMS-90062). Do **not** reply on that review thread with another 1.4.3 binary. Physical IAP proof (rows 4–6) still belongs on the **1.4.4** submission notes. Web/paywall changes continue to reach Capacitor without a new IPA; the new binary is only the closed-train bump + screenshot window.
+
+Public SE listing already shows Premium Årsvis + Premium Månadsvis with prices — do **not** re-attach those products to 1.4.4 unless ASC still shows first-of-type unapproved (`docs/app-store-review-notes.md` § 1.4.4).
 
 ## Verify before sending Apple notes
 
@@ -98,7 +100,9 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 ## Versioning
 
-Keep `MARKETING_VERSION` **1.4.3** unless App Store Connect cannot accept another 1.4.3 build. Submit a new Xcode Cloud build **1123+**. Do not reuse 1122.
+`MARKETING_VERSION` **1.4.3 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.3). Ship **1.4.4** (`npm run ios:xcode-cloud:version -- 1.4.4`). Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected build **1182**. Tag `ios-v1.4.4` on merged `main`.
+
+Android `versionName` may stay **1.4.3** until the next Play upload (intentional iOS-only train bump).
 
 ## Review notes
 

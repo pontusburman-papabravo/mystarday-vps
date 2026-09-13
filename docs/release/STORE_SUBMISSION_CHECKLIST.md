@@ -8,6 +8,21 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
 
 ---
 
+## 0. New version after Ready for Distribution (1.4.4 pattern)
+
+Use this when the previous train is **closed** (approved / Ready for Distribution) and a new `CFBundleShortVersionString` is required.
+
+- [ ] **Metadata copied, then verified** — MANUAL  
+  PASS criterion: after creating the new version, Swedish + English (UK) Description, keywords, URLs, and What’s New match the current live version unless an intentional edit is made. Apple **transfers metadata from the current version automatically** ([Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version)). Do **not** treat the new version as blank and re-enter every field.
+
+- [ ] **Screenshots replaced on the new version** — MANUAL  
+  PASS criterion: the 1.4.4 (or later) version page shows the intended screenshot set. Screenshots on an already approved/live version cannot be swapped; a new version is required. That is why replacements did not appear on public 1.4.3.
+
+- [ ] **In-App Purchases / subscriptions — status first, then maybe same draft** — MANUAL  
+  PASS criterion: ASC product status is read before Submit. Apple requires the **first** In-App Purchase **of each type** (including the first auto-renewable subscription) to be submitted **with a new app version**. After that type is approved, additional items of the same type can be submitted **without** a new app version ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** assume Monthly/Yearly must be “re-linked” to every new version. Include them in the **same draft submission as the new app version only if they are not yet approved**. Public 1.4.3 listing (Premium Årsvis / Premium Månadsvis with prices on the live SE product page) is evidence the first subscription type already shipped — **default for 1.4.4 is leave them off the draft**. ASC enum remains a 30-second console glance at Submit, not a merge blocker (`docs/app-store-review-notes.md` § 1.4.4).
+
+---
+
 ## 1. Apple App Store — pre-submission
 
 - [ ] **No Beta/Test/Trial/Preview-marking in production UI** — MANUAL (cross-check: AUTO, Check A)
@@ -23,8 +38,8 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
   Why: broken or mismatched legal URLs are a common rejection and delay App Review.
 
 - [ ] **EULA/Terms correct** — AUTO + MANUAL
-  PASS criterion: if using **Apple's Standard EULA** (default for this app — see `docs/app-store-review-notes.md`), the App Description links to Apple's own EULA URL (`https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`), not our own `/terms`. If a **custom EULA** is ever configured in App Store Connect → License Agreement, it must be linked instead and must not conflict with `/terms`.
-  Why: Apple rejects auto-renewable-subscription apps whose metadata lacks a functional EULA link (see the 2026-08-28 rejection in `docs/app-store-review-notes.md`).
+  PASS criterion: we use **Apple's Standard EULA** (no custom License Agreement). Keep the Standard EULA URL in Description **because Apple’s 2026-08-28 review rejection required a functional Terms of Use (EULA) link in App Store metadata** (`docs/app-store-review-notes.md`). On a new version, **verify the copied Description still has that line** — do not assume the field is empty. Do not label our own `/terms` as Apple’s EULA. Guideline **3.1.2(c)** is about clear subscription information and Apple’s subscription-agreement rules; it does **not** literally require this Description URL.
+  Why: that specific rejection; not a generic reading of 3.1.2(c).
 
 - [ ] **Sign in with Apple compliance** — AUTO + MANUAL
   PASS criterion: if the app offers any third-party/social login (Google, Facebook, etc.) on iOS, Sign in with Apple is offered equally prominently (Guideline 4.8). This app offers only Apple + email/password on iOS (no Google on iOS) — confirm that has not changed.
@@ -35,8 +50,8 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
   Why: **Guideline 5.1.1(v)** requires in-app account deletion for apps that support account creation.
 
 - [ ] **IAP/subscription metadata** — AUTO + MANUAL
-  PASS criterion: subscription group/products in App Store Connect match what the app can actually purchase; pricing, trial length, and renewal terms in the product page match in-app copy.
-  Why: mismatched IAP metadata triggers Guideline 3.1/2.1(b) business-model questions (see Build 22 history in `docs/app-store-review-notes.md`).
+  PASS criterion: subscription group/products in App Store Connect match what the app can actually purchase; pricing, trial length, and renewal terms in the product page match in-app copy. For a **new app version**, follow §0 (status first; same-draft only if the type is not yet approved).
+  Why: mismatched IAP metadata triggers Guideline 3.1/2.1(b) business-model questions (see Build 22 history in `docs/app-store-review-notes.md`). First-of-type IAP must ride with an app version; already-approved types do not need to be re-attached.
 
 - [ ] **Restore purchases** — AUTO + MANUAL
   PASS criterion: a visible "Restore Purchases" action exists wherever purchases are offered, and it works.
@@ -202,7 +217,7 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
 ## 8. Screenshots
 
 - [ ] **Screenshots reflect the current build on both stores** — MANUAL
-  PASS criterion: no UI shown in a screenshot has since changed materially; capture fresh screenshots after any significant UI change (see `docs/app-store-screenshots/README.md` for the capture process).
+  PASS criterion: no UI shown in a screenshot has since changed materially; capture fresh screenshots after any significant UI change (see `docs/app-store-screenshots/README.md` for the capture process). On Apple, replace them on the **new version page** (§0) — not by editing the already-approved 1.4.3 set.
 
 - [ ] **Required device sizes covered** — MANUAL
   PASS criterion: App Store Connect's required screenshot sizes for the declared device support (iPhone-only vs Universal — see `docs/app-store-review-notes.md` Build 22/23 history) are all present.
@@ -223,7 +238,7 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
 ## 10. Post-submission check
 
 - [ ] **Confirm the correct build/version was actually submitted** — MANUAL
-  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version.
+  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version. iOS `CFBundleShortVersionString` (`MARKETING_VERSION`) must be **strictly higher** than the last approved version (ITMS-90186 / ITMS-90062). Repo Check I fails if `MARKETING_VERSION` is in `versionSources.closedIosMarketingVersions` (currently `1.4.3`).
 
 - [ ] **Monitor for a rejection and log it** — MANUAL
   PASS criterion: any rejection is appended to `docs/app-store-review-notes.md` (Apple) or an equivalent Play rejection log, with root cause and fix — do not let it become an undocumented one-off fix a second time.

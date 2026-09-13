@@ -8,6 +8,10 @@
  * Whether the *next* Android versionCode / iOS build number is actually
  * higher than the last one accepted by the store cannot be known from a
  * repo checkout alone — those remain MANUAL_REVIEW_REQUIRED.
+ *
+ * Closed iOS marketing trains (ITMS-90186 / ITMS-90062) *are* knowable from
+ * repo config: `versionSources.closedIosMarketingVersions`. The next
+ * CFBundleShortVersionString must be strictly higher than every closed train.
  */
 
 const { STATUS, worstStatus } = require('./constants.cjs');
@@ -38,6 +42,94 @@ function checkSwCacheVersionMatchesConfig(repoRoot, config) {
     id: 'sw_cache_version_matches_config',
     status,
     evidence: { expectedCacheName, actualCacheName, note: 'Run `npm run css:build` to resync if drifted.' },
+  };
+}
+
+function compareDottedVersion(a, b) {
+  const pa = String(a || '')
+    .split('.')
+    .map((n) => parseInt(n, 10) || 0);
+  const pb = String(b || '')
+    .split('.')
+    .map((n) => parseInt(n, 10) || 0);
+  const n = Math.max(pa.length, pb.length);
+  for (let i = 0; i < n; i++) {
+    const x = pa[i] || 0;
+    const y = pb[i] || 0;
+    if (x > y) return 1;
+    if (x < y) return -1;
+  }
+  return 0;
+}
+
+function closedIosTrainStatus(marketingVersion, closedVersions) {
+  const closed = Array.isArray(closedVersions) ? closedVersions.filter(Boolean) : [];
+  if (!marketingVersion) {
+    return {
+      status: STATUS.FAIL,
+      reason: 'missing_marketing_version',
+      marketingVersion: null,
+      highestClosed: null,
+      closedIosMarketingVersions: closed,
+    };
+  }
+  let highestClosed = null;
+  for (const v of closed) {
+    if (highestClosed == null || compareDottedVersion(v, highestClosed) > 0) {
+      highestClosed = v;
+    }
+  }
+  if (highestClosed && compareDottedVersion(marketingVersion, highestClosed) <= 0) {
+    return {
+      status: STATUS.FAIL,
+      reason: 'closed_or_not_higher',
+      marketingVersion,
+      highestClosed,
+      closedIosMarketingVersions: closed,
+    };
+  }
+  return {
+    status: STATUS.PASS,
+    reason: null,
+    marketingVersion,
+    highestClosed,
+    closedIosMarketingVersions: closed,
+  };
+}
+
+function checkIosClosedMarketingTrain(repoRoot, config) {
+  const file = config.versionSources?.iosProjectFile || 'ios/App/App.xcodeproj/project.pbxproj';
+  const content = readFileSafe(repoRoot, file);
+  if (content == null) {
+    return {
+      id: 'ios_closed_marketing_train',
+      status: STATUS.NOT_APPLICABLE,
+      evidence: { reason: 'ios/App not present in this checkout' },
+    };
+  }
+  const found = [...content.matchAll(/MARKETING_VERSION\s*=\s*([\d.]+);/g)].map((m) => m[1]);
+  const unique = [...new Set(found)];
+  if (unique.length !== 1) {
+    return {
+      id: 'ios_closed_marketing_train',
+      status: STATUS.FAIL,
+      evidence: { reason: 'inconsistent_or_missing', versions: unique },
+    };
+  }
+  const result = closedIosTrainStatus(unique[0], config.versionSources?.closedIosMarketingVersions);
+  return {
+    id: 'ios_closed_marketing_train',
+    status: result.status,
+    evidence: {
+      marketingVersion: result.marketingVersion,
+      highestClosed: result.highestClosed,
+      closedIosMarketingVersions: result.closedIosMarketingVersions,
+      reason: result.reason,
+      note:
+        result.status === STATUS.FAIL
+          ? 'ITMS-90186 / ITMS-90062 — this CFBundleShortVersionString train is closed. Bump MARKETING_VERSION (npm run ios:xcode-cloud:version).'
+          : 'MARKETING_VERSION is strictly higher than every closed App Store train listed in config.',
+    },
   };
 }
 
@@ -94,6 +186,7 @@ function runVersionBuildCacheChecks(repoRoot) {
   const checks = [
     checkSwCacheVersionMatchesConfig(repoRoot, config),
     checkIosMarketingVersionPresent(repoRoot, config),
+    checkIosClosedMarketingTrain(repoRoot, config),
     checkAndroidVersionPresent(repoRoot, config),
     checkMarketingVersionParityInformational(repoRoot, config),
     {
@@ -112,10 +205,15 @@ function runVersionBuildCacheChecks(repoRoot) {
     status,
     summary:
       status === STATUS.FAIL
-        ? 'SW cache version drifted from config, or a platform version file is missing/invalid.'
+        ? 'SW cache version drifted from config, a platform version file is missing/invalid, or iOS MARKETING_VERSION is on a closed App Store train (ITMS-90186 / ITMS-90062).'
         : 'SW cache version matches config/cache-version.json and both platform version files are present and parse. Confirm against store console history before archiving.',
     evidence: { checks },
   };
 }
 
-module.exports = { runVersionBuildCacheChecks };
+module.exports = {
+  runVersionBuildCacheChecks,
+  compareDottedVersion,
+  closedIosTrainStatus,
+  checkIosClosedMarketingTrain,
+};

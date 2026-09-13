@@ -24,6 +24,8 @@ This document intentionally does **not** copy policy text — copied text goes s
 | Standard/custom End User License Agreement (EULA) | <https://developer.apple.com/support/offering-apple-standard-eula/> and <https://www.apple.com/legal/internet-services/itunes/dev/stdeula/> |
 | Screenshot / metadata specifications | <https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications> |
 | App Store Connect help (metadata, versions, builds) | <https://developer.apple.com/help/app-store-connect/> |
+| Create a new version (metadata is transferred from the current version) | <https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version> |
+| Submit an In-App Purchase (first of each type with an app version; later items of an approved type can be separate) | <https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase> |
 | Age ratings | <https://developer.apple.com/help/app-store-connect/reference/age-ratings> |
 | Kids Category / Apps for Children | <https://developer.apple.com/app-store/kids-apps/> |
 

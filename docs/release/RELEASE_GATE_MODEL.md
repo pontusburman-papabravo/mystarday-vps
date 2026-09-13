@@ -65,7 +65,7 @@ Implemented in `scripts/lib/release-compliance/`, tuned via `config/release-comp
 | **F** | `check-account-deletion.cjs` | Server route + client entry point exist (Apple 5.1.1(v) / Play account-deletion requirement); flags the manual functional test that automation cannot perform. |
 | **G** | `check-iap.cjs` | Kill-switch documented; purchase UI respects server config; restore-purchases wired; no external iOS payment links; grandfathering documented. Never changes payment behaviour. |
 | **H** | `check-tracking-privacy.cjs` | Native config matches the documented "no ATT / no IDFA / no Meta native SDK" posture (`docs/meta-app-events.md`). |
-| **I** | `check-version-build-cache.cjs` | SW `CACHE_NAME` matches `config/cache-version.json`; iOS `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` and Android `versionCode`/`versionName` are present and parse. |
+| **I** | `check-version-build-cache.cjs` | SW `CACHE_NAME` matches `config/cache-version.json`; iOS `MARKETING_VERSION`/`CURRENT_PROJECT_VERSION` and Android `versionCode`/`versionName` are present and parse; iOS `MARKETING_VERSION` is strictly higher than every closed train in `versionSources.closedIosMarketingVersions` (ITMS-90186 / ITMS-90062). |
 | Gate C helper | `check-submission-metadata.cjs` | Verifies the repo-side review documentation a human needs exists (review notes, ASC description docs, reviewer-account doc, TestFlight checklist, Play store-listing/Data-Safety docs); always surfaces the store-console-only parts of Gate C as `MANUAL_REVIEW_REQUIRED`. |
 
 ### Classification rules for Check A / C
