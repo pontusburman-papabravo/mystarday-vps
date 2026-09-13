@@ -59,6 +59,9 @@ const ACTIVATION_PROGRAM_EMAIL_LOCK_ID = 1016;
 /** Growth system help ops email report — hourly activity/alerts */
 const GROWTH_SYSTEM_HELP_OPS_REPORT_LOCK_ID = 1017;
 
+/** Growth stuck founder intervention auto-send — hourly */
+const GROWTH_STUCK_INTERVENTION_LOCK_ID = 1018;
+
 module.exports = {
   MIDNIGHT_SCHEDULER_LOCK_ID,
   DELETION_SCHEDULER_LOCK_ID,
@@ -77,4 +80,5 @@ module.exports = {
   ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID,
   ACTIVATION_PROGRAM_EMAIL_LOCK_ID,
   GROWTH_SYSTEM_HELP_OPS_REPORT_LOCK_ID,
+  GROWTH_STUCK_INTERVENTION_LOCK_ID,
 };

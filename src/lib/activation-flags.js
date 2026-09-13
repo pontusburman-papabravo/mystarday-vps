@@ -19,7 +19,7 @@ const FLAG_KEYS = {
   growthFeedback: 'growth_feedback_v1',
   growthSystemHelp: 'growth_system_help_v1',
   growthReferralCta: 'growth_referral_cta_v1',
-  /** Future stuck-family intervention/send only — never gates admin cohort reads. */
+  /** Stuck-family founder auto-send (scheduler); admin cohort reads stay ungated. */
   growthStuckCohorts: 'growth_stuck_cohorts_v1',
   growthWaitlistFunnel: 'growth_waitlist_funnel_v1',
   firstSuccessV1: 'activation_first_success_v1',

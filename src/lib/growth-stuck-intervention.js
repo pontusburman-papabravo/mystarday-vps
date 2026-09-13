@@ -350,7 +350,7 @@ async function previewStuckIntervention(familyId, { track = true } = {}) {
   return result;
 }
 
-async function sendStuckIntervention(familyId, adminParentId) {
+async function sendStuckIntervention(familyId, adminParentId, opts = {}) {
   const evaluated = await evaluateStuckIntervention(familyId);
   if (!evaluated.eligible || !evaluated.emailPreview) {
     return { ok: false, ...evaluated };
@@ -473,6 +473,7 @@ async function sendStuckIntervention(familyId, adminParentId) {
     cohort: evaluated.cohort,
     body_version: evaluated.emailPreview.bodyVersion,
     channel: 'email',
+    source: opts.source || 'admin',
   });
 
   return {

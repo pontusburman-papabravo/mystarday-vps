@@ -8,6 +8,7 @@ const {
   FOLLOW_UP,
   mapGrowthStuckFamily,
 } = require('../src/lib/growth-stuck-work-queue');
+const { isGrowthStuckAutoSendEnabled } = require('../src/lib/growth-stuck-auto-send');
 
 /**
  * List stuck families across activation cohorts (48h–14d).
@@ -27,6 +28,7 @@ async function listGrowthStuckCohorts(opts = {}) {
   const limit = Math.min(opts.limit ?? 100, 500);
   const includeInternalQa = opts.includeInternalQa === true;
   const cohortFilter = opts.cohort && COHORTS[opts.cohort] ? opts.cohort : null;
+  const autoSendEnabled = opts.autoSendEnabled ?? await isGrowthStuckAutoSendEnabled();
 
   const { rows } = await db.query(
     `WITH base AS (
@@ -126,7 +128,7 @@ async function listGrowthStuckCohorts(opts = {}) {
     [minAgeHours, maxAgeDays, limit, cohortFilter]
   );
 
-  const families = rows.map((row) => mapGrowthStuckFamily(row));
+  const families = rows.map((row) => mapGrowthStuckFamily(row, new Date(), { autoSendEnabled }));
   const historyMap = await interventionDb.getLatestSentForFamilies(
     families.map((f) => f.familyId)
   );
@@ -148,7 +150,8 @@ async function listGrowthStuckCohorts(opts = {}) {
  * Segment counts for admin work queue (no PII beyond counts).
  */
 async function summarizeGrowthStuckCohorts(opts = {}) {
-  const families = await listGrowthStuckCohorts({ ...opts, limit: 500 });
+  const autoSendEnabled = opts.autoSendEnabled ?? await isGrowthStuckAutoSendEnabled();
+  const families = await listGrowthStuckCohorts({ ...opts, limit: 500, autoSendEnabled });
   const counts = {};
   for (const key of Object.keys(COHORTS)) counts[key] = 0;
   for (const f of families) {
@@ -158,7 +161,7 @@ async function summarizeGrowthStuckCohorts(opts = {}) {
     generatedAt: new Date().toISOString(),
     total: families.length,
     counts,
-    autoSendAllowed: false,
+    autoSendAllowed: autoSendEnabled,
   };
 }
 

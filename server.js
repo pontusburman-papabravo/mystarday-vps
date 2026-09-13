@@ -51,6 +51,10 @@ const {
   startGrowthSystemHelpOpsScheduler,
   stopGrowthSystemHelpOpsScheduler,
 } = require('./src/lib/growth-system-help-ops-scheduler');
+const {
+  startGrowthStuckInterventionScheduler,
+  stopGrowthStuckInterventionScheduler,
+} = require('./src/lib/growth-stuck-intervention-scheduler');
 const { pool } = require('./src/lib/db');
 const { createApp } = require('./app');
 
@@ -74,11 +78,12 @@ const server = app.listen(port, () => {
   startJourneyPushScheduler();
   startJourneyDailyAnalysisScheduler();
   startGrowthSystemHelpOpsScheduler();
+  startGrowthStuckInterventionScheduler();
 });
 
 function onTermSignal(signal) {
   logger.info({ msg: 'Termination signal received', operation: 'server.shutdown', signal });
-  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler(); stopJourneyDailyAnalysisScheduler(); stopGrowthSystemHelpOpsScheduler();
+  stopMidnightScheduler(); stopDeletionScheduler(); stopWeeklySummaryScheduler(); stopLibraryNotificationScheduler(); stopNyhetScheduler(); stopPushReminderScheduler(); stopActivationPushScheduler(); stopActivationNudgeScheduler(); stopChildHandoffReminderScheduler(); stopCustodyHandoffScheduler(); stopRetentionReengagementScheduler(); stopActivationAdvisorScheduler(); stopJourneyPushScheduler(); stopJourneyDailyAnalysisScheduler(); stopGrowthSystemHelpOpsScheduler(); stopGrowthStuckInterventionScheduler();
   server.close(() => {
     pool.end()
       .then(() => {

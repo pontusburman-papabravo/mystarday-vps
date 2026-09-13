@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * Admin — growth stuck cohorts (preview segments, no auto-send).
+ * Admin — growth stuck cohorts (preview segments + optional auto-send when flagged).
  * GET /api/admin/growth/stuck-cohorts
  * GET /api/admin/growth/stuck-cohorts/summary
  *
  * Admin work-queue read path. Always available to requireAdmin.
- * growth_stuck_cohorts_v1 is reserved for future intervention/send — not this list.
+ * growth_stuck_cohorts_v1 gates scheduler auto-send only — not this list.
  */
 
 const express = require('express');
@@ -15,6 +15,7 @@ const {
   summarizeGrowthStuckCohorts,
   COHORTS,
 } = require('../../../db/growth-stuck-cohorts');
+const { isGrowthStuckAutoSendEnabled } = require('../../lib/growth-stuck-auto-send');
 
 const router = express.Router();
 
@@ -45,12 +46,14 @@ router.get('/growth/stuck-cohorts', async (req, res) => {
     const { maxAgeDays, minAgeHours, includeInternalQa } = parseWindow(req.query);
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
     const cohort = typeof req.query.cohort === 'string' ? req.query.cohort : null;
+    const autoSendAllowed = await isGrowthStuckAutoSendEnabled();
     const families = await listGrowthStuckCohorts({
       maxAgeDays,
       minAgeHours,
       limit,
       includeInternalQa,
       cohort,
+      autoSendEnabled: autoSendAllowed,
     });
     res.json({
       generatedAt: new Date().toISOString(),
@@ -58,8 +61,10 @@ router.get('/growth/stuck-cohorts', async (req, res) => {
       minAgeHours,
       cohort: cohort || 'all',
       count: families.length,
-      autoSendAllowed: false,
-      note: 'Work queue — manual next step only. No auto-send.',
+      autoSendAllowed,
+      note: autoSendAllowed
+        ? 'Work queue — founder auto-send ON (48h–14d, 72h efter activation-nudge).'
+        : 'Work queue — manual send only (growth_stuck_cohorts_v1 off).',
       families,
     });
   } catch (err) {

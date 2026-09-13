@@ -2,9 +2,10 @@
 
 /**
  * Admin work-queue mapping for stuck families (48h–14d).
- * Read/preview only — no send. Future automation must use FLAG_KEYS.growthStuckCohorts
- * (`growth_stuck_cohorts_v1`) as a separate capability, never this mapper.
+ * Auto-send eligibility surfaced when growth_stuck_cohorts_v1 is ON (scheduler).
  */
+
+const { resolveFamilyAutoSendAllowed } = require('./growth-stuck-auto-send');
 
 const COHORTS = Object.freeze({
   onboarding_incomplete: 'onboarding_incomplete',
@@ -93,10 +94,12 @@ function lastActivity(row) {
 /**
  * @param {object} row SQL row from growth stuck cohort query
  * @param {Date} [now]
+ * @param {{ autoSendEnabled?: boolean }} [opts]
  */
-function mapGrowthStuckFamily(row, now = new Date()) {
+function mapGrowthStuckFamily(row, now = new Date(), opts = {}) {
   const stuckAt = stuckSinceAt(row);
   const activity = lastActivity(row);
+  const autoSendEnabled = opts.autoSendEnabled === true;
   return {
     familyId: row.family_id,
     familyName: row.family_name,
@@ -128,7 +131,7 @@ function mapGrowthStuckFamily(row, now = new Date()) {
     recommendedFollowUp: FOLLOW_UP[row.blocking_step] || 'preview_manual_review',
     recommendedSystemHelp: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
     manualNextStep: RECOMMENDED_SYSTEM_HELP[row.blocking_step] || 'Systemhjälp: manuell genomgång i appen.',
-    autoSendAllowed: false,
+    autoSendAllowed: resolveFamilyAutoSendAllowed(row.blocking_step, autoSendEnabled),
     commsHistory: {
       activationNudgeSentAt: row.activation_nudge_sent_at || null,
       childHandoffReminderSentAt: row.child_handoff_reminder_sent_at || null,

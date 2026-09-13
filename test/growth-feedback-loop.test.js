@@ -52,25 +52,24 @@ describe('growth feedback loop contracts', () => {
     assert.match(src, /prompt_mismatch|already_answered|eligible/);
   });
 
-  it('admin stuck cohorts exclude QA by default and forbid auto-send', () => {
+  it('admin stuck cohorts exclude QA by default and expose auto-send flag state', () => {
     const db = read('db/growth-stuck-cohorts.js');
     assert.match(db, /excludeInternalQaWhere/);
-    assert.match(db, /autoSendAllowed: false/);
+    assert.match(db, /autoSendAllowed: autoSendEnabled/);
     assert.match(db, /schema_no_child_login/);
     assert.match(db, /completion_no_return/);
     const route = read('src/routes/admin/growth-stuck-cohorts.js');
-    assert.doesNotMatch(route, /isActivationFlagEnabled|är avstängd|status\(503\)/);
-    assert.match(route, /autoSendAllowed: false/);
+    assert.doesNotMatch(route, /isActivationFlagEnabled|status\(503\)/);
+    assert.match(route, /isGrowthStuckAutoSendEnabled/);
   });
 
-  it('admin stuck UI is manual work queue with preview/send (no automation)', () => {
+  it('admin stuck UI supports manual preview/send alongside optional automation', () => {
     const ui = read('public/admin/admin-growth-stuck.js');
     assert.match(ui, /Manuellt utskick|Förhandsgranska/);
     assert.match(ui, /commsLabel|commsHistory/);
     assert.match(ui, /openFamilyHub/);
     assert.match(ui, /intervention\/preview/);
     assert.doesNotMatch(ui, /setInterval|scheduler/i);
-    assert.doesNotMatch(ui, /flagga av/);
   });
 
   it('analytics allowlist includes growth loop events', () => {

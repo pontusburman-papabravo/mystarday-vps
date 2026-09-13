@@ -148,16 +148,18 @@ describe('growth feedback / referral authority', () => {
 });
 
 describe('stuck cohorts + waitlist consent', () => {
-  it('stuck cohort preview forbids auto-send and excludes QA by default', () => {
+  it('stuck cohort preview excludes QA by default and reflects auto-send flag', () => {
     const db = read('db/growth-stuck-cohorts.js');
-    assert.match(db, /autoSendAllowed: false/);
+    assert.match(db, /autoSendAllowed: autoSendEnabled/);
+    assert.match(db, /isGrowthStuckAutoSendEnabled/);
     assert.match(db, /excludeInternalQaWhere/);
     assert.match(db, /f\.archived_at IS NULL/);
     assert.match(db, /48/);
     assert.match(db, /14/);
     const route = read('src/routes/admin/growth-stuck-cohorts.js');
-    assert.doesNotMatch(route, /isActivationFlagEnabled|är avstängd|status\(503\)/);
+    assert.doesNotMatch(route, /isActivationFlagEnabled|status\(503\)/);
     assert.doesNotMatch(route, /sendEmail|resend|broadcast/i);
+    assert.match(route, /isGrowthStuckAutoSendEnabled/);
   });
 
   it('waitlist requires explicit consent + stores consent timestamp/version', () => {
@@ -215,12 +217,12 @@ describe('stuck cohorts + waitlist consent', () => {
 });
 
 describe('admin stuck cohort preview API', () => {
-  it('returns 48h–14d preview without growth_stuck_cohorts_v1 and never allows auto-send', async () => {
+  it('returns 48h–14d preview and autoSendAllowed follows growth_stuck_cohorts_v1', async () => {
     const mock = injectMockDb();
     mock.setQuery(async (sql) => {
       const q = String(sql);
       if (q.includes('FROM feature_flag')) {
-        return { rows: [{ enabled: false }] };
+        return { rows: [{ enabled: true }] };
       }
       if (q.includes('classified') || q.includes('blocking_step')) {
         return {
@@ -250,8 +252,12 @@ describe('admin stuck cohort preview API', () => {
 
     const dbPath = require.resolve('../db/growth-stuck-cohorts');
     const routePath = require.resolve('../src/routes/admin/growth-stuck-cohorts');
+    const autoSendPath = require.resolve('../src/lib/growth-stuck-auto-send');
+    const workQueuePath = require.resolve('../src/lib/growth-stuck-work-queue');
     delete require.cache[dbPath];
     delete require.cache[routePath];
+    delete require.cache[autoSendPath];
+    delete require.cache[workQueuePath];
     const router = require('../src/routes/admin/growth-stuck-cohorts');
 
     const app = express();
@@ -271,7 +277,7 @@ describe('admin stuck cohort preview API', () => {
       const listRes = await fetch(`http://127.0.0.1:${port}/growth/stuck-cohorts`);
       assert.equal(listRes.status, 200);
       const list = await listRes.json();
-      assert.equal(list.autoSendAllowed, false);
+      assert.equal(list.autoSendAllowed, true);
       assert.equal(list.minAgeHours, 48);
       assert.equal(list.maxAgeDays, 14);
       assert.equal(list.count, 1);
@@ -281,12 +287,12 @@ describe('admin stuck cohort preview API', () => {
       assert.equal(list.families[0].lastActivityType, 'activation_onboarding_started');
       assert.equal(typeof list.families[0].stuckHours, 'number');
       assert.equal(list.families[0].recommendedFollowUp, 'preview_handoff_nudge');
-      assert.equal(list.families[0].autoSendAllowed, false);
+      assert.equal(list.families[0].autoSendAllowed, true);
 
       const sumRes = await fetch(`http://127.0.0.1:${port}/growth/stuck-cohorts/summary`);
       assert.equal(sumRes.status, 200);
       const summary = await sumRes.json();
-      assert.equal(summary.autoSendAllowed, false);
+      assert.equal(summary.autoSendAllowed, true);
       assert.equal(summary.total, 1);
       assert.equal(summary.counts.onboarding_incomplete, 1);
     } finally {
@@ -347,15 +353,15 @@ describe('stuck family work-queue mapper', () => {
     assert.match(mapped.manualNextStep, /första-stjärna|stjärna/i);
   });
 
-  it('completion without return and core-flow errors keep autoSendAllowed false', () => {
+  it('completion without return and core-flow errors stay manual-only for auto-send', () => {
     const ret = mapGrowthStuckFamily({
       family_id: 'f4',
       created_at: '2026-08-04T08:00:00Z',
       blocking_step: 'completion_no_return',
       first_completion_at: '2026-08-08T08:00:00Z',
-    }, now);
+    }, now, { autoSendEnabled: true });
     assert.match(ret.manualNextStep, /inget auto-mejl/);
-    assert.equal(ret.autoSendAllowed, false);
+    assert.equal(ret.autoSendAllowed, true);
 
     const err = mapGrowthStuckFamily({
       family_id: 'f5',
@@ -363,7 +369,7 @@ describe('stuck family work-queue mapper', () => {
       blocking_step: 'core_flow_errors',
       last_event_type: 'child_pin_lockout',
       last_event_at: '2026-08-17T20:00:00Z',
-    }, now);
+    }, now, { autoSendEnabled: true });
     assert.match(err.whyStuck, /Tekniskt fel/);
     assert.match(err.manualNextStep, /felsök/);
     assert.equal(err.autoSendAllowed, false);

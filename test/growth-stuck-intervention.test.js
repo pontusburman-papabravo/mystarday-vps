@@ -133,16 +133,13 @@ describe('growth-stuck-intervention safety rails', () => {
     assert.match(route, /manualOnly: true/);
   });
 
-  it('no scheduler reads family_growth_intervention', () => {
-    const schedulers = [
-      'src/lib/activation-nudge-scheduler.js',
-      'src/lib/win-back-scheduler.js',
-      'src/lib/growth-system-help-ops-scheduler.js',
-    ];
-    for (const file of schedulers) {
-      const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
-      assert.doesNotMatch(src, /family_growth_intervention/);
-    }
+  it('scheduler uses sendStuckIntervention with growth_stuck_cohorts_v1 gate', () => {
+    const scheduler = fs.readFileSync(
+      path.join(ROOT, 'src/lib/growth-stuck-intervention-scheduler.js'),
+      'utf8'
+    );
+    assert.match(scheduler, /sendStuckIntervention/);
+    assert.match(scheduler, /isGrowthStuckAutoSendEnabled/);
     const intervention = fs.readFileSync(path.join(ROOT, 'src/lib/growth-stuck-intervention.js'), 'utf8');
     assert.doesNotMatch(intervention, /setInterval|scheduleNext|startGrowth/);
   });
