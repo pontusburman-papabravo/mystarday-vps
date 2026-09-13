@@ -81,7 +81,7 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
 
       const { captureDbIntegritySnapshot } = await import('../scripts/ops/lib/db-integrity-snapshot-core.mjs');
       const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
-      const beforeSnap = await captureDbIntegritySnapshot(testUrl, { label: 'pre-181046' });
+      const beforeSnap = await captureDbIntegritySnapshot(testUrl, { label: 'pre-181047' });
 
       runMigrate(testUrl);
       assert.equal(await tableExists(client, CORE_TABLE), true);
@@ -122,13 +122,29 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
         ]
       );
 
-      const afterSnap = await captureDbIntegritySnapshot(testUrl, { label: 'post-181046' });
+      const { rows: surveyCols } = await client.query(`
+        SELECT column_name
+          FROM information_schema.columns
+         WHERE table_schema = 'public'
+           AND (
+             (table_name = 'surveys' AND column_name IN ('contest_collect_after_submit', 'contest_terms_url'))
+             OR (table_name = 'survey_questions' AND column_name = 'max_selections')
+             OR (table_name = 'survey_contest_entries' AND column_name = 'age_confirmed_18')
+           )
+         ORDER BY table_name, column_name
+      `);
+      assert.deepEqual(
+        surveyCols.map((r) => r.column_name),
+        ['age_confirmed_18', 'max_selections', 'contest_collect_after_submit', 'contest_terms_url']
+      );
+
+      const afterSnap = await captureDbIntegritySnapshot(testUrl, { label: 'post-181047' });
       const compare = compareDbSnapshots(beforeSnap, afterSnap, {
         mode: 'post-migration',
         repoRoot: path.join(__dirname, '..'),
       });
       assert.equal(compare.ok, true, JSON.stringify(compare.drift));
-      assert.deepEqual(compare.newMigrationNames || [], ['1810460000000_parent_apple_refresh_token']);
+      assert.deepEqual(compare.newMigrationNames || [], ['1810470000000_host_2026_survey']);
     } finally {
       client.release();
     }

@@ -272,6 +272,10 @@ async function seedHost2026(client) {
 
 module.exports = {
   name: '1810470000000_host_2026_survey',
+  snapshotContract: {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
   up: async (client) => {
     await ensureSurveyTables(client);
     await addCampaignColumns(client);
