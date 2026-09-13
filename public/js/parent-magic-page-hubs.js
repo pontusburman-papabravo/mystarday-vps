@@ -21,6 +21,16 @@
     'settings.groups.premium.title': 'Prenumeration',
     'settings.groups.premium.sub': 'Premium, köp och betalning',
     'settings.appearance.backToSettings': '← Tillbaka till inställningar',
+    'settings.backToPlanning': '← Till planering',
+    'settings.heroes.assignSchedule.title': 'Tilldela schema',
+    'settings.heroes.assignSchedule.sub': 'Kopiera schema till barn',
+    'settings.heroes.schedule.title': 'Veckoschema',
+    'settings.heroes.schedule.sub': 'Planera och anpassa barnens dagar',
+    'settings.heroes.activities.title': 'Aktiviteter',
+    'settings.heroes.activities.sub': 'Hantera barnens aktiviteter',
+    'settings.heroes.calendar.title': 'Kalender',
+    'settings.heroes.library.title': 'Biblioteket',
+    'settings.heroes.library.sub': 'Scheman, aktiviteter och belöningar för er familj',
   };
 
   function pt(key, params) {

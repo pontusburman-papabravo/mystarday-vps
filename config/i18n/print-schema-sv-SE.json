@@ -61,6 +61,14 @@
       "Leta efter filen som börjar med <strong>{{prefix}}</strong> och dagens datum."
     ]
   },
+  "overlay": {
+    "title": "Din PDF",
+    "hint": "PDF:en visas här. Tryck Dela för att spara i Filer eller skriva ut.",
+    "share": "Dela / spara",
+    "close": "Stäng",
+    "closeAria": "Stäng",
+    "iframeTitle": "Schema-PDF"
+  },
   "layout": {
     "titleSchedule": "Schema",
     "titleMyDays": "Mina dagar",
@@ -84,6 +92,8 @@
     "pdfCancelled": "PDF-sparning avbruten",
     "shareHint": "Välj Spara i Filer i delningsmenyn",
     "mobileSavedHint": "PDF klar — spara den i Filer",
+    "nativeViewerHint": "PDF klar — dela eller spara från vyn",
+    "shareUnavailable": "Kunde inte öppna delning — använd vyn ovan",
     "desktopSavedHint": "PDF sparad i Nedladdningar",
     "pdfLibsMissing": "PDF-verktyg saknas — ladda om sidan och försök igen",
     "createPdfError": "Kunde inte skapa PDF:en"

@@ -397,18 +397,69 @@
 
     const filename = buildPdfFilename(opts.childName || doc.title, Boolean(opts.myDaysOnly || doc.myDaysOnly));
     const blob = pdf.output('blob');
+    // JPEG preview for in-app overlay — iOS WKWebView often cannot paint PDF in an iframe.
+    let previewDataUrl = '';
+    try {
+      previewDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+    } catch (_) {
+      previewDataUrl = imgData || '';
+    }
 
-    if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
+    function isNativeOrMobileClient() {
       try {
-        const shareFile = new File([blob], filename, { type: 'application/pdf' });
-        if (navigator.canShare({ files: [shareFile] })) {
-          await navigator.share({ files: [shareFile], title: filename });
-          return { method: 'share', filename: filename };
+        if (typeof document !== 'undefined' && document.documentElement
+          && document.documentElement.classList.contains('is-native')) {
+          return true;
         }
+      } catch (_) { /* ignore */ }
+      if (root.Platform && typeof root.Platform.isNative === 'function') {
+        try { if (root.Platform.isNative()) return true; } catch (_) { /* ignore */ }
+      }
+      const ua = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
+      if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+      if (typeof matchMedia === 'function') {
+        try { if (matchMedia('(pointer: coarse)').matches) return true; } catch (_) { /* ignore */ }
+      }
+      return false;
+    }
+
+    async function trySharePdfFile() {
+      if (typeof navigator === 'undefined' || typeof navigator.share !== 'function') return null;
+      let sharePayload = blob;
+      try {
+        if (typeof File === 'function') {
+          sharePayload = new File([blob], filename, { type: 'application/pdf' });
+        }
+      } catch (_) {
+        sharePayload = blob;
+      }
+      try {
+        await navigator.share({ files: [sharePayload], title: filename });
+        return 'share';
       } catch (err) {
-        if (err && err.name === 'AbortError') {
-          return { method: 'cancelled', filename: filename };
-        }
+        if (err && err.name === 'AbortError') return 'cancelled';
+        return null;
+      }
+    }
+
+    function canShareFiles() {
+      if (typeof navigator === 'undefined' || typeof navigator.canShare !== 'function') return false;
+      try {
+        const probe = (typeof File === 'function')
+          ? new File([blob], filename, { type: 'application/pdf' })
+          : blob;
+        return navigator.canShare({ files: [probe] });
+      } catch (_) {
+        return false;
+      }
+    }
+
+    // iOS WKWebView: canShare({ files }) is often false even when share() works.
+    const preferShare = isNativeOrMobileClient() || canShareFiles();
+    if (preferShare) {
+      const shared = await trySharePdfFile();
+      if (shared) {
+        return { method: shared, filename: filename, blob: blob, previewDataUrl: previewDataUrl };
       }
     }
 
@@ -422,10 +473,10 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-      return { method: 'download', filename: filename };
+      return { method: 'download', filename: filename, blob: blob, previewDataUrl: previewDataUrl };
     } catch (_) {
       pdf.save(filename);
-      return { method: 'save', filename: filename };
+      return { method: 'save', filename: filename, blob: blob, previewDataUrl: previewDataUrl };
     }
   }
 

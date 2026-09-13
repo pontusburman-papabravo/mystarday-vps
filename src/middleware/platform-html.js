@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '34'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '35'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -211,6 +211,8 @@ function ensureMagicShellAssets(body, reqPath) {
     { needle: 'nav-config.js', tag: '<script src="/js/nav-config.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'parent-magic-auto.js', tag: '<script src="/js/parent-magic-auto.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
     { needle: 'parent-magic-bootstrap.js', tag: '<script src="/js/parent-magic-bootstrap.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
+    // Last in this list so prepend-before-hubs places i18n.js first (I18n must exist before pt()).
+    { needle: '/js/i18n.js', tag: '<script src="/js/i18n.js?v=' + MAGIC_VERSION + '"><\/script>\n' },
   ];
 
   scriptsToEnsure.forEach(function (item) {

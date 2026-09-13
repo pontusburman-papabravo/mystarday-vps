@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.13.0"></script>
+  <script src="/js/locale-datetime.js?v=1"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -127,7 +130,7 @@
     }
   </style>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="assign-schedule">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="assign-schedule" data-i18n-manual-init="true">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -946,6 +949,10 @@ async function selectChild(id) {
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await window.authGuard();
   if (!user) return;
+
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user.preferred_locale);
+  }
 
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
 
