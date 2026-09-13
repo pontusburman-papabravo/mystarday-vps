@@ -85,6 +85,11 @@ function buildPremiumFromRow(row) {
   else if (row.source === 'gift') label = 'Premium – presentkort';
   else if (trial) label = 'Premium – gratis provperiod';
   else if (row.source === 'prebilling') label = 'Premium – lanseringsperiod';
+  else if (row.source === 'admin') {
+    label = (meta.permanent || !row.expires_at)
+      ? 'Premium – administrativt (utan slutdatum)'
+      : 'Premium – administrativt';
+  }
   else if (row.source === 'apple') label = plan === 'yearly' ? 'Premium – årsabonnemang via Apple' : 'Premium – månadsabonnemang via Apple';
   else if (row.source === 'google') label = plan === 'yearly' ? 'Premium – årsabonnemang via Google Play' : 'Premium – månadsabonnemang via Google Play';
   else if (row.status === 'grace_period') label = 'Premium – betalning behöver uppdateras';
@@ -560,6 +565,50 @@ async function applyStoreEntitlementFromWebhook(familyId, {
   return { applied: true, premium };
 }
 
+function familyNotFoundError() {
+  const err = new Error('family_not_found');
+  err.code = 'FAMILY_NOT_FOUND';
+  return err;
+}
+
+async function withFamilyWriteLock(familyId, fn, { client = null } = {}) {
+  const owns = !client;
+  const c = client || await db.getClient();
+  try {
+    if (owns) await c.query('BEGIN');
+    const family = await entitlementsDb.lockFamilyEntitlements(c, familyId);
+    if (!family) throw familyNotFoundError();
+    const result = await fn(c, family);
+    if (owns) await c.query('COMMIT');
+    return result;
+  } catch (err) {
+    if (owns) await c.query('ROLLBACK').catch(() => {});
+    throw err;
+  } finally {
+    if (owns) c.release();
+  }
+}
+
+async function appendAdminAudit(client, {
+  adminId,
+  familyId,
+  action,
+  metadata,
+}) {
+  if (!adminId) return;
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  await q(
+    `INSERT INTO admin_audit_log (admin_id, target_family_id, action, metadata)
+     VALUES ($1, $2, $3, $4::jsonb)`,
+    [adminId, familyId, action, JSON.stringify(metadata || {})]
+  );
+}
+
+function sourceFromPremium(premium) {
+  if (!premium || !premium.active) return 'none';
+  return premium.source || 'none';
+}
+
 async function grantAdminPremium(familyId, {
   expiresAt = null,
   permanent = false,
@@ -567,29 +616,165 @@ async function grantAdminPremium(familyId, {
   reason,
   sourceReference = null,
 }, { client = null } = {}) {
-  const grandfather = await entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client });
-  if (grandfather.some((r) => r.source === 'grandfathered' && !r.revoked_at) && !permanent) {
-    return { skipped: true, reason: 'grandfathered_immutable' };
+  const isPermanent = permanent === true;
+  const grantExpiresAt = isPermanent ? null : (expiresAt ? new Date(expiresAt) : null);
+  if (!isPermanent) {
+    if (!grantExpiresAt || Number.isNaN(grantExpiresAt.getTime())) {
+      const err = new Error('expires_at_required');
+      err.code = 'ADMIN_GRANT_INVALID_EXPIRES_AT';
+      throw err;
+    }
+    if (grantExpiresAt.getTime() <= Date.now()) {
+      const err = new Error('expires_at_not_future');
+      err.code = 'ADMIN_GRANT_EXPIRES_NOT_FUTURE';
+      throw err;
+    }
   }
 
-  await entitlementsDb.upsertAdminGrant(familyId, {
-    expiresAt,
-    permanent,
-    sourceReference,
-    metadata: { admin_id: adminId, reason },
-  }, { client });
+  return withFamilyWriteLock(familyId, async (c, familyRow) => {
+    const rows = await entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client: c });
+    const hasGrandfatherRow = rows.some((r) => r.source === 'grandfathered' && !r.revoked_at);
+    const lifetimeFreeUntil = await getLifetimeFreeUntil();
+    const grandfatherEligible = isFamilyEligibleForGrandfathering({
+      countryCode: familyRow.country_code,
+      createdAt: familyRow.created_at,
+      lifetimeFreeUntil,
+    });
+    if (hasGrandfatherRow || grandfatherEligible) {
+      const winner = pickWinner(rows, Date.now());
+      const premium = (winner && winner.source === 'grandfathered')
+        ? buildPremiumFromRow(winner)
+        : buildPremiumFromRow({
+          source: 'grandfathered',
+          status: 'grandfathered',
+          granted_at: familyRow.created_at,
+          starts_at: familyRow.created_at,
+          expires_at: null,
+          metadata: {},
+        });
+      return {
+        skipped: true,
+        reason: 'grandfathered_immutable',
+        premium,
+        effective_source_before: sourceFromPremium(premium),
+        effective_source_after: sourceFromPremium(premium),
+      };
+    }
 
-  const premium = await syncMirrorsFromResolver(familyId, { client });
-  await appendPaymentAudit({
-    familyId,
-    source: 'admin',
-    eventType: permanent ? 'admin_grant_permanent' : 'admin_grant_temporary',
-    status: 'active',
-    adminId,
-    reason,
-    metadata: { expires_at: expiresAt },
-  }, client);
-  return { applied: true, premium };
+    const before = await resolveFamilyEntitlements(familyId, new Date(), { client: c });
+
+    const row = await entitlementsDb.upsertAdminGrant(familyId, {
+      expiresAt: grantExpiresAt,
+      permanent: isPermanent,
+      sourceReference,
+      metadata: { admin_id: adminId || null, reason: reason || null },
+    }, { client: c });
+
+    const premium = await syncMirrorsFromResolver(familyId, { client: c });
+    const auditMeta = {
+      type: isPermanent ? 'permanent' : 'temporary',
+      permanent: isPermanent,
+      expires_at: grantExpiresAt,
+      entitlement_id: row.id,
+      reason: reason || null,
+      effective_source_before: sourceFromPremium(before.premium),
+      effective_source_after: sourceFromPremium(premium),
+    };
+    await appendPaymentAudit({
+      familyId,
+      source: 'admin',
+      eventType: isPermanent ? 'admin_grant_permanent' : 'admin_grant_temporary',
+      status: 'active',
+      adminId: adminId || null,
+      reason: reason || null,
+      metadata: auditMeta,
+    }, c);
+    await appendAdminAudit(c, {
+      adminId,
+      familyId,
+      action: isPermanent ? 'premium_grant_permanent' : 'premium_grant_temporary',
+      metadata: auditMeta,
+    });
+    return {
+      applied: true,
+      skipped: false,
+      grant_id: row.id,
+      premium,
+      effective_source_before: sourceFromPremium(before.premium),
+      effective_source_after: sourceFromPremium(premium),
+    };
+  }, { client });
+}
+
+async function revokeAdminPremium(familyId, {
+  adminId = null,
+  reason = null,
+} = {}, { client = null } = {}) {
+  return withFamilyWriteLock(familyId, async (c) => {
+    const before = await resolveFamilyEntitlements(familyId, new Date(), { client: c });
+    const revoked = await entitlementsDb.revokeAdminGrants(familyId, { client: c });
+    const premium = await syncMirrorsFromResolver(familyId, { client: c });
+    const grantIds = revoked.map((r) => r.id);
+    const auditMeta = {
+      grant_ids: grantIds,
+      grant_id: grantIds[0] || null,
+      reason: reason || null,
+      effective_source_before: sourceFromPremium(before.premium),
+      effective_source_after: sourceFromPremium(premium),
+    };
+    if (revoked.length > 0) {
+      await appendPaymentAudit({
+        familyId,
+        source: 'admin',
+        eventType: 'admin_grant_revoked',
+        status: 'revoked',
+        adminId: adminId || null,
+        reason: reason || 'manual_revoke',
+        metadata: auditMeta,
+      }, c);
+      await appendAdminAudit(c, {
+        adminId,
+        familyId,
+        action: 'premium_grant_revoked',
+        metadata: auditMeta,
+      });
+    }
+    return {
+      revoked: revoked.length > 0,
+      grant_ids: grantIds,
+      grant_id: grantIds[0] || null,
+      premium,
+      effective_source_before: sourceFromPremium(before.premium),
+      effective_source_after: sourceFromPremium(premium),
+    };
+  }, { client });
+}
+
+async function getFamilyEntitlementOverview(familyId, now = new Date()) {
+  const resolved = await resolveFamilyEntitlements(familyId, now);
+  const rows = await entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY);
+  const nowMs = now.getTime();
+  const sources = rows.map((row) => {
+    const active = isRowActive(row, nowMs);
+    const meta = row.metadata || {};
+    return {
+      id: row.id,
+      source: row.source,
+      status: row.status,
+      starts_at: row.starts_at || null,
+      expires_at: row.expires_at || null,
+      granted_at: row.granted_at || null,
+      active,
+      effective: Boolean(resolved.premium && resolved.premium.entitlement_row_id === row.id),
+      permanent: row.source === 'admin' && (meta.permanent === true || !row.expires_at),
+    };
+  });
+  return {
+    premium: resolved.premium,
+    access_kind: resolved.access_kind,
+    requires_paywall: resolved.requires_paywall,
+    sources,
+  };
 }
 
 module.exports = {
@@ -605,6 +790,8 @@ module.exports = {
   buildPrebillingPremium,
   accessKindFromPremium,
   grantAdminPremium,
+  revokeAdminPremium,
+  getFamilyEntitlementOverview,
   applyStoreEntitlementFromWebhook,
   buildPremiumFromRow,
   emptyPremium,

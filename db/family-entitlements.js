@@ -138,19 +138,43 @@ async function revokeStoreEntitlement(familyId, { client = null } = {}) {
   );
 }
 
-async function upsertAdminGrant(familyId, payload, { client = null } = {}) {
-  const q = client ? client.query.bind(client) : db.query.bind(db);
-  const { expiresAt, permanent, sourceReference, metadata = {} } = payload;
+async function lockFamilyEntitlements(client, familyId) {
+  const fam = await client.query(
+    'SELECT id, created_at, country_code FROM family WHERE id = $1 FOR UPDATE',
+    [familyId]
+  );
+  if (!fam.rows[0]) return null;
+  await client.query(
+    `SELECT id FROM family_entitlements
+     WHERE family_id = $1 AND entitlement_key = $2
+     FOR UPDATE`,
+    [familyId, PREMIUM_ENTITLEMENT_KEY]
+  );
+  return fam.rows[0];
+}
 
-  await q(
+async function revokeAdminGrants(familyId, { client = null } = {}) {
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  const { rows } = await q(
     `UPDATE family_entitlements
      SET revoked_at = NOW(), updated_at = NOW()
      WHERE family_id = $1
        AND entitlement_key = $2
        AND source = 'admin'
-       AND revoked_at IS NULL`,
+       AND revoked_at IS NULL
+     RETURNING *`,
     [familyId, PREMIUM_ENTITLEMENT_KEY]
   );
+  return rows;
+}
+
+async function upsertAdminGrant(familyId, payload, { client = null } = {}) {
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  const { expiresAt, permanent, sourceReference, metadata = {} } = payload;
+
+  // Revoke unrevoked admin rows including expired ones so the unique index
+  // can accept a new active grant. Other sources are untouched.
+  await revokeAdminGrants(familyId, { client });
 
   const { rows } = await q(
     `INSERT INTO family_entitlements (
@@ -164,7 +188,11 @@ async function upsertAdminGrant(familyId, payload, { client = null } = {}) {
       PREMIUM_ENTITLEMENT_KEY,
       sourceReference || (permanent ? 'permanent' : 'temporary'),
       permanent ? null : expiresAt,
-      JSON.stringify({ ...metadata, permanent: !!permanent }),
+      JSON.stringify({
+        admin_id: metadata.admin_id || null,
+        reason: metadata.reason || null,
+        permanent: !!permanent,
+      }),
     ]
   );
   return rows[0];
@@ -201,10 +229,12 @@ async function upsertGiftEntitlement(familyId, payload, { client = null } = {}) 
 module.exports = {
   listByFamily,
   listActiveByFamily,
+  lockFamilyEntitlements,
   upsertGrandfathered,
   upsertIntroYear,
   upsertStoreEntitlement,
   revokeStoreEntitlement,
   upsertAdminGrant,
+  revokeAdminGrants,
   upsertGiftEntitlement,
 };
