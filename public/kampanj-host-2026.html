@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="__SITE_URL__/kampanj/host-2026">
-  <title>Premium ingår — [REDACTED]</title>
-  <meta name="description" content="Premium ingår. Registrera dig senast 30 september.">
-  <meta property="og:title" content="Premium ingår — [REDACTED]">
-  <meta property="og:description" content="Registrera dig senast 30 september.">
+  <title>Mindre tjat. Mer koll på dagen. — [REDACTED]</title>
+  <meta name="description" content="[REDACTED] hjälper barnet att se vad som händer nu, vad som kommer sedan och vad som redan är klart. Premium ingår om du registrerar dig senast 30 september.">
+  <meta property="og:title" content="Mindre tjat. Mer koll på dagen. — [REDACTED]">
+  <meta property="og:description" content="Premium ingår om du registrerar dig senast 30 september.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="__SITE_URL__/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/landing.css?v=18">
+  <link rel="stylesheet" href="/css/landing.css?v=21">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#F5A623">
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
@@ -33,10 +33,9 @@
 
 <main class="kampanj-main landing-section--dark">
   <header class="kampanj-hero">
-    <h1>Premium ingår</h1>
-    <p class="kampanj-sub">Registrera dig senast 30 september.</p>
-    <p class="kampanj-lead">[REDACTED] hjälper familjer att skapa tydligare rutiner, aktiviteter och struktur i vardagen.</p>
-    <p class="kampanj-audience">Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet och struktur.</p>
+    <h1>Mindre tjat. Mer koll på dagen.</h1>
+    <p class="kampanj-lead">[REDACTED] hjälper barnet att se vad som händer nu, vad som kommer sedan och vad som redan är klart.</p>
+    <p class="kampanj-sub">Premium ingår om du registrerar dig senast 30 september.</p>
     <div class="kampanj-ctas" aria-label="Ladda ner appen">
       <a href="__APPLE_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="app_store_click">Hämta på App Store</a>
       <a href="__PLAY_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="play_store_click">Ladda ned på Google Play</a>
@@ -44,6 +43,22 @@
     <p class="kampanj-platforms">Finns för iPhone och Android.</p>
   </header>
 
+  <ul class="kampanj-values">
+    <li>
+      <h2>Se dagen</h2>
+      <p>Rutiner och aktiviteter i en tydlig barnvy.</p>
+    </li>
+    <li>
+      <h2>Följ framstegen</h2>
+      <p>Stjärnor och belöningar gör små steg synliga.</p>
+    </li>
+    <li>
+      <h2>Planera tillsammans</h2>
+      <p>Veckan samlad på ett ställe för familjen.</p>
+    </li>
+  </ul>
+
+  <p class="kampanj-audience">Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet, struktur och förutsägbarhet.</p>
   <p class="kampanj-proof" id="kampanjSocialProof">Hundratals familjer använder redan [REDACTED].</p>
 
   <ul class="kampanj-shots">
@@ -66,6 +81,18 @@
       </figure>
     </li>
   </ul>
+
+  <section class="kampanj-survey" aria-labelledby="kampanjSurveyTitle">
+    <h2 id="kampanjSurveyTitle">Hjälp oss göra [REDACTED] bättre</h2>
+    <p>7 frågor · cirka 2 minuter · chans att vinna ett Zalando-presentkort på 500 kr</p>
+    <a id="kampanjSurveyCta" class="kampanj-survey-cta" href="/tyck/host-2026">Svara på enkäten</a>
+    <p class="kampanj-survey-legal"><a href="/kampanj/host-2026/utlottning">Villkor för utlottningen</a></p>
+  </section>
+
+  <div class="kampanj-ctas kampanj-ctas--repeat" aria-label="Ladda ner appen">
+    <a href="__APPLE_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="app_store_click">Hämta på App Store</a>
+    <a href="__PLAY_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="play_store_click">Ladda ned på Google Play</a>
+  </div>
 </main>
 
 <script src="/js/landing-events.js?v=1"></script>
@@ -81,6 +108,19 @@
       /* Qualitative copy only — never inject the exact family count. */
     })
     .catch(function () { /* static copy remains */ });
+
+  var surveyCta = document.getElementById('kampanjSurveyCta');
+  if (!surveyCta) return;
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var next = new URLSearchParams();
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (key) {
+      var value = params.get(key);
+      if (value) next.set(key, value);
+    });
+    var qs = next.toString();
+    if (qs) surveyCta.href = '/tyck/host-2026?' + qs;
+  } catch (_err) { /* keep default href */ }
 })();
 </script>
 </body>

@@ -116,6 +116,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810470000000_host_2026_survey': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

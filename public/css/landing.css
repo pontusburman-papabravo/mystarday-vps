@@ -2500,6 +2500,15 @@ body.landing-login-choice-open {
   text-underline-offset: 3px;
 }
 
+body.kampanj-host-2026 {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
+    linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+  min-height: 100vh;
+}
+
 .kampanj-host-2026 .kampanj-nav {
   display: flex;
   align-items: center;
@@ -2620,6 +2629,129 @@ body.landing-login-choice-open {
   .kampanj-shots li {
     flex: none;
     max-width: none;
+  }
+}
+
+.kampanj-values {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.kampanj-values li {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+}
+
+.kampanj-values h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.kampanj-values p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.kampanj-survey {
+  margin: 2rem 0 1.5rem;
+  padding: 1.25rem 1.15rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kampanj-survey h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.25rem;
+  color: var(--white);
+}
+
+.kampanj-survey p {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.kampanj-survey-legal {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+}
+
+.kampanj-survey-legal a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: underline;
+}
+
+.kampanj-survey-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 1.2rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.kampanj-survey-cta:hover,
+.kampanj-survey-cta:focus {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.kampanj-ctas--repeat {
+  margin-top: 0.5rem;
+}
+
+.kampanj-legal h1 {
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
+  color: var(--white);
+  margin: 0 0 0.75rem;
+}
+
+.kampanj-legal-lead {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+}
+
+.kampanj-legal-list {
+  margin: 0 0 1.5rem;
+  padding-left: 1.2rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.kampanj-legal-list li + li {
+  margin-top: 0.7rem;
+}
+
+.kampanj-legal-list a,
+.kampanj-legal-back {
+  color: var(--amber);
+}
+
+.kampanj-legal-back {
+  display: inline-block;
+  margin-top: 1rem;
+}
+
+@media (min-width: 720px) {
+  .kampanj-values {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 /* /CAMPAIGN host-2026 */

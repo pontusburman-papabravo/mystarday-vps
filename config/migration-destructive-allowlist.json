@@ -12,7 +12,8 @@
     "1810420000001_family_growth_intervention_delivery.js",
     "1810430000000_schedule_apply_operation.js",
     "1810440000000_schedule_period.js",
-    "1810450000000_contact_message_reply_token.js"
+    "1810450000000_contact_message_reply_token.js",
+    "1810470000000_host_2026_survey.js"
   ],
   "reviews": {
     "1810140000000_family_acquisition_attribution.js": "ON DELETE CASCADE on family_id FK only — attribution rows must disappear with GDPR family deletion. No DROP/TRUNCATE in up().",
@@ -26,6 +27,7 @@
     "1810420000001_family_growth_intervention_delivery.js": "Expands intervention delivery state: ADD COLUMN IF NOT EXISTS, DROP+recreate status CHECK and partial unique index to allow pending claims. down() reverses schema only. No data loss in up().",
     "1810430000000_schedule_apply_operation.js": "ON DELETE CASCADE on child_id and family_id FKs only — schedule-apply idempotency ledger rows must disappear with the child/family they belong to (GDPR deletion), never orphan. Schema-only CREATE TABLE + indexes in up(). No DROP/TRUNCATE in up(); down() drops the table only.",
     "1810440000000_schedule_period.js": "ON DELETE CASCADE on child_id/family_id FKs (GDPR deletion parity with every other child/family-scoped table) and on schedule_period_item.period_id (item rows belong entirely to their period, deleted with it); ON DELETE SET NULL on schedule_period_item.activity_template_id (deleting a content activity_template must not delete the period's historical item row). Schema-only CREATE TABLE + indexes in up() — special_day_schedule is never touched by this migration (revised design keeps periods and explicit Special Days in separate tables). No DROP/TRUNCATE/DELETE in up(); down() drops the two new tables only.",
-    "1810450000000_contact_message_reply_token.js": "ON DELETE CASCADE on contact_message_id FK only — hashed reply-token rows must disappear with the parent contact_message (GDPR / archive cleanup). Schema-only CREATE TABLE + indexes in up(). No DROP/TRUNCATE/DELETE in up(); down() drops the new table and indexes only."
+    "1810450000000_contact_message_reply_token.js": "ON DELETE CASCADE on contact_message_id FK only — hashed reply-token rows must disappear with the parent contact_message (GDPR / archive cleanup). Schema-only CREATE TABLE + indexes in up(). No DROP/TRUNCATE/DELETE in up(); down() drops the new table and indexes only.",
+    "1810470000000_host_2026_survey.js": "ON DELETE CASCADE on survey child-table FKs only (questions, options, responses, answers, participants, contest entries, popup interactions) so GDPR/survey deletion does not leave orphans. CREATE TABLE IF NOT EXISTS repairs schema drift; ADD COLUMN IF NOT EXISTS is expand-only. No DROP/TRUNCATE/DELETE in up(); down() deletes the host-2026 slug only."
   }
 }

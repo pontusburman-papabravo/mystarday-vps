@@ -215,6 +215,13 @@ router.get('/kampanj/host-2026', (req, res) => {
   }
 });
 
+router.get('/kampanj/host-2026/utlottning', (req, res) => {
+  const served = serveCampaignHtml(res, 'kampanj-host-2026-utlottning.html');
+  if (!served) {
+    res.status(404).send('Not found');
+  }
+});
+
 // ─── GET /sv/tack — Swedish professional interest thank-you page ──
 router.get('/sv/tack', async (req, res) => {
   const htmlPath = path.join(__dirname, '..', '..', 'public', 'sv-tack.html');

@@ -27,14 +27,20 @@ const FORBIDDEN = [
 ];
 
 test('campaign page has exact allowed copy and no forbidden claims', () => {
-  assert.match(html, /<h1>Premium ingår<\/h1>/);
-  assert.match(html, /Registrera dig senast 30 september\./);
-  assert.match(html, /hjälper familjer att skapa tydligare rutiner, aktiviteter och struktur i vardagen\./);
-  assert.match(html, /Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet och struktur\./);
+  assert.match(html, /<h1>Mindre tjat\. Mer koll på dagen\.<\/h1>/);
+  assert.match(html, /Premium ingår om du registrerar dig senast 30 september\./);
+  assert.match(html, /hjälper barnet att se vad som händer nu, vad som kommer sedan och vad som redan är klart\./);
+  assert.match(html, /Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet, struktur och förutsägbarhet\./);
   assert.match(html, /Hundratals familjer använder redan/);
   assert.match(html, /Finns för iPhone och Android\./);
   assert.match(html, />Hämta på App Store</);
   assert.match(html, />Ladda ned på Google Play</);
+  assert.match(html, /id="kampanjSurveyTitle"/);
+  assert.match(html, /Hjälp oss göra .+ bättre/);
+  assert.match(html, /Svara på enkäten/);
+  assert.match(html, /href="\/tyck\/host-2026"/);
+  assert.match(html, /href="\/kampanj\/host-2026\/utlottning"/);
+  assert.doesNotMatch(html, /VINN 500/i);
   for (const re of FORBIDDEN) {
     assert.doesNotMatch(html, re);
   }
@@ -96,8 +102,9 @@ test('GET /kampanj/host-2026 serves campaign HTML with store links', async () =>
     const res = await fetch(`${http.baseUrl}/kampanj/host-2026`);
     assert.equal(res.status, 200);
     const body = await res.text();
-    assert.match(body, /Premium ingår/);
-    assert.match(body, /Registrera dig senast 30 september\./);
+    assert.match(body, /Premium ingår om du registrerar dig senast 30 september\./);
+    assert.match(body, /Svara på enkäten/);
+    assert.match(body, /\/tyck\/host-2026/);
     assert.match(body, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(body, /play\.google\.com\/store\/apps\/details\?id=/);
     assert.doesNotMatch(body, /landing-login-choice/);

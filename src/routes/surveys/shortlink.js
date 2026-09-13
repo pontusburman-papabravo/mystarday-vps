@@ -7,6 +7,7 @@
 const express = require('express');
 const path = require('path');
 const db = require('../../../db/surveys');
+const { isPublicSurveySlugAllowed } = require('../../lib/survey-public-access');
 
 function requireFeaturePublic(slug) {
   return async (req, res, next) => {
@@ -19,16 +20,17 @@ function requireFeaturePublic(slug) {
   };
 }
 
-// ── SMS shortlink router — handles /tyck (mounted at /tyck in server.js) ──
+function sendTyckHtml(res) {
+  res.sendFile(path.join(__dirname, '../../../public/tyck.html'));
+}
+
 const shortlinkRouter = express.Router();
-shortlinkRouter.use(requireFeaturePublic('enkater'));
 
 // /tyck → redirect to first active popup-landing survey (SMS shortlink)
-shortlinkRouter.get('/', async (req, res) => {
+shortlinkRouter.get('/', requireFeaturePublic('enkater'), async (req, res) => {
   try {
     const survey = await db.getActivePopupSurveyForLanding();
     if (survey) return res.redirect(302, `/tyck/${survey.slug}`);
-    // Fallback: any active survey
     const surveys = await db.getAllSurveys();
     const active = surveys.find(s => s.status === 'active');
     if (active) return res.redirect(302, `/tyck/${active.slug}`);
@@ -38,9 +40,17 @@ shortlinkRouter.get('/', async (req, res) => {
   }
 });
 
-// /tyck/:slug → serve the survey SPA
-shortlinkRouter.get('/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../../public/tyck.html'));
+// /tyck/:slug → serve the survey SPA (host-2026 is allowlisted even if enkater is off)
+shortlinkRouter.get('/:slug', async (req, res) => {
+  try {
+    const allowed = await isPublicSurveySlugAllowed(req.params.slug);
+    if (!allowed) {
+      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+    }
+    sendTyckHtml(res);
+  } catch {
+    res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+  }
 });
 
 module.exports = shortlinkRouter;

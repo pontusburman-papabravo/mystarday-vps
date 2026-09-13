@@ -7,6 +7,7 @@
 const express = require('express');
 const db = require('../../../db/surveys');
 const { requireAdmin } = require('../../middleware/auth');
+const { HOST_2026_CLOSES_AT, materializeHost2026Survey } = require('../../../config/host-2026-survey');
 
 const adminRouter = express.Router();
 adminRouter.use(requireAdmin);
@@ -322,6 +323,7 @@ adminRouter.patch('/:id/distribution', async (req, res) => {
       'popup_registered_after', 'popup_registered_before',
       'contest_enabled', 'contest_prize_description', 'contest_prize_image_url',
       'contest_winner_count', 'contest_closes_at',
+      'contest_collect_after_submit', 'contest_terms_url',
     ];
     for (const k of allowed) { if (k in req.body) fields[k] = req.body[k]; }
     const updated = await db.updateSurvey(req.params.id, fields);
@@ -388,6 +390,11 @@ async function seedBuiltInSurveys() {
   const seeded = [];
 
   const surveys = [
+    {
+      ...materializeHost2026Survey(),
+      closes_at: HOST_2026_CLOSES_AT,
+      contest_enabled: true,
+    },
     {
       slug: 'aktiva-anvandare',
       title: 'Aktiva användare — din upplevelse',
@@ -567,6 +574,8 @@ async function seedBuiltInSurveys() {
         scale_max: qData.scale_max ?? null,
         scale_min_label: qData.scale_min_label ?? null,
         scale_max_label: qData.scale_max_label ?? null,
+        is_required: qData.is_required ?? true,
+        max_selections: qData.max_selections ?? null,
       });
 
       if (qData.options) {
@@ -581,8 +590,17 @@ async function seedBuiltInSurveys() {
       }
     }
 
-    // Activate the survey so respondents can start it immediately
-    await db.updateSurvey(survey.id, { status: 'active' });
+    const activateFields = { status: 'active' };
+    if (surveyData.contest_enabled) {
+      activateFields.contest_enabled = true;
+      activateFields.contest_prize_description = surveyData.contest_prize_description || null;
+      activateFields.contest_winner_count = surveyData.contest_winner_count || 1;
+      activateFields.contest_closes_at = surveyData.closes_at || null;
+      activateFields.contest_collect_after_submit = surveyData.contest_collect_after_submit === true;
+      activateFields.contest_terms_url = surveyData.contest_terms_url || null;
+      activateFields.closes_at = surveyData.closes_at || null;
+    }
+    await db.updateSurvey(survey.id, activateFields);
     seeded.push({ slug: surveyData.slug, action: 'created', id: survey.id });
   }
 
