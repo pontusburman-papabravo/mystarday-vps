@@ -101,6 +101,19 @@ test('method doc states directional research and no price decisions', () => {
   assert.doesNotMatch(methodDoc, /en timme före/);
 });
 
+test('host-2026 seed does not reuse one bound param for closes_at and contest_closes_at', () => {
+  const migration = fs.readFileSync(
+    path.join(ROOT, 'migrations/1810470000000_host_2026_survey.js'),
+    'utf8'
+  );
+  assert.match(migration, /closes_at = \$5::timestamptz/);
+  assert.match(migration, /contest_closes_at = \$11::timestamptz/);
+  assert.match(migration, /\$5::timestamptz/);
+  assert.match(migration, /\$11::timestamptz/);
+  assert.doesNotMatch(migration, /contest_closes_at = \$5(?!::)/);
+  assert.doesNotMatch(migration, /VALUES \(\s*\$1,\$2,\$3,\$4,'active',\$5,/);
+});
+
 test('lottery close is one second before Premium cutoff, not one hour', () => {
   assert.equal(seed.HOST_2026_CLOSES_AT, '2026-09-30T21:59:59.000Z');
   assert.match(paymentSettingsSrc, /DEFAULT_PAYMENT_START_AT = '2026-10-01T00:00:00\+02:00'/);

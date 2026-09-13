@@ -38,8 +38,12 @@ test('applied migration files match origin/main (no silent edits)', () => {
     .map((p) => p.replace(/^migrations\//, ''));
 
   const mainSet = new Set(mainList);
+  // 181047 never applied on live VPS (seed reused $5 for DATE closes_at and
+  // TIMESTAMPTZ contest_closes_at → "inconsistent types deduced for parameter $5").
+  // In-place fix is required so the failed up() can succeed on deploy.
+  const allowedInPlaceFixes = new Set(['1810470000000_host_2026_survey.js']);
   for (const file of changed) {
-    if (mainSet.has(file)) {
+    if (mainSet.has(file) && !allowedInPlaceFixes.has(file)) {
       assert.fail(
         `Migration file ${file} exists on origin/main and was modified — add a new migration instead`
       );

@@ -177,6 +177,9 @@ async function addCampaignColumns(client) {
 }
 
 async function seedHost2026(client) {
+  // Prod `surveys.closes_at` is DATE while `contest_closes_at` is TIMESTAMPTZ.
+  // Reusing one bound parameter for both made Postgres fail with
+  // "inconsistent types deduced for parameter $5". Cast separately.
   const surveyCopy = materializeHost2026Survey();
   const existing = await client.query(`SELECT id FROM surveys WHERE slug = $1`, [surveyCopy.slug]);
   let surveyId;
@@ -188,16 +191,16 @@ async function seedHost2026(client) {
          description = $3,
          target_tag = $4,
          status = 'active',
-         closes_at = $5,
+         closes_at = $5::timestamptz,
          thank_you_message = $6,
          thank_you_cta_text = $7,
          thank_you_cta_url = $8,
          contest_enabled = true,
          contest_prize_description = $9,
-         contest_winner_count = $10,
-         contest_closes_at = $5,
+         contest_winner_count = $10::integer,
+         contest_closes_at = $11::timestamptz,
          contest_collect_after_submit = true,
-         contest_terms_url = $11,
+         contest_terms_url = $12,
          popup_logged_in_enabled = false,
          popup_landing_enabled = false,
          updated_at = NOW()
@@ -213,6 +216,7 @@ async function seedHost2026(client) {
         surveyCopy.thank_you_cta_url,
         surveyCopy.contest_prize_description,
         surveyCopy.contest_winner_count,
+        HOST_2026_CLOSES_AT,
         surveyCopy.contest_terms_url,
       ]
     );
@@ -229,7 +233,11 @@ async function seedHost2026(client) {
          contest_enabled, contest_prize_description, contest_winner_count,
          contest_closes_at, contest_collect_after_submit, contest_terms_url,
          popup_logged_in_enabled, popup_landing_enabled
-       ) VALUES ($1,$2,$3,$4,'active',$5,$6,$7,$8,true,$9,$10,$5,true,$11,false,false)
+       ) VALUES (
+         $1,$2,$3,$4,'active',$5::timestamptz,
+         $6,$7,$8,true,$9,$10::integer,
+         $11::timestamptz,true,$12,false,false
+       )
        RETURNING id`,
       [
         surveyCopy.slug,
@@ -242,6 +250,7 @@ async function seedHost2026(client) {
         surveyCopy.thank_you_cta_url,
         surveyCopy.contest_prize_description,
         surveyCopy.contest_winner_count,
+        HOST_2026_CLOSES_AT,
         surveyCopy.contest_terms_url,
       ]
     );
