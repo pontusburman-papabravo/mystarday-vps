@@ -223,7 +223,7 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
 ## 10. Post-submission check
 
 - [ ] **Confirm the correct build/version was actually submitted** — MANUAL
-  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version.
+  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version. iOS `CFBundleShortVersionString` (`MARKETING_VERSION`) must be **strictly higher** than the last approved version (ITMS-90186 / ITMS-90062). Repo Check I fails if `MARKETING_VERSION` is in `versionSources.closedIosMarketingVersions` (currently `1.4.3`).
 
 - [ ] **Monitor for a rejection and log it** — MANUAL
   PASS criterion: any rejection is appended to `docs/app-store-review-notes.md` (Apple) or an equivalent Play rejection log, with root cause and fix — do not let it become an undocumented one-off fix a second time.

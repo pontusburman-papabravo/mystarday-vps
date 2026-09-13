@@ -1,7 +1,27 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-09-11 | Guideline 3.1.2(c) EULA metadata + Build 1160 IAP locate path
+> Last updated: 2026-09-13 | ITMS-90186 / ITMS-90062 closed train 1.4.3 → ship 1.4.4
+
+---
+
+## Version 1.4.4 — ITMS-90186 / ITMS-90062 Invalid Pre-Release Train (2026-09-13)
+
+**Delivery rejection (version 1.4.3, build 1182):**
+
+- **ITMS-90186:** Invalid Pre-Release Train — train version `1.4.3` is closed for new build submissions.
+- **ITMS-90062:** `CFBundleShortVersionString` `[1.4.3]` must be higher than the previously approved version `[1.4.3]`.
+
+**Root cause:** Apple already approved marketing version 1.4.3. A new binary cannot reuse that train.
+
+**Fix (repo + new binary):**
+
+1. `MARKETING_VERSION` is **1.4.4** in `ios/App/App.xcodeproj/project.pbxproj` (`npm run ios:xcode-cloud:version -- 1.4.4`).
+2. Merge to `main`, tag **`ios-v1.4.4`**, archive with Xcode Cloud (new `CI_BUILD_NUMBER`; do not reuse 1182).
+3. Create App Store Connect version **1.4.4** and attach the new build.
+4. Closed train `1.4.3` is encoded in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions` so Check I fails if we try to ship it again.
+
+This is a **version-train** rejection, not a Guideline 2.1/3.1 product defect. Keep the IAP/EULA review notes below when submitting 1.4.4.
 
 ---
 

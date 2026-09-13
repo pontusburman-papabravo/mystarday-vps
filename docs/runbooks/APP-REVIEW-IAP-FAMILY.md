@@ -98,7 +98,9 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 ## Versioning
 
-Keep `MARKETING_VERSION` **1.4.3** unless App Store Connect cannot accept another 1.4.3 build. Submit a new Xcode Cloud build **1123+**. Do not reuse 1122.
+`MARKETING_VERSION` **1.4.3 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.3). Ship **1.4.4** (`npm run ios:xcode-cloud:version -- 1.4.4`). Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected build **1182**. Tag `ios-v1.4.4` on merged `main`.
+
+Android `versionName` may stay **1.4.3** until the next Play upload (intentional iOS-only train bump).
 
 ## Review notes
 

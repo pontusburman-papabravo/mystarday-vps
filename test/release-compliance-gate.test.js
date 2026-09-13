@@ -293,4 +293,29 @@ describe('release-compliance-gate — orchestrator smoke test', () => {
     const swCheck = result.evidence.checks.find((c) => c.id === 'sw_cache_version_matches_config');
     assert.equal(swCheck.status, STATUS.PASS, JSON.stringify(swCheck.evidence));
   });
+
+  test('closed iOS marketing train 1.4.3 is encoded and current version is higher', () => {
+    const {
+      closedIosTrainStatus,
+      compareDottedVersion,
+      runVersionBuildCacheChecks,
+    } = require('../scripts/lib/release-compliance/check-version-build-cache.cjs');
+
+    assert.equal(compareDottedVersion('1.4.4', '1.4.3'), 1);
+    assert.equal(compareDottedVersion('1.4.3', '1.4.3'), 0);
+    assert.equal(compareDottedVersion('1.4.2', '1.4.3'), -1);
+    assert.equal(closedIosTrainStatus('1.4.3', ['1.4.3']).status, STATUS.FAIL);
+    assert.equal(closedIosTrainStatus('1.4.2', ['1.4.3']).status, STATUS.FAIL);
+    assert.equal(closedIosTrainStatus('1.4.4', ['1.4.3']).status, STATUS.PASS);
+
+    const result = runVersionBuildCacheChecks(REPO_ROOT);
+    const closed = result.evidence.checks.find((c) => c.id === 'ios_closed_marketing_train');
+    assert.ok(closed, 'ios_closed_marketing_train check must run');
+    assert.equal(closed.status, STATUS.PASS, JSON.stringify(closed.evidence));
+    assert.ok(
+      compareDottedVersion(closed.evidence.marketingVersion, '1.4.3') > 0,
+      `expected MARKETING_VERSION > 1.4.3, got ${closed.evidence.marketingVersion}`
+    );
+    assert.deepEqual(CONFIG.versionSources.closedIosMarketingVersions, ['1.4.3']);
+  });
 });

@@ -10,10 +10,10 @@ Normal iOS releases: **Cursor/GitHub → merge `main` → `ios-v*` tag → Xcode
 
 ## Release flow
 
-1. **Prepare marketing version** — `npm run ios:xcode-cloud:version -- 1.4` (updates `MARKETING_VERSION` in `project.pbxproj`; does not bump `CURRENT_PROJECT_VERSION`).
+1. **Prepare marketing version** — `npm run ios:xcode-cloud:version -- 1.4.4` (updates `MARKETING_VERSION` in `project.pbxproj`; does not bump `CURRENT_PROJECT_VERSION`). **1.4.3 is closed** in App Store Connect (ITMS-90186 / ITMS-90062); do not resubmit that train.
 2. **PR + focused CI** — `npm run test:gate` and iOS release tests (see below).
 3. **Merge to `main`**.
-4. **Tag** — `ios-v1.4` on merged `main` (triggers Xcode Cloud archive when workflow is configured for `ios-v*` tags).
+4. **Tag** — `ios-v1.4.4` on merged `main` (triggers Xcode Cloud archive when workflow is configured for `ios-v*` tags).
 5. **Xcode Cloud archive** — `ci_post_clone` runs `cap:sync:ios` **once**, Meta/native verifiers, `ci_pre_xcodebuild` re-verifies + applies `CI_BUILD_NUMBER`, `ci_post_xcodebuild` inspects the real `.xcarchive`.
 6. **Release gates** — ATT absent, Meta advertiser ID/tracking disabled, `META_CLIENT_TOKEN` present, widget excluded (1.4).
 7. **TestFlight** — verify distribution from Xcode Cloud / App Store Connect.
