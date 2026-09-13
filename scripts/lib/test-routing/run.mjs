@@ -55,7 +55,7 @@ function needsDb(testFile) {
   return (
     testFile.includes('.integration.')
     || testFile.includes('integration.test.js')
-    || /test\/(auth-integration|setup-test-db|db-test-lock|migration)/.test(testFile)
+    || /test\/(auth-integration|setup-test-db|db-test-lock|migration|database-branch-guard|admin-premium-grant|payments-v1)/.test(testFile)
   );
 }
 
