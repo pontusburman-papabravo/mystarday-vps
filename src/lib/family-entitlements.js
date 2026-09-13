@@ -232,11 +232,13 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   if (
     !premium.active &&
     familyRow &&
-    isFamilyEligibleForIntroYear(grandfatherInput)
+    isFamilyEligibleForIntroYear(grandfatherInput) &&
+    !workingRows.some((r) => r.source === 'intro_year' && !r.revoked_at)
   ) {
     const expiresAt = introYearExpiresAt(familyRow.created_at);
     const expMs = expiresAt ? expiresAt.getTime() : 0;
-    if (expMs > nowMs) {
+    const startMs = familyRow.created_at ? new Date(familyRow.created_at).getTime() : 0;
+    if (Number.isFinite(startMs) && startMs <= nowMs && expMs > nowMs) {
       const computed = buildPremiumFromRow({
         source: 'intro_year',
         status: 'active',
@@ -283,13 +285,16 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
       !premium.active &&
       familyRow &&
       !isFamilyEligibleForGrandfathering(grandfatherInput) &&
-      !isPrebillingAccessActive({
-        countryCode: familyCountryCode,
-        createdAt: familyRow.created_at,
-        paymentStartAt,
-        now,
-        publicBillingUsable,
-      })
+      !(
+        !isFamilyEligibleForIntroYear(grandfatherInput) &&
+        isPrebillingAccessActive({
+          countryCode: familyCountryCode,
+          createdAt: familyRow.created_at,
+          paymentStartAt,
+          now,
+          publicBillingUsable,
+        })
+      )
     ),
     access_kind: accessKindFromPremium(premium),
   }, { now, publicBillingUsable });

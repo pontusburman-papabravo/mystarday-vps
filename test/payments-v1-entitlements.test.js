@@ -26,6 +26,20 @@ async function setPaymentStart(iso) {
   await appSettings.upsertSetting('payment_start_at', iso);
 }
 
+async function expireIntroYearForEmail(email) {
+  const runtimeDb = require('../src/lib/db');
+  await runtimeDb.query(
+    `UPDATE family_entitlements fe
+     SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+     FROM parent p
+     WHERE p.email = $1
+       AND fe.family_id = p.family_id
+       AND fe.source = 'intro_year'
+       AND fe.revoked_at IS NULL`,
+    [email.toLowerCase()]
+  );
+}
+
 function reloadDbBoundModules() {
   for (const mod of [
     '../src/lib/db',
@@ -319,6 +333,8 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('33 expired family limited API gate', async () => {
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const appSettings = require('../db/app-settings');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
     const billingSnap = await enablePublicBillingForTest();
     delete require.cache[require.resolve('../app')];
     delete require.cache[require.resolve('../src/lib/db')];
@@ -326,6 +342,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     const http = await listenApp(createApp);
     try {
       const session = await registerAndLogin(http.baseUrl);
+      await expireIntroYearForEmail(session.email);
       const blocked = await fetch(`${http.baseUrl}/api/children`, {
         headers: { Cookie: cookieHeader(session.cookies) },
       });
@@ -336,6 +353,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       await http.close();
       await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     }
   });
 
@@ -360,6 +378,8 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(resolved.premium.active, false);
 
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const appSettings = require('../db/app-settings');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
     const billingSnap = await enablePublicBillingForTest();
     process.env.REVENUECAT_SECRET_API_KEY = 'test-rc-secret';
     const originalFetch = global.fetch;
@@ -386,6 +406,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     const http = await listenApp(createApp);
     try {
       const session = await registerAndLogin(http.baseUrl);
+      await expireIntroYearForEmail(session.email);
       const syncRes = await fetch(`${http.baseUrl}/api/iap/sync`, {
         method: 'POST',
         headers: {
@@ -414,6 +435,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       await http.close();
       await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     }
   });
 

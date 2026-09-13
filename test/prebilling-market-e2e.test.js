@@ -632,6 +632,7 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
+  await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
   await appSettings.setPaymentEnabled(false);
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -683,6 +684,14 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
 
     billingSnap = await enablePublicBillingForTest();
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+    await pg.query(
+      `UPDATE family_entitlements fe
+       SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+       FROM parent p
+       WHERE p.email = $1 AND fe.family_id = p.family_id
+         AND fe.source = 'intro_year' AND fe.revoked_at IS NULL`,
+      [reg.email.toLowerCase()]
+    );
 
     const limitedDaily = await probe('GET', '/api/me/daily-log');
     assert.equal(limitedDaily.status, 200, limitedDaily.text);

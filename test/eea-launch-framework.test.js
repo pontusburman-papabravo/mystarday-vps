@@ -525,6 +525,7 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   await setMarketFlag(pg, 'market_eu_open', false);
   const appSettings = require('../db/app-settings');
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
   const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
@@ -532,6 +533,14 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   try {
     const { res, email } = await registerCountry(http.baseUrl, 'IE');
     assert.equal(res.status, 201, res.text);
+    await pg.query(
+      `UPDATE family_entitlements fe
+       SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+       FROM parent p
+       WHERE p.email = $1 AND fe.family_id = p.family_id
+         AND fe.source = 'intro_year' AND fe.revoked_at IS NULL`,
+      [email.toLowerCase()]
+    );
 
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
       method: 'POST',
