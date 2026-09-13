@@ -143,3 +143,39 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
     await db.cleanup();
   }
 });
+
+test('postgres seed binds DATE closes_at and TIMESTAMPTZ contest_closes_at separately', async (t) => {
+  const dbh = await setupTestDb();
+  if (dbh.skip) {
+    t.skip('No real TEST_DATABASE_URL');
+    return;
+  }
+  const { getClient } = require('../src/lib/db');
+  const { HOST_2026_CLOSES_AT } = require('../config/host-2026-survey');
+  const client = await getClient();
+  try {
+    await client.query(`
+      CREATE TEMP TABLE host2026_type_probe (
+        closes_at DATE,
+        contest_closes_at TIMESTAMPTZ
+      )
+    `);
+    await assert.rejects(
+      () => client.query(
+        'INSERT INTO host2026_type_probe (closes_at, contest_closes_at) VALUES ($1, $1)',
+        [HOST_2026_CLOSES_AT]
+      ),
+      /inconsistent types deduced for parameter \$1/
+    );
+    const ok = await client.query(
+      `INSERT INTO host2026_type_probe (closes_at, contest_closes_at)
+       VALUES ($1::timestamptz, $2::timestamptz)
+       RETURNING closes_at, contest_closes_at`,
+      [HOST_2026_CLOSES_AT, HOST_2026_CLOSES_AT]
+    );
+    assert.equal(ok.rowCount, 1);
+  } finally {
+    client.release();
+    await dbh.cleanup();
+  }
+});
