@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=17">
+  <link rel="stylesheet" href="/css/landing.css?v=18">
   <link rel="stylesheet" href="/css/icon-system.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
@@ -183,6 +183,27 @@
           </a>
         </div>
       </div>
+      <!-- CAMPAIGN host-2026: remove after 2026-09-30 -->
+      <p class="campaign-home-offer">
+        <span class="campaign-home-offer__text">Premium ingår om du registrerar dig senast 30 september</span>
+        <a href="/kampanj/host-2026" class="campaign-home-offer__link" id="campaignHost2026Link">Se erbjudandet</a>
+      </p>
+      <script>
+      (function () {
+        var link = document.getElementById('campaignHost2026Link');
+        if (!link) return;
+        var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+        var fromUrl = new URLSearchParams(window.location.search);
+        var next = new URLSearchParams();
+        for (var i = 0; i < keys.length; i++) {
+          var v = fromUrl.get(keys[i]);
+          if (v) next.set(keys[i], v);
+        }
+        if (!next.toString()) return;
+        link.href = '/kampanj/host-2026?' + next.toString();
+      })();
+      </script>
+      <!-- /CAMPAIGN host-2026 -->
       <h1>Visuella scheman och stjärnor som hjälper barn att klara vardagen – utan tjat</h1>
       <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p>
       <div class="landing-hero__ctas">
