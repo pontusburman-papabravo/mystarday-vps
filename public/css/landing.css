@@ -2500,6 +2500,15 @@ body.landing-login-choice-open {
   text-underline-offset: 3px;
 }
 
+body.kampanj-host-2026 {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(147, 112, 219, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(255, 105, 180, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(100, 149, 237, 0.18) 0%, transparent 65%),
+    linear-gradient(160deg, #0f1a3d 0%, #1e1b4b 30%, #4a2c6a 55%, #7c3a9e 72%, #a855c7 82%, #d97fc0 90%, #f5a2b8 100%);
+  min-height: 100vh;
+}
+
 .kampanj-host-2026 .kampanj-nav {
   display: flex;
   align-items: center;

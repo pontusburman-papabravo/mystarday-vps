@@ -78,6 +78,8 @@ test('lottery terms and privacy describe separated contact data', () => {
   assert.match(privacy, /utlottning/);
   assert.match(privacy, /nyhetsbrev/);
   assert.match(privacy, /31 oktober 2026/);
+  const landingCss = fs.readFileSync(path.join(ROOT, 'public/css/landing.css'), 'utf8');
+  assert.match(landingCss, /body\.kampanj-host-2026 \{/);
 });
 
 test('tyck UI collects contest email after submit and caps checkbox choices', () => {

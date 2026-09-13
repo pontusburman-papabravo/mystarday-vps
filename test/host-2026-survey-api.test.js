@@ -12,14 +12,14 @@ process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
 
 test('host-2026 survey is public, separates lottery email, and caps max-3', async (t) => {
-  const dbh = await setupTestDb();
-  if (dbh.skip) {
-    t.skip('No real TEST_DATABASE_URL');
-    return;
-  }
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
 
-  const { seedBuiltInSurveys } = require('../src/routes/surveys');
-  await seedBuiltInSurveys();
+    const { seedBuiltInSurveys } = require('../src/routes/surveys');
+    await seedBuiltInSurveys();
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -101,7 +101,7 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
     assert.equal(submitBody.contest_entered, false);
     assert.equal(submitBody.contest_collect_after_submit, true);
 
-    const saved = await dbh.query('SELECT respondent_email, status FROM survey_responses WHERE id = $1', [response_id]);
+    const saved = await db.query('SELECT respondent_email, status FROM survey_responses WHERE id = $1', [response_id]);
     assert.equal(saved.rows[0].status, 'submitted');
     assert.equal(saved.rows[0].respondent_email, null);
 
@@ -127,7 +127,7 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
     });
     assert.equal(dup.status, 409);
 
-    const linked = await dbh.query(
+    const linked = await db.query(
       'SELECT respondent_email FROM survey_responses WHERE id = $1',
       [response_id]
     );
@@ -140,6 +140,6 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
     assert.match(legalHtml, /Zalando är inte sponsor/);
   } finally {
     await http.close();
-    await dbh.cleanup();
+    await db.cleanup();
   }
 });
