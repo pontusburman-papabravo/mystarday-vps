@@ -59,6 +59,7 @@ const SEO_CRAWL_DISALLOW_PATHS = [
   '/planning',
   '/rewards',
   '/for-dig',
+  '/kampanj',
   '/assign-schedule',
   '/verify-email',
   '/forgot-password',

@@ -9,7 +9,7 @@ const fs = require('fs');
 const { getFounderStatus } = require('../lib/payment-policy');
 const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
-const { getPlayStoreUrl } = require('../../config/store-links');
+const { getPlayStoreUrl, APPLE_APP_STORE_SHORT_URL } = require('../../config/store-links');
 const incidentNotice = require('../../config/incident-notice');
 const {
   brandName,
@@ -26,8 +26,9 @@ function injectSocialLinks(html) {
 }
 
 function injectStoreLinks(html) {
-  const playStoreUrl = getPlayStoreUrl();
-  return html.replace(/__PLAY_STORE_URL__/g, playStoreUrl);
+  return html
+    .replace(/__PLAY_STORE_URL__/g, getPlayStoreUrl())
+    .replace(/__APPLE_STORE_URL__/g, APPLE_APP_STORE_SHORT_URL);
 }
 
 const STORE_BADGE_IMG_DIR = path.join(__dirname, '..', '..', 'public', 'img');
@@ -175,6 +176,21 @@ async function serveLandingHtml(res, filename) {
   return true;
 }
 
+/** Campaign HTML only — no news, incident banner, or registration app-mode. */
+function serveCampaignHtml(res, filename) {
+  const htmlPath = path.join(__dirname, '..', '..', 'public', filename);
+  if (!fs.existsSync(htmlPath)) {
+    return false;
+  }
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectBrandPlaceholders(html);
+  html = injectSiteUrl(html);
+  html = injectStoreLinks(html);
+  html = injectStoreBadgeSvgs(html);
+  res.type('html').send(html);
+  return true;
+}
+
 // ─── GET / — Swedish landing page ──────────────────────────
 router.get('/', async (req, res) => {
   const served = await serveLandingHtml(res, 'index.html');
@@ -188,6 +204,14 @@ router.get('/en', async (req, res) => {
   const served = await serveLandingHtml(res, 'en.html');
   if (!served) {
     res.status(404).send('English page not found');
+  }
+});
+
+// ─── GET /kampanj/host-2026 — Meta campaign landing (remove after 2026-09-30)
+router.get('/kampanj/host-2026', (req, res) => {
+  const served = serveCampaignHtml(res, 'kampanj-host-2026.html');
+  if (!served) {
+    res.status(404).send('Not found');
   }
 });
 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="__SITE_URL__/kampanj/host-2026">
+  <title>Premium ingår — [REDACTED]</title>
+  <meta name="description" content="Premium ingår. Registrera dig senast 30 september.">
+  <meta property="og:title" content="Premium ingår — [REDACTED]">
+  <meta property="og:description" content="Registrera dig senast 30 september.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="__SITE_URL__/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/landing.css?v=18">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#F5A623">
+  <script src="/js/platform.js?v=2026-05-28-ios"></script>
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
+  <script src="/js/utm-capture.js?v=1.2.0"></script>
+</head>
+<body class="platform-web landing-page kampanj-host-2026">
+
+<nav class="kampanj-nav" aria-label="Kampanj">
+  <a href="/" class="landing-nav__logo">
+    <span class="landing-nav__star" aria-hidden="true">⭐</span>
+    <span class="landing-nav__name">[REDACTED]</span>
+  </a>
+</nav>
+
+<main class="kampanj-main landing-section--dark">
+  <header class="kampanj-hero">
+    <h1>Premium ingår</h1>
+    <p class="kampanj-sub">Registrera dig senast 30 september.</p>
+    <p class="kampanj-lead">[REDACTED] hjälper familjer att skapa tydligare rutiner, aktiviteter och struktur i vardagen.</p>
+    <p class="kampanj-audience">Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet och struktur.</p>
+    <div class="kampanj-ctas" aria-label="Ladda ner appen">
+      <a href="__APPLE_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="app_store_click">Hämta på App Store</a>
+      <a href="__PLAY_STORE_URL__" class="btn-primary kampanj-cta" rel="noopener noreferrer" data-track="play_store_click">Ladda ned på Google Play</a>
+    </div>
+    <p class="kampanj-platforms">Finns för iPhone och Android.</p>
+  </header>
+
+  <p class="kampanj-proof" id="kampanjSocialProof">Hundratals familjer använder redan [REDACTED].</p>
+
+  <ul class="kampanj-shots">
+    <li>
+      <figure>
+        <img src="/images/marketing-seo/vardagsrutiner-bildstod.png" alt="Förälderns Hem i [REDACTED]" width="390" height="844" loading="lazy">
+        <figcaption>Förälderns Hem</figcaption>
+      </figure>
+    </li>
+    <li>
+      <figure>
+        <img src="/images/marketing-seo/morgonschema-bildstod.png" alt="Barnets dag i [REDACTED]" width="390" height="844" loading="lazy">
+        <figcaption>Barnets dag</figcaption>
+      </figure>
+    </li>
+    <li>
+      <figure>
+        <img src="/images/marketing-seo/stjarnor-beloningssystem.png" alt="Skattkammaren och belöningar i [REDACTED]" width="390" height="844" loading="lazy">
+        <figcaption>Skattkammaren</figcaption>
+      </figure>
+    </li>
+  </ul>
+</main>
+
+<script src="/js/landing-events.js?v=1"></script>
+<script src="/js/landing-magic-bg.js?v=1"></script>
+<script src="/js/sw-register.js?v=2.13.0"></script>
+<script>
+(function () {
+  fetch('/api/landing/stats')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var el = document.getElementById('kampanjSocialProof');
+      if (!el || !d || typeof d.count !== 'number' || d.count < 100) return;
+      /* Qualitative copy only — never inject the exact family count. */
+    })
+    .catch(function () { /* static copy remains */ });
+})();
+</script>
+</body>
+</html>
