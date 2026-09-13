@@ -9,9 +9,11 @@ const familySubscriptions = require('../../db/family-subscriptions');
 const { PREMIUM_ENTITLEMENT_KEY, PREMIUM_V1_COMPONENTS } = require('../../config/entitlements');
 const { STORE_PRODUCT_MONTHLY, STORE_PRODUCT_YEARLY, planFromStoreProductId } = require('../../config/iap-product-contract');
 const {
-  getPaymentStartAt,
   getPaymentStartAtForCountry,
+  getLifetimeFreeUntil,
   isFamilyEligibleForGrandfathering,
+  isFamilyEligibleForIntroYear,
+  introYearExpiresAt,
   isFamilyEligibleForPrebillingAccess,
   isPrebillingAccessActive,
 } = require('./payment-settings');
@@ -46,6 +48,13 @@ function isRowActive(row, nowMs) {
     if (Number.isFinite(exp) && exp <= nowMs) return false;
   }
   if (row.source === 'grandfathered') return true;
+  if (row.source === 'intro_year') {
+    if (row.starts_at) {
+      const start = new Date(row.starts_at).getTime();
+      if (Number.isFinite(start) && start > nowMs) return false;
+    }
+    return row.status === 'active' || row.status === 'intro_year';
+  }
   if (row.source === 'admin') return row.status === 'active' || row.status === 'grandfathered';
   if (row.source === 'gift') {
     if (row.starts_at) {
@@ -72,6 +81,7 @@ function buildPremiumFromRow(row) {
 
   let label = 'Premium';
   if (isGrandfathered) label = 'Premium ingår permanent';
+  else if (row.source === 'intro_year') label = 'Premium – första året ingår';
   else if (row.source === 'gift') label = 'Premium – presentkort';
   else if (trial) label = 'Premium – gratis provperiod';
   else if (row.source === 'prebilling') label = 'Premium – lanseringsperiod';
@@ -116,12 +126,13 @@ function buildPrebillingPremium(familyCreatedAt, paymentStartAt) {
 function accessKindFromPremium(premium) {
   if (!premium || !premium.active) return 'limited';
   if (premium.is_grandfathered || premium.source === 'grandfathered') return 'grandfathered';
+  if (premium.source === 'intro_year') return 'intro_year';
   if (premium.source === 'prebilling') return 'prebilling';
   return 'paid';
 }
 
 function pickWinner(rows, nowMs) {
-  const order = ['grandfathered', 'admin', 'apple', 'google', 'gift'];
+  const order = ['grandfathered', 'admin', 'apple', 'google', 'gift', 'intro_year'];
   const active = rows.filter((r) => isRowActive(r, nowMs));
   for (const source of order) {
     const match = active.find((r) => r.source === source);
@@ -153,20 +164,40 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   let workingRows = rows;
 
   const familyCountryCode = normalizeCountryCode(familyRow?.country_code);
-  const paymentStartAt = await getPaymentStartAtForCountry(familyCountryCode);
+  const [paymentStartAt, lifetimeFreeUntil] = await Promise.all([
+    getPaymentStartAtForCountry(familyCountryCode),
+    getLifetimeFreeUntil(),
+  ]);
 
-  // Lazy grandfather for pre-cutoff SE families missing row (should not happen post-migration)
+  const grandfatherInput = {
+    countryCode: familyCountryCode,
+    createdAt: familyRow?.created_at,
+    lifetimeFreeUntil,
+  };
+
+  // Lazy grandfather for pre-cutoff families missing a row (worldwide by date)
   if (
     familyRow &&
-    isFamilyEligibleForGrandfathering({
-      countryCode: familyCountryCode,
-      createdAt: familyRow.created_at,
-      paymentStartAt,
-    }) &&
+    isFamilyEligibleForGrandfathering(grandfatherInput) &&
     !rows.some((r) => r.source === 'grandfathered' && !r.revoked_at)
   ) {
     const inserted = await entitlementsDb.upsertGrandfathered(familyId, {
       client,
+      metadata: { lazy_backfill: true },
+    });
+    if (inserted) workingRows = [...workingRows, inserted];
+  }
+
+  if (
+    familyRow &&
+    isFamilyEligibleForIntroYear(grandfatherInput) &&
+    !workingRows.some((r) => r.source === 'intro_year' && !r.revoked_at)
+  ) {
+    const expiresAt = introYearExpiresAt(familyRow.created_at);
+    const inserted = await entitlementsDb.upsertIntroYear(familyId, {
+      client,
+      startsAt: familyRow.created_at,
+      expiresAt,
       metadata: { lazy_backfill: true },
     });
     if (inserted) workingRows = [...workingRows, inserted];
@@ -179,13 +210,9 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   if (
     !premium.active &&
     familyRow &&
-    isFamilyEligibleForGrandfathering({
-      countryCode: familyCountryCode,
-      createdAt: familyRow.created_at,
-      paymentStartAt,
-    })
+    isFamilyEligibleForGrandfathering(grandfatherInput)
   ) {
-    // Safety net — SE cutoff families must never lose access
+    // Safety net — cutoff families must never lose access
     const computed = buildPremiumFromRow({
       source: 'grandfathered',
       status: 'grandfathered',
@@ -205,6 +232,33 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   if (
     !premium.active &&
     familyRow &&
+    isFamilyEligibleForIntroYear(grandfatherInput)
+  ) {
+    const expiresAt = introYearExpiresAt(familyRow.created_at);
+    const expMs = expiresAt ? expiresAt.getTime() : 0;
+    if (expMs > nowMs) {
+      const computed = buildPremiumFromRow({
+        source: 'intro_year',
+        status: 'active',
+        granted_at: familyRow.created_at,
+        starts_at: familyRow.created_at,
+        expires_at: expiresAt,
+        metadata: { computed_fallback: true },
+      });
+      return attachPaidTransition({
+        premium: computed,
+        payment_start_at: paymentStartIso,
+        requires_paywall: false,
+        access_kind: 'intro_year',
+      }, { now, publicBillingUsable });
+    }
+  }
+
+  if (
+    !premium.active &&
+    familyRow &&
+    !isFamilyEligibleForGrandfathering(grandfatherInput) &&
+    !isFamilyEligibleForIntroYear(grandfatherInput) &&
     isPrebillingAccessActive({
       countryCode: familyCountryCode,
       createdAt: familyRow.created_at,
@@ -228,11 +282,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     requires_paywall: Boolean(
       !premium.active &&
       familyRow &&
-      !isFamilyEligibleForGrandfathering({
-        countryCode: familyCountryCode,
-        createdAt: familyRow.created_at,
-        paymentStartAt,
-      }) &&
+      !isFamilyEligibleForGrandfathering(grandfatherInput) &&
       !isPrebillingAccessActive({
         countryCode: familyCountryCode,
         createdAt: familyRow.created_at,
@@ -277,6 +327,7 @@ async function syncLegacyFamilyMirror(familyId, premium, { client = null } = {})
     else if (premium.status === 'active' || premium.status === 'trial') subscriptionStatus = 'active';
     else if (premium.source === 'gift') subscriptionStatus = 'active';
     else if (premium.source === 'admin') subscriptionStatus = 'active';
+    else if (premium.source === 'intro_year') subscriptionStatus = 'active';
   } else {
     subscriptionStatus = 'expired';
   }
@@ -310,11 +361,14 @@ async function syncSubscriptionComponentsMirror(familyId, premium, { client = nu
   let tier = 'expired';
   if (premium.is_grandfathered) tier = 'lifetime_free';
   else if (premium.source === 'prebilling') tier = 'trial';
+  else if (premium.source === 'intro_year') tier = 'trial';
   else if (premium.active && premium.trial) tier = 'trial';
   else if (premium.active && premium.source === 'gift') tier = 'paid';
   else if (premium.active) tier = 'paid';
 
-  const trialExpiresAt = premium.trial && premium.expires_at ? premium.expires_at : null;
+  const trialExpiresAt = (premium.trial || premium.source === 'intro_year') && premium.expires_at
+    ? premium.expires_at
+    : null;
 
   await q(
     `INSERT INTO family_subscriptions (family_id, tier, trial_expires_at, components)
@@ -349,6 +403,11 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
     return { kind: 'grandfathered', row: grandfatherRow };
   }
 
+  const introRow = await grantIntroYearOnCreate(familyId, familyCreatedAt, { client });
+  if (introRow) {
+    return { kind: 'intro_year', row: introRow };
+  }
+
   const paymentStartAt = await getPaymentStartAtForCountry(countryCode);
   if (isFamilyEligibleForPrebillingAccess({
     countryCode,
@@ -371,15 +430,18 @@ async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = 
     const fam = await q('SELECT country_code FROM family WHERE id = $1', [familyId]);
     resolvedCountry = fam.rows[0] ? fam.rows[0].country_code : null;
   }
-  const paymentStartAt = await getPaymentStartAt();
+  const lifetimeFreeUntil = await getLifetimeFreeUntil();
   if (!isFamilyEligibleForGrandfathering({
     countryCode: resolvedCountry,
     createdAt: familyCreatedAt,
-    paymentStartAt,
+    lifetimeFreeUntil,
   })) {
     return null;
   }
-  const row = await entitlementsDb.upsertGrandfathered(familyId, { client, metadata: { on_create: true } });
+  const row = await entitlementsDb.upsertGrandfathered(familyId, {
+    client,
+    metadata: { on_create: true, country_code: resolvedCountry },
+  });
   const premium = buildPremiumFromRow(row || {
     source: 'grandfathered',
     status: 'grandfathered',
@@ -394,7 +456,41 @@ async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = 
     source: 'grandfathered',
     eventType: 'grandfather_granted',
     status: 'grandfathered',
+    metadata: { on_create: true, country_code: resolvedCountry },
+  }, client);
+  return row;
+}
+
+async function grantIntroYearOnCreate(familyId, familyCreatedAt, { client = null } = {}) {
+  const lifetimeFreeUntil = await getLifetimeFreeUntil();
+  if (!isFamilyEligibleForIntroYear({
+    createdAt: familyCreatedAt,
+    lifetimeFreeUntil,
+  })) {
+    return null;
+  }
+  const expiresAt = introYearExpiresAt(familyCreatedAt);
+  const row = await entitlementsDb.upsertIntroYear(familyId, {
+    client,
+    startsAt: familyCreatedAt,
+    expiresAt,
     metadata: { on_create: true },
+  });
+  const premium = buildPremiumFromRow(row || {
+    source: 'intro_year',
+    status: 'active',
+    granted_at: familyCreatedAt,
+    starts_at: familyCreatedAt,
+    expires_at: expiresAt,
+    metadata: {},
+  });
+  await syncAllLegacyMirrors(familyId, premium, { client });
+  await appendPaymentAudit({
+    familyId,
+    source: 'intro_year',
+    eventType: 'intro_year_granted',
+    status: 'active',
+    metadata: { on_create: true, expires_at: expiresAt },
   }, client);
   return row;
 }
@@ -500,6 +596,7 @@ module.exports = {
   syncMirrorsFromResolver,
   syncCreatedFamilyAccessMirrors,
   grantGrandfatheredOnCreate,
+  grantIntroYearOnCreate,
   buildPrebillingPremium,
   accessKindFromPremium,
   grantAdminPremium,

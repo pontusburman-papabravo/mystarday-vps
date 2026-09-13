@@ -161,6 +161,8 @@ describe('admin go-live surface', () => {
   it('admin panel explains Sweden grandfathering and Oct 1 go-live', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
     assert.match(html, /1 oktober — slå på betalningen/);
+    assert.match(html, /13 sep 2026/);
+    assert.match(html, /1 år gratis/);
     assert.match(html, /admin-payment-go-live\.js/);
     assert.match(html, /paymentGoLiveArmedToggle/);
     const js = fs.readFileSync(path.join(__dirname, '../public/admin/admin-payment-go-live.js'), 'utf8');

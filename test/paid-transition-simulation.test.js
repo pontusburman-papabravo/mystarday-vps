@@ -103,6 +103,7 @@ describe('same-family paid transition simulation', () => {
       await setMarketFlag(pg, 'market_ie_open', false);
       await setMarketFlag(pg, 'market_fi_open', false);
       await appSettings.setPaymentEnabled(false);
+      await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
       await appSettings.upsertSetting('market_ie_payment_start_at', FUTURE_START);
       await appSettings.upsertSetting('market_fi_payment_start_at', FUTURE_START);
       await setMarketFlag(pg, spec.flag, true);
@@ -134,18 +135,14 @@ describe('same-family paid transition simulation', () => {
           [email.toLowerCase()]
         );
         const familyId = parentRow.rows[0].family_id;
-        await pg.query(
-          'UPDATE family SET created_at = $2::timestamptz WHERE id = $1',
-          [familyId, LAUNCH_CREATED]
-        );
 
         const t0 = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
           headers: jsonHeaders(parent),
         }));
         assert.equal(t0.status, 200, t0.text);
-        assert.equal(t0.body.access_kind, 'prebilling');
+        assert.equal(t0.body.access_kind, 'intro_year');
         assert.equal(t0.body.requires_paywall, false);
-        assert.equal(t0.body.paid_transition.kind, 'upcoming');
+        assert.equal(t0.body.paid_transition.kind, 'none');
         assert.equal(t0.body.premium.is_grandfathered, false);
 
         const childRes = await parseJson(await fetch(`${http.baseUrl}/api/onboarding/child`, {
@@ -182,26 +179,12 @@ describe('same-family paid transition simulation', () => {
         }));
         assert.equal(familyT0.status, 200, familyT0.text);
 
-        await appSettings.upsertSetting(startKey, CUTOFF_IN_PAST);
-
-        const hold = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
-          headers: jsonHeaders(parent),
-        }));
-        assert.equal(hold.status, 200, hold.text);
-        assert.equal(hold.body.access_kind, 'prebilling');
-        assert.equal(hold.body.requires_paywall, false);
-        assert.equal(hold.body.paid_transition.kind, 'hold');
-        assert.equal(hold.body.paid_transition.hold_active, true);
-
-        const familyHold = await parseJson(await fetch(`${http.baseUrl}/api/family`, {
-          headers: jsonHeaders(parent),
-        }));
-        assert.equal(familyHold.status, 200, 'clock crossing with billing OFF must not 402');
-
-        const dailyHold = await parseJson(await fetch(`${http.baseUrl}/api/me/daily-log`, {
-          headers: jsonHeaders(childSession),
-        }));
-        assert.notEqual(dailyHold.status, 402, 'child session must survive hold');
+        await pg.query(
+          `UPDATE family_entitlements
+           SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+           WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+          [familyId]
+        );
 
         const billingSnap = await enablePublicBillingForTest();
         try {
@@ -300,6 +283,7 @@ describe('same-family paid transition simulation', () => {
         await appSettings.setPaymentEnabled(false);
         await appSettings.upsertSetting('market_ie_payment_start_at', DEFAULT_IE_FI_START);
         await appSettings.upsertSetting('market_fi_payment_start_at', DEFAULT_IE_FI_START);
+        await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
         if (http) await http.close();
         await db.cleanup();
       }

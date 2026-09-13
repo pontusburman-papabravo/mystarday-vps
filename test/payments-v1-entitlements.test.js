@@ -101,6 +101,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await setPaymentStart('2026-10-01T00:00:00+02:00');
   const appSettingsForMarkets = require('../db/app-settings');
+  await appSettingsForMarkets.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
   await appSettingsForMarkets.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
   await appSettingsForMarkets.upsertSetting('market_fi_payment_start_at', '2026-10-15T00:00:00+02:00');
 
@@ -113,19 +114,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1b IE family before Swedish cutoff → prebilling, not grandfathered', async () => {
+  await t.test('1b IE family before lifetime cutoff → grandfathered, not prebilling', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'IE' });
-    assert.equal(row, null);
+    assert.ok(row);
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
       family.id,
-      new Date('2026-09-15T00:00:00+02:00')
+      new Date('2026-09-13T00:00:00+02:00')
     );
     assert.equal(premium.active, true);
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
   });
 
   await t.test('1c explicit IE grandfather row remains premium', async () => {
@@ -138,27 +139,35 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1d FI family before Swedish cutoff → prebilling, not grandfathered', async () => {
+  await t.test('1d FI family before lifetime cutoff → grandfathered, not prebilling', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'FI');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'FI' });
-    assert.equal(row, null);
+    assert.ok(row);
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
       family.id,
-      new Date('2026-09-15T00:00:00+02:00')
+      new Date('2026-09-13T00:00:00+02:00')
     );
     assert.equal(premium.active, true);
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
   });
 
-  await t.test('2 family after cutoff → no access before valid entitlement', async () => {
+  await t.test('2 family after lifetime cutoff → intro year, then paywall after expiry', async () => {
     const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00', 'SE');
-    await syncAllLegacyMirrors(family.id, emptyPremium());
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const during = new Date('2026-11-01T12:00:00+02:00');
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(family.id, during);
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'intro_year');
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'intro_year');
+
+    const afterYear = new Date('2027-11-02T00:00:00+02:00');
+    const expired = await resolveFamilyEntitlements(family.id, afterYear);
+    assert.equal(expired.premium.active, false);
+    assert.equal(expired.requires_paywall, true);
+    assert.equal(expired.access_kind, 'limited');
   });
 
   await t.test('3–6 store trial/active/grace/expired', async () => {

@@ -4,7 +4,6 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   evaluateSignupCompleteness,
-  BILLING_NOT_READY_CODE,
 } = require('../src/lib/market-launch-invariants');
 const { isFamilyEligibleForGrandfathering } = require('../src/lib/payment-settings');
 const { GATE_DEFAULTS } = require('../src/lib/market-region');
@@ -15,10 +14,12 @@ const { isLimitedAccountPath, isChildLimitedAccountPath } = require('../src/midd
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SE_CUTOFF = '2026-10-01T00:00:00+02:00';
+const SE_IAP_START = '2026-10-01T00:00:00+02:00';
+const LIFETIME_UNTIL = '2026-09-14T00:00:00+02:00';
 const IE_FI_CUTOFF = '2026-10-15T00:00:00+02:00';
-const BEFORE = new Date('2026-09-01T00:00:00+02:00');
-const AFTER_SE = new Date('2026-10-02T00:00:00+02:00');
+const BEFORE_LIFETIME = new Date('2026-09-13T12:00:00+02:00');
+const AFTER_LIFETIME = new Date('2026-09-14T12:00:00+02:00');
+const AFTER_SE_IAP = new Date('2026-10-02T00:00:00+02:00');
 const AFTER_IE_FI = new Date('2026-10-16T00:00:00+02:00');
 
 describe('signup completeness invariant', () => {
@@ -28,7 +29,8 @@ describe('signup completeness invariant', () => {
       marketOpen: false,
       publicBillingUsable: true,
       paymentStartAt: IE_FI_CUTOFF,
-      now: BEFORE,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: BEFORE_LIFETIME,
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, 'MARKET_IE_CLOSED');
@@ -40,107 +42,128 @@ describe('signup completeness invariant', () => {
       marketOpen: false,
       publicBillingUsable: true,
       paymentStartAt: IE_FI_CUTOFF,
-      now: BEFORE,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: BEFORE_LIFETIME,
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, 'MARKET_FI_CLOSED');
   });
 
-  it('open IE during prebilling window can signup with billing off', () => {
+  it('open IE before lifetime cutoff can signup with billing off (grandfather)', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
       publicBillingUsable: false,
       paymentStartAt: IE_FI_CUTOFF,
-      now: BEFORE,
-    });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'prebilling_launch_access');
-  });
-
-  it('open FI during prebilling window can signup with billing off', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'FI',
-      marketOpen: true,
-      publicBillingUsable: false,
-      paymentStartAt: IE_FI_CUTOFF,
-      now: BEFORE,
-    });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'prebilling_launch_access');
-  });
-
-  it('open IE after payment_start without billing is rejected', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'IE',
-      marketOpen: true,
-      publicBillingUsable: false,
-      paymentStartAt: IE_FI_CUTOFF,
-      now: AFTER_IE_FI,
-    });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, BILLING_NOT_READY_CODE);
-  });
-
-  it('open FI after payment_start without billing is rejected', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'FI',
-      marketOpen: true,
-      publicBillingUsable: false,
-      paymentStartAt: IE_FI_CUTOFF,
-      now: AFTER_IE_FI,
-    });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, BILLING_NOT_READY_CODE);
-  });
-
-  it('open IE with billing can complete signup after payment_start', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'IE',
-      marketOpen: true,
-      publicBillingUsable: true,
-      paymentStartAt: IE_FI_CUTOFF,
-      now: AFTER_IE_FI,
-    });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'billing_usable');
-  });
-
-  it('SE before cutoff can signup even if billing is off (grandfather)', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'SE',
-      marketOpen: true,
-      publicBillingUsable: false,
-      paymentStartAt: SE_CUTOFF,
-      now: BEFORE,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: BEFORE_LIFETIME,
     });
     assert.equal(r.allowed, true);
     assert.equal(r.reason, 'grandfather_eligible');
   });
 
-  it('SE after cutoff without billing is rejected like other paywall markets', () => {
+  it('open FI before lifetime cutoff can signup with billing off (grandfather)', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'FI',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: BEFORE_LIFETIME,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'grandfather_eligible');
+  });
+
+  it('open IE after lifetime cutoff without billing is intro-year, not rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
+  });
+
+  it('open FI after lifetime cutoff without billing is intro-year, not rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'FI',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
+  });
+
+  it('open IE with billing can complete signup after payment_start via intro year', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: true,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
+  });
+
+  it('SE before lifetime cutoff can signup even if billing is off (grandfather)', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'SE',
       marketOpen: true,
       publicBillingUsable: false,
-      paymentStartAt: SE_CUTOFF,
-      now: AFTER_SE,
+      paymentStartAt: SE_IAP_START,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: BEFORE_LIFETIME,
     });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, BILLING_NOT_READY_CODE);
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'grandfather_eligible');
+  });
+
+  it('SE after lifetime cutoff without billing is allowed (intro year until IAP)', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'SE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: SE_IAP_START,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_SE_IAP,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
+  });
+
+  it('SE from 14 Sep is intro year, not grandfather', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'SE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      paymentStartAt: SE_IAP_START,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_LIFETIME,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
   });
 });
 
-describe('Sweden grandfather isolation', () => {
-  it('IE and FI are never grandfather-eligible', () => {
+describe('worldwide grandfather by lifetime_free_until', () => {
+  it('IE, FI and SE are grandfather-eligible before 14 Sep 2026', () => {
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'IE', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
-    }), false);
+      countryCode: 'IE', createdAt: BEFORE_LIFETIME, lifetimeFreeUntil: LIFETIME_UNTIL,
+    }), true);
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'FI', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
-    }), false);
+      countryCode: 'FI', createdAt: BEFORE_LIFETIME, lifetimeFreeUntil: LIFETIME_UNTIL,
+    }), true);
     assert.equal(isFamilyEligibleForGrandfathering({
-      countryCode: 'SE', createdAt: BEFORE, paymentStartAt: SE_CUTOFF,
+      countryCode: 'SE', createdAt: BEFORE_LIFETIME, lifetimeFreeUntil: LIFETIME_UNTIL,
     }), true);
   });
 

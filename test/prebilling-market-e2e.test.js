@@ -122,6 +122,7 @@ async function resetLaunchFlags(pg, appSettings) {
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
   await appSettings.upsertSetting('market_fi_payment_start_at', IE_FI_START);
+  await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
 }
 
 function jsonHeaders(session) {
@@ -494,8 +495,8 @@ test('IE open + billing OFF: English prebilling acceptance path', async (t) => {
     locale: 'en-GB',
     timezone: 'Europe/Dublin',
     currency: 'EUR',
-    accessKind: 'prebilling',
-    isLifetimeFree: false,
+    accessKind: 'grandfathered',
+    isLifetimeFree: true,
     childName: 'Aoife',
     activityName: 'Brush teeth',
   });
@@ -507,8 +508,8 @@ test('FI open + billing OFF: Swedish prebilling acceptance path', async (t) => {
     locale: 'sv-SE',
     timezone: 'Europe/Helsinki',
     currency: 'EUR',
-    accessKind: 'prebilling',
-    isLifetimeFree: false,
+    accessKind: 'grandfathered',
+    isLifetimeFree: true,
     childName: 'Aino',
     activityName: 'Borsta tänderna',
   });

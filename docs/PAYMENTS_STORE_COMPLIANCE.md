@@ -18,7 +18,7 @@ Max ~2 pages. **Do not enable paid gift sales or in-app external purchase CTAs u
 ## Verified in repo (not store consoles)
 
 - Server-side entitlement resolver is canonical; RevenueCat client is not access source of truth
-- Grandfathered families cannot lose access via webhook; **grandfathering is SE-only** (`payment_start_at` cutoff does not apply to IE/NO/DK/GB)
+- Grandfathered families cannot lose access via webhook; grandfathering is worldwide for families created before `lifetime_free_until` (2026-09-14 00:00 Europe/Stockholm). Later families get a one-year intro entitlement and may convert via store.
 - No Stripe subscription checkout reintroduced
 - Gift purchase checkout disabled until PSP + compliance verified (`/api/gifts/settings.checkout_available: false`)
 

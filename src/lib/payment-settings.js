@@ -9,11 +9,20 @@ const { normalizeCountryCode } = require('./market-region');
 const { parseMarketPaymentStartInstant } = require('./zoned-civil-time');
 const { COUNTRY_DEFAULTS } = require('./market-config');
 
+const { DateTime } = require('luxon');
+
 const PAYMENT_START_AT_KEY = 'payment_start_at';
 const DEFAULT_PAYMENT_START_AT = '2026-10-01T00:00:00+02:00';
 
-/** Swedish payment_start_at grandfathering applies to SE families only (not worldwide). */
-const GRANDFATHER_ELIGIBLE_COUNTRY_CODES = Object.freeze(new Set(['SE']));
+const LIFETIME_FREE_UNTIL_KEY = 'lifetime_free_until';
+/** Families created strictly before this instant (Europe/Stockholm) are lifetime-free. */
+const DEFAULT_LIFETIME_FREE_UNTIL = '2026-09-14T00:00:00+02:00';
+
+/**
+ * Grandfathering is worldwide by registration date (`lifetime_free_until`).
+ * Country is not a filter. Kept as an empty set so old imports do not invent SE-only scope.
+ */
+const GRANDFATHER_ELIGIBLE_COUNTRY_CODES = Object.freeze(new Set());
 
 /**
  * IE/FI may open before public billing. Temporary prebilling access ends at this
@@ -61,10 +70,52 @@ async function setPaymentStartAt(isoString, { updatedByAdminId } = {}) {
   }
   await appSettings.upsertSetting(PAYMENT_START_AT_KEY, isoString);
   await appConfig.set(PAYMENT_START_AT_KEY, isoString, {
-    description: 'Canonical payment start + grandfather cutoff (Europe/Stockholm)',
+    description: 'Canonical IAP go-live instant (Europe/Stockholm). Not the lifetime-free cutoff.',
     updatedBy: updatedByAdminId || null,
   }).catch(() => {});
   return new Date(isoString);
+}
+
+function parseSettingInstant(raw, fallbackIso) {
+  if (raw == null || raw === '') {
+    return new Date(fallbackIso);
+  }
+  const iso = typeof raw === 'string' ? raw : String(raw).replace(/^"|"$/g, '');
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) {
+    return new Date(fallbackIso);
+  }
+  return d;
+}
+
+async function getLifetimeFreeUntil() {
+  const raw = await appSettings.getSetting(LIFETIME_FREE_UNTIL_KEY);
+  return parseSettingInstant(raw, DEFAULT_LIFETIME_FREE_UNTIL);
+}
+
+async function setLifetimeFreeUntil(isoString, { updatedByAdminId } = {}) {
+  if (!isoString || Number.isNaN(new Date(isoString).getTime())) {
+    throw new Error('Invalid lifetime_free_until');
+  }
+  await appSettings.upsertSetting(LIFETIME_FREE_UNTIL_KEY, isoString);
+  await appConfig.set(LIFETIME_FREE_UNTIL_KEY, isoString, {
+    description: 'Lifetime-free registration cutoff (Europe/Stockholm). Later signups get one intro year.',
+    updatedBy: updatedByAdminId || null,
+  }).catch(() => {});
+  return new Date(isoString);
+}
+
+function parseInstant(value) {
+  if (value == null || value === '') return null;
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d;
+}
+
+function introYearExpiresAt(createdAt) {
+  const created = parseInstant(createdAt);
+  if (!created) return null;
+  return DateTime.fromJSDate(created, { zone: 'utc' }).plus({ years: 1 }).toJSDate();
 }
 
 async function getGiftSettings() {
@@ -98,29 +149,26 @@ function isFamilyBeforePaymentStart(familyCreatedAt, paymentStartAt) {
 }
 
 /**
- * Country-scoped grandfather eligibility for Swedish payment_start_at cutoff.
- * Existing explicit grandfather entitlement rows are never revoked elsewhere.
+ * Worldwide grandfather eligibility by registration instant.
+ * `lifetimeFreeUntil` is the cutoff; `paymentStartAt` is a legacy alias for tests.
+ * Country is ignored. Existing explicit grandfather rows are never revoked elsewhere.
  *
- * @param {{ countryCode?: string|null, createdAt: Date|string, paymentStartAt: Date|string }} input
+ * @param {{ countryCode?: string|null, createdAt: Date|string, paymentStartAt?: Date|string, lifetimeFreeUntil?: Date|string }} input
  */
-function isFamilyEligibleForGrandfathering({ countryCode, createdAt, paymentStartAt }) {
-  const cc = normalizeCountryCode(countryCode);
-  if (cc !== 'SE') {
-    return false;
-  }
-  return isFamilyBeforePaymentStart(createdAt, paymentStartAt);
+function isFamilyEligibleForGrandfathering({ createdAt, paymentStartAt, lifetimeFreeUntil }) {
+  const cutoff = lifetimeFreeUntil || paymentStartAt;
+  return isFamilyBeforePaymentStart(createdAt, cutoff);
+}
+
+function isFamilyEligibleForIntroYear({ createdAt, paymentStartAt, lifetimeFreeUntil }) {
+  const created = parseInstant(createdAt);
+  const cutoff = parseInstant(lifetimeFreeUntil || paymentStartAt);
+  if (!created || !cutoff) return false;
+  return created.getTime() >= cutoff.getTime();
 }
 
 function parsePaymentStartValue(raw, fallbackIso) {
-  if (raw == null || raw === '') {
-    return new Date(fallbackIso);
-  }
-  const iso = typeof raw === 'string' ? raw : String(raw).replace(/^"|"$/g, '');
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return new Date(fallbackIso);
-  }
-  return d;
+  return parseSettingInstant(raw, fallbackIso);
 }
 
 /**
@@ -236,12 +284,17 @@ function isPrebillingAccessActive({
 module.exports = {
   PAYMENT_START_AT_KEY,
   DEFAULT_PAYMENT_START_AT,
+  LIFETIME_FREE_UNTIL_KEY,
+  DEFAULT_LIFETIME_FREE_UNTIL,
   GIFT_DEFAULTS,
   GRANDFATHER_ELIGIBLE_COUNTRY_CODES,
   PREBILLING_LAUNCH_COUNTRY_CODES,
   MARKET_PAYMENT_START_AT_KEYS,
   getPaymentStartAt,
   setPaymentStartAt,
+  getLifetimeFreeUntil,
+  setLifetimeFreeUntil,
+  introYearExpiresAt,
   paymentStartTimeZoneForCountry,
   resolvePaymentStartForCountry,
   getPaymentStartAtForCountry,
@@ -250,6 +303,7 @@ module.exports = {
   setGiftSetting,
   isFamilyBeforePaymentStart,
   isFamilyEligibleForGrandfathering,
+  isFamilyEligibleForIntroYear,
   isFamilyEligibleForPrebillingAccess,
   isPrebillingLaunchWindowOpen,
   isPrebillingAccessActive,

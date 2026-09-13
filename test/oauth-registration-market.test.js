@@ -264,7 +264,7 @@ test('IE Google new signup allowed when gate ON and prebilling window is open', 
   }
 });
 
-test('IE Google new signup blocked when gate ON after payment_start and billing is off', async () => {
+test('IE Google new signup after payment_start with billing off still creates via intro year', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   reloadDbBoundModules();
@@ -272,6 +272,7 @@ test('IE Google new signup blocked when gate ON after payment_start and billing 
   try {
     await setMarketFlag(db, 'market_ie_open', true);
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
 
     const handler = getGoogleHandler();
     const req = {
@@ -291,11 +292,11 @@ test('IE Google new signup blocked when gate ON after payment_start and billing 
     };
 
     await handler(req, res);
-    assert.equal(statusCode, 403, JSON.stringify(body));
-    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
-    assert.equal(mockCreateParent, null);
+    assert.equal(statusCode, 200, JSON.stringify(body));
+    assert.ok(mockCreateParent);
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+    await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     await setMarketFlag(db, 'market_ie_open', false);
     await db.cleanup();
   }
@@ -562,6 +563,7 @@ test('IE OAuth family is not Swedish-grandfathered before payment_start_at', asy
     await setMarketFlag(db, 'market_ie_open', true);
     await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15');
+    await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
 
     const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
     const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
@@ -595,16 +597,16 @@ test('IE OAuth family is not Swedish-grandfathered before payment_start_at', asy
         ieStart: ieStart && ieStart.toISOString(),
       })
     );
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
 
     const fam = await db.query(
       'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
       [parent.family_id]
     );
-    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].is_lifetime_free, true);
     assert.equal(fam.rows[0].country_code, 'IE');
     assert.equal(fam.rows[0].preferred_locale, 'en-GB');
     assert.equal(fam.rows[0].timezone, 'Europe/Dublin');
@@ -614,7 +616,7 @@ test('IE OAuth family is not Swedish-grandfathered before payment_start_at', asy
   }
 });
 
-test('IE OAuth family is not prebilled when market payment start is missing', async () => {
+test('IE OAuth family still grandfathers by lifetime date when market payment start is missing', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   reloadDbBoundModules();
@@ -624,7 +626,8 @@ test('IE OAuth family is not prebilled when market payment start is missing', as
   try {
     await setMarketFlag(db, 'market_ie_open', true);
     await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
-    // IE/FI paid start is not configured — fail closed (no Sweden fallback).
+    await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
+    // IE/FI paid start is not configured — IAP start is independent of lifetime grant.
 
     const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
     const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
@@ -644,18 +647,17 @@ test('IE OAuth family is not prebilled when market payment start is missing', as
     });
 
     const { premium, access_kind } = await resolveFamilyEntitlements(parent.family_id);
-    assert.equal(premium.active, false);
-    assert.notEqual(premium.source, 'prebilling');
-    assert.notEqual(premium.source, 'grandfathered');
-    assert.equal(premium.is_grandfathered, false);
-    assert.equal(access_kind, 'limited');
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
+    assert.equal(access_kind, 'grandfathered');
   } finally {
     await setMarketFlag(db, 'market_ie_open', false);
     await db.cleanup();
   }
 });
 
-test('FI OAuth family is not Swedish-grandfathered before payment_start_at', async () => {
+test('FI OAuth family is grandfathered worldwide before lifetime_free_until', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   reloadDbBoundModules();
@@ -666,6 +668,7 @@ test('FI OAuth family is not Swedish-grandfathered before payment_start_at', asy
     await setMarketFlag(db, 'market_fi_open', true);
     await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
     await appSettings.upsertSetting('market_fi_payment_start_at', '2026-10-15');
+    await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
 
     const { createParentFromOAuth } = require('../src/lib/create-oauth-parent');
     const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
@@ -686,16 +689,16 @@ test('FI OAuth family is not Swedish-grandfathered before payment_start_at', asy
 
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(parent.family_id);
     assert.equal(premium.active, true);
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
 
     const fam = await db.query(
       'SELECT country_code, preferred_locale, timezone, is_lifetime_free FROM family WHERE id = $1',
       [parent.family_id]
     );
-    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].is_lifetime_free, true);
     assert.equal(fam.rows[0].country_code, 'FI');
     assert.equal(fam.rows[0].preferred_locale, 'en-GB');
     assert.equal(fam.rows[0].timezone, 'Europe/Helsinki');

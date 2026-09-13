@@ -54,6 +54,7 @@ describe('paid transition notice', () => {
   it('paid and grandfathered hide transition pressure', () => {
     assert.equal(describePaidTransition({ accessKind: 'paid', paymentStartAt: CUTOFF }).kind, 'none');
     assert.equal(describePaidTransition({ accessKind: 'grandfathered', paymentStartAt: CUTOFF }).kind, 'none');
+    assert.equal(describePaidTransition({ accessKind: 'intro_year', paymentStartAt: CUTOFF }).kind, 'none');
   });
 });
 

@@ -1,8 +1,10 @@
 # Payments go-live — 1 oktober 2026
 
-Slå **inte** på betalning nu. Cutoff är `payment_start_at` = `2026-10-01T00:00:00+02:00` (00:00 Europe/Stockholm).
+Slå **inte** på betalning nu. IAP-cutoff är `payment_start_at` = `2026-10-01T00:00:00+02:00` (00:00 Europe/Stockholm).
 
-Svenska familjer skapade **före** cutoff förblir grandfatherade (gratis). Nya svenska familjer efter cutoff måste kunna köpa via Apple/Google IAP — annars blockeras nyregistrering (`MARKET_BILLING_NOT_READY`).
+Livstidsgratis är ett **annat** datum: `lifetime_free_until` = `2026-09-14T00:00:00+02:00`. Alla familjer skapade **före** det ögonblicket (t.o.m. 13 september 2026, alla länder) är grandfatherade. Familjer som registrerar sig från 14 september får **1 år gratis** från registreringsögonblicket, därefter IAP.
+
+Nya öppna-marknad-konton blockeras **inte** av `MARKET_BILLING_NOT_READY` mellan 14 september och 1 oktober — intro-året gör kontot användbart utan köpväg.
 
 Detta öppnar **inte** Irland/Finland (`market_ie_open` / `market_fi_open` ska fortsätta vara AV tills separat beslut).
 
@@ -41,7 +43,7 @@ Se `docs/PAYMENTS_STORE_COMPLIANCE.md`. Go-live kräver minst:
 - `REVENUECAT_SECRET_API_KEY` (för `/api/iap/sync`)
 - Produkt-allowlist som matchar `config/iap-product-contract.js`
 
-Sandbox E2E på riktig enhet bör vara ifylld i `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` innan ni litar på live-köp. Om den inte är körd: **avarma** go-live och åtgärda, annars riskerar ny SE-signup att stängas ute vid cutoff (fail-closed är avsiktligt).
+Sandbox E2E på riktig enhet bör vara ifylld i `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` innan ni litar på live-köp. Om den inte är körd: **avarma** go-live och åtgärda. Signup mellan 14 september och 1 oktober fungerar via intro-året även om IAP är av; från 1 oktober behövs köpväg för familjer vars intro-år senare löper ut.
 
 ## Natt till 1 oktober
 
@@ -65,6 +67,6 @@ Efter ett lyckat go-live räcker (1) eller (2); schedulern re-enablar inte.
 
 ## POS
 
-- Befintliga SE-familjer: ingen överraskning (grandfather). Konstitution 2.
-- Nya familjer efter cutoff: en tydlig betald väg, ingen död registrering. Konstitution 3 + 5.
+- Befintliga familjer t.o.m. 13 sep 2026: ingen överraskning (grandfather, alla länder). Konstitution 2.
+- Nya familjer från 14 sep: 1 år gratis, sedan tydlig betald väg. Konstitution 2 + 5.
 - Stjärnor köps inte. Barnytan har ingen IAP. R-02 / G-06.
