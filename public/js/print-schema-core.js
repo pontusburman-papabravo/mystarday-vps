@@ -397,6 +397,13 @@
 
     const filename = buildPdfFilename(opts.childName || doc.title, Boolean(opts.myDaysOnly || doc.myDaysOnly));
     const blob = pdf.output('blob');
+    // JPEG preview for in-app overlay — iOS WKWebView often cannot paint PDF in an iframe.
+    let previewDataUrl = '';
+    try {
+      previewDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+    } catch (_) {
+      previewDataUrl = imgData || '';
+    }
 
     function isNativeOrMobileClient() {
       try {
@@ -451,7 +458,9 @@
     const preferShare = isNativeOrMobileClient() || canShareFiles();
     if (preferShare) {
       const shared = await trySharePdfFile();
-      if (shared) return { method: shared, filename: filename, blob: blob };
+      if (shared) {
+        return { method: shared, filename: filename, blob: blob, previewDataUrl: previewDataUrl };
+      }
     }
 
     try {
@@ -464,10 +473,10 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-      return { method: 'download', filename: filename, blob: blob };
+      return { method: 'download', filename: filename, blob: blob, previewDataUrl: previewDataUrl };
     } catch (_) {
       pdf.save(filename);
-      return { method: 'save', filename: filename, blob: blob };
+      return { method: 'save', filename: filename, blob: blob, previewDataUrl: previewDataUrl };
     }
   }
 

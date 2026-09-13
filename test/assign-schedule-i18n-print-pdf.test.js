@@ -48,6 +48,7 @@ describe('print-schema native PDF delivery', () => {
     assert.match(html, /\/vendor\/jspdf\.umd\.min\.js/);
     assert.doesNotMatch(html, /cdnjs\.cloudflare\.com/);
     assert.match(html, /id="pdfViewerModal"/);
+    assert.match(html, /id="pdfViewerPreview"/);
     assert.match(html, /data-i18n="printSchema\.overlay\.title"/);
     assert.ok(fs.existsSync(path.join(ROOT, 'public/vendor/html2canvas.min.js')));
     assert.ok(fs.existsSync(path.join(ROOT, 'public/vendor/jspdf.umd.min.js')));
@@ -66,6 +67,7 @@ describe('print-schema native PDF delivery', () => {
     assert.match(src, /trySharePdfFile/);
     assert.match(src, /preferShare = isNativeOrMobileClient\(\) \|\| canShareFiles\(\)/);
     assert.match(src, /iOS WKWebView/);
+    assert.match(src, /previewDataUrl/);
   });
 
   it('print-schema.js shows an in-app viewer when native share/download is a no-op', () => {

@@ -118,7 +118,8 @@
         <button type="button" id="pdfViewerCloseBtn" class="text-text-soft hover:text-navy text-2xl leading-none px-1 min-h-[44px] min-w-[44px]" data-i18n-aria-label="printSchema.overlay.closeAria" aria-label="Stäng">&times;</button>
       </div>
       <p id="pdfViewerHint" class="text-sm text-text-soft mb-3" data-i18n="printSchema.overlay.hint">PDF:en visas här. Tryck Dela för att spara i Filer eller skriva ut.</p>
-      <iframe id="pdfViewerFrame" class="w-full flex-1 min-h-[50vh] rounded-xl border-2 border-lavender bg-white" title="PDF" data-i18n-title="printSchema.overlay.iframeTitle"></iframe>
+      <img id="pdfViewerPreview" class="hidden w-full max-h-[50vh] object-contain rounded-xl border-2 border-lavender bg-white" alt="" data-i18n-alt="printSchema.overlay.iframeTitle">
+      <iframe id="pdfViewerFrame" class="hidden w-full flex-1 min-h-[50vh] rounded-xl border-2 border-lavender bg-white" title="PDF" data-i18n-title="printSchema.overlay.iframeTitle"></iframe>
       <div class="flex flex-wrap gap-3 mt-4">
         <button type="button" id="pdfViewerShareBtn" class="flex-1 min-h-[44px] px-5 py-3 rounded-xl bg-gold text-white font-heading font-bold hover:bg-yellow-500" data-i18n="printSchema.overlay.share">Dela / spara</button>
         <button type="button" id="pdfViewerCloseBtn2" class="min-h-[44px] px-5 py-3 rounded-xl border-2 border-navy text-navy font-heading font-bold" data-i18n="printSchema.overlay.close">Stäng</button>
@@ -129,7 +130,7 @@
   <script src="/js/sw-register.js?v=2.12.0"></script>
   <script src="/js/mobile-nav.js?v=2.13.0"></script>
   <script src="/js/parent-magic-i18n.js?v=1"></script>
-  <script src="/js/print-schema-core.js?v=8"></script>
-  <script src="/js/print-schema.js?v=8"></script>
+  <script src="/js/print-schema-core.js?v=9"></script>
+  <script src="/js/print-schema.js?v=9"></script>
 </body>
 </html>
