@@ -73,4 +73,17 @@ describe('intro year', () => {
     const exp = introYearExpiresAt(onCutoff);
     assert.equal(exp.toISOString(), new Date('2027-09-14T00:00:00+02:00').toISOString());
   });
+
+  it('window is created_at + 1y, not first-resolve + 1y', () => {
+    const created = '2026-09-14T08:00:00+02:00';
+    const firstResolve = '2026-12-01T12:00:00+02:00';
+    assert.equal(
+      introYearExpiresAt(created).toISOString(),
+      new Date('2027-09-14T08:00:00+02:00').toISOString()
+    );
+    assert.notEqual(
+      introYearExpiresAt(created).toISOString(),
+      introYearExpiresAt(firstResolve).toISOString()
+    );
+  });
 });

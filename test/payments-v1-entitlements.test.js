@@ -184,6 +184,31 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(expired.access_kind, 'limited');
   });
 
+  await t.test('lazy intro_year ends at created_at + 1y when first resolve is months later', async () => {
+    const { introYearExpiresAt } = require('../src/lib/payment-settings');
+    const family = await createFamilyDirect(db, '2026-09-14T08:00:00+02:00', 'SE');
+    const firstResolve = new Date('2026-12-01T12:00:00+02:00');
+    const expectedExpiry = introYearExpiresAt(family.created_at);
+    const resolveAnchoredExpiry = introYearExpiresAt(firstResolve);
+
+    const { premium, access_kind } = await resolveFamilyEntitlements(family.id, firstResolve);
+    assert.equal(access_kind, 'intro_year');
+    assert.equal(premium.active, true);
+    assert.equal(new Date(premium.starts_at).toISOString(), new Date(family.created_at).toISOString());
+    assert.equal(new Date(premium.expires_at).toISOString(), expectedExpiry.toISOString());
+    assert.notEqual(new Date(premium.expires_at).toISOString(), resolveAnchoredExpiry.toISOString());
+
+    const persisted = await db.query(
+      `SELECT starts_at, expires_at
+         FROM family_entitlements
+        WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+      [family.id]
+    );
+    assert.equal(persisted.rows.length, 1);
+    assert.equal(new Date(persisted.rows[0].starts_at).toISOString(), new Date(family.created_at).toISOString());
+    assert.equal(new Date(persisted.rows[0].expires_at).toISOString(), expectedExpiry.toISOString());
+  });
+
   await t.test('3–6 store trial/active/grace/expired', async () => {
     const family = await createFamilyDirect(db, '2026-11-05T00:00:00+02:00');
     const expFuture = Date.now() + 7 * 86400000;
