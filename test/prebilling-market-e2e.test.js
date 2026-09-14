@@ -247,6 +247,9 @@ async function runAcceptancePath(t, {
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
   await appSettings.upsertSetting('market_fi_payment_start_at', IE_FI_START);
+  // Grandfathered acceptance path: freeze cutoff so this is not coupled to calendar day.
+  // Post-cutoff intro_year is covered by payments-v1 and the limited-child case below.
+  await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
   await appSettings.setPaymentEnabled(false);
 
   const http = await listenApp(createApp);
