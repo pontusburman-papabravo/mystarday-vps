@@ -24,6 +24,9 @@ xcode_cloud_node verify_apple_sign_in scripts/verify-ios-apple-sign-in-patch.mjs
 echo "🔍 Verify no Google Sign-In pods"
 xcode_cloud_node verify_no_google_pods scripts/verify-ios-no-google-pods.mjs
 
+echo "🔍 Verify iOS marketing version is not a closed App Store train"
+xcode_cloud_node verify_closed_train scripts/verify-ios-closed-marketing-train.mjs
+
 if [ "${CI_XCODEBUILD_ACTION:-}" = "archive" ]; then
   xcode_cloud_require_archive_meta_token
   echo "🔢 Apply Xcode Cloud build number (CI_BUILD_NUMBER)"

@@ -8,13 +8,14 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('i18n store beta build versions', () => {
-  it('iOS marketing version is 1.4.4 (1.4.3 train is closed)', () => {
+  it('iOS marketing version is 1.4.5 (1.4.4 train is closed)', () => {
     const pbx = fs.readFileSync(
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
     assert.match(pbx, /CURRENT_PROJECT_VERSION = 30;/);
-    assert.match(pbx, /MARKETING_VERSION = 1\.4\.4;/);
+    assert.match(pbx, /MARKETING_VERSION = 1\.4\.5;/);
+    assert.doesNotMatch(pbx, /MARKETING_VERSION = 1\.4\.4;/);
     assert.doesNotMatch(pbx, /MARKETING_VERSION = 1\.4\.3;/);
   });
 

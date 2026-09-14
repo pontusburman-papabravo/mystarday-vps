@@ -23,6 +23,7 @@ test('ci_pre_xcodebuild does not re-run cap:sync:ios (idempotent with post_clone
   assert.doesNotMatch(sh, /xcode_cloud_npm cap_sync_ios|npm run cap:sync:ios|run cap:sync:ios/);
   assert.match(sh, /verify-ios-apple-sign-in-patch\.mjs/);
   assert.match(sh, /verify-ios-no-google-pods\.mjs/);
+  assert.match(sh, /verify-ios-closed-marketing-train\.mjs/);
   assert.match(sh, /verify-meta-native-release\.mjs --ios/);
 });
 

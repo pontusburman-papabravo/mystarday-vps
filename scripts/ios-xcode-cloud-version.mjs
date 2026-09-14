@@ -9,7 +9,13 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+const { closedIosTrainStatus } = require('./lib/release-compliance/check-version-build-cache.cjs');
+const { loadReleaseComplianceConfig } = require('./lib/release-compliance/load-config.cjs');
+const { STATUS } = require('./lib/release-compliance/constants.cjs');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -31,6 +37,18 @@ if (!newVersion || process.argv.length > 3) {
 }
 if (!VERSION_RE.test(newVersion)) {
   console.error(`[ios-xcode-cloud-version] FAIL: malformed version "${newVersion}"`);
+  process.exit(1);
+}
+
+const config = loadReleaseComplianceConfig(ROOT, { fresh: true });
+const closedTrain = closedIosTrainStatus(
+  newVersion,
+  config.versionSources?.closedIosMarketingVersions
+);
+if (closedTrain.status === STATUS.FAIL) {
+  console.error(
+    `[ios-xcode-cloud-version] FAIL: ${newVersion} is closed or not higher than ${closedTrain.highestClosed} (ITMS-90186 / ITMS-90062)`
+  );
   process.exit(1);
 }
 

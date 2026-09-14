@@ -61,9 +61,9 @@ This is a **review-access fix** — not the start of paid rollout. Do **not** fl
 | 8 | Ordinary live-app families unaffected; billing stays **OFF** | VPS: global payment switch off + billing UI disabled | ☐ |
 | 9 | App Store Connect Review Information lists **both accounts with explicit labels** (IAP vs complimentary) | Paste from `docs/app-store-review-notes.md` § Build 1160 | ☐ |
 
-**1.4.3 train is closed** (ITMS-90186 / ITMS-90062). Do **not** reply on that review thread with another 1.4.3 binary. Physical IAP proof (rows 4–6) still belongs on the **1.4.4** submission notes. Web/paywall changes continue to reach Capacitor without a new IPA; the new binary is only the closed-train bump + screenshot window.
+**1.4.4 train is closed** (ITMS-90186 / ITMS-90062, Apple delivery 1.4.4 build 1188). Do **not** upload another 1.4.4 binary. Physical IAP proof (rows 4–6) belongs on the **next native submission** (1.4.5) if that binary is actually required. Web/paywall changes continue to reach Capacitor without a new IPA.
 
-Public SE listing already shows Premium Årsvis + Premium Månadsvis with prices — do **not** re-attach those products to 1.4.4 unless ASC still shows first-of-type unapproved (`docs/app-store-review-notes.md` § 1.4.4).
+Public SE listing already shows Premium Årsvis + Premium Månadsvis with prices — do **not** re-attach those products to a new version unless ASC still shows first-of-type unapproved (`docs/app-store-review-notes.md`).
 
 ## Verify before sending Apple notes
 
@@ -101,7 +101,7 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 ## Versioning
 
-`MARKETING_VERSION` **1.4.3 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.3). Ship **1.4.4** (`npm run ios:xcode-cloud:version -- 1.4.4`). Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected build **1182**. Tag `ios-v1.4.4` on merged `main`.
+`MARKETING_VERSION` **1.4.4 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.4). The next native train is **1.4.5**. Do **not** tag `ios-v1.4.5` or Submit unless a native binary is actually required. Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected builds **1182** or **1188**.
 
 Android `versionName` may stay **1.4.3** until the next Play upload (intentional iOS-only train bump).
 

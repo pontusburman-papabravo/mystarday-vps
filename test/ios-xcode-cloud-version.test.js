@@ -55,6 +55,15 @@ describe('ios-xcode-cloud-version', () => {
     assert.match(r.stderr + r.stdout, /malformed/);
   });
 
+  it('rejects a closed App Store marketing train', () => {
+    fs.writeFileSync(fixturePbx, original);
+    const r = runVersion('1.4.4', { IOS_XCODE_PROJECT_PATH: fixturePbx });
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /ITMS-90186|closed/);
+    const unchanged = fs.readFileSync(fixturePbx, 'utf8');
+    assert.equal(unchanged, original);
+  });
+
   it('fails on inconsistent marketing versions', () => {
     const bad = original.replace(`MARKETING_VERSION = ${currentMarketing};`, 'MARKETING_VERSION = 9.9;', 1);
     const badPath = path.join(fixtureDir, 'bad.pbxproj');
