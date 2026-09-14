@@ -28,7 +28,8 @@ const FORBIDDEN = [
 
 test('campaign page has exact allowed copy and no forbidden claims', () => {
   assert.match(html, /<h1>Mindre tjat\. Mer koll på dagen\.<\/h1>/);
-  assert.match(html, /Premium ingår om du registrerar dig senast 30 september\./);
+  assert.match(html, /Premium i ett år om du registrerar dig senast 30 september\./);
+  assert.doesNotMatch(html, /Premium ingår om du registrerar/);
   assert.match(html, /hjälper barnet att se vad som händer nu, vad som kommer sedan och vad som redan är klart\./);
   assert.match(html, /Utvecklad med NPF-familjer i åtanke, men passar också andra barn som mår bra av tydlighet, struktur och förutsägbarhet\./);
   assert.match(html, /Hundratals familjer använder redan/);
@@ -86,7 +87,8 @@ test('Google Ads bots are allowed to crawl /kampanj', () => {
 
 test('homepage has isolated removable campaign CTA', () => {
   assert.match(indexHtml, /CAMPAIGN host-2026: remove after 2026-09-30/);
-  assert.match(indexHtml, /Premium ingår om du registrerar dig senast 30 september/);
+  assert.match(indexHtml, /Premium i ett år om du registrerar dig senast 30 september/);
+  assert.doesNotMatch(indexHtml, /Premium ingår om du registrerar/);
   assert.match(indexHtml, />Se erbjudandet</);
   assert.match(indexHtml, /href="\/kampanj\/host-2026"/);
   assert.match(indexHtml, /utm_source/);
@@ -111,7 +113,7 @@ test('GET /kampanj/host-2026 serves campaign HTML with store links', async () =>
     const res = await fetch(`${http.baseUrl}/kampanj/host-2026`);
     assert.equal(res.status, 200);
     const body = await res.text();
-    assert.match(body, /Premium ingår om du registrerar dig senast 30 september\./);
+    assert.match(body, /Premium i ett år om du registrerar dig senast 30 september\./);
     assert.match(body, /Svara på enkäten/);
     assert.match(body, /\/tyck\/host-2026/);
     assert.match(body, /https:\/\/apple\.co\/4v2ESuH/);
