@@ -1540,6 +1540,50 @@
         
         <div id="prenumerationSection" class="mb-8 hidden">
           <h3 class="text-2xl font-heading font-bold text-navy mb-2">Prenumeration &amp; IAP</h3>
+          <p class="text-sm text-text-soft mb-6 max-w-3xl">Köp går via Apple/Google (RevenueCat). Det finns ingen webb-checkout. Livstidsgratis styrs av registreringsdatum, inte av ett familjeantal. Manuell Premium per familj görs i Familjer → familjekortet.</p>
+
+          <div id="paymentPolicyCard" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-3xl">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">Gällande policy</h4>
+            <ul class="text-sm text-navy space-y-2 list-none">
+              <li id="paymentPolicyLifetime"><strong>Livstidsgratis:</strong> familjer registrerade t.o.m. 13 sep 2026 (före 14 sep 00:00 Stockholm), alla länder.</li>
+              <li id="paymentPolicyIntro"><strong>Intro-år:</strong> från 14 sep 2026 får nya familjer 1 år gratis från registrering, därefter IAP.</li>
+              <li id="paymentPolicyIap"><strong>IAP-start:</strong> 1 okt 2026 00:00 Stockholm. Irland/Finland öppnas inte av detta.</li>
+              <li id="paymentPolicyBillingNow"><strong>Köpväg just nu:</strong> Laddar…</li>
+            </ul>
+          </div>
+
+          <!-- Sweden paid go-live 1 Oct 2026 -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-3xl" id="paymentGoLiveCard">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">1 oktober — slå på betalningen</h4>
+            <p class="text-sm text-text-soft mb-3">IAP går live 1 okt 2026 00:00 (Stockholm). Familjer registrerade t.o.m. 13 sep 2026 är gratis för alltid. Från 14 sep får nya familjer 1 år gratis, därefter IAP. Irland/Finland öppnas inte av detta.</p>
+            <p id="paymentGoLiveStatus" class="text-sm font-semibold text-navy mb-2">Laddar…</p>
+            <p id="paymentGoLiveCutoff" class="text-xs text-text-soft mb-3"></p>
+            <ul id="paymentGoLiveBlockers" class="text-sm text-red-700 space-y-1 mb-4"></ul>
+            <div class="flex items-center gap-4 mb-2">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="paymentGoLiveArmedToggle" class="sr-only peer">
+                <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gold"></div>
+              </label>
+              <span id="paymentGoLiveArmedLabel" class="text-sm font-semibold text-navy">Armerad</span>
+            </div>
+            <p class="text-xs text-text-soft">Armerad = servern slår på IAP automatiskt vid cutoff om RevenueCat är redo och <code>BILLING_UI_DISABLED</code> är av. Av = behåll kill-switch.</p>
+            <div id="paymentGoLiveMsg" class="text-sm mt-2"></div>
+          </div>
+
+          <!-- Payment kill switch -->
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-3xl">
+            <h4 class="text-lg font-heading font-bold text-navy mb-4">Nödbrytare — betalning aktiverad</h4>
+            <div class="flex items-center gap-4 mb-2">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="paymentEnabledToggle" class="sr-only peer">
+                <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gold"></div>
+              </label>
+              <span id="paymentToggleLabel" class="text-sm font-semibold text-navy">AV</span>
+            </div>
+            <p class="text-xs text-text-soft">Efter go-live: Av = ingen köpväg (admin vinner mot schedulern). Före 1 oktober ska denna stå AV — schedulern slår på den automatiskt om go-live är armerad och redo.</p>
+            <div id="paymentToggleMsg" class="text-sm mt-2"></div>
+          </div>
+
           <div id="marketGatesPanel" class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6 max-w-3xl overflow-x-auto">
             <h4 class="text-lg font-heading font-bold text-navy mb-2">Marknadsportar (registrering)</h4>
             <p id="marketGatesHint" class="text-sm text-text-soft mb-3">Toggla registrering land för land. Varje land styr endast sin egen flagga (ingen påverkar market_eu_open eller betalningsflaggor).</p>
@@ -1572,128 +1616,27 @@
           </div>
           <div id="prenumerationWorkspaceTabs"></div>
           <div id="prenumerationSettingsPanels">
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl">
-            <h4 class="text-lg font-heading font-bold text-navy mb-4">🟢 Basic (grundpaket)</h4>
-
-            <!-- IAP billing status -->
-            <div id="iapStatusCard" class="mb-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
-              <div class="flex items-center flex-wrap gap-2">
-                <div>
-                  <p class="text-sm font-semibold text-navy" id="iapStatusLabel">IAP: Apple / Google Play</p>
-                  <p class="text-xs text-text-soft mt-0.5" id="iapStatusHint">Prenumeration hanteras via RevenueCat i mobilapparna.</p>
-                </div>
-              </div>
+          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-3xl">
+            <h4 class="text-lg font-heading font-bold text-navy mb-2">IAP-väg</h4>
+            <div id="iapStatusCard" class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <p class="text-sm font-semibold text-navy" id="iapStatusLabel">IAP: Apple / Google Play</p>
+              <p class="text-xs text-text-soft mt-0.5" id="iapStatusHint">Prenumeration sköts via RevenueCat i mobilapparna. Store-priser sätts i App Store / Google Play, inte här.</p>
             </div>
-
-            <form id="basicSettingsForm" class="space-y-4">
-              <div class="flex items-center gap-4">
-                <label class="text-sm font-semibold text-navy whitespace-nowrap">Pris:</label>
-                <input type="number" id="basicPriceInput" min="0" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
-                <span class="text-sm text-text-soft">kr/månad</span>
-              </div>
-              <div class="flex items-center gap-4">
-                <label class="text-sm font-semibold text-navy whitespace-nowrap">Trial:</label>
-                <input type="number" id="basicTrialInput" min="0" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
-                <span class="text-sm text-text-soft">dagar</span>
-              </div>
-              <div class="flex items-center gap-4">
-                <label class="text-sm font-semibold text-navy whitespace-nowrap">Grundargräns:</label>
-                <input type="number" id="founderLimitInput" min="1" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
-                <span class="text-sm text-text-soft">familjer (lifetime free)</span>
-              </div>
-              <button type="submit" class="px-6 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold transition-colors text-sm">
-                Spara Basic-inställningar
-              </button>
-              <div id="basicSettingsMsg" class="text-sm min-h-[1.4em]"></div>
-            </form>
           </div>
 
-          <!-- Add-ons -->
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl">
-            <h4 class="text-lg font-heading font-bold text-navy mb-4">🏷️ Add-ons</h4>
-            <div id="addonsList" class="space-y-4 mb-4">
-              <p class="text-text-soft text-sm italic" id="addonsEmptyMsg">Inga add-ons ännu — lägg till nedan</p>
-            </div>
-            <button id="showAddAddonFormBtn" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold text-sm transition-colors">
-              + Lägg till add-on
-            </button>
-            <!-- Add-on form -->
-            <form id="addAddonForm" class="space-y-3 mt-4 hidden">
-              <div>
-                <label class="block text-xs font-semibold text-navy mb-1">Namn</label>
-                <input type="text" id="addonName" required class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm" placeholder="t.ex. Rapportering">
-              </div>
-              <div class="flex items-center gap-3">
-                <div class="flex-1">
-                  <label class="block text-xs font-semibold text-navy mb-1">Pris (kr/månad)</label>
-                  <input type="number" id="addonPrice" required min="0" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm">
-                </div>
-                <div class="flex items-center gap-2 pt-5">
-                  <label class="text-xs font-semibold text-navy">Aktiverad</label>
-                  <input type="checkbox" id="addonActive" class="w-5 h-5 accent-gold">
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-navy mb-1">Beskrivning (valfritt)</label>
-                <input type="text" id="addonDesc" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm" placeholder="Kort beskrivning...">
-              </div>
-              <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold text-sm transition-colors">Spara</button>
-                <button type="button" id="cancelAddAddonBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-navy rounded-xl font-bold text-sm transition-colors">Avbryt</button>
-              </div>
-              <div id="addAddonMsg" class="text-sm"></div>
-            </form>
-          </div>
-
-          <!-- Sweden paid go-live 1 Oct 2026 -->
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl" id="paymentGoLiveCard">
-            <h4 class="text-lg font-heading font-bold text-navy mb-2">1 oktober — slå på betalningen</h4>
-            <p class="text-sm text-text-soft mb-3">IAP går live 1 okt 2026 00:00 (Stockholm). Familjer registrerade t.o.m. 13 sep 2026 är gratis för alltid. Från 14 sep får nya familjer 1 år gratis, därefter IAP. Irland/Finland öppnas inte av detta.</p>
-            <p id="paymentGoLiveStatus" class="text-sm font-semibold text-navy mb-2">Laddar…</p>
-            <p id="paymentGoLiveCutoff" class="text-xs text-text-soft mb-3"></p>
-            <ul id="paymentGoLiveBlockers" class="text-sm text-red-700 space-y-1 mb-4"></ul>
-            <div class="flex items-center gap-4 mb-2">
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="paymentGoLiveArmedToggle" class="sr-only peer">
-                <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gold"></div>
-              </label>
-              <span id="paymentGoLiveArmedLabel" class="text-sm font-semibold text-navy">Armerad</span>
-            </div>
-            <p class="text-xs text-text-soft">Armerad = servern slår på IAP automatiskt vid cutoff om RevenueCat är redo och <code>BILLING_UI_DISABLED</code> är av. Av = behåll kill-switch.</p>
-            <div id="paymentGoLiveMsg" class="text-sm mt-2"></div>
-          </div>
-
-          <!-- Payment toggle -->
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 max-w-2xl">
-            <h4 class="text-lg font-heading font-bold text-navy mb-4">💳 Betalning aktiverad</h4>
-            <div class="flex items-center gap-4 mb-2">
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="paymentEnabledToggle" class="sr-only peer">
-                <div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-7 after:w-7 after:transition-all peer-checked:bg-gold"></div>
-              </label>
-              <span id="paymentToggleLabel" class="text-sm font-semibold text-navy">AV</span>
-            </div>
-            <p class="text-xs text-text-soft">Nödbrytare efter go-live. På = IAP tillåtet (om paid rollout och billing-UI också är på). Av = ingen köpväg. Före 1 oktober ska denna stå AV — scheduler slår på den automatiskt.</p>
-            <div id="paymentToggleMsg" class="text-sm mt-2"></div>
-          </div>
-
-          <!-- v1.2 Paket rollout -->
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
-            <h4 class="text-lg font-heading font-bold text-navy mb-2">🚀 Rollout &amp; lansering (v1.2)</h4>
-            <p class="text-xs text-text-soft mb-4">Styr om familjer ser mock-preview och intresse-CTA. Default = Av (ingen förändring).</p>
+          <details class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
+            <summary class="text-lg font-heading font-bold text-navy cursor-pointer">Paketintresse &amp; rollout</summary>
+            <p class="text-xs text-text-soft mt-3 mb-4">Styr om familjer ser mock-preview och intresse-CTA. Default = Av. IAP-köp går inte via den här rollouten.</p>
             <div class="flex flex-wrap gap-2 mb-4" id="rolloutModeButtons">
               <button type="button" data-rollout="off" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender">Av</button>
               <button type="button" data-rollout="interest" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender">Intressefas</button>
-              <button type="button" data-rollout="purchase" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender opacity-50" disabled title="Köp-live byggs i E11">Köp live (ej än)</button>
+              <button type="button" data-rollout="purchase" class="rollout-mode-btn px-4 py-2 rounded-xl text-sm font-bold border-2 border-lavender opacity-50" disabled title="Köp sker via IAP 1 oktober, inte via denna preview-rollout">Köp live (ej via denna yta)</button>
             </div>
             <div id="rolloutDerived" class="text-xs text-text-soft grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3"></div>
             <div id="rolloutMsg" class="text-sm min-h-[1.4em]"></div>
-          </div>
 
-          <!-- v1.2 KPI -->
-          <div class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl">
-            <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-              <h4 class="text-lg font-heading font-bold text-navy">📊 Paketstatistik</h4>
+            <div class="flex items-center justify-between gap-4 mb-4 mt-6 flex-wrap">
+              <h4 class="text-base font-heading font-bold text-navy">Paketstatistik</h4>
               <select id="packageStatsPeriod" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm">
                 <option value="7d">7 dagar</option>
                 <option value="30d" selected>30 dagar</option>
@@ -1702,15 +1645,11 @@
             </div>
             <div id="packageStatsHistoryWarning" class="hidden mb-4"></div>
             <div id="packageStatsSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm"></div>
-            <div id="packageStatsBars" class="space-y-3"></div>
-          </div>
-          </div>
+            <div id="packageStatsBars" class="space-y-3 mb-6"></div>
 
-          <div id="prenumerationPaketintressePanel" class="hidden">
-          <!-- v1.2 Paketintresse -->
-          <div id="paketintresse-anchor" class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-4xl scroll-mt-24">
+            <div id="paketintresse-anchor" class="scroll-mt-24">
             <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
-              <h4 class="text-lg font-heading font-bold text-navy">Paketintresse</h4>
+              <h4 class="text-base font-heading font-bold text-navy">Paketintresse</h4>
               <a id="exportPackageInterestBtn" href="/api/admin/package-interest/export.csv" class="px-4 py-2 bg-navy text-white rounded-xl text-sm font-bold">Exportera CSV</a>
             </div>
             <div class="flex flex-wrap gap-2 mb-4">
@@ -1744,8 +1683,65 @@
               </table>
             </div>
             <p id="packageInterestCount" class="text-xs text-text-soft mt-3"></p>
+            </div>
+          </details>
+
+          <details class="bg-white rounded-2xl border-2 border-lavender p-6 mb-6 max-w-2xl">
+            <summary class="text-lg font-heading font-bold text-navy cursor-pointer">Historiska Basic-fält</summary>
+            <p class="text-xs text-text-soft mt-3 mb-4">Dessa fält styr inte App Store-/Play-priset. Livstidsgratis är datumstyrt (se policy ovan) — det finns ingen redigerbar familjeantal-gräns.</p>
+            <form id="basicSettingsForm" class="space-y-4">
+              <div class="flex items-center gap-4">
+                <label class="text-sm font-semibold text-navy whitespace-nowrap" for="basicPriceInput">Referenspris:</label>
+                <input type="number" id="basicPriceInput" min="0" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
+                <span class="text-sm text-text-soft">kr/månad</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <label class="text-sm font-semibold text-navy whitespace-nowrap" for="basicTrialInput">Historisk trial:</label>
+                <input type="number" id="basicTrialInput" min="0" step="1" class="w-24 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-center">
+                <span class="text-sm text-text-soft">dagar</span>
+              </div>
+              <button type="submit" class="px-6 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold transition-colors text-sm">
+                Spara referensfält
+              </button>
+              <div id="basicSettingsMsg" class="text-sm min-h-[1.4em]"></div>
+            </form>
+
+            <h4 class="text-base font-heading font-bold text-navy mt-6 mb-3">Add-ons (ej IAP-katalog)</h4>
+            <div id="addonsList" class="space-y-4 mb-4">
+              <p class="text-text-soft text-sm italic" id="addonsEmptyMsg">Inga add-ons ännu — lägg till nedan</p>
+            </div>
+            <button id="showAddAddonFormBtn" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold text-sm transition-colors">
+              + Lägg till add-on
+            </button>
+            <form id="addAddonForm" class="space-y-3 mt-4 hidden">
+              <div>
+                <label class="block text-xs font-semibold text-navy mb-1">Namn</label>
+                <input type="text" id="addonName" required class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm" placeholder="t.ex. Rapportering">
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex-1">
+                  <label class="block text-xs font-semibold text-navy mb-1">Pris (kr/månad)</label>
+                  <input type="number" id="addonPrice" required min="0" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm">
+                </div>
+                <div class="flex items-center gap-2 pt-5">
+                  <label class="text-xs font-semibold text-navy">Aktiverad</label>
+                  <input type="checkbox" id="addonActive" class="w-5 h-5 accent-gold">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-navy mb-1">Beskrivning (valfritt)</label>
+                <input type="text" id="addonDesc" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm" placeholder="Kort beskrivning...">
+              </div>
+              <div class="flex gap-2">
+                <button type="submit" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-bold text-sm transition-colors">Spara</button>
+                <button type="button" id="cancelAddAddonBtn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-navy rounded-xl font-bold text-sm transition-colors">Avbryt</button>
+              </div>
+              <div id="addAddonMsg" class="text-sm"></div>
+            </form>
+          </details>
           </div>
-          </div>
+
+          <div id="prenumerationPaketintressePanel" class="hidden"></div>
         </div>
 
         <div id="passwordSection" class="mb-8 hidden">
@@ -2266,7 +2262,7 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-journey-daily-analysis.js?v=1.2.0"></script>
   <script src="/admin/admin-produktanalys-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-landning-shell.js?v=1.0.0"></script>
-  <script src="/admin/admin-prenumeration-shell.js?v=1.0.0"></script>
+  <script src="/admin/admin-prenumeration-shell.js?v=1.0.1"></script>
   <script src="/admin/admin-paket-shell.js?v=1.0.0"></script>
   <script src="/admin/admin-paket-workspace.js?v=1.0.0"></script>
   <script src="/admin/admin-database-export.js"></script>
@@ -2276,8 +2272,8 @@ Använd dubbla radbrytningar för nya stycken.
   <script src="/admin/admin-growth-pipeline.js?v=1.0.0"></script>
   <script src="/admin/admin-family-hub.js?v=1.2.0"></script>
   <script src="/admin/admin-command-palette.js?v=1.1.0"></script>
-  <script src="/admin/admin-payment-go-live.js?v=1.0.0"></script>
-  <script src="/admin/admin-subscription-settings.js?v=1.0.2"></script>
+  <script src="/admin/admin-payment-go-live.js?v=1.1.0"></script>
+  <script src="/admin/admin-subscription-settings.js?v=1.1.0"></script>
   <script src="/admin/admin-market-gates.js?v=1.0.0"></script>
   <script src="/admin/admin-library.js?v=2.1.1"></script>
 

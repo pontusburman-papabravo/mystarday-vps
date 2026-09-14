@@ -187,12 +187,11 @@ async function loadPackageInterest() {
 function renderSubscriptionSettings() {
   if (!subscriptionData) return;
 
-  // Basic
-  document.getElementById('basicPriceInput').value = subscriptionData.basic_price_sek ?? 59;
-  document.getElementById('basicTrialInput').value = subscriptionData.basic_trial_days ?? 14;
-  document.getElementById('founderLimitInput').value = subscriptionData.founder_family_limit ?? 225;
+  const priceInput = document.getElementById('basicPriceInput');
+  const trialInput = document.getElementById('basicTrialInput');
+  if (priceInput) priceInput.value = subscriptionData.basic_price_sek ?? 59;
+  if (trialInput) trialInput.value = subscriptionData.basic_trial_days ?? 14;
 
-  // IAP billing path (RevenueCat / App Store / Play Store)
   const label = document.getElementById('iapStatusLabel');
   const hint = document.getElementById('iapStatusHint');
   if (label) {
@@ -200,20 +199,22 @@ function renderSubscriptionSettings() {
     label.className = 'text-sm font-semibold text-navy';
   }
   if (hint) {
-    hint.textContent = 'Prenumeration sköts via RevenueCat i mobilapparna.';
+    hint.textContent = 'Prenumeration sköts via RevenueCat i mobilapparna. Store-priser sätts i App Store / Google Play, inte här.';
     hint.className = 'text-xs text-text-soft mt-0.5';
   }
 
-  // Payment toggle (legacy — web payment disabled)
   const toggle = document.getElementById('paymentEnabledToggle');
-  toggle.checked = !!subscriptionData.payment_enabled;
-  document.getElementById('paymentToggleLabel').textContent = subscriptionData.payment_enabled ? 'PÅ' : 'AV';
+  if (toggle) toggle.checked = !!subscriptionData.payment_enabled;
+  const toggleLabel = document.getElementById('paymentToggleLabel');
+  if (toggleLabel) toggleLabel.textContent = subscriptionData.payment_enabled ? 'PÅ' : 'AV';
 
+  if (typeof window.renderPaymentPolicyCard === 'function') {
+    window.renderPaymentPolicyCard(subscriptionData);
+  }
   if (typeof window.renderPaymentGoLivePanel === 'function') {
     window.renderPaymentGoLivePanel(subscriptionData.payment_go_live);
   }
 
-  // Add-ons
   renderAddons(subscriptionData.addons || []);
 }
 
@@ -292,12 +293,11 @@ function esc(str) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Basic settings form
-  document.getElementById('basicSettingsForm').addEventListener('submit', async (e) => {
+  const basicForm = document.getElementById('basicSettingsForm');
+  if (basicForm) basicForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const price = document.getElementById('basicPriceInput').value;
-    const trial = document.getElementById('basicTrialInput').value;
-    const founderLimit = document.getElementById('founderLimitInput').value;
+    const price = document.getElementById('basicPriceInput')?.value;
+    const trial = document.getElementById('basicTrialInput')?.value;
     const msg = document.getElementById('basicSettingsMsg');
     try {
       await Auth.api('/api/admin/subscription-settings', {
@@ -305,15 +305,18 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({
           basic_price_sek: parseInt(price, 10),
           basic_trial_days: parseInt(trial, 10),
-          founder_family_limit: parseInt(founderLimit, 10),
         }),
       });
-      msg.textContent = '✓ Sparat!';
-      msg.className = 'text-sm text-green-600';
-      setTimeout(() => { msg.textContent = ''; msg.className = 'text-sm min-h-[1.4em]'; }, 3000);
+      if (msg) {
+        msg.textContent = '✓ Sparat!';
+        msg.className = 'text-sm text-green-600';
+        setTimeout(() => { msg.textContent = ''; msg.className = 'text-sm min-h-[1.4em]'; }, 3000);
+      }
     } catch (err) {
-      msg.textContent = 'Fel: ' + (err.message || err);
-      msg.className = 'text-sm text-red-500';
+      if (msg) {
+        msg.textContent = 'Fel: ' + (err.message || err);
+        msg.className = 'text-sm text-red-500';
+      }
     }
   });
 
@@ -376,24 +379,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Payment toggle
-  document.getElementById('paymentEnabledToggle').addEventListener('change', async (e) => {
+  // Payment kill switch
+  const paymentToggle = document.getElementById('paymentEnabledToggle');
+  if (paymentToggle) paymentToggle.addEventListener('change', async (e) => {
     const enabled = e.target.checked;
-    document.getElementById('paymentToggleLabel').textContent = enabled ? 'PÅ' : 'AV';
+    if (enabled) {
+      const confirmed = confirm(
+        'Slå PÅ IAP-köpväg nu?\n\nFöre 1 oktober ska denna stå AV. Schedulern slår på den automatiskt om go-live är armerad och redo.'
+      );
+      if (!confirmed) {
+        e.target.checked = false;
+        const lbl = document.getElementById('paymentToggleLabel');
+        if (lbl) lbl.textContent = 'AV';
+        return;
+      }
+    }
+    const toggleLabel = document.getElementById('paymentToggleLabel');
+    if (toggleLabel) toggleLabel.textContent = enabled ? 'PÅ' : 'AV';
     const msg = document.getElementById('paymentToggleMsg');
     try {
       await Auth.api('/api/admin/subscription-settings/payment-enabled', {
         method: 'PATCH',
         body: JSON.stringify({ enabled }),
       });
-      msg.textContent = enabled ? '✓ Betalning aktiverad' : '✓ Betalning avaktiverad';
-      msg.className = 'text-sm text-green-600 mt-2';
+      if (msg) {
+        msg.textContent = enabled ? '✓ Betalning aktiverad' : '✓ Betalning avaktiverad';
+        msg.className = 'text-sm text-green-600 mt-2';
+      }
+      if (subscriptionData) {
+        subscriptionData.payment_enabled = enabled;
+        if (subscriptionData.payment_go_live) {
+          subscriptionData.payment_go_live.payment_enabled = enabled;
+        }
+        if (typeof window.renderPaymentPolicyCard === 'function') {
+          window.renderPaymentPolicyCard(subscriptionData);
+        }
+      }
     } catch (err) {
-      msg.textContent = 'Fel: ' + (err.message || err);
-      msg.className = 'text-sm text-red-500 mt-2';
-      // Revert toggle on error
+      if (msg) {
+        msg.textContent = 'Fel: ' + (err.message || err);
+        msg.className = 'text-sm text-red-500 mt-2';
+      }
       e.target.checked = !enabled;
-      document.getElementById('paymentToggleLabel').textContent = !enabled ? 'PÅ' : 'AV';
+      if (toggleLabel) toggleLabel.textContent = !enabled ? 'PÅ' : 'AV';
     }
   });
 

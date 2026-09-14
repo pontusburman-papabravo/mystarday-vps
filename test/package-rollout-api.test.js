@@ -143,5 +143,6 @@ test('subscription-settings GET includes persisted rollout', async () => {
     assert.equal(body.rollout_mode, 'interest');
     assert.equal(body.rollout.rollout_mode, 'interest');
     assert.equal(body.rollout.interest_cta_enabled, true);
+    assert.ok(body.lifetime_free_until);
   });
 });

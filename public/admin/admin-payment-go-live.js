@@ -33,12 +33,44 @@
 
   function formatCutoff(iso) {
     if (!iso) return 'Cutoff: 1 oktober 2026 00:00 (Stockholm)';
+    return 'Cutoff: ' + formatStockholm(iso) + ' (Stockholm)';
+  }
+
+  function formatStockholm(iso) {
+    if (!iso) return '';
     try {
       const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return 'Cutoff: ' + iso;
-      return 'Cutoff: ' + d.toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' }) + ' (Stockholm)';
+      if (Number.isNaN(d.getTime())) return String(iso);
+      return d.toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' });
     } catch {
-      return 'Cutoff: ' + iso;
+      return String(iso);
+    }
+  }
+
+  function renderPaymentPolicyCard(sub) {
+    const lifetimeEl = document.getElementById('paymentPolicyLifetime');
+    const iapEl = document.getElementById('paymentPolicyIap');
+    const nowEl = document.getElementById('paymentPolicyBillingNow');
+    const data = sub || {};
+    const goLive = data.payment_go_live || {};
+
+    if (lifetimeEl && data.lifetime_free_until) {
+      lifetimeEl.innerHTML = '<strong>Livstidsgratis:</strong> familjer skapade före '
+        + esc(formatStockholm(data.lifetime_free_until))
+        + ' (Stockholm), alla länder.';
+    }
+    if (iapEl && goLive.cutoff_at) {
+      iapEl.innerHTML = '<strong>IAP-start:</strong> '
+        + esc(formatStockholm(goLive.cutoff_at))
+        + ' (Stockholm). Irland/Finland öppnas inte av detta.';
+    }
+    if (nowEl) {
+      const enabled = !!data.payment_enabled;
+      const usable = !!goLive.public_billing_would_be_usable;
+      let text = 'AV — ingen köpväg (förväntat före 1 oktober).';
+      if (enabled && usable) text = 'PÅ — köpväg kan användas.';
+      else if (enabled) text = 'payment_enabled är PÅ, men billing-UI eller paid-rollout blockerar fortfarande.';
+      nowEl.innerHTML = '<strong>Köpväg just nu:</strong> ' + esc(text);
     }
   }
 
@@ -75,6 +107,15 @@
       const armed = e.target.checked;
       const msg = document.getElementById('paymentGoLiveMsg');
       const label = document.getElementById('paymentGoLiveArmedLabel');
+      if (!armed) {
+        const confirmed = confirm(
+          'Avarma 1 oktober-go-live?\n\nDå slår servern inte på IAP automatiskt vid cutoff. Irland/Finland påverkas inte.'
+        );
+        if (!confirmed) {
+          e.target.checked = true;
+          return;
+        }
+      }
       if (label) label.textContent = armed ? 'Armerad' : 'Avarmad';
       try {
         const res = await Auth.api('/api/admin/subscription-settings/payment-go-live-armed', {
@@ -98,4 +139,5 @@
   });
 
   window.renderPaymentGoLivePanel = renderPaymentGoLivePanel;
+  window.renderPaymentPolicyCard = renderPaymentPolicyCard;
 })();

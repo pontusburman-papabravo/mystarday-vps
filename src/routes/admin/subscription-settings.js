@@ -7,6 +7,21 @@ const addons = require('../../../db/subscription-addons');
 const appConfig = require('../../../db/app-config');
 const { normalizeRolloutMode, getRolloutFlags } = require('../../lib/package-access');
 const { getPaymentGoLiveSnapshot, setPaymentGoLiveArmed } = require('../../lib/payment-go-live');
+const {
+  getLifetimeFreeUntil,
+  DEFAULT_LIFETIME_FREE_UNTIL,
+} = require('../../lib/payment-settings');
+
+function toIsoInstant(value, fallbackIso) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString();
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
+  }
+  return fallbackIso;
+}
 
 const router = express.Router();
 
@@ -37,6 +52,7 @@ router.get('/', async (req, res, next) => {
       founder_family_limit,
       rolloutEntry,
       payment_go_live,
+      lifetime_free_until,
     ] = await Promise.all([
       appSettings.getPaymentEnabled().catch((err) => {
         console.error('[admin:subscription] payment_enabled read error:', err.message);
@@ -76,12 +92,17 @@ router.get('/', async (req, res, next) => {
           public_billing_would_be_usable: false,
         };
       }),
+      getLifetimeFreeUntil().then((d) => toIsoInstant(d, DEFAULT_LIFETIME_FREE_UNTIL)).catch((err) => {
+        console.error('[admin:subscription] lifetime_free_until read error:', err.message);
+        return DEFAULT_LIFETIME_FREE_UNTIL;
+      }),
     ]);
     res.json({
       payment_enabled,
       basic_price_sek,
       basic_trial_days,
       founder_family_limit,
+      lifetime_free_until,
       addons: addonsResult.rows,
       payment_go_live,
       ...buildRolloutPayload(rolloutEntry),
