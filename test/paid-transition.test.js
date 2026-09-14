@@ -51,25 +51,27 @@ describe('paid transition notice', () => {
     assert.equal(notice.kind, PAID_TRANSITION_KINDS.PAYWALL);
   });
 
-  it('paid and grandfathered hide transition pressure', () => {
+  it('paid, grandfathered, intro year and trial hide transition pressure', () => {
     assert.equal(describePaidTransition({ accessKind: 'paid', paymentStartAt: CUTOFF }).kind, 'none');
     assert.equal(describePaidTransition({ accessKind: 'grandfathered', paymentStartAt: CUTOFF }).kind, 'none');
     assert.equal(describePaidTransition({ accessKind: 'intro_year', paymentStartAt: CUTOFF }).kind, 'none');
+    assert.equal(describePaidTransition({ accessKind: 'trial', paymentStartAt: CUTOFF }).kind, 'none');
   });
 });
 
 describe('IE/FI release gates cannot be conflated', () => {
-  it('committed evidence: prebilling yes, billing/open/paid no', () => {
+  it('committed evidence: prebilling yes, billing/open/paid no; IE device yes, FI device no', () => {
     const gates = evaluateIeFiReleaseGates(loadCommittedEvidence());
     for (const cc of ['IE', 'FI']) {
       assert.equal(gates[cc].CLOSED_CODE_READY, true);
       assert.equal(gates[cc].PREBILLING_MARKET_READY, true);
       assert.equal(gates[cc].BILLING_CONFIGURATION_READY, false);
       assert.equal(gates[cc].BILLING_READY, false);
-      assert.equal(gates[cc].DEVICE_VERIFIED, false);
       assert.equal(gates[cc].READY_TO_OPEN, false);
       assert.equal(gates[cc].PAID_ROLLOUT_READY, false);
     }
+    assert.equal(gates.IE.DEVICE_VERIFIED, true);
+    assert.equal(gates.FI.DEVICE_VERIFIED, false);
   });
 
   it('unit_tests_pass does not promote READY_TO_OPEN or BILLING_READY', () => {

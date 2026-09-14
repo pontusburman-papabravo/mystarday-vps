@@ -113,6 +113,9 @@
       "pathGlobs": [
         "src/lib/family-entitlements.js",
         "db/family-entitlements.js",
+        "src/lib/market-commercial-policy.js",
+        "src/lib/market-launch-invariants.js",
+        "src/lib/payment-settings.js",
         "src/routes/admin/family-premium-grant.js",
         "src/routes/iap.js",
         "config/iap-product-contract.js",
@@ -154,7 +157,8 @@
         "test/payment-go-live.test.js",
         "test/payment-go-live-apply.test.js",
         "test/paid-rollout-runtime-gate.test.js",
-        "test/admin-premium-grant.test.js"
+        "test/admin-premium-grant.test.js",
+        "test/market-commercial-policy.test.js"
       ]
     },
     "i18n-markets-legal": {
@@ -164,6 +168,8 @@
         "src/lib/legal-routing.js",
         "src/lib/market-region.js",
         "src/lib/market-config.js",
+        "src/lib/market-commercial-policy.js",
+        "src/lib/market-launch-invariants.js",
         "public/en.html",
         "public/js/i18n*.js",
         "public/js/language-choice.js",
@@ -175,6 +181,7 @@
       ],
       "l1Tests": [
         "test/market-region.test.js",
+        "test/market-commercial-policy.test.js",
         "test/legal-routing.test.js",
         "test/i18n-locale.test.js",
         "test/register-language-displayed.test.js"

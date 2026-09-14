@@ -1,5 +1,7 @@
 # Ireland / Finland public surfaces
 
+> **AUTHORITY (2026-09-14):** Ireland must not launch in `open_prebilling`. Paid experiment = trial + billing-ready. See [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md). Waitlist → `/register` is only valid **after** that gate.
+
 Do **not** flip `market_ie_open`, `market_fi_open`, or public billing from this document.
 
 Public pages must follow the same launch model as signup. Do not invent per-page launch flags.

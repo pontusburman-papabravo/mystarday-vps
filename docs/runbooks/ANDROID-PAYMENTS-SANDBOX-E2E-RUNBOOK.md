@@ -1,11 +1,11 @@
 # Android Payments sandbox E2E (manual)
 
-**Status:** `ANDROID_SANDBOX_E2E = MANUAL_VERIFICATION_REQUIRED`
+**Status:** `ANDROID_SANDBOX_E2E = PASS` (founder_observation, 2026-09-14)
 
-iOS sandbox E2E is recorded PASS (2026-08-28) in `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`.
-Android has **not** been recorded as a complete purchase → webhook → entitlement loop.
+iOS sandbox E2E is recorded PASS (2026-08-28, confirmed again 2026-09-14) in `docs/PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`.
+Android purchase on a physical device is founder-confirmed PASS on 2026-09-14. Transaction IDs, Family UUID, webhook timestamps, and a separately attested restore were **not** recorded.
 
-Do **not** report `IE_BILLING_READY` / `FI_BILLING_READY` as full PASS until this runbook has a dated PASS log.
+Device PASS is **not** `IE_BILLING_CONFIGURATION_READY`, `READY_TO_OPEN`, or permission to flip `market_ie_open` / live `payment_enabled`.
 
 ## Preconditions (fail-closed)
 
@@ -35,10 +35,12 @@ Product IDs: see `config/iap-product-contract.js` (`monthly` / `yearly` + storef
 12. After cutoff with Play/billing still OFF: confirm the family is **held** (no 402 lockout).
 13. After Play/billing is usable: purchase → webhook → restore as above, EUR `priceString`.
 
-This environment cannot complete steps 1–10 without a physical Play tester. Keep `ANDROID_SANDBOX_E2E = MANUAL_VERIFICATION_REQUIRED`.
+Cloud / Linux agents cannot complete steps 1–10 without a physical Play tester. Do not invent a PASS from this environment.
+
+**2026-09-14:** founder reported a completed Android purchase. Keep live flags fail-closed (`billing_ui_globally_disabled`, `iap_paid_rollout_ready=false`, `market_ie_open=false`, `market_fi_open=false`).
 
 ## Pass criteria
 
 All of: purchase UI, store price string, webhook, reconcile, restart persistence, restore.
 
-Until then: **NOT VERIFIED** — never “probably ready”.
+Purchase is founder-confirmed. Restore / webhook / SQL rows were not separately attested on 2026-09-14 — do not invent them. Never “probably ready” for live billing or market open.

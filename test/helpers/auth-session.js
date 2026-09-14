@@ -5,14 +5,19 @@ const { cookieHeader, getSetCookieHeaders, mergeCookies } = require('./http.js')
 /**
  * Register + login, return cookies and csrfToken for authenticated API calls.
  */
-async function registerAndLogin(baseUrl, { name = 'Integration Test' } = {}) {
+async function registerAndLogin(baseUrl, { name = 'Integration Test', country_code } = {}) {
   const email = `integration-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
   const password = 'integration-test-pass-1';
 
   const registerRes = await fetch(`${baseUrl}/api/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({
+      email,
+      password,
+      name,
+      ...(country_code ? { country_code } : {}),
+    }),
   });
   const registerText = await registerRes.text();
   if (registerRes.status !== 201) {

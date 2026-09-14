@@ -2,8 +2,10 @@
 
 **Status:** Accepted (2026-07-24)  
 **Scope:** Registration, legal routing, regional rollout gates  
-**Related:** ADR-017 (locale), P-i18n-Language-Launch-Foundation  
+**Related:** ADR-017 (locale), P-i18n-Language-Launch-Foundation, **[ADR-023](ADR-023-market-commercial-policy.md)** (commercial policy + launch sequencing)  
 **POS:** Constitution rule 2 (no surprise), rule 5 (complete signup)
+
+**Supersession (2026-09-14):** Country vs language, `market_region`, and per-country **gates** still stand. §6 launch **order** is replaced by [ADR-023](ADR-023-market-commercial-policy.md) + [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md): IE P0 paid; NL parallel prep; UK **deferred**; never `market_eu_open` as expansion tool.
 
 ---
 
@@ -97,14 +99,16 @@ country_code     = IE
 - Child self-consent age thresholds (13–16 in EU) are **per-country** within `EU` — use `country_code` when that distinction matters.
 - Do not build the entire product on child self-consent; assess per processing activity.
 
-### 6. Launch order (locked)
+### 6. Launch order
 
-1. **Sweden + English language beta** — same EU market; tests translation without new jurisdiction
-2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON
-3. **Norway / Denmark** — later per-country gates (`market_no_open`, `market_dk_open`)
-4. **Other EU/EES** — `market_eu_open` bulk when ready
-5. **United Kingdom** — separate release (`market_uk_open`, UK privacy, Children's Code, DPIA)
-6. **United States** — separate release after COPPA review (`market_us_open`)
+**Historical (2026-07-24) sequential list — commercial sequencing superseded by [ADR-023](ADR-023-market-commercial-policy.md):**
+
+1. **Sweden + English language beta** — same EU market; tests translation without new jurisdiction *(done; still the live SE model)*
+2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON — **paid 14-day trial, not intro year (ADR-023)**
+3. **Norway / Denmark** — later per-country gates; **no work from language proximity**
+4. **Other EU/EES** — **not** via `market_eu_open`; NL is parallel **preparation** with its own future gate (`market_nl_open`), not a bulk-EU open
+5. **United Kingdom** — **deferred by founder** (Children’s Code, UK GDPR, representative, ICO, consumer law). Same trial policy *when* later reopened. Not an active parallel sprint.
+6. **United States** — separate release after COPPA review (`market_us_open`) — unchanged, not in the Ireland experiment
 
 ### 7. Translation coverage rule
 

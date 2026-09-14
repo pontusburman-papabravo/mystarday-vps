@@ -2,6 +2,8 @@
 
 **This document is a product and technical readiness assessment, not legal advice.**
 
+> Ireland paid-launch commercial policy (2026-09-14): [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md), [ADR-023](adr/ADR-023-market-commercial-policy.md). This assessment does not authorize `market_ie_open`. UK is **deferred**. NL may be **prepared** in parallel; not opened via `market_eu_open`.
+
 ## Locked model (ADR-018)
 
 | Concept | Canonical store | Values |
@@ -75,10 +77,15 @@ English language beta in Sweden does **not** imply UK/US market opening.
 
 ## Recommended launch order
 
-1. **Sweden + English language beta** — `country_code=SE`, `market_region=EU`; tests EN UI without new jurisdiction
-2. **EU/EES** — concrete `country_code` per family; shared GDPR base + national difference matrix
-3. **United Kingdom** — `market_uk_open`, UK documents, Children’s Code review
-4. **United States** — `market_us_open`, COPPA, state requirements as needed
+**Superseded** as an active sequence. Canonical: [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) §3.3–3.7 and [ADR-023](adr/ADR-023-market-commercial-policy.md).
+
+Historical list (do not execute as a queue):
+
+1. **Sweden + English language beta** — `country_code=SE`, `market_region=EU`; tests EN UI without new jurisdiction *(done)*
+2. **Ireland paid experiment** — first international paid market (ADR-023)
+3. **NL preparation in parallel** — own future gate, not `market_eu_open`
+4. **United Kingdom** — **deferred** (`market_uk_open` stays OFF)
+5. **United States** — `market_us_open`, COPPA, state requirements as needed — unchanged, not this experiment
 
 ## Technical status
 

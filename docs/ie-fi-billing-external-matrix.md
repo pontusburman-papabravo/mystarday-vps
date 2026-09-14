@@ -1,5 +1,7 @@
 # IE / FI external billing & storefront matrix
 
+> **STALE (download price):** Fetched **2026-08-31**. Public lookup **2026-09-14** showed IE/FI **free** download + `hasInAppPurchases: true`, not €5.99 paid download. Re-run `node scripts/verify-storefront-billing.mjs`. Ireland launch authority: [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md).
+
 Fetched **2026-08-31**. Do **not** flip `market_ie_open`, `market_fi_open`, or public billing from this document.
 
 Evidence statuses: `VERIFIED EXTERNALLY` · `VERIFIED INTERNALLY` · `CONFIGURED` · `NOT VERIFIED` · `BLOCKED`.

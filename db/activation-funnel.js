@@ -54,9 +54,14 @@ function buildStepConversions(row, steps) {
 /**
  * Weekly cohort First Success funnel (PR 2).
  * @param {number} weeks
+ * @param {{ countryCode?: string|null }} [opts]
  */
-async function getActivationFunnelCohorts(weeks = 8) {
+async function getActivationFunnelCohorts(weeks = 8, opts = {}) {
   const safeWeeks = Math.min(52, Math.max(1, weeks));
+  const countryCode = opts && opts.countryCode
+    ? String(opts.countryCode).trim().toUpperCase()
+    : null;
+  const countryFilter = countryCode && /^[A-Z]{2}$/.test(countryCode) ? countryCode : null;
   const result = await db.query(
     `WITH cohort AS (
        SELECT f.id AS family_id,
@@ -65,6 +70,7 @@ async function getActivationFunnelCohorts(weeks = 8) {
        FROM family f
        WHERE f.archived_at IS NULL
          AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
+         AND ($2::text IS NULL OR f.country_code = $2)
      ),
      families_with_second_day AS (
        SELECT DISTINCT fam.id AS family_id
@@ -73,6 +79,7 @@ async function getActivationFunnelCohorts(weeks = 8) {
        JOIN daily_log dl ON dl.child_id = ch.id
        JOIN daily_log_item dli ON dli.daily_log_id = dl.id
        WHERE dli.completed = true
+         AND ($2::text IS NULL OR fam.country_code = $2)
          AND COALESCE(
            dli.completed_date,
            (dli.completed_at AT TIME ZONE COALESCE(fam.timezone, 'Europe/Stockholm'))::date
@@ -92,7 +99,7 @@ async function getActivationFunnelCohorts(weeks = 8) {
      LEFT JOIN families_with_second_day sd ON sd.family_id = c.family_id
      GROUP BY c.cohort_week
      ORDER BY cohort_week DESC`,
-    [safeWeeks]
+    [safeWeeks, countryFilter]
   );
 
   const steps = FIRST_SUCCESS_FUNNEL_STEPS;
@@ -105,22 +112,30 @@ async function getActivationFunnelCohorts(weeks = 8) {
       rates: buildStepRates(row, steps),
       conversions: buildStepConversions(row, steps),
     })),
-    childAccessDiagnostics: await getActivationChildAccessDiagnostics(safeWeeks),
+    childAccessDiagnostics: await getActivationChildAccessDiagnostics(safeWeeks, {
+      countryCode: countryFilter,
+    }),
   };
 }
 
 /**
  * Sub-metrics under child access (ACT-1 §10 — diagnostik, ej huvudtratt).
  * @param {number} weeks
+ * @param {{ countryCode?: string|null }} [opts]
  */
-async function getActivationChildAccessDiagnostics(weeks = 8) {
+async function getActivationChildAccessDiagnostics(weeks = 8, opts = {}) {
   const safeWeeks = Math.min(52, Math.max(1, weeks));
+  const countryCode = opts && opts.countryCode
+    ? String(opts.countryCode).trim().toUpperCase()
+    : null;
+  const countryFilter = countryCode && /^[A-Z]{2}$/.test(countryCode) ? countryCode : null;
   const result = await db.query(
     `WITH cohort AS (
        SELECT f.id AS family_id
        FROM family f
        WHERE f.archived_at IS NULL
          AND f.created_at >= date_trunc('week', NOW()) - ($1::int - 1) * interval '1 week'
+         AND ($2::text IS NULL OR f.country_code = $2)
      )
      SELECT
        COUNT(DISTINCT CASE WHEN s.child_access_completed_at IS NOT NULL THEN c.family_id END)::int AS child_access_completed,
@@ -138,7 +153,7 @@ async function getActivationChildAccessDiagnostics(weeks = 8) {
          'child_profile_created', 'child_pin_created', 'child_view_opened', 'child_handoff_skipped',
          'child_handoff_started', 'child_handoff_reminder_landed'
        )`,
-    [safeWeeks]
+    [safeWeeks, countryFilter]
   );
   const row = result.rows[0] || {};
   const metrics = [

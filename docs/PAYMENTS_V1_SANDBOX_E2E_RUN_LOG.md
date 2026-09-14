@@ -1,11 +1,14 @@
 # PAYMENTS V1 — Sandbox E2E Run Log
 
-**Status: iOS PASS (2026-08-28). Android still NOT YET RUN.** A real StoreKit sandbox
-purchase was completed end to end on a physical iPhone via TestFlight and verified
-against the live backend (webhook, reconcile, canonical entitlement, idempotency,
-negative control). See the iOS section below for full evidence. Do not mark the
-Android row PASS until it has been run the same way — `docs/PAYMENTS_V1_STATUS.md`
-and any payments readiness report must keep Android sandbox E2E as **pending**.
+**Status: iOS PASS (2026-08-28, founder-confirmed again 2026-09-14). Android PASS
+(founder_observation, 2026-09-14).** The 2026-08-28 iOS run is a full StoreKit
+sandbox purchase on a physical iPhone via TestFlight, verified against the live
+backend (webhook, reconcile, canonical entitlement, idempotency, negative
+control). On 2026-09-14 the founder confirmed a completed purchase on a physical
+iPhone and a physical Android device. No new store transaction IDs, Family UUIDs,
+or webhook timestamps were recorded for the 2026-09-14 runs. Restore was not
+separately attested. Device PASS does **not** flip live `payment_enabled`,
+remove `BILLING_UI_DISABLED`, or open `market_ie_open`.
 
 **How to run the iOS test:** see
 [`docs/runbooks/IOS-PAYMENTS-SANDBOX-E2E-RUNBOOK.md`](runbooks/IOS-PAYMENTS-SANDBOX-E2E-RUNBOOK.md)
@@ -13,8 +16,9 @@ for the step-by-step physical-device procedure (before/on-device/backend/after).
 only the evidence log — fill it in after following that runbook.
 
 **PR:** #1050 (merged to `main` — backend/webhook/entitlement code is shipped).
-**Rule:** Do not enable `app_settings.payment_enabled` / remove `BILLING_UI_DISABLED`
-in the live app until iOS + Android are both PASS below.
+**Rule:** Device PASS is not permission to enable `app_settings.payment_enabled`
+or remove `BILLING_UI_DISABLED` in the live app. SE go-live remains the 1 October
+scheduler path. Ireland stays closed until explicit `founder_open_approved_ie`.
 
 **Setup rule:** Use a **new post-cutoff test family per platform** (separate Family ID for iOS and Android). Default `payment_start_at`: `2026-10-01T00:00:00+02:00` — family `created_at` must be **after** that cutoff and must **not** be grandfathered before purchase.
 
@@ -142,24 +146,32 @@ Real StoreKit sandbox purchase → webhook → reconcile → canonical entitleme
 
 **Product/config follow-up (not a code fix, tracked separately):** the yearly subscription's App Store Connect pricing was initially misconfigured to match the monthly price; corrected in ASC mid-test.
 
+### Founder confirmation 2026-09-14
+
+**EVIDENCE_SOURCE: founder_observation.** Founder reported a completed purchase on a physical iPhone. Complements the 2026-08-28 sandbox log above. Restore was not separately named. No new transaction IDs recorded.
+
 ---
 
 ## Android
+
+**EVIDENCE_SOURCE: founder_observation (2026-09-14).** Founder reported a completed
+purchase on a physical Android device. The detailed SQL / webhook / RC event
+tables below stay unfilled — those IDs were not provided. Do not invent them.
 
 ### Test identity
 
 | Field | Value |
 |-------|-------|
-| Date/time | |
-| Tester | |
-| Family ID | |
-| `family.created_at` | |
-| `payment_start_at` | |
-| Confirm post-cutoff | PASS / FAIL |
-| Confirm not grandfathered before purchase | PASS / FAIL |
-| RevenueCat App User ID | |
+| Date/time | 2026-09-14 |
+| Tester | Founder, physical Android device |
+| Family ID | not recorded |
+| `family.created_at` | not recorded |
+| `payment_start_at` | not recorded |
+| Confirm post-cutoff | not recorded |
+| Confirm not grandfathered before purchase | not recorded |
+| RevenueCat App User ID | not recorded |
 | Platform | Android |
-| App/build version | |
+| App/build version | not recorded |
 
 ### Store / RevenueCat configuration
 
@@ -251,9 +263,12 @@ ORDER BY granted_at;
 
 ### Android verdict
 
-**PASS / FAIL**
+**PASS** (founder_observation, 2026-09-14) — physical-device purchase completed.
 
-**Blocker if FAIL:**
+Webhook SQL, RevenueCat event IDs, Play transaction references, and a separately
+attested restore were **not** recorded. Do not treat this as named-SKU /
+RevenueCat dashboard verification. Do not treat this as permission to open
+Ireland or to flip live billing flags.
 
 ---
 
@@ -261,8 +276,8 @@ ORDER BY granted_at;
 
 | Gate | Result |
 |------|--------|
-| iOS sandbox E2E | **PASS** (2026-08-28) |
-| Android sandbox E2E | FAIL / NOT YET RUN |
+| iOS sandbox E2E | **PASS** (2026-08-28; founder-confirmed again 2026-09-14) |
+| Android sandbox E2E | **PASS** (founder_observation, 2026-09-14) — purchase only; txn IDs / restore not recorded |
 | Canonical resolver verified | PASS (iOS) |
 | Webhook verified | PASS (iOS) |
 | Trusted reconcile verified | PASS (iOS) |
@@ -273,12 +288,17 @@ ORDER BY granted_at;
 
 ### Decision to enable billing
 
-**NO-GO** — Android sandbox E2E has not been run yet. Do not flip
-`app_settings.payment_enabled = true` or remove `BILLING_UI_DISABLED` in the live
-app until Android is also PASS in this file.
+**NO-GO for live billing and Ireland open.** Both platforms now have a founder-confirmed
+physical purchase. That is A10 device evidence for IE, not store-configuration
+evidence and not `founder_open_approved_ie`.
 
-iOS is fully verified and ready to resubmit for App Store review on the subscription
-side (App Store Connect / RevenueCat / product config still require the external
-checks in `docs/PAYMENTS_STORE_COMPLIANCE.md`).
+Do **not** flip `app_settings.payment_enabled = true`, remove `BILLING_UI_DISABLED`,
+or set `market_ie_open`. Named Apple IAP / Play SKUs / RevenueCat remain
+NOT VERIFIED or BLOCKED in `config/ie-fi-release-evidence.json`. SE go-live stays
+the 1 October scheduler path (`docs/PAYMENTS_V1_STATUS.md`).
+
+iOS 2026-08-28 remains the only run with pasted webhook/SQL evidence. App Store
+Connect / RevenueCat / product config still require the external checks in
+`docs/PAYMENTS_STORE_COMPLIANCE.md`.
 
 Gift checkout is outside this gate and remains disabled.

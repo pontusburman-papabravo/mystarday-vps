@@ -4,9 +4,11 @@
  * Launch-ready-but-closed markets (IE, FI): verify they can open later via
  * flags alone, and that GATE_DEFAULTS keep them closed.
  *
- * Open-market signup after the lifetime cutoff is intro-year complete even
- * when public billing is off. This check must not require payment_start_at
- * or usable billing for hypothetical IE/FI opens, and must not flip gates.
+ * ADR-023: after the lifetime cutoff these countries are trial markets.
+ * Hypothetical open-market signup without public billing must be
+ * MARKET_BILLING_NOT_READY. With billing ready, reason is `trial`.
+ * Grandfather before the cutoff still completes without billing.
+ * This check must not flip gates.
  */
 
 const path = require('node:path');
@@ -84,7 +86,7 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
     }
 
     // Fixture instant only — no committed commercial IE/FI paid-start date.
-    // Signup completeness for *open* markets is lifetime/intro-year, not billing.
+    // After lifetime cutoff, trial markets require billing (ADR-023).
     // Fail-closed for IE/FI remains GATE_DEFAULTS + marketOpen:false.
     const lifetimeFreeUntil = paymentSettings.DEFAULT_LIFETIME_FREE_UNTIL;
     const fixturePaymentStart = '2026-10-15T00:00:00Z';
@@ -134,8 +136,8 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: beforeLifetimeCutoff,
     });
-    if (!openPrebillingNoBilling.allowed) {
-      failures.push(`${code} prebilling signup blocked while billing off — configured launch window must allow signup`);
+    if (!openPrebillingNoBilling.allowed || openPrebillingNoBilling.reason !== 'grandfather_eligible') {
+      failures.push(`${code} signup in the grandfather window must complete without billing`);
     }
 
     const openAfterCutoffNoBilling = invariants.evaluateSignupCompleteness({
@@ -146,8 +148,20 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterLifetimeCutoff,
     });
-    if (!openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'intro_year') {
-      failures.push(`${code} hypothetical open-market signup after lifetime cutoff must use intro year without billing`);
+    if (openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'billing_not_ready') {
+      failures.push(`${code} hypothetical open-market signup after lifetime cutoff must reject without billing (trial policy)`);
+    }
+
+    const openAfterCutoffWithBilling = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: true,
+      paymentStartAt: null,
+      lifetimeFreeUntil,
+      now: afterLifetimeCutoff,
+    });
+    if (!openAfterCutoffWithBilling.allowed || openAfterCutoffWithBilling.reason !== 'trial') {
+      failures.push(`${code} hypothetical open-market signup after lifetime cutoff must use trial when billing is ready`);
     }
 
     const openAfterPaidStartNoBilling = invariants.evaluateSignupCompleteness({
@@ -158,8 +172,20 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterPaidStart,
     });
-    if (!openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'intro_year') {
-      failures.push(`${code} hypothetical open-market signup after payment_start must still allow intro year without billing`);
+    if (openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'billing_not_ready') {
+      failures.push(`${code} hypothetical open-market signup after payment_start must reject without billing (trial policy)`);
+    }
+
+    const openAfterPaidStartWithBilling = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: true,
+      paymentStartAt: fixturePaymentStart,
+      lifetimeFreeUntil,
+      now: afterPaidStart,
+    });
+    if (!openAfterPaidStartWithBilling.allowed || openAfterPaidStartWithBilling.reason !== 'trial') {
+      failures.push(`${code} hypothetical open-market signup after payment_start must use trial when billing is ready`);
     }
 
     evidence.push({
@@ -197,7 +223,7 @@ function runLaunchReadyMarketChecks(repoRoot) {
     summary:
       status === STATUS.FAIL
         ? 'IE/FI are not launch-ready-but-closed, or a gate default would open them unexpectedly.'
-        : 'IE/FI stay closed by default, have live legal/config, and if hypothetically opened allow grandfather/intro-year signup without requiring public billing.',
+        : 'IE/FI stay closed by default, have live legal/config, and if hypothetically opened allow grandfather before cutoff and trial signup only when public billing is ready.',
     evidence: { checks },
   };
 }

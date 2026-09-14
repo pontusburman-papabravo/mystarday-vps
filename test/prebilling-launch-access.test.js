@@ -94,14 +94,14 @@ describe('Ireland + Finland signup matrix', () => {
 
     it(`${code} open + after payment_start + billing OFF`, () => {
       const r = signup(code, { open: true, billing: false, now: AFTER_IE_FI, start: IE_FI_START });
-      assert.equal(r.allowed, true);
-      assert.equal(r.reason, 'intro_year');
+      assert.equal(r.allowed, false);
+      assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
     });
 
     it(`${code} open + after payment_start + billing ON`, () => {
       const r = signup(code, { open: true, billing: true, now: AFTER_IE_FI, start: IE_FI_START });
       assert.equal(r.allowed, true);
-      assert.equal(r.reason, 'intro_year');
+      assert.equal(r.reason, 'trial');
     });
   }
 });
@@ -156,6 +156,7 @@ test('resolver + API transition matrix', async (t) => {
     '../src/lib/market-launch-invariants',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
+    '../src/lib/market-commercial-policy',
     '../src/lib/payment-audit',
     '../src/lib/family-entitlements',
   ]) {
@@ -177,11 +178,16 @@ test('resolver + API transition matrix', async (t) => {
   } = require('../src/lib/family-entitlements');
 
   async function createFamily(createdAtIso, countryCode) {
+    const timezone = countryCode === 'IE'
+      ? 'Europe/Dublin'
+      : countryCode === 'FI'
+        ? 'Europe/Helsinki'
+        : 'Europe/Stockholm';
     const { rows } = await runtimeDb.query(
-      `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region)
-       VALUES ($1, 'none', false, $2::timestamptz, $3, 'EU')
-       RETURNING id, created_at, country_code`,
-      [`Prebilling ${countryCode}`, createdAtIso, countryCode]
+      `INSERT INTO family (name, subscription_status, is_lifetime_free, created_at, country_code, market_region, timezone)
+       VALUES ($1, 'none', false, $2::timestamptz, $3, 'EU', $4)
+       RETURNING id, created_at, country_code, timezone`,
+      [`Prebilling ${countryCode}`, createdAtIso, countryCode, timezone]
     );
     return rows[0];
   }
@@ -258,16 +264,33 @@ test('resolver + API transition matrix', async (t) => {
       assert.equal(resolved.access_kind, 'grandfathered');
     });
 
-    await t.test(`${code} family created after lifetime cutoff gets intro year`, async () => {
+    await t.test(`${code} family created after lifetime cutoff gets 14-day trial, not intro year`, async () => {
       const family = await createFamily(CREATED_IE_POST, code);
       const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      assert.equal(created.kind, 'intro_year');
+      assert.equal(created.kind, 'trial');
       const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
       assert.equal(resolved.premium.active, true);
-      assert.equal(resolved.access_kind, 'intro_year');
+      assert.equal(resolved.access_kind, 'trial');
       assert.equal(resolved.requires_paywall, false);
-      assert.equal(resolved.premium.source, 'intro_year');
-      assert.equal(resolved.premium.is_grandfathered, false);
+      assert.equal(resolved.premium.source, 'trial');
+      const intro = await runtimeDb.query(
+        `SELECT 1 FROM family_entitlements WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+        [family.id]
+      );
+      assert.equal(intro.rowCount, 0);
+      const { trialEndsAt } = require('../src/lib/market-commercial-policy');
+      const ends = trialEndsAt(family.created_at, {
+        countryCode: code,
+        timeZone: family.timezone,
+      });
+      const almost = new Date(ends.getTime() - 1000);
+      const stillTrial = await resolveFamilyEntitlements(family.id, almost);
+      assert.equal(stillTrial.access_kind, 'trial');
+      assert.equal(stillTrial.requires_paywall, false);
+      const expired = await resolveFamilyEntitlements(family.id, ends);
+      assert.equal(expired.premium.active, false);
+      assert.equal(expired.requires_paywall, true);
+      assert.equal(expired.access_kind, 'limited');
     });
   }
 

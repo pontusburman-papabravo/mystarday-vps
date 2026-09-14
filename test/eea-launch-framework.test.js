@@ -8,6 +8,7 @@ const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('
 const { deriveMarketRegion, MARKET_REGIONS } = require('../src/lib/market-region');
 const { resolveLegalRoutes } = require('../src/lib/legal-routing');
 const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
+const { DEFAULT_TRIAL_DAYS } = require('../src/lib/market-commercial-policy');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -109,7 +110,7 @@ test('market_ie_open ON + billing OFF accepts IE (lifetime grandfather while cut
   }
 });
 
-test('market_ie_open ON + billing OFF after payment_start still accepts IE via intro year', async (t) => {
+test('market_ie_open ON + billing OFF after lifetime cutoff rejects IE (MARKET_BILLING_NOT_READY)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -126,15 +127,13 @@ test('market_ie_open ON + billing OFF after payment_start still accepts IE via i
   const http = await listenApp(createApp);
   try {
     const { res, body, email } = await registerCountry(http.baseUrl, 'IE');
-    assert.equal(res.status, 201, JSON.stringify(body));
-    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+    assert.equal(res.status, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
     const fam = await pg.query(
       `SELECT f.id FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
       [email.toLowerCase()]
     );
-    const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
-    assert.equal(resolved.premium.source, 'intro_year');
-    assert.equal(resolved.premium.active, true);
+    assert.equal(fam.rowCount, 0);
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
     await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
@@ -534,12 +533,10 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
     const { res, email } = await registerCountry(http.baseUrl, 'IE');
     assert.equal(res.status, 201, res.text);
     await pg.query(
-      `UPDATE family_entitlements fe
-       SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
-       FROM parent p
-       WHERE p.email = $1 AND fe.family_id = p.family_id
-         AND fe.source = 'intro_year' AND fe.revoked_at IS NULL`,
-      [email.toLowerCase()]
+      `UPDATE family f SET created_at = NOW() - ($2 * INTERVAL '1 day'), updated_at = NOW()
+         FROM parent p
+        WHERE p.email = $1 AND f.id = p.family_id`,
+      [email.toLowerCase(), DEFAULT_TRIAL_DAYS + 1]
     );
 
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {

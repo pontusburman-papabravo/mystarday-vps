@@ -42,7 +42,7 @@
 - Google Play Console: subscription product + monthly/yearly base plans, 14-day trial, pricing — named plans **NOT VERIFIED**. Public IE/FI listings show free install + a Play-billed IAP *range* only.
 - RevenueCat dashboard: offering/packages/webhook destination configuration matching `config/iap-product-contract.js` — **BLOCKED** without RC API credentials in this environment.
 - Gift card sale/redemption Apple and Google compliance sign-off — see `PAYMENTS_STORE_COMPLIANCE.md`
-- **Sandbox E2E purchase on a real device/build has not been executed.** See `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md` — it remains an empty template. Do not treat sandbox E2E as passed until it has actually been run and the results pasted in.
+- **Sandbox E2E:** iOS PASS 2026-08-28 (full webhook/SQL log). iOS + Android physical purchase founder-confirmed 2026-09-14 (`EVIDENCE_SOURCE: founder_observation`). Android txn IDs / restore were not recorded. Device PASS does not flip live `payment_enabled` or `market_ie_open`. Named store/RC evidence remains NOT VERIFIED. See `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`.
 
 ## Store configuration required
 
@@ -60,6 +60,6 @@ See `PAYMENTS_STORE_COMPLIANCE.md`.
 
 1. App Store Connect / Google Play Console / RevenueCat dashboard configuration (external — outside this repo)
 2. A fresh iOS build (IAP capability) and Android AAB (manifest launch-mode fix) once store products exist
-3. A real sandbox purchase → webhook → `/api/iap/sync` on both platforms, with results recorded in `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`
+3. Physical iOS + Android purchase is founder-confirmed 2026-09-14. Remaining: named Apple IAP / Play SKUs / RevenueCat dashboard evidence; Ireland open still needs explicit `founder_open_approved_ie`.
 4. **Before 1 Oct:** remove `BILLING_UI_DISABLED` from VPS env and confirm `/health` `payment_go_live.blockers` is empty. Do **not** flip `payment_enabled` by hand unless you are aborting.
 5. **At 1 Oct 00:00 Stockholm:** scheduler sets `payment_enabled` + `iap_paid_rollout_ready`. If sandbox E2E is still missing, **disarm** go-live in admin rather than hoping. New SE signup dies at cutoff while billing is unusable — that is intentional fail-closed, not a reason to force purchases.

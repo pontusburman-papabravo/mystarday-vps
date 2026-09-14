@@ -17,6 +17,7 @@ const {
   normalizePathname,
 } = require('../src/lib/limited-parent-security-access');
 const config = require('../src/lib/config');
+const { DEFAULT_TRIAL_DAYS } = require('../src/lib/market-commercial-policy');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -120,11 +121,18 @@ test('limited parent PIN security access integration A–I', async (t) => {
   let billingSnap;
   try {
     await setPaymentStart('2020-01-01T00:00:00+02:00', db);
+    const appSettings = require('../db/app-settings');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ('market_ie_open', true, 'limited-parent-pin test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`
+    );
     billingSnap = await enablePublicBillingForTest();
     const { createApp } = require('../app');
     http = await listenApp(createApp);
 
-    const session = await registerAndLogin(http.baseUrl);
+    const session = await registerAndLogin(http.baseUrl, { country_code: 'IE' });
     const headers = parentHeaders(session);
 
     const meRes = await fetch(`${http.baseUrl}/api/auth/me`, { headers });
@@ -141,6 +149,11 @@ test('limited parent PIN security access integration A–I', async (t) => {
     const childBootstrapText = await childBootstrap.text();
     assert.equal(childBootstrap.status, 201, childBootstrapText);
     const childRecord = JSON.parse(childBootstrapText);
+
+    await db.query(
+      `UPDATE family SET created_at = NOW() - ($2 * INTERVAL '1 day'), updated_at = NOW() WHERE id = $1`,
+      [familyId, DEFAULT_TRIAL_DAYS + 1]
+    );
 
     await t.test('A: post-cutoff limited parent GET /api/family/parent-pin-status → 200', async () => {
       const res = await fetch(`${http.baseUrl}/api/family/parent-pin-status`, { headers });

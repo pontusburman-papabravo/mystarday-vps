@@ -75,7 +75,7 @@ describe('signup completeness invariant', () => {
     assert.equal(r.reason, 'grandfather_eligible');
   });
 
-  it('open IE after lifetime cutoff without billing is intro-year, not rejected', () => {
+  it('open IE after lifetime cutoff without billing is rejected (trial market)', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
@@ -84,11 +84,11 @@ describe('signup completeness invariant', () => {
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,
     });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'intro_year');
+    assert.equal(r.allowed, false);
+    assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
   });
 
-  it('open FI after lifetime cutoff without billing is intro-year, not rejected', () => {
+  it('open FI after lifetime cutoff without billing is rejected (trial market)', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'FI',
       marketOpen: true,
@@ -97,11 +97,11 @@ describe('signup completeness invariant', () => {
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,
     });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'intro_year');
+    assert.equal(r.allowed, false);
+    assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
   });
 
-  it('open IE with billing can complete signup after payment_start via intro year', () => {
+  it('open IE with billing can complete signup as trial, not intro year', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
@@ -111,7 +111,7 @@ describe('signup completeness invariant', () => {
       now: AFTER_IE_FI,
     });
     assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'intro_year');
+    assert.equal(r.reason, 'trial');
   });
 
   it('SE before lifetime cutoff can signup even if billing is off (grandfather)', () => {
@@ -140,17 +140,18 @@ describe('signup completeness invariant', () => {
     assert.equal(r.reason, 'intro_year');
   });
 
-  it('SE from 14 Sep is intro year, not grandfather', () => {
-    const r = evaluateSignupCompleteness({
-      countryCode: 'SE',
-      marketOpen: true,
-      publicBillingUsable: false,
-      paymentStartAt: SE_IAP_START,
-      lifetimeFreeUntil: LIFETIME_UNTIL,
-      now: AFTER_LIFETIME,
-    });
-    assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'intro_year');
+  it('NL and DE stay closed when the bulk EU gate is off (A13)', () => {
+    for (const code of ['NL', 'DE']) {
+      const r = evaluateSignupCompleteness({
+        countryCode: code,
+        marketOpen: false,
+        publicBillingUsable: true,
+        lifetimeFreeUntil: LIFETIME_UNTIL,
+        now: AFTER_IE_FI,
+      });
+      assert.equal(r.allowed, false, code);
+      assert.equal(r.reason, 'market_closed');
+    }
   });
 });
 
