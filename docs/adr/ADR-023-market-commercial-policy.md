@@ -1,8 +1,9 @@
 # ADR-023 — Market commercial policy (intro year vs trial)
 
-**Status:** Accepted — **PRODUCT DECISION GO** (spec locked; implementation frozen until founder GO)  
+**Status:** Accepted — **PRODUCT DECISION GO** (canonical spec locked including kravspec §3.1–3.5; A1–A13 and §0 launch gate unchanged)  
 **Date:** 2026-09-14  
 **Normativ spec:** [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md)  
+**Next decision:** founder GO for **implementation against the spec** — not further strategy rewrite.  
 **POS:** Constitution 2 (no surprise trial→paid), Constitution 5 (complete signup), R-02 (stars not purchasable), PA-01 (no fourth coach)  
 **Related:** ADR-018 (jurisdiction + gates — still in force; **launch order / commercial model** superseded here), ADR-017 (locale)
 
@@ -78,7 +79,7 @@ Forbidden as the expansion switch. It would open NL+DE+FR+ES together. Future lo
 
 - **Positive:** Ireland can test a real funnel (ad → First Success → paywall → purchase). Sweden’s promise is kept. New markets inherit a default paid experiment instead of silently copying intro year.
 - **Negative:** Current tests that expect IE-after-cutoff = `intro_year` will fail once implementation starts and must be rewritten against this ADR. Prebilling helpers remain for historical FI/IE *code* until an implementation PR removes or isolates them — they are not launch authority.
-- **Rollout:** Spec PR ships documents only. Implementation is a separate founder GO. `market_ie_open` stays OFF.
+- **Rollout:** Spec PR ships documents only. Next founder decision is GO to implement against the locked spec (including §3.1–3.5). Do not rewrite strategy. `market_ie_open` stays OFF until the §0 gate.
 
 ---
 

@@ -1,9 +1,17 @@
 # Irland — betald lansering (kravspecifikation)
 
-**Status:** DECIDED — 2026-09-14  
-**Implementation:** FROZEN tills founder säger GO. Denna PR innehåller **ingen produktkod**.  
+**Status:** DECIDED / CANONICAL — 2026-09-14 (inkl. §3.1–3.5)  
+**Nästa beslut:** founder **GO för implementation mot denna spec**. Ingen ytterligare strategisk omskrivning.  
+**Implementation:** FROZEN tills GO. Denna PR innehåller **ingen produktkod**.  
+**Oföränderligt i denna lock:** launch-gate §0 · kommersiell princip §3.1–3.5 · acceptans A1–A13  
 **Authority:** detta dokument + [`docs/adr/ADR-023-market-commercial-policy.md`](adr/ADR-023-market-commercial-policy.md)  
 **POS:** Constitution 2 (ingen överraskning trial→betalt), Constitution 5 (färdig registrering), R-02 (stjärnor inte köpbara), PA-01 (ingen ny coachyta), P-04 (ingen parent dashboard på Hem)
+
+Tre låsta nivåer:
+
+1. **Affärsmodell (nya marknader):** 7-dagars trial + betalningsvalidering. Sverige undantaget (grandfather + intro-år).
+2. **Expansion:** två parallella spår (A English / B locale), inte en landkö.
+3. **Localization:** senare skalning — inte krav för IE.
 
 Slå **inte** på `market_ie_open`, `market_fi_open`, `market_uk_open` eller `market_eu_open` från detta dokument.
 
