@@ -22,7 +22,6 @@
 const { isBillingUiEnabled } = require('./billing-ui');
 const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
 const {
-  getPaymentStartAtForCountry,
   getLifetimeFreeUntil,
   DEFAULT_LIFETIME_FREE_UNTIL,
   isFamilyEligibleForGrandfathering,
@@ -41,11 +40,16 @@ const BILLING_NOT_READY_CODE = 'MARKET_BILLING_NOT_READY';
  * Same conditions as global rollout in getNativePurchaseEligibility.
  */
 async function isPublicBillingUsable() {
-  const [billingUi, paidRolloutReady] = await Promise.all([
-    isBillingUiEnabled(),
-    isIapPaidRolloutReady(),
-  ]);
-  return billingUi === true && paidRolloutReady === true;
+  try {
+    const [billingUi, paidRolloutReady] = await Promise.all([
+      isBillingUiEnabled(),
+      isIapPaidRolloutReady(),
+    ]);
+    return billingUi === true && paidRolloutReady === true;
+  } catch (err) {
+    console.error('[market-launch] public billing probe failed:', err.message);
+    return false;
+  }
 }
 
 /**
@@ -107,19 +111,30 @@ function evaluateSignupCompleteness(input) {
  * @param {{ now?: Date }} [opts]
  */
 async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
-  const [marketOpen, publicBillingUsable, paymentStartAt, lifetimeFreeUntil] = await Promise.all([
-    isMarketOpenForRegistration(countryCode),
-    isPublicBillingUsable(),
-    getPaymentStartAtForCountry(countryCode),
-    getLifetimeFreeUntil(),
-  ]);
+  const now = opts.now || new Date();
+  const marketOpen = await isMarketOpenForRegistration(countryCode);
+  let lifetimeFreeUntil = DEFAULT_LIFETIME_FREE_UNTIL;
+  try {
+    lifetimeFreeUntil = await getLifetimeFreeUntil();
+  } catch (err) {
+    console.error('[market-launch] lifetime_free_until probe failed:', err.message);
+  }
+  const grandfatherEligible = isFamilyEligibleForGrandfathering({
+    countryCode,
+    createdAt: now,
+    lifetimeFreeUntil,
+  });
+  const policy = getMarketCommercialPolicy(countryCode);
+  let publicBillingUsable = false;
+  if (!grandfatherEligible && policy.requiresBillingReady) {
+    publicBillingUsable = await isPublicBillingUsable();
+  }
   return evaluateSignupCompleteness({
     countryCode,
     marketOpen,
     publicBillingUsable,
-    paymentStartAt,
     lifetimeFreeUntil,
-    now: opts.now,
+    now,
   });
 }
 
