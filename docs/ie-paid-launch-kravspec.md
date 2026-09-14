@@ -77,6 +77,197 @@ Detta är en **kommersiell experimentmaskin för nya marknader**, inte en övers
 
 ADR-018:s lanseringsordning `SE → IE → NO/DK → bulk EU → UK` är **delvis ersatt** av ADR-023 för kommers och prioritering. Jurisdiktion (land ≠ språk) i ADR-018 gäller fortfarande.
 
+Acceptanskriterierna A1–A13 (§15) är oförändrade av detta avsnitt. Här låses *varför* nya marknader är betalda experiment, och hur IE, UK och locale-spåret ska löpa parallellt utan att ändra launch-gaten i §0.
+
+### 3.1 Kommersiell princip för nya marknader
+
+Syftet med internationell expansion har ändrats från primärt produktfeedback till **kommersiell validering**.
+
+Sveriges historiska modell med grandfathering och intro-år är därför **inte default för nya marknader**.
+
+För varje ny marknad som öppnas efter Sverige gäller, om inte en separat ADR uttryckligen beslutar annat:
+
+- Gratis appnedladdning.
+- Ingen kortuppgift vid registrering.
+- Full produktåtkomst under en kort produkttrial.
+- Default trial = **7 dagar**.
+- Efter trial krävs Premium för fortsatt full åtkomst.
+- Billing måste vara verifierad och användbar innan registrering tillåts i en öppen trial-marknad.
+- Store-priser ska vara lokala kommersiella priser, inte mekanisk FX-konvertering från SEK.
+- Store `priceString` är runtime source of truth.
+- Apple/Google store-intro får inte staplas ovanpå produkttrial om det skjuter första möjliga betalningssignal utan uttryckligt beslut.
+
+#### Varför
+
+Sverige användes initialt för att få in familjer, feedback och produktlärande.
+
+Nya marknader ska i stället svara på en annan fråga:
+
+> Kan produkten skapa First Success utanför Sverige och konvertera verkliga familjer till betalande kunder?
+
+Därför är ett långt gratisintro fel experimentdesign för IE och kommande marknader.
+
+Vi ska kunna skilja mellan:
+
+1. **Acquisition-problem** — Få registreringar → annons, storefront, landing, budskap eller CAC.
+2. **Activation-problem** — Registrering sker men få når First Success → produkt, onboarding, barninloggning, schema eller språk.
+3. **Monetization-problem** — First Success sker men få betalar → pris, value proposition, paywall, planmix eller checkout.
+
+Huvudfunneln för nya marknader är därför:
+
+```
+Ad / Store
+→ Signup
+→ Child created
+→ Schedule
+→ Child login
+→ First Success
+→ Trial end
+→ Paywall shown
+→ Purchase
+→ Early retention
+```
+
+Primära KPI:
+
+- CAC
+- Signup → First Success
+- First Success → paywall
+- Trial → paid
+- Monthly vs yearly mix
+- D7 retention
+- D30 retention
+
+`number_of_signups` är diagnostik, inte huvudsakligt framgångsmått.
+
+### 3.2 Irland är första betalda marknadsexperimentet
+
+Irland ska **inte** öppnas med Sveriges intro-år.
+
+`market_ie_open` får endast slås på när hela den kommersiella vägen är verifierad:
+
+```
+Ny IE-familj
+→ registrering utan kort
+→ exakt 7 dagars full access
+→ ingen intro_year-entitlement
+→ paywall från trial expiry
+→ riktigt StoreKit/Play-köp
+→ RevenueCat/backend entitlement
+→ restore fungerar
+```
+
+Det räcker inte att:
+
+- App Store-listningen är live.
+- IAP-produkter finns i portalen.
+- RevenueCat offering finns.
+- Signup fungerar.
+- Trial fungerar i unit/integration test.
+
+Ett **verkligt köp på fysisk enhet** och fungerande restore är launch blocker.
+
+IE-annonsbudget får inte starta innan denna väg är verifierad.
+
+### 3.3 Två parallella expansionsmaskiner
+
+Expansion ska inte hanteras som en serialiserad lista av länder.
+
+**Spår A — English markets**
+
+```
+IE paid launch
+        |
+        +--> UK legal/store/representative readiness
+```
+
+Irland är P0.
+
+UK får förberedas parallellt inom legal, store och operations, men UK-arbete får inte blockera eller stjäla implementationstid från IE-betalflödet.
+
+UK kan öppna före eller efter NL/DE beroende på när UK:s egna gates är klara.
+
+**Spår B — New locales**
+
+Startar **inte** före IE-evidens.
+
+Localization-arbete får börja när IE visar:
+
+- genuina externa familjer,
+- exportbar First Success,
+- ingen uppenbar språk- eller supportblocker,
+- och en meningsfull betalningssignal.
+
+Det är en evidensgate, inte en kalendergate.
+
+Förväntad riktning efter sådan evidens:
+
+```
+IE evidence
+→ NL med egen market gate
+→ gärna en-GB initialt om det är kommersiellt rimligt
+→ localization platform
+→ de-DE
+→ DE + AT
+```
+
+`market_eu_open` får inte användas som staged rollout-mekanism.
+
+När NL/DE/AT faktiskt ska implementeras ska de få separata landsgates enligt samma princip som IE.
+
+### 3.4 Vad localization platform inte får bli
+
+Localization platform är ett skalningsprojekt, inte ett prerequisite för första internationella intäkten.
+
+Den får därför inte införas i IE paid-launch-scope.
+
+När den senare byggs ska målbilden vara:
+
+```
+new market =
+  market policy
+  + country gate
+  + supported locale
+  + translation pack
+  + localized default content
+  + legal package
+  + store package
+  + analytics
+  + tests
+```
+
+och inte hundratals landsspecifika kodgrenar.
+
+AI kan användas för huvuddelen av generell locale-produktion och teknisk QA.
+
+AI är **inte ensam release authority** för:
+
+- barnets centrala copy,
+- juridisk text,
+- betalningscopy,
+- annonser,
+- storefront-copy som påverkar kommersiella eller juridiska claims.
+
+Dessa kräver lämplig mänsklig/native/legal review beroende på yta.
+
+### 3.5 Releaseprincip
+
+Ingen marknad öppnas för att den är geografiskt nära Sverige eller för att språket är lätt att översätta.
+
+En marknad öppnas när:
+
+1. landsgate finns,
+2. store är korrekt,
+3. legal är accepterad för jurisdiktionen,
+4. billing är verifierad om policyn kräver det,
+5. locale/support är tillräckliga,
+6. analytics kan isolera marknaden,
+7. launch owner uttryckligen godkänner öppning.
+
+Det gäller IE, GB, NL, DE, AT och framtida marknader.
+
+Sverige är uttryckligen undantaget från defaultmodellen eftersom befintliga grandfather- och intro-årsåtaganden ska bevaras.
+
 ---
 
 ## 4. Marknadspolicy (normativ)
@@ -257,7 +448,7 @@ Minst:
 | Purchase / restore | store, plan (monthly/yearly) |
 | Early retention | t.ex. D1/D7, per land |
 
-Primära KPI: CAC, trial→paid, tidig retention. Inte vanity signup-count.
+Primära KPI: se §3.1 (CAC, Signup → First Success, First Success → paywall, Trial → paid, monthly/yearly mix, D7/D30). `number_of_signups` är diagnostik, inte huvudsakligt framgångsmått. Allt segmenterat på `country_code`.
 
 ---
 
@@ -271,7 +462,7 @@ Kod kan inte rätta listingcopy. Detta är **launch blocker**.
 |------------|--------|
 | **IE** | Listad. **Gratis.** Namn `My Starday: Family Routines`. EN+SV. `hasInAppPurchases: true`. Beskrivning säger fortfarande *“My Starday is currently available in Sweden.”* Screenshot-filnamn `Min_Stjarndag_V3_*` (kan fortfarande vara svensk UI). |
 | **FI** | Samma mönster som IE. **Inte** detta experiments öppning. |
-| **SE** | Gratis. Svenskt listingnamn (oförändrat).
+| **SE** | Gratis. Svenskt listingnamn (oförändrat). |
 | **GB, NL, DE, AU, US** | Inte listade (`resultCount: 0`). |
 
 Äldre [`docs/ie-fi-billing-external-matrix.md`](ie-fi-billing-external-matrix.md) (2026-08-31) som påstår **€5.99 betald nedladdning** är **inaktuell**. Kör om `node scripts/verify-storefront-billing.mjs` före GO. ASC-konsolen är source of truth för SKU-priser.
@@ -318,7 +509,7 @@ Kod kan inte rätta listingcopy. Detta är **launch blocker**.
 9. **Därefter** `market_ie_open`.
 10. Därefter trafik.
 
-Sverige 1 okt och UK-dokumentation får löpa parallellt så länge de inte tar IE-betalflödet.
+Sverige 1 okt och UK-dokumentation får löpa parallellt så länge de inte tar IE-betalflödet (§3.3). Annonsbudget efter steg 9, inte före (§3.2). Releaseprincip för varje marknad: §3.5.
 
 Release-states i [`docs/ie-fi-release-gates.md`](ie-fi-release-gates.md) får **inte** tolkas som att `PREBILLING_MARKET_READY` är tillstånd att öppna IE. För IE krävs trial+billing-path + device + explicit founder-godkännande.
 
@@ -381,7 +572,7 @@ Inget av Q1–Q3 blockerar att **låsa specen**. Q2 blockerar **flaggan** tills 
 
 | Dokument | Roll efter denna spec |
 |---------|------------------------|
-| **Detta dokument** | Normativ kravspec. Läs först. |
+| **Detta dokument** | Normativ kravspec. Läs först. Kommersiell princip och expansionsmaskiner: §3.1–3.5. |
 | [`ADR-023`](adr/ADR-023-market-commercial-policy.md) | Beslut: intro-år SE-only; nya marknader 7-dagars trial + billing-ready |
 | [`ADR-018`](adr/ADR-018-family-market-jurisdiction.md) | Land ≠ språk, gates. Lanserings**ordning** delvis ersatt. |
 | [`docs/ie-fi-prebilling-access.md`](ie-fi-prebilling-access.md) | Historisk IE/FI-prebilling-modell. **Inte** IE launch authority. |
