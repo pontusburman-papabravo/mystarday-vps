@@ -26,7 +26,8 @@ describe('market commercial policy table (ADR-023)', () => {
     assert.equal(se.requiresBillingReady, false);
   });
 
-  it('new markets inherit 7-day trial that requires billing ready', () => {
+  it('new markets inherit 14-day trial that requires billing ready', () => {
+    assert.equal(DEFAULT_TRIAL_DAYS, 14);
     for (const code of ['IE', 'FI', 'NL', 'DE', 'GB', 'AT', 'FR', 'ES']) {
       const policy = getMarketCommercialPolicy(code);
       assert.equal(policy.entitlement, ENTITLEMENT.TRIAL, code);
@@ -51,12 +52,12 @@ describe('market commercial policy table (ADR-023)', () => {
   });
 });
 
-describe('computed 7-day trial clock (A4/A5)', () => {
-  const created = new Date('2026-10-16T00:00:00+01:00');
+describe('computed 14-day trial clock (A4/A5)', () => {
+  const created = new Date('2026-10-01T00:00:00+01:00');
 
-  it('trial_ends_at is created_at plus 7 calendar days in Europe/Dublin', () => {
+  it('trial_ends_at is created_at plus 14 calendar days in Europe/Dublin', () => {
     const ends = trialEndsAt(created, { countryCode: 'IE', timeZone: 'Europe/Dublin' });
-    assert.equal(ends.toISOString(), new Date('2026-10-23T00:00:00+01:00').toISOString());
+    assert.equal(ends.toISOString(), new Date('2026-10-15T00:00:00+01:00').toISOString());
   });
 
   it('A4: one second before expiry the trial is still active', () => {

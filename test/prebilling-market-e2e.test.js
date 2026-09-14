@@ -15,6 +15,7 @@ const crypto = require('node:crypto');
 const { setupTestDb } = require('./helpers/setup.js');
 const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('./helpers/http.js');
 const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
+const { DEFAULT_TRIAL_DAYS } = require('../src/lib/market-commercial-policy');
 const { resolveLegalRoutes } = require('../src/lib/legal-routing');
 const { getMarketConfig } = require('../src/lib/market-config');
 const {
@@ -686,10 +687,10 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
     assert.equal(trialRewards.status, 200, trialRewards.text);
 
     await pg.query(
-      `UPDATE family f SET created_at = NOW() - INTERVAL '8 days', updated_at = NOW()
+      `UPDATE family f SET created_at = NOW() - ($2 * INTERVAL '1 day'), updated_at = NOW()
          FROM parent p
         WHERE p.email = $1 AND f.id = p.family_id`,
-      [reg.email.toLowerCase()]
+      [reg.email.toLowerCase(), DEFAULT_TRIAL_DAYS + 1]
     );
 
     const limitedDaily = await probe('GET', '/api/me/daily-log');

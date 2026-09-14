@@ -3,6 +3,7 @@
 **Status:** Accepted — **PRODUCT DECISION GO** (canonical spec; §0 + A1–A13 unchanged)  
 **Date:** 2026-09-14  
 **Amendment (same day):** expansion sequencing — UK deferred; NL parallel preparation; localization after export signal, not after D30.  
+**Amendment (same day):** founder — new-market product trial is **14 days** (not 7); paywall on day 15. Do not stack Apple’s 14-day IAP intro on IE SKUs.  
 **Normativ spec:** [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md)  
 **Next decision:** IE implementation GO received 2026-09-14. This PR builds the path. Next human step is physical-device purchase + restore, then founder may flip `market_ie_open`. NL remains prepare-only ([`docs/nl-market-prep.md`](../nl-market-prep.md)). Not a UK sprint.  
 **POS:** Constitution 2 (no surprise trial→paid), Constitution 5 (complete signup), R-02 (stars not purchasable), PA-01 (no fourth coach)  
@@ -39,7 +40,7 @@ This must **not** weaken Ireland’s launch gate.
 | Priority | Policy |
 |---------|--------|
 | **SE** | Keep intro year + grandfather. IAP go-live 2026-10-01. Must not block IE/NL. |
-| **IE = P0 paid** | First international paid experiment (7-day trial, billing required). Physical purchase + restore before `market_ie_open`. |
+| **IE = P0 paid** | First international paid experiment (14-day trial, billing required). Physical purchase + restore before `market_ie_open`. |
 | **NL = parallel preparation / next market** | Gap analysis and own `market_nl_open` (when implemented). May first test `en-GB`. Open when **NL** gates pass — not after IE D30. Never via `market_eu_open`. |
 | **Localization** | After **export signal** (genuine IE and/or NL families reach First Success). Not an IE launch prerequisite. Not a D30 requirement. |
 | **DE+AT** | Next locale wave after export signal (`de-DE`, then DE gate, then AT). |
@@ -51,17 +52,17 @@ This must **not** weaken Ireland’s launch gate.
 | Market | entitlement | trial_days | requires_billing_ready |
 |--------|-------------|------------|------------------------|
 | SE | `intro_year` | 0 | false |
-| IE | `trial` | 7 | true |
-| GB (when opened) | `trial` | 7 | true |
-| Any other newly opened market | `trial` | 7 | true |
+| IE | `trial` | 14 | true |
+| GB (when opened) | `trial` | 14 | true |
+| Any other newly opened market | `trial` | 14 | true |
 
 Do **not** implement this as scattered `if (country === 'IE')`. Encode a market commercial policy the resolver and signup invariant both read.
 
 ### 3. Ireland hard launch gate
 
-No `market_ie_open` until a new Irish family can: register → use the full product for exactly 7 days → paywall on day 8 → complete a real purchase on a physical device.
+No `market_ie_open` until a new Irish family can: register → use the full product for exactly 14 days → paywall on day 15 → complete a real purchase on a physical device.
 
-No card at signup. Do not stack a 7-day product trial with Apple’s 14-day IAP intro on IE SKUs.
+No card at signup. Do not stack a 14-day product trial with Apple’s 14-day IAP intro on IE SKUs.
 
 Prices: portal targets **€5.99 / €59.99** (`config/iap-product-contract.js`). Runtime UI uses store `priceString`. Yearly stays the attractive plan.
 

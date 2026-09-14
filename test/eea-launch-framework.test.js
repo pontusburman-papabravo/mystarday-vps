@@ -8,6 +8,7 @@ const { listenApp, cookieHeader, getSetCookieHeaders, mergeCookies } = require('
 const { deriveMarketRegion, MARKET_REGIONS } = require('../src/lib/market-region');
 const { resolveLegalRoutes } = require('../src/lib/legal-routing');
 const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
+const { DEFAULT_TRIAL_DAYS } = require('../src/lib/market-commercial-policy');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 process.env.RATE_LIMIT_ENABLED = 'false';
@@ -532,10 +533,10 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
     const { res, email } = await registerCountry(http.baseUrl, 'IE');
     assert.equal(res.status, 201, res.text);
     await pg.query(
-      `UPDATE family f SET created_at = NOW() - INTERVAL '8 days', updated_at = NOW()
+      `UPDATE family f SET created_at = NOW() - ($2 * INTERVAL '1 day'), updated_at = NOW()
          FROM parent p
         WHERE p.email = $1 AND f.id = p.family_id`,
-      [email.toLowerCase()]
+      [email.toLowerCase(), DEFAULT_TRIAL_DAYS + 1]
     );
 
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {

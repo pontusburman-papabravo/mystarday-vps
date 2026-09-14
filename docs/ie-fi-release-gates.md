@@ -1,7 +1,7 @@
 # Ireland / Finland release gates
 
 > **AUTHORITY (2026-09-14):** Ireland paid launch = [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) + [ADR-023](adr/ADR-023-market-commercial-policy.md).  
-> `PREBILLING_MARKET_READY` is **not** permission to open Ireland. IE requires 7-day trial + billing-ready + physical purchase **before** `market_ie_open`.
+> `PREBILLING_MARKET_READY` is **not** permission to open Ireland. IE requires 14-day trial + billing-ready + physical purchase **before** `market_ie_open`.
 
 Do **not** flip `market_ie_open`, `market_fi_open`, or public billing from this document.
 

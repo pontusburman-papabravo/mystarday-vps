@@ -88,6 +88,6 @@ Canonical evaluator: `src/lib/ie-fi-release-gates.js` / `docs/ie-fi-release-gate
 
 Expected ops sequence *(historical prebilling path — **not** Ireland 2026-09-14 launch)*: deploy (closed) → verify prebilling → **explicit** open IE/FI → free window → finish Store/RC/device → enable paid later.
 
-Ireland’s sequence is in [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) §14: billing + 7-day trial + physical purchase **before** `market_ie_open`. No product-code in the spec PR.
+Ireland’s sequence is in [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) §14: billing + 14-day trial + physical purchase **before** `market_ie_open`. No product-code in the spec PR.
 
 Hold policy: a clock crossing `market_*_payment_start_at` does **not** 402 launch-window families while public billing is unusable. That is deliberate ops-late safety (Constitution 2 + 5). Paywall starts only when cutoff is reached **and** billing is usable.

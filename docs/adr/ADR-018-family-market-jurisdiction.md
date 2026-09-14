@@ -104,7 +104,7 @@ country_code     = IE
 **Historical (2026-07-24) sequential list — commercial sequencing superseded by [ADR-023](ADR-023-market-commercial-policy.md):**
 
 1. **Sweden + English language beta** — same EU market; tests translation without new jurisdiction *(done; still the live SE model)*
-2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON — **paid 7-day trial, not intro year (ADR-023)**
+2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON — **paid 14-day trial, not intro year (ADR-023)**
 3. **Norway / Denmark** — later per-country gates; **no work from language proximity**
 4. **Other EU/EES** — **not** via `market_eu_open`; NL is parallel **preparation** with its own future gate (`market_nl_open`), not a bulk-EU open
 5. **United Kingdom** — **deferred by founder** (Children’s Code, UK GDPR, representative, ICO, consumer law). Same trial policy *when* later reopened. Not an active parallel sprint.

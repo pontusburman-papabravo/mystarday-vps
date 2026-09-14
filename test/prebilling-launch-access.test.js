@@ -264,7 +264,7 @@ test('resolver + API transition matrix', async (t) => {
       assert.equal(resolved.access_kind, 'grandfathered');
     });
 
-    await t.test(`${code} family created after lifetime cutoff gets 7-day trial, not intro year`, async () => {
+    await t.test(`${code} family created after lifetime cutoff gets 14-day trial, not intro year`, async () => {
       const family = await createFamily(CREATED_IE_POST, code);
       const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
       assert.equal(created.kind, 'trial');

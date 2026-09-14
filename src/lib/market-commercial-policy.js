@@ -4,8 +4,9 @@
  * Market commercial policy — entitlement model per country.
  * Not a live flag. Does not open markets.
  *
- * Sweden keeps intro year. Every other country defaults to a 7-day product
+ * Sweden keeps intro year. Every other country defaults to a 14-day product
  * trial that requires public billing before signup (ADR-023).
+ * Admin `basic_trial_days` does not own this number.
  */
 
 const { DateTime } = require('luxon');
@@ -17,7 +18,7 @@ const ENTITLEMENT = Object.freeze({
   TRIAL: 'trial',
 });
 
-const DEFAULT_TRIAL_DAYS = 7;
+const DEFAULT_TRIAL_DAYS = 14;
 
 /** Sweden is the only intro-year market. New markets inherit trial policy. */
 const INTRO_YEAR_COUNTRY_CODES = Object.freeze(new Set(['SE']));

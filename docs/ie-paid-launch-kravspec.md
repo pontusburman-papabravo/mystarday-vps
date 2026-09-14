@@ -1,15 +1,16 @@
 # Irland — betald lansering (kravspecifikation)
 
 **Status:** GO — IE P0 implementation in this PR (2026-09-14). Flags remain OFF.  
-**Amendment:** expansionssekvens §3.3–3.7 (samma dag) — UK deferred, NL parallell förberedelse. §0 och A1–A13 oförändrade.  
+**Amendment:** expansionssekvens §3.3–3.7 (samma dag) — UK deferred, NL parallell förberedelse.  
+**Amendment:** founder 2026-09-14 — produkttrial är **14 dagar** (inte 7); paywall från dag 15. §0, §3.1, §8, A4/A5.  
 **Nästa beslut:** fysisk IE-enhet (köp + restore) + founder-godkännande innan `market_ie_open`. NL förblir förberedelse ([`docs/nl-market-prep.md`](nl-market-prep.md)) tills NL:s egna gates är låsta.  
-**Oföränderligt:** launch-gate §0 · kommersiell modell §3.1 · IE-experiment §3.2 · acceptans A1–A13  
+**Oföränderligt tills nytt founder-beslut:** launch-gate §0 · kommersiell modell §3.1 · IE-experiment §3.2 · acceptans A1–A13  
 **Authority:** detta dokument + [`docs/adr/ADR-023-market-commercial-policy.md`](adr/ADR-023-market-commercial-policy.md)  
 **POS:** Constitution 2 (ingen överraskning trial→betalt), Constitution 5 (färdig registrering), R-02 (stjärnor inte köpbara), PA-01 (ingen ny coachyta), P-04 (ingen parent dashboard på Hem)
 
 Tre låsta nivåer: **förbereda** · **bygga** · **öppna**. Denna PR **bygger** IE-spåret. Den **öppnar** inget land.
 
-1. **Affärsmodell (nya marknader):** 7-dagars trial + betalningsvalidering. Sverige undantaget (grandfather + intro-år).
+1. **Affärsmodell (nya marknader):** 14-dagars trial + betalningsvalidering. Sverige undantaget (grandfather + intro-år).
 2. **Expansion:** förbered nästa marknad innan föregående är bevisad; öppna när **den marknadens** gates är klara. IE P0. NL parallell förberedelse. UK deferred. Inte en landkö.
 3. **Localization:** skalning efter **export-signal** (First Success utanför Sverige) — inte krav för IE, inte D30-krav, inte arkitektur-först.
 
@@ -19,7 +20,7 @@ Slå **inte** på `market_ie_open`, `market_fi_open`, `market_uk_open`, `market_
 
 ## 0. Det enda kommersiella launch-gate som räknas
 
-> **Ingen `market_ie_open` förrän en ny irländsk familj kan registrera sig, använda hela produkten i exakt 7 dagar, träffa paywall på dag 8, och genomföra ett verkligt köp på en fysisk enhet.**
+> **Ingen `market_ie_open` förrän en ny irländsk familj kan registrera sig, använda hela produkten i exakt 14 dagar, träffa paywall på dag 15, och genomföra ett verkligt köp på en fysisk enhet.**
 
 Kortet krävs **inte** vid registrering. Funneln är:
 
@@ -65,7 +66,7 @@ Sveriges IAP-go-live **får inte blockera** Irland. Irland och NL **får inte bl
 | UK legal sprint / representative / GB storefront / GBP | Founder: UK deferred |
 | Finsk UI (`fi-FI`) | FI-produktpolicy är `sv-SE` om/när FI öppnas |
 | Star-IAP, syskon-leaderboard, fjärde coach, Activation-expansion | Forbidden utan ADR |
-| Stacka 7 dagars produkttrial **plus** Apples 14-dagars IAP-intro på IE-SKU | Första dragningen skulle landa ~dag 21 |
+| Stacka 14 dagars produkttrial **plus** Apples 14-dagars IAP-intro på IE-SKU | Första dragningen skulle landa ~dag 28 |
 | FX-konvertera 59/590 SEK till euro | Portalmål redan €5.99 / €59.99 |
 | Kräva kort vid signup | Paid social: prova produkten först |
 | Röra grandfatherade / svenska intro-års-familjer | SE-spåret är separat |
@@ -89,7 +90,7 @@ Detta **försvagar inte** IE:s launch-gate i §0.
 
 Inte en serialiserad landkö. ADR-018:s `SE → IE → NO/DK → bulk EU → UK` är **delvis ersatt** av ADR-023. Jurisdiktion (land ≠ språk) i ADR-018 gäller fortfarande.
 
-Acceptanskriterierna A1–A13 (§15) är oförändrade. Launch-gaten i §0 är oförändrad.
+Acceptanskriterierna A1–A13 (§15) gäller med **14-dagars** trial (A4/A5). Launch-gaten i §0 är densamma formen, med 14 dagar / dag 15.
 
 ### 3.1 Kommersiell princip för nya marknader
 
@@ -102,7 +103,7 @@ För varje ny marknad som öppnas efter Sverige gäller, om inte en separat ADR 
 - Gratis appnedladdning.
 - Ingen kortuppgift vid registrering.
 - Full produktåtkomst under en kort produkttrial.
-- Default trial = **7 dagar**.
+- Default trial = **14 dagar**.
 - Efter trial krävs Premium för fortsatt full åtkomst.
 - Billing måste vara verifierad och användbar innan registrering tillåts i en öppen trial-marknad.
 - Store-priser ska vara lokala kommersiella priser, inte mekanisk FX-konvertering från SEK.
@@ -161,7 +162,7 @@ Irland ska **inte** öppnas med Sveriges intro-år.
 ```
 Ny IE-familj
 → registrering utan kort
-→ exakt 7 dagars full access
+→ exakt 14 dagars full access
 → ingen intro_year-entitlement
 → paywall från trial expiry
 → riktigt StoreKit/Play-köp
@@ -329,7 +330,7 @@ Dessa datum är **målbild**, inte normativa gates och inte override av §0 elle
 
 **14–20 september 2026**
 
-IE: storefront fix · named IAP SKU/priser · RevenueCat · market commercial policy · SE-only intro-year · IE 7-day trial · day-8 paywall · billing-ready registration invariant · country analytics · tester.
+IE: storefront fix · named IAP SKU/priser · RevenueCat · market commercial policy · SE-only intro-year · IE 14-day trial · day-15 paywall · billing-ready registration invariant · country analytics · tester.
 
 NL parallellt: market gate design / gap analysis · store availability · legal/store/pricing assessment · möjlighet att lansera på `en-GB` · analytics/support readiness.
 
@@ -402,10 +403,10 @@ Policy, inte land-if i UI. Default för **varje ny öppen marknad** (om/när den
 | Marknad | `entitlement` | `trial_days` | `requires_billing_ready` | Gate | Kommentar |
 |---------|--------------|--------------|---------------------------|------|-----------|
 | **SE** | `intro_year` | `0` | `false` | `market_se_open` (ON) | Signup tillåten via intro-år. `payment_start` = 2026-10-01. |
-| **IE** | `trial` | `7` | `true` | `market_ie_open` (OFF tills launch-gate) | Ingen intro-år. Ingen prebilling-år. |
-| **NL** | `trial` | `7` | `true` | `market_nl_open` **när den byggs** (OFF; finns inte som egen nyckel än) | Parallell förberedelse. Första test **kan** vara `en-GB`. **Inte** `market_eu_open`. |
-| **GB** | `trial` | `7` | `true` | `market_uk_open` (OFF) | **Deferred.** Samma kommersiella modell *när* UK återaktiveras. |
-| **FI, DE, AT, …** (om någonsin öppna) | `trial` | `7` | `true` | Per-land-flagga; **inte** `market_eu_open` | Inte Sveriges intro-år. Inte IE/FI-prebilling-året. |
+| **IE** | `trial` | `14` | `true` | `market_ie_open` (OFF tills launch-gate) | Ingen intro-år. Ingen prebilling-år. |
+| **NL** | `trial` | `14` | `true` | `market_nl_open` **när den byggs** (OFF; finns inte som egen nyckel än) | Parallell förberedelse. Första test **kan** vara `en-GB`. **Inte** `market_eu_open`. |
+| **GB** | `trial` | `14` | `true` | `market_uk_open` (OFF) | **Deferred.** Samma kommersiella modell *när* UK återaktiveras. |
+| **FI, DE, AT, …** (om någonsin öppna) | `trial` | `14` | `true` | Per-land-flagga; **inte** `market_eu_open` | Inte Sveriges intro-år. Inte IE/FI-prebilling-året. |
 
 `requires_billing_ready = true` betyder: öppen marknad + publik billing oanvändbar → **avvisa signup** (`MARKET_BILLING_NOT_READY`). Befintlig EN-sträng:
 
@@ -417,7 +418,7 @@ Sverige får **inte** den guarden. Intro-året gör kontot användbart utan köp
 
 ## 5. Varför `market_ie_open` inte får slås på idag
 
-**FACT (kod, 2026-09-14):** att öppna Irland med nuvarande resolver ger irländska familjer **Sveriges intro-år**, inte 7 dagars trial.
+**FACT (kod, 2026-09-14):** att öppna Irland med nuvarande resolver ger irländska familjer **Sveriges intro-år**, inte 14 dagars trial.
 
 | Mekanism | Vad koden gör idag |
 |----------|-------------------|
@@ -477,7 +478,7 @@ Gäller e-postregistrering **och** Apple/Google OAuth (`assertRegistrationMarket
 
 - Full Premium-ekvivalent access medan `now < trial_ends_at`
 - Ingen kortuppgift
-- Tydlig copy att det är **7 dagars** full access, därefter prenumeration (Constitution 2)
+- Tydlig copy att det är **14 dagars** full access, därefter prenumeration (Constitution 2)
 - Land `IE`, locale default `en-GB`, timezone `Europe/Dublin` (befintlig `market-config`)
 - Legal: `/en/eea/privacy`, `/en/eea/terms`, `/en/eea/child-privacy`, kontakt `/en/contact` — **inte** svenska `/privacy`
 
@@ -485,24 +486,24 @@ Engelsk landning får retargeta waitlist → `/register` när `signup_allowed.IE
 
 ---
 
-## 8. Trial — exakt 7 dagar
+## 8. Trial — exakt 14 dagar
 
 | Regel | Låsning |
 |-------|---------|
-| Längd | `trial_ends_at = created_at + 7 days` via Luxon `plus({ days: 7 })` i **familjens timezone** (IE-default `Europe/Dublin`) |
-| “Dag 8” | `now >= trial_ends_at` |
+| Längd | `trial_ends_at = created_at + 14 days` via Luxon `plus({ days: 14 })` i **familjens timezone** (IE-default `Europe/Dublin`) |
+| “Dag 15” | `now >= trial_ends_at` |
 | Klocka | Serverklocka. Inte klient. Inte civil midnatt-avrundning. |
 | Extra grace | **Ingen** |
 | Access under trial | Full produkt, samma ytor som betald Premium |
 | Lagring | **Beräknad** access (som gammalt prebilling), **inte** `intro_year`-rad. `access_kind = 'trial'` |
-| Admin 14-dagars `basic_trial_days` | Får **inte** styra IE. IE-policy är 7. |
-| `family_subscriptions` 14-dagars insert | Får inte vinna över IE-policy. Implementation får sluta inserta den för trial-marknader eller ignorera den i resolver — beteendet är 7 dagar. |
+| Admin `basic_trial_days` | Får **inte** styra IE. IE-policy är 14, ägd av `DEFAULT_TRIAL_DAYS`. |
+| `family_subscriptions` 14-dagars insert | Får inte vinna över IE-policy. Implementation får sluta inserta den för trial-marknader eller ignorera den i resolver — beteendet är 14 dagar. |
 
-Under trial: paywall **dold**. Ingen “subscribe now”-tryck som blockerar First Success. En diskret nedräkning/status är tillåten (Constitution 2: ingen överraskning på dag 8).
+Under trial: paywall **dold**. Ingen “subscribe now”-tryck som blockerar First Success. En diskret nedräkning/status är tillåten (Constitution 2: ingen överraskning på dag 15).
 
 ---
 
-## 9. Paywall dag 8
+## 9. Paywall dag 15
 
 Sessioner **dödas inte**. Nästa request och nästa app-lansering ser nytt läge.
 
@@ -569,8 +570,8 @@ Minst:
 | Ad / store in | källa, land |
 | Signup completed | `country_code = IE` |
 | First Success | befintlig milestone, per land |
-| Trial start / trial end | 7-dagars fönster |
-| Paywall shown | dag 8+ |
+| Trial start / trial end | 14-dagars fönster |
+| Paywall shown | dag 15+ |
 | Purchase / restore | store, plan (monthly/yearly) |
 | Early retention | t.ex. D1/D7, per land |
 
@@ -627,8 +628,8 @@ Kod kan inte rätta listingcopy. Detta är **launch blocker**.
 1. IE App Store-listing korrekt (människa).
 2. IE SKU/priser live (€5.99 / €59.99), ingen store-intro.
 3. Landpolicy: **inget intro-år i IE** (och default trial-policy för nya marknader).
-4. 7 dagars full produkt-trial utan kort.
-5. Dag-8-paywall (parent + barn enligt §9).
+4. 14 dagars full produkt-trial utan kort.
+5. Dag-15-paywall (parent + barn enligt §9).
 6. Payment-ready signup-invariant för `requires_billing_ready`.
 7. Fysiskt köp + restore i IE-konfig.
 8. Analytics per `country_code`.
@@ -652,8 +653,8 @@ Dessa är **låsta krav**. Denna PR implementerar kodspåret mot dem. Ingen mark
 | A1 | `market_ie_open=false` | Familj väljer IE vid register | Signup avvisas (marknad stängd). |
 | A2 | IE öppen, billing **av** | Register / Apple / Google | 403 `MARKET_BILLING_NOT_READY`. Ingen familjerad. |
 | A3 | IE öppen, billing **på** | Ny IE-familj | Ingen `intro_year`-rad. `access_kind=trial`. Full access. |
-| A4 | Ny IE-familj, `now = created_at + 7d − 1s` | Status | Paywall dold. Premium-ytor 200. |
-| A5 | Samma familj, `now = created_at + 7d` | Status / API | `requires_paywall=true`. Session kvar. |
+| A4 | Ny IE-familj, `now = created_at + 14d − 1s` | Status | Paywall dold. Premium-ytor 200. |
+| A5 | Samma familj, `now = created_at + 14d` | Status / API | `requires_paywall=true`. Session kvar. |
 | A6 | Limited förälder | Anrop utanför allowlist | 402 + `/paywall`. `/api/iap/*` fungerar. |
 | A7 | Limited barn | Rewards / universe / garden | 402. Daily-log first-star fungerar. Ingen IAP-yta. |
 | A8 | SE-familj efter `lifetime_free_until` | Register | Fortfarande intro-år. Billing-ready **inte** krav. Grandfather orörd. |

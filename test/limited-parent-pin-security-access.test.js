@@ -17,6 +17,7 @@ const {
   normalizePathname,
 } = require('../src/lib/limited-parent-security-access');
 const config = require('../src/lib/config');
+const { DEFAULT_TRIAL_DAYS } = require('../src/lib/market-commercial-policy');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -150,8 +151,8 @@ test('limited parent PIN security access integration A–I', async (t) => {
     const childRecord = JSON.parse(childBootstrapText);
 
     await db.query(
-      `UPDATE family SET created_at = NOW() - INTERVAL '8 days', updated_at = NOW() WHERE id = $1`,
-      [familyId]
+      `UPDATE family SET created_at = NOW() - ($2 * INTERVAL '1 day'), updated_at = NOW() WHERE id = $1`,
+      [familyId, DEFAULT_TRIAL_DAYS + 1]
     );
 
     await t.test('A: post-cutoff limited parent GET /api/family/parent-pin-status → 200', async () => {

@@ -30,7 +30,7 @@ Other live facts:
 
 | Topic | Today | Needed before NL open |
 |-------|-------|------------------------|
-| Commercial policy | Trial, 7 days, billing-ready (ADR-023 default) | Already inherited. Do not copy Sweden intro year. |
+| Commercial policy | Trial, 14 days, billing-ready (ADR-023 default) | Already inherited. Do not copy Sweden intro year. |
 | Timezone | Falls through `EU_REGION_DEFAULTS` → `Europe/Stockholm` | `Europe/Amsterdam` in `COUNTRY_DEFAULTS` when NL is built |
 | Currency | EUR via EU defaults | Local store `priceString`; portal targets stay €5.99 / €59.99 |
 | Locale | `en-GB` is supported; no `nl-NL` bundle | First NL test **may** use `en-GB`. `nl-NL` is not a prerequisite. |
@@ -46,8 +46,8 @@ Copy Ireland's commercial shape, then add NL-specific evidence. Draft — founde
 
 1. **Country gate** — `market_nl_open` exists, defaults OFF, is independent of `market_eu_open`.
 2. **Billing ready** — public billing usable before post-grandfather NL signup (`MARKET_BILLING_NOT_READY` otherwise).
-3. **Trial path** — new NL family gets computed 7-day trial, not `intro_year`.
-4. **Day-8 paywall** — same as IE: sessions remain; limited parent/child allowlists unchanged.
+3. **Trial path** — new NL family gets computed 14-day trial, not `intro_year`.
+4. **Day-15 paywall** — same as IE: sessions remain; limited parent/child allowlists unchanged.
 5. **Physical purchase + restore** on an NL storefront device; backend entitlement `access_kind=paid`.
 6. **Store availability** — App Store / Play NL listing, named SKUs, no stacked Apple/Google 14-day intro on the product trial.
 7. **Legal** — EEA English package reviewed for NL consumer/privacy claims. No new legal surface invented here.
