@@ -5,7 +5,6 @@ const assert = require('node:assert/strict');
 const {
   evaluateSignupCompleteness,
   isPublicBillingUsable,
-  BILLING_NOT_READY_CODE,
 } = require('../src/lib/market-launch-invariants');
 const { isPrebillingAccessActive } = require('../src/lib/payment-settings');
 const { setupTestDb } = require('./helpers/setup.js');
@@ -100,32 +99,35 @@ describe('IE/FI hold survives payment+UI without paid rollout', () => {
         marketOpen: true,
         publicBillingUsable: false,
         paymentStartAt: IE_CUTOFF,
+        lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
         now: BEFORE,
       });
       assert.equal(decision.allowed, true);
-      assert.equal(decision.reason, 'prebilling_launch_access');
+      assert.equal(decision.reason, 'intro_year');
     });
 
-    it(`${country} after cutoff blocks signup unless all three paid conditions are true`, () => {
-      const blocked = evaluateSignupCompleteness({
+    it(`${country} after cutoff still signs up via intro year without public billing`, () => {
+      const allowed = evaluateSignupCompleteness({
         countryCode: country,
         marketOpen: true,
         publicBillingUsable: false,
         paymentStartAt: IE_CUTOFF,
+        lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
         now: AFTER,
       });
-      assert.equal(blocked.allowed, false);
-      assert.equal(blocked.code, BILLING_NOT_READY_CODE);
+      assert.equal(allowed.allowed, true);
+      assert.equal(allowed.reason, 'intro_year');
 
       const paid = evaluateSignupCompleteness({
         countryCode: country,
         marketOpen: true,
         publicBillingUsable: true,
         paymentStartAt: IE_CUTOFF,
+        lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
         now: AFTER,
       });
       assert.equal(paid.allowed, true);
-      assert.equal(paid.reason, 'billing_usable');
+      assert.equal(paid.reason, 'intro_year');
     });
   }
 });

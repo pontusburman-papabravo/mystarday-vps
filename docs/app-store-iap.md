@@ -254,7 +254,9 @@ With both off, `GET /api/iap/config` returns `nativePurchasesEnabled: false` and
 
 ### Enabling billing later
 
-No DB migration is required. To go live: (1) confirm App Store Connect / Google Play Console / RevenueCat dashboard configuration matches §1 exactly, (2) remove/flip `BILLING_UI_DISABLED`, (3) set `app_settings.payment_enabled = true` via the admin UI. Both are simple configuration changes, not deploys.
+Go-live is scheduled for `payment_start_at` (`2026-10-01T00:00:00+02:00`). See `docs/runbooks/PAYMENTS-GO-LIVE-2026-10-01.md`.
+
+No DB migration is required. Before cutoff: (1) confirm App Store Connect / Google Play Console / RevenueCat dashboard configuration matches §1 exactly, (2) remove `BILLING_UI_DISABLED` from VPS env (this alone does not enable purchases). At cutoff the `payment-go-live` scheduler sets `payment_enabled` and `iap_paid_rollout_ready` if armed and IAP readiness is green. After a successful apply, the admin payment toggle is the live kill switch and will not be overwritten by the scheduler.
 
 ---
 

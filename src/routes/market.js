@@ -19,7 +19,7 @@ const {
   isPublicBillingUsable,
   evaluateSignupCompleteness,
 } = require('../lib/market-launch-invariants');
-const { getPaymentStartAt, getPaymentStartAtForCountry } = require('../lib/payment-settings');
+const { getPaymentStartAt, getPaymentStartAtForCountry, getLifetimeFreeUntil } = require('../lib/payment-settings');
 const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 
 const router = express.Router();
@@ -29,7 +29,7 @@ router.get('/registration-gates', async (req, res) => {
   try {
     const [
       se, ie, fi, no, dk, eu, uk, us, other,
-      publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable,
+      publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable, lifetimeFreeUntil,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
@@ -45,6 +45,7 @@ router.get('/registration-gates', async (req, res) => {
       getPaymentStartAtForCountry('IE'),
       getPaymentStartAtForCountry('FI'),
       isEnglishAppGlobalEnabled(),
+      getLifetimeFreeUntil(),
     ]);
     const now = new Date();
     const paymentStartByCountry = {
@@ -62,6 +63,7 @@ router.get('/registration-gates', async (req, res) => {
         marketOpen: open,
         publicBillingUsable,
         paymentStartAt: paymentStartByCountry[code],
+        lifetimeFreeUntil,
         now,
       }).allowed;
     }

@@ -26,6 +26,20 @@ async function setPaymentStart(iso) {
   await appSettings.upsertSetting('payment_start_at', iso);
 }
 
+async function expireIntroYearForEmail(email) {
+  const runtimeDb = require('../src/lib/db');
+  await runtimeDb.query(
+    `UPDATE family_entitlements fe
+     SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+     FROM parent p
+     WHERE p.email = $1
+       AND fe.family_id = p.family_id
+       AND fe.source = 'intro_year'
+       AND fe.revoked_at IS NULL`,
+    [email.toLowerCase()]
+  );
+}
+
 function reloadDbBoundModules() {
   for (const mod of [
     '../src/lib/db',
@@ -101,6 +115,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await setPaymentStart('2026-10-01T00:00:00+02:00');
   const appSettingsForMarkets = require('../db/app-settings');
+  await appSettingsForMarkets.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
   await appSettingsForMarkets.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
   await appSettingsForMarkets.upsertSetting('market_fi_payment_start_at', '2026-10-15T00:00:00+02:00');
 
@@ -113,19 +128,19 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1b IE family before Swedish cutoff → prebilling, not grandfathered', async () => {
+  await t.test('1b IE family before lifetime cutoff → grandfathered, not prebilling', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'IE');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'IE' });
-    assert.equal(row, null);
+    assert.ok(row);
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
       family.id,
-      new Date('2026-09-15T00:00:00+02:00')
+      new Date('2026-09-13T00:00:00+02:00')
     );
     assert.equal(premium.active, true);
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
   });
 
   await t.test('1c explicit IE grandfather row remains premium', async () => {
@@ -138,27 +153,60 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(premium.source, 'grandfathered');
   });
 
-  await t.test('1d FI family before Swedish cutoff → prebilling, not grandfathered', async () => {
+  await t.test('1d FI family before lifetime cutoff → grandfathered, not prebilling', async () => {
     const family = await createFamilyDirect(db, '2026-09-01T00:00:00+02:00', 'FI');
     const row = await grantGrandfatheredOnCreate(family.id, family.created_at, { countryCode: 'FI' });
-    assert.equal(row, null);
+    assert.ok(row);
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(
       family.id,
-      new Date('2026-09-15T00:00:00+02:00')
+      new Date('2026-09-13T00:00:00+02:00')
     );
     assert.equal(premium.active, true);
-    assert.equal(premium.source, 'prebilling');
-    assert.equal(premium.is_grandfathered, false);
+    assert.equal(premium.source, 'grandfathered');
+    assert.equal(premium.is_grandfathered, true);
     assert.equal(requires_paywall, false);
-    assert.equal(access_kind, 'prebilling');
+    assert.equal(access_kind, 'grandfathered');
   });
 
-  await t.test('2 family after cutoff → no access before valid entitlement', async () => {
+  await t.test('2 family after lifetime cutoff → intro year, then paywall after expiry', async () => {
     const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00', 'SE');
-    await syncAllLegacyMirrors(family.id, emptyPremium());
-    const { premium, requires_paywall } = await resolveFamilyEntitlements(family.id);
-    assert.equal(premium.active, false);
-    assert.equal(requires_paywall, true);
+    const during = new Date('2026-11-01T12:00:00+02:00');
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(family.id, during);
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'intro_year');
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'intro_year');
+
+    const afterYear = new Date('2027-11-02T00:00:00+02:00');
+    const expired = await resolveFamilyEntitlements(family.id, afterYear);
+    assert.equal(expired.premium.active, false);
+    assert.equal(expired.requires_paywall, true);
+    assert.equal(expired.access_kind, 'limited');
+  });
+
+  await t.test('lazy intro_year ends at created_at + 1y when first resolve is months later', async () => {
+    const { introYearExpiresAt } = require('../src/lib/payment-settings');
+    const family = await createFamilyDirect(db, '2026-09-14T08:00:00+02:00', 'SE');
+    const firstResolve = new Date('2026-12-01T12:00:00+02:00');
+    const expectedExpiry = introYearExpiresAt(family.created_at);
+    const resolveAnchoredExpiry = introYearExpiresAt(firstResolve);
+
+    const { premium, access_kind } = await resolveFamilyEntitlements(family.id, firstResolve);
+    assert.equal(access_kind, 'intro_year');
+    assert.equal(premium.active, true);
+    assert.equal(new Date(premium.starts_at).toISOString(), new Date(family.created_at).toISOString());
+    assert.equal(new Date(premium.expires_at).toISOString(), expectedExpiry.toISOString());
+    assert.notEqual(new Date(premium.expires_at).toISOString(), resolveAnchoredExpiry.toISOString());
+
+    const persisted = await db.query(
+      `SELECT starts_at, expires_at
+         FROM family_entitlements
+        WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+      [family.id]
+    );
+    assert.equal(persisted.rows.length, 1);
+    assert.equal(new Date(persisted.rows[0].starts_at).toISOString(), new Date(family.created_at).toISOString());
+    assert.equal(new Date(persisted.rows[0].expires_at).toISOString(), expectedExpiry.toISOString());
   });
 
   await t.test('3–6 store trial/active/grace/expired', async () => {
@@ -310,6 +358,8 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
 
   await t.test('33 expired family limited API gate', async () => {
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const appSettings = require('../db/app-settings');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
     const billingSnap = await enablePublicBillingForTest();
     delete require.cache[require.resolve('../app')];
     delete require.cache[require.resolve('../src/lib/db')];
@@ -317,6 +367,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     const http = await listenApp(createApp);
     try {
       const session = await registerAndLogin(http.baseUrl);
+      await expireIntroYearForEmail(session.email);
       const blocked = await fetch(`${http.baseUrl}/api/children`, {
         headers: { Cookie: cookieHeader(session.cookies) },
       });
@@ -327,6 +378,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       await http.close();
       await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     }
   });
 
@@ -351,6 +403,8 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(resolved.premium.active, false);
 
     await setPaymentStart('2020-01-01T00:00:00+02:00');
+    const appSettings = require('../db/app-settings');
+    await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
     const billingSnap = await enablePublicBillingForTest();
     process.env.REVENUECAT_SECRET_API_KEY = 'test-rc-secret';
     const originalFetch = global.fetch;
@@ -377,6 +431,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     const http = await listenApp(createApp);
     try {
       const session = await registerAndLogin(http.baseUrl);
+      await expireIntroYearForEmail(session.email);
       const syncRes = await fetch(`${http.baseUrl}/api/iap/sync`, {
         method: 'POST',
         headers: {
@@ -405,6 +460,7 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
       await http.close();
       await disablePublicBillingForTest(billingSnap);
       await setPaymentStart('2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     }
   });
 

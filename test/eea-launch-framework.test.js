@@ -72,7 +72,7 @@ test('market_ie_open OFF denies IE registration (B)', async (t) => {
   }
 });
 
-test('market_ie_open ON + billing OFF accepts IE during prebilling window', async (t) => {
+test('market_ie_open ON + billing OFF accepts IE (lifetime grandfather while cutoff is in the future)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -83,6 +83,7 @@ test('market_ie_open ON + billing OFF accepts IE during prebilling window', asyn
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15');
+  await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -95,11 +96,11 @@ test('market_ie_open ON + billing OFF accepts IE during prebilling window', asyn
       [email.toLowerCase()]
     );
     assert.equal(fam.rows[0].country_code, 'IE');
-    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].is_lifetime_free, true);
     const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
     const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
-    assert.equal(resolved.premium.source, 'prebilling');
-    assert.equal(resolved.premium.is_grandfathered, false);
+    assert.equal(resolved.premium.source, 'grandfathered');
+    assert.equal(resolved.premium.is_grandfathered, true);
     assert.equal(resolved.premium.active, true);
   } finally {
     await setMarketFlag(pg, 'market_ie_open', false);
@@ -108,7 +109,7 @@ test('market_ie_open ON + billing OFF accepts IE during prebilling window', asyn
   }
 });
 
-test('market_ie_open ON + billing OFF after payment_start rejects IE', async (t) => {
+test('market_ie_open ON + billing OFF after payment_start still accepts IE via intro year', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -119,15 +120,24 @@ test('market_ie_open ON + billing OFF after payment_start rejects IE', async (t)
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    const { res, body } = await registerCountry(http.baseUrl, 'IE');
-    assert.equal(res.status, 403, JSON.stringify(body));
-    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+    const { res, body, email } = await registerCountry(http.baseUrl, 'IE');
+    assert.equal(res.status, 201, JSON.stringify(body));
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+    const fam = await pg.query(
+      `SELECT f.id FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
+    assert.equal(resolved.premium.source, 'intro_year');
+    assert.equal(resolved.premium.active, true);
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+    await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     await setMarketFlag(pg, 'market_ie_open', false);
     await http.close();
     await db.cleanup();
@@ -212,7 +222,7 @@ test('market_fi_open OFF denies FI registration', async (t) => {
   }
 });
 
-test('market_fi_open ON + billing OFF accepts FI during prebilling window', async (t) => {
+test('market_fi_open ON + billing OFF accepts FI (lifetime grandfather while cutoff is in the future)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -223,6 +233,7 @@ test('market_fi_open ON + billing OFF accepts FI during prebilling window', asyn
   await setMarketFlag(pg, 'market_fi_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_fi_payment_start_at', '2026-10-15');
+  await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -235,11 +246,11 @@ test('market_fi_open ON + billing OFF accepts FI during prebilling window', asyn
       [email.toLowerCase()]
     );
     assert.equal(fam.rows[0].country_code, 'FI');
-    assert.equal(fam.rows[0].is_lifetime_free, false);
+    assert.equal(fam.rows[0].is_lifetime_free, true);
     const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
     const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
-    assert.equal(resolved.premium.source, 'prebilling');
-    assert.equal(resolved.premium.is_grandfathered, false);
+    assert.equal(resolved.premium.source, 'grandfathered');
+    assert.equal(resolved.premium.is_grandfathered, true);
   } finally {
     await setMarketFlag(pg, 'market_fi_open', false);
     await http.close();
@@ -514,6 +525,7 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   await setMarketFlag(pg, 'market_eu_open', false);
   const appSettings = require('../db/app-settings');
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
   const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');
@@ -521,6 +533,14 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   try {
     const { res, email } = await registerCountry(http.baseUrl, 'IE');
     assert.equal(res.status, 201, res.text);
+    await pg.query(
+      `UPDATE family_entitlements fe
+       SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+       FROM parent p
+       WHERE p.email = $1 AND fe.family_id = p.family_id
+         AND fe.source = 'intro_year' AND fe.revoked_at IS NULL`,
+      [email.toLowerCase()]
+    );
 
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
       method: 'POST',

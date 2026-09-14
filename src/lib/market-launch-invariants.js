@@ -5,7 +5,11 @@
  *
  * signup_allowed =
  *   market_open &&
- *   (SE grandfather path || IE/FI prebilling window || public billing usable)
+ *   (lifetime grandfather || intro year after lifetime_free_until)
+ *
+ * After the lifetime cutoff, open-market signup is always complete: the family
+ * receives one free year and does not need public billing to finish registration.
+ * IAP go-live (`payment_start_at`) is independent.
  *
  * publicBillingUsable =
  *   payment_enabled && !BILLING_UI_DISABLED && iap_paid_rollout_ready
@@ -20,8 +24,9 @@ const { isBillingUiEnabled } = require('./billing-ui');
 const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
 const {
   getPaymentStartAtForCountry,
+  getLifetimeFreeUntil,
+  DEFAULT_LIFETIME_FREE_UNTIL,
   isFamilyEligibleForGrandfathering,
-  isPrebillingLaunchWindowOpen,
 } = require('./payment-settings');
 const {
   isMarketOpenForRegistration,
@@ -49,7 +54,8 @@ async function isPublicBillingUsable() {
  *   countryCode: string,
  *   marketOpen: boolean,
  *   publicBillingUsable: boolean,
- *   paymentStartAt: Date|string,
+ *   paymentStartAt?: Date|string,
+ *   lifetimeFreeUntil?: Date|string,
  *   now?: Date,
  * }} input
  */
@@ -71,28 +77,17 @@ function evaluateSignupCompleteness(input) {
   }
 
   const now = input.now || new Date();
+  const lifetimeFreeUntil = input.lifetimeFreeUntil || DEFAULT_LIFETIME_FREE_UNTIL;
   const grandfatherEligible = isFamilyEligibleForGrandfathering({
     countryCode,
     createdAt: now,
-    paymentStartAt: input.paymentStartAt,
+    lifetimeFreeUntil,
   });
   if (grandfatherEligible) {
     return { allowed: true, reason: 'grandfather_eligible', code: null };
   }
 
-  if (isPrebillingLaunchWindowOpen(countryCode, now, input.paymentStartAt)) {
-    return { allowed: true, reason: 'prebilling_launch_access', code: null };
-  }
-
-  if (!input.publicBillingUsable) {
-    return {
-      allowed: false,
-      reason: 'billing_not_usable',
-      code: BILLING_NOT_READY_CODE,
-    };
-  }
-
-  return { allowed: true, reason: 'billing_usable', code: null };
+  return { allowed: true, reason: 'intro_year', code: null };
 }
 
 /**
@@ -101,16 +96,18 @@ function evaluateSignupCompleteness(input) {
  * @param {{ now?: Date }} [opts]
  */
 async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
-  const [marketOpen, publicBillingUsable, paymentStartAt] = await Promise.all([
+  const [marketOpen, publicBillingUsable, paymentStartAt, lifetimeFreeUntil] = await Promise.all([
     isMarketOpenForRegistration(countryCode),
     isPublicBillingUsable(),
     getPaymentStartAtForCountry(countryCode),
+    getLifetimeFreeUntil(),
   ]);
   return evaluateSignupCompleteness({
     countryCode,
     marketOpen,
     publicBillingUsable,
     paymentStartAt,
+    lifetimeFreeUntil,
     now: opts.now,
   });
 }

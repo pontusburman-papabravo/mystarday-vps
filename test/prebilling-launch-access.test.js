@@ -5,7 +5,7 @@
  */
 const { describe, it, test } = require('node:test');
 const assert = require('node:assert/strict');
-const { evaluateSignupCompleteness, BILLING_NOT_READY_CODE } = require('../src/lib/market-launch-invariants');
+const { evaluateSignupCompleteness } = require('../src/lib/market-launch-invariants');
 const {
   isFamilyEligibleForGrandfathering,
   isFamilyEligibleForPrebillingAccess,
@@ -33,6 +33,7 @@ function signup(countryCode, { open, billing, now, start }) {
     marketOpen: open,
     publicBillingUsable: billing,
     paymentStartAt: start,
+    lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
     now,
   });
 }
@@ -46,22 +47,22 @@ describe('canonical payment-start keys', () => {
 });
 
 describe('Sweden signup matrix', () => {
-  it('grandfather-eligible pre-cutoff with billing OFF', () => {
+  it('grandfather-eligible pre-lifetime-cutoff with billing OFF', () => {
     const r = signup('SE', { open: true, billing: false, now: BEFORE, start: SE_START });
     assert.equal(r.allowed, true);
     assert.equal(r.reason, 'grandfather_eligible');
   });
 
-  it('post-cutoff with billing OFF is rejected', () => {
+  it('post-lifetime-cutoff with billing OFF is intro year', () => {
     const r = signup('SE', { open: true, billing: false, now: AFTER_SE, start: SE_START });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, BILLING_NOT_READY_CODE);
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'intro_year');
   });
 
-  it('post-cutoff with billing ON is allowed', () => {
+  it('post-lifetime-cutoff with billing ON is still intro year', () => {
     const r = signup('SE', { open: true, billing: true, now: AFTER_SE, start: SE_START });
     assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'billing_usable');
+    assert.equal(r.reason, 'intro_year');
   });
 });
 
@@ -79,38 +80,38 @@ describe('Ireland + Finland signup matrix', () => {
       assert.match(r.code, /CLOSED/);
     });
 
-    it(`${code} open + prebilling window + billing OFF`, () => {
+    it(`${code} open + before lifetime cutoff + billing OFF`, () => {
       const r = signup(code, { open: true, billing: false, now: BEFORE, start: IE_FI_START });
       assert.equal(r.allowed, true);
-      assert.equal(r.reason, 'prebilling_launch_access');
+      assert.equal(r.reason, 'grandfather_eligible');
     });
 
-    it(`${code} open + prebilling window + billing ON`, () => {
+    it(`${code} open + before lifetime cutoff + billing ON`, () => {
       const r = signup(code, { open: true, billing: true, now: BEFORE, start: IE_FI_START });
       assert.equal(r.allowed, true);
-      assert.equal(r.reason, 'prebilling_launch_access');
+      assert.equal(r.reason, 'grandfather_eligible');
     });
 
     it(`${code} open + after payment_start + billing OFF`, () => {
       const r = signup(code, { open: true, billing: false, now: AFTER_IE_FI, start: IE_FI_START });
-      assert.equal(r.allowed, false);
-      assert.equal(r.code, BILLING_NOT_READY_CODE);
+      assert.equal(r.allowed, true);
+      assert.equal(r.reason, 'intro_year');
     });
 
     it(`${code} open + after payment_start + billing ON`, () => {
       const r = signup(code, { open: true, billing: true, now: AFTER_IE_FI, start: IE_FI_START });
       assert.equal(r.allowed, true);
-      assert.equal(r.reason, 'billing_usable');
+      assert.equal(r.reason, 'intro_year');
     });
   }
 });
 
 describe('eligibility isolation', () => {
-  it('never grandfathers IE/FI', () => {
+  it('grandfathers IE/FI registered before lifetime cutoff', () => {
     for (const code of ['IE', 'FI']) {
       assert.equal(isFamilyEligibleForGrandfathering({
-        countryCode: code, createdAt: CREATED_LAUNCH, paymentStartAt: SE_START,
-      }), false);
+        countryCode: code, createdAt: CREATED_LAUNCH, lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
+      }), true);
       assert.equal(isFamilyEligibleForPrebillingAccess({
         countryCode: code, createdAt: CREATED_LAUNCH, paymentStartAt: IE_FI_START,
       }), true);
@@ -164,6 +165,7 @@ test('resolver + API transition matrix', async (t) => {
   const runtimeDb = require('../src/lib/db');
   const appSettings = require('../db/app-settings');
   await appSettings.upsertSetting('payment_start_at', SE_START);
+  await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
   await appSettings.upsertSetting('market_fi_payment_start_at', IE_FI_START);
 
@@ -196,43 +198,39 @@ test('resolver + API transition matrix', async (t) => {
     assert.equal(fam.rows[0].is_lifetime_free, true);
   });
 
-  await t.test('SE post-cutoff family is limited until paid', async () => {
+  await t.test('SE post-cutoff family gets intro year', async () => {
     const family = await createFamily(CREATED_SE_POST, 'SE');
     await syncCreatedFamilyAccessMirrors(family.id, family.created_at, 'SE');
     const resolved = await resolveFamilyEntitlements(family.id, AFTER_SE);
-    assert.equal(resolved.premium.active, false);
-    assert.equal(resolved.requires_paywall, true);
-    assert.equal(resolved.access_kind, 'limited');
+    assert.equal(resolved.premium.active, true);
+    assert.equal(resolved.premium.source, 'intro_year');
+    assert.equal(resolved.requires_paywall, false);
+    assert.equal(resolved.access_kind, 'intro_year');
   });
 
   for (const code of ['IE', 'FI']) {
-    await t.test(`${code} launch family: access before / on / after payment start`, async () => {
+    await t.test(`${code} launch family registered before 14 Sep is grandfathered forever`, async () => {
       const family = await createFamily(CREATED_LAUNCH, code);
       const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      assert.equal(created.kind, 'prebilling');
+      assert.equal(created.kind, 'grandfathered');
 
       const before = await resolveFamilyEntitlements(family.id, BEFORE);
       assert.equal(before.premium.active, true);
-      assert.equal(before.premium.source, 'prebilling');
-      assert.equal(before.premium.is_grandfathered, false);
+      assert.equal(before.premium.source, 'grandfathered');
+      assert.equal(before.premium.is_grandfathered, true);
       assert.equal(before.requires_paywall, false);
-      assert.ok(before.premium.expires_at);
-
-      const onStartBillingOff = await resolveFamilyEntitlements(family.id, ON_IE_FI_START);
-      assert.equal(onStartBillingOff.premium.source, 'prebilling');
-      assert.equal(onStartBillingOff.requires_paywall, false);
 
       const afterBillingOff = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-      assert.equal(afterBillingOff.premium.source, 'prebilling');
+      assert.equal(afterBillingOff.premium.source, 'grandfathered');
       assert.equal(afterBillingOff.requires_paywall, false);
 
       const billingSnap = await enablePublicBillingForTest();
       try {
         const afterBillingOn = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-        assert.equal(afterBillingOn.premium.active, false);
-        assert.equal(afterBillingOn.premium.source, 'none');
-        assert.equal(afterBillingOn.requires_paywall, true);
-        assert.equal(afterBillingOn.access_kind, 'limited');
+        assert.equal(afterBillingOn.premium.active, true);
+        assert.equal(afterBillingOn.premium.source, 'grandfathered');
+        assert.equal(afterBillingOn.requires_paywall, false);
+        assert.equal(afterBillingOn.access_kind, 'grandfathered');
       } finally {
         await disablePublicBillingForTest(billingSnap);
       }
@@ -241,94 +239,35 @@ test('resolver + API transition matrix', async (t) => {
         'SELECT is_lifetime_free, subscription_status FROM family WHERE id = $1',
         [family.id]
       );
-      assert.equal(fam.rows[0].is_lifetime_free, false);
-      assert.equal(fam.rows[0].subscription_status, 'none');
+      assert.equal(fam.rows[0].is_lifetime_free, true);
     });
 
-    await t.test(`${code} store entitlement wins over computed prebilling`, async () => {
+    await t.test(`${code} store webhook skips grandfathered launch families`, async () => {
       const family = await createFamily(CREATED_LAUNCH, code);
       await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      await applyStoreEntitlementFromWebhook(family.id, {
+      const result = await applyStoreEntitlementFromWebhook(family.id, {
         subscriptionStatus: 'active',
         eventType: 'INITIAL_PURCHASE',
         event: { id: `evt_${code.toLowerCase()}`, period_type: 'NORMAL', store: 'APP_STORE' },
         productId: STORE_PRODUCT_MONTHLY,
         expirationAtMs: Date.now() + 7 * 86400000,
       });
+      assert.equal(result.skipped, true);
       const resolved = await resolveFamilyEntitlements(family.id, BEFORE);
-      assert.equal(resolved.premium.active, true);
-      assert.equal(resolved.premium.source, 'apple');
-      assert.equal(resolved.premium.is_grandfathered, false);
-      assert.equal(resolved.access_kind, 'paid');
+      assert.equal(resolved.premium.source, 'grandfathered');
+      assert.equal(resolved.access_kind, 'grandfathered');
     });
 
-    await t.test(`${code} cancellation keeps paid until expiry, then returns to prebilling in-window`, async () => {
-      const family = await createFamily(CREATED_LAUNCH, code);
-      await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      await applyStoreEntitlementFromWebhook(family.id, {
-        subscriptionStatus: 'active',
-        eventType: 'INITIAL_PURCHASE',
-        event: { id: `evt_${code.toLowerCase()}_buy`, period_type: 'NORMAL', store: 'APP_STORE' },
-        productId: STORE_PRODUCT_MONTHLY,
-        expirationAtMs: Date.now() + 7 * 86400000,
-      });
-
-      await applyStoreEntitlementFromWebhook(family.id, {
-        subscriptionStatus: 'active',
-        eventType: 'CANCELLATION',
-        event: { id: `evt_${code.toLowerCase()}_cancel`, period_type: 'NORMAL', store: 'APP_STORE' },
-        productId: STORE_PRODUCT_MONTHLY,
-        expirationAtMs: Date.now() + 3 * 86400000,
-      });
-      const cancelled = await resolveFamilyEntitlements(family.id, BEFORE);
-      assert.equal(cancelled.premium.source, 'apple');
-      assert.equal(cancelled.access_kind, 'paid');
-      assert.equal(cancelled.premium.is_grandfathered, false);
-
-      await applyStoreEntitlementFromWebhook(family.id, {
-        subscriptionStatus: 'expired',
-        eventType: 'EXPIRATION',
-        event: { id: `evt_${code.toLowerCase()}_exp`, period_type: 'NORMAL', store: 'APP_STORE' },
-        productId: STORE_PRODUCT_MONTHLY,
-        expirationAtMs: Date.now() - 1000,
-      });
-      const expiredInWindow = await resolveFamilyEntitlements(family.id, BEFORE);
-      assert.equal(expiredInWindow.premium.source, 'prebilling');
-      assert.equal(expiredInWindow.access_kind, 'prebilling');
-      assert.equal(expiredInWindow.requires_paywall, false);
-      assert.equal(expiredInWindow.premium.is_grandfathered, false);
-
-      const heldAfterCutoff = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-      assert.equal(heldAfterCutoff.premium.source, 'prebilling');
-      assert.equal(heldAfterCutoff.requires_paywall, false);
-
-      const billingSnap = await enablePublicBillingForTest();
-      try {
-        const afterPaidStart = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-        assert.equal(afterPaidStart.premium.active, false);
-        assert.equal(afterPaidStart.premium.source, 'none');
-        assert.equal(afterPaidStart.access_kind, 'limited');
-        assert.equal(afterPaidStart.requires_paywall, true);
-        const fam = await runtimeDb.query(
-          'SELECT is_lifetime_free FROM family WHERE id = $1',
-          [family.id]
-        );
-        assert.equal(fam.rows[0].is_lifetime_free, false);
-      } finally {
-        await disablePublicBillingForTest(billingSnap);
-      }
-    });
-
-    await t.test(`${code} family created after paid-start never gets computed prebilling`, async () => {
+    await t.test(`${code} family created after lifetime cutoff gets intro year`, async () => {
       const family = await createFamily(CREATED_IE_POST, code);
       const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      assert.equal(created.kind, 'limited');
+      assert.equal(created.kind, 'intro_year');
       const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-      assert.equal(resolved.premium.active, false);
-      assert.equal(resolved.access_kind, 'limited');
-      assert.equal(resolved.requires_paywall, true);
-      assert.notEqual(resolved.premium.source, 'prebilling');
-      assert.notEqual(resolved.premium.source, 'grandfathered');
+      assert.equal(resolved.premium.active, true);
+      assert.equal(resolved.access_kind, 'intro_year');
+      assert.equal(resolved.requires_paywall, false);
+      assert.equal(resolved.premium.source, 'intro_year');
+      assert.equal(resolved.premium.is_grandfathered, false);
     });
   }
 

@@ -39,4 +39,4 @@ Sandbox QA requires **both** `REVENUECAT_SANDBOX_PURCHASES_ENABLED=true` and fam
 
 ## Readiness
 
-`GET /health` includes `iap_readiness`, `iap_native_ios_ready`, `iap_native_android_ready`, `iap_sandbox_ready`, `iap_paid_rollout_ready` (boolean flags only; paid rollout stays false until global flags allow purchases).
+`GET /health` includes `iap_readiness`, `iap_native_ios_ready`, `iap_native_android_ready`, `iap_sandbox_ready`, `iap_paid_rollout_ready`, and `payment_go_live` (action/blockers/armed/cutoff; no secrets). Paid rollout stays false until the 1 Oct go-live scheduler applies or flags are set by hand.

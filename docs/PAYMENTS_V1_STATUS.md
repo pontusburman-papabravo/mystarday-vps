@@ -2,7 +2,7 @@
 
 **PR #1050 is merged to `main`.** The live-deployed app is currently running `main` HEAD with this code shipped. See `docs/app-store-iap.md` for the full architecture writeup and `docs/PAYMENTS_STORE_COMPLIANCE.md` for the store-configuration checklist.
 
-**Current live state: READY BUT OFF.** `app_settings.payment_enabled = false`, `BILLING_UI_DISABLED = true`, `payment_start_at = 2026-10-01T00:00:00+02:00`. No normal live-app user can reach a real Apple/Google purchase (see "Kill switches" below). All entitlement/webhook/sync backend code is shipped and covered by automated tests.
+**Current live state: READY BUT OFF until 1 October 2026 00:00 Europe/Stockholm.** `app_settings.payment_enabled = false`, `iap_paid_rollout_ready = false`, `BILLING_UI_DISABLED` still a hard env kill switch. `payment_start_at = 2026-10-01T00:00:00+02:00`. The `payment-go-live` scheduler applies payment + paid-rollout at cutoff when armed (default on) and RevenueCat readiness is green. It will **not** override `BILLING_UI_DISABLED`. See `docs/runbooks/PAYMENTS-GO-LIVE-2026-10-01.md`. No normal live-app user can reach a real Apple/Google purchase until that apply succeeds. All entitlement/webhook/sync backend code is shipped and covered by automated tests.
 
 ## Done (code, shipped)
 
@@ -61,4 +61,5 @@ See `PAYMENTS_STORE_COMPLIANCE.md`.
 1. App Store Connect / Google Play Console / RevenueCat dashboard configuration (external — outside this repo)
 2. A fresh iOS build (IAP capability) and Android AAB (manifest launch-mode fix) once store products exist
 3. A real sandbox purchase → webhook → `/api/iap/sync` on both platforms, with results recorded in `PAYMENTS_V1_SANDBOX_E2E_RUN_LOG.md`
-4. Only after all of the above: flip `app_settings.payment_enabled = true` and remove `BILLING_UI_DISABLED` — both are config-only changes, no redeploy or migration required
+4. **Before 1 Oct:** remove `BILLING_UI_DISABLED` from VPS env and confirm `/health` `payment_go_live.blockers` is empty. Do **not** flip `payment_enabled` by hand unless you are aborting.
+5. **At 1 Oct 00:00 Stockholm:** scheduler sets `payment_enabled` + `iap_paid_rollout_ready`. If sandbox E2E is still missing, **disarm** go-live in admin rather than hoping. New SE signup dies at cutoff while billing is unusable — that is intentional fail-closed, not a reason to force purchases.

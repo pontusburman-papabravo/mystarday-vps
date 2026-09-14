@@ -120,6 +120,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810480000000_lifetime_free_until_intro_year': {
+    backwardCompatible: true,
+    allowedBusinessTableFingerprintChanges: ['family'],
+  },
 };
 
 /**

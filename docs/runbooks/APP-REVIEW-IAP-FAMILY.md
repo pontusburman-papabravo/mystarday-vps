@@ -40,7 +40,8 @@ Create (or verify) one family that is **all** of:
 - not `is_lifetime_free`
 - no active store/gift/admin Premium row
 - can log in with email/password (do not depend on public registration remaining open — seed the parent server-side)
-- `country_code` **not** `SE` **or** `created_at` after `payment_start_at`, so Swedish cutoff grandfathering cannot apply
+- `created_at` on or after `lifetime_free_until` (2026-09-14 00:00 Europe/Stockholm) so they are not lifetime-grandfathered
+- intro-year row expired or absent (first year already used), so Swedish IAP go-live date is not enough by itself
 
 Store credentials only in the approved secret store (suggested names: `APP_REVIEW_IAP_EMAIL`, `APP_REVIEW_IAP_PASSWORD`). Never commit them.
 

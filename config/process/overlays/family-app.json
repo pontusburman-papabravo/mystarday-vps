@@ -120,13 +120,18 @@
         "public/js/paywall*.js",
         "public/js/revenuecat*.js",
         "docs/app-store-iap.md",
-        "docs/PAYMENTS_V1_STATUS.md"
+        "docs/PAYMENTS_V1_STATUS.md",
+        "docs/runbooks/PAYMENTS-GO-LIVE-2026-10-01.md",
+        "src/lib/payment-go-live.js",
+        "src/lib/payment-go-live-scheduler.js",
+        "src/lib/iap-paid-rollout.js"
       ],
       "l1Tests": [
         "test/iap-config-route.test.js",
         "test/paywall-model-contract.test.js",
         "test/iap-webhook.test.js",
-        "test/iap-app-review-eligibility.test.js"
+        "test/iap-app-review-eligibility.test.js",
+        "test/payment-go-live.test.js"
       ],
       "testGlobs": [
         "test/iap*.test.js",
@@ -139,7 +144,10 @@
         "test/prebilling-launch-access.test.js",
         "test/prebilling-market-e2e.test.js",
         "test/paid-transition.test.js",
-        "test/paid-transition-simulation.test.js"
+        "test/paid-transition-simulation.test.js",
+        "test/payment-go-live.test.js",
+        "test/payment-go-live-apply.test.js",
+        "test/paid-rollout-runtime-gate.test.js"
       ]
     },
     "i18n-markets-legal": {

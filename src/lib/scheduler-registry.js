@@ -20,6 +20,7 @@ const {
   CHILD_HANDOFF_REMINDER_LOCK_ID,
   ACTIVATION_PROGRAM_SCHEDULER_LOCK_ID,
   GROWTH_SYSTEM_HELP_OPS_REPORT_LOCK_ID,
+  PAYMENT_GO_LIVE_LOCK_ID,
 } = require('./scheduler-constants');
 
 /** @type {Array<{ id: string, start: string, stop: string, advisoryLockId?: number }>} */
@@ -39,6 +40,7 @@ const SCHEDULER_REGISTRY = [
   { id: 'journey-push', start: 'startJourneyPushScheduler', stop: 'stopJourneyPushScheduler', advisoryLockId: JOURNEY_PUSH_LOCK_ID },
   { id: 'journey-daily-analysis', start: 'startJourneyDailyAnalysisScheduler', stop: 'stopJourneyDailyAnalysisScheduler', advisoryLockId: JOURNEY_DAILY_ANALYSIS_LOCK_ID },
   { id: 'growth-system-help-ops', start: 'startGrowthSystemHelpOpsScheduler', stop: 'stopGrowthSystemHelpOpsScheduler', advisoryLockId: GROWTH_SYSTEM_HELP_OPS_REPORT_LOCK_ID },
+  { id: 'payment-go-live', start: 'startPaymentGoLiveScheduler', stop: 'stopPaymentGoLiveScheduler', advisoryLockId: PAYMENT_GO_LIVE_LOCK_ID },
 ];
 
 module.exports = {
