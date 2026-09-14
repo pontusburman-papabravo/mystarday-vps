@@ -53,6 +53,7 @@ test('campaign page uses existing store placeholders, tracking, and screenshots'
   assert.match(html, /data-track="play_store_click"/);
   assert.match(html, /\/js\/landing-events\.js/);
   assert.match(html, /\/js\/utm-capture\.js/);
+  assert.match(html, /\/js\/marketing-events\.js/);
   assert.doesNotMatch(html, /landing-login-choice/);
   assert.match(html, /vardagsrutiner-bildstod\.png/);
   assert.match(html, /morgonschema-bildstod\.png/);
@@ -73,6 +74,14 @@ test('campaign page is not SEO-indexable', () => {
   assert.equal(isSeoIndexable('/kampanj/host-2026'), false);
   assert.equal(SEO_INDEXABLE_PATHS.has('/kampanj/host-2026'), false);
   assert.ok(SEO_CRAWL_DISALLOW_PATHS.includes('/kampanj'));
+});
+
+test('Google Ads bots are allowed to crawl /kampanj', () => {
+  const { ADSBOT_USER_AGENTS, buildRobotsTxt } = require('../src/lib/seo-pages');
+  const txt = buildRobotsTxt();
+  for (const agent of ADSBOT_USER_AGENTS) {
+    assert.match(txt, new RegExp(`User-agent: ${agent}\\nAllow: /kampanj`));
+  }
 });
 
 test('homepage has isolated removable campaign CTA', () => {
@@ -107,6 +116,7 @@ test('GET /kampanj/host-2026 serves campaign HTML with store links', async () =>
     assert.match(body, /\/tyck\/host-2026/);
     assert.match(body, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(body, /play\.google\.com\/store\/apps\/details\?id=/);
+    assert.match(body, /\/js\/marketing-events\.js/);
     assert.doesNotMatch(body, /landing-login-choice/);
     assert.match(body, /noindex/);
   } finally {

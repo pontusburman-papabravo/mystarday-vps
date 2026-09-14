@@ -140,6 +140,14 @@ test('robots.txt disallows app routes like activities and notifications', () => 
   assert.equal(txt.trimEnd().endsWith(`Sitemap: ${SITE_URL}/sitemap.xml`), true);
 });
 
+test('robots.txt allows AdsBot to crawl paid campaign landings', () => {
+  const { buildRobotsTxt } = require('../src/lib/seo-pages');
+  const txt = buildRobotsTxt();
+  assert.match(txt, /Disallow: \/kampanj/);
+  assert.match(txt, /User-agent: AdsBot-Google\nAllow: \/kampanj/);
+  assert.match(txt, /User-agent: AdsBot-Google-Mobile\nAllow: \/kampanj/);
+});
+
 test('injectPlatformHtml sets noindex on app pages', () => {
   const html = '<!DOCTYPE html><html><head></head><body></body></html>';
   const { injectPlatformHtml } = require('../src/middleware/platform-html');

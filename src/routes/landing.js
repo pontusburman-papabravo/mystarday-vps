@@ -207,7 +207,7 @@ router.get('/en', async (req, res) => {
   }
 });
 
-// ─── GET /kampanj/host-2026 — Meta campaign landing (remove after 2026-09-30)
+// ─── GET /kampanj/host-2026 — paid landing (Meta + Google Ads; remove after 2026-09-30)
 router.get('/kampanj/host-2026', (req, res) => {
   const served = serveCampaignHtml(res, 'kampanj-host-2026.html');
   if (!served) {
