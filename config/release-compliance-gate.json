@@ -204,6 +204,6 @@
     "iosProjectFile": "ios/App/App.xcodeproj/project.pbxproj",
     "androidVersionFile": "assets/play-store/android-version.json",
     "androidSdkFile": "assets/play-store/android-sdk.json",
-    "closedIosMarketingVersions": ["1.4.3"]
+    "closedIosMarketingVersions": ["1.4.3", "1.4.4"]
   }
 }
