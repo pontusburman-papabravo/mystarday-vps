@@ -1,5 +1,7 @@
 # IE/FI legal — REVIEW_REQUIRED (not authored in the readiness PR)
 
+Ireland product/commercial launch authority: [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md). This file is still **not** legal approval.
+
 These items were **not** invented as new legal text. They remain founder/legal review:
 
 | Item | Why |

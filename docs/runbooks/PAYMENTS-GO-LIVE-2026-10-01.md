@@ -2,11 +2,13 @@
 
 Slå **inte** på betalning nu. IAP-cutoff är `payment_start_at` = `2026-10-01T00:00:00+02:00` (00:00 Europe/Stockholm).
 
-Livstidsgratis är ett **annat** datum: `lifetime_free_until` = `2026-09-14T00:00:00+02:00`. Alla familjer skapade **före** det ögonblicket (t.o.m. 13 september 2026, alla länder) är grandfatherade. Familjer som registrerar sig från 14 september får **1 år gratis** från registreringsögonblicket, därefter IAP.
+Livstidsgratis är ett **annat** datum: `lifetime_free_until` = `2026-09-14T00:00:00+02:00`. Alla familjer skapade **före** det ögonblicket (t.o.m. 13 september 2026, alla länder) är grandfatherade. Familjer som registrerar sig från 14 september **i Sverige** (intro-år-policy) får **1 år gratis** från registreringsögonblicket, därefter IAP.
 
 Nya öppna-marknad-konton blockeras **inte** av `MARKET_BILLING_NOT_READY` mellan 14 september och 1 oktober — intro-året gör kontot användbart utan köpväg.
 
 Detta öppnar **inte** Irland/Finland (`market_ie_open` / `market_fi_open` ska fortsätta vara AV tills separat beslut).
+
+Irland är **inte** intro-år. Ny IE-familj ska få 7 dagars trial + billing-ready, se [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md) och [ADR-023](../adr/ADR-023-market-commercial-policy.md). Detta runbook rör **Sveriges** IAP 1 oktober.
 
 ## Vad servern gör automatiskt
 

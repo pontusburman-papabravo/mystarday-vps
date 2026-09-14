@@ -1,5 +1,7 @@
 # IE / FI App Store metadata
 
+> **Partial refresh 2026-09-14:** IE listing name is English (`My Starday: Family Routines`), download **free**, but description still says the app is currently available in Sweden. Screenshots may still be Swedish UI. Human ASC work remains P0 in [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) §12.
+
 External App Store Connect task. This file does not change listing copy in code.
 
 Fetched **2026-08-31** from public iTunes lookup `id=6774493098`.

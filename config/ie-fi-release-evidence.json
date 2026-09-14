@@ -22,7 +22,9 @@
     "Committed JSON never grants READY_TO_OPEN or PAID_ROLLOUT_READY.",
     "unit_tests_pass must never promote READY_TO_OPEN, BILLING_CONFIGURATION_READY, or PAID_ROLLOUT_READY.",
     "Flip founder_open_approved_* only as an explicit ops decision. This file is not a live flag.",
+    "Ireland launch authority: docs/ie-paid-launch-kravspec.md + ADR-023. PREBILLING_MARKET_READY is not permission to open IE.",
     "Do not set market_ie_open or market_fi_open from this evidence file.",
-    "APPLE_DOWNLOAD_PRICE stays REVIEW_REQUIRED until App Store Connect is checked."
+    "APPLE_DOWNLOAD_PRICE stays REVIEW_REQUIRED until App Store Connect is checked.",
+    "apple_paid_download_unresolved_p0 reflects the 2026-08-31 scrape. Public lookup 2026-09-14 showed free IE/FI download; ASC remains the source of truth."
   ]
 }

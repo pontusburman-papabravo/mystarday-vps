@@ -2,6 +2,8 @@
 
 **This document is a product and technical readiness assessment, not legal advice.**
 
+> Ireland paid-launch commercial policy (2026-09-14): [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md), [ADR-023](adr/ADR-023-market-commercial-policy.md). This assessment does not authorize `market_ie_open`.
+
 ## Locked model (ADR-018)
 
 | Concept | Canonical store | Values |

@@ -1,5 +1,8 @@
 # Ireland / Finland release gates
 
+> **AUTHORITY (2026-09-14):** Ireland paid launch = [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) + [ADR-023](adr/ADR-023-market-commercial-policy.md).  
+> `PREBILLING_MARKET_READY` is **not** permission to open Ireland. IE requires 7-day trial + billing-ready + physical purchase **before** `market_ie_open`.
+
 Do **not** flip `market_ie_open`, `market_fi_open`, or public billing from this document.
 
 These states must stay separate. Print them with `npm run ie-fi:release-gates`.
@@ -18,7 +21,8 @@ These states must stay separate. Print them with `npm run ie-fi:release-gates`.
 Rules:
 
 - A closed market does not become `READY_TO_OPEN` because unit tests pass.
-- An open prebilling market does not require `BILLING_READY`.
+- An open prebilling market does not require `BILLING_READY` *(historical FI/IE prebilling path — not the Ireland 2026-09-14 launch model)*.
+- Ireland must not reach `READY_TO_OPEN` while public billing is unusable.
 - Paid rollout requires external / store / device evidence in `config/ie-fi-release-evidence.json`.
 - That evidence file is not a live flag. `founder_open_approved_*` stays `false` until an explicit ops decision.
 

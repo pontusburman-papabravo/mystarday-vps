@@ -2,6 +2,7 @@
 
 **Status:** Founder sign-off complete (20 Aug 2026). **LDRA-A3 + A4 closed** (20 Aug 2026, VPS verification). **Not externally legally verified.**  
 **Scope:** Ireland launch legal/compliance — **no product behaviour changes, no gates, no deploy** in this track  
+**Commercial launch (separate):** [`docs/ie-paid-launch-kravspec.md`](../../ie-paid-launch-kravspec.md) — reuse these registers; do not rewrite the product.  
 **Source of truth for behaviour:** live deployed codebase + deployed architecture (not aspirational policy)
 
 **Sign-off model:** Internal risk acceptance — **not externally legally verified**. See [`TRACK-1-SELF-SIGNOFF-REPORT.md`](./TRACK-1-SELF-SIGNOFF-REPORT.md).

@@ -10,7 +10,7 @@
 
 Minimum reusable EEA launch foundation to launch **Ireland later** without opening Ireland in this PR.
 
-Wave order: **SE → IE → NO → DK → UK**
+Wave order *(superseded for commercial sequencing 2026-09-14 — [ADR-023](adr/ADR-023-market-commercial-policy.md), [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md)):* historical **SE → IE → NO → DK → UK**. Ireland is a paid 7-day-trial experiment, not the next free-intro country.
 
 This PR makes the product **Ireland-capable but Ireland-closed**. `P-IE-LAUNCH` is a separate release (legal copy, compliance sign-off, stores, `market_ie_open ON`).
 
