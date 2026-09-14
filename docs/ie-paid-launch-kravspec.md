@@ -1,19 +1,19 @@
 # Irland — betald lansering (kravspecifikation)
 
-**Status:** DECIDED / CANONICAL — 2026-09-14 (inkl. §3.1–3.5)  
-**Nästa beslut:** founder **GO för implementation mot denna spec**. Ingen ytterligare strategisk omskrivning.  
-**Implementation:** FROZEN tills GO. Denna PR innehåller **ingen produktkod**.  
-**Oföränderligt i denna lock:** launch-gate §0 · kommersiell princip §3.1–3.5 · acceptans A1–A13  
+**Status:** DECIDED / CANONICAL — 2026-09-14  
+**Amendment:** expansionssekvens §3.3–3.7 (samma dag) — UK deferred, NL parallell förberedelse. §0 och A1–A13 oförändrade.  
+**Nästa beslut:** founder **GO för IE-implementation mot denna spec**. NL-förberedelse (gap-analys) får ske parallellt. Ingen produktkod i denna PR.  
+**Oföränderligt:** launch-gate §0 · kommersiell modell §3.1 · IE-experiment §3.2 · acceptans A1–A13  
 **Authority:** detta dokument + [`docs/adr/ADR-023-market-commercial-policy.md`](adr/ADR-023-market-commercial-policy.md)  
 **POS:** Constitution 2 (ingen överraskning trial→betalt), Constitution 5 (färdig registrering), R-02 (stjärnor inte köpbara), PA-01 (ingen ny coachyta), P-04 (ingen parent dashboard på Hem)
 
 Tre låsta nivåer:
 
 1. **Affärsmodell (nya marknader):** 7-dagars trial + betalningsvalidering. Sverige undantaget (grandfather + intro-år).
-2. **Expansion:** två parallella spår (A English / B locale), inte en landkö.
-3. **Localization:** senare skalning — inte krav för IE.
+2. **Expansion:** förbered nästa marknad innan föregående är bevisad; öppna när **den marknadens** gates är klara. IE P0. NL parallell förberedelse. UK deferred. Inte en landkö.
+3. **Localization:** skalning efter **export-signal** (First Success utanför Sverige) — inte krav för IE, inte D30-krav, inte arkitektur-först.
 
-Slå **inte** på `market_ie_open`, `market_fi_open`, `market_uk_open` eller `market_eu_open` från detta dokument.
+Slå **inte** på `market_ie_open`, `market_fi_open`, `market_uk_open`, `market_nl_open` eller `market_eu_open` från detta dokument.
 
 ---
 
@@ -50,7 +50,7 @@ Irland är ett **betalt kommersiellt experiment** på engelska, inte en “öppn
 3. Göra kommersiell policy **policy-driven** (per marknad), inte `if (country === 'IE')` utspritt i koden.
 4. Inte skapa konton som familjen inte kan använda (Constitution 5).
 
-Sveriges IAP-go-live **får inte blockera** Irland. Irlands betalflöde **får inte blockeras** av UK-juridik.
+Sveriges IAP-go-live **får inte blockera** Irland. Irland och NL **får inte blockera** SE. UK-juridik **får inte** dra resurser nu (UK är deferred).
 
 ---
 
@@ -60,9 +60,10 @@ Sveriges IAP-go-live **får inte blockera** Irland. Irlands betalflöde **får i
 |------|--------|
 | Bygga entitlement/trial/paywall-kod i denna PR | Krav först |
 | Slå på `market_ie_open` | Launch-gate ovan |
-| Öppna FI, NO, DK, NL, DE, AT, FR, ES, GB, US | Separata gates + evidens |
+| Öppna FI, NO, DK, NL, DE, AT, FR, ES, GB, US | Separata gates + evidens. NL-**förberedelse** är tillåten; NL-**öppning** är det inte från denna PR |
 | `market_eu_open` | Skulle öppna flera länder på en gång |
-| Lokaliseringsplattform, `nb-NO`, `da-DK`, `de-DE`, `nl-NL` | Spår B efter IE-evidens |
+| Lokaliseringsplattform / `de-DE` / `nl-NL` före export-signal | Skalning efter First Success utanför SE — inte IE-krav |
+| UK legal sprint / representative / GB storefront / GBP | Founder: UK deferred |
 | Finsk UI (`fi-FI`) | FI-produktpolicy är `sv-SE` om/när FI öppnas |
 | Star-IAP, syskon-leaderboard, fjärde coach, Activation-expansion | Forbidden utan ADR |
 | Stacka 7 dagars produkttrial **plus** Apples 14-dagars IAP-intro på IE-SKU | Första dragningen skulle landa ~dag 21 |
@@ -72,20 +73,24 @@ Sveriges IAP-go-live **får inte blockera** Irland. Irlands betalflöde **får i
 
 ---
 
-## 3. Strategi — två parallella spår, inte en landlista
+## 3. Strategi — parallell förberedelse, egna gates
+
+> **Förbered nästa marknad innan föregående är bevisad. Öppna nästa marknad när dess egna gates är klara. Investera tungt i ett nytt språk först när vi sett att produkten exporterar.**
+
+Detta **försvagar inte** IE:s launch-gate i §0.
 
 | Spår | Vad | När |
 |------|-----|-----|
-| **SE** | Nuvarande modell. IAP go-live **2026-10-01**. Grandfather + intro-år oförändrade. | Separat. Får inte blockera IE. |
-| **A — English** | Irland live som **betalt** experiment. UK legal/store/representant **i parallell**, men UK får **inte** stjäla ingenjörstid från IE-betalflödet. UK får gå live när *UK:s* gates är klara, oberoende av NL/DE. | IE P0. UK P1 (docs/ops, inte produktomskrivning). |
-| **B — Locale** | Ingen lokaliseringsplattform förrän Irland visar **exportbar First Success och en riktig betalningssignal**. Därefter per-land-gates (inte `market_eu_open`) → NL, gärna `en-GB` först → plattform → `de-DE` → DE+AT. | Efter IE-evidens, inte kalender. |
+| **SE** | Nuvarande modell. IAP go-live **2026-10-01**. Grandfather + intro-år oförändrade. | Separat. Får inte blockera IE/NL. |
+| **IE (P0)** | Första betalda internationella experimentet. 7-dagars trial. | Implementation mot spec efter founder GO. Flagga efter §0. |
+| **NL (parallell förberedelse)** | Gap-analys, egen `market_nl_open` (när den byggs), store/legal/pricing, ev. `en-GB` som första test. **Inte** automatisk öppning. | Parallellt med IE P0. Öppna när **NL:s** gates är klara. Inte D30 från IE. |
+| **Locale / DE+AT** | Localization foundation + `de-DE` efter export-signal (First Success i IE och/eller NL). | Efter export-signal, inte efter perfekt IE-kohort. |
+| **UK** | **Deferred** by founder (Children’s Code, UK GDPR, representative, ICO, consumer law). | Återupptas bara via senare explicit founder-beslut. |
 | **FI / NO / DK** | Inget arbete bara för geografi eller språknärhet. | — |
 
-Detta är en **kommersiell experimentmaskin för nya marknader**, inte en översättningsplan.
+Inte en serialiserad landkö. ADR-018:s `SE → IE → NO/DK → bulk EU → UK` är **delvis ersatt** av ADR-023. Jurisdiktion (land ≠ språk) i ADR-018 gäller fortfarande.
 
-ADR-018:s lanseringsordning `SE → IE → NO/DK → bulk EU → UK` är **delvis ersatt** av ADR-023 för kommers och prioritering. Jurisdiktion (land ≠ språk) i ADR-018 gäller fortfarande.
-
-Acceptanskriterierna A1–A13 (§15) är oförändrade av detta avsnitt. Här låses *varför* nya marknader är betalda experiment, och hur IE, UK och locale-spåret ska löpa parallellt utan att ändra launch-gaten i §0.
+Acceptanskriterierna A1–A13 (§15) är oförändrade. Launch-gaten i §0 är oförändrad.
 
 ### 3.1 Kommersiell princip för nya marknader
 
@@ -177,59 +182,107 @@ Ett **verkligt köp på fysisk enhet** och fungerande restore är launch blocker
 
 IE-annonsbudget får inte starta innan denna väg är verifierad.
 
-### 3.3 Två parallella expansionsmaskiner
+### 3.3 Expansion — inte en seriell landlista
 
-Expansion ska inte hanteras som en serialiserad lista av länder.
-
-**Spår A — English markets**
+Ersätter:
 
 ```
-IE paid launch
-        |
-        +--> UK legal/store/representative readiness
+IE → vänta → bevisa allt → NL → vänta → platform → DE
 ```
 
-Irland är P0.
-
-UK får förberedas parallellt inom legal, store och operations, men UK-arbete får inte blockera eller stjäla implementationstid från IE-betalflödet.
-
-UK kan öppna före eller efter NL/DE beroende på när UK:s egna gates är klara.
-
-**Spår B — New locales**
-
-Startar **inte** före IE-evidens.
-
-Localization-arbete får börja när IE visar:
-
-- genuina externa familjer,
-- exportbar First Success,
-- ingen uppenbar språk- eller supportblocker,
-- och en meningsfull betalningssignal.
-
-Det är en evidensgate, inte en kalendergate.
-
-Förväntad riktning efter sådan evidens:
+med:
 
 ```
-IE evidence
-→ NL med egen market gate
-→ gärna en-GB initialt om det är kommersiellt rimligt
-→ localization platform
-→ de-DE
-→ DE + AT
+                ┌─ IE paid launch → acquisition + revenue data
+SE ─────────────┤
+                └─ NL preparation → NL launch when NL gates pass
+                                      │
+                                      └─ export signal
+                                           ↓
+                                  localization foundation
+                                           ↓
+                                        de-DE
+                                           ↓
+                                         DE
+                                           ↓
+                                         AT
 ```
 
-`market_eu_open` får inte användas som staged rollout-mekanism.
+UK ligger **utanför** detta flöde tills founder återaktiverar det.
 
-När NL/DE/AT faktiskt ska implementeras ska de få separata landsgates enligt samma princip som IE.
+Var offensiv i **parallellisering**, inte i att hoppa över gates.
+
+#### UK — deferred
+
+Founder har beslutat att **vänta med UK** på grund av juridisk komplexitet (Children’s Code, UK GDPR, UK representative, ICO, consumer law).
+
+- Ingen UK legal sprint nu.
+- Ingen UK representative procurement nu.
+- Ingen GB storefront-launch nu.
+- Ingen GBP pricing-implementation nu.
+- Ingen `market_uk_open`.
+- Status: **deferred by founder decision**.
+- Återupptas bara genom ett senare explicit founder-beslut.
+
+Historisk UK-dokumentation raderas inte. Prioritet/status ändras.
+
+#### NL — parallell förberedelse med Irland
+
+Vi ska **inte** vänta på 7–14 dagars full IE-data innan NL-arbete får börja.
+
+När IE P0-implementationen pågår får följande NL-arbete ske parallellt:
+
+- inventera nuvarande NL market-routing
+- identifiera vad som krävs för `market_nl_open`
+- verifiera att `market_eu_open` inte används för staged NL-launch
+- App Store / Play availability-gaps
+- legal country-gap
+- storefront-copy
+- pricing/billing readiness
+- analytics-segmentering
+- landing/register routing
+- supportberedskap
+
+Detta är **förberedelse**, inte automatiskt tillstånd att öppna NL.
+
+NL får öppna när **NL:s egna gates** är klara. IE behöver inte först ha D30-retention eller ett statistiskt perfekt paid-case.
+
+Första NL-testet ska inte automatiskt kräva `nl-NL`.
+
+Hypotes: Nederländerna kan vara en billig andra engelskspråkig datapunkt innan vi investerar i ny locale.
+
+NL initialt **kan** använda:
+
+- `en-GB`
+- NL-specific market gate
+- NL-specific store/legal/pricing
+- befintlig English product
+
+Detta är ett **explicit experiment**, inte en permanent slutsats om nederländsk locale. Ingen `market_eu_open`. NL ska få egen gate när implementationen görs.
 
 ### 3.4 Vad localization platform inte får bli
 
 Localization platform är ett skalningsprojekt, inte ett prerequisite för första internationella intäkten.
 
-Den får därför inte införas i IE paid-launch-scope.
+Den får **inte** byggas före IE bara för arkitekturens skull, och **inte** införas i IE paid-launch-scope.
 
-När den senare byggs ska målbilden vara:
+Den ska **inte** kräva att IE först har komplett trial→paid-statistik eller lång D30-data.
+
+**Gate för att börja investera** i localization platform / `de-DE`:
+
+- genuina IE och/eller NL-familjer använder produkten,
+- några når First Success,
+- engelska produkten visar ingen fundamental export-blocker,
+- support/språk är inte uppenbart ohanterligt.
+
+En faktisk betalningssignal är stark evidens men **inte** ett krav på lång D30-data innan nästa språk.
+
+Skillnad:
+
+- **Förbered NL:** får ske direkt parallellt med IE P0.
+- **Bygg tung localization platform / `de-DE`:** först när faktisk exportbar produktanvändning (First Success) är synlig.
+
+När plattformen senare byggs ska målbilden vara:
 
 ```
 new market =
@@ -258,7 +311,56 @@ AI är **inte ensam release authority** för:
 
 Dessa kräver lämplig mänsklig/native/legal review beroende på yta.
 
-### 3.5 Releaseprincip
+### 3.5 Tyskland + Österrike — nästa stora locale-våg
+
+Efter export-signal från IE/NL:
+
+1. bygg nödvändig localization foundation,
+2. implementera `de-DE`,
+3. native review på kritiska ytor,
+4. DE-specific legal/store/gate,
+5. öppna DE när DE:s gates är klara,
+6. AT därefter med samma språk men egen market/store/legal-bedömning.
+
+Tyskland ska **inte** vänta på perfekta irländska kohorter. Målet är att kunna börja `de-DE` medan IE/NL fortfarande samlar kommersiella data, så länge First Success-exporten är bekräftad.
+
+### 3.6 Operativ roadmap (planeringsdatum, inte launch-gates)
+
+Dessa datum är **målbild**, inte normativa gates och inte override av §0 eller respektive market gate.
+
+**14–20 september 2026**
+
+IE: storefront fix · named IAP SKU/priser · RevenueCat · market commercial policy · SE-only intro-year · IE 7-day trial · day-8 paywall · billing-ready registration invariant · country analytics · tester.
+
+NL parallellt: market gate design / gap analysis · store availability · legal/store/pricing assessment · möjlighet att lansera på `en-GB` · analytics/support readiness.
+
+SE: fortsatt preparation inför IAP 1 oktober.
+
+**Cirka 20–23 september**
+
+IE: physical-device purchase · restore · backend entitlement · full launch-gate PASS. Först därefter får founder besluta `market_ie_open`.
+
+**Efter IE launch**
+
+Starta IE paid acquisition. Mät signup → First Success → paywall → paid. CAC / trial→paid / early retention. NL-förberedelsen fortsätter.
+
+**Sen september / tidig oktober**
+
+Om NL:s egna gates är klara kan NL öppnas på `en-GB`. Det krävs **inte** att IE har D30-resultat.
+
+**1 oktober**
+
+SE IAP go-live enligt separat runbook. IE/NL får inte blockera SE och SE får inte blockera IE/NL.
+
+**Oktober**
+
+När IE/NL visar exportbar First Success: starta localization platform i begränsad, konkret form · förbered `de-DE` · bygg DE store/legal/market gate parallellt.
+
+**Slutet oktober / november**
+
+Mål: DE launch när dess egna gates är PASS · AT därefter. Målbild, inte löfte.
+
+### 3.7 Releaseprincip och risk
 
 Ingen marknad öppnas för att den är geografiskt nära Sverige eller för att språket är lätt att översätta.
 
@@ -272,9 +374,25 @@ En marknad öppnas när:
 6. analytics kan isolera marknaden,
 7. launch owner uttryckligen godkänner öppning.
 
-Det gäller IE, GB, NL, DE, AT och framtida marknader.
+Det gäller IE, NL, DE, AT, GB (när UK återaktiveras) och framtida marknader.
 
 Sverige är uttryckligen undantaget från defaultmodellen eftersom befintliga grandfather- och intro-årsåtaganden ska bevaras.
+
+**Tillåtet**
+
+- förbereda nästa marknad tidigt
+- göra storefront/legal/gate-arbete parallellt
+- börja nästa experiment innan föregående har D30
+- starta locale-arbete när exportbar First Success är synlig
+
+**Inte tillåtet**
+
+- öppna IE utan fysisk purchase + restore
+- öppna NL via `market_eu_open`
+- starta `de-DE` bara för att Tyskland är attraktivt om ingen internationell familj når First Success
+- låta UK-juridik dra resurser nu
+- ändra Sveriges kommersiella löften
+- slå på market flags som del av dokumentationsändring
 
 ---
 
@@ -286,8 +404,9 @@ Policy, inte land-if i UI. Default för **varje ny öppen marknad** (om/när den
 |---------|--------------|--------------|---------------------------|------|-----------|
 | **SE** | `intro_year` | `0` | `false` | `market_se_open` (ON) | Signup tillåten via intro-år. `payment_start` = 2026-10-01. |
 | **IE** | `trial` | `7` | `true` | `market_ie_open` (OFF tills launch-gate) | Ingen intro-år. Ingen prebilling-år. |
-| **GB** | `trial` | `7` | `true` | `market_uk_open` (OFF) | Samma kommersiella modell när UK öppnas. Legal/store/representant är egna gates. |
-| **FI, NL, DE, AT, …** (om någonsin öppna) | `trial` | `7` | `true` | Per-land-flagga; **inte** `market_eu_open` | Inte Sveriges intro-år. Inte IE/FI-prebilling-året. |
+| **NL** | `trial` | `7` | `true` | `market_nl_open` **när den byggs** (OFF; finns inte som egen nyckel än) | Parallell förberedelse. Första test **kan** vara `en-GB`. **Inte** `market_eu_open`. |
+| **GB** | `trial` | `7` | `true` | `market_uk_open` (OFF) | **Deferred.** Samma kommersiella modell *när* UK återaktiveras. |
+| **FI, DE, AT, …** (om någonsin öppna) | `trial` | `7` | `true` | Per-land-flagga; **inte** `market_eu_open` | Inte Sveriges intro-år. Inte IE/FI-prebilling-året. |
 
 `requires_billing_ready = true` betyder: öppen marknad + publik billing oanvändbar → **avvisa signup** (`MARKET_BILLING_NOT_READY`). Befintlig EN-sträng:
 
@@ -497,9 +616,9 @@ Kod kan inte rätta listingcopy. Detta är **launch blocker**.
 | IE Track 1 intern sign-off | 2026-08-20. **Inte** extern counsel. [`docs/p-ie-launch/track-1-legal-compliance/`](p-ie-launch/track-1-legal-compliance/) |
 | Lawful basis, DPIA-utkast, LDRA-A1, parent-kontrakt + Art. 8-narrow | Återanvänd. Bygg inte om produkten. |
 | IE Art. 27-representant | N/A (EU-etablering, Papa Bravo AB). Overlay redan accepterad. |
-| UK Art. 27 | Aktiv UK-annons talar emot “occasional”-undantag. Representant är UK-gate, inte IE-kod. |
-| UK ICO-avgift | Self-assessment; betala om inte undantagen (småbolagsband ofta £52/£78). **Inte** “registrering alltid krävs”. |
-| Children’s Code (UK) | Gäller ISS som barn sannolikt använder, även om förälder skapar barnet. Mall: IE Track 1. Ingen produktskrivning i IE-spåret. |
+| UK Art. 27 | **Deferred.** Aktiv UK-annons talar emot “occasional”-undantag. Representant är UK-gate när UK återupptas, inte IE-arbete nu. |
+| UK ICO-avgift | **Deferred.** Self-assessment när UK återupptas. **Inte** “registrering alltid krävs”. |
+| Children’s Code (UK) | **Deferred.** Gäller ISS som barn sannolikt använder. Mall: IE Track 1. Ingen UK-sprint nu. |
 | Extern legal review `/en/eea/*` | Fortfarande REVIEW_REQUIRED tills counsel. Blockerar inte *specen*; founder äger risk (Track 1-modellen). |
 
 ---
@@ -517,7 +636,9 @@ Kod kan inte rätta listingcopy. Detta är **launch blocker**.
 9. **Därefter** `market_ie_open`.
 10. Därefter trafik.
 
-Sverige 1 okt och UK-dokumentation får löpa parallellt så länge de inte tar IE-betalflödet (§3.3). Annonsbudget efter steg 9, inte före (§3.2). Releaseprincip för varje marknad: §3.5.
+Sverige 1 okt och **NL-förberedelse** får löpa parallellt så länge de inte tar IE-betalflödet (§3.3, §3.6). UK-sprint **inte**. Annonsbudget efter steg 9, inte före (§3.2). Releaseprincip: §3.7.
+
+Planeringsdatum (inte gates): §3.6.
 
 Release-states i [`docs/ie-fi-release-gates.md`](ie-fi-release-gates.md) får **inte** tolkas som att `PREBILLING_MARKET_READY` är tillstånd att öppna IE. För IE krävs trial+billing-path + device + explicit founder-godkännande.
 
@@ -553,7 +674,7 @@ Dessa är **låsta krav**, inte ett OK att implementera nu.
 | Grant / lazy backfill | `src/lib/family-entitlements.js` |
 | Signup-gate | `src/lib/market-launch-invariants.js` → `src/lib/registration-market-context.js` |
 | Register-kommentar (föråldrad IE/FI-prebilling) | `src/routes/auth/register.js` |
-| Market flags | `src/lib/market-region.js` — NL/DE/AT/FR/ES via bulk `market_eu_open` |
+| Market flags | `src/lib/market-region.js` — NL/DE/AT/FR/ES via bulk `market_eu_open` idag; **NL ska få egen `market_nl_open` vid implementation, aldrig via `market_eu_open`** |
 | Legal IE | `src/lib/legal-routing.js` |
 | IAP-kontrakt | `config/iap-product-contract.js` |
 | Paid transition | `src/lib/paid-transition.js` (behöver `trial`-kind, inte bara prebilling T1/hold) |
@@ -580,7 +701,7 @@ Inget av Q1–Q3 blockerar att **låsa specen**. Q2 blockerar **flaggan** tills 
 
 | Dokument | Roll efter denna spec |
 |---------|------------------------|
-| **Detta dokument** | Normativ kravspec. Läs först. Kommersiell princip och expansionsmaskiner: §3.1–3.5. |
+| **Detta dokument** | Normativ kravspec. Läs först. Kommersiell princip §3.1–3.2. Expansion §3.3–3.7. |
 | [`ADR-023`](adr/ADR-023-market-commercial-policy.md) | Beslut: intro-år SE-only; nya marknader 7-dagars trial + billing-ready |
 | [`ADR-018`](adr/ADR-018-family-market-jurisdiction.md) | Land ≠ språk, gates. Lanserings**ordning** delvis ersatt. |
 | [`docs/ie-fi-prebilling-access.md`](ie-fi-prebilling-access.md) | Historisk IE/FI-prebilling-modell. **Inte** IE launch authority. |

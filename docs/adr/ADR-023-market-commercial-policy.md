@@ -1,9 +1,10 @@
 # ADR-023 — Market commercial policy (intro year vs trial)
 
-**Status:** Accepted — **PRODUCT DECISION GO** (canonical spec locked including kravspec §3.1–3.5; A1–A13 and §0 launch gate unchanged)  
+**Status:** Accepted — **PRODUCT DECISION GO** (canonical spec; §0 + A1–A13 unchanged)  
 **Date:** 2026-09-14  
+**Amendment (same day):** expansion sequencing — UK deferred; NL parallel preparation; localization after export signal, not after D30.  
 **Normativ spec:** [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md)  
-**Next decision:** founder GO for **implementation against the spec** — not further strategy rewrite.  
+**Next decision:** founder GO for **IE implementation** against the spec. NL gap-analysis may run in parallel. Not a UK sprint.  
 **POS:** Constitution 2 (no surprise trial→paid), Constitution 5 (complete signup), R-02 (stars not purchasable), PA-01 (no fourth coach)  
 **Related:** ADR-018 (jurisdiction + gates — still in force; **launch order / commercial model** superseded here), ADR-017 (locale)
 
@@ -29,13 +30,20 @@ Sweden must still go IAP-live on **2026-10-01** without blocking Ireland, and wi
 
 ## Decision
 
-### 1. Two parallel tracks, not a country queue
+### 1. Prepare next market early; open on that market’s own gates
 
-| Track | Policy |
-|-------|--------|
-| **SE** | Keep intro year + grandfather. IAP go-live 2026-10-01. Must not block IE. |
-| **A — English** | Ireland is a **paid** experiment (7-day trial, billing required). UK legal/store/representative may proceed in parallel but must not steal IE payment-path engineering. |
-| **B — Locale** | No localization platform until Ireland shows exportable First Success **and** a real payment signal. Then per-country gates (never `market_eu_open` as the expansion tool). |
+> Prepare the next market before the previous one is proven. Open the next market when **its** gates are ready. Invest heavily in a new language only after the product exports.
+
+This must **not** weaken Ireland’s launch gate.
+
+| Priority | Policy |
+|---------|--------|
+| **SE** | Keep intro year + grandfather. IAP go-live 2026-10-01. Must not block IE/NL. |
+| **IE = P0 paid** | First international paid experiment (7-day trial, billing required). Physical purchase + restore before `market_ie_open`. |
+| **NL = parallel preparation / next market** | Gap analysis and own `market_nl_open` (when implemented). May first test `en-GB`. Open when **NL** gates pass — not after IE D30. Never via `market_eu_open`. |
+| **Localization** | After **export signal** (genuine IE and/or NL families reach First Success). Not an IE launch prerequisite. Not a D30 requirement. |
+| **DE+AT** | Next locale wave after export signal (`de-DE`, then DE gate, then AT). |
+| **UK = deferred** | Founder paused UK (Children’s Code, UK GDPR, representative, ICO, consumer law). No legal sprint, representative procurement, GB storefront, or GBP work now. Resume only on later explicit founder decision. |
 | **FI / NO / DK** | No work from geography or language proximity alone. |
 
 ### 2. Commercial policy table (normative)
@@ -79,14 +87,15 @@ Forbidden as the expansion switch. It would open NL+DE+FR+ES together. Future lo
 
 - **Positive:** Ireland can test a real funnel (ad → First Success → paywall → purchase). Sweden’s promise is kept. New markets inherit a default paid experiment instead of silently copying intro year.
 - **Negative:** Current tests that expect IE-after-cutoff = `intro_year` will fail once implementation starts and must be rewritten against this ADR. Prebilling helpers remain for historical FI/IE *code* until an implementation PR removes or isolates them — they are not launch authority.
-- **Rollout:** Spec PR ships documents only. Next founder decision is GO to implement against the locked spec (including §3.1–3.5). Do not rewrite strategy. `market_ie_open` stays OFF until the §0 gate.
+- **Rollout:** Spec PR ships documents only. Next founder decision is GO to implement IE against the locked spec. NL preparation (docs/gap analysis) may proceed in parallel. `market_ie_open` stays OFF until the §0 gate. UK stays deferred.
 
 ---
 
 ## Not in this ADR
 
 - Flipping any live market or billing flag
-- Localization platform or new locales
-- UK representative / ICO payment (ops/legal track; same commercial policy when UK opens)
+- Implementing `market_nl_open` (design/docs only until an implementation GO)
+- Localization platform or `de-DE` before export signal
+- UK representative / ICO / Children’s Code sprint (deferred)
 - Changing POS Constitution text
 )

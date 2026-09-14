@@ -5,7 +5,7 @@
 **Related:** ADR-017 (locale), P-i18n-Language-Launch-Foundation, **[ADR-023](ADR-023-market-commercial-policy.md)** (commercial policy + launch sequencing)  
 **POS:** Constitution rule 2 (no surprise), rule 5 (complete signup)
 
-**Supersession (2026-09-14):** Country vs language, `market_region`, and per-country **gates** still stand. §6 launch **order** (SE → IE → NO/DK → bulk EU → UK) and any implication that Ireland follows Sweden’s intro economics are replaced by ADR-023 + [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md). `market_eu_open` must not be used as the expansion tool.
+**Supersession (2026-09-14):** Country vs language, `market_region`, and per-country **gates** still stand. §6 launch **order** is replaced by [ADR-023](ADR-023-market-commercial-policy.md) + [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md): IE P0 paid; NL parallel prep; UK **deferred**; never `market_eu_open` as expansion tool.
 
 ---
 
@@ -106,8 +106,8 @@ country_code     = IE
 1. **Sweden + English language beta** — same EU market; tests translation without new jurisdiction *(done; still the live SE model)*
 2. **Ireland (staged)** — first explicit EEA country gate (`market_ie_open`); en-GB; compliance gate before ON — **paid 7-day trial, not intro year (ADR-023)**
 3. **Norway / Denmark** — later per-country gates; **no work from language proximity**
-4. **Other EU/EES** — **not** via `market_eu_open` as the expansion tool; explicit per-country keys when locale-track is authorized
-5. **United Kingdom** — parallel legal/store track; same trial policy when opened (`market_uk_open`, UK privacy, Children's Code, DPIA)
+4. **Other EU/EES** — **not** via `market_eu_open`; NL is parallel **preparation** with its own future gate (`market_nl_open`), not a bulk-EU open
+5. **United Kingdom** — **deferred by founder** (Children’s Code, UK GDPR, representative, ICO, consumer law). Same trial policy *when* later reopened. Not an active parallel sprint.
 6. **United States** — separate release after COPPA review (`market_us_open`) — unchanged, not in the Ireland experiment
 
 ### 7. Translation coverage rule
