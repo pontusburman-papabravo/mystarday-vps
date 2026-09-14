@@ -36,6 +36,13 @@ const SEO_INDEXABLE_PATHS = new Set([
   ...R3_INDEXABLE_PATHS,
 ]);
 
+/**
+ * Google Ads crawlers. `User-agent: *` Disallow must not apply to them —
+ * otherwise paid landing pages under /kampanj fail Ads destination checks.
+ * Organic indexing stays off via noindex on those pages.
+ */
+const ADSBOT_USER_AGENTS = ['AdsBot-Google', 'AdsBot-Google-Mobile'];
+
 /** App/auth/admin paths — noindex + robots Disallow (not marketing SEO). */
 const SEO_CRAWL_DISALLOW_PATHS = [
   '/api/',
@@ -86,11 +93,17 @@ function isSeoIndexable(path) {
 const NOINDEX_META = '<meta name="robots" content="noindex">';
 
 function buildRobotsTxt() {
+  const adsBotBlocks = ADSBOT_USER_AGENTS.flatMap((agent) => [
+    `User-agent: ${agent}`,
+    'Allow: /kampanj',
+    '',
+  ]);
   const lines = [
     'User-agent: *',
     'Allow: /',
     ...SEO_CRAWL_DISALLOW_PATHS.map((p) => `Disallow: ${p}`),
     '',
+    ...adsBotBlocks,
     `Sitemap: ${SITE_URL}/sitemap.xml`,
   ];
   return `${lines.join('\n')}\n`;
@@ -110,6 +123,7 @@ function injectNoindexMeta(html, reqPath) {
 module.exports = {
   SEO_INDEXABLE_PATHS,
   SEO_CRAWL_DISALLOW_PATHS,
+  ADSBOT_USER_AGENTS,
   SITE_URL,
   normalizeSeoPath,
   isSeoIndexable,

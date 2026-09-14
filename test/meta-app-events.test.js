@@ -316,6 +316,10 @@ describe('Meta App Events wiring contracts', () => {
     assert.match(MARKETING_SRC, /MetaAppEvents\.trackRegistrationCompleted/);
   });
 
+  it('marketing-events configures Google Ads after load if consent already exists', () => {
+    assert.match(MARKETING_SRC, /configureGoogleAds\(\);\s*\}\)\(\);/);
+  });
+
   it('consent layers call grant and revoke hooks', () => {
     const appConsent = read('public/js/app-consent.js');
     assert.match(appConsent, /MetaAppEvents\.onConsentGranted/);

@@ -151,4 +151,7 @@
     hasAnalyticsConsent: hasAnalyticsConsent,
     hasMarketingConsent: hasMarketingConsent,
   };
+
+  // Cookie-banner may have applied consent before this script parsed.
+  configureGoogleAds();
 })();
