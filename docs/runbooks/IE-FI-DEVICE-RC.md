@@ -38,10 +38,12 @@ If the device locale is `fi-FI`, expect Swedish (`sv-SE`) via `src/lib/locale.js
 
 ## Fail-closed
 
-Until this runbook has a dated PASS log (like payments v1 iOS):
+Print live evaluator output with `npm run ie-fi:release-gates`. Do not treat this runbook as a live flag.
 
-- `IE_DEVICE_VERIFIED = NOT VERIFIED`
-- `FI_DEVICE_VERIFIED = NOT VERIFIED`
-- `IRELAND_BILLING_READY` / `FINLAND_BILLING_READY` cannot be YES
+- `IE_DEVICE_VERIFIED` — founder-confirmed physical iPhone + Android purchase on 2026-09-14 (`ios_device_ie=YES`, `android_sandbox_e2e=PASS` in `config/ie-fi-release-evidence.json`). Restore was not separately attested. No transaction IDs recorded.
+- `FI_DEVICE_VERIFIED` — still **NOT VERIFIED** (`ios_device_fi=NO`). Finland iOS was not claimed.
+- `IE_BILLING_CONFIGURATION_READY` / `FI_BILLING_CONFIGURATION_READY` stay **NO** until named Apple IAP, Play SKUs, and RevenueCat evidence is verified.
+- `IE_READY_TO_OPEN` stays **NO** until `founder_open_approved_ie` is an explicit ops decision. Device PASS is not that decision.
+- Do **not** set `market_ie_open` or `market_fi_open`.
 
-Missing paid-store/device verification does **not** block CODE READY or PREBILLING MARKET READY. See `docs/ie-fi-prebilling-access.md`.
+Ireland launch model is 14-day computed trial (`docs/ie-paid-launch-kravspec.md`, ADR-023), not the historical T0/T1/T2 prebilling path above. Missing store-configuration evidence does **not** block CODE READY or PREBILLING MARKET READY. See `docs/ie-fi-prebilling-access.md`.

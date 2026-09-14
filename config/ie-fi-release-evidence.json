@@ -13,8 +13,8 @@
   "play_named_skus_ie": "NOT VERIFIED",
   "play_named_skus_fi": "NOT VERIFIED",
   "revenuecat": "BLOCKED",
-  "android_sandbox_e2e": "MANUAL_VERIFICATION_REQUIRED",
-  "ios_device_ie": "NO",
+  "android_sandbox_e2e": "PASS",
+  "ios_device_ie": "YES",
   "ios_device_fi": "NO",
   "apple_download_price": "REVIEW_REQUIRED",
   "apple_paid_download_unresolved_p0": true,
@@ -25,6 +25,7 @@
     "Ireland launch authority: docs/ie-paid-launch-kravspec.md + ADR-023. PREBILLING_MARKET_READY is not permission to open IE.",
     "Do not set market_ie_open or market_fi_open from this evidence file.",
     "APPLE_DOWNLOAD_PRICE stays REVIEW_REQUIRED until App Store Connect is checked.",
-    "apple_paid_download_unresolved_p0 reflects the 2026-08-31 scrape. Public lookup 2026-09-14 showed free IE/FI download; ASC remains the source of truth."
+    "apple_paid_download_unresolved_p0 reflects the 2026-08-31 scrape. Public lookup 2026-09-14 showed free IE/FI download; ASC remains the source of truth.",
+    "EVIDENCE_SOURCE: founder_observation 2026-09-14. Founder confirmed a completed purchase on a physical iPhone and a physical Android device. No store transaction IDs or family UUIDs were recorded. Restore was not separately attested. FI iOS device remains NO. founder_open_approved_ie stays false."
   ]
 }
