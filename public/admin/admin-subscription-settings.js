@@ -179,7 +179,7 @@ async function loadPackageInterest() {
       }).join('');
     }
     if (countEl) countEl.textContent = `Visar ${data.rows.length} av ${data.total}`;
-  } catch (err) {
+  } catch (_err) {
     tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-red-500">Kunde inte ladda intresse</td></tr>';
   }
 }
