@@ -127,7 +127,10 @@
         "docs/runbooks/PAYMENTS-GO-LIVE-2026-10-01.md",
         "src/lib/payment-go-live.js",
         "src/lib/payment-go-live-scheduler.js",
-        "src/lib/iap-paid-rollout.js"
+        "src/lib/iap-paid-rollout.js",
+        "src/routes/admin/subscription-settings.js",
+        "public/admin/admin-payment-go-live.js",
+        "public/admin/admin-subscription-settings.js"
       ],
       "l1Tests": [
         "test/iap-config-route.test.js",

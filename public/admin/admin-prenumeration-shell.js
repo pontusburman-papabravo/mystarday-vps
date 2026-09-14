@@ -32,6 +32,11 @@
   function mountPrenumerationTabs(activeKey) {
     const container = document.getElementById('prenumerationWorkspaceTabs');
     if (!container) return;
+    if (TABS.length < 2) {
+      container.innerHTML = '';
+      setPrenumerationSubview('prenumeration');
+      return;
+    }
     container.innerHTML = tabBarHtml(activeKey);
     container.querySelectorAll('.admin-prenumeration-tab').forEach((btn) => {
       btn.addEventListener('click', () => {

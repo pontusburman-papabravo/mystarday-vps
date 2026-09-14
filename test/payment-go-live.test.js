@@ -168,5 +168,28 @@ describe('admin go-live surface', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/admin/admin-payment-go-live.js'), 'utf8');
     assert.match(js, /BILLING_UI_DISABLED/);
     assert.match(js, /payment-go-live-armed/);
+    assert.match(js, /renderPaymentPolicyCard/);
+  });
+
+  it('admin prenumeration uses date policy instead of founder family count', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
+    const settingsJs = fs.readFileSync(
+      path.join(__dirname, '../public/admin/admin-subscription-settings.js'),
+      'utf8'
+    );
+    const route = fs.readFileSync(
+      path.join(__dirname, '../src/routes/admin/subscription-settings.js'),
+      'utf8'
+    );
+    assert.match(html, /id="paymentPolicyCard"/);
+    assert.match(html, /Livstidsgratis styrs av registreringsdatum/);
+    assert.match(html, /Nödbrytare — betalning aktiverad/);
+    assert.equal((html.match(/id="paymentGoLiveArmedToggle"/g) || []).length, 1);
+    assert.equal((html.match(/id="paymentEnabledToggle"/g) || []).length, 1);
+    assert.doesNotMatch(html, /founderLimitInput/);
+    assert.doesNotMatch(html, /Grundargräns/);
+    assert.doesNotMatch(settingsJs, /founder_family_limit/);
+    assert.match(settingsJs, /renderPaymentPolicyCard/);
+    assert.match(route, /lifetime_free_until/);
   });
 });

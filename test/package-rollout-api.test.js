@@ -54,6 +54,8 @@ function loadRouters() {
 
   const subPath = require.resolve(path.join(__dirname, '../src/routes/admin/subscription-settings'));
   delete require.cache[subPath];
+  delete require.cache[require.resolve(path.join(__dirname, '../src/lib/payment-settings'))];
+  delete require.cache[require.resolve(path.join(__dirname, '../src/lib/payment-go-live'))];
 
   const addonsPath = require.resolve(path.join(__dirname, '../db/subscription-addons'));
   require.cache[addonsPath] = {
@@ -70,6 +72,14 @@ function loadRouters() {
       getBasicPrice: async () => 59,
       getBasicTrialDays: async () => 14,
       getFounderFamilyLimit: async () => 200,
+      getIapPaidRolloutReady: async () => false,
+      getSetting: async (key) => {
+        if (key === 'lifetime_free_until') return '2026-09-14T00:00:00+02:00';
+        if (key === 'payment_start_at') return '2026-10-01T00:00:00+02:00';
+        if (key === 'payment_go_live_armed') return true;
+        if (key === 'payment_go_live_applied_at') return null;
+        return null;
+      },
     },
     children: [], parent: null, paths: [],
   };
@@ -143,5 +153,6 @@ test('subscription-settings GET includes persisted rollout', async () => {
     assert.equal(body.rollout_mode, 'interest');
     assert.equal(body.rollout.rollout_mode, 'interest');
     assert.equal(body.rollout.interest_cta_enabled, true);
+    assert.equal(body.lifetime_free_until, '2026-09-13T22:00:00.000Z');
   });
 });
