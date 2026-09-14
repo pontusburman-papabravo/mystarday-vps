@@ -42,7 +42,7 @@ Kort intern läsanvisning. Inte akademisk forskning.
 
 ## Datum (utlottning vs Premium)
 
-Utlottningen och Premium-erbjudandet är inte samma sak. Offentlig copy säger "senast 30 september" / "kl. 23:59 svensk tid" utan att påstå att klockslagen är identiska.
+Utlottningen och Premium-erbjudandet är inte samma sak. Offentlig copy säger "Premium i ett år om du registrerar dig senast 30 september" / "kl. 23:59 svensk tid" utan att påstå att klockslagen är identiska. Premium är intro-år, inte livstid.
 
 | Händelse | Instant | Europe/Stockholm (CEST, UTC+2) |
 |---|---|---|

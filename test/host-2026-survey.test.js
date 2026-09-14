@@ -55,7 +55,7 @@ test('allowlist is only host-2026', () => {
 
 test('campaign page leads with download, survey sits later, no dark patterns', () => {
   assert.match(html, /<h1>Mindre tjat\. Mer koll på dagen\.<\/h1>/);
-  assert.match(html, /Premium ingår om du registrerar dig senast 30 september\./);
+  assert.match(html, /Premium i ett år om du registrerar dig senast 30 september\./);
   assert.match(html, /Svara på enkäten/);
   assert.match(html, /\/tyck\/host-2026/);
   assert.match(html, /\/kampanj\/host-2026\/utlottning/);
