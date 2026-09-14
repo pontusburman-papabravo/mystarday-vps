@@ -48,6 +48,7 @@ function reloadDbBoundModules() {
     '../src/lib/market-config',
     '../src/lib/billing-ui',
     '../src/lib/iap-paid-rollout',
+    '../src/lib/market-commercial-policy',
     '../src/lib/market-launch-invariants',
     '../src/lib/registration-market-context',
     '../src/routes/auth/oauth-google',
@@ -227,13 +228,14 @@ test('IE Google new signup blocked while market_ie_open=false', async () => {
   await db.cleanup();
 });
 
-test('IE Google new signup allowed when gate ON and prebilling window is open', async () => {
+test('IE Google new signup allowed when gate ON and grandfather window is open', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   reloadDbBoundModules();
   const appSettings = require('../db/app-settings');
   try {
     await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('lifetime_free_until', '2099-01-01T00:00:00+02:00');
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
 
     const handler = getGoogleHandler();
@@ -259,12 +261,13 @@ test('IE Google new signup allowed when gate ON and prebilling window is open', 
     assert.equal(mockCreateParent.countryCode, 'IE');
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
+    await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');
     await setMarketFlag(db, 'market_ie_open', false);
     await db.cleanup();
   }
 });
 
-test('IE Google new signup after payment_start with billing off still creates via intro year', async () => {
+test('IE Google new signup after lifetime cutoff with billing off is MARKET_BILLING_NOT_READY', async () => {
   const db = await setupTestDb();
   if (db.skip) return;
   reloadDbBoundModules();
@@ -292,8 +295,9 @@ test('IE Google new signup after payment_start with billing off still creates vi
     };
 
     await handler(req, res);
-    assert.equal(statusCode, 200, JSON.stringify(body));
-    assert.ok(mockCreateParent);
+    assert.equal(statusCode, 403, JSON.stringify(body));
+    assert.equal(body.code, 'MARKET_BILLING_NOT_READY');
+    assert.equal(mockCreateParent, null);
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-10-15T00:00:00+02:00');
     await appSettings.upsertSetting('lifetime_free_until', '2026-09-14T00:00:00+02:00');

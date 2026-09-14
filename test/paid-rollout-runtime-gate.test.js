@@ -93,20 +93,20 @@ describe('IE/FI hold survives payment+UI without paid rollout', () => {
       }), false);
     });
 
-    it(`${country} before cutoff signs up without public billing`, () => {
+    it(`${country} before lifetime cutoff signs up without public billing (grandfather)`, () => {
       const decision = evaluateSignupCompleteness({
         countryCode: country,
         marketOpen: true,
         publicBillingUsable: false,
         paymentStartAt: IE_CUTOFF,
         lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
-        now: BEFORE,
+        now: new Date('2026-09-13T12:00:00+02:00'),
       });
       assert.equal(decision.allowed, true);
-      assert.equal(decision.reason, 'intro_year');
+      assert.equal(decision.reason, 'grandfather_eligible');
     });
 
-    it(`${country} after cutoff still signs up via intro year without public billing`, () => {
+    it(`${country} after cutoff cannot sign up without public billing`, () => {
       const allowed = evaluateSignupCompleteness({
         countryCode: country,
         marketOpen: true,
@@ -115,8 +115,8 @@ describe('IE/FI hold survives payment+UI without paid rollout', () => {
         lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
         now: AFTER,
       });
-      assert.equal(allowed.allowed, true);
-      assert.equal(allowed.reason, 'intro_year');
+      assert.equal(allowed.allowed, false);
+      assert.equal(allowed.code, 'MARKET_BILLING_NOT_READY');
 
       const paid = evaluateSignupCompleteness({
         countryCode: country,
@@ -127,7 +127,7 @@ describe('IE/FI hold survives payment+UI without paid rollout', () => {
         now: AFTER,
       });
       assert.equal(paid.allowed, true);
-      assert.equal(paid.reason, 'intro_year');
+      assert.equal(paid.reason, 'trial');
     });
   }
 });

@@ -21,6 +21,11 @@ const { isPublicBillingUsable } = require('./market-launch-invariants');
 const { appendPaymentAudit } = require('./payment-audit');
 const { attachPaidTransition } = require('./paid-transition');
 const { normalizeCountryCode } = require('./market-region');
+const {
+  getMarketCommercialPolicy,
+  trialEndsAt,
+  isComputedTrialActive,
+} = require('./market-commercial-policy');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
 const ACTIVE_STORE_STATUSES = new Set(['trial', 'active', 'grace_period']);
@@ -128,10 +133,27 @@ function buildPrebillingPremium(familyCreatedAt, paymentStartAt) {
   };
 }
 
+function buildTrialPremium(familyCreatedAt, expiresAt) {
+  return {
+    active: true,
+    source: 'trial',
+    status: 'trial',
+    starts_at: familyCreatedAt || null,
+    expires_at: expiresAt,
+    is_grandfathered: false,
+    store: null,
+    plan: null,
+    trial: true,
+    limited_account: false,
+    label: 'Premium – gratis provperiod',
+  };
+}
+
 function accessKindFromPremium(premium) {
   if (!premium || !premium.active) return 'limited';
   if (premium.is_grandfathered || premium.source === 'grandfathered') return 'grandfathered';
   if (premium.source === 'intro_year') return 'intro_year';
+  if (premium.source === 'trial') return 'trial';
   if (premium.source === 'prebilling') return 'prebilling';
   return 'paid';
 }
@@ -161,7 +183,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   const nowMs = now.getTime();
   const [rows, familyRow, publicBillingUsable] = await Promise.all([
     entitlementsDb.listActiveByFamily(familyId, PREMIUM_ENTITLEMENT_KEY, { client }),
-    q('SELECT id, created_at, is_lifetime_free, country_code FROM family WHERE id = $1', [familyId])
+    q('SELECT id, created_at, is_lifetime_free, country_code, timezone FROM family WHERE id = $1', [familyId])
       .then((r) => r.rows[0] || null),
     isPublicBillingUsable(),
   ]);
@@ -169,6 +191,18 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   let workingRows = rows;
 
   const familyCountryCode = normalizeCountryCode(familyRow?.country_code);
+  const commercialPolicy = getMarketCommercialPolicy(familyCountryCode);
+  const familyTimeZone = familyRow?.timezone || null;
+  const trialAccessActive = Boolean(
+    familyRow &&
+    isComputedTrialActive({
+      countryCode: familyCountryCode,
+      createdAt: familyRow.created_at,
+      now,
+      timeZone: familyTimeZone,
+    })
+  );
+  const allowPrebilling = commercialPolicy.entitlement !== 'trial';
   const [paymentStartAt, lifetimeFreeUntil] = await Promise.all([
     getPaymentStartAtForCountry(familyCountryCode),
     getLifetimeFreeUntil(),
@@ -264,6 +298,26 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   if (
     !premium.active &&
     familyRow &&
+    trialAccessActive
+  ) {
+    const expiresAt = trialEndsAt(familyRow.created_at, {
+      timeZone: familyTimeZone,
+      trialDays: commercialPolicy.trialDays,
+      countryCode: familyCountryCode,
+    });
+    const computed = buildTrialPremium(familyRow.created_at, expiresAt);
+    return attachPaidTransition({
+      premium: computed,
+      payment_start_at: paymentStartIso,
+      requires_paywall: false,
+      access_kind: 'trial',
+    }, { now, publicBillingUsable });
+  }
+
+  if (
+    !premium.active &&
+    familyRow &&
+    allowPrebilling &&
     !isFamilyEligibleForGrandfathering(grandfatherInput) &&
     !isFamilyEligibleForIntroYear(grandfatherInput) &&
     isPrebillingAccessActive({
@@ -290,7 +344,9 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
       !premium.active &&
       familyRow &&
       !isFamilyEligibleForGrandfathering(grandfatherInput) &&
+      !trialAccessActive &&
       !(
+        allowPrebilling &&
         !isFamilyEligibleForIntroYear(grandfatherInput) &&
         isPrebillingAccessActive({
           countryCode: familyCountryCode,
@@ -321,7 +377,7 @@ async function syncLegacyFamilyMirror(familyId, premium, { client = null } = {})
     return;
   }
 
-  if (premium.source === 'prebilling') {
+  if (premium.source === 'prebilling' || premium.source === 'trial') {
     await q(
       `UPDATE family SET is_lifetime_free = false, subscription_status = 'none', updated_at = NOW()
        WHERE id = $1`,
@@ -371,12 +427,17 @@ async function syncSubscriptionComponentsMirror(familyId, premium, { client = nu
   let tier = 'expired';
   if (premium.is_grandfathered) tier = 'lifetime_free';
   else if (premium.source === 'prebilling') tier = 'trial';
+  else if (premium.source === 'trial') tier = 'trial';
   else if (premium.source === 'intro_year') tier = 'trial';
   else if (premium.active && premium.trial) tier = 'trial';
   else if (premium.active && premium.source === 'gift') tier = 'paid';
   else if (premium.active) tier = 'paid';
 
-  const trialExpiresAt = (premium.trial || premium.source === 'intro_year') && premium.expires_at
+  const trialExpiresAt = (
+    premium.trial ||
+    premium.source === 'intro_year' ||
+    premium.source === 'trial'
+  ) && premium.expires_at
     ? premium.expires_at
     : null;
 
@@ -413,9 +474,27 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
     return { kind: 'grandfathered', row: grandfatherRow };
   }
 
-  const introRow = await grantIntroYearOnCreate(familyId, familyCreatedAt, { client });
+  const introRow = await grantIntroYearOnCreate(familyId, familyCreatedAt, {
+    client,
+    countryCode,
+  });
   if (introRow) {
     return { kind: 'intro_year', row: introRow };
+  }
+
+  const policy = getMarketCommercialPolicy(countryCode);
+  if (policy.entitlement === 'trial') {
+    const q = client ? client.query.bind(client) : db.query.bind(db);
+    const fam = await q('SELECT timezone FROM family WHERE id = $1', [familyId])
+      .then((r) => r.rows[0] || null);
+    const expiresAt = trialEndsAt(familyCreatedAt, {
+      timeZone: fam && fam.timezone,
+      trialDays: policy.trialDays,
+      countryCode,
+    });
+    const premium = buildTrialPremium(familyCreatedAt, expiresAt);
+    await syncAllLegacyMirrors(familyId, premium, { client });
+    return { kind: 'trial', premium };
   }
 
   const paymentStartAt = await getPaymentStartAtForCountry(countryCode);
@@ -471,9 +550,16 @@ async function grantGrandfatheredOnCreate(familyId, familyCreatedAt, { client = 
   return row;
 }
 
-async function grantIntroYearOnCreate(familyId, familyCreatedAt, { client = null } = {}) {
+async function grantIntroYearOnCreate(familyId, familyCreatedAt, { client = null, countryCode = null } = {}) {
+  let resolvedCountry = countryCode;
+  if (resolvedCountry == null || resolvedCountry === '') {
+    const q = client ? client.query.bind(client) : db.query.bind(db);
+    const fam = await q('SELECT country_code FROM family WHERE id = $1', [familyId]);
+    resolvedCountry = fam.rows[0] ? fam.rows[0].country_code : null;
+  }
   const lifetimeFreeUntil = await getLifetimeFreeUntil();
   if (!isFamilyEligibleForIntroYear({
+    countryCode: resolvedCountry,
     createdAt: familyCreatedAt,
     lifetimeFreeUntil,
   })) {
@@ -484,7 +570,7 @@ async function grantIntroYearOnCreate(familyId, familyCreatedAt, { client = null
     client,
     startsAt: familyCreatedAt,
     expiresAt,
-    metadata: { on_create: true },
+    metadata: { on_create: true, country_code: resolvedCountry },
   });
   const premium = buildPremiumFromRow(row || {
     source: 'intro_year',
@@ -500,7 +586,7 @@ async function grantIntroYearOnCreate(familyId, familyCreatedAt, { client = null
     source: 'intro_year',
     eventType: 'intro_year_granted',
     status: 'active',
-    metadata: { on_create: true, expires_at: expiresAt },
+    metadata: { on_create: true, expires_at: expiresAt, country_code: resolvedCountry },
   }, client);
   return row;
 }

@@ -4,7 +4,7 @@
 **Date:** 2026-09-14  
 **Amendment (same day):** expansion sequencing — UK deferred; NL parallel preparation; localization after export signal, not after D30.  
 **Normativ spec:** [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md)  
-**Next decision:** founder GO for **IE implementation** against the spec. NL gap-analysis may run in parallel. Not a UK sprint.  
+**Next decision:** IE implementation GO received 2026-09-14. This PR builds the path. Next human step is physical-device purchase + restore, then founder may flip `market_ie_open`. NL remains prepare-only ([`docs/nl-market-prep.md`](../nl-market-prep.md)). Not a UK sprint.  
 **POS:** Constitution 2 (no surprise trial→paid), Constitution 5 (complete signup), R-02 (stars not purchasable), PA-01 (no fourth coach)  
 **Related:** ADR-018 (jurisdiction + gates — still in force; **launch order / commercial model** superseded here), ADR-017 (locale)
 
@@ -87,7 +87,7 @@ Forbidden as the expansion switch. It would open NL+DE+FR+ES together. Future lo
 
 - **Positive:** Ireland can test a real funnel (ad → First Success → paywall → purchase). Sweden’s promise is kept. New markets inherit a default paid experiment instead of silently copying intro year.
 - **Negative:** Current tests that expect IE-after-cutoff = `intro_year` will fail once implementation starts and must be rewritten against this ADR. Prebilling helpers remain for historical FI/IE *code* until an implementation PR removes or isolates them — they are not launch authority.
-- **Rollout:** Spec PR ships documents only. Next founder decision is GO to implement IE against the locked spec. NL preparation (docs/gap analysis) may proceed in parallel. `market_ie_open` stays OFF until the §0 gate. UK stays deferred.
+- **Rollout:** Implementation PR builds the IE trial path. `market_ie_open` stays OFF until the §0 gate. NL preparation is docs only (`docs/nl-market-prep.md`). UK stays deferred. `market_eu_open` stays debt.
 
 ---
 

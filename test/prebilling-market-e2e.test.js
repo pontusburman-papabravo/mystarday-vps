@@ -88,6 +88,7 @@ function reloadRuntimeModules() {
     '../src/lib/iap-paid-rollout',
     '../src/lib/market-region',
     '../src/lib/market-launch-invariants',
+    '../src/lib/market-commercial-policy',
     '../src/lib/registration-market-context',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
@@ -636,10 +637,9 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
   await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
-  await appSettings.setPaymentEnabled(false);
+  const billingSnap = await enablePublicBillingForTest();
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
-  let billingSnap;
   try {
     const reg = await registerCountry(http.baseUrl, { countryCode: 'IE', locale: 'en-GB' });
     assert.equal(reg.status, 201, reg.text);
@@ -682,17 +682,13 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
       assert.notEqual(res.status, 200, `child must not succeed on ${url}`);
     }
 
-    const prebillingRewards = await probe('GET', '/api/me/rewards');
-    assert.ok([200, 402].includes(prebillingRewards.status), prebillingRewards.text);
+    const trialRewards = await probe('GET', '/api/me/rewards');
+    assert.equal(trialRewards.status, 200, trialRewards.text);
 
-    billingSnap = await enablePublicBillingForTest();
-    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
     await pg.query(
-      `UPDATE family_entitlements fe
-       SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
-       FROM parent p
-       WHERE p.email = $1 AND fe.family_id = p.family_id
-         AND fe.source = 'intro_year' AND fe.revoked_at IS NULL`,
+      `UPDATE family f SET created_at = NOW() - INTERVAL '8 days', updated_at = NOW()
+         FROM parent p
+        WHERE p.email = $1 AND f.id = p.family_id`,
       [reg.email.toLowerCase()]
     );
 
@@ -718,7 +714,6 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
   } finally {
     await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
     if (billingSnap) await disablePublicBillingForTest(billingSnap);
-    else await appSettings.setPaymentEnabled(false);
     await resetLaunchFlags(pg, appSettings);
     await http.close();
     await db.cleanup();

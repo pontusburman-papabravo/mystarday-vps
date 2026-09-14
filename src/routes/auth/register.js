@@ -137,7 +137,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
     try {
       await client.query('BEGIN');
 
-      // PAYMENTS V1 — SE grandfather, IE/FI prebilling, or limited/paywall cohort.
+      // PAYMENTS V1 — SE grandfather/intro-year, computed trial for other markets, or limited.
       const { syncCreatedFamilyAccessMirrors } = require('../../lib/family-entitlements');
 
       // Create family — no DB trial for post-cutoff cohort (store trial via RevenueCat only).

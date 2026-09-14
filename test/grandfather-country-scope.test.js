@@ -58,15 +58,27 @@ describe('isFamilyEligibleForGrandfathering (worldwide by date)', () => {
 });
 
 describe('intro year', () => {
-  it('starts at the lifetime cutoff instant', () => {
+  it('SE starts at the lifetime cutoff instant', () => {
     assert.equal(isFamilyEligibleForIntroYear({
+      countryCode: 'SE',
       createdAt: onCutoff,
       lifetimeFreeUntil: cutoff,
     }), true);
     assert.equal(isFamilyEligibleForIntroYear({
+      countryCode: 'SE',
       createdAt: before,
       lifetimeFreeUntil: cutoff,
     }), false);
+  });
+
+  it('IE/NL/DE after cutoff are trial markets, not intro year', () => {
+    for (const countryCode of ['IE', 'NL', 'DE', 'FI']) {
+      assert.equal(isFamilyEligibleForIntroYear({
+        countryCode,
+        createdAt: onCutoff,
+        lifetimeFreeUntil: cutoff,
+      }), false, countryCode);
+    }
   });
 
   it('expires one calendar year after created_at', () => {

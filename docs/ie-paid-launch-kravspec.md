@@ -1,13 +1,13 @@
 # Irland — betald lansering (kravspecifikation)
 
-**Status:** DECIDED / CANONICAL — 2026-09-14  
+**Status:** GO — IE P0 implementation in this PR (2026-09-14). Flags remain OFF.  
 **Amendment:** expansionssekvens §3.3–3.7 (samma dag) — UK deferred, NL parallell förberedelse. §0 och A1–A13 oförändrade.  
-**Nästa beslut:** founder **GO för IE-implementation mot denna spec**. NL-förberedelse (gap-analys) får ske parallellt. Ingen produktkod i denna PR.  
+**Nästa beslut:** fysisk IE-enhet (köp + restore) + founder-godkännande innan `market_ie_open`. NL förblir förberedelse ([`docs/nl-market-prep.md`](nl-market-prep.md)) tills NL:s egna gates är låsta.  
 **Oföränderligt:** launch-gate §0 · kommersiell modell §3.1 · IE-experiment §3.2 · acceptans A1–A13  
 **Authority:** detta dokument + [`docs/adr/ADR-023-market-commercial-policy.md`](adr/ADR-023-market-commercial-policy.md)  
 **POS:** Constitution 2 (ingen överraskning trial→betalt), Constitution 5 (färdig registrering), R-02 (stjärnor inte köpbara), PA-01 (ingen ny coachyta), P-04 (ingen parent dashboard på Hem)
 
-Tre låsta nivåer:
+Tre låsta nivåer: **förbereda** · **bygga** · **öppna**. Denna PR **bygger** IE-spåret. Den **öppnar** inget land.
 
 1. **Affärsmodell (nya marknader):** 7-dagars trial + betalningsvalidering. Sverige undantaget (grandfather + intro-år).
 2. **Expansion:** förbered nästa marknad innan föregående är bevisad; öppna när **den marknadens** gates är klara. IE P0. NL parallell förberedelse. UK deferred. Inte en landkö.
@@ -58,10 +58,9 @@ Sveriges IAP-go-live **får inte blockera** Irland. Irland och NL **får inte bl
 
 | Inte | Varför |
 |------|--------|
-| Bygga entitlement/trial/paywall-kod i denna PR | Krav först |
-| Slå på `market_ie_open` | Launch-gate ovan |
+| Slå på `market_ie_open` | Launch-gate §0; fysisk enhet kvar |
 | Öppna FI, NO, DK, NL, DE, AT, FR, ES, GB, US | Separata gates + evidens. NL-**förberedelse** är tillåten; NL-**öppning** är det inte från denna PR |
-| `market_eu_open` | Skulle öppna flera länder på en gång |
+| `market_eu_open` | Skulle öppna flera länder på en gång. Teknisk skuld, inte genväg |
 | Lokaliseringsplattform / `de-DE` / `nl-NL` före export-signal | Skalning efter First Success utanför SE — inte IE-krav |
 | UK legal sprint / representative / GB storefront / GBP | Founder: UK deferred |
 | Finsk UI (`fi-FI`) | FI-produktpolicy är `sv-SE` om/när FI öppnas |
@@ -646,7 +645,7 @@ Release-states i [`docs/ie-fi-release-gates.md`](ie-fi-release-gates.md) får **
 
 ## 15. Testbara acceptanskriterier (när kod får byggas)
 
-Dessa är **låsta krav**, inte ett OK att implementera nu.
+Dessa är **låsta krav**. Denna PR implementerar kodspåret mot dem. Ingen market-flagga slås på här.
 
 | ID | Givet | När | Så |
 |----|-------|-----|-----|
@@ -666,7 +665,7 @@ Dessa är **låsta krav**, inte ett OK att implementera nu.
 
 ---
 
-## 16. Kodkarta (för senare implementation)
+## 16. Kodkarta (implementation i denna PR)
 
 | Område | Sökväg |
 |--------|--------|
@@ -710,4 +709,5 @@ Inget av Q1–Q3 blockerar att **låsa specen**. Q2 blockerar **flaggan** tills 
 | [`docs/p-ie-launch/track-1-legal-compliance/`](p-ie-launch/track-1-legal-compliance/) | IE legal reuse |
 | [`docs/runbooks/PAYMENTS-GO-LIVE-2026-10-01.md`](runbooks/PAYMENTS-GO-LIVE-2026-10-01.md) | SE IAP 1 okt. Öppnar inte IE. |
 | [`docs/FIRST-SUCCESS.md`](FIRST-SUCCESS.md) | First Success-definition |
+| [`docs/nl-market-prep.md`](nl-market-prep.md) | NL prepare-only: gap + gates. Öppnar inte NL. |
 )

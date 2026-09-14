@@ -219,8 +219,10 @@ router.get('/analytics/overview', async (req, res) => {
 router.get('/analytics/activation-funnel', async (req, res) => {
   try {
     const weeks = Math.min(52, Math.max(1, parseInt(req.query.weeks, 10) || 8));
+    const rawCountry = String(req.query.country_code || '').trim().toUpperCase();
+    const countryCode = /^[A-Z]{2}$/.test(rawCountry) ? rawCountry : null;
     const { getActivationFunnelCohorts } = require('../../../db/activation-funnel');
-    const data = await getActivationFunnelCohorts(weeks);
+    const data = await getActivationFunnelCohorts(weeks, { countryCode });
     res.json(data);
   } catch (err) {
     console.error('[ADMIN analytics] activation-funnel error:', err);

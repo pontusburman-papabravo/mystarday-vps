@@ -5,17 +5,16 @@
  *
  * signup_allowed =
  *   market_open &&
- *   (lifetime grandfather || intro year after lifetime_free_until)
+ *   (grandfather_eligible
+ *    || !policy.requiresBillingReady
+ *    || publicBillingUsable)
  *
- * After the lifetime cutoff, open-market signup is always complete: the family
- * receives one free year and does not need public billing to finish registration.
- * IAP go-live (`payment_start_at`) is independent.
+ * Sweden intro-year families may finish registration without public billing.
+ * Trial markets (default for new countries) require public billing or they
+ * get MARKET_BILLING_NOT_READY — never an account the family cannot use.
  *
  * publicBillingUsable =
  *   payment_enabled && !BILLING_UI_DISABLED && iap_paid_rollout_ready
- *
- * An open market must never permit signup into an unusable account.
- * A pre-billing launch market must not require billing to be live.
  *
  * Does not open markets or enable paid rollout. Fail-closed.
  */
@@ -33,6 +32,7 @@ const {
   marketClosedCode,
   normalizeCountryCode,
 } = require('./market-region');
+const { getMarketCommercialPolicy } = require('./market-commercial-policy');
 
 const BILLING_NOT_READY_CODE = 'MARKET_BILLING_NOT_READY';
 
@@ -87,7 +87,18 @@ function evaluateSignupCompleteness(input) {
     return { allowed: true, reason: 'grandfather_eligible', code: null };
   }
 
-  return { allowed: true, reason: 'intro_year', code: null };
+  const policy = getMarketCommercialPolicy(countryCode);
+  if (policy.requiresBillingReady && !input.publicBillingUsable) {
+    return {
+      allowed: false,
+      reason: 'billing_not_ready',
+      code: BILLING_NOT_READY_CODE,
+    };
+  }
+  if (policy.entitlement === 'intro_year') {
+    return { allowed: true, reason: 'intro_year', code: null };
+  }
+  return { allowed: true, reason: 'trial', code: null };
 }
 
 /**

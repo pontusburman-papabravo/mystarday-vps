@@ -37,6 +37,7 @@ function reloadRuntimeModules() {
     '../src/lib/billing-ui',
     '../db/family-entitlements',
     '../src/lib/payment-settings',
+    '../src/lib/market-commercial-policy',
     '../src/lib/payment-audit',
     '../src/lib/family-entitlements',
     '../src/lib/paid-transition',
@@ -107,6 +108,7 @@ describe('same-family paid transition simulation', () => {
       await appSettings.upsertSetting('market_ie_payment_start_at', FUTURE_START);
       await appSettings.upsertSetting('market_fi_payment_start_at', FUTURE_START);
       await setMarketFlag(pg, spec.flag, true);
+      const billingSnap = await enablePublicBillingForTest();
 
       const { createApp } = require('../app');
       const email = uniqueEmail(`pt-${spec.countryCode.toLowerCase()}`);
@@ -140,7 +142,7 @@ describe('same-family paid transition simulation', () => {
           headers: jsonHeaders(parent),
         }));
         assert.equal(t0.status, 200, t0.text);
-        assert.equal(t0.body.access_kind, 'intro_year');
+        assert.equal(t0.body.access_kind, 'trial');
         assert.equal(t0.body.requires_paywall, false);
         assert.equal(t0.body.paid_transition.kind, 'none');
         assert.equal(t0.body.premium.is_grandfathered, false);
@@ -180,14 +182,11 @@ describe('same-family paid transition simulation', () => {
         assert.equal(familyT0.status, 200, familyT0.text);
 
         await pg.query(
-          `UPDATE family_entitlements
-           SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
-           WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+          `UPDATE family SET created_at = NOW() - INTERVAL '8 days', updated_at = NOW()
+           WHERE id = $1`,
           [familyId]
         );
 
-        const billingSnap = await enablePublicBillingForTest();
-        try {
           const t2 = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
             headers: jsonHeaders(parent),
           }));
@@ -275,10 +274,8 @@ describe('same-family paid transition simulation', () => {
             headers: jsonHeaders(childSession),
           }));
           assert.notEqual(childAfterRestart.status, 401, 'child cookie must survive parent logout');
-        } finally {
-          await disablePublicBillingForTest(billingSnap);
-        }
       } finally {
+        await disablePublicBillingForTest(billingSnap);
         await setMarketFlag(pg, spec.flag, false);
         await appSettings.setPaymentEnabled(false);
         await appSettings.upsertSetting('market_ie_payment_start_at', DEFAULT_IE_FI_START);

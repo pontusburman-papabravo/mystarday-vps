@@ -8,6 +8,7 @@ const appConfig = require('../../db/app-config');
 const { normalizeCountryCode } = require('./market-region');
 const { parseMarketPaymentStartInstant } = require('./zoned-civil-time');
 const { COUNTRY_DEFAULTS } = require('./market-config');
+const { getMarketCommercialPolicy } = require('./market-commercial-policy');
 
 const { DateTime } = require('luxon');
 
@@ -25,8 +26,8 @@ const DEFAULT_LIFETIME_FREE_UNTIL = '2026-09-14T00:00:00+02:00';
 const GRANDFATHER_ELIGIBLE_COUNTRY_CODES = Object.freeze(new Set());
 
 /**
- * IE/FI may open before public billing. Temporary prebilling access ends at this
- * country-specific cutoff — not the Swedish grandfather date, and not a grandfather row.
+ * Historical IE/FI prebilling helper. Trial-policy markets (ADR-023) skip this path
+ * in the resolver. Do not use it as Ireland's launch model.
  */
 const PREBILLING_LAUNCH_COUNTRY_CODES = Object.freeze(new Set(['IE', 'FI']));
 const MARKET_PAYMENT_START_AT_KEYS = Object.freeze({
@@ -160,7 +161,15 @@ function isFamilyEligibleForGrandfathering({ createdAt, paymentStartAt, lifetime
   return isFamilyBeforePaymentStart(createdAt, cutoff);
 }
 
-function isFamilyEligibleForIntroYear({ createdAt, paymentStartAt, lifetimeFreeUntil }) {
+function isFamilyEligibleForIntroYear({
+  countryCode,
+  createdAt,
+  paymentStartAt,
+  lifetimeFreeUntil,
+}) {
+  if (getMarketCommercialPolicy(countryCode).entitlement !== 'intro_year') {
+    return false;
+  }
   const created = parseInstant(createdAt);
   const cutoff = parseInstant(lifetimeFreeUntil || paymentStartAt);
   if (!created || !cutoff) return false;

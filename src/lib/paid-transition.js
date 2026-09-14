@@ -31,7 +31,7 @@ function describePaidTransition(input = {}) {
   const cutoffIso = cutoff && !Number.isNaN(cutoff.getTime()) ? cutoff.toISOString() : null;
   const accessKind = input.accessKind || 'limited';
 
-  if (accessKind === 'paid' || accessKind === 'grandfathered' || accessKind === 'intro_year') {
+  if (accessKind === 'paid' || accessKind === 'grandfathered' || accessKind === 'intro_year' || accessKind === 'trial') {
     return { kind: PAID_TRANSITION_KINDS.NONE, cutoff_at: cutoffIso, hold_active: false };
   }
 
