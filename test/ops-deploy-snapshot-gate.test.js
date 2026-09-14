@@ -614,6 +614,37 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, true, JSON.stringify(result.drift));
   });
 
+  test('family_entitlements_admin_unique allows declared entitlements fingerprint change', async () => {
+    const { loadMigrationSnapshotContract } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810490000000_family_entitlements_admin_unique';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract);
+    assert.equal(contract.backwardCompatible, true);
+    assert.deepEqual(contract.allowedBusinessTableFingerprintChanges, ['family_entitlements']);
+
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810480000000_lifetime_free_until_intro_year'],
+      tables: {
+        ...baseTables(),
+        family_entitlements: { exists: true, row_count: 4, row_fingerprint_sha256: 'fe-before' },
+      },
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count += 1;
+    after.tables.family_entitlements.row_fingerprint_sha256 = 'fe-after-admin-dedupe';
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
   test('payments_v1_entitlements allows declared family fingerprint change', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const name = '1810400000000_payments_v1_entitlements';

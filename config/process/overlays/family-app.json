@@ -111,6 +111,9 @@
     "payments-iap": {
       "description": "RevenueCat IAP, paywall, subscriptions, entitlements, billing kill switches",
       "pathGlobs": [
+        "src/lib/family-entitlements.js",
+        "db/family-entitlements.js",
+        "src/routes/admin/family-premium-grant.js",
         "src/routes/iap.js",
         "config/iap-product-contract.js",
         "src/lib/storefront-billing-evidence.js",
@@ -147,7 +150,8 @@
         "test/paid-transition-simulation.test.js",
         "test/payment-go-live.test.js",
         "test/payment-go-live-apply.test.js",
-        "test/paid-rollout-runtime-gate.test.js"
+        "test/paid-rollout-runtime-gate.test.js",
+        "test/admin-premium-grant.test.js"
       ]
     },
     "i18n-markets-legal": {

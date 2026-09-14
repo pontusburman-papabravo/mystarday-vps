@@ -98,7 +98,8 @@ test('contact route escapes HTML in outgoing owner email', async () => {
     assert.match(joined, /&lt;img src=x onerror=alert\(1\)&gt;/);
     const body = await res.json();
     assert.match(body.threadUrl || '', /\/support\/svar\/sr1\.[A-Za-z0-9_-]{40,}$/);
-    assert.equal((body.threadUrl || '').includes('99'), false);
+    // Token is random; substring "99" can occur. Guard the numeric message id as a path segment.
+    assert.doesNotMatch(body.threadUrl || '', /\/support\/svar\/99(?:\/|$)/);
   } finally {
     await new Promise((resolve) => server.close(resolve));
     if (previousEmail) require.cache[emailPath] = previousEmail;

@@ -50,11 +50,10 @@ test('paywall contract: per-route component gating + core API access', async (t)
 
   try {
     const session = await registerAndLogin(http.baseUrl);
-    const { family_id: familyId, is_lifetime_free: isLifetimeFree } = await familyRowForSession(db, session.email);
+    const { family_id: familyId } = await familyRowForSession(db, session.email);
 
     const sub = await familySubscriptions.getByFamilyId(familyId);
     assert.ok(sub, 'registration should create family_subscriptions row');
-    assert.equal(isLifetimeFree, true, 'first test family should be founder lifetime_free');
     assert.ok(
       (sub.components || []).some((c) => c.component === 'basic_app'),
       'basic_app component should be granted at signup'

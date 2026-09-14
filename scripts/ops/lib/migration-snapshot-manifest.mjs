@@ -124,6 +124,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     allowedBusinessTableFingerprintChanges: ['family'],
   },
+  '1810490000000_family_entitlements_admin_unique': {
+    backwardCompatible: true,
+    allowedBusinessTableFingerprintChanges: ['family_entitlements'],
+  },
 };
 
 /**

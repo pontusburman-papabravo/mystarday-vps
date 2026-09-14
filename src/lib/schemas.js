@@ -579,6 +579,43 @@ const ChildIdParam = z.object({ childId: uuid });
 const ScheduleIdParam = z.object({ scheduleId: uuid });
 const ItemIdParam = z.object({ itemId: uuid });
 const LogIdParam = z.object({ logId: uuid });
+const FamilyIdParam = z.object({ familyId: uuid });
+
+const adminGrantReason = z.string({ required_error: 'reason krävs' })
+  .transform((s) => String(s).trim())
+  .refine((s) => s.length >= 3, { message: 'reason är för kort' })
+  .refine((s) => s.length <= 500, { message: 'reason är för lång' });
+
+const futureExpiresAt = z.string({ required_error: 'expiresAt krävs' })
+  .min(1, 'expiresAt krävs')
+  .superRefine((val, ctx) => {
+    const d = new Date(val);
+    if (Number.isNaN(d.getTime())) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ogiltig tidpunkt' });
+      return;
+    }
+    if (d.getTime() <= Date.now()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'expiresAt måste vara i framtiden' });
+    }
+  });
+
+// Discriminated on `type`: permanent has no expiresAt field. `.strict()` then
+// rejects expiresAt (and adminId) instead of stripping them.
+const AdminPremiumGrantSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('temporary'),
+    expiresAt: futureExpiresAt,
+    reason: adminGrantReason,
+  }).strict(),
+  z.object({
+    type: z.literal('permanent'),
+    reason: adminGrantReason,
+  }).strict(),
+]);
+
+const AdminPremiumRevokeSchema = z.object({
+  reason: z.string().trim().min(3).max(500).optional(),
+}).strict();
 
 module.exports = {
   // Auth
@@ -663,4 +700,7 @@ module.exports = {
   ScheduleIdParam,
   ItemIdParam,
   LogIdParam,
+  FamilyIdParam,
+  AdminPremiumGrantSchema,
+  AdminPremiumRevokeSchema,
 };
