@@ -9,15 +9,40 @@
   }
 
   function formatRelativeTime(iso) {
+    if (typeof window.formatAdminRelativeTime === 'function') {
+      return window.formatAdminRelativeTime(iso);
+    }
     if (!iso) return '';
-    const diff = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diff / 60000);
+    const then = new Date(iso);
+    if (Number.isNaN(then.getTime())) return '';
+    const diff = Date.now() - then.getTime();
+    if (diff < -60000) {
+      return then.toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm' });
+    }
+    const mins = Math.floor(Math.max(0, diff) / 60000);
     if (mins < 1) return 'just nu';
     if (mins < 60) return `${mins} min sedan`;
     const hours = Math.floor(mins / 60);
-    if (hours < 48) return `${hours} tim sedan`;
-    const days = Math.floor(hours / 24);
-    return `${days} dag${days === 1 ? '' : 'ar'} sedan`;
+    if (hours < 24) return `${hours} tim sedan`;
+    return then.toLocaleString('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  function refreshRelativeTimeLabels() {
+    document.querySelectorAll('[data-created-at]').forEach((el) => {
+      el.textContent = formatRelativeTime(el.getAttribute('data-created-at'));
+    });
+  }
+
+  let relativeTimeTimer = null;
+  function startRelativeTimeTicker() {
+    if (relativeTimeTimer) return;
+    relativeTimeTimer = setInterval(refreshRelativeTimeLabels, 30000);
   }
 
   function setBlockState(blockId, state, html) {
@@ -82,7 +107,7 @@
       ? `<ul class="divide-y divide-lavender/60">${items.map((family) => `
           <li class="py-3 flex flex-wrap items-center justify-between gap-2">
             <a href="#familjer" onclick="return adminNavClick(event)" class="font-semibold text-navy hover:text-gold">${esc(family.name)}</a>
-            <span class="text-xs text-text-soft">${esc(formatRelativeTime(family.createdAt))}</span>
+            <span class="text-xs text-text-soft" data-created-at="${esc(family.createdAt || '')}">${esc(formatRelativeTime(family.createdAt))}</span>
           </li>`).join('')}</ul>`
       : '<p class="text-text-soft text-sm">Inga familjer registrerade ännu.</p>';
 
@@ -152,8 +177,9 @@
     setBlockState('startKpiBlock', 'loading', '<p class="text-text-soft text-sm">Laddar översikt...</p>');
   }
 
-  async function loadStartSummary() {
-    renderStartLoading();
+  async function loadStartSummary(opts) {
+    const silent = Boolean(opts && opts.silent);
+    if (!silent) renderStartLoading();
 
     try {
       const data = await Auth.api('/api/admin/start-summary?_=' + Date.now());
@@ -161,11 +187,22 @@
         throw new Error('Saknar overview i API-svar — ladda om sidan (hård refresh)');
       }
       renderStartOverview(data.overview, data.recentFamilies, data.quickActions);
+      startRelativeTimeTicker();
     } catch (err) {
       console.error('[ADMIN] Start summary failed:', err);
-      renderStartError();
+      if (!silent) renderStartError();
     }
   }
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    refreshRelativeTimeLabels();
+    const overview = document.getElementById('overviewSection');
+    if (overview && !overview.classList.contains('hidden')) {
+      loadStartSummary({ silent: true });
+    }
+  });
+
   window.loadStartSummary = loadStartSummary;
+  window.refreshRelativeTimeLabels = refreshRelativeTimeLabels;
 })();

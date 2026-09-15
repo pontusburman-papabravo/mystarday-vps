@@ -101,6 +101,7 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(body.overview.messagesNeedFollowUp, 3);
     assert.equal(body.recentFamilies.length, 1);
     assert.equal(body.recentFamilies[0].name, 'Testfamilj');
+    assert.equal(body.recentFamilies[0].createdAt, '2026-06-20T09:00:00.000Z');
     assert.equal(body.quickActions.length, 4);
   } finally {
     await new Promise((resolve) => server.close(resolve));
@@ -139,6 +140,14 @@ test('fetchRecommendations reads persisted alerts without live collectMetrics', 
   assert.doesNotMatch(src, /UNION ALL SELECT id FROM professional_interest/);
 });
 
+test('fetchRecentFamilies serializes created_at as UTC ISO', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  const fnStart = src.indexOf('async function fetchRecentFamilies');
+  const fnEnd = src.indexOf('async function fetchStartOverview', fnStart);
+  const fnBody = src.slice(fnStart, fnEnd);
+  assert.match(fnBody, /toIsoUtc\(row\.created_at\)/);
+});
+
 test('fetchStartOverview uses family table only (no activation funnel join)', () => {
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
   const fnStart = src.indexOf('async function fetchStartOverview');
@@ -153,6 +162,7 @@ test('admin-start.js is a slim families overview', () => {
   assert.match(js, /Antal familjer/);
   assert.match(js, /Att göra/);
   assert.match(js, /Senaste familjer/);
+  assert.match(js, /data-created-at/);
   assert.doesNotMatch(js, /North Star/);
   assert.doesNotMatch(js, /loadJourneyDailyAnalysis/);
   assert.doesNotMatch(js, /Från Meta-annons/);
@@ -171,6 +181,7 @@ test('admin-start.js and overview blocks exist', () => {
   assert.doesNotMatch(html, /id="startMessagesBlock"/);
   assert.doesNotMatch(html, /id="startActivityBlock"/);
   assert.match(html, /journeyDailyAnalysisBlock/);
+  assert.match(html, /admin-relative-time\.js/);
   assert.match(html, /admin-start\.js/);
   assert.match(html, /admin-produktanalys-shell\.js/);
   assert.match(html, /prenumerationWorkspaceTabs/);
