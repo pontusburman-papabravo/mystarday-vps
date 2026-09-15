@@ -313,6 +313,11 @@ function loadSettingsSubscriptionHarness(options) {
         callOrder.push('canPurchase');
         return options.canPurchase !== false;
       },
+      canRestore() {
+        if (options.canRestore === false) return false;
+        callOrder.push('canRestore');
+        return true;
+      },
       restorePurchases: async () => ({ ok: false }),
     },
   };
@@ -332,13 +337,14 @@ describe('settings premium — IAP init sequencing', () => {
       status: {
         subscription_ui_visible: true,
         native_purchase_eligible: true,
+        native_restore_eligible: true,
         billing_ui_enabled: true,
         premium: { active: false },
       },
     });
     const result = await sandbox.SettingsSubscription.render(mountEl);
     assert.equal(result.visible, true);
-    assert.deepEqual(callOrder, ['init', 'canPurchase']);
+    assert.deepEqual(callOrder, ['init', 'canPurchase', 'canRestore']);
     assert.match(mountEl.innerHTML, /Återställ köp/);
     assert.match(mountEl.innerHTML, /href="\/paywall"/);
     assert.match(mountEl.innerHTML, /Aktivera Premium/);
@@ -376,6 +382,7 @@ describe('settings premium — IAP init sequencing', () => {
       status: {
         subscription_ui_visible: true,
         native_purchase_eligible: true,
+        native_restore_eligible: true,
         billing_ui_enabled: false,
         premium: {
           active: true,
