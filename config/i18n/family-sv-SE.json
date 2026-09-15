@@ -136,7 +136,42 @@
     "setGoalDirect": "Sätt mål direkt:",
     "setAsGoal": "Sätt som mål",
     "visibleRewards": "Synliga belöningar",
-    "redemptionHistory": "🏆 Inlösningshistorik"
+    "redemptionHistory": "🏆 Inlösningshistorik",
+    "settings": {
+      "nnl": {
+        "lead": "Aktivera för strukturerad morgon/kväll-rutin",
+        "tooltip": "Guidad ordning — barnet ser NU, Nästa och Senare och bockar av en i taget. Av som standard kan barnet välja vilken aktivitet som ska bockas av."
+      },
+      "mood": {
+        "tooltip": "Barnet drar en slider (ledsen → glad) direkt efter att ha bockat av en aktivitet. Ger dig insikt i hur barnet mår under dagen."
+      },
+      "reorder": {
+        "tooltip": "Tillåter barnet att dra om ordningen på aktiviteterna i sin dagvy. Bra för äldre barn som vill ha mer kontroll."
+      },
+      "hideClock": {
+        "tooltip": "Döljer klockan och tidsstämplar i barnets vy. Minskar stress för barn som är tidskänsliga eller lätt oroar sig för att \"hinna\"."
+      },
+      "lockSchedule": {
+        "tooltip": "Förhindrar barnet från att bläddra till andra dagar eller hoppa över aktiviteter. Bra för barn som behöver tydliga gränser och fokus på nuet."
+      },
+      "dopamin": {
+        "tooltip": "Visar en snabb stjärn- och konfetti-animation direkt när barnet bockar av en aktivitet. Förstärker känslan av att klara av saker — utan att blockera nästa steg."
+      },
+      "visualTimer": {
+        "tooltip": "Visar en cirkulär rödminskande Time Timer i pågående aktivitet — baserat på start- och sluttid. Bara visuell, inga siffror. Hjälper barn förstå hur lång tid som återstår."
+      },
+      "timeAdjustment": {
+        "label": "Tidsjustering",
+        "hint": "Skjut fram-knapp i föräldravyn",
+        "tooltip": "Visar knappen \"Skjut fram allt\" i den dagliga loggen — föräldern kan skjuta fram alla kommande aktiviteter med 5, 10, 15 eller 30 minuter. Påverkar bara dagens logg, inte mallen."
+      },
+      "colorCoding": {
+        "tooltip": "Färgkodar aktivitetskort baserat på typ (t.ex. blå = hygien, gul = mat, grön = lek). Visas i både barnvyn och din dagliga logg. Hjälper barn och föräldrar snabbt identifiera aktivitetstyp."
+      },
+      "shortcutsHeading": "Genvägar",
+      "rewardsShortcutTitle": "Belöningar",
+      "rewardsShortcutHint": "Sätt mål, lägg till belöningar, ge stjärnor"
+    }
   },
   "invites": {
     "sentTo": "✓ Inbjudan skickad till {{email}}!",
@@ -366,6 +401,10 @@
         "colorCoding": {
           "label": "Färgkodning",
           "hint": "Färgkodade aktivitetskort"
+        },
+        "timeAdjustment": {
+          "label": "Tidsjustering",
+          "hint": "Skjut fram-knapp i föräldravyn"
         }
       },
       "delete": {

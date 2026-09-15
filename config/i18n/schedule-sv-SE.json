@@ -640,5 +640,11 @@
       "saved": "Mallen \"{{name}}\" sparad under Mina mallar",
       "hint": "Mallen är en kopia. Att ändra mallen senare ändrar inte {{day}}s schema."
     }
+  },
+  "assign": {
+    "saving": "Sparar…",
+    "saved": "✓ Sparat!",
+    "saveBtn": "Spara schema",
+    "savePeriodBtn": "Spara schema för perioden"
   }
 }

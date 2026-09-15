@@ -203,7 +203,7 @@
           </div>
           <div id="saveArea" class="flex items-center gap-3">
             <span id="currentSchemaLabel" class="text-xs font-semibold text-text-soft hidden"></span>
-            <button id="saveBtn" class="save-btn hidden" onclick="saveSelection()">Spara schema</button>
+            <button id="saveBtn" class="save-btn hidden" onclick="saveSelection()" data-i18n="schedule.assign.saveBtn">Spara schema</button>
           </div>
         </div>
 
@@ -292,6 +292,10 @@
   </div>
 
 <script>
+function apt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 // ── Constants ──────────────────────────────────────────────
 const DAYS = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
 const DAYS_SHORT = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
@@ -358,9 +362,9 @@ function syncPeriodRangeUi() {
   const btn = document.getElementById('saveBtn');
   if (!btn || btn.classList.contains('hidden')) return;
   if (isPeriodRangeEnabled()) {
-    btn.textContent = 'Spara schema för perioden';
+    btn.textContent = apt('schedule.assign.savePeriodBtn');
   } else {
-    btn.textContent = 'Spara schema';
+    btn.textContent = apt('schedule.assign.saveBtn');
   }
 }
 
@@ -634,7 +638,7 @@ function selectSchema(id, name, _unused) {
 
   // Show save button
   document.getElementById('saveBtn').classList.remove('hidden');
-  document.getElementById('saveBtn').textContent = 'Spara schema';
+  syncPeriodRangeUi();
   document.getElementById('saveBtn').classList.remove('saved');
   document.getElementById('saveBtn').disabled = false;
 
@@ -760,7 +764,7 @@ async function saveSelection() {
 async function doSave() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true;
-  btn.textContent = 'Sparar…';
+  btn.textContent = apt('schedule.assign.saving');
 
   if (isPeriodRangeEnabled()) {
     try {
@@ -782,11 +786,11 @@ async function doSave() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Fel vid tilldelning av schema');
 
-      btn.textContent = '✓ Sparat!';
+      btn.textContent = apt('schedule.assign.saved');
       btn.classList.add('saved');
       btn.disabled = false;
       setTimeout(function () {
-        btn.textContent = 'Spara schema för perioden';
+        btn.textContent = apt('schedule.assign.savePeriodBtn');
         btn.classList.remove('saved');
       }, 2500);
 
@@ -837,11 +841,11 @@ async function doSave() {
     await refreshChildSchedules(currentChildId);
 
     // Update UI
-    btn.textContent = '✓ Sparat!';
+    btn.textContent = apt('schedule.assign.saved');
     btn.classList.add('saved');
     btn.disabled = false;
     setTimeout(() => {
-      btn.textContent = 'Spara schema';
+      btn.textContent = apt('schedule.assign.saveBtn');
       btn.classList.remove('saved');
     }, 2500);
 
@@ -862,7 +866,7 @@ async function doSave() {
   } catch (err) {
     showToast(err.message || 'Något gick fel', true);
     btn.disabled = false;
-    btn.textContent = 'Spara schema';
+    syncPeriodRangeUi();
   }
 }
 
