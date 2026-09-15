@@ -100,7 +100,7 @@
         <h1 class="text-lg font-heading font-bold">Min Stjärndag</h1>
       </a>
       <div class="flex items-center gap-1">
-        <button onclick="toggleDarkMode()" class="p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" title="Mörkt läge">🌙</button>
+        <button onclick="toggleDarkMode()" class="p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" data-i18n-title="nav.darkMode" title="Mörkt läge">🌙</button>
         <button id="menuToggle" class="p-2 hover:bg-navy-soft rounded-lg transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -127,7 +127,7 @@
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="toggleDarkMode()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
-          <span id="darkModeIcon">🌙</span> <span id="darkModeLabel">Mörkt läge</span>
+          <span id="darkModeIcon">🌙</span> <span id="darkModeLabel" data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
         <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
       </div>
@@ -380,24 +380,24 @@
           <!-- Manual stars button -->
           <button onclick="openManualStarModal()" id="manualStarBtn"
             class="w-full min-h-[48px] bg-gold hover:bg-yellow-500 text-white font-heading font-bold px-4 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
-            ⭐ Ge en stjärna
+            <span data-i18n="family.drawer.giveStarBtn">⭐ Ge en stjärna</span>
           </button>
 
           <!-- Goal setter -->
           <div class="bg-sky dark:bg-navy-soft rounded-xl p-4">
             <div class="flex items-center justify-between mb-2">
-              <p class="text-sm font-heading font-bold text-navy dark:text-white">🎯 Barnets mål</p>
-              <span id="childGoalBadge" class="text-xs text-text-soft">Laddar...</span>
+              <p class="text-sm font-heading font-bold text-navy dark:text-white" data-i18n="family.drawer.childGoal">🎯 Barnets mål</p>
+              <span id="childGoalBadge" class="text-xs text-text-soft" data-i18n="family.drawer.loadingGoals">Laddar...</span>
             </div>
             <div id="childGoalInfo" class="mb-3">
-              <p class="text-xs text-text-soft italic">Laddar...</p>
+              <p class="text-xs text-text-soft italic" data-i18n="family.drawer.loadingGoals">Laddar...</p>
             </div>
             <div>
-              <p class="text-xs font-semibold text-text-soft mb-2">Sätt mål direkt:</p>
+              <p class="text-xs font-semibold text-text-soft mb-2" data-i18n="family.drawer.setGoalDirect">Sätt mål direkt:</p>
               <select id="goalRewardSelect" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white text-sm font-body mb-2">
-                <option value="">– Välj belöning –</option>
+                <option value="" data-i18n="family.drawer.chooseReward">– Välj belöning –</option>
               </select>
-              <button onclick="parentSetGoal()" class="w-full min-h-[44px] bg-navy hover:bg-navy-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors dark:bg-gold dark:hover:bg-yellow-500">
+              <button onclick="parentSetGoal()" class="w-full min-h-[44px] bg-navy hover:bg-navy-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors dark:bg-gold dark:hover:bg-yellow-500" data-i18n="family.drawer.setAsGoal">
                 Sätt som mål
               </button>
             </div>
@@ -405,17 +405,17 @@
 
           <!-- Reward visibility -->
           <div>
-            <p class="text-sm font-heading font-bold text-navy dark:text-white mb-2">Synliga belöningar</p>
+            <p class="text-sm font-heading font-bold text-navy dark:text-white mb-2" data-i18n="family.drawer.visibleRewards">Synliga belöningar</p>
             <div id="rewardsList" class="space-y-2">
-              <p class="text-sm text-text-soft italic">Laddar belöningar...</p>
+              <p class="text-sm text-text-soft italic" data-i18n="family.drawer.loadingRewards">Laddar belöningar...</p>
             </div>
           </div>
 
           <!-- Redemption history -->
           <div>
-            <p class="text-sm font-heading font-bold text-navy dark:text-white mb-2">🏆 Inlösningshistorik</p>
+            <p class="text-sm font-heading font-bold text-navy dark:text-white mb-2" data-i18n="family.drawer.redemptionHistory">🏆 Inlösningshistorik</p>
             <div id="redemptionHistoryList" class="space-y-2">
-              <p class="text-sm text-text-soft italic">Laddar...</p>
+              <p class="text-sm text-text-soft italic" data-i18n="family.drawer.loadingHistory">Laddar...</p>
             </div>
           </div>
 
@@ -852,29 +852,29 @@
   <div id="manualStarModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-heading font-bold text-navy dark:text-white">⭐ Ge en stjärna</h3>
+        <h3 class="text-lg font-heading font-bold text-navy dark:text-white" data-i18n="family.giveStars.title">⭐ Ge en stjärna</h3>
         <button onclick="closeManualStarModal()" class="min-w-[44px] min-h-[44px] flex items-center justify-center text-text-soft hover:text-navy text-xl rounded-lg">✕</button>
       </div>
       <p class="text-sm text-text-soft mb-4" id="manualStarChildName"></p>
 
       <!-- Star count -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy dark:text-white mb-1">Antal stjärnor</label>
+        <label class="block text-sm font-semibold text-navy dark:text-white mb-1" data-i18n="family.giveStars.starCount">Antal stjärnor</label>
         <input id="manualStarCount" type="number" min="1" max="100" value="1"
           class="w-full px-4 py-3 border-2 border-lavender rounded-xl bg-white dark:bg-navy-soft dark:text-white font-heading font-bold text-xl text-center focus:border-gold outline-none transition-colors"/>
       </div>
 
       <!-- Reason (mandatory) -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy dark:text-white mb-1">Varför? <span class="text-red-500">*</span></label>
+        <label class="block text-sm font-semibold text-navy dark:text-white mb-1"><span data-i18n="family.giveStars.whyLabel">Varför?</span> <span class="text-red-500">*</span></label>
         <textarea id="manualStarReason" rows="3" required
-          placeholder="T.ex. Du hjälpte till att duka utan att bli tillfrågad! 💪"
+          data-i18n-placeholder="family.giveStars.whyPlaceholder" placeholder="T.ex. Du hjälpte till att duka utan att bli tillfrågad! 💪"
           class="w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm focus:border-gold outline-none transition-colors resize-none dark:bg-navy-soft dark:text-white"></textarea>
       </div>
 
       <!-- Optional image -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy dark:text-white mb-1">Foto (valfritt)</label>
+        <label class="block text-sm font-semibold text-navy dark:text-white mb-1" data-i18n="family.giveStars.photoOptional">Foto (valfritt)</label>
         <input id="manualStarImageInput" type="file" accept="image/*" capture="environment"
           onchange="handleManualStarImageUpload(this)"
           class="w-full text-sm text-text-soft file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gold-light file:text-navy hover:file:bg-gold hover:file:text-white transition-colors cursor-pointer"/>
