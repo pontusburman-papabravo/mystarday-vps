@@ -8,6 +8,16 @@
   const DISMISS_FOREVER_KEY = 'stjarndag_widget_homescreen_prompt_dismiss_v1';
   const OVERLAY_ID = 'msj-widget-prompt-overlay';
   let _showPromise = null;
+  let _lastModalOpts = null;
+
+  function pt(key, params) {
+    return (typeof global.pt === 'function') ? global.pt(key, params) : key;
+  }
+
+  function brandParam() {
+    const brand = pt('onboarding.common.brand');
+    return brand !== 'onboarding.common.brand' ? brand : 'My Starday';
+  }
 
   function isNative() {
     return global.WidgetBridgeClient && global.WidgetBridgeClient.isNative();
@@ -44,6 +54,7 @@
     if (global.document && global.document.body) {
       global.document.body.classList.remove('modal-open');
     }
+    _lastModalOpts = null;
   }
 
   function dismissForNavigation() {
@@ -52,6 +63,7 @@
 
   function buildModal(opts) {
     opts = opts || {};
+    _lastModalOpts = opts;
     removeModal();
     const overlay = global.document.createElement('div');
     overlay.id = OVERLAY_ID;
@@ -60,20 +72,20 @@
 
     overlay.innerHTML =
       '<div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 font-body text-navy" role="dialog" aria-modal="true" aria-labelledby="msjWidgetPromptTitle">' +
-      '<h2 id="msjWidgetPromptTitle" class="font-heading text-lg mb-2">Lägg till widget på hemskärmen?</h2>' +
-      '<p class="text-sm text-navy-soft mb-3">Se nästa aktivitet direkt på hemskärmen — utan att öppna appen.</p>' +
+      '<h2 id="msjWidgetPromptTitle" class="font-heading text-lg mb-2">' + pt('settings.widget.prompt.title') + '</h2>' +
+      '<p class="text-sm text-navy-soft mb-3">' + pt('settings.widget.prompt.lead') + '</p>' +
       '<ol class="text-sm text-navy-soft space-y-1.5 mb-4 list-decimal list-inside">' +
-      '<li>Tryck <strong class="text-navy">Anslut widget</strong> här i appen.</li>' +
-      '<li>På hemskärmen: håll ned på bakgrunden → tryck <strong class="text-navy">+</strong> → sök <strong class="text-navy">Min Stjärndag</strong>.</li>' + // pragma: allowlist secret
+      '<li>' + pt('settings.widget.prompt.step1') + '</li>' +
+      '<li>' + pt('settings.widget.prompt.step2', { brand: brandParam() }) + '</li>' +
       '</ol>' +
       '<label class="flex items-start gap-2 text-sm text-navy-soft mb-4 cursor-pointer">' +
       '<input type="checkbox" id="msjWidgetPromptNever" class="mt-1 w-4 h-4 rounded border-lavender" />' +
-      '<span>Fråga inte igen</span>' +
+      '<span>' + pt('settings.widget.prompt.neverAgain') + '</span>' +
       '</label>' +
       '<div class="flex flex-col gap-2">' +
-      '<button type="button" id="msjWidgetPromptConnect" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold min-h-[44px]">Anslut widget</button>' +
-      '<button type="button" id="msjWidgetPromptLater" class="w-full px-4 py-3 bg-lavender/40 text-navy rounded-xl font-semibold min-h-[44px]">Inte nu</button>' +
-      '<button type="button" id="msjWidgetPromptSettings" class="w-full px-4 py-2 text-sm text-navy-soft underline min-h-[44px]">Öppna inställningar</button>' +
+      '<button type="button" id="msjWidgetPromptConnect" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold min-h-[44px]">' + pt('settings.widget.prompt.connect') + '</button>' +
+      '<button type="button" id="msjWidgetPromptLater" class="w-full px-4 py-3 bg-lavender/40 text-navy rounded-xl font-semibold min-h-[44px]">' + pt('settings.widget.prompt.later') + '</button>' +
+      '<button type="button" id="msjWidgetPromptSettings" class="w-full px-4 py-2 text-sm text-navy-soft underline min-h-[44px]">' + pt('settings.widget.prompt.openSettings') + '</button>' +
       '</div>' +
       '</div>';
 
@@ -164,6 +176,15 @@
     });
     return _showPromise;
   }
+
+  function refreshOpenModal() {
+    if (global.document.getElementById(OVERLAY_ID) && _lastModalOpts) {
+      buildModal(_lastModalOpts);
+    }
+  }
+
+  global.document.addEventListener('parent-i18n-ready', refreshOpenModal);
+  global.document.addEventListener('locale-changed', refreshOpenModal);
 
   global.WidgetInstallPrompt = {
     tryShow: tryShow,

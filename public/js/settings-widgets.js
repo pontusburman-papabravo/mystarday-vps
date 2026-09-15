@@ -6,6 +6,15 @@
 (function (global) {
   const CHILD_STORAGE_KEY = 'stjarndag_widget_bind_child_v1';
 
+  function pt(key, params) {
+    return (typeof global.pt === 'function') ? global.pt(key, params) : key;
+  }
+
+  function brandParam() {
+    const brand = pt('onboarding.common.brand');
+    return brand !== 'onboarding.common.brand' ? brand : 'My Starday';
+  }
+
   function esc(s) {
     if (typeof global.escHtml === 'function') return global.escHtml(s);
     return String(s || '')
@@ -19,9 +28,9 @@
   }
 
   function privacyLabel(mode) {
-    if (mode === 'full' || mode === 'standard') return 'Full';
-    if (mode === 'minimal') return 'Begränsad';
-    return String(mode || 'Full');
+    if (mode === 'full' || mode === 'standard') return pt('settings.widget.settings.privacyFull');
+    if (mode === 'minimal') return pt('settings.widget.settings.privacyLimited');
+    return String(mode || pt('settings.widget.settings.privacyFull'));
   }
 
   function setMessage(mount, text, isError) {
@@ -86,13 +95,13 @@
     if (children.length <= 1) return '';
     const opts = children
       .map(function (c) {
-        const label = (c.emoji ? c.emoji + ' ' : '') + (c.name || 'Barn');
+        const label = (c.emoji ? c.emoji + ' ' : '') + (c.name || pt('settings.widget.settings.childFallbackName'));
         const sel = c.id === selectedId ? ' selected' : '';
         return '<option value="' + esc(c.id) + '"' + sel + '>' + esc(label) + '</option>';
       })
       .join('');
     return (
-      '<label class="block text-sm font-semibold text-navy mb-1" for="widgetSettingsChildSelect">Vilket barn ska widgeten visa?</label>' +
+      '<label class="block text-sm font-semibold text-navy mb-1" for="widgetSettingsChildSelect">' + esc(pt('settings.widget.settings.childPickerLabel')) + '</label>' +
       '<select id="widgetSettingsChildSelect" class="w-full mb-3 px-3 py-2 rounded-xl border border-lavender text-navy min-h-[44px]">' +
       opts +
       '</select>'
@@ -102,16 +111,16 @@
   function mapBindingError(result) {
     const code = result && result.data && result.data.status;
     if (code === 'offline_unavailable') {
-      return 'Widgeten är inte aktiverad för er familj ännu. Kontakta support om det ska vara på.';
+      return pt('settings.widget.settings.errors.offlineUnavailable');
     }
     if (code === 'reauth_required' || code === 'device_revoked') {
-      return 'Sessionen behöver förnyas. Logga ut och in igen, försök sedan återansluta.';
+      return pt('settings.widget.settings.errors.reauthRequired');
     }
     if (result && result.reason === 'native_configure_failed') {
-      return 'Appen kunde inte spara widget-kopplingen. Stäng appen helt och öppna igen.';
+      return pt('settings.widget.settings.errors.nativeConfigureFailed');
     }
     if (result && (result.status === 403 || result.status === 401)) {
-      return 'Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen.';
+      return pt('settings.widget.settings.errors.notEnabled');
     }
     return null;
   }
@@ -119,7 +128,7 @@
   async function reconnectWidget(mount, children) {
     const user = global.Auth && Auth.getUser ? Auth.getUser() : null;
     if (!global.WidgetBridgeProvision) {
-      setMessage(mount, 'Widget-stöd saknas i den här versionen. Uppdatera appen.', true);
+      setMessage(mount, pt('settings.widget.settings.supportMissing'), true);
       return;
     }
 
@@ -129,20 +138,20 @@
     } else if (user && user.type === 'parent') {
       childId = readSelectedChildId(mount, children);
       if (!childId) {
-        const msg = 'Lägg till ett barn i familjen först, sedan kan du ansluta widgeten.';
+        const msg = pt('settings.widget.settings.addChildFirst');
         setMessage(mount, msg, true);
         flash(msg, true);
         return;
       }
       saveChildId(childId);
     } else if (!user) {
-      const msg = 'Du måste vara inloggad för att ansluta widgeten.';
+      const msg = pt('settings.widget.settings.loginRequired');
       setMessage(mount, msg, true);
       flash(msg, true);
       return;
     }
 
-    setMessage(mount, 'Ansluter…', false);
+    setMessage(mount, pt('settings.widget.settings.connecting'), false);
     try {
       const result = await global.WidgetBridgeProvision.syncBinding({ childId: childId, force: true });
 
@@ -151,7 +160,7 @@
       }
 
       if (result && result.ok) {
-        const okMsg = 'Klart! Lägg till widgeten på hemskärmen (+ → Min Stjärndag) om du inte redan gjort det.'; // pragma: allowlist secret
+        const okMsg = pt('settings.widget.settings.success', { brand: brandParam() });
         setMessage(mount, okMsg, false);
         flash(okMsg, false);
         await renderWidgetSettings(mount);
@@ -159,7 +168,7 @@
       }
 
       if (result && result.skipped && result.reason === 'no_child_context') {
-        const pickMsg = 'Välj barn i listan ovan och försök igen.';
+        const pickMsg = pt('settings.widget.settings.pickChild');
         setMessage(mount, pickMsg, true);
         flash(pickMsg, true);
         return;
@@ -172,11 +181,11 @@
         return;
       }
 
-      const failMsg = 'Kunde inte ansluta just nu. Försök igen om en stund.';
+      const failMsg = pt('settings.widget.settings.retryLater');
       setMessage(mount, failMsg, true);
       flash(failMsg, true);
     } catch (_err) {
-      const failMsg = 'Kunde inte ansluta just nu. Kontrollera nätverket och försök igen.';
+      const failMsg = pt('settings.widget.settings.networkError');
       setMessage(mount, failMsg, true);
       flash(failMsg, true);
     }
@@ -200,22 +209,22 @@
     const defaultChild = resolveDefaultChildId(children);
 
     mount.innerHTML =
-      '<h2 class="font-heading text-lg text-navy mb-2">Widgets och snabbåtkomst</h2>' +
-      '<p class="text-sm text-text-soft mb-3">Personlig widget = ett barn. Familjewidget = flera barn. Välj barn här om ni är flera.</p>' +
+      '<h2 class="font-heading text-lg text-navy mb-2">' + esc(pt('settings.widget.settings.title')) + '</h2>' +
+      '<p class="text-sm text-text-soft mb-3">' + esc(pt('settings.widget.settings.description')) + '</p>' +
       childPickerHtml(children, defaultChild) +
       '<dl class="text-sm space-y-2 mb-4 text-navy">' +
-      '<div><dt class="font-semibold inline">Status: </dt><dd class="inline text-text-soft">' +
-      (hasBinding ? 'Ansluten' : 'Behöver återanslutas') +
+      '<div><dt class="font-semibold inline">' + esc(pt('settings.widget.settings.statusLabel')) + ' </dt><dd class="inline text-text-soft">' +
+      esc(hasBinding ? pt('settings.widget.settings.statusConnected') : pt('settings.widget.settings.statusReconnect')) +
       '</dd></div>' +
-      '<div><dt class="font-semibold inline">Integritet: </dt><dd class="inline text-text-soft">' +
+      '<div><dt class="font-semibold inline">' + esc(pt('settings.widget.settings.privacyLabel')) + ' </dt><dd class="inline text-text-soft">' +
       esc(privacy) +
       '</dd></div>' +
       '</dl>' +
       '<button type="button" id="widgetSettingsReconnect" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold min-h-[44px]">' +
-      'Återanslut widget' +
+      esc(pt('settings.widget.settings.reconnectBtn')) +
       '</button>' +
       '<button type="button" id="widgetSettingsGuide" class="w-full mt-2 px-4 py-3 rounded-xl font-semibold min-h-[44px] border border-lavender/60 text-navy bg-white/10">' +
-      'Visa guide för hemskärmswidget' +
+      esc(pt('settings.widget.settings.guideBtn')) +
       '</button>' +
       '<p id="widgetSettingsMsg" class="text-sm min-h-[1.4em] mt-2 text-text-soft" role="status" aria-live="polite"></p>';
 
@@ -264,6 +273,14 @@
     scheduleMountRetries();
   });
   global.addEventListener('pageshow', function () {
+    const mount = document.getElementById('widgetSettingsSection');
+    if (mount) renderWidgetSettings(mount);
+  });
+  document.addEventListener('parent-i18n-ready', function () {
+    const mount = document.getElementById('widgetSettingsSection');
+    if (mount) renderWidgetSettings(mount);
+  });
+  document.addEventListener('locale-changed', function () {
     const mount = document.getElementById('widgetSettingsSection');
     if (mount) renderWidgetSettings(mount);
   });
