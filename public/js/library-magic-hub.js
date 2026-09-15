@@ -499,6 +499,9 @@
       if (_section === 'standard' && window.LibraryMagicSchedules) {
         LibraryMagicSchedules.refresh();
       }
+      if (_section === 'mine' && window.LibraryMagicMine) {
+        LibraryMagicMine.refresh();
+      }
     } else if (document.body.classList.contains('library-magic-on-hub')) {
       renderHub();
     }

@@ -426,7 +426,7 @@
               </a>
             </div>
             <div id="schemaChildrenList" class="space-y-3">
-              <div class="text-center py-8 text-text-soft">Laddar barn och scheman…</div>
+              <div class="text-center py-8 text-text-soft" data-i18n="library.loading.childrenSchedules">Laddar barn och scheman…</div>
             </div>
           </div>
 
@@ -437,12 +437,12 @@
                 <h3 class="text-lg font-heading font-bold text-navy">📝 Mina scheman</h3>
                 <p class="text-sm text-text-soft mt-0.5">Egna schemamallar — skapa, redigera och kopiera till barn</p>
               </div>
-              <button onclick="openCreateTemplateModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
+              <button onclick="openCreateTemplateModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap" data-i18n="library.schema.createNew">
                 + Skapa nytt schema
               </button>
             </div>
             <div id="familyTemplatesList" class="grid gap-4 sm:grid-cols-2">
-              <div class="text-center py-6 text-text-soft col-span-full">Laddar schemamallar…</div>
+              <div class="text-center py-6 text-text-soft col-span-full" data-i18n="library.loading.templates">Laddar schemamallar…</div>
             </div>
           </div>
 
@@ -455,7 +455,7 @@
               </div>
             </div>
             <div id="standardScheduleCards" class="grid gap-4 sm:grid-cols-2">
-              <div class="text-center py-6 text-text-soft col-span-full">Laddar standardscheman…</div>
+              <div class="text-center py-6 text-text-soft col-span-full" data-i18n="library.loading.standardSchedules">Laddar standardscheman…</div>
             </div>
           </div>
         </div>
@@ -514,7 +514,7 @@
 
           <!-- Time-grouped activities -->
           <div id="activitiesContainer" class="space-y-3">
-            <div class="text-center py-8 text-text-soft">Laddar aktiviteter…</div>
+            <div class="text-center py-8 text-text-soft" data-i18n="library.loading.activities">Laddar aktiviteter…</div>
           </div>
         </div>
 
@@ -529,7 +529,7 @@
 
           <!-- Child selector -->
           <div id="treasuryChildSelector" class="flex flex-wrap gap-2">
-            <div class="text-center py-4 text-text-soft text-sm w-full">Laddar barn…</div>
+            <div class="text-center py-4 text-text-soft text-sm w-full" data-i18n="library.loading.children">Laddar barn…</div>
           </div>
 
           <!-- Star balance display -->
@@ -593,7 +593,7 @@
           <div id="std-sub-schedules" class="std-sub-pane space-y-4 library-magic-legacy-hide">
             <p class="text-sm text-text-soft">Färdiga dagscheman — kopiera till ett barn och anpassa fritt</p>
             <div id="stdSchedulesContainer" class="grid gap-4 sm:grid-cols-2">
-              <div class="text-center py-8 text-text-soft col-span-full">Laddar standardscheman…</div>
+              <div class="text-center py-8 text-text-soft col-span-full" data-i18n="library.loading.standardSchedules">Laddar standardscheman…</div>
             </div>
           </div>
 
@@ -601,7 +601,7 @@
           <div id="std-sub-activities" class="std-sub-pane hidden space-y-4 library-magic-legacy-hide">
             <p class="text-sm text-text-soft">Färdiga aktiviteter — kopiera enskilda eller alla till ditt eget bibliotek</p>
             <div id="standardLibraryContainer" class="space-y-2">
-              <div class="text-center py-8 text-text-soft">Laddar standardaktiviteter…</div>
+              <div class="text-center py-8 text-text-soft" data-i18n="library.loading.standardActivities">Laddar standardaktiviteter…</div>
             </div>
           </div>
 
@@ -617,7 +617,7 @@
               </button>
             </div>
             <div id="standardRewardsContainer" class="space-y-2">
-              <div class="text-center py-8 text-text-soft">Laddar standardbelöningar…</div>
+              <div class="text-center py-8 text-text-soft" data-i18n="library.loading.standardRewards">Laddar standardbelöningar…</div>
             </div>
           </div>
         </div>
@@ -644,7 +644,7 @@
               <div id="rewardSearchResults" class="hidden mt-2 space-y-2"></div>
             </div>
             <div id="rewardsContainer" class="space-y-3">
-              <div class="text-center py-8 text-text-soft">Laddar belöningar…</div>
+              <div class="text-center py-8 text-text-soft" data-i18n="library.loading.rewards">Laddar belöningar…</div>
             </div>
           </section>
         </div>
@@ -671,8 +671,8 @@
         <p class="text-xs text-text-soft">Kategorin visas som en ny flik i ditt bibliotek. Du kan använda den vid schemaskapande.</p>
         <div id="categoryError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeCategoryModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="categorySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeCategoryModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="categorySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -728,7 +728,7 @@
                 <input type="file" id="activityImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
               </label>
               <button type="button" id="activityImageRecropBtn" class="hidden px-3 py-2 border-2 border-gold text-navy rounded-lg text-sm font-semibold" data-i18n="library.images.recropBtn">✂️ Beskär om</button>
-              <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold">Ta bort foto</button>
+              <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold" data-i18n="library.chrome.clearPhoto">Ta bort foto</button>
             </div>
             <p class="text-xs text-text-soft">Eller välj från bildarkivet:</p>
             <div id="activityImagePickerGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2"></div>
@@ -761,7 +761,7 @@
             class="w-10 h-6 rounded-full bg-lavender transition-colors relative flex-shrink-0">
             <span id="favDot" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform shadow"></span>
           </button>
-          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleFavorite()">
+          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleFavorite()" data-i18n="library.favorite.label">
             Favorit — visas först i schemat
           </label>
           <input type="hidden" id="activityFavorite" value="false">
@@ -806,7 +806,7 @@
           <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
           <div id="libActSubstepList" class="space-y-1 mb-2"></div>
           <div class="flex gap-2">
-            <input type="text" id="libActSubstepInput" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addLibActSubstep();}">
+            <input type="text" id="libActSubstepInput" placeholder="Lägg till delsteg…" data-i18n-placeholder="library.substeps.placeholder" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addLibActSubstep();}">
             <button type="button" onclick="addLibActSubstep()" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold transition-colors">+</button>
           </div>
         </div>
@@ -853,8 +853,8 @@
           </div>
         </div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="activitySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="activitySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -908,14 +908,14 @@
         <div>
           <label class="block text-sm font-semibold text-navy mb-2">Synlig för</label>
           <div id="rewardVisibilityContainer" class="space-y-2">
-            <p class="text-sm text-text-soft">Laddar barn…</p>
+            <p class="text-sm text-text-soft" data-i18n="library.loading.children">Laddar barn…</p>
           </div>
           <p class="text-xs text-text-soft mt-1">Lämna alla avbockade = synlig för alla barn</p>
         </div>
         <div id="rewardError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeRewardModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="rewardSubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeRewardModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="rewardSubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -955,8 +955,8 @@
         </div>
         <div id="subStepError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-1">
-          <button type="button" onclick="closeSubStepModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="subStepSubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeSubStepModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="subStepSubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -982,8 +982,8 @@
         </div>
       </div>
       <div class="image-crop-panel__actions">
-        <button type="button" id="imageCropCancelBtn" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold min-h-[48px]">Avbryt</button>
-        <button type="button" id="imageCropConfirmBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold min-h-[48px]">Spara bild</button>
+        <button type="button" id="imageCropCancelBtn" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold min-h-[48px]" data-i18n="library.actions.cancel">Avbryt</button>
+        <button type="button" id="imageCropConfirmBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold min-h-[48px]" data-i18n="library.chrome.saveImage">Spara bild</button>
       </div>
     </div>
   </div>
@@ -991,19 +991,19 @@
   <!-- ── Confirm Delete Modal ──────────────────────────────── -->
   <div id="confirmModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
     <div class="magic-modal-panel bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h3 class="text-lg font-heading font-bold text-navy mb-3">Bekräfta borttagning</h3>
-      <p id="confirmMsg" class="text-text-soft mb-6">Är du säker?</p>
+      <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="library.chrome.confirmTitle">Bekräfta borttagning</h3>
+      <p id="confirmMsg" class="text-text-soft mb-6" data-i18n="library.confirm.areYouSure">Är du säker?</p>
       <div class="flex gap-3">
-        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors">Ta bort</button>
+        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="library.actions.cancel">Avbryt</button>
+        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.delete">Ta bort</button>
       </div>
     </div>
   </div>
 
 <script src="/js/app-view-mode.js?v=4"></script>
-<script src="/js/library-schema.js?v=2.13.4"></script>
-<script src="/js/library-standard.js?v=2.12.3"></script>
-<script src="/js/library-substeps.js?v=2.12.0"></script>
+<script src="/js/library-schema.js?v=2.13.5"></script>
+<script src="/js/library-standard.js?v=2.12.4"></script>
+<script src="/js/library-substeps.js?v=2.12.1"></script>
 <script src="/js/library-treasury.js?v=2.12.0"></script>
 <script src="/js/preview-shell.js?v=1.0.0"></script>
 <script src="/js/package-interest-triggers.js?v=1.0.0"></script>
@@ -1013,12 +1013,12 @@
 <script src="/js/library-images.js?v=6"></script>
 <script src="/js/library-activity-timer-bridge.js?v=1"></script>
 <script src="/js/for-dig-goal-badge.js?v=1"></script>
-<script src="/js/library.js?v=2.18.8"></script>
+<script src="/js/library.js?v=2.18.9"></script>
 <script src="/js/planning-back-nav.js?v=1"></script>
 <script src="/js/parent-magic-shell.js?v=2"></script>
 <script src="/js/library-magic-schedules.js?v=6"></script>
-<script src="/js/library-magic-mine.js?v=1"></script>
-<script src="/js/library-magic-hub.js?v=8"></script>
+<script src="/js/library-magic-mine.js?v=2"></script>
+<script src="/js/library-magic-hub.js?v=9"></script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

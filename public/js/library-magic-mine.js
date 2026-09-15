@@ -6,10 +6,14 @@
   'use strict';
 
   const SEGMENTS = [
-    { id: 'scheman', label: '📅 Scheman', tab: 'schema' },
-    { id: 'aktiviteter', label: '📋 Aktiviteter', tab: 'activities' },
-    { id: 'beloningar', label: '🏆 Belöningar', tab: 'rewards' },
+    { id: 'scheman', labelKey: 'library.standard.segments.schedules', tab: 'schema' },
+    { id: 'aktiviteter', labelKey: 'library.standard.segments.activities', tab: 'activities' },
+    { id: 'beloningar', labelKey: 'library.standard.segments.rewards', tab: 'rewards' },
   ];
+
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
 
   let _segment = 'scheman';
 
@@ -33,7 +37,7 @@
       + SEGMENTS.map(function (seg) {
         return '<button type="button" class="library-magic-segment' + (_segment === seg.id ? ' is-active' : '') + '"'
           + ' data-mine-segment="' + seg.id + '" role="tab" aria-selected="' + (_segment === seg.id) + '">'
-          + escHtml(seg.label) + '</button>';
+          + escHtml(pt(seg.labelKey)) + '</button>';
       }).join('')
       + '</div>';
   }

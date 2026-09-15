@@ -3,6 +3,10 @@
 //       sub-step modal (add/edit/delete), sub-step icon picker, badge updates.
 // Does NOT own: activity list rendering (library.js), standard library (library-standard.js).
 
+function lpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 function formatSubStepDurationLabel(seconds) {
   if (!seconds || seconds < 5) return '';
   if (seconds < 60) return seconds + ' s';
@@ -106,15 +110,15 @@ async function toggleSubSteps(templateId) {
 async function loadSubSteps(templateId) {
   const listEl = document.getElementById(`substeps-list-${templateId}`);
   if (!listEl) return;
-  listEl.innerHTML = '<p class="text-xs text-text-soft py-1">Laddar…</p>';
+  listEl.innerHTML = '<p class="text-xs text-text-soft py-1">' + lpt('library.substeps.loading') + '</p>';
   try {
     const res = await window.apiFetch(`/api/activities/${templateId}/sub-steps`);
-    if (!res.ok) { listEl.innerHTML = '<p class="text-xs text-red-500">Kunde inte ladda delsteg</p>'; return; }
+    if (!res.ok) { listEl.innerHTML = '<p class="text-xs text-red-500">' + lpt('library.errors.generic') + '</p>'; return; }
     const steps = await res.json();
     subStepsCache[templateId] = steps;
     renderSubStepsList(templateId, steps);
   } catch {
-    listEl.innerHTML = '<p class="text-xs text-red-500">Fel vid laddning</p>';
+    listEl.innerHTML = '<p class="text-xs text-red-500">' + lpt('library.errors.generic') + '</p>';
   }
 }
 
@@ -122,7 +126,7 @@ function renderSubStepsList(templateId, steps) {
   const listEl = document.getElementById(`substeps-list-${templateId}`);
   if (!listEl) return;
   if (steps.length === 0) {
-    listEl.innerHTML = '<p class="text-xs text-text-soft italic py-1">Inga delsteg ännu. Lägg till nedan.</p>';
+    listEl.innerHTML = '<p class="text-xs text-text-soft italic py-1">' + lpt('library.empty.noSubsteps') + '</p>';
     return;
   }
   listEl.innerHTML = `
@@ -159,13 +163,13 @@ function initSubStepDnD(templateId) {
         const res = await window.apiFetch(`/api/activities/${templateId}/sub-steps/reorder`, {
           method: 'PUT', body: JSON.stringify({ order }),
         });
-        if (!res.ok) showToast('Kunde inte spara ordning', true);
+        if (!res.ok) showToast(lpt('library.errors.saveOrder'), true);
         else {
           subStepsCache[templateId] = subStepsCache[templateId]
             ? order.map(o => subStepsCache[templateId].find(s => s.id === o.id)).filter(Boolean)
             : [];
         }
-      } catch { showToast('Kunde inte spara ordning', true); }
+      } catch { showToast(lpt('library.errors.saveOrder'), true); }
     },
   });
 }
@@ -202,7 +206,7 @@ function openSubStepModal(templateId, step) {
   const icon = step && step.icon ? step.icon : '';
   document.getElementById('subStepIcon').value = icon;
   document.getElementById('subStepIconDisplay').textContent = icon || '❓';
-  document.getElementById('subStepModalTitle').textContent = step ? 'Redigera delsteg' : 'Lägg till delsteg';
+  document.getElementById('subStepModalTitle').textContent = step ? lpt('library.substeps.edit') : lpt('library.substeps.addTitle');
   document.getElementById('subStepError').classList.add('hidden');
   initSubStepTimerUI(step);
   buildSubStepIconPicker();
@@ -233,11 +237,11 @@ async function submitSubStep(e) {
   const errEl = document.getElementById('subStepError');
   errEl.classList.add('hidden');
   if (duration_seconds === undefined) {
-    errEl.textContent = 'Timern måste vara mellan 5 sekunder och 60 minuter, eller ingen timer.';
+    errEl.textContent = lpt('library.validation.timerRange');
     errEl.classList.remove('hidden');
     return;
   }
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
   const url = stepId
     ? `/api/activities/${templateId}/sub-steps/${stepId}`
     : `/api/activities/${templateId}/sub-steps`;
@@ -248,14 +252,14 @@ async function submitSubStep(e) {
   const data = await res.json();
   if (res.ok) {
     closeSubStepModal();
-    showToast('Delsteget har sparats');
+    showToast(lpt('library.saved.substep'));
     await loadSubSteps(templateId);
     const steps = subStepsCache[templateId] || [];
     updateSubStepBadge(templateId, steps.length);
   } else {
-    errEl.textContent = data.error || 'Fel uppstod'; errEl.classList.remove('hidden');
+    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function updateSubStepBadge(templateId, count) {
@@ -270,23 +274,23 @@ function updateSubStepBadge(templateId, count) {
       nameRow.appendChild(badge);
     }
   }
-  if (badge) badge.textContent = `${count} steg`;
+  if (badge) badge.textContent = lpt('library.standard.substepsCount', { count });
 }
 
 async function deleteSubStep(templateId, stepId, name) {
-  openConfirmModal(`Ta bort delsteget "${name}"?`, async () => {
+  openConfirmModal(lpt('library.confirm.deleteSubstep', { name }), async () => {
     const res = await window.apiFetch(
       `/api/activities/${templateId}/sub-steps/${stepId}`,
       { method: 'DELETE' }
     );
     const data = await res.json();
     if (res.ok) {
-      showToast('Delsteget har tagits bort');
+      showToast(lpt('library.saved.substepDeleted'));
       await loadSubSteps(templateId);
       const steps = subStepsCache[templateId] || [];
       updateSubStepBadge(templateId, steps.length);
     } else {
-      showToast(data.error || 'Kunde inte ta bort delsteget', true);
+      showToast(data.error || lpt('library.errors.generic'), true);
     }
   });
 }

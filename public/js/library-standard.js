@@ -235,7 +235,7 @@ async function copyAllStandardActivities() {
   } catch {
     showToast(libPt('library.standard.genericError'), true);
     btn.disabled = false;
-    btn.textContent = `📥 Kopiera alla (${ids.length} st)`;
+    btn.textContent = libPt('library.standard.copyAll', { count: ids.length });
   }
 }
 
@@ -325,7 +325,7 @@ async function copySelectedRewards() {
     });
     const data = await res.json();
     if (res.ok) {
-      showToast(data.message || `${ids.length} belöningar kopierade!`);
+      showToast(data.message || libPt('library.standard.rewardsCopied', { count: ids.length }));
       selectedRewardIds.clear();
       // Reload standard rewards (to update copy state) and personal rewards
       const rewardsRes = await window.apiFetch('/api/standard-library/rewards');
@@ -352,7 +352,7 @@ async function copyDefaultReward(rewardId) {
     const res = await window.apiFetch(`/api/standard-library/rewards/${rewardId}/copy`, { method: 'POST' });
     const data = await res.json();
     if (res.ok) {
-      showToast(data.message || 'Belöningen har kopierats!');
+      showToast(data.message || libPt('library.standard.copied'));
       // Reload both standard rewards (to update copy state) and personal rewards
       const rewardsRes = await window.apiFetch('/api/standard-library/rewards');
       if (rewardsRes.ok) standardDefaultRewards = await rewardsRes.json();
@@ -366,7 +366,7 @@ async function copyDefaultReward(rewardId) {
   } catch {
     showToast(libPt('library.standard.genericError'), true);
     btn.disabled = false;
-    btn.textContent = '📥 Kopiera';
+    btn.textContent = libPt('library.standard.copy');
   }
 }
 

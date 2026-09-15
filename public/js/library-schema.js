@@ -4,6 +4,14 @@
 //       copy-from-child modal, standard schedule cards, schedule item rendering.
 // Does NOT own: categories/activities (library.js), standard library tab (library-standard.js).
 
+function lpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
+function schemaDayShort(d) {
+  return lpt('schedule.daysShort.' + d);
+}
+
 // ─── Schema tab ──────────────────────────────────────────
 let _schemaLoaded = false;
 let schemaChildren = [];
@@ -20,7 +28,8 @@ async function safeJson(res) {
 }
 
 function schemaLoadErrorHtml() {
-  return '<p class="text-red-400 text-center py-6 text-sm">Kunde inte ladda scheman. <button type="button" class="underline font-semibold" onclick="reloadSchemaTab()">Försök igen</button></p>';
+  return '<p class="text-red-400 text-center py-6 text-sm">' + lpt('library.schema.loadError') +
+    ' <button type="button" class="underline font-semibold" onclick="reloadSchemaTab()">' + lpt('library.schema.retry') + '</button></p>';
 }
 
 async function loadSchemaTab() {
@@ -90,8 +99,8 @@ function renderSchemaChildren() {
     container.innerHTML = `
       <div class="text-center py-10 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-3xl mb-2">👶</p>
-        <p class="font-heading font-bold text-navy mb-1">Inga barn tillagda</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto">Lägg till barn under Familjen & inställningar.</p>
+        <p class="font-heading font-bold text-navy mb-1">${lpt('library.chrome.personalScheduleEmptyTitle')}</p>
+        <p class="text-sm text-text-soft max-w-sm mx-auto">${lpt('library.chrome.personalScheduleEmptyBody')}</p>
       </div>`;
     return;
   }
@@ -103,17 +112,17 @@ function renderSchemaChildren() {
           <span class="text-3xl">${child.emoji || '🧒'}</span>
           <div class="min-w-0">
             <h4 class="font-heading font-bold text-navy" style="word-break:break-word">${escHtml(child.name)}</h4>
-            <p class="text-xs text-text-soft">Personligt schema</p>
+            <p class="text-xs text-text-soft">${lpt('library.chrome.personalSchedule')}</p>
           </div>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <a href="/schedule?child=${child.id}"
             class="flex-1 sm:flex-none px-3 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-xs transition-colors text-center">
-            📅 Redigera schema
+            📅 ${lpt('library.chrome.editSchedule')}
           </a>
           <button onclick="openCopyScheduleModal('${child.id}', '${escHtml(child.name)}')"
             class="flex-1 sm:flex-none px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-xs transition-colors">
-            📋 Kopiera från…
+            📋 ${lpt('library.chrome.copyFrom')}
           </button>
         </div>
       </div>
@@ -130,8 +139,8 @@ function renderFamilyTemplates() {
     container.innerHTML = `
       <div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender col-span-full">
         <p class="text-3xl mb-2">📝</p>
-        <p class="font-heading font-bold text-navy mb-1">Inga egna scheman ännu</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto">Skapa ett nytt schema ovan, eller kopiera ett standardschema och anpassa det.</p>
+        <p class="font-heading font-bold text-navy mb-1">${lpt('library.chrome.noOwnSchedules')}</p>
+        <p class="text-sm text-text-soft max-w-sm mx-auto">${lpt('library.chrome.noOwnSchedulesBody')}</p>
       </div>`;
     return;
   }
@@ -144,11 +153,11 @@ function renderFamilyTemplates() {
         <div class="flex items-center justify-between gap-2">
           <div>
             <h4 class="font-heading font-bold text-navy">${escHtml(t.name)}</h4>
-            <div class="text-xs text-text-soft mt-0.5">${parseInt(t.item_count || 0)} aktiviteter</div>
+            <div class="text-xs text-text-soft mt-0.5">${lpt('library.standard.activitiesCount', { count: parseInt(t.item_count || 0) })}</div>
           </div>
           <button type="button" onclick="toggleTemplateFavorite('${t.id}', ${isFavorite})"
             class="text-xl min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}"
-            aria-label="${isFavorite ? 'Ta bort favorit' : 'Spara som favorit'}">${isFavorite ? '★' : '☆'}</button>
+            aria-label="${isFavorite ? lpt('library.favorite.remove') : lpt('library.favorite.add')}">${isFavorite ? '★' : '☆'}</button>
         </div>
       </div>
       <div class="px-4 py-3 flex flex-col gap-2">
@@ -159,16 +168,16 @@ function renderFamilyTemplates() {
              stays here; applying it to a week is the canonical flow's job. -->
         <button onclick="openCopyFamilyTemplateDialog('${t.id}', '${escHtml(t.name)}')"
           class="w-full px-4 py-2.5 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl font-semibold text-sm transition-colors">
-          📥 Kopiera till barn
+          📥 ${lpt('library.chrome.copyToChild')}
         </button>
         <div class="flex gap-2">
           <a href="/schedule?view=template&amp;template=${t.id}"
             class="flex-1 px-3 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-xs transition-colors text-center">
-            ✏️ Redigera
+            ✏️ ${lpt('library.actions.edit')}
           </a>
           <button onclick="deleteTemplate('${t.id}', '${escHtml(t.name)}')"
             class="px-3 py-2 bg-coral/10 hover:bg-coral/20 text-coral rounded-lg font-semibold text-xs transition-colors">
-            🗑️ Ta bort
+            🗑️ ${lpt('library.actions.delete')}
           </button>
         </div>
       </div>
@@ -197,7 +206,7 @@ async function toggleTemplateFavorite(templateId, currentlyFavorite) {
       }),
     }).catch(() => {});
   } else {
-    showToast('Kunde inte uppdatera favorit', true);
+    showToast(lpt('library.errors.updateFavorite'), true);
   }
 }
 
@@ -219,7 +228,7 @@ async function openCreateTemplateModal() {
       <span class="text-2xl">${s.icon || '📋'}</span>
       <div class="min-w-0">
         <span class="text-sm font-semibold text-navy block">${escHtml(s.name)}</span>
-        <span class="text-xs text-text-soft">${(s.items || []).length} aktiviteter</span>
+        <span class="text-xs text-text-soft">${lpt('library.standard.activitiesCount', { count: (s.items || []).length })}</span>
       </div>
     </label>
   `).join('');
@@ -228,29 +237,29 @@ async function openCreateTemplateModal() {
     <div id="createTemplateModal" class="fixed inset-0 bg-black/50 flex items-start overflow-y-auto justify-center z-50 p-4">
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy">+ Skapa nytt schema</h3>
+          <h3 class="text-lg font-heading font-bold text-navy">${lpt('library.schema.createNew')}</h3>
           <button onclick="closeCreateTemplateModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
           <div>
-            <label class="text-sm font-semibold text-navy block mb-1">Schemanamn</label>
-            <input type="text" id="createTemplateName" placeholder="T.ex. Sportlov, Helgschema…"
+            <label class="text-sm font-semibold text-navy block mb-1">${lpt('library.schema.scheduleName')}</label>
+            <input type="text" id="createTemplateName" placeholder="${lpt('library.schema.namePlaceholder')}"
               class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
           </div>
           <div>
-            <p class="text-sm font-semibold text-navy mb-2">Utgå från:</p>
+            <p class="text-sm font-semibold text-navy mb-2">${lpt('library.schema.createFrom')}</p>
             <div class="space-y-1">
               <label class="flex items-center gap-3 cursor-pointer py-2 px-3 rounded-xl hover:bg-sky/40 transition-colors border border-transparent hover:border-lavender">
                 <input type="radio" name="createTemplateSource" value="blank" class="w-5 h-5 accent-gold flex-shrink-0" checked>
                 <span class="text-2xl">📝</span>
                 <div>
-                  <span class="text-sm font-semibold text-navy block">Tomt schema</span>
-                  <span class="text-xs text-text-soft">Börja från noll och lägg till aktiviteter själv</span>
+                  <span class="text-sm font-semibold text-navy block">${lpt('library.schema.blankSchedule')}</span>
+                  <span class="text-xs text-text-soft">${lpt('library.schema.blankScheduleHint')}</span>
                 </div>
               </label>
               ${stdOptions.length > 0 ? `
                 <div class="border-t border-lavender my-2 pt-2">
-                  <p class="text-xs text-text-soft mb-1">Eller utgå från en standardmall:</p>
+                  <p class="text-xs text-text-soft mb-1">${lpt('library.schema.orStandard')}</p>
                   ${stdOptions}
                 </div>
               ` : ''}
@@ -258,8 +267,8 @@ async function openCreateTemplateModal() {
           </div>
           <div id="createTemplateError" class="text-red-500 text-sm hidden"></div>
           <div class="flex gap-3 pt-2">
-            <button onclick="closeCreateTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-            <button onclick="executeCreateTemplate()" id="createTemplateBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Skapa</button>
+            <button onclick="closeCreateTemplateModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">${lpt('library.actions.cancel')}</button>
+            <button onclick="executeCreateTemplate()" id="createTemplateBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">${lpt('library.schema.create')}</button>
           </div>
         </div>
       </div>
@@ -281,7 +290,7 @@ async function executeCreateTemplate() {
   const name = (nameInput?.value || '').trim();
   if (!name) {
     const errEl = document.getElementById('createTemplateError');
-    errEl.textContent = 'Ange ett namn för schemat';
+    errEl.textContent = lpt('library.schema.nameRequired');
     errEl.classList.remove('hidden');
     nameInput?.focus();
     return;
@@ -292,7 +301,7 @@ async function executeCreateTemplate() {
 
   const btn = document.getElementById('createTemplateBtn');
   btn.disabled = true;
-  btn.textContent = 'Skapar…';
+  btn.textContent = lpt('library.schema.creating');
 
   try {
     let res;
@@ -315,10 +324,10 @@ async function executeCreateTemplate() {
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       const errEl = document.getElementById('createTemplateError');
-      errEl.textContent = data.error || 'Kunde inte skapa schema';
+      errEl.textContent = data.error || lpt('library.schema.createFailed');
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Skapa';
+      btn.textContent = lpt('library.schema.create');
       return;
     }
 
@@ -326,17 +335,17 @@ async function executeCreateTemplate() {
     familyTemplates.push(template);
     renderFamilyTemplates();
     closeCreateTemplateModal();
-    showToast(`Schema "${name}" skapat!`);
+    showToast(lpt('library.schema.created', { name }));
   } catch {
-    showToast('Något gick fel', true);
+    showToast(lpt('library.errors.generic'), true);
     btn.disabled = false;
-    btn.textContent = 'Skapa';
+    btn.textContent = lpt('library.schema.create');
   }
 }
 
 // ─── Delete schedule template ────────────────────────────
 async function deleteTemplate(templateId, name) {
-  if (!confirm(`Vill du ta bort schemat "${name}"? Detta kan inte ångras.`)) return;
+  if (!confirm(lpt('library.confirm.deleteSchedule', { name }))) return;
 
   try {
     const res = await window.apiFetch(`/api/schedule-templates/${templateId}`, {
@@ -344,14 +353,14 @@ async function deleteTemplate(templateId, name) {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      showToast(data.error || 'Kunde inte ta bort schemat', true);
+      showToast(data.error || lpt('library.errors.deleteSchedule'), true);
       return;
     }
     familyTemplates = familyTemplates.filter(t => t.id !== templateId);
     renderFamilyTemplates();
-    showToast('Schema borttaget');
+    showToast(lpt('library.chrome.scheduleDeleted'));
   } catch {
-    showToast('Något gick fel', true);
+    showToast(lpt('library.errors.generic'), true);
   }
 }
 
@@ -365,11 +374,15 @@ function renderStandardScheduleCards() {
   const container = document.getElementById('standardScheduleCards');
   if (!container) return;
   if (standardSchedules.length === 0) {
-    container.innerHTML = '<p class="text-text-soft text-center py-6 col-span-full">Inga standardscheman tillgängliga ännu.</p>';
+    container.innerHTML = '<p class="text-text-soft text-center py-6 col-span-full">' + lpt('library.standard.noSchedules') + '</p>';
     return;
   }
 
-  const sectionLabels = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌙 Kväll' };
+  const sectionLabels = {
+    morgon: '🌅 ' + lpt('schedule.sections.morgon'),
+    dag: '☀️ ' + lpt('schedule.sections.dag'),
+    kvall: '🌙 ' + lpt('schedule.sections.kvall'),
+  };
 
   container.innerHTML = standardSchedules.map(s => {
     const bySection = {};
@@ -398,7 +411,7 @@ function renderStandardScheduleCards() {
               <p class="text-xs text-text-soft">${escHtml(s.description || '')}</p>
             </div>
           </div>
-          <div class="text-xs text-text-soft mt-1">${(s.items || []).length} aktiviteter</div>
+          <div class="text-xs text-text-soft mt-1">${lpt('library.standard.activitiesCount', { count: (s.items || []).length })}</div>
         </div>
         <div class="px-4 py-3 max-h-72 overflow-y-auto">
           ${sectionsHtml}
@@ -407,11 +420,11 @@ function renderStandardScheduleCards() {
           <!-- Phase 1C: demoted from a primary gold CTA — see rationale in renderFamilyTemplates() above. -->
           <button onclick="openScheduleCopyDialog('${s.id}', '${escHtml(s.name)}')"
             class="w-full px-4 py-2.5 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl font-semibold text-sm transition-colors">
-            📥 Kopiera till barn
+            📥 ${lpt('library.chrome.copyToChild')}
           </button>
           ${_libIsAdmin ? `<a href="/admin#lib-schedules" target="_blank"
             class="block w-full px-4 py-2 bg-navy/10 hover:bg-navy/20 text-navy rounded-xl font-semibold text-xs transition-colors text-center">
-            ✏️ Redigera i admin
+            ✏️ ${lpt('library.chrome.editInAdmin')}
           </a>` : ''}
         </div>
       </div>
@@ -492,7 +505,7 @@ function toggleScheduleCopyPeriod() {
   const on = cb.checked;
   if (fields) fields.classList.toggle('hidden', !on);
   if (dayPicker) dayPicker.classList.toggle('hidden', on);
-  if (btn) btn.textContent = on ? 'Kopiera för perioden' : 'Kopiera';
+  if (btn) btn.textContent = on ? lpt('library.schema.copyPeriod') : lpt('library.actions.copy');
   if (on) {
     const startEl = document.getElementById('copySchedPeriodStart');
     const endEl = document.getElementById('copySchedPeriodEnd');
@@ -504,11 +517,10 @@ function toggleScheduleCopyPeriod() {
 function openScheduleCopyDialog(scheduleId, scheduleName, source) {
   const _copySource = source || 'standard';
   if (schemaChildren.length === 0) {
-    showToast('Inga barn att kopiera till', true);
+    showToast(lpt('library.schema.noChildrenToCopy'), true);
     return;
   }
 
-  const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
   const childOptions = schemaChildren.map(c =>
     `<label class="flex items-center gap-3 cursor-pointer py-1">
        <input type="radio" name="copySchedChild" value="${c.id}" class="w-5 h-5 accent-gold">
@@ -519,7 +531,7 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
   const dayCheckboxes = [1,2,3,4,5,6,0].map(d =>
     `<label class="flex items-center gap-2 cursor-pointer">
        <input type="checkbox" class="copy-sched-day w-5 h-5 accent-gold" value="${d}">
-       <span class="text-sm text-navy dark:text-white">${dayNames[d]}</span>
+       <span class="text-sm text-navy dark:text-white">${schemaDayShort(d)}</span>
      </label>`
   ).join('');
 
@@ -527,49 +539,49 @@ function openScheduleCopyDialog(scheduleId, scheduleName, source) {
     <div id="scheduleCopyModal" class="fixed inset-0 bg-black/50 flex items-start overflow-y-auto justify-center z-50 p-4">
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📥 Kopiera "${scheduleName}"</h3>
+          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📥 ${lpt('library.schema.copyTitle', { name: scheduleName })}</h3>
           <button onclick="closeScheduleCopyModal()" class="text-text-soft hover:text-navy dark:hover:text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
           <div>
-            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Välj barn:</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">${lpt('library.schema.pickChildLabel')}</p>
             <div class="space-y-1">${childOptions}</div>
           </div>
           <div class="rounded-xl border-2 border-lavender bg-sky/40 dark:bg-navy dark:border-navy-soft p-3">
             <label class="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" id="copySchedUsePeriod" class="w-5 h-5 mt-0.5 accent-gold flex-shrink-0" onchange="toggleScheduleCopyPeriod()">
               <span>
-                <span class="block text-sm font-semibold text-navy dark:text-white">Begränsa till period</span>
-                <span class="block text-xs text-text-soft dark:text-lavender mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan datumen.</span>
+                <span class="block text-sm font-semibold text-navy dark:text-white">${lpt('library.schema.limitPeriod')}</span>
+                <span class="block text-xs text-text-soft dark:text-lavender mt-0.5">${lpt('library.schema.limitPeriodHint')}</span>
               </span>
             </label>
             <div id="copySchedPeriodFields" class="hidden mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy dark:text-white mb-1">Startdatum</label>
+                <label for="copySchedPeriodStart" class="block text-xs font-semibold text-navy dark:text-white mb-1">${lpt('library.schema.startDate')}</label>
                 <input type="date" id="copySchedPeriodStart" class="w-full px-3 py-2 border-2 border-lavender dark:border-navy-soft rounded-xl text-sm text-navy dark:bg-navy dark:text-white">
               </div>
               <div>
-                <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy dark:text-white mb-1">Slutdatum</label>
+                <label for="copySchedPeriodEnd" class="block text-xs font-semibold text-navy dark:text-white mb-1">${lpt('library.schema.endDate')}</label>
                 <input type="date" id="copySchedPeriodEnd" class="w-full px-3 py-2 border-2 border-lavender dark:border-navy-soft rounded-xl text-sm text-navy dark:bg-navy dark:text-white">
               </div>
             </div>
           </div>
           <div id="copySchedDayPicker">
-            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Vilka dagar?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">${lpt('library.schema.whichDays')}</p>
             <div class="flex flex-wrap gap-3">${dayCheckboxes}</div>
           </div>
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="checkbox" id="copySchedOverwrite" class="w-5 h-5 accent-gold">
-            <span class="text-sm text-text-soft dark:text-lavender">Skriv över befintligt schema</span>
+            <span class="text-sm text-text-soft dark:text-lavender">${lpt('library.schema.overwrite')}</span>
           </label>
           <div id="copySchedVariantPicker" class="hidden rounded-xl border-2 border-gold bg-gold-light/30 dark:bg-navy p-3">
-            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Hur ser eftermiddagen ut efter skolan?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">${lpt('library.schema.afternoonVariant')}</p>
             <div id="copySchedVariantOptions" class="space-y-1"></div>
           </div>
           <div id="scheduleCopyError" class="text-red-500 dark:text-red-300 text-sm hidden"></div>
           <div class="flex gap-3">
-            <button onclick="closeScheduleCopyModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">Avbryt</button>
-            <button onclick="executeScheduleCopy('${scheduleId}', '${_copySource}')" id="scheduleCopyBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Kopiera</button>
+            <button onclick="closeScheduleCopyModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">${lpt('library.actions.cancel')}</button>
+            <button onclick="executeScheduleCopy('${scheduleId}', '${_copySource}')" id="scheduleCopyBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">${lpt('library.actions.copy')}</button>
           </div>
         </div>
       </div>
@@ -629,7 +641,7 @@ async function executeScheduleCopy(scheduleId, source) {
 
   const childRadio = document.querySelector('input[name="copySchedChild"]:checked');
   if (!childRadio) {
-    document.getElementById('scheduleCopyError').textContent = 'Välj ett barn';
+    document.getElementById('scheduleCopyError').textContent = lpt('library.schema.pickChild');
     document.getElementById('scheduleCopyError').classList.remove('hidden');
     return;
   }
@@ -640,20 +652,20 @@ async function executeScheduleCopy(scheduleId, source) {
 
   const btn = document.getElementById('scheduleCopyBtn');
   btn.disabled = true;
-  btn.textContent = 'Kopierar…';
+  btn.textContent = lpt('library.schema.copying');
 
   if (usePeriod) {
     const start = document.getElementById('copySchedPeriodStart')?.value;
     const end = document.getElementById('copySchedPeriodEnd')?.value;
     if (!start || !end) {
-      errEl.textContent = 'Ange start- och slutdatum';
+      errEl.textContent = lpt('library.schema.datesRequired');
       errEl.classList.remove('hidden');
       btn.disabled = false;
       toggleScheduleCopyPeriod();
       return;
     }
     if (end < start) {
-      errEl.textContent = 'Slutdatum måste vara på eller efter startdatum';
+      errEl.textContent = lpt('library.schema.endAfterStart');
       errEl.classList.remove('hidden');
       btn.disabled = false;
       toggleScheduleCopyPeriod();
@@ -679,16 +691,16 @@ async function executeScheduleCopy(scheduleId, source) {
       );
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || 'Schemat har kopierats för perioden!');
+        showToast(data.message || lpt('library.schema.copiedPeriod'));
         closeScheduleCopyModal();
       } else {
-        errEl.textContent = data.error || 'Kunde inte kopiera';
+        errEl.textContent = data.error || lpt('library.standard.copyFailed');
         errEl.classList.remove('hidden');
         btn.disabled = false;
         toggleScheduleCopyPeriod();
       }
     } catch {
-      showToast('Något gick fel', true);
+      showToast(lpt('library.errors.generic'), true);
       btn.disabled = false;
       toggleScheduleCopyPeriod();
     }
@@ -697,10 +709,10 @@ async function executeScheduleCopy(scheduleId, source) {
 
   const days = Array.from(document.querySelectorAll('.copy-sched-day:checked')).map(cb => parseInt(cb.value));
   if (days.length === 0) {
-    errEl.textContent = 'Välj minst en dag';
+    errEl.textContent = lpt('library.schema.pickDay');
     errEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Kopiera';
+    btn.textContent = lpt('library.actions.copy');
     return;
   }
 
@@ -723,23 +735,23 @@ async function executeScheduleCopy(scheduleId, source) {
     });
     const data = await res.json();
     if (res.ok) {
-      showToast(data.message || 'Schemat har kopierats!');
+      showToast(data.message || lpt('library.schema.copied'));
       closeScheduleCopyModal();
     } else if (data.code === 'CANONICAL_VARIANT_REQUIRED' && showVariantPicker(variantPicker, document.getElementById('copySchedVariantOptions'), data.details)) {
-      errEl.textContent = 'Välj alternativet ovan och klicka på Kopiera igen.';
+      errEl.textContent = lpt('library.schema.pickOptionRetry');
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Kopiera';
+      btn.textContent = lpt('library.actions.copy');
     } else {
-      errEl.textContent = data.error || 'Kunde inte kopiera';
+      errEl.textContent = data.error || lpt('library.standard.copyFailed');
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Kopiera';
+      btn.textContent = lpt('library.actions.copy');
     }
   } catch {
-    showToast('Något gick fel', true);
+    showToast(lpt('library.errors.generic'), true);
     btn.disabled = false;
-    btn.textContent = 'Kopiera';
+    btn.textContent = lpt('library.actions.copy');
   }
 }
 
@@ -747,15 +759,13 @@ async function executeScheduleCopy(scheduleId, source) {
 function openCopyScheduleModal(childId, childName) {
   const otherChildren = schemaChildren.filter(c => c.id !== childId);
   if (otherChildren.length === 0 && standardSchedules.length === 0) {
-    showToast('Inga källor att kopiera från', true);
+    showToast(lpt('library.schema.noSources'), true);
     return;
   }
 
-  const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
-
   let sourcesHtml = '';
   if (otherChildren.length > 0) {
-    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2">Från annat barn:</p>';
+    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2">' + lpt('library.schema.fromOtherChild') + '</p>';
     sourcesHtml += otherChildren.map(c =>
       `<label class="flex items-center gap-3 cursor-pointer py-1">
          <input type="radio" name="copySource" value="child:${c.id}" class="w-5 h-5 accent-gold" onchange="onCopySourceChange(this.value)">
@@ -764,7 +774,7 @@ function openCopyScheduleModal(childId, childName) {
     ).join('');
   }
   if (standardSchedules.length > 0) {
-    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2 mt-3">Från standardbiblioteket:</p>';
+    sourcesHtml += '<p class="text-sm font-semibold text-navy dark:text-white mb-2 mt-3">' + lpt('library.schema.fromStandard') + '</p>';
     sourcesHtml += standardSchedules.map(s =>
       `<label class="flex items-center gap-3 cursor-pointer py-1">
          <input type="radio" name="copySource" value="schedule:${s.id}" class="w-5 h-5 accent-gold" onchange="onCopySourceChange(this.value)">
@@ -776,7 +786,7 @@ function openCopyScheduleModal(childId, childName) {
   const dayCheckboxes = [1,2,3,4,5,6,0].map(d =>
     `<label class="flex items-center gap-2 cursor-pointer">
        <input type="checkbox" class="copy-from-day w-5 h-5 accent-gold" value="${d}" ${d >= 1 && d <= 5 ? 'checked' : ''}>
-       <span class="text-sm text-navy dark:text-white">${dayNames[d]}</span>
+       <span class="text-sm text-navy dark:text-white">${schemaDayShort(d)}</span>
      </label>`
   ).join('');
 
@@ -784,27 +794,27 @@ function openCopyScheduleModal(childId, childName) {
     <div id="copyFromModal" class="fixed inset-0 bg-black/50 flex items-start overflow-y-auto justify-center z-50 p-4">
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📋 Kopiera schema till ${escHtml(childName)}</h3>
+          <h3 class="text-lg font-heading font-bold text-navy dark:text-white">📋 ${lpt('library.schema.copyToChildTitle', { name: escHtml(childName) })}</h3>
           <button onclick="closeCopyFromModal()" class="text-text-soft hover:text-navy dark:hover:text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
           <div>${sourcesHtml}</div>
           <div id="copyFromDayPicker" class="hidden">
-            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Vilka dagar?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">${lpt('library.schema.whichDays')}</p>
             <div class="flex flex-wrap gap-3">${dayCheckboxes}</div>
           </div>
           <label id="copyFromOverwriteRow" class="hidden flex items-center gap-3 cursor-pointer">
             <input type="checkbox" id="copyFromOverwrite" class="w-5 h-5 accent-gold">
-            <span class="text-sm text-text-soft dark:text-lavender">Skriv över befintligt schema</span>
+            <span class="text-sm text-text-soft dark:text-lavender">${lpt('library.schema.overwrite')}</span>
           </label>
           <div id="copyFromVariantPicker" class="hidden rounded-xl border-2 border-gold bg-gold-light/30 dark:bg-navy p-3">
-            <p class="text-sm font-semibold text-navy dark:text-white mb-2">Hur ser eftermiddagen ut efter skolan?</p>
+            <p class="text-sm font-semibold text-navy dark:text-white mb-2">${lpt('library.schema.afternoonVariant')}</p>
             <div id="copyFromVariantOptions" class="space-y-1"></div>
           </div>
           <div id="copyFromError" class="text-red-500 dark:text-red-300 text-sm hidden"></div>
           <div class="flex gap-3 pt-2">
-            <button onclick="closeCopyFromModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">Avbryt</button>
-            <button onclick="executeCopyFrom('${childId}')" id="copyFromBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Kopiera</button>
+            <button onclick="closeCopyFromModal()" class="flex-1 px-4 py-3 border-2 border-lavender dark:border-navy-soft dark:text-white rounded-xl font-semibold hover:border-navy dark:hover:border-white transition-colors">${lpt('library.actions.cancel')}</button>
+            <button onclick="executeCopyFrom('${childId}')" id="copyFromBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">${lpt('library.actions.copy')}</button>
           </div>
         </div>
       </div>
@@ -829,7 +839,7 @@ function closeCopyFromModal() {
 async function executeCopyFrom(targetChildId) {
   const source = document.querySelector('input[name="copySource"]:checked');
   if (!source) {
-    document.getElementById('copyFromError').textContent = 'Välj en källa';
+    document.getElementById('copyFromError').textContent = lpt('library.schema.pickSource');
     document.getElementById('copyFromError').classList.remove('hidden');
     return;
   }
@@ -837,7 +847,7 @@ async function executeCopyFrom(targetChildId) {
   const [type, id] = source.value.split(':');
   const btn = document.getElementById('copyFromBtn');
   btn.disabled = true;
-  btn.textContent = 'Kopierar…';
+  btn.textContent = lpt('library.schema.copying');
 
   // Get selected days (only shown after source selected)
   const dayPicker = document.getElementById('copyFromDayPicker');
@@ -847,10 +857,10 @@ async function executeCopyFrom(targetChildId) {
   const overwrite = document.getElementById('copyFromOverwrite')?.checked ?? true;
 
   if (days.length === 0) {
-    document.getElementById('copyFromError').textContent = 'Välj minst en dag';
+    document.getElementById('copyFromError').textContent = lpt('library.schema.pickDay');
     document.getElementById('copyFromError').classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Kopiera';
+    btn.textContent = lpt('library.actions.copy');
     return;
   }
 
@@ -866,13 +876,13 @@ async function executeCopyFrom(targetChildId) {
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || 'Schemat har kopierats!');
+        showToast(data.message || lpt('library.schema.copied'));
         closeCopyFromModal();
       } else if (data.code === 'CANONICAL_VARIANT_REQUIRED' && showVariantPicker(variantPicker, document.getElementById('copyFromVariantOptions'), data.details)) {
-        document.getElementById('copyFromError').textContent = 'Välj alternativet ovan och klicka på Kopiera igen.';
+        document.getElementById('copyFromError').textContent = lpt('library.schema.pickOptionRetry');
         document.getElementById('copyFromError').classList.remove('hidden');
         btn.disabled = false;
-        btn.textContent = 'Kopiera';
+        btn.textContent = lpt('library.actions.copy');
         return;
       } else {
         throw new Error(data.error);
@@ -885,17 +895,17 @@ async function executeCopyFrom(targetChildId) {
       });
       const data = await res.json();
       if (res.ok) {
-        showToast(data.message || 'Schemat har kopierats!');
+        showToast(data.message || lpt('library.schema.copied'));
         closeCopyFromModal();
       } else {
         throw new Error(data.error);
       }
     }
   } catch (err) {
-    document.getElementById('copyFromError').textContent = err.message || 'Något gick fel';
+    document.getElementById('copyFromError').textContent = err.message || lpt('library.errors.generic');
     document.getElementById('copyFromError').classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Kopiera';
+    btn.textContent = lpt('library.actions.copy');
   }
 }
 
