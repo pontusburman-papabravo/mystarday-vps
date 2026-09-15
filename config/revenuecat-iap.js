@@ -9,6 +9,7 @@ const {
   ENTITLEMENT_ID: CONTRACT_ENTITLEMENT_ID,
   WEBHOOK_PRODUCT_IDS,
   STORE_PRODUCT_MONTHLY,
+  GOOGLE_SUBSCRIPTION_PRODUCT,
 } = require('./iap-product-contract');
 
 const DEFAULT_ENTITLEMENT_ID = CONTRACT_ENTITLEMENT_ID;
@@ -76,7 +77,13 @@ function isSandboxTestFamily(familyId) {
 
 function isAllowedProductId(productId) {
   if (!productId) return false;
-  return getAllowedProductIds().includes(String(productId));
+  const id = String(productId);
+  const allowed = getAllowedProductIds();
+  if (allowed.includes(id)) return true;
+  if (id === GOOGLE_SUBSCRIPTION_PRODUCT) {
+    return allowed.some((p) => p.startsWith(`${GOOGLE_SUBSCRIPTION_PRODUCT}:`));
+  }
+  return false;
 }
 
 function isAllowedAppId(appId) {

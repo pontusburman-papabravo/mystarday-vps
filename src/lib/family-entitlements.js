@@ -95,8 +95,15 @@ function buildPremiumFromRow(row) {
       ? 'Premium – administrativt (utan slutdatum)'
       : 'Premium – administrativt';
   }
-  else if (row.source === 'apple') label = plan === 'yearly' ? 'Premium – årsabonnemang via Apple' : 'Premium – månadsabonnemang via Apple';
-  else if (row.source === 'google') label = plan === 'yearly' ? 'Premium – årsabonnemang via Google Play' : 'Premium – månadsabonnemang via Google Play';
+  else if (row.source === 'apple') {
+    if (plan === 'yearly') label = 'Premium – årsabonnemang via Apple';
+    else if (plan === 'monthly') label = 'Premium – månadsabonnemang via Apple';
+    else label = 'Premium via Apple';
+  } else if (row.source === 'google') {
+    if (plan === 'yearly') label = 'Premium – årsabonnemang via Google Play';
+    else if (plan === 'monthly') label = 'Premium – månadsabonnemang via Google Play';
+    else label = 'Premium via Google Play';
+  }
   else if (row.status === 'grace_period') label = 'Premium – betalning behöver uppdateras';
 
   return {

@@ -6,6 +6,8 @@ node_modules/
 
 # Uploaded images (local disk storage)
 data/deployed-sha
+data/app-review-iap.secret
+data/deploy/health-*.json
 data/uploads/*
 !data/uploads/.gitkeep
 data/downloads/*

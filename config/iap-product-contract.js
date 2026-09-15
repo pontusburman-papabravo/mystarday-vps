@@ -84,6 +84,8 @@ function getStoreProductIdsForPlatform(platform) {
 function planFromStoreProductId(productId) {
   if (!productId) return null;
   const id = String(productId);
+  // Google subscription product without :basePlan — entitlement only, never infer monthly/yearly.
+  if (id === GOOGLE_SUBSCRIPTION_PRODUCT) return null;
   if (
     id === APPLE_PRODUCT_YEARLY ||
     id === GOOGLE_PRODUCT_YEARLY ||
@@ -104,7 +106,10 @@ function planFromStoreProductId(productId) {
 }
 
 function isAllowedWebhookProductId(productId) {
-  return WEBHOOK_PRODUCT_IDS.includes(String(productId || ''));
+  const id = String(productId || '');
+  if (WEBHOOK_PRODUCT_IDS.includes(id)) return true;
+  // RevenueCat Google REST/subscriber payloads often omit :basePlan.
+  return id === GOOGLE_SUBSCRIPTION_PRODUCT;
 }
 
 module.exports = {

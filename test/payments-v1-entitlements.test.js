@@ -12,7 +12,13 @@ const { registerAndLogin, createChild } = require('./helpers/auth-session.js');
 const { enablePublicBillingForTest, disablePublicBillingForTest } = require('./helpers/public-billing');
 const { hashPassword } = require('../src/lib/hash');
 const { applyIapWebhookTestEnv, TEST_APP_ID } = require('./support/iap-webhook-test-env');
-const { STORE_PRODUCT_MONTHLY } = require('../config/iap-product-contract');
+const {
+  STORE_PRODUCT_MONTHLY,
+  GOOGLE_SUBSCRIPTION_PRODUCT,
+  GOOGLE_PRODUCT_MONTHLY,
+  GOOGLE_PRODUCT_YEARLY,
+} = require('../config/iap-product-contract');
+const { isAllowedProductId } = require('../config/revenuecat-iap');
 
 applyIapWebhookTestEnv();
 
@@ -207,6 +213,59 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(persisted.rows.length, 1);
     assert.equal(new Date(persisted.rows[0].starts_at).toISOString(), new Date(family.created_at).toISOString());
     assert.equal(new Date(persisted.rows[0].expires_at).toISOString(), expectedExpiry.toISOString());
+  });
+
+  await t.test('Google store product plan mapping (monthly/yearly/base-only)', async () => {
+    const family = await createFamilyDirect(db, '2026-11-05T00:00:00+02:00');
+    const expFuture = Date.now() + 7 * 86400000;
+    const playEvent = { id: 'evt_google_plan', store: 'PLAY_STORE', period_type: 'NORMAL' };
+
+    await applyStoreEntitlementFromWebhook(family.id, {
+      subscriptionStatus: 'active',
+      eventType: 'INITIAL_PURCHASE',
+      event: playEvent,
+      productId: GOOGLE_PRODUCT_MONTHLY,
+      expirationAtMs: expFuture,
+    });
+    let resolved = await resolveFamilyEntitlements(family.id);
+    assert.equal(resolved.premium.active, true);
+    assert.equal(resolved.premium.plan, 'monthly');
+    assert.match(resolved.premium.label, /månadsabonnemang via Google Play/);
+
+    await applyStoreEntitlementFromWebhook(family.id, {
+      subscriptionStatus: 'active',
+      eventType: 'RENEWAL',
+      event: { ...playEvent, id: 'evt_google_yearly' },
+      productId: GOOGLE_PRODUCT_YEARLY,
+      expirationAtMs: expFuture,
+    });
+    resolved = await resolveFamilyEntitlements(family.id);
+    assert.equal(resolved.premium.plan, 'yearly');
+    assert.match(resolved.premium.label, /årsabonnemang via Google Play/);
+
+    await applyStoreEntitlementFromWebhook(family.id, {
+      subscriptionStatus: 'active',
+      eventType: 'RENEWAL',
+      event: { ...playEvent, id: 'evt_google_base' },
+      productId: GOOGLE_SUBSCRIPTION_PRODUCT,
+      expirationAtMs: expFuture,
+    });
+    resolved = await resolveFamilyEntitlements(family.id);
+    assert.equal(resolved.premium.active, true);
+    assert.equal(resolved.premium.plan, null);
+    assert.equal(resolved.premium.label, 'Premium via Google Play');
+    assert.doesNotMatch(resolved.premium.label, /månadsabonnemang|årsabonnemang/);
+
+    const ent = await db.query(
+      `SELECT metadata->>'plan' AS plan
+         FROM family_entitlements
+        WHERE family_id = $1 AND source = 'google' AND revoked_at IS NULL
+        ORDER BY granted_at DESC LIMIT 1`,
+      [family.id]
+    );
+    assert.equal(ent.rows[0].plan, null);
+    assert.equal(isAllowedProductId(GOOGLE_SUBSCRIPTION_PRODUCT), true);
+    assert.equal(isAllowedProductId('com.example.unknown'), false);
   });
 
   await t.test('3–6 store trial/active/grace/expired', async () => {
