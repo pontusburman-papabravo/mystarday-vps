@@ -697,5 +697,72 @@
     "ariaOneSecond": "Timer. 1 second left.",
     "ariaSeconds": "Timer. {{count}} seconds left.",
     "ariaMinutesAndSeconds": "Timer. {{minutes}} minute{{minutePlural}} and {{seconds}} second{{secondPlural}} left."
+  },
+  "helpBubble": {
+    "title": "❓ Help – Child view",
+    "tabs": [
+      {
+        "id": "today",
+        "label": "📋 Activities",
+        "faqs": [
+          {
+            "q": "How do I tick off an activity?",
+            "a": "Tap the white circle next to the activity with <strong>NOW</strong> on it. It turns green with a tick and you earn a star! 🌟"
+          },
+          {
+            "q": "What are sub-steps and how do I see them?",
+            "a": "Activities with sub-steps show a 📋 button. Tap it to see the steps that help you finish the activity! You still tick off the whole activity with one tap."
+          },
+          {
+            "q": "What is the circle around my emoji?",
+            "a": "The circle around your emoji shows <strong>today's progress</strong> — how many activities you've finished today. The circle fills up and turns green when you've done them all! 🟢"
+          },
+          {
+            "q": "What is NOW / Next / Later?",
+            "a": "<strong>NOW</strong> = your current activity. <strong>Next</strong> = what comes after. <strong>Later</strong> = the rest of your day. This mode is off by default — a grown-up can turn it on if you should tick off one at a time."
+          },
+          {
+            "q": "What is the timer?",
+            "a": "The round timer shows how long the activity takes. Green = plenty of time, orange = not much left, red = nearly finished."
+          }
+        ]
+      },
+      {
+        "id": "stars",
+        "label": "⭐ My stars",
+        "faqs": [
+          {
+            "q": "What are the three star things?",
+            "a": "<strong>The circle around your emoji</strong> = how many activities you've finished today. <strong>Star balance</strong> = your total saved stars. <strong>Long-term goal</strong> = progress towards your chosen reward."
+          },
+          {
+            "q": "How do I redeem a reward?",
+            "a": "Open the Treasure Chest (tap the 💎 tab) → tap a reward you've saved enough for → tap \"Ask to redeem\" → wait for a grown-up to approve."
+          },
+          {
+            "q": "How do I earn more stars?",
+            "a": "Tick off the activities in your schedule! Each completed activity earns stars. A grown-up can also give you bonus stars."
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "🔧 Help",
+        "faqs": [
+          {
+            "q": "I can't see my reward",
+            "a": "A grown-up needs to add rewards for you in <strong>Library</strong>. Ask a grown-up to help."
+          },
+          {
+            "q": "I've forgotten my PIN",
+            "a": "Ask a grown-up to go to <strong>Family & settings → Children</strong> → choose your name → \"Change PIN\"."
+          },
+          {
+            "q": "My schedule looks odd",
+            "a": "Ask a grown-up to check the schedule. It might need updating for today's day."
+          }
+        ]
+      }
+    ]
   }
 }
