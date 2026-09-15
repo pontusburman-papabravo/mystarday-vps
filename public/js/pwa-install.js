@@ -44,6 +44,11 @@
     return (typeof window.pt === 'function') ? window.pt(key, params) : key;
   }
 
+  function brandParam() {
+    const brand = pt('onboarding.common.brand');
+    return brand !== 'onboarding.common.brand' ? brand : 'My Starday';
+  }
+
   // Native iOS/Android apps are the primary install path — no web "add to home screen" prompts.
   function isNeeded() {
     return false;
@@ -101,7 +106,7 @@
       '        </li>',
       '      </ol>',
       '      <div class="mt-3 flex items-center gap-2" style="opacity:0.7;font-size:0.65rem;color:#5A4A1A;">',
-      '        <span>⬇️ Animerad pil pekar mot Dela-knappen i din webbläsare</span>',
+      '        <span>⬇️ ' + pt('home.pwa.iosArrowHint') + '</span>',
       '      </div>',
       '      <!-- Animated arrow hint -->',
       '      <div id="pwaShareArrow" style="text-align:center;margin-top:6px;">',
@@ -116,22 +121,22 @@
   function androidGuideHTML() {
     return [
       '<div data-pwa-guide class="rounded-2xl p-4 mb-4 relative" style="background:#FFF3CD;border:2px solid #F5A623;">',
-      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="Stäng" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
+      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="' + pt('home.pwa.dismissAria') + '" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
       '  <div class="flex items-start gap-3">',
       '    <span style="font-size:1.5rem;line-height:1;">📱</span>',
       '    <div class="flex-1">',
-      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">Installera appen för bästa upplevelse</p>',
+      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">' + pt('home.pwa.androidTitle') + '</p>',
       '      <p class="text-xs mb-3" style="color:#5A4A1A;">',
-      '        Installera Min Stjärndag på hemskärmen för snabb åtkomst och push-notiser.',
+      '        ' + pt('home.pwa.androidHomeLead', { brand: brandParam() }) + '',
       '      </p>',
       '      <button data-pwa-android-btn ' +
         'class="' + (_deferredPrompt ? '' : 'hidden ') + 'px-4 py-2 rounded-xl font-bold text-sm transition-colors" ' +
         'style="background:#F5A623;color:#1B2340;font-weight:700;" ' +
         'onclick="window.PWAInstall._triggerAndroid(this)">',
-      '        📲 Installera appen',
+      '        ' + pt('home.pwa.androidInstallBtn') + '',
       '      </button>',
       '      <p data-pwa-android-fallback class="' + (_deferredPrompt ? 'hidden ' : '') + 'text-xs" style="color:#5A4A1A;">',
-      '        Tryck på ⋮ (meny) i Chrome → <strong>"Lägg till på startskärmen"</strong>',
+      '        ' + pt('home.pwa.androidChromeFallback') + '',
       '      </p>',
       '    </div>',
       '  </div>',
@@ -142,19 +147,19 @@
   function desktopGuideHTML() {
     return [
       '<div data-pwa-guide class="rounded-2xl p-4 mb-4 relative" style="background:#FFF3CD;border:2px solid #F5A623;">',
-      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="Stäng" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
+      '  <button onclick="window.PWAInstall._dismiss(this)" aria-label="' + pt('home.pwa.dismissAria') + '" class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-sm" style="color:#5A4A1A;opacity:0.6;">✕</button>',
       '  <div class="flex items-start gap-3">',
       '    <span style="font-size:1.5rem;line-height:1;">💻</span>',
       '    <div class="flex-1">',
-      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">Installera appen</p>',
+      '      <p class="font-bold text-sm mb-1" style="color:#1B2340;">' + pt('home.pwa.desktopTitle') + '</p>',
       '      <p class="text-xs mb-2" style="color:#5A4A1A;">',
-      '        Klicka på installationsikonen (⊕) i adressfältet eller via webbläsarens meny.',
+      '        ' + pt('home.pwa.desktopLead') + '',
       '      </p>',
       '      <button data-pwa-android-btn ' +
         'class="' + (_deferredPrompt ? '' : 'hidden ') + 'px-4 py-2 rounded-xl font-bold text-sm transition-colors" ' +
         'style="background:#F5A623;color:#1B2340;font-weight:700;" ' +
         'onclick="window.PWAInstall._triggerAndroid(this)">',
-      '        📲 Installera appen',
+      '        ' + pt('home.pwa.androidInstallBtn') + '',
       '      </button>',
       '    </div>',
       '  </div>',
@@ -261,5 +266,15 @@
     _triggerAndroid: _triggerAndroid,
     _dismiss: _dismiss,
   };
+
+  function refreshVisibleGuide() {
+    const guide = document.querySelector('[data-pwa-guide]');
+    if (!guide || guide.classList.contains('hidden')) return;
+    const container = guide.parentElement;
+    if (container) render(container);
+  }
+
+  document.addEventListener('parent-i18n-ready', refreshVisibleGuide);
+  document.addEventListener('locale-changed', refreshVisibleGuide);
 
 })();

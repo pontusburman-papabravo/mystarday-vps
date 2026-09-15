@@ -109,20 +109,21 @@
           'padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);',
           'display:flex;align-items:center;gap:12px;font-family:Outfit,sans-serif;',
         ].join('');
+        const pt = (key) => (typeof window.pt === 'function' ? window.pt(key) : key);
         banner.innerHTML = `
           <span style="font-size:1.6rem;flex-shrink:0;">🔔</span>
           <div style="flex:1;min-width:0;">
-            <p style="margin:0;font-weight:700;color:#1B2340;font-size:0.9rem;">Få push-notiser om barnen</p>
-            <p style="margin:2px 0 0;color:#5A6178;font-size:0.78rem;">Vet direkt när ett barn bockar av eller vill lösa in en belöning.</p>
+            <p style="margin:0;font-weight:700;color:#1B2340;font-size:0.9rem;">${pt('home.pushPrompt.title')}</p>
+            <p style="margin:2px 0 0;color:#5A6178;font-size:0.78rem;">${pt('home.pushPrompt.body')}</p>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button id="pushPromptDismiss"
               style="background:none;border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;font-size:0.75rem;cursor:pointer;color:#5A6178;">
-              Senare
+              ${pt('home.pushPrompt.later')}
             </button>
             <button id="pushPromptAccept"
               style="background:#F5A623;border:none;border-radius:8px;padding:6px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;color:#1B2340;">
-              Slå på
+              ${pt('home.pushPrompt.enable')}
             </button>
           </div>
         `;
@@ -141,7 +142,7 @@
             // Brief success toast
             const toast = document.createElement('div');
             toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9990;background:#10b981;color:#fff;padding:10px 20px;border-radius:12px;font-family:Outfit,sans-serif;font-weight:700;font-size:0.9rem;box-shadow:0 4px 16px rgba(0,0,0,0.15);';
-            toast.textContent = '✅ Push-notiser aktiverade!';
+            toast.textContent = pt('home.pushPrompt.enabledToast');
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
           }

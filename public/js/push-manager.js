@@ -20,6 +20,10 @@
 (function () {
   'use strict';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   // ─── Internal state ─────────────────────────────────────
   let _vapidPublicKey = null;
   let _registration = null;
@@ -132,7 +136,7 @@
   async function subscribe() {
     if (!_initialized) {
       const ok = await init();
-      if (!ok) return { success: false, error: 'Push stöds inte i den här webbläsaren' };
+      if (!ok) return { success: false, error: pt('settings.push.errors.unsupportedBrowser') };
     }
 
     // Native iOS/Android: delegate entirely to Platform.push
@@ -143,23 +147,25 @@
           _nativeRegistered = true;
           return { success: true };
         }
-        if (result.reason === 'permission_denied') return { success: false, denied: true, error: 'Notistillstånd nekades i app-inställningar.' };
-        if (result.reason === 'push_plugin_unavailable') {
-          return { success: false, error: 'Push-plugin saknas i appen. Kör npx cap sync ios och bygg om.' };
+        if (result.reason === 'permission_denied') {
+          return { success: false, denied: true, error: pt('settings.push.errors.permissionDeniedApp') };
         }
-        return { success: false, error: result.reason || 'Kunde inte aktivera push-notiser' };
+        if (result.reason === 'push_plugin_unavailable') {
+          return { success: false, error: pt('settings.push.errors.pushPluginMissing') };
+        }
+        return { success: false, error: result.reason || pt('settings.push.errors.enableFailed') };
       }
-      return { success: false, error: 'Plattform push-stöd saknas' };
+      return { success: false, error: pt('settings.push.errors.platformMissing') };
     }
 
     if (Notification.permission === 'denied') {
-      return { success: false, denied: true, error: 'Notistillstånd nekades. Aktivera i webbläsarens inställningar.' };
+      return { success: false, denied: true, error: pt('settings.push.errors.permissionDeniedBrowser') };
     }
 
     try {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        return { success: false, denied: true, error: 'Notistillstånd nekades' };
+        return { success: false, denied: true, error: pt('settings.push.errors.permissionDenied') };
       }
 
       const subscription = await _registration.pushManager.subscribe({
@@ -176,13 +182,13 @@
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        return { success: false, error: err.error || 'Prenumeration misslyckades' };
+        return { success: false, error: err.error || pt('settings.push.errors.subscriptionFailed') };
       }
 
       return { success: true };
     } catch (err) {
       console.warn('[PushManager] Subscribe error:', err);
-      return { success: false, error: 'Kunde inte aktivera push-notiser' };
+      return { success: false, error: pt('settings.push.errors.enableFailed') };
     }
   }
 
@@ -217,7 +223,7 @@
       return { success: true };
     } catch (err) {
       console.warn('[PushManager] Unsubscribe error:', err);
-      return { success: false, error: 'Kunde inte avaktivera push-notiser' };
+      return { success: false, error: pt('settings.push.errors.disableFailed') };
     }
   }
 
@@ -232,13 +238,13 @@
   async function requestAndSubscribe() {
     // iOS PWA requires standalone install — skip if native (Capacitor handles push natively)
     if (isIOS() && !isStandalone() && !isNative()) {
-      return { status: 'ios-not-installed', message: 'Lägg till appen på hemskärmen för push i Safari.' };
+      return { status: 'ios-not-installed', message: pt('settings.push.errors.iosNotInstalled') };
     }
 
     const result = await subscribe();
     if (result.success) return { status: 'granted' };
     if (result.denied) return { status: 'denied', message: result.error };
-    return { status: 'error', message: result.error || 'Kunde inte aktivera push-notiser' };
+    return { status: 'error', message: result.error || pt('settings.push.errors.enableFailed') };
   }
 
   // ─── Backend preferences ────────────────────────────────

@@ -339,9 +339,23 @@
     "iosStep1": "Tryck på Dela-knappen längst ner i Safari",
     "iosStep2": "Välj \"Lägg till på hemskärmen\"",
     "iosStep3": "Öppna appen från hemskärmen och tillåt notiser",
+    "iosArrowHint": "Animerad pil pekar mot Dela-knappen i din webbläsare",
+    "androidTitle": "Installera appen för bästa upplevelse",
     "androidLead": "Installera appen för att få påminnelser i mobilen.",
+    "androidHomeLead": "Installera {{brand}} på hemskärmen för snabb åtkomst och push-notiser.",
     "androidInstall": "Installera appen",
+    "androidInstallBtn": "📲 Installera appen",
+    "androidChromeFallback": "Tryck på ⋮ (meny) i Chrome → <strong>\"Lägg till på startskärmen\"</strong>",
+    "desktopTitle": "Installera appen",
+    "desktopLead": "Klicka på installationsikonen (⊕) i adressfältet eller via webbläsarens meny.",
     "dismissAria": "Stäng"
+  },
+  "pushPrompt": {
+    "title": "Få push-notiser om barnen",
+    "body": "Vet direkt när ett barn bockar av eller vill lösa in en belöning.",
+    "later": "Senare",
+    "enable": "Slå på",
+    "enabledToast": "✅ Push-notiser aktiverade!"
   },
   "globalFeedback": {
     "fabAria": "Ge feedback",

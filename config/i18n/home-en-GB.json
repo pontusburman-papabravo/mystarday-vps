@@ -339,9 +339,23 @@
     "iosStep1": "Tap the Share button at the bottom of Safari",
     "iosStep2": "Choose \"Add to Home Screen\"",
     "iosStep3": "Open the app from your Home Screen and allow notifications",
+    "iosArrowHint": "Animated arrow points to the Share button in your browser",
+    "androidTitle": "Install the app for the best experience",
     "androidLead": "Install the app to get reminders on your phone.",
+    "androidHomeLead": "Install {{brand}} on your Home Screen for quick access and push notifications.",
     "androidInstall": "Install app",
+    "androidInstallBtn": "📲 Install app",
+    "androidChromeFallback": "Tap ⋮ (menu) in Chrome → <strong>\"Add to Home screen\"</strong>",
+    "desktopTitle": "Install the app",
+    "desktopLead": "Tap the install icon (⊕) in the address bar or use your browser menu.",
     "dismissAria": "Close"
+  },
+  "pushPrompt": {
+    "title": "Get push notifications about your children",
+    "body": "Know right away when a child checks off an activity or wants to redeem a reward.",
+    "later": "Later",
+    "enable": "Turn on",
+    "enabledToast": "✅ Push notifications enabled!"
   },
   "globalFeedback": {
     "fabAria": "Give feedback",
