@@ -166,7 +166,7 @@ describe('signup-slim checkpoint', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/help-bubble.js'), 'utf8');
     assert.match(src, /hbJourneyTipMount/);
     assert.match(src, /refreshJourneyTip/);
-    assert.match(src, /förhandsgranska/);
+    assert.match(src, /help\.pages\.|getPageContent/);
   });
 
   it('journey registry has sj_* experiences', () => {
