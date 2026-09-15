@@ -6,6 +6,17 @@ const contactMessages = require('./contact-messages');
 const adminOperationalAlerts = require('./admin-operational-alerts');
 const { familyIsInternalQaSql } = require('../config/internal-qa-families');
 
+function toIsoUtc(value) {
+  if (value == null || value === '') return null;
+  try {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toISOString();
+  } catch {
+    return null;
+  }
+}
+
 const DEFAULT_FOUNDER_LIMIT = 225;
 
 function buildPeriodMetric(row) {
@@ -148,7 +159,7 @@ async function fetchRecentFamilies(limit = 5) {
   return rows.map((row) => ({
     id: row.id,
     name: row.name || 'Namnlös',
-    createdAt: row.created_at,
+    createdAt: toIsoUtc(row.created_at),
   }));
 }
 
