@@ -257,10 +257,10 @@ describe('Phase 1C — G. Legacy backend compatibility retained', () => {
 describe('Phase 1C — D. Library demotion', () => {
   it('D11: family-template and standard-schedule "Kopiera till barn" CTAs are demoted from primary gold styling', () => {
     const src = read(LIBRARY_SCHEMA_JS);
-    // Every remaining "Kopiera till barn" apply button must use the secondary/outline treatment,
+    // Every remaining copy-to-child apply button must use the secondary/outline treatment,
     // never the primary bg-gold CTA style, on this Library page.
-    const applyButtonBlocks = src.split('📥 Kopiera till barn').slice(0, -1);
-    assert.ok(applyButtonBlocks.length >= 2, 'expected at least two "Kopiera till barn" CTAs (family template + standard schedule cards)');
+    const applyButtonBlocks = src.split("lpt('library.chrome.copyToChild')").slice(0, -1);
+    assert.ok(applyButtonBlocks.length >= 2, 'expected at least two copy-to-child CTAs (family template + standard schedule cards)');
     for (const block of applyButtonBlocks) {
       const nearby = block.slice(-400);
       assert.doesNotMatch(nearby, /bg-gold hover:bg-yellow-500 text-white/, 'apply-to-week CTA must not use the primary gold treatment after Phase 1C demotion');
@@ -277,7 +277,7 @@ describe('Phase 1C — D. Library demotion', () => {
     const src = read(LIBRARY_SCHEMA_JS);
     assert.match(src, /function openCreateTemplateModal/);
     assert.match(src, /function deleteTemplate/);
-    assert.match(src, /Redigera/);
+    assert.match(src, /lpt\('library\.actions\.edit'\)/);
     assert.match(src, /\/api\/standard-library\/schedules/);
   });
 
