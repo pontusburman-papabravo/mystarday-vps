@@ -136,7 +136,42 @@
     "setGoalDirect": "Set goal directly:",
     "setAsGoal": "Set as goal",
     "visibleRewards": "Visible rewards",
-    "redemptionHistory": "🏆 Redemption history"
+    "redemptionHistory": "🏆 Redemption history",
+    "settings": {
+      "nnl": {
+        "lead": "Enable for a structured morning/evening routine",
+        "tooltip": "Guided order — your child sees NOW, Next and Later and checks off one at a time. Off by default, your child can choose which activity to check off."
+      },
+      "mood": {
+        "tooltip": "Your child drags a slider (sad → happy) right after checking off an activity. Gives you insight into how they feel during the day."
+      },
+      "reorder": {
+        "tooltip": "Lets your child drag activities into a new order in their day view. Good for older children who want more control."
+      },
+      "hideClock": {
+        "tooltip": "Hides the clock and timestamps in the child view. Reduces stress for children who are time-sensitive or worry about \"making it in time\"."
+      },
+      "lockSchedule": {
+        "tooltip": "Stops your child browsing to other days or skipping activities. Good for children who need clear boundaries and focus on the present."
+      },
+      "dopamin": {
+        "tooltip": "Shows a quick star and confetti animation when your child checks off an activity. Reinforces accomplishment without blocking the next step."
+      },
+      "visualTimer": {
+        "tooltip": "Shows a circular shrinking Time Timer during an ongoing activity — based on start and end time. Visual only, no numbers. Helps children understand how much time is left."
+      },
+      "timeAdjustment": {
+        "label": "Time adjustment",
+        "hint": "Postpone button in parent view",
+        "tooltip": "Shows the \"Postpone all\" button in the daily log — parents can push all upcoming activities forward by 5, 10, 15 or 30 minutes. Affects only today's log, not the template."
+      },
+      "colorCoding": {
+        "tooltip": "Colour-codes activity cards by type (e.g. blue = hygiene, yellow = food, green = play). Shown in both child and parent views. Helps quickly identify activity type."
+      },
+      "shortcutsHeading": "Shortcuts",
+      "rewardsShortcutTitle": "Rewards",
+      "rewardsShortcutHint": "Set goals, add rewards, give stars"
+    }
   },
   "invites": {
     "sentTo": "✓ Invite sent to {{email}}!",
@@ -366,6 +401,10 @@
         "colorCoding": {
           "label": "Colour coding",
           "hint": "Colour-coded activity cards"
+        },
+        "timeAdjustment": {
+          "label": "Time adjustment",
+          "hint": "Postpone button in parent view"
         }
       },
       "delete": {

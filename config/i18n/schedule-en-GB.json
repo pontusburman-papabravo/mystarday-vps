@@ -640,5 +640,11 @@
       "saved": "Template \"{{name}}\" saved under My templates",
       "hint": "The template is a copy. Editing it later won't change {{day}}'s schedule."
     }
+  },
+  "assign": {
+    "saving": "Saving…",
+    "saved": "✓ Saved!",
+    "saveBtn": "Save schedule",
+    "savePeriodBtn": "Save schedule for period"
   }
 }

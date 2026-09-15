@@ -432,13 +432,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">NU / NÄSTA / SEDAN</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.nnl.label">NU / NÄSTA / SEDAN</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Guidad ordning — barnet ser NU, Nästa och Senare och bockar av en i taget. Av som standard kan barnet välja vilken aktivitet som ska bockas av.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.nnl.tooltip">Guidad ordning — barnet ser NU, Nästa och Senare och bockar av en i taget. Av som standard kan barnet välja vilken aktivitet som ska bockas av.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Aktivera för strukturerad morgon/kväll-rutin</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.drawer.settings.nnl.lead">Aktivera för strukturerad morgon/kväll-rutin</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-show_now_next" class="sr-only peer" onchange="saveNnlMode(this.checked)" />
@@ -451,13 +451,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Känsloregistrering</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.moodRewards.moodLabel">Känsloregistrering</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Barnet drar en slider (ledsen → glad) direkt efter att ha bockat av en aktivitet. Ger dig insikt i hur barnet mår under dagen.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.mood.tooltip">Barnet drar en slider (ledsen → glad) direkt efter att ha bockat av en aktivitet. Ger dig insikt i hur barnet mår under dagen.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Slider efter avbockning av aktivitet</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.moodRewards.moodHint">Slider efter avbockning av aktivitet</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-show_mood_rating" class="sr-only peer" onchange="saveChildSetting('show_mood_rating', this.checked)" />
@@ -470,13 +470,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Barnets omsortering</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.reorder.label">Barnets omsortering</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Tillåter barnet att dra om ordningen på aktiviteterna i sin dagvy. Bra för äldre barn som vill ha mer kontroll.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.reorder.tooltip">Tillåter barnet att dra om ordningen på aktiviteterna i sin dagvy. Bra för äldre barn som vill ha mer kontroll.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Barnet kan dra aktiviteter i sin dagvy</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.reorder.hint">Barnet kan dra aktiviteter i sin dagvy</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-allow_child_reorder" class="sr-only peer" onchange="saveChildSetting('allow_child_reorder', this.checked)" />
@@ -489,13 +489,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Dölj klockslag</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.hideClock.label">Dölj klockslag</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Döljer klockan och tidsstämplar i barnets vy. Minskar stress för barn som är tidskänsliga eller lätt oroar sig för att "hinna".</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.hideClock.tooltip">Döljer klockan och tidsstämplar i barnets vy. Minskar stress för barn som är tidskänsliga eller lätt oroar sig för att "hinna".</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Minskar stress för tidskänsliga barn</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.hideClock.hint">Minskar stress för tidskänsliga barn</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-hide_clock" class="sr-only peer" onchange="saveChildSetting('hide_clock', this.checked)" />
@@ -508,13 +508,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Lås schema</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.lockSchedule.label">Lås schema</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Förhindrar barnet från att bläddra till andra dagar eller hoppa över aktiviteter. Bra för barn som behöver tydliga gränser och fokus på nuet.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.lockSchedule.tooltip">Förhindrar barnet från att bläddra till andra dagar eller hoppa över aktiviteter. Bra för barn som behöver tydliga gränser och fokus på nuet.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Barnet kan inte navigera eller hoppa i schemat</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.lockSchedule.hint">Barnet kan inte navigera eller hoppa i schemat</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-lock_schedule" class="sr-only peer" onchange="saveChildSetting('lock_schedule', this.checked)" />
@@ -527,13 +527,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Dopamin-animation</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.dopamin.label">Dopamin-animation</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Visar en snabb stjärn- och konfetti-animation direkt när barnet bockar av en aktivitet. Förstärker känslan av att klara av saker — utan att blockera nästa steg.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.dopamin.tooltip">Visar en snabb stjärn- och konfetti-animation direkt när barnet bockar av en aktivitet. Förstärker känslan av att klara av saker — utan att blockera nästa steg.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Stjärnburst vid avbockning</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.dopamin.hint">Stjärnburst vid avbockning</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-dopamin_animation" class="sr-only peer" onchange="saveChildSetting('dopamin_animation', this.checked)" />
@@ -546,13 +546,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Visuell timer</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.visualTimer.label">Visuell timer</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Visar en cirkulär rödminskande Time Timer i pågående aktivitet — baserat på start- och sluttid. Bara visuell, inga siffror. Hjälper barn förstå hur lång tid som återstår.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.visualTimer.tooltip">Visar en cirkulär rödminskande Time Timer i pågående aktivitet — baserat på start- och sluttid. Bara visuell, inga siffror. Hjälper barn förstå hur lång tid som återstår.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Cirkulär klocka vid pågående aktivitet</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.visualTimer.hint">Cirkulär klocka vid pågående aktivitet</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-visual_timer" class="sr-only peer" onchange="saveChildSetting('visual_timer', this.checked)" />
@@ -565,13 +565,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Tidsjustering</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.drawer.settings.timeAdjustment.label">Tidsjustering</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Visar knappen "Skjut fram allt" i den dagliga loggen — föräldern kan skjuta fram alla kommande aktiviteter med 5, 10, 15 eller 30 minuter. Påverkar bara dagens logg, inte mallen.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.timeAdjustment.tooltip">Visar knappen "Skjut fram allt" i den dagliga loggen — föräldern kan skjuta fram alla kommande aktiviteter med 5, 10, 15 eller 30 minuter. Påverkar bara dagens logg, inte mallen.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Skjut fram-knapp i föräldravyn</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.drawer.settings.timeAdjustment.hint">Skjut fram-knapp i föräldravyn</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-time_adjustment" class="sr-only peer" onchange="saveChildSetting('time_adjustment', this.checked)" />
@@ -584,13 +584,13 @@
           <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-navy-soft">
             <div class="flex-1 pr-3">
               <div class="flex items-center gap-1.5">
-                <p class="text-sm font-semibold text-navy dark:text-white">Färgkodning</p>
+                <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.childProfile.setup.toggles.colorCoding.label">Färgkodning</p>
                 <span class="tooltip-wrap">
                   <i class="tooltip-icon">ℹ️</i>
-                  <span class="tooltip-box">Färgkodar aktivitetskort baserat på typ (t.ex. blå = hygien, gul = mat, grön = lek). Visas i både barnvyn och din dagliga logg. Hjälper barn och föräldrar snabbt identifiera aktivitetstyp.</span>
+                  <span class="tooltip-box" data-i18n="family.drawer.settings.colorCoding.tooltip">Färgkodar aktivitetskort baserat på typ (t.ex. blå = hygien, gul = mat, grön = lek). Visas i både barnvyn och din dagliga logg. Hjälper barn och föräldrar snabbt identifiera aktivitetstyp.</span>
                 </span>
               </div>
-              <p class="text-xs text-text-soft mt-0.5">Färgkodade kort i barn- och föräldravyn</p>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="family.childProfile.setup.toggles.colorCoding.hint">Färgkodade kort i barn- och föräldravyn</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
               <input type="checkbox" id="setting-color_coding" class="sr-only peer" onchange="saveChildSetting('color_coding', this.checked)" />
@@ -601,14 +601,14 @@
 
           <!-- Rewards shortcut -->
           <div class="pt-4">
-            <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-3">Genvägar</p>
+            <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-3" data-i18n="family.drawer.settings.shortcutsHeading">Genvägar</p>
             <button onclick="switchDrawerTab('rewards', document.querySelectorAll('.drawer-tab')[1])"
               class="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gold-light hover:bg-yellow-100 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30 rounded-xl border border-yellow-200 dark:border-yellow-800 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="text-xl">🏆</span>
                 <div class="text-left">
-                  <p class="text-sm font-semibold text-navy dark:text-white">Belöningar</p>
-                  <p class="text-xs text-text-soft">Sätt mål, lägg till belöningar, ge stjärnor</p>
+                  <p class="text-sm font-semibold text-navy dark:text-white" data-i18n="family.drawer.settings.rewardsShortcutTitle">Belöningar</p>
+                  <p class="text-xs text-text-soft" data-i18n="family.drawer.settings.rewardsShortcutHint">Sätt mål, lägg till belöningar, ge stjärnor</p>
                 </div>
               </div>
               <span class="text-text-soft text-sm">→</span>
