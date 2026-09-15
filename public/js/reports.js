@@ -3,6 +3,64 @@
  * Does NOT own: auth (auth.js), QR library (loaded separately in reports.html head).
  */
 
+function rpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
+function reportSectionLabel(section) {
+  if (window.LocaleDateTime && typeof LocaleDateTime.sectionLabelWithEmoji === 'function') {
+    return LocaleDateTime.sectionLabelWithEmoji(section);
+  }
+  const map = { morgon: 'schedule.sections.morgon', dag: 'schedule.sections.dag', kvall: 'schedule.sections.kvall', natt: 'schedule.sections.natt' };
+  const label = map[section] ? rpt(map[section]) : section;
+  const emojis = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
+  return (emojis[section] ? emojis[section] + ' ' : '') + label;
+}
+
+function formatReportDayHeader(dateObj) {
+  if (window.LocaleDateTime) {
+    return LocaleDateTime.weekdayLong(dateObj) + ' ' + LocaleDateTime.monthDay(dateObj);
+  }
+  return dateObj.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function formatReportDateMedium(dateObj) {
+  if (window.LocaleDateTime) {
+    return LocaleDateTime.formatWithIntl(dateObj, { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  return dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatReportDateShort(dateObj) {
+  if (window.LocaleDateTime) {
+    return LocaleDateTime.monthDayShort(dateObj);
+  }
+  return dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+}
+
+function rerenderReportsDynamic() {
+  if (reportChildren.length > 0) {
+    renderChildSelector();
+    renderActivityChildSelector();
+  }
+  if (_generalObsActive.length || _generalObsArchived.length) {
+    renderGeneralObservationsSection(_generalObsActive, _generalObsArchived);
+  }
+  const activityTab = document.getElementById('activityTab');
+  if (activityTab && !activityTab.classList.contains('hidden') && reportCurrentChildId) {
+    loadActivityView();
+  }
+  if (sharedLinksCache.length > 0) {
+    applySharedFilter();
+  }
+  const createBtn = document.getElementById('createBtn');
+  if (createBtn && !createBtn.disabled) {
+    createBtn.textContent = rpt('reports.create.createBtn');
+  }
+}
+
+document.addEventListener('parent-i18n-ready', rerenderReportsDynamic);
+
 // ── CSRF ────────────────────────────────────────────────────────
 function getCsrfToken() {
   // Read from localStorage (set by auth.js on page load) or parse cookie directly
@@ -62,6 +120,11 @@ async function initReports() {
     } catch (_) { /* fall through to real reports */ }
   }
 
+  const user = Auth.getUser();
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user?.preferred_locale);
+  }
+
   await loadChildren();
   loadSharedReports();
   // Show/hide pedagog_notes checkbox based on whether parent has pedagogen-linked children
@@ -89,7 +152,7 @@ async function loadChildren() {
         setTimeout(loadChildren, waitSec * 1000);
         return;
       }
-      throw new Error('Kunde inte ladda barn (' + res.status + ')');
+      throw new Error(rpt('reports.errors.loadChildren', { status: res.status }));
     }
     const data = await res.json();
     reportChildren = Array.isArray(data) ? data : (data.children || []);
@@ -97,9 +160,9 @@ async function loadChildren() {
 
     if (reportChildren.length === 0) {
       document.getElementById('childSelector').innerHTML =
-        '<p class="text-text-soft text-sm py-4">Inga barn i din familj ännu.</p>';
+        '<p class="text-text-soft text-sm py-4">' + escHtml(rpt('reports.children.noneFamily')) + '</p>';
       document.getElementById('activityChildSelector').innerHTML =
-        '<p class="text-text-soft text-sm py-2">Inga barn i din familj.</p>';
+        '<p class="text-text-soft text-sm py-2">' + escHtml(rpt('reports.children.noneActivity')) + '</p>';
       return;
     }
 
@@ -119,7 +182,7 @@ async function loadChildren() {
     // Show error with retry button instead of a transient toast
     const retryHtml = `<div class="text-sm text-red-600 py-2 flex items-center gap-2">
       <span>⚠️ ${escHtml(err.message)}</span>
-      <button onclick="loadChildren()" class="text-xs bg-navy text-white px-3 py-1 rounded-lg font-semibold">Försök igen</button>
+      <button onclick="loadChildren()" class="text-xs bg-navy text-white px-3 py-1 rounded-lg font-semibold">${escHtml(rpt('reports.children.retry'))}</button>
     </div>`;
     document.getElementById('childSelector').innerHTML = retryHtml;
     document.getElementById('activityChildSelector').innerHTML = retryHtml;
@@ -275,13 +338,13 @@ function getActivityDateRange() {
 
 // ── Create report ────────────────────────────────────────────────
 async function createReport() {
-  if (!reportCurrentChildId) { showCreateError('Välj ett barn först'); return; }
+  if (!reportCurrentChildId) { showCreateError(rpt('reports.errors.selectChild')); return; }
 
   const label = document.getElementById('reportLabel').value.trim();
-  if (!label) { showCreateError('Ge rapporten ett namn'); return; }
+  if (!label) { showCreateError(rpt('reports.errors.nameRequired')); return; }
 
   const { from, to } = getReportDateRange();
-  if (!from || !to) { showCreateError('Välj en tidsperiod'); return; }
+  if (!from || !to) { showCreateError(rpt('reports.errors.selectPeriod')); return; }
 
   // Collect selected fields
   const fields = [];
@@ -320,7 +383,7 @@ async function createReport() {
 
   const btn = document.getElementById('createBtn');
   btn.disabled = true;
-  btn.textContent = 'Skapar...';
+  btn.textContent = rpt('reports.create.creating');
 
   try {
     const csrf = getCsrfToken();
@@ -346,7 +409,7 @@ async function createReport() {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Kunde inte skapa rapport');
+    if (!res.ok) throw new Error(data.error || rpt('reports.errors.createFailed'));
 
     showReportResult(data);
     // Reload shared list
@@ -355,12 +418,12 @@ async function createReport() {
     if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
   } catch (err) {
     if (err.name === 'AbortError') {
-      showCreateError('Timeout — databasen svarade inte. Försök igen.');
+      showCreateError(rpt('reports.errors.timeout'));
     } else {
       showCreateError(err.message);
     }
     btn.disabled = false;
-    btn.textContent = 'Skapa rapport';
+    btn.textContent = rpt('reports.create.createBtn');
   }
 }
 
@@ -377,7 +440,7 @@ function showReportResult(data) {
   const btn = document.getElementById('createBtn');
 
   btn.disabled = false;
-  btn.textContent = 'Skapa rapport';
+  btn.textContent = rpt('reports.create.createBtn');
 
   const fullUrl = window.location.origin + '/r/' + data.public_id;
   urlDisplay.textContent = fullUrl;
@@ -405,7 +468,7 @@ function renderQRCode(url) {
 
     const size = 160;
     box.innerHTML = `<div style="display:inline-block;padding:8px;background:white;border-radius:12px;">
-      <img src="${qr.createDataURL(4, 0)}" width="${size}" height="${size}" alt="QR-kod" style="display:block;">
+      <img src="${qr.createDataURL(4, 0)}" width="${size}" height="${size}" alt="${escHtml(rpt('reports.create.qrAlt'))}" style="display:block;">
     </div>`;
   } catch (_err) {
     // QR library not loaded yet — retry after short delay
@@ -417,7 +480,7 @@ async function copyShareUrl() {
   const url = document.getElementById('shareUrlDisplay').textContent;
   try {
     await navigator.clipboard.writeText(url);
-    showToast('Länk kopierad!', 'success');
+    showToast(rpt('reports.toasts.linkCopied'), 'success');
   } catch {
     // Fallback
     const ta = document.createElement('textarea');
@@ -426,7 +489,7 @@ async function copyShareUrl() {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast('Länk kopierad!', 'success');
+    showToast(rpt('reports.toasts.linkCopied'), 'success');
   }
 }
 
@@ -434,13 +497,13 @@ async function copyShareUrl() {
 async function loadActivityView() {
   if (!reportCurrentChildId) {
     const errEl = document.getElementById('activityError');
-    errEl.textContent = 'Laddar barn… Försök igen om en stund.';
+    errEl.textContent = rpt('reports.errors.loadingChildren');
     errEl.classList.remove('hidden');
     return;
   }
 
   const { from, to } = getActivityDateRange();
-  if (!from || !to) { showToast('Välj en tidsperiod', 'error'); return; }
+  if (!from || !to) { showToast(rpt('reports.errors.selectPeriod'), 'error'); return; }
 
   document.getElementById('activityLoading').classList.remove('hidden');
   document.getElementById('activityError').classList.add('hidden');
@@ -456,9 +519,9 @@ async function loadActivityView() {
 
     if (!logsRes.ok) {
       const data = await logsRes.json().catch(() => ({}));
-      const msg = (data && data.error) || `Kunde inte ladda aktiviteter (${logsRes.status})`;
+      const msg = (data && data.error) || rpt('reports.errors.loadActivities', { status: logsRes.status });
       if (logsRes.status === 429) {
-        throw new Error('Servern är tillfälligt överbelastad. Vänta några sekunder och klicka Visa igen.');
+        throw new Error(rpt('reports.errors.serverBusy'));
       }
       throw new Error(msg);
     }
@@ -489,14 +552,14 @@ async function loadActivityView() {
       console.error('[loadActivityView] render error:', renderErr);
       document.getElementById('activityLoading').classList.add('hidden');
       const errEl = document.getElementById('activityError');
-      errEl.textContent = 'Ett fel uppstod vid visning av aktiviteter. Försök igen.';
+      errEl.textContent = rpt('reports.errors.renderActivities');
       errEl.classList.remove('hidden');
     }
   } catch (err) {
     console.error('[loadActivityView] fetch error:', err);
     document.getElementById('activityLoading').classList.add('hidden');
     const errEl = document.getElementById('activityError');
-    errEl.textContent = err.message || 'Kunde inte ladda aktiviteter. Försök igen.';
+    errEl.textContent = err.message || rpt('reports.errors.loadActivitiesFallback');
     errEl.classList.remove('hidden');
   }
 }
@@ -528,22 +591,20 @@ function renderActivityList(dateMap, allItems) {
       if (!dateObj || isNaN(dateObj.getTime())) {
         return;
       }
-      const dayName = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'][dateObj.getDay()] || 'Okänt';
-      const dateStr = dateObj.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' });
+      const dayHeader = formatReportDayHeader(dateObj);
 
     if (items.length === 0) {
       // Zero-data day
       html += `
         <div class="zero-data-day">
-          <p class="font-semibold text-sm mb-1">📅 ${dayName} ${dateStr}</p>
-          <p class="text-xs">Ingen data registrerad</p>
+          <p class="font-semibold text-sm mb-1">📅 ${dayHeader}</p>
+          <p class="text-xs">${escHtml(rpt('reports.activity.noData'))}</p>
         </div>`;
       return;
     }
 
     // Group by section
     const sectionOrder = ['morgon', 'dag', 'kvall', 'natt'];
-    const sectionEmoji = { morgon: '🌅', dag: '☀️', kvall: '🌆', natt: '🌙' };
 
     const completedCount = items.filter(i => i.completed).length;
     const totalCount = items.length;
@@ -552,9 +613,9 @@ function renderActivityList(dateMap, allItems) {
       <div class="bg-white rounded-xl border border-lavender overflow-hidden">
         <div class="bg-lavender px-4 py-2 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="font-semibold text-sm text-navy">${dayName} ${dateStr}</span>
+            <span class="font-semibold text-sm text-navy">${dayHeader}</span>
           </div>
-          <span class="text-xs font-semibold text-text-soft">${completedCount}/${totalCount} klara</span>
+          <span class="text-xs font-semibold text-text-soft">${escHtml(rpt('reports.activity.completedCount', { completed: completedCount, total: totalCount }))}</span>
         </div>
         <div class="p-3 flex flex-col gap-2">`;
 
@@ -564,7 +625,7 @@ function renderActivityList(dateMap, allItems) {
 
       html += `<div class="mb-2">
         <div class="text-xs font-semibold text-text-soft mb-1 flex items-center gap-1">
-          ${sectionEmoji[section] || '📋'} ${capitalize(section)}
+          ${reportSectionLabel(section)}
         </div>`;
 
       sectionItems.forEach(item => {
@@ -579,26 +640,26 @@ function renderActivityList(dateMap, allItems) {
               <span class="text-base flex-shrink-0">${emoji}</span>
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-sm ${item.completed ? 'line-through text-text-soft' : 'text-navy'}">${escHtml(item.name)}</p>
-                ${item.completed ? '<span class="text-xs text-green-600 font-semibold">✅ Klar</span>' : ''}
+                ${item.completed ? '<span class="text-xs text-green-600 font-semibold">' + escHtml(rpt('reports.activity.completed')) + '</span>' : ''}
               </div>
             </div>
             ${hasNotes ? `
             <div class="space-y-2 pl-2">
               ${note ? `
               <div class="bg-gold-light rounded-lg p-2">
-                <p class="text-xs font-semibold text-amber-800 mb-1">📝 Förälderns anteckning:</p>
+                <p class="text-xs font-semibold text-amber-800 mb-1">${escHtml(rpt('reports.activity.parentNoteLabel'))}</p>
                 <p class="text-sm text-navy">${escHtml(note)}</p>
                 <button onclick="openNoteModal('${item.id}', '${escJs(note)}')"
-                  class="text-xs text-gold hover:text-yellow-600 font-semibold mt-1">Redigera</button>
+                  class="text-xs text-gold hover:text-yellow-600 font-semibold mt-1">${escHtml(rpt('reports.activity.edit'))}</button>
               </div>` : ''}
               ${childNote ? `
               <div class="bg-lavender rounded-lg p-2">
-                <p class="text-xs font-semibold text-purple-800 mb-1">💬 Barnets anteckning:</p>
+                <p class="text-xs font-semibold text-purple-800 mb-1">${escHtml(rpt('reports.activity.childNoteLabel'))}</p>
                 <p class="text-sm text-navy">${escHtml(childNote)}</p>
               </div>` : ''}
             </div>` : `
             <button onclick="openNoteModal('${item.id}', '')"
-              class="text-xs text-text-soft hover:text-gold font-semibold ml-2">+ Lägg till anteckning</button>`}
+              class="text-xs text-text-soft hover:text-gold font-semibold ml-2">${escHtml(rpt('reports.activity.addNote'))}</button>`}
           </div>`;
       });
 
@@ -614,7 +675,7 @@ function renderActivityList(dateMap, allItems) {
     console.error('[renderActivityList]', err);
     document.getElementById('activityLoading').classList.add('hidden');
     const errEl = document.getElementById('activityError');
-    errEl.textContent = 'Ett fel uppstod vid visning av aktiviteter. Prova ladda om sidan.';
+    errEl.textContent = rpt('reports.errors.renderActivitiesReload');
     errEl.classList.remove('hidden');
     document.getElementById('activityList').classList.add('hidden');
     document.getElementById('activityEmpty').classList.add('hidden');
@@ -665,37 +726,37 @@ function renderGeneralObservationsSection(active, archived) {
   let html = `<div class="mb-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="font-heading font-bold text-navy flex items-center gap-2 text-base">
-        📝 Allmänna anteckningar
+        ${escHtml(rpt('reports.observations.title'))}
         ${active.length > 0 ? `<span class="bg-gold-light text-amber-800 text-xs font-semibold px-2 py-0.5 rounded-full">${active.length}</span>` : ''}
       </h3>
-      <button onclick="openObsModal()" class="text-xs text-gold hover:text-yellow-600 font-semibold">+ Skriv ny</button>
+      <button onclick="openObsModal()" class="text-xs text-gold hover:text-yellow-600 font-semibold">${escHtml(rpt('reports.observations.writeNew'))}</button>
     </div>`;
 
   if (active.length === 0) {
-    html += `<p class="text-sm text-text-soft italic">Inga anteckningar ännu.</p>`;
+    html += `<p class="text-sm text-text-soft italic">${escHtml(rpt('reports.observations.empty'))}</p>`;
   } else {
     active.forEach(obs => {
       const preview = obs.text.length > 100 ? obs.text.slice(0, 100) + '…' : obs.text;
       const createdDate = new Date(obs.created_at);
-      const dateStr = createdDate.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
+      const dateStr = formatReportDateMedium(createdDate);
       const isLong = obs.text.length > 100;
 
       html += `<div class="obs-card mb-3 ${obs.is_important ? 'important' : ''}" id="genObs-${obs.id}">
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1 min-w-0">
-            ${obs.is_important ? '<span class="text-xs font-bold text-red-500 mb-1 block">⚠️ Viktigt</span>' : ''}
+            ${obs.is_important ? '<span class="text-xs font-bold text-red-500 mb-1 block">' + escHtml(rpt('reports.observations.important')) + '</span>' : ''}
             <p class="obs-content text-sm" id="genObs-preview-${obs.id}">${escHtml(preview)}</p>
-            ${isLong ? `<p class="text-xs text-text-soft mt-1"><button onclick="toggleGenObsExpand('${obs.id}', false)" class="text-gold hover:text-yellow-600 font-semibold">Visa mer</button></p>` : ''}
+            ${isLong ? `<p class="text-xs text-text-soft mt-1"><button onclick="toggleGenObsExpand('${obs.id}', false)" class="text-gold hover:text-yellow-600 font-semibold">${escHtml(rpt('reports.observations.showMore'))}</button></p>` : ''}
           </div>
           <span class="text-xs text-text-soft flex-shrink-0">${dateStr}</span>
         </div>
         <div class="flex gap-2 mt-3 flex-wrap">
           <button onclick="openObsModal('${obs.id}', '${escJs(obs.text)}', ${obs.is_important})"
-            class="text-xs px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy font-semibold rounded-lg transition-colors">Redigera</button>
+            class="text-xs px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy font-semibold rounded-lg transition-colors">${escHtml(rpt('reports.observations.edit'))}</button>
           <button onclick="doArchiveObservation('${obs.id}')"
-            class="text-xs px-3 py-1.5 bg-sky hover:bg-blue-100 text-navy font-semibold rounded-lg transition-colors">Arkivera</button>
+            class="text-xs px-3 py-1.5 bg-sky hover:bg-blue-100 text-navy font-semibold rounded-lg transition-colors">${escHtml(rpt('reports.observations.archive'))}</button>
           <button onclick="doDeleteGeneralObs('${obs.id}')"
-            class="text-xs px-3 py-1.5 bg-coral hover:bg-red-200 text-navy font-semibold rounded-lg transition-colors">Ta bort</button>
+            class="text-xs px-3 py-1.5 bg-coral hover:bg-red-200 text-navy font-semibold rounded-lg transition-colors">${escHtml(rpt('reports.observations.delete'))}</button>
         </div>
       </div>`;
     });
@@ -706,7 +767,7 @@ function renderGeneralObservationsSection(active, archived) {
   // Archived section
   html += `<div class="mt-4" id="archivedObsSection">
     <button onclick="toggleArchivedSection()" class="flex items-center gap-2 text-sm font-semibold text-text-soft hover:text-navy transition-colors mb-2">
-      <span id="archivedArrow">▸</span> Arkiverade anteckningar
+      <span id="archivedArrow">▸</span> ${escHtml(rpt('reports.observations.archivedTitle'))}
       <span class="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">${archived.length}</span>
     </button>
     <div id="archivedObsList" class="hidden mt-2 flex flex-col gap-2"></div>
@@ -734,7 +795,7 @@ function toggleGenObsExpand(obsId, _forceShow) {
     preview.parentElement.querySelector('button')?.remove();
     const btn = document.createElement('button');
     btn.className = 'text-xs text-gold hover:text-yellow-600 font-semibold mt-1';
-    btn.textContent = 'Visa mer';
+    btn.textContent = rpt('reports.observations.showMore');
     btn.onclick = () => toggleGenObsExpand(obsId, false);
     preview.parentElement.appendChild(btn);
   } else {
@@ -742,7 +803,7 @@ function toggleGenObsExpand(obsId, _forceShow) {
     preview.parentElement.querySelector('button')?.remove();
     const btn = document.createElement('button');
     btn.className = 'text-xs text-gold hover:text-yellow-600 font-semibold mt-1';
-    btn.textContent = 'Visa mindre';
+    btn.textContent = rpt('reports.observations.showLess');
     btn.onclick = () => toggleGenObsExpand(obsId, true);
     preview.parentElement.appendChild(btn);
   }
@@ -753,21 +814,21 @@ function renderArchivedList(archived) {
   if (!list) return;
 
   list.innerHTML = archived.map(obs => {
-    const dateStr = new Date(obs.created_at).toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dateStr = formatReportDateMedium(new Date(obs.created_at));
     const preview = obs.text.length > 80 ? obs.text.slice(0, 80) + '…' : obs.text;
     return `<div class="obs-card opacity-70 mb-2" id="genArch-${obs.id}">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
-          ${obs.is_important ? '<span class="text-xs font-bold text-red-400 mb-1 block">⚠️ Viktigt</span>' : ''}
+          ${obs.is_important ? '<span class="text-xs font-bold text-red-400 mb-1 block">' + escHtml(rpt('reports.observations.important')) + '</span>' : ''}
           <p class="obs-content text-xs">${escHtml(preview)}</p>
         </div>
         <span class="text-xs text-text-soft flex-shrink-0">${dateStr}</span>
       </div>
       <div class="flex gap-2 mt-2 flex-wrap">
         <button onclick="doRestoreObservation('${obs.id}')"
-          class="text-xs px-3 py-1 bg-green-100 hover:bg-green-200 text-green-800 font-semibold rounded-lg">Återställ</button>
+          class="text-xs px-3 py-1 bg-green-100 hover:bg-green-200 text-green-800 font-semibold rounded-lg">${escHtml(rpt('reports.observations.restore'))}</button>
         <button onclick="doDeleteGeneralObs('${obs.id}')"
-          class="text-xs px-3 py-1 bg-coral hover:bg-red-200 text-navy font-semibold rounded-lg">Ta bort</button>
+          class="text-xs px-3 py-1 bg-coral hover:bg-red-200 text-navy font-semibold rounded-lg">${escHtml(rpt('reports.observations.delete'))}</button>
       </div>
     </div>`;
   }).join('');
@@ -813,17 +874,17 @@ function openObsModal(editId, editContent, editImportant) {
     const obs = _generalObsActive.find(o => o.id === editId) || _generalObsArchived.find(o => o.id === editId);
     if (obs) {
       const d = new Date(obs.created_at);
-      dateDisplayEl.textContent = 'Skapad ' + d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' });
+      dateDisplayEl.textContent = rpt('reports.observations.created', { date: formatReportDateMedium(d) });
       dateInfoEl.classList.remove('hidden');
     }
-    titleEl.textContent = 'Redigera anteckning';
+    titleEl.textContent = rpt('reports.observations.modalEditTitle');
     impEl.checked = Boolean(editImportant);
-    btn.textContent = 'Spara ändringar';
+    btn.textContent = rpt('reports.actions.saveChanges');
   } else {
     dateInfoEl.classList.add('hidden');
-    titleEl.textContent = 'Allmän observation';
+    titleEl.textContent = rpt('reports.observations.modalTitle');
     impEl.checked = false;
-    btn.textContent = 'Spara';
+    btn.textContent = rpt('reports.actions.save');
   }
 
   modal.classList.remove('hidden');
@@ -838,7 +899,7 @@ function closeObsModal() {
 function updateObsCharCount() {
   const el = document.getElementById('obsCharCount');
   const val = document.getElementById('obsContent').value;
-  el.textContent = val.length + '/2000';
+  el.textContent = rpt('reports.observations.charCount', { count: val.length });
 }
 
 async function saveObservation() {
@@ -849,11 +910,11 @@ async function saveObservation() {
 
   errorEl.classList.add('hidden');
 
-  if (!content) { errorEl.textContent = 'Skriv en anteckning först'; errorEl.classList.remove('hidden'); return; }
-  if (content.length > 2000) { errorEl.textContent = 'Max 2000 tecken'; errorEl.classList.remove('hidden'); return; }
+  if (!content) { errorEl.textContent = rpt('reports.errors.writeNoteFirst'); errorEl.classList.remove('hidden'); return; }
+  if (content.length > 2000) { errorEl.textContent = rpt('reports.errors.maxChars'); errorEl.classList.remove('hidden'); return; }
 
   btn.disabled = true;
-  btn.textContent = 'Sparar...';
+  btn.textContent = rpt('reports.actions.saving');
 
   try {
     const csrf = getCsrfToken();
@@ -878,28 +939,28 @@ async function saveObservation() {
     }
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Kunde inte spara');
+    if (!res.ok) throw new Error(data.error || rpt('reports.errors.saveFailed'));
 
     closeObsModal();
 
     // Reload the general observations section in-place (more targeted than full activity view reload)
     try {
       await loadGeneralObs();
-      showToast(_obsModalState.editingId ? 'Sparat!' : 'Sparat!', 'success');
+      showToast(rpt('reports.toasts.saved'), 'success');
     } catch (err) {
       console.error('[saveObservation] reload failed:', err);
-      showToast('Sparat! Men kunde inte uppdatera listan — ladda om sidan.', 'error');
+      showToast(rpt('reports.toasts.savedRefreshList'), 'error');
     }
   } catch (err) {
     errorEl.textContent = err.message;
     errorEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = _obsModalState.editingId ? 'Spara ändringar' : 'Spara';
+    btn.textContent = _obsModalState.editingId ? rpt('reports.actions.saveChanges') : rpt('reports.actions.save');
   }
 }
 
 async function doArchiveObservation(obsId) {
-  if (!confirm('Arkivera denna anteckning?')) return;
+  if (!confirm(rpt('reports.confirm.archiveObservation'))) return;
   try {
     const csrf = getCsrfToken();
     const headers = {};
@@ -909,8 +970,8 @@ async function doArchiveObservation(obsId) {
       headers,
       credentials: 'include',
     });
-    if (!res.ok) throw new Error('Kunde inte arkivera');
-    showToast('Arkiverad ✓', 'success');
+    if (!res.ok) throw new Error(rpt('reports.errors.archiveFailed'));
+    showToast(rpt('reports.toasts.archived'), 'success');
     try { await reloadActivityView(); } catch (e) { console.error('[doArchiveObservation] reload failed:', e); }
   } catch (err) {
     showToast(err.message, 'error');
@@ -927,8 +988,8 @@ async function doRestoreObservation(obsId) {
       headers,
       credentials: 'include',
     });
-    if (!res.ok) throw new Error('Kunde inte återställa');
-    showToast('Återställd ✓', 'success');
+    if (!res.ok) throw new Error(rpt('reports.errors.restoreFailed'));
+    showToast(rpt('reports.toasts.restored'), 'success');
     try { await reloadActivityView(); } catch (e) { console.error('[doRestoreObservation] reload failed:', e); }
   } catch (err) {
     showToast(err.message, 'error');
@@ -936,7 +997,7 @@ async function doRestoreObservation(obsId) {
 }
 
 async function doDeleteGeneralObs(obsId) {
-  if (!confirm('Ta bort denna anteckning permanent? Detta kan inte ångras.')) return;
+  if (!confirm(rpt('reports.confirm.deleteObservation'))) return;
   try {
     const csrf = getCsrfToken();
     const headers = {};
@@ -946,8 +1007,8 @@ async function doDeleteGeneralObs(obsId) {
       headers,
       credentials: 'include',
     });
-    if (!res.ok) throw new Error('Kunde inte ta bort');
-    showToast('Borttagen', 'success');
+    if (!res.ok) throw new Error(rpt('reports.errors.deleteFailed'));
+    showToast(rpt('reports.toasts.deleted'), 'success');
     try { await reloadActivityView(); } catch (e) { console.error('[doDeleteGeneralObs] reload failed:', e); }
   } catch (err) {
     showToast(err.message, 'error');
@@ -1006,7 +1067,7 @@ function closeNoteModal() {
 async function saveNote() {
   if (!_noteModalItemId || !_noteModalItemId.trim()) {
     const el = document.getElementById('noteModalError');
-    el.textContent = 'Kunde inte identifiera aktiviteten. Prova ladda om sidan.';
+    el.textContent = rpt('reports.errors.identifyActivity');
     el.classList.remove('hidden');
     return;
   }
@@ -1028,7 +1089,7 @@ async function saveNote() {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || `Kunde inte spara anteckning (${res.status})`);
+      throw new Error(data.error || rpt('reports.errors.saveNoteFailed', { status: res.status }));
     }
 
     closeNoteModal();
@@ -1037,13 +1098,13 @@ async function saveNote() {
     if (!document.getElementById('activityTab').classList.contains('hidden')) {
       try {
         await loadActivityView();
-        showToast('Anteckning sparad!', 'success');
+        showToast(rpt('reports.toasts.noteSaved'), 'success');
       } catch (err) {
         console.error('[saveNote] reload failed:', err);
-        showToast('Sparat! Men kunde inte uppdatera — ladda om sidan.', 'error');
+        showToast(rpt('reports.toasts.savedRefreshView'), 'error');
       }
     } else {
-      showToast('Anteckning sparad!', 'success');
+      showToast(rpt('reports.toasts.noteSaved'), 'success');
     }
   } catch (err) {
     const el = document.getElementById('noteModalError');
@@ -1061,7 +1122,7 @@ async function loadSharedReports() {
 
   try {
     const res = await fetch('/api/reports', { credentials: 'include' });
-    if (!res.ok) throw new Error('Kunde inte ladda rapporter');
+    if (!res.ok) throw new Error(rpt('reports.errors.loadReports'));
     const data = await res.json();
     sharedLinksCache = data.links || [];
 
@@ -1076,7 +1137,7 @@ async function loadSharedReports() {
     applySharedFilter();
   } catch (_err) {
     document.getElementById('sharedLoading').classList.add('hidden');
-    showToast('Kunde inte ladda delade rapporter', 'error');
+    showToast(rpt('reports.toasts.loadSharedFailed'), 'error');
   }
 }
 
@@ -1119,8 +1180,12 @@ function applySharedFilter() {
   document.getElementById('sharedFilterEmpty').classList.add('hidden');
 
   if (filtered.length === 0) {
-    const labels = { all: 'Inga delade rapporter ännu', active: 'Inga aktiva rapporter', inactive: 'Inga inaktiva rapporter' };
-    document.getElementById('filterEmptyLabel').textContent = labels[sharedLinksFilter] || 'Inga rapporter';
+    const labels = {
+      all: rpt('reports.shared.filterEmptyAll'),
+      active: rpt('reports.shared.filterEmptyActive'),
+      inactive: rpt('reports.shared.filterEmptyInactive'),
+    };
+    document.getElementById('filterEmptyLabel').textContent = labels[sharedLinksFilter] || rpt('reports.shared.filterEmptyDefault');
     document.getElementById('sharedFilterEmpty').classList.remove('hidden');
   } else {
     renderSharedList(filtered);
@@ -1147,77 +1212,75 @@ function renderSharedList(links) {
     const now = new Date();
 
     let status = 'active';
-    let statusLabel = 'Aktiv';
+    let statusLabel = rpt('reports.shared.statusActive');
     if (link.revoked_at) {
       status = 'revoked';
-      statusLabel = 'Återkallad';
+      statusLabel = rpt('reports.shared.statusRevoked');
     } else if (expiresAt && expiresAt < now) {
       status = 'expired';
-      statusLabel = 'Utgången';
+      statusLabel = rpt('reports.shared.statusExpired');
     }
 
-    const createdStr = createdAt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' });
-    const expiresStr = expiresAt
-      ? expiresAt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
-      : '—';
+    const createdStr = formatReportDateShort(createdAt);
+    const expiresStr = expiresAt ? formatReportDateShort(expiresAt) : '—';
 
     const child = reportChildren.find(c => c.id === link.child_id);
     const childLabel = link.anonymous
-      ? '<span class="text-purple-600 font-medium">🔒 Anonym</span>'
-      : (child ? `${renderChildAvatar(child, 20)} ${escHtml(child.name)}` : 'Okänt barn');
+      ? '<span class="text-purple-600 font-medium">' + escHtml(rpt('reports.shared.anonymous')) + '</span>'
+      : (child ? `${renderChildAvatar(child, 20)} ${escHtml(child.name)}` : escHtml(rpt('reports.shared.unknownChild')));
 
     return `
       <div class="report-row bg-white rounded-xl border border-lavender p-4">
         <div class="flex items-start justify-between gap-2 mb-3">
           <div>
-            <p class="font-semibold text-navy">${escHtml(link.label || 'Namnlös rapport')}</p>
+            <p class="font-semibold text-navy">${escHtml(link.label || rpt('reports.shared.unnamedReport'))}</p>
             <p class="text-xs text-text-soft mt-0.5">${childLabel}</p>
           </div>
           <div class="flex flex-col items-end gap-1">
-            ${link.anonymous ? '<span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">🔒 Anonym</span>' : ''}
+            ${link.anonymous ? '<span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">' + escHtml(rpt('reports.shared.anonymous')) + '</span>' : ''}
             <span class="report-status-badge ${'status-' + status}">${statusLabel}</span>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 mb-3">
           <div>
-            <p class="text-xs text-text-soft">Skapad</p>
+            <p class="text-xs text-text-soft">${escHtml(rpt('reports.shared.created'))}</p>
             <p class="text-sm font-semibold">${createdStr}</p>
           </div>
           <div>
-            <p class="text-xs text-text-soft">Utgår</p>
+            <p class="text-xs text-text-soft">${escHtml(rpt('reports.shared.expires'))}</p>
             <p class="text-sm font-semibold ${status === 'expired' ? 'text-red-500' : ''}">${expiresStr}</p>
           </div>
         </div>
         <div class="flex items-center gap-2 text-xs text-text-soft mb-3">
           <span>📋</span>
-          <span>${(link.fields || []).join(', ') || 'Alla fält'}</span>
+          <span>${escHtml((link.fields || []).join(', ') || rpt('reports.shared.allFields'))}</span>
         </div>
-        ${link.view_count > 0 ? `<p class="text-xs text-text-soft mb-3">👁️ ${link.view_count} visningar</p>` : ''}
+        ${link.view_count > 0 ? `<p class="text-xs text-text-soft mb-3">${escHtml(rpt('reports.shared.views', { count: link.view_count }))}</p>` : ''}
         <div class="flex gap-2">
           <button onclick="copyLink('${link.public_id}')"
             class="flex-1 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors">
-            📋 Kopiera länk
+            ${escHtml(rpt('reports.shared.copyLink'))}
           </button>
           <a href="/r/${link.public_id}" target="_blank" rel="noopener"
             class="flex-1 py-2 bg-lavender hover:bg-purple-200 text-navy text-sm font-semibold rounded-xl transition-colors text-center no-underline">
-            🔗 Öppna
+            ${escHtml(rpt('reports.shared.open'))}
           </a>
         </div>
         ${status !== 'revoked' ? `
         <div class="flex gap-2">
           <button onclick="archiveReportDirect('${link.id}')"
             class="flex-1 py-2 bg-lavender hover:bg-purple-200 text-navy text-sm font-semibold rounded-xl transition-colors">
-            📂 Återta
+            ${escHtml(rpt('reports.shared.revoke'))}
           </button>
           <button onclick="showDeleteDialog('${link.id}')"
             class="flex-1 py-2 bg-coral hover:bg-red-200 text-navy text-sm font-semibold rounded-xl transition-colors">
-            🗑️ Ta bort
+            ${escHtml(rpt('reports.shared.delete'))}
           </button>
         </div>` : `
         <div class="flex gap-2">
           <button onclick="showDeleteDialog('${link.id}')"
             class="flex-1 py-2 bg-coral hover:bg-red-200 text-navy text-sm font-semibold rounded-xl transition-colors">
-            🗑️ Ta bort
+            ${escHtml(rpt('reports.shared.delete'))}
           </button>
         </div>`}
       </div>`;
@@ -1230,7 +1293,7 @@ async function copyLink(publicId) {
   const url = window.location.origin + '/r/' + publicId;
   try {
     await navigator.clipboard.writeText(url);
-    showToast('Länk kopierad!', 'success');
+    showToast(rpt('reports.toasts.linkCopied'), 'success');
   } catch {
     const ta = document.createElement('textarea');
     ta.value = url;
@@ -1238,7 +1301,7 @@ async function copyLink(publicId) {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showToast('Länk kopierad!', 'success');
+    showToast(rpt('reports.toasts.linkCopied'), 'success');
   }
 }
 
@@ -1313,7 +1376,7 @@ function closeRevokeDialog() {
 
 // Direct archive — no confirmation dialog
 async function archiveReportDirect(id) {
-  if (!confirm('Återta rapporten? Länken slutar fungera, men du kan fortfarande se rapporten.')) return;
+  if (!confirm(rpt('reports.confirm.revokeReport'))) return;
   try {
     const csrf = getCsrfToken();
     const headers = {};
@@ -1325,9 +1388,9 @@ async function archiveReportDirect(id) {
     });
     if (!res.ok) {
       const data = await res.json();
-      throw new Error(data.error || 'Kunde inte återta');
+      throw new Error(data.error || rpt('reports.errors.revokeFailed'));
     }
-    showToast('Rapport återkallad', 'success');
+    showToast(rpt('reports.toasts.reportRevoked'), 'success');
     loadSharedReports();
     if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
   } catch (err) {
@@ -1355,9 +1418,9 @@ async function archiveReport() {
     });
     if (!res.ok) {
       const data = await res.json();
-      throw new Error(data.error || 'Kunde inte arkivera');
+      throw new Error(data.error || rpt('reports.errors.archiveReportFailed'));
     }
-    showToast('Rapport arkiverad', 'success');
+    showToast(rpt('reports.toasts.reportArchived'), 'success');
     loadSharedReports();
     if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
   } catch (err) {
@@ -1368,7 +1431,7 @@ async function archiveReport() {
 async function permanentlyDeleteReport() {
   const id = document.getElementById('revokeLinkId').value;
   closeRevokeDialog();
-  if (!confirm('Ta bort rapporten permanent? Detta kan inte ångras.')) return;
+  if (!confirm(rpt('reports.confirm.deleteReport'))) return;
   try {
     const csrf = getCsrfToken();
     const headers = {};
@@ -1380,9 +1443,9 @@ async function permanentlyDeleteReport() {
     });
     if (!res.ok) {
       const data = await res.json();
-      throw new Error(data.error || 'Kunde inte ta bort');
+      throw new Error(data.error || rpt('reports.errors.deleteFailed'));
     }
-    showToast('Rapport borttagen', 'success');
+    showToast(rpt('reports.toasts.reportDeleted'), 'success');
     loadSharedReports();
     if (window.refreshReportsActiveCount) window.refreshReportsActiveCount();
   } catch (err) {

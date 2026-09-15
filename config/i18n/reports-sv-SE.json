@@ -1,0 +1,210 @@
+{
+  "pageTitle": "Rapporter — {{brand}}",
+  "shell": {
+    "title": "📊 Rapporter",
+    "backTitle": "Tillbaka"
+  },
+  "tabs": {
+    "create": "Skapa rapport",
+    "activity": "Aktiviteter",
+    "shared": "Delade rapporter"
+  },
+  "loading": "Laddar...",
+  "create": {
+    "step1": "1. Välj barn",
+    "step2": "2. Välj tidsperiod",
+    "step3": "3. Välj innehåll",
+    "step4": "4. Föräldrasammanfattning",
+    "step4Optional": "(valfritt)",
+    "reportName": "Namn på rapporten",
+    "periodWeek": "Senaste veckan",
+    "periodMonth": "Senaste månaden",
+    "periodCustom": "Anpassad period",
+    "periodCustomShort": "Anpassad",
+    "from": "Från",
+    "to": "Till",
+    "fields": {
+      "activities": {
+        "title": "📋 Schemalagda aktiviteter",
+        "hint": "Alla aktiviteter i rapporten"
+      },
+      "completion": {
+        "title": "📈 Genomförandegrad (%)",
+        "hint": "Procent klarat per dag och totalt"
+      },
+      "sectionSummary": {
+        "title": "🌅 Sektionssammanfattning",
+        "hint": "Morgon / Dag / Kväll / Natt"
+      },
+      "parentNotes": {
+        "title": "📝 Förälderns anteckningar",
+        "hint": "Dina egna anteckningar på aktiviteter"
+      },
+      "childNotes": {
+        "title": "💬 Barnets anteckningar",
+        "hint": "Barnets egna anteckningar"
+      },
+      "stars": {
+        "title": "⭐ Stjärnor",
+        "hint": "Intjänade stjärnor i perioden"
+      },
+      "rewards": {
+        "title": "🏆 Belöningar",
+        "hint": "Begärda och godkända belöningar"
+      },
+      "emotions": {
+        "title": "😊 Känsloregistrering",
+        "hint": "Opt-in – endast om registrerad"
+      },
+      "pedagogNotes": {
+        "title": "📝 Pedagoganteckningar",
+        "hint": "Dagliga observationer från pedagogen"
+      }
+    },
+    "fieldError": "Välj minst ett innehåll",
+    "parentSummaryPlaceholder": "Beskriv hur perioden har varit i stort — t.ex. förändringar i medicin, skolbyte, eller annat som kan påverka rutinerna. Undvik personnummer och diagnoser.",
+    "parentSummaryWarning": "Skriv <strong>inte</strong> personnummer, diagnoser eller andra känsliga personuppgifter. Fokusera på observationer kring rutiner och mående.",
+    "reportLabelPlaceholder": "t.ex. Rapport till skolan",
+    "pinTitle": "🔐 Skydda med PIN-kod",
+    "pinHint": "Valfri 4–6 siffer PIN för rapporten",
+    "pinPlaceholder": "4–6 siffror",
+    "pinError": "PIN måste vara 4–6 siffror",
+    "anonymousTitle": "🔒 Anonym delning",
+    "anonymousHint": "Döljer barnets namn och emoji i rapporten — rekommenderas för BUP/vårdgivare",
+    "createBtn": "Skapa rapport",
+    "creating": "Skapar...",
+    "successTitle": "🎉 Rapport skapad!",
+    "shareHint": "Dela denna länk med pedagogen eller terapeuten:",
+    "copyLink": "📋 Kopiera länk",
+    "qrLabel": "QR-kod",
+    "qrAlt": "QR-kod"
+  },
+  "activity": {
+    "show": "Visa",
+    "addObservation": "+ Observation",
+    "writeGeneralObservation": "📝 Skriv allmän observation",
+    "loading": "Laddar aktiviteter...",
+    "emptyTitle": "Inga aktiviteter för vald period",
+    "emptyHint": "Välj en annan period eller barn",
+    "noData": "Ingen data registrerad",
+    "completedCount": "{{completed}}/{{total}} klara",
+    "completed": "✅ Klar",
+    "parentNoteLabel": "📝 Förälderns anteckning:",
+    "childNoteLabel": "💬 Barnets anteckning:",
+    "edit": "Redigera",
+    "addNote": "+ Lägg till anteckning"
+  },
+  "observations": {
+    "title": "📝 Allmänna anteckningar",
+    "writeNew": "+ Skriv ny",
+    "empty": "Inga anteckningar ännu.",
+    "important": "⚠️ Viktigt",
+    "showMore": "Visa mer",
+    "showLess": "Visa mindre",
+    "edit": "Redigera",
+    "archive": "Arkivera",
+    "delete": "Ta bort",
+    "restore": "Återställ",
+    "archivedTitle": "Arkiverade anteckningar",
+    "modalTitle": "Allmän observation",
+    "modalEditTitle": "Redigera anteckning",
+    "modalPlaceholder": "Skriv din allmänna observation — t.ex. hur dagen har varit, särskilda händelser, reflektioner...",
+    "created": "Skapad {{date}}",
+    "charCount": "{{count}}/2000"
+  },
+  "noteModal": {
+    "title": "Redigera anteckning",
+    "placeholder": "Skriv din anteckning...",
+    "cancel": "Avbryt",
+    "save": "Spara"
+  },
+  "shared": {
+    "filterAll": "Alla",
+    "filterActive": "Aktiva",
+    "filterInactive": "Inaktiva",
+    "emptyTitle": "Inga delade rapporter ännu",
+    "emptyHint": "Skapa en rapport och dela den med en pedagog eller terapeut",
+    "filterEmptyAll": "Inga delade rapporter ännu",
+    "filterEmptyActive": "Inga aktiva rapporter",
+    "filterEmptyInactive": "Inga inaktiva rapporter",
+    "filterEmptyDefault": "Inga rapporter",
+    "filterEmptyCategory": "Inga rapporter i denna kategori",
+    "created": "Skapad",
+    "expires": "Utgår",
+    "allFields": "Alla fält",
+    "views": "👁️ {{count}} visningar",
+    "copyLink": "📋 Kopiera länk",
+    "open": "🔗 Öppna",
+    "revoke": "📂 Återta",
+    "delete": "🗑️ Ta bort",
+    "statusActive": "Aktiv",
+    "statusRevoked": "Återkallad",
+    "statusExpired": "Utgången",
+    "anonymous": "🔒 Anonym",
+    "unnamedReport": "Namnlös rapport",
+    "unknownChild": "Okänt barn"
+  },
+  "revokeDialog": {
+    "title": "Ta bort rapport?",
+    "body": "Vad vill du göra med denna rapport?",
+    "archive": "📂 Arkivera — sluta dela, behåll i arkivvy",
+    "delete": "🗑️ Ta bort — ta bort permanent",
+    "cancel": "Avbryt"
+  },
+  "children": {
+    "noneFamily": "Inga barn i din familj ännu.",
+    "noneActivity": "Inga barn i din familj.",
+    "retry": "Försök igen"
+  },
+  "actions": {
+    "save": "Spara",
+    "saveChanges": "Spara ändringar",
+    "saving": "Sparar...",
+    "cancel": "Avbryt"
+  },
+  "toasts": {
+    "linkCopied": "Länk kopierad!",
+    "saved": "Sparat!",
+    "savedRefreshList": "Sparat! Men kunde inte uppdatera listan — ladda om sidan.",
+    "savedRefreshView": "Sparat! Men kunde inte uppdatera — ladda om sidan.",
+    "noteSaved": "Anteckning sparad!",
+    "archived": "Arkiverad ✓",
+    "restored": "Återställd ✓",
+    "deleted": "Borttagen",
+    "reportRevoked": "Rapport återkallad",
+    "reportArchived": "Rapport arkiverad",
+    "reportDeleted": "Rapport borttagen",
+    "loadSharedFailed": "Kunde inte ladda delade rapporter"
+  },
+  "errors": {
+    "loadChildren": "Kunde inte ladda barn ({{status}})",
+    "selectChild": "Välj ett barn först",
+    "nameRequired": "Ge rapporten ett namn",
+    "selectPeriod": "Välj en tidsperiod",
+    "createFailed": "Kunde inte skapa rapport",
+    "timeout": "Timeout — databasen svarade inte. Försök igen.",
+    "loadingChildren": "Laddar barn… Försök igen om en stund.",
+    "loadActivities": "Kunde inte ladda aktiviteter ({{status}})",
+    "serverBusy": "Servern är tillfälligt överbelastad. Vänta några sekunder och klicka Visa igen.",
+    "renderActivities": "Ett fel uppstod vid visning av aktiviteter. Försök igen.",
+    "renderActivitiesReload": "Ett fel uppstod vid visning av aktiviteter. Prova ladda om sidan.",
+    "loadActivitiesFallback": "Kunde inte ladda aktiviteter. Försök igen.",
+    "writeNoteFirst": "Skriv en anteckning först",
+    "maxChars": "Max 2000 tecken",
+    "saveFailed": "Kunde inte spara",
+    "archiveFailed": "Kunde inte arkivera",
+    "restoreFailed": "Kunde inte återställa",
+    "deleteFailed": "Kunde inte ta bort",
+    "identifyActivity": "Kunde inte identifiera aktiviteten. Prova ladda om sidan.",
+    "saveNoteFailed": "Kunde inte spara anteckning ({{status}})",
+    "loadReports": "Kunde inte ladda rapporter",
+    "revokeFailed": "Kunde inte återta",
+    "archiveReportFailed": "Kunde inte arkivera"
+  },
+  "confirm": {
+    "archiveObservation": "Arkivera denna anteckning?",
+    "deleteObservation": "Ta bort denna anteckning permanent? Detta kan inte ångras.",
+    "revokeReport": "Återta rapporten? Länken slutar fungera, men du kan fortfarande se rapporten.",
+    "deleteReport": "Ta bort rapporten permanent? Detta kan inte ångras."
+  }
+}
