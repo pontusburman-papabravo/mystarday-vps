@@ -34,6 +34,6 @@ describe('NU/NÄSTA/SEDAN parent opt-in (default off)', () => {
     assert.match(settings, /saveNnlMode/);
     assert.match(setup, /saveNnlMode/);
     assert.match(setup, /require_sequential_completion: enabled/);
-    assert.match(setup, /Fri avbockning — barnet väljer själv/);
+    assert.match(setup, /childProfile\.setup\.toggles\.nnl\.off/);
   });
 });

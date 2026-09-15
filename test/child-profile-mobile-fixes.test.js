@@ -39,7 +39,7 @@ describe('child profile mobile fixes', () => {
   it('child profile setup includes birthday picker on Inställningar', () => {
     const setup = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
     const html = fs.readFileSync(path.join(ROOT, 'public/family-child.html'), 'utf8');
-    assert.match(setup, /Födelsedag/);
+    assert.match(setup, /childProfile\.setup\.identity\.birthdayLabel/);
     assert.match(setup, /BIRTHDAY_PREFIX/);
     assert.match(setup, /initBirthdayPicker\(BIRTHDAY_PREFIX\)/);
     assert.match(setup, /body\.birthday = birthday/);

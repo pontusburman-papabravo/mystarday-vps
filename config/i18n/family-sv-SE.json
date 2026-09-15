@@ -214,6 +214,130 @@
     "pauseResumed": "Dagen återupptagen",
     "pausePaused": "Dagen pausad",
     "pendingNone": "Inga väntande förfrågningar",
+    "setup": {
+      "saved": "Sparat",
+      "saveFailed": "Kunde inte spara",
+      "updateFailed": "Kunde inte uppdatera",
+      "loading": "Laddar…",
+      "identity": {
+        "title": "Namn & emoji",
+        "lead": "Så här visas barnet i familjen och vid inloggning.",
+        "nameLabel": "Barnets namn",
+        "namePlaceholder": "T.ex. Emma",
+        "emojiLabel": "Emoji",
+        "emojiAria": "Välj emoji {{emoji}}",
+        "birthdayLabel": "Födelsedag",
+        "birthdayHint": "Hjälper oss föreslå rätt schema och visa ålder.",
+        "year": "År",
+        "month": "Månad",
+        "day": "Dag",
+        "birthYearAria": "Födelseår",
+        "birthMonthAria": "Födelsemånad",
+        "birthDayAria": "Födelsedag",
+        "saveProfile": "Spara profil",
+        "nameRequired": "Namn krävs",
+        "profileSaved": "Profil sparad",
+        "saveProfileFailed": "Kunde inte spara profil"
+      },
+      "photo": {
+        "title": "Profilbild",
+        "add": "Lägg till foto",
+        "change": "Byt foto",
+        "remove": "Ta bort bild",
+        "saved": "Bild sparad!",
+        "saveFailed": "Kunde inte spara bild",
+        "removed": "Profilbilden togs bort",
+        "removeFailed": "Kunde inte ta bort"
+      },
+      "view": {
+        "title": "Barnvy",
+        "classic": "Klassisk",
+        "new": "Ny vy",
+        "minimalUiLabel": "Distraktionsfri vy",
+        "minimalUiHint": "Döljer extra knappar i barnvyn",
+        "classicToast": "Klassisk vy",
+        "newToast": "Ny vy"
+      },
+      "moodRewards": {
+        "title": "Känslor & belöningar",
+        "moodLabel": "Känsloregistrering",
+        "moodHint": "Slider efter avbockning",
+        "loadingRewards": "Laddar belöningar…",
+        "createMore": "Skapa fler belöningar →",
+        "empty": "Inga belöningar ännu.",
+        "hiddenForChild": "Dold för barnet",
+        "visibleForChild": "Synlig för barnet"
+      },
+      "transition": {
+        "title": "⏳ Övergångsstöd",
+        "body": "Välj när barnet ser varningstext i NU-kortet: Snart → Om X min → Nu.",
+        "leadOne": "Om {{minutes}} min",
+        "leadMany": "Om {{minutes}} minuter",
+        "hint": "Minst en lead-tid rekommenderas. Standard: 5 och 1 minut.",
+        "selectAtLeastOne": "Välj minst en lead-tid",
+        "saveFailed": "Kunde inte spara övergångstider",
+        "saved": "Övergångstider sparade"
+      },
+      "advanced": {
+        "title": "Barnvy & rutiner",
+        "lead": "Ordning, klocka, animationer och timer."
+      },
+      "toggles": {
+        "nnl": {
+          "label": "NU / NÄSTA / SEDAN",
+          "hint": "Guidad ordning — barnet bockar av en i taget",
+          "on": "NU / NÄSTA / SEDAN aktiverat",
+          "off": "Fri avbockning — barnet väljer själv"
+        },
+        "reorder": {
+          "label": "Barnets omsortering",
+          "hint": "Barnet kan dra om aktiviteter"
+        },
+        "hideClock": {
+          "label": "Dölj klockslag",
+          "hint": "Minskar stress för tidskänsliga barn"
+        },
+        "lockSchedule": {
+          "label": "Lås schema",
+          "hint": "Barnet kan inte bläddra till andra dagar"
+        },
+        "dopamin": {
+          "label": "Dopamin-animation",
+          "hint": "Stjärnburst vid avbockning"
+        },
+        "haptics": {
+          "label": "Vibration",
+          "hint": "Taktil feedback vid stjärnor och belöningar",
+          "on": "Vibration påslagen",
+          "off": "Vibration avstängd"
+        },
+        "activityTimers": {
+          "label": "Aktivitetstimer (timglas)",
+          "hint": "Masterbrytare. Sätt tid per aktivitet i biblioteket."
+        },
+        "visualTimer": {
+          "label": "Visuell timer",
+          "hint": "Cirkulär klocka vid pågående aktivitet"
+        },
+        "colorCoding": {
+          "label": "Färgkodning",
+          "hint": "Färgkodade aktivitetskort"
+        }
+      },
+      "delete": {
+        "button": "🗑 Radera barn permanent",
+        "hint": "Tar bort schema, stjärnor och all historik för barnet."
+      },
+      "schema": {
+        "loadFailed": "Kunde inte ladda schema.",
+        "weekOverview": "Veckodagsöversikt för {{name}}",
+        "editSchedule": "Redigera veckoschema →",
+        "openSchedule": "Öppna veckoschema →"
+      },
+      "errors": {
+        "apiCode": "felkod {{status}}"
+      }
+    },
     "errors": {
       "missingChildId": "Saknar barn-id",
       "loadStatus": "Kunde inte ladda status",

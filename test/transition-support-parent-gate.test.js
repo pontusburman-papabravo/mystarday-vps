@@ -27,7 +27,7 @@ describe('transition support parent/child gate alignment', () => {
   test('barnprofil setup tab exposes övergångsstöd when transition_support is on', () => {
     assert.match(setupSrc, /transition-lead-cb/);
     assert.match(setupSrc, /features\.transition_support/);
-    assert.match(setupSrc, /Övergångsstöd/);
+    assert.match(setupSrc, /childProfile\.setup\.transition\.title/);
   });
 
   test('prod acceptance gate opens canonical barnprofil setup route', () => {
