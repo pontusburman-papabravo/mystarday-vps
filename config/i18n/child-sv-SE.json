@@ -692,5 +692,72 @@
     "ariaOneSecond": "Timer. 1 sekund kvar.",
     "ariaSeconds": "Timer. {{count}} sekunder kvar.",
     "ariaMinutesAndSeconds": "Timer. {{minutes}} minut{{minutePlural}} och {{seconds}} sekund{{secondPlural}} kvar."
+  },
+  "helpBubble": {
+    "title": "❓ Hjälp – Barnvyn",
+    "tabs": [
+      {
+        "id": "today",
+        "label": "📋 Aktiviteter",
+        "faqs": [
+          {
+            "q": "Hur bockar jag av en aktivitet?",
+            "a": "Tryck på den vita cirkeln bredvid aktiviteten med texten <strong>NU</strong>. Den fylls grön med bock och du tjänar en stjärna! 🌟"
+          },
+          {
+            "q": "Vad är understeg och hur ser jag dem?",
+            "a": "Aktiviteter med understeg visar en 📋-knapp. Tryck på den för att se stegen som hjälper dig klara aktiviteten! Du bockar ändå av hela aktiviteten med ett enda tryck."
+          },
+          {
+            "q": "Vad är cirkeln runt min emoji?",
+            "a": "Cirkeln runt din emoji visar <strong>dagens framsteg</strong> — hur många aktiviteter du klarat av idag. Cirkeln fylls på och blir grön när du är klar med alla! 🟢"
+          },
+          {
+            "q": "Vad är NU / Nästa / Senare?",
+            "a": "<strong>NU</strong> = din aktuella aktivitet. <strong>Nästa</strong> = vad som kommer efter. <strong>Senare</strong> = resten av dagen. Det här läget är av som standard — en vuxen kan slå på det om du ska bocka av en i taget."
+          },
+          {
+            "q": "Vad är timern?",
+            "a": "Den runda timern visar hur lång tid aktiviteten tar. Grön = gott om tid, Orange = lite kvar, Röd = snart slut."
+          }
+        ]
+      },
+      {
+        "id": "stars",
+        "label": "⭐ Mina stjärnor",
+        "faqs": [
+          {
+            "q": "Vad är de tre stjärn-elementen?",
+            "a": "<strong>Cirkeln runt emojin</strong> = hur många aktiviteter du klarat idag. <strong>Stjärnsaldo</strong> = dina totalt sparade stjärnor. <strong>Långsiktigt mål</strong> = progress mot din valda belöning."
+          },
+          {
+            "q": "Hur löser jag in en belöning?",
+            "a": "Öppna Skattkammaren (tryck 💎-fliken) → tryck på en belöning du sparat tillräckligt till → tryck \"Fråga om att lösa in\" → vänta på att en vuxen godkänner."
+          },
+          {
+            "q": "Hur tjänar jag fler stjärnor?",
+            "a": "Bocka av aktiviteterna i ditt schema! Varje avklarad aktivitet ger stjärnor. En vuxen kan också ge dig bonus-stjärnor."
+          }
+        ]
+      },
+      {
+        "id": "help",
+        "label": "🔧 Hjälp",
+        "faqs": [
+          {
+            "q": "Jag ser inte min belöning",
+            "a": "En vuxen behöver lägga till belöningar åt dig i <strong>Bibliotek</strong>. Be en vuxen hjälpa till."
+          },
+          {
+            "q": "Jag har glömt min PIN",
+            "a": "Be en vuxen gå till <strong>Familjen & inställningar → Barn</strong> → välj ditt namn → \"Ändra PIN\"."
+          },
+          {
+            "q": "Schemat ser konstigt ut",
+            "a": "Be en vuxen kontrollera schemat. Det kan behöva uppdateras för dagens dag."
+          }
+        ]
+      }
+    ]
   }
 }
