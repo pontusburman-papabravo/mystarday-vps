@@ -48,7 +48,7 @@ async function toggleInlineRedemption(childId, _childName) {
     return;
   }
 
-  panel.innerHTML = `<div class="dash-inline-redemption mt-2"><p class="text-center text-xs text-text-soft py-2">Laddar förfrågningar...</p></div>`;
+  panel.innerHTML = `<div class="dash-inline-redemption mt-2"><p class="text-center text-xs text-text-soft py-2">${pt('home.approvals.loading')}</p></div>`;
   panel.classList.remove('hidden');
 
   try {
@@ -60,14 +60,14 @@ async function toggleInlineRedemption(childId, _childName) {
     const childGoalChanges = (data.pending_goal_changes || []).filter(r => r.child_id === childId);
 
     if (childRedemptions.length === 0 && childGoalChanges.length === 0) {
-      panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-text-soft py-2">Inga väntande förfrågningar 🎉</div>`;
+      panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-text-soft py-2">${pt('home.approvals.empty')}</div>`;
       return;
     }
 
     let html = '<div class="dash-inline-redemption mt-2 space-y-2">';
     for (const req of childGoalChanges) {
       html += `<div class="flex items-center gap-2">
-        <span class="flex-1 text-xs font-semibold text-navy">🎯 Vill byta mål till ${escHtml(req.to_reward_name || '')} ${req.to_reward_icon || ''}</span>
+        <span class="flex-1 text-xs font-semibold text-navy">🎯 ${pt('home.approvals.goalChangeTo', { name: escHtml(req.to_reward_name || '') })} ${req.to_reward_icon || ''}</span>
         <button onclick="event.stopPropagation(); inlineApproveGoalChange('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-colors">✅</button>
         <button onclick="event.stopPropagation(); inlineDenyGoalChange('${req.id}', '${childId}')" class="min-h-[36px] px-3 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition-colors">❌</button>
       </div>`;
@@ -82,57 +82,57 @@ async function toggleInlineRedemption(childId, _childName) {
     html += '</div>';
     panel.innerHTML = html;
   } catch (_err) {
-    panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-red-500 py-2">Kunde inte ladda förfrågningar.</div>`;
+    panel.innerHTML = `<div class="dash-inline-redemption mt-2 text-center text-xs text-red-500 py-2">${pt('home.approvals.loadError')}</div>`;
   }
 }
 
 async function inlineApproveGoalChange(requestId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/approve`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast('🎯 Målbyte godkänt!');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.genericError'), true); return; }
+    showToast(pt('family.toasts.goalChangeApproved'));
     await loadDashboardCards();
-  } catch { showToast('Nätverksfel', true); }
+  } catch { showToast(pt('home.dayOffModal.networkError'), true); }
 }
 
 async function inlineDenyGoalChange(requestId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/goal-change-requests/${requestId}/deny`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast('Målbyte nekat.');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.genericError'), true); return; }
+    showToast(pt('family.toasts.goalChangeDenied'));
     await loadDashboardCards();
-  } catch { showToast('Nätverksfel', true); }
+  } catch { showToast(pt('home.dayOffModal.networkError'), true); }
 }
 
 async function inlineApproveRedemption(redemptionId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/approve`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast('🎉 Inlösen godkänd!');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.genericError'), true); return; }
+    showToast(pt('family.toasts.redemptionApproved'));
     await loadDashboardCards();
-  } catch { showToast('Nätverksfel', true); }
+  } catch { showToast(pt('home.dayOffModal.networkError'), true); }
 }
 
 async function inlineDenyRedemption(redemptionId, _childId) {
   try {
     const res = await window.apiFetch(`/api/rewards/redemptions/${redemptionId}/deny`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast('Inlösen nekad.');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.genericError'), true); return; }
+    showToast(pt('family.toasts.redemptionDenied'));
     await loadDashboardCards();
-  } catch { showToast('Nätverksfel', true); }
+  } catch { showToast(pt('home.dayOffModal.networkError'), true); }
 }
 
 // ── Pause / unpause today ────────────────────────────────
 async function togglePauseDay(childId, logId, currentlyPaused) {
-  if (!logId) { showToast('Inget schema genererat för idag', true); return; }
+  if (!logId) { showToast(pt('home.dayOffModal.noScheduleTitle'), true); return; }
   const action = currentlyPaused ? 'unpause' : 'pause';
   try {
     const res = await window.apiFetch(`/api/daily-logs/${logId}/${action}`, { method: 'PUT' });
-    if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-    showToast(currentlyPaused ? 'Dagen återupptagen!' : 'Dagen pausad!');
+    if (!res.ok) { const e = await res.json(); showToast(e.error || pt('home.dayOffModal.genericError'), true); return; }
+    showToast(currentlyPaused ? pt('home.dayOffModal.resumedToast') : pt('home.dayOffModal.pausedToast'));
     await loadDashboardCards();
   } catch (_err) {
-    showToast('Nätverksfel', true);
+    showToast(pt('home.dayOffModal.networkError'), true);
   }
 }
 
@@ -141,7 +141,7 @@ async function togglePauseDay(childId, logId, currentlyPaused) {
 // If multiple → show child picker first.
 function openGiveStarsQuick() {
   const ch = dashboardStats?.children || children || [];
-  if (ch.length === 0) { showToast('Inga barn hittade', true); return; }
+  if (ch.length === 0) { showToast(pt('home.dayOffModal.noChildren'), true); return; }
   if (ch.length === 1) {
     const c = ch[0];
     openGiveStarsModal(c.id, c.name, c.emoji || '⭐');
@@ -228,7 +228,7 @@ async function dashToggleActivity(itemId, childId, currentlyCompleted) {
     const res = await window.apiFetch(`/api/daily-log-items/${itemId}/${action}`, { method: 'PUT' });
     if (!res.ok) {
       const e = await res.json().catch(() => ({}));
-      showToast(e.error || 'Fel vid uppdatering', true);
+      showToast(e.error || pt('home.dayOffModal.genericError'), true);
       if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
       return;
     }
@@ -238,9 +238,9 @@ async function dashToggleActivity(itemId, childId, currentlyCompleted) {
     }
     // Refresh dashboard cards to get updated state
     await loadDashboardCards();
-    showToast(currentlyCompleted ? 'Avmarkerad!' : '✅ Klar!');
+    showToast(currentlyCompleted ? pt('home.cards.activityUnmarked') : pt('home.cards.activityMarked'));
   } catch (_err) {
-    showToast('Nätverksfel', true);
+    showToast(pt('home.dayOffModal.networkError'), true);
     if (btn) { btn.classList.remove('checking'); btn.disabled = false; }
   }
 }

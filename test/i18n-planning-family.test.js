@@ -226,6 +226,64 @@ describe('family-child parent i18n', () => {
   });
 });
 
+describe('library parent chrome en-GB leaks', () => {
+  it('library.js uses lpt for favourite aria, empty states and confirms', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/library.js'), 'utf8');
+    assert.match(js, /library\.favorite\.(add|remove)/);
+    assert.match(js, /library\.empty\.noActivitiesIn/);
+    assert.match(js, /library\.confirm\.deleteActivity/);
+    assert.match(js, /library\.chrome\.moreOptions/);
+    assert.doesNotMatch(js, /title="\$\{a\.is_favorite \? 'Ta bort favorit'/);
+    assert.doesNotMatch(js, /Inga aktiviteter i \$\{/);
+    assert.doesNotMatch(js, /openConfirmModal\(`Ta bort/);
+  });
+
+  it('library-magic-mine segments use i18n keys (not hardcoded Swedish)', () => {
+    const mine = fs.readFileSync(path.join(__dirname, '../public/js/library-magic-mine.js'), 'utf8');
+    assert.match(mine, /library\.standard\.segments\.schedules/);
+    assert.match(mine, /library\.standard\.segments\.rewards/);
+    assert.doesNotMatch(mine, /label: '🏆 Belöningar'/);
+    assert.doesNotMatch(mine, /label: '📅 Scheman'/);
+  });
+
+  it('library-schema.js and library-substeps.js use lpt for chrome', () => {
+    const schema = fs.readFileSync(path.join(__dirname, '../public/js/library-schema.js'), 'utf8');
+    const sub = fs.readFileSync(path.join(__dirname, '../public/js/library-substeps.js'), 'utf8');
+    assert.match(schema, /library\.schema\.copyTitle/);
+    assert.match(schema, /library\.favorite\.(add|remove)/);
+    assert.doesNotMatch(schema, /showToast\('Något gick fel'/);
+    assert.doesNotMatch(schema, /Kunde inte ta bort schemat/);
+    assert.match(schema, /library\.errors\.deleteSchedule/);
+    assert.match(sub, /library\.empty\.noSubsteps/);
+    assert.match(sub, /library\.substeps\.edit/);
+    assert.doesNotMatch(sub, /Inga delsteg ännu/);
+  });
+
+  it('library.html wires data-i18n on loading, favourite and confirm chrome', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/library.html'), 'utf8');
+    assert.match(html, /data-i18n="library\.favorite\.label"/);
+    assert.match(html, /data-i18n="library\.loading\.rewards"/);
+    assert.match(html, /data-i18n="library\.chrome\.confirmTitle"/);
+  });
+
+  it('library en-GB chrome keys exist without Swedish letters', () => {
+    loadLocales();
+    assert.equal(t('en-GB', 'library.favorite.add'), 'Save as favourite');
+    assert.equal(t('en-GB', 'library.empty.addActivity'), '+ Add activity');
+    assert.doesNotMatch(t('en-GB', 'library.confirm.deleteCategory', { name: 'Morning' }), SWEDISH_RE);
+    assert.doesNotMatch(t('en-GB', 'library.schema.copyPeriod'), SWEDISH_RE);
+    assert.doesNotMatch(t('en-GB', 'library.standard.rewardsCopied', { count: 3 }), SWEDISH_RE);
+  });
+
+  it('library-standard.js copy toasts use libPt (not hardcoded Swedish)', () => {
+    const std = fs.readFileSync(path.join(__dirname, '../public/js/library-standard.js'), 'utf8');
+    assert.match(std, /library\.standard\.rewardsCopied/);
+    assert.doesNotMatch(std, /belöningar kopierade/);
+    assert.doesNotMatch(std, /Belöningen har kopierats/);
+    assert.doesNotMatch(std, /Kopiera alla/);
+  });
+});
+
 describe('i18n merge domains', () => {
   it('src/lib/i18n.js merges planning/family/schedule domains', () => {
     const i18n = fs.readFileSync(path.join(__dirname, '../src/lib/i18n.js'), 'utf8');

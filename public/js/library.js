@@ -114,7 +114,7 @@ function showLibraryLoadError(containerId, message) {
 function isContainerLoading(containerId) {
   const el = document.getElementById(containerId);
   if (!el) return false;
-  return /Laddar/i.test(el.textContent || '');
+  return /Laddar|Loading/i.test(el.textContent || '');
 }
 
 function routeLibraryHash() {
@@ -265,7 +265,7 @@ async function loadCategories() {
 function buildCategoryOptions() {
   const sel = document.getElementById('activityCategory');
   const current = sel.value;
-  sel.innerHTML = '<option value="">Ingen kategori</option>' +
+  sel.innerHTML = '<option value="">' + lpt('library.chrome.noCategory') + '</option>' +
     categories.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
   if (current) sel.value = current;
 }
@@ -284,7 +284,7 @@ function renderSchemaTabs() {
     <div class="flex items-center gap-1 schema-tab ${showAllActive ? 'active' : ''}"
       data-cat-tab="__all__"
       onclick="selectSchemaTab(null)">
-      <span class="px-4 py-2 font-semibold text-sm cursor-pointer">Alla</span>
+      <span class="px-4 py-2 font-semibold text-sm cursor-pointer">${lpt('library.chrome.all')}</span>
     </div>
     ${categories.map(cat => {
       const isActive = cat.id === activeSchemaTab;
@@ -294,10 +294,10 @@ function renderSchemaTabs() {
           onclick="selectSchemaTab('${cat.id}')">
           <span class="px-3 py-2 font-semibold text-sm cursor-pointer">${escHtml(cat.name)}</span>
           <button onclick="event.stopPropagation(); deleteCategoryWithConfirm('${cat.id}', '${escHtml(cat.name).replace(/'/g, "\\'")}')"
-            title="Ta bort kategori"
+            title="${lpt('library.chrome.deleteCategoryTitle')}"
             class="cat-delete-btn w-6 h-6 flex items-center justify-center rounded-full text-xs leading-none
               ${isActive ? 'text-white/60 hover:text-white hover:bg-red-500' : 'text-text-soft hover:text-red-500 hover:bg-red-50'}
-              transition-colors flex-shrink-0" aria-label="Ta bort ${escHtml(cat.name)}">
+              transition-colors flex-shrink-0" aria-label="${lpt('library.chrome.deleteCategoryAria', { name: cat.name })}">
             ✕
           </button>
         </div>
@@ -373,11 +373,13 @@ function renderActivities() {
 
   if (tabActivities.length === 0) {
     const cat = categories.find(c => c.id === activeSchemaTab);
-    const catLabel = activeSchemaTab === null ? 'alla kategorier' : (cat ? cat.name : 'denna kategori');
+    const catLabel = activeSchemaTab === null
+      ? lpt('library.empty.allCategories')
+      : (cat ? cat.name : lpt('library.empty.thisCategory'));
     container.innerHTML = `
       <div class="text-center py-10 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
         <p class="text-3xl mb-2">📋</p>
-        <p class="font-heading font-bold text-navy mb-1">Inga aktiviteter i ${catLabel}</p>
+        <p class="font-heading font-bold text-navy mb-1">${lpt('library.empty.noActivitiesIn', { category: catLabel })}</p>
         <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">${lpt('library.empty.categoryBody')}</p>
         <button onclick="openActivityModalInCategory('${activeSchemaTab || ''}')" class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
           ${lpt('library.empty.addActivity')}
@@ -402,7 +404,7 @@ function renderActivities() {
     const editBtnHtml = !activeCat.is_default
       ? `<button onclick="openCategoryModal(${JSON.stringify(activeCat).replace(/'/g, "\\'")})"
           class="px-3 py-1.5 text-sm font-semibold text-text-soft hover:text-navy border border-lavender rounded-lg transition-colors">
-          ✏️ Redigera flik
+          ✏️ ${lpt('library.chrome.editTab')}
         </button>`
       : '';
     html += `
@@ -410,7 +412,7 @@ function renderActivities() {
         ${editBtnHtml}
         <button onclick="deleteCategory('${activeCat.id}', '${escHtml(activeCat.name)}')"
           class="px-3 py-1.5 text-sm font-semibold text-red-500 hover:text-red-700 border border-red-200 rounded-lg transition-colors">
-          ✕ Ta bort flik
+          ✕ ${lpt('library.chrome.deleteTab')}
         </button>
       </div>
     `;
@@ -440,7 +442,7 @@ function renderActivities() {
 function renderActivityItem(a) {
   const subStepCount = subStepsCache[a.id] ? subStepsCache[a.id].length : null;
   const countBadge = subStepCount !== null
-    ? `<span class="text-xs bg-mint text-green-700 px-1.5 py-0.5 rounded-full font-semibold">${subStepCount} steg</span>`
+    ? `<span class="text-xs bg-mint text-green-700 px-1.5 py-0.5 rounded-full font-semibold">${lpt('library.standard.substepsCount', { count: subStepCount })}</span>`
     : '';
   return `
     <div class="bg-white rounded-xl overflow-hidden fade-in" data-id="${a.id}">
@@ -462,10 +464,10 @@ function renderActivityItem(a) {
         <div class="icon-btns-desktop flex gap-1 flex-shrink-0">
           <button onclick="toggleActivityFavoriteInline('${a.id}', ${a.is_favorite ? 'true' : 'false'})"
             class="icon-btn px-2 py-1 rounded-lg text-sm transition-colors ${a.is_favorite ? 'text-gold' : 'text-gray-300'}"
-            title="${a.is_favorite ? 'Ta bort favorit' : 'Spara som favorit'}">${a.is_favorite ? '★' : '☆'}</button>
+            title="${a.is_favorite ? lpt('library.favorite.remove') : lpt('library.favorite.add')}">${a.is_favorite ? '★' : '☆'}</button>
           <button onclick="toggleSubSteps('${a.id}')"
             id="substep-btn-${a.id}"
-            title="Delsteg"
+            title="${lpt('library.substeps.addTitle')}"
             class="icon-btn px-2 py-1 bg-mint hover:bg-green-100 rounded-lg text-xs font-semibold transition-colors text-green-700">📋</button>
           <button onclick="openActivityModalById('${a.id}')"
             class="icon-btn px-2 py-1 bg-lavender hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors text-text-soft">✏️</button>
@@ -474,21 +476,21 @@ function renderActivityItem(a) {
         </div>
         <!-- Mobile: ⋯ overflow menu (hidden on desktop via CSS) -->
         <div class="overflow-menu-wrap flex-shrink-0">
-          <button class="overflow-menu-btn" data-overflow-menu="omenu-a-${a.id}" aria-label="Fler alternativ">⋯</button>
+          <button class="overflow-menu-btn" data-overflow-menu="omenu-a-${a.id}" aria-label="${lpt('library.chrome.moreOptions')}">⋯</button>
           <div id="omenu-a-${a.id}" class="overflow-menu-popup">
-            <button onclick="closeOverflowMenus();toggleSubSteps('${a.id}')">📋 Delsteg</button>
-            <button onclick="closeOverflowMenus();openActivityModalById('${a.id}')">✏️ Redigera</button>
-            <button class="danger" onclick="closeOverflowMenus();deleteActivity('${a.id}', '${escHtml(a.name)}')">✕ Ta bort</button>
+            <button onclick="closeOverflowMenus();toggleSubSteps('${a.id}')">📋 ${lpt('library.substeps.addTitle')}</button>
+            <button onclick="closeOverflowMenus();openActivityModalById('${a.id}')">✏️ ${lpt('library.actions.edit')}</button>
+            <button class="danger" onclick="closeOverflowMenus();deleteActivity('${a.id}', '${escHtml(a.name)}')">✕ ${lpt('library.actions.delete')}</button>
           </div>
         </div>
       </div>
       <div id="substeps-panel-${a.id}" class="substeps-panel border-t border-lavender bg-sky/40 px-3 py-2">
         <div id="substeps-list-${a.id}" class="space-y-1 mb-2">
-          <p class="text-xs text-text-soft py-1">Laddar…</p>
+          <p class="text-xs text-text-soft py-1">${lpt('library.substeps.loading')}</p>
         </div>
         <button onclick="openSubStepModal('${a.id}')"
           class="text-xs font-semibold text-navy bg-white border border-lavender hover:border-gold px-3 py-1.5 rounded-lg transition-colors">
-          + Lägg till delsteg
+          ${lpt('library.substeps.add')}
         </button>
       </div>
     </div>
@@ -705,9 +707,9 @@ async function submitCategory(e) {
 function deleteCategory(id, name) {
   const cat = categories.find(c => c.id === id);
   const extraInfo = cat && cat.is_default
-    ? ' Kategorin kan kopieras tillbaka från Standardbiblioteket. Barnens scheman påverkas inte.'
-    : ' Aktiviteter i denna kategori förlorar sin kategori.';
-  openConfirmModal(`Ta bort fliken "${name}"?${extraInfo}`, async () => {
+    ? lpt('library.confirm.deleteTabDefaultExtra')
+    : lpt('library.confirm.deleteTabUserExtra');
+  openConfirmModal(lpt('library.confirm.deleteTab', { name }) + extraInfo, async () => {
     const res = await window.apiFetch(`/api/categories/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
@@ -733,12 +735,12 @@ async function deleteCategoryWithConfirm(id, name) {
   } catch {}
 
   // Build warning message
-  let msg = `Är du säker på att du vill ta bort kategorin "${name}"?`;
+  let msg = lpt('library.confirm.deleteCategory', { name });
   if (activityCount > 0) {
-    msg += `\n\n⚠️ Alla ${activityCount} aktiviteter i denna kategori tas också bort.`;
+    msg += '\n\n' + lpt('library.confirm.deleteCategoryActivities', { count: activityCount });
   }
   if (usedInSchedule) {
-    msg += '\n\n⚠️ Obs! Aktiviteter från den här kategorin används i ett barns schema. Schemat påverkas om du tar bort kategorin.';
+    msg += '\n\n' + lpt('library.confirm.deleteCategoryScheduleWarn');
   }
 
   openConfirmModal(msg, async () => {
@@ -750,7 +752,7 @@ async function deleteCategoryWithConfirm(id, name) {
       await loadCategories();
       await loadActivities();
     } else {
-      showToast(data.error || 'Kunde inte ta bort kategorin', true);
+      showToast(data.error || lpt('library.errors.deleteCategory'), true);
     }
   });
 }
@@ -1144,7 +1146,7 @@ async function submitActivity(e) {
 }
 
 function deleteActivity(id, name) {
-  openConfirmModal(`Ta bort aktiviteten "${name}"?`, async () => {
+  openConfirmModal(lpt('library.confirm.deleteActivity', { name }), async () => {
     const res = await window.apiFetch(`/api/activities/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) { showToast(lpt('library.saved.activityDeleted')); await loadActivities(); }
@@ -1165,7 +1167,7 @@ async function ensureStandardActivitiesLoaded() {
       const items = await res.json();
       // API returns a flat list of { id, name, icon, star_value, sort_order, sub_steps, already_copied }
       _standardActivitiesFlat = Array.isArray(items)
-        ? items.map(a => ({ ...a, _groupName: 'Standardbiblioteket', _isStandard: true }))
+        ? items.map(a => ({ ...a, _groupName: lpt('library.hub.sections.standard.title'), _isStandard: true }))
         : [];
       _activitySearchStandardLoaded = true;
     }
@@ -1230,13 +1232,13 @@ async function onActivitySearch(query) {
           </div>
         </div>
         <button onclick="openActivityModalById('${a.id}')"
-          class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ Redigera</button>
+          class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ ${lpt('library.actions.edit')}</button>
       </div>
     `).join('');
   }
 
   if (standardMatches.length > 0) {
-    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 mt-3 px-1">📚 Standardbibliotek</div>`;
+    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 mt-3 px-1">📚 ${lpt('library.hub.sections.standard.title')}</div>`;
     html += standardMatches.slice(0, 10).map(a => `
       <div class="flex items-center justify-between bg-sky/40 rounded-xl px-3 py-2.5 border border-blue-100 hover:border-gold transition-colors gap-2">
         <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -1247,7 +1249,7 @@ async function onActivitySearch(query) {
           </div>
         </div>
         <button onclick="copyStandardActivityToLibrary(${JSON.stringify(a).replace(/'/g, "\\'")})"
-          class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 Kopiera</button>
+          class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 ${lpt('library.actions.copy')}</button>
       </div>
     `).join('');
   }
@@ -1355,24 +1357,24 @@ async function onRewardSearch(query) {
           </div>
         </div>
         <button onclick='openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})'
-          class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ Redigera</button>
+          class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ ${lpt('library.actions.edit')}</button>
       </div>
     `).join('');
   }
 
   if (standardMatches.length > 0) {
-    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 mt-3 px-1">📚 Standardbibliotek</div>`;
+    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 mt-3 px-1">📚 ${lpt('library.hub.sections.standard.title')}</div>`;
     html += standardMatches.slice(0, 10).map(r => `
       <div class="flex items-center justify-between bg-sky/40 rounded-xl px-3 py-2.5 border border-blue-100 hover:border-gold transition-colors gap-2">
         <div class="flex items-center gap-3 min-w-0 flex-1">
           <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
           <div class="min-w-0 flex-1">
             <div class="font-semibold text-sm text-navy">${escHtml(r.name)}</div>
-            <div class="text-xs text-text-soft">${r.star_cost} ⭐ · Standardbibliotek</div>
+            <div class="text-xs text-text-soft">${r.star_cost} ⭐ · ${lpt('library.hub.sections.standard.title')}</div>
           </div>
         </div>
         <button onclick="copyStandardRewardToLibrary(${JSON.stringify(r).replace(/'/g, "\\'")})"
-          class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 Kopiera</button>
+          class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 ${lpt('library.actions.copy')}</button>
       </div>
     `).join('');
   }
@@ -1465,7 +1467,7 @@ function renderRewardItem(r) {
     <div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ${!isActive ? 'opacity-50' : ''}" data-id="${r.id}">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <span class="drag-handle text-text-soft text-sm select-none px-1">☰</span>
-        <button type="button" onclick="toggleRewardFavorite('${r.id}', ${isFavorite})" class="text-lg flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}" aria-label="${isFavorite ? 'Ta bort favorit' : 'Spara som favorit'}">${isFavorite ? '★' : '☆'}</button>
+        <button type="button" onclick="toggleRewardFavorite('${r.id}', ${isFavorite})" class="text-lg flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}" aria-label="${isFavorite ? lpt('library.favorite.remove') : lpt('library.favorite.add')}">${isFavorite ? '★' : '☆'}</button>
         <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
@@ -1480,7 +1482,7 @@ function renderRewardItem(r) {
       <!-- Desktop: inline buttons (hidden on mobile via CSS) -->
       <div class="icon-btns-desktop flex items-center gap-1 flex-shrink-0">
         <button onclick="toggleRewardActive('${r.id}', ${isActive})"
-          title="${isActive ? 'Inaktivera' : 'Aktivera'}"
+          title="${isActive ? lpt('library.chrome.deactivate') : lpt('library.chrome.activate')}"
           class="reward-toggle px-2 py-1 ${isActive ? 'bg-mint text-green-700' : 'bg-gray-100 text-text-soft'} hover:opacity-80 rounded-lg text-sm transition-colors">
           ${isActive ? '✓' : '○'}
         </button>
@@ -1491,11 +1493,11 @@ function renderRewardItem(r) {
       </div>
       <!-- Mobile: ⋯ overflow menu (hidden on desktop via CSS) -->
       <div class="overflow-menu-wrap flex-shrink-0">
-        <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-r-${r.id}')" aria-label="Fler alternativ">⋯</button>
+        <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-r-${r.id}')" aria-label="${lpt('library.chrome.moreOptions')}">⋯</button>
         <div id="omenu-r-${r.id}" class="overflow-menu-popup">
-          <button onclick="closeOverflowMenus();toggleRewardActive('${r.id}', ${isActive})">${isActive ? '○ Inaktivera' : '✓ Aktivera'}</button>
-          <button onclick="closeOverflowMenus();openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})">✏️ Redigera</button>
-          <button class="danger" onclick="closeOverflowMenus();deleteReward('${r.id}', '${escHtml(r.name)}')">✕ Ta bort</button>
+          <button onclick="closeOverflowMenus();toggleRewardActive('${r.id}', ${isActive})">${isActive ? '○ ' + lpt('library.chrome.deactivate') : '✓ ' + lpt('library.chrome.activate')}</button>
+          <button onclick="closeOverflowMenus();openRewardModal(${JSON.stringify(r).replace(/'/g, "\\'")})">✏️ ${lpt('library.actions.edit')}</button>
+          <button class="danger" onclick="closeOverflowMenus();deleteReward('${r.id}', '${escHtml(r.name)}')">✕ ${lpt('library.actions.delete')}</button>
         </div>
       </div>
     </div>
@@ -1515,8 +1517,8 @@ function initRewardsDnD() {
       const order = items.map((item, i) => ({ id: item.dataset.id, sort_order: i }));
       try {
         const res = await window.apiFetch('/api/rewards/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
-        if (!res.ok) showToast('Kunde inte spara ordningen', true);
-      } catch { showToast('Kunde inte spara ordningen', true); }
+        if (!res.ok) showToast(lpt('library.errors.saveOrder'), true);
+      } catch { showToast(lpt('library.errors.saveOrder'), true); }
     },
   });
 }
@@ -1645,7 +1647,7 @@ async function submitReward(e) {
 }
 
 function deleteReward(id, name) {
-  openConfirmModal(`Ta bort belöningen "${name}"?`, async () => {
+  openConfirmModal(lpt('library.confirm.deleteReward', { name }), async () => {
     const res = await window.apiFetch(`/api/rewards/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) { showToast(lpt('library.saved.rewardDeleted')); await loadRewards(); }

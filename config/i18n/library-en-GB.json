@@ -37,6 +37,7 @@
     "deleteCategory": "Could not delete category",
     "deleteActivity": "Could not delete activity",
     "copyActivity": "Could not copy activity",
+    "deleteSchedule": "Could not delete the schedule",
     "generic": "Something went wrong"
   },
   "empty": {
@@ -55,13 +56,21 @@
     "createActivityHint": "Create a new activity with this name",
     "noSearchReward": "No reward found for \"{{query}}\"",
     "createRewardHint": "Create a new reward with this name",
-    "yourRewards": "Your rewards"
+    "yourRewards": "Your rewards",
+    "noActivitiesIn": "No activities in {{category}}",
+    "allCategories": "all categories",
+    "thisCategory": "this category"
   },
   "searching": "Searching…",
   "actions": {
     "save": "Save",
     "saving": "Saving…",
-    "activitiesTab": "Activities"
+    "activitiesTab": "Activities",
+    "cancel": "Cancel",
+    "copy": "Copy",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading…"
   },
   "saved": {
     "category": "Category saved",
@@ -72,7 +81,9 @@
     "activityCopied": "\"{{name}}\" copied to your library!",
     "reward": "Reward saved",
     "rewardDeleted": "Reward deleted",
-    "rewardCopied": "\"{{name}}\" copied to your rewards library!"
+    "rewardCopied": "\"{{name}}\" copied to your rewards library!",
+    "substep": "Step saved",
+    "substepDeleted": "Step removed"
   },
   "modal": {
     "editCategory": "Edit category",
@@ -115,7 +126,104 @@
     "recropSaveFailed": "Could not save crop"
   },
   "substeps": {
-    "add": "+ Add step"
+    "add": "+ Add step",
+    "addTitle": "Add step",
+    "edit": "Edit step",
+    "loading": "Loading…",
+    "placeholder": "Add a step…"
+  },
+  "chrome": {
+    "all": "All",
+    "noCategory": "No category",
+    "moreOptions": "More options",
+    "editTab": "Edit tab",
+    "deleteTab": "Delete tab",
+    "deleteCategoryTitle": "Delete category",
+    "deleteCategoryAria": "Delete {{name}}",
+    "steps": "steps",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "clearPhoto": "Remove photo",
+    "personalSchedule": "Personal schedule",
+    "editSchedule": "Edit schedule",
+    "copyFrom": "Copy from…",
+    "copyToChild": "Copy to child",
+    "personalScheduleEmptyTitle": "No children added",
+    "personalScheduleEmptyBody": "Add children under Family.",
+    "noOwnSchedules": "No schedules of your own yet",
+    "noOwnSchedulesBody": "Create a new schedule above, or copy a standard schedule and adapt it.",
+    "scheduleDeleted": "Schedule deleted",
+    "editInAdmin": "Edit in admin",
+    "saveImage": "Save image",
+    "confirmTitle": "Confirm deletion"
+  },
+  "favorite": {
+    "add": "Save as favourite",
+    "remove": "Remove favourite",
+    "label": "Favourite — shown first in the schedule"
+  },
+  "confirm": {
+    "areYouSure": "Are you sure?",
+    "deleteTab": "Delete the \"{{name}}\" tab?",
+    "deleteTabDefaultExtra": " The category can be copied back from the Standard library. Children's schedules are not affected.",
+    "deleteTabUserExtra": " Activities in this category will lose their category.",
+    "deleteCategory": "Are you sure you want to delete the category \"{{name}}\"?",
+    "deleteCategoryActivities": "⚠️ All {{count}} activities in this category will also be deleted.",
+    "deleteCategoryScheduleWarn": "⚠️ Note: activities from this category are used in a child's schedule. The schedule will be affected if you delete the category.",
+    "deleteActivity": "Delete the activity \"{{name}}\"?",
+    "deleteReward": "Delete the reward \"{{name}}\"?",
+    "deleteSchedule": "Delete the schedule \"{{name}}\"? This cannot be undone.",
+    "deleteSubstep": "Delete the step \"{{name}}\"?"
+  },
+  "loading": {
+    "childrenSchedules": "Loading children and schedules…",
+    "templates": "Loading schedule templates…",
+    "standardSchedules": "Loading standard schedules…",
+    "activities": "Loading activities…",
+    "children": "Loading children…",
+    "standardActivities": "Loading standard activities…",
+    "standardRewards": "Loading standard rewards…",
+    "rewards": "Loading rewards…"
+  },
+  "schema": {
+    "loadError": "Could not load schedules.",
+    "retry": "Try again",
+    "nameRequired": "Enter a name for the schedule",
+    "pickChild": "Choose a child",
+    "endAfterStart": "End date must be on or after the start date",
+    "datesRequired": "Enter start and end dates",
+    "pickDay": "Choose at least one day",
+    "pickOptionRetry": "Choose the option above and tap Copy again.",
+    "noSources": "Nothing to copy from",
+    "pickSource": "Choose a source",
+    "noChildrenToCopy": "No children to copy to",
+    "copied": "The schedule has been copied!",
+    "copiedPeriod": "The schedule has been copied for the period!",
+    "copyTitle": "Copy \"{{name}}\"",
+    "copyToChildTitle": "Copy schedule to {{name}}",
+    "pickChildLabel": "Choose child:",
+    "whichDays": "Which days?",
+    "overwrite": "Overwrite existing schedule",
+    "limitPeriod": "Limit to a period",
+    "limitPeriodHint": "For example a holiday — the schedule applies every day between the dates.",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "copyPeriod": "Copy for the period",
+    "copying": "Copying…",
+    "fromOtherChild": "From another child:",
+    "fromStandard": "From the standard library:",
+    "afternoonVariant": "What does the afternoon look like after school?",
+    "createFrom": "Start from:",
+    "blankSchedule": "Empty schedule",
+    "blankScheduleHint": "Start from scratch and add activities yourself",
+    "orStandard": "Or start from a standard template:",
+    "create": "Create",
+    "createNew": "+ Create new schedule",
+    "scheduleName": "Schedule name",
+    "namePlaceholder": "E.g. Holiday, weekend schedule…",
+    "creating": "Creating…",
+    "created": "Schedule \"{{name}}\" created!",
+    "createFailed": "Could not create schedule"
   },
   "rewards": {
     "searchPlaceholder": "🔍 Search reward…",
@@ -183,6 +291,7 @@
     "copy": "📥 Copy",
     "copyAll": "📥 Copy all ({{count}})",
     "copied": "✓ Copied",
+    "rewardsCopied": "{{count}} rewards copied!",
     "back": "← Back",
     "loadError": "Could not load the standard library",
     "genericError": "Something went wrong",

@@ -37,6 +37,7 @@
     "deleteCategory": "Kunde inte ta bort kategorin",
     "deleteActivity": "Kunde inte ta bort aktiviteten",
     "copyActivity": "Kunde inte kopiera aktiviteten",
+    "deleteSchedule": "Kunde inte ta bort schemat",
     "generic": "Fel uppstod"
   },
   "empty": {
@@ -55,13 +56,21 @@
     "createActivityHint": "Skapa en ny aktivitet med det här namnet",
     "noSearchReward": "Ingen belöning hittades för \"{{query}}\"",
     "createRewardHint": "Skapa en ny belöning med det här namnet",
-    "yourRewards": "Dina belöningar"
+    "yourRewards": "Dina belöningar",
+    "noActivitiesIn": "Inga aktiviteter i {{category}}",
+    "allCategories": "alla kategorier",
+    "thisCategory": "denna kategori"
   },
   "searching": "Söker…",
   "actions": {
     "save": "Spara",
     "saving": "Sparar…",
-    "activitiesTab": "Aktiviteter"
+    "activitiesTab": "Aktiviteter",
+    "cancel": "Avbryt",
+    "copy": "Kopiera",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "loading": "Laddar…"
   },
   "saved": {
     "category": "Kategorin har sparats",
@@ -72,7 +81,9 @@
     "activityCopied": "\"{{name}}\" kopierad till ditt bibliotek!",
     "reward": "Belöningen har sparats",
     "rewardDeleted": "Belöningen har tagits bort",
-    "rewardCopied": "\"{{name}}\" kopierad till ditt belöningsbibliotek!"
+    "rewardCopied": "\"{{name}}\" kopierad till ditt belöningsbibliotek!",
+    "substep": "Delsteget har sparats",
+    "substepDeleted": "Delsteget har tagits bort"
   },
   "modal": {
     "editCategory": "Redigera kategori",
@@ -115,7 +126,104 @@
     "recropSaveFailed": "Kunde inte spara beskärningen"
   },
   "substeps": {
-    "add": "+ Lägg till delsteg"
+    "add": "+ Lägg till delsteg",
+    "addTitle": "Lägg till delsteg",
+    "edit": "Redigera delsteg",
+    "loading": "Laddar…",
+    "placeholder": "Lägg till delsteg…"
+  },
+  "chrome": {
+    "all": "Alla",
+    "noCategory": "Ingen kategori",
+    "moreOptions": "Fler alternativ",
+    "editTab": "Redigera flik",
+    "deleteTab": "Ta bort flik",
+    "deleteCategoryTitle": "Ta bort kategori",
+    "deleteCategoryAria": "Ta bort {{name}}",
+    "steps": "steg",
+    "activate": "Aktivera",
+    "deactivate": "Inaktivera",
+    "clearPhoto": "Ta bort foto",
+    "personalSchedule": "Personligt schema",
+    "editSchedule": "Redigera schema",
+    "copyFrom": "Kopiera från…",
+    "copyToChild": "Kopiera till barn",
+    "personalScheduleEmptyTitle": "Inga barn tillagda",
+    "personalScheduleEmptyBody": "Lägg till barn under Familjen & inställningar.",
+    "noOwnSchedules": "Inga egna scheman ännu",
+    "noOwnSchedulesBody": "Skapa ett nytt schema ovan, eller kopiera ett standardschema och anpassa det.",
+    "scheduleDeleted": "Schema borttaget",
+    "editInAdmin": "Redigera i admin",
+    "saveImage": "Spara bild",
+    "confirmTitle": "Bekräfta borttagning"
+  },
+  "favorite": {
+    "add": "Spara som favorit",
+    "remove": "Ta bort favorit",
+    "label": "Favorit — visas först i schemat"
+  },
+  "confirm": {
+    "areYouSure": "Är du säker?",
+    "deleteTab": "Ta bort fliken \"{{name}}\"?",
+    "deleteTabDefaultExtra": " Kategorin kan kopieras tillbaka från Standardbiblioteket. Barnens scheman påverkas inte.",
+    "deleteTabUserExtra": " Aktiviteter i denna kategori förlorar sin kategori.",
+    "deleteCategory": "Är du säker på att du vill ta bort kategorin \"{{name}}\"?",
+    "deleteCategoryActivities": "⚠️ Alla {{count}} aktiviteter i denna kategori tas också bort.",
+    "deleteCategoryScheduleWarn": "⚠️ Obs! Aktiviteter från den här kategorin används i ett barns schema. Schemat påverkas om du tar bort kategorin.",
+    "deleteActivity": "Ta bort aktiviteten \"{{name}}\"?",
+    "deleteReward": "Ta bort belöningen \"{{name}}\"?",
+    "deleteSchedule": "Vill du ta bort schemat \"{{name}}\"? Detta kan inte ångras.",
+    "deleteSubstep": "Ta bort delsteget \"{{name}}\"?"
+  },
+  "loading": {
+    "childrenSchedules": "Laddar barn och scheman…",
+    "templates": "Laddar schemamallar…",
+    "standardSchedules": "Laddar standardscheman…",
+    "activities": "Laddar aktiviteter…",
+    "children": "Laddar barn…",
+    "standardActivities": "Laddar standardaktiviteter…",
+    "standardRewards": "Laddar standardbelöningar…",
+    "rewards": "Laddar belöningar…"
+  },
+  "schema": {
+    "loadError": "Kunde inte ladda scheman.",
+    "retry": "Försök igen",
+    "nameRequired": "Ange ett namn för schemat",
+    "pickChild": "Välj ett barn",
+    "endAfterStart": "Slutdatum måste vara på eller efter startdatum",
+    "datesRequired": "Ange start- och slutdatum",
+    "pickDay": "Välj minst en dag",
+    "pickOptionRetry": "Välj alternativet ovan och klicka på Kopiera igen.",
+    "noSources": "Inga källor att kopiera från",
+    "pickSource": "Välj en källa",
+    "noChildrenToCopy": "Inga barn att kopiera till",
+    "copied": "Schemat har kopierats!",
+    "copiedPeriod": "Schemat har kopierats för perioden!",
+    "copyTitle": "Kopiera \"{{name}}\"",
+    "copyToChildTitle": "Kopiera schema till {{name}}",
+    "pickChildLabel": "Välj barn:",
+    "whichDays": "Vilka dagar?",
+    "overwrite": "Skriv över befintligt schema",
+    "limitPeriod": "Begränsa till period",
+    "limitPeriodHint": "T.ex. lov eller läslov — schemat gäller varje dag mellan datumen.",
+    "startDate": "Startdatum",
+    "endDate": "Slutdatum",
+    "copyPeriod": "Kopiera för perioden",
+    "copying": "Kopierar…",
+    "fromOtherChild": "Från annat barn:",
+    "fromStandard": "Från standardbiblioteket:",
+    "afternoonVariant": "Hur ser eftermiddagen ut efter skolan?",
+    "createFrom": "Utgå från:",
+    "blankSchedule": "Tomt schema",
+    "blankScheduleHint": "Börja från noll och lägg till aktiviteter själv",
+    "orStandard": "Eller utgå från en standardmall:",
+    "create": "Skapa",
+    "createNew": "+ Skapa nytt schema",
+    "scheduleName": "Schemanamn",
+    "namePlaceholder": "T.ex. Sportlov, Helgschema…",
+    "creating": "Skapar…",
+    "created": "Schema \"{{name}}\" skapat!",
+    "createFailed": "Kunde inte skapa schema"
   },
   "rewards": {
     "searchPlaceholder": "🔍 Sök belöning…",
@@ -183,6 +291,7 @@
     "copy": "📥 Kopiera",
     "copyAll": "📥 Kopiera alla ({{count}} st)",
     "copied": "✓ Kopierad",
+    "rewardsCopied": "{{count}} belöningar kopierade!",
     "back": "← Tillbaka",
     "loadError": "Kunde inte ladda standardbiblioteket",
     "genericError": "Något gick fel",

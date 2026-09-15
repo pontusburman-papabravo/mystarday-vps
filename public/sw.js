@@ -318,8 +318,11 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v965: en-GB parent library/Hem chrome + admin Start date honesty
+const CACHE_NAME = 'stjarndag-v965'; // en-GB parent chrome + admin Start dates
+// stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
 // stjarndag-v963: admin Start relative time — Stockholm igår + live labels
-const CACHE_NAME = 'stjarndag-v964'; // admin Start: drop future created_at + year on other-year labels
+// stjarndag-v964: admin Start: drop future created_at + year on other-year labels
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
 // stjarndag-v659: calendar day-card text + magic dark tab bar on all parent pages
@@ -711,7 +714,12 @@ const CACHE_NAME = 'stjarndag-v964'; // admin Start: drop future created_at + ye
 // stjarndag-v960: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v961: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v962: Admin Prenumeration — date-based lifetime/intro-year policy, IAP go-live first
-// stjarndag-v964: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v963: en-GB parent library + Hem dashboard chrome (buttons, empty, favourite, approvals)
+// stjarndag-v963: admin Start relative time — Stockholm igår + live labels
+// stjarndag-v964: merge — en-GB parent library/Hem chrome + admin Start relative time
+// stjarndag-v964: admin Start: drop future created_at + year on other-year labels
+// stjarndag-v965: merge — en-GB parent chrome + admin Start date honesty
+
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
