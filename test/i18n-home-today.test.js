@@ -786,3 +786,46 @@ describe('LocaleDateTime formatTime', () => {
     assert.doesNotMatch(formatted, /[åäöÅÄÖ]/);
   });
 });
+
+describe('home dashboard cards and approvals en-GB leaks', () => {
+  it('dashboard-cards uses i18n for empty child and add-reward chrome', () => {
+    const cards = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-cards.js'), 'utf8');
+    assert.match(cards, /family\.shell\.noChildren/);
+    assert.match(cards, /home\.cards\.addReward/);
+    assert.match(cards, /home\.cards\.loadError/);
+    assert.doesNotMatch(cards, /Inga barn tillagda ännu/);
+    assert.doesNotMatch(cards, /Inga belöningar ännu/);
+    assert.doesNotMatch(cards, /\+ Lägg till barn/);
+  });
+
+  it('dashboard-approvals uses home.approvals and family toasts', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-approvals.js'), 'utf8');
+    assert.match(src, /home\.approvals\.loading/);
+    assert.match(src, /home\.approvals\.wantsRedeem/);
+    assert.match(src, /family\.toasts\.redemptionApproved/);
+    assert.doesNotMatch(src, /Laddar förfrågningar/);
+    assert.doesNotMatch(src, /Inlösen godkänd/);
+    assert.doesNotMatch(src, /Målbyte godkänt/);
+  });
+
+  it('dashboard-card-actions uses i18n for inline requests and toasts', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/dashboard-card-actions.js'), 'utf8');
+    assert.match(src, /home\.approvals\.loading/);
+    assert.match(src, /family\.toasts\.redemptionApproved/);
+    assert.match(src, /home\.cards\.activityMarked/);
+    assert.doesNotMatch(src, /Laddar förfrågningar/);
+    assert.doesNotMatch(src, /Inlösen godkänd/);
+    assert.doesNotMatch(src, /Avmarkerad!/);
+  });
+
+  it('home en-GB card keys exist without Swedish letters', () => {
+    const { t, loadLocales } = require('../src/lib/i18n');
+    loadLocales();
+    const SWEDISH_RE = /[åäöÅÄÖ]/;
+    assert.equal(t('en-GB', 'home.cards.addReward'), '→ Add a reward');
+    assert.equal(t('en-GB', 'home.approvals.approve'), 'Approve');
+    assert.doesNotMatch(t('en-GB', 'home.cards.childNoActivities', { name: 'Astrid' }), SWEDISH_RE);
+    assert.doesNotMatch(t('en-GB', 'home.cards.noRewards'), SWEDISH_RE);
+    assert.doesNotMatch(t('en-GB', 'home.cards.activityMarked'), SWEDISH_RE);
+  });
+});
