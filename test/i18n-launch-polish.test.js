@@ -178,6 +178,10 @@ describe('mobile overlay polish', () => {
     const hbBtnZ = help.match(/#hbBtn[^}]*z-index:\s*(\d+)/s);
     assert.ok(hbBtnZ && Number(hbBtnZ[1]) < 50, '#hbBtn z-index must be < 50');
     assert.doesNotMatch(help, /z-index:\s*(900|10001);\s*\n\s*width: 44px/);
+    assert.match(help, /function ht\(key, params\)/);
+    assert.doesNotMatch(help, /title: '❓ Hjälp/);
+    loadLocales();
+    assert.equal(t('en-GB', 'help.chrome.openTitle'), 'Help');
     const support = read('public/js/support-bubble.js');
     const rootZ = support.match(/#supportBubbleRoot[^}]*z-index:\s*(\d+)/s);
     assert.ok(rootZ && Number(rootZ[1]) < 50, '#supportBubbleRoot z-index must be < 50');

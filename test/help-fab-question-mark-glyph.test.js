@@ -55,18 +55,19 @@ describe('P1 — settings help-bubble #hbBtn no longer uses the ❓ emoji', () =
   const src = read('public/js/help-bubble.js');
 
   it('renders a plain "?" text glyph instead of the ❓ emoji', () => {
-    const btnStart = src.indexOf('id="hbBtn"');
-    const closeIdx = src.indexOf('</button>', btnStart) + '</button>'.length;
-    const btnBlock = src.slice(btnStart, closeIdx);
-    assert.doesNotMatch(btnBlock, /❓/);
-    assert.match(btnBlock, />\s*\?\s*<\/button>/);
+    const shellStart = src.indexOf('function buildShellHtml()');
+    const shellBlock = src.slice(shellStart, shellStart + 600);
+    assert.doesNotMatch(shellBlock, /❓/);
+    assert.match(shellBlock, /'\?'/);
+    assert.match(shellBlock, /id="hbBtn"/);
   });
 
-  it('keeps the exact same click handler and accessibility labels (function unchanged)', () => {
-    const btnStart = src.indexOf('id="hbBtn"');
-    const btnBlock = src.slice(btnStart, src.indexOf('</button>', btnStart));
-    assert.match(btnBlock, /onclick="window\.__hbToggle\(\)"/);
-    assert.match(btnBlock, /aria-label="Öppna hjälp"/);
+  it('keeps the exact same click handler and localized accessibility labels', () => {
+    const shellStart = src.indexOf('function buildShellHtml()');
+    const shellBlock = src.slice(shellStart, shellStart + 600);
+    assert.match(shellBlock, /onclick="window\.__hbToggle\(\)"/);
+    assert.match(src, /ht\('chrome\.openAria'\)/);
+    assert.match(src, /ht\('chrome\.closeAria'\)/);
   });
 
   it('sets font-weight so the plain "?" reads clearly against color:white', () => {

@@ -16,354 +16,66 @@
   // Admin panel has its own layout — no floating help bubble
   if ((window.location.pathname || '').startsWith('/admin')) return;
 
-  // ─── Page-specific content ─────────────────────────────────────────────────
-  const PAGE_CONTENT = {
+  const SUPPORTED_PAGES = new Set([
+    'dashboard', 'child-dashboard', 'skattkammaren', 'schedule', 'family',
+    'activities', 'library', 'settings', 'calendar', 'daily-log', 'assign-schedule', 'admin',
+  ]);
 
-    dashboard: {
-      title: '❓ Hjälp – Översikt',
-      tabs: [
-        {
-          id: 'overview',
-          label: '🏠 Översikt',
-          faqs: [
-            { q: 'Vad gör de 3 snabbknapparna längst upp?', a: '<strong>⭐ Ge extra stjärnor</strong> — ge ett barn bonusstjärnor manuellt. <strong>📋 Engångsaktivitet</strong> — lägg till en tillfällig aktivitet för idag. <strong>🏠 Ledig dag</strong> — pausar barnets schema för en dag (t.ex. sjukdag, ledig).' },
-            { q: 'Hur bockar jag av en aktivitet?', a: 'Klicka på aktiviteten i barnkortet — den bockas av direkt. Barnet kan också bocka av i sin <strong>barnvy</strong>.' },
-            { q: 'Vad är komprimerat barnkort?', a: 'Barnkortet visar avatar, namn, stjärnbalans och sektionspiller i komprimerat läge. Expandera kortet för fler detaljer, schema-länk och pausknapp.' },
-            { q: 'Vad är Ledig dag?', a: '<strong>🏠 Ledig dag</strong> pausar barnets schema för den valda dagen — perfekt vid sjukdom eller lov. Barnet ser schemat som inaktivt. Aktivera dagen igen via samma knapp.' },
-            { q: 'Vad är pausad-läge?', a: 'Klicka på pausikonen (⏸) på barnkortet för att pausa ett barn. Aktiviteterna visas som inaktiva och barnet tjänar inga stjärnor tills du återupptar.' },
-          ],
-        },
-        {
-          id: 'stars',
-          label: '⭐ Stjärnor',
-          faqs: [
-            { q: 'Hur tjänar barnet stjärnor?', a: 'Varje avklarad aktivitet ger <strong>1 stjärna</strong>. Barnet bockar av i sin barnvy — eller du kan bocka av i Daglig logg medan ni testar. Bonus-stjärnor ger du via ⭐-knappen ovan barnkorten.' },
-            { q: 'Hur funkar Skattkammaren?', a: 'Barnet öppnar Skattkammaren via 💎-fliken i barnvyn och ser belöningar med stjärnpris. Barnet kan begära belöning när det sparat tillräckligt — du godkänner det.' },
-            { q: 'Hur lägger jag till belöningar?', a: 'Gå till <strong>Bibliotek</strong> i menyn → fliken "Belöningar". Lägg till egna belöningar, redigera stjärnkostnad och välj vilka barn som ser dem.' },
-          ],
-        },
-        {
-          id: 'schedule',
-          label: '📅 Schema',
-          faqs: [
-            { q: 'Hur lägger jag till en aktivitet?', a: 'Gå till <strong>Veckoschema</strong> → välj barn → välj dag → klicka "+" för att lägga till aktivitet från biblioteket. Du kan söka bland 63 standardaktiviteter.' },
-            { q: 'Hur kopierar jag schema till alla dagar?', a: 'I Veckoschema → "Kopiera från…" → välj källa (eget schema eller standardbibliotek) → bocka av vilka dagar du vill kopiera till.' },
-            { q: 'Vad är en Idag-vy?', a: 'Översiktens "Idag"-vy synkas automatiskt när du ändrar schemat. Ändringar i Veckoschema syns direkt på Översikten och i barnets vy.' },
-          ],
-        },
-        {
-          id: 'family',
-          label: '👨‍👩‍👧 Familj',
-          faqs: [
-            { q: 'Hur bjuder jag in en annan vuxen?', a: 'Gå till <strong>Familjen & inställningar → Familjemedlemmar</strong> → klicka "Bjud in". Den inbjudna personen får ett e-postmeddelande med inloggningslänk.' },
-            { q: 'Hur ser jag barnets dag?', a: 'Öppna <strong>Daglig logg</strong> i menyn — där ser du dagens aktiviteter som barnet kommer att se. Perfekt första kvällen innan barnet loggar in själv.' },
-            { q: 'Hur loggar barnet in?', a: 'När ni är redo: barnet loggar in på <strong>/child-login</strong> med användarnamn och PIN. Uppgifterna hittar du under <strong>Familjen & inställningar → Barn</strong>.' },
-            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> — vi svarar inom 24 timmar.' },
-          ],
-        },
-      ],
-    },
+  let _pageKey = null;
+  let _root = null;
+  let _stylesMounted = false;
 
-    'child-dashboard': {
-      title: '❓ Hjälp – Barnvyn',
-      tabs: [
-        {
-          id: 'today',
-          label: '📋 Aktiviteter',
-          faqs: [
-            { q: 'Hur bockar jag av en aktivitet?', a: 'Tryck på den vita cirkeln bredvid aktiviteten med texten <strong>NU</strong>. Den fylls grön med bock och du tjänar en stjärna! 🌟' },
-            { q: 'Vad är understeg och hur ser jag dem?', a: 'Aktiviteter med understeg visar en 📋-knapp. Tryck på den för att se stegen som hjälper dig klara aktiviteten! Du bockar ändå av hela aktiviteten med ett enda tryck.' },
-            { q: 'Vad är cirkeln runt min emoji?', a: 'Cirkeln runt din emoji visar <strong>dagens framsteg</strong> — hur många aktiviteter du klarat av idag. Cirkeln fylls på och blir grön när du är klar med alla! 🟢' },
-            { q: 'Vad är NU / Nästa / Senare?', a: '<strong>NU</strong> = din aktuella aktivitet. <strong>Nästa</strong> = vad som kommer efter. <strong>Senare</strong> = resten av dagen. Det här läget är av som standard — en vuxen kan slå på det om du ska bocka av en i taget.' },
-            { q: 'Vad är timern?', a: 'Den runda timern visar hur lång tid aktiviteten tar. Grön = gott om tid, Orange = lite kvar, Röd = snart slut.' },
-          ],
-        },
-        {
-          id: 'stars',
-          label: '⭐ Mina stjärnor',
-          faqs: [
-            { q: 'Vad är de tre stjärn-elementen?', a: '<strong>Cirkeln runt emojin</strong> = hur många aktiviteter du klarat idag. <strong>Stjärnsaldo</strong> = dina totalt sparade stjärnor. <strong>Långsiktigt mål</strong> = progress mot din valda belöning.' },
-            { q: 'Hur löser jag in en belöning?', a: 'Öppna Skattkammaren (tryck 💎-fliken) → tryck på en belöning du sparat tillräckligt till → tryck "Fråga om att lösa in" → vänta på att en vuxen godkänner.' },
-            { q: 'Hur tjänar jag fler stjärnor?', a: 'Bocka av aktiviteterna i ditt schema! Varje avklarad aktivitet ger stjärnor. En vuxen kan också ge dig bonus-stjärnor.' },
-          ],
-        },
-        {
-          id: 'help',
-          label: '🔧 Hjälp',
-          faqs: [
-            { q: 'Jag ser inte min belöning', a: 'En vuxen behöver lägga till belöningar åt dig i <strong>Bibliotek</strong>. Be en vuxen hjälpa till.' },
-            { q: 'Jag har glömt min PIN', a: 'Be en vuxen gå till <strong>Familjen & inställningar → Barn</strong> → välj ditt namn → "Ändra PIN".' },
-            { q: 'Schemat ser konstigt ut', a: 'Be en vuxen kontrollera schemat. Det kan behöva uppdateras för dagens dag.' },
-          ],
-        },
-      ],
-    },
+  function esc(str) {
+    if (typeof window.escHtml === 'function') return window.escHtml(str);
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  }
 
-    skattkammaren: {
-      title: '❓ Hjälp – Belöningar',
-      tabs: [
-        {
-          id: 'rewards',
-          label: '🏆 Belöningar',
-          faqs: [
-            { q: 'Hur fungerar belöningssystemet?', a: 'Barnet samlar stjärnor genom att klara aktiviteter. När stjärnbalansen räcker till en belöning kan barnet begära att lösa in den — du godkänner eller avvisar.' },
-            { q: 'Hur lägger jag till nya belöningar?', a: 'Gå till <strong>Bibliotek</strong> i menyn → fliken "Belöningar" → sök eller klicka "+ Lägg till belöning". Du kan också kopiera direkt från standardbiblioteket.' },
-            { q: 'Hur styr jag per-barn synlighet?', a: 'När du skapar eller redigerar en belöning väljer du vilka barn som ska se den. Perfekt för anpassade belöningar per barn.' },
-            { q: 'Hur godkänner jag en inlösenbegäran?', a: 'Barnets begäran syns på Översikten med en badge. Klicka för att godkänna. Stjärnorna dras automatiskt och barnet ser ändringen direkt.' },
-          ],
-        },
-        {
-          id: 'stars',
-          label: '⭐ Stjärnor',
-          faqs: [
-            { q: 'Hur tjänar barnet stjärnor?', a: 'Varje avklarad aktivitet ger stjärnor (1 stjärna per aktivitet som standard). Du kan också ge bonus-stjärnor via ⭐-knappen på Översikten.' },
-            { q: 'Vad är stjärnsaldo vs. daglig progress?', a: '<strong>Stjärnsaldo</strong> = total sparad balance. <strong>Daglig progress</strong> (ringen runt emojin) = hur många aktiviteter barnet klarat idag. Dessa är separata.' },
-            { q: 'Vad händer när en belöning löses in?', a: 'Stjärnorna dras automatiskt från barnets konto. Barnet ser ändringen direkt i sin Skattkammaren. Du ser historiken på Belöningssidan.' },
-          ],
-        },
-      ],
-    },
+  function ht(key, params) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const full = 'help.' + key;
+      const value = I18n.t(full, params || {});
+      if (value !== full) return value;
+    }
+    if (typeof window.pt === 'function') return window.pt('help.' + key, params || {});
+    return key;
+  }
 
-    schedule: {
-      title: '❓ Hjälp – Veckoschema',
-      tabs: [
-        {
-          id: 'edit',
-          label: '📅 Redigera schema',
-          faqs: [
-            { q: 'Hur lägger jag till en aktivitet?', a: 'Välj dag → klicka "+" → sök och välj aktivitet. Du kan välja <strong>flera tidsluckor på en gång</strong> (Morgon + Kväll) och aktiviteten läggs till i alla.' },
-            { q: 'Hur skapar jag en ny aktivitet direkt i schemat?', a: 'Klicka "+" → sök → om inga träffar hittas visas "Skapa ny"-formuläret direkt i sökmodalen. Fyll i namn, emoji, stjärnvärde och eventuella delsteg.' },
-            { q: 'Hur redigerar jag en aktivitets namn/emoji?', a: 'Klicka på aktivitetens namn eller emoji i schemat → redigeringsmodalen öppnas. Ändringar propagerar automatiskt till alla barn och dagar.' },
-            { q: 'Hur kopierar jag schema från ett annat barn?', a: 'Klicka "Kopiera från…" → välj källa → bocka av specifika veckodagar du vill kopiera till. Välj om du vill skriva över befintligt innehåll.' },
-            { q: 'Synkas schemat automatiskt till barnvyn?', a: 'Ja! Ändringar i Veckoschema synkas direkt till "Idag"-vyn på Översikten och till barnets vy — inga manuella uppdateringar behövs.' },
-          ],
-        },
-        {
-          id: 'library',
-          label: '📚 Bibliotek',
-          faqs: [
-            { q: 'Vad är standardbiblioteket?', a: 'Standardbiblioteket innehåller 63 färdiga aktiviteter i 6 kategorier och 5 schemamallar. Klicka "Snabbinfoga från bibliotek" för att lägga till dem i schemat.' },
-            { q: 'Hur kopierar jag ett standardschema?', a: 'Under Schema-fliken → "Kopiera från…" → välj "Standardbibliotek" → välj schema → välj dagar → kopiera.' },
-            { q: 'Varför ser barnet inga aktiviteter?', a: 'Kontrollera att schemat är valt för rätt barn och att det finns aktiviteter för dagens dag. Tomt schema? Kopiera från standardbiblioteket för att komma igång snabbt.' },
-          ],
-        },
-        {
-          id: 'tips',
-          label: '💡 Tips',
-          faqs: [
-            { q: 'Hur bygger jag ett bra rutinschema?', a: 'Börja med 3-5 fasta aktiviteter (frukost, tandborstning, läxor). Lägg dem i rätt ordning. Barnet lär sig rutinen snabbt när den är konsekvent.' },
-            { q: 'Vad är understeg på aktiviteter?', a: 'Du kan lägga till understeg på aktiviteter (t.ex. "Tvätta händer", "Ta på pyjamas" under "Kvällsrutin"). Barnet ser dem som en visuell guide men bockar av hela aktiviteten i ett.' },
-            { q: 'Hur många aktiviteter per dag?', a: 'Rekommenderat: 4-8 aktiviteter. För få ger inget flöde, för många blir överväldigande. Börja litet och bygg upp.' },
-          ],
-        },
-      ],
-    },
+  function getPageContent(pageKey) {
+    if (!window.I18n || typeof I18n.get !== 'function') return null;
+    if (pageKey === 'child-dashboard') {
+      const childContent = I18n.get('child.helpBubble');
+      if (!childContent || !Array.isArray(childContent.tabs)) return null;
+      return { title: childContent.title, tabs: childContent.tabs };
+    }
+    const page = I18n.get('help.pages.' + pageKey);
+    if (!page || !Array.isArray(page.tabs)) return null;
+    return page;
+  }
 
-    family: {
-      title: '❓ Hjälp – Familjen & inställningar',
-      tabs: [
-        {
-          id: 'children',
-          label: '👶 Barn',
-          faqs: [
-            { q: 'Hur lägger jag till ett barn?', a: 'Gå till Översikten → klicka "+ Lägg till barn". Fyll i namn, emoji och födelsedag. Barnet får automatiskt ett schema baserat på ålder.' },
-            { q: 'Hur ändrar jag barnets PIN?', a: 'Klicka på barnkortet → fliken "Inställningar" → "Ändra PIN". Välj en ny 4-siffrig PIN-kod.' },
-            { q: 'Barnet måste göra aktiviteter i ordning — kan jag ändra det?', a: 'Standard är fri avbockning. Vill du ha guidad ordning går du till barnets profil → fliken <strong>Inställningar</strong> → slå på <strong>NU / NÄSTA / SEDAN</strong>.' },
-            { q: 'Hur ser barnet sina inloggningsuppgifter?', a: 'Klicka på barnkortet → fliken "Inställningar" → "Visa inloggningsuppgifter". Du ser barnets användarnamn och PIN.' },
-            { q: 'Hur tar jag bort ett barn?', a: 'Familj → välj barn → fliken Inställningar → "Radera barn permanent". OBS: All schema-, stjärn- och belöningshistorik raderas och går inte att ångra.' },
-          ],
-        },
-        {
-          id: 'adults',
-          label: '🔑 Vuxna',
-          faqs: [
-            { q: 'Hur bjuder jag in en annan vuxen?', a: 'Gå till fliken <strong>Familjemedlemmar</strong> → "Bjud in". Den inbjudna personen får ett e-postmeddelande med en länk för att skapa konto.' },
-            { q: 'Kan jag välja vilka barn en vuxen ser?', a: 'Ja! Du väljer vilka barn personen ska ha åtkomst till när du skickar inbjudan. Du kan ändra det senare under Familjemedlemmar → personen → Barn-åtkomst.' },
-            { q: 'Hur tar jag bort en familjemedlem?', a: 'Klicka på personen i Familjemedlemmar-listan → "Ta bort". De förlorar omedelbart åtkomst till familjen.' },
-          ],
-        },
-        {
-          id: 'settings',
-          label: '⚙️ Inställningar',
-          faqs: [
-            { q: 'Hur ändrar jag mitt lösenord?', a: 'Gå till <strong>Inställningar</strong> (⚙️) i menyn → "Byt lösenord". Du behöver ange ditt nuvarande lösenord.' },
-            { q: 'Hur aktiverar jag notiser?', a: 'Gå till Inställningar → "Påminnelser" → slå på notiser och välj tider. Notiser kräver att du godkänner webbläsar-tillstånd.' },
-            { q: 'Kontakta support', a: 'Maila oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> — vi svarar inom 24 timmar.' },
-          ],
-        },
-      ],
-    },
-
-    activities: {
-      title: '❓ Hjälp – Aktiviteter',
-      tabs: [
-        {
-          id: 'manage',
-          label: '📝 Hantera',
-          faqs: [
-            { q: 'Vad är en aktivitet?', a: 'En <strong>aktivitet</strong> är en uppgift som barnet gör (t.ex. "Borsta tänderna"). Aktiviteter ger 1–5 stjärnor och kan ha delsteg. Samla dem i ditt bibliotek och lägg till i barnens scheman.' },
-            { q: 'Hur skapar jag en ny aktivitet?', a: 'Klicka "+ Ny aktivitet" → fyll i namn, kategori (Hygien, Mat, Lek osv.), varaktighet och stjärnvärde. Spara och aktiviteten läggs till ditt bibliotek.' },
-            { q: 'Hur lägger jag till en aktivitet i schemat?', a: 'Aktiviteter finns i ditt bibliotek. Gå till Veckoschema → välj dag → "+" → välj aktiviteten du vill lägga till.' },
-            { q: 'Hur tar jag bort en aktivitet från alla dagar?', a: 'Klicka ✕ på aktiviteten → välj <strong>Alla dagar i veckan</strong>. Vill du bara ta bort idag eller en veckodag (t.ex. alla torsdagar) finns egna val för det.' },
-            { q: 'Hur redigerar jag en aktivitet?', a: 'Klicka på aktiviteten i listan → "Redigera". Ändringarna gäller direkt i alla scheman där aktiviteten används.' },
-          ],
-        },
-        {
-          id: 'categories',
-          label: '🎨 Kategorier',
-          faqs: [
-            { q: 'Vad är kategorierna till för?', a: 'Kategorier färgkodar aktiviteterna i barnvyn. <strong>Hygien</strong>=blå, <strong>Mat</strong>=gul, <strong>Lek</strong>=grön, <strong>Skola</strong>=lila, <strong>Rörelse</strong>=röd, <strong>Vila</strong>=grå, <strong>Social</strong>=orange.' },
-            { q: 'Hur väljer jag kategori?', a: 'När du skapar eller redigerar en aktivitet väljer du kategori i dropdownmenyn. Välj den som bäst beskriver aktiviteten.' },
-          ],
-        },
-      ],
-    },
-
-    library: {
-      title: '❓ Hjälp – Bibliotek',
-      tabs: [
-        {
-          id: 'tabs',
-          label: '🗂️ Flikar',
-          faqs: [
-            { q: 'Vilka flikar finns i biblioteket?', a: '<strong>Scheman</strong> — dina egna schemamallar. <strong>Aktiviteter</strong> — aktivitetsbibliotek med understeg. <strong>Belöningar</strong> — dina egna belöningar. <strong>Standardbibliotek</strong> — 63 aktiviteter, 15 belöningar och 5 scheman att kopiera från.' },
-            { q: 'Hur kopierar jag från standardbiblioteket?', a: 'Gå till fliken "Standardbibliotek" → välj aktivitet eller belöning → klicka 📥-knappen för att kopiera till ditt familjebibliotek. Scheman kopieras via Veckoschema → "Kopiera från…".' },
-          ],
-        },
-        {
-          id: 'activities',
-          label: '📝 Aktiviteter',
-          faqs: [
-            { q: 'Hur skapar jag en ny aktivitet?', a: 'Klicka "+ Ny aktivitet" → fyll i namn, emoji (välj eller skriv fritt), stjärnvärde och eventuella delsteg → spara. Aktiviteten sparas i biblioteket för hela familjen.' },
-            { q: 'Vad är understeg/delsteg?', a: 'Understeg är steg-för-steg-instruktioner under en aktivitet (t.ex. "Tvätta händer" under "Hygien"). Barnet ser dem som guide men bockar av hela aktiviteten i ett tryck.' },
-            { q: 'Hur redigerar jag en aktivitet?', a: 'Klicka på aktivitetens namn i schemat — redigeringsmodalen öppnas. Ändringar (namn, emoji, delsteg) propagerar automatiskt till alla barn och dagar.' },
-          ],
-        },
-        {
-          id: 'rewards',
-          label: '🏆 Belöningar',
-          faqs: [
-            { q: 'Hur lägger jag till en belöning?', a: 'Fliken "Belöningar" → sök efter belöning → klicka "+ Skapa ny" om den inte finns → fyll i namn, emoji, stjärnpris → välj vilka barn som ser den → spara.' },
-            { q: 'Hur söker jag belöningar?', a: 'Sökrutan söker i dina egna belöningar OCH i standardbiblioteket samtidigt. Inga träffar? Knappen "Skapa [namn]" öppnar ett förifyllt formulär.' },
-            { q: 'Kan ett barn ha privata belöningar?', a: 'Ja! När du skapar belöningen väljer du vilka barn som ska se den. Perfekt för anpassade belöningar per barn.' },
-          ],
-        },
-      ],
-    },
-
-    settings: {
-      title: '❓ Hjälp – Inställningar',
-      tabs: [
-        {
-          id: 'account',
-          label: '👤 Konto',
-          faqs: [
-            { q: 'Hur ändrar jag mitt lösenord?', a: 'Fyll i ditt nuvarande lösenord och det nya lösenordet → klicka "Spara". Lösenordet måste vara minst 6 tecken.' },
-            { q: 'Hur ändrar jag min e-postadress?', a: 'Ange din nya e-postadress → klicka "Spara". Du kan behöva verifiera den nya adressen via e-post.' },
-            { q: 'Hur tar jag bort mitt konto?', a: 'Kontakta oss på <a href="mailto:info@mystarday.se" style="color:#F5A623;font-weight:600;">info@mystarday.se</a> för kontoradering. Vi hanterar det inom 48 timmar.' },
-          ],
-        },
-        {
-          id: 'notifications',
-          label: '🔔 Notiser',
-          faqs: [
-            { q: 'Hur aktiverar jag påminnelser?', a: 'Slå på växeln under "Påminnelser" → välj tid och vilka dagar. Din webbläsare måste godkänna notiser.' },
-            { q: 'Jag får inga notiser trots att det är aktiverat', a: 'Kontrollera att webbläsaren har tillåtit notiser för sidan. Gå till webbläsarinställningarna → Notiser → hitta mystarday.se → Tillåt.' },
-          ],
-        },
-      ],
-    },
-
-    calendar: {
-      title: '❓ Hjälp – Kalender',
-      tabs: [
-        {
-          id: 'calendar',
-          label: '📆 Kalender',
-          faqs: [
-            { q: 'Vad visar kalendern?', a: 'Kalendern ger en månadsöversikt av barnets aktiviteter, inlösta belöningar och viktiga händelser.' },
-            { q: 'Hur navigerar jag mellan månader?', a: 'Klicka på pilarna (< >) bredvid månadens namn för att byta månad.' },
-            { q: 'Hur ser jag mer detaljer för en dag?', a: 'Klicka på ett datum för att se en detaljerad lista med aktiviteter och stjärnor för den dagen.' },
-          ],
-        },
-      ],
-    },
-
-    'daily-log': {
-      title: '❓ Hjälp – Daglig logg',
-      tabs: [
-        {
-          id: 'log',
-          label: '📖 Logg',
-          faqs: [
-            { q: 'Vad är den dagliga loggen?', a: 'Loggen visar barnets dag — aktiviteter, avprickningar och stjärnor. Använd den för att <strong>förhandsgranska</strong> vad barnet ser, eller för att fylla i i efterhand.' },
-            { q: 'Hur filtrerar jag loggen?', a: 'Välj barn i filtret högst upp för att visa loggen bara för ett specifikt barn. Du kan också filtrera på datum.' },
-            { q: 'Hur långt bak kan jag se?', a: 'Loggen sparar data från den dag du började använda Min Stjärndag. Scrolla eller välj datum för att se äldre data.' },
-          ],
-        },
-      ],
-    },
-
-    'assign-schedule': {
-      title: '❓ Hjälp – Välj schema per dag',
-      tabs: [
-        {
-          id: 'assign',
-          label: '📅 Tilldela schema',
-          faqs: [
-            { q: 'Vad är "Välj schema per dag"?', a: 'Här väljer du vilket veckoschema som ska vara aktivt för varje barn och dag. Perfekt om du har olika rutiner för vardagar och helger.' },
-            { q: 'Kan ett barn ha olika scheman på vardagar vs. helger?', a: 'Ja! Välj ett schema för Mån-Fre och ett annat för Lör-Sön. Klicka på dagen och välj önskat schema.' },
-            { q: 'Vad händer om ingen dag är tilldelad?', a: 'Om ingen dag är tilldelad ett schema ser barnet inga aktiviteter den dagen. Se till att alla dagar du vill använda har ett schema tilldelat.' },
-          ],
-        },
-      ],
-    },
-
-    admin: {
-      title: '❓ Admin-panel',
-      tabs: [
-        {
-          id: 'overview',
-          label: '🔧 Översikt',
-          faqs: [
-            { q: 'Vad kan jag göra i admin-panelen?', a: 'Admin-panelen ger dig åtkomst till alla familjer, användare och systemdata. Du kan se statistik, hantera konton och moderera innehåll.' },
-            { q: 'Hur hittar jag en specifik användare?', a: 'Använd sökfältet längst upp för att söka på e-post eller namn. Klicka på en familj för att se detaljer.' },
-            { q: 'Hur arkiverar jag en familj?', a: 'Klicka på familjekortet → "Arkivera". Arkiverade familjer kan återställas men är inaktiva tills dess.' },
-          ],
-        },
-        {
-          id: 'support',
-          label: '💬 Support',
-          faqs: [
-            { q: 'Hur ser jag inkomna supportmessage?', a: 'Under fliken "Support-inkorg" ser du alla meddelanden som skickats via kontaktformuläret. Klicka för att se full text och svara.' },
-            { q: 'Hur markerar jag ett ärende som löst?', a: 'Klicka på ärendet → "Markera som löst". Lösta ärenden filtreras bort i standardvyn men kan visas via "Visa lösta".' },
-          ],
-        },
-      ],
-    },
-  };
+  async function ensureI18n() {
+    if (!window.I18n) return;
+    if (Object.keys(I18n.locale || {}).length > 0) return;
+    try {
+      await I18n.init();
+    } catch (_) { /* non-blocking */ }
+  }
 
   // ─── Auto-detect page ──────────────────────────────────────────────────────
   function detectPage() {
     if (window.HELP_PAGE) return window.HELP_PAGE;
     const path = window.location.pathname.replace(/^\//, '').replace(/\.html$/, '').replace(/\/$/, '') || 'dashboard';
-    // Normalize: /admin -> admin, /admin/index -> admin
     if (path === 'admin' || path.startsWith('admin/')) return 'admin';
     return path;
   }
-
-  const pageKey = detectPage();
-  const content = PAGE_CONTENT[pageKey];
-
-  // Don't inject on pages without defined content
-  if (!content) return;
 
   // ─── Build HTML ────────────────────────────────────────────────────────────
   function buildFaqItem(faq) {
     return `
       <div class="hb-faq-item">
         <button class="hb-faq-q" onclick="window.__hbToggleFaq(this)">
-          <span class="hb-faq-text">${faq.q}</span>
+          <span class="hb-faq-text">${esc(faq.q)}</span>
           <span class="hb-faq-icon">+</span>
         </button>
         <div class="hb-faq-a" style="display:none;">
@@ -387,47 +99,59 @@
       <button class="hb-tab-btn ${isFirst ? 'hb-tab-active' : ''}"
         data-tab="${tab.id}"
         onclick="window.__hbSwitchTab(this, '${tab.id}')">
-        ${tab.label}
+        ${esc(tab.label)}
       </button>
     `;
   }
 
-  const root = document.createElement('div');
-  root.id = 'helpBubbleRoot';
+  function buildPanelBody(content) {
+    const tabsHtml = content.tabs.length > 1
+      ? '<div class="hb-tabs" role="tablist">' +
+        content.tabs.map(function (tab, i) { return buildTabBtn(tab, i === 0); }).join('') +
+        '</div>'
+      : '';
+    const contentHtml = content.tabs.map(function (tab, i) { return buildTabContent(tab, i === 0); }).join('');
+    return tabsHtml + '<div class="hb-content">' + contentHtml + '</div>';
+  }
 
-  root.innerHTML = `
-    <!-- Help bubble trigger button. Plain "?" glyph, not the ❓ emoji — iOS
-         renders ❓ in its own red/white emoji presentation regardless of the
-         button's white text color, which reads as a broken red badge next
-         to the orange feedback FAB. -->
-    <button id="hbBtn" onclick="window.__hbToggle()" title="Hjälp" aria-label="Öppna hjälp">
-      ?
-    </button>
+  function renderPanel(content) {
+    if (!_root || !content) return;
+    const btn = _root.querySelector('#hbBtn');
+    const panel = _root.querySelector('#hbPanel');
+    const titleEl = _root.querySelector('.hb-title');
+    const closeBtn = _root.querySelector('.hb-close');
+    if (btn) {
+      btn.title = ht('chrome.openTitle');
+      btn.setAttribute('aria-label', ht('chrome.openAria'));
+    }
+    if (panel) panel.setAttribute('aria-label', content.title || '');
+    if (titleEl) titleEl.textContent = content.title || '';
+    if (closeBtn) closeBtn.setAttribute('aria-label', ht('chrome.closeAria'));
+    const journeyMount = panel && panel.querySelector('#hbJourneyTipMount');
+    const existingTabs = panel && panel.querySelector('.hb-tabs');
+    const existingContent = panel && panel.querySelector('.hb-content');
+    if (existingTabs) existingTabs.remove();
+    if (existingContent) existingContent.remove();
+    if (panel && journeyMount) {
+      journeyMount.insertAdjacentHTML('afterend', buildPanelBody(content));
+    }
+  }
 
-    <!-- Help panel backdrop + panel -->
-    <div id="hbBackdrop" onclick="window.__hbClose()"></div>
-    <div id="hbPanel" role="dialog" aria-modal="true" aria-label="${content.title}">
-      <!-- Header -->
-      <div class="hb-header">
-        <h2 class="hb-title">${content.title}</h2>
-        <button class="hb-close" onclick="window.__hbClose()" aria-label="Stäng hjälp">×</button>
-      </div>
-
-      <div id="hbJourneyTipMount" class="hb-journey-tip-mount" style="display:none;"></div>
-
-      <!-- Tabs (only if multiple) -->
-      ${content.tabs.length > 1 ? `
-        <div class="hb-tabs" role="tablist">
-          ${content.tabs.map((tab, i) => buildTabBtn(tab, i === 0)).join('')}
-        </div>
-      ` : ''}
-
-      <!-- Content -->
-      <div class="hb-content">
-        ${content.tabs.map((tab, i) => buildTabContent(tab, i === 0)).join('')}
-      </div>
-    </div>
-  `;
+  function buildShellHtml() {
+    return (
+      '<button id="hbBtn" onclick="window.__hbToggle()" title="" aria-label="">' +
+        '?' +
+      '</button>' +
+      '<div id="hbBackdrop" onclick="window.__hbClose()"></div>' +
+      '<div id="hbPanel" role="dialog" aria-modal="true" aria-label="">' +
+        '<div class="hb-header">' +
+          '<h2 class="hb-title"></h2>' +
+          '<button class="hb-close" onclick="window.__hbClose()" aria-label="">×</button>' +
+        '</div>' +
+        '<div id="hbJourneyTipMount" class="hb-journey-tip-mount" style="display:none;"></div>' +
+      '</div>'
+    );
+  }
 
   // ─── Styles ────────────────────────────────────────────────────────────────
   const style = document.createElement('style');
@@ -713,18 +437,55 @@
     .help-journey-tip-cta:hover { background: #E09510; }
   `;
 
-  document.head.appendChild(style);
+  function refreshHelpContent() {
+    if (!_pageKey) _pageKey = detectPage();
+    if (!SUPPORTED_PAGES.has(_pageKey)) return;
+    const content = getPageContent(_pageKey);
+    if (!content) return;
+    if (!_root) {
+      mountHelpBubble();
+      return;
+    }
+    renderPanel(content);
+  }
 
-  // Append to body after DOM is ready
-  function mount() {
-    document.body.appendChild(root);
+  async function mountHelpBubble() {
+    await ensureI18n();
+    _pageKey = detectPage();
+    if (!SUPPORTED_PAGES.has(_pageKey)) return;
+    const content = getPageContent(_pageKey);
+    if (!content) return;
+
+    if (!_stylesMounted) {
+      document.head.appendChild(style);
+      _stylesMounted = true;
+    }
+
+    if (!_root) {
+      _root = document.createElement('div');
+      _root.id = 'helpBubbleRoot';
+      _root.innerHTML = buildShellHtml();
+      document.body.appendChild(_root);
+    }
+
+    renderPanel(content);
+  }
+
+  function scheduleMount() {
+    mountHelpBubble().catch(function (err) {
+      console.warn('[help-bubble] mount failed:', err);
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount);
+    document.addEventListener('DOMContentLoaded', scheduleMount);
   } else {
-    mount();
+    scheduleMount();
   }
+
+  document.addEventListener('locale-changed', refreshHelpContent);
+  document.addEventListener('parent-i18n-ready', refreshHelpContent);
+  document.addEventListener('child-i18n-ready', refreshHelpContent);
 
   // ─── Journey tip (signup slim) ─────────────────────────────────────────────
   let tipModuleLoading = false;
