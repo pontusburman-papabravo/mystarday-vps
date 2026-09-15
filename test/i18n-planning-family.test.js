@@ -287,7 +287,7 @@ describe('library parent chrome en-GB leaks', () => {
 describe('i18n merge domains', () => {
   it('src/lib/i18n.js merges planning/family/schedule domains', () => {
     const i18n = fs.readFileSync(path.join(__dirname, '../src/lib/i18n.js'), 'utf8');
-    for (const domain of ['planning', 'library', 'family', 'schedule', 'settings']) {
+    for (const domain of ['planning', 'library', 'family', 'schedule', 'settings', 'reports']) {
       assert.match(i18n, new RegExp(`'${domain}'`));
     }
   });

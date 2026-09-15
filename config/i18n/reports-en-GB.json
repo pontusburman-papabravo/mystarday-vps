@@ -1,0 +1,210 @@
+{
+  "pageTitle": "Reports — {{brand}}",
+  "shell": {
+    "title": "📊 Reports",
+    "backTitle": "Back"
+  },
+  "tabs": {
+    "create": "Create report",
+    "activity": "Activities",
+    "shared": "Shared reports"
+  },
+  "loading": "Loading…",
+  "create": {
+    "step1": "1. Choose child",
+    "step2": "2. Choose time period",
+    "step3": "3. Choose content",
+    "step4": "4. Parent summary",
+    "step4Optional": "(optional)",
+    "reportName": "Report name",
+    "periodWeek": "Last week",
+    "periodMonth": "Last month",
+    "periodCustom": "Custom period",
+    "periodCustomShort": "Custom",
+    "from": "From",
+    "to": "To",
+    "fields": {
+      "activities": {
+        "title": "📋 Scheduled activities",
+        "hint": "All activities in the report"
+      },
+      "completion": {
+        "title": "📈 Completion rate (%)",
+        "hint": "Percentage completed per day and overall"
+      },
+      "sectionSummary": {
+        "title": "🌅 Section summary",
+        "hint": "Morning / Day / Evening / Night"
+      },
+      "parentNotes": {
+        "title": "📝 Parent notes",
+        "hint": "Your own notes on activities"
+      },
+      "childNotes": {
+        "title": "💬 Child notes",
+        "hint": "The child's own notes"
+      },
+      "stars": {
+        "title": "⭐ Stars",
+        "hint": "Stars earned in the period"
+      },
+      "rewards": {
+        "title": "🏆 Rewards",
+        "hint": "Requested and approved rewards"
+      },
+      "emotions": {
+        "title": "😊 Mood tracking",
+        "hint": "Opt-in — only if recorded"
+      },
+      "pedagogNotes": {
+        "title": "📝 Educator notes",
+        "hint": "Daily observations from the educator"
+      }
+    },
+    "fieldError": "Choose at least one item",
+    "parentSummaryPlaceholder": "Describe how the period has been overall — e.g. changes in medication, school moves, or anything that may affect routines. Avoid personal ID numbers and diagnoses.",
+    "parentSummaryWarning": "Do <strong>not</strong> include personal ID numbers, diagnoses or other sensitive personal data. Focus on observations about routines and wellbeing.",
+    "reportLabelPlaceholder": "e.g. Report for school",
+    "pinTitle": "🔐 Protect with PIN",
+    "pinHint": "Optional 4–6 digit PIN for the report",
+    "pinPlaceholder": "4–6 digits",
+    "pinError": "PIN must be 4–6 digits",
+    "anonymousTitle": "🔒 Anonymous sharing",
+    "anonymousHint": "Hides the child's name and emoji in the report — recommended for CAMHS/healthcare providers",
+    "createBtn": "Create report",
+    "creating": "Creating…",
+    "successTitle": "🎉 Report created!",
+    "shareHint": "Share this link with the educator or therapist:",
+    "copyLink": "📋 Copy link",
+    "qrLabel": "QR code",
+    "qrAlt": "QR code"
+  },
+  "activity": {
+    "show": "Show",
+    "addObservation": "+ Observation",
+    "writeGeneralObservation": "📝 Write general observation",
+    "loading": "Loading activities…",
+    "emptyTitle": "No activities for the selected period",
+    "emptyHint": "Choose a different period or child",
+    "noData": "No data recorded",
+    "completedCount": "{{completed}}/{{total}} done",
+    "completed": "✅ Done",
+    "parentNoteLabel": "📝 Parent note:",
+    "childNoteLabel": "💬 Child note:",
+    "edit": "Edit",
+    "addNote": "+ Add note"
+  },
+  "observations": {
+    "title": "📝 General notes",
+    "writeNew": "+ Write new",
+    "empty": "No notes yet.",
+    "important": "⚠️ Important",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "edit": "Edit",
+    "archive": "Archive",
+    "delete": "Delete",
+    "restore": "Restore",
+    "archivedTitle": "Archived notes",
+    "modalTitle": "General observation",
+    "modalEditTitle": "Edit note",
+    "modalPlaceholder": "Write your general observation — e.g. how the day went, special events, reflections…",
+    "created": "Created {{date}}",
+    "charCount": "{{count}}/2000"
+  },
+  "noteModal": {
+    "title": "Edit note",
+    "placeholder": "Write your note…",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "shared": {
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterInactive": "Inactive",
+    "emptyTitle": "No shared reports yet",
+    "emptyHint": "Create a report and share it with an educator or therapist",
+    "filterEmptyAll": "No shared reports yet",
+    "filterEmptyActive": "No active reports",
+    "filterEmptyInactive": "No inactive reports",
+    "filterEmptyDefault": "No reports",
+    "filterEmptyCategory": "No reports in this category",
+    "created": "Created",
+    "expires": "Expires",
+    "allFields": "All fields",
+    "views": "👁️ {{count}} views",
+    "copyLink": "📋 Copy link",
+    "open": "🔗 Open",
+    "revoke": "📂 Revoke",
+    "delete": "🗑️ Delete",
+    "statusActive": "Active",
+    "statusRevoked": "Revoked",
+    "statusExpired": "Expired",
+    "anonymous": "🔒 Anonymous",
+    "unnamedReport": "Untitled report",
+    "unknownChild": "Unknown child"
+  },
+  "revokeDialog": {
+    "title": "Remove report?",
+    "body": "What would you like to do with this report?",
+    "archive": "📂 Archive — stop sharing, keep in archive view",
+    "delete": "🗑️ Delete — remove permanently",
+    "cancel": "Cancel"
+  },
+  "children": {
+    "noneFamily": "No children in your family yet.",
+    "noneActivity": "No children in your family.",
+    "retry": "Try again"
+  },
+  "actions": {
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "saving": "Saving…",
+    "cancel": "Cancel"
+  },
+  "toasts": {
+    "linkCopied": "Link copied!",
+    "saved": "Saved!",
+    "savedRefreshList": "Saved! But could not refresh the list — reload the page.",
+    "savedRefreshView": "Saved! But could not refresh — reload the page.",
+    "noteSaved": "Note saved!",
+    "archived": "Archived ✓",
+    "restored": "Restored ✓",
+    "deleted": "Removed",
+    "reportRevoked": "Report revoked",
+    "reportArchived": "Report archived",
+    "reportDeleted": "Report deleted",
+    "loadSharedFailed": "Could not load shared reports"
+  },
+  "errors": {
+    "loadChildren": "Could not load children ({{status}})",
+    "selectChild": "Choose a child first",
+    "nameRequired": "Give the report a name",
+    "selectPeriod": "Choose a time period",
+    "createFailed": "Could not create report",
+    "timeout": "Timeout — the database did not respond. Try again.",
+    "loadingChildren": "Loading children… Try again in a moment.",
+    "loadActivities": "Could not load activities ({{status}})",
+    "serverBusy": "The server is temporarily overloaded. Wait a few seconds and click Show again.",
+    "renderActivities": "Something went wrong showing activities. Try again.",
+    "renderActivitiesReload": "Something went wrong showing activities. Try reloading the page.",
+    "loadActivitiesFallback": "Could not load activities. Try again.",
+    "writeNoteFirst": "Write a note first",
+    "maxChars": "Maximum 2000 characters",
+    "saveFailed": "Could not save",
+    "archiveFailed": "Could not archive",
+    "restoreFailed": "Could not restore",
+    "deleteFailed": "Could not delete",
+    "identifyActivity": "Could not identify the activity. Try reloading the page.",
+    "saveNoteFailed": "Could not save note ({{status}})",
+    "loadReports": "Could not load reports",
+    "revokeFailed": "Could not revoke",
+    "archiveReportFailed": "Could not archive"
+  },
+  "confirm": {
+    "archiveObservation": "Archive this note?",
+    "deleteObservation": "Delete this note permanently? This cannot be undone.",
+    "revokeReport": "Revoke this report? The link will stop working, but you can still view the report.",
+    "deleteReport": "Delete this report permanently? This cannot be undone."
+  }
+}

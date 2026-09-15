@@ -13,6 +13,9 @@
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-datetime.js?v=1"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="/js/toast.js"></script>
   <style>
     html, body { overflow-x: clip; max-width: 100%; }
@@ -94,12 +97,12 @@
     .filter-btn:hover:not(.border-gold) { border-color: #F5A62360; color: #1C2340; }
   </style>
 </head>
-<body class="bg-cream font-body text-navy min-h-screen">
+<body class="bg-cream font-body text-navy min-h-screen" data-i18n-manual-init="true" data-i18n-title="reports.pageTitle">
 
   <!-- Page header (not sidebar — must not use nav.bg-navy or scripts inject menu links) -->
   <header class="reports-topbar w-full bg-navy text-white p-4 flex items-center gap-3" data-page-header>
-    <a href="/" id="previewBackLink" class="text-white text-lg hover:text-gold transition-colors shrink-0" title="Tillbaka">←</a>
-    <h1 class="text-xl font-heading font-bold flex items-center gap-2 min-w-0 truncate">
+    <a href="/" id="previewBackLink" class="text-white text-lg hover:text-gold transition-colors shrink-0" data-i18n-title="reports.shell.backTitle" title="Tillbaka">←</a>
+    <h1 class="text-xl font-heading font-bold flex items-center gap-2 min-w-0 truncate" data-i18n="reports.shell.title">
       📊 Rapporter
     </h1>
   </header>
@@ -107,9 +110,9 @@
   <!-- Tab bar -->
   <div class="bg-white border-b border-lavender sticky top-0 z-10">
     <div class="flex">
-      <button class="flex-1 py-3 text-sm font-semibold tab-active" id="tabCreate" onclick="switchTab('create')">Skapa rapport</button>
-      <button class="flex-1 py-3 text-sm font-semibold tab-inactive" id="tabActivity" onclick="switchTab('activity')">Aktiviteter</button>
-      <button class="flex-1 py-3 text-sm font-semibold tab-inactive" id="tabShared" onclick="switchTab('shared')">Delade rapporter</button>
+      <button class="flex-1 py-3 text-sm font-semibold tab-active" id="tabCreate" onclick="switchTab('create')" data-i18n="reports.tabs.create">Skapa rapport</button>
+      <button class="flex-1 py-3 text-sm font-semibold tab-inactive" id="tabActivity" onclick="switchTab('activity')" data-i18n="reports.tabs.activity">Aktiviteter</button>
+      <button class="flex-1 py-3 text-sm font-semibold tab-inactive" id="tabShared" onclick="switchTab('shared')" data-i18n="reports.tabs.shared">Delade rapporter</button>
     </div>
   </div>
 
@@ -122,29 +125,29 @@
 
       <!-- ── Child selector ── -->
       <div class="mb-6">
-        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide">1. Välj barn</h3>
+        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide" data-i18n="reports.create.step1">1. Välj barn</h3>
         <div id="childSelector" class="flex flex-wrap gap-2">
-          <div class="text-text-soft text-sm py-4">Laddar...</div>
+          <div class="text-text-soft text-sm py-4" data-i18n="reports.loading">Laddar...</div>
         </div>
       </div>
 
       <!-- ── Period selector ── -->
       <div class="mb-6">
-        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide">2. Välj tidsperiod</h3>
+        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide" data-i18n="reports.create.step2">2. Välj tidsperiod</h3>
         <div class="flex flex-wrap gap-2 mb-3">
-          <button class="period-pill" data-period="week" onclick="selectPeriod('week')">Senaste veckan</button>
-          <button class="period-pill selected" data-period="month" onclick="selectPeriod('month')">Senaste månaden</button>
-          <button class="period-pill" data-period="custom" onclick="selectPeriod('custom')">Anpassad period</button>
+          <button class="period-pill" data-period="week" onclick="selectPeriod('week')" data-i18n="reports.create.periodWeek">Senaste veckan</button>
+          <button class="period-pill selected" data-period="month" onclick="selectPeriod('month')" data-i18n="reports.create.periodMonth">Senaste månaden</button>
+          <button class="period-pill" data-period="custom" onclick="selectPeriod('custom')" data-i18n="reports.create.periodCustom">Anpassad period</button>
         </div>
         <!-- Custom date inputs (hidden by default) -->
         <div id="customDateInputs" class="hidden flex flex-col gap-2 mt-2">
           <div class="flex gap-2">
             <div class="flex-1">
-              <label class="text-xs text-text-soft mb-1 block">Från</label>
+              <label class="text-xs text-text-soft mb-1 block" data-i18n="reports.create.from">Från</label>
               <input type="date" id="dateFrom" class="w-full border border-lavender rounded-xl px-3 py-2 text-sm" style="max-width:100%;box-sizing:border-box;">
             </div>
             <div class="flex-1">
-              <label class="text-xs text-text-soft mb-1 block">Till</label>
+              <label class="text-xs text-text-soft mb-1 block" data-i18n="reports.create.to">Till</label>
               <input type="date" id="dateTo" class="w-full border border-lavender rounded-xl px-3 py-2 text-sm" style="max-width:100%;box-sizing:border-box;">
             </div>
           </div>
@@ -153,91 +156,92 @@
 
       <!-- ── Fields selector ── -->
       <div class="mb-6">
-        <h3 class="text-sm font-semibold text-text-soft mb-3 uppercase tracking-wide">3. Välj innehåll</h3>
+        <h3 class="text-sm font-semibold text-text-soft mb-3 uppercase tracking-wide" data-i18n="reports.create.step3">3. Välj innehåll</h3>
         <div class="grid grid-cols-1 gap-2">
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="activities" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_activities">
             <div>
-              <span class="font-semibold text-sm">📋 Schemalagda aktiviteter</span>
-              <p class="text-xs text-text-soft mt-0.5">Alla aktiviteter i rapporten</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.activities.title">📋 Schemalagda aktiviteter</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.activities.hint">Alla aktiviteter i rapporten</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="completion" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_completion">
             <div>
-              <span class="font-semibold text-sm">📈 Genomförandegrad (%)</span>
-              <p class="text-xs text-text-soft mt-0.5">Procent klarat per dag och totalt</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.completion.title">📈 Genomförandegrad (%)</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.completion.hint">Procent klarat per dag och totalt</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="section_summary" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_section_summary">
             <div>
-              <span class="font-semibold text-sm">🌅 Sektionssammanfattning</span>
-              <p class="text-xs text-text-soft mt-0.5">Morgon / Dag / Kväll / Natt</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.sectionSummary.title">🌅 Sektionssammanfattning</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.sectionSummary.hint">Morgon / Dag / Kväll / Natt</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="parent_notes" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_parent_notes">
             <div>
-              <span class="font-semibold text-sm">📝 Förälderns anteckningar</span>
-              <p class="text-xs text-text-soft mt-0.5">Dina egna anteckningar på aktiviteter</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.parentNotes.title">📝 Förälderns anteckningar</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.parentNotes.hint">Dina egna anteckningar på aktiviteter</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="child_notes" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_child_notes">
             <div>
-              <span class="font-semibold text-sm">💬 Barnets anteckningar</span>
-              <p class="text-xs text-text-soft mt-0.5">Barnets egna anteckningar</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.childNotes.title">💬 Barnets anteckningar</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.childNotes.hint">Barnets egna anteckningar</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="stars" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_stars">
             <div>
-              <span class="font-semibold text-sm">⭐ Stjärnor</span>
-              <p class="text-xs text-text-soft mt-0.5">Intjänade stjärnor i perioden</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.stars.title">⭐ Stjärnor</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.stars.hint">Intjänade stjärnor i perioden</p>
             </div>
           </label>
           <label class="field-card selected flex items-center gap-3 px-4 py-3 rounded-xl" data-field="rewards" onclick="toggleField(this)">
             <input type="checkbox" checked class="flex-shrink-0" id="field_rewards">
             <div>
-              <span class="font-semibold text-sm">🏆 Belöningar</span>
-              <p class="text-xs text-text-soft mt-0.5">Begärda och godkända belöningar</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.rewards.title">🏆 Belöningar</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.rewards.hint">Begärda och godkända belöningar</p>
             </div>
           </label>
           <label class="field-card flex items-center gap-3 px-4 py-3 rounded-xl" data-field="emotions" onclick="toggleField(this)">
             <input type="checkbox" class="flex-shrink-0" id="field_emotions">
             <div>
-              <span class="font-semibold text-sm">😊 Känsloregistrering</span>
-              <p class="text-xs text-text-soft mt-0.5">Opt-in – endast om registrerad</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.emotions.title">😊 Känsloregistrering</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.emotions.hint">Opt-in – endast om registrerad</p>
             </div>
           </label>
           <label class="field-card flex items-center gap-3 px-4 py-3 rounded-xl" data-field="pedagog_notes" id="pedagogNotesFieldCard" onclick="toggleField(this)">
             <input type="checkbox" class="flex-shrink-0" id="field_pedagog_notes">
             <div>
-              <span class="font-semibold text-sm">📝 Pedagoganteckningar</span>
-              <p class="text-xs text-text-soft mt-0.5">Dagliga observationer från pedagogen</p>
+              <span class="font-semibold text-sm" data-i18n="reports.create.fields.pedagogNotes.title">📝 Pedagoganteckningar</span>
+              <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.fields.pedagogNotes.hint">Dagliga observationer från pedagogen</p>
             </div>
           </label>
         </div>
-        <p id="fieldError" class="hidden text-red-500 text-xs mt-2">Välj minst ett innehåll</p>
+        <p id="fieldError" class="hidden text-red-500 text-xs mt-2" data-i18n="reports.create.fieldError">Välj minst ett innehåll</p>
       </div>
 
       <!-- ── Parent summary ── -->
       <div class="mb-6">
-        <h3 class="text-sm font-semibold text-text-soft mb-3 uppercase tracking-wide">4. Föräldrasammanfattning <span class="text-text-soft font-normal">(valfritt)</span></h3>
+        <h3 class="text-sm font-semibold text-text-soft mb-3 uppercase tracking-wide"><span data-i18n="reports.create.step4">4. Föräldrasammanfattning</span> <span class="text-text-soft font-normal" data-i18n="reports.create.step4Optional">(valfritt)</span></h3>
         <textarea id="parentSummary" rows="4" maxlength="1000"
+          data-i18n-placeholder="reports.create.parentSummaryPlaceholder"
           placeholder="Beskriv hur perioden har varit i stort — t.ex. förändringar i medicin, skolbyte, eller annat som kan påverka rutinerna. Undvik personnummer och diagnoser."
           class="note-textarea w-full rounded-xl px-4 py-3"></textarea>
         <p class="text-xs text-amber-700 mt-2 flex items-start gap-1">
           <span>⚠️</span>
-          <span>Skriv <strong>inte</strong> personnummer, diagnoser eller andra känsliga personuppgifter. Fokusera på observationer kring rutiner och mående.</span>
+          <span data-i18n-html="reports.create.parentSummaryWarning">Skriv <strong>inte</strong> personnummer, diagnoser eller andra känsliga personuppgifter. Fokusera på observationer kring rutiner och mående.</span>
         </p>
       </div>
 
       <!-- ── Label ── -->
       <div class="mb-6">
-        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide">Namn på rapporten</h3>
-        <input type="text" id="reportLabel" placeholder="t.ex. Rapport till skolan" maxlength="100"
+        <h3 class="text-sm font-semibold text-text-soft mb-2 uppercase tracking-wide" data-i18n="reports.create.reportName">Namn på rapporten</h3>
+        <input type="text" id="reportLabel" data-i18n-placeholder="reports.create.reportLabelPlaceholder" placeholder="t.ex. Rapport till skolan" maxlength="100"
           class="w-full border border-lavender rounded-xl px-4 py-3 text-sm focus:border-gold focus:outline-none">
       </div>
 
@@ -245,8 +249,8 @@
       <div class="mb-6 bg-white rounded-xl border border-lavender p-4">
         <div class="flex items-center justify-between">
           <div>
-            <p class="font-semibold text-sm">🔐 Skydda med PIN-kod</p>
-            <p class="text-xs text-text-soft mt-0.5">Valfri 4–6 siffer PIN för rapporten</p>
+            <p class="font-semibold text-sm" data-i18n="reports.create.pinTitle">🔐 Skydda med PIN-kod</p>
+            <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.pinHint">Valfri 4–6 siffer PIN för rapporten</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" id="pinToggle" class="sr-only peer" onchange="togglePinField()">
@@ -254,10 +258,10 @@
           </label>
         </div>
         <div id="pinInputWrap" class="hidden mt-3">
-          <input type="password" id="pinCode" placeholder="4–6 siffror" maxlength="6" inputmode="numeric"
+          <input type="password" id="pinCode" data-i18n-placeholder="reports.create.pinPlaceholder" placeholder="4–6 siffror" maxlength="6" inputmode="numeric"
             class="w-full border border-lavender rounded-xl px-4 py-3 text-center text-lg tracking-widest font-mono focus:border-gold focus:outline-none"
             oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
-          <p id="pinError" class="hidden text-red-500 text-xs mt-1">PIN måste vara 4–6 siffror</p>
+          <p id="pinError" class="hidden text-red-500 text-xs mt-1" data-i18n="reports.create.pinError">PIN måste vara 4–6 siffror</p>
         </div>
       </div>
 
@@ -266,29 +270,30 @@
         <div class="flex items-start gap-3">
           <input type="checkbox" id="anonymousToggle" class="flex-shrink-0 mt-0.5" style="accent-color:#F5A623;width:20px;height:20px;">
           <div>
-            <p class="font-semibold text-sm">🔒 Anonym delning</p>
-            <p class="text-xs text-text-soft mt-0.5">Döljer barnets namn och emoji i rapporten — rekommenderas för BUP/vårdgivare</p>
+            <p class="font-semibold text-sm" data-i18n="reports.create.anonymousTitle">🔒 Anonym delning</p>
+            <p class="text-xs text-text-soft mt-0.5" data-i18n="reports.create.anonymousHint">Döljer barnets namn och emoji i rapporten — rekommenderas för BUP/vårdgivare</p>
           </div>
         </div>
       </div>
 
       <!-- ── Create button ── -->
       <button type="button" id="createBtn" formnovalidate onclick="createReport()"
-        class="w-full py-4 bg-gold hover:bg-yellow-500 text-white font-heading font-bold text-lg rounded-xl transition-colors shadow-md">
+        class="w-full py-4 bg-gold hover:bg-yellow-500 text-white font-heading font-bold text-lg rounded-xl transition-colors shadow-md"
+        data-i18n="reports.create.createBtn">
         Skapa rapport
       </button>
       <div id="createError" class="hidden text-red-500 text-sm text-center mt-3"></div>
 
       <!-- ── QR / URL result ── -->
       <div id="qrContainer" class="flex-col items-center mt-6 p-4 bg-white rounded-xl border border-lavender gap-4">
-        <h3 class="font-heading font-bold text-navy text-lg text-center">🎉 Rapport skapad!</h3>
-        <p class="text-sm text-text-soft text-center">Dela denna länk med pedagogen eller terapeuten:</p>
+        <h3 class="font-heading font-bold text-navy text-lg text-center" data-i18n="reports.create.successTitle">🎉 Rapport skapad!</h3>
+        <p class="text-sm text-text-soft text-center" data-i18n="reports.create.shareHint">Dela denna länk med pedagogen eller terapeuten:</p>
         <div class="share-url-box w-full text-sm" id="shareUrlDisplay"></div>
-        <button onclick="copyShareUrl()" class="w-full py-3 bg-navy hover:bg-navy-soft text-white font-semibold rounded-xl transition-colors text-sm">
+        <button onclick="copyShareUrl()" class="w-full py-3 bg-navy hover:bg-navy-soft text-white font-semibold rounded-xl transition-colors text-sm" data-i18n="reports.create.copyLink">
           📋 Kopiera länk
         </button>
         <div class="flex flex-col items-center gap-2">
-          <p class="text-xs text-text-soft">QR-kod</p>
+          <p class="text-xs text-text-soft" data-i18n="reports.create.qrLabel">QR-kod</p>
           <div id="qrCodeBox" class="bg-white p-3 rounded-xl border border-lavender"></div>
         </div>
       </div>
@@ -302,21 +307,21 @@
       <!-- Child selector for activity view -->
       <div class="mb-4">
         <div id="activityChildSelector" class="flex flex-wrap gap-2">
-          <div class="text-text-soft text-sm py-2">Laddar...</div>
+          <div class="text-text-soft text-sm py-2" data-i18n="reports.loading">Laddar...</div>
         </div>
       </div>
 
       <!-- Period selector for activity view -->
       <div class="mb-4 flex flex-wrap gap-2 items-center">
-        <button class="period-pill" data-ap="week" onclick="selectActivityPeriod('week')">Senaste veckan</button>
-        <button class="period-pill selected" data-ap="month" onclick="selectActivityPeriod('month')">Senaste månaden</button>
-        <button class="period-pill" data-ap="custom" onclick="selectActivityPeriod('custom')">Anpassad</button>
+        <button class="period-pill" data-ap="week" onclick="selectActivityPeriod('week')" data-i18n="reports.create.periodWeek">Senaste veckan</button>
+        <button class="period-pill selected" data-ap="month" onclick="selectActivityPeriod('month')" data-i18n="reports.create.periodMonth">Senaste månaden</button>
+        <button class="period-pill" data-ap="custom" onclick="selectActivityPeriod('custom')" data-i18n="reports.create.periodCustomShort">Anpassad</button>
         <div id="activityCustomDates" class="hidden flex gap-2 items-center">
           <input type="date" id="actDateFrom" class="border border-lavender rounded-lg px-2 py-1 text-xs" style="max-width:130px;box-sizing:border-box;">
           <input type="date" id="actDateTo" class="border border-lavender rounded-lg px-2 py-1 text-xs" style="max-width:130px;box-sizing:border-box;">
         </div>
-        <button onclick="loadActivityView()" class="px-3 py-1 bg-navy text-white text-xs rounded-lg font-semibold">Visa</button>
-        <button onclick="openObsModal()" class="ml-auto px-3 py-1 bg-gold hover:bg-yellow-500 text-white text-xs rounded-lg font-semibold flex items-center gap-1">
+        <button onclick="loadActivityView()" class="px-3 py-1 bg-navy text-white text-xs rounded-lg font-semibold" data-i18n="reports.activity.show">Visa</button>
+        <button onclick="openObsModal()" class="ml-auto px-3 py-1 bg-gold hover:bg-yellow-500 text-white text-xs rounded-lg font-semibold flex items-center gap-1" data-i18n="reports.activity.addObservation">
           + Observation
         </button>
       </div>
@@ -324,14 +329,14 @@
       <!-- Anteckningar quick-write bar -->
       <div id="obsWriteBar" class="hidden mb-4">
         <button onclick="openObsModal()" class="w-full py-3 bg-amber-50 border-2 border-dashed border-amber-400 rounded-xl text-sm text-amber-800 font-semibold hover:bg-amber-100 transition-colors">
-          📝 Skriv allmän observation
+          <span data-i18n="reports.activity.writeGeneralObservation">📝 Skriv allmän observation</span>
         </button>
       </div>
 
       <!-- Loading state -->
       <div id="activityLoading" class="hidden text-center py-8 text-text-soft">
         <div class="text-2xl mb-2">⏳</div>
-        <p class="text-sm">Laddar aktiviteter...</p>
+        <p class="text-sm" data-i18n="reports.activity.loading">Laddar aktiviteter...</p>
       </div>
 
       <!-- Error state -->
@@ -340,8 +345,8 @@
       <!-- Empty state -->
       <div id="activityEmpty" class="hidden text-center py-8">
         <div class="text-4xl mb-3">🗂️</div>
-        <p class="text-text-soft font-semibold">Inga aktiviteter för vald period</p>
-        <p class="text-xs text-text-soft mt-1">Välj en annan period eller barn</p>
+        <p class="text-text-soft font-semibold" data-i18n="reports.activity.emptyTitle">Inga aktiviteter för vald period</p>
+        <p class="text-xs text-text-soft mt-1" data-i18n="reports.activity.emptyHint">Välj en annan period eller barn</p>
       </div>
 
       <!-- Anteckningar section (above activities) -->
@@ -359,33 +364,33 @@
       <!-- Filter bar -->
       <div id="sharedFilters" class="mb-4 flex gap-2">
         <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-semibold border-2 border-gold bg-gold text-white" data-filter="all" onclick="setSharedFilter('all')">
-          Alla (<span id="filterCountAll">0</span>)
+          <span data-i18n="reports.shared.filterAll">Alla</span> (<span id="filterCountAll">0</span>)
         </button>
         <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-semibold border-2 border-lavender text-text-soft" data-filter="active" onclick="setSharedFilter('active')">
-          Aktiva (<span id="filterCountActive">0</span>)
+          <span data-i18n="reports.shared.filterActive">Aktiva</span> (<span id="filterCountActive">0</span>)
         </button>
         <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-semibold border-2 border-lavender text-text-soft" data-filter="inactive" onclick="setSharedFilter('inactive')">
-          Inaktiva (<span id="filterCountInactive">0</span>)
+          <span data-i18n="reports.shared.filterInactive">Inaktiva</span> (<span id="filterCountInactive">0</span>)
         </button>
       </div>
 
       <!-- Loading -->
       <div id="sharedLoading" class="text-center py-8 text-text-soft">
         <div class="text-2xl mb-2">⏳</div>
-        <p class="text-sm">Laddar...</p>
+        <p class="text-sm" data-i18n="reports.loading">Laddar...</p>
       </div>
 
       <!-- Empty state (no links at all) -->
       <div id="sharedEmpty" class="hidden text-center py-8">
         <div class="text-4xl mb-3">📭</div>
-        <p class="text-text-soft font-semibold">Inga delade rapporter ännu</p>
-        <p class="text-xs text-text-soft mt-1">Skapa en rapport och dela den med en pedagog eller terapeut</p>
+        <p class="text-text-soft font-semibold" data-i18n="reports.shared.emptyTitle">Inga delade rapporter ännu</p>
+        <p class="text-xs text-text-soft mt-1" data-i18n="reports.shared.emptyHint">Skapa en rapport och dela den med en pedagog eller terapeut</p>
       </div>
 
       <!-- Empty state for filtered view -->
       <div id="sharedFilterEmpty" class="hidden text-center py-8">
         <div class="text-3xl mb-2">🔍</div>
-        <p class="text-text-soft font-semibold" id="filterEmptyLabel">Inga rapporter i denna kategori</p>
+        <p class="text-text-soft font-semibold" id="filterEmptyLabel" data-i18n="reports.shared.filterEmptyCategory">Inga rapporter i denna kategori</p>
       </div>
 
       <!-- Report list -->
@@ -398,16 +403,16 @@
   <div id="noteModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeNoteModal()">
     <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-heading font-bold text-navy" id="noteModalTitle">Redigera anteckning</h3>
+        <h3 class="font-heading font-bold text-navy" id="noteModalTitle" data-i18n="reports.noteModal.title">Redigera anteckning</h3>
         <button onclick="closeNoteModal()" class="w-8 h-8 rounded-full bg-lavender hover:bg-lavender/80 flex items-center justify-center text-text-soft text-lg">✕</button>
       </div>
       <textarea id="noteModalText" rows="4" maxlength="1000"
         class="note-textarea w-full rounded-xl px-4 py-3"
-        placeholder="Skriv din anteckning..."></textarea>
+        data-i18n-placeholder="reports.noteModal.placeholder" placeholder="Skriv din anteckning..."></textarea>
       <p id="noteModalError" class="hidden text-red-500 text-xs mt-2"></p>
       <div class="flex gap-2 mt-4">
-        <button onclick="closeNoteModal()" class="flex-1 py-3 bg-lavender hover:bg-purple-100 text-navy font-semibold rounded-xl transition-colors">Avbryt</button>
-        <button onclick="saveNote()" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-xl transition-colors">Spara</button>
+        <button onclick="closeNoteModal()" class="flex-1 py-3 bg-lavender hover:bg-purple-100 text-navy font-semibold rounded-xl transition-colors" data-i18n="reports.noteModal.cancel">Avbryt</button>
+        <button onclick="saveNote()" class="flex-1 py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-xl transition-colors" data-i18n="reports.noteModal.save">Spara</button>
       </div>
     </div>
   </div>
@@ -418,17 +423,17 @@
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="flex items-center gap-3 mb-4">
         <span class="text-2xl">⚠️</span>
-        <h3 class="font-heading font-bold text-navy text-lg">Ta bort rapport?</h3>
+        <h3 class="font-heading font-bold text-navy text-lg" data-i18n="reports.revokeDialog.title">Ta bort rapport?</h3>
       </div>
-      <p class="text-sm text-text-soft mb-5">Vad vill du göra med denna rapport?</p>
+      <p class="text-sm text-text-soft mb-5" data-i18n="reports.revokeDialog.body">Vad vill du göra med denna rapport?</p>
       <div class="flex flex-col gap-3">
-        <button onclick="archiveReport()" class="w-full py-3 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors flex items-center justify-center gap-2">
+        <button onclick="archiveReport()" class="w-full py-3 bg-lavender hover:bg-purple-200 text-navy font-semibold rounded-xl transition-colors flex items-center justify-center gap-2" data-i18n="reports.revokeDialog.archive">
           📂 Arkivera — sluta dela, behåll i arkivvy
         </button>
-        <button onclick="permanentlyDeleteReport()" class="w-full py-3 bg-coral hover:bg-red-200 text-navy font-semibold rounded-xl transition-colors flex items-center justify-center gap-2">
+        <button onclick="permanentlyDeleteReport()" class="w-full py-3 bg-coral hover:bg-red-200 text-navy font-semibold rounded-xl transition-colors flex items-center justify-center gap-2" data-i18n="reports.revokeDialog.delete">
           🗑️ Ta bort — ta bort permanent
         </button>
-        <button onclick="closeRevokeDialog()" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-text-soft font-semibold rounded-xl transition-colors">
+        <button onclick="closeRevokeDialog()" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-text-soft font-semibold rounded-xl transition-colors" data-i18n="reports.revokeDialog.cancel">
           Avbryt
         </button>
       </div>
@@ -441,7 +446,7 @@
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <span class="text-xl">📝</span>
-          <h3 class="font-heading font-bold text-navy" id="obsModalTitle">Allmän observation</h3>
+          <h3 class="font-heading font-bold text-navy" id="obsModalTitle" data-i18n="reports.observations.modalTitle">Allmän observation</h3>
         </div>
         <button onclick="closeObsModal()" class="w-8 h-8 rounded-full bg-lavender hover:bg-lavender/80 flex items-center justify-center text-text-soft text-lg">✕</button>
       </div>
@@ -451,19 +456,20 @@
       </div>
       <textarea id="obsContent" rows="4" maxlength="2000"
         class="note-textarea w-full rounded-xl px-4 py-3 text-sm"
-        placeholder="Skriv din allmänna observation — t.ex. hur dagen har varit, särskilda händelser, reflektioner..."
+        data-i18n-placeholder="reports.observations.modalPlaceholder" placeholder="Skriv din allmänna observation — t.ex. hur dagen har varit, särskilda händelser, reflektioner..."
         style="min-height:100px;resize:vertical;"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
       <div class="flex items-center justify-between mt-3 mb-4">
         <label class="flex items-center gap-2 text-sm text-navy cursor-pointer">
           <input type="checkbox" id="obsImportant" class="accent-red-500 w-4 h-4">
-          <span class="text-xs text-red-600 font-semibold">⚠️ Viktigt</span>
+          <span class="text-xs text-red-600 font-semibold" data-i18n="reports.observations.important">⚠️ Viktigt</span>
         </label>
         <span id="obsCharCount" class="text-xs text-text-soft">0/2000</span>
       </div>
       <p id="obsError" class="hidden text-red-500 text-xs mb-3"></p>
       <button onclick="saveObservation()" id="obsSaveBtn"
-        class="w-full py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-xl transition-colors text-sm">
+        class="w-full py-3 bg-gold hover:bg-yellow-500 text-white font-semibold rounded-xl transition-colors text-sm"
+        data-i18n="reports.actions.save">
         Spara
       </button>
     </div>
