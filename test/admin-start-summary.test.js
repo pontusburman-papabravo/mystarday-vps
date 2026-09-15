@@ -146,6 +146,7 @@ test('fetchRecentFamilies serializes created_at as UTC ISO', () => {
   const fnEnd = src.indexOf('async function fetchStartOverview', fnStart);
   const fnBody = src.slice(fnStart, fnEnd);
   assert.match(fnBody, /toIsoUtc\(row\.created_at\)/);
+  assert.match(fnBody, /created_at <= NOW\(\) \+ INTERVAL '1 minute'/);
 });
 
 test('fetchStartOverview uses family table only (no activation funnel join)', () => {

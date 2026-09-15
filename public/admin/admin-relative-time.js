@@ -63,12 +63,21 @@
     }).format(date);
   }
 
-  function stockholmDateTime(date) {
-    const day = new Intl.DateTimeFormat('sv-SE', {
+  function stockholmYear(date) {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: STOCKHOLM_TZ,
+      year: 'numeric',
+    }).format(date);
+  }
+
+  function stockholmDateTime(date, withYear) {
+    const options = {
       timeZone: STOCKHOLM_TZ,
       day: 'numeric',
       month: 'short',
-    }).format(date);
+    };
+    if (withYear) options.year = 'numeric';
+    const day = new Intl.DateTimeFormat('sv-SE', options).format(date);
     return day + ' ' + stockholmTime(date);
   }
 
@@ -77,9 +86,10 @@
     if (!then) return '';
     const current = parseInstant(now) || new Date();
     const diffMs = current.getTime() - then.getTime();
+    const withYear = stockholmYear(then) !== stockholmYear(current);
 
     if (diffMs < -CLOCK_SKEW_MS) {
-      return stockholmDateTime(then);
+      return stockholmDateTime(then, withYear);
     }
     if (diffMs < CLOCK_SKEW_MS) {
       return 'just nu';
@@ -95,7 +105,7 @@
     if (thenDay === addCalendarDays(nowDay, -1)) {
       return 'igår ' + stockholmTime(then);
     }
-    return stockholmDateTime(then);
+    return stockholmDateTime(then, withYear);
   }
 
   return {
