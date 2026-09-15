@@ -320,7 +320,6 @@
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
 // stjarndag-v966: IAP Google basePlan allowlist + native Android detection (VPS cleanup)
 const CACHE_NAME = 'stjarndag-v966';
-// stjarndag-v965: en-GB parent chrome + admin Start dates
 // stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
 // stjarndag-v963: admin Start relative time — Stockholm igår + live labels
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)

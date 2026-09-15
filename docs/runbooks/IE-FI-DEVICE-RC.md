@@ -40,7 +40,7 @@ If the device locale is `fi-FI`, expect Swedish (`sv-SE`) via `src/lib/locale.js
 
 Print live evaluator output with `npm run ie-fi:release-gates`. Do not treat this runbook as a live flag.
 
-- `IE_DEVICE_VERIFIED` — founder-confirmed physical iPhone + Android purchase on 2026-09-14 (`ios_device_ie=YES`, `android_sandbox_e2e=PASS` in `config/ie-fi-release-evidence.json`). Restore was not separately attested. No transaction IDs recorded.
+- `ios_purchase_ie` / `android_purchase_ie` — founder-confirmed physical purchase on 2026-09-14 (`config/ie-fi-release-evidence.json`). `ios_restore_ie` / `android_restore_ie` stay `NOT VERIFIED` until separately attested. `IE_DEVICE_VERIFIED` requires all four. No transaction IDs recorded.
 - `FI_DEVICE_VERIFIED` — still **NOT VERIFIED** (`ios_device_fi=NO`). Finland iOS was not claimed.
 - `IE_BILLING_CONFIGURATION_READY` / `FI_BILLING_CONFIGURATION_READY` stay **NO** until named Apple IAP, Play SKUs, and RevenueCat evidence is verified.
 - `IE_READY_TO_OPEN` stays **NO** until `founder_open_approved_ie` is an explicit ops decision. Device PASS is not that decision.
