@@ -5,8 +5,9 @@
  * flags alone, and that GATE_DEFAULTS keep them closed.
  *
  * ADR-023: after the lifetime cutoff these countries are trial markets.
- * Hypothetical open-market signup without public billing must be
- * MARKET_BILLING_NOT_READY. With billing ready, reason is `trial`.
+ * Hypothetical open-market signup without public billing or per-market
+ * payment start must be MARKET_BILLING_NOT_READY. With global billing
+ * infra and market billing ready, reason is `trial`.
  * Grandfather before the cutoff still completes without billing.
  * This check must not flip gates.
  */
@@ -152,10 +153,24 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       failures.push(`${code} hypothetical open-market signup after lifetime cutoff must reject without billing (trial policy)`);
     }
 
+    const openAfterCutoffGlobalOnly = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: true,
+      marketBillingReady: false,
+      paymentStartAt: null,
+      lifetimeFreeUntil,
+      now: afterLifetimeCutoff,
+    });
+    if (openAfterCutoffGlobalOnly.allowed || openAfterCutoffGlobalOnly.reason !== 'billing_not_ready') {
+      failures.push(`${code} hypothetical open-market signup after lifetime cutoff must reject when market payment start unset`);
+    }
+
     const openAfterCutoffWithBilling = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
       publicBillingUsable: true,
+      marketBillingReady: true,
       paymentStartAt: null,
       lifetimeFreeUntil,
       now: afterLifetimeCutoff,
@@ -176,10 +191,24 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       failures.push(`${code} hypothetical open-market signup after payment_start must reject without billing (trial policy)`);
     }
 
+    const openAfterPaidStartGlobalOnly = invariants.evaluateSignupCompleteness({
+      countryCode: code,
+      marketOpen: true,
+      publicBillingUsable: true,
+      marketBillingReady: false,
+      paymentStartAt: fixturePaymentStart,
+      lifetimeFreeUntil,
+      now: afterPaidStart,
+    });
+    if (openAfterPaidStartGlobalOnly.allowed || openAfterPaidStartGlobalOnly.reason !== 'billing_not_ready') {
+      failures.push(`${code} hypothetical open-market signup after payment_start must reject when market payment start unset`);
+    }
+
     const openAfterPaidStartWithBilling = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
       publicBillingUsable: true,
+      marketBillingReady: true,
       paymentStartAt: fixturePaymentStart,
       lifetimeFreeUntil,
       now: afterPaidStart,
@@ -223,7 +252,7 @@ function runLaunchReadyMarketChecks(repoRoot) {
     summary:
       status === STATUS.FAIL
         ? 'IE/FI are not launch-ready-but-closed, or a gate default would open them unexpectedly.'
-        : 'IE/FI stay closed by default, have live legal/config, and if hypothetically opened allow grandfather before cutoff and trial signup only when public billing is ready.',
+        : 'IE/FI stay closed by default, have live legal/config, and if hypothetically opened allow grandfather before cutoff and trial signup only when global billing infra and per-market payment start are ready.',
     evidence: { checks },
   };
 }

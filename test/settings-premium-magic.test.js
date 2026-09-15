@@ -98,10 +98,10 @@ describe('subscription UI visibility — server contract', () => {
       t.skip('No real DATABASE_URL');
       return;
     }
-    const familyId = '77777777-7777-4777-8777-777777777777';
+    const familyId = '11111111-1111-4111-8111-111111111111';
     delete process.env.BILLING_UI_DISABLED;
     delete process.env.IAP_PAID_ROLLOUT_READY;
-    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
+    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = familyId;
     process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
     for (const mod of ['../src/lib/db', '../db/app-settings', '../src/lib/billing-ui', '../src/lib/iap-paid-rollout', '../src/lib/iap-native-purchase-gate', '../src/lib/subscription-ui-visibility']) {
       delete require.cache[require.resolve(mod)];
@@ -313,6 +313,11 @@ function loadSettingsSubscriptionHarness(options) {
         callOrder.push('canPurchase');
         return options.canPurchase !== false;
       },
+      canRestore() {
+        if (options.canRestore === false) return false;
+        callOrder.push('canRestore');
+        return true;
+      },
       restorePurchases: async () => ({ ok: false }),
     },
   };
@@ -332,13 +337,14 @@ describe('settings premium — IAP init sequencing', () => {
       status: {
         subscription_ui_visible: true,
         native_purchase_eligible: true,
+        native_restore_eligible: true,
         billing_ui_enabled: true,
         premium: { active: false },
       },
     });
     const result = await sandbox.SettingsSubscription.render(mountEl);
     assert.equal(result.visible, true);
-    assert.deepEqual(callOrder, ['init', 'canPurchase']);
+    assert.deepEqual(callOrder, ['init', 'canPurchase', 'canRestore']);
     assert.match(mountEl.innerHTML, /Återställ köp/);
     assert.match(mountEl.innerHTML, /href="\/paywall"/);
     assert.match(mountEl.innerHTML, /Aktivera Premium/);
@@ -376,6 +382,7 @@ describe('settings premium — IAP init sequencing', () => {
       status: {
         subscription_ui_visible: true,
         native_purchase_eligible: true,
+        native_restore_eligible: true,
         billing_ui_enabled: false,
         premium: {
           active: true,

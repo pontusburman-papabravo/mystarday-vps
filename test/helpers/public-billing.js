@@ -24,12 +24,36 @@ function appSettings() {
   return require('../../db/app-settings');
 }
 
-async function enablePublicBillingForTest() {
+const MARKET_PAYMENT_START_KEYS = {
+  IE: 'market_ie_payment_start_at',
+  FI: 'market_fi_payment_start_at',
+};
+
+/** Past instant so isMarketBillingReady passes in integration tests. */
+const PAST_MARKET_PAYMENT_START = '2020-01-01T00:00:00+00:00';
+
+async function enableMarketBillingReadyForTest(countryCodes = []) {
+  for (const code of countryCodes) {
+    const key = MARKET_PAYMENT_START_KEYS[code];
+    if (key) {
+      await appSettings().upsertSetting(key, PAST_MARKET_PAYMENT_START);
+    }
+  }
+}
+
+/**
+ * @param {{ markets?: string[] }} [opts]
+ *   markets — also set per-market payment_start_at in the past (trial-market signup gate).
+ */
+async function enablePublicBillingForTest(opts = {}) {
   const snap = snapshotBillingEnv();
   delete process.env.BILLING_UI_DISABLED;
   delete process.env.IAP_PAID_ROLLOUT_READY;
   await appSettings().setPaymentEnabled(true);
   await appSettings().setIapPaidRolloutReady(true);
+  if (opts.markets?.length) {
+    await enableMarketBillingReadyForTest(opts.markets);
+  }
   return snap;
 }
 
@@ -51,6 +75,9 @@ async function disablePublicBillingForTest(snap) {
 module.exports = {
   snapshotBillingEnv,
   restoreBillingEnv,
+  MARKET_PAYMENT_START_KEYS,
+  PAST_MARKET_PAYMENT_START,
+  enableMarketBillingReadyForTest,
   enablePublicBillingForTest,
   enablePaymentUiWithoutPaidRolloutForTest,
   disablePublicBillingForTest,

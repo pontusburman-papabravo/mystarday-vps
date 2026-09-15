@@ -163,6 +163,7 @@ router.get('/status', requireParent, async (req, res) => {
       billing_ui_enabled,
       subscription_ui_visible: uiVisibility.subscription_ui_visible,
       native_purchase_eligible: uiVisibility.native_purchase_eligible,
+      native_restore_eligible: uiVisibility.native_restore_eligible,
       iap_enabled: payment_enabled,
       upgrade_url: requires_paywall ? '/paywall' : (billing_ui_enabled ? '/settings#prenumeration' : null),
       limited_account_url: '/limited-account',

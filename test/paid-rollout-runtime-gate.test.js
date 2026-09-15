@@ -122,6 +122,7 @@ describe('IE/FI hold survives payment+UI without paid rollout', () => {
         countryCode: country,
         marketOpen: true,
         publicBillingUsable: true,
+        marketBillingReady: true,
         paymentStartAt: IE_CUTOFF,
         lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
         now: AFTER,

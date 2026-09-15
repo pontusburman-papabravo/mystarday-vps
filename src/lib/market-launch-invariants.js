@@ -7,7 +7,7 @@
  *   market_open &&
  *   (grandfather_eligible
  *    || !policy.requiresBillingReady
- *    || publicBillingUsable)
+ *    || (publicBillingUsable && marketBillingReady))
  *
  * Sweden intro-year families may finish registration without public billing.
  * Trial markets (default for new countries) require public billing or they
@@ -25,6 +25,7 @@ const {
   getLifetimeFreeUntil,
   DEFAULT_LIFETIME_FREE_UNTIL,
   isFamilyEligibleForGrandfathering,
+  isMarketBillingReady,
 } = require('./payment-settings');
 const {
   isMarketOpenForRegistration,
@@ -58,6 +59,7 @@ async function isPublicBillingUsable() {
  *   countryCode: string,
  *   marketOpen: boolean,
  *   publicBillingUsable: boolean,
+ *   marketBillingReady?: boolean,
  *   paymentStartAt?: Date|string,
  *   lifetimeFreeUntil?: Date|string,
  *   now?: Date,
@@ -92,12 +94,15 @@ function evaluateSignupCompleteness(input) {
   }
 
   const policy = getMarketCommercialPolicy(countryCode);
-  if (policy.requiresBillingReady && !input.publicBillingUsable) {
-    return {
-      allowed: false,
-      reason: 'billing_not_ready',
-      code: BILLING_NOT_READY_CODE,
-    };
+  if (policy.requiresBillingReady) {
+    const marketBillingReady = input.marketBillingReady === true;
+    if (!input.publicBillingUsable || !marketBillingReady) {
+      return {
+        allowed: false,
+        reason: 'billing_not_ready',
+        code: BILLING_NOT_READY_CODE,
+      };
+    }
   }
   if (policy.entitlement === 'intro_year') {
     return { allowed: true, reason: 'intro_year', code: null };
@@ -126,13 +131,16 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
   });
   const policy = getMarketCommercialPolicy(countryCode);
   let publicBillingUsable = false;
+  let marketBillingReady = false;
   if (!grandfatherEligible && policy.requiresBillingReady) {
     publicBillingUsable = await isPublicBillingUsable();
+    marketBillingReady = await isMarketBillingReady(countryCode, now);
   }
   return evaluateSignupCompleteness({
     countryCode,
     marketOpen,
     publicBillingUsable,
+    marketBillingReady,
     lifetimeFreeUntil,
     now,
   });

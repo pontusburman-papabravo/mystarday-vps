@@ -311,8 +311,10 @@ test('IE Google new signup passes market context when gate enabled in test', asy
   if (db.skip) return;
   reloadDbBoundModules();
   const billingSnap = await enablePublicBillingForTest();
+  const appSettings = require('../db/app-settings');
   try {
     await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-09-01T00:00:00+01:00');
 
     const handler = getGoogleHandler();
     const req = {
@@ -493,8 +495,10 @@ test('IE Apple new signup passes market context when gate enabled in test', asyn
   if (db.skip) return;
   reloadDbBoundModules();
   const billingSnap = await enablePublicBillingForTest();
+  const appSettings = require('../db/app-settings');
   try {
     await setMarketFlag(db, 'market_ie_open', true);
+    await appSettings.upsertSetting('market_ie_payment_start_at', '2026-09-01T00:00:00+01:00');
 
     const handler = getAppleHandler();
     const req = {

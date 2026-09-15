@@ -167,6 +167,7 @@
 
       const premium = status.premium || {};
       const nativePurchaseEligible = status.native_purchase_eligible === true;
+      const nativeRestoreEligible = status.native_restore_eligible === true;
       const copy = describePremium(
         premium,
         status.paid_transition,
@@ -174,13 +175,18 @@
         nativePurchaseEligible
       );
       const billingUiEnabled = status.billing_ui_enabled === true;
-      const nativeEligibleOnDevice = isNative() && nativePurchaseEligible
-        && window.IAPManager && typeof IAPManager.init === 'function'
-        && typeof IAPManager.canPurchase === 'function';
+      const nativeSdkOnDevice = isNative() && (nativePurchaseEligible || nativeRestoreEligible)
+        && window.IAPManager && typeof IAPManager.init === 'function';
       let iapPurchaseReady = false;
-      if (nativeEligibleOnDevice) {
+      let iapRestoreReady = false;
+      if (nativeSdkOnDevice) {
         await IAPManager.init();
-        iapPurchaseReady = IAPManager.canPurchase();
+        if (typeof IAPManager.canPurchase === 'function') {
+          iapPurchaseReady = IAPManager.canPurchase();
+        }
+        if (typeof IAPManager.canRestore === 'function') {
+          iapRestoreReady = IAPManager.canRestore();
+        }
       }
 
       let html =
@@ -200,11 +206,13 @@
           copy.cta.label + '</a>';
       }
 
-      if (iapPurchaseReady) {
-        html +=
-          '<div class="mt-4 flex flex-col gap-2">' +
-          '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">Återställ köp</button>';
-        if (premium.active) {
+      if (iapPurchaseReady || iapRestoreReady) {
+        html += '<div class="mt-4 flex flex-col gap-2">';
+        if (iapRestoreReady) {
+          html +=
+            '<button type="button" id="restorePurchasesBtn" class="text-sm font-semibold text-navy underline text-left">Återställ köp</button>';
+        }
+        if (iapPurchaseReady && premium.active) {
           html +=
             '<button type="button" id="manageSubscriptionBtn" class="text-sm font-semibold text-navy underline text-left">Hantera abonnemang</button>';
         }

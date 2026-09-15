@@ -80,6 +80,21 @@ describe('signup completeness invariant', () => {
       countryCode: 'IE',
       marketOpen: true,
       publicBillingUsable: false,
+      marketBillingReady: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, false);
+    assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
+  });
+
+  it('open IE with global billing but market billing not ready is rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: true,
+      marketBillingReady: false,
       paymentStartAt: IE_FI_CUTOFF,
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,
@@ -106,6 +121,7 @@ describe('signup completeness invariant', () => {
       countryCode: 'IE',
       marketOpen: true,
       publicBillingUsable: true,
+      marketBillingReady: true,
       paymentStartAt: IE_FI_CUTOFF,
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,

@@ -26,11 +26,15 @@
     return platformIsNative === true;
   }
 
+  function hasNativeSdkAccess(ctx) {
+    return ctx.nativePurchasesEnabled === true || ctx.nativeRestoreEnabled === true;
+  }
+
   function shouldInitNativeIap(ctx) {
     if (!isNativePlatform(ctx.isNative)) return false;
     if (!ctx.apiKey) return false;
-    if (ctx.killSwitchBillingUi && !ctx.nativePurchasesEnabled) return false;
-    if (!ctx.nativePurchasesEnabled) return false;
+    if (ctx.killSwitchBillingUi && !hasNativeSdkAccess(ctx)) return false;
+    if (!hasNativeSdkAccess(ctx)) return false;
     return true;
   }
 
@@ -38,6 +42,13 @@
     if (!isNativePlatform(ctx.isNative)) return false;
     if (!ctx.nativePurchasesEnabled) return false;
     if (ctx.killSwitchBillingUi && !ctx.nativePurchasesEnabled) return false;
+    return !!(ctx.apiKey && ctx.configReady);
+  }
+
+  function canRestoreNativePurchases(ctx) {
+    if (!isNativePlatform(ctx.isNative)) return false;
+    if (!ctx.nativeRestoreEnabled) return false;
+    if (ctx.killSwitchBillingUi && !hasNativeSdkAccess(ctx)) return false;
     return !!(ctx.apiKey && ctx.configReady);
   }
 
@@ -140,8 +151,10 @@
   return {
     PURCHASE_ERROR,
     isNativePlatform,
+    hasNativeSdkAccess,
     shouldInitNativeIap,
     canShowNativePurchaseUi,
+    canRestoreNativePurchases,
     canStartPurchase,
     mapPurchaseError,
     hasEntitlement,

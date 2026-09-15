@@ -638,7 +638,7 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', IE_FI_START);
   await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['IE'] });
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {

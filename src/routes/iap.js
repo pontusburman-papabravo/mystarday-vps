@@ -12,7 +12,10 @@ const {
   getPublicSdkKeyForPlatform,
   getEntitlementId,
 } = require('../lib/iap-client-config');
-const { getNativePurchaseEligibility } = require('../lib/iap-native-purchase-gate');
+const {
+  getNativePurchaseEligibility,
+  getNativeRestoreEligibility,
+} = require('../lib/iap-native-purchase-gate');
 const { getPlayStoreUrl, getAppleAppStoreUrl } = require('../../config/store-links');
 const {
   ENTITLEMENT_ID,
@@ -31,7 +34,10 @@ router.get('/config', requireParent, async (req, res) => {
   const platform = String(req.query.platform || '').toLowerCase() === 'android' ? 'android' : 'ios';
   const storeProducts = getStoreProductIdsForPlatform(platform);
   const familyId = req.user.familyId || req.user.family_id;
-  const eligibility = await getNativePurchaseEligibility(familyId, { checkGlobalRollout: true });
+  const [purchaseEligibility, restoreEligibility] = await Promise.all([
+    getNativePurchaseEligibility(familyId, { checkGlobalRollout: true }),
+    getNativeRestoreEligibility(familyId, { checkGlobalRollout: true }),
+  ]);
 
   const { rows: familyRows } = await db.query(
     'SELECT country_code FROM family WHERE id = $1',
@@ -40,11 +46,10 @@ router.get('/config', requireParent, async (req, res) => {
   const countryCode = normalizeCountryCode(familyRows[0]?.country_code) || 'SE';
 
   const apiKeyConfigured = !!(getPublicSdkKeyForPlatform(platform));
-  const apiKey = eligibility.allowed && apiKeyConfigured
-    ? getPublicSdkKeyForPlatform(platform)
-    : null;
+  const sdkEligible = (purchaseEligibility.allowed || restoreEligibility.allowed) && apiKeyConfigured;
+  const apiKey = sdkEligible ? getPublicSdkKeyForPlatform(platform) : null;
 
-  const configReady = !!(apiKey && eligibility.allowed);
+  const configReady = !!(apiKey && sdkEligible);
 
   res.json({
     apiKey,
@@ -72,8 +77,10 @@ router.get('/config', requireParent, async (req, res) => {
       ios: IOS_BUNDLE_ID,
       android: ANDROID_PACKAGE_NAME,
     },
-    nativePurchasesEnabled: eligibility.allowed && apiKeyConfigured,
-    nativePurchasesReason: eligibility.reason,
+    nativePurchasesEnabled: purchaseEligibility.allowed && apiKeyConfigured,
+    nativePurchasesReason: purchaseEligibility.reason,
+    nativeRestoreEnabled: restoreEligibility.allowed && apiKeyConfigured,
+    nativeRestoreReason: restoreEligibility.reason,
     configReady,
     killSwitchBillingUi: envBillingUiDisabled(),
     webPurchaseSupported: false,
