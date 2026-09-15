@@ -39,6 +39,9 @@ function reloadRuntimeModules() {
     '../db/family-entitlements',
     '../src/lib/payment-settings',
     '../src/lib/market-commercial-policy',
+    '../src/lib/market-region',
+    '../src/lib/market-launch-invariants',
+    '../src/lib/registration-market-context',
     '../src/lib/payment-audit',
     '../src/lib/family-entitlements',
     '../src/lib/paid-transition',
@@ -84,7 +87,7 @@ async function loginParent(baseUrl, email) {
   return { ...parsed, cookies, csrfToken: parsed.body?.csrfToken };
 }
 
-describe('same-family paid transition simulation', () => {
+describe('same-family paid transition simulation', { concurrency: 1 }, () => {
   for (const spec of [
     { countryCode: 'IE', locale: 'en-GB', flag: 'market_ie_open', childName: 'Aisling' },
     { countryCode: 'FI', locale: 'sv-SE', flag: 'market_fi_open', childName: 'Astrid' },
@@ -106,10 +109,8 @@ describe('same-family paid transition simulation', () => {
       await setMarketFlag(pg, 'market_fi_open', false);
       await appSettings.setPaymentEnabled(false);
       await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
-      await appSettings.upsertSetting('market_ie_payment_start_at', FUTURE_START);
-      await appSettings.upsertSetting('market_fi_payment_start_at', FUTURE_START);
       await setMarketFlag(pg, spec.flag, true);
-      const billingSnap = await enablePublicBillingForTest();
+      const billingSnap = await enablePublicBillingForTest({ markets: [spec.countryCode] });
 
       const { createApp } = require('../app');
       const email = uniqueEmail(`pt-${spec.countryCode.toLowerCase()}`);

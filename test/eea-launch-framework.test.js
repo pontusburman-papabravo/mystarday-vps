@@ -152,7 +152,7 @@ test('market_ie_open ON accepts IE registration when public billing is usable (C
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['IE'] });
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -184,7 +184,7 @@ test('market_eu_open OFF + market_ie_open ON still accepts IE when billing usabl
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['IE'] });
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -266,7 +266,7 @@ test('market_fi_open ON accepts FI Swedish registration with Europe/Helsinki whe
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_fi_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['FI'] });
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -299,7 +299,7 @@ test('market_eu_open OFF + market_fi_open ON still accepts FI when billing usabl
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_fi_open', true);
   await setMarketFlag(pg, 'market_eu_open', false);
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['FI'] });
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -346,7 +346,7 @@ test('IE child inherits Europe/Dublin from family (F)', async (t) => {
   }
   const pg = require('../src/lib/db');
   await setMarketFlag(pg, 'market_ie_open', true);
-  const billingSnap = await enablePublicBillingForTest();
+  const billingSnap = await enablePublicBillingForTest({ markets: ['IE'] });
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
