@@ -152,6 +152,7 @@ async function fetchRecentFamilies(limit = 5) {
     `SELECT id, name, created_at
      FROM family
      WHERE archived_at IS NULL
+       AND created_at <= NOW() + INTERVAL '1 minute'
      ORDER BY created_at DESC
      LIMIT $1`,
     [limit]
