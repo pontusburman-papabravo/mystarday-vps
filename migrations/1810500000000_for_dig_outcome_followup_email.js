@@ -10,6 +10,7 @@ module.exports = {
   name: '1810500000000_for_dig_outcome_followup_email',
   snapshotContract: {
     backwardCompatible: true,
+    schemaOnly: true,
   },
   up: async (client) => {
     await client.query(`

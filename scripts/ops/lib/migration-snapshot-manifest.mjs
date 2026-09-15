@@ -128,6 +128,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     allowedBusinessTableFingerprintChanges: ['family_entitlements'],
   },
+  '1810500000000_for_dig_outcome_followup_email': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**
