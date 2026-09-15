@@ -290,6 +290,62 @@ function isPrebillingAccessActive({
   return publicBillingUsable === false;
 }
 
+/**
+ * Pure: may this market start new native purchases at `now`?
+ * SE → payment_start_at. IE/FI → market_*_payment_start_at (unset = fail closed).
+ * All other countries → false (no accidental DE/NL purchase via SE cutoff).
+ *
+ * @param {{ countryCode?: string|null, now?: Date, paymentStartAt?: Date|null, marketPaymentStartResolved?: { configured?: boolean, invalid?: boolean, instant?: Date|null } }} input
+ */
+function evaluateMarketPurchaseAllowed(input = {}) {
+  const cc = normalizeCountryCode(input.countryCode) || 'SE';
+  const now = input.now instanceof Date ? input.now : new Date(input.now || Date.now());
+  const instant = input.paymentStartAt instanceof Date
+    ? input.paymentStartAt
+    : (input.paymentStartAt ? new Date(input.paymentStartAt) : null);
+
+  if (cc === 'SE') {
+    if (!instant || Number.isNaN(instant.getTime())) return false;
+    return now.getTime() >= instant.getTime();
+  }
+
+  if (MARKET_PAYMENT_START_AT_KEYS[cc]) {
+    const resolved = input.marketPaymentStartResolved;
+    if (!resolved || !resolved.configured || resolved.invalid || !resolved.instant) {
+      return false;
+    }
+    const marketInstant = resolved.instant instanceof Date ? resolved.instant : new Date(resolved.instant);
+    if (Number.isNaN(marketInstant.getTime())) return false;
+    return now.getTime() >= marketInstant.getTime();
+  }
+
+  return false;
+}
+
+/**
+ * Server: market-scoped commercial purchase permission (new purchases).
+ * Global infra readiness is checked separately in iap-native-purchase-gate.
+ *
+ * @param {string|null|undefined} countryCode
+ * @param {Date} [now]
+ */
+async function isMarketPurchaseAllowed(countryCode, now = new Date()) {
+  const cc = normalizeCountryCode(countryCode) || 'SE';
+  if (cc === 'SE') {
+    const paymentStartAt = await getPaymentStartAt();
+    return evaluateMarketPurchaseAllowed({ countryCode: cc, now, paymentStartAt });
+  }
+  if (MARKET_PAYMENT_START_AT_KEYS[cc]) {
+    const marketPaymentStartResolved = await resolvePaymentStartForCountry(cc);
+    return evaluateMarketPurchaseAllowed({
+      countryCode: cc,
+      now,
+      marketPaymentStartResolved,
+    });
+  }
+  return false;
+}
+
 module.exports = {
   PAYMENT_START_AT_KEY,
   DEFAULT_PAYMENT_START_AT,
@@ -316,4 +372,6 @@ module.exports = {
   isFamilyEligibleForPrebillingAccess,
   isPrebillingLaunchWindowOpen,
   isPrebillingAccessActive,
+  evaluateMarketPurchaseAllowed,
+  isMarketPurchaseAllowed,
 };

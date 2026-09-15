@@ -1,8 +1,11 @@
 'use strict';
 
 const appSettings = require('../../db/app-settings');
+const db = require('./db');
 const { isBillingUiEnabled, envBillingUiDisabled } = require('./billing-ui');
 const { isIapPaidRolloutReady } = require('./iap-paid-rollout');
+const { isMarketPurchaseAllowed } = require('./payment-settings');
+const { normalizeCountryCode } = require('./market-region');
 const {
   isSandboxPurchasesFlagEnabled,
   normalizeFamilyId,
@@ -52,6 +55,23 @@ async function getNativePurchaseEligibility(familyId, opts = {}) {
   }
   if (!(await isIapPaidRolloutReady())) {
     return { allowed: false, reason: 'paid_rollout_not_ready' };
+  }
+
+  let countryCode = 'SE';
+  try {
+    const { rows } = await db.query(
+      'SELECT country_code FROM family WHERE id = $1',
+      [normalized]
+    );
+    countryCode = normalizeCountryCode(rows[0]?.country_code) || 'SE';
+  } catch (err) {
+    console.error('[iap-native-purchase-gate] family country lookup failed:', err.message);
+    return { allowed: false, reason: 'market_purchase_lookup_failed' };
+  }
+
+  const marketPurchaseAllowed = await isMarketPurchaseAllowed(countryCode);
+  if (!marketPurchaseAllowed) {
+    return { allowed: false, reason: 'market_purchase_not_open' };
   }
 
   return { allowed: true, reason: 'global_rollout' };
