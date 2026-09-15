@@ -358,5 +358,41 @@
     "validationRequired": "Please fill in all fields.",
     "success": "Your report has been sent.",
     "errorGeneric": "Something went wrong. Please try again."
+  },
+  "cards": {
+    "loadError": "Could not load child cards. Pull down to refresh.",
+    "last": "Last:",
+    "next": "Next:",
+    "noActivitiesToday": "No activities planned today",
+    "noRoutineToday": "No routine for today",
+    "createActivity": "✨ Create an activity in the schedule →",
+    "childNoActivities": "{{name}} has no activities yet — create the first one →",
+    "noRewards": "🎁 No rewards yet",
+    "addReward": "→ Add a reward",
+    "pendingRequest": "{{count}} pending request",
+    "pendingRequestMany": "{{count}} pending requests",
+    "pausedBadge": "PAUSED",
+    "allDoneTitle": "All done!",
+    "statusNow": "NOW",
+    "statusNext": "NEXT",
+    "onceTask": "One-off activity",
+    "markDone": "Mark as done",
+    "unmark": "Unmark",
+    "activityMarked": "✅ Done!",
+    "activityUnmarked": "Unmarked",
+    "fillDay": "Fill in {{day}}",
+    "allActivitiesDone": "All activities done today!",
+    "last7Days": "Last 7 days"
+  },
+  "approvals": {
+    "title": "Pending requests",
+    "loading": "Loading requests...",
+    "empty": "No pending requests! 🎉",
+    "loadError": "Could not load requests.",
+    "wantsGoalChange": "Wants to change goal",
+    "goalChangeTo": "To: {{name}}",
+    "wantsRedeem": "Wants to redeem",
+    "approve": "Approve",
+    "deny": "Decline"
   }
 }

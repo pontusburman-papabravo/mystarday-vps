@@ -555,10 +555,10 @@
   <script src="/js/schedule-cal-nav.js?v=1"></script>
   <script src="/js/for-dig-goal-badge.js?v=1"></script>
   <script src="/js/dashboard.js?v=2.41.0-android"></script>
-  <script src="/js/dashboard-cards.js?v=3"></script>
+  <script src="/js/dashboard-cards.js?v=4"></script>
   <script src="/js/dashboard-copy-modals.js?v=1"></script>
-  <script src="/js/dashboard-card-actions.js?v=2"></script>
-  <script src="/js/dashboard-approvals.js?v=2"></script>
+  <script src="/js/dashboard-card-actions.js?v=3"></script>
+  <script src="/js/dashboard-approvals.js?v=3"></script>
   <script src="/js/dashboard-views.js?v=1"></script>
   <script src="/js/pictogram-registry.js?v=1"></script>
   <script src="/js/schedule-i18n.js?v=2"></script>
@@ -736,7 +736,7 @@
 
           <!-- Child cards: compact stacked (max 3 visible without scroll on mobile) -->
           <div id="childCardsGrid" class="flex flex-col gap-3 mb-6 parent-magic-legacy-hide">
-            <div class="text-text-soft text-sm py-8 text-center">Laddar…</div>
+            <div class="text-text-soft text-sm py-8 text-center" data-i18n="family.shell.loading">Laddar…</div>
           </div>
 
           <!-- Star history chart (replaces weekly overview) -->
@@ -1127,12 +1127,12 @@
   <div id="requestPanelModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl max-h-[85vh] flex flex-col my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-heading font-bold text-navy">📨 Väntande förfrågningar</h3>
+        <h3 class="text-lg font-heading font-bold text-navy" data-i18n="home.approvals.title">📨 Väntande förfrågningar</h3>
         <button onclick="closeRequestPanel()" class="text-text-soft hover:text-navy text-2xl min-w-[44px] min-h-[44px] flex items-center justify-center">&times;</button>
       </div>
       <div class="text-sm text-text-soft mb-3" id="requestPanelChildName"></div>
       <div id="requestPanelContent" class="overflow-y-auto flex-1 space-y-3">
-        <p class="text-center text-text-soft py-6">Laddar...</p>
+        <p class="text-center text-text-soft py-6" data-i18n="home.approvals.loading">Laddar...</p>
       </div>
     </div>
   </div>

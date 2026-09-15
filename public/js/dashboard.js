@@ -364,9 +364,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // force a render with whatever data we have. This prevents the "Laddar…"
   // placeholder from staying on screen permanently.
   const gridEl = document.getElementById('childCardsGrid');
-  if (gridEl && gridEl.textContent && gridEl.textContent.indexOf('Laddar') !== -1) {
+  if (gridEl && gridEl.textContent && /Laddar|Loading/.test(gridEl.textContent)) {
     if (typeof renderDashboardCards === 'function') renderDashboardCards();
-    if (gridEl.textContent.indexOf('Laddar') !== -1 && typeof loadDashboardCards === 'function') {
+    if (/Laddar|Loading/.test(gridEl.textContent) && typeof loadDashboardCards === 'function') {
       await loadDashboardCards();
     }
   }
@@ -914,6 +914,7 @@ document.addEventListener('parent-i18n-ready', () => {
     if (section) I18n.apply(section);
   }
   if (typeof window.renderStarHistory === 'function') window.renderStarHistory();
+  if (typeof window.renderDashboardCards === 'function') window.renderDashboardCards();
   if (window.DashboardDailySummary && dashboardStats) {
     DashboardDailySummary.update(dashboardStats);
   }

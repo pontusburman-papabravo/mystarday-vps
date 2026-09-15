@@ -6,6 +6,10 @@
 (function () {
   'use strict';
 
+  function hpt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   function escHtml(s) {
     if (typeof window.escHtml === 'function') return window.escHtml(s);
     if (typeof escapeHtml === 'function') return escapeHtml(s);
@@ -13,7 +17,7 @@
   }
 
 function buildBlockPills(items) {
-  if (!items || items.length === 0) return `<span class="dash-section-pill pill-gray">Inget schema</span>`;
+  if (!items || items.length === 0) return `<span class="dash-section-pill pill-gray">${hpt('home.status.noSchedule')}</span>`;
 
   // Get current time as minutes since midnight (Stockholm)
   const nowStr = new Date().toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' });
@@ -75,7 +79,7 @@ function buildBlockPills(items) {
 
   return pills.length > 0
     ? pills.join('')
-    : `<span class="dash-section-pill pill-gray">Inget schema</span>`;
+    : `<span class="dash-section-pill pill-gray">${hpt('home.status.noSchedule')}</span>`;
 }
 async function loadDashboardCards() {
   try {
@@ -95,7 +99,7 @@ async function loadDashboardCards() {
       if (!cached) {
         const container = document.getElementById('childCardsGrid');
         if (container) {
-          container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
+          container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">' + hpt('home.cards.loadError') + '</div>';
         }
       }
       return;
@@ -121,7 +125,7 @@ async function loadDashboardCards() {
     }
     const container = document.getElementById('childCardsGrid');
     if (container && !cached) {
-      container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">Kunde inte ladda barnkort. Dra ned för att uppdatera.</div>';
+      container.innerHTML = '<div class="text-center py-8 text-text-soft text-sm" data-hem-status="error" role="alert">' + hpt('home.cards.loadError') + '</div>';
     }
   }
 }
@@ -138,9 +142,9 @@ function renderDashboardCards() {
   if (ch.length === 0 && childSource.length === 0) {
     container.innerHTML = `<div class="text-center py-16">
       <p class="text-5xl mb-4">👨‍👩‍👧</p>
-      <p class="font-semibold text-navy mb-1">Inga barn tillagda ännu</p>
-      <p class="text-sm text-text-soft mb-3">Lägg till ditt första barn för att komma igång</p>
-      <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold">+ Lägg till barn</button>
+      <p class="font-semibold text-navy mb-1">${hpt('family.shell.noChildren')}</p>
+      <p class="text-sm text-text-soft mb-3">${hpt('family.shell.noChildrenHint')}</p>
+      <button onclick="document.getElementById('addChildModal').classList.remove('hidden')" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold">${hpt('family.shell.addChild')}</button>
     </div>`;
     return;
   }
@@ -183,7 +187,7 @@ function renderDashboardCards() {
   const todayDow = today.getDay();
   const mondayOffset = todayDow === 0 ? -6 : 1 - todayDow;
   const weekDates = [];
-  const dayLabels = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  const dayLabels = [1, 2, 3, 4, 5, 6, 0].map(function (d) { return hpt('schedule.daysShort.' + d); });
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + mondayOffset + i);
@@ -245,17 +249,17 @@ function renderDashboardCards() {
     const nextPending = todayItems.find(item => !item.completed);
     let statusRowHtml = '';
     if (isPaused) {
-      statusRowHtml = `<span class="dash-status-row">⏸ <em>Pausad idag</em></span>`;
+      statusRowHtml = `<span class="dash-status-row">⏸ <em>${hpt('family.childProfile.pausedToday')}</em></span>`;
     } else if (allDone && total > 0) {
-      statusRowHtml = `<span class="dash-status-row" style="color:#10B981;font-weight:700;">✅ Alla aktiviteter klara idag!</span>`;
+      statusRowHtml = `<span class="dash-status-row" style="color:#10B981;font-weight:700;">✅ ${hpt('home.cards.allActivitiesDone')}</span>`;
     } else if (total === 0) {
-      statusRowHtml = `<span class="dash-status-row">Inga aktiviteter planerade idag</span>`;
+      statusRowHtml = `<span class="dash-status-row">${hpt('home.cards.noActivitiesToday')}</span>`;
     } else {
       const lastPart = lastDone
-        ? `<strong>Senast:</strong> ${escHtml(lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
+        ? `<strong>${hpt('home.cards.last')}</strong> ${escHtml(lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
         : '';
       const nextPart = nextPending
-        ? `<strong>Nästa:</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.name)}`
+        ? `<strong>${hpt('home.cards.next')}</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.name)}`
         : '';
       statusRowHtml = `<span class="dash-status-row">${[lastPart, nextPart].filter(Boolean).join(' &nbsp;·&nbsp; ')}</span>`;
     }
@@ -263,29 +267,29 @@ function renderDashboardCards() {
     // ── Activity checklist for expanded detail ───────────────
     let activityListHtml = '';
     if (isPaused) {
-      activityListHtml = `<div class="text-xs text-text-soft text-center py-3 italic">Pausad idag</div>`;
+      activityListHtml = `<div class="text-xs text-text-soft text-center py-3 italic">${hpt('family.childProfile.pausedToday')}</div>`;
     } else if (todayItems.length === 0) {
       activityListHtml = `
-        <div class="text-xs text-text-soft text-center py-2 mb-2">Inget schema för idag</div>
+        <div class="text-xs text-text-soft text-center py-2 mb-2">${hpt('home.cards.noRoutineToday')}</div>
         <div class="text-center mb-1">
-          <a href="/schedule?child=${c.id}" onclick="event.stopPropagation()" class="text-xs text-gold hover:text-amber-600 font-semibold transition-colors">✨ Skapa aktivitet i schema →</a>
+          <a href="/schedule?child=${c.id}" onclick="event.stopPropagation()" class="text-xs text-gold hover:text-amber-600 font-semibold transition-colors">${hpt('home.cards.createActivity')}</a>
         </div>
-        <p class="text-[10px] text-text-soft text-center leading-tight">${escHtml(name)} har inga aktiviteter ännu — skapa den första →</p>`;
+        <p class="text-[10px] text-text-soft text-center leading-tight">${hpt('home.cards.childNoActivities', { name: escHtml(name) })}</p>`;
     } else {
       const itemsHtml = todayItems.map(item => {
         const statusClass = item.status === 'NU' ? 'status-nu' : item.status === 'NÄSTA' ? 'status-nasta' : item.status === 'DONE' ? 'status-done' : 'status-sedan';
         const checkClass = item.completed ? 'checked' : '';
-        const badgeHtml = item.status === 'NU' ? `<span class="status-badge-nu">NU</span>` :
-                          item.status === 'NÄSTA' ? `<span class="status-badge-nasta">NÄSTA</span>` : '';
+        const badgeHtml = item.status === 'NU' ? `<span class="status-badge-nu">${hpt('home.cards.statusNow')}</span>` :
+                          item.status === 'NÄSTA' ? `<span class="status-badge-nasta">${hpt('home.cards.statusNext')}</span>` : '';
         const goalBadgeHtml = item.for_dig_goal && window.ForDigGoalBadge
           ? ForDigGoalBadge.render(item.for_dig_goal)
           : '';
         const starsHtml = item.star_value > 0 ? `<span class="text-[10px] text-gold font-bold ml-auto flex-shrink-0">+${item.star_value}⭐</span>` : '';
         const nameDisplay = item.completed ? `<span class="line-through opacity-60">${escHtml(item.name)}</span>` : `<span>${escHtml(item.name)}</span>`;
-        const oncePin = item.is_once_task ? `<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>` : '';
+        const oncePin = item.is_once_task ? `<span title="${hpt('home.cards.onceTask')}" class="text-[10px] flex-shrink-0">📌</span>` : '';
         return `
           <div class="dash-activity-item ${statusClass}" data-item-id="${item.id}">
-            <button class="dash-activity-check ${checkClass}" onclick="event.stopPropagation(); dashToggleActivity('${item.id}', '${c.id}', ${item.completed})" title="${item.completed ? 'Avmarkera' : 'Markera klar'}">
+            <button class="dash-activity-check ${checkClass}" onclick="event.stopPropagation(); dashToggleActivity('${item.id}', '${c.id}', ${item.completed})" title="${item.completed ? hpt('home.cards.unmark') : hpt('home.cards.markDone')}">
               ${item.completed ? '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
             </button>
             ${oncePin}
@@ -315,10 +319,10 @@ function renderDashboardCards() {
       const labelColor = day.isToday ? 'color:#F5A623;font-weight:800;' : '';
       const todayDot = day.isToday ? '<div style="width:5px;height:5px;border-radius:50%;background:#F5A623;margin:2px auto 0;"></div>' : '';
       const dayClass = day.isFuture ? 'mini-week-day' : 'mini-week-day mini-week-day--clickable';
-      const dayClick = day.isFuture ? '' : ` onclick="event.stopPropagation(); window.location.href='/daily-log?childId=${c.id}&date=${day.dateStr}'" title="Fyll i ${day.label}"`;
+      const dayClick = day.isFuture ? '' : ` onclick="event.stopPropagation(); window.location.href='/daily-log?childId=${c.id}&date=${day.dateStr}'" title="${hpt('home.cards.fillDay', { day: day.label })}"`;
       return `<div class="${dayClass}"${dayClick}>
         <div class="mini-week-bar-track">
-          ${barHeight > 0 ? `<div class="mini-week-bar-fill" style="height:${barHeight}%;background:${barBg};" title="${dayPct}%${dayPaused ? ' (pausad)' : ''}"></div>` : ''}
+          ${barHeight > 0 ? `<div class="mini-week-bar-fill" style="height:${barHeight}%;background:${barBg};" title="${dayPct}%${dayPaused ? ' (' + hpt('home.status.paused') + ')' : ''}"></div>` : ''}
         </div>
         <div class="mini-week-label" style="${labelColor}">${day.label}</div>
         ${todayDot}
@@ -343,25 +347,25 @@ function renderDashboardCards() {
       // Empty state: no rewards yet
       expandedRewardHtml = `
         <div class="mb-3 p-3 bg-purple-50 rounded-xl border border-purple-200 text-center">
-          <span class="text-sm">🎁 Inga belöningar ännu</span>
-          <a href="/library#rewards" class="block text-xs text-purple-600 font-semibold mt-1 hover:underline">→ Lägg till en belöning</a>
+          <span class="text-sm">${hpt('home.cards.noRewards')}</span>
+          <a href="/library#rewards" class="block text-xs text-purple-600 font-semibold mt-1 hover:underline">${hpt('home.cards.addReward')}</a>
         </div>`;
     }
 
     // ── Pause button for expanded detail ─────────────────────
-    const pauseLabel = isPaused ? '▶ Återuppta' : '⏸ Pausa idag';
+    const pauseLabel = isPaused ? hpt('family.childProfile.resumeDay') : hpt('family.childProfile.pauseToday');
     const pauseClass = isPaused ? 'pause-btn is-paused' : 'pause-btn';
 
     // ── Redemption badge (inline) ─────────────────────────────
     // Only show if there are pending requests; clicking expands inline panel
     const redemptionBadgeHtml = totalPending > 0 ? `
-      <button class="dash-action-btn btn-redemption" onclick="event.stopPropagation(); toggleInlineRedemption('${c.id}', '${escHtml(name)}')" title="${totalPending} väntande förfrågan">
+      <button class="dash-action-btn btn-redemption" onclick="event.stopPropagation(); toggleInlineRedemption('${c.id}', '${escHtml(name)}')" title="${hpt(totalPending === 1 ? 'home.cards.pendingRequest' : 'home.cards.pendingRequestMany', { count: totalPending })}">
         🎁 ${totalPending}
       </button>` : '';
 
     const cardStats = window.DashboardDailySummary
       ? window.DashboardDailySummary.buildChildStats(c)
-      : { primaryHtml: `<div class="text-xs text-text-soft">Idag ${done}/${total}</div>`, secondaryHtml: `<div class="text-xs font-bold text-gold">⭐ Totalt ${stars}</div>`, cardClass: '' };
+      : { primaryHtml: `<div class="text-xs text-text-soft">${hpt('home.childStats.todayProgress', { done, total })}</div>`, secondaryHtml: `<div class="text-xs font-bold text-gold">${hpt('home.childStats.totalStars', { count: stars })}</div>`, cardClass: '' };
 
     return `<div class="dash-child-card ${isPaused ? 'paused' : ''} ${isExpanded ? 'is-expanded' : ''} ${cardStats.cardClass || ''}" data-child-id="${c.id}">
       <!-- ── COMPACT TOP (always visible) ── -->
@@ -376,8 +380,8 @@ function renderDashboardCards() {
               <h4 class="font-heading font-bold text-navy text-base leading-tight truncate">
                 <a href="/family/child/${c.id}" class="hover:text-gold no-underline text-navy" onclick="event.stopPropagation()">🌟 ${escHtml(name)}</a>
               </h4>
-              ${allDone ? '<span class="text-base" title="Alla klara!">🌟</span>' : ''}
-              ${isPaused ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-200">PAUSAD</span>' : ''}
+              ${allDone ? '<span class="text-base" title="' + hpt('home.cards.allDoneTitle') + '">🌟</span>' : ''}
+              ${isPaused ? '<span class="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-200">' + hpt('home.cards.pausedBadge') + '</span>' : ''}
             </div>
             ${cardStats.primaryHtml}
             ${cardStats.secondaryHtml}
@@ -415,7 +419,7 @@ function renderDashboardCards() {
           <!-- Weekly mini chart -->
           <div class="mb-3 p-3 bg-gray-50 rounded-xl" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between mb-2">
-              <div class="text-[10px] font-bold text-text-soft uppercase tracking-wide">📊 Senaste 7 dagarna</div>
+              <div class="text-[10px] font-bold text-text-soft uppercase tracking-wide">📊 ${hpt('home.cards.last7Days')}</div>
               <a href="/daily-log?childId=${c.id}${c.latest_incomplete_date ? '&date=' + encodeURIComponent(c.latest_incomplete_date) : ''}" class="text-[10px] font-semibold text-gold hover:text-amber-600 transition-colors" onclick="event.stopPropagation()">${typeof window.pt === 'function' ? window.pt('home.readiness.items.incompleteDaysSub') : 'Fyll i i efterhand'} →</a>
             </div>
             <div class="mini-week-chart">${miniChartBars}</div>

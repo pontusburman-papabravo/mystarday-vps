@@ -358,5 +358,41 @@
     "validationRequired": "Fyll i alla fält.",
     "success": "Tack för din feedback!",
     "errorGeneric": "Något gick fel. Försök igen."
+  },
+  "cards": {
+    "loadError": "Kunde inte ladda barnkort. Dra ned för att uppdatera.",
+    "last": "Senast:",
+    "next": "Nästa:",
+    "noActivitiesToday": "Inga aktiviteter planerade idag",
+    "noRoutineToday": "Inget schema för idag",
+    "createActivity": "✨ Skapa aktivitet i schema →",
+    "childNoActivities": "{{name}} har inga aktiviteter ännu — skapa den första →",
+    "noRewards": "🎁 Inga belöningar ännu",
+    "addReward": "→ Lägg till en belöning",
+    "pendingRequest": "{{count}} väntande förfrågan",
+    "pendingRequestMany": "{{count}} väntande förfrågningar",
+    "pausedBadge": "PAUSAD",
+    "allDoneTitle": "Alla klara!",
+    "statusNow": "NU",
+    "statusNext": "NÄSTA",
+    "onceTask": "Engångsaktivitet",
+    "markDone": "Markera klar",
+    "unmark": "Avmarkera",
+    "activityMarked": "✅ Klar!",
+    "activityUnmarked": "Avmarkerad",
+    "fillDay": "Fyll i {{day}}",
+    "allActivitiesDone": "Alla aktiviteter klara idag!",
+    "last7Days": "Senaste 7 dagarna"
+  },
+  "approvals": {
+    "title": "Väntande förfrågningar",
+    "loading": "Laddar förfrågningar...",
+    "empty": "Inga väntande förfrågningar! 🎉",
+    "loadError": "Kunde inte ladda förfrågningar.",
+    "wantsGoalChange": "Vill byta mål",
+    "goalChangeTo": "Till: {{name}}",
+    "wantsRedeem": "Vill lösa in",
+    "approve": "Godkänn",
+    "deny": "Neka"
   }
 }
