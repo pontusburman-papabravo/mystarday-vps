@@ -97,6 +97,12 @@
     "linkAppleBtn": "🍎 Link Apple account",
     "linkGoogleBtn": "G Link Google account"
   },
+  "toast": {
+    "saved": "Saved!",
+    "savedCheck": "✅ Saved!",
+    "saveFailedRetry": "Could not save. Try again.",
+    "networkError": "Network error"
+  },
   "parentPin": {
     "title": "PIN code",
     "security": "Security",

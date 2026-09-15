@@ -333,6 +333,25 @@
       }
     }
   },
+  "pinWarning": {
+    "title": "{{name}} försöker logga in",
+    "body": "3 felaktiga PIN-försök — barnet kan behöva hjälp"
+  },
+  "shareSchedule": {
+    "notAvailable": "Dela ej tillgänglig på denna enhet",
+    "notSupported": "Dela-funktion saknas på denna enhet",
+    "shared": "Delat!",
+    "childNotFound": "Kunde inte hitta barnet",
+    "couldNotShare": "Kunde inte dela: {{message}}",
+    "routineToday": "{{name}}s schema idag:",
+    "title": "{{name}}s schema"
+  },
+  "swUpdate": {
+    "ready": "✨ En ny version av appen är redo!",
+    "reloadNow": "Ladda om nu",
+    "later": "Senare",
+    "dismissAria": "Stäng uppdateringsbanner"
+  },
   "pwa": {
     "title": "Installera appen för push-notiser",
     "iosLead": "På iPhone/iPad krävs att appen är installerad på hemskärmen för push-notiser.",

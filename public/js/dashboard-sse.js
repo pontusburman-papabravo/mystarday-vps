@@ -27,6 +27,10 @@
     });
 
     // ── PIN warning: show banner when child makes 3 failed PIN attempts ────
+    function ssePt(key, params) {
+      return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+    }
+
     window.addEventListener('sse:PIN_FAILED_WARNING', (e) => {
       const { childName } = e.detail || {};
       if (!childName) return;
@@ -47,8 +51,8 @@
       banner.innerHTML = `
         <span style="font-size: 1.5rem;">⚠️</span>
         <div style="flex: 1;">
-          <strong style="color: #1B2340; font-size: 0.95rem;">${childName} försöker logga in</strong>
-          <p style="color: #5A6178; font-size: 0.8rem; margin: 2px 0 0;">3 felaktiga PIN-försök — barnet kan behöva hjälp</p>
+          <strong style="color: #1B2340; font-size: 0.95rem;">${ssePt('home.pinWarning.title', { name: childName })}</strong>
+          <p style="color: #5A6178; font-size: 0.8rem; margin: 2px 0 0;">${ssePt('home.pinWarning.body')}</p>
         </div>
         <button onclick="document.getElementById('pinWarningBanner').remove()"
           style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #5A6178; padding: 4px;">✕</button>

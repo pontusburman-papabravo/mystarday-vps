@@ -1313,8 +1313,9 @@
           window.location.href = `/child-wizard?id=${data.id}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
           return;
         }
-        const pinMsg = data && data.pin ? ` PIN: ${data.pin}` : '';
-        showToast(`${name} tillagd!${pinMsg}`, false, pinMsg ? 6000 : 3000);
+        const toastKey = data && data.pin ? 'family.toasts.childAddedWithPin' : 'family.toasts.childAdded';
+        const toastParams = data && data.pin ? { name, pin: data.pin } : { name };
+        showToast(fpt(toastKey, toastParams), false, data && data.pin ? 6000 : 3000);
         init();
       } catch (err) {
         // Shared-device guard: if the server says we lack parent auth,

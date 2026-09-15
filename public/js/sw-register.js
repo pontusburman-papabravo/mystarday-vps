@@ -31,6 +31,10 @@
     return false;
   }
 
+  function swPt(key) {
+    return (typeof window.pt === 'function') ? window.pt(key) : key;
+  }
+
   function unregisterAllServiceWorkers() {
     navigator.serviceWorker.getRegistrations().then(function (regs) {
       regs.forEach(function (r) { r.unregister(); });
@@ -65,14 +69,14 @@
     ].join(';');
 
     const text = document.createElement('span');
-    text.textContent = '✨ En ny version av appen är redo!';
+    text.textContent = swPt('home.swUpdate.ready');
     text.style.cssText = 'flex:1;min-width:0;';
 
     const btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:8px;flex-shrink:0;';
 
     const reloadBtn = document.createElement('button');
-    reloadBtn.textContent = 'Ladda om nu';
+    reloadBtn.textContent = swPt('home.swUpdate.reloadNow');
     reloadBtn.style.cssText = [
       'background:#6366f1',
       'color:#fff',
@@ -97,8 +101,8 @@
     });
 
     const dismissBtn = document.createElement('button');
-    dismissBtn.textContent = 'Senare';
-    dismissBtn.setAttribute('aria-label', 'Stäng uppdateringsbanner');
+    dismissBtn.textContent = swPt('home.swUpdate.later');
+    dismissBtn.setAttribute('aria-label', swPt('home.swUpdate.dismissAria'));
     dismissBtn.style.cssText = [
       'background:transparent',
       'color:#94a3b8',

@@ -229,13 +229,13 @@
 
         <!-- Tips section (collapsed by default) -->
         <details class="warm-tips parent-magic-legacy-hide">
-          <summary class="warm-tips-summary">💡 Tips för familjen</summary>
+          <summary class="warm-tips-summary" data-i18n="family.tips.summary">💡 Tips för familjen</summary>
           <div class="warm-tips-body">
             <ul class="space-y-1.5">
-              <li>• Bjud in en medförälder via "Bjud in förälder"</li>
-              <li>• Ställ in morgon-, dag- och kvällstider för hela familjen</li>
-              <li>• Varje barn har egen PIN och emoji i barnvyn</li>
-              <li>• Välj vilka belöningar som gäller per barn</li>
+              <li data-i18n="family.tips.inviteCoParent">• Bjud in en medförälder via "Bjud in förälder"</li>
+              <li data-i18n="family.tips.setFamilyTimes">• Ställ in morgon-, dag- och kvällstider för hela familjen</li>
+              <li data-i18n="family.tips.childPinEmoji">• Varje barn har egen PIN och emoji i barnvyn</li>
+              <li data-i18n="family.tips.chooseRewards">• Välj vilka belöningar som gäller per barn</li>
             </ul>
           </div>
         </details>
@@ -330,13 +330,13 @@
 
       <!-- Tabs -->
       <div class="flex border-b border-gray-100 dark:border-navy-soft px-2 sticky top-[73px] bg-white dark:bg-navy z-10">
-        <button class="drawer-tab active px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('schema', this)">📅 Schema</button>
-        <button class="drawer-tab px-4 py-3 text-sm text-text-soft relative" onclick="switchDrawerTab('rewards', this)" id="rewardsDrawerTab">
+        <button class="drawer-tab active px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('schema', this)" data-i18n="family.drawer.tabSchema">📅 Schema</button>
+        <button class="drawer-tab px-4 py-3 text-sm text-text-soft relative" onclick="switchDrawerTab('rewards', this)" id="rewardsDrawerTab" data-i18n="family.drawer.tabRewards">
           🏆 Belöningar
           <span id="rewardsTabBadge" class="hidden absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">!</span>
         </button>
-        <button class="drawer-tab px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('settings', this)">⚙️ Inställningar</button>
-        <button class="drawer-tab px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('edit', this)">✏️ Redigera</button>
+        <button class="drawer-tab px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('settings', this)" data-i18n="family.drawer.tabSettings">⚙️ Inställningar</button>
+        <button class="drawer-tab px-4 py-3 text-sm text-text-soft" onclick="switchDrawerTab('edit', this)" data-i18n="family.drawer.tabEdit">✏️ Redigera</button>
       </div>
 
       <!-- Tab content -->
@@ -345,15 +345,15 @@
         <!-- ── SCHEMA TAB ── -->
         <div id="drawer-pane-schema" class="drawer-pane active space-y-5">
           <div>
-            <p class="text-sm text-text-soft mb-4">Välj ett schemapaket att applicera, eller redigera schemat direkt.</p>
+            <p class="text-sm text-text-soft mb-4" data-i18n="family.drawer.schemaIntro">Välj ett schemapaket att applicera, eller redigera schemat direkt.</p>
 
             <!-- Edit schema shortcut -->
             <a id="editSchemaLink" href="/schedule" class="flex items-center justify-between gap-3 w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors mb-5">
               <div class="flex items-center gap-2">
                 <span class="text-xl">✏️</span>
                 <div>
-                  <div class="font-bold text-sm">Redigera schema</div>
-                  <div class="text-xs opacity-80">Lägg till, ta bort och ändra aktiviteter</div>
+                  <div class="font-bold text-sm" data-i18n="family.drawer.editSchemaTitle">Redigera schema</div>
+                  <div class="text-xs opacity-80" data-i18n="family.drawer.editSchemaSub">Lägg till, ta bort och ändra aktiviteter</div>
                 </div>
               </div>
               <span class="text-lg">→</span>
@@ -361,13 +361,13 @@
 
             <!-- Schema packages: standard + family -->
             <div id="schemaPackages" class="space-y-5">
-              <p class="text-sm text-text-soft italic">Laddar schemapaket...</p>
+              <p class="text-sm text-text-soft italic" data-i18n="family.drawer.loadingPackages">Laddar schemapaket...</p>
             </div>
           </div>
 
           <div class="bg-mint dark:bg-green-900/20 rounded-xl p-3 flex gap-2 items-start">
             <span class="text-lg">ℹ️</span>
-            <p class="text-xs text-text-soft">Ett schemapaket innehåller aktiviteter uppdelade i Morgon, Dag och Kväll. Välj ett paket och det ersätter barnets nuvarande veckoschema.</p>
+            <p class="text-xs text-text-soft" data-i18n="family.drawer.packageInfo">Ett schemapaket innehåller aktiviteter uppdelade i Morgon, Dag och Kväll. Välj ett paket och det ersätter barnets nuvarande veckoschema.</p>
           </div>
         </div>
 

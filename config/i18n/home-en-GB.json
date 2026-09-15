@@ -333,6 +333,25 @@
       }
     }
   },
+  "pinWarning": {
+    "title": "{{name}} is trying to log in",
+    "body": "3 incorrect PIN attempts — your child may need help"
+  },
+  "shareSchedule": {
+    "notAvailable": "Sharing not available on this device",
+    "notSupported": "Share not available on this device",
+    "shared": "Shared!",
+    "childNotFound": "Could not find child",
+    "couldNotShare": "Could not share: {{message}}",
+    "routineToday": "{{name}}'s routine today:",
+    "title": "{{name}}'s routine"
+  },
+  "swUpdate": {
+    "ready": "✨ A new version of the app is ready!",
+    "reloadNow": "Reload now",
+    "later": "Later",
+    "dismissAria": "Close update banner"
+  },
   "pwa": {
     "title": "Install the app for push notifications",
     "iosLead": "On iPhone/iPad the app must be on your Home Screen for push notifications.",

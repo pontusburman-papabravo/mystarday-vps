@@ -93,7 +93,16 @@
     "savedShort": "✓ Saved!",
     "childLinksUpdated": "Child links updated!",
     "roleUpdated": "Role updated!",
-    "deleted": "Removed"
+    "deleted": "Removed",
+    "childAdded": "{{name}} added!",
+    "childAddedWithPin": "{{name}} added! PIN: {{pin}}"
+  },
+  "tips": {
+    "summary": "💡 Family tips",
+    "inviteCoParent": "• Invite another adult via \"Invite co-parent\"",
+    "setFamilyTimes": "• Set morning, day and evening times for the whole family",
+    "childPinEmoji": "• Each child has their own PIN and emoji in child view",
+    "chooseRewards": "• Choose which rewards apply per child"
   },
   "drawer": {
     "select": "Select",
@@ -114,6 +123,14 @@
     "starsCost": "⭐ {{count}} stars",
     "wantsGoalChange": "wants to change goal to {{reward}}",
     "goalChangeRequest": "Goal change request",
+    "tabSchema": "📅 Schedule",
+    "tabRewards": "🏆 Rewards",
+    "tabSettings": "⚙️ Settings",
+    "tabEdit": "✏️ Edit",
+    "schemaIntro": "Choose a schedule package to apply, or edit the schedule directly.",
+    "editSchemaTitle": "Edit schedule",
+    "editSchemaSub": "Add, remove and change activities",
+    "packageInfo": "A schedule package contains activities divided into Morning, Day and Evening. Choose a package and it replaces the child's current weekly schedule.",
     "giveStarBtn": "⭐ Give a star",
     "childGoal": "🎯 Child's goal",
     "setGoalDirect": "Set goal directly:",
