@@ -97,6 +97,12 @@
     "linkAppleBtn": "🍎 Koppla Apple-konto",
     "linkGoogleBtn": "G Koppla Google-konto"
   },
+  "toast": {
+    "saved": "Sparat!",
+    "savedCheck": "✅ Sparat!",
+    "saveFailedRetry": "Kunde inte spara. Försök igen.",
+    "networkError": "Nätverksfel"
+  },
   "parentPin": {
     "title": "PIN-kod",
     "security": "Säkerhet",

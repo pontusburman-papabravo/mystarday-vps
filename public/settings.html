@@ -95,7 +95,7 @@
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="toggleDarkMode()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
-          <span>🌙</span> Mörkt läge
+          <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
         <button type="button" id="switchUserBtn" class="w-full px-4 py-2 mb-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.switchUser">Byt användare</button>
         <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
@@ -566,6 +566,10 @@
   </div>
 
   <script>
+    function spt(key, params) {
+      return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+    }
+
     let familyChildren = [];
     let familyParents = [];
     let deletionImpactMode = null;
@@ -984,9 +988,9 @@
             sound_enabled: document.getElementById('soundEnabled').checked,
           }),
         });
-        msg.textContent = data.message || 'Sparat!';
+        msg.textContent = data.message || spt('settings.toast.saved');
         msg.className = 'text-sm text-green-600';
-      } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
+      } catch (err) { msg.textContent = err.message || spt('settings.toast.networkError'); msg.className = 'text-sm text-red-500'; }
     });
 
     // Password form — delegated to settings-account.js via initChangePasswordForm()
@@ -1010,9 +1014,9 @@
             subscribed: document.getElementById('newsletterSubscribed').checked,
           }),
         });
-        msg.textContent = data.message || 'Sparat!';
+        msg.textContent = data.message || spt('settings.toast.saved');
         msg.className = 'text-sm text-green-600';
-      } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
+      } catch (err) { msg.textContent = err.message || spt('settings.toast.networkError'); msg.className = 'text-sm text-red-500'; }
     });
 
     // ── Påminnelser (Reminders) ─────────────────────────────────────────────────
@@ -1093,11 +1097,11 @@
             method: 'PUT',
             body: JSON.stringify({ enabled, time, days }),
           });
-          msgEl.textContent = '✅ Sparat!';
+          msgEl.textContent = spt('settings.toast.savedCheck');
           msgEl.className = 'text-sm text-green-600';
           setTimeout(() => { msgEl.textContent = ''; }, 2000);
         } catch (err) {
-          msgEl.textContent = 'Kunde inte spara. Försök igen.';
+          msgEl.textContent = spt('settings.toast.saveFailedRetry');
           msgEl.className = 'text-sm text-red-500';
         }
       }

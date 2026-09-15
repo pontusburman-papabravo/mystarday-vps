@@ -36,6 +36,10 @@ if (!window.ScheduleCore) {
   console.warn('[DASHBOARD] ScheduleCore missing — schedule-core.js must load before dashboard.js');
 }
 
+function hpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 // ── State (var = shared across dashboard-*.js classic scripts) ─────────────
 /* eslint-disable no-var, no-unused-vars -- dashboard-*.js shared globals; intentional var */
 var children = [];
@@ -389,8 +393,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const msg = document.getElementById('addChildMsg');
     const btn = document.getElementById('addChildSubmit');
-    if (!selectedChildEmoji) { msg.textContent = 'Välj en emoji'; msg.className = 'text-sm text-red-500'; return; }
-    btn.disabled = true; btn.textContent = 'Skapar...'; msg.textContent = '';
+    if (!selectedChildEmoji) { msg.textContent = hpt('schedule.errors.pickEmoji'); msg.className = 'text-sm text-red-500'; return; }
+    btn.disabled = true; btn.textContent = hpt('schedule.modals.addActivity.creating'); msg.textContent = '';
     try {
       const res = await window.apiFetch('/api/children', {
         method: 'POST',
@@ -400,18 +404,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!res.ok) {
         // Shared-device guard: redirect to login if session type is wrong
         if (data.error && data.error.includes('föräldrabehörighet')) {
-          msg.textContent = 'Din session har löpt ut. Du loggas in igen…';
+          msg.textContent = hpt('schedule.errors.sessionExpired');
           msg.className = 'text-sm text-red-500';
           setTimeout(() => { Auth.clearAuth(); window.location.href = '/login'; }, 2000);
           return;
         }
-        msg.textContent = data.error || 'Nätverksfel'; msg.className = 'text-sm text-red-500';
+        msg.textContent = data.error || hpt('schedule.errors.network'); msg.className = 'text-sm text-red-500';
       } else {
         // Redirect to wizard onboarding so parent can review the seeded schedule
         if (data.wizard && data.id) {
           window.location.href = `/child-wizard?id=${data.id}&name=${encodeURIComponent(data.name)}&schedule=${encodeURIComponent(data.default_schedule_name || '')}`;
         } else {
-          showToast(`${data.name} har lagts till! PIN: ${data.pin}`);
+          showToast(hpt('schedule.addChild.success', { name: data.name, pin: data.pin }));
           document.getElementById('addChildModal').classList.add('hidden');
           document.getElementById('addChildForm').reset();
           selectedChildEmoji = '';
@@ -420,8 +424,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           await loadDashboardCards();
         }
       }
-    } catch (err) { msg.textContent = err.message || 'Nätverksfel'; msg.className = 'text-sm text-red-500'; }
-    btn.disabled = false; btn.textContent = 'Lägg till';
+    } catch (err) { msg.textContent = err.message || hpt('schedule.errors.network'); msg.className = 'text-sm text-red-500'; }
+    btn.disabled = false; btn.textContent = hpt('schedule.modals.addActivity.addBtn');
   });
 
   if (typeof initTouchDndBridge === 'function') initTouchDndBridge();
@@ -855,17 +859,17 @@ function renderItem(item) {
 // ── Share schedule ────────────────────────────────────────
 async function shareChildSchedule(childId) {
   if (!window.Platform || !window.Platform.share) {
-    showToast('Dela ej tillgänglig på denna enhet', true);
+    showToast(hpt('home.shareSchedule.notAvailable'), true);
     return;
   }
   // Find today's activities for this child from the rendered HTML state
   // Build text from childrenData (already loaded on the page)
   const child = (window.childrenData || []).find(c => c.id === childId);
   if (!child) {
-    showToast('Kunde inte hitta barnet', true);
+    showToast(hpt('home.shareSchedule.childNotFound'), true);
     return;
   }
-  const childName = child.name || 'Barnet';
+  const childName = child.name || hpt('family.childProfile.deleteChildDefaultName');
   const items = child.today_items || [];
 
   // Format: "Alexs schema idag: 07:00 Frukost ✅, 08:00 Skola, ..."
@@ -878,7 +882,7 @@ async function shareChildSchedule(childId) {
     return time;
   });
 
-  let text = `${childName}s schema idag:`;
+  let text = hpt('home.shareSchedule.routineToday', { name: childName });
   if (completed.length) text += ` ${completed.join(', ')}`;
   if (pending.length) {
     if (completed.length) text += '. ';
@@ -887,13 +891,13 @@ async function shareChildSchedule(childId) {
   text += '\n(Min Stjärndag)';
 
   try {
-    const result = await window.Platform.share({ title: `${childName}s schema – Min Stjärndag`, text });
-    if (!result) showToast('Delat!', false);
+    const result = await window.Platform.share({ title: hpt('home.shareSchedule.title', { name: childName }), text });
+    if (!result) showToast(hpt('home.shareSchedule.shared'), false);
   } catch (err) {
     if (err.message === 'Share not supported') {
-      showToast('Dela-funktion saknas på denna enhet', true);
+      showToast(hpt('home.shareSchedule.notSupported'), true);
     } else if (err.name !== 'AbortError') {
-      showToast('Kunde inte dela: ' + err.message, true);
+      showToast(hpt('home.shareSchedule.couldNotShare', { message: err.message }), true);
     }
   }
 }

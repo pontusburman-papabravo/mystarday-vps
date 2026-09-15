@@ -401,7 +401,7 @@ function updateDarkModeLabel() {
   const icon = document.getElementById('darkModeIcon');
   const label = document.getElementById('darkModeLabel');
   if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-  if (label) label.textContent = isDark ? 'Ljust läge' : 'Mörkt läge';
+  if (label) label.textContent = isDark ? pt('nav.lightMode') : pt('nav.darkMode');
 }
 updateDarkModeLabel();
 document.addEventListener('darkModeChanged', updateDarkModeLabel);

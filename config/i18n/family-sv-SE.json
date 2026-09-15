@@ -93,7 +93,16 @@
     "savedShort": "✓ Sparat!",
     "childLinksUpdated": "Barnkopplingar uppdaterade!",
     "roleUpdated": "Roll uppdaterad!",
-    "deleted": "Borttaget"
+    "deleted": "Borttaget",
+    "childAdded": "{{name}} tillagd!",
+    "childAddedWithPin": "{{name}} tillagd! PIN: {{pin}}"
+  },
+  "tips": {
+    "summary": "💡 Tips för familjen",
+    "inviteCoParent": "• Bjud in en medförälder via \"Bjud in förälder\"",
+    "setFamilyTimes": "• Ställ in morgon-, dag- och kvällstider för hela familjen",
+    "childPinEmoji": "• Varje barn har egen PIN och emoji i barnvyn",
+    "chooseRewards": "• Välj vilka belöningar som gäller per barn"
   },
   "drawer": {
     "select": "Välj",
@@ -114,6 +123,14 @@
     "starsCost": "⭐ {{count}} stjärnor",
     "wantsGoalChange": "vill byta mål till {{reward}}",
     "goalChangeRequest": "Målbytebegäran",
+    "tabSchema": "📅 Schema",
+    "tabRewards": "🏆 Belöningar",
+    "tabSettings": "⚙️ Inställningar",
+    "tabEdit": "✏️ Redigera",
+    "schemaIntro": "Välj ett schemapaket att applicera, eller redigera schemat direkt.",
+    "editSchemaTitle": "Redigera schema",
+    "editSchemaSub": "Lägg till, ta bort och ändra aktiviteter",
+    "packageInfo": "Ett schemapaket innehåller aktiviteter uppdelade i Morgon, Dag och Kväll. Välj ett paket och det ersätter barnets nuvarande veckoschema.",
     "giveStarBtn": "⭐ Ge en stjärna",
     "childGoal": "🎯 Barnets mål",
     "setGoalDirect": "Sätt mål direkt:",
