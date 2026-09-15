@@ -7,7 +7,9 @@ node_modules/
 # Uploaded images (local disk storage)
 data/deployed-sha
 data/app-review-iap.secret
+# VPS deploy/runtime artefacts — never commit; keep working tree clean for auto-deploy
 data/deploy/health-*.json
+data/deploy/snapshots/
 data/uploads/*
 !data/uploads/.gitkeep
 data/downloads/*
