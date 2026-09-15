@@ -1,0 +1,520 @@
+{
+  "chrome": {
+    "openTitle": "Help",
+    "openAria": "Open help",
+    "closeAria": "Close help"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Help – Overview",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Overview",
+          "faqs": [
+            {
+              "q": "What do the 3 quick buttons at the top do?",
+              "a": "<strong>⭐ Give extra stars</strong> — give a child bonus stars manually. <strong>📋 One-off activity</strong> — add a temporary activity for today. <strong>🏠 Day off</strong> — pauses the child's schedule for a day (e.g. sick day, holiday)."
+            },
+            {
+              "q": "How do I tick off an activity?",
+              "a": "Tap the activity on the child card — it ticks off straight away. Your child can also tick off in their <strong>child view</strong>."
+            },
+            {
+              "q": "What is a compact child card?",
+              "a": "The child card shows avatar, name, star balance and section pills in compact mode. Expand the card for more details, a schedule link and the pause button."
+            },
+            {
+              "q": "What is Day off?",
+              "a": "<strong>🏠 Day off</strong> pauses the child's schedule for the chosen day — perfect when they're ill or on holiday. The child sees the schedule as inactive. Turn the day back on using the same button."
+            },
+            {
+              "q": "What is paused mode?",
+              "a": "Tap the pause icon (⏸) on the child card to pause a child. Activities show as inactive and the child won't earn stars until you resume."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stars",
+          "faqs": [
+            {
+              "q": "How does my child earn stars?",
+              "a": "Each completed activity earns <strong>1 star</strong>. Your child ticks off in child view — or you can tick off in Daily log while you're trying things out. Give bonus stars with the ⭐ button above the child cards."
+            },
+            {
+              "q": "How does the Treasure Chest work?",
+              "a": "Your child opens the Treasure Chest via the 💎 tab in child view and sees rewards with star prices. When they've saved enough, they can ask for a reward — you approve it."
+            },
+            {
+              "q": "How do I add rewards?",
+              "a": "Go to <strong>Library</strong> in the menu → the \"Rewards\" tab. Add your own rewards, edit the star cost and choose which children see them."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Schedule",
+          "faqs": [
+            {
+              "q": "How do I add an activity?",
+              "a": "Go to <strong>Weekly schedule</strong> → choose child → choose day → tap \"+\" to add an activity from the library. You can search among 63 standard activities."
+            },
+            {
+              "q": "How do I copy a schedule to every day?",
+              "a": "In Weekly schedule → \"Copy from…\" → choose a source (your own schedule or the standard library) → tick the days you want to copy to."
+            },
+            {
+              "q": "What is the Today view?",
+              "a": "The Overview \"Today\" view updates automatically when you change the schedule. Changes in Weekly schedule show up straight away on Overview and in your child's view."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Family",
+          "faqs": [
+            {
+              "q": "How do I invite another grown-up?",
+              "a": "Go to <strong>Family & settings → Family members</strong> → tap \"Invite\". The person you invite gets an email with a sign-in link."
+            },
+            {
+              "q": "How do I see my child's day?",
+              "a": "Open <strong>Daily log</strong> in the menu — there you see today's activities as your child will see them. Perfect on the first evening before your child logs in themselves."
+            },
+            {
+              "q": "How does my child log in?",
+              "a": "When you're ready: your child logs in at <strong>/child-login</strong> with username and PIN. You'll find the details under <strong>Family & settings → Children</strong>."
+            },
+            {
+              "q": "Contact support",
+              "a": "Email us at <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — we reply within 24 hours."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Help – Rewards",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Rewards",
+          "faqs": [
+            {
+              "q": "How does the reward system work?",
+              "a": "Your child collects stars by completing activities. When their star balance is enough for a reward, they can ask to redeem it — you approve or decline."
+            },
+            {
+              "q": "How do I add new rewards?",
+              "a": "Go to <strong>Library</strong> in the menu → the \"Rewards\" tab → search or tap \"+ Add reward\". You can also copy straight from the standard library."
+            },
+            {
+              "q": "How do I control per-child visibility?",
+              "a": "When you create or edit a reward, you choose which children should see it. Handy for tailored rewards per child."
+            },
+            {
+              "q": "How do I approve a redemption request?",
+              "a": "Your child's request shows on Overview with a badge. Tap to approve. Stars are deducted automatically and your child sees the change straight away."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stars",
+          "faqs": [
+            {
+              "q": "How does my child earn stars?",
+              "a": "Each completed activity earns stars (1 star per activity by default). You can also give bonus stars with the ⭐ button on Overview."
+            },
+            {
+              "q": "What is star balance vs daily progress?",
+              "a": "<strong>Star balance</strong> = total saved balance. <strong>Daily progress</strong> (the ring around the emoji) = how many activities your child completed today. These are separate."
+            },
+            {
+              "q": "What happens when a reward is redeemed?",
+              "a": "Stars are deducted automatically from your child's account. Your child sees the change straight away in their Treasure Chest. You see the history on the Rewards page."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Help – Weekly schedule",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Edit schedule",
+          "faqs": [
+            {
+              "q": "How do I add an activity?",
+              "a": "Choose day → tap \"+\" → search and pick an activity. You can choose <strong>several time slots at once</strong> (Morning + Evening) and the activity is added to all of them."
+            },
+            {
+              "q": "How do I create a new activity directly in the schedule?",
+              "a": "Tap \"+\" → search → if nothing matches, the \"Create new\" form appears in the search modal. Fill in name, emoji, star value and any sub-steps."
+            },
+            {
+              "q": "How do I edit an activity's name or emoji?",
+              "a": "Tap the activity's name or emoji in the schedule → the edit modal opens. Changes apply automatically to all children and days."
+            },
+            {
+              "q": "How do I copy a schedule from another child?",
+              "a": "Tap \"Copy from…\" → choose source → tick the weekdays you want to copy to. Choose whether to overwrite existing content."
+            },
+            {
+              "q": "Does the schedule sync automatically to child view?",
+              "a": "Yes! Changes in Weekly schedule sync straight away to the \"Today\" view on Overview and to your child's view — no manual updates needed."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Library",
+          "faqs": [
+            {
+              "q": "What is the standard library?",
+              "a": "The standard library has 63 ready-made activities in 6 categories and 5 schedule templates. Tap \"Quick insert from library\" to add them to the schedule."
+            },
+            {
+              "q": "How do I copy a standard schedule?",
+              "a": "Under the Schedule tab → \"Copy from…\" → choose \"Standard library\" → pick a schedule → choose days → copy."
+            },
+            {
+              "q": "Why can't my child see any activities?",
+              "a": "Check that the schedule is set for the right child and that there are activities for today's day. Empty schedule? Copy from the standard library to get going quickly."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tips",
+          "faqs": [
+            {
+              "q": "How do I build a good routine schedule?",
+              "a": "Start with 3–5 fixed activities (breakfast, brushing teeth, homework). Put them in the right order. Children learn the routine quickly when it stays consistent."
+            },
+            {
+              "q": "What are sub-steps on activities?",
+              "a": "You can add sub-steps to activities (e.g. \"Wash hands\", \"Put on pyjamas\" under \"Evening routine\"). Your child sees them as a visual guide but ticks off the whole activity in one go."
+            },
+            {
+              "q": "How many activities per day?",
+              "a": "Recommended: 4–8 activities. Too few and there's no flow; too many and it feels overwhelming. Start small and build up."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Help – Family & settings",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Children",
+          "faqs": [
+            {
+              "q": "How do I add a child?",
+              "a": "Go to Overview → tap \"+ Add child\". Fill in name, emoji and birthday. The child gets a schedule automatically based on age."
+            },
+            {
+              "q": "How do I change my child's PIN?",
+              "a": "Tap the child card → the \"Settings\" tab → \"Change PIN\". Choose a new 4-digit PIN."
+            },
+            {
+              "q": "My child must do activities in order — can I change that?",
+              "a": "The default is free tick-off. For guided order, go to your child's profile → the <strong>Settings</strong> tab → turn on <strong>NOW / NEXT / LATER</strong>."
+            },
+            {
+              "q": "How does my child see their login details?",
+              "a": "Tap the child card → the \"Settings\" tab → \"Show login details\". You'll see your child's username and PIN."
+            },
+            {
+              "q": "How do I remove a child?",
+              "a": "Family → choose child → Settings tab → \"Delete child permanently\". Note: all schedule, star and reward history is deleted and cannot be undone."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Grown-ups",
+          "faqs": [
+            {
+              "q": "How do I invite another grown-up?",
+              "a": "Go to the <strong>Family members</strong> tab → \"Invite\". The person you invite gets an email with a link to create an account."
+            },
+            {
+              "q": "Can I choose which children a grown-up sees?",
+              "a": "Yes! You choose which children they can access when you send the invite. You can change it later under Family members → the person → Child access."
+            },
+            {
+              "q": "How do I remove a family member?",
+              "a": "Tap the person in the Family members list → \"Remove\". They lose access to the family immediately."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Settings",
+          "faqs": [
+            {
+              "q": "How do I change my password?",
+              "a": "Go to <strong>Settings</strong> (⚙️) in the menu → \"Change password\". You'll need your current password."
+            },
+            {
+              "q": "How do I turn on notifications?",
+              "a": "Go to Settings → \"Reminders\" → turn on notifications and choose times. Notifications need browser permission."
+            },
+            {
+              "q": "Contact support",
+              "a": "Email us at <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — we reply within 24 hours."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Help – Activities",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Manage",
+          "faqs": [
+            {
+              "q": "What is an activity?",
+              "a": "An <strong>activity</strong> is a task your child does (e.g. \"Brush teeth\"). Activities earn 1–5 stars and can have sub-steps. Collect them in your library and add them to children's schedules."
+            },
+            {
+              "q": "How do I create a new activity?",
+              "a": "Tap \"+ New activity\" → fill in name, category (Hygiene, Food, Play, etc.), duration and star value. Save and the activity is added to your library."
+            },
+            {
+              "q": "How do I add an activity to the schedule?",
+              "a": "Activities live in your library. Go to Weekly schedule → choose day → \"+\" → pick the activity you want to add."
+            },
+            {
+              "q": "How do I remove an activity from every day?",
+              "a": "Tap ✕ on the activity → choose <strong>Every day of the week</strong>. To remove only today or one weekday (e.g. every Thursday), there are separate options."
+            },
+            {
+              "q": "How do I edit an activity?",
+              "a": "Tap the activity in the list → \"Edit\". Changes apply straight away in every schedule where the activity is used."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Categories",
+          "faqs": [
+            {
+              "q": "What are categories for?",
+              "a": "Categories colour-code activities in child view. <strong>Hygiene</strong>=blue, <strong>Food</strong>=yellow, <strong>Play</strong>=green, <strong>School</strong>=purple, <strong>Movement</strong>=red, <strong>Rest</strong>=grey, <strong>Social</strong>=orange."
+            },
+            {
+              "q": "How do I choose a category?",
+              "a": "When you create or edit an activity, pick a category from the dropdown. Choose the one that best describes the activity."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Help – Library",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Tabs",
+          "faqs": [
+            {
+              "q": "Which tabs are in the library?",
+              "a": "<strong>Schedules</strong> — your own schedule templates. <strong>Activities</strong> — activity library with sub-steps. <strong>Rewards</strong> — your own rewards. <strong>Standard library</strong> — 63 activities, 15 rewards and 5 schedules to copy from."
+            },
+            {
+              "q": "How do I copy from the standard library?",
+              "a": "Go to the \"Standard library\" tab → choose activity or reward → tap the 📥 button to copy to your family library. Schedules are copied via Weekly schedule → \"Copy from…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Activities",
+          "faqs": [
+            {
+              "q": "How do I create a new activity?",
+              "a": "Tap \"+ New activity\" → fill in name, emoji (pick or type your own), star value and any sub-steps → save. The activity is saved in the library for the whole family."
+            },
+            {
+              "q": "What are sub-steps?",
+              "a": "Sub-steps are step-by-step instructions under an activity (e.g. \"Wash hands\" under \"Hygiene\"). Your child sees them as a guide but ticks off the whole activity in one tap."
+            },
+            {
+              "q": "How do I edit an activity?",
+              "a": "Tap the activity's name in the schedule — the edit modal opens. Changes (name, emoji, sub-steps) apply automatically to all children and days."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Rewards",
+          "faqs": [
+            {
+              "q": "How do I add a reward?",
+              "a": "The \"Rewards\" tab → search for a reward → tap \"+ Create new\" if it doesn't exist → fill in name, emoji, star price → choose which children see it → save."
+            },
+            {
+              "q": "How do I search for rewards?",
+              "a": "The search box looks in your own rewards AND the standard library at the same time. No matches? The \"Create [name]\" button opens a pre-filled form."
+            },
+            {
+              "q": "Can a child have private rewards?",
+              "a": "Yes! When you create the reward, you choose which children should see it. Handy for tailored rewards per child."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Help – Settings",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Account",
+          "faqs": [
+            {
+              "q": "How do I change my password?",
+              "a": "Enter your current password and your new password → tap \"Save\". The password must be at least 6 characters."
+            },
+            {
+              "q": "How do I change my email address?",
+              "a": "Enter your new email address → tap \"Save\". You may need to verify the new address by email."
+            },
+            {
+              "q": "How do I delete my account?",
+              "a": "Contact us at <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> for account deletion. We handle it within 48 hours."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notifications",
+          "faqs": [
+            {
+              "q": "How do I turn on reminders?",
+              "a": "Turn on the switch under \"Reminders\" → choose time and which days. Your browser must allow notifications."
+            },
+            {
+              "q": "I'm not getting notifications even though they're turned on",
+              "a": "Check that your browser has allowed notifications for the site. Go to browser settings → Notifications → find [REDACTED].se → Allow."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Help – Calendar",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Calendar",
+          "faqs": [
+            {
+              "q": "What does the calendar show?",
+              "a": "The calendar gives a month overview of your child's activities, redeemed rewards and important events."
+            },
+            {
+              "q": "How do I move between months?",
+              "a": "Tap the arrows (< >) next to the month name to change month."
+            },
+            {
+              "q": "How do I see more detail for a day?",
+              "a": "Tap a date to see a detailed list of activities and stars for that day."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Help – Daily log",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Log",
+          "faqs": [
+            {
+              "q": "What is the daily log?",
+              "a": "The log shows your child's day — activities, tick-offs and stars. Use it to <strong>preview</strong> what your child sees, or to fill in afterwards."
+            },
+            {
+              "q": "How do I filter the log?",
+              "a": "Choose a child in the filter at the top to show the log for one child only. You can also filter by date."
+            },
+            {
+              "q": "How far back can I look?",
+              "a": "The log keeps data from the day you started using [REDACTED]. Scroll or pick a date to see older data. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Help – Choose schedule per day",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Assign schedule",
+          "faqs": [
+            {
+              "q": "What is \"Choose schedule per day\"?",
+              "a": "Here you choose which weekly schedule is active for each child and day. Handy if you have different routines on weekdays and weekends."
+            },
+            {
+              "q": "Can a child have different schedules on weekdays vs weekends?",
+              "a": "Yes! Pick one schedule for Mon–Fri and another for Sat–Sun. Tap the day and choose the schedule you want."
+            },
+            {
+              "q": "What happens if no day is assigned?",
+              "a": "If no day has a schedule assigned, your child sees no activities that day. Make sure every day you want to use has a schedule assigned."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Admin panel",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Overview",
+          "faqs": [
+            {
+              "q": "What can I do in the admin panel?",
+              "a": "The admin panel gives you access to all families, users and system data. You can view statistics, manage accounts and moderate content."
+            },
+            {
+              "q": "How do I find a specific user?",
+              "a": "Use the search field at the top to search by email or name. Tap a family to see details."
+            },
+            {
+              "q": "How do I archive a family?",
+              "a": "Tap the family card → \"Archive\". Archived families can be restored but stay inactive until then."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Support",
+          "faqs": [
+            {
+              "q": "How do I see incoming support messages?",
+              "a": "Under the \"Support inbox\" tab you see every message sent via the contact form. Tap to read the full text and reply."
+            },
+            {
+              "q": "How do I mark a case as resolved?",
+              "a": "Tap the case → \"Mark as resolved\". Resolved cases are filtered out of the default view but can be shown via \"Show resolved\"."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
