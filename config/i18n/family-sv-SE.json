@@ -17,7 +17,9 @@
     "parentsHeading": "Vuxna",
     "pedagogsHeading": "Pedagoger",
     "scanQr": "Skanna QR",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "you": "Du",
+    "roleLabel": "Roll"
   },
   "roles": {
     "parent": "Förälder",
@@ -69,7 +71,11 @@
     "updateVisibility": "Kunde inte uppdatera synlighet:",
     "loadPackages": "Kunde inte ladda schemapaket.",
     "upload": "Uppladdning misslyckades",
-    "noGoalSet": "Inget mål satt"
+    "noGoalSet": "Inget mål satt",
+    "updateFailed": "Kunde inte uppdatera:",
+    "updateRoleFailed": "Kunde inte uppdatera roll:",
+    "deleteFailed": "Kunde inte ta bort:",
+    "memberAlreadyExists": "Personen finns redan i familjen eller har en väntande inbjudan."
   },
   "toasts": {
     "redemptionApproved": "✓ Inlösning godkänd!",
@@ -82,7 +88,12 @@
     "nnlDisabled": "Fri avbockning — barnet väljer själv",
     "pinLength": "PIN-koden måste vara exakt 4 siffror",
     "inviteWithdrawn": "Inbjudan återkallad",
-    "scheduleApplied": "\"{{name}}\" applicerat på {{child}}! ✓"
+    "scheduleApplied": "\"{{name}}\" applicerat på {{child}}! ✓",
+    "saved": "Sparat! ✓",
+    "savedShort": "✓ Sparat!",
+    "childLinksUpdated": "Barnkopplingar uppdaterade!",
+    "roleUpdated": "Roll uppdaterad!",
+    "deleted": "Borttaget"
   },
   "drawer": {
     "select": "Välj",
@@ -102,9 +113,25 @@
     "wantsRedeem": "vill lösa in {{reward}}",
     "starsCost": "⭐ {{count}} stjärnor",
     "wantsGoalChange": "vill byta mål till {{reward}}",
-    "goalChangeRequest": "Målbytebegäran"
+    "goalChangeRequest": "Målbytebegäran",
+    "giveStarBtn": "⭐ Ge en stjärna",
+    "childGoal": "🎯 Barnets mål",
+    "setGoalDirect": "Sätt mål direkt:",
+    "setAsGoal": "Sätt som mål",
+    "visibleRewards": "Synliga belöningar",
+    "redemptionHistory": "🏆 Inlösningshistorik"
+  },
+  "invites": {
+    "sentTo": "✓ Inbjudan skickad till {{email}}!",
+    "sent": "✓ Inbjudan skickad!",
+    "sendBtn": "Skicka inbjudan"
   },
   "giveStars": {
+    "title": "⭐ Ge en stjärna",
+    "starCount": "Antal stjärnor",
+    "whyLabel": "Varför?",
+    "whyPlaceholder": "T.ex. Du hjälpte till att duka utan att bli tillfrågad! 💪",
+    "photoOptional": "Foto (valfritt)",
     "reasonRequired": "Anledning krävs!",
     "minStars": "Ange minst 1 stjärna",
     "submit": "Ge stjärnor ⭐",

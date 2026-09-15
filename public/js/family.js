@@ -502,8 +502,8 @@
           <div class="bg-gold-light border-2 border-gold rounded-xl p-3 mb-2 flex items-center gap-3" id="redeem-req-${req.id}">
             <span class="text-2xl">${req.reward_icon || '🎁'}</span>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-heading font-bold text-navy">${childAvatarHtml(child, 24)} ${escHtml(child.name || '')} vill lösa in ${escHtml(req.reward_name)}</p>
-              <p class="text-xs text-text-soft">⭐ ${req.star_cost} stjärnor</p>
+              <p class="text-sm font-heading font-bold text-navy">${childAvatarHtml(child, 24)} ${escHtml(child.name || '')} ${fpt('family.drawer.wantsRedeem', { reward: req.reward_name })}</p>
+              <p class="text-xs text-text-soft">${fpt('family.drawer.starsCost', { count: req.star_cost })}</p>
             </div>
             <div class="flex gap-1 flex-shrink-0">
               <button onclick="approveRedemption('${req.id}')" class="min-h-[44px] bg-mint hover:bg-green-200 text-green-700 font-bold px-3 py-1 rounded-xl text-xs transition-colors">✓</button>
@@ -516,8 +516,8 @@
           <div class="bg-lavender border-2 border-purple-200 rounded-xl p-3 mb-2 flex items-center gap-3" id="goal-req-${req.id}">
             <span class="text-2xl">${req.to_reward_icon || '🎯'}</span>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-heading font-bold text-navy">${childAvatarHtml(child, 24)} ${escHtml(child.name || '')} vill byta mål till ${escHtml(req.to_reward_name)}</p>
-              <p class="text-xs text-text-soft">Målbytebegäran</p>
+              <p class="text-sm font-heading font-bold text-navy">${childAvatarHtml(child, 24)} ${escHtml(child.name || '')} ${fpt('family.drawer.wantsGoalChange', { reward: req.to_reward_name })}</p>
+              <p class="text-xs text-text-soft">${fpt('family.drawer.goalChangeRequest')}</p>
             </div>
             <div class="flex gap-1 flex-shrink-0">
               <button onclick="approveGoalChange('${req.id}')" class="min-h-[44px] bg-mint hover:bg-green-200 text-green-700 font-bold px-3 py-1 rounded-xl text-xs transition-colors">✓</button>
@@ -544,7 +544,7 @@
             <p class="text-xs text-text-soft">⭐ ${childGoal.star_cost}</p>
           </div>
         </div>
-        ${childGoal.pending_change_request ? '<p class="text-xs text-gold mt-1">⏳ Bytebegäran väntar</p>' : ''}`;
+        ${childGoal.pending_change_request ? '<p class="text-xs text-gold mt-1">' + fpt('family.drawer.pendingGoalChange') + '</p>' : ''}`;
         if (goalBadgeEl) goalBadgeEl.textContent = fpt('family.drawer.activeGoal');
       } else {
         goalInfoEl.innerHTML = '<p class="text-xs text-text-soft italic">' + fpt('family.errors.noGoalSet') + '</p>';
@@ -918,7 +918,7 @@
           });
         }
 
-        showToast('Sparat! ✓');
+        showToast(fpt('family.toasts.saved'));
         closeChildDrawer();
         init();
       } catch (err) {
@@ -966,15 +966,15 @@
           <div class="flex items-start gap-3 mb-3">
             <div class="flex-shrink-0">${typeof window.renderParentAvatar === 'function' ? renderParentAvatar(parent, 48) : ''}</div>
             <div class="flex-1 min-w-0">
-              <p class="font-heading font-bold text-navy dark:text-white">${parent.name || 'Förälder'}</p>
+              <p class="font-heading font-bold text-navy dark:text-white">${parent.name || fpt('family.roles.parent')}</p>
               <p class="text-sm text-text-soft">${parent.email}</p>
-              ${isSelf ? '<span class="inline-block mt-1 text-xs bg-gold-light text-gold px-2 py-0.5 rounded-full font-medium">Du</span>' : ''}
+              ${isSelf ? '<span class="inline-block mt-1 text-xs bg-gold-light text-gold px-2 py-0.5 rounded-full font-medium">' + fpt('family.shell.you') + '</span>' : ''}
             </div>
           </div>
 
           <!-- Role -->
           <div class="mb-3">
-            <label class="block text-xs text-text-soft mb-1">Roll</label>
+            <label class="block text-xs text-text-soft mb-1">${fpt('family.shell.roleLabel')}</label>
             <select onchange="updateMemberRole('${parent.id}', this.value)"
               class="w-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-navy dark:text-white text-sm font-body">
               ${roleOptions}
@@ -1020,9 +1020,9 @@
           <!-- Delete -->
           ${canDelete ? `
             <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
-              <button onclick="confirmDeleteMember('${parent.id}', '${(parent.name || 'Förälder').replace(/'/g, "\\'")}')"
+              <button onclick="confirmDeleteMember('${parent.id}', '${(parent.name || fpt('family.roles.parent')).replace(/'/g, "\\'")}')"
                 class="w-full px-3 py-1.5 bg-coral hover:bg-red-100 text-red-600 text-xs rounded-lg font-medium transition-colors">
-                Ta bort från familj
+                ${fpt('family.delete.removeFromFamily')}
               </button>
             </div>
           ` : ''}
@@ -1091,7 +1091,7 @@
           method: 'PUT',
           body: JSON.stringify({ name }),
         });
-        msg.textContent = '✓ Sparat!';
+        msg.textContent = fpt('family.toasts.savedShort');
         msg.classList.remove('hidden');
         setTimeout(() => msg.classList.add('hidden'), 2000);
       } catch (err) {
@@ -1112,9 +1112,9 @@
           method: 'PUT',
           body: JSON.stringify({ childIds }),
         });
-        showToast('Barnkopplingar uppdaterade!');
+        showToast(fpt('family.toasts.childLinksUpdated'));
       } catch (err) {
-        showToast('Kunde inte uppdatera: ' + err.message, true);
+        showToast(fpt('family.errors.updateFailed') + ' ' + err.message, true);
         init();
       }
     }
@@ -1125,9 +1125,9 @@
           method: 'PUT',
           body: JSON.stringify({ family_role: familyRole }),
         });
-        showToast('Roll uppdaterad!');
+        showToast(fpt('family.toasts.roleUpdated'));
       } catch (err) {
-        showToast('Kunde inte uppdatera roll: ' + err.message, true);
+        showToast(fpt('family.errors.updateRoleFailed') + ' ' + err.message, true);
       }
     }
 
@@ -1177,7 +1177,7 @@
           body: JSON.stringify({ email }),
         });
         if (check.adult && check.adult.status !== 'available') {
-          msg.textContent = check.adult.error || 'Personen finns redan i familjen eller har en väntande inbjudan.';
+          msg.textContent = check.adult.error || fpt('family.errors.memberAlreadyExists');
           msg.className = 'text-sm text-red-500 font-medium';
           return;
         }
@@ -1185,7 +1185,7 @@
           method: 'POST',
           body: JSON.stringify({ name, email, family_role }),
         });
-        msg.textContent = '✓ Inbjudan skickad till ' + email + '!';
+        msg.textContent = fpt('family.invites.sentTo', { email: email });
         msg.className = 'text-sm text-green-600 font-medium';
         document.getElementById('addAdultNameInput').value = '';
         document.getElementById('addAdultEmailInput').value = '';
@@ -1199,7 +1199,7 @@
         msg.className = 'text-sm text-red-500 font-medium';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Skicka inbjudan';
+        btn.textContent = fpt('family.invites.sendBtn');
       }
     }
 
@@ -1212,7 +1212,7 @@
           method: 'POST',
           body: JSON.stringify({ email }),
         });
-        msg.textContent = '✓ Inbjudan skickad!';
+        msg.textContent = fpt('family.invites.sent');
         msg.className = 'text-sm text-green-600 font-medium';
         document.getElementById('inviteEmailInput').value = '';
         setTimeout(() => {
@@ -1266,10 +1266,10 @@
         }
         closeModal('deleteModal');
         closeChildDrawer();
-        showToast('Borttaget');
+        showToast(fpt('family.toasts.deleted'));
         init();
       } catch (err) {
-        showToast('Kunde inte ta bort: ' + err.message, true);
+        showToast(fpt('family.errors.deleteFailed') + ' ' + err.message, true);
       }
     }
 

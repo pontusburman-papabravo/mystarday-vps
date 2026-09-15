@@ -17,7 +17,9 @@
     "parentsHeading": "Adults",
     "pedagogsHeading": "Educators",
     "scanQr": "Scan QR",
-    "logout": "Log out"
+    "logout": "Log out",
+    "you": "You",
+    "roleLabel": "Role"
   },
   "roles": {
     "parent": "Parent",
@@ -69,7 +71,11 @@
     "updateVisibility": "Could not update visibility:",
     "loadPackages": "Could not load schedule packages.",
     "upload": "Upload failed",
-    "noGoalSet": "No goal set"
+    "noGoalSet": "No goal set",
+    "updateFailed": "Could not update:",
+    "updateRoleFailed": "Could not update role:",
+    "deleteFailed": "Could not remove:",
+    "memberAlreadyExists": "This person is already in the family or has a pending invite."
   },
   "toasts": {
     "redemptionApproved": "✓ Redemption approved!",
@@ -82,7 +88,12 @@
     "nnlDisabled": "Free check-off — child chooses",
     "pinLength": "PIN must be exactly 4 digits",
     "inviteWithdrawn": "Invite withdrawn",
-    "scheduleApplied": "\"{{name}}\" applied to {{child}}! ✓"
+    "scheduleApplied": "\"{{name}}\" applied to {{child}}! ✓",
+    "saved": "Saved! ✓",
+    "savedShort": "✓ Saved!",
+    "childLinksUpdated": "Child links updated!",
+    "roleUpdated": "Role updated!",
+    "deleted": "Removed"
   },
   "drawer": {
     "select": "Select",
@@ -102,9 +113,25 @@
     "wantsRedeem": "wants to redeem {{reward}}",
     "starsCost": "⭐ {{count}} stars",
     "wantsGoalChange": "wants to change goal to {{reward}}",
-    "goalChangeRequest": "Goal change request"
+    "goalChangeRequest": "Goal change request",
+    "giveStarBtn": "⭐ Give a star",
+    "childGoal": "🎯 Child's goal",
+    "setGoalDirect": "Set goal directly:",
+    "setAsGoal": "Set as goal",
+    "visibleRewards": "Visible rewards",
+    "redemptionHistory": "🏆 Redemption history"
+  },
+  "invites": {
+    "sentTo": "✓ Invite sent to {{email}}!",
+    "sent": "✓ Invite sent!",
+    "sendBtn": "Send invite"
   },
   "giveStars": {
+    "title": "⭐ Give a star",
+    "starCount": "Number of stars",
+    "whyLabel": "Why?",
+    "whyPlaceholder": "E.g. You helped clear the table without being asked! 💪",
+    "photoOptional": "Photo (optional)",
     "reasonRequired": "Reason required!",
     "minStars": "Enter at least 1 star",
     "submit": "Give stars ⭐",

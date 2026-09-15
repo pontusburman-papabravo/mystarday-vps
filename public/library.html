@@ -683,69 +683,69 @@
     <div class="flex min-h-full items-start justify-center py-2 sm:py-4 sm:items-center">
     <div class="activity-modal-panel magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
+        <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="library.modal.newActivity">Lägg till aktivitet</h3>
         <button onclick="closeActivityModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="activityForm" class="space-y-5" onsubmit="submitActivity(event)">
         <input type="hidden" id="activityId">
 
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Aktivitetsnamn *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.nameLabel">Aktivitetsnamn *</label>
           <input type="text" id="activityName" required maxlength="200"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-            placeholder="T.ex. Borsta tänderna">
+            data-i18n-placeholder="library.activityModal.namePlaceholder" placeholder="T.ex. Borsta tänderna">
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Visuellt stöd</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="library.activityModal.visualSupportLabel">Visuellt stöd</label>
           <div class="flex gap-1 p-1 bg-sky rounded-xl mb-3">
-            <button type="button" id="activityVisualPhotoBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">📷 Bild</button>
-            <button type="button" id="activityVisualEmojiBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">😀 Emoji</button>
+            <button type="button" id="activityVisualPhotoBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors" data-i18n="library.activityModal.photoTab">📷 Bild</button>
+            <button type="button" id="activityVisualEmojiBtn" class="activity-visual-tab flex-1 py-2 rounded-lg text-sm font-semibold transition-colors" data-i18n="library.activityModal.emojiTab">😀 Emoji</button>
           </div>
           <input type="hidden" id="activityImageUrl">
 
           <div id="activityEmojiBlock">
             <div class="flex items-center gap-3 mb-3">
               <div id="selectedIconDisplay" class="text-3xl w-12 h-12 flex items-center justify-center bg-sky rounded-xl">❓</div>
-              <input type="text" id="emojiTextInput" placeholder="Skriv/klistra emoji…"
+              <input type="text" id="emojiTextInput" data-i18n-placeholder="library.activityModal.emojiPlaceholder" placeholder="Skriv/klistra emoji…"
                 class="emoji-text-input px-2 py-1 rounded-xl border-2 border-lavender focus:border-gold outline-none"
                 maxlength="50" oninput="onEmojiTextInput(this.value)">
-              <span class="text-xs text-text-soft">eller välj nedan</span>
+              <span class="text-xs text-text-soft" data-i18n="library.activityModal.emojiOrPick">eller välj nedan</span>
             </div>
             <input type="hidden" id="activityIcon">
             <div id="iconPicker" class="flex flex-wrap gap-1 max-h-48 overflow-y-auto p-2 bg-sky rounded-xl"></div>
           </div>
 
           <div id="activityPhotoBlock" class="hidden space-y-3">
-            <p class="text-xs text-text-soft">Dra och zooma så motivet syns tydligt — förhandsvisningen visar hur barnet ser bilden.</p>
+            <p class="text-xs text-text-soft" data-i18n="library.activityModal.photoCropHint">Dra och zooma så motivet syns tydligt — förhandsvisningen visar hur barnet ser bilden.</p>
             <div id="activityImagePreviewWrap" class="hidden space-y-2">
-              <span class="text-xs font-semibold text-navy">Förhandsgranskning (barnvyn)</span>
+              <span class="text-xs font-semibold text-navy" data-i18n="library.activityModal.previewLabel">Förhandsgranskning (barnvyn)</span>
               <img id="activityImageBarnvyPreview" src="" alt="" class="ring-2 ring-gold">
             </div>
             <div class="flex flex-wrap gap-2">
-              <label class="px-3 py-2 bg-navy text-white rounded-lg text-sm font-semibold cursor-pointer">
+              <label class="px-3 py-2 bg-navy text-white rounded-lg text-sm font-semibold cursor-pointer" data-i18n="library.activityModal.newPhoto">
                 📷 Ny bild
                 <input type="file" id="activityImageFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" capture="environment" class="hidden">
               </label>
               <button type="button" id="activityImageRecropBtn" class="hidden px-3 py-2 border-2 border-gold text-navy rounded-lg text-sm font-semibold" data-i18n="library.images.recropBtn">✂️ Beskär om</button>
               <button type="button" id="activityImageClearBtn" class="px-3 py-2 border-2 border-lavender rounded-lg text-sm font-semibold" data-i18n="library.chrome.clearPhoto">Ta bort foto</button>
             </div>
-            <p class="text-xs text-text-soft">Eller välj från bildarkivet:</p>
+            <p class="text-xs text-text-soft" data-i18n="library.activityModal.pickFromArchive">Eller välj från bildarkivet:</p>
             <div id="activityImagePickerGrid" class="grid grid-cols-4 sm:grid-cols-5 gap-2"></div>
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Flik / Kategori</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.categoryLabel">Flik / Kategori</label>
           <select id="activityCategory"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white">
-            <option value="">Ingen kategori</option>
+            <option value="" data-i18n="library.chrome.noCategory">Ingen kategori</option>
           </select>
         </div>
 
 
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Stjärnvärde (1–5 ⭐)</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="library.activityModal.starValueLabel">Stjärnvärde (1–5 ⭐)</label>
           <div class="flex gap-2" id="starPicker">
             <button type="button" class="star-btn px-4 py-2 rounded-xl border-2 border-lavender hover:border-gold transition-colors font-bold" data-val="1" onclick="selectStar(1)">1 ⭐</button>
             <button type="button" class="star-btn px-4 py-2 rounded-xl border-2 border-lavender hover:border-gold transition-colors font-bold" data-val="2" onclick="selectStar(2)">2 ⭐</button>
@@ -768,42 +768,42 @@
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.feedbackLabel">
             "Hur gick det?" — vem ser frågan?
           </label>
           <select id="activityFeedbackFor"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white text-sm">
-            <option value="both">🧒👨‍👩‍👧 Både barnet och föräldern (standard)</option>
-            <option value="child">🧒 Bara barnet</option>
-            <option value="parent">👨‍👩‍👧 Bara föräldern</option>
-            <option value="none">🚫 Ingen (avstängd)</option>
+            <option value="both" data-i18n="library.activityModal.feedbackBoth">🧒👨‍👩‍👧 Både barnet och föräldern (standard)</option>
+            <option value="child" data-i18n="library.activityModal.feedbackChild">🧒 Bara barnet</option>
+            <option value="parent" data-i18n="library.activityModal.feedbackParent">👨‍👩‍👧 Bara föräldern</option>
+            <option value="none" data-i18n="library.activityModal.feedbackNone">🚫 Ingen (avstängd)</option>
           </select>
-          <p class="text-xs text-text-soft mt-1">Visas efter att aktiviteten bockats av</p>
+          <p class="text-xs text-text-soft mt-1" data-i18n="library.activityModal.feedbackHint">Visas efter att aktiviteten bockats av</p>
         </div>
 
         <div id="activityTimerSection" class="border-t border-lavender pt-4">
-          <label class="block text-sm font-semibold text-navy mb-1">⏳ Aktivitetstimer</label>
-          <p class="text-xs text-text-soft mb-2">Nedräkning i barnvyn (kräver master under barninställningar). Endast heltal.</p>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.timerLabel">⏳ Aktivitetstimer</label>
+          <p class="text-xs text-text-soft mb-2" data-i18n="library.activityModal.timerHint">Nedräkning i barnvyn (kräver master under barninställningar). Endast heltal.</p>
           <div id="activityTimerMasterBridge" class="hidden mb-3" role="status" aria-live="polite" aria-hidden="true"></div>
           <input type="hidden" id="activityDurationSeconds" value="">
           <div id="activityTimerPresets" class="flex flex-wrap gap-2 mb-2"></div>
           <div id="activityTimerCustom" class="hidden grid grid-cols-2 gap-2 mb-2">
             <div>
-              <label class="text-xs text-text-soft">Minuter</label>
+              <label class="text-xs text-text-soft" data-i18n="library.activityModal.minutesLabel">Minuter</label>
               <input type="number" id="activityTimerMinutes" min="0" max="60" step="1" class="w-full px-3 py-2 rounded-xl border-2 border-lavender text-sm" value="0">
             </div>
             <div>
-              <label class="text-xs text-text-soft">Sekunder</label>
+              <label class="text-xs text-text-soft" data-i18n="library.activityModal.secondsLabel">Sekunder</label>
               <input type="number" id="activityTimerSeconds" min="0" max="59" step="1" class="w-full px-3 py-2 rounded-xl border-2 border-lavender text-sm" value="0">
             </div>
           </div>
-          <button type="button" id="activityTimerCustomize" class="text-xs text-gold font-semibold underline">Anpassa…</button>
-          <button type="button" id="activityTimerClear" class="text-xs text-text-soft underline ml-3">Ingen timer</button>
+          <button type="button" id="activityTimerCustomize" class="text-xs text-gold font-semibold underline" data-i18n="library.activityModal.customize">Anpassa…</button>
+          <button type="button" id="activityTimerClear" class="text-xs text-text-soft underline ml-3" data-i18n="library.activityModal.noTimer">Ingen timer</button>
         </div>
 
         <!-- Substeps (always visible, pre-loads existing steps for edit) -->
         <div id="libSubstepSection">
-          <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n-html="library.activityModal.substepsLabel">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
           <div id="libActSubstepList" class="space-y-1 mb-2"></div>
           <div class="flex gap-2">
             <input type="text" id="libActSubstepInput" placeholder="Lägg till delsteg…" data-i18n-placeholder="library.substeps.placeholder" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addLibActSubstep();}">
@@ -826,29 +826,29 @@
         <div id="libActSubstepEditModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
           <div class="magic-modal-panel bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl">
             <div class="flex justify-between items-center mb-4">
-              <h4 class="text-base font-heading font-bold text-navy">Redigera delsteg</h4>
+              <h4 class="text-base font-heading font-bold text-navy" data-i18n="library.activityModal.substepEditTitle">Redigera delsteg</h4>
               <button onclick="closeLibActSubstepEdit()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
             </div>
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-semibold text-navy mb-1">Namn</label>
+                <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.stepNameLabel">Namn</label>
                 <input type="text" id="libActStepEditName" maxlength="200"
                   class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-                  placeholder="T.ex. Ta tandkräm">
+                  data-i18n-placeholder="library.activityModal.stepNamePlaceholder" placeholder="T.ex. Ta tandkräm">
               </div>
               <div>
-                <label class="block text-sm font-semibold text-navy mb-2">Ikon (valfri)</label>
+                <label class="block text-sm font-semibold text-navy mb-2" data-i18n="library.activityModal.stepIconLabel">Ikon (valfri)</label>
                 <div class="flex items-center gap-3 mb-2">
                   <div id="libActStepEditIconDisplay" class="text-2xl w-10 h-10 flex items-center justify-center bg-sky rounded-xl">❓</div>
-                  <button type="button" onclick="clearLibActStepIcon()" class="text-xs text-text-soft hover:text-navy underline">Ingen ikon</button>
+                  <button type="button" onclick="clearLibActStepIcon()" class="text-xs text-text-soft hover:text-navy underline" data-i18n="library.activityModal.noIcon">Ingen ikon</button>
                 </div>
                 <input type="hidden" id="libActStepEditIcon">
                 <div id="subStepIconPicker" class="flex flex-wrap gap-1 max-h-32 overflow-y-auto p-2 bg-sky rounded-xl"></div>
               </div>
             </div>
             <div class="flex gap-3 mt-5">
-              <button type="button" onclick="closeLibActSubstepEdit()" class="flex-1 px-4 py-2.5 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors text-sm">Avbryt</button>
-              <button type="button" onclick="submitLibActSubstepEdit()" class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm">Spara</button>
+              <button type="button" onclick="closeLibActSubstepEdit()" class="flex-1 px-4 py-2.5 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors text-sm" data-i18n="library.actions.cancel">Avbryt</button>
+              <button type="button" onclick="submitLibActSubstepEdit()" class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm" data-i18n="library.actions.save">Spara</button>
             </div>
           </div>
         </div>

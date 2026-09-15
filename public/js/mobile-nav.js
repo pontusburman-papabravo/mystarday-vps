@@ -11,6 +11,10 @@
 (function () {
   'use strict';
 
+  function npt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   /** Parent shell pages use NavConfig + native-tab-bar — never scrape legacy sidebar HTML. */
   const PARENT_MAGIC_PATHS = new Set([
     '/dashboard',
@@ -201,14 +205,14 @@
     '</a>' +
     '<div class="topbar-actions">' +
       (isParentUser
-        ? '<button class="topbar-share-btn" title="Tipsa en familj om appen!" aria-label="Tipsa">' +
+        ? '<button class="topbar-share-btn" title="' + npt('nav.header.shareTitle') + '" aria-label="' + npt('nav.header.shareAria') + '">' +
           (window.IconSystem ? IconSystem.header('tipsa') : (window.ParentNavIcons ? ParentNavIcons.tipsa : '💡')) +
           '</button>'
         : '') +
       (darkToggleFn
-        ? '<button class="topbar-dark-toggle" title="Mörkt läge" aria-label="Växla mörkt läge">🌙</button>'
+        ? '<button class="topbar-dark-toggle" title="' + npt('nav.mobile.darkModeTitle') + '" aria-label="' + npt('nav.mobile.darkModeAria') + '">🌙</button>'
         : '') +
-      '<button class="mobile-hamburger" aria-label="Öppna meny" aria-expanded="false">' +
+      '<button class="mobile-hamburger" aria-label="' + npt('nav.mobile.openMenu') + '" aria-expanded="false">' +
         '<span></span><span></span><span></span>' +
       '</button>' +
     '</div>';
@@ -220,7 +224,7 @@
   const dropdown = document.createElement('div');
   dropdown.className = 'mobile-dropdown';
   dropdown.setAttribute('role', 'dialog');
-  dropdown.setAttribute('aria-label', 'Mobilmeny');
+  dropdown.setAttribute('aria-label', npt('nav.mobile.openMenu'));
 
   let linksHtml = '<div class="mobile-dropdown-links">';
   for (let ni = 0; ni < navLinks.length; ni++) {
@@ -237,7 +241,7 @@
     linksHtml +=
       '<button class="btn-dropdown-share" type="button">' +
         (window.IconSystem ? IconSystem.header('tipsa') : (window.ParentNavIcons ? ParentNavIcons.tipsa : '💡')) +
-        ' Tipsa en familj!' +
+        ' ' + npt('nav.header.shareTitle') +
       '</button>';
   }
 
@@ -252,11 +256,11 @@
   if (darkToggleFn) {
     linksHtml +=
       '<button class="btn-dark-toggle" type="button">' +
-        '<span>🌙</span> Mörkt läge' +
+        '<span>🌙</span> ' + npt('nav.darkMode') +
       '</button>';
   }
   linksHtml +=
-    '<button class="btn-logout" type="button">Logga ut</button>';
+    '<button class="btn-logout" type="button">' + npt('nav.logout') + '</button>';
   linksHtml += '</div>';
 
   dropdown.innerHTML = linksHtml;
