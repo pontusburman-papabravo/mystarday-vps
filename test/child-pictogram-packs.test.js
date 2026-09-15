@@ -272,8 +272,8 @@ describe('child-pictogram-picker — UI wiring', () => {
   it('picker uses dedicated pictogram-pack endpoint with preview/save/cancel', () => {
     const src = read('public/js/child-pictogram-picker.js');
     assert.match(src, /\/pictogram-pack/);
-    assert.match(src, /Spara bildstil/);
-    assert.match(src, /Avbryt/);
+    assert.match(src, /settings\.pictogramPickerSave/);
+    assert.match(src, /common\.cancel/);
     assert.match(src, /applyPreview/);
     assert.match(src, /revertToSaved/);
     assert.doesNotMatch(src, /house_config/);
