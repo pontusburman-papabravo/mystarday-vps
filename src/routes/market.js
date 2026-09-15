@@ -19,7 +19,12 @@ const {
   isPublicBillingUsable,
   evaluateSignupCompleteness,
 } = require('../lib/market-launch-invariants');
-const { getPaymentStartAt, getPaymentStartAtForCountry, getLifetimeFreeUntil } = require('../lib/payment-settings');
+const {
+  getPaymentStartAt,
+  getPaymentStartAtForCountry,
+  getLifetimeFreeUntil,
+  isMarketBillingReady,
+} = require('../lib/payment-settings');
 const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 
 const router = express.Router();
@@ -53,6 +58,10 @@ router.get('/registration-gates', async (req, res) => {
       IE: iePaymentStartAt,
       FI: fiPaymentStartAt,
     };
+    const marketBillingReadyByCountry = {};
+    for (const code of ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ']) {
+      marketBillingReadyByCountry[code] = await isMarketBillingReady(code, now);
+    }
     const signupAllowed = {};
     for (const [code, open] of [
       ['SE', se], ['IE', ie], ['FI', fi], ['NO', no], ['DK', dk],
@@ -62,6 +71,7 @@ router.get('/registration-gates', async (req, res) => {
         countryCode: code,
         marketOpen: open,
         publicBillingUsable,
+        marketBillingReady: marketBillingReadyByCountry[code],
         paymentStartAt: paymentStartByCountry[code],
         lifetimeFreeUntil,
         now,

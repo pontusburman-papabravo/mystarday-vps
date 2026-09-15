@@ -29,6 +29,38 @@ describe('iap native client logic', () => {
     );
   });
 
+  test('restore-only sdk access may init native iap', () => {
+    assert.equal(
+      Logic.shouldInitNativeIap({
+        isNative: true,
+        apiKey: 'appl_x',
+        nativePurchasesEnabled: false,
+        nativeRestoreEnabled: true,
+        configReady: true,
+      }),
+      true
+    );
+    assert.equal(
+      Logic.canRestoreNativePurchases({
+        isNative: true,
+        apiKey: 'appl_x',
+        nativeRestoreEnabled: true,
+        configReady: true,
+      }),
+      true
+    );
+    assert.equal(
+      Logic.canShowNativePurchaseUi({
+        isNative: true,
+        apiKey: 'appl_x',
+        nativePurchasesEnabled: false,
+        nativeRestoreEnabled: true,
+        configReady: true,
+      }),
+      false
+    );
+  });
+
   test('blocks duplicate purchase', () => {
     const blocked = Logic.canStartPurchase({
       purchaseInFlight: true,

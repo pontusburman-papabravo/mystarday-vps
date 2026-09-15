@@ -260,3 +260,125 @@ describe('getNativePurchaseEligibility market gate', () => {
     }
   });
 });
+
+describe('getNativeRestoreEligibility market isolation', () => {
+  function reloadRestoreGate() {
+    for (const mod of [
+      '../src/lib/db',
+      '../db/app-settings',
+      '../src/lib/billing-ui',
+      '../src/lib/iap-paid-rollout',
+      '../src/lib/payment-settings',
+      '../src/lib/iap-native-purchase-gate',
+    ]) {
+      delete require.cache[require.resolve(mod)];
+    }
+    const gate = require('../src/lib/iap-native-purchase-gate');
+    return {
+      purchase: gate.getNativePurchaseEligibility,
+      restore: gate.getNativeRestoreEligibility,
+    };
+  }
+
+  test('SE family may restore before Oct 1 when global billing is on', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
+    reloadRestoreGate();
+    const appSettings = require('../db/app-settings');
+    let snap;
+    try {
+      snap = await enablePublicBillingForTest();
+      await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+      const familyId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+      await db.pool.query(
+        `INSERT INTO family (id, name, timezone, country_code, created_at)
+         VALUES ($1, 'SE restore', 'Europe/Stockholm', 'SE', NOW())
+         ON CONFLICT (id) DO UPDATE SET country_code = EXCLUDED.country_code`,
+        [familyId]
+      );
+      const { purchase, restore } = reloadRestoreGate();
+      const purchaseResult = await purchase(familyId, { checkGlobalRollout: true });
+      const restoreResult = await restore(familyId, { checkGlobalRollout: true });
+      assert.equal(purchaseResult.allowed, false);
+      assert.equal(purchaseResult.reason, 'market_purchase_not_open');
+      assert.equal(restoreResult.allowed, true);
+      assert.equal(restoreResult.reason, 'global_infrastructure_ready');
+    } finally {
+      if (snap) await disablePublicBillingForTest(snap);
+      await db.cleanup();
+    }
+  });
+
+  test('IE family may restore when market purchase permission is OFF', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
+    reloadRestoreGate();
+    const appSettings = require('../db/app-settings');
+    let snap;
+    try {
+      snap = await enablePublicBillingForTest();
+      await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+      await db.pool.query("DELETE FROM app_settings WHERE key = 'market_ie_payment_start_at'");
+      const familyId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+      await db.pool.query(
+        `INSERT INTO family (id, name, timezone, country_code, created_at)
+         VALUES ($1, 'IE restore only', 'Europe/Dublin', 'IE', NOW())
+         ON CONFLICT (id) DO UPDATE SET country_code = EXCLUDED.country_code`,
+        [familyId]
+      );
+      const { purchase, restore } = reloadRestoreGate();
+      const purchaseResult = await purchase(familyId, { checkGlobalRollout: true });
+      const restoreResult = await restore(familyId, { checkGlobalRollout: true });
+      assert.equal(purchaseResult.allowed, false);
+      assert.equal(restoreResult.allowed, true);
+    } finally {
+      if (snap) await disablePublicBillingForTest(snap);
+      await db.cleanup();
+    }
+  });
+
+  const OTHER_MARKET_FAMILY_IDS = {
+    FI: 'f1111111-1111-4111-8111-111111111111',
+    NL: 'a1111111-1111-4111-8111-111111111111',
+    DE: 'd1111111-1111-4111-8111-111111111111',
+    AT: 'b1111111-1111-4111-8111-111111111111',
+    GB: 'c1111111-1111-4111-8111-111111111111',
+  };
+
+  for (const code of ['FI', 'NL', 'DE', 'AT', 'GB']) {
+    test(`${code} family purchase denied before Oct 1`, async (t) => {
+      const db = await setupTestDb();
+      if (db.skip) {
+        t.skip('No real TEST_DATABASE_URL');
+        return;
+      }
+      reloadRestoreGate();
+      const appSettings = require('../db/app-settings');
+      let snap;
+      try {
+        snap = await enablePublicBillingForTest();
+        await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+        const familyId = OTHER_MARKET_FAMILY_IDS[code];
+        await db.pool.query(
+          `INSERT INTO family (id, name, timezone, country_code, created_at)
+           VALUES ($1, $2, 'Europe/Stockholm', $3, NOW())
+           ON CONFLICT (id) DO UPDATE SET country_code = EXCLUDED.country_code`,
+          [familyId, `${code} test`, code]
+        );
+        const { purchase } = reloadRestoreGate();
+        const result = await purchase(familyId, { checkGlobalRollout: true });
+        assert.equal(result.allowed, false);
+        assert.equal(result.reason, 'market_purchase_not_open');
+      } finally {
+        if (snap) await disablePublicBillingForTest(snap);
+        await db.cleanup();
+      }
+    });
+  }
+});

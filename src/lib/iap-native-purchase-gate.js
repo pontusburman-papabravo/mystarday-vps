@@ -14,23 +14,26 @@ const {
 } = require('./iap-sandbox-allowlist');
 
 /**
- * Native StoreKit / Play Billing (via RevenueCat SDK).
+ * @param {string} normalizedFamilyId
+ * @returns {Promise<string>}
+ */
+async function lookupFamilyCountryCode(normalizedFamilyId) {
+  const { rows } = await db.query(
+    'SELECT country_code FROM family WHERE id = $1',
+    [normalizedFamilyId]
+  );
+  return normalizeCountryCode(rows[0]?.country_code) || 'SE';
+}
+
+/**
+ * Sandbox QA or global billing infrastructure (no market commercial gate).
  *
- * General (non-sandbox) families: fail closed until global rollout
- * (payment_enabled + billing UI + iap_paid_rollout_ready).
- * Sandbox QA: requires REVENUECAT_SANDBOX_PURCHASES_ENABLED + strict UUID allowlist.
- *
- * @param {string | null | undefined} familyId
- * @param {{ checkGlobalRollout?: boolean }} [opts]
+ * @param {string} normalizedFamilyId
+ * @param {{ checkGlobalRollout?: boolean }} opts
  * @returns {Promise<{ allowed: boolean, reason: string }>}
  */
-async function getNativePurchaseEligibility(familyId, opts = {}) {
-  const normalized = normalizeFamilyId(familyId);
-  if (!normalized) {
-    return { allowed: false, reason: 'invalid_or_missing_family_id' };
-  }
-
-  const sandboxAllowed = isFamilyInStrictSandboxAllowlist(normalized);
+async function evaluateGlobalBillingInfrastructureEligibility(normalizedFamilyId, opts = {}) {
+  const sandboxAllowed = isFamilyInStrictSandboxAllowlist(normalizedFamilyId);
   if (sandboxAllowed) {
     if (!isSandboxPurchasesFlagEnabled()) {
       return { allowed: false, reason: 'sandbox_purchases_disabled' };
@@ -57,13 +60,52 @@ async function getNativePurchaseEligibility(familyId, opts = {}) {
     return { allowed: false, reason: 'paid_rollout_not_ready' };
   }
 
+  return { allowed: true, reason: 'global_infrastructure_ready' };
+}
+
+/**
+ * Native restore — global infrastructure only. Not gated by market acquisition pause.
+ *
+ * @param {string | null | undefined} familyId
+ * @param {{ checkGlobalRollout?: boolean }} [opts]
+ * @returns {Promise<{ allowed: boolean, reason: string }>}
+ */
+async function getNativeRestoreEligibility(familyId, opts = {}) {
+  const normalized = normalizeFamilyId(familyId);
+  if (!normalized) {
+    return { allowed: false, reason: 'invalid_or_missing_family_id' };
+  }
+  return evaluateGlobalBillingInfrastructureEligibility(normalized, opts);
+}
+
+/**
+ * Native StoreKit / Play Billing new purchase (via RevenueCat SDK).
+ *
+ * General families: global infrastructure + market commercial purchase permission.
+ * Sandbox QA: REVENUECAT_SANDBOX_PURCHASES_ENABLED + strict UUID allowlist.
+ *
+ * @param {string | null | undefined} familyId
+ * @param {{ checkGlobalRollout?: boolean }} [opts]
+ * @returns {Promise<{ allowed: boolean, reason: string }>}
+ */
+async function getNativePurchaseEligibility(familyId, opts = {}) {
+  const normalized = normalizeFamilyId(familyId);
+  if (!normalized) {
+    return { allowed: false, reason: 'invalid_or_missing_family_id' };
+  }
+
+  const infrastructure = await evaluateGlobalBillingInfrastructureEligibility(normalized, opts);
+  if (!infrastructure.allowed) {
+    return infrastructure;
+  }
+
+  if (infrastructure.reason === 'sandbox_family') {
+    return infrastructure;
+  }
+
   let countryCode = 'SE';
   try {
-    const { rows } = await db.query(
-      'SELECT country_code FROM family WHERE id = $1',
-      [normalized]
-    );
-    countryCode = normalizeCountryCode(rows[0]?.country_code) || 'SE';
+    countryCode = await lookupFamilyCountryCode(normalized);
   } catch (err) {
     console.error('[iap-native-purchase-gate] family country lookup failed:', err.message);
     return { allowed: false, reason: 'market_purchase_lookup_failed' };
@@ -88,5 +130,6 @@ function getSandboxGateDiagnostics() {
 
 module.exports = {
   getNativePurchaseEligibility,
+  getNativeRestoreEligibility,
   getSandboxGateDiagnostics,
 };

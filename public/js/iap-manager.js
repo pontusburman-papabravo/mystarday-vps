@@ -73,6 +73,7 @@
       isNative: isNative(),
       apiKey: _config && _config.apiKey,
       nativePurchasesEnabled: _config && _config.nativePurchasesEnabled === true,
+      nativeRestoreEnabled: _config && _config.nativeRestoreEnabled === true,
       killSwitchBillingUi: _config && _config.killSwitchBillingUi === true,
       configReady: _config && _config.configReady === true,
     };
@@ -203,6 +204,12 @@
     return Logic.canShowNativePurchaseUi(ctx) && _initialized;
   }
 
+  function canRestore() {
+    if (!Logic) return false;
+    const ctx = logicCtx();
+    return Logic.canRestoreNativePurchases(ctx) && _initialized;
+  }
+
   async function getCurrentOffering() {
     if (!_initialized) await init();
     if (!canPurchase()) return null;
@@ -287,7 +294,7 @@
   }
 
   async function restorePurchases() {
-    if (!canPurchase()) {
+    if (!canRestore()) {
       return { ok: false, code: Logic ? Logic.PURCHASE_ERROR.NOT_ELIGIBLE : 'not_eligible' };
     }
     if (_purchaseInFlight) {
@@ -373,6 +380,7 @@
     checkSubscriptionStatus: checkSubscriptionStatus,
     canShowPaymentUI: canShowPaymentUI,
     canPurchase: canPurchase,
+    canRestore: canRestore,
     getCurrentOffering: getCurrentOffering,
     purchaseMonthly: purchaseMonthly,
     purchaseYearly: function () { return purchasePackage('yearly'); },

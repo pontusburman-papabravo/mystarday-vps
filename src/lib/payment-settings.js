@@ -346,6 +346,15 @@ async function isMarketPurchaseAllowed(countryCode, now = new Date()) {
   return false;
 }
 
+/** Trial-market signup gate: market commercial billing configured and open. */
+async function isMarketBillingReady(countryCode, now = new Date()) {
+  const policy = getMarketCommercialPolicy(countryCode);
+  if (!policy.requiresBillingReady) {
+    return true;
+  }
+  return isMarketPurchaseAllowed(countryCode, now);
+}
+
 module.exports = {
   PAYMENT_START_AT_KEY,
   DEFAULT_PAYMENT_START_AT,
@@ -374,4 +383,5 @@ module.exports = {
   isPrebillingAccessActive,
   evaluateMarketPurchaseAllowed,
   isMarketPurchaseAllowed,
+  isMarketBillingReady,
 };
