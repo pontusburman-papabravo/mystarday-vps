@@ -345,6 +345,7 @@ async function listPendingOutcomesAdmin({ limit = 100, offset = 0 } = {}) {
   const result = await db.query(
     `SELECT i.goal_slug, i.family_id, i.child_id, i.installed_at,
             c.name AS child_name,
+            COALESCE(i.parent_id, fi.parent_id) AS parent_id,
             COALESCE(p.name, '(inget namn)') AS parent_name,
             p.email AS parent_email,
             fi.intent_reason, fi.created_at AS intent_at
@@ -399,6 +400,7 @@ async function listPendingOutcomesAdmin({ limit = 100, offset = 0 } = {}) {
       family_id: row.family_id,
       child_id: row.child_id,
       child_name: row.child_name,
+      parent_id: row.parent_id,
       parent_name: row.parent_name,
       parent_email: row.parent_email,
       intent_reason: row.intent_reason,
