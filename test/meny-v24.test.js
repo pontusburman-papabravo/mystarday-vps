@@ -13,7 +13,7 @@ describe('meny v2.4 — B2 schema hybrid', () => {
     const setup = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
     assert.match(profile, /profileSchemaBody/);
     assert.match(setup, /schemaSummaryHtml/);
-    assert.match(setup, /Veckodagsöversikt/);
+    assert.match(setup, /childProfile\.setup\.schema\.weekOverview/);
     assert.match(setup, /\/api\/children\/.*\/schedules/);
   });
 });

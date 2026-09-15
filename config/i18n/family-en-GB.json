@@ -214,6 +214,130 @@
     "pauseResumed": "Day resumed",
     "pausePaused": "Day paused",
     "pendingNone": "No pending requests",
+    "setup": {
+      "saved": "Saved",
+      "saveFailed": "Could not save",
+      "updateFailed": "Could not update",
+      "loading": "Loading…",
+      "identity": {
+        "title": "Name & emoji",
+        "lead": "How your child appears in the family and when they log in.",
+        "nameLabel": "Child's name",
+        "namePlaceholder": "e.g. Emma",
+        "emojiLabel": "Emoji",
+        "emojiAria": "Choose emoji {{emoji}}",
+        "birthdayLabel": "Date of birth",
+        "birthdayHint": "Helps us suggest the right schedule and show their age.",
+        "year": "Year",
+        "month": "Month",
+        "day": "Day",
+        "birthYearAria": "Birth year",
+        "birthMonthAria": "Birth month",
+        "birthDayAria": "Birth day",
+        "saveProfile": "Save profile",
+        "nameRequired": "Name is required",
+        "profileSaved": "Profile saved",
+        "saveProfileFailed": "Could not save profile"
+      },
+      "photo": {
+        "title": "Profile photo",
+        "add": "Add photo",
+        "change": "Change photo",
+        "remove": "Remove photo",
+        "saved": "Photo saved!",
+        "saveFailed": "Could not save photo",
+        "removed": "Profile photo removed",
+        "removeFailed": "Could not remove photo"
+      },
+      "view": {
+        "title": "Child view",
+        "classic": "Classic",
+        "new": "New view",
+        "minimalUiLabel": "Distraction-free view",
+        "minimalUiHint": "Hides extra buttons in the child view",
+        "classicToast": "Classic view",
+        "newToast": "New view"
+      },
+      "moodRewards": {
+        "title": "Feelings & rewards",
+        "moodLabel": "Mood tracking",
+        "moodHint": "Slider after checking off an activity",
+        "loadingRewards": "Loading rewards…",
+        "createMore": "Create more rewards →",
+        "empty": "No rewards yet.",
+        "hiddenForChild": "Hidden from child",
+        "visibleForChild": "Visible to child"
+      },
+      "transition": {
+        "title": "⏳ Transition support",
+        "body": "Choose when your child sees a warning in the NOW card: Soon → In X min → Now.",
+        "leadOne": "In {{minutes}} min",
+        "leadMany": "In {{minutes}} mins",
+        "hint": "At least one lead time is recommended. Default: 5 and 1 minute.",
+        "selectAtLeastOne": "Choose at least one lead time",
+        "saveFailed": "Could not save transition times",
+        "saved": "Transition times saved"
+      },
+      "advanced": {
+        "title": "Child view & routines",
+        "lead": "Order, clock, animations and timers."
+      },
+      "toggles": {
+        "nnl": {
+          "label": "NOW / NEXT / LATER",
+          "hint": "Guided order — your child checks off one activity at a time",
+          "on": "NOW / NEXT / LATER enabled",
+          "off": "Free check-off — your child chooses for themselves"
+        },
+        "reorder": {
+          "label": "Child reordering",
+          "hint": "Your child can drag activities into a new order"
+        },
+        "hideClock": {
+          "label": "Hide clock times",
+          "hint": "Reduces stress for time-sensitive children"
+        },
+        "lockSchedule": {
+          "label": "Lock schedule",
+          "hint": "Your child cannot browse to other days"
+        },
+        "dopamin": {
+          "label": "Celebration animation",
+          "hint": "Star burst when checking off an activity"
+        },
+        "haptics": {
+          "label": "Vibration",
+          "hint": "Tactile feedback for stars and rewards",
+          "on": "Vibration on",
+          "off": "Vibration off"
+        },
+        "activityTimers": {
+          "label": "Activity timer (hourglass)",
+          "hint": "Master switch. Set time per activity in the library."
+        },
+        "visualTimer": {
+          "label": "Visual timer",
+          "hint": "Circular clock during an activity"
+        },
+        "colorCoding": {
+          "label": "Colour coding",
+          "hint": "Colour-coded activity cards"
+        }
+      },
+      "delete": {
+        "button": "🗑 Delete child permanently",
+        "hint": "Removes schedule, stars and all history for this child."
+      },
+      "schema": {
+        "loadFailed": "Could not load schedule.",
+        "weekOverview": "Weekday overview for {{name}}",
+        "editSchedule": "Edit weekly schedule →",
+        "openSchedule": "Open weekly schedule →"
+      },
+      "errors": {
+        "apiCode": "error code {{status}}"
+      }
+    },
     "errors": {
       "missingChildId": "Missing child id",
       "loadStatus": "Could not load status",

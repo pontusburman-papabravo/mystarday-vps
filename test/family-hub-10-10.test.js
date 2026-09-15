@@ -69,7 +69,7 @@ describe('Familj hub 10/10', () => {
 
   it('child-profile-setup includes barnvy & rutiner settings inline', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
-    assert.match(src, /Barnvy & rutiner/);
+    assert.match(src, /childProfile\.setup\.advanced\.title/);
     assert.match(src, /profileSetupNnl/);
     assert.match(src, /saveNnlMode/);
     assert.doesNotMatch(src, /\/child-settings\?child=/);
@@ -79,8 +79,8 @@ describe('Familj hub 10/10', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile-setup.js'), 'utf8');
     assert.match(src, /profileSetupIdentityForm/);
     assert.match(src, /profileSetupName/);
-    assert.match(src, /Barnets namn/);
-    assert.match(src, /Spara profil/);
+    assert.match(src, /childProfile\.setup\.identity\.nameLabel/);
+    assert.match(src, /childProfile\.setup\.identity\.saveProfile/);
     assert.match(src, /wireIdentityForm/);
     assert.match(src, /method:\s*'PUT'/);
   });

@@ -4,12 +4,23 @@
 (function () {
   'use strict';
 
-  const DAY_LABELS = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
   const BIRTHDAY_PREFIX = 'profileBd';
 
   let _wiring = false;
 
-  function calcAge(birthday) {
+  function fpt(key, params) {
+    if (typeof window.pt !== 'function') return key;
+    return window.pt('family.' + key, params || {});
+  }
+
+  function dayLabels() {
+    if (window.LocaleDateTime && typeof LocaleDateTime.weekDayLabelsMondayFirst === 'function') {
+      return LocaleDateTime.weekDayLabelsMondayFirst();
+    }
+    return ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+  }
+
+  function formatAge(birthday) {
     if (!birthday) return null;
     const bday = new Date(birthday);
     if (Number.isNaN(bday.getTime())) return null;
@@ -18,7 +29,8 @@
     const m = today.getMonth() - bday.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
     if (age < 0) return null;
-    return age + ' år';
+    if (age === 1) return fpt('child.yearsOne', { count: age });
+    return fpt('child.yearsMany', { count: age });
   }
 
   function readBirthdayValue() {
@@ -60,7 +72,7 @@
         return data.error;
       }
     } catch (_) { /* non-json */ }
-    return fallback + ' (felkod ' + res.status + ')';
+    return fallback + ' (' + fpt('childProfile.setup.errors.apiCode', { status: res.status }) + ')';
   }
 
   function toggleRow(id, label, sub, on) {
@@ -91,17 +103,20 @@
     const leadMins = Array.isArray(child.transition_lead_minutes) ? child.transition_lead_minutes : [5, 1];
     const options = [5, 3, 1].map(function (m) {
       const checked = leadMins.indexOf(m) >= 0;
+      const leadLabel = m === 1
+        ? fpt('childProfile.setup.transition.leadOne', { minutes: m })
+        : fpt('childProfile.setup.transition.leadMany', { minutes: m });
       return '<label class="flex items-center gap-2 text-sm text-navy cursor-pointer min-h-[44px]">' +
         '<input type="checkbox" class="transition-lead-cb accent-gold min-w-[44px] min-h-[44px]" data-minutes="' + m + '"' +
         (checked ? ' checked' : '') + '>' +
-        ' Om ' + m + ' min' + (m === 1 ? '' : 'uter') +
+        ' ' + esc(leadLabel) +
         '</label>';
     }).join('');
     return '<div class="bg-white rounded-2xl border border-lavender p-4">' +
-      '<p class="font-semibold text-navy mb-1">⏳ Övergångsstöd</p>' +
-      '<p class="text-xs text-text-soft mb-3">Välj när barnet ser varningstext i NU-kortet: Snart → Om X min → Nu.</p>' +
+      '<p class="font-semibold text-navy mb-1">' + esc(fpt('childProfile.setup.transition.title')) + '</p>' +
+      '<p class="text-xs text-text-soft mb-3">' + esc(fpt('childProfile.setup.transition.body')) + '</p>' +
       '<div class="flex flex-col gap-2" id="transitionLeadGroup">' + options + '</div>' +
-      '<p class="text-xs text-text-soft mt-3">Minst en lead-tid rekommenderas. Standard: 5 och 1 minut.</p>' +
+      '<p class="text-xs text-text-soft mt-3">' + esc(fpt('childProfile.setup.transition.hint')) + '</p>' +
       '</div>';
   }
 
@@ -112,18 +127,18 @@
           .map(function (el) { return parseInt(el.getAttribute('data-minutes'), 10); })
           .filter(function (n) { return !Number.isNaN(n); });
         if (selected.length === 0) {
-          showToast('Välj minst en lead-tid', true);
+          showToast(fpt('childProfile.setup.transition.selectAtLeastOne'), true);
           cb.checked = true;
           return;
         }
         const res = await saveChildField(child.id, 'transition_lead_minutes', selected);
         if (!res.ok) {
           cb.checked = !cb.checked;
-          showToast('Kunde inte spara övergångstider', true);
+          showToast(fpt('childProfile.setup.transition.saveFailed'), true);
           return;
         }
         child.transition_lead_minutes = selected;
-        showToast('Övergångstider sparade');
+        showToast(fpt('childProfile.setup.transition.saved'));
       });
     });
   }
@@ -131,17 +146,17 @@
   function advancedSettingsHtml(child) {
     const hapticsOn = localStorage.getItem('stjarndag_haptics_enabled') !== 'false';
     return '<div class="bg-white rounded-2xl border border-lavender p-4">' +
-      '<p class="font-semibold text-navy mb-1">Barnvy & rutiner</p>' +
-      '<p class="text-xs text-text-soft mb-3">Ordning, klocka, animationer och timer.</p>' +
-      toggleRow('profileSetupNnl', 'NU / NÄSTA / SEDAN', 'Guidad ordning — barnet bockar av en i taget', isNnlModeEnabled(child)) +
-      toggleRow('profileSetupReorder', 'Barnets omsortering', 'Barnet kan dra om aktiviteter', !!child.allow_child_reorder) +
-      toggleRow('profileSetupHideClock', 'Dölj klockslag', 'Minskar stress för tidskänsliga barn', !!child.hide_clock) +
-      toggleRow('profileSetupLockSchedule', 'Lås schema', 'Barnet kan inte bläddra till andra dagar', !!child.lock_schedule) +
-      toggleRow('profileSetupDopamin', 'Dopamin-animation', 'Stjärnburst vid avbockning', child.dopamin_animation !== false) +
-      toggleRow('profileSetupHaptics', 'Vibration', 'Taktil feedback vid stjärnor och belöningar', hapticsOn) +
-      toggleRow('profileSetupActivityTimers', 'Aktivitetstimer (timglas)', 'Masterbrytare. Sätt tid per aktivitet i biblioteket.', child.activity_timers_enabled === true) +
-      toggleRow('profileSetupVisualTimer', 'Visuell timer', 'Cirkulär klocka vid pågående aktivitet', child.visual_timer !== false) +
-      toggleRow('profileSetupColorCoding', 'Färgkodning', 'Färgkodade aktivitetskort', child.color_coding !== false) +
+      '<p class="font-semibold text-navy mb-1">' + esc(fpt('childProfile.setup.advanced.title')) + '</p>' +
+      '<p class="text-xs text-text-soft mb-3">' + esc(fpt('childProfile.setup.advanced.lead')) + '</p>' +
+      toggleRow('profileSetupNnl', fpt('childProfile.setup.toggles.nnl.label'), fpt('childProfile.setup.toggles.nnl.hint'), isNnlModeEnabled(child)) +
+      toggleRow('profileSetupReorder', fpt('childProfile.setup.toggles.reorder.label'), fpt('childProfile.setup.toggles.reorder.hint'), !!child.allow_child_reorder) +
+      toggleRow('profileSetupHideClock', fpt('childProfile.setup.toggles.hideClock.label'), fpt('childProfile.setup.toggles.hideClock.hint'), !!child.hide_clock) +
+      toggleRow('profileSetupLockSchedule', fpt('childProfile.setup.toggles.lockSchedule.label'), fpt('childProfile.setup.toggles.lockSchedule.hint'), !!child.lock_schedule) +
+      toggleRow('profileSetupDopamin', fpt('childProfile.setup.toggles.dopamin.label'), fpt('childProfile.setup.toggles.dopamin.hint'), child.dopamin_animation !== false) +
+      toggleRow('profileSetupHaptics', fpt('childProfile.setup.toggles.haptics.label'), fpt('childProfile.setup.toggles.haptics.hint'), hapticsOn) +
+      toggleRow('profileSetupActivityTimers', fpt('childProfile.setup.toggles.activityTimers.label'), fpt('childProfile.setup.toggles.activityTimers.hint'), child.activity_timers_enabled === true) +
+      toggleRow('profileSetupVisualTimer', fpt('childProfile.setup.toggles.visualTimer.label'), fpt('childProfile.setup.toggles.visualTimer.hint'), child.visual_timer !== false) +
+      toggleRow('profileSetupColorCoding', fpt('childProfile.setup.toggles.colorCoding.label'), fpt('childProfile.setup.toggles.colorCoding.hint'), child.color_coding !== false) +
       '</div>';
   }
 
@@ -154,11 +169,11 @@
       const res = await saveChildField(childId, field, on);
       if (!res.ok) {
         track.classList.toggle('on');
-        showToast('Kunde inte spara', true);
+        showToast(fpt('childProfile.setup.saveFailed'), true);
         return;
       }
       child[field] = on;
-      showToast('Sparat');
+      showToast(fpt('childProfile.setup.saved'));
       if (onSaved) onSaved(on);
     });
   }
@@ -178,41 +193,41 @@
       const selected = em === currentEmoji;
       return '<button type="button" class="profile-setup-emoji-opt text-2xl p-2 rounded-lg border-2 min-h-[44px] min-w-[44px] transition-colors ' +
         (selected ? 'border-gold bg-gold-light' : 'border-transparent hover:border-gold') +
-        '" data-emoji="' + em + '" aria-label="Välj emoji ' + em + '" aria-pressed="' + (selected ? 'true' : 'false') + '">' + em + '</button>';
+        '" data-emoji="' + em + '" aria-label="' + esc(fpt('childProfile.setup.identity.emojiAria', { emoji: em })) + '" aria-pressed="' + (selected ? 'true' : 'false') + '">' + em + '</button>';
     }).join('');
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-      '<p class="font-semibold text-navy mb-1">Namn &amp; emoji</p>' +
-      '<p class="text-xs text-text-soft mb-3">Så här visas barnet i familjen och vid inloggning.</p>' +
+      '<p class="font-semibold text-navy mb-1">' + esc(fpt('childProfile.setup.identity.title')) + '</p>' +
+      '<p class="text-xs text-text-soft mb-3">' + esc(fpt('childProfile.setup.identity.lead')) + '</p>' +
       '<form id="profileSetupIdentityForm" class="space-y-4">' +
       '<div>' +
-      '<label for="profileSetupName" class="block text-sm font-medium text-text-soft mb-1">Barnets namn</label>' +
+      '<label for="profileSetupName" class="block text-sm font-medium text-text-soft mb-1">' + esc(fpt('childProfile.setup.identity.nameLabel')) + '</label>' +
       '<input id="profileSetupName" type="text" required maxlength="100" autocomplete="off" ' +
       'value="' + esc(child.name || '') + '" ' +
       'class="w-full px-4 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" ' +
-      'placeholder="T.ex. Emma" />' +
+      'placeholder="' + esc(fpt('childProfile.setup.identity.namePlaceholder')) + '" />' +
       '</div>' +
       '<div>' +
-      '<p class="block text-sm font-medium text-text-soft mb-1" id="profileSetupEmojiLabel">Emoji</p>' +
+      '<p class="block text-sm font-medium text-text-soft mb-1" id="profileSetupEmojiLabel">' + esc(fpt('childProfile.setup.identity.emojiLabel')) + '</p>' +
       '<div class="flex flex-wrap gap-2" role="group" aria-labelledby="profileSetupEmojiLabel">' + emojiBtns + '</div>' +
       '<input type="hidden" id="profileSetupEmoji" value="' + esc(currentEmoji) + '" />' +
       '</div>' +
       '<div>' +
-      '<label class="block text-sm font-medium text-text-soft mb-1" for="' + BIRTHDAY_PREFIX + 'Year">Födelsedag</label>' +
-      '<p class="text-xs text-text-soft mb-2">Hjälper oss föreslå rätt schema och visa ålder.</p>' +
+      '<label class="block text-sm font-medium text-text-soft mb-1" for="' + BIRTHDAY_PREFIX + 'Year">' + esc(fpt('childProfile.setup.identity.birthdayLabel')) + '</label>' +
+      '<p class="text-xs text-text-soft mb-2">' + esc(fpt('childProfile.setup.identity.birthdayHint')) + '</p>' +
       '<div class="grid grid-cols-3 gap-2">' +
       '<select id="' + BIRTHDAY_PREFIX + 'Year" onchange="updateBirthdayDays(\'' + BIRTHDAY_PREFIX + '\')" ' +
-      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelseår">' +
-      '<option value="">År</option></select>' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="' + esc(fpt('childProfile.setup.identity.birthYearAria')) + '">' +
+      '<option value="">' + esc(fpt('childProfile.setup.identity.year')) + '</option></select>' +
       '<select id="' + BIRTHDAY_PREFIX + 'Month" onchange="updateBirthdayDays(\'' + BIRTHDAY_PREFIX + '\')" ' +
-      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelsemånad">' +
-      '<option value="">Månad</option></select>' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="' + esc(fpt('childProfile.setup.identity.birthMonthAria')) + '">' +
+      '<option value="">' + esc(fpt('childProfile.setup.identity.month')) + '</option></select>' +
       '<select id="' + BIRTHDAY_PREFIX + 'Day" ' +
-      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="Födelsedag">' +
-      '<option value="">Dag</option></select>' +
+      'class="profile-birthday-select w-full min-w-0 px-2 py-3 border border-lavender rounded-xl bg-white text-navy font-body text-sm min-h-[44px] focus:border-gold focus:outline-none" aria-label="' + esc(fpt('childProfile.setup.identity.birthDayAria')) + '">' +
+      '<option value="">' + esc(fpt('childProfile.setup.identity.day')) + '</option></select>' +
       '</div></div>' +
       '<button type="submit" id="profileSetupIdentitySave" ' +
       'class="w-full py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold text-sm min-h-[44px] transition-colors">' +
-      'Spara profil</button>' +
+      esc(fpt('childProfile.setup.identity.saveProfile')) + '</button>' +
       '</form></div>';
   }
 
@@ -223,8 +238,10 @@
     if (title) title.textContent = child.name || '';
     const subtitle = mount.querySelector('.child-profile-subtitle');
     if (subtitle) {
-      const ageText = calcAge(child.birthday);
-      subtitle.textContent = ageText ? ('Barnprofil · ' + ageText) : 'Barnprofil';
+      const ageText = formatAge(child.birthday);
+      subtitle.textContent = ageText
+        ? fpt('childProfile.profileWithAge', { age: ageText })
+        : fpt('childProfile.profileLabel');
     }
     const emojiEl = mount.querySelector('.flex.items-center.gap-3.mb-4 > .text-4xl');
     if (emojiEl) emojiEl.textContent = child.emoji || '⭐';
@@ -245,36 +262,36 @@
     const transitionBlock = transitionLeadHtml(child, !!hasTransitionSupportAccess);
     return '<div class="space-y-4">' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
-      '<p class="font-semibold text-navy mb-3">Profilbild</p>' +
+      '<p class="font-semibold text-navy mb-3">' + esc(fpt('childProfile.setup.photo.title')) + '</p>' +
       '<div class="flex items-center gap-4 mb-3">' + avatar + '</div>' +
       '<div class="flex flex-col gap-2">' +
       '<button type="button" id="profileSetupPhotoBtn" class="w-full py-3 bg-sky text-navy rounded-xl font-semibold text-sm min-h-[44px]">' +
-      (hasPhoto ? 'Byt foto' : 'Lägg till foto') + '</button>' +
-      (hasPhoto ? '<button type="button" id="profileSetupPhotoRemoveBtn" class="w-full py-3 border border-lavender text-red-600 rounded-xl font-semibold text-sm min-h-[44px]">Ta bort bild</button>' : '') +
+      esc(hasPhoto ? fpt('childProfile.setup.photo.change') : fpt('childProfile.setup.photo.add')) + '</button>' +
+      (hasPhoto ? '<button type="button" id="profileSetupPhotoRemoveBtn" class="w-full py-3 border border-lavender text-red-600 rounded-xl font-semibold text-sm min-h-[44px]">' + esc(fpt('childProfile.setup.photo.remove')) + '</button>' : '') +
       '</div></div>' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
-      '<p class="font-semibold text-navy mb-2">Barnvy</p>' +
+      '<p class="font-semibold text-navy mb-2">' + esc(fpt('childProfile.setup.view.title')) + '</p>' +
       '<div class="grid grid-cols-2 gap-2 mb-3">' +
       '<button type="button" id="profileViewClassic" class="py-3 rounded-xl font-semibold text-sm border ' +
-      (vm.view_mode !== 'new' ? 'bg-gold border-gold text-navy' : 'bg-white border-lavender text-navy') + '">Klassisk</button>' +
+      (vm.view_mode !== 'new' ? 'bg-gold border-gold text-navy' : 'bg-white border-lavender text-navy') + '">' + esc(fpt('childProfile.setup.view.classic')) + '</button>' +
       '<button type="button" id="profileViewNew" class="py-3 rounded-xl font-semibold text-sm border ' +
-      (vm.view_mode === 'new' ? 'bg-gold border-gold text-navy' : 'bg-white border-lavender text-navy') + '">Ny vy</button>' +
+      (vm.view_mode === 'new' ? 'bg-gold border-gold text-navy' : 'bg-white border-lavender text-navy') + '">' + esc(fpt('childProfile.setup.view.new')) + '</button>' +
       '</div>' +
-      toggleRow('profileSetupMinimalUi', 'Distraktionsfri vy', 'Döljer extra knappar i barnvyn', !!vm.minimal_ui) +
+      toggleRow('profileSetupMinimalUi', fpt('childProfile.setup.view.minimalUiLabel'), fpt('childProfile.setup.view.minimalUiHint'), !!vm.minimal_ui) +
       '</div>' +
       '<div class="bg-white rounded-2xl border border-lavender p-4">' +
-      '<p class="font-semibold text-navy mb-2">Känslor & belöningar</p>' +
-      toggleRow('profileSetupMood', 'Känsloregistrering', 'Slider efter avbockning', child.show_mood_rating !== false) +
-      '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">Laddar belöningar…</p></div>' +
-      '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">Skapa fler belöningar →</a>' +
+      '<p class="font-semibold text-navy mb-2">' + esc(fpt('childProfile.setup.moodRewards.title')) + '</p>' +
+      toggleRow('profileSetupMood', fpt('childProfile.setup.moodRewards.moodLabel'), fpt('childProfile.setup.moodRewards.moodHint'), child.show_mood_rating !== false) +
+      '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">' + esc(fpt('childProfile.setup.moodRewards.loadingRewards')) + '</p></div>' +
+      '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">' + esc(fpt('childProfile.setup.moodRewards.createMore')) + '</a>' +
       '</div>' +
       transitionBlock +
       advancedSettingsHtml(child) +
       (child.role === 'primary'
         ? '<div class="pt-4 mt-2 border-t border-lavender">' +
           '<button type="button" id="profileDeleteChildBtn" class="w-full py-3 bg-coral/30 hover:bg-coral/50 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">' +
-          '🗑 Radera barn permanent</button>' +
-          '<p class="text-xs text-text-soft text-center mt-2">Tar bort schema, stjärnor och all historik för barnet.</p>' +
+          esc(fpt('childProfile.setup.delete.button')) + '</button>' +
+          '<p class="text-xs text-text-soft text-center mt-2">' + esc(fpt('childProfile.setup.delete.hint')) + '</p>' +
           '</div>'
         : '') +
       '</div>';
@@ -304,7 +321,7 @@
         return r && r.is_active !== false;
       });
       if (!rewards.length) {
-        mount.innerHTML = '<p class="text-sm text-text-soft">Inga belöningar ännu.</p>';
+        mount.innerHTML = '<p class="text-sm text-text-soft">' + esc(fpt('childProfile.setup.moodRewards.empty')) + '</p>';
         return;
       }
       mount.innerHTML = rewards.map(function (r) {
@@ -327,7 +344,7 @@
         });
       });
     } catch (_) {
-      mount.innerHTML = '<p class="text-sm text-text-soft">Kunde inte ladda belöningar.</p>';
+      mount.innerHTML = '<p class="text-sm text-text-soft">' + esc(fpt('childProfile.errors.loadRewards')) + '</p>';
     }
   }
 
@@ -361,10 +378,10 @@
       if (!res.ok) throw new Error('save failed');
       const updated = await res.json();
       r.visible_to_children = updated.visible_to_children;
-      showToast(wasOn ? 'Dold för barnet' : 'Synlig för barnet');
+      showToast(wasOn ? fpt('childProfile.setup.moodRewards.hiddenForChild') : fpt('childProfile.setup.moodRewards.visibleForChild'));
     } catch (_) {
       track.classList.toggle('on');
-      showToast('Kunde inte uppdatera', true);
+      showToast(fpt('childProfile.setup.updateFailed'), true);
     }
   }
 
@@ -393,7 +410,7 @@
       e.preventDefault();
       const name = nameInput.value.trim();
       if (!name) {
-        showToast('Namn krävs', true);
+        showToast(fpt('childProfile.setup.identity.nameRequired'), true);
         nameInput.focus();
         return;
       }
@@ -409,7 +426,7 @@
           body: JSON.stringify(body),
         });
         if (!res.ok) {
-          showToast(await formatApiError(res, 'Kunde inte spara profil'), true);
+          showToast(await formatApiError(res, fpt('childProfile.setup.identity.saveProfileFailed')), true);
           return;
         }
         const updated = await res.json();
@@ -421,9 +438,9 @@
         if (child.username && typeof Auth !== 'undefined' && Auth.persistKnownChildrenFromSession) {
           Auth.persistKnownChildrenFromSession([child], Auth.getFamilyId && Auth.getFamilyId());
         }
-        showToast('Profil sparad');
+        showToast(fpt('childProfile.setup.identity.profileSaved'));
       } catch (err) {
-        showToast((err && err.message) || 'Kunde inte spara profil', true);
+        showToast((err && err.message) || fpt('childProfile.setup.identity.saveProfileFailed'), true);
       } finally {
         if (saveBtn) saveBtn.disabled = false;
       }
@@ -459,7 +476,7 @@
       photoBtn.addEventListener('click', async function () {
         photoBtn.disabled = true;
         const orig = photoBtn.textContent;
-        photoBtn.textContent = 'Laddar…';
+        photoBtn.textContent = fpt('childProfile.setup.loading');
         try {
           const endpoint = '/api/children/' + encodeURIComponent(child.id) + '/avatar';
           const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
@@ -467,9 +484,9 @@
           Object.assign(child, updated);
           _wiring = false;
           wireSetup(child, viewConfig, pinSetupHtml, onPinWire);
-          showToast('Bild sparad!');
+          showToast(fpt('childProfile.setup.photo.saved'));
         } catch (err) {
-          const msg = (err && err.message) ? err.message : 'Kunde inte spara bild';
+          const msg = (err && err.message) ? err.message : fpt('childProfile.setup.photo.saveFailed');
           console.error('[child-profile-setup] photo save failed:', msg);
           showToast(msg, 'error', 7000);
         } finally {
@@ -491,9 +508,9 @@
           Object.assign(child, updated);
           _wiring = false;
           wireSetup(child, viewConfig, pinSetupHtml, onPinWire);
-          showToast('Profilbilden togs bort');
+          showToast(fpt('childProfile.setup.photo.removed'));
         } catch (err) {
-          showToast(err.message || 'Kunde inte ta bort', 'error', 7000);
+          showToast(err.message || fpt('childProfile.setup.photo.removeFailed'), 'error', 7000);
         } finally {
           removeBtn.disabled = false;
           _wiring = false;
@@ -506,11 +523,11 @@
     if (classicBtn && newBtn) {
       classicBtn.addEventListener('click', async function () {
         const res = await saveViewConfig(child.id, { view_mode: 'classic' });
-        if (res.ok) { viewConfig.view_mode = 'classic'; showToast('Klassisk vy'); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
+        if (res.ok) { viewConfig.view_mode = 'classic'; showToast(fpt('childProfile.setup.view.classicToast')); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
       });
       newBtn.addEventListener('click', async function () {
         const res = await saveViewConfig(child.id, { view_mode: 'new' });
-        if (res.ok) { viewConfig.view_mode = 'new'; showToast('Ny vy'); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
+        if (res.ok) { viewConfig.view_mode = 'new'; showToast(fpt('childProfile.setup.view.newToast')); wireSetup(child, viewConfig, pinSetupHtml, onPinWire); }
       });
     }
 
@@ -521,8 +538,8 @@
         const on = !moodToggle.classList.contains('on');
         moodToggle.classList.toggle('on');
         const res = await saveChildField(child.id, 'show_mood_rating', on);
-        if (!res.ok) { moodToggle.classList.toggle('on'); showToast('Kunde inte spara', true); }
-        else { child.show_mood_rating = on; showToast('Sparat'); }
+        if (!res.ok) { moodToggle.classList.toggle('on'); showToast(fpt('childProfile.setup.saveFailed'), true); }
+        else { child.show_mood_rating = on; showToast(fpt('childProfile.setup.saved')); }
       });
     }
 
@@ -533,8 +550,8 @@
         const on = !minimalToggle.classList.contains('on');
         minimalToggle.classList.toggle('on');
         const res = await saveViewConfig(child.id, { minimal_ui: on });
-        if (!res.ok) { minimalToggle.classList.toggle('on'); showToast('Kunde inte spara', true); }
-        else { viewConfig.minimal_ui = on; showToast('Sparat'); }
+        if (!res.ok) { minimalToggle.classList.toggle('on'); showToast(fpt('childProfile.setup.saveFailed'), true); }
+        else { viewConfig.minimal_ui = on; showToast(fpt('childProfile.setup.saved')); }
       });
     }
 
@@ -547,12 +564,12 @@
         const res = await saveNnlMode(child.id, on);
         if (!res.ok) {
           nnlToggle.classList.toggle('on');
-          showToast('Kunde inte spara', true);
+          showToast(fpt('childProfile.setup.saveFailed'), true);
           return;
         }
         child.show_now_next = on;
         child.require_sequential_completion = on;
-        showToast(on ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+        showToast(on ? fpt('childProfile.setup.toggles.nnl.on') : fpt('childProfile.setup.toggles.nnl.off'));
       });
     }
 
@@ -571,7 +588,7 @@
         const on = !hapticsToggle.classList.contains('on');
         hapticsToggle.classList.toggle('on');
         localStorage.setItem('stjarndag_haptics_enabled', on ? 'true' : 'false');
-        showToast(on ? 'Vibration påslagen' : 'Vibration avstängd');
+        showToast(on ? fpt('childProfile.setup.toggles.haptics.on') : fpt('childProfile.setup.toggles.haptics.off'));
       });
     }
 
@@ -579,11 +596,13 @@
   }
 
   async function schemaSummaryHtml(childId, childName) {
+    const labels = dayLabels();
+    const openScheduleLink = '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' +
+      esc(fpt('childProfile.setup.schema.openSchedule')) + '</a>';
     try {
       const res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/schedules');
       if (!res.ok) {
-        return '<p class="text-text-soft mb-4">Kunde inte ladda schema.</p>' +
-          '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna veckoschema →</a>';
+        return '<p class="text-text-soft mb-4">' + esc(fpt('childProfile.setup.schema.loadFailed')) + '</p>' + openScheduleLink;
       }
       const schedules = await res.json();
       const byDay = {};
@@ -592,19 +611,20 @@
         const idx = dow === 0 ? 6 : dow - 1;
         byDay[idx] = parseInt(s.item_count, 10) || 0;
       });
-      const dots = DAY_LABELS.map(function (_label, i) {
+      const dots = labels.map(function (label, i) {
         const count = byDay[i] || 0;
         const cls = count > 0 ? 'bg-gold' : 'bg-lavender';
         return '<div class="flex flex-col items-center gap-1 flex-1"><span class="w-3 h-3 rounded-full ' + cls + '"></span>' +
-          '<span class="text-[10px] text-text-soft">' + DAY_LABELS[i] + '</span>' +
+          '<span class="text-[10px] text-text-soft">' + esc(label) + '</span>' +
           (count > 0 ? '<span class="text-[10px] font-bold text-navy">' + count + '</span>' : '') + '</div>';
       }).join('');
       return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-        '<p class="text-sm text-text-soft mb-3">Veckodagsöversikt för ' + esc(childName) + '</p>' +
+        '<p class="text-sm text-text-soft mb-3">' + esc(fpt('childProfile.setup.schema.weekOverview', { name: childName })) + '</p>' +
         '<div class="flex gap-1">' + dots + '</div></div>' +
-        '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Redigera veckoschema →</a>';
+        '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' +
+        esc(fpt('childProfile.setup.schema.editSchedule')) + '</a>';
     } catch (_) {
-      return '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">Öppna veckoschema →</a>';
+      return openScheduleLink;
     }
   }
 
