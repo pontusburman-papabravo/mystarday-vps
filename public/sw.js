@@ -318,8 +318,9 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v967: market-scoped purchase gate + restore-only SDK path (IE before Oct 1)
 // stjarndag-v966: IAP Google basePlan allowlist + native Android detection (VPS cleanup)
-const CACHE_NAME = 'stjarndag-v966';
+const CACHE_NAME = 'stjarndag-v967';
 // stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
 // stjarndag-v963: admin Start relative time — Stockholm igår + live labels
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
