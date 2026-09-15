@@ -70,8 +70,29 @@ describe('IE/FI release gates cannot be conflated', () => {
       assert.equal(gates[cc].READY_TO_OPEN, false);
       assert.equal(gates[cc].PAID_ROLLOUT_READY, false);
     }
-    assert.equal(gates.IE.DEVICE_VERIFIED, true);
+    assert.equal(gates.IE.DEVICE_VERIFIED, false);
     assert.equal(gates.FI.DEVICE_VERIFIED, false);
+    assert.equal(gates.IE.device_evidence.ios_purchase, 'YES');
+    assert.equal(gates.IE.device_evidence.ios_restore, 'NOT VERIFIED');
+    assert.equal(gates.IE.device_evidence.android_purchase, 'PASS');
+    assert.equal(gates.IE.device_evidence.android_restore, 'NOT VERIFIED');
+  });
+
+  it('purchase evidence does not imply restore PASS', () => {
+    const ie = evaluateCountryReleaseGates({
+      ios_purchase_ie: 'YES',
+      android_purchase_ie: 'PASS',
+      ios_restore_ie: 'NOT VERIFIED',
+      android_restore_ie: 'NOT VERIFIED',
+    }, 'IE');
+    assert.equal(ie.DEVICE_VERIFIED, false);
+    const restored = evaluateCountryReleaseGates({
+      ios_purchase_ie: 'YES',
+      android_purchase_ie: 'PASS',
+      ios_restore_ie: 'YES',
+      android_restore_ie: 'PASS',
+    }, 'IE');
+    assert.equal(restored.DEVICE_VERIFIED, true);
   });
 
   it('unit_tests_pass does not promote READY_TO_OPEN or BILLING_READY', () => {
@@ -85,8 +106,10 @@ describe('IE/FI release gates cannot be conflated', () => {
       apple_iap_ie: 'NOT VERIFIED',
       play_named_skus_ie: 'NOT VERIFIED',
       revenuecat: 'BLOCKED',
-      android_sandbox_e2e: 'MANUAL_VERIFICATION_REQUIRED',
-      ios_device_ie: 'NO',
+      ios_purchase_ie: 'NO',
+      ios_restore_ie: 'NOT VERIFIED',
+      android_purchase_ie: 'MANUAL_VERIFICATION_REQUIRED',
+      android_restore_ie: 'NOT VERIFIED',
       apple_paid_download_unresolved_p0: true,
     }, 'IE');
     assert.equal(ie.unit_tests_pass, true);

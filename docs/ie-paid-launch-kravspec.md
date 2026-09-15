@@ -82,7 +82,7 @@ Detta **försvagar inte** IE:s launch-gate i §0.
 | Spår | Vad | När |
 |------|-----|-----|
 | **SE** | Nuvarande modell. IAP go-live **2026-10-01**. Grandfather + intro-år oförändrade. | Separat. Får inte blockera IE/NL. |
-| **IE (P0)** | Första betalda internationella experimentet. 7-dagars trial. | Implementation mot spec efter founder GO. Flagga efter §0. |
+| **IE (P0)** | Första betalda internationella experimentet. **14-dagars** produkttrial (paywall dag 15). | Implementation mot spec efter founder GO. Flagga efter §0. |
 | **NL (parallell förberedelse)** | Gap-analys, egen `market_nl_open` (när den byggs), store/legal/pricing, ev. `en-GB` som första test. **Inte** automatisk öppning. | Parallellt med IE P0. Öppna när **NL:s** gates är klara. Inte D30 från IE. |
 | **Locale / DE+AT** | Localization foundation + `de-DE` efter export-signal (First Success i IE och/eller NL). | Efter export-signal, inte efter perfekt IE-kohort. |
 | **UK** | **Deferred** by founder (Children’s Code, UK GDPR, representative, ICO, consumer law). | Återupptas bara via senare explicit founder-beslut. |
@@ -702,7 +702,7 @@ Inget av Q1–Q3 blockerar att **låsa specen**. Q2 blockerar **flaggan** tills 
 | Dokument | Roll efter denna spec |
 |---------|------------------------|
 | **Detta dokument** | Normativ kravspec. Läs först. Kommersiell princip §3.1–3.2. Expansion §3.3–3.7. |
-| [`ADR-023`](adr/ADR-023-market-commercial-policy.md) | Beslut: intro-år SE-only; nya marknader 7-dagars trial + billing-ready |
+| [`ADR-023`](adr/ADR-023-market-commercial-policy.md) | Beslut: intro-år SE-only; nya marknader **14-dagars** trial + billing-ready |
 | [`ADR-018`](adr/ADR-018-family-market-jurisdiction.md) | Land ≠ språk, gates. Lanserings**ordning** delvis ersatt. |
 | [`docs/ie-fi-prebilling-access.md`](ie-fi-prebilling-access.md) | Historisk IE/FI-prebilling-modell. **Inte** IE launch authority. |
 | [`docs/ie-fi-release-gates.md`](ie-fi-release-gates.md) | States får inte kollapsas. IE-öppning ≠ prebilling-ready. |

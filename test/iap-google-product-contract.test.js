@@ -64,6 +64,7 @@ describe('iap product contract', () => {
     assert.equal(isAllowedProductId(GOOGLE_SUBSCRIPTION_PRODUCT), true);
     assert.equal(isAllowedWebhookProductId(GOOGLE_PRODUCT_MONTHLY), true);
     assert.equal(isAllowedProductId(GOOGLE_PRODUCT_YEARLY), true);
+    assert.equal(isAllowedWebhookProductId('com.example.unknown:monthly'), false);
   });
 
   it('Google plan mapping: monthly/yearly suffix only, never base product alone', () => {

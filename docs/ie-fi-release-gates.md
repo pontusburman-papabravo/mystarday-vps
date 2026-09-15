@@ -12,7 +12,7 @@ These states must stay separate. Print them with `npm run ie-fi:release-gates`.
 | `CLOSED_CODE_READY` | Code may deploy while IE/FI stay closed | A desire to launch |
 | `PREBILLING_MARKET_READY` | Product path is proven for a later open with billing OFF | Store / device / RevenueCat / market flag |
 | `BILLING_CONFIGURATION_READY` | Named IAP + RC evidence complete | Unit tests or device runs |
-| `DEVICE_VERIFIED` | Android sandbox + that market's iOS device actually run | Unit tests or store-config JSON |
+| `DEVICE_VERIFIED` | Per-platform **purchase + restore** on physical iOS and Android | Unit tests, store-config JSON, or purchase alone |
 | `READY_TO_OPEN` | Explicit founder/ops approval to flip a market flag | Green CI or `PREBILLING_MARKET_READY` |
 | `PAID_ROLLOUT_READY` | Configuration + device + explicit paid-rollout approval | Prebilling readiness |
 
@@ -28,4 +28,4 @@ Rules:
 
 Evaluator: `src/lib/ie-fi-release-gates.js`.
 
-Committed evidence (2026-09-14): `IE_DEVICE_VERIFIED` is founder-confirmed (`ios_device_ie=YES`, `android_sandbox_e2e=PASS`). `FI_DEVICE_VERIFIED` stays false. `founder_open_approved_*` stays false. Named Apple IAP / Play SKUs / RevenueCat stay NOT VERIFIED or BLOCKED.
+Committed evidence (2026-09-14): `ios_purchase_ie=YES` and `android_purchase_ie=PASS` (founder-confirmed physical purchase). `ios_restore_ie` and `android_restore_ie` stay `NOT VERIFIED` until separately attested — purchase does not imply restore. `IE_DEVICE_VERIFIED` stays false until all four pass. `FI_DEVICE_VERIFIED` stays false. `founder_open_approved_*` stays false. Named Apple IAP / Play SKUs / RevenueCat stay NOT VERIFIED or BLOCKED.
