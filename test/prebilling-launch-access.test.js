@@ -28,10 +28,13 @@ const CREATED_SE_POST = '2026-10-02T00:00:00+02:00';
 const CREATED_IE_POST = '2026-10-16T00:00:00+02:00';
 
 function signup(countryCode, { open, billing, now, start }) {
+  const isTrialMarket = countryCode === 'IE' || countryCode === 'FI';
+  const marketBillingReady = isTrialMarket && billing === true && start != null && now >= new Date(start);
   return evaluateSignupCompleteness({
     countryCode,
     marketOpen: open,
     publicBillingUsable: billing,
+    marketBillingReady: isTrialMarket ? marketBillingReady : undefined,
     paymentStartAt: start,
     lifetimeFreeUntil: '2026-09-14T00:00:00+02:00',
     now,

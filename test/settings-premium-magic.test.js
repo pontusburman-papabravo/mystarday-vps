@@ -98,10 +98,10 @@ describe('subscription UI visibility — server contract', () => {
       t.skip('No real DATABASE_URL');
       return;
     }
-    const familyId = '77777777-7777-4777-8777-777777777777';
+    const familyId = '11111111-1111-4111-8111-111111111111';
     delete process.env.BILLING_UI_DISABLED;
     delete process.env.IAP_PAID_ROLLOUT_READY;
-    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = '11111111-1111-4111-8111-111111111111';
+    process.env.REVENUECAT_SANDBOX_FAMILY_IDS = familyId;
     process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
     for (const mod of ['../src/lib/db', '../db/app-settings', '../src/lib/billing-ui', '../src/lib/iap-paid-rollout', '../src/lib/iap-native-purchase-gate', '../src/lib/subscription-ui-visibility']) {
       delete require.cache[require.resolve(mod)];
