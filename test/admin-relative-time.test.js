@@ -42,6 +42,11 @@ test('older days use Stockholm date and time', () => {
   assert.equal(formatAdminRelativeTime('2026-09-12T10:00:00.000Z', NOW), '12 sep. 12:00');
 });
 
+test('other calendar years include the year so they are not mistaken for this year', () => {
+  assert.equal(formatAdminRelativeTime('2027-06-01T00:00:00.000Z', NOW), '1 juni 2027 02:00');
+  assert.equal(formatAdminRelativeTime('2025-06-01T00:00:00.000Z', NOW), '1 juni 2025 02:00');
+});
+
 test('invalid input is empty', () => {
   assert.equal(formatAdminRelativeTime('', NOW), '');
   assert.equal(formatAdminRelativeTime(null, NOW), '');
