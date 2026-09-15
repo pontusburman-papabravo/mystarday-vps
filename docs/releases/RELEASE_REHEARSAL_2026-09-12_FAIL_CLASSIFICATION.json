@@ -1,0 +1,390 @@
+{
+  "title": "Release rehearsal FAIL classification",
+  "date": "2026-09-12",
+  "appSha": "0ac5cf0493e3e703fcf29f03305046472befe353",
+  "source": {
+    "originalReport": "/opt/cursor/artifacts/release_rehearsal_report.json",
+    "originalAvailableOnThisVm": false,
+    "reconstructedFrom": "rehearsal agent transcript FAILS 35 dump + logs + founder report",
+    "rehearsalAgentBcId": "bc-0f5741e2-32bb-4316-948c-fd1bfa064baf",
+    "environment": "local Cloud Agent http://127.0.0.1:3000",
+    "localVmOnly": true,
+    "score": { "pass": 93, "fail": 35, "total": 128 }
+  },
+  "classes": ["PRODUCT_BUG", "HARNESS_BUG", "ENVIRONMENT_ONLY", "NOT_REPRODUCED"],
+  "counts": {
+    "PRODUCT_BUG": 3,
+    "ENVIRONMENT_ONLY": 2,
+    "HARNESS_BUG": 21,
+    "NOT_REPRODUCED": 9
+  },
+  "founderOrder": [
+    "Fix Rapid Entry silent Save drop (021-EVIDENCE / 023)",
+    "Verify prod template-groups on a fresh signup before treating B002/005 as ship blockers",
+    "Pad schedule list above 375px tab bar (extra finding, not in the 35)",
+    "Calendar 44px chrome (098)",
+    "Optional: disable UK Create account when closed country selected (C002b is not a P0 hole)",
+    "Harness: assert via API, Copy submit = Spara, DnD manual"
+  ],
+  "failures": [
+    {
+      "id": "005",
+      "title": "Fresh parent lands in correct first-use experience",
+      "class": "ENVIRONMENT_ONLY",
+      "severityReported": "P0",
+      "severityEffective": "P2_local_P0_if_prod_empty",
+      "actual": "Onboarding child form visible but schedule templates empty/failed. Grid: Schemamallar kunde inte laddas just nu.Försök igen",
+      "evidence": "FACT: loadTemplateGroups fail-closed when activity_count===0. FACT: 005B PASS (first step obvious). FACT: fresh local DB has empty default_schedule. Prod NOT_VERIFIED.",
+      "action": "Do not product-fix on this evidence. GET /api/onboarding/template-groups on prod fresh signup. Import library locally before next rehearsal."
+    },
+    {
+      "id": "023",
+      "title": "Activity count correct",
+      "class": "PRODUCT_BUG",
+      "severityReported": "P1",
+      "severityEffective": "P0",
+      "actual": "visibleRows=2 matched=Äta frukost",
+      "evidence": "FACT: Monday DB had 2 rows after eight Rapid Entry saves. Same root as 021-EVIDENCE.",
+      "action": "Fix Rapid Entry in-flight Save. Retest 023 after queued or errored overlapping Save."
+    },
+    {
+      "id": "031",
+      "title": "Add start time Vakna 07:00",
+      "class": "HARNESS_BUG",
+      "severityReported": "P1",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "FACT: scheduleItems is page-local let, not window.scheduleItems. FACT: 031R PASS via DB.",
+      "action": "Assert times via schedules API. No product fix."
+    },
+    {
+      "id": "032",
+      "title": "Add start/end Frukost 07:30–07:45",
+      "class": "HARNESS_BUG",
+      "severityReported": "P1",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "Same window.scheduleItems. FACT: 032R PASS.",
+      "action": "Same as 031."
+    },
+    {
+      "id": "033",
+      "title": "Time persists after refresh",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "{}",
+      "evidence": "033R PASS.",
+      "action": "Same as 031."
+    },
+    {
+      "id": "034",
+      "title": "Change existing time 07:30 → 07:35",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "034R PASS.",
+      "action": "Same as 031."
+    },
+    {
+      "id": "035",
+      "title": "Revert time",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "035R PASS.",
+      "action": "Same as 031."
+    },
+    {
+      "id": "038",
+      "title": "Time survives section change",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "Original assert via window.scheduleItems. 041UI PASS shows chip UI can move section. 038R looked at the wrong row.",
+      "action": "Retest time-preservation via 041UI chip path on the moved item id."
+    },
+    {
+      "id": "041",
+      "title": "Morning → Day",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "undefined",
+      "evidence": "FACT: 041UI PASS (Frukost → Dag via chip). Original FAIL = window.scheduleItems.",
+      "action": "No product fix from this row."
+    },
+    {
+      "id": "042",
+      "title": "Day → Evening",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "undefined",
+      "evidence": "Same harness. 042R asserted Klä på sig, not the UI-moved Frukost row.",
+      "action": "Retest evening move via chip on a known item id."
+    },
+    {
+      "id": "043",
+      "title": "Evening → Morning",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "undefined",
+      "evidence": "043R PASS.",
+      "action": "No product fix."
+    },
+    {
+      "id": "044",
+      "title": "Section persists after refresh",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "undefined",
+      "evidence": "window.scheduleItems. No separate DB fail on the 041UI row.",
+      "action": "Assert after reload via API on the moved item id."
+    },
+    {
+      "id": "045",
+      "title": "Time preserved across section move",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "null",
+      "evidence": "Same as 038.",
+      "action": "Same as 038."
+    },
+    {
+      "id": "046",
+      "title": "Rapid consecutive section changes",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "undefined",
+      "evidence": "046R PASS. setSection queues via saveTail.",
+      "action": "No product fix."
+    },
+    {
+      "id": "047",
+      "title": "Multiple activities same section",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "morgonCount=0",
+      "evidence": "Harness saw 0 because window.scheduleItems + only 2 Rapid Entry rows. 047R PASS after slow-add of 8.",
+      "action": "No separate product fix."
+    },
+    {
+      "id": "051",
+      "title": "Move second item above first",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P1",
+      "severityEffective": "P2_manual_qa",
+      "actual": "{\"before\":[\"Frukost\",\"Äta frukost\"],\"after\":[\"Frukost\",\"Äta frukost\"],\"drag1\":{\"ok\":true,\"dialog\":false}}",
+      "evidence": "Two rows are enough to swap, but Puppeteer+Sortable reported ok without order change. Product DnD NOT_VERIFIED. Contaminated by Rapid Entry drop.",
+      "action": "Manual 375px reorder on a day with >=2 rows. Do not change Sortable on this evidence."
+    },
+    {
+      "id": "056",
+      "title": "Reorder with timed activities",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "[]",
+      "evidence": "No timed rows in harness view; follow-on of 2-row state + window.scheduleItems.",
+      "action": "Run after a successful manual reorder."
+    },
+    {
+      "id": "061b",
+      "title": "Copy Monday content onto weekdays",
+      "class": "HARNESS_BUG",
+      "severityReported": "P1",
+      "severityEffective": null,
+      "actual": "Tisdagssnack",
+      "evidence": "FACT: 061UIb PASS with Spara. Toast copied to 4 days. Tuesday kept Tisdagssnack plus Monday morning set.",
+      "action": "No product fix. Next harness: click Spara."
+    },
+    {
+      "id": "065",
+      "title": "Duplicate template skipped on copy",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "[[\"borsta tänderna\",2],[\"mellanmål\",2],[\"middag\",2],[\"borsta tänderna (kväll)\",2],[\"sova\",2]]",
+      "evidence": "Copy did not run in this path. Family seed already has Borsta tänderna + Borsta tänderna (kväll). Duplicate counts not proven as copy-created.",
+      "action": "After successful copy, count templates before/after by unique id, not display name."
+    },
+    {
+      "id": "066",
+      "title": "Times preserved on copy",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "{\"monTimes\":[],\"wedTimes\":[]}",
+      "evidence": "Copy did not run. 061UIb did not re-assert times.",
+      "action": "After 061UIb path, compare start/end per name Mon vs Wed via API."
+    },
+    {
+      "id": "067",
+      "title": "Sections preserved on copy",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "[]",
+      "evidence": "Follow-on of copy never applying.",
+      "action": "Same as 066 for section."
+    },
+    {
+      "id": "068",
+      "title": "Order preserved on copy (count)",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "",
+      "evidence": "Copy did not run.",
+      "action": "Count items Mon vs Tue–Fri after successful copy."
+    },
+    {
+      "id": "069",
+      "title": "Refresh target weekdays",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "",
+      "evidence": "Copy did not run.",
+      "action": "Reload + API after successful copy."
+    },
+    {
+      "id": "021-EVIDENCE",
+      "title": "Rapid Entry 8-in-one-session DB evidence",
+      "class": "PRODUCT_BUG",
+      "severityReported": "P0",
+      "severityEffective": "P0",
+      "actual": "mondayRows=2 names=Frukost|Äta frukost",
+      "evidence": "FACT in code: if (activitySubmitInFlight) return; with no toast in public/js/schedule-add-menu.js submitActivity. FACT: 021 PASS was URL-only. FACT: 021b PASS when waiting for Save to re-enable.",
+      "action": "Queue overlapping Save or show an error and leave the form intact. Never silent no-op. Regression: 8 rapid Saves → 8 Monday rows."
+    },
+    {
+      "id": "038R",
+      "title": "Time survives section change (DB)",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "{\"id\":\"77466e3a-384b-4792-8e47-e51973f13fcd\",\"section\":\"morgon\",\"start_time\":\"07:10\",\"end_time\":null,\"sort_order\":0,\"name\":\"Klä på sig\"}",
+      "evidence": "Looked at Klä på sig. 041UI moved Frukost. Section persist for the intended row is NOT_VERIFIED, not disproven.",
+      "action": "Chip-click a known id, then GET that id. Do not fix persist from this row."
+    },
+    {
+      "id": "041R",
+      "title": "Morning → Day (DB)",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "Klä på sig still section morgon",
+      "evidence": "Fixture mismatch vs 041UI (Frukost → Dag).",
+      "action": "Assert the Frukost row id, not Klä på sig."
+    },
+    {
+      "id": "042R",
+      "title": "Day → Evening (DB)",
+      "class": "HARNESS_BUG",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "Klä på sig still section morgon",
+      "evidence": "Same wrong row; evening move was not applied to it.",
+      "action": "Chip → kvall on a known id + API."
+    },
+    {
+      "id": "061R",
+      "title": "Copy Monday content onto weekdays (DB)",
+      "class": "HARNESS_BUG",
+      "severityReported": "P0",
+      "severityEffective": null,
+      "actual": "copy={\"ok\":false,\"reason\":\"missing client\"} tue=Tisdagssnack",
+      "evidence": "ScheduleApplyClient invoked without currentChildId. 061UIb proves product copy.",
+      "action": "No product fix. Harness: run from /schedule after child select."
+    },
+    {
+      "id": "066R",
+      "title": "Times preserved on copy (DB)",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "[{\"name\":\"Tisdagssnack\",\"section\":\"morgon\",\"start_time\":null}]",
+      "evidence": "DB copy path never ran (061R missing client).",
+      "action": "Same as 066 after UI copy."
+    },
+    {
+      "id": "092",
+      "title": "Calendar after Copy Day",
+      "class": "NOT_REPRODUCED",
+      "severityReported": "P2",
+      "severityEffective": null,
+      "actual": "Tisdagssnack",
+      "evidence": "Calendar showed Tuesday before successful copy. 061UIb did not re-assert calendar. Calendar open/week/isolation PASS in 076–097.",
+      "action": "Open /calendar after 061UIb and check Tuesday."
+    },
+    {
+      "id": "098",
+      "title": "Calendar touch targets",
+      "class": "PRODUCT_BUG",
+      "severityReported": "P2",
+      "severityEffective": "P2",
+      "actual": "Astrid/Leo chips h=35; Idag h=38; week arrows h=40",
+      "evidence": "FACT rehearsal measurement. FACT CSS: .child-tab padding 6px 14px no min-height; .nav-btn 40px; #calendarTodayBtn py-2 without min-h-[44px] in public/calendar.html. POS 060 / 15 44pt. Parent calendar, not child control — P2 not P0.",
+      "action": "Set min-h-[44px] min-w-[44px] on .child-tab, .nav-btn, #calendarTodayBtn."
+    },
+    {
+      "id": "061S",
+      "title": "Copy Monday → weekdays from /schedule",
+      "class": "HARNESS_BUG",
+      "severityReported": "P0",
+      "severityEffective": null,
+      "actual": "copy={\"ok\":false,\"reason\":\"missing\",\"hasClient\":true} tue=Tisdagssnack",
+      "evidence": "Client present, currentChildId missing. UI copy (061UIb) works.",
+      "action": "No product fix."
+    },
+    {
+      "id": "B002",
+      "title": "Family B template picker",
+      "class": "ENVIRONMENT_ONLY",
+      "severityReported": "P0",
+      "severityEffective": "P0_only_if_prod_empty",
+      "actual": "Schemamallar kunde inte laddas just nu.",
+      "evidence": "FACT locally: usableGroups.length===0. FACT: fresh local DB empty default_schedule (AGENTS.md). Prod in this classification: NOT_VERIFIED.",
+      "action": "One prod GET of template-groups after fresh registration. If live has canonical_id + activity_count>0, close B002. If not, block the newsletter."
+    },
+    {
+      "id": "061UI",
+      "title": "Copy Day via Kopiera dag UI",
+      "class": "HARNESS_BUG",
+      "severityReported": "P0",
+      "severityEffective": null,
+      "actual": "clicked=📋 Kopiera dag submit=null (looked for Kopiera/Copy)",
+      "evidence": "FACT: modal submit is Spara. FACT: 061UIb PASS.",
+      "action": "No product fix."
+    },
+    {
+      "id": "C002b",
+      "title": "UK Create account control disabled/blocked",
+      "class": "HARNESS_BUG",
+      "severityReported": "P0",
+      "severityEffective": "P2_affordance_optional",
+      "actual": "{\"disabled\":false,\"formHidden\":false,\"btnText\":\"Create account\"}",
+      "evidence": "FACT: C002 PASS closed-market copy. FACT: GB selection clears confirmation; requireSelection fail-closed; RegistrationCountryGate.allow blocks submit; server assertRegistrationMarketOpen. Rehearsal did not click submit. Open UK account hole NOT_VERIFIED — code is fail-closed. Test required disabled/hidden, which is not the product contract.",
+      "action": "Not P0. Optional: disable CTA when closedMarketMessage(code) is set. Confirm one blocked submit on prod before any UK ads (ads out of scope while market_uk_open=false)."
+    }
+  ],
+  "extraFindingsNotInThe35": [
+    {
+      "id": "NAV-OVERLAP",
+      "title": "Bottom nav covers first schedule rows at 375×812",
+      "class": "PRODUCT_BUG",
+      "severityEffective": "P1",
+      "action": "Pad schedule list / safe-area above tab bar"
+    }
+  ]
+}
