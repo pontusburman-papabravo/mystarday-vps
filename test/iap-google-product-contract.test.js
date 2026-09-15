@@ -6,6 +6,7 @@ const {
   APP_APPLICATION_ID,
   APPLE_PRODUCT_MONTHLY,
   APPLE_PRODUCT_YEARLY,
+  GOOGLE_SUBSCRIPTION_PRODUCT,
   GOOGLE_PRODUCT_MONTHLY,
   GOOGLE_PRODUCT_YEARLY,
   WEBHOOK_PRODUCT_IDS,
@@ -13,7 +14,7 @@ const {
   planFromStoreProductId,
   isAllowedWebhookProductId,
 } = require('../config/iap-product-contract');
-const { getAllowedProductIds } = require('../config/revenuecat-iap');
+const { getAllowedProductIds, isAllowedProductId } = require('../config/revenuecat-iap');
 
 describe('iap product contract', () => {
   it('Apple product IDs unchanged', () => {
@@ -56,5 +57,20 @@ describe('iap product contract', () => {
   it('unknown product fails closed', () => {
     assert.equal(isAllowedWebhookProductId('com.example.unknown'), false);
     assert.equal(planFromStoreProductId('com.example.unknown'), null);
+  });
+
+  it('accepts Google subscription product id without base plan suffix for allowlist only', () => {
+    assert.equal(isAllowedWebhookProductId(GOOGLE_SUBSCRIPTION_PRODUCT), true);
+    assert.equal(isAllowedProductId(GOOGLE_SUBSCRIPTION_PRODUCT), true);
+    assert.equal(isAllowedWebhookProductId(GOOGLE_PRODUCT_MONTHLY), true);
+    assert.equal(isAllowedProductId(GOOGLE_PRODUCT_YEARLY), true);
+  });
+
+  it('Google plan mapping: monthly/yearly suffix only, never base product alone', () => {
+    assert.equal(planFromStoreProductId(GOOGLE_PRODUCT_MONTHLY), 'monthly');
+    assert.equal(planFromStoreProductId(GOOGLE_PRODUCT_YEARLY), 'yearly');
+    assert.equal(planFromStoreProductId(GOOGLE_SUBSCRIPTION_PRODUCT), null);
+    assert.equal(isAllowedWebhookProductId('com.example.unknown'), false);
+    assert.equal(isAllowedProductId('com.example.unknown'), false);
   });
 });

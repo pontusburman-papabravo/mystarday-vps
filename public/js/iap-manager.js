@@ -28,12 +28,18 @@
     return _isNative;
   }
 
-  function platformName() {
-    if (typeof window !== 'undefined' && window.Platform && typeof window.Platform.getPlatform === 'function') {
-      const p = window.Platform.getPlatform();
-      if (p === 'android') return 'android';
+  function isAndroidPlatform() {
+    if (typeof window !== 'undefined' && window.Platform && typeof window.Platform.isAndroid === 'function') {
+      return window.Platform.isAndroid() === true;
     }
-    return 'ios';
+    return typeof window !== 'undefined' &&
+      window.Capacitor &&
+      typeof window.Capacitor.getPlatform === 'function' &&
+      window.Capacitor.getPlatform() === 'android';
+  }
+
+  function platformName() {
+    return isAndroidPlatform() ? 'android' : 'ios';
   }
 
   async function fetchConfig() {
@@ -202,11 +208,16 @@
     if (!canPurchase()) return null;
     const purchases = getPurchasesPlugin();
     if (!purchases) return null;
-    const offerings = await purchases.getOfferings();
-    const offeringId = (_config && _config.offeringId) || 'default';
-    return (offerings && offerings.current) ||
-      (offerings && offerings.all && offerings.all[offeringId]) ||
-      null;
+    try {
+      const offerings = await purchases.getOfferings();
+      const offeringId = (_config && _config.offeringId) || 'default';
+      return (offerings && offerings.current) ||
+        (offerings && offerings.all && offerings.all[offeringId]) ||
+        null;
+    } catch (err) {
+      console.error('[IAPManager] getOfferings failed:', err && err.message ? err.message : 'unknown');
+      return null;
+    }
   }
 
   async function syncBackendEntitlement() {

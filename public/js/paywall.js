@@ -19,8 +19,12 @@
   }
 
   function isAndroid() {
-    return typeof Platform !== 'undefined' && Platform.getPlatform &&
-      Platform.getPlatform() === 'android';
+    if (typeof Platform !== 'undefined' && typeof Platform.isAndroid === 'function') {
+      return Platform.isAndroid() === true;
+    }
+    return typeof Capacitor !== 'undefined' &&
+      typeof Capacitor.getPlatform === 'function' &&
+      Capacitor.getPlatform() === 'android';
   }
 
   function show(el) { if (el) el.classList.remove('hidden'); }
