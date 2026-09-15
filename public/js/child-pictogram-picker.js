@@ -1,9 +1,14 @@
 /**
- * child-pictogram-picker.js — Bildstil (Min samling, gate ON).
+ * child-pictogram-picker.js — Min samling picture-style picker (gate ON).
  * Preview → confirm. Persists child_view_config.pictogram_pack only.
  */
 (function () {
   'use strict';
+
+  function t(key, params) {
+    return (typeof window.childT === 'function' ? childT(key, params)
+      : (typeof window.cpt === 'function' ? cpt(key, params) : ''));
+  }
 
   const BACKDROP_ID = 'childPictogramPickerBackdrop';
   const PANEL_ID = 'childPictogramPickerPanel';
@@ -57,16 +62,16 @@
     panel.setAttribute('aria-labelledby', 'childPictogramPickerTitle');
     panel.innerHTML =
       '<header class="cpp-header">' +
-        '<h2 id="childPictogramPickerTitle" class="cpp-title">Bildstil</h2>' +
-        '<button type="button" class="cpp-close" id="childPictogramPickerClose" aria-label="Stäng">×</button>' +
+        '<h2 id="childPictogramPickerTitle" class="cpp-title">' + t('settings.imageStyle') + '</h2>' +
+        '<button type="button" class="cpp-close" id="childPictogramPickerClose" aria-label="' + t('common.close') + '">×</button>' +
       '</header>' +
-      '<p class="cpp-lead">Välj hur aktivitetsbilderna ska se ut. Tryck <strong>Spara bildstil</strong> när du är nöjd.</p>' +
-      '<div class="cpp-options" id="childPictogramPickerOptions" role="radiogroup" aria-label="Välj bildstil"></div>' +
+      '<p class="cpp-lead">' + t('settings.pictogramPickerLead') + '</p>' +
+      '<div class="cpp-options" id="childPictogramPickerOptions" role="radiogroup" aria-label="' + t('settings.pictogramPickerPickAria') + '"></div>' +
       '<footer class="cpp-footer">' +
         '<p class="cpp-status" id="childPictogramPickerStatus" aria-live="polite"></p>' +
         '<div class="cpp-actions">' +
-          '<button type="button" class="cpp-btn cpp-btn--ghost" id="childPictogramPickerCancel">Avbryt</button>' +
-          '<button type="button" class="cpp-btn cpp-btn--primary" id="childPictogramPickerSave">Spara bildstil</button>' +
+          '<button type="button" class="cpp-btn cpp-btn--ghost" id="childPictogramPickerCancel">' + t('common.cancel') + '</button>' +
+          '<button type="button" class="cpp-btn cpp-btn--primary" id="childPictogramPickerSave">' + t('settings.pictogramPickerSave') + '</button>' +
         '</div>' +
       '</footer>';
 
@@ -190,12 +195,31 @@
     if (status) status.textContent = state.error || '';
     if (saveBtn) {
       saveBtn.disabled = state.saving;
-      saveBtn.textContent = state.saving ? 'Sparar…' : 'Spara bildstil';
+      saveBtn.textContent = state.saving ? t('settings.pictogramPickerSaving') : t('settings.pictogramPickerSave');
     }
+  }
+
+  function refreshShellCopy() {
+    if (!_shellReady) return;
+    const panel = document.getElementById(PANEL_ID);
+    if (!panel) return;
+    const title = panel.querySelector('#childPictogramPickerTitle');
+    if (title) title.textContent = t('settings.imageStyle');
+    const closeBtn = panel.querySelector('#childPictogramPickerClose');
+    if (closeBtn) closeBtn.setAttribute('aria-label', t('common.close'));
+    const lead = panel.querySelector('.cpp-lead');
+    if (lead) lead.innerHTML = t('settings.pictogramPickerLead');
+    const options = document.getElementById('childPictogramPickerOptions');
+    if (options) options.setAttribute('aria-label', t('settings.pictogramPickerPickAria'));
+    const cancelBtn = document.getElementById('childPictogramPickerCancel');
+    if (cancelBtn) cancelBtn.textContent = t('common.cancel');
+    updateFooter();
+    if (state.open) renderOptions();
   }
 
   function openPanel() {
     ensureShell();
+    refreshShellCopy();
     const backdrop = document.getElementById(BACKDROP_ID);
     const panel = document.getElementById(PANEL_ID);
     if (!backdrop || !panel) return;
@@ -272,7 +296,7 @@
       }));
       closePanel();
     }).catch(function () {
-      state.error = 'Bildstilen kunde inte sparas. Försök igen.';
+      state.error = t('settings.pictogramPickerSaveFailed');
       ChildPictogramPacks.revertToSaved({ silent: true });
       state.previewPackId = state.savedPackId;
       refreshVisibleActivities();
@@ -317,6 +341,10 @@
       const ctx = window.ChildDashboardContext || {};
       open(ctx.me, ctx.viewConfig || {});
     });
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('child-i18n-ready', refreshShellCopy);
   }
 
   window.ChildPictogramPicker = {

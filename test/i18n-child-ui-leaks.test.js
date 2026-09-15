@@ -175,4 +175,24 @@ describe('i18n child UI leaks — title/aria locale', () => {
     assert.equal(i18n.t('en-GB', 'child.settings.pictogramPackSimple'), 'Clear pictures');
     assert.equal(i18n.t('sv-SE', 'child.settings.pictogramPackSimple'), 'Tydliga bilder');
   });
+
+  it('child-pictogram-picker uses locale keys, not hardcoded Swedish', () => {
+    const src = read('public/js/child-pictogram-picker.js');
+    assert.match(src, /function t\(key, params\)/);
+    assert.match(src, /t\('settings\.imageStyle'\)/);
+    assert.match(src, /t\('settings\.pictogramPickerSave'\)/);
+    assert.match(src, /t\('common\.cancel'\)/);
+    assert.match(src, /t\('settings\.pictogramPickerSaveFailed'\)/);
+    assert.match(src, /child-i18n-ready/);
+    assert.doesNotMatch(src, /Spara bildstil/);
+    assert.doesNotMatch(src, /Bildstilen kunde inte sparas/);
+  });
+
+  it('en-GB pictogram picker copy is English', () => {
+    const i18n = require('../src/lib/i18n');
+    i18n.loadLocales();
+    assert.equal(i18n.t('en-GB', 'child.settings.pictogramPickerSave'), 'Save picture style');
+    assert.match(i18n.t('en-GB', 'child.settings.pictogramPickerLead'), /Save picture style/);
+    assert.doesNotMatch(i18n.t('en-GB', 'child.settings.pictogramPickerSaveFailed'), /[åäöÅÄÖ]/);
+  });
 });
