@@ -2110,48 +2110,6 @@
       "snippet": "Bekräfta att du är vuxen"
     },
     {
-      "id": "2587e84ad6c5ccc0",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Glömt PIN? Logga in med e-post eller Apple/Google"
-    },
-    {
-      "id": "8570bbe891d8db70",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Bekräfta"
-    },
-    {
-      "id": "8cc5ee5f8730d1f5",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Avbryt"
-    },
-    {
-      "id": "92a45cee3de5e893",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Radera"
-    },
-    {
-      "id": "ad40dca393f9eac4",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Vuxenläge"
-    },
-    {
-      "id": "c8b9122da72e8a76",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Glömt PIN? Logga in med e-post eller Apple/Google"
-    },
-    {
-      "id": "d2a7ec48754ae60d",
-      "path": "public/js/adult-pin-gate-ui.js",
-      "rule": "helper-fallback",
-      "snippet": "Avbryt"
-    },
-    {
       "id": "0fbed596ecb53be6",
       "path": "public/js/app-consent.js",
       "rule": "textContent",
@@ -3086,18 +3044,6 @@
       "path": "public/js/library.js",
       "rule": "innerHTML",
       "snippet": "<div class=\"flex items-center gap-1 schema-tab ${…}\" data-cat-tab=\"__all__\" onclick=\"selectSchemaTab(null)\"> <span class=\"px-4 py-2 font-semibold text-sm cursor"
-    },
-    {
-      "id": "6d8e3874a34df4af",
-      "path": "public/js/login-magic.js",
-      "rule": "textContent",
-      "snippet": "Något gick fel — försök igen"
-    },
-    {
-      "id": "e49a4a5b47fae49f",
-      "path": "public/js/login-magic.js",
-      "rule": "textContent",
-      "snippet": "Felaktig PIN-kod — försök igen"
     },
     {
       "id": "c99fffca53abb11f",

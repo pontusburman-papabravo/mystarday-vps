@@ -223,6 +223,15 @@
     });
   }
 
+  function pgT(key, params) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const authKey = 'auth.' + key;
+      const localized = I18n.t(authKey, params);
+      if (localized && localized !== authKey) return localized;
+    }
+    return '';
+  }
+
   /* ── Parent PIN gate overlay (global for parental-gate.js on /login) ─ */
   function showParentPinGateOverlay(onSuccess, onCancel) {
     const overlay = document.createElement('div');
@@ -241,17 +250,21 @@
 
     card.innerHTML = [
       '<div style="font-size:2rem;margin-bottom:8px;">🔒</div>',
-      '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">Föräldralås</h3>',
-      '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">Ange din PIN-kod för att fortsätta</p>',
+      '<h3 style="font-family:Outfit,sans-serif;font-weight:700;color:#1B2340;margin-bottom:4px;">' +
+        pgT('parentGate.title') + '</h3>',
+      '<p style="font-size:0.875rem;color:#5A6178;margin-bottom:20px;">' +
+        pgT('parentGate.hint') + '</p>',
       '<div id="ppin-dots" style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">',
         '<div class="ppin-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;transition:background 0.15s;"></div>',
         '<div class="ppin-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;transition:background 0.15s;"></div>',
         '<div class="ppin-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;transition:background 0.15s;"></div>',
         '<div class="ppin-dot" style="width:16px;height:16px;border-radius:50%;background:#EDE7F6;transition:background 0.15s;"></div>',
       '</div>',
-      '<div id="ppin-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="PIN-tavla"></div>',
+      '<div id="ppin-keypad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;" role="group" aria-label="' +
+        pgT('parentGate.keypadAria') + '"></div>',
       '<div id="ppin-err" style="font-size:0.8rem;color:#ef4444;min-height:1.2em;margin-bottom:8px;"></div>',
-      '<button id="ppin-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">Avbryt</button>',
+      '<button id="ppin-cancel" style="font-size:0.8rem;color:#5A6178;text-decoration:underline;background:none;border:none;cursor:pointer;padding:8px;">' +
+        pgT('parentGate.cancel') + '</button>',
     ].join('');
 
     overlay.appendChild(card);
@@ -312,13 +325,13 @@
           document.body.removeChild(overlay);
           onSuccess(res.gateToken);
         } else {
-          msgEl.textContent = 'Felaktig PIN-kod — försök igen';
+          msgEl.textContent = pgT('errors.parentPinInvalid');
           entered = '';
           updateDots();
           buildKeypad();
         }
       }).catch(function () {
-        msgEl.textContent = 'Något gick fel — försök igen';
+        msgEl.textContent = pgT('errors.serverError');
         entered = '';
         updateDots();
         buildKeypad();

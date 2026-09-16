@@ -262,7 +262,11 @@
       "hint": "Ange din PIN-kod för att fortsätta",
       "keypadAria": "PIN-tavla",
       "cancel": "Avbryt",
-      "forgotPinBackup": "Glömt PIN? Logga in med e-post eller Apple/Google"
+      "forgotPinBackup": "Glömt PIN? Logga in med e-post eller Apple/Google",
+      "digitsEntered": "{{count}} av 4 siffror",
+      "backspace": "Radera",
+      "confirm": "Bekräfta",
+      "needFourDigits": "PIN-koden måste vara 4 siffror"
     },
     "childLogin": {
       "title": "Hej! 👋",

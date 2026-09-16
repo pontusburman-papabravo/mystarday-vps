@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '34'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '35'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -158,6 +158,7 @@ function bumpNativeRuntimeAssetVersions(body) {
     // native/WebView cache like the orchestrator/picker (regex is specific to
     // adult-privilege.js and does not match -lease-policy.js / -lifecycle.js).
     .replace(/\/js\/adult-privilege\.js\?v=[^"']+/g, '/js/adult-privilege.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/adult-pin-gate-ui\.js\?v=[^"']+/g, '/js/adult-pin-gate-ui.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/trusted-select-parent-diag\.js\?v=[^"']+/g, '/js/trusted-select-parent-diag.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-nav-header\.js\?v=[^"']+/g, '/js/parent-nav-header.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
@@ -538,7 +539,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/features-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/adult-privilege-lease-policy.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/adult-pin-gate-ui.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/adult-pin-gate-ui.js?v=' + MAGIC_VERSION + '"><\/script>',
     // Diagnostics-only: also load on destination pages (not just the picker) so the
     // child->adult flow can log a correlated timeline (picker -> ... -> destination).
     '<script src="/js/trusted-select-parent-diag.js?v=' + RELEASE_TAG + '"><\/script>',
