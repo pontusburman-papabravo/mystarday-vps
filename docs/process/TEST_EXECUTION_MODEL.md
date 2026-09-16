@@ -84,4 +84,6 @@ If a test run hangs, waits on a DB advisory lock, stalls without output (>5 min)
 
 Canonical: [`docs/process/contracts/TEST_EXECUTION_STOP_RULE.md`](./contracts/TEST_EXECUTION_STOP_RULE.md)
 
+Open harness debt: [`docs/process/TEST_HARNESS_DEBT.md`](./TEST_HARNESS_DEBT.md)
+
 See also: `docs/process/GLOBAL_CORE.md`, `.cursor/rules/131-test-execution-model.mdc`
