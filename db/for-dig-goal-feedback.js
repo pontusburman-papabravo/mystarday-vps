@@ -100,11 +100,17 @@ async function getPopularGoals(days = 90, minCount = 5) {
 
 async function getPendingOutcomes(familyId, parentId) {
   const result = await db.query(
-    `SELECT i.goal_slug, i.child_id, i.installed_at AS activated_at,
-            c.name AS child_name
+    `SELECT i.goal_slug, i.child_id, i.family_id, i.installed_at AS activated_at,
+            c.name AS child_name,
+            (d.dismissed_at IS NOT NULL) AS dismissed
      FROM for_dig_goal_install i
      JOIN child c ON c.id = i.child_id
      JOIN parent_child pc ON pc.child_id = c.id AND pc.parent_id = $2 AND pc.revoked_at IS NULL
+     LEFT JOIN for_dig_outcome_banner_dismiss d
+       ON d.parent_id = $2
+      AND d.family_id = i.family_id
+      AND d.child_id = i.child_id
+      AND d.goal_slug = i.goal_slug
      WHERE i.family_id = $1
        AND i.installed_at <= NOW() - INTERVAL '7 days'
        AND NOT EXISTS (
@@ -115,7 +121,7 @@ async function getPendingOutcomes(familyId, parentId) {
            AND f.phase = 'outcome'
        )
      ORDER BY i.installed_at ASC
-     LIMIT 5`,
+     LIMIT 20`,
     [familyId, parentId]
   );
 
@@ -125,10 +131,22 @@ async function getPendingOutcomes(familyId, parentId) {
       goal_slug: row.goal_slug,
       goal_title: goal ? goal.title : row.goal_slug,
       child_id: row.child_id,
+      family_id: row.family_id,
       child_name: row.child_name,
       activated_at: row.activated_at,
+      dismissed: row.dismissed === true,
     };
   });
+}
+
+async function dismissPendingOutcome({ parentId, familyId, childId, goalSlug }) {
+  await db.query(
+    `INSERT INTO for_dig_outcome_banner_dismiss
+       (parent_id, family_id, child_id, goal_slug)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (parent_id, family_id, child_id, goal_slug) DO NOTHING`,
+    [parentId, familyId, childId, goalSlug]
+  );
 }
 
 async function getAdminStats() {
@@ -472,6 +490,7 @@ module.exports = {
   logInstall,
   getInstallsForParent,
   getPendingOutcomes,
+  dismissPendingOutcome,
   getAdminStats,
   listResponses,
   listQuotes,

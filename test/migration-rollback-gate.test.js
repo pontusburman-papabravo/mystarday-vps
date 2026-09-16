@@ -81,7 +81,7 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
 
       const { captureDbIntegritySnapshot } = await import('../scripts/ops/lib/db-integrity-snapshot-core.mjs');
       const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
-      const beforeSnap = await captureDbIntegritySnapshot(testUrl, { label: 'pre-181051' });
+      const beforeSnap = await captureDbIntegritySnapshot(testUrl, { label: 'pre-181052' });
 
       runMigrate(testUrl);
       assert.equal(await tableExists(client, CORE_TABLE), true);
@@ -138,13 +138,13 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
         ['age_confirmed_18', 'max_selections', 'contest_collect_after_submit', 'contest_terms_url']
       );
 
-      const afterSnap = await captureDbIntegritySnapshot(testUrl, { label: 'post-181051' });
+      const afterSnap = await captureDbIntegritySnapshot(testUrl, { label: 'post-181052' });
       const compare = compareDbSnapshots(beforeSnap, afterSnap, {
         mode: 'post-migration',
         repoRoot: path.join(__dirname, '..'),
       });
       assert.equal(compare.ok, true, JSON.stringify(compare.drift));
-      assert.deepEqual(compare.newMigrationNames || [], ['1810510000000_for_dig_outcome_followup_one_parent']);
+      assert.deepEqual(compare.newMigrationNames || [], ['1810520000000_for_dig_outcome_followup_pilot_safety']);
     } finally {
       client.release();
     }

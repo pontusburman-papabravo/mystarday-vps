@@ -1059,6 +1059,11 @@
           "childIdRequired": "child_id is required",
           "reasonRequired": "Reason is required",
           "starCountRange": "Star count must be between 1 and 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id and goal_slug are required",
+          "childAccessDenied": "You do not have access to one of the selected children.",
+          "dismissFailed": "Could not close the question"
         }
       },
       "success": {

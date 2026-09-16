@@ -26,6 +26,13 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
 }
 
+try {
+  const { buildDestructiveTestChildEnv } = require('../scripts/lib/test-database-safety.cjs');
+  Object.assign(process.env, buildDestructiveTestChildEnv(process.env));
+} catch {
+  // setupTestDb() fail-closes later if TEST_DATABASE_URL is not allowed.
+}
+
 const GOAL_SLUG = FOR_DIG_GOALS[0].slug;
 const GOAL_TITLE = FOR_DIG_GOALS[0].title;
 const OTHER_GOAL = FOR_DIG_GOALS[1].slug;
@@ -292,22 +299,24 @@ test('6. UNIQUE(batch_id, parent_id) blocks duplicate recipient rows', async () 
   }
 });
 
-test('7. single-item template uses goal_title + child_name; multi uses generic copy; CTA /dashboard', () => {
-  assert.equal(CTA_PATH, '/dashboard');
+test('7. single-item template uses goal_title + child_name; multi uses generic copy; CTA explicit feedback', () => {
+  assert.equal(CTA_PATH, '/dashboard?for_dig_feedback=1');
   assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 1 }), `Hur går det med ${GOAL_TITLE}?`);
   assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 12 }), MULTI_SUBJECT);
   const cta = dashboardCtaUrl('https://example.test');
+  assert.equal(cta, 'https://example.test/dashboard?for_dig_feedback=1');
   const single = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
     items: [{ goalTitle: GOAL_TITLE, childName: 'Astrid' }],
     ctaUrl: cta,
     unsubscribeUrl: 'https://example.test/for-dig/followup-unsubscribe?t=token',
   });
-  assert.match(single, /https:\/\/example\.test\/dashboard/);
+  assert.match(single, /https:\/\/example\.test\/dashboard\?for_dig_feedback=1/);
   assert.match(single, new RegExp(GOAL_TITLE));
   assert.match(single, /Astrid/);
   assert.equal(single.includes(UNATTEND_FOOTER), true);
   assert.doesNotMatch(single, /transaktionell/i);
+  assert.doesNotMatch(single, /gå till Hem/i);
   const multi = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
     items: [
@@ -316,7 +325,7 @@ test('7. single-item template uses goal_title + child_name; multi uses generic c
     ],
     ctaUrl: cta,
   });
-  assert.match(multi, /https:\/\/example\.test\/dashboard/);
+  assert.match(multi, /https:\/\/example\.test\/dashboard\?for_dig_feedback=1/);
   assert.match(multi, /några saker/);
   assert.doesNotMatch(multi, new RegExp(GOAL_TITLE));
   assert.match(multi, new RegExp(`Öppna ${brandName()}`));
@@ -681,14 +690,14 @@ test('16. newsletter standalone recordSend/stats/recipients still work; webhook 
     const server = await listen(app);
     try {
       const port = server.address().port;
-      for (let i = 0; i < 2; i++) {
+      async function postWebhook(type, extraData, msgId) {
         const payload = JSON.stringify({
-          type: 'email.opened',
+          type,
           created_at: new Date().toISOString(),
-          data: { email_id: emailId },
+          data: { email_id: emailId, ...(extraData || {}) },
         });
         const ts = String(Math.floor(Date.now() / 1000));
-        const { id, timestamp, signature } = signPayload(secret, payload, `msg_open_${i}`, ts);
+        const { id, timestamp, signature } = signPayload(secret, payload, msgId, ts);
         const res = await fetch(`http://127.0.0.1:${port}/api/resend/webhook`, {
           method: 'POST',
           headers: {
@@ -701,6 +710,12 @@ test('16. newsletter standalone recordSend/stats/recipients still work; webhook 
         });
         assert.equal(res.status, 200);
       }
+      await postWebhook('email.delivered', {}, 'msg_delivered');
+      for (let i = 0; i < 2; i++) {
+        await postWebhook('email.opened', {}, `msg_open_${i}`);
+      }
+      await postWebhook('email.clicked', { click: { link: 'https://example.test/dashboard?for_dig_feedback=1' } }, 'msg_click_1');
+      await postWebhook('email.clicked', { click: { link: 'https://example.test/dashboard?for_dig_feedback=1' } }, 'msg_click_2');
     } finally {
       await new Promise((resolve) => server.close(resolve));
       if (prevSecret === undefined) delete process.env.RESEND_WEBHOOK_SECRET;
@@ -708,12 +723,177 @@ test('16. newsletter standalone recordSend/stats/recipients still work; webhook 
     }
 
     const row = await db.query(
-      `SELECT open_count, campaign_type FROM newsletter_email_send WHERE resend_email_id = $1`,
+      `SELECT open_count, click_count, delivered_at, first_opened_at, first_clicked_at, campaign_type
+         FROM newsletter_email_send WHERE resend_email_id = $1`,
       [emailId]
     );
     assert.equal(row.rows[0].campaign_type, 'for_dig_outcome_followup');
     assert.equal(row.rows[0].open_count, 2);
+    assert.equal(row.rows[0].click_count, 2);
+    assert.ok(row.rows[0].delivered_at);
+    assert.ok(row.rows[0].first_opened_at);
+    assert.ok(row.rows[0].first_clicked_at);
   } finally {
+    await db.cleanup();
+  }
+});
+
+function stubSendEmail(impl) {
+  const emailLib = require('../src/lib/email');
+  const original = emailLib.sendEmail;
+  emailLib.sendEmail = impl;
+  return () => {
+    emailLib.sendEmail = original;
+  };
+}
+
+test('17. default prepare max_recipients=5 is deterministic newest-first', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    assert.equal(followup.DEFAULT_MAX_RECIPIENTS, 5);
+    const families = [];
+    for (let daysAgo = 8; daysAgo <= 15; daysAgo++) {
+      const family = await seedFamily(db, { parentName: `P${daysAgo}` });
+      await seedPending({ db, family, daysAgo });
+      families.push({ family, daysAgo });
+    }
+    const batch = await followup.createBatch();
+    const prepared = await followup.prepareFromPending(batch.id);
+    assert.equal(prepared.max_recipients, 5);
+    assert.equal(prepared.inserted, 5);
+    const recipients = await followup.listRecipients(batch.id);
+    const selectedIds = new Set(recipients.map((row) => row.parent_id));
+    const newestFive = families.filter((row) => row.daysAgo <= 12).map((row) => row.family.parentId);
+    const oldestThree = families.filter((row) => row.daysAgo >= 13).map((row) => row.family.parentId);
+    assert.equal(newestFive.every((id) => selectedIds.has(id)), true);
+    assert.equal(oldestThree.every((id) => !selectedIds.has(id)), true);
+    const preview = await followup.previewPilotSelection({ maxRecipients: 5 });
+    assert.equal(preview.recipient_count, 5);
+    assert.equal(preview.remaining_parents, 3);
+    assert.equal(preview.invalid_or_missing_email, 0);
+    const batchesAfterPreview = await db.query('SELECT COUNT(*)::int AS n FROM for_dig_outcome_followup_batch');
+    assert.equal(batchesAfterPreview.rows[0].n, 1);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('18. cross-batch excludes emailed item; new goal can become eligible again', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  const restore = stubSendEmail(async (opts) => ({
+    success: true,
+    provider: 'mock',
+    emailId: `re_${opts.idempotencyKey}`,
+  }));
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db);
+    const other = await seedFamily(db);
+    await seedPending({ db, family, daysAgo: 8, goalSlug: GOAL_SLUG });
+    await seedPending({ db, family: other, daysAgo: 8, goalSlug: GOAL_SLUG });
+    const batch1 = await followup.createBatch();
+    await followup.prepareFromPending(batch1.id, { maxRecipients: 10 });
+    const sent = await withSendEnabled(() => followup.sendBatch(batch1.id));
+    assert.equal(sent.sent, 2);
+    assert.equal(sent.batch_status, 'sent');
+
+    const batch2 = await followup.createBatch();
+    await followup.prepareFromPending(batch2.id, { maxRecipients: 10 });
+    const round2 = await followup.listRecipients(batch2.id);
+    assert.equal(round2.some((row) => row.parent_id === family.parentId), false);
+    assert.equal(round2.some((row) => row.parent_id === other.parentId), false);
+
+    await seedPending({ db, family, daysAgo: 8, goalSlug: OTHER_GOAL });
+    const batch3 = await followup.createBatch();
+    await followup.prepareFromPending(batch3.id, { maxRecipients: 10 });
+    const round3 = await followup.listRecipients(batch3.id);
+    const mine = round3.filter((row) => row.parent_id === family.parentId);
+    assert.equal(mine.length, 1);
+    assert.deepEqual(mine[0].items.map((item) => item.goal_slug), [OTHER_GOAL]);
+  } finally {
+    restore();
+    await db.cleanup();
+  }
+});
+
+test('19. parallel sendBatch claims once per recipient and retries keep idempotency key', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  const calls = [];
+  const restore = stubSendEmail(async (opts) => {
+    calls.push(opts);
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    return { success: true, provider: 'mock', emailId: `re_${calls.length}` };
+  });
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const a = await seedFamily(db, { parentName: 'Ada' });
+    const b = await seedFamily(db, { parentName: 'Bo' });
+    await seedPending({ db, family: a, daysAgo: 8 });
+    await seedPending({ db, family: b, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id, { maxRecipients: 10 });
+    const recipients = await followup.listRecipients(batch.id);
+    const [first, second] = await withSendEnabled(() => Promise.all([
+      followup.sendBatch(batch.id),
+      followup.sendBatch(batch.id),
+    ]));
+    assert.equal(calls.length, 2);
+    assert.equal(new Set(calls.map((row) => row.to)).size, 2);
+    assert.equal(first.sent + second.sent >= 2, true);
+    const after = await followup.getBatch(batch.id);
+    assert.equal(after.status, 'sent');
+    const expectedKeys = recipients.map((row) => followup.followupIdempotencyKey(batch.id, row.id)).sort();
+    assert.deepEqual(calls.map((row) => row.idempotencyKey).sort(), expectedKeys);
+  } finally {
+    restore();
+    await db.cleanup();
+  }
+});
+
+test('20. partial failure is not sent; retry sends only failed with same key', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  const calls = [];
+  let failOnce = true;
+  const restore = stubSendEmail(async (opts) => {
+    calls.push(opts);
+    if (failOnce && calls.length === 2) {
+      return { success: false, provider: 'mock', error: 'provider_failed' };
+    }
+    return { success: true, provider: 'mock', emailId: `re_${calls.length}` };
+  });
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const a = await seedFamily(db, { parentName: 'Ada' });
+    const b = await seedFamily(db, { parentName: 'Bo' });
+    await seedPending({ db, family: a, daysAgo: 8 });
+    await seedPending({ db, family: b, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id, { maxRecipients: 10 });
+    const first = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(first.sent, 1);
+    assert.equal(first.failed, 1);
+    assert.equal(first.retryable, 1);
+    assert.equal(first.batch_status, 'partial_failed');
+    const afterFirst = await followup.getBatch(batch.id);
+    assert.equal(afterFirst.status, 'partial_failed');
+    assert.notEqual(afterFirst.status, 'sent');
+
+    failOnce = false;
+    const keysBeforeRetry = calls.map((row) => row.idempotencyKey).sort();
+    const retry = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(retry.sent, 2);
+    assert.equal(retry.failed, 0);
+    assert.equal(retry.batch_status, 'sent');
+    assert.equal(calls.length, 3);
+    const retryKey = calls[2].idempotencyKey;
+    assert.equal(keysBeforeRetry.includes(retryKey), true);
+  } finally {
+    restore();
     await db.cleanup();
   }
 });

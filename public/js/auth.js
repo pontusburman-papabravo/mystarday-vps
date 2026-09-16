@@ -215,9 +215,15 @@ const Auth = {
       path === '/child-dashboard' ||
       path.indexOf('/child/') === 0 ||
       path === '/child-login';
-    const target = childContext ? '/child-login' : '/login';
+    if (childContext) {
+      if (path === '/child-login') return;
+      window.location.replace('/child-login');
+      return;
+    }
+    const target = '/login';
     if (path === target) return;
-    window.location.replace(target);
+    const next = encodeURIComponent(this._currentSafeReturnPath());
+    window.location.replace('/login?next=' + next);
   },
 
   /**
@@ -695,7 +701,7 @@ const Auth = {
       // cookies are still valid. Try to recover the session from the API before
       // redirecting. If both localStorage and cookies are gone, redirect follows.
       if (!document.cookie.includes('access_token')) {
-        window.location.href = '/login';
+        window.location.href = '/login?next=' + encodeURIComponent(this._currentSafeReturnPath());
         return false;
       }
       // Has access_token cookie — let the next API call succeed or redirect
@@ -1817,7 +1823,7 @@ window.authGuard = async function() {
       // user out — otherwise a single hiccup bounces everyone to /login.
       if (res.status === 401 || res.status === 403) {
         Auth.clearAuth();
-        window.location.href = '/login';
+        window.location.href = '/login?next=' + encodeURIComponent(Auth._currentSafeReturnPath());
         return null;
       }
       return Auth.getUser();
