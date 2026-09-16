@@ -135,6 +135,9 @@ if ! git cat-file -e "${TARGET_SHA}^{commit}" 2>/dev/null; then
   exit 1
 fi
 
+echo "→ Clean stray untracked ops scripts (block git checkout on VPS)"
+git clean -fd -- scripts/ops/ 2>/dev/null || true
+
 echo "→ Checkout target revision"
 git checkout --detach "$TARGET_SHA"
 
