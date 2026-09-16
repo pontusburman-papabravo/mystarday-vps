@@ -206,13 +206,14 @@ async function main() {
     if (childRow.rows.length > 0) {
       childId = childRow.rows[0].id;
       await client.query(
-        `UPDATE child SET emoji = $1, birthday = $2, username = $3, pin = $4 WHERE id = $5`,
+        `UPDATE child SET emoji = $1, birthday = $2, username = $3, pin = $4,
+           show_now_next = true, view_type = 'now_next_later' WHERE id = $5`,
         [DEMO_CHILD.emoji, DEMO_CHILD.birthday, DEMO_CHILD.username, pinHash, childId]
       );
     } else {
       const ch = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, username, pin)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        `INSERT INTO child (family_id, name, emoji, birthday, username, pin, show_now_next, view_type)
+         VALUES ($1, $2, $3, $4, $5, $6, true, 'now_next_later') RETURNING id`,
         [familyId, DEMO_CHILD.name, DEMO_CHILD.emoji, DEMO_CHILD.birthday, DEMO_CHILD.username, pinHash]
       );
       childId = ch.rows[0].id;
@@ -297,12 +298,32 @@ async function main() {
       }
     }
 
-    // ── Rewards ──
+    // ── Rewards + approved redemptions (family museum top_rewards for store shot 07) ──
+    const rewardIds = [];
     for (const [i, [name, icon, cost]] of REWARDS.entries()) {
-      await client.query(
-        `INSERT INTO reward (family_id, name, icon, star_cost, sort_order) VALUES ($1, $2, $3, $4, $5)`,
+      const rew = await client.query(
+        `INSERT INTO reward (family_id, name, icon, star_cost, sort_order) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [familyId, name, icon, cost, i]
       );
+      rewardIds.push({ id: rew.rows[0].id, name, icon, cost });
+    }
+
+    const redemptionPlan = [
+      { name: 'Movie night with popcorn', count: 3 },
+      { name: 'Restaurant visit', count: 2 },
+      { name: 'Choose Saturday dinner', count: 2 },
+      { name: 'Trip to the playground', count: 1 },
+    ];
+    for (const plan of redemptionPlan) {
+      const reward = rewardIds.find((r) => r.name === plan.name);
+      if (!reward) continue;
+      for (let i = 0; i < plan.count; i++) {
+        await client.query(
+          `INSERT INTO reward_redemption (reward_id, child_id, status, star_cost, redeemed_at)
+           VALUES ($1, $2, 'approved', $3, NOW() - ($4 || ' days')::interval)`,
+          [reward.id, childId, reward.cost, String(14 - i)]
+        );
+      }
     }
 
     await client.query('COMMIT');

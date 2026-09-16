@@ -135,9 +135,9 @@
     "@revenuecat/purchases-capacitor": "^11.2.5",
     "@vitalets/google-translate-api": "^9.2.1",
     "archiver": "^8.0.0",
+    "capacitor-adult-biometric": "file:plugins/capacitor-adult-biometric",
     "capacitor-facebook-events": "^7.0.7",
     "capacitor-widget-bridge": "file:plugins/capacitor-widget-bridge",
-    "capacitor-adult-biometric": "file:plugins/capacitor-adult-biometric",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-rate-limit": "^7.4.1",
@@ -171,6 +171,7 @@
     "puppeteer": "^25.1.0",
     "sharp": "^0.35.3",
     "tailwindcss": "^3.4.19",
+    "tesseract.js": "^7.0.0",
     "typescript": "~5.7.0"
   }
 }

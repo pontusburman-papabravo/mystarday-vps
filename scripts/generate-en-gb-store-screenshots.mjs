@@ -110,7 +110,7 @@ const SHOTS = [
     marketing: {
       svTitle: 'Lugnare vardagar',
       svSub: 'Se nästa steg utan att hålla allt i huvudet.',
-      title: 'Calmer everyday life',
+      title: 'Calmer days at home',
       sub: 'See the next step without holding it all in your head.',
     },
   },
@@ -120,7 +120,7 @@ const SHOTS = [
     source: '02-apple-se.jpg',
     path: '/child/today',
     child: true,
-    wait: '#scheduleView, .child-today-shell, .teacch-now-card',
+    wait: '#scheduleView, .child-today-shell',
     ready: 'child-i18n-ready',
     marketing: {
       svTitle: 'Barnet gör själv',
@@ -306,7 +306,58 @@ const SWEDISH_UI_TERMS = [
   'Tipsa en vän',
   'Biobesök',
   'Restaurangbesök',
+  'Välja middag',
+  'Välja film',
+  'Välja mellanmål',
+  'Extra saga',
+  'Frukost på',
+  'filmkväll',
+  'mellanmål',
+  'Tipsa',
+  'Min Stj\u00e4rndag', // pragma: allowlist secret
 ];
+
+/** Substring ban list for OCR on final composited PNGs (founder visual QA). */
+const BANNED_VISIBLE_FRAGMENTS = [
+  'Tipsa',
+  'Läs upp',
+  'Avsluta aktivitet',
+  'Restaurangbesök',
+  'Restaurang',
+  'Välja middag',
+  'Välja film',
+  'Välja mellanmål',
+  'Välja',
+  'Extra saga',
+  'filmkväll',
+  'mellanmål',
+  'Frukost på',
+  'Frukost',
+  'Min Stj\u00e4rndag', // pragma: allowlist secret
+  'VAD?',
+  'Hjälp en annan',
+  'Children act independently',
+  'Biobesök',
+  'CHILD.SEVENQUESTIONS',
+];
+
+const ENGLISH_DEMO_REWARDS = [
+  'Movie night with popcorn',
+  'Restaurant visit',
+  'Trip to the playground',
+  'Choose Saturday dinner',
+];
+
+function findBannedFragments(text) {
+  const leaks = [];
+  const sample = String(text || '');
+  for (const frag of BANNED_VISIBLE_FRAGMENTS) {
+    if (sample.includes(frag)) leaks.push(frag);
+  }
+  if (/\bNU\b/u.test(sample) && !/\bNow\b/u.test(sample)) leaks.push('NU');
+  if (/[åäöÅÄÖ]/.test(sample)) leaks.push('contains å/ä/ö');
+  return leaks;
+}
 
 function findSwedishUiLeaks(text) {
   const leaks = [];
@@ -502,6 +553,8 @@ async function seedAuthOnNewDocument(page, user, csrfToken, expiresAt, { child =
         if (isChild) {
           sessionStorage.setItem('sd_child_ui_locale', 'en-GB');
           localStorage.setItem('sd_child_ui_locale', 'en-GB');
+        } else {
+          localStorage.setItem('dela_appen_cta_dismissed', JSON.stringify({ ts: Date.now() }));
         }
       } catch (_) { /* ignore */ }
     },
@@ -543,6 +596,12 @@ async function dismissBlockingUi(page) {
     clickIf('#pushPromptLaterBtn');
     clickIf('#parentMagicShareDismiss');
     clickIf('.share-banner-close');
+    clickIf('#delaAppenCtaBanner button[title="Stäng"]');
+    clickIf('#delaAppenCtaBanner button[title="Close"]');
+    if (typeof dismissDelaAppenCtaBanner === 'function') dismissDelaAppenCtaBanner();
+    if (typeof dismissMedforalderCtaBanner === 'function') dismissMedforalderCtaBanner();
+    const dela = document.getElementById('delaAppenCtaBanner');
+    if (dela) dela.style.display = 'none';
     // Dashboard coach onboarding cards
     clickByText(['Next →', 'Nästa →']);
   });
@@ -605,7 +664,14 @@ async function loginChildInPage(page, session) {
 }
 
 function validateCaptureText(shot, text) {
-  assertNoSwedishVisibleText(`capture ${shot.id}`, text);
+  if (shot.id === '02') {
+    const leaks = findBannedFragments(text);
+    if (leaks.length) {
+      throw new Error(`capture ${shot.id}: banned fragments — ${leaks.join(', ')}`);
+    }
+  } else {
+    assertNoSwedishVisibleText(`capture ${shot.id}`, text);
+  }
   const parentMarkers = ['Home', 'Planning', 'Rewards', 'For you', 'Family'];
   const childOnlyMarkers = ['My space', 'Treasure Chest', 'My collection'];
   const childNavHint = /('s day|My space|Treasure Chest|My collection)/;
@@ -624,6 +690,115 @@ function validateCaptureText(shot, text) {
     if (text.includes('Push notifications') && shot.path.includes('/child/settings')) {
       throw new Error(`Capture ${shot.id} shows parent settings instead of child My space`);
     }
+  }
+  if (shot.id === '05' || shot.id === '07') {
+    const hasEnglishReward = ENGLISH_DEMO_REWARDS.some((name) => text.includes(name));
+    if (!hasEnglishReward) {
+      throw new Error(`Capture ${shot.id} missing English demo reward names`);
+    }
+  }
+  if (shot.id === '02') {
+    if (!text.includes('Read aloud') || text.includes('Läs upp')) {
+      throw new Error(`Capture ${shot.id} TEACCH card missing en-GB copy (Read aloud)`);
+    }
+    if (/\bVAD\?\b/u.test(text) || (/\bNU\b/u.test(text) && !/\bNow\b/u.test(text))) {
+      throw new Error(`Capture ${shot.id} TEACCH card still shows Swedish NU/VAD labels`);
+    }
+  }
+}
+
+async function prepareShotView(page, shot) {
+  if (shot.id === '01') {
+    await page.evaluate(() => {
+      try {
+        localStorage.setItem('dela_appen_cta_dismissed', JSON.stringify({ ts: Date.now() }));
+      } catch (_) { /* ignore */ }
+      if (typeof dismissDelaAppenCtaBanner === 'function') dismissDelaAppenCtaBanner();
+      const dela = document.getElementById('delaAppenCtaBanner');
+      if (dela) dela.style.display = 'none';
+    });
+    await page
+      .waitForFunction(
+        () => {
+          const t = document.body.innerText || '';
+          return !t.includes('Tipsa en vän') && !t.includes('Tipsa');
+        },
+        { timeout: 8000 }
+      )
+      .catch(() => {});
+  }
+  if (shot.id === '02') {
+    await page.waitForFunction(
+      () =>
+        typeof window.cpt === 'function' &&
+        cpt('sevenQuestions.readAloud') === 'Read aloud' &&
+        cpt('sevenQuestions.labels.what') === 'What?' &&
+        cpt('sevenQuestions.exitActivity') === 'Exit activity',
+      { timeout: 30000 }
+    );
+    await page.evaluate(() => {
+      document.documentElement.classList.remove('today-focus-mode');
+      document.documentElement.removeAttribute('data-barnets-samling');
+      const focus = document.getElementById('todayFocusMount');
+      if (focus) focus.style.display = 'none';
+      if (!window.speechSynthesis) {
+        window.speechSynthesis = { speak() {}, cancel() {}, getVoices() { return []; } };
+      }
+    });
+    await page.evaluate(async () => {
+      if (window.ChildSevenQuestions?.ready) {
+        await ChildSevenQuestions.ready();
+      }
+      if (typeof loadDay === 'function') {
+        const d = window.currentDate || new Date().toISOString().slice(0, 10);
+        await loadDay(d, false);
+      }
+    });
+    await page.waitForSelector('.teacch-now-card', { timeout: 30000 });
+    const teacchOk = await page.evaluate(() => {
+      const t = document.querySelector('.teacch-now-card')?.innerText || '';
+      return (
+        t.includes('Read aloud') &&
+        !t.includes('Läs upp') &&
+        !t.includes('Avsluta aktivitet') &&
+        !/\bVAD\?\b/.test(t)
+      );
+    });
+    if (!teacchOk) {
+      const snippet = await page.evaluate(() => {
+        const card = document.querySelector('.teacch-now-card');
+        return {
+          text: card?.innerText || '',
+          readAloud: typeof cpt === 'function' ? cpt('sevenQuestions.readAloud') : null,
+          lang: document.documentElement.lang,
+        };
+      });
+      throw new Error(
+        `Shot 02: TEACCH now-card did not render en-GB copy — ${JSON.stringify(snippet).slice(0, 400)}`
+      );
+    }
+    await page.evaluate(() => {
+      const card = document.querySelector('.teacch-now-card');
+      if (card) card.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
+    await sleep(400);
+  }
+  if (shot.id === '07') {
+    await page
+      .waitForFunction(
+        () => {
+          const card = document.querySelector('#familyMuseumCard');
+          if (!card) return false;
+          const t = card.innerText || '';
+          return (
+            t.includes('Movie night with popcorn') ||
+            t.includes('Restaurant visit') ||
+            t.includes('Choose Saturday dinner')
+          );
+        },
+        { timeout: 20000 }
+      )
+      .catch(() => {});
   }
 }
 
@@ -679,6 +854,7 @@ async function waitForReady(page, shot) {
     await sleep(800);
   }
   await dismissAllBlockingUi(page);
+  await prepareShotView(page, shot);
   await sleep(1500);
 }
 
@@ -743,10 +919,77 @@ async function captureShot(page, shot, outPath, relogin) {
   fs.unlinkSync(tmp);
 
   const meta = await sharp(outPath).metadata();
-  const textSample = await page.evaluate(() => document.body?.innerText || '');
+  const textSample = await page.evaluate((shotId) => {
+    if (shotId === '02') {
+      const parts = [];
+      const card = document.querySelector('.teacch-now-card');
+      const sched = document.getElementById('scheduleView');
+      if (card) parts.push(card.innerText || '');
+      if (sched) parts.push(sched.innerText || '');
+      const nav = document.querySelector('.child-bottom-nav, .child-nav-shell');
+      if (nav) parts.push(nav.innerText || '');
+      return parts.join('\n');
+    }
+    return document.body?.innerText || '';
+  }, shot.id);
   validateCaptureText(shot, textSample);
   const swedishLeaks = findSwedishUiLeaks(textSample);
+  fs.writeFileSync(outPath.replace(/\.png$/, '.txt'), textSample, 'utf8');
   return { meta, swedishLeaks, textSample: textSample.slice(0, 200) };
+}
+
+async function ocrPngRegion(pngPath, region) {
+  const { createWorker } = await import('tesseract.js');
+  const worker = await createWorker('eng');
+  const crop = await sharp(pngPath)
+    .extract(region)
+    .png()
+    .toBuffer();
+  const { data } = await worker.recognize(crop);
+  await worker.terminate();
+  return data.text || '';
+}
+
+async function qaFinalPng(shot, pngPath) {
+  const innerText = await ocrPngRegion(pngPath, {
+    left: INNER.left,
+    top: INNER.top,
+    width: INNER.width,
+    height: INNER.height,
+  });
+  const marketingText = await ocrPngRegion(pngPath, {
+    left: 0,
+    top: 0,
+    width: W,
+    height: MARKETING_H,
+  });
+  const combined = `${marketingText}\n${innerText}`;
+  const leaks = findBannedFragments(combined);
+  if (shot.id === '01' && !/Calmer days at home/i.test(marketingText)) {
+    leaks.push('missing headline: Calmer days at home');
+  }
+  if (shot.id === '02') {
+    if (!/They can do it themselves/i.test(marketingText)) {
+      leaks.push('missing headline: They can do it themselves');
+    }
+    const teacchOk =
+      /Read aloud/i.test(combined) ||
+      /Exit activity/i.test(combined) ||
+      /What\?/i.test(combined) ||
+      (/Brush teeth/i.test(combined) && /Bathroom/i.test(combined));
+    if (!teacchOk) {
+      leaks.push('missing TEACCH en-GB copy in PNG');
+    }
+  }
+  if ((shot.id === '05' || shot.id === '07') && !ENGLISH_DEMO_REWARDS.some((n) => combined.includes(n))) {
+    leaks.push('missing English demo reward name');
+  }
+  return {
+    id: shot.id,
+    pass: leaks.length === 0,
+    leaks,
+    ocrSample: combined.replace(/\s+/g, ' ').trim().slice(0, 280),
+  };
 }
 
 async function captureAll(parentSession, childSession) {
@@ -1068,26 +1311,42 @@ async function main() {
 
   const captureResults = await captureAll(session, childSession);
 
+  const shotsToComposite = ONLY_SHOTS.length ? SHOTS.filter((s) => wantShot(s.id)) : SHOTS;
   const outputs = [];
-  for (const shot of SHOTS) {
-    if (!fs.existsSync(path.join(CAPTURES, `${shot.id}-capture.png`))) {
-      console.warn(`⚠ skip composite ${shot.id} — no capture`);
-      continue;
+  for (const shot of shotsToComposite) {
+    const capturePath = path.join(CAPTURES, `${shot.id}-capture.png`);
+    if (!fs.existsSync(capturePath)) {
+      throw new Error(`Missing capture for ${shot.id}: ${capturePath}`);
     }
     const built = await compositeShot(shot);
     const qa = await validateOutput(shot);
-    outputs.push({ shot, built, qa });
-    console.log(`✓ ${shot.id}-en-GB.png (${qa.out}, ${(qa.outBytes / 1024).toFixed(0)} KB)`);
+    const pngQa = await qaFinalPng(shot, built.outApple);
+    if (!pngQa.pass) {
+      throw new Error(`PNG visual QA failed ${shot.id}: ${pngQa.leaks.join(', ')}`);
+    }
+    outputs.push({ shot, built, qa, pngQa });
+    console.log(`✓ ${shot.id}-en-GB.png (${qa.out}, PNG QA pass)`);
   }
 
-  const outFiles = outputs.map((o) => o.built.outApple);
-  const playFiles = outputs.map((o) => o.built.outPlay);
+  const allAppleFiles = SHOTS.map((s) => path.join(OUT_APPLE, `${s.id}-en-GB.png`));
+  const allPlayFiles = SHOTS.map((s) => path.join(OUT_PLAY, `${s.id}-en-GB.png`));
   const contact = path.join(OUT_META, 'contact-sheet.png');
   const playContact = path.join(OUT_META, 'play-contact-sheet.png');
   const sideBySide = path.join(OUT_META, 'source-vs-en-GB.png');
-  await buildContactSheet(outFiles, contact, 2);
-  await buildContactSheet(playFiles, playContact, 2);
+  await buildContactSheet(allAppleFiles.filter((f) => fs.existsSync(f)), contact, 2);
+  await buildContactSheet(allPlayFiles.filter((f) => fs.existsSync(f)), playContact, 2);
   await buildSideBySide(sideBySide);
+
+  const pngQaAll = [];
+  for (const shot of SHOTS) {
+    const applePath = path.join(OUT_APPLE, `${shot.id}-en-GB.png`);
+    if (!fs.existsSync(applePath)) continue;
+    const pngQa = outputs.find((o) => o.shot.id === shot.id)?.pngQa || await qaFinalPng(shot, applePath);
+    pngQaAll.push(pngQa);
+    if (!pngQa.pass) {
+      throw new Error(`Final PNG QA failed ${shot.id}: ${pngQa.leaks.join(', ')}`);
+    }
+  }
 
   const manifest = {
     generated_at: new Date().toISOString(),
@@ -1102,13 +1361,16 @@ async function main() {
       marketing_i18n: 'MISSING_I18N (store marketing headlines — derived from Swedish originals + product voice)',
     })),
     outputs: await Promise.all(
-      outFiles.map(async (f) => ({
-        path: f,
-        sha256: sha256(fs.readFileSync(f)),
-        ...(await sharp(f).metadata()),
-      }))
+      [...allAppleFiles, ...allPlayFiles, contact, playContact, sideBySide]
+        .filter((f) => fs.existsSync(f))
+        .map(async (f) => ({
+          path: f,
+          sha256: sha256(fs.readFileSync(f)),
+          ...(await sharp(f).metadata()),
+        }))
     ),
     qa: outputs.map((o) => o.qa),
+    png_visual_qa: pngQaAll,
     play_qa: outputs.map((o) => o.built.playQa),
     play_contact_sheet: playContact,
     missing_i18n: [
@@ -1126,6 +1388,9 @@ async function main() {
   console.log('Side-by-side:', sideBySide);
   console.log('Dimension validation:', manifest.dimension_validation);
   console.log('Play composition:', manifest.play_composition);
+  const pngPass = pngQaAll.every((q) => q.pass);
+  console.log('PNG visual QA:', pngPass ? 'PASS' : 'FAIL');
+  console.log('VISIBLE SWEDISH:', pngPass ? 'NONE' : 'DETECTED — see png_visual_qa in manifest.json');
 
   const swedishLeaks = captureResults.filter((c) => c.swedishLeaks?.length);
   if (swedishLeaks.length) {
