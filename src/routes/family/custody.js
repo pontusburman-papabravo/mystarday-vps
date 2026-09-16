@@ -18,6 +18,7 @@ const {
   validateCustomConfiguration,
 } = require('../../lib/custody-custom-config');
 const { validateOverrideInput } = require('../../lib/custody-override-config');
+const analytics = require('../../../db/analytics');
 const { sendApiError } = require('../../lib/api-user-error');
 
 const router = express.Router();
