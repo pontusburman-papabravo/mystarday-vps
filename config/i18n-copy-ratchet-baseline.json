@@ -1606,48 +1606,6 @@
       "snippet": "Stäng"
     },
     {
-      "id": "1277e8cc77c2b11f",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
-    },
-    {
-      "id": "554de99bcec5c0ec",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Alla aktiviteter, scheman och belöningshistorik för detta barn raderas permanent."
-    },
-    {
-      "id": "9b8b1624e32c9e75",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Barnprofil — [brand]"
-    },
-    {
-      "id": "d8d5a8674cac8f12",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Ge extra stjärnor"
-    },
-    {
-      "id": "e0940e3ea5dcfbe2",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
-    },
-    {
-      "id": "f49f9f2bc7fe55d3",
-      "path": "public/family-child.html",
-      "rule": "html-text",
-      "snippet": "Ta bort"
-    },
-    {
-      "id": "f2f6ee68accd2b69",
-      "path": "public/family-child.html",
-      "rule": "placeholder",
-      "snippet": "Varför? (syns för barnet)"
-    },
-    {
       "id": "36e3ec6064a27420",
       "path": "public/family-week.html",
       "rule": "alert",
