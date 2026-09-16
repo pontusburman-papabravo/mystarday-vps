@@ -8,6 +8,23 @@
 (function () {
   const { fmtTime } = window.ScheduleCore;
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
+  function monthName(idx) {
+    return spt('schedule.months.' + idx);
+  }
+
+  function headerDays() {
+    return [1, 2, 3, 4, 5, 6, 0].map((i) => spt('schedule.daysShort.' + i));
+  }
+
+  function dateLocale() {
+    if (window.I18n && typeof window.I18n.getCurrentLang === 'function') return window.I18n.getCurrentLang();
+    return 'sv-SE';
+  }
+
   // ── Special Days state ────────────────────────────────────
   let sdCalYear = new Date().getFullYear();
   let sdCalMonth = new Date().getMonth(); // 0-indexed
@@ -15,8 +32,6 @@
   let sdEditDate = null; // 'YYYY-MM-DD' currently being edited
   let sdScheduleId = null; // UUID of the special_day_schedule being edited
   let sdItems = []; // items in the current special day being edited
-
-  const MONTH_NAMES = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
 
   async function loadSpecialDays(childId) {
     // Load all special days for this child (future 6 months + past 3 months)
@@ -65,27 +80,25 @@
     let totalRows = 6;
     while (totalRows > 4 && !cells.slice((totalRows-1)*7, totalRows*7).some(c => c.inMonth)) totalRows--;
 
-    const headerDays = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
-
     const html = `
       <div class="mb-6">
         <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div>
-            <h3 class="text-lg font-heading font-bold text-navy">${childName} — Specialdagar</h3>
-            <p class="text-xs text-text-soft mt-0.5">Klicka på ett datum för att skapa eller redigera ett unikt schema för den dagen</p>
+            <h3 class="text-lg font-heading font-bold text-navy">${spt('schedule.specialDays.title', { name: childName })}</h3>
+            <p class="text-xs text-text-soft mt-0.5">${spt('schedule.specialDays.calendarHint')}</p>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="sdNavMonth(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
-            <span class="font-heading font-bold text-navy min-w-[140px] text-center">${MONTH_NAMES[sdCalMonth]} ${sdCalYear}</span>
+            <span class="font-heading font-bold text-navy min-w-[140px] text-center">${monthName(sdCalMonth)} ${sdCalYear}</span>
             <button onclick="sdNavMonth(1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">›</button>
           </div>
         </div>
 
         <!-- Legend -->
         <div class="flex items-center gap-4 mb-3 text-xs text-text-soft flex-wrap">
-          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-amber-100 border-2 border-amber-400 inline-block"></span> Specialdag</span>
-          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-400 inline-block"></span> Idag</span>
-          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-white border-2 border-lavender inline-block"></span> Veckodagsmall används</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-amber-100 border-2 border-amber-400 inline-block"></span> ${spt('schedule.specialDays.badge')}</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-400 inline-block"></span> ${spt('schedule.specialDays.legendToday')}</span>
+          <span class="flex items-center gap-1"><span class="w-4 h-4 rounded-full bg-white border-2 border-lavender inline-block"></span> ${spt('schedule.specialDays.legendWeekdayTemplate')}</span>
         </div>
 
         <!-- Calendar grid — cal-scroll-wrap enables horizontal scroll on narrow viewports -->
@@ -93,7 +106,7 @@
         <div class="border-2 border-lavender rounded-2xl overflow-hidden">
           <!-- Header -->
           <div class="grid grid-cols-7 bg-navy">
-            ${headerDays.map(d => `<div class="text-center text-white text-xs font-bold py-2">${d}</div>`).join('')}
+            ${headerDays().map(d => `<div class="text-center text-white text-xs font-bold py-2">${d}</div>`).join('')}
           </div>
           <!-- Cells -->
           <div class="grid grid-cols-7">
@@ -106,7 +119,7 @@
               if (special) { bg = 'bg-amber-50 hover:bg-amber-100 cursor-pointer'; border = 'border-2 border-amber-400'; }
               const dot = special ? `<span class="absolute top-1 right-1 text-[10px]">🌟</span>` : '';
               const note = special && special.note ? `<div class="text-[9px] text-amber-700 truncate leading-tight mt-0.5">${escHtml(special.note)}</div>` : '';
-              const cnt = special ? `<div class="text-[9px] text-amber-600 font-semibold">${special.item_count} akt.</div>` : '';
+              const cnt = special ? `<div class="text-[9px] text-amber-600 font-semibold">${Number(special.item_count) === 1 ? spt('schedule.activityCount.one') : spt('schedule.activityCount.other', { count: special.item_count })}</div>` : '';
               return `<div class="relative min-h-[64px] p-2 ${bg} ${border} transition-colors" onclick="sdOpenDay('${dateStr}')">
                 <div class="text-sm font-bold ${inMonth?'text-navy':'text-gray-400'} ${isToday?'text-blue-700':''}">${dayNum}</div>
                 ${note}${cnt}${dot}
@@ -119,18 +132,18 @@
         <!-- Special days list -->
         ${sdSpecialDays.length > 0 ? `
         <div class="mt-4">
-          <p class="text-xs font-semibold text-navy mb-2">Specialdagar denna period (${sdSpecialDays.length} st):</p>
+          <p class="text-xs font-semibold text-navy mb-2">${spt('schedule.specialDays.periodList', { count: sdSpecialDays.length })}</p>
           <div class="space-y-2">
             ${sdSpecialDays.map(sd => {
               const d = new Date(sd.date.slice(0, 10) + 'T12:00:00Z');
-              const label = d.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long' });
+              const label = d.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long' });
               return `<div class="flex items-center justify-between p-3 bg-amber-50 border-2 border-amber-200 rounded-xl">
                 <div>
                   <span class="text-sm font-semibold text-navy">🌟 ${escHtml(label)}</span>
                   ${sd.note ? `<span class="text-xs text-amber-700 ml-2">— ${escHtml(sd.note)}</span>` : ''}
-                  <span class="text-xs text-text-soft ml-2">(${sd.item_count} aktiviteter)</span>
+                  <span class="text-xs text-text-soft ml-2">(${Number(sd.item_count) === 1 ? spt('schedule.activityCount.one') : spt('schedule.activityCount.other', { count: sd.item_count })})</span>
                 </div>
-                <button onclick="sdOpenDay('${sd.date}')" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg text-xs font-semibold transition-colors">Redigera</button>
+                <button onclick="sdOpenDay('${sd.date}')" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg text-xs font-semibold transition-colors">${spt('schedule.specialDays.editBtn')}</button>
               </div>`;
             }).join('')}
           </div>
@@ -156,13 +169,13 @@
 
     // Format display date
     const d = new Date(dateStr + 'T12:00:00Z');
-    const label = d.toLocaleDateString('sv-SE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const label = d.toLocaleDateString(dateLocale(), { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     document.getElementById('specialDayDateLabel').textContent = label;
 
     // Check if special day already exists
     const existing = sdSpecialDays.find(sd => sd.date === dateStr);
     if (existing) {
-      document.getElementById('specialDayModalTitle').textContent = '🌟 Redigera specialdag';
+      document.getElementById('specialDayModalTitle').textContent = '🌟 ' + spt('schedule.specialDays.editModalTitle');
       document.getElementById('sdDeleteBtn').classList.remove('hidden');
 
       // Load the full schedule with items
@@ -183,15 +196,20 @@
         }
       }
     } else {
-      document.getElementById('specialDayModalTitle').textContent = '✨ Skapa specialdag';
+      document.getElementById('specialDayModalTitle').textContent = '✨ ' + spt('schedule.specialDays.createModalTitle');
       document.getElementById('sdDeleteBtn').classList.add('hidden');
       document.getElementById('specialDayNote').value = '';
     }
 
     // Populate template select
     const sel = document.getElementById('sdAddTemplateSelect');
-    sel.innerHTML = '<option value="">-- Välj aktivitet --</option>' +
+    sel.innerHTML = '<option value="">' + spt('schedule.specialDays.pickActivity') + '</option>' +
       allTemplates.map(t => `<option value="${t.id}">${escHtml(t.icon||'')} ${escHtml(t.name)} (${t.star_value}⭐)</option>`).join('');
+    const secEmoji = { morgon:'🌅', dag:'☀️', kvall:'🌆', natt:'🌙' };
+    document.querySelectorAll('#sdAddSection option').forEach((opt) => {
+      const sec = opt.value;
+      if (secEmoji[sec]) opt.textContent = secEmoji[sec] + ' ' + spt('schedule.sections.' + sec);
+    });
 
     renderSdItems();
     document.getElementById('specialDayError').classList.add('hidden');
@@ -206,11 +224,16 @@
   function renderSdItems() {
     const container = document.getElementById('sdItemsList');
     if (sdItems.length === 0) {
-      container.innerHTML = '<div class="text-text-soft text-sm text-center py-4">Inga aktiviteter — lägg till nedan</div>';
+      container.innerHTML = '<div class="text-text-soft text-sm text-center py-4">' + spt('schedule.specialDays.noActivities') + '</div>';
       return;
     }
     const secEmoji = { morgon:'🌅', dag:'☀️', kvall:'🌆', natt:'🌙' };
-    const secLabel = { morgon:'Morgon', dag:'Dag', kvall:'Kväll', natt:'Natt' };
+    const secLabel = {
+      morgon: spt('schedule.sections.morgon'),
+      dag: spt('schedule.sections.dag'),
+      kvall: spt('schedule.sections.kvall'),
+      natt: spt('schedule.sections.natt'),
+    };
     // Group by section
     const grouped = {};
     for (const item of sdItems) {
@@ -241,7 +264,7 @@
   async function sdCopyFromTemplate() {
     if (!currentChildId || !sdEditDate) return;
     const btn = document.getElementById('sdCopyBtn');
-    btn.disabled = true; btn.textContent = 'Laddar…';
+    btn.disabled = true; btn.textContent = spt('schedule.loading');
     try {
       // Create/get the special day first
       if (!sdScheduleId) {
@@ -249,7 +272,7 @@
           method: 'POST',
           body: JSON.stringify({ date: sdEditDate, note: document.getElementById('specialDayNote').value.trim() || null, copy_from_template: true }),
         });
-        if (!createRes.ok) { const e = await createRes.json(); throw new Error(e.error || 'Fel'); }
+        if (!createRes.ok) { const e = await createRes.json(); throw new Error(e.error || spt('schedule.specialDays.genericError')); }
         const data = await createRes.json();
         sdScheduleId = data.id;
         sdItems = data.items || [];
@@ -258,20 +281,20 @@
       } else {
         // If already exists, fetch items from weekly template and add
         // We reload via copy endpoint effect — just re-open with copy
-        showToast('Specialdag finns redan. Lägg till aktiviteter manuellt.', true);
+        showToast(spt('schedule.specialDays.alreadyExists'), true);
       }
       renderSdItems();
-      showToast('Kopierat från veckodagsmall!');
+      showToast(spt('schedule.specialDays.copiedFromTemplate'));
     } catch (err) {
-      showToast(err.message || 'Fel vid kopiering', true);
+      showToast(err.message || spt('schedule.specialDays.copyFailed'), true);
     }
-    btn.disabled = false; btn.textContent = '📋 Kopiera från veckodagsmall';
+    btn.disabled = false; btn.textContent = '📋 ' + spt('schedule.specialDays.copyFromTemplate');
   }
 
   async function sdAddItem() {
     const templateId = document.getElementById('sdAddTemplateSelect').value;
     const section = document.getElementById('sdAddSection').value;
-    if (!templateId) { showToast('Välj en aktivitet', true); return; }
+    if (!templateId) { showToast(spt('schedule.validation.pickActivity'), true); return; }
 
     const tpl = allTemplates.find(t => t.id === templateId);
     if (!tpl) return;
@@ -282,7 +305,7 @@
         method: 'POST',
         body: JSON.stringify({ date: sdEditDate, note: document.getElementById('specialDayNote').value.trim() || null, copy_from_template: false }),
       });
-      if (!createRes.ok) { const e = await createRes.json(); showToast(e.error || 'Fel', true); return; }
+      if (!createRes.ok) { const e = await createRes.json(); showToast(e.error || spt('schedule.specialDays.genericError'), true); return; }
       const data = await createRes.json();
       sdScheduleId = data.id;
       sdItems = data.items || [];
@@ -300,10 +323,10 @@
       sdItems.push(item);
       renderSdItems();
       document.getElementById('sdAddTemplateSelect').value = '';
-      showToast('Aktivitet tillagd');
+      showToast(spt('schedule.specialDays.activityAdded'));
     } else {
       const e = await res.json();
-      showToast(e.error || 'Fel', true);
+      showToast(e.error || spt('schedule.specialDays.genericError'), true);
     }
   }
 
@@ -320,7 +343,7 @@
       renderSdItems();
     } else {
       const e = await res.json();
-      showToast(e.error || 'Fel', true);
+      showToast(e.error || spt('schedule.specialDays.genericError'), true);
     }
   }
 
@@ -332,7 +355,7 @@
     }
     sdItems = [];
     renderSdItems();
-    showToast('Alla aktiviteter borttagna');
+    showToast(spt('schedule.specialDays.allRemoved'));
   }
 
   async function sdSave() {
@@ -346,22 +369,22 @@
         method: 'POST',
         body: JSON.stringify({ date: sdEditDate, note }),
       });
-      if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
-      showToast('Specialdag sparad!');
+      if (!res.ok) { const e = await res.json(); showToast(e.error || spt('schedule.specialDays.genericError'), true); return; }
+      showToast(spt('schedule.specialDays.saved'));
     } else if (sdItems.length > 0) {
       // Shouldn't happen — items can only be added once schedule is created
-      showToast('Specialdag sparad!');
+      showToast(spt('schedule.specialDays.saved'));
     } else {
       // Create empty special day (e.g. a scheduled day off with no activities)
       const res = await window.apiFetch(`/api/children/${currentChildId}/special-days`, {
         method: 'POST',
         body: JSON.stringify({ date: sdEditDate, note, copy_from_template: false }),
       });
-      if (!res.ok) { const e = await res.json(); showToast(e.error || 'Fel', true); return; }
+      if (!res.ok) { const e = await res.json(); showToast(e.error || spt('schedule.specialDays.genericError'), true); return; }
       const data = await res.json();
       sdScheduleId = data.id;
       document.getElementById('sdDeleteBtn').classList.remove('hidden');
-      showToast('Specialdag skapad!');
+      showToast(spt('schedule.specialDays.created'));
     }
 
     await loadSpecialDays(currentChildId);
@@ -370,16 +393,16 @@
   }
 
   async function sdDeleteSpecialDay() {
-    if (!confirm('Ta bort specialdagen? Veckodagsmallen används igen för det datumet.')) return;
+    if (!confirm(spt('schedule.specialDays.deleteConfirm'))) return;
     const res = await window.apiFetch(`/api/children/${currentChildId}/special-days/${sdEditDate}`, { method: 'DELETE' });
     if (res.ok) {
-      showToast('Specialdag borttagen. Veckodagsmallen gäller igen.');
+      showToast(spt('schedule.specialDays.deleted'));
       closeSpecialDayModal();
       await loadSpecialDays(currentChildId);
       await renderSpecialDaysCalendar();
     } else {
       const e = await res.json();
-      showToast(e.error || 'Fel', true);
+      showToast(e.error || spt('schedule.specialDays.genericError'), true);
     }
   }
 

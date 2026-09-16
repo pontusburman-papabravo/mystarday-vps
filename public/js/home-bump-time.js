@@ -11,6 +11,10 @@
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
   }
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   function eligibleChildren(stats) {
     if (!stats || !stats.children) return [];
     return stats.children.filter(function (c) {
@@ -30,7 +34,7 @@
     mount.classList.remove('hidden');
     mount.innerHTML =
       '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-      '<p class="text-sm font-semibold text-navy mb-3">⏱ Justera tid idag</p>' +
+      '<p class="text-sm font-semibold text-navy mb-3">' + pt('home.timeAdjust.heading') + '</p>' +
       children.map(function (c) {
         const hasUndo = !!snapshots[c.today_log_id];
         return '<div class="flex items-center justify-between gap-2 py-2 border-b border-lavender last:border-0" data-bump-child="' + esc(c.id) + '">' +
@@ -67,10 +71,10 @@
       snapshots[logId] = data.snapshot;
       const undoBtn = btn.parentElement.querySelector('[data-bump-undo]');
       if (undoBtn) { undoBtn.disabled = false; undoBtn.classList.remove('opacity-60'); }
-      showToast('+' + minutes + ' min');
+      showToast(pt('home.timeAdjust.plusMinutes', { minutes: minutes }));
       if (typeof window.loadDashboardCards === 'function') await window.loadDashboardCards();
     } catch (_) {
-      showToast('Kunde inte justera tid', true);
+      showToast(pt('home.timeAdjust.failed'), true);
     } finally {
       btn.disabled = false;
     }
@@ -91,10 +95,10 @@
       delete snapshots[logId];
       btn.disabled = true;
       btn.classList.add('opacity-60');
-      showToast('Ångrat');
+      showToast(pt('home.timeAdjust.undone'));
       if (typeof window.loadDashboardCards === 'function') await window.loadDashboardCards();
     } catch (_) {
-      showToast('Kunde inte ångra', true);
+      showToast(pt('home.timeAdjust.undoFailed'), true);
     } finally {
       btn.disabled = !snapshots[logId];
     }

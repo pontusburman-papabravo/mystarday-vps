@@ -4,6 +4,10 @@
 (function () {
   const BANNER_ID = 'activationProgramBanner';
 
+  function pt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   function ensureBanner() {
     let el = document.getElementById(BANNER_ID);
     if (el) return el;
@@ -31,7 +35,7 @@
 
   function renderPreview(preview) {
     if (!preview || !preview.activities || !preview.activities.length) {
-      return '<p class="text-xs text-indigo-600 mt-2">Öppna barninloggningen för att se schemat.</p>';
+      return '<p class="text-xs text-indigo-600 mt-2">' + pt('home.activationProgram.previewEmpty') + '</p>';
     }
     const items = preview.activities.map((a) => {
       const icon = a.completed ? '✅' : '⭐';
@@ -43,18 +47,18 @@
   function renderReflection() {
     return `
       <div class="mt-3" id="activationReflectionForm">
-        <p class="text-sm font-medium text-indigo-900 mb-2">Har appen gjort vardagen enklare?</p>
+        <p class="text-sm font-medium text-indigo-900 mb-2">${pt('home.activationProgram.reflectionQuestion')}</p>
         <div class="flex justify-center gap-2 mb-3" id="activationReflectionScores">
           ${[1, 2, 3, 4, 5].map((n) => `
             <button type="button" data-score="${n}"
               class="activation-reflection-score w-10 h-10 rounded-full border-2 border-indigo-300 text-indigo-800 font-bold hover:bg-indigo-100">${n}</button>
           `).join('')}
         </div>
-        <textarea id="activationReflectionText" rows="2" maxlength="500" placeholder="Valfritt: berätta mer…"
+        <textarea id="activationReflectionText" rows="2" maxlength="500" placeholder="${pt('home.activationProgram.reflectionPlaceholder')}"
           class="w-full text-sm rounded-lg border border-indigo-200 p-2 mb-2"></textarea>
         <button type="button" id="activationReflectionSubmit"
           class="w-full py-2 rounded-lg bg-indigo-600 text-white font-semibold text-sm disabled:opacity-40" disabled>
-          Skicka
+          ${pt('home.activationProgram.send')}
         </button>
       </div>`;
   }
@@ -131,7 +135,7 @@
   }
 
   async function handleOptOut() {
-    if (!confirm('Vill du avsluta 7-dagarsprogrammet?')) return;
+    if (!confirm(pt('home.activationProgram.exitConfirm'))) return;
     await window.apiFetch('/api/me/activation-program/opt-out', { method: 'POST' });
     const banner = document.getElementById(BANNER_ID);
     if (banner) banner.classList.add('hidden');
@@ -168,8 +172,8 @@
     banner.className = `mx-4 mt-4 rounded-xl border-2 border-indigo-200 bg-indigo-50 px-4 py-4${advancedClass}`;
     banner.innerHTML = `
       <div class="flex items-start justify-between gap-2 mb-1">
-        <p class="text-xs font-semibold text-indigo-500 uppercase tracking-wide">Dag ${day} av ${total}</p>
-        <button type="button" id="activationOptOutBtn" class="text-indigo-400 hover:text-indigo-700 text-lg leading-none" title="Avsluta program">✕</button>
+        <p class="text-xs font-semibold text-indigo-500 uppercase tracking-wide">${pt('home.activationProgram.dayOf', { day: day, total: total })}</p>
+        <button type="button" id="activationOptOutBtn" class="text-indigo-400 hover:text-indigo-700 text-lg leading-none" title="${pt('home.activationProgram.optOutTitle')}">✕</button>
       </div>
       <h2 class="font-heading font-bold text-indigo-900 text-base mb-1">${escapeHtml(content.title || '')}</h2>
       <p class="text-sm text-indigo-800 leading-relaxed">${escapeHtml(content.body || '')}</p>
@@ -182,11 +186,11 @@
             ${escapeHtml(content.cta_label)}
           </button>` : ''}
         ${soloBtn}
-        <button type="button" id="activationSkipBtn" class="text-xs text-indigo-500 underline">Hoppa över idag</button>
+        <button type="button" id="activationSkipBtn" class="text-xs text-indigo-500 underline">${pt('home.activationProgram.skipToday')}</button>
       </div>
       ${content.cta_type === 'open_child_view' && data.preview ? `
         <p class="mt-2 text-xs text-indigo-500">
-          <a href="/child-login" class="underline">Eller öppna barninloggningen</a>
+          <a href="/child-login" class="underline">${pt('home.activationProgram.orOpenChildLogin')}</a>
         </p>` : ''}
     `;
 

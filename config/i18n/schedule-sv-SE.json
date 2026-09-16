@@ -294,7 +294,13 @@
     "copyWeekOffset": "+{{count}} vecka",
     "copyWeekOffsetPlural": "+{{count}} veckor",
     "copyWeekNumber": "Vecka {{week}}",
-    "sbsDragHint": "Dra en aktivitet från ett barn till det andra för att kopiera den"
+    "sbsDragHint": "Dra en aktivitet från ett barn till det andra för att kopiera den",
+    "alreadyAtNamed": "Finns redan hos {{name}}",
+    "copiedToNamed": "📋 Kopierat till {{name}}",
+    "childFallback": "barnet",
+    "countShort": "{{count}} st",
+    "addActivityBtn": "+ Aktivitet",
+    "compareHeading": "{{day}} — Jämför barn"
   },
   "confirm": {
     "removeOnceTask": "Ta bort engångsaktiviteten \"{{name}}\"?"
@@ -342,7 +348,12 @@
     "modalFallbackTitle": "Specialdag",
     "noteLabel": "Anteckning (valfritt)",
     "notePlaceholder": "T.ex. Utflyktsdag, Ledig, Sjuk…",
-    "deleteBtn": "🗑 Ta bort specialdag"
+    "deleteBtn": "🗑 Ta bort specialdag",
+    "calendarHint": "Klicka på ett datum för att skapa eller redigera ett unikt schema för den dagen",
+    "activityAdded": "Aktivitet tillagd",
+    "allRemoved": "Alla aktiviteter borttagna",
+    "genericError": "Fel",
+    "addBtn": "+ Lägg till"
   },
   "period": {
     "pickSchedule": "— Välj schema —",
@@ -491,7 +502,8 @@
     "statDays": "Dagar",
     "timePlacementTip": "💡 Tips: Lägg till en tid så placeras aktiviteten rätt i NU / NÄSTA / SEDAN-vyn",
     "dateRequiredLabel": "Datum *",
-    "appliesToChildren": "Gäller barn:"
+    "appliesToChildren": "Gäller barn:",
+    "loadFailed": "Fel vid laddning"
   },
   "months": {
     "0": "Januari",

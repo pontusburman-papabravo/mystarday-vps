@@ -9,6 +9,14 @@
 (function () {
   const { buildOrderedDailyIdsFromReorder, pendingReorderIncludesOnceTask } = window.ScheduleCore;
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
+  function dayPlural() {
+    return spt('schedule.daysPlural.' + currentDay) || spt('schedule.daysPlural.all');
+  }
+
   function onceTaskDragFiltered(evt) {
     const el = evt.target.closest ? evt.target.closest('.activity-item') : null;
     if (!el || !el.classList.contains('once-task-item')) return false;
@@ -80,8 +88,7 @@ function captureAndAskReorder(section) {
 
 // "Bara idag / Alla [veckodagar]" confirmation dialog
 function showReorderDialog() {
-  const dayName = DAYS[currentDay] ? DAYS[currentDay].toLowerCase() : '';
-  const dayPlural = dayName ? `alla ${dayName}ar` : 'alla dagar';
+  const plural = dayPlural();
   const hideAllDays = _pendingReorderOrder && pendingReorderIncludesOnceTask(_pendingReorderOrder, scheduleItems);
   const existing = document.getElementById('reorder-dialog-overlay');
   if (existing) existing.remove();
@@ -92,17 +99,17 @@ function showReorderDialog() {
   overlay.innerHTML = `
     <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center">
       <p class="text-2xl mb-2">↕️</p>
-      <h3 class="font-heading font-bold text-navy text-lg mb-1">Ändra ordning</h3>
-      <p class="text-sm text-text-soft mb-5">${hideAllDays ? 'Engångsaktiviteter kan bara flyttas för idag. Spara den nya ordningen?' : `Ska ändringen gälla bara idag eller ${dayPlural}?`}</p>
+      <h3 class="font-heading font-bold text-navy text-lg mb-1">${spt('schedule.dnd.reorderTitle')}</h3>
+      <p class="text-sm text-text-soft mb-5">${hideAllDays ? spt('schedule.dnd.reorderOnceBody') : spt('schedule.dnd.reorderBody', { plural: plural })}</p>
       <div class="flex flex-col gap-2">
         <button id="reorder-today-btn" class="w-full py-3 px-4 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
-          📅 Ändra bara idag
+          ${spt('schedule.dnd.reorderTodayBtn')}
         </button>
         ${hideAllDays ? '' : `<button id="reorder-all-btn" class="w-full py-3 px-4 bg-navy hover:bg-purple-900 text-white rounded-xl font-semibold text-sm transition-colors">
-          🔁 Ändra ${dayPlural}
+          ${spt('schedule.dnd.reorderAllBtn', { plural: plural })}
         </button>`}
         <button id="reorder-cancel-btn" class="w-full py-2 px-4 text-text-soft hover:text-navy text-sm transition-colors">
-          Avbryt
+          ${spt('schedule.modals.common.cancel')}
         </button>
       </div>
     </div>`;
@@ -144,13 +151,13 @@ async function confirmReorderAllDays() {
   if (!res.ok) {
     scheduleItems = prevScheduleItems;
     renderSchedule();
-    showToast('Fel vid sparning av ordning', true);
+    showToast(spt('schedule.dnd.saveOrderFailed'), true);
   } else {
     order.forEach(({ id, sort_order, section }) => {
       const item = scheduleItems.find(i => i.id == id);
       if (item) { item.sort_order = sort_order; item.section = section; }
     });
-    showToast(`Ordning sparad för alla ${DAYS[currentDay] ? DAYS[currentDay].toLowerCase() + 'ar' : 'dagar'} ✅`);
+    showToast(spt('schedule.dnd.savedAll', { plural: dayPlural() }));
   }
   _pendingReorderOrder = null;
   _pendingReorderSection = null;
@@ -163,29 +170,29 @@ async function confirmReorderTodayOnly() {
   if (!_pendingReorderOrder || !currentChildId) return;
 
   const dateStr = getCurrentDateStr();
-  if (!dateStr) { showToast('Kunde inte bestämma datum', true); renderSchedule(); return; }
+  if (!dateStr) { showToast(spt('schedule.dnd.noDate'), true); renderSchedule(); return; }
 
   const newOrder = _pendingReorderOrder;
 
   try {
     const logRes = await window.apiFetch(`/api/children/${currentChildId}/daily-log?date=${dateStr}`);
-    if (!logRes.ok) throw new Error('Kunde inte hämta dagens schema');
+    if (!logRes.ok) throw new Error(spt('schedule.dnd.fetchTodayFailed'));
     const logData = await logRes.json();
     const logItems = logData.items || [];
 
     const orderedDailyIds = buildOrderedDailyIdsFromReorder(newOrder, scheduleItems, logItems);
 
-    if (orderedDailyIds.length === 0) throw new Error('Inga aktiviteter att sortera');
+    if (orderedDailyIds.length === 0) throw new Error(spt('schedule.dnd.nothingToSort'));
 
     const res = await window.apiFetch('/api/daily-log-items/reorder', {
       method: 'PUT',
       body: JSON.stringify({ ordered_item_ids: orderedDailyIds }),
     });
-    if (!res.ok) throw new Error('Sparning misslyckades');
+    if (!res.ok) throw new Error(spt('schedule.dnd.saveFailed'));
 
-    showToast('Ordning sparad bara för idag ✅');
+    showToast(spt('schedule.dnd.savedToday'));
   } catch (err) {
-    showToast(err.message || 'Fel vid sparning', true);
+    showToast(err.message || spt('schedule.dnd.saveError'), true);
   }
 
   renderSchedule();
@@ -216,8 +223,8 @@ async function copyActivityToDay(itemId, toDay) {
     method: 'POST', body: JSON.stringify({ item_id: itemId, from_schedule_id: currentScheduleId, to_day: toDay }),
   });
   const data = await res.json();
-  if (res.ok) showToast(data.skipped ? `Al finns redan på ${DAYS[toDay]}` : `📋 Kopierat till ${DAYS[toDay]}`);
-  else showToast(data.error || 'Fel uppstod', true);
+  if (res.ok) showToast(data.skipped ? spt('schedule.dnd.alreadyOnDay', { day: DAYS[toDay] }) : spt('schedule.dnd.copiedToDay', { day: DAYS[toDay] }));
+  else showToast(data.error || spt('schedule.validation.generic'), true);
 }
 
 // ── Day DnD Modal ─────────────────────────────────────────
@@ -225,7 +232,7 @@ let dayDndSrc = null, dayDndDst = null;
 function openDayDndModal(s, d) {
   dayDndSrc = s; dayDndDst = d;
   document.getElementById('dayDndTitle').textContent = `${DAYS[s]} → ${DAYS[d]}`;
-  document.getElementById('dayDndDesc').textContent = `Vad vill du göra med ${DAYS[s]}s schema?`;
+  document.getElementById('dayDndDesc').textContent = spt('schedule.dnd.dayDndDesc', { day: DAYS[s] });
   document.getElementById('dayDndCopyBtn').onclick = () => { closeDayDndModal(); doDayDndCopy(s,d); };
   document.getElementById('dayDndSwapBtn').onclick = () => { closeDayDndModal(); doDayDndSwap(s,d); };
   document.getElementById('dayDndModal').classList.remove('hidden');
@@ -240,14 +247,14 @@ function closeDayDndModal() {
 async function doDayDndCopy(src, dst) {
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`, { method: 'POST', body: JSON.stringify({ from_day: src, to_days: [dst] }) });
   const data = await res.json();
-  if (res.ok) { showToast(`📋 ${DAYS[src]} kopierat till ${DAYS[dst]}`); if(currentDay===dst) await loadScheduleForDay(); }
-  else showToast(data.error||'Fel uppstod', true);
+  if (res.ok) { showToast(spt('schedule.dnd.dayCopiedTo', { src: DAYS[src], dst: DAYS[dst] })); if(currentDay===dst) await loadScheduleForDay(); }
+  else showToast(data.error||spt('schedule.validation.generic'), true);
 }
 async function doDayDndSwap(a, b) {
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/swap-day`, { method: 'POST', body: JSON.stringify({ day_a: a, day_b: b }) });
   const data = await res.json();
-  if (res.ok) { showToast(`🔄 ${DAYS[a]} och ${DAYS[b]} bytte plats`); if(currentDay===a||currentDay===b) await loadScheduleForDay(); }
-  else showToast(data.error||'Fel uppstod', true);
+  if (res.ok) { showToast(spt('schedule.dnd.daysSwapped', { a: DAYS[a], b: DAYS[b] })); if(currentDay===a||currentDay===b) await loadScheduleForDay(); }
+  else showToast(data.error||spt('schedule.validation.generic'), true);
 }
 
   // Exposed on window for inline onclick + cross-file callers
