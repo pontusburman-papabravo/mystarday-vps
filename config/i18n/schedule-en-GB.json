@@ -294,7 +294,13 @@
     "copyWeekOffset": "+{{count}} week",
     "copyWeekOffsetPlural": "+{{count}} weeks",
     "copyWeekNumber": "Week {{week}}",
-    "sbsDragHint": "Drag an activity from one child to the other to copy it"
+    "sbsDragHint": "Drag an activity from one child to the other to copy it",
+    "alreadyAtNamed": "Already with {{name}}",
+    "copiedToNamed": "📋 Copied to {{name}}",
+    "childFallback": "the child",
+    "countShort": "{{count}}",
+    "addActivityBtn": "+ Activity",
+    "compareHeading": "{{day}} — Compare children"
   },
   "confirm": {
     "removeOnceTask": "Remove the one-off activity \"{{name}}\"?"
@@ -342,7 +348,12 @@
     "modalFallbackTitle": "Special day",
     "noteLabel": "Note (optional)",
     "notePlaceholder": "E.g. Field trip, Day off, Sick…",
-    "deleteBtn": "🗑 Remove special day"
+    "deleteBtn": "🗑 Remove special day",
+    "calendarHint": "Tap a date to create or edit a unique schedule for that day",
+    "activityAdded": "Activity added",
+    "allRemoved": "All activities removed",
+    "genericError": "Error",
+    "addBtn": "+ Add"
   },
   "period": {
     "pickSchedule": "— Choose schedule —",
@@ -491,7 +502,8 @@
     "statDays": "Days",
     "timePlacementTip": "💡 Tip: add a time and the activity lands in the right place in the NOW / NEXT / LATER view",
     "dateRequiredLabel": "Date *",
-    "appliesToChildren": "Applies to:"
+    "appliesToChildren": "Applies to:",
+    "loadFailed": "Failed to load"
   },
   "months": {
     "0": "January",

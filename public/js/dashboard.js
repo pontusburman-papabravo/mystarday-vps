@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('[DASHBOARD] Init error:', err);
     logDashboardStability('dashboard_init_error', { message: err && err.message, stack: err && err.stack && err.stack.slice(0, 200) });
     const grid = document.getElementById('childCardsGrid');
-    if (grid) grid.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</div>';
+    if (grid) grid.innerHTML = '<div class="text-center py-8 text-red-500 font-semibold">' + hpt('home.loading.initFailed') + '</div>';
   }
 });
 
@@ -704,14 +704,14 @@ async function loadScheduleForDay() {
       window.Skeleton.showActivityListSkeleton();
     });
   } else {
-    container.innerHTML = '<div class="text-center py-10 text-text-soft">Laddar…</div>';
+    container.innerHTML = '<div class="text-center py-10 text-text-soft">' + hpt('schedule.loading') + '</div>';
   }
 
   const res = await window.apiFetch(`/api/children/${currentChildId}/schedules`);
   if (!res.ok) {
     if (skeletonTimer) skeletonTimer.stop();
     if (window.Skeleton) window.Skeleton.showParentDashboardError(container);
-    else container.innerHTML = '<p class="text-red-500">Fel vid laddning</p>';
+    else container.innerHTML = '<p class="text-red-500">' + hpt('schedule.chrome.loadFailed') + '</p>';
     return;
   }
   const schedules = await res.json();
@@ -726,7 +726,7 @@ async function loadScheduleForDay() {
   if (!ir.ok) {
     if (skeletonTimer) skeletonTimer.stop();
     if (window.Skeleton) window.Skeleton.showParentDashboardError(container);
-    else container.innerHTML = '<p class="text-red-500">Fel vid laddning av aktiviteter</p>';
+    else container.innerHTML = '<p class="text-red-500">' + hpt('schedule.loadActivitiesError') + '</p>';
     return;
   }
   if (skeletonTimer) skeletonTimer.stop();
@@ -759,7 +759,7 @@ async function createSchedule() {
   const data = await res.json();
   if (res.ok) { currentScheduleId = data.id; scheduleItems = []; renderSchedule(); }
   else if (res.status === 409 && data.id) { currentScheduleId = data.id; scheduleItems = []; renderSchedule(); }
-  else showToast(data.error || 'Fel uppstod', true);
+  else showToast(data.error || hpt('schedule.validation.generic'), true);
 }
 
 // ── Render normal schedule ────────────────────────────────
@@ -813,13 +813,13 @@ function renderItem(item) {
   const onceBorder = isOnce ? ' border-dashed border-gold/40' : '';
   const canReorderOnceToday = isOnce && !!getCurrentDateStr();
   const dragHandle = (!isOnce || canReorderOnceToday)
-    ? '<button type="button" class="drag-handle" aria-label="Dra för att ändra ordning">⠿</button>'
+    ? '<button type="button" class="drag-handle" aria-label="' + hpt('schedule.actions.dragReorder') + '">⠿</button>'
     : '';
-  const oncePin = isOnce ? '<span title="Engångsaktivitet" class="text-[10px] flex-shrink-0">📌</span>' : '';
+  const oncePin = isOnce ? '<span title="' + hpt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
   const moveBtns = (!isOnce || canReorderOnceToday)
-    ? `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="Flytta upp" aria-label="Flytta upp">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="Flytta ner" aria-label="Flytta ner">▼</button>`
+    ? `<button onclick="moveItem('${item.id}','${item.section}',-1)" class="move-btn" title="${hpt('schedule.editor.moveUp')}" aria-label="${hpt('schedule.editor.moveUp')}">▲</button><button onclick="moveItem('${item.id}','${item.section}',1)" class="move-btn" title="${hpt('schedule.editor.moveDown')}" aria-label="${hpt('schedule.editor.moveDown')}">▼</button>`
     : '';
-  const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="Redigera">✏️</button>`;
+  const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${hpt('schedule.editor.edit')}">✏️</button>`;
   const timeStr = item.start_time ? fmtTime(item.start_time) + (item.end_time ? '–' + fmtTime(item.end_time) : '') : '';
   return `
     <div class="activity-item flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-gray-100${onceClass}${onceBorder} shadow-sm"
@@ -835,7 +835,7 @@ function renderItem(item) {
         ${moveBtns}
         ${editBtn}
         <button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')"
-          class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="Ta bort">✕</button>
+          class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="${hpt('schedule.editor.remove')}">✕</button>
       </div>
     </div>`;
 }

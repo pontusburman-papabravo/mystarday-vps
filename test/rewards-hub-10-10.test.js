@@ -47,7 +47,7 @@ describe('Belöningar hub 10/10', () => {
     assert.match(pending, /mountEl\.innerHTML = ''/);
     assert.match(pending, /mountEl\.classList\.add\('hidden'\)/);
     assert.match(pending, /hub: opts\.hub/);
-    assert.match(pending, /vill ha "/);
+    assert.match(pending, /home\.approvals\.wantsRedeemNamed/);
   });
 
   it('rewards magic page hides large hero like planning', () => {

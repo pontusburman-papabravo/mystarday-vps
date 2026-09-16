@@ -9,6 +9,10 @@
 (function () {
   const { DAYS, SECTIONS, fmtTime, getDayDateLabel } = window.ScheduleCore;
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
   function renderTimeline() {
     if (!currentScheduleId) { renderEmptyDay(); return; }
     const child = children.find(c => c.id === currentChildId);
@@ -37,20 +41,20 @@
         <span class="time-slot-label">${slot.half?'':slot.label}</span>
         ${items.map(item=>`<div class="timeline-activity${item.is_once_task ? ' once-task-item' : ''}" data-id="${item.id}" draggable="${item.is_once_task ? 'false' : 'true'}">
           <span class="text-sm flex-shrink-0">${item.activity_icon||'📌'}</span>
-          ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+          ${item.is_once_task ? '<span title="' + spt('schedule.modals.addActivity.onceTitle') + '" class="text-[10px]">📌</span>' : ''}
           <span class="font-semibold text-navy truncate flex-1 text-xs">${escHtml(item.activity_name_display||item.activity_name)}</span>
-          <button type="button" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0" title="Ta bort">✕</button>
+          <button type="button" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0" title="${spt('schedule.editor.remove')}">✕</button>
         </div>`).join('')}
       </div>`;
     }).join('');
 
     const unschHtml = unscheduled.length>0 ? `
-      <div class="tl-unscheduled-label">Utan tid</div>
+      <div class="tl-unscheduled-label">${spt('schedule.views.unscheduled')}</div>
       ${unscheduled.map(item=>`<div class="time-slot" data-slot="-1" data-time="">
         <span class="time-slot-label text-gray-300 text-xs">–</span>
         <div class="timeline-activity${item.is_once_task ? ' once-task-item' : ''}" data-id="${item.id}" draggable="${item.is_once_task ? 'false' : 'true'}">
           <span class="text-sm flex-shrink-0">${item.activity_icon||'📌'}</span>
-          ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+          ${item.is_once_task ? '<span title="' + spt('schedule.modals.addActivity.onceTitle') + '" class="text-[10px]">📌</span>' : ''}
           <span class="font-semibold text-navy truncate flex-1 text-xs">${escHtml(item.activity_name_display||item.activity_name)}</span>
           <button type="button" onclick="event.stopPropagation(); removeItem('${item.id}')" draggable="false" class="action-btn action-btn-remove p-2 rounded-lg text-gray-400 hover:text-red-500 flex-shrink-0">✕</button>
         </div>
@@ -60,10 +64,10 @@
     document.getElementById('scheduleContent').innerHTML = `
       <div class="flex items-center justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ Tidsvy</h3>
-          <p class="text-xs text-text-soft">Dra aktiviteter upp/ner för att ändra starttid. 06:00–22:00.</p>
+          <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${tlDateLabel ? ` <span class="text-text-soft font-normal text-base">${tlDateLabel}</span>` : ''} — ${child?escHtml(child.name):''} ⏱ ${spt('schedule.views.timelineMode')}</h3>
+          <p class="text-xs text-text-soft">${spt('schedule.views.dragHint')}</p>
         </div>
-        <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">+ Aktivitet</button>
+        <button onclick="openAddModal('dag')" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold">${spt('schedule.views.addActivityBtn')}</button>
       </div>
       <div class="border-2 border-lavender rounded-2xl overflow-hidden bg-white" id="timelineWrap" style="max-height:65vh;overflow-y:auto">
         ${slotsHtml}${unschHtml}
@@ -106,9 +110,9 @@
         if (res.ok) {
           const item = scheduleItems.find(i=>i.id==tlSrcId);
           if (item) item.start_time = newTime;
-          showToast(`⏱ Tid: ${newTime||'utan tid'}`);
+          showToast('⏱ ' + spt('schedule.toasts.timeChanged', { time: newTime || spt('schedule.views.timeNoTime') }));
           renderTimeline();
-        } else showToast('Fel vid tidsändring', true);
+        } else showToast(spt('schedule.toasts.timeChangeError'), true);
       });
     });
   }
@@ -141,7 +145,7 @@
 
   function renderSbsView() {
     const panelItems = (items, schedId, childId) => {
-      if (!items || items.length === 0) return `<p class="text-sm text-text-soft text-center py-6">Inget schema för ${DAYS[currentDay]}</p>`;
+      if (!items || items.length === 0) return `<p class="text-sm text-text-soft text-center py-6">${spt('schedule.views.noScheduleForDay', { day: DAYS[currentDay] })}</p>`;
       return SECTIONS.map(sec => {
         const si = items.filter(i => i.section === sec.key).sort((a, b) => a.sort_order - b.sort_order);
         if (!si.length) return '';
@@ -151,7 +155,7 @@
             data-schedule-id="${schedId || ''}" data-child-id="${childId}"
             draggable="${item.is_once_task ? 'false' : 'true'}">
             <span class="text-sm flex-shrink-0">${item.activity_icon || '📌'}</span>
-            ${item.is_once_task ? '<span title="Engångsaktivitet" class="text-[10px]">📌</span>' : ''}
+            ${item.is_once_task ? '<span title="' + spt('schedule.modals.addActivity.onceTitle') + '" class="text-[10px]">📌</span>' : ''}
             <div class="flex-1 min-w-0"><div class="font-semibold text-xs text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</div>${item.start_time ? `<div class="text-xs text-text-soft">${fmtTime(item.start_time)}</div>` : ''}</div>
           </div>`).join('')}
         </div>`;
@@ -164,15 +168,15 @@
         <div class="sbs-panel-header">
           ${renderChildAvatar(child, 28)}
           <span class="font-bold text-navy">${escHtml(child.name)}</span>
-          <span class="text-xs text-text-soft ml-auto">${data.items.length} st</span>
+          <span class="text-xs text-text-soft ml-auto">${spt('schedule.views.countShort', { count: data.items.length })}</span>
         </div>
         <div class="sbs-inner p-2" id="sbsInner_${child.id}">${panelItems(data.items, data.scheduleId, child.id)}</div>
       </div>`;
     }).join('');
 
     document.getElementById('scheduleContent').innerHTML = `
-      <div class="mb-3"><h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]} — Jämför barn</h3>
-        <p class="text-xs text-text-soft">📋 Dra en aktivitet från ett barn till det andra för att kopiera den</p>
+      <div class="mb-3"><h3 class="text-lg font-heading font-bold text-navy">${spt('schedule.views.compareHeading', { day: DAYS[currentDay] })}</h3>
+        <p class="text-xs text-text-soft">📋 ${spt('schedule.views.sbsDragHint')}</p>
       </div>
       <div class="sbs-container">${panels}</div>`;
 
@@ -206,8 +210,8 @@
         e.preventDefault(); e.stopPropagation();
         panel.classList.remove('sbs-drop-active');
         if (dndType !== 'sbs' || !sbsSrcItemId) return;
-        if (!panelChildId || sbsSrcChildId === panelChildId) { showToast('Aktiviteten är redan hos detta barn'); return; }
-        if (!sbsSrcScheduleId) { showToast('Källschema saknas', true); return; }
+        if (!panelChildId || sbsSrcChildId === panelChildId) { showToast(spt('schedule.views.alreadyAtChild')); return; }
+        if (!sbsSrcScheduleId) { showToast(spt('schedule.views.sourceMissing'), true); return; }
         const res = await window.apiFetch(`/api/children/${sbsSrcChildId}/schedules/copy-item-to-child`, {
           method: 'POST',
           body: JSON.stringify({ item_id: sbsSrcItemId, from_schedule_id: sbsSrcScheduleId, to_child_id: panelChildId, to_day: currentDay }),
@@ -215,9 +219,9 @@
         const data = await res.json();
         if (res.ok) {
           const dstChild = children.find(c => c.id === panelChildId);
-          showToast(data.skipped ? `Finns redan hos ${dstChild ? dstChild.name : 'barnet'}` : `📋 Kopierat till ${dstChild ? dstChild.name : 'barnet'}`);
+          showToast(data.skipped ? spt('schedule.views.alreadyAtNamed', { name: dstChild ? dstChild.name : spt('schedule.views.childFallback') }) : spt('schedule.views.copiedToNamed', { name: dstChild ? dstChild.name : spt('schedule.views.childFallback') }));
           await loadAllChildrenSchedules(); renderSbsView();
-        } else showToast(data.error || 'Fel uppstod', true);
+        } else showToast(data.error || spt('schedule.validation.generic'), true);
       });
     });
   }
