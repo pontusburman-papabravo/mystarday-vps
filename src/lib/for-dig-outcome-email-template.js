@@ -10,7 +10,7 @@ const config = require('./config');
 
 const DEFAULT_SUBJECT_TEMPLATE = 'Hur går det med {{goal_title}}?';
 const MULTI_SUBJECT = 'Hur har det gått?';
-const CTA_PATH = '/dashboard';
+const CTA_PATH = '/dashboard?for_dig_feedback=1';
 const UNATTEND_FOOTER = 'Vill du inte få fler uppföljningsmejl om För dig? Avregistrera här.';
 const ASK_LEAD = 'Nu är vi nyfikna:';
 const ASK_EMPHASIS = 'hur har det gått?';
@@ -103,7 +103,7 @@ function buildSingleBodyHtml({ parentName, childName, goalTitle }) {
               <p style="margin:0 0 16px 0;">Hej ${safeParent}!</p>
               <p style="margin:0 0 16px 0;">För ett tag sedan aktiverade du <strong>${safeGoal}</strong> för ${safeChild} i För dig.</p>
               <p style="margin:0 0 16px 0;">${escapeHtml(ASK_LEAD)} <strong>${escapeHtml(ASK_EMPHASIS)}</strong></p>
-              <p style="margin:0 0 16px 0;">Öppna appen och gå till <strong>Hem</strong>. Där finns en kort fråga med fyra svarsalternativ (😊 🙂 😐 🙁). Det tar mindre än en minut, och du kan lägga till en kommentar om du vill.</p>
+              <p style="margin:0 0 16px 0;">Öppna ${safeBrand} och svara på den korta frågan. Det tar mindre än en minut, och du kan lägga till en kommentar om du vill.</p>
               <p style="margin:0 0 16px 0;">Ditt svar påverkar inte ditt konto eller dina inställningar. Det hjälper oss att förstå vad som fungerar för familjer — och vad vi kan göra bättre.</p>
               <p style="margin:24px 0 0 0;">Tack för att du hjälper oss utveckla ${safeBrand}!</p>
               <p style="margin:8px 0 0 0;">/${escapeHtml(brandName())}-teamet</p>`;
@@ -116,7 +116,7 @@ function buildMultiBodyHtml({ parentName }) {
               <p style="margin:0 0 16px 0;">Hej ${safeParent}!</p>
               <p style="margin:0 0 16px 0;">För ett tag sedan aktiverade du några saker i För dig.</p>
               <p style="margin:0 0 16px 0;">${escapeHtml(ASK_LEAD)} <strong>${escapeHtml(ASK_EMPHASIS)}</strong></p>
-              <p style="margin:0 0 16px 0;">Öppna appen och gå till <strong>Hem</strong>. Där kan du svara på de korta frågorna. Det tar bara någon minut.</p>
+              <p style="margin:0 0 16px 0;">Öppna ${safeBrand} och svara på de korta frågorna. Det tar bara någon minut.</p>
               <p style="margin:0 0 16px 0;">Ditt svar påverkar inte ditt konto eller dina inställningar. Det hjälper oss att förstå vad som fungerar för familjer — och vad vi kan göra bättre.</p>
               <p style="margin:24px 0 0 0;">Tack för att du hjälper oss utveckla ${safeBrand}!</p>
               <p style="margin:8px 0 0 0;">/${escapeHtml(brandName())}-teamet</p>`;

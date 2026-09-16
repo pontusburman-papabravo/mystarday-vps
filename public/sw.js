@@ -318,16 +318,21 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v975: För dig outcome banner after child chrome leftover i18n merge
+const CACHE_NAME = 'stjarndag-v975';
+// stjarndag-v974: child chrome leftovers via child.scheduleChrome / child.nav / child.settings
+// stjarndag-v974: För dig outcome banner after dashboard/home satellite i18n merge
 // stjarndag-v973: dashboard/home satellite copy via schedule.specialDays / copy / dnd / home.timeAdjust / approvals
+// stjarndag-v973: För dig outcome banner + explicit email CTA after main i18n merge
 // stjarndag-v972: settings remainder copy via settings.notifications / reminders / deleteAccount / consent / subscription
+// stjarndag-v972: keep for_dig_feedback=1 through session-lost login redirect
 // stjarndag-v971: assign-schedule flow copy via schedule.assign / schedule.days / time.today
+// stjarndag-v971: dismissible För dig outcome banner + explicit email feedback
 // stjarndag-v970: family-child modal copy via family.childProfile.*
 // stjarndag-v969: family remainder copy via family.* / nav.*
 // stjarndag-v968: adult PIN-gate copy via auth.parentGate / child.parentGate
 // stjarndag-v967: market-scoped purchase gate + restore-only SDK path (IE before Oct 1)
 // stjarndag-v966: IAP Google basePlan allowlist + native Android detection (VPS cleanup)
-// stjarndag-v974: child chrome leftovers via child.scheduleChrome / child.nav / child.settings
-const CACHE_NAME = 'stjarndag-v974';
 // stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
 // stjarndag-v963: admin Start relative time — Stockholm igår + live labels
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)

@@ -24,6 +24,13 @@ function asyncRoute(handler) {
   };
 }
 
+router.get('/for-dig/outcome-followup/pilot-preview', asyncRoute(async (req, res) => {
+  const preview = await followupDb.previewPilotSelection({
+    maxRecipients: req.query.max_recipients,
+  });
+  res.json(preview);
+}));
+
 router.get('/for-dig/outcome-followup/batches', asyncRoute(async (_req, res) => {
   const batches = await followupDb.listBatches();
   res.json({ batches });
@@ -35,15 +42,20 @@ router.post('/for-dig/outcome-followup/batches', asyncRoute(async (req, res) => 
 }));
 
 router.post('/for-dig/outcome-followup/batches/:id/prepare-from-pending', asyncRoute(async (req, res) => {
-  const result = await followupDb.prepareFromPending(req.params.id);
+  const result = await followupDb.prepareFromPending(req.params.id, {
+    maxRecipients: req.body?.max_recipients,
+  });
   res.json({
     batch_id: result.batchId,
     pending_total: result.pendingTotal,
     pending_item_count: result.pending_item_count,
     unique_parents: result.unique_parents,
+    eligible_parents: result.eligible_parents,
     opted_out: result.opted_out,
     inserted: result.inserted,
     skipped: result.skipped,
+    max_recipients: result.max_recipients,
+    excluded_already_emailed_items: result.excluded_already_emailed_items,
   });
 }));
 
