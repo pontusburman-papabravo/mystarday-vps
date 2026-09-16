@@ -9,6 +9,10 @@
   let _modalBound = false;
   let _settingsBound = false;
 
+  function fpt(key, params) {
+    return (typeof global.pt === 'function') ? global.pt(key, params) : key;
+  }
+
   function escHtml(str) {
     return String(str || '')
       .replace(/&/g, '&amp;')
@@ -28,30 +32,33 @@
     wrap.innerHTML =
       '<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 magic-modal-panel">' +
       '<div class="flex justify-between items-center mb-3">' +
-      '<h2 id="coParentInviteModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till vuxen</h2>' +
-      '<button type="button" class="co-parent-invite-close text-text-soft hover:text-navy text-2xl leading-none" aria-label="Stäng">×</button>' +
+      '<h2 id="coParentInviteModalTitle" class="text-xl font-heading font-bold text-navy">' + escHtml(fpt('family.shell.addAdultTitle')) + '</h2>' +
+      '<button type="button" class="co-parent-invite-close text-text-soft hover:text-navy text-2xl leading-none" aria-label="' + escHtml(fpt('family.form.close')) + '">×</button>' +
       '</div>' +
-      '<p class="text-sm text-text-soft mb-4">Vi skickar en inbjudan via e-post. Personen skapar själv sitt lösenord.</p>' +
+      '<p class="text-sm text-text-soft mb-4">' + escHtml(fpt('family.invites.emailLead')) + '</p>' +
       '<form id="coParentInviteModalForm" class="space-y-3">' +
-      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalName">Namn</label>' +
-      '<input type="text" id="coParentInviteModalName" required placeholder="T.ex. Anna Svensson" ' +
+      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalName">' + escHtml(fpt('family.form.name')) + '</label>' +
+      '<input type="text" id="coParentInviteModalName" required placeholder="' + escHtml(fpt('family.form.nameExamplePlaceholder')) + '" ' +
       'class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>' +
-      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalEmail">E-postadress</label>' +
-      '<input type="email" id="coParentInviteModalEmail" required placeholder="namn@exempel.se" ' +
+      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalEmail">' + escHtml(fpt('family.form.email')) + '</label>' +
+      '<input type="email" id="coParentInviteModalEmail" required placeholder="' + escHtml(fpt('family.form.emailPlaceholder')) + '" ' +
       'class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>' +
-      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalRole">Roll i familjen (valfritt)</label>' +
+      '<div><label class="block text-sm font-semibold text-navy mb-1" for="coParentInviteModalRole">' + escHtml(fpt('family.form.roleOptional')) + '</label>' +
       '<select id="coParentInviteModalRole" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">' +
-      '<option value="">— Välj —</option><option value="mamma">Mamma</option><option value="pappa">Pappa</option>' +
-      '<option value="bonusförälder">Bonusförälder</option><option value="annan">Annan</option></select></div>' +
+      '<option value="">' + escHtml(fpt('family.form.choosePlaceholder')) + '</option>' +
+      '<option value="mamma">' + escHtml(fpt('family.roles.mamma')) + '</option>' +
+      '<option value="pappa">' + escHtml(fpt('family.roles.pappa')) + '</option>' +
+      '<option value="bonusförälder">' + escHtml(fpt('family.roles.bonusParent')) + '</option>' +
+      '<option value="annan">' + escHtml(fpt('family.roles.other')) + '</option></select></div>' +
       '<div id="coParentInviteChildSection" class="hidden">' +
-      '<p class="text-sm font-semibold text-navy mb-2">Vilka barn ska personen kunna hjälpa?</p>' +
+      '<p class="text-sm font-semibold text-navy mb-2">' + escHtml(fpt('family.form.whichChildren')) + '</p>' +
       '<div id="coParentInviteChildList" class="space-y-2 max-h-40 overflow-y-auto"></div>' +
-      '<button type="button" id="coParentInviteSelectAll" class="text-sm text-gold font-semibold mt-1 hidden">Välj alla</button>' +
+      '<button type="button" id="coParentInviteSelectAll" class="text-sm text-gold font-semibold mt-1 hidden">' + escHtml(fpt('family.form.selectAll')) + '</button>' +
       '</div>' +
       '<p id="coParentInviteModalMsg" class="text-sm min-h-[1.4em]"></p>' +
       '<div class="flex gap-3 pt-1">' +
-      '<button type="button" class="co-parent-invite-close flex-1 px-4 py-3 border-2 border-lavender text-navy rounded-xl font-semibold">Avbryt</button>' +
-      '<button type="submit" id="coParentInviteModalSubmit" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold">Skicka inbjudan</button>' +
+      '<button type="button" class="co-parent-invite-close flex-1 px-4 py-3 border-2 border-lavender text-navy rounded-xl font-semibold">' + escHtml(fpt('family.giveStars.cancel')) + '</button>' +
+      '<button type="submit" id="coParentInviteModalSubmit" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold">' + escHtml(fpt('family.invites.sendBtn')) + '</button>' +
       '</div></form></div>';
 
     global.document.body.appendChild(wrap);
@@ -61,7 +68,7 @@
   async function sendInvite(name, email, familyRole, childIds, msgEl, btn) {
     if (!global.Auth || !global.Auth.api) {
       if (msgEl) {
-        msgEl.textContent = 'Kunde inte skicka — logga in igen.';
+        msgEl.textContent = fpt('family.form.loginAgain');
         msgEl.className = 'text-sm text-red-500 font-medium';
       }
       return false;
@@ -69,7 +76,7 @@
 
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Skickar…';
+      btn.textContent = fpt('family.giveStars.sending');
     }
     if (msgEl) msgEl.textContent = '';
 
@@ -80,7 +87,7 @@
       });
       if (check.adult && check.adult.status !== 'available') {
         if (msgEl) {
-          msgEl.textContent = check.adult.error || 'Personen finns redan i familjen eller har en väntande inbjudan.';
+          msgEl.textContent = check.adult.error || fpt('family.errors.memberAlreadyExists');
           msgEl.className = 'text-sm text-red-500 font-medium';
         }
         return false;
@@ -94,20 +101,20 @@
         body: JSON.stringify(payload),
       });
       if (msgEl) {
-        msgEl.textContent = '✓ Inbjudan skickad till ' + escHtml(email) + '!';
+        msgEl.textContent = fpt('family.invites.sentTo', { email: email });
         msgEl.className = 'text-sm text-green-600 font-medium';
       }
       return true;
     } catch (err) {
       if (msgEl) {
-        msgEl.textContent = (err && err.message) || 'Något gick fel. Försök igen.';
+        msgEl.textContent = (err && err.message) || fpt('family.childProfile.errors.generic');
         msgEl.className = 'text-sm text-red-500 font-medium';
       }
       return false;
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Skicka inbjudan';
+        btn.textContent = fpt('family.invites.sendBtn');
       }
     }
   }
@@ -183,7 +190,7 @@
           !global.document.getElementById('coParentInviteChildSection').classList.contains('hidden') &&
           childIds.length === 0) {
         if (msg) {
-          msg.textContent = 'Välj minst ett barn.';
+          msg.textContent = fpt('family.errors.selectChild');
           msg.className = 'text-sm text-red-500 font-medium';
         }
         return;
@@ -250,8 +257,8 @@
     const hint = global.document.getElementById('coParentInvitePendingHint');
     if (hint && pending > 0) {
       hint.textContent = pending === 1
-        ? '1 väntande inbjudan är redan skickad.'
-        : pending + ' väntande inbjudningar är redan skickade.';
+        ? fpt('family.form.pendingOne')
+        : fpt('family.form.pendingMany', { count: pending });
       hint.classList.remove('hidden');
     }
 
