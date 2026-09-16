@@ -3,6 +3,7 @@
 const db = require('../db');
 const appConfig = require('../../../db/app-config');
 const rollout = require('./rollout');
+const { phaseLabelSv } = require('./phases');
 
 const CONFIG_KEY = 'JOURNEY_DAILY_ANALYSIS_LATEST';
 const HISTORY_CONFIG_KEY = 'JOURNEY_DAILY_ANALYSIS_HISTORY';
@@ -173,21 +174,23 @@ function buildReport(metrics, browserQa = null) {
 
   measurementPoints += 4;
   const rolloutFindings = [
-    `Wave ${rolloutWave} aktiv`,
-    `Hälsa: ${metrics.health?.ok ? 'OK' : 'PROBLEM'}`,
-    `Faser: ${(metrics.phases || []).map((p) => `${p.journey_phase} ${p.n}`).join(', ') || '—'}`,
+    rolloutWave === 0
+      ? 'Den nya hem-upplevelsen är inte påslagen än'
+      : `Steg ${rolloutWave} av 5 är påslaget`,
+    metrics.health?.ok ? 'Tekniska kontroller: allt ser bra ut' : 'Tekniska kontroller: något behöver åtgärdas',
+    `Familjer per steg: ${(metrics.phases || []).map((p) => `${phaseLabelSv(p.journey_phase)} ${p.n}`).join(', ') || '—'}`,
   ];
   if (!metrics.health?.ok) {
     actions.push({
       priority: 'critical',
-      title: 'Åtgärda Journey-hälsokontroll',
+      title: 'Något är fel i den nya hem-upplevelsen',
       detail: (metrics.health?.checks || []).filter((c) => !c.ok).map((c) => c.detail).join('; '),
       route: '#produktanalys',
     });
   }
   sections.push({
     id: 'rollout',
-    title: 'Rollout & fasfördelning',
+    title: 'Var familjerna är i appen',
     severity: metrics.health?.ok ? 'info' : 'critical',
     findings: rolloutFindings,
     metrics: metrics.phases,
@@ -195,21 +198,21 @@ function buildReport(metrics, browserQa = null) {
 
   measurementPoints += 3;
   const funnelFindings = [
-    `Signups 30d: ${f.signups_30d || 0}`,
-    `first_success 30d: ${f.first_success_30d || 0} (${f.pct_first_success ?? 0}%)`,
+    `Nya familjer senaste 30 dagarna: ${f.signups_30d || 0}`,
+    `Har gjort en första lyckad dag: ${f.first_success_30d || 0} (${f.pct_first_success ?? 0}%)`,
   ];
   if ((f.signups_30d || 0) > 5 && (f.first_success_30d || 0) === 0) {
     actions.push({
       priority: 'warning',
-      title: 'Ingen first_success senaste 30 dagarna',
-      detail: 'Handoff + parent-ack-flödet når sällan hela vägen. Prioritera barninloggning och bekräftelsemodal.',
+      title: 'Inga nya familjer har kommit igång senaste 30 dagarna',
+      detail: 'De registrerar sig, men når inte fram till att barnet bockar av och föräldern ser det. Kolla att barnet kan logga in och att Hem visar nästa steg.',
       route: '#produktanalys',
     });
-    funnelFindings.push('⚠ Ingen first_success i 30d-cohort');
+    funnelFindings.push('⚠ Ingen första lyckad dag bland de senaste 30 dagarnas nya familjer');
   }
   sections.push({
     id: 'funnel',
-    title: 'North Star — first_success',
+    title: 'Första lyckade dagen',
     severity: (f.first_success_30d || 0) === 0 && (f.signups_30d || 0) > 10 ? 'warning' : 'info',
     findings: funnelFindings,
   });
@@ -219,43 +222,43 @@ function buildReport(metrics, browserQa = null) {
   const ackPending = b.parent_ack_pending || 0;
   const ingestMismatch = b.first_use_with_completions_no_phase_progress || 0;
   const bottleneckFindings = [
-    `FIRST_USE utan barninloggning: ${handoffCount}`,
-    `Parent-ack väntar: ${ackPending} familjer`,
-    `FIRST_USE med avprickningar men fast fas: ${ingestMismatch}`,
+    `Schema klart men barnet har inte loggat in: ${handoffCount} familjer`,
+    `Barnet har bockat av — föräldern har inte sett det än: ${ackPending} familjer`,
+    `Barnet har bockat av men familjen räknas fortfarande som nybörjare: ${ingestMismatch}`,
   ];
   if (handoffCount > 20) {
     actions.push({
       priority: 'critical',
-      title: 'Handoff-flaskhals',
-      detail: `${handoffCount} familjer har schema klart men barnet har inte loggat in. Synliggör handoff-banner och onboarding-CTA "Låt barnet börja".`,
+      title: 'Barn har inte loggat in än',
+      detail: `${handoffCount} familjer har schema klart men barnet har inte loggat in. Gör det tydligare hur barnet kommer in i appen.`,
       route: '#produktanalys',
     });
   }
   if (ackPending > 0) {
     actions.push({
       priority: 'warning',
-      title: 'Parent-ack kö',
-      detail: `${ackPending} familjer har barn-avprickning utan föräldrabekräftelse. Verifiera journeyParentAck-modal på Hem.`,
+      title: 'Föräldern har inte sett att barnet är klart',
+      detail: `${ackPending} familjer har en avbockning som föräldern inte har bekräftat. Kolla att Hem visar det.`,
       route: '#familjer',
     });
   }
   if (ingestMismatch > 5) {
     actions.push({
       priority: 'warning',
-      title: 'Milestone-ingest gap',
-      detail: `${ingestMismatch} familjer har avprickningar men sitter kvar i FIRST_USE. Överväg backfill av child_first_completion från daily_log.`,
+      title: 'Familjer fastnar som nybörjare trots avbockning',
+      detail: `${ingestMismatch} familjer har avbockningar men räknas fortfarande som första användningen. Kan behöva rättas i bakgrunden.`,
       route: '#produktanalys',
     });
   }
   const gap = metrics.ingestGap || {};
   if ((gap.families_with_completion_30d || 0) > (gap.milestone_first_completion_30d || 0) * 2) {
     bottleneckFindings.push(
-      `Ingest gap 30d: ${gap.milestone_first_completion_30d || 0} milestones vs ${gap.families_with_completion_30d || 0} familjer med completion`
+      `Avbockningar syns i loggen för ${gap.families_with_completion_30d || 0} familjer, men bara ${gap.milestone_first_completion_30d || 0} har registrerats som första stjärna`
     );
   }
   sections.push({
     id: 'bottlenecks',
-    title: 'Flaskhalsar',
+    title: 'Där familjer fastnar',
     severity: handoffCount > 50 || ackPending > 3 ? 'warning' : 'info',
     findings: bottleneckFindings,
   });
@@ -265,19 +268,19 @@ function buildReport(metrics, browserQa = null) {
   measurementPoints += 2;
   sections.push({
     id: 'engagement',
-    title: 'Engagemang (7 dagar)',
+    title: 'Vad familjerna klickade på (7 dagar)',
     severity: 'info',
     findings: [
-      `journey_coach_cta_click: ${coachClicks?.n || 0}`,
-      `engine_coach_cta_click: ${engineClicks?.n || 0}`,
-      `child_login_success: ${(metrics.analytics7d || []).find((r) => r.event_type === 'child_login_success')?.n || 0}`,
+      `Nästa-steg på Hem: ${coachClicks?.n || 0} klick`,
+      `Gamla coachen: ${engineClicks?.n || 0} klick`,
+      `Barninloggningar: ${(metrics.analytics7d || []).find((r) => r.event_type === 'child_login_success')?.n || 0}`,
     ],
   });
   if ((engineClicks?.n || 0) > (coachClicks?.n || 0) && (engineClicks?.n || 0) > 0) {
     actions.push({
       priority: 'info',
-      title: 'Engine-coach konkurrerar med Journey',
-      detail: 'Fler engine_coach_cta_click än journey_coach_cta_click — kontrollera att coach_v1 yieldar korrekt.',
+      title: 'Två olika "vad händer nu?"-ytor klickas',
+      detail: 'Fler klickar på den gamla coachen än på nästa-steg på Hem. Kolla att Hem visar rätt sak.',
       route: '#produktanalys',
     });
   }
@@ -289,14 +292,14 @@ function buildReport(metrics, browserQa = null) {
     sections.push({
       id: 'browser_qa',
       title: browserQa.mode === 'http'
-        ? 'Browser QA — HTTP-läge (utan headless Chrome)'
-        : 'Browser QA — knappar & utseende',
+        ? 'Automatisk skärmkoll (förenklad — Chrome saknas på servern)'
+        : 'Automatisk skärmkoll — knappar och utseende',
       severity: browserFailures.length ? 'warning' : 'info',
       findings: [
-        browserQa.mode === 'http' ? 'Körs via HTTP (Puppeteer/Chrome ej tillgänglig på servern)' : null,
-        `Mätpunkter: ${browserQa.measurementPoints || 0}`,
+        browserQa.mode === 'http' ? 'Körs utan webbläsare på servern, så vissa visuella saker kan missas.' : null,
+        `Kontroller: ${browserQa.measurementPoints || 0}`,
         `Godkända: ${browserQa.passed || 0}`,
-        `Fel: ${browserFailures.length}`,
+        `Problem: ${browserFailures.length}`,
         browserQa.skipped ? `Hoppad över: ${browserQa.skippedReason || 'okänt'}` : null,
       ].filter(Boolean),
       failures: browserFailures,
@@ -317,14 +320,14 @@ function buildReport(metrics, browserQa = null) {
   } else {
     sections.push({
       id: 'browser_qa',
-      title: 'Browser QA — knappar & utseende',
+      title: 'Automatisk skärmkoll — knappar och utseende',
       severity: 'info',
-      findings: ['Browser QA kördes inte (saknar puppeteer eller inloggningsuppgifter).'],
+      findings: ['Skärmkollen kördes inte — servern saknar webbläsare eller inloggningsuppgifter.'],
     });
     actions.push({
       priority: 'info',
-      title: 'Aktivera full browser QA',
-      detail: 'Sätt JOURNEY_QA_PARENT_EMAIL + JOURNEY_QA_PARENT_PASSWORD på servern och installera puppeteer för automatisk UI-kontroll.',
+      title: 'Sätt på automatisk skärmkoll',
+      detail: 'Sätt inloggningsuppgifter för QA-kontot på servern så morgonkollen kan klicka igenom appen själv.',
       route: '#overview',
     });
   }

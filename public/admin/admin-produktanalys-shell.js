@@ -4,9 +4,24 @@
  */
 (function () {
   const TABS = [
-    { key: 'produktanalys', label: 'Produktanalys', route: '#produktanalys' },
-    { key: 'anvandning', label: 'Användning', route: '#anvandning' },
-    { key: 'anvandarinsikter', label: 'Användarinsikter', route: '#anvandarinsikter' },
+    {
+      key: 'produktanalys',
+      label: 'Hur går det?',
+      hint: 'Användning, första veckan och var familjer fastnar',
+      route: '#produktanalys',
+    },
+    {
+      key: 'anvandning',
+      label: 'Nya och aktiva',
+      hint: 'Registreringar och aktivitet per period',
+      route: '#anvandning',
+    },
+    {
+      key: 'anvandarinsikter',
+      label: 'Vilka användare',
+      hint: 'Föräldrar, barn och pedagoger',
+      route: '#anvandarinsikter',
+    },
   ];
 
   function tabBarHtml(activeKey) {
@@ -15,9 +30,13 @@
       const cls = active
         ? 'admin-produktanalys-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy'
         : 'admin-produktanalys-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky';
-      return `<button type="button" class="${cls}" data-route="${tab.route}">${tab.label}</button>`;
+      return `<button type="button" class="${cls}" data-route="${tab.route}" title="${tab.hint}">${tab.label}</button>`;
     }).join('');
-    return `<div class="admin-produktanalys-tabs flex flex-wrap gap-2 border-b border-sky pb-3 mb-6">${buttons}</div>`;
+    const active = TABS.find((t) => t.key === activeKey) || TABS[0];
+    return `<div class="admin-produktanalys-tabs mb-6">
+      <div class="flex flex-wrap gap-2 border-b border-sky pb-3">${buttons}</div>
+      <p class="text-sm text-text-soft mt-3">${active.hint}</p>
+    </div>`;
   }
 
   function mountProduktanalysTabs(containerId, activeKey) {
