@@ -70,19 +70,25 @@
     return el;
   }
 
+  function spt(key, params) {
+    if (typeof global.pt === 'function') return global.pt(key, params);
+    if (global.I18n && typeof global.I18n.t === 'function') return global.I18n.t(key, params);
+    return key;
+  }
+
   function showFamilyLoadError(err, onRetry) {
     const banner = ensureFamilyLoadBanner();
     const retryMs = getRetryAfterMs(err);
     const retrySec = retryMs ? Math.ceil(retryMs / 1000) : null;
     const message = (err && err.message)
       ? String(err.message)
-      : 'Kunde inte ladda familjeinställningar just nu.';
+      : spt('settings.loadError.fallback');
 
     while (banner.firstChild) banner.removeChild(banner.firstChild);
 
     const title = global.document.createElement('p');
     title.className = 'font-semibold mb-1';
-    title.textContent = 'Familjeinställningar kunde inte laddas';
+    title.textContent = spt('settings.loadError.title');
 
     const body = global.document.createElement('p');
     body.className = 'text-text-soft mb-2';
@@ -92,7 +98,9 @@
     btn.type = 'button';
     btn.id = 'settingsFamilyLoadRetryBtn';
     btn.className = 'min-h-[44px] px-4 py-2 rounded-xl bg-gold text-navy font-semibold';
-    btn.textContent = retrySec ? ('Försök igen om ' + retrySec + ' s') : 'Försök igen';
+    btn.textContent = retrySec
+      ? spt('settings.loadError.retryIn', { seconds: retrySec })
+      : spt('settings.loadError.retry');
 
     banner.appendChild(title);
     banner.appendChild(body);
@@ -104,7 +112,7 @@
     let timer = null;
     function enableRetry() {
       btn.disabled = false;
-      btn.textContent = 'Försök igen';
+      btn.textContent = spt('settings.loadError.retry');
     }
     btn.disabled = !!retryMs;
     if (retryMs) {

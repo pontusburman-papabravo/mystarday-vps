@@ -214,32 +214,23 @@
     return result;
   }
 
-  const TOGGLES = [
-    {
-      id: 'analytics_storage',
-      label: 'Analys & Förbättring',
-      desc: 'Hjälper oss förstå hur appen används så vi kan göra den bättre.',
-    },
-    {
-      id: 'ad_storage',
-      label: 'Marknadsföring',
-      desc: 'Visar annonser anpassade till dig på Meta (Facebook/Instagram) och Google.',
-    },
-    {
-      id: 'ad_user_data',
-      label: 'Data till plattformar',
-      desc: 'Delar din data med annonsplattformar för bättre matchning.',
-    },
-    {
-      id: 'ad_personalization',
-      label: 'Personalisering',
-      desc: 'Anpassar annonser baserade på dina intressen och beteende.',
-    },
-    {
-      id: 'email_communication',
-      label: 'E-post & Tips',
-      desc: 'Utskick med tips, nyheter och erbjudanden från Min Stjärndag.',
-    },
+  function spt(key, params) {
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+    return key;
+  }
+
+  function brandParam() {
+    const brand = spt('onboarding.common.brand');
+    return brand !== 'onboarding.common.brand' ? brand : 'My Starday';
+  }
+
+  const TOGGLE_DEFS = [
+    { id: 'analytics_storage', labelKey: 'settings.consent.analytics', descKey: 'settings.consent.analyticsDesc' },
+    { id: 'ad_storage', labelKey: 'settings.consent.ads', descKey: 'settings.consent.adsDesc' },
+    { id: 'ad_user_data', labelKey: 'settings.consent.adUserData', descKey: 'settings.consent.adUserDataDesc' },
+    { id: 'ad_personalization', labelKey: 'settings.consent.adPersonalization', descKey: 'settings.consent.adPersonalizationDesc' },
+    { id: 'email_communication', labelKey: 'settings.consent.email', descKey: 'settings.consent.emailDesc' },
   ];
 
   function buildModal(currentConsent) {
@@ -282,12 +273,16 @@
     modal.id = 'msj-consent-modal';
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-label', 'Samtyckesinställningar');
+    modal.setAttribute('aria-label', spt('settings.consent.aria'));
 
     // Header
     const header = document.createElement('div');
     header.className = 'msj-consent-header';
-    header.innerHTML = '<span style="font-size:24px">⭐</span><h2>Samtycke & Integritet</h2>';
+    const headerTitle = document.createElement('h2');
+    headerTitle.textContent = spt('settings.consent.modalTitle');
+    header.appendChild(document.createElement('span')).style.fontSize = '24px';
+    header.firstChild.textContent = '⭐';
+    header.appendChild(headerTitle);
 
     // Body
     const body = document.createElement('div');
@@ -295,13 +290,14 @@
 
     const intro = document.createElement('p');
     intro.className = 'msj-consent-intro';
-    intro.textContent = 'Hjälp oss att göra Min Stjärndag ännu bättre. Vi använder cookies för att förstå hur appen används och för att nå ut till fler familjer. Klicka på varje kategori för att växla ✓ Ja / ✗ Nej / — Neutral.';
+    intro.textContent = spt('settings.consent.intro', { brand: brandParam() });
     body.appendChild(intro);
 
     // Toggles
-    TOGGLES.forEach(function (t) {
+    TOGGLE_DEFS.forEach(function (t) {
       const curState = existing[t.id] || 'pending';
-      body.appendChild(createToggle(t.id, t.label, t.desc, curState));
+      const desc = spt(t.descKey, { brand: brandParam() });
+      body.appendChild(createToggle(t.id, spt(t.labelKey), desc, curState));
     });
 
     // Footer
@@ -311,25 +307,25 @@
     const saveBtn = document.createElement('button');
     saveBtn.id = 'msj-consent-save';
     saveBtn.className = 'msj-consent-save';
-    saveBtn.textContent = 'Spara val';
+    saveBtn.textContent = spt('settings.consent.save');
     saveBtn.disabled = true; // enabled when user makes at least one active choice
     saveBtn.addEventListener('click', async function () {
       const values = getToggleValues(modal);
       saveBtn.disabled = true;
-      saveBtn.textContent = 'Sparar…';
+      saveBtn.textContent = spt('settings.consent.saving');
       await saveConsent(values);
       removeModal();
     });
 
     const skipBtn = document.createElement('button');
     skipBtn.className = 'msj-consent-skip';
-    skipBtn.textContent = 'Hoppa över';
+    skipBtn.textContent = spt('settings.consent.skip');
     skipBtn.addEventListener('click', async function () {
       // Save all as 'pending' — neutral, modal won't show again
       const allPending = {};
-      TOGGLES.forEach(function (t) { allPending[t.id] = 'pending'; });
+      TOGGLE_DEFS.forEach(function (t) { allPending[t.id] = 'pending'; });
       skipBtn.disabled = true;
-      skipBtn.textContent = 'Stänger…';
+      skipBtn.textContent = spt('settings.consent.closing');
       await saveConsent(allPending);
       removeModal();
     });

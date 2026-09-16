@@ -4,12 +4,30 @@
   "shellLead": "Profil, familj och app",
   "familySettings": "Familjeinställningar",
   "groups": {
-    "profile": { "title": "Profil & konto", "sub": "Inloggning, PIN och konto" },
-    "family": { "title": "Familj", "sub": "Namn och språk. Personer hanteras under Familj." },
-    "device": { "title": "Den här enheten", "sub": "Barnmobil, vuxenmobil eller delad mobil" },
-    "appearance": { "title": "Utseende", "sub": "Mörkt eller ljust tema" },
-    "app": { "title": "App", "sub": "Notiser, push och integritet" },
-    "premium": { "title": "Prenumeration", "sub": "Premium, köp och betalning" }
+    "profile": {
+      "title": "Profil & konto",
+      "sub": "Inloggning, PIN och konto"
+    },
+    "family": {
+      "title": "Familj",
+      "sub": "Namn och språk. Personer hanteras under Familj."
+    },
+    "device": {
+      "title": "Den här enheten",
+      "sub": "Barnmobil, vuxenmobil eller delad mobil"
+    },
+    "appearance": {
+      "title": "Utseende",
+      "sub": "Mörkt eller ljust tema"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Notiser, push och integritet"
+    },
+    "premium": {
+      "title": "Prenumeration",
+      "sub": "Premium, köp och betalning"
+    }
   },
   "appearance": {
     "dark": "Mörkt",
@@ -17,19 +35,58 @@
     "backToSettings": "← Tillbaka till inställningar"
   },
   "heroes": {
-    "planning": { "title": "Planering", "sub": "Bygg innehåll eller planera barnens vecka." },
-    "rewards": { "title": "Belöningar", "sub": "Stjärnor, belöningar och familjekista." },
-    "calendar": { "title": "Kalender", "sub": "Månadsvy över alla barn" },
-    "activities": { "title": "Aktiviteter", "sub": "Hantera barnens aktiviteter" },
-    "assignSchedule": { "title": "Tilldela schema", "sub": "Kopiera schema till barn" },
-    "dailyLog": { "title": "Daglig logg", "sub": "Följ barnens dag — fyll i stjärnor i efterhand" },
-    "treasureChest": { "title": "Skattkammaren", "sub": "Belöningar och stjärnor" },
-    "childSettings": { "title": "Barninställningar", "sub": "Vy, PIN och anpassning" },
-    "familyChild": { "title": "Barnets inställningar", "sub": "Schema, vy, PIN och anpassning" },
-    "notifications": { "title": "Notiser", "sub": "Påminnelser och meddelanden" },
-    "schedule": { "title": "Veckoschema", "sub": "Planera och anpassa barnens dagar" },
-    "library": { "title": "Biblioteket", "sub": "Scheman, aktiviteter och belöningar för er familj" },
-    "family": { "title": "Familj", "sub": "Barn, vuxna och pedagoger" }
+    "planning": {
+      "title": "Planering",
+      "sub": "Bygg innehåll eller planera barnens vecka."
+    },
+    "rewards": {
+      "title": "Belöningar",
+      "sub": "Stjärnor, belöningar och familjekista."
+    },
+    "calendar": {
+      "title": "Kalender",
+      "sub": "Månadsvy över alla barn"
+    },
+    "activities": {
+      "title": "Aktiviteter",
+      "sub": "Hantera barnens aktiviteter"
+    },
+    "assignSchedule": {
+      "title": "Tilldela schema",
+      "sub": "Kopiera schema till barn"
+    },
+    "dailyLog": {
+      "title": "Daglig logg",
+      "sub": "Följ barnens dag — fyll i stjärnor i efterhand"
+    },
+    "treasureChest": {
+      "title": "Skattkammaren",
+      "sub": "Belöningar och stjärnor"
+    },
+    "childSettings": {
+      "title": "Barninställningar",
+      "sub": "Vy, PIN och anpassning"
+    },
+    "familyChild": {
+      "title": "Barnets inställningar",
+      "sub": "Schema, vy, PIN och anpassning"
+    },
+    "notifications": {
+      "title": "Notiser",
+      "sub": "Påminnelser och meddelanden"
+    },
+    "schedule": {
+      "title": "Veckoschema",
+      "sub": "Planera och anpassa barnens dagar"
+    },
+    "library": {
+      "title": "Biblioteket",
+      "sub": "Scheman, aktiviteter och belöningar för er familj"
+    },
+    "family": {
+      "title": "Familj",
+      "sub": "Barn, vuxna och pedagoger"
+    }
   },
   "backToPlanning": "← Till planering",
   "avatar": {
@@ -221,5 +278,173 @@
         "notEnabled": "Widgeten är inte aktiverad eller sessionen behöver förnyas. Logga ut och in igen."
       }
     }
+  },
+  "notifications": {
+    "title": "Notis-inställningar",
+    "weeklySummary": "Veckosammanfattning (söndag 21:00)",
+    "rewardRedemption": "Belöningsinlösen",
+    "newsletter": "Nyhetsbrev via e-post",
+    "emailGlobal": "Alla mejl globalt",
+    "save": "Spara notis-inställningar"
+  },
+  "reminders": {
+    "title": "Påminnelser",
+    "lead": "Ställ in en daglig påminnelse för att komma ihåg att kolla schemat.",
+    "daily": "Daglig påminnelse",
+    "hint": "Får en påminnelse vid vald tid på valda dagar",
+    "toggleAria": "Växla påminnelse",
+    "time": "Tid",
+    "days": "Dagar"
+  },
+  "familyName": {
+    "label": "Familjenamn",
+    "placeholder": "T.ex. Familjen Svensson",
+    "autoFromParent": "{{name}}s familj"
+  },
+  "sound": {
+    "label": "Ljud på",
+    "hint": "Spelar upp ett ljud när barnet bockar av en aktivitet i sin dagvy."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Vuxna och åtkomst",
+    "adultsBody": "Bjud in medförälder och se vem som har tillgång under Familj.",
+    "openFamily": "Öppna Familj",
+    "pedagogsTitle": "👩‍🏫 Pedagoger",
+    "pedagogsBody": "Pedagoginbjudningar och åtkomst hanteras under Familj."
+  },
+  "dataExport": {
+    "title": "Min data",
+    "body": "Ladda ner en kopia av all din data i CSV-format (ZIP-fil). Inkluderar profil, barn, scheman, belöningar och aktivitetshistorik.",
+    "download": "Ladda ner min data",
+    "preparing": "Förbereder nedladdning…",
+    "started": "✅ Nedladdning startad!",
+    "rateLimited": "Du kan bara exportera en gång per 24 timmar.",
+    "failed": "Något gick fel. Försök igen.",
+    "networkError": "Nätverksfel. Försök igen."
+  },
+  "deleteAccount": {
+    "title": "Radera konto",
+    "permanent": "⚠️ Permanent åtgärd",
+    "loading": "Laddar information om vad som händer…",
+    "storeBillingNote": "Om du har prenumeration via App Store eller Google Play avslutas den inte automatiskt när kontot raderas. Hantera eller avsluta prenumerationen i butiken.",
+    "button": "Radera mitt konto",
+    "summarySelf": "Du tar bort ditt eget konto och din åtkomst. Familjen, barnen, scheman och data för övriga vuxna finns kvar. Det går inte att ångra.",
+    "summaryLastAdmin": "Du är sista vuxna med administrativ åtkomst. Hela familjen och all tillhörande data — barn, scheman, aktiviteter, stjärnor och belöningar — raderas omedelbart och permanent. Det går inte att ångra.",
+    "modalTitleSelf": "Lämna familjen",
+    "modalTitleFamily": "Radera familj och konto",
+    "modalTitleFallback": "Radera konto permanent",
+    "leadSelf": "Du tar bort bara ditt eget konto och din åtkomst.",
+    "leadFamily": "Du raderar hela familjen och all tillhörande data.",
+    "sure": "Är du säker?",
+    "cannotUndo": "Detta kan inte ångras.",
+    "storeBillingModal": "Prenumeration via App Store eller Google Play avslutas inte automatiskt — hantera den i butiken.",
+    "typeConfirmLabel": "Skriv {{token}} för att bekräfta",
+    "typeConfirmLabelHtml": "Skriv <strong>RADERA</strong> för att bekräfta",
+    "typeConfirmError": "Skriv {{token}} för att bekräfta.",
+    "confirmToken": "RADERA",
+    "cancel": "Avbryt",
+    "confirmSelf": "Lämna familjen",
+    "confirmFamily": "Radera allt permanent",
+    "deleting": "Raderar...",
+    "deleted": "✅ Kontot har raderats.",
+    "deleteFailed": "Något gick fel vid radering.",
+    "networkError": "Nätverksfel. Försök igen.",
+    "bulletSelfAccount": "Ditt föräldrakonto och din åtkomst",
+    "bulletSelfOthersRemain": "Familjen, barnen och övriga vuxna finns kvar",
+    "bulletParentAccount": "Föräldrakontot",
+    "bulletAllChildren": "Alla barn i familjen",
+    "bulletAllSchedules": "Alla scheman, aktiviteter och belöningar",
+    "bulletAllHistory": "All daglig historik och stjärnor"
+  },
+  "support": {
+    "title": "Teknisk info för support",
+    "hint": "Kopiera appversion, cache och felsöknings-ID. Inga personuppgifter eller lösenord ingår.",
+    "copy": "Kopiera teknisk info",
+    "copied": "Kopierat — klistra in i mejl till support.",
+    "copyFailed": "Kunde inte kopiera. Försök igen."
+  },
+  "legal": {
+    "privacy": "Integritetspolicy",
+    "terms": "Användarvillkor"
+  },
+  "consent": {
+    "title": "Samtycke & Integritet",
+    "lead": "Hantera dina integritetsinställningar och cookie-val.",
+    "change": "Ändra samtyckesinställningar",
+    "empty": "Inga samtyckesinställningar sparade ännu.",
+    "modalTitle": "Samtycke & Integritet",
+    "aria": "Samtyckesinställningar",
+    "intro": "Hjälp oss att göra {{brand}} ännu bättre. Vi använder cookies för att förstå hur appen används och för att nå ut till fler familjer. Klicka på varje kategori för att växla ✓ Ja / ✗ Nej / — Neutral.",
+    "save": "Spara val",
+    "saving": "Sparar…",
+    "skip": "Hoppa över",
+    "closing": "Stänger…",
+    "analytics": "Analys & Förbättring",
+    "analyticsDesc": "Hjälper oss förstå hur appen används så vi kan göra den bättre.",
+    "ads": "Marknadsföring",
+    "adsDesc": "Visar annonser anpassade till dig på Meta (Facebook/Instagram) och Google.",
+    "adUserData": "Data till plattformar",
+    "adUserDataDesc": "Delar din data med annonsplattformar för bättre matchning.",
+    "adPersonalization": "Personalisering",
+    "adPersonalizationDesc": "Anpassar annonser baserade på dina intressen och beteende.",
+    "email": "E-post & Tips",
+    "emailDesc": "Utskick med tips, nyheter och erbjudanden från {{brand}}."
+  },
+  "subscription": {
+    "title": "Prenumeration",
+    "loading": "Laddar prenumeration…",
+    "loadFailed": "Kunde inte ladda prenumerationsstatus.",
+    "restore": "Återställ köp",
+    "manage": "Hantera abonnemang",
+    "activate": "Aktivera Premium",
+    "viewPlans": "Visa prenumerationer",
+    "howToActivate": "Så här aktiverar du Premium",
+    "webActivateHint": "Premium aktiveras i iPhone- eller Android-appen.",
+    "restoreSuccess": "Köpet är återställt. Premium är aktivt.",
+    "restoreNone": "Inga köp hittades att återställa.",
+    "restoreFailed": "Kunde inte återställa köp.",
+    "launchHoldTitle": "Lanseringsåtkomst — betalning är inte live än",
+    "launchHoldBody": "Ni kan fortsätta använda appen. Prenumeration krävs inte medan betalning är avstängd.",
+    "launchTitle": "Lanseringsåtkomst",
+    "launchBody": "Ni kan använda appen nu. Prenumeration krävs inte än.",
+    "launchBodyUntil": "Ni kan använda appen nu. Prenumeration krävs inte än. Betalstart: {{date}}.",
+    "noPremium": "Ingen aktiv Premium",
+    "choosePlan": "Välj Premium Månadsvis eller Premium Årsvis för full tillgång.",
+    "billingNotLive": "Prenumeration krävs inte än. Betalning är inte live.",
+    "activateBody": "Aktivera Premium för full tillgång till appen.",
+    "grandfatheredTitle": "Premium ingår permanent",
+    "grandfatheredBody": "Din familj har full tillgång utan kostnad.",
+    "trialTitle": "Premium – gratis provperiod",
+    "ends": "Slutar {{date}}",
+    "giftTitle": "Premium – presentkort",
+    "validUntil": "Gäller till {{date}}",
+    "graceTitle": "Premium – betalning behöver uppdateras",
+    "graceBody": "Tillgången fungerar fortfarande, men betalningen behöver åtgärdas i {{store}}.",
+    "activeTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "årsabonnemang",
+    "planMonthly": "månadsabonnemang"
+  },
+  "theme": {
+    "title": "Utseende",
+    "darkMode": "Mörkt läge",
+    "darkHint": "Aktivera mörkt tema för bekvämare användning i mörker",
+    "toggleAria": "Växla mörkt läge",
+    "colorBlind": "Färgblindhetstema",
+    "colorBlindHint": "Anpassar färgerna för olika typer av färgblindhet",
+    "colorNone": "Inget (standard)",
+    "protanopia": "Protanopi (röd-blind)",
+    "deuteranopia": "Deuteranopi (grön-blind)",
+    "tritanopia": "Tritanopi (blå-blind)"
+  },
+  "viewMode": {
+    "dualAccess": "Du har tillgång till både föräldra- och pedagogvyn.",
+    "switchPedagog": "🌟 Byt till pedagogvy",
+    "switchParent": "👨‍👩‍👧 Byt till föräldravy"
+  },
+  "loadError": {
+    "title": "Familjeinställningar kunde inte laddas",
+    "fallback": "Kunde inte ladda familjeinställningar just nu.",
+    "retry": "Försök igen",
+    "retryIn": "Försök igen om {{seconds}} s"
   }
 }
