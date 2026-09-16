@@ -485,12 +485,15 @@ async function finalizeBatchSendStatus(batchId) {
     `UPDATE for_dig_outcome_followup_batch
         SET status = $2,
             sent_at = CASE
-              WHEN $2 = $3 THEN COALESCE(sent_at, NOW())
-              WHEN $2 = $4 THEN COALESCE(sent_at, NOW())
+              WHEN $3 THEN COALESCE(sent_at, NOW())
               ELSE sent_at
             END
       WHERE id = $1`,
-    [batchId, batchStatus, BATCH_SEND.SENT, BATCH_SEND.PARTIAL_FAILED]
+    [
+      batchId,
+      batchStatus,
+      batchStatus === BATCH_SEND.SENT || batchStatus === BATCH_SEND.PARTIAL_FAILED,
+    ]
   );
   return { counts, batchStatus };
 }
@@ -680,6 +683,7 @@ async function previewPilotSelection(options = {}) {
     },
     opted_out: eligibility.opted_out,
     skipped_missing_identity: eligibility.skipped_missing_identity,
+    invalid_or_missing_email: eligibility.skipped_missing_identity,
     excluded_already_emailed_items: eligibility.excluded_already_emailed_items,
   };
 }

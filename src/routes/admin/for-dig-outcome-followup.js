@@ -24,6 +24,13 @@ function asyncRoute(handler) {
   };
 }
 
+router.get('/for-dig/outcome-followup/pilot-preview', asyncRoute(async (req, res) => {
+  const preview = await followupDb.previewPilotSelection({
+    maxRecipients: req.query.max_recipients,
+  });
+  res.json(preview);
+}));
+
 router.get('/for-dig/outcome-followup/batches', asyncRoute(async (_req, res) => {
   const batches = await followupDb.listBatches();
   res.json({ batches });

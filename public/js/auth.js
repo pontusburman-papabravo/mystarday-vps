@@ -220,6 +220,8 @@ const Auth = {
       window.location.replace('/child-login');
       return;
     }
+    const target = '/login';
+    if (path === target) return;
     const next = encodeURIComponent(this._currentSafeReturnPath());
     window.location.replace('/login?next=' + next);
   },

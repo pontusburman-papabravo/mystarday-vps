@@ -26,6 +26,13 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
 }
 
+try {
+  const { buildDestructiveTestChildEnv } = require('../scripts/lib/test-database-safety.cjs');
+  Object.assign(process.env, buildDestructiveTestChildEnv(process.env));
+} catch {
+  // setupTestDb() fail-closes later if TEST_DATABASE_URL is not allowed.
+}
+
 const GOAL_SLUG = FOR_DIG_GOALS[0].slug;
 const GOAL_TITLE = FOR_DIG_GOALS[0].title;
 const OTHER_GOAL = FOR_DIG_GOALS[1].slug;
@@ -765,6 +772,9 @@ test('17. default prepare max_recipients=5 is deterministic newest-first', async
     const preview = await followup.previewPilotSelection({ maxRecipients: 5 });
     assert.equal(preview.recipient_count, 5);
     assert.equal(preview.remaining_parents, 3);
+    assert.equal(preview.invalid_or_missing_email, 0);
+    const batchesAfterPreview = await db.query('SELECT COUNT(*)::int AS n FROM for_dig_outcome_followup_batch');
+    assert.equal(batchesAfterPreview.rows[0].n, 1);
   } finally {
     await db.cleanup();
   }

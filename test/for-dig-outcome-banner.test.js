@@ -96,6 +96,9 @@ test('banner source: Hem script, dismiss X, explicit mode, no home chain, parent
   assert.deepEqual(Object.keys(sv.forDig.outcome).sort(), Object.keys(en.forDig.outcome).sort());
 
   assert.match(auth, /authGuard[\s\S]*login\?next=' \+ encodeURIComponent\(Auth\._currentSafeReturnPath\(\)\)/);
+  assert.match(auth, /_sessionLostRedirect[\s\S]*login\?next=' \+ next/);
+  const login = read('public/login.html');
+  assert.match(login, /sanitizeReturnUrl\(next\)/);
   assert.equal(sanitizeReturnUrl('/dashboard?for_dig_feedback=1'), '/dashboard?for_dig_feedback=1');
   assert.equal(
     sanitizeReturnUrl('/login?next=%2Fdashboard%3Ffor_dig_feedback%3D1'),
