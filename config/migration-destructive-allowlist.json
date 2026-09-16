@@ -15,7 +15,8 @@
     "1810450000000_contact_message_reply_token.js",
     "1810470000000_host_2026_survey.js",
     "1810500000000_for_dig_outcome_followup_email.js",
-    "1810510000000_for_dig_outcome_followup_one_parent.js"
+    "1810510000000_for_dig_outcome_followup_one_parent.js",
+    "1810520000000_for_dig_outcome_followup_pilot_safety.js"
   ],
   "reviews": {
     "1810140000000_family_acquisition_attribution.js": "ON DELETE CASCADE on family_id FK only — attribution rows must disappear with GDPR family deletion. No DROP/TRUNCATE in up().",
@@ -32,6 +33,7 @@
     "1810450000000_contact_message_reply_token.js": "ON DELETE CASCADE on contact_message_id FK only — hashed reply-token rows must disappear with the parent contact_message (GDPR / archive cleanup). Schema-only CREATE TABLE + indexes in up(). No DROP/TRUNCATE/DELETE in up(); down() drops the new table and indexes only.",
     "1810470000000_host_2026_survey.js": "ON DELETE CASCADE on survey child-table FKs only (questions, options, responses, answers, participants, contest entries, popup interactions) so GDPR/survey deletion does not leave orphans. CREATE TABLE IF NOT EXISTS repairs schema drift; ADD COLUMN IF NOT EXISTS is expand-only. No DROP/TRUNCATE/DELETE in up(); down() deletes the host-2026 slug only.",
     "1810500000000_for_dig_outcome_followup_email.js": "ON DELETE CASCADE on batch_id, family_id, and child_id FKs only — follow-up recipient rows must disappear with GDPR family/child deletion and with their batch. parent_id and newsletter_email_send_id use ON DELETE SET NULL so deleting a parent or tracking row does not erase the batch-anchor. Schema-only CREATE TABLE + indexes in up(). No DROP/TRUNCATE/DELETE in up(); down() drops the two new tables only.",
-    "1810510000000_for_dig_outcome_followup_one_parent.js": "ON DELETE CASCADE on recipient_item FKs (recipient/family/child) and follow-up preference parent_id; recipient.parent_id FK tightened to CASCADE because parent_id is now NOT NULL identity. up() copies item rows, merges duplicate (batch_id,parent_id) recipients, DELETE remaining NULL parent_id rows, DROP COLUMN family_id/child_id/goal_slug, DROP old unique + match index, ADD UNIQUE(batch_id,parent_id). No newsletter_email_send schema change. down() drops new tables and restores nullable parent_id + item columns."
+    "1810510000000_for_dig_outcome_followup_one_parent.js": "ON DELETE CASCADE on recipient_item FKs (recipient/family/child) and follow-up preference parent_id; recipient.parent_id FK tightened to CASCADE because parent_id is now NOT NULL identity. up() copies item rows, merges duplicate (batch_id,parent_id) recipients, DELETE remaining NULL parent_id rows, DROP COLUMN family_id/child_id/goal_slug, DROP old unique + match index, ADD UNIQUE(batch_id,parent_id). No newsletter_email_send schema change. down() drops new tables and restores nullable parent_id + item columns.",
+    "1810520000000_for_dig_outcome_followup_pilot_safety.js": "ON DELETE CASCADE on parent/family/child FKs for for_dig_outcome_banner_dismiss so GDPR deletion removes dismiss rows with the parent/family/child. up() is schema-only CREATE TABLE + ADD COLUMN IF NOT EXISTS send_status/send_claimed_at/send_error. No DROP/TRUNCATE/DELETE in up(); down() drops the new table and columns."
   }
 }

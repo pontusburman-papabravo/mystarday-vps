@@ -26,10 +26,17 @@ const {
   getGoalBySlug,
   getGoalsForLocale,
 } = require('../lib/for-dig-config');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { parentApiMessage } = require('../lib/parent-api-messages');
 
 const router = express.Router();
 router.use(requireParent);
 router.use(requireFeature('for_dig'));
+
+async function forDigApiError(res, familyId, key, status) {
+  const locale = await getFamilyPreferredLocale(familyId);
+  return res.status(status).json({ error: parentApiMessage(locale, `errors.forDig.${key}`) });
+}
 
 function trackEvent(familyId, eventType, metadata) {
   analytics.track(familyId, eventType, metadata).catch(() => {});
@@ -206,6 +213,33 @@ router.get('/feedback/pending', async (req, res) => {
   } catch (err) {
     console.error('[FOR-DIG] pending error:', err);
     res.status(500).json({ error: 'Kunde inte hämta väntande feedback' });
+  }
+});
+
+router.post('/feedback/dismiss', async (req, res) => {
+  const { child_id: childId, goal_slug: goalSlug } = req.body || {};
+  const familyId = req.user.familyId;
+  if (!childId || !goalSlug) {
+    return forDigApiError(res, familyId, 'childAndGoalRequired', 400);
+  }
+  if (!getGoalBySlug(goalSlug)) {
+    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+  }
+  try {
+    const child = await authz.getChildAccess(req.user.id, childId);
+    if (!child) {
+      return forDigApiError(res, familyId, 'childAccessDenied', 403);
+    }
+    await feedbackDb.dismissPendingOutcome({
+      parentId: req.user.id,
+      familyId: child.family_id,
+      childId: child.id,
+      goalSlug,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[FOR-DIG] dismiss error:', err);
+    return forDigApiError(res, familyId, 'dismissFailed', 500);
   }
 });
 

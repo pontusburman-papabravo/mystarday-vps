@@ -71,9 +71,9 @@ function renderUserStats(data) {
           <p class="text-xs text-text-soft mt-1">av ${num(children.total)}</p>
         </div>
         <div class="bg-gold-light rounded-2xl p-5 border-2 border-gold/30">
-          <p class="text-text-soft text-xs font-semibold uppercase mb-1">Completion rate</p>
+          <p class="text-text-soft text-xs font-semibold uppercase mb-1">Andel avbockat</p>
           <p class="text-3xl font-heading font-bold text-navy">${fmt(children.avg_completion_rate)}<span class="text-xl">%</span></p>
-          <p class="text-xs text-text-soft mt-1">snitt (30 dgr)</p>
+          <p class="text-xs text-text-soft mt-1">snitt senaste 30 dagarna</p>
         </div>
       </div>
 

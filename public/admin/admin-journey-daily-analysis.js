@@ -53,7 +53,7 @@
         labels,
         datasets: [
           {
-            label: 'Hittade fel',
+            label: 'Problem hittade',
             data: history.map((h) => h.failuresFound),
             borderColor: '#e17055',
             backgroundColor: 'rgba(225,112,85,0.15)',
@@ -61,7 +61,7 @@
             fill: true,
           },
           {
-            label: 'Browser QA-fel',
+            label: 'Problem i skärmkollen',
             data: history.map((h) => h.browserQaFailures),
             borderColor: '#fdcb6e',
             tension: 0.25,
@@ -82,19 +82,19 @@
         labels,
         datasets: [
           {
-            label: 'FIRST_USE utan barnlogin',
+            label: 'Barninloggning saknas',
             data: history.map((h) => h.firstUseNoChildLogin),
             borderColor: '#6c5ce7',
             tension: 0.25,
           },
           {
-            label: 'Parent-ack kö',
+            label: 'Föräldern har inte sett avbockningen',
             data: history.map((h) => h.parentAckPending),
             borderColor: '#00b894',
             tension: 0.25,
           },
           {
-            label: 'first_success (30d)',
+            label: 'Första lyckade dagen (30d)',
             data: history.map((h) => h.firstSuccess30d),
             borderColor: '#0984e3',
             tension: 0.25,
@@ -120,9 +120,9 @@
         <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-5">
           <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Family Journey — daglig analys</p>
-              <h2 class="text-xl font-heading font-bold text-navy">Ingen analys körd än</h2>
-              <p class="text-sm text-text-soft mt-1">Schemalagd körning varje morgon kl. 06:00 (Stockholm).</p>
+              <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Morgonkoll</p>
+              <h2 class="text-xl font-heading font-bold text-navy">Ingen koll körd än</h2>
+              <p class="text-sm text-text-soft mt-1">Körs automatiskt varje morgon kl. 06:00. Den tittar om nya familjer kommer igång, och om något ser trasigt ut.</p>
             </div>
             <button type="button" id="journeyAnalysisRunBtn" class="px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm hover:bg-yellow-500">Kör analys nu</button>
           </div>
@@ -138,7 +138,7 @@
 
     const actionsHtml = actions.length
       ? `<div class="mt-4">
-          <p class="text-xs font-bold uppercase text-text-soft mb-2">Föreslagna åtgärder idag</p>
+          <p class="text-xs font-bold uppercase text-text-soft mb-2">Att göra idag</p>
           <ol class="space-y-2 list-decimal list-inside">
             ${actions.map((a) => {
               const badge = severityBadge(a.priority);
@@ -153,7 +153,7 @@
             }).join('')}
           </ol>
         </div>`
-      : '<p class="text-sm text-green-700 mt-3">Inga kritiska åtgärder föreslagna.</p>';
+      : '<p class="text-sm text-green-700 mt-3">Inget som behöver åtgärdas idag.</p>';
 
     const sectionsHtml = sections.map((sec) => {
       const badge = severityBadge(sec.severity);
@@ -180,14 +180,14 @@
         <summary class="p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Family Journey — daglig analys</p>
-              <h2 class="text-lg font-heading font-bold text-navy inline">Morgonrapport</h2>
-              <span class="text-sm text-text-soft ml-2">· ${esc(formatWhen(report.generatedAt))} · Wave ${esc(s.activeWave ?? '—')}</span>
+              <p class="text-xs font-bold uppercase tracking-wide text-indigo-700 mb-1">Morgonkoll</p>
+              <h2 class="text-lg font-heading font-bold text-navy inline">Hur gick det i morse?</h2>
+              <span class="text-sm text-text-soft ml-2">· ${esc(formatWhen(report.generatedAt))} · Lanseringssteg ${esc(s.activeWave ?? '—')}</span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-xs font-semibold text-indigo-700 bg-white/80 px-2 py-1 rounded-lg border border-indigo-100">
-                ${(s.failuresFound || 0) > 0 ? `${s.failuresFound} fel` : 'OK'}
-                · ${actions.length} åtgärd${actions.length === 1 ? '' : 'er'}
+                ${(s.failuresFound || 0) > 0 ? `${s.failuresFound} problem` : 'Inga problem'}
+                · ${actions.length} att göra
               </span>
               <span class="text-sm font-semibold text-gold group-open:hidden">Visa rapport ▾</span>
               <span class="text-sm font-semibold text-gold hidden group-open:inline">Dölj ▴</span>
@@ -198,42 +198,42 @@
         <div class="flex flex-wrap gap-2 mb-4 justify-end">
             <button type="button" id="journeyAnalysisRefreshBtn" class="px-3 py-2 rounded-xl border border-indigo-200 bg-white text-sm font-semibold hover:bg-indigo-50">↺ Uppdatera</button>
             <button type="button" id="journeyAnalysisRunBtn" class="px-4 py-2 rounded-xl bg-gold text-white font-semibold text-sm hover:bg-yellow-500">Kör om</button>
-            <a href="#produktanalys" onclick="return adminNavClick(event)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-white text-sm font-semibold hover:bg-indigo-50">Rollout →</a>
+            <a href="#produktanalys" onclick="return adminNavClick(event)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-white text-sm font-semibold hover:bg-indigo-50">Lanseringssteg →</a>
           </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <div class="bg-white rounded-xl border border-indigo-100 p-3 text-center">
             <p class="text-2xl font-heading font-bold text-navy">${s.measurementPoints ?? '—'}</p>
-            <p class="text-xs text-text-soft">Mätpunkter</p>
+            <p class="text-xs text-text-soft">Kontroller</p>
           </div>
           <div class="bg-white rounded-xl border border-indigo-100 p-3 text-center">
             <p class="text-2xl font-heading font-bold ${(s.failuresFound || 0) > 0 ? 'text-red-600' : 'text-green-700'}">${s.failuresFound ?? 0}</p>
-            <p class="text-xs text-text-soft">Hittade fel</p>
+            <p class="text-xs text-text-soft">Problem</p>
           </div>
           <div class="bg-white rounded-xl border border-indigo-100 p-3 text-center">
             <p class="text-2xl font-heading font-bold text-navy">${s.browserQaPoints ?? 0}</p>
-            <p class="text-xs text-text-soft">Browser QA-punkter</p>
+            <p class="text-xs text-text-soft">Skärmkollar</p>
           </div>
           <div class="bg-white rounded-xl border border-indigo-100 p-3 text-center">
             <p class="text-2xl font-heading font-bold text-navy">${actions.length}</p>
-            <p class="text-xs text-text-soft">Åtgärder</p>
+            <p class="text-xs text-text-soft">Att göra</p>
           </div>
         </div>
 
         ${browserSection?.findings?.some((f) => f.includes('Hoppad')) ? `
           <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
-            Browser QA delvis hoppad — sätt <code>JOURNEY_QA_PARENT_EMAIL</code> / <code>PASSWORD</code> på servern.
+            Browser-kollen hoppades över — QA-kontot saknas på servern.
           </p>` : ''}
 
         <div class="mb-4 ${(data.history || []).length < 2 ? 'hidden' : ''}" id="journeyAnalysisChartsWrap">
           <p class="text-xs font-bold uppercase text-text-soft mb-2">Trend (${(data.history || []).length} körningar)</p>
           <div class="grid md:grid-cols-2 gap-4">
             <div class="bg-white rounded-xl border border-indigo-100 p-3">
-              <p class="text-xs font-semibold text-navy mb-2">Fel &amp; browser QA</p>
+              <p class="text-xs font-semibold text-navy mb-2">Problem över tid</p>
               <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="journeyChartFailures"></canvas></div>
             </div>
             <div class="bg-white rounded-xl border border-indigo-100 p-3">
-              <p class="text-xs font-semibold text-navy mb-2">Journey-flaskhalsar</p>
+              <p class="text-xs font-semibold text-navy mb-2">Där nya familjer fastnar</p>
               <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="journeyChartFunnel"></canvas></div>
             </div>
           </div>

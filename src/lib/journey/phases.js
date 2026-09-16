@@ -19,6 +19,24 @@ const PHASE_ORDER = [
   'INDEPENDENCE',
 ];
 
+/** Admin-facing Swedish labels — not shown to families. */
+const PHASE_LABELS_SV = {
+  DISCOVERING: 'Upptäcker appen',
+  SETTING_UP: 'Sätter upp',
+  FIRST_USE: 'Första användningen',
+  BUILDING_ROUTINE: 'Bygger rutin',
+  ESTABLISHED_ROUTINE: 'Rutin på plats',
+  EXPANDING: 'Fler barn',
+  INDEPENDENCE: 'Barnet klarar mer själv',
+  AT_RISK: 'Risk att sluta',
+  CHURNED: 'Har slutat',
+};
+
+function phaseLabelSv(phase) {
+  if (!phase) return 'Okänd fas';
+  return PHASE_LABELS_SV[phase] || String(phase);
+}
+
 /**
  * @param {Record<string, unknown>} milestones
  * @param {{ establishedEnabled?: boolean, expandingEnabled?: boolean, independenceEnabled?: boolean }} opts
@@ -86,6 +104,8 @@ function needsHandoff(milestones, phase) {
 module.exports = {
   TRANSITIONS,
   PHASE_ORDER,
+  PHASE_LABELS_SV,
+  phaseLabelSv,
   derivePhase,
   resolvePhaseTransition,
   getPhaseDerivation,

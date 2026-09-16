@@ -1062,6 +1062,11 @@
           "childIdRequired": "child_id krävs",
           "reasonRequired": "Anledning krävs",
           "starCountRange": "Antal stjärnor måste vara 1–100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id och goal_slug krävs",
+          "childAccessDenied": "Du har inte åtkomst till ett av valda barn.",
+          "dismissFailed": "Kunde inte stänga frågan"
         }
       },
       "success": {

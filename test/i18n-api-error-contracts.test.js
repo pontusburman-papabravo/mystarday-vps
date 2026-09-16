@@ -211,6 +211,6 @@ describe('API error contracts i18n', () => {
   it('platform injects api-error-i18n.js and SW precaches it', () => {
     assert.match(read('src/middleware/platform-html.js'), /api-error-i18n\.js/);
     assert.match(read('public/sw.js'), /\/js\/api-error-i18n\.js/);
-    assert.match(read('public/sw.js'), /stjarndag-v975/);
+    assert.match(read('public/sw.js'), /stjarndag-v977/);
   });
 });
