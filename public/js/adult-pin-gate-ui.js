@@ -4,12 +4,20 @@
 (function () {
   'use strict';
 
-  function tx(key, fallback) {
-    if (window.I18n && typeof I18n.t === 'function') {
-      const v = I18n.t(key);
-      if (v && v !== key) return v;
+  function tx(key, params) {
+    if (typeof window.childT === 'function') {
+      const fromChild = childT(key, params);
+      if (fromChild && fromChild !== key && fromChild !== 'child.' + key) return fromChild;
     }
-    return fallback;
+    if (window.I18n && typeof I18n.t === 'function') {
+      const authKey = 'auth.' + key;
+      const fromAuth = I18n.t(authKey, params);
+      if (fromAuth && fromAuth !== authKey) return fromAuth;
+      const childKey = 'child.' + key;
+      const fromChildNs = I18n.t(childKey, params);
+      if (fromChildNs && fromChildNs !== childKey) return fromChildNs;
+    }
+    return '';
   }
 
   /**
@@ -18,7 +26,7 @@
   function collectAdultPin(options) {
     const opts = options || {};
     return new Promise(function (resolve) {
-      const hint = opts.hint || tx('parentGate.hint', 'Ange din vuxen-PIN');
+      const hint = opts.hint || tx('parentGate.hint') || tx('parentGate.adultPinHint');
       const old = document.getElementById('adult-pin-gate-overlay');
       if (old && old.parentNode) old.parentNode.removeChild(old);
 
@@ -42,7 +50,7 @@
 
       const title = document.createElement('h2');
       title.id = 'adult-pin-gate-title';
-      title.textContent = tx('parentGate.title', 'Vuxenläge');
+      title.textContent = tx('parentGate.title');
       title.style.cssText = 'font-size:1.25rem;font-weight:700;color:#1B2340;margin:0 0 8px;';
 
       const subtitle = document.createElement('p');
@@ -68,13 +76,13 @@
 
       const keypad = document.createElement('div');
       keypad.setAttribute('role', 'group');
-      keypad.setAttribute('aria-label', tx('parentGate.keypadAria', 'PIN-knappsats'));
+      keypad.setAttribute('aria-label', tx('parentGate.keypadAria'));
       keypad.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;';
 
       const cancelBtn = document.createElement('button');
       cancelBtn.type = 'button';
-      cancelBtn.textContent = tx('parentGate.cancel', 'Avbryt');
-      cancelBtn.setAttribute('aria-label', tx('parentGate.cancel', 'Avbryt'));
+      cancelBtn.textContent = tx('parentGate.cancel');
+      cancelBtn.setAttribute('aria-label', tx('parentGate.cancel'));
       cancelBtn.style.cssText = [
         'min-height:44px;min-width:44px;padding:10px 16px;font-size:1rem;',
         'color:#1B2340;background:#F3F4F6;border:2px solid #1B2340;border-radius:12px;cursor:pointer;',
@@ -97,7 +105,7 @@
         });
         status.textContent = entered.length === 0
           ? ''
-          : entered.length + ' ' + tx('parentGate.digitsEntered', 'av 4 siffror');
+          : tx('parentGate.digitsEntered', { count: entered.length });
       }
 
       function finish(ok, payload) {
@@ -122,7 +130,7 @@
       keys.forEach(function (k) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        const label = k === 'back' ? tx('parentGate.backspace', 'Radera') : k === 'ok' ? tx('parentGate.confirm', 'Bekräfta') : k;
+        const label = k === 'back' ? tx('parentGate.backspace') : k === 'ok' ? tx('parentGate.confirm') : k;
         btn.textContent = k === 'back' ? '⌫' : k === 'ok' ? '✓' : k;
         btn.setAttribute('aria-label', label);
         btn.style.cssText = [
@@ -133,7 +141,7 @@
         btn.addEventListener('click', function () {
           if (k === 'ok') {
             if (entered.length === 4) finish(true, { ok: true, pin: entered });
-            else status.textContent = tx('errors.parentPinInvalid', 'Ange fyra siffror');
+            else status.textContent = tx('parentGate.needFourDigits');
             return;
           }
           if (k === 'back') pressDigit('back');
@@ -149,14 +157,8 @@
       if (opts.allowBackupLogin !== false) {
         const forgotBtn = document.createElement('button');
         forgotBtn.type = 'button';
-        forgotBtn.textContent = tx(
-          'parentGate.forgotPinBackup',
-          'Glömt PIN? Logga in med e-post eller Apple/Google'
-        );
-        forgotBtn.setAttribute(
-          'aria-label',
-          tx('parentGate.forgotPinBackup', 'Glömt PIN? Logga in med e-post eller Apple/Google')
-        );
+        forgotBtn.textContent = tx('parentGate.forgotPinBackup');
+        forgotBtn.setAttribute('aria-label', tx('parentGate.forgotPinBackup'));
         forgotBtn.style.cssText = [
           'display:block;margin:12px auto 0;min-height:44px;padding:8px 12px;',
           'font-size:0.8rem;font-weight:600;color:#5A6178;background:none;border:none;',

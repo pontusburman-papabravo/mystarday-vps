@@ -221,7 +221,12 @@
     "adultPinHint": "Enter a grown-up PIN to continue",
     "keypadAria": "PIN keypad",
     "cancel": "Cancel",
-    "restoringParentMode": "Opening parent mode…"
+    "restoringParentMode": "Opening parent mode…",
+    "forgotPinBackup": "Forgot PIN? Sign in with email or Apple/Google",
+    "digitsEntered": "{{count}} of 4 digits",
+    "backspace": "Delete",
+    "confirm": "Confirm",
+    "needFourDigits": "PIN must be 4 digits"
   },
   "offline": {
     "noConnection": "No connection",

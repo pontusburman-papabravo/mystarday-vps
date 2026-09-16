@@ -262,7 +262,11 @@
       "hint": "Enter your PIN to continue",
       "keypadAria": "PIN keypad",
       "cancel": "Cancel",
-      "forgotPinBackup": "Forgot PIN? Sign in with email or Apple/Google"
+      "forgotPinBackup": "Forgot PIN? Sign in with email or Apple/Google",
+      "digitsEntered": "{{count}} of 4 digits",
+      "backspace": "Delete",
+      "confirm": "Confirm",
+      "needFourDigits": "PIN must be 4 digits"
     },
     "childLogin": {
       "title": "Hello! 👋",

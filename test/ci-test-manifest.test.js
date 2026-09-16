@@ -68,6 +68,7 @@ const CRITICAL_UNIT = [
   'test/e2-notification-archive.test.js',
   'test/activation-slim-handoff.test.js',
   'test/a2-pin-url-static-scan.test.js',
+  'test/i18n-adult-pin-gate.test.js',
   'test/i18n-copy-ratchet.test.js',
   'test/i18n-fragment-guards.test.js',
   'test/support-reply-token.test.js',

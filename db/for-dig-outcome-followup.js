@@ -3,13 +3,21 @@
 /**
  * För dig outcome follow-up batches.
  * Eligibility comes only from listPendingOutcomesAdmin().
- * Open/click tracking is newsletter_email_send (campaign_type for_dig_outcome_followup).
+ * One recipient per (batch_id, parent_id). Open/click tracking is
+ * newsletter_email_send (campaign_type for_dig_outcome_followup).
  */
 
 const db = require('../src/lib/db');
 const { sendEmail } = require('../src/lib/email');
+const { getGoalBySlug } = require('../src/lib/for-dig-config');
 const { recordSend, getCampaignStats, getCampaignRecipients } = require('./newsletter-email-tracking');
 const { listPendingOutcomesAdmin } = require('./for-dig-goal-feedback');
+const {
+  ensurePreference,
+  listOptedOutParentIds,
+  isOptedOut,
+} = require('./for-dig-followup-email-preference');
+const { buildUnsubscribeUrl } = require('../src/lib/for-dig-followup-unsub-token');
 const {
   DEFAULT_SUBJECT_TEMPLATE,
   dashboardCtaUrl,
@@ -19,9 +27,64 @@ const {
 
 const CAMPAIGN_TYPE = 'for_dig_outcome_followup';
 const PREPARE_LIMIT = 5000;
+const BATCH_PARENT_UNIQUE = 'for_dig_outcome_followup_recipient_batch_parent_key';
 
 function isEmailSendEnabled() {
   return process.env.EMAIL_SEND_ENABLED === 'true';
+}
+
+function pendingRowKey(row) {
+  return `${row.family_id}:${row.child_id}:${row.goal_slug}`;
+}
+
+function normalizeItems(items) {
+  if (Array.isArray(items)) return items;
+  if (!items) return [];
+  if (typeof items === 'string') {
+    try {
+      const parsed = JSON.parse(items);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function groupPendingByParent(rows) {
+  const groups = new Map();
+  const skipped = [];
+  for (const row of rows) {
+    if (!row.parent_id || !row.parent_email) {
+      skipped.push(pendingRowKey(row));
+      continue;
+    }
+    let group = groups.get(row.parent_id);
+    if (!group) {
+      group = {
+        parent_id: row.parent_id,
+        recipient_email: row.parent_email,
+        parent_name: row.parent_name,
+        items: [],
+        itemKeys: new Set(),
+      };
+      groups.set(row.parent_id, group);
+    }
+    const key = pendingRowKey(row);
+    if (group.itemKeys.has(key)) continue;
+    group.itemKeys.add(key);
+    group.items.push({
+      family_id: row.family_id,
+      child_id: row.child_id,
+      goal_slug: row.goal_slug,
+      child_name: row.child_name,
+      goal_title: row.goal_title || (getGoalBySlug(row.goal_slug) || {}).title || row.goal_slug,
+    });
+  }
+  for (const group of groups.values()) {
+    delete group.itemKeys;
+  }
+  return { groups, skipped };
 }
 
 async function createBatch({ subject } = {}) {
@@ -58,18 +121,54 @@ async function getBatch(batchId) {
 
 async function listRecipients(batchId) {
   const result = await db.query(
-    `SELECT id, batch_id, family_id, child_id, goal_slug, parent_id,
-            recipient_email, newsletter_email_send_id, created_at
-     FROM for_dig_outcome_followup_recipient
-     WHERE batch_id = $1
-     ORDER BY created_at ASC`,
+    `SELECT r.id, r.batch_id, r.parent_id, r.recipient_email,
+            r.newsletter_email_send_id, r.created_at,
+            p.name AS parent_name,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'family_id', i.family_id,
+                  'child_id', i.child_id,
+                  'goal_slug', i.goal_slug,
+                  'child_name', c.name
+                ) ORDER BY i.created_at ASC, i.goal_slug ASC
+              ) FILTER (WHERE i.id IS NOT NULL),
+              '[]'::json
+            ) AS items
+       FROM for_dig_outcome_followup_recipient r
+       LEFT JOIN parent p ON p.id = r.parent_id
+       LEFT JOIN for_dig_outcome_followup_recipient_item i ON i.recipient_id = r.id
+       LEFT JOIN child c ON c.id = i.child_id
+      WHERE r.batch_id = $1
+      GROUP BY r.id, p.name
+      ORDER BY r.created_at ASC`,
     [batchId]
   );
-  return result.rows;
+  return result.rows.map((row) => {
+    const items = normalizeItems(row.items).map((item) => ({
+      ...item,
+      goal_title: (getGoalBySlug(item.goal_slug) || {}).title || item.goal_slug,
+    }));
+    return { ...row, items };
+  });
 }
 
-function pendingRowKey(row) {
-  return `${row.family_id}:${row.child_id}:${row.goal_slug}`;
+async function summarizePendingEligibility() {
+  const pending = await listPendingOutcomesAdmin({ limit: PREPARE_LIMIT, offset: 0 });
+  const grouped = groupPendingByParent(pending.rows);
+  const parentIds = [...grouped.groups.keys()];
+  const optedOut = await listOptedOutParentIds(parentIds);
+  const recipientCount = parentIds.filter((id) => !optedOut.has(id)).length;
+  return {
+    pending_item_count: pending.total,
+    unique_parents: parentIds.length,
+    opted_out: optedOut.size,
+    recipient_count: recipientCount,
+    skipped_missing_identity: grouped.skipped.length,
+    pending,
+    grouped,
+    optedOut,
+  };
 }
 
 async function prepareFromPending(batchId) {
@@ -85,57 +184,101 @@ async function prepareFromPending(batchId) {
     throw err;
   }
 
-  const pending = await listPendingOutcomesAdmin({ limit: PREPARE_LIMIT, offset: 0 });
-  await db.query('DELETE FROM for_dig_outcome_followup_recipient WHERE batch_id = $1', [batchId]);
-
+  const eligibility = await summarizePendingEligibility();
+  const client = await db.getClient();
   let inserted = 0;
-  const skipped = [];
-  for (const row of pending.rows) {
-    if (!row.parent_id || !row.parent_email) {
-      skipped.push(pendingRowKey(row));
-      continue;
-    }
-    await db.query(
-      `INSERT INTO for_dig_outcome_followup_recipient
-         (batch_id, family_id, child_id, goal_slug, parent_id, recipient_email)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [batchId, row.family_id, row.child_id, row.goal_slug, row.parent_id, row.parent_email]
-    );
-    inserted += 1;
-  }
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM for_dig_outcome_followup_recipient WHERE batch_id = $1', [batchId]);
 
-  await db.query(
-    `UPDATE for_dig_outcome_followup_batch SET status = 'prepared' WHERE id = $1`,
-    [batchId]
-  );
+    for (const group of eligibility.grouped.groups.values()) {
+      if (eligibility.optedOut.has(group.parent_id)) continue;
+      const rec = await client.query(
+        `INSERT INTO for_dig_outcome_followup_recipient
+           (batch_id, parent_id, recipient_email)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (batch_id, parent_id) DO NOTHING
+         RETURNING id`,
+        [batchId, group.parent_id, group.recipient_email]
+      );
+      const recipientId = rec.rows[0] && rec.rows[0].id;
+      if (!recipientId) continue;
+      inserted += 1;
+      for (const item of group.items) {
+        await client.query(
+          `INSERT INTO for_dig_outcome_followup_recipient_item
+             (recipient_id, family_id, child_id, goal_slug)
+           VALUES ($1, $2, $3, $4)
+           ON CONFLICT (recipient_id, family_id, child_id, goal_slug) DO NOTHING`,
+          [recipientId, item.family_id, item.child_id, item.goal_slug]
+        );
+      }
+    }
+
+    await client.query(
+      `UPDATE for_dig_outcome_followup_batch SET status = 'prepared' WHERE id = $1`,
+      [batchId]
+    );
+    await client.query('COMMIT');
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch { /* ignore */ }
+    throw err;
+  } finally {
+    client.release();
+  }
 
   return {
     batchId,
-    pendingTotal: pending.total,
+    pendingTotal: eligibility.pending_item_count,
+    pending_item_count: eligibility.pending_item_count,
+    unique_parents: eligibility.unique_parents,
+    opted_out: eligibility.opted_out,
     inserted,
-    skipped: skipped.length,
-    rows: pending.rows,
+    skipped: eligibility.skipped_missing_identity,
+    skipped_missing_identity: eligibility.skipped_missing_identity,
   };
 }
 
+function decorateItems(items, metaByKey) {
+  return items.map((item) => {
+    const meta = metaByKey.get(pendingRowKey(item)) || {};
+    return {
+      family_id: item.family_id,
+      child_id: item.child_id,
+      goal_slug: item.goal_slug,
+      childName: meta.child_name || item.child_name,
+      goalTitle: meta.goal_title || item.goal_title || (getGoalBySlug(item.goal_slug) || {}).title || item.goal_slug,
+    };
+  });
+}
+
 function previewForRecipient(batch, recipient, extras = {}) {
-  const goalTitle = extras.goalTitle || recipient.goal_title || recipient.goal_slug;
+  const items = decorateItems(
+    extras.items || recipient.items || [],
+    extras.metaByKey || new Map()
+  );
+  const itemCount = items.length;
+  const first = items[0] || {};
   const subject = buildSubject({
-    goalTitle,
-    subjectTemplate: batch.subject,
+    goalTitle: first.goalTitle,
+    itemCount,
+    subjectTemplate: itemCount > 1 ? undefined : batch.subject,
   });
   const ctaUrl = dashboardCtaUrl();
   return {
     recipient_id: recipient.id,
+    parent_id: recipient.parent_id,
     to: recipient.recipient_email,
+    item_count: itemCount,
+    template: itemCount > 1 ? 'multi' : 'single',
     subject,
     cta_url: ctaUrl,
     html: buildOutcomeFollowupEmailHtml({
       parentName: extras.parentName || recipient.parent_name,
-      childName: extras.childName || recipient.child_name,
-      goalTitle,
+      items,
       subject,
       ctaUrl,
+      unsubscribeUrl: extras.unsubscribeUrl,
     }),
   };
 }
@@ -147,18 +290,33 @@ async function previewBatch(batchId) {
     err.statusCode = 404;
     throw err;
   }
+  const eligibility = await summarizePendingEligibility();
   const recipients = await listRecipients(batchId);
-  const pending = await listPendingOutcomesAdmin({ limit: PREPARE_LIMIT, offset: 0 });
-  const metaByKey = new Map(pending.rows.map((row) => [pendingRowKey(row), row]));
+  const metaByKey = new Map(eligibility.pending.rows.map((row) => [pendingRowKey(row), row]));
 
   return {
     batch,
     cta_url: dashboardCtaUrl(),
-    previews: recipients.map((recipient) => {
-      const meta = metaByKey.get(pendingRowKey(recipient)) || {};
-      return previewForRecipient(batch, { ...recipient, ...meta }, meta);
-    }),
+    pending_item_count: eligibility.pending_item_count,
+    unique_parents: eligibility.unique_parents,
+    opted_out: eligibility.opted_out,
+    recipient_count: eligibility.recipient_count,
+    eligibility: {
+      pending_item_count: eligibility.pending_item_count,
+      unique_parents: eligibility.unique_parents,
+      opted_out: eligibility.opted_out,
+      recipient_count: eligibility.recipient_count,
+    },
+    previews: recipients.map((recipient) => previewForRecipient(batch, recipient, {
+      parentName: recipient.parent_name,
+      items: recipient.items,
+      metaByKey,
+    })),
   };
+}
+
+function remainingItems(recipientItems, pendingKeys) {
+  return (recipientItems || []).filter((item) => pendingKeys.has(pendingRowKey(item)));
 }
 
 async function sendBatch(batchId) {
@@ -181,23 +339,46 @@ async function sendBatch(batchId) {
       sent: 0,
       failed: 0,
       skipped: recipients.length,
+      skipped_opted_out: 0,
+      skipped_no_pending: 0,
       batchId,
     };
   }
 
   const pending = await listPendingOutcomesAdmin({ limit: PREPARE_LIMIT, offset: 0 });
+  const pendingKeys = new Set(pending.rows.map(pendingRowKey));
   const metaByKey = new Map(pending.rows.map((row) => [pendingRowKey(row), row]));
 
   let sent = 0;
   let failed = 0;
+  let skippedOptedOut = 0;
+  let skippedNoPending = 0;
+
   for (const recipient of recipients) {
-    const meta = metaByKey.get(pendingRowKey(recipient)) || {};
-    const preview = previewForRecipient(batch, { ...recipient, ...meta }, meta);
+    if (recipient.newsletter_email_send_id) continue;
+    if (await isOptedOut(recipient.parent_id)) {
+      skippedOptedOut += 1;
+      continue;
+    }
+    const remaining = remainingItems(recipient.items, pendingKeys);
+    if (!remaining.length) {
+      skippedNoPending += 1;
+      continue;
+    }
+    const preference = await ensurePreference(recipient.parent_id);
+    const unsubscribeUrl = buildUnsubscribeUrl(preference.unsub_token);
+    const preview = previewForRecipient(batch, recipient, {
+      parentName: recipient.parent_name,
+      items: remaining,
+      metaByKey,
+      unsubscribeUrl,
+    });
     try {
       const result = await sendEmail({
         to: recipient.recipient_email,
         subject: preview.subject,
         html: preview.html,
+        unsubscribeUrl,
         tags: [
           { name: 'campaign_type', value: CAMPAIGN_TYPE },
           { name: 'campaign_id', value: String(batchId) },
@@ -236,24 +417,34 @@ async function sendBatch(batchId) {
     [batchId]
   );
 
-  return { dryRun: false, sent, failed, skipped: 0, batchId };
+  return {
+    dryRun: false,
+    sent,
+    failed,
+    skipped: skippedOptedOut + skippedNoPending,
+    skipped_opted_out: skippedOptedOut,
+    skipped_no_pending: skippedNoPending,
+    batchId,
+  };
 }
 
 async function listAttributedOutcomes(batchId) {
   const result = await db.query(
     `SELECT fo.id AS feedback_id,
-            r.family_id,
-            r.child_id,
-            r.goal_slug,
+            i.family_id,
+            i.child_id,
+            i.goal_slug,
+            r.parent_id,
             fo.outcome_score,
             fo.created_at AS outcome_at,
             b.sent_at
      FROM for_dig_outcome_followup_recipient r
      JOIN for_dig_outcome_followup_batch b ON b.id = r.batch_id
+     JOIN for_dig_outcome_followup_recipient_item i ON i.recipient_id = r.id
      JOIN for_dig_goal_feedback fo
-       ON fo.family_id = r.family_id
-      AND fo.child_id = r.child_id
-      AND fo.goal_slug = r.goal_slug
+       ON fo.family_id = i.family_id
+      AND fo.child_id = i.child_id
+      AND fo.goal_slug = i.goal_slug
       AND fo.phase = 'outcome'
       AND fo.created_at >= b.sent_at
      WHERE r.batch_id = $1
@@ -295,9 +486,14 @@ async function getRecipientsTracking(batchId) {
     const send = sends.find((row) => row.id === recipient.newsletter_email_send_id)
       || sends.find((row) => row.email === recipient.recipient_email)
       || null;
+    const items = (recipient.items || []).map((item) => ({
+      ...item,
+      attributed: attributedKeys.has(pendingRowKey(item)),
+    }));
     return {
       ...recipient,
-      attributed: attributedKeys.has(pendingRowKey(recipient)),
+      items,
+      attributed: items.some((item) => item.attributed),
       sent_at: send ? send.sent_at : null,
       delivered_at: send ? send.delivered_at : null,
       first_opened_at: send ? send.first_opened_at : null,
@@ -312,11 +508,15 @@ async function getRecipientsTracking(batchId) {
 module.exports = {
   CAMPAIGN_TYPE,
   PREPARE_LIMIT,
+  BATCH_PARENT_UNIQUE,
   isEmailSendEnabled,
+  pendingRowKey,
+  groupPendingByParent,
   createBatch,
   listBatches,
   getBatch,
   listRecipients,
+  summarizePendingEligibility,
   prepareFromPending,
   previewBatch,
   sendBatch,

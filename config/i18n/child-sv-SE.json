@@ -221,7 +221,12 @@
     "adultPinHint": "Ange en vuxens PIN-kod för att fortsätta",
     "keypadAria": "PIN-tavla",
     "cancel": "Avbryt",
-    "restoringParentMode": "Öppnar föräldraläge…"
+    "restoringParentMode": "Öppnar föräldraläge…",
+    "forgotPinBackup": "Glömt PIN? Logga in med e-post eller Apple/Google",
+    "digitsEntered": "{{count}} av 4 siffror",
+    "backspace": "Radera",
+    "confirm": "Bekräfta",
+    "needFourDigits": "PIN-koden måste vara 4 siffror"
   },
   "offline": {
     "noConnection": "Ingen uppkoppling",

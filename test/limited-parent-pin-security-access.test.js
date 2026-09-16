@@ -128,7 +128,7 @@ test('limited parent PIN security access integration A–I', async (t) => {
        VALUES ('market_ie_open', true, 'limited-parent-pin test')
        ON CONFLICT (key) DO UPDATE SET enabled = true`
     );
-    billingSnap = await enablePublicBillingForTest();
+    billingSnap = await enablePublicBillingForTest({ markets: ['IE'] });
     const { createApp } = require('../app');
     http = await listenApp(createApp);
 
