@@ -15,6 +15,7 @@ function syncAnalyticsHistoryWarnings() {
   if (!warn) return;
   warn.setHistoryLimitedWarning('analyticsFeaturesHistoryWarning', activeTab === 'overview');
   warn.setHistoryLimitedWarning('analyticsHeatmapHistoryWarning', activeTab === 'dynamics');
+  warn.setHistoryLimitedWarning('analyticsWarningsHistoryWarning', activeTab === 'warnings');
   warn.setHistoryLimitedWarning('analyticsRetentionHistoryWarning', activeTab === 'retention');
 }
 
@@ -131,7 +132,7 @@ function buildAnalyticsHTML() {
 
         <div class="bg-sky rounded-2xl border border-sky p-5">
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Börja här</h3>
-          <p class="text-sm text-text-soft">Korten visar om familjerna faktiskt använder appen. Flikarna ovan svarar på olika frågor — varje siffra har en mening under som förklarar vad den betyder.</p>
+          <p class="text-sm text-text-soft">Korten med aktiva familjer och stjärnor kommer från inloggningar och avbockningar. Tratten, hemskärmen och “kommer de tillbaka” bygger på händelselogg — den är kort efter serverbyte, så lita inte på tapp mellan steg eller månader utan att läsa förklaringen under siffran.</p>
         </div>
 
         <!-- KPI Cards -->
@@ -144,7 +145,7 @@ function buildAnalyticsHTML() {
         <!-- Funnel -->
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Från besökare till första barnet</h3>
-          <p class="text-text-soft text-sm mb-4">Hur många unika familjer som kom till varje steg, genom tiderna. Stora tapp mellan stegen betyder att något är krångligt.</p>
+          <p class="text-text-soft text-sm mb-4">Landning räknas bara när besöket spårats — ofta lägre än verkliga besök. De tre sista stegen kommer från samma källa (spårning eller hela databasen), så du kan jämföra tapp där. Jämför inte landning med de andra stegen.</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="funnelChart"></canvas></div>
         </div>
 
@@ -160,7 +161,7 @@ function buildAnalyticsHTML() {
         <details class="bg-white rounded-2xl border border-sky p-5">
           <summary class="cursor-pointer text-sm font-semibold text-navy">Vad betyder orden?</summary>
           <dl class="mt-3 space-y-3 text-sm">
-            <div><dt class="font-semibold text-navy">Aktiv familj</dt><dd class="text-text-soft">Någon i familjen har gjort något i appen — loggat in, bockat av eller fått en stjärna — under perioden.</dd></div>
+            <div><dt class="font-semibold text-navy">Aktiv familj</dt><dd class="text-text-soft">Någon i familjen har loggat in, bockat av en aktivitet, eller appen har sparat en händelse under perioden (rullande 24 timmar / 7 dagar — inte kalenderdygn).</dd></div>
             <div><dt class="font-semibold text-navy">Första lyckade dagen</dt><dd class="text-text-soft">Familjen har lagt till barn, har ett schema, barnet har bockat av och fått en stjärna. Det är måttet på att de kommit igång på riktigt.</dd></div>
             <div><dt class="font-semibold text-navy">Appen på hemskärmen</dt><dd class="text-text-soft">Familjen har lagt till webappen som en ikon (PWA). Inte samma sak som App Store-appen.</dd></div>
             <div><dt class="font-semibold text-navy">Sparad telefon</dt><dd class="text-text-soft">Barnet eller föräldern kommer in utan att skriva PIN/lösenord varje gång.</dd></div>
@@ -225,7 +226,7 @@ function buildAnalyticsHTML() {
           <div class="flex items-center justify-between mb-4">
             <div>
               <h4 class="text-base font-heading font-bold text-navy">När används appen?</h4>
-              <p class="text-text-soft text-xs mt-1">Timme × veckodag (senaste 30 dagarna). Mörkare = mer användning.</p>
+              <p class="text-text-soft text-xs mt-1">Timme × veckodag i svensk tid (senaste 30 dagarna). Mörkare = fler sparade händelser, inte avbockningar.</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-text-soft">Topptimme:</p>
@@ -246,7 +247,7 @@ function buildAnalyticsHTML() {
           </div>
 
           <p class="text-xs text-text-soft mt-3">
-            💡 Mörkare rutor = fler saker gjorda. Använd den mest aktiva timmen om du ska skicka en påminnelse.
+            💡 Mörkare rutor = fler sparade händelser i svensk tid. Använd topptimmen om du ska skicka en påminnelse.
           </p>
         </div>
       </div>
@@ -255,7 +256,8 @@ function buildAnalyticsHTML() {
       <div id="section-warnings" class="analytics-section hidden space-y-8">
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Familjer som fastnar</h3>
-          <p class="text-text-soft text-sm mb-6">Familjer som skapade konto men aldrig kom igång, eller som slutat öppna appen. Bra ställen att hjälpa till.</p>
+          <p class="text-text-soft text-sm mb-6">Listorna bygger på händelseloggen, inte på avbockningar. Äldre familjer utan spårning syns inte som “aldrig öppnat barnvyn”, och kan se ut som tystnade efter serverbyte.</p>
+          <div id="analyticsWarningsHistoryWarning" class="hidden mb-4"></div>
         </div>
 
         <!-- Weekly churn trend -->
@@ -268,7 +270,7 @@ function buildAnalyticsHTML() {
         <!-- Ghost families -->
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h4 class="text-base font-heading font-bold text-navy mb-1">Konto skapat — barnvyn aldrig öppnad</h4>
-          <p class="text-text-soft text-xs mb-4">De har registrerat sig men aldrig kommit in i barnets vy. Första stället att hjälpa.</p>
+          <p class="text-text-soft text-xs mb-4">Bara familjer där registreringshändelsen finns. Äldre konton utan den händelsen syns inte här — tom lista betyder inte att alla kommit igång.</p>
           <div id="ghostFamilies" class="space-y-2 max-h-64 overflow-y-auto">
             <p class="text-text-soft text-sm text-center py-4">Laddar...</p>
           </div>
@@ -277,7 +279,7 @@ function buildAnalyticsHTML() {
         <!-- Dropped families -->
         <div class="bg-white rounded-2xl border border-sky p-6">
           <h4 class="text-base font-heading font-bold text-navy mb-1">Tystnade familjer</h4>
-          <p class="text-text-soft text-xs mb-4">Inget har hänt i appen på 3 dygn eller mer.</p>
+          <p class="text-text-soft text-xs mb-4">Ingen händelse i loggen på 3 dygn. Avbockning utan sparad händelse räknas inte. Efter serverbyte kan många äldre familjer hamna här.</p>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
@@ -421,8 +423,8 @@ function buildAnalyticsHTML() {
         <!-- Trend charts grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="trendCharts">
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-1">Aktiva familjer idag</h4>
-            <p class="text-xs text-text-soft mb-3">Familjer som gjorde något senaste 24 timmarna, per dag.</p>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Aktiva familjer senaste dygnet</h4>
+            <p class="text-xs text-text-soft mb-3">Familjer med inloggning, avbockning eller händelse senaste 24 timmarna, per dag.</p>
             <div class="analytics-chart-wrap"><canvas id="trendActiveFamilies"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
@@ -432,12 +434,12 @@ function buildAnalyticsHTML() {
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-1">Stjärnor utdelade</h4>
-            <p class="text-xs text-text-soft mb-3">Totalt antal stjärnor som barnen fått.</p>
+            <p class="text-xs text-text-soft mb-3">Totalt antal stjärnor från avbockade aktiviteter.</p>
             <div class="analytics-chart-wrap"><canvas id="trendStars"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
             <h4 class="text-base font-heading font-bold text-navy mb-1">Andel som lagt till barn</h4>
-            <p class="text-xs text-text-soft mb-3">Av dem som började registrera sig, hur många som skapade första barnet.</p>
+            <p class="text-xs text-text-soft mb-3">Av dem som började registrera sig, hur många som skapade första barnet. Samma källa i täljare och nämnare.</p>
             <div class="analytics-chart-wrap"><canvas id="trendConversion"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
@@ -1100,11 +1102,11 @@ function renderKpiCards(kpis, snapshots) {
   }
 
   const cards = [
-    { id: 'kpi-active-24h',  title: 'Familjer som använde appen idag', icon: '❤️', value: kpis.active_families_24h, subtext: `${kpis.active_families_7d} senaste 7 dagarna`, meaning: 'Minst en sak gjord senaste 24 timmarna — inloggning, avbockning eller stjärna.', color: '#EF4444', sparkKey: 'active_families_24h' },
-    { id: 'kpi-stars',       title: 'Stjärnor som barnen fått',     icon: '⭐', value: kpis.total_stars_given.toLocaleString('sv-SE'), subtext: `${kpis.total_rewards_claimed} inlösta belöningar`, meaning: 'Totalt genom tiderna. Fler stjärnor betyder att barnen bockar av på riktigt.', color: '#F5A623', sparkKey: 'total_stars_given' },
-    { id: 'kpi-conversion',  title: 'Andel som lagt till barn',       icon: '🎯', value: kpis.conversion_rate + '%', subtext: 'Från registrering till första barnet', meaning: 'Av dem som började skapa konto, hur många som faktiskt lade till ett barn.', color: '#10B981', sparkKey: 'conversion_rate' },
-    { id: 'kpi-pwa',         title: 'Appen på hemskärmen',       icon: '📱', value: kpis.pwa_installed_count, subtext: `${kpis.pwa_browser_count} bara via webbläsare`, meaning: 'Har lagt till webappen som ikon. Inte samma sak som App Store-appen.', color: '#6366F1', sparkKey: 'pwa_installed_count' },
-    { id: 'kpi-newsletter',  title: 'Vill ha nyhetsbrev', icon: '📧', value: kpis.newsletter_subscribers_count, subtext: 'Aktiva mejladresser', meaning: 'Personer som inte har avprenumererat.', color: '#1B2340', sparkKey: 'newsletter_subscribers_count' },
+    { id: 'kpi-active-24h',  title: 'Familjer som använde appen senaste dygnet', icon: '❤️', value: kpis.active_families_24h, subtext: `${kpis.active_families_7d} senaste 7 dagarna`, meaning: 'Rullande 24 timmar, inte kalenderdygn. Räknas vid inloggning, avbockning eller valfri sparad händelse i appen.', color: '#EF4444', sparkKey: 'active_families_24h' },
+    { id: 'kpi-stars',       title: 'Stjärnor som barnen fått',     icon: '⭐', value: kpis.total_stars_given.toLocaleString('sv-SE'), subtext: `${kpis.total_rewards_claimed} inlösta belöningar`, meaning: 'Totalt genom tiderna från avbockade aktiviteter (förälder eller barn). Pålitligast av korten.', color: '#F5A623', sparkKey: 'total_stars_given' },
+    { id: 'kpi-conversion',  title: 'Andel som lagt till barn',       icon: '🎯', value: kpis.conversion_rate + '%', subtext: 'Från registrering till första barnet', meaning: 'Samma grupp i täljare och nämnare — antingen spårade händelser eller hela databasen, aldrig blandat.', color: '#10B981', sparkKey: 'conversion_rate' },
+    { id: 'kpi-pwa',         title: 'Appen på hemskärmen',       icon: '📱', value: kpis.pwa_installed_count, subtext: `${kpis.pwa_browser_count} öppnade via webbläsare (kan överlappa)`, meaning: 'Bara familjer där webappen sparat händelsen. Inte App Store. Saknas händelse = syns inte.', color: '#6366F1', sparkKey: 'pwa_installed_count' },
+    { id: 'kpi-newsletter',  title: 'Vill ha nyhetsbrev', icon: '📧', value: kpis.newsletter_subscribers_count, subtext: 'Mejladresser, inte familjer', meaning: 'Föräldrar med mejl som inte avprenumererat. På som standard — de har inte nödvändigtvis kryssat i själv.', color: '#1B2340', sparkKey: 'newsletter_subscribers_count' },
   ];
 
   container.innerHTML = cards.map(c => `
@@ -1320,7 +1322,7 @@ function renderHeatmap(data) {
       const bg = `rgba(${r},${g},${b},${alpha})`;
       html += `<div class="w-5 h-5 rounded-sm cursor-default transition-all hover:ring-2 hover:ring-gold flex items-center justify-center text-xs"
                style="min-width:20px;background:${bg}"
-               title="${row.day} ${val.toLocaleString('sv-SE')} saker gjorda"
+               title="${row.day} ${val.toLocaleString('sv-SE')} händelser"
                data-toggle="tooltip"></div>`;
     });
     html += '</div>';
@@ -1405,7 +1407,7 @@ function renderWarningFlags(data) {
   const ghostEl = document.getElementById('ghostFamilies');
   if (ghostEl) {
     if (!data.ghost || data.ghost.length === 0) {
-      ghostEl.innerHTML = '<p class="text-green-600 text-sm font-semibold text-center py-4">Inga — alla som registrerat sig har öppnat barnvyn.</p>';
+      ghostEl.innerHTML = '<p class="text-text-soft text-sm font-semibold text-center py-4">Inga i den spårade gruppen. Det betyder inte att alla registrerade familjer öppnat barnvyn.</p>';
     } else {
       ghostEl.innerHTML = data.ghost.slice(0, 20).map(f => {
         const regDate = new Date(f.registered_at).toLocaleDateString('sv-SE');

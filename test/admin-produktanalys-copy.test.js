@@ -29,6 +29,10 @@ describe('Produktanalys copy is readable Swedish', () => {
     assert.doesNotMatch(analytics, /Feature-popularitet/);
     assert.doesNotMatch(analytics, /Trusted-device-sessioner/);
     assert.doesNotMatch(analytics, /Klassiska autentiseringar/);
+    assert.match(analytics, /Rullande 24 timmar/);
+    assert.match(analytics, /aldrig blandat/);
+    assert.match(analytics, /Inga i den spårade gruppen/);
+    assert.doesNotMatch(analytics, /alla som registrerat sig har öppnat barnvyn/);
   });
 
   it('workspace tabs ask questions instead of duplicating the nav label', () => {

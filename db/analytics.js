@@ -5,6 +5,11 @@
  */
 
 const db = require('../src/lib/db');
+const {
+  conversionFromFunnel,
+  funnelStepsFromSources,
+  buildHeatmapFromRows,
+} = require('../src/lib/admin-analytics-numbers');
 
 // ─── Event recording ──────────────────────────────────────
 
@@ -71,14 +76,7 @@ async function getFunnelCounts() {
     map[row.event_type] = parseInt(row.unique_families, 10);
   }
   const fb = fallbackResult.rows[0] || {};
-
-  // Use analytics events when tracked; fall back to real DB counts for older families.
-  return [
-    { step: 'Landningssida besökt', event: 'funnel_landing_visit', count: map.funnel_landing_visit || 0 },
-    { step: 'Registrering påbörjad', event: 'funnel_signup_started', count: map.funnel_signup_started || fb.families_registered || 0 },
-    { step: 'E-post verifierad', event: 'funnel_email_verified', count: map.funnel_email_verified || fb.families_verified || 0 },
-    { step: 'Första barn skapat', event: 'funnel_first_child_created', count: map.funnel_first_child_created || fb.families_with_child || 0 },
-  ];
+  return funnelStepsFromSources(map, fb);
 }
 
 // ─── Feature popularity ───────────────────────────────────
@@ -253,19 +251,27 @@ async function computeLiveKpis() {
 
   const funnelMap = {};
   for (const row of funnelResult.rows) funnelMap[row.event_type] = parseInt(row.cnt);
-  let started = funnelMap['funnel_signup_started'] || 0;
-  let completed = funnelMap['funnel_first_child_created'] || 0;
-  if (started === 0 || completed === 0) {
+  const eventStarted = funnelMap['funnel_signup_started'] || 0;
+  const eventCompleted = funnelMap['funnel_first_child_created'] || 0;
+  let dbRegistered = 0;
+  let dbWithChild = 0;
+  if (eventStarted === 0 || eventCompleted === 0) {
     const fb = await db.query(`
       SELECT
         (SELECT COUNT(*)::int FROM family WHERE archived_at IS NULL) AS families_registered,
         (SELECT COUNT(DISTINCT c.family_id)::int FROM child c
          JOIN family f ON f.id = c.family_id WHERE f.archived_at IS NULL) AS families_with_child
     `);
-    if (started === 0) started = fb.rows[0]?.families_registered || 0;
-    if (completed === 0) completed = fb.rows[0]?.families_with_child || 0;
+    dbRegistered = fb.rows[0]?.families_registered || 0;
+    dbWithChild = fb.rows[0]?.families_with_child || 0;
   }
-  const conversionRate = started > 0 ? Math.round((completed / started) * 10000) / 100 : 0;
+  const conversion = conversionFromFunnel({
+    eventStarted,
+    eventCompleted,
+    dbRegistered,
+    dbWithChild,
+  });
+  const conversionRate = conversion.conversion_rate;
 
   const pwaMap = {};
   for (const row of pwaResult.rows) pwaMap[row.event_type] = parseInt(row.cnt);
@@ -359,10 +365,11 @@ async function getFamilyDynamics() {
  * Returns 7 rows (Mon–Sun), each with 24 hour buckets.
  */
 async function getActivityHeatmap() {
+  // ISODOW + HOUR in Swedish time. Do not use time_bucket — inserts never set it.
   const result = await db.query(`
     SELECT
-      EXTRACT(DOW FROM created_at) AS dow,        -- 0=Sun, 1=Mon, ..., 6=Sat
-      time_bucket AS hour,
+      EXTRACT(ISODOW FROM created_at AT TIME ZONE 'Europe/Stockholm')::int AS dow,
+      EXTRACT(HOUR FROM created_at AT TIME ZONE 'Europe/Stockholm')::int AS hour,
       COUNT(*) AS event_count
     FROM analytics_events
     WHERE created_at >= NOW() - INTERVAL '30 days'
@@ -370,34 +377,7 @@ async function getActivityHeatmap() {
     ORDER BY dow, hour
   `);
 
-  // Build 7×24 matrix, fill zeros
-  const matrix = {};
-  const DOW_LABELS = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
-  for (let dow = 1; dow <= 7; dow++) {   // Mon=1 ... Sun=7 (Postgres DOW)
-    matrix[dow] = {};
-    for (let h = 0; h < 24; h++) matrix[dow][h] = 0;
-  }
-
-  for (const row of result.rows) {
-    const dow = parseInt(row.dow);
-    const hour = parseInt(row.hour);
-    if (matrix[dow] !== undefined) matrix[dow][hour] = parseInt(row.event_count);
-  }
-
-  const rows = [];
-  for (let dow = 1; dow <= 7; dow++) {
-    rows.push({ day: DOW_LABELS[dow - 1], dayIndex: dow, hours: Array.from({ length: 24 }, (_, h) => matrix[dow][h]) });
-  }
-
-  // Find peak hour for context
-  let maxCount = 0, peakHour = 0;
-  for (let h = 0; h < 24; h++) {
-    let total = 0;
-    for (let dow = 1; dow <= 7; dow++) total += matrix[dow][h];
-    if (total > maxCount) { maxCount = total; peakHour = h; }
-  }
-
-  return { rows, peak_hour: peakHour };
+  return buildHeatmapFromRows(result.rows);
 }
 
 /**
