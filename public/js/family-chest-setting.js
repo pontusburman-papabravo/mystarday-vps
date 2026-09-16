@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  function fpt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   let _wired = false;
 
   function init(familyData) {
@@ -22,7 +26,7 @@
     toggle.addEventListener('change', function () {
       const next = toggle.checked;
       if (msg) {
-        msg.textContent = 'Sparar...';
+        msg.textContent = fpt('family.toasts.saving');
         msg.classList.remove('hidden');
       }
       Auth.api('/api/family/settings', {
@@ -30,13 +34,13 @@
         body: JSON.stringify({ family_chest_enabled: next }),
       }).then(function () {
         if (msg) {
-          msg.textContent = '✓ Sparat!';
+          msg.textContent = fpt('family.toasts.savedShort');
           setTimeout(function () { msg.classList.add('hidden'); }, 2000);
         }
       }).catch(function (err) {
         toggle.checked = !next;
         if (typeof showToast === 'function') {
-          showToast('Kunde inte spara: ' + (err.message || 'fel'), true);
+          showToast(fpt('family.errors.save') + ' ' + (err.message || fpt('family.childProfile.errors.generic')), true);
         }
         if (msg) msg.classList.add('hidden');
       });

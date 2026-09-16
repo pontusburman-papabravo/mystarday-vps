@@ -19,7 +19,43 @@
     "scanQr": "Scan QR",
     "logout": "Log out",
     "you": "You",
-    "roleLabel": "Role"
+    "roleLabel": "Role",
+    "familyName": "Family name",
+    "moreSettings": "More settings",
+    "show": "Show",
+    "addChildTitle": "Add child",
+    "addChildSubmit": "Add",
+    "addAdultTitle": "Add adult",
+    "inviteParentTitle": "Invite co-parent"
+  },
+  "form": {
+    "name": "Name",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "chooseEmoji": "Pick an emoji",
+    "choosePlaceholder": "— Choose —",
+    "childLoginHint": "The child signs in with name + PIN.",
+    "birthdayDate": "Date of birth",
+    "birthdayScheduleHint": "(sets the schedule: preschool/school)",
+    "ageDeterminesSchedule": "Age decides whether a preschool or school schedule is used",
+    "newPin": "New PIN",
+    "pinKeepEmpty": "(leave empty to keep the current PIN)",
+    "pin": "PIN",
+    "pinRandomHint": "(optional — leave empty for a random PIN)",
+    "birthdayOptional": "(optional)",
+    "email": "Email address",
+    "roleOptional": "Role in the family (optional)",
+    "clickToEditBirthday": "Click to edit date of birth",
+    "emailPlaceholder": "name@example.com",
+    "nameExamplePlaceholder": "E.g. Anna Svensson",
+    "remove": "Remove",
+    "close": "Close",
+    "whichChildren": "Which children should this person be able to help?",
+    "selectAll": "Select all",
+    "loginAgain": "Could not send — sign in again.",
+    "pendingOne": "1 pending invite is already sent.",
+    "pendingMany": "{{count}} pending invites are already sent.",
+    "libraryRewardsLink": "My Library → Rewards"
   },
   "roles": {
     "parent": "Parent",
@@ -95,7 +131,8 @@
     "roleUpdated": "Role updated!",
     "deleted": "Removed",
     "childAdded": "{{name}} added!",
-    "childAddedWithPin": "{{name}} added! PIN: {{pin}}"
+    "childAddedWithPin": "{{name}} added! PIN: {{pin}}",
+    "saving": "Saving…"
   },
   "tips": {
     "summary": "💡 Family tips",
@@ -170,13 +207,16 @@
       },
       "shortcutsHeading": "Shortcuts",
       "rewardsShortcutTitle": "Rewards",
-      "rewardsShortcutHint": "Set goals, add rewards, give stars"
+      "rewardsShortcutHint": "Set goals, add rewards, give stars",
+      "manageInLibraryHtml": "Create and manage rewards in <a href=\"/library\" class=\"text-gold underline\">My Library → Rewards</a>. Here you only choose which ones apply to this child."
     }
   },
   "invites": {
     "sentTo": "✓ Invite sent to {{email}}!",
     "sent": "✓ Invite sent!",
-    "sendBtn": "Send invite"
+    "sendBtn": "Send invite",
+    "emailLead": "We send an invite by email. They create their own password.",
+    "pedagogNote": "(Educators are invited under <strong>Settings</strong>.)"
   },
   "giveStars": {
     "title": "⭐ Give a star",
@@ -205,7 +245,9 @@
   },
   "pedagog": {
     "title": "Educators",
-    "collaboration": "Educator collaboration"
+    "collaboration": "Educator collaboration",
+    "lead": "Collaborate with school or therapists",
+    "loadError": "Could not load educator collaboration right now."
   },
   "museum": {
     "title": "Family museum",

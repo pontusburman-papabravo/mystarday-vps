@@ -11,7 +11,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Familj - Min Stjärndag</title>
+  <title data-i18n="family.pageTitle">Familj</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -116,14 +116,14 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
+        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.overview">Översikt</a></li>
         <li><a href="/daily-log" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
         <li><a href="/schedule" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/for-dig" data-feature="for_dig" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
+        <li><a href="/for-dig" data-feature="for_dig" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ <span data-i18n="nav.primary.forYou">För dig</span></a></li>
         <li><a href="/library" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80">📚 Bibliotek (avancerat)</a></li>
         <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
         <li><a href="/reports" data-feature="klinisk_rapportering" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
-        <li><a href="/family" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Familjen &amp; inställningar</a></li>
+        <li><a href="/family" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="toggleDarkMode()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
@@ -139,7 +139,7 @@
       <div id="parentMagicPageMount" class="hidden" aria-live="polite"></div>
       <div class="hidden md:flex bg-sky border-b border-lavender p-4 md:p-6 justify-between items-center parent-magic-legacy-hide">
         <div>
-          <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 Familj</h2>
+          <h2 class="text-xl font-heading font-bold text-navy">👨‍👩‍👧 <span data-i18n="family.shell.title">Familj</span></h2>
           <p id="familySummary" class="text-sm text-text-soft mt-0.5"></p>
           <p id="todayLabel" class="text-sm text-text-soft hidden"></p>
         </div>
@@ -272,24 +272,24 @@
         <!-- ─── Familjenamn (sällan ändrat — längst ner) ─────── -->
         <details id="familyNameSection" class="bg-sky dark:bg-navy-soft rounded-2xl p-4 md:p-6 fade-in hidden group">
           <summary class="text-sm font-semibold text-text-soft cursor-pointer list-none flex items-center justify-between gap-2">
-            <span>Familjenamn</span>
-            <span class="text-xs text-text-soft group-open:hidden">Visa</span>
+            <span data-i18n="family.shell.familyName">Familjenamn</span>
+            <span class="text-xs text-text-soft group-open:hidden" data-i18n="family.shell.show">Visa</span>
           </summary>
           <div class="mt-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
             <div class="flex-1">
-              <label class="block text-sm font-medium text-text-soft mb-1" for="familyNameInput">Namn</label>
+              <label class="block text-sm font-medium text-text-soft mb-1" for="familyNameInput" data-i18n="family.form.name">Namn</label>
               <input id="familyNameInput" type="text"
                 class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body inline-edit"
-                placeholder="Familjenamn" />
+                data-i18n-placeholder="family.shell.familyName" placeholder="Familjenamn" />
             </div>
             <button type="button" onclick="saveFamily()"
-              class="px-5 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors whitespace-nowrap min-h-[44px]">
+              class="px-5 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors whitespace-nowrap min-h-[44px]" data-i18n="family.form.save">
               Spara
             </button>
           </div>
           <p id="familySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>
           <p class="mt-3">
-            <a href="/settings" data-family-config="settings" class="text-sm text-gold font-semibold underline">
+            <a href="/settings" data-family-config="settings" class="text-sm text-gold font-semibold underline" data-i18n="family.shell.moreSettings">
               Fler inställningar
             </a>
           </p>
@@ -322,7 +322,7 @@
           <span id="drawerChildEmoji" class="text-3xl"></span>
           <div>
             <h3 id="drawerChildName" class="text-xl font-heading font-bold text-navy dark:text-white"></h3>
-            <p id="drawerChildAge" class="text-xs text-text-soft cursor-pointer hover:text-gold transition-colors" onclick="switchDrawerTab('edit', document.querySelectorAll('.drawer-tab')[3])" title="Klicka för att redigera födelsedatum"></p>
+            <p id="drawerChildAge" class="text-xs text-text-soft cursor-pointer hover:text-gold transition-colors" onclick="switchDrawerTab('edit', document.querySelectorAll('.drawer-tab')[3])" data-i18n-title="family.form.clickToEditBirthday" title="Klicka för att redigera födelsedatum"></p>
           </div>
         </div>
         <button onclick="closeChildDrawer()" class="text-text-soft hover:text-navy dark:hover:text-white text-2xl leading-none w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-navy-soft transition-colors">×</button>
@@ -421,7 +421,7 @@
 
           <div class="bg-gold-light dark:bg-yellow-900/20 rounded-xl p-3 flex gap-2 items-start">
             <span class="text-lg">💡</span>
-            <p class="text-xs text-text-soft">Skapa och hantera belöningar i <a href="/library" class="text-gold underline">Mina Bibliotek → Belöningar</a>. Här väljer du bara vilka som gäller för detta barn.</p>
+            <p class="text-xs text-text-soft" data-i18n-html="family.drawer.settings.manageInLibraryHtml">Skapa och hantera belöningar i <a href="/library" class="text-gold underline" data-i18n="family.form.libraryRewardsLink">Mina Bibliotek → Belöningar</a>. Här väljer du bara vilka som gäller för detta barn.</p>
           </div>
         </div>
 
@@ -622,13 +622,13 @@
           <form id="drawerEditForm" onsubmit="saveDrawerEdit(event)" class="space-y-4">
             <input type="hidden" id="drawerEditChildId">
             <div>
-              <label class="block text-sm font-medium text-text-soft mb-1">Barnets namn</label>
+              <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.childProfile.setup.identity.nameLabel">Barnets namn</label>
               <input id="drawerEditName" type="text" required
                 class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
-                placeholder="T.ex. Emma" />
+                data-i18n-placeholder="family.childProfile.setup.identity.namePlaceholder" placeholder="T.ex. Emma" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-text-soft mb-1">Emoji</label>
+              <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.childProfile.setup.identity.emojiLabel">Emoji</label>
               <div class="flex gap-2 flex-wrap" id="drawerEmojiPicker">
                 <button type="button" class="drawer-emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👧">👧</button>
                 <button type="button" class="drawer-emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👦">👦</button>
@@ -646,36 +646,36 @@
               <input type="hidden" id="drawerEditEmoji">
             </div>
             <div>
-              <label class="block text-sm font-medium text-text-soft mb-1">Födelsedatum <span class="text-xs">(styr schemat: Förskola/Skola)</span></label>
+              <label class="block text-sm font-medium text-text-soft mb-1"><span data-i18n="family.form.birthdayDate">Födelsedatum</span> <span class="text-xs" data-i18n="family.form.birthdayScheduleHint">(styr schemat: Förskola/Skola)</span></label>
               <div class="grid grid-cols-3 gap-2">
                 <select id="drawerEditBirthdayYear" class="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm" onchange="updateBirthdayHidden('drawerEditBirthday')">
-                  <option value="">År</option>
+                  <option value="" data-i18n="family.childProfile.setup.identity.year">År</option>
                 </select>
                 <select id="drawerEditBirthdayMonth" class="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm" onchange="updateBirthdayDays('drawerEditBirthday');updateBirthdayHidden('drawerEditBirthday')">
-                  <option value="">Månad</option>
+                  <option value="" data-i18n="family.childProfile.setup.identity.month">Månad</option>
                 </select>
                 <select id="drawerEditBirthdayDay" class="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm" onchange="updateBirthdayHidden('drawerEditBirthday')">
-                  <option value="">Dag</option>
+                  <option value="" data-i18n="family.childProfile.setup.identity.day">Dag</option>
                 </select>
               </div>
               <input type="hidden" id="drawerEditBirthday" />
-              <p class="text-xs text-text-soft mt-1">Ålder bestämmer om Förskola- eller Skolschema används</p>
+              <p class="text-xs text-text-soft mt-1" data-i18n="family.form.ageDeterminesSchedule">Ålder bestämmer om Förskola- eller Skolschema används</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-text-soft mb-1">Ny PIN-kod <span class="text-xs">(lämna tomt för att behålla)</span></label>
+              <label class="block text-sm font-medium text-text-soft mb-1"><span data-i18n="family.form.newPin">Ny PIN-kod</span> <span class="text-xs" data-i18n="family.form.pinKeepEmpty">(lämna tomt för att behålla)</span></label>
               <input id="drawerEditPin" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"
                 class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
                 placeholder="4 siffror" />
             </div>
             <button type="submit"
-              class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
+              class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors" data-i18n="family.form.saveChanges">
               Spara ändringar
             </button>
 
             <!-- Danger zone -->
             <div class="pt-4 border-t border-gray-100 dark:border-navy-soft">
               <button type="button" onclick="confirmDeleteDrawerChild()"
-                class="w-full px-4 py-2 bg-coral hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold transition-colors">
+                class="w-full px-4 py-2 bg-coral hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold transition-colors" data-i18n="family.childProfile.setup.delete.button">
                 🗑 Radera barn permanent
               </button>
             </div>
@@ -690,18 +690,18 @@
   <div id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Lägg till barn</h3>
+        <h3 class="text-xl font-heading font-bold text-navy dark:text-white" data-i18n="family.shell.addChildTitle">Lägg till barn</h3>
         <button onclick="closeModal('addChildModal')" class="text-text-soft hover:text-navy text-2xl leading-none">×</button>
       </div>
       <form id="addChildForm" onsubmit="addChild(event)" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">Barnets namn</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.childProfile.setup.identity.nameLabel">Barnets namn</label>
           <input id="childNameInput" type="text" required
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
-            placeholder="T.ex. Emma" />
+            data-i18n-placeholder="family.childProfile.setup.identity.namePlaceholder" placeholder="T.ex. Emma" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">Emoji</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.childProfile.setup.identity.emojiLabel">Emoji</label>
           <div class="flex gap-2 flex-wrap" id="addChildEmojiPicker">
             <button type="button" class="add-emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👧">👧</button>
             <button type="button" class="add-emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👦">👦</button>
@@ -717,10 +717,10 @@
             <button type="button" class="add-emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="🎀">🎀</button>
           </div>
           <input type="hidden" id="childEmojiInput">
-          <p id="addEmojiError" class="text-xs text-red-500 mt-1 hidden">Välj en emoji</p>
+          <p id="addEmojiError" class="text-xs text-red-500 mt-1 hidden" data-i18n="family.form.chooseEmoji">Välj en emoji</p>
         </div>
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">Födelsedatum <span class="text-xs">(valfritt)</span></label>
+          <label class="block text-sm font-medium text-text-soft mb-1"><span data-i18n="family.form.birthdayDate">Födelsedatum</span> <span class="text-xs" data-i18n="family.form.birthdayOptional">(valfritt)</span></label>
           <div class="flex items-center gap-3 p-3 rounded-xl border-2 border-sky bg-sky/50 dark:border-sky/30 dark:bg-sky/10">
             <span class="text-xl flex-shrink-0">🎂</span>
             <input id="childBirthdayInput" type="date"
@@ -728,19 +728,19 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">PIN-kod <span class="text-xs">(valfritt – lämna tomt för slumpmässig)</span></label>
+          <label class="block text-sm font-medium text-text-soft mb-1"><span data-i18n="family.form.pin">PIN-kod</span> <span class="text-xs" data-i18n="family.form.pinRandomHint">(valfritt – lämna tomt för slumpmässig)</span></label>
           <input id="childPinInput" type="text" inputmode="numeric" pattern="\d{4}" maxlength="4"
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body tracking-widest text-center"
             placeholder="••••" autocomplete="off" />
-          <p class="text-xs text-text-soft mt-1">Barnet loggar in med namn + PIN.</p>
+          <p class="text-xs text-text-soft mt-1" data-i18n="family.form.childLoginHint">Barnet loggar in med namn + PIN.</p>
         </div>
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeModal('addChildModal')"
-            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-i18n="family.giveStars.cancel">
             Avbryt
           </button>
           <button type="submit"
-            class="flex-1 px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">
+            class="flex-1 px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors" data-i18n="family.shell.addChildSubmit">
             Lägg till
           </button>
         </div>
@@ -753,15 +753,15 @@
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <div class="text-center">
         <p class="text-5xl mb-4">⚠️</p>
-        <h3 class="text-xl font-heading font-bold text-navy dark:text-white mb-2">Ta bort <span id="deleteTargetName"></span>?</h3>
+        <h3 class="text-xl font-heading font-bold text-navy dark:text-white mb-2"><span data-i18n="family.form.remove">Ta bort</span> <span id="deleteTargetName"></span>?</h3>
         <p id="deleteTargetMessage" class="text-sm text-text-soft mb-6"></p>
         <div class="flex gap-3">
           <button onclick="closeModal('deleteModal')"
-            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-i18n="family.giveStars.cancel">
             Avbryt
           </button>
           <button id="confirmDeleteBtn"
-            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors">
+            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors" data-i18n="family.form.remove">
             Ta bort
           </button>
         </div>
@@ -773,42 +773,42 @@
   <div id="addAdultModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl relative z-[9101]">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Lägg till vuxen</h3>
+        <h3 class="text-xl font-heading font-bold text-navy dark:text-white" data-i18n="family.shell.addAdultTitle">Lägg till vuxen</h3>
         <button onclick="closeModal('addAdultModal')" class="text-text-soft hover:text-navy text-2xl leading-none">×</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Vi skickar en inbjudan via e-post. Personen skapar själv sitt lösenord. (Pedagog bjuds in under <strong>Inställningar</strong>.)</p>
+      <p class="text-sm text-text-soft mb-4"><span data-i18n="family.invites.emailLead">Vi skickar en inbjudan via e-post. Personen skapar själv sitt lösenord.</span> <span data-i18n-html="family.invites.pedagogNote">(Pedagog bjuds in under <strong data-i18n="nav.settings">Inställningar</strong>.)</span></p>
       <form id="addAdultForm" onsubmit="addAdult(event)" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">Namn</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.form.name">Namn</label>
           <input id="addAdultNameInput" type="text" required
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
-            placeholder="T.ex. Anna Svensson" />
+            data-i18n-placeholder="family.form.nameExamplePlaceholder" placeholder="T.ex. Anna Svensson" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">E-postadress</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.form.email">E-postadress</label>
           <input id="addAdultEmailInput" type="email" required
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
-            placeholder="namn@exempel.se" />
+            data-i18n-placeholder="family.form.emailPlaceholder" placeholder="namn@exempel.se" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">Roll i familjen (valfritt)</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.form.roleOptional">Roll i familjen (valfritt)</label>
           <select id="addAdultRoleInput"
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body">
-            <option value="">— Välj —</option>
-            <option value="mamma">Mamma</option>
-            <option value="pappa">Pappa</option>
-            <option value="bonusförälder">Bonusförälder</option>
-            <option value="annan">Annan</option>
+            <option value="" data-i18n="family.form.choosePlaceholder">— Välj —</option>
+            <option value="mamma" data-i18n="family.roles.mamma">Mamma</option>
+            <option value="pappa" data-i18n="family.roles.pappa">Pappa</option>
+            <option value="bonusförälder" data-i18n="family.roles.bonusParent">Bonusförälder</option>
+            <option value="annan" data-i18n="family.roles.other">Annan</option>
           </select>
         </div>
         <p id="addAdultMsg" class="text-sm text-text-soft min-h-[1.2em]"></p>
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeModal('addAdultModal')"
-            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-i18n="family.giveStars.cancel">
             Avbryt
           </button>
           <button type="submit" id="addAdultSubmitBtn"
-            class="flex-1 px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500">
+            class="flex-1 px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500" data-i18n="family.invites.sendBtn">
             Skicka inbjudan
           </button>
         </div>
@@ -820,24 +820,24 @@
   <div id="inviteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9100] p-4">
     <div class="bg-white dark:bg-navy rounded-2xl p-6 w-full max-w-md shadow-2xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-heading font-bold text-navy dark:text-white">Bjud in förälder</h3>
+        <h3 class="text-xl font-heading font-bold text-navy dark:text-white" data-i18n="family.shell.inviteParentTitle">Bjud in förälder</h3>
         <button onclick="closeModal('inviteModal')" class="text-text-soft hover:text-navy text-2xl leading-none">×</button>
       </div>
       <form id="inviteForm" onsubmit="sendInvite(event)" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-text-soft mb-1">E-postadress</label>
+          <label class="block text-sm font-medium text-text-soft mb-1" data-i18n="family.form.email">E-postadress</label>
           <input id="inviteEmailInput" type="email" required
             class="w-full px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body"
-            placeholder="namn@exempel.se" />
+            data-i18n-placeholder="family.form.emailPlaceholder" placeholder="namn@exempel.se" />
         </div>
         <p id="inviteMsg" class="text-sm text-text-soft"></p>
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeModal('inviteModal')"
-            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            class="flex-1 px-4 py-2 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-i18n="family.giveStars.cancel">
             Avbryt
           </button>
           <button type="submit"
-            class="flex-1 px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500">
+            class="flex-1 px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors dark:bg-gold dark:hover:bg-yellow-500" data-i18n="family.invites.sendBtn">
             Skicka inbjudan
           </button>
         </div>
@@ -885,8 +885,8 @@
       <p id="manualStarMsg" class="text-xs text-text-soft mb-3"></p>
 
       <div class="flex gap-3">
-        <button onclick="closeManualStarModal()" class="flex-1 min-h-[48px] py-3 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Avbryt</button>
-        <button onclick="submitManualStar()" id="manualStarSubmitBtn" class="flex-1 min-h-[48px] py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors">Ge stjärnor ⭐</button>
+        <button onclick="closeManualStarModal()" class="flex-1 min-h-[48px] py-3 border border-gray-200 dark:border-gray-600 text-text-soft rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-i18n="family.giveStars.cancel">Avbryt</button>
+        <button onclick="submitManualStar()" id="manualStarSubmitBtn" class="flex-1 min-h-[48px] py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold transition-colors" data-i18n="family.giveStars.submit">Ge stjärnor ⭐</button>
       </div>
     </div>
   </div>
@@ -896,13 +896,13 @@
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/family-invite-scan.js?v=1"></script>
   <script src="/js/family-museum.js?v=1.1.0"></script>
-  <script src="/js/family-chest-setting.js?v=1.0.0"></script>
+  <script src="/js/family-chest-setting.js?v=1.1.0"></script>
   <script src="/js/custody-a11y.js?v=1"></script>
   <script src="/js/custody-settings.js?v=6"></script>
   <script src="/js/family-people-access.js?v=1"></script>
-  <script src="/js/family-hub.js?v=1.0.0"></script>
-  <script src="/js/family.js?v=2.17.0"></script>
-  <script src="/js/coparent-invite-ui.js?v=1"></script>
+  <script src="/js/family-hub.js?v=1.1.0"></script>
+  <script src="/js/family.js?v=2.18.0"></script>
+  <script src="/js/coparent-invite-ui.js?v=2"></script>
   <script src="/js/parent-magic-i18n.js?v=1"></script>
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>

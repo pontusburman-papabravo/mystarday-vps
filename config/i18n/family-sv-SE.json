@@ -19,7 +19,43 @@
     "scanQr": "Skanna QR",
     "logout": "Logga ut",
     "you": "Du",
-    "roleLabel": "Roll"
+    "roleLabel": "Roll",
+    "familyName": "Familjenamn",
+    "moreSettings": "Fler inställningar",
+    "show": "Visa",
+    "addChildTitle": "Lägg till barn",
+    "addChildSubmit": "Lägg till",
+    "addAdultTitle": "Lägg till vuxen",
+    "inviteParentTitle": "Bjud in förälder"
+  },
+  "form": {
+    "name": "Namn",
+    "save": "Spara",
+    "saveChanges": "Spara ändringar",
+    "chooseEmoji": "Välj en emoji",
+    "choosePlaceholder": "— Välj —",
+    "childLoginHint": "Barnet loggar in med namn + PIN.",
+    "birthdayDate": "Födelsedatum",
+    "birthdayScheduleHint": "(styr schemat: Förskola/Skola)",
+    "ageDeterminesSchedule": "Ålder bestämmer om Förskola- eller Skolschema används",
+    "newPin": "Ny PIN-kod",
+    "pinKeepEmpty": "(lämna tomt för att behålla)",
+    "pin": "PIN-kod",
+    "pinRandomHint": "(valfritt – lämna tomt för slumpmässig)",
+    "birthdayOptional": "(valfritt)",
+    "email": "E-postadress",
+    "roleOptional": "Roll i familjen (valfritt)",
+    "clickToEditBirthday": "Klicka för att redigera födelsedatum",
+    "emailPlaceholder": "namn@exempel.se",
+    "nameExamplePlaceholder": "T.ex. Anna Svensson",
+    "remove": "Ta bort",
+    "close": "Stäng",
+    "whichChildren": "Vilka barn ska personen kunna hjälpa?",
+    "selectAll": "Välj alla",
+    "loginAgain": "Kunde inte skicka — logga in igen.",
+    "pendingOne": "1 väntande inbjudan är redan skickad.",
+    "pendingMany": "{{count}} väntande inbjudningar är redan skickade.",
+    "libraryRewardsLink": "Mina Bibliotek → Belöningar"
   },
   "roles": {
     "parent": "Förälder",
@@ -95,7 +131,8 @@
     "roleUpdated": "Roll uppdaterad!",
     "deleted": "Borttaget",
     "childAdded": "{{name}} tillagd!",
-    "childAddedWithPin": "{{name}} tillagd! PIN: {{pin}}"
+    "childAddedWithPin": "{{name}} tillagd! PIN: {{pin}}",
+    "saving": "Sparar..."
   },
   "tips": {
     "summary": "💡 Tips för familjen",
@@ -170,13 +207,16 @@
       },
       "shortcutsHeading": "Genvägar",
       "rewardsShortcutTitle": "Belöningar",
-      "rewardsShortcutHint": "Sätt mål, lägg till belöningar, ge stjärnor"
+      "rewardsShortcutHint": "Sätt mål, lägg till belöningar, ge stjärnor",
+      "manageInLibraryHtml": "Skapa och hantera belöningar i <a href=\"/library\" class=\"text-gold underline\">Mina Bibliotek → Belöningar</a>. Här väljer du bara vilka som gäller för detta barn."
     }
   },
   "invites": {
     "sentTo": "✓ Inbjudan skickad till {{email}}!",
     "sent": "✓ Inbjudan skickad!",
-    "sendBtn": "Skicka inbjudan"
+    "sendBtn": "Skicka inbjudan",
+    "emailLead": "Vi skickar en inbjudan via e-post. Personen skapar själv sitt lösenord.",
+    "pedagogNote": "(Pedagog bjuds in under <strong>Inställningar</strong>.)"
   },
   "giveStars": {
     "title": "⭐ Ge en stjärna",
@@ -205,7 +245,9 @@
   },
   "pedagog": {
     "title": "Pedagoger",
-    "collaboration": "Pedagogsamarbete"
+    "collaboration": "Pedagogsamarbete",
+    "lead": "Samarbeta med skola eller behandlare",
+    "loadError": "Kunde inte ladda pedagogsamarbete just nu."
   },
   "museum": {
     "title": "Familjemuseum",
