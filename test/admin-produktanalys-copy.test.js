@@ -19,6 +19,7 @@ describe('Produktanalys copy is readable Swedish', () => {
     assert.doesNotMatch(html, /Uppdatera snapshot/);
 
     assert.match(analytics, /data-tab="overview">Hur går det\?</);
+    assert.match(analytics, /data-tab="how-used">Så används appen</);
     assert.match(analytics, /Börja här/);
     assert.match(analytics, /Vad betyder orden\?/);
     assert.match(analytics, /Första lyckade dagen/);

@@ -7,7 +7,7 @@
     {
       key: 'produktanalys',
       label: 'Produktanalys',
-      hint: 'Siffror om användning, första veckan och var familjer fastnar',
+      hint: 'Siffror om användning, vilka dagar och scheman, första veckan och var familjer fastnar',
       route: '#produktanalys',
     },
     {
