@@ -31,7 +31,9 @@ describe('journey daily-analysis — buildReport', () => {
     assert.ok(report.summary.browserQaFailures === 1);
     assert.ok(report.actions.length >= 2);
     assert.ok(report.sections.some((s) => s.id === 'browser_qa'));
-    const handoffAction = report.actions.find((a) => a.title.includes('Handoff'));
+    assert.ok(report.sections.some((s) => s.id === 'funnel' && s.title === 'Första lyckade dagen'));
+    assert.ok(report.sections.some((s) => s.id === 'bottlenecks' && s.title === 'Där familjer fastnar'));
+    const handoffAction = report.actions.find((a) => a.title.includes('Barn har inte loggat in'));
     assert.ok(handoffAction);
   });
 

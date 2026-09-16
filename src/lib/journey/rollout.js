@@ -11,7 +11,8 @@ const CONFIG_AT_KEY = 'JOURNEY_ROLLOUT_WAVE_AT';
 const ROLLOUT_WAVES = [
   {
     wave: 1,
-    label: 'Wave 1 — Fas 1 (shadow)',
+    label: 'Steg 1 — Mäter i bakgrunden',
+    meaning: 'Familjerna märker inget. Vi samlar data så vi vet att allt fungerar.',
     requiredOn: [
       FLAG_KEYS.ingestEnabled,
       FLAG_KEYS.evaluatorEnabled,
@@ -20,7 +21,8 @@ const ROLLOUT_WAVES = [
   },
   {
     wave: 2,
-    label: 'Wave 2 — Fas 2 (parent ack + handoff)',
+    label: 'Steg 2 — Lämna över till barnet',
+    meaning: 'Föräldern ser när barnet är klart och kan hjälpa barnet att logga in.',
     requiredOn: [
       FLAG_KEYS.registryV2,
       FLAG_KEYS.parentAckV1,
@@ -30,7 +32,8 @@ const ROLLOUT_WAVES = [
   },
   {
     wave: 3,
-    label: 'Wave 3 — Fas 3 (coach + established)',
+    label: 'Steg 3 — Hem-coachen',
+    meaning: 'Hem visar ett tydligt nästa steg när familjen är igång.',
     requiredOn: [
       FLAG_KEYS.establishedPhase,
       FLAG_KEYS.coachV1,
@@ -39,7 +42,8 @@ const ROLLOUT_WAVES = [
   },
   {
     wave: 4,
-    label: 'Wave 4 — Fas 4 (activation sunset)',
+    label: 'Steg 4 — Gamla aktiveringsflödet stängs',
+    meaning: 'Nya familjer går bara den nya vägen in i appen.',
     requiredOn: [
       FLAG_KEYS.activationUiRemoved,
       FLAG_KEYS.activationApiDeprecated,
@@ -48,7 +52,8 @@ const ROLLOUT_WAVES = [
   },
   {
     wave: 5,
-    label: 'Wave 5 — Fas 5 (expanding + push)',
+    label: 'Steg 5 — Flera barn och påminnelser',
+    meaning: 'Lägga till syskon och skicka påminnelser när det behövs.',
     requiredOn: [
       FLAG_KEYS.expandingPhase,
       FLAG_KEYS.addChildV1,
@@ -120,6 +125,7 @@ async function getRolloutStatus() {
   const waves = ROLLOUT_WAVES.map((w) => ({
     wave: w.wave,
     label: w.label,
+    meaning: w.meaning || '',
     status: w.wave <= activeWave ? 'active' : w.wave === nextWave ? 'next' : 'pending',
     complete: waveIsComplete(w, flagMap),
     flags_on: w.requiredOn.filter((k) => flagMap[k]),

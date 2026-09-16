@@ -15,6 +15,7 @@ function syncAnalyticsHistoryWarnings() {
   if (!warn) return;
   warn.setHistoryLimitedWarning('analyticsFeaturesHistoryWarning', activeTab === 'overview');
   warn.setHistoryLimitedWarning('analyticsHeatmapHistoryWarning', activeTab === 'dynamics');
+  warn.setHistoryLimitedWarning('analyticsWarningsHistoryWarning', activeTab === 'warnings');
   warn.setHistoryLimitedWarning('analyticsRetentionHistoryWarning', activeTab === 'retention');
 }
 
@@ -114,14 +115,14 @@ function buildAnalyticsHTML() {
 
       <!-- Tab bar -->
       <div class="flex flex-wrap gap-2 border-b border-sky pb-3">
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors cursor-pointer" data-tab="overview">Översikt</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="dynamics">👨‍👩‍👧 Familjdynamik</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="warnings">⚠️ Varningsflaggor</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">📈 Retention</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="trends">📉 Trender</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="usage">📊 Användning</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="newsletter">📧 Nyhetsbrev</button>
-        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="activation">⭐ Aktivering</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors cursor-pointer" data-tab="overview">Hur går det?</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="dynamics">Familjer tillsammans</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="warnings">Familjer som fastnar</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">Kommer de tillbaka?</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="trends">Utveckling över tid</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="usage">Inloggning och enheter</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="newsletter">Nyhetsbrev</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="activation">Första veckan</button>
       </div>
 
       <!-- ── OVERVIEW (Del 1) ──────────────────────────────── -->
@@ -129,39 +130,57 @@ function buildAnalyticsHTML() {
 
         <div id="journeyRolloutPanel"></div>
 
+        <div class="bg-sky rounded-2xl border border-sky p-5">
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Börja här</h3>
+          <p class="text-sm text-text-soft">Korten med aktiva familjer och stjärnor kommer från inloggningar och avbockningar. Tratten, hemskärmen och “kommer de tillbaka” bygger på händelselogg — den är kort efter serverbyte, så lita inte på tapp mellan steg eller månader utan att läsa förklaringen under siffran.</p>
+        </div>
+
         <!-- KPI Cards -->
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-4">Nyckeltal</h3>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Läget just nu</h3>
+          <p class="text-text-soft text-sm mb-4">Samma tal varje dag, så du ser om det går upp eller ner. Den lilla linjen är de senaste två veckorna.</p>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="kpiCards"></div>
         </div>
 
         <!-- Funnel -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">Onboarding-tratt</h3>
-          <p class="text-text-soft text-sm mb-4">Antal unika familjer per steg (all tid)</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Från besökare till första barnet</h3>
+          <p class="text-text-soft text-sm mb-4">Landning räknas bara när besöket spårats — ofta lägre än verkliga besök. De tre sista stegen kommer från samma källa (spårning eller hela databasen), så du kan jämföra tapp där. Jämför inte landning med de andra stegen.</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="funnelChart"></canvas></div>
         </div>
 
         <!-- Feature popularity -->
         <div class="bg-white rounded-2xl border border-sky p-6">
           <div id="analyticsFeaturesHistoryWarning" class="hidden mb-4"></div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">Feature-popularitet</h3>
-          <p class="text-text-soft text-sm mb-4">Antal händelser per funktion (senaste 30 dagarna)</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Vad familjerna använder</h3>
+          <p class="text-text-soft text-sm mb-4">Hur ofta varje del av appen använts senaste 30 dagarna. Mörkare stapel = fler gånger, ljusare = hur många olika familjer.</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="featureChart"></canvas></div>
           <div id="featureTable" class="mt-4"></div>
         </div>
+
+        <details class="bg-white rounded-2xl border border-sky p-5">
+          <summary class="cursor-pointer text-sm font-semibold text-navy">Vad betyder orden?</summary>
+          <dl class="mt-3 space-y-3 text-sm">
+            <div><dt class="font-semibold text-navy">Aktiv familj</dt><dd class="text-text-soft">Någon i familjen har loggat in, bockat av en aktivitet, eller appen har sparat en händelse under perioden (rullande 24 timmar / 7 dagar — inte kalenderdygn).</dd></div>
+            <div><dt class="font-semibold text-navy">Första lyckade dagen</dt><dd class="text-text-soft">Familjen har lagt till barn, har ett schema, barnet har bockat av och fått en stjärna. Det är måttet på att de kommit igång på riktigt.</dd></div>
+            <div><dt class="font-semibold text-navy">Appen på hemskärmen</dt><dd class="text-text-soft">Familjen har lagt till webappen som en ikon (PWA). Inte samma sak som App Store-appen.</dd></div>
+            <div><dt class="font-semibold text-navy">Sparad telefon</dt><dd class="text-text-soft">Barnet eller föräldern kommer in utan att skriva PIN/lösenord varje gång.</dd></div>
+            <div><dt class="font-semibold text-navy">Startvecka</dt><dd class="text-text-soft">Alla familjer som registrerade sig samma vecka, följda över tid. Visar om de kommer tillbaka.</dd></div>
+          </dl>
+        </details>
       </div>
 
       <!-- ── FAMILY DYNAMICS (Case C) ───────────────────── -->
       <div id="section-dynamics" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">👨‍👩‍👧 Familjdynamik</h3>
-          <p class="text-text-soft text-sm mb-6">Fleranvändarstöd och korrelation med engagemang</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Familjer tillsammans</h3>
+          <p class="text-text-soft text-sm mb-6">Blir familjen mer aktiv när båda föräldrarna är med? Och när på dygnet används appen?</p>
         </div>
 
         <!-- Multi-parent breakdown -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-4">Antal föräldrar per familj</h4>
+          <h4 class="text-base font-heading font-bold text-navy mb-1">En eller två föräldrar</h4>
+          <p class="text-text-soft text-xs mb-4">Jämför familjer med en inloggad förälder mot familjer där båda är med. Fler aktiva dagar = de öppnar appen oftare.</p>
           <div class="overflow-x-auto">
             <table class="w-full text-sm mb-6">
               <thead>
@@ -169,7 +188,7 @@ function buildAnalyticsHTML() {
                   <th class="pb-2 pr-4">Föräldrar</th>
                   <th class="pb-2 pr-4 text-right">Familjer</th>
                   <th class="pb-2 pr-4 text-right">Snitt aktiva dagar (30d)</th>
-                  <th class="pb-2 text-right">Snitt händelser/familj (30d)</th>
+                  <th class="pb-2 text-right">Snitt saker gjorda / familj (30d)</th>
                 </tr>
               </thead>
               <tbody id="dynamicsParentTable">
@@ -206,8 +225,8 @@ function buildAnalyticsHTML() {
           <div id="analyticsHeatmapHistoryWarning" class="hidden mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h4 class="text-base font-heading font-bold text-navy">🗓️ Aktivitetsvärmekarta</h4>
-              <p class="text-text-soft text-xs mt-1">Timme × veckodag (senaste 30 dagarna)</p>
+              <h4 class="text-base font-heading font-bold text-navy">När används appen?</h4>
+              <p class="text-text-soft text-xs mt-1">Timme × veckodag i svensk tid (senaste 30 dagarna). Mörkare = fler sparade händelser, inte avbockningar.</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-text-soft">Topptimme:</p>
@@ -228,7 +247,7 @@ function buildAnalyticsHTML() {
           </div>
 
           <p class="text-xs text-text-soft mt-3">
-            💡 Använd topptimmarna för optimal push-notistiming. Mörkare celler = fler händelser.
+            💡 Mörkare rutor = fler sparade händelser i svensk tid. Använd topptimmen om du ska skicka en påminnelse.
           </p>
         </div>
       </div>
@@ -236,21 +255,22 @@ function buildAnalyticsHTML() {
       <!-- ── WARNING FLAGS (Case D) ─────────────────────── -->
       <div id="section-warnings" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">⚠️ Varningsflaggor</h3>
-          <p class="text-text-soft text-sm mb-6">Proaktiv support: ghost families och tappat engagemang</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Familjer som fastnar</h3>
+          <p class="text-text-soft text-sm mb-6">Listorna bygger på händelseloggen, inte på avbockningar. Äldre familjer utan spårning syns inte som “aldrig öppnat barnvyn”, och kan se ut som tystnade efter serverbyte.</p>
+          <div id="analyticsWarningsHistoryWarning" class="hidden mb-4"></div>
         </div>
 
         <!-- Weekly churn trend -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-1">📉 Tappat engagemang per vecka</h4>
-          <p class="text-text-soft text-xs mb-4">Antal familjer som tappat engagemang veckan innan — identifiera trender</p>
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Hur många tystnar per vecka</h4>
+          <p class="text-text-soft text-xs mb-4">Familjer som slutat använda appen veckan innan. En stigande linje betyder att fler tappar bort sig.</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--compact"><canvas id="churnTrendChart"></canvas></div>
         </div>
 
         <!-- Ghost families -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-1">👻 Ghost Families</h4>
-          <p class="text-text-soft text-xs mb-4">Skapade konto men öppnade aldrig barnvyn</p>
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Konto skapat — barnvyn aldrig öppnad</h4>
+          <p class="text-text-soft text-xs mb-4">Bara familjer där registreringshändelsen finns. Äldre konton utan den händelsen syns inte här — tom lista betyder inte att alla kommit igång.</p>
           <div id="ghostFamilies" class="space-y-2 max-h-64 overflow-y-auto">
             <p class="text-text-soft text-sm text-center py-4">Laddar...</p>
           </div>
@@ -258,8 +278,8 @@ function buildAnalyticsHTML() {
 
         <!-- Dropped families -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-1">📉 Tappat engagemang</h4>
-          <p class="text-text-soft text-xs mb-4">Inga händelser på 3+ dygn</p>
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Tystnade familjer</h4>
+          <p class="text-text-soft text-xs mb-4">Ingen händelse i loggen på 3 dygn. Avbockning utan sparad händelse räknas inte. Efter serverbyte kan många äldre familjer hamna här.</p>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
@@ -280,8 +300,8 @@ function buildAnalyticsHTML() {
       <!-- ── RETENTION COHORT (Case 3) ──────────────────── -->
       <div id="section-retention" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">📈 Retention-kurva</h3>
-          <p class="text-text-soft text-sm mb-6">Veckovisa kohorter — "Fastnar appen?" — aktiv familj = minst 1 event/vecka</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Kommer de tillbaka?</h3>
+          <p class="text-text-soft text-sm mb-6">Varje rad är familjer som registrerade sig samma vecka. Procenten visar hur många som fortfarande gjorde något i appen vecka 1, 2, 4 och senare. En aktiv familj = minst en sak gjord den veckan.</p>
           <div id="analyticsRetentionHistoryWarning" class="hidden mb-4"></div>
         </div>
 
@@ -294,7 +314,7 @@ function buildAnalyticsHTML() {
             <table class="w-full text-sm" id="cohortTable">
               <thead>
                 <tr class="border-b border-sky text-left text-text-soft text-xs font-semibold uppercase tracking-wide">
-                  <th class="pb-2 pr-4">Kohortera</th>
+                  <th class="pb-2 pr-4">Startvecka</th>
                   <th class="pb-2 pr-4 text-center">Vecka 0</th>
                   <th class="pb-2 pr-4 text-center">Vecka 1</th>
                   <th class="pb-2 pr-4 text-center">Vecka 2</th>
@@ -309,7 +329,7 @@ function buildAnalyticsHTML() {
             </table>
           </div>
           <p class="text-xs text-text-soft mt-4">
-            🟢 >60% retention &nbsp; 🟡 30–60% &nbsp; 🔴 &lt;30% &nbsp; — = inga familjer i kohortera
+            Grön: mer än 60 % kommer tillbaka. Gul: 30–60 %. Röd: under 30 %. Streck = för få familjer den veckan.
           </p>
         </div>
       </div>
@@ -317,10 +337,10 @@ function buildAnalyticsHTML() {
       <!-- ── USAGE (person-level observability) ───────────── -->
       <div id="section-usage" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">📊 Användning</h3>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Inloggning och enheter</h3>
           <p class="text-text-soft text-sm mb-2">
-            Person- och sessionsnivå — <strong class="text-navy">autentisering ≠ aktiv användare</strong>.
-            Trusted-device-återställning räknas som session, inte som ny inloggning.
+            Vem som faktiskt varit inne — inte samma sak som hur många gånger någon skrev lösenord.
+            Om telefonen är sparad räknas det som ett besök, inte som en ny inloggning.
           </p>
         </div>
 
@@ -331,45 +351,45 @@ function buildAnalyticsHTML() {
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="usageKpiCards">
-          <p class="text-text-soft text-sm col-span-full">Laddar KPI:er…</p>
+          <p class="text-text-soft text-sm col-span-full">Laddar siffror…</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-sky p-6 space-y-6">
           <div>
-            <h4 class="text-base font-heading font-bold text-navy mb-1">📱 Trusted devices</h4>
-            <p class="text-text-soft text-xs">Adoption, TD-aktiva dagar och samtidiga utfall i samma period (inte kausal ordning). Jämförelse 7d vs föregående 7d för uthållighet.</p>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Sparad telefon</h4>
+            <p class="text-text-soft text-xs">Hur många som kommer in utan att skriva PIN/lösenord varje gång. Siffrorna i samma period betyder inte att A orsakade B.</p>
           </div>
           <div id="trustedDeviceImpactHeadlines" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <p class="text-text-soft text-sm col-span-full">Laddar…</p>
           </div>
           <div id="trustedDeviceWeekComparison" class="space-y-3 hidden">
-            <p class="text-xs font-semibold text-navy uppercase tracking-wide">Uthållighet — senaste 7d vs föregående 7d</p>
+            <p class="text-xs font-semibold text-navy uppercase tracking-wide">Senaste 7 dagarna mot veckan innan</p>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" id="trustedDeviceWeekComparisonPanels"></div>
           </div>
           <div id="trustedDeviceImpactCohorts" class="grid grid-cols-1 lg:grid-cols-2 gap-4 hidden"></div>
           <details class="rounded-2xl border border-sky/60 bg-lavender/20 p-4">
-            <summary class="cursor-pointer text-xs font-semibold text-navy uppercase tracking-wide">Diagnostik — bestånd, läge &amp; rå sessioner</summary>
+            <summary class="cursor-pointer text-xs font-semibold text-navy uppercase tracking-wide">Mer detaljer — enheter, läge och besök</summary>
             <div class="space-y-6 mt-4">
               <div>
-                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Bestånd (just nu)</p>
+                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Just nu</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="trustedDeviceStockCards">
                   <p class="text-text-soft text-sm col-span-full">Laddar…</p>
                 </div>
               </div>
               <div>
-                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Aktiva enheter per läge</p>
+                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Sparade telefoner per vy</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="trustedDeviceModeStockCards">
                   <p class="text-text-soft text-sm col-span-full">Laddar…</p>
                 </div>
               </div>
               <div>
-                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Aktivitet i period</p>
+                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Besök i perioden</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="trustedDeviceActivityCards">
                   <p class="text-text-soft text-sm col-span-full">Laddar…</p>
                 </div>
               </div>
               <div>
-                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Sessioner per läge</p>
+                <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-3">Besök per vy</p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="trustedDeviceModeSessionCards">
                   <p class="text-text-soft text-sm col-span-full">Laddar…</p>
                 </div>
@@ -379,8 +399,8 @@ function buildAnalyticsHTML() {
         </div>
 
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-1">Trend — aktiva personer &amp; sessioner</h4>
-          <p class="text-text-soft text-xs mb-4">Daglig deduplicering per actor_id. Autentiseringar visas separat.</p>
+          <h4 class="text-base font-heading font-bold text-navy mb-1">Trend — vem som varit inne</h4>
+          <p class="text-text-soft text-xs mb-4">En person räknas max en gång per dag. Inloggningar med lösenord/PIN visas separat.</p>
           <div class="analytics-chart-wrap analytics-chart-wrap--tall"><canvas id="usageTrendChart"></canvas></div>
         </div>
       </div>
@@ -388,8 +408,8 @@ function buildAnalyticsHTML() {
       <!-- ── HISTORICAL TRENDS (Case 4) ─────────────────── -->
       <div id="section-trends" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">📉 Historiska trender</h3>
-          <p class="text-text-soft text-sm mb-6">Fullstora grafer från dagliga snapshots</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Utveckling över tid</h3>
+          <p class="text-text-soft text-sm mb-6">Samma siffror som korten, utritade dag för dag. Välj period ovanför graferna.</p>
           <div id="analyticsTrendsHistoryWarning" class="hidden mb-4"></div>
         </div>
 
@@ -403,27 +423,33 @@ function buildAnalyticsHTML() {
         <!-- Trend charts grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="trendCharts">
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">Aktiva familjer (24h)</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Aktiva familjer senaste dygnet</h4>
+            <p class="text-xs text-text-soft mb-3">Familjer med inloggning, avbockning eller händelse senaste 24 timmarna, per dag.</p>
             <div class="analytics-chart-wrap"><canvas id="trendActiveFamilies"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">Aktiva familjer (7d)</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Aktiva familjer senaste veckan</h4>
+            <p class="text-xs text-text-soft mb-3">Familjer som gjorde något senaste 7 dagarna, per dag.</p>
             <div class="analytics-chart-wrap"><canvas id="trendActiveFamilies7d"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">⭐ Stjärnor utdelade</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Stjärnor utdelade</h4>
+            <p class="text-xs text-text-soft mb-3">Totalt antal stjärnor från avbockade aktiviteter.</p>
             <div class="analytics-chart-wrap"><canvas id="trendStars"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">📊 Konverteringsgrad</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Andel som lagt till barn</h4>
+            <p class="text-xs text-text-soft mb-3">Av dem som började registrera sig, hur många som skapade första barnet. Samma källa i täljare och nämnare.</p>
             <div class="analytics-chart-wrap"><canvas id="trendConversion"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">📱 PWA installerad</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Appen på hemskärmen</h4>
+            <p class="text-xs text-text-soft mb-3">Hur många som lagt till webappen som ikon. Inte App Store.</p>
             <div class="analytics-chart-wrap"><canvas id="trendPwa"></canvas></div>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-6">
-            <h4 class="text-base font-heading font-bold text-navy mb-3">📧 Nyhetsbrevsprenumeranter</h4>
+            <h4 class="text-base font-heading font-bold text-navy mb-1">Nyhetsbrevsprenumeranter</h4>
+            <p class="text-xs text-text-soft mb-3">Aktiva mejladresser som vill ha nyhetsbrev.</p>
             <div class="analytics-chart-wrap"><canvas id="trendNewsletter"></canvas></div>
           </div>
         </div>
@@ -432,8 +458,8 @@ function buildAnalyticsHTML() {
       <!-- ── NEWSLETTER EFFECT (Case 5) ──────────────────── -->
       <div id="section-newsletter" class="analytics-section hidden space-y-8">
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">📧 Nyhetsbrevseffekt</h3>
-          <p class="text-text-soft text-sm mb-6">Aktivitetslyft efter utskick vs normaldagar</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Gjorde nyhetsbrevet att fler öppnade appen?</h3>
+          <p class="text-text-soft text-sm mb-6">Jämför dagen efter utskick med en vanlig dag veckan innan. Plus betyder att fler var aktiva efter mailet.</p>
         </div>
 
         <!-- Last newsletter effect summary -->
@@ -448,7 +474,7 @@ function buildAnalyticsHTML() {
 
         <!-- Per-dispatch table -->
         <div class="bg-white rounded-2xl border border-sky p-6">
-          <h4 class="text-base font-heading font-bold text-navy mb-4">Per utskick</h4>
+          <h4 class="text-base font-heading font-bold text-navy mb-4">Varje utskick</h4>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
@@ -472,11 +498,11 @@ function buildAnalyticsHTML() {
       <div id="section-activation" class="analytics-section hidden space-y-8">
         <div>
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Veckorapport aktivering</h3>
-          <p class="text-text-soft text-sm mb-4">Svar på de tre veckofrågorna (§6.1) — AI-only sedan ACT-1 rollout</p>
+          <p class="text-text-soft text-sm mb-4">Tre frågor varje vecka: hur många nya familjer kom igång inom två dygn, var de fastnar, och om det går bättre än förra veckan.</p>
         </div>
         <div id="activationWeeklyReport" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-white rounded-2xl border border-sky p-5">
-            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">1. Aktivering 48h</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">1. Kom igång inom 48 timmar</p>
             <p id="activationQ1Summary" class="text-navy text-sm font-medium">Laddar…</p>
             <p id="activationQ1Detail" class="text-text-soft text-xs mt-2"></p>
           </div>
@@ -486,15 +512,15 @@ function buildAnalyticsHTML() {
             <p id="activationQ2Detail" class="text-text-soft text-xs mt-2"></p>
           </div>
           <div class="bg-white rounded-2xl border border-sky p-5">
-            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">3. Lyftindikator</p>
+            <p class="text-xs font-semibold uppercase tracking-wide text-text-soft mb-2">3. Går det bättre än förra veckan?</p>
             <p id="activationQ3Summary" class="text-navy text-sm font-medium">Laddar…</p>
             <p id="activationQ3Detail" class="text-text-soft text-xs mt-2"></p>
           </div>
         </div>
 
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">First Success-tratt</h3>
-          <p class="text-text-soft text-sm mb-4">Veckokohort — signup → barn → schema → barnåtkomst → första stjärnan → aktivitet dag 2</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Första lyckade dagen — First Success-tratt</h3>
+          <p class="text-text-soft text-sm mb-4">Familjer som registrerade sig samma vecka, steg för steg: signup → barn → schema → barnåtkomst → första stjärnan → aktivitet dag 2. Siffran i parentes är andel av dem som registrerade sig.</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
           <table class="w-full text-sm">
@@ -504,8 +530,8 @@ function buildAnalyticsHTML() {
             <tbody id="activationFunnelBody"></tbody>
           </table>
           <div id="activationFunnelConversions" class="mt-6 pt-6 border-t border-sky hidden">
-            <h4 class="text-sm font-heading font-bold text-navy mb-1">Steg-till-steg-konvertering</h4>
-            <p class="text-text-soft text-xs mb-3">Andel som når nästa steg (från föregående steg i tratt)</p>
+            <h4 class="text-sm font-heading font-bold text-navy mb-1">Hur många går vidare till nästa steg</h4>
+            <p class="text-text-soft text-xs mb-3">Av dem som klarade förra steget, hur stor andel klarade nästa?</p>
             <table class="w-full text-sm">
               <thead id="activationFunnelConvHead"></thead>
               <tbody id="activationFunnelConvBody"></tbody>
@@ -515,16 +541,16 @@ function buildAnalyticsHTML() {
         </div>
 
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">activation_rate_48h per vecka</h3>
-          <p class="text-text-soft text-sm mb-4">P0-aktivering inom 48 timmar från signup</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Kom igång inom 48 timmar — per vecka</h3>
+          <p class="text-text-soft text-sm mb-4">Av nya familjer den veckan: hur många hann göra första lyckade dagen inom två dygn.</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto mb-4">
           <table class="w-full text-sm" id="activationP0WeeklyTable">
             <thead>
               <tr>
                 <th class="text-left pb-2 pr-4">Vecka</th>
-                <th class="text-right pb-2 px-2">Signups</th>
-                <th class="text-right pb-2 px-2">P0 48h</th>
+                <th class="text-right pb-2 px-2">Nya familjer</th>
+                <th class="text-right pb-2 px-2">Igång inom 48h</th>
                 <th class="text-right pb-2">Andel</th>
               </tr>
             </thead>
@@ -535,8 +561,8 @@ function buildAnalyticsHTML() {
         </div>
 
         <div>
-          <h3 class="text-lg font-heading font-bold text-navy mb-1">🔗 Värvningar (referral v0)</h3>
-          <p class="text-text-soft text-sm mb-4">Personliga koder — signups och kvalificerade värvningar (P0, ingen belöning i v0)</p>
+          <h3 class="text-lg font-heading font-bold text-navy mb-1">Värvningar (referral v0)</h3>
+          <p class="text-text-soft text-sm mb-4">Personliga koder. Kvalificerad = den värvade familjen har gjort en första lyckad dag. Ingen belöning i den här versionen.</p>
         </div>
         <div class="bg-white rounded-2xl border border-sky p-6 overflow-x-auto">
           <table class="w-full text-sm">
@@ -584,7 +610,7 @@ async function loadOverviewTab() {
   } catch (err) {
     console.error('[Analytics] loadOverviewTab error:', err);
     if (container) {
-      container.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda analytics: ' + (typeof esc === 'function' ? esc(err.message || 'Okänt fel') : 'fel') + '</p>';
+      container.innerHTML = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda siffrorna: ' + (typeof esc === 'function' ? esc(err.message || 'Okänt fel') : 'fel') + '</p>';
     }
   }
 }
@@ -658,12 +684,12 @@ async function loadTrendsData(days) {
 
     const labels = snapshots.map(s => s.date.slice(5));
     const datasets = [
-      { id: 'trendActiveFamilies',   key: 'active_families_24h',           color: '#EF4444', label: 'Aktiva (24h)' },
-      { id: 'trendActiveFamilies7d', key: 'active_families_7d',            color: '#F5A623', label: 'Aktiva (7d)' },
+      { id: 'trendActiveFamilies',   key: 'active_families_24h',           color: '#EF4444', label: 'Aktiva idag' },
+      { id: 'trendActiveFamilies7d', key: 'active_families_7d',            color: '#F5A623', label: 'Aktiva senaste veckan' },
       { id: 'trendStars',            key: 'total_stars_given',             color: '#F5A623', label: 'Stjärnor' },
-      { id: 'trendConversion',        key: 'conversion_rate',                color: '#10B981', label: 'Konvertering %' },
-      { id: 'trendPwa',              key: 'pwa_installed_count',           color: '#6366F1', label: 'PWA' },
-      { id: 'trendNewsletter',       key: 'newsletter_subscribers_count',  color: '#1B2340', label: 'Prenumeranter' },
+      { id: 'trendConversion',        key: 'conversion_rate',                color: '#10B981', label: 'Andel som lagt till barn %' },
+      { id: 'trendPwa',              key: 'pwa_installed_count',           color: '#6366F1', label: 'Appen på hemskärmen' },
+      { id: 'trendNewsletter',       key: 'newsletter_subscribers_count',  color: '#1B2340', label: 'Nyhetsbrev' },
     ];
 
     datasets.forEach(({ id, key, color, label }) => {
@@ -784,14 +810,14 @@ async function loadUsageKpis(period) {
     const modeStock = td.active_by_mode || {};
     const modeSessions = td.sessions_by_mode || {};
     const cards = [
-      { icon: '👨‍👩‍👧', title: `Aktiva familjer (${periodLabel})`, value: kpis.active_families },
-      { icon: '👤', title: `Aktiva personer (${periodLabel})`, value: kpis.active_people },
+      { icon: '👨‍👩‍👧', title: `Aktiva familjer (${periodLabel})`, value: kpis.active_families, hint: 'Någon i familjen gjorde något i appen.' },
+      { icon: '👤', title: `Aktiva personer (${periodLabel})`, value: kpis.active_people, hint: 'Unika föräldrar + barn som varit inne.' },
       { icon: '🧑', title: `Aktiva föräldrar (${periodLabel})`, value: kpis.active_parents },
       { icon: '👶', title: `Aktiva barn (${periodLabel})`, value: kpis.active_children },
-      { icon: '📱', title: `Trusted-device-sessioner (${periodLabel})`, value: kpis.trusted_device_sessions },
-      { icon: '🔐', title: `Klassiska autentiseringar (${periodLabel})`, value: kpis.classic_authentications, hint: 'login_event — inte samma som aktiv användare' },
-      { icon: '✅', title: `Aktiviteter klarmarkerade (${periodLabel})`, value: kpis.activity_completions },
-      { icon: '🧩', title: `Widget-klarmarkeringar (${periodLabel})`, value: kpis.widget_completions },
+      { icon: '📱', title: `Besök via sparad telefon (${periodLabel})`, value: kpis.trusted_device_sessions, hint: 'Kom in utan att skriva PIN eller lösenord.' },
+      { icon: '🔐', title: `Inloggningar med PIN/lösenord (${periodLabel})`, value: kpis.classic_authentications, hint: 'Inte samma sak som aktiv användare — många kommer in utan att logga in på nytt.' },
+      { icon: '✅', title: `Aktiviteter bockade av (${periodLabel})`, value: kpis.activity_completions },
+      { icon: '🧩', title: `Avbockningar från hemskärms-widget (${periodLabel})`, value: kpis.widget_completions, hint: 'Barnet bockade från telefonens startsida, inte inne i appen.' },
     ];
     container.innerHTML = cards.map((c) => renderUsageKpiCard(c)).join('');
 
@@ -802,44 +828,44 @@ async function loadUsageKpis(period) {
       const friction = impact.friction || {};
       const headlineCards = [
         {
-          label: 'Adoption',
+          label: 'Andel med sparad telefon',
           value: fmtPct(adoption.adoption_pct),
-          detail: `${adoption.td_families || 0} TD-familjer av ${adoption.active_families || 0} aktiva (${periodLabel})`,
+          detail: `${adoption.td_families || 0} av ${adoption.active_families || 0} aktiva familjer har minst en sparad telefon (${periodLabel})`,
         },
         {
-          label: `TD aktiv ≥2 dagar (${periodLabel})`,
+          label: `Sparad telefon 2+ dagar (${periodLabel})`,
           value: fmtPct(recurring.families_2plus_pct),
-          detail: `${recurring.families_2plus_days || 0} TD-familjer · unika Stockholm-dagar`,
+          detail: `${recurring.families_2plus_days || 0} familjer kom in via sparad telefon minst två olika dagar`,
         },
         {
-          label: `TD aktiv ≥3 dagar (${periodLabel})`,
+          label: `Sparad telefon 3+ dagar (${periodLabel})`,
           value: fmtPct(recurring.families_3plus_pct),
-          detail: `${recurring.families_3plus_days || 0} TD-familjer`,
+          detail: `${recurring.families_3plus_days || 0} familjer`,
         },
         {
-          label: 'TD aktiv ≥7 dagar / 30d',
+          label: 'Sparad telefon 7+ dagar / 30d',
           value: fmtPct(recurring.families_7plus_pct_30d),
-          detail: `${recurring.families_7plus_days_30d || 0} TD-familjer — alltid 30d-fönster`,
+          detail: `${recurring.families_7plus_days_30d || 0} familjer — alltid räknat på 30 dagar`,
         },
         {
-          label: `TD-familjer med aktivitet klar (${periodLabel})`,
+          label: `Med sparad telefon + avbockning (${periodLabel})`,
           value: fmtPct(outcomes.td_completion_pct),
-          detail: `${outcomes.td_families_with_child_completion || 0} familjer (samma period, ej kausal ordning)`,
+          detail: `${outcomes.td_families_with_child_completion || 0} familjer — samma period, inte orsak och verkan`,
         },
         {
-          label: `TD-familjer med Successful Routine Day (${periodLabel})`,
+          label: `Med sparad telefon + hela dagen klar (${periodLabel})`,
           value: fmtPct(outcomes.td_routine_day_pct),
           detail: `${outcomes.td_families_with_routine_day || 0} familjer — alla schemaposter klara minst en dag`,
         },
         {
-          label: `TD-familjer med First Star-signal (${periodLabel})`,
+          label: `Med sparad telefon + första stjärnan (${periodLabel})`,
           value: fmtPct(outcomes.td_first_star_pct),
-          detail: `${outcomes.td_families_with_first_star_signal || 0} familjer — first_completion / milestone`,
+          detail: `${outcomes.td_families_with_first_star_signal || 0} familjer`,
         },
         {
-          label: `TD auth fallback/fel (${periodLabel})`,
+          label: `Strul med sparad telefon (${periodLabel})`,
           value: fmtPct(friction.friction_pct_of_td_attempts),
-          detail: `${friction.total_events || 0} TD-attribuerade friktioner · ${friction.td_sessions || 0} lyckade TD-sessioner`,
+          detail: `${friction.total_events || 0} fel · ${friction.td_sessions || 0} lyckade besök`,
         },
       ];
       impactContainer.innerHTML = headlineCards.map((c) => renderImpactHeadlineCard(c)).join('');
@@ -849,7 +875,7 @@ async function loadUsageKpis(period) {
       weekComparisonRoot.classList.remove('hidden');
       weekComparisonPanels.innerHTML = [
         renderWeekComparisonPanel('Alla familjer', impact.week_comparison.all_families),
-        renderWeekComparisonPanel('Nya familjer (7d-kohort)', impact.week_comparison.new_families),
+        renderWeekComparisonPanel('Nya familjer (registrerade senaste 7 dagarna)', impact.week_comparison.new_families),
       ].join('');
     }
 
@@ -867,44 +893,44 @@ async function loadUsageKpis(period) {
 
     if (stockContainer) {
       const stockCards = [
-        { icon: '👨‍👩‍👧', title: 'Familjer med aktiv enhet', value: td.families_enrolled },
-        { icon: '📱', title: 'Aktiva enheter totalt', value: td.active_devices },
-        { icon: '🚫', title: 'Återkallade enheter', value: td.revoked_devices },
-        { icon: '🔢', title: 'Unika enheter i sessioner', value: td.distinct_devices_in_sessions, hint: `Period: ${periodLabel}` },
+        { icon: '👨‍👩‍👧', title: 'Familjer med sparad telefon', value: td.families_enrolled },
+        { icon: '📱', title: 'Sparade telefoner totalt', value: td.active_devices },
+        { icon: '🚫', title: 'Borttagna telefoner', value: td.revoked_devices },
+        { icon: '🔢', title: 'Olika telefoner som använts', value: td.distinct_devices_in_sessions, hint: `Period: ${periodLabel}` },
       ];
       stockContainer.innerHTML = stockCards.map((c) => renderUsageKpiCard(c)).join('');
     }
 
     if (modeStockContainer) {
       const modeCards = [
-        { icon: '🧑', title: 'Parent-läge', value: modeStock.parent },
-        { icon: '👶', title: 'Child-läge', value: modeStock.child },
-        { icon: '👨‍👩‍👧', title: 'Shared-läge', value: modeStock.shared },
+        { icon: '🧑', title: 'Föräldervy', value: modeStock.parent },
+        { icon: '👶', title: 'Barnvy', value: modeStock.child },
+        { icon: '👨‍👩‍👧', title: 'Delad telefon', value: modeStock.shared },
       ];
       modeStockContainer.innerHTML = modeCards.map((c) => renderUsageKpiCard(c)).join('');
     }
 
     if (activityContainer) {
       const activityCards = [
-        { icon: '👁', title: `Enheter sedda (${periodLabel})`, value: td.devices_seen },
-        { icon: '🏠', title: `Familjer med enhet sedd (${periodLabel})`, value: td.families_with_device_seen },
-        { icon: '🔄', title: `Familjer med TD-session (${periodLabel})`, value: td.families_with_sessions },
-        { icon: '📲', title: `TD-sessioner (${periodLabel})`, value: td.sessions || kpis.trusted_device_sessions },
+        { icon: '👁', title: `Telefoner sedda (${periodLabel})`, value: td.devices_seen },
+        { icon: '🏠', title: `Familjer med telefon sedd (${periodLabel})`, value: td.families_with_device_seen },
+        { icon: '🔄', title: `Familjer som kom in via sparad telefon (${periodLabel})`, value: td.families_with_sessions },
+        { icon: '📲', title: `Besök via sparad telefon (${periodLabel})`, value: td.sessions || kpis.trusted_device_sessions },
       ];
       activityContainer.innerHTML = activityCards.map((c) => renderUsageKpiCard(c)).join('');
     }
 
     if (modeSessionContainer) {
       const sessionModeCards = [
-        { icon: '🧑', title: `Sessioner parent (${periodLabel})`, value: modeSessions.parent },
-        { icon: '👶', title: `Sessioner child (${periodLabel})`, value: modeSessions.child },
-        { icon: '👨‍👩‍👧', title: `Sessioner shared (${periodLabel})`, value: modeSessions.shared },
+        { icon: '🧑', title: `Besök i föräldervy (${periodLabel})`, value: modeSessions.parent },
+        { icon: '👶', title: `Besök i barnvy (${periodLabel})`, value: modeSessions.child },
+        { icon: '👨‍👩‍👧', title: `Besök på delad telefon (${periodLabel})`, value: modeSessions.shared },
       ];
       modeSessionContainer.innerHTML = sessionModeCards.map((c) => renderUsageKpiCard(c)).join('');
     }
   } catch (err) {
     console.error('[Analytics] loadUsageKpis error:', err);
-    const errHtml = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda användnings-KPI:er</p>';
+    const errHtml = '<p class="text-red-500 text-sm col-span-full">Kunde inte ladda användningssiffror</p>';
     container.innerHTML = errHtml;
     if (impactContainer) impactContainer.innerHTML = errHtml;
     if (stockContainer) stockContainer.innerHTML = errHtml;
@@ -930,9 +956,9 @@ function fmtDelta(deltaPp) {
 function renderWeekComparisonPanel(title, metrics) {
   const m = metrics || {};
   const rows = [
-    ['Aktiva ≥2 dagar', m.active_2plus_days],
-    ['Aktiva ≥3 dagar', m.active_3plus_days],
-    ['Successful Routine Day', m.routine_day],
+    ['Aktiva minst 2 dagar', m.active_2plus_days],
+    ['Aktiva minst 3 dagar', m.active_3plus_days],
+    ['Hela dagen klar', m.routine_day],
   ];
   return `
     <div class="rounded-2xl border border-sky/60 bg-white p-4">
@@ -967,12 +993,12 @@ function renderCohortPanel(title, data, ageLabel) {
   const d = data || {};
   const rows = [
     ['Aktiva familjer', d.active_families || 0],
-    ['TD-familjer', d.td_families || 0],
-    ['Adoption', fmtPct(d.adoption_pct)],
-    ['TD aktiv ≥2 dagar', fmtPct(d.recurring_2plus_pct)],
-    ['TD-familjer m. aktivitet', fmtPct(d.completion_pct)],
-    ['TD-familjer m. routine day', fmtPct(d.routine_day_pct)],
-    ['TD-familjer m. First Star', fmtPct(d.first_star_pct)],
+    ['Med sparad telefon', d.td_families || 0],
+    ['Andel med sparad telefon', fmtPct(d.adoption_pct)],
+    ['Sparad telefon 2+ dagar', fmtPct(d.recurring_2plus_pct)],
+    ['Med avbockning', fmtPct(d.completion_pct)],
+    ['Hela dagen klar', fmtPct(d.routine_day_pct)],
+    ['Första stjärnan', fmtPct(d.first_star_pct)],
   ];
   return `
     <div class="rounded-2xl border border-sky/60 bg-white p-4">
@@ -1032,7 +1058,7 @@ async function loadUsageTrendChart() {
             fill: false,
           },
           {
-            label: 'Trusted-device-sessioner',
+            label: 'Besök via sparad telefon',
             data: trends.map((t) => t.trusted_device_sessions),
             borderColor: '#F5A623',
             borderDash: [4, 4],
@@ -1040,7 +1066,7 @@ async function loadUsageTrendChart() {
             fill: false,
           },
           {
-            label: 'Autentiseringar (login_event)',
+            label: 'Inloggningar med PIN/lösenord',
             data: trends.map((t) => t.classic_authentications),
             borderColor: '#EF4444',
             borderDash: [2, 2],
@@ -1076,11 +1102,11 @@ function renderKpiCards(kpis, snapshots) {
   }
 
   const cards = [
-    { id: 'kpi-active-24h',  title: 'Aktiva familjer (24h)', icon: '❤️', value: kpis.active_families_24h, subtext: `${kpis.active_families_7d} senaste 7 dagarna`, color: '#EF4444', sparkKey: 'active_families_24h' },
-    { id: 'kpi-stars',       title: 'Utdelade stjärnor',     icon: '⭐', value: kpis.total_stars_given.toLocaleString('sv-SE'), subtext: `${kpis.total_rewards_claimed} inlösta belöningar`, color: '#F5A623', sparkKey: 'total_stars_given' },
-    { id: 'kpi-conversion',  title: 'Konverteringsgrad',       icon: '🎯', value: kpis.conversion_rate + '%', subtext: 'Registrering → Första barn', color: '#10B981', sparkKey: 'conversion_rate' },
-    { id: 'kpi-pwa',         title: 'PWA installerad',       icon: '📱', value: kpis.pwa_installed_count, subtext: `${kpis.pwa_browser_count} via webbläsare`, color: '#6366F1', sparkKey: 'pwa_installed_count' },
-    { id: 'kpi-newsletter',  title: 'Nyhetsbrevsprenumeranter', icon: '📧', value: kpis.newsletter_subscribers_count, subtext: 'Aktiva prenumeranter', color: '#1B2340', sparkKey: 'newsletter_subscribers_count' },
+    { id: 'kpi-active-24h',  title: 'Familjer som använde appen senaste dygnet', icon: '❤️', value: kpis.active_families_24h, subtext: `${kpis.active_families_7d} senaste 7 dagarna`, meaning: 'Rullande 24 timmar, inte kalenderdygn. Räknas vid inloggning, avbockning eller valfri sparad händelse i appen.', color: '#EF4444', sparkKey: 'active_families_24h' },
+    { id: 'kpi-stars',       title: 'Stjärnor som barnen fått',     icon: '⭐', value: kpis.total_stars_given.toLocaleString('sv-SE'), subtext: `${kpis.total_rewards_claimed} inlösta belöningar`, meaning: 'Totalt genom tiderna från avbockade aktiviteter (förälder eller barn). Pålitligast av korten.', color: '#F5A623', sparkKey: 'total_stars_given' },
+    { id: 'kpi-conversion',  title: 'Andel som lagt till barn',       icon: '🎯', value: kpis.conversion_rate + '%', subtext: 'Från registrering till första barnet', meaning: 'Samma grupp i täljare och nämnare — antingen spårade händelser eller hela databasen, aldrig blandat.', color: '#10B981', sparkKey: 'conversion_rate' },
+    { id: 'kpi-pwa',         title: 'Appen på hemskärmen',       icon: '📱', value: kpis.pwa_installed_count, subtext: `${kpis.pwa_browser_count} öppnade via webbläsare (kan överlappa)`, meaning: 'Bara familjer där webappen sparat händelsen. Inte App Store. Saknas händelse = syns inte.', color: '#6366F1', sparkKey: 'pwa_installed_count' },
+    { id: 'kpi-newsletter',  title: 'Vill ha nyhetsbrev', icon: '📧', value: kpis.newsletter_subscribers_count, subtext: 'Mejladresser, inte familjer', meaning: 'Föräldrar med mejl som inte avprenumererat. På som standard — de har inte nödvändigtvis kryssat i själv.', color: '#1B2340', sparkKey: 'newsletter_subscribers_count' },
   ];
 
   container.innerHTML = cards.map(c => `
@@ -1091,6 +1117,7 @@ function renderKpiCards(kpis, snapshots) {
       </div>
       <div class="text-3xl font-heading font-bold text-navy">${c.value}</div>
       <div class="text-xs text-text-soft">${c.subtext}</div>
+      ${c.meaning ? `<p class="text-xs text-text-soft leading-snug">${c.meaning}</p>` : ''}
       <div class="analytics-chart-wrap analytics-chart-wrap--spark"><canvas id="${c.id}-spark"></canvas></div>
     </div>
   `).join('');
@@ -1163,7 +1190,7 @@ function renderFeatureChart(features) {
   if (!canvas) return;
 
   if (!features || features.length === 0) {
-    canvas.parentElement.innerHTML = '<p class="text-text-soft text-sm text-center py-4">Inga feature-händelser ännu</p>';
+    canvas.parentElement.innerHTML = '<p class="text-text-soft text-sm text-center py-4">Ingen användning registrerad ännu</p>';
     return;
   }
 
@@ -1380,7 +1407,7 @@ function renderWarningFlags(data) {
   const ghostEl = document.getElementById('ghostFamilies');
   if (ghostEl) {
     if (!data.ghost || data.ghost.length === 0) {
-      ghostEl.innerHTML = '<p class="text-green-600 text-sm font-semibold text-center py-4">✅ Inga ghost families!</p>';
+      ghostEl.innerHTML = '<p class="text-text-soft text-sm font-semibold text-center py-4">Inga i den spårade gruppen. Det betyder inte att alla registrerade familjer öppnat barnvyn.</p>';
     } else {
       ghostEl.innerHTML = data.ghost.slice(0, 20).map(f => {
         const regDate = new Date(f.registered_at).toLocaleDateString('sv-SE');
@@ -1403,7 +1430,7 @@ function renderWarningFlags(data) {
   const droppedEl = document.getElementById('droppedFamilies');
   if (droppedEl) {
     if (!data.dropped || data.dropped.length === 0) {
-      droppedEl.innerHTML = '<tr><td colspan="3" class="text-center text-green-600 font-semibold py-4">✅ Inga familjer med tappat engagemang!</td></tr>';
+      droppedEl.innerHTML = '<tr><td colspan="3" class="text-center text-green-600 font-semibold py-4">Inga tystnade familjer just nu.</td></tr>';
     } else {
       droppedEl.innerHTML = data.dropped.slice(0, 30).map(f => {
         const lastDate = f.last_activity_at
@@ -1434,11 +1461,11 @@ function renderRetentionCohort(data) {
   if (summaryEl) {
     const s = data.summary;
     summaryEl.innerHTML = [
-      { label: 'Wk 1', val: s.avg_week_1_retention },
-      { label: 'Wk 2', val: s.avg_week_2_retention },
-      { label: 'Wk 4', val: s.avg_week_4_retention },
-      { label: 'Mån 2', val: s.avg_month_2_retention },
-      { label: 'Mån 3', val: s.avg_month_3_retention },
+      { label: 'Efter 1 vecka', val: s.avg_week_1_retention },
+      { label: 'Efter 2 veckor', val: s.avg_week_2_retention },
+      { label: 'Efter 4 veckor', val: s.avg_week_4_retention },
+      { label: 'Efter 2 månader', val: s.avg_month_2_retention },
+      { label: 'Efter 3 månader', val: s.avg_month_3_retention },
     ].map(item => {
       const pct = item.val;
       const color = pct === null ? 'lavender' : pct >= 60 ? 'mint' : pct >= 30 ? 'gold-light' : 'coral';
@@ -1456,7 +1483,7 @@ function renderRetentionCohort(data) {
   if (!tbody) return;
 
   if (!data.cohorts || data.cohorts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-soft py-8">Inga kohorter ännu</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-text-soft py-8">Inga startveckor ännu</td></tr>';
     return;
   }
 
@@ -1563,10 +1590,10 @@ async function triggerSnapshot() {
     });
     const data = await r.json();
     if (data.success) {
-      showToast('Snapshot sparad för ' + data.date, 'success');
+      showToast('Dagens lägesbild sparad för ' + data.date, 'success');
       await switchTab(activeTab);
     } else {
-      showToast('Kunde inte spara snapshot', 'error');
+      showToast('Kunde inte spara dagens lägesbild', 'error');
     }
   } catch (err) {
     showToast('Fel: ' + err.message, 'error');
@@ -1605,7 +1632,7 @@ async function loadActivationWeeklyReport() {
     if (q1El) q1El.textContent = q1.summary || '—';
     if (q1Det) {
       const week = q1.cohort_week ? String(q1.cohort_week).slice(0, 10) : '—';
-      q1Det.textContent = 'Senaste kohortvecka: ' + week;
+      q1Det.textContent = 'Vecka familjerna registrerade sig: ' + week;
     }
 
     const q2 = q.biggest_dropoff || {};
@@ -1621,7 +1648,7 @@ async function loadActivationWeeklyReport() {
     const q3Det = document.getElementById('activationQ3Detail');
     if (q3El) q3El.textContent = q3.message || '—';
     if (q3Det && q3.delta_pp != null) {
-      q3Det.textContent = 'Vecka-till-vecka på activation_rate_48h.';
+      q3Det.textContent = 'Jämfört med förra veckans andel som kom igång inom 48 timmar.';
     }
 
     renderActivationFunnelFromReport(data.funnel);
@@ -1630,7 +1657,7 @@ async function loadActivationWeeklyReport() {
     const p0Rows = data.p0_weekly || [];
     if (p0Body) {
       if (p0Rows.length === 0) {
-        p0Body.innerHTML = '<tr><td colspan="4" class="text-center text-text-soft py-6">Ingen P0-data ännu</td></tr>';
+        p0Body.innerHTML = '<tr><td colspan="4" class="text-center text-text-soft py-6">Ingen data ännu</td></tr>';
       } else {
         p0Body.innerHTML = p0Rows.map(function (row) {
           const week = row.cohort_week ? String(row.cohort_week).slice(0, 10) : '—';
@@ -1671,7 +1698,7 @@ function renderActivationFunnelFromReport(data) {
     '</tr>';
 
   if (!data || !data.cohorts || data.cohorts.length === 0) {
-    body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen kohortdata ännu</td></tr>';
+    body.innerHTML = '<tr><td colspan="' + (steps.length + 1) + '" class="text-center text-text-soft py-6">Ingen veckodata ännu</td></tr>';
     if (convWrap) convWrap.classList.add('hidden');
     return;
   }
@@ -1718,8 +1745,8 @@ function renderActivationFunnelFromReport(data) {
         esc(m.label) + ':</span> <strong class="tabular-nums">' + n + '</strong></span>';
     }).join('');
     const weeks = diag.window_weeks || 8;
-    diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-1">Barnåtkomst — diagnostik (sub-metrics)</p>' +
-      '<p class="text-[11px] text-text-soft mb-2">Veckokohort senaste ' + weeks + ' veckor. Huvudtratt använder verifierad barnåtkomst (child_access_completed_at), inte parent-klick.</p>' +
+    diagEl.innerHTML = '<p class="text-xs text-text-soft uppercase tracking-wide font-semibold mb-1">Barnåtkomst — mer detaljer</p>' +
+      '<p class="text-[11px] text-text-soft mb-2">Senaste ' + weeks + ' veckorna. Huvudtabellen räknar bara när barnet faktiskt kommit in, inte när föräldern klickade vidare.</p>' +
       items;
     diagEl.classList.remove('hidden');
   }
