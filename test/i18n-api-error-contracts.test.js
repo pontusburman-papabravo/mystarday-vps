@@ -107,6 +107,7 @@ describe('API error contracts i18n', () => {
     assert.equal(twoHome.ok, false);
     assert.equal(twoHome.code, 'CUSTODY_TWO_HOMES_REQUIRED');
     assert.doesNotMatch(twoHome.error, /hem|mönster/i);
+    assert.match(read('src/routes/family/custody.js'), /const analytics = require\('\.\.\/\.\.\/\.\.\/db\/analytics'\)/);
   });
 
   it('validate middleware and PIN/email schemas use stable codes', () => {
