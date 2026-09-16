@@ -15,6 +15,8 @@ const { hashPassword } = require('../src/lib/hash');
 const { sanitizeReturnUrl } = require('../src/lib/sanitize-return-url');
 const { FOR_DIG_GOALS } = require('../src/lib/for-dig-config');
 const { CTA_PATH } = require('../src/lib/for-dig-outcome-email-template');
+const { parentApiMessage } = require('../src/lib/parent-api-messages');
+const { loadLocales } = require('../src/lib/i18n');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
@@ -104,6 +106,39 @@ test('banner source: Hem script, dismiss X, explicit mode, no home chain, parent
     sanitizeReturnUrl('/login?next=%2Fdashboard%3Ffor_dig_feedback%3D1'),
     '/login?next=%2Fdashboard%3Ffor_dig_feedback%3D1'
   );
+
+  const route = read('src/routes/for-dig.js');
+  assert.match(route, /parentApiMessage\(locale, `errors\.forDig\.\$\{key\}`\)/);
+  assert.match(route, /forDigApiError\(res, familyId, 'childAndGoalRequired', 400\)/);
+  assert.match(route, /forDigApiError\(res, familyId, 'childAccessDenied', 403\)/);
+  assert.match(route, /forDigApiError\(res, familyId, 'dismissFailed', 500\)/);
+  assert.doesNotMatch(route, /child_id och goal_slug krävs/);
+  assert.doesNotMatch(route, /Kunde inte stänga frågan/);
+  loadLocales();
+  assert.equal(
+    parentApiMessage('sv-SE', 'errors.forDig.childAndGoalRequired'),
+    'child_id och goal_slug krävs'
+  );
+  assert.equal(
+    parentApiMessage('en-GB', 'errors.forDig.childAndGoalRequired'),
+    'child_id and goal_slug are required'
+  );
+  assert.equal(
+    parentApiMessage('sv-SE', 'errors.forDig.childAccessDenied'),
+    'Du har inte åtkomst till ett av valda barn.'
+  );
+  assert.equal(
+    parentApiMessage('en-GB', 'errors.forDig.childAccessDenied'),
+    'You do not have access to one of the selected children.'
+  );
+  assert.equal(
+    parentApiMessage('sv-SE', 'errors.forDig.dismissFailed'),
+    'Kunde inte stänga frågan'
+  );
+  assert.equal(
+    parentApiMessage('en-GB', 'errors.forDig.dismissFailed'),
+    'Could not close the question'
+  );
 });
 
 test('pending/dismiss/submit/explicit isolation + child cannot leave outcome', async (t) => {
@@ -133,6 +168,26 @@ test('pending/dismiss/submit/explicit isolation + child cannot leave outcome', a
     assert.equal(pending.json.length, 2);
     assert.equal(pending.json.every((row) => row.dismissed === false), true);
     assert.equal(pending.json[0].goal_slug, GOAL_SLUG);
+
+    const missingFields = await authFetch(http.baseUrl, session, '/api/for-dig/feedback/dismiss', {
+      method: 'POST',
+      body: {},
+    });
+    assert.equal(missingFields.res.status, 400, missingFields.text);
+    assert.equal(
+      missingFields.json.error,
+      parentApiMessage('sv-SE', 'errors.forDig.childAndGoalRequired')
+    );
+
+    const foreignChild = await authFetch(http.baseUrl, session, '/api/for-dig/feedback/dismiss', {
+      method: 'POST',
+      body: { child_id: '00000000-0000-4000-8000-000000000099', goal_slug: GOAL_SLUG },
+    });
+    assert.equal(foreignChild.res.status, 403, foreignChild.text);
+    assert.equal(
+      foreignChild.json.error,
+      parentApiMessage('sv-SE', 'errors.forDig.childAccessDenied')
+    );
 
     const dismiss = await authFetch(http.baseUrl, session, '/api/for-dig/feedback/dismiss', {
       method: 'POST',

@@ -26,10 +26,17 @@ const {
   getGoalBySlug,
   getGoalsForLocale,
 } = require('../lib/for-dig-config');
+const { getFamilyPreferredLocale } = require('../lib/family-locale');
+const { parentApiMessage } = require('../lib/parent-api-messages');
 
 const router = express.Router();
 router.use(requireParent);
 router.use(requireFeature('for_dig'));
+
+async function forDigApiError(res, familyId, key, status) {
+  const locale = await getFamilyPreferredLocale(familyId);
+  return res.status(status).json({ error: parentApiMessage(locale, `errors.forDig.${key}`) });
+}
 
 function trackEvent(familyId, eventType, metadata) {
   analytics.track(familyId, eventType, metadata).catch(() => {});
@@ -211,8 +218,9 @@ router.get('/feedback/pending', async (req, res) => {
 
 router.post('/feedback/dismiss', async (req, res) => {
   const { child_id: childId, goal_slug: goalSlug } = req.body || {};
+  const familyId = req.user.familyId;
   if (!childId || !goalSlug) {
-    return res.status(400).json({ error: 'child_id och goal_slug krävs' });
+    return forDigApiError(res, familyId, 'childAndGoalRequired', 400);
   }
   if (!getGoalBySlug(goalSlug)) {
     return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
@@ -220,7 +228,7 @@ router.post('/feedback/dismiss', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, childId);
     if (!child) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till ett av valda barn.' });
+      return forDigApiError(res, familyId, 'childAccessDenied', 403);
     }
     await feedbackDb.dismissPendingOutcome({
       parentId: req.user.id,
@@ -231,7 +239,7 @@ router.post('/feedback/dismiss', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[FOR-DIG] dismiss error:', err);
-    res.status(500).json({ error: 'Kunde inte stänga frågan' });
+    return forDigApiError(res, familyId, 'dismissFailed', 500);
   }
 });
 
