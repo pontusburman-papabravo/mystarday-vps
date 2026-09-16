@@ -5,25 +5,30 @@
  * Audit hardcoded Swedish product copy.
  *
  * Modes:
- *   node scripts/audit-hardcoded-swedish.js           # report all tiers
- *   node scripts/audit-hardcoded-swedish.js --strict  # fail on STRICT tier only
- *   node scripts/audit-hardcoded-swedish.js --baseline # fail if BASELINE count increases
+ *   node scripts/audit-hardcoded-swedish.js [--ratchet]  # high-signal copy ratchet (default)
+ *   node scripts/audit-hardcoded-swedish.js --strict      # fail on STRICT infrastructure tier (åäö)
+ *   node scripts/audit-hardcoded-swedish.js --baseline    # legacy empty BASELINE tier (compat)
+ *   node scripts/audit-hardcoded-swedish.js --write-baseline [--force-raise]
  *
- * Tiers:
- *   STRICT   — i18n infrastructure; new Swedish user-facing copy blocks merge
- *   BASELINE — P0/P1 not yet migrated; tracked count must not grow
- *   REPORT   — admin/SEO/legal; informational only
+ * Ratchet: existing debt is listed in config/i18n-copy-ratchet-baseline.json.
+ * New hits fail. Removed hits pass (monotonic). See docs/i18n-copy-ratchet.md.
+ *
+ * STRICT still covers i18n infrastructure files (åäö) so historical tests keep working.
  */
 
 const fs = require('fs');
 const path = require('path');
+const ratchet = require('./lib/i18n-copy-ratchet');
 
 const ROOT = path.join(__dirname, '..');
 const BASELINE_PATH = path.join(__dirname, 'audit-hardcoded-swedish-baseline.json');
 
 const MODE_STRICT = process.argv.includes('--strict');
-const MODE_BASELINE = process.argv.includes('--baseline');
-const MODE_REPORT = !MODE_STRICT && !MODE_BASELINE;
+const MODE_LEGACY_BASELINE = process.argv.includes('--baseline');
+const MODE_WRITE = process.argv.includes('--write-baseline');
+const MODE_FORCE_RAISE = process.argv.includes('--force-raise');
+const MODE_RATCHET = process.argv.includes('--ratchet')
+  || (!MODE_STRICT && !MODE_LEGACY_BASELINE && !MODE_WRITE);
 
 const SWEDISH_RE = /[åäöÅÄÖ]/;
 
@@ -256,30 +261,51 @@ function printHits(label, hits) {
   }
 }
 
-const strictHits = auditPaths(STRICT_FILES, STRICT_ALLOWLIST);
-const baselineHits = auditPaths(BASELINE_FILES, BASELINE_ALLOWLIST);
-const reportHits = auditPaths(REPORT_FILES, BASELINE_ALLOWLIST);
-
 let exitCode = 0;
 
 if (MODE_STRICT) {
+  const strictHits = auditPaths(STRICT_FILES, STRICT_ALLOWLIST);
   printHits('STRICT', strictHits);
   if (strictHits.length > 0) exitCode = 1;
-} else if (MODE_BASELINE) {
+} else if (MODE_LEGACY_BASELINE) {
+  const baselineHits = auditPaths(BASELINE_FILES, BASELINE_ALLOWLIST);
   printHits('BASELINE', baselineHits);
   const saved = loadBaseline();
   const limit = saved?.baseline_count ?? baselineHits.length;
   console.log(`\n[audit-hardcoded-swedish] baseline limit: ${limit}, current: ${baselineHits.length}`);
   if (baselineHits.length > limit) exitCode = 1;
+} else if (MODE_WRITE) {
+  const hits = ratchet.scanRepo();
+  try {
+    const written = ratchet.writeBaseline(hits, ratchet.BASELINE_PATH, { forceRaise: MODE_FORCE_RAISE });
+    console.log('[i18n-copy-ratchet] wrote baseline', written);
+  } catch (err) {
+    console.error(err.message);
+    exitCode = 1;
+  }
 } else {
-  printHits('STRICT', strictHits);
-  printHits('BASELINE', baselineHits);
-  printHits('REPORT (informational)', reportHits);
-  console.log('\n[audit-hardcoded-swedish] summary:', {
-    strict: strictHits.length,
-    baseline: baselineHits.length,
-    report: reportHits.length,
-  });
+  const hits = ratchet.scanRepo();
+  const baseline = ratchet.loadBaseline();
+  const result = ratchet.compareRatchet(hits, baseline);
+  console.log('[i18n-copy-ratchet] baseline count:', result.baselineCount);
+  console.log('[i18n-copy-ratchet] current count:', result.currentCount);
+  console.log('[i18n-copy-ratchet] removed debt:', result.removedHits.length);
+  console.log('[i18n-copy-ratchet] new debt:', result.newHits.length);
+  if (result.formatError) {
+    console.error('[i18n-copy-ratchet] baseline format error:', result.formatError);
+    exitCode = 1;
+  } else if (!result.ok) {
+    console.error('[i18n-copy-ratchet] NEW hits not in baseline:');
+    for (const h of result.newHits.slice(0, 40)) {
+      console.error(`  ${h.path} [${h.rule}] ${h.snippet}`);
+    }
+    if (result.newHits.length > 40) {
+      console.error(`  ... and ${result.newHits.length - 40} more`);
+    }
+    exitCode = 1;
+  } else {
+    console.log('[i18n-copy-ratchet] PASS');
+  }
 }
 
 process.exit(exitCode);

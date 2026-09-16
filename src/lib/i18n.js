@@ -27,15 +27,35 @@ function deepMergeObjects(target, source) {
   return out;
 }
 
+/** Map fragment filename domain → client namespace (dot-notation prefix). */
+const FRAGMENT_NAMESPACE = Object.freeze({
+  'for-dig': 'forDig',
+  'print-schema': 'printSchema',
+});
+
+/** Canonical fragment domains loaded at runtime. Tests must use this list. */
+const FRAGMENT_DOMAINS = Object.freeze([
+  'onboarding',
+  'home',
+  'today',
+  'journey',
+  'time',
+  'nav',
+  'planning',
+  'library',
+  'family',
+  'schedule',
+  'settings',
+  'child',
+  'for-dig',
+  'print-schema',
+  'reports',
+  'help',
+]);
+
 function mergeLocaleFragments() {
-  /** Map fragment filename domain → client namespace (dot-notation prefix). */
-  const FRAGMENT_NAMESPACE = {
-    'for-dig': 'forDig',
-    'print-schema': 'printSchema',
-  };
-  const fragmentDomains = ['onboarding', 'home', 'today', 'journey', 'time', 'nav', 'planning', 'library', 'family', 'schedule', 'settings', 'child', 'for-dig', 'print-schema', 'reports', 'help'];
   for (const locale of SUPPORTED_LOCALES) {
-    for (const domain of fragmentDomains) {
+    for (const domain of FRAGMENT_DOMAINS) {
       const fragmentPath = path.join(i18nFragmentsDir, `${domain}-${locale}.json`);
       if (!fs.existsSync(fragmentPath)) continue;
       try {
@@ -234,4 +254,6 @@ module.exports = {
   getAvailableLanguages,
   resolveBundleKey,
   compareLocaleStructures,
+  FRAGMENT_DOMAINS,
+  FRAGMENT_NAMESPACE,
 };
