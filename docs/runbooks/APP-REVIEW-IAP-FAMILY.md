@@ -103,7 +103,7 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 `MARKETING_VERSION` **1.4.4 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.4). The next native train is **1.4.5**. Do **not** tag `ios-v1.4.5` or Submit unless a native binary is actually required. Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected builds **1182** or **1188**.
 
-Android `versionName` may stay **1.4.3** until the next Play upload (intentional iOS-only train bump).
+Android `versionName` is **1.4.5** / `versionCode` **14** (Play AAB after the launcher-name placeholder leak).
 
 ## Review notes
 
