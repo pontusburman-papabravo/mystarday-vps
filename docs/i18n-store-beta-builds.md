@@ -16,8 +16,8 @@ Controlled **English Beta in Sweden** — store metadata, native beta builds, an
 
 | Platform | Marketing | Build / versionCode | Previous | Bump reason |
 |----------|-----------|---------------------|----------|-------------|
-| iOS | 1.3 | **29** | 28 | Native l10n (sv + en-GB) from #719; must exceed last uploaded build |
-| Android | 1.3.0 | **9** | 8 | Same native l10n; must exceed last uploaded versionCode |
+| iOS | 1.4.5 | **30** | 29 | Closed trains 1.4.3/1.4.4; English screenshots + native train |
+| Android | 1.4.5 | **14** | 13 | Real launcher names (sv + en-GB); must exceed last uploaded versionCode |
 
 Files: `ios/App/App.xcodeproj/project.pbxproj`, `assets/play-store/android-version.json`.
 
@@ -32,7 +32,7 @@ Files: `ios/App/App.xcodeproj/project.pbxproj`, `assets/play-store/android-versi
 | Platform | Status | Notes |
 |----------|--------|-------|
 | iOS TestFlight | **READY TO BUILD** on Mac | main `9305f43e` — build 29 includes ATT fix + native l10n |
-| Android Internal Testing | **READY TO BUILD** on Mac | versionCode 9 |
+| Android Internal Testing | **READY TO BUILD** on Mac | versionCode 14 / 1.4.5 |
 
 **Mac runbook:** `docs/i18n-beta-mac-session-runbook.md`
 
@@ -55,7 +55,7 @@ npm ci --legacy-peer-deps --include=dev
 npm run cap:sync:android   # patches version + l10n into generated android/
 npm run android:aab
 # Upload assets/play-store/out/*.aab to Play Internal Testing
-# Expected: versionName 1.3.0, versionCode 9
+# Expected: versionName 1.4.5, versionCode 14
 ```
 
 **Important:** VPS web deploy does **not** update native InfoPlist.strings or Android `res/` on installed apps. Beta testers need the new store build.
