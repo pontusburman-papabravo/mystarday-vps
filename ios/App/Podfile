@@ -91,4 +91,14 @@ post_install do |installer|
   end
 
   assertDeploymentTarget(installer)
+
+  # Xcode 26+ rejects IPHONEOS_DEPLOYMENT_TARGET < 15.0. Capacitor still floors pods at 14.0.
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      deployment_target = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f
+      if deployment_target < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
+  end
 end

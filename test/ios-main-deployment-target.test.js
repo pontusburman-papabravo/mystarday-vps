@@ -48,6 +48,16 @@ describe('patch-ios-main-deployment-target', () => {
     assert.match(podfile, /^platform :ios, '15\.0'/m);
   });
 
+  it('Podfile raises Pods deployment target to iOS 15.0 after assertDeploymentTarget', () => {
+    const podfile = fs.readFileSync(PODFILE, 'utf8');
+    assert.match(podfile, /deployment_target < 15\.0/);
+    assert.doesNotMatch(
+      podfile,
+      /assertDeploymentTarget\(installer\)\nend\n/,
+      'pods 15.0 bump must follow assertDeploymentTarget'
+    );
+  });
+
   it('patch script is idempotent at iOS 15.0', () => {
     const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
