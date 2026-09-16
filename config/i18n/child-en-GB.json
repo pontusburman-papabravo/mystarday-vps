@@ -651,6 +651,19 @@
     "allDoneForNow": "You're done for now — well done!",
     "defaultMessage": "You finished the mission — keep it up!"
   },
+  "sevenQuestions": {
+    "readAloud": "Read aloud",
+    "exitActivity": "Exit activity",
+    "labels": {
+      "what": "What?",
+      "where": "Where?",
+      "who": "Who?",
+      "how_long": "How long?",
+      "what_next": "What happens next?",
+      "what_need": "What do I need?",
+      "why": "Why?"
+    }
+  },
   "todayWarmth": {
     "narrativeMorgon": "Today we help your body wake up 🌞",
     "narrativeFormiddag": "We take the day at a steady pace ☀️",

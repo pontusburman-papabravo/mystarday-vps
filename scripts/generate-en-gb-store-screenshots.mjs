@@ -6,14 +6,20 @@
  * 2. Capture real en-GB UI from BASE_URL (Puppeteer + native shell mock)
  * 3. Composite captures into Swedish marketing frames (gold border + headlines)
  *
- * Usage:
- *   PROD_EMAIL=... PROD_PASSWORD=... PROD_USER_CHILD=... PROD_USER_CHILD_PASSWORD=... \
+ * Usage (english.demo@… dedicated screenshot family — never mutates locale):
+ *   BASE_URL=... SCREENSHOT_PARENT_EMAIL=... SCREENSHOT_PARENT_PASSWORD=... \
+ *   SCREENSHOT_CHILD_USER=emma-demo SCREENSHOT_CHILD_PIN=... \
  *     node scripts/generate-en-gb-store-screenshots.mjs
  *
  * Env:
- *   BASE_URL          required app origin (no default)
- *   SKIP_CAPTURE=1    reuse artifacts/store-screenshots/captures/*.png
- *   SKIP_DOWNLOAD=1   skip re-downloading Apple sources
+ *   BASE_URL                       required app origin (no default)
+ *   SCREENSHOT_PARENT_EMAIL        default english.demo@… (see seed-english-demo-family.mjs)
+ *   SCREENSHOT_PARENT_PASSWORD     required
+ *   SCREENSHOT_CHILD_USER          default emma-demo
+ *   SCREENSHOT_CHILD_PIN           required
+ *   ALLOW_PROD_SCREENSHOT_ACCOUNT  set to 1 only to opt in to non-demo accounts (fail closed)
+ *   SKIP_CAPTURE=1                 reuse artifacts/store-screenshots/captures/*.png
+ *   SKIP_DOWNLOAD=1                skip re-downloading Apple sources
  */
 import fs from 'fs';
 import path from 'path';
@@ -37,13 +43,35 @@ if (!BASE_URL) {
   console.error('BASE_URL is required (e.g. https://your-app.example)');
   process.exit(1);
 }
-const PARENT_EMAIL = process.env.PROD_EMAIL || process.env.PARENT_EMAIL;
-const PARENT_PASSWORD = process.env.PROD_PASSWORD || process.env.PARENT_PASSWORD;
-const CHILD_USER = process.env.PROD_USER_CHILD || process.env.CHILD_USER;
-const CHILD_PIN = process.env.PROD_USER_CHILD_PASSWORD || process.env.CHILD_PIN;
+const DEMO_EMAIL_PATTERN = /^english\.demo@/i;
+
+const PARENT_EMAIL =
+  process.env.SCREENSHOT_PARENT_EMAIL ||
+  process.env.DEMO_PARENT_EMAIL ||
+  process.env.PROD_EMAIL ||
+  process.env.PARENT_EMAIL;
+const PARENT_PASSWORD =
+  process.env.SCREENSHOT_PARENT_PASSWORD ||
+  process.env.DEMO_FAMILY_PASSWORD ||
+  process.env.PROD_PASSWORD ||
+  process.env.PARENT_PASSWORD;
+const CHILD_USER =
+  process.env.SCREENSHOT_CHILD_USER ||
+  process.env.DEMO_CHILD_USERNAME ||
+  process.env.PROD_USER_CHILD ||
+  process.env.CHILD_USER ||
+  'emma-demo';
+const CHILD_PIN =
+  process.env.SCREENSHOT_CHILD_PIN ||
+  process.env.DEMO_CHILD_PIN ||
+  process.env.PROD_USER_CHILD_PASSWORD ||
+  process.env.CHILD_PIN;
 
 const W = 1242;
 const H = 2688;
+const PLAY_W = 1080;
+const PLAY_H = 1920;
+const PLAY_SCALE = PLAY_H / H;
 const BG = { r: 8, g: 9, b: 30 };
 const GOLD = '#F5A623';
 const MARKETING_H = 136;
@@ -92,12 +120,12 @@ const SHOTS = [
     source: '02-apple-se.jpg',
     path: '/child/today',
     child: true,
-    wait: '#scheduleView, .child-today-shell',
+    wait: '#scheduleView, .child-today-shell, .teacch-now-card',
     ready: 'child-i18n-ready',
     marketing: {
       svTitle: 'Barnet gör själv',
       svSub: 'Tydliga bilder och ett steg i taget.',
-      title: 'Children act independently',
+      title: 'They can do it themselves',
       sub: 'Clear pictures, one step at a time.',
     },
   },
@@ -243,10 +271,68 @@ async function apiFetch(path, { method = 'GET', body, cookies = {}, csrf } = {})
   return { status: res.status, json, headers: res.headers, cookies: mergeCookies(cookies, res.headers) };
 }
 
+function assertScreenshotAccountSafe(email) {
+  const normalized = String(email || '').toLowerCase();
+  if (DEMO_EMAIL_PATTERN.test(normalized)) return;
+  if (process.env.ALLOW_PROD_SCREENSHOT_ACCOUNT === '1') {
+    console.warn('⚠ ALLOW_PROD_SCREENSHOT_ACCOUNT=1 — non-demo account; locale must not be mutated server-side');
+    return;
+  }
+  throw new Error(
+    'Screenshot generator requires english.demo@… account (seed-english-demo-family.mjs) ' +
+      'or explicit ALLOW_PROD_SCREENSHOT_ACCOUNT=1'
+  );
+}
+
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Word-boundary Swedish UI leaks — avoid naive substring false positives. */
+const SWEDISH_UI_TERMS = [
+  'Hem',
+  'Idag',
+  'Planering',
+  'Belöningar',
+  'Familj',
+  'Inställningar',
+  'Skattkammaren',
+  'Min samling',
+  'Läs upp',
+  'Avsluta aktivitet',
+  'Morgon',
+  'Eftermiddag',
+  'Kväll',
+  'Tipsa en vän',
+  'Biobesök',
+  'Restaurangbesök',
+];
+
+function findSwedishUiLeaks(text) {
+  const leaks = [];
+  const sample = String(text || '');
+  for (const term of SWEDISH_UI_TERMS) {
+    const re = new RegExp(`\\b${escapeRegExp(term)}\\b`, 'iu');
+    if (re.test(sample)) leaks.push(term);
+  }
+  if (/\bVAD\?\b/u.test(sample)) leaks.push('VAD?');
+  if (/\bNU\b/u.test(sample)) leaks.push('NU');
+  if (/[åäöÅÄÖ]/.test(sample)) leaks.push('contains å/ä/ö');
+  return leaks;
+}
+
+function assertNoSwedishVisibleText(context, text) {
+  const leaks = findSwedishUiLeaks(text);
+  if (leaks.length) {
+    throw new Error(`${context}: Swedish UI visible — ${leaks.join(', ')}`);
+  }
+}
+
 async function loginParent() {
   if (!PARENT_EMAIL || !PARENT_PASSWORD) {
-    throw new Error('PROD_EMAIL and PROD_PASSWORD required');
+    throw new Error('SCREENSHOT_PARENT_EMAIL and SCREENSHOT_PARENT_PASSWORD required');
   }
+  assertScreenshotAccountSafe(PARENT_EMAIL);
   const login = await apiFetch('/api/auth/login', {
     method: 'POST',
     body: { email: PARENT_EMAIL, password: PARENT_PASSWORD },
@@ -265,31 +351,9 @@ async function loginParent() {
   return { cookies, csrf, user, expiresAt: login.json.expiresAt };
 }
 
-async function getLocale(cookies) {
-  const res = await apiFetch('/api/family/locale-options', { cookies });
-  return res.json?.preferred_locale || 'sv-SE';
-}
-
-async function setFamilyLocale(session, locale) {
-  const csrfRes = await apiFetch('/api/auth/csrf-token', { cookies: session.cookies });
-  session.cookies = csrfRes.cookies;
-  session.csrf = csrfRes.json.csrfToken || session.csrf;
-  const res = await apiFetch('/api/family/settings', {
-    method: 'PUT',
-    cookies: session.cookies,
-    csrf: session.csrf,
-    body: { preferred_locale: locale },
-  });
-  session.cookies = res.cookies;
-  if (res.status !== 200) {
-    throw new Error(`Failed to set locale ${locale}: ${res.status} ${JSON.stringify(res.json)}`);
-  }
-  return res.json;
-}
-
 async function loginChild(parentCookies, parentCsrf) {
   if (!CHILD_USER || !CHILD_PIN) {
-    throw new Error('PROD_USER_CHILD and PROD_USER_CHILD_PASSWORD required for child shots');
+    throw new Error('SCREENSHOT_CHILD_USER and SCREENSHOT_CHILD_PIN required for child shots');
   }
   const res = await apiFetch('/api/auth/child-login', {
     method: 'POST',
@@ -541,18 +605,20 @@ async function loginChildInPage(page, session) {
 }
 
 function validateCaptureText(shot, text) {
+  assertNoSwedishVisibleText(`capture ${shot.id}`, text);
   const parentMarkers = ['Home', 'Planning', 'Rewards', 'For you', 'Family'];
-  const childMarkers = ["Astrid's day", 'My collection', 'Treasure Chest', 'My space'];
+  const childOnlyMarkers = ['My space', 'Treasure Chest', 'My collection'];
+  const childNavHint = /('s day|My space|Treasure Chest|My collection)/;
   if (shot.parent) {
     if (!parentMarkers.some((m) => text.includes(m))) {
       throw new Error(`Capture ${shot.id} missing parent nav markers. Sample: ${text.slice(0, 240)}`);
     }
-    if (childMarkers.some((m) => text.includes(m))) {
+    if (childOnlyMarkers.some((m) => text.includes(m))) {
       throw new Error(`Capture ${shot.id} looks like child UI inside parent shot`);
     }
   }
   if (shot.child) {
-    if (!childMarkers.some((m) => text.includes(m))) {
+    if (!childNavHint.test(text)) {
       throw new Error(`Capture ${shot.id} missing child nav markers`);
     }
     if (text.includes('Push notifications') && shot.path.includes('/child/settings')) {
@@ -679,11 +745,8 @@ async function captureShot(page, shot, outPath, relogin) {
   const meta = await sharp(outPath).metadata();
   const textSample = await page.evaluate(() => document.body?.innerText || '');
   validateCaptureText(shot, textSample);
-  const swedishLeak =
-    /\b(Hem|Planering|Belöningar|För dig|Familj|Skattkammaren|Idag|Inställningar|Veckoschema|Påminnelser|Läs upp|Avsluta aktivitet|VAD\?|NU)\b/.test(
-      textSample
-    );
-  return { meta, swedishLeak, textSample: textSample.slice(0, 200) };
+  const swedishLeaks = findSwedishUiLeaks(textSample);
+  return { meta, swedishLeaks, textSample: textSample.slice(0, 200) };
 }
 
 async function captureAll(parentSession, childSession) {
@@ -716,7 +779,9 @@ async function captureAll(parentSession, childSession) {
         }
         console.log(`📸 capture ${shot.id} ${shot.path}`);
         const info = await captureShot(parentPage, shot, outPath, async (page) => loginParentInPage(page, parentSession));
-        console.log(`   ${info.meta.width}×${info.meta.height}${info.swedishLeak ? ' ⚠ Swedish UI leak' : ''}`);
+        console.log(
+          `   ${info.meta.width}×${info.meta.height}${info.swedishLeaks?.length ? ` ⚠ ${info.swedishLeaks.join(', ')}` : ''}`
+        );
         results.push({ id: shot.id, path: outPath, ...info });
       }
       await parentCtx.close();
@@ -740,7 +805,9 @@ async function captureAll(parentSession, childSession) {
         }
         console.log(`📸 capture ${shot.id} ${shot.path}`);
         const info = await captureShot(childPage, shot, outPath, async (page) => loginChildInPage(page, childSession));
-        console.log(`   ${info.meta.width}×${info.meta.height}${info.swedishLeak ? ' ⚠ Swedish UI leak' : ''}`);
+        console.log(
+          `   ${info.meta.width}×${info.meta.height}${info.swedishLeaks?.length ? ` ⚠ ${info.swedishLeaks.join(', ')}` : ''}`
+        );
         results.push({ id: shot.id, path: outPath, ...info });
       }
       await childCtx.close();
@@ -755,37 +822,44 @@ function escapeXml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function marketingSvg(shot) {
-  const titleSize = shot.marketing.title.length > 28 ? 62 : 72;
-  return Buffer.from(`<svg width="${W}" height="${MARKETING_H}" xmlns="http://www.w3.org/2000/svg">
+function marketingSvg(shot, width, marketingHeight) {
+  const titleSize = shot.marketing.title.length > 28 ? Math.round(62 * (width / W)) : Math.round(72 * (width / W));
+  const subSize = Math.round(34 * (width / W));
+  const padX = Math.round(95 * (width / W));
+  const titleY = Math.round(62 * (marketingHeight / MARKETING_H));
+  const subY = Math.round(112 * (marketingHeight / MARKETING_H));
+  return Buffer.from(`<svg width="${width}" height="${marketingHeight}" xmlns="http://www.w3.org/2000/svg">
   <rect width="100%" height="100%" fill="rgb(${BG.r},${BG.g},${BG.b})"/>
-  <text x="95" y="62" font-family="Outfit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${titleSize}" font-weight="800" fill="${GOLD}">${escapeXml(shot.marketing.title)}</text>
-  <text x="95" y="112" font-family="Outfit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="400" fill="#FFFFFF">${escapeXml(shot.marketing.sub)}</text>
+  <text x="${padX}" y="${titleY}" font-family="Outfit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${titleSize}" font-weight="800" fill="${GOLD}">${escapeXml(shot.marketing.title)}</text>
+  <text x="${padX}" y="${subY}" font-family="Outfit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="${subSize}" font-weight="400" fill="#FFFFFF">${escapeXml(shot.marketing.sub)}</text>
 </svg>`);
 }
 
-async function compositeShot(shot) {
+function playLayout() {
+  const scaledW = Math.round(W * PLAY_SCALE);
+  const offsetX = Math.round((PLAY_W - scaledW) / 2);
+  return {
+    scaledW,
+    offsetX,
+    marketingH: Math.round(MARKETING_H * PLAY_SCALE),
+    inner: {
+      left: offsetX + Math.round(INNER.left * PLAY_SCALE),
+      top: Math.round(INNER.top * PLAY_SCALE),
+      width: Math.round(INNER.width * PLAY_SCALE),
+      height: Math.round(INNER.height * PLAY_SCALE),
+    },
+  };
+}
+
+async function compositeAppleShot(shot, captureBuf) {
   const srcPath = path.join(SRC_APPLE, shot.source);
-  const capturePath = path.join(CAPTURES, `${shot.id}-capture.png`);
   const outApple = path.join(OUT_APPLE, `${shot.id}-en-GB.png`);
-  const outPlay = path.join(OUT_PLAY, `${shot.id}-en-GB.png`);
-
-  if (!fs.existsSync(capturePath)) {
-    throw new Error(`Missing capture for ${shot.id}: ${capturePath}`);
-  }
-
-  const captureBuf = await sharp(capturePath).png().toBuffer();
-  const marketingBuf = await sharp(marketingSvg(shot)).png().toBuffer();
-
-  // Paint marketing zone on source, then replace inner UI with English capture, then marketing text
-  const clearedMarketing = await sharp(srcPath)
-    .extract({ left: 0, top: 0, width: W, height: MARKETING_H })
-    .toBuffer()
-    .then(() =>
-      sharp({
-        create: { width: W, height: MARKETING_H, channels: 3, background: BG },
-      }).png().toBuffer()
-    );
+  const marketingBuf = await sharp(marketingSvg(shot, W, MARKETING_H)).png().toBuffer();
+  const clearedMarketing = await sharp({
+    create: { width: W, height: MARKETING_H, channels: 3, background: BG },
+  })
+    .png()
+    .toBuffer();
 
   await sharp(srcPath)
     .composite([
@@ -796,13 +870,105 @@ async function compositeShot(shot) {
     .png({ compressionLevel: 9 })
     .toFile(outApple);
 
-  await sharp(outApple)
-    .resize(1080, 1920, { fit: 'cover', position: 'centre' })
+  const meta = await sharp(outApple).metadata();
+  return { outApple, meta };
+}
+
+async function compositePlayShot(shot, captureBuf) {
+  const srcPath = path.join(SRC_APPLE, shot.source);
+  const outPlay = path.join(OUT_PLAY, `${shot.id}-en-GB.png`);
+  const layout = playLayout();
+  const { scaledW, offsetX, marketingH, inner } = layout;
+
+  const frameBuf = await sharp(srcPath).resize(scaledW, PLAY_H).png().toBuffer();
+  const captureFit = await sharp(captureBuf)
+    .resize(inner.width, inner.height, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  const captureMeta = await sharp(captureFit).metadata();
+  const captureLeft = inner.left + Math.round((inner.width - captureMeta.width) / 2);
+  const captureTop = inner.top + Math.round((inner.height - captureMeta.height) / 2);
+
+  const marketingBuf = await sharp(marketingSvg(shot, scaledW, marketingH)).png().toBuffer();
+  const clearedMarketing = await sharp({
+    create: { width: scaledW, height: marketingH, channels: 3, background: BG },
+  })
+    .png()
+    .toBuffer();
+
+  await sharp({
+    create: { width: PLAY_W, height: PLAY_H, channels: 3, background: BG },
+  })
+    .composite([
+      { input: frameBuf, left: offsetX, top: 0 },
+      { input: clearedMarketing, left: offsetX, top: 0 },
+      { input: captureFit, left: captureLeft, top: captureTop },
+      { input: marketingBuf, left: offsetX, top: 0 },
+    ])
     .png({ compressionLevel: 9 })
     .toFile(outPlay);
 
-  const meta = await sharp(outApple).metadata();
-  return { outApple, outPlay, meta };
+  const meta = await sharp(outPlay).metadata();
+  return { outPlay, meta, layout, captureMeta };
+}
+
+async function validatePlayComposition(shot, playResult) {
+  const { layout, captureMeta } = playResult;
+  const { inner, marketingH } = layout;
+  const issues = [];
+
+  if (marketingH < 80) issues.push('marketing zone too short');
+  if (inner.top < marketingH) issues.push('device overlaps marketing');
+  if (inner.top + inner.height > PLAY_H - 24) issues.push('device clipped at bottom');
+  if (captureMeta.height < inner.height * 0.85) issues.push('capture height under-scaled');
+  if (captureMeta.width < inner.width * 0.5) issues.push('capture width under-scaled');
+
+  const stats = await sharp(playResult.outPlay)
+    .extract({ left: 0, top: 10, width: PLAY_W, height: Math.max(40, marketingH - 4) })
+    .stats();
+  const channelMax = Math.max(
+    stats.channels[0]?.max || 0,
+    stats.channels[1]?.max || 0,
+    stats.channels[2]?.max || 0
+  );
+  if (channelMax < 40) issues.push('headline region appears empty');
+
+  const bottomStats = await sharp(playResult.outPlay)
+    .extract({
+      left: inner.left,
+      top: Math.min(PLAY_H - 80, inner.top + inner.height - 120),
+      width: inner.width,
+      height: 80,
+    })
+    .stats();
+  const bottomMax = Math.max(
+    bottomStats.channels[0]?.max || 0,
+    bottomStats.channels[1]?.max || 0,
+    bottomStats.channels[2]?.max || 0
+  );
+  if (bottomMax < 25 && shot.child) issues.push('bottom nav region appears clipped');
+
+  return {
+    id: shot.id,
+    pass: issues.length === 0,
+    issues,
+    dimensions: `${PLAY_W}x${PLAY_H}`,
+  };
+}
+
+async function compositeShot(shot) {
+  const capturePath = path.join(CAPTURES, `${shot.id}-capture.png`);
+  if (!fs.existsSync(capturePath)) {
+    throw new Error(`Missing capture for ${shot.id}: ${capturePath}`);
+  }
+  const captureBuf = await sharp(capturePath).png().toBuffer();
+  const apple = await compositeAppleShot(shot, captureBuf);
+  const play = await compositePlayShot(shot, captureBuf);
+  const playQa = await validatePlayComposition(shot, play);
+  if (!playQa.pass) {
+    throw new Error(`Play composition ${shot.id} failed: ${playQa.issues.join('; ')}`);
+  }
+  return { ...apple, ...play, playQa };
 }
 
 async function buildContactSheet(files, outPath, cols = 2) {
@@ -892,29 +1058,15 @@ async function main() {
   }
 
   const session = await loginParent();
-  const originalLocale = await getLocale(session.cookies);
-  console.log(`Account ${PARENT_EMAIL} locale=${originalLocale} → en-GB for capture`);
-
-  if (originalLocale !== 'en-GB') {
-    await setFamilyLocale(session, 'en-GB');
-  }
-
   const childSession = await loginChild(session.cookies, session.csrf);
-  // Refresh parent user after locale switch (must carry preferred_locale=en-GB into captures)
   const parentMe = await apiFetch('/api/auth/me', { cookies: session.cookies });
   session.cookies = parentMe.cookies;
   session.user = { ...parentMe.json, preferred_locale: 'en-GB' };
-  console.log('Capture locale:', session.user.preferred_locale || parentMe.json?.preferred_locale);
+  console.log(
+    `Account ${PARENT_EMAIL} — client locale en-GB via session/localStorage (no server locale mutation)`
+  );
 
-  let captureResults = [];
-  try {
-    captureResults = await captureAll(session, childSession);
-  } finally {
-    if (originalLocale !== 'en-GB') {
-      await setFamilyLocale(session, originalLocale);
-      console.log(`↩ restored family locale to ${originalLocale}`);
-    }
-  }
+  const captureResults = await captureAll(session, childSession);
 
   const outputs = [];
   for (const shot of SHOTS) {
@@ -929,9 +1081,12 @@ async function main() {
   }
 
   const outFiles = outputs.map((o) => o.built.outApple);
+  const playFiles = outputs.map((o) => o.built.outPlay);
   const contact = path.join(OUT_META, 'contact-sheet.png');
+  const playContact = path.join(OUT_META, 'play-contact-sheet.png');
   const sideBySide = path.join(OUT_META, 'source-vs-en-GB.png');
   await buildContactSheet(outFiles, contact, 2);
+  await buildContactSheet(playFiles, playContact, 2);
   await buildSideBySide(sideBySide);
 
   const manifest = {
@@ -954,22 +1109,29 @@ async function main() {
       }))
     ),
     qa: outputs.map((o) => o.qa),
+    play_qa: outputs.map((o) => o.built.playQa),
+    play_contact_sheet: playContact,
     missing_i18n: [
       'store marketing headlines (8) — not in i18n JSON; English aligned to Swedish store originals',
-      'child-seven-questions.js — hardcoded "Läs upp", "Avsluta aktivitet", "VAD?" (TEACCH now-card)',
-      'user-created activity/reward names remain Swedish (family data, not i18n)',
     ],
+    demo_data: DEMO_EMAIL_PATTERN.test(String(PARENT_EMAIL).toLowerCase()) ? 'english.demo family' : 'custom',
+    prod_locale_mutation: false,
     dimension_validation: outputs.every((o) => o.qa.sameDimensions && o.qa.validPng) ? 'PASS' : 'FAIL',
+    play_composition: outputs.every((o) => o.built.playQa?.pass) ? 'PASS' : 'FAIL',
   };
 
   fs.writeFileSync(path.join(OUT_META, 'manifest.json'), JSON.stringify(manifest, null, 2));
   console.log('\nContact sheet:', contact);
+  console.log('Play contact sheet:', playContact);
   console.log('Side-by-side:', sideBySide);
   console.log('Dimension validation:', manifest.dimension_validation);
+  console.log('Play composition:', manifest.play_composition);
 
-  const swedishLeaks = captureResults.filter((c) => c.swedishLeak);
+  const swedishLeaks = captureResults.filter((c) => c.swedishLeaks?.length);
   if (swedishLeaks.length) {
-    console.warn('⚠ Possible Swedish UI in captures:', swedishLeaks.map((c) => c.id).join(', '));
+    throw new Error(
+      `Swedish UI in captures: ${swedishLeaks.map((c) => `${c.id} (${c.swedishLeaks.join(', ')})`).join('; ')}`
+    );
   }
 }
 

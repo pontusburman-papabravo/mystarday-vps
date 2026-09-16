@@ -651,6 +651,19 @@
     "allDoneForNow": "Du är klar med allt för nu — bra jobbat!",
     "defaultMessage": "Du klarade uppdraget — fortsätt så här!"
   },
+  "sevenQuestions": {
+    "readAloud": "Läs upp",
+    "exitActivity": "Avsluta aktivitet",
+    "labels": {
+      "what": "Vad?",
+      "where": "Var?",
+      "who": "Vem?",
+      "how_long": "Hur länge?",
+      "what_next": "Vad händer sen?",
+      "what_need": "Vad behöver jag?",
+      "why": "Varför?"
+    }
+  },
   "todayWarmth": {
     "narrativeMorgon": "Idag hjälper vi kroppen att vakna 🌞",
     "narrativeFormiddag": "Vi tar dagen i lagom takt ☀️",
