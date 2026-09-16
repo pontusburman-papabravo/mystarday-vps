@@ -9,22 +9,23 @@ Do **not** flip `market_ie_open`, enable billing, or open IE from this document 
 
 ## Current launch gate status (2026-09-16)
 
-Refresh this section after Apple review — see [Delta runbook](#delta-runbook-after-apple-review) below.
+Refresh this section after **both** store reviews clear — see [Delta runbook](#delta-runbook-after-store-review) below.
 
 | Gate | Status | Notes |
 |------|--------|-------|
-| **Apple 1.4.5 review** | **PENDING** | Only hard external blocker. Do not treat as PASS until ASC approves. |
+| **Apple 1.4.5 review (ASC)** | **PENDING** | In App Review. Do not treat as PASS until ASC approves. |
+| **Google Play review** | **PENDING** | Listing/submission updated; awaiting Play approval. Listing ≠ review PASS. |
 | **Founder open approval** | **NOT GIVEN** | `founder_open_approved_ie` stays `false` in evidence until explicit ops decision. |
 | **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). `/en/eea/*` external review remains founder-owned risk — not auto-green because other gates pass. |
-| ASC / store config | PASS (founder-verified) | en-GB screenshots submitted; 1.4.5 in review. |
-| Google Play listing | PASS (founder-verified) | Listing updated. |
+| ASC store config (pre-review) | PASS (founder-verified) | en-GB screenshots submitted; binary in review. |
+| Play store config (pre-review) | PASS (founder-verified) | Listing/metadata updated; binary in review. |
 | RevenueCat | PASS (founder-verified) | Dashboard + webhook path attested. |
-| iOS purchase + restore (IE) | PASS (founder-verified) | Physical device. |
-| Android purchase + restore (IE) | PASS (founder-verified) | Physical device. |
-| **Committed evidence JSON** | **STALE** | `config/ie-fi-release-evidence.json` still shows NOT VERIFIED / BLOCKED — update in delta pass after Apple review, not before. |
+| iOS purchase + restore (IE) | PASS (founder-verified) | Physical device (sandbox/test track — not a substitute for store review). |
+| Android purchase + restore (IE) | PASS (founder-verified) | Physical device (sandbox/test track — not a substitute for store review). |
+| **Committed evidence JSON** | **STALE** | `config/ie-fi-release-evidence.json` still shows NOT VERIFIED / BLOCKED — update in delta pass after both reviews, not before. |
 | **Prod runtime** | **CLOSED** | `market_ie_open=false`, `public_billing_usable=false`, `BILLING_UI_DISABLED=true`. |
 
-**Effective blockers today:** Apple review pending · founder approval pending · evidence file not yet synced to attested PASS values.
+**Effective blockers today:** Apple review pending · **Google Play review pending** · founder approval pending · evidence file not yet synced to attested PASS values.
 
 ```bash
 npm run ie-fi:release-gates   # reads committed JSON — expect NO until delta updates evidence
@@ -121,21 +122,22 @@ Hourly: `/health` + `/api/market/registration-gates`.
 
 ---
 
-## Delta runbook (after Apple review)
+## Delta runbook (after store review)
 
-**Do not re-run a full audit.** Update only:
+**Do not re-run a full audit.** Update only when **both** ASC and Google Play have cleared review (or document a deliberate single-platform launch — not default for IE).
 
-1. **Apple review** → `PASS` or `FAIL` (if FAIL: stop; no Steps A–F)
-2. **`config/ie-fi-release-evidence.json`** — sync attested values:
+1. **Apple 1.4.5 review** → `PASS` or `FAIL`
+2. **Google Play review** → `PASS` or `FAIL` (if either FAIL: stop; no Steps A–F)
+3. **`config/ie-fi-release-evidence.json`** — sync attested values:
    - `apple_iap_ie`, `play_named_skus_ie`, `revenuecat` → verified
    - `ios_purchase_ie`, `ios_restore_ie`, `android_purchase_ie`, `android_restore_ie` → verified
    - `apple_download_price` / `apple_paid_download_unresolved_p0` if ASC confirms free download
    - `EVIDENCE_SOURCE: founder_observation` + date in `notes`
-3. **`npm run ie-fi:release-gates`** — paste output into launch log
-4. **Founder approval** — flip `founder_open_approved_ie` (+ `paid_rollout_approved_ie` if required) only as explicit decision
-5. **Legal** — confirm conscious risk acceptance recorded (Track 1); external counsel remains optional founder call
-6. **Execute A→F** in order with verify/STOP gates above
-7. **Ops check Q3** — any prod IE families from prior sandbox toggles before ads
+4. **`npm run ie-fi:release-gates`** — paste output into launch log
+5. **Founder approval** — flip `founder_open_approved_ie` (+ `paid_rollout_approved_ie` if required) only as explicit decision
+6. **Legal** — confirm conscious risk acceptance recorded (Track 1); external counsel remains optional founder call
+7. **Execute A→F** in order with verify/STOP gates above
+8. **Ops check Q3** — any prod IE families from prior sandbox toggles before ads
 
 Commit evidence + this status table in one small PR. Sweden Oct 1 go-live remains separate ([`PAYMENTS-GO-LIVE-2026-10-01.md`](PAYMENTS-GO-LIVE-2026-10-01.md)).
 
