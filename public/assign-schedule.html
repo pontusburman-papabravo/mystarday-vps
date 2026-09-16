@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Välj schema — Min Stjärndag</title>
+  <title data-i18n="schedule.assign.pageTitle">Välj schema</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/locale-datetime.js?v=1"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -127,7 +130,7 @@
     }
   </style>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="assign-schedule">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="assign-schedule" data-i18n-title="schedule.assign.pageTitle">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav id="sidebar" class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -136,21 +139,21 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Min panel</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familj</a></li>
-        <li><a href="/daily-log" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-        <li><a href="/library" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
-        <li><a href="/schedule" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/for-dig" data-feature="for_dig" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
-        <li><a href="/assign-schedule" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Välj schema</a></li>
-        <li><a href="/settings" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Inställningar</a></li>
+        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="schedule.assign.myPanel">Min panel</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 <span data-i18n="nav.treasureChest">Skattkammaren</span></a></li>
+        <li><a href="/family" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.primary.family">Familj</a></li>
+        <li><a href="/daily-log" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/library" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.library">Bibliotek</a></li>
+        <li><a href="/schedule" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/for-dig" data-feature="for_dig" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ <span data-i18n="nav.primary.forYou">För dig</span></a></li>
+        <li><a href="/assign-schedule" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="schedule.assign.navAssign">Välj schema</a></li>
+        <li><a href="/settings" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.settings">Inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -162,10 +165,10 @@
       <!-- Header -->
       <div class="parent-magic-hide-header mb-6">
         <div class="flex items-center gap-3 mb-1">
-          <a href="/schedule" class="text-text-soft hover:text-navy text-sm font-semibold transition-colors">← Veckoschema</a>
+          <a href="/schedule" class="text-text-soft hover:text-navy text-sm font-semibold transition-colors" data-i18n="schedule.assign.backWeekSchedule">← Veckoschema</a>
         </div>
-        <h2 class="text-2xl font-heading font-bold text-navy">Välj schema per dag</h2>
-        <p class="text-sm text-text-soft mt-1">Bläddra till en vecka, välj en dag och välj vilket schema som ska gälla.</p>
+        <h2 class="text-2xl font-heading font-bold text-navy" data-i18n="schedule.assign.heading">Välj schema per dag</h2>
+        <p class="text-sm text-text-soft mt-1" data-i18n="schedule.assign.lead">Bläddra till en vecka, välj en dag och välj vilket schema som ska gälla.</p>
       </div>
 
       <!-- Toast -->
@@ -173,9 +176,9 @@
 
       <!-- Child selector -->
       <div class="mb-6">
-        <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-2">Barn</p>
+        <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-2" data-i18n="schedule.familyGrid.childColumn">Barn</p>
         <div id="childTabs" class="flex gap-2 flex-wrap">
-          <div class="text-text-soft text-sm">Laddar barn…</div>
+          <div class="text-text-soft text-sm" data-i18n="schedule.assign.loadingChildren">Laddar barn…</div>
         </div>
       </div>
 
@@ -185,7 +188,7 @@
           <button id="prevWeekBtn" class="nav-btn" onclick="navWeek(-1)">‹</button>
           <span id="weekLabel" class="week-label flex-1 text-center"></span>
           <button id="nextWeekBtn" class="nav-btn" onclick="navWeek(1)">›</button>
-          <button class="today-btn" onclick="goToday()">Idag</button>
+          <button class="today-btn" onclick="goToday()" data-i18n="time.today">Idag</button>
         </div>
         <!-- Day buttons (Mon-Sun) -->
         <div id="dayBtns" class="flex gap-1.5 overflow-x-auto pb-1">
@@ -209,12 +212,12 @@
 
         <!-- Loading state -->
         <div id="dayLoading" class="text-center py-10 text-text-soft hidden">
-          <div class="text-3xl mb-2">⏳</div><p class="text-sm">Laddar…</p>
+          <div class="text-3xl mb-2">⏳</div><p class="text-sm" data-i18n="schedule.loading">Laddar…</p>
         </div>
 
         <!-- Schema picker -->
         <div id="schemaPicker" class="hidden">
-          <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-3">Välj schema från biblioteket</p>
+          <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-3" data-i18n="schedule.assign.pickerLead">Välj schema från biblioteket</p>
 
           <!-- Library schemas (from activity categories) -->
           <div id="schemaList" class="space-y-2 mb-4">
@@ -224,18 +227,18 @@
           <!-- Empty library fallback -->
           <div id="emptyLibrary" class="hidden text-center py-8 bg-sky rounded-2xl border-2 border-dashed border-lavender mb-4">
             <p class="text-3xl mb-2">📚</p>
-            <p class="text-sm font-semibold text-navy mb-1">Inget bibliotek ännu</p>
-            <p class="text-xs text-text-soft mb-3">Skapa aktiviteter i biblioteket för att kunna välja schema här.</p>
-            <a href="/library" class="px-4 py-2 bg-gold text-white rounded-lg text-sm font-semibold inline-block">Gå till biblioteket →</a>
+            <p class="text-sm font-semibold text-navy mb-1" data-i18n="schedule.assign.emptyLibraryTitle">Inget bibliotek ännu</p>
+            <p class="text-xs text-text-soft mb-3" data-i18n="schedule.assign.emptyLibraryHint">Skapa aktiviteter i biblioteket för att kunna välja schema här.</p>
+            <a href="/library" class="px-4 py-2 bg-gold text-white rounded-lg text-sm font-semibold inline-block" data-i18n="schedule.assign.goToLibrary">Gå till biblioteket →</a>
           </div>
 
           <!-- Custom / blank schema option -->
-          <button onclick="selectSchema('blank', 'Tomt schema', null)" id="blankSchemaBtn"
+          <button onclick="selectSchema('blank', apt('schedule.assign.blankTitle'), null)" id="blankSchemaBtn"
             class="schema-card w-full gap-3 text-left" style="display:flex;">
             <span class="text-2xl">📝</span>
             <div class="flex-1 min-w-0">
-              <div class="font-semibold text-navy">Tomt schema</div>
-              <div class="text-xs text-text-soft">Starta med ett tomt schema — lägg till aktiviteter manuellt</div>
+              <div class="font-semibold text-navy" data-i18n="schedule.assign.blankTitle">Tomt schema</div>
+              <div class="text-xs text-text-soft" data-i18n="schedule.assign.blankHint">Starta med ett tomt schema — lägg till aktiviteter manuellt</div>
             </div>
             <div id="blankSchemaCheck" class="hidden text-gold text-xl font-bold">✓</div>
           </button>
@@ -243,7 +246,7 @@
 
         <!-- Preview of selected schema activities -->
         <div id="schemaPreview" class="hidden mt-4 p-4 bg-mint border-2 border-green-200 rounded-2xl fade-in">
-          <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-2">Förhandsgranskning</p>
+          <p class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-2" data-i18n="schedule.assign.preview">Förhandsgranskning</p>
           <div id="schemaPreviewContent"></div>
         </div>
 
@@ -252,17 +255,17 @@
           <label class="flex items-start gap-3 cursor-pointer">
             <input type="checkbox" id="usePeriodRange" class="w-5 h-5 mt-0.5 accent-gold flex-shrink-0" onchange="togglePeriodRange()">
             <span>
-              <span class="block text-sm font-semibold text-navy">Begränsa till period</span>
-              <span class="block text-xs text-text-soft mt-0.5">T.ex. lov eller läslov — schemat gäller varje dag mellan start och slutdatum.</span>
+              <span class="block text-sm font-semibold text-navy" data-i18n="schedule.assign.periodToggle">Begränsa till period</span>
+              <span class="block text-xs text-text-soft mt-0.5" data-i18n="schedule.assign.periodHint">T.ex. lov eller läslov — schemat gäller varje dag mellan start och slutdatum.</span>
             </span>
           </label>
           <div id="periodDateFields" class="hidden mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label for="periodStartDate" class="block text-xs font-semibold text-navy mb-1">Startdatum</label>
+              <label for="periodStartDate" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.startLabel">Startdatum</label>
               <input type="date" id="periodStartDate" class="period-date-input" onchange="syncPeriodRangeUi()">
             </div>
             <div>
-              <label for="periodEndDate" class="block text-xs font-semibold text-navy mb-1">Slutdatum</label>
+              <label for="periodEndDate" class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.period.endLabel">Slutdatum</label>
               <input type="date" id="periodEndDate" class="period-date-input" onchange="syncPeriodRangeUi()">
             </div>
           </div>
@@ -272,7 +275,7 @@
       <!-- Empty state — child or day not yet selected -->
       <div id="emptyState" class="text-center py-16 text-text-soft">
         <p class="text-5xl mb-3" id="emptyStateIcon">👆</p>
-        <p class="font-semibold text-navy" id="emptyStateMsg">Välj ett barn ovan för att komma igång</p>
+        <p class="font-semibold text-navy" id="emptyStateMsg" data-i18n="schedule.assign.emptyPickChild">Välj ett barn ovan för att komma igång</p>
       </div>
       </div>
     </main>
@@ -282,11 +285,11 @@
   <div id="confirmOverlay" class="confirm-overlay hidden">
     <div class="confirm-box">
       <div class="text-3xl mb-3">⚠️</div>
-      <h3 class="text-lg font-heading font-bold text-navy mb-2">Ersätt befintligt schema?</h3>
-      <p id="confirmMsg" class="text-sm text-text-soft mb-6">Denna dag har redan ett schema. Ersätter du det försvinner alla aktiviteter som finns där.</p>
+      <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.assign.replaceTitle">Ersätt befintligt schema?</h3>
+      <p id="confirmMsg" class="text-sm text-text-soft mb-6" data-i18n="schedule.assign.replaceBody">Denna dag har redan ett schema. Ersätter du det försvinner alla aktiviteter som finns där.</p>
       <div class="flex gap-3">
-        <button onclick="closeConfirm()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button id="confirmReplaceBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Ja, ersätt</button>
+        <button onclick="closeConfirm()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.assign.cancel">Avbryt</button>
+        <button id="confirmReplaceBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.assign.replaceConfirm">Ja, ersätt</button>
       </div>
     </div>
   </div>
@@ -296,9 +299,21 @@ function apt(key, params) {
   return (typeof window.pt === 'function') ? window.pt(key, params) : key;
 }
 
-// ── Constants ──────────────────────────────────────────────
-const DAYS = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
-const DAYS_SHORT = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
+function dayName(index) {
+  return apt('schedule.days.' + index);
+}
+
+function dayShort(index) {
+  return apt('schedule.daysShort.' + index);
+}
+
+function formatDayHeading(dateObj, dow) {
+  if (dateObj && window.LocaleDateTime && typeof LocaleDateTime.formatWithIntl === 'function') {
+    const raw = LocaleDateTime.formatWithIntl(dateObj, { weekday: 'long', day: 'numeric', month: 'long' });
+    return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : dayName(dow);
+  }
+  return dayName(dow);
+}
 
 // ── State ──────────────────────────────────────────────────
 let children = [];
@@ -438,13 +453,13 @@ function updateEmptyState() {
   if (!currentChildId) {
     empty.classList.remove('hidden');
     if (icon) icon.textContent = '👆';
-    msg.textContent = 'Välj ett barn ovan för att komma igång';
+    msg.textContent = apt('schedule.assign.emptyPickChild');
     return;
   }
   if (currentDay === null) {
     empty.classList.remove('hidden');
     if (icon) icon.textContent = '📅';
-    msg.textContent = 'Välj en dag i veckan ovan för att tilldela schema';
+    msg.textContent = apt('schedule.assign.emptyPickDay');
     return;
   }
   empty.classList.add('hidden');
@@ -468,7 +483,7 @@ function computeDayDate(dow) {
 function renderWeekNav() {
   const ws = getWeekStart(weekOffset);
   const wn = getWeekNumber(ws);
-  document.getElementById('weekLabel').textContent = `Vecka ${wn}, ${ws.getFullYear()}`;
+  document.getElementById('weekLabel').textContent = apt('schedule.familyGrid.weekLabel', { week: wn, year: ws.getFullYear() });
 
   const todayDow = new Date().getDay();
   const schedules = (currentChildId && childSchedules[currentChildId]) ? childSchedules[currentChildId] : [];
@@ -497,7 +512,7 @@ function renderWeekNav() {
     if (isToday) cls += ' today-dot';
 
     return `<button class="${cls}" onclick="selectDay(${dow})">
-      <span class="text-xs font-bold">${DAYS_SHORT[dow]}</span>
+      <span class="text-xs font-bold">${dayShort(dow)}</span>
       <span class="day-date text-[11px] font-normal opacity-75 mt-0.5">${dateLabel}</span>
     </button>`;
   }).join('');
@@ -531,21 +546,20 @@ async function loadDayPanel() {
   resetPeriodRangeUi();
 
   // Set day title
-  const dateStr = currentDayDate
-    ? currentDayDate.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' })
-    : DAYS[currentDay];
-  document.getElementById('dayPanelTitle').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+  const dateStr = formatDayHeading(currentDayDate, currentDay);
+  document.getElementById('dayPanelTitle').textContent = dateStr;
 
   // Check if this day already has a schedule
   const schedules = childSchedules[currentChildId] || [];
   existingScheduleOnDay = schedules.find(s => s.day_of_week === currentDay) || null;
 
   if (existingScheduleOnDay) {
-    document.getElementById('dayPanelSubtitle').textContent = `Har schema — ${existingScheduleOnDay.item_count || 0} aktiviteter`;
-    document.getElementById('currentSchemaLabel').textContent = `Befintligt schema (${existingScheduleOnDay.item_count || 0} aktiviteter)`;
+    const count = existingScheduleOnDay.item_count || 0;
+    document.getElementById('dayPanelSubtitle').textContent = apt('schedule.assign.hasSchedule', { count: count });
+    document.getElementById('currentSchemaLabel').textContent = apt('schedule.assign.existingLabel', { count: count });
     document.getElementById('currentSchemaLabel').classList.remove('hidden');
   } else {
-    document.getElementById('dayPanelSubtitle').textContent = 'Inget schema inlagt';
+    document.getElementById('dayPanelSubtitle').textContent = apt('schedule.assign.noScheduleYet');
     document.getElementById('currentSchemaLabel').classList.add('hidden');
   }
 
@@ -595,7 +609,7 @@ function renderSchemaPicker() {
         <span class="text-2xl">📋</span>
         <div class="flex-1 min-w-0">
           <div class="font-semibold text-navy">${escHtml(cat.name)}</div>
-          <div class="text-xs text-text-soft">Schema baserat på "${escHtml(cat.name)}" i biblioteket</div>
+          <div class="text-xs text-text-soft">${escHtml(apt('schedule.assign.basedOnLibrary', { name: cat.name }))}</div>
         </div>
         <div class="check-icon ${isSelected ? 'text-gold text-xl font-bold' : 'hidden'} text-gold text-xl font-bold">✓</div>
       </button>`;
@@ -673,7 +687,7 @@ function renderSchemaPreview(name, activities) {
   const content = document.getElementById('schemaPreviewContent');
 
   if (!activities || activities.length === 0) {
-    content.innerHTML = `<p class="text-sm text-text-soft">Inga aktiviteter hittades i "${escHtml(name)}".</p>`;
+    content.innerHTML = `<p class="text-sm text-text-soft">${escHtml(apt('schedule.assign.noActivitiesIn', { name: name }))}</p>`;
     preview.classList.remove('hidden');
     return;
   }
@@ -686,8 +700,12 @@ function renderSchemaPreview(name, activities) {
     if (sections[sec]) sections[sec].push(act);
   }
 
-  const sectionLabels = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌆 Kväll' };
-  let html = `<p class="text-xs font-semibold text-navy mb-2">${escHtml(name)} — ${activities.length} aktiviteter</p>`;
+  const sectionLabels = {
+    morgon: '🌅 ' + apt('schedule.sections.morgon'),
+    dag: '☀️ ' + apt('schedule.sections.dag'),
+    kvall: '🌆 ' + apt('schedule.sections.kvall'),
+  };
+  let html = `<p class="text-xs font-semibold text-navy mb-2">${escHtml(apt('schedule.assign.previewCount', { name: name, count: activities.length }))}</p>`;
   for (const [sec, acts] of Object.entries(sections)) {
     if (acts.length === 0) continue;
     html += `<div class="mb-2">
@@ -708,17 +726,17 @@ async function saveSelection() {
 
   if (isPeriodRangeEnabled()) {
     if (selectedSchemaId === 'blank') {
-      showToast('Välj ett schema från biblioteket för periodtilldelning', true);
+      showToast(apt('schedule.assign.periodNeedsLibrary'), true);
       return;
     }
     const start = document.getElementById('periodStartDate').value;
     const end = document.getElementById('periodEndDate').value;
     if (!start || !end) {
-      showToast('Ange start- och slutdatum', true);
+      showToast(apt('schedule.period.pickDates'), true);
       return;
     }
     if (end < start) {
-      showToast('Slutdatum måste vara på eller efter startdatum', true);
+      showToast(apt('schedule.period.endBeforeStart'), true);
       return;
     }
 
@@ -734,8 +752,11 @@ async function saveSelection() {
     } catch (_) { /* proceed without pre-check */ }
 
     if (hasExisting) {
-      document.getElementById('confirmMsg').textContent =
-        `Det finns redan anpassade scheman mellan ${start} och ${end}. Vill du ersätta dem med "${selectedSchemaName}"?`;
+      document.getElementById('confirmMsg').textContent = apt('schedule.assign.periodOverwrite', {
+        start: start,
+        end: end,
+        name: selectedSchemaName || '',
+      });
       document.getElementById('confirmOverlay').classList.remove('hidden');
       document.getElementById('confirmReplaceBtn').onclick = function () { closeConfirm(); doSave(); };
       return;
@@ -747,11 +768,11 @@ async function saveSelection() {
 
   // If day already has a schema → show replacement warning
   if (existingScheduleOnDay) {
-    const dayName = currentDayDate
-      ? currentDayDate.toLocaleDateString('sv-SE', { weekday: 'long' })
-      : DAYS[currentDay];
-    document.getElementById('confirmMsg').textContent =
-      `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} har redan ett schema med ${existingScheduleOnDay.item_count || 0} aktiviteter. Ersätter du det försvinner alla aktiviteter som finns där.`;
+    const dayLabel = dayName(currentDay);
+    document.getElementById('confirmMsg').textContent = apt('schedule.assign.replaceDayBody', {
+      day: dayLabel,
+      count: existingScheduleOnDay.item_count || 0,
+    });
     document.getElementById('confirmOverlay').classList.remove('hidden');
     pendingConfirm = doSave;
     document.getElementById('confirmReplaceBtn').onclick = () => { closeConfirm(); doSave(); };
@@ -784,7 +805,7 @@ async function doSave() {
         }
       );
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Fel vid tilldelning av schema');
+      if (!res.ok) throw new Error(data.error || apt('schedule.assign.assignFailed'));
 
       btn.textContent = apt('schedule.assign.saved');
       btn.classList.add('saved');
@@ -794,10 +815,10 @@ async function doSave() {
         btn.classList.remove('saved');
       }, 2500);
 
-      showToast(data.message || `Schema sparat för perioden ${start} – ${end}!`);
+      showToast(data.message || apt('schedule.assign.savedForPeriod', { start: start, end: end }));
       renderWeekNav();
     } catch (err) {
-      showToast(err.message || 'Något gick fel', true);
+      showToast(err.message || apt('schedule.assign.genericError'), true);
       btn.disabled = false;
       syncPeriodRangeUi();
     }
@@ -813,7 +834,7 @@ async function doSave() {
       );
       if (!delRes.ok) {
         const e = await delRes.json();
-        throw new Error(e.error || 'Fel vid borttagning av befintligt schema');
+        throw new Error(e.error || apt('schedule.assign.deleteFailed'));
       }
     }
 
@@ -832,7 +853,7 @@ async function doSave() {
 
     if (!createRes.ok) {
       const e = await createRes.json();
-      throw new Error(e.error || 'Fel vid skapande av schema');
+      throw new Error(e.error || apt('schedule.assign.createFailed'));
     }
 
     const newSchedule = await createRes.json();
@@ -849,7 +870,7 @@ async function doSave() {
       btn.classList.remove('saved');
     }, 2500);
 
-    showToast(`Schema sparat för ${DAYS[currentDay]}!`);
+    showToast(apt('schedule.assign.savedForDay', { day: dayName(currentDay) }));
 
     // Refresh day panel to show updated state
     existingScheduleOnDay = newSchedule;
@@ -857,14 +878,14 @@ async function doSave() {
     existingScheduleOnDay = schedules.find(s => s.day_of_week === currentDay) || newSchedule;
 
     const count = selectedSchemaActivities.length;
-    document.getElementById('dayPanelSubtitle').textContent = `Har schema — ${count} aktiviteter`;
-    document.getElementById('currentSchemaLabel').textContent = `Befintligt schema (${count} aktiviteter)`;
+    document.getElementById('dayPanelSubtitle').textContent = apt('schedule.assign.hasSchedule', { count: count });
+    document.getElementById('currentSchemaLabel').textContent = apt('schedule.assign.existingLabel', { count: count });
     document.getElementById('currentSchemaLabel').classList.remove('hidden');
 
     renderWeekNav();
 
   } catch (err) {
-    showToast(err.message || 'Något gick fel', true);
+    showToast(err.message || apt('schedule.assign.genericError'), true);
     btn.disabled = false;
     syncPeriodRangeUi();
   }
@@ -908,7 +929,7 @@ async function refreshChildSchedules(childId) {
 function renderChildTabs() {
   const container = document.getElementById('childTabs');
   if (children.length === 0) {
-    container.innerHTML = '<p class="text-sm text-text-soft">Inga barn tillagda. <a href="/dashboard" class="text-gold font-semibold underline">Gå till Min panel</a></p>';
+    container.innerHTML = '<p class="text-sm text-text-soft">' + escHtml(apt('schedule.assign.noChildren')) + ' <a href="/dashboard" class="text-gold font-semibold underline">' + escHtml(apt('schedule.empty.goToDashboard')) + '</a></p>';
     return;
   }
   container.innerHTML = children.map(c => `
@@ -950,12 +971,19 @@ async function selectChild(id) {
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await window.authGuard();
   if (!user) return;
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user.preferred_locale);
+  }
 
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
 
   bindConfirmOverlay();
   renderWeekNav();
   await loadChildren();
+});
+document.addEventListener('parent-i18n-ready', function () {
+  renderWeekNav();
+  updateEmptyState();
 });
 </script>
 <script src="/js/feature-check.js?v=2.13.0"></script>

@@ -5,15 +5,14 @@
   'use strict';
 
   const ORDER = ['what', 'where', 'who', 'how_long', 'what_next', 'what_need', 'why'];
-  const LABELS = {
-    what: 'Vad?',
-    where: 'Var?',
-    who: 'Vem?',
-    how_long: 'Hur länge?',
-    what_next: 'Vad händer sen?',
-    what_need: 'Vad behöver jag?',
-    why: 'Varför?',
-  };
+
+  function cpt(key, params) {
+    return typeof global.cpt === 'function' ? global.cpt(key, params) : '';
+  }
+
+  function questionLabel(key) {
+    return cpt('sevenQuestions.labels.' + key) || key;
+  }
 
   let accessCache = null;
   const analyticsSent = new Set();
@@ -41,7 +40,7 @@
     const emoji = val.emoji || '•';
     return `<div class="teacch-q-row">
       <span class="teacch-q-emoji">${esc(emoji)}</span>
-      <div><span class="teacch-q-label">${LABELS[key] || key}</span>
+      <div><span class="teacch-q-label">${esc(questionLabel(key))}</span>
       <span class="teacch-q-text">${esc(val.text)}</span></div>
     </div>`;
   }
@@ -76,16 +75,20 @@
       }
     } catch (_) {}
 
+    const readAloudLabel = esc(cpt('sevenQuestions.readAloud'));
+    const exitLabel = esc(cpt('sevenQuestions.exitActivity'));
+    const nowBadge = esc(cpt('todayWarmth.nowBadge'));
+
     const readAloudBtn = global.ChildReadAloud?.isAvailable()
-      ? `<button type="button" class="teacch-read-btn" onclick="ChildReadAloud.speakNow('${item.id}')">🔊 Läs upp</button>`
+      ? `<button type="button" class="teacch-read-btn" onclick="ChildReadAloud.speakNow('${item.id}')">🔊 ${readAloudLabel}</button>`
       : '';
 
-    const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildSevenQuestions.exitNu()">Avsluta aktivitet</button>`;
+    const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildSevenQuestions.exitNu()">${exitLabel}</button>`;
 
     return `
       <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}"
            data-item-name="${esc(item.name)}" data-item-icon="${esc(item.icon || '⭐')}">
-        <div class="now-badge"><div class="pulse-dot"></div> NU</div>
+        <div class="now-badge"><div class="pulse-dot"></div> ${nowBadge}</div>
         <div class="teacch-questions">${rows}</div>
         ${global.ChildActivityTimer && ChildActivityTimer.renderBlock
           ? '<div class="teacch-activity-timer">' + ChildActivityTimer.renderBlock(item) + '</div>'

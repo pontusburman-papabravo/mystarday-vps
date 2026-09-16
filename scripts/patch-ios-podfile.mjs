@@ -17,6 +17,20 @@ const PODFILE_PLATFORM = '15.0';
 const PODFILE_PLATFORM_LINE = `platform :ios, '${PODFILE_PLATFORM}'`;
 const PODFILE_PLATFORM_RE = /^platform :ios, ['"][\d.]+['"]/m;
 
+const PODS_DEPLOYMENT_TARGET_MARKER = "deployment_target < 15.0";
+
+const PODS_DEPLOYMENT_TARGET_BLOCK = `
+  # Xcode 26+ rejects IPHONEOS_DEPLOYMENT_TARGET < 15.0. Capacitor still floors pods at 14.0.
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      deployment_target = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f
+      if deployment_target < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
+  end
+`;
+
 const POST_INSTALL_BLOCK = `
   installer.pods_project.build_configurations.each do |config|
     config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
@@ -80,10 +94,19 @@ if (!content.includes(PODFILE_PLATFORM_LINE)) {
 const hasQuotedFix = content.includes('CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER');
 const hasSandboxFix = content.includes('ENABLE_USER_SCRIPT_SANDBOXING');
 const hasSaveFix = content.includes('user_project.save');
+const hasPodsDeploymentTargetFix = content.includes(PODS_DEPLOYMENT_TARGET_MARKER);
 
-if (hasQuotedFix && hasSandboxFix && hasSaveFix) {
+if (!hasPodsDeploymentTargetFix && content.includes('assertDeploymentTarget(installer)')) {
+  content = content.replace(
+    /assertDeploymentTarget\(installer\)\n/,
+    `assertDeploymentTarget(installer)${PODS_DEPLOYMENT_TARGET_BLOCK}`
+  );
+  console.log('[patch-ios-podfile] Raised Pods IPHONEOS_DEPLOYMENT_TARGET floor to iOS 15.0.');
+}
+
+if (hasQuotedFix && hasSandboxFix && hasSaveFix && content.includes(PODS_DEPLOYMENT_TARGET_MARKER)) {
   fs.writeFileSync(podfilePath, content);
-  console.log('Podfile already patched (quoted includes + script sandbox + save).');
+  console.log('Podfile already patched (quoted includes + script sandbox + save + pods 15.0).');
   process.exit(0);
 }
 

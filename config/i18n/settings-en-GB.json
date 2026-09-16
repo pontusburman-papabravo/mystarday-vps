@@ -4,12 +4,30 @@
   "shellLead": "Profile, family and app",
   "familySettings": "Family settings",
   "groups": {
-    "profile": { "title": "Profile & account", "sub": "Login, PIN and account" },
-    "family": { "title": "Family", "sub": "Name and language. People are managed under Family." },
-    "device": { "title": "This device", "sub": "Child phone, adult phone or shared phone" },
-    "appearance": { "title": "Appearance", "sub": "Dark or light theme" },
-    "app": { "title": "App", "sub": "Notifications, push and privacy" },
-    "premium": { "title": "Subscription", "sub": "Premium, purchases and payments" }
+    "profile": {
+      "title": "Profile & account",
+      "sub": "Login, PIN and account"
+    },
+    "family": {
+      "title": "Family",
+      "sub": "Name and language. People are managed under Family."
+    },
+    "device": {
+      "title": "This device",
+      "sub": "Child phone, adult phone or shared phone"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "sub": "Dark or light theme"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Notifications, push and privacy"
+    },
+    "premium": {
+      "title": "Subscription",
+      "sub": "Premium, purchases and payments"
+    }
   },
   "appearance": {
     "dark": "Dark",
@@ -17,19 +35,58 @@
     "backToSettings": "← Back to settings"
   },
   "heroes": {
-    "planning": { "title": "Planning", "sub": "Build content or plan your children's week." },
-    "rewards": { "title": "Rewards", "sub": "Stars, rewards and family chest." },
-    "calendar": { "title": "Calendar", "sub": "Month view for all children" },
-    "activities": { "title": "Activities", "sub": "Manage your children's activities" },
-    "assignSchedule": { "title": "Assign schedule", "sub": "Copy schedule to child" },
-    "dailyLog": { "title": "Today", "sub": "Follow your child's day — fill in stars afterwards" },
-    "treasureChest": { "title": "Treasure Chest", "sub": "Rewards and stars" },
-    "childSettings": { "title": "Child settings", "sub": "View, PIN and customisation" },
-    "familyChild": { "title": "Child settings", "sub": "Schedule, view, PIN and customisation" },
-    "notifications": { "title": "Notifications", "sub": "Reminders and messages" },
-    "schedule": { "title": "Weekly schedule", "sub": "Plan and adapt your children's days" },
-    "library": { "title": "Library", "sub": "Schedules, activities and rewards for your family" },
-    "family": { "title": "Family", "sub": "Children, adults and educators" }
+    "planning": {
+      "title": "Planning",
+      "sub": "Build content or plan your children's week."
+    },
+    "rewards": {
+      "title": "Rewards",
+      "sub": "Stars, rewards and family chest."
+    },
+    "calendar": {
+      "title": "Calendar",
+      "sub": "Month view for all children"
+    },
+    "activities": {
+      "title": "Activities",
+      "sub": "Manage your children's activities"
+    },
+    "assignSchedule": {
+      "title": "Assign schedule",
+      "sub": "Copy schedule to child"
+    },
+    "dailyLog": {
+      "title": "Today",
+      "sub": "Follow your child's day — fill in stars afterwards"
+    },
+    "treasureChest": {
+      "title": "Treasure Chest",
+      "sub": "Rewards and stars"
+    },
+    "childSettings": {
+      "title": "Child settings",
+      "sub": "View, PIN and customisation"
+    },
+    "familyChild": {
+      "title": "Child settings",
+      "sub": "Schedule, view, PIN and customisation"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "sub": "Reminders and messages"
+    },
+    "schedule": {
+      "title": "Weekly schedule",
+      "sub": "Plan and adapt your children's days"
+    },
+    "library": {
+      "title": "Library",
+      "sub": "Schedules, activities and rewards for your family"
+    },
+    "family": {
+      "title": "Family",
+      "sub": "Children, adults and educators"
+    }
   },
   "backToPlanning": "← Back to Planning",
   "avatar": {
@@ -221,5 +278,173 @@
         "notEnabled": "The widget is not enabled or your session needs to be renewed. Log out and back in."
       }
     }
+  },
+  "notifications": {
+    "title": "Notification settings",
+    "weeklySummary": "Weekly summary (Sunday 21:00)",
+    "rewardRedemption": "Reward redemptions",
+    "newsletter": "Email newsletter",
+    "emailGlobal": "All emails globally",
+    "save": "Save notification settings"
+  },
+  "reminders": {
+    "title": "Reminders",
+    "lead": "Set a daily reminder so you remember to check the schedule.",
+    "daily": "Daily reminder",
+    "hint": "You get a reminder at the chosen time on the chosen days",
+    "toggleAria": "Toggle reminder",
+    "time": "Time",
+    "days": "Days"
+  },
+  "familyName": {
+    "label": "Family name",
+    "placeholder": "e.g. The Svensson family",
+    "autoFromParent": "{{name}}'s family"
+  },
+  "sound": {
+    "label": "Sound on",
+    "hint": "Plays a sound when the child ticks off an activity in their day view."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Adults and access",
+    "adultsBody": "Invite a co-parent and see who has access under Family.",
+    "openFamily": "Open Family",
+    "pedagogsTitle": "👩‍🏫 Educators",
+    "pedagogsBody": "Educator invites and access are managed under Family."
+  },
+  "dataExport": {
+    "title": "My data",
+    "body": "Download a copy of all your data as CSV (ZIP file). Includes profile, children, schedules, rewards and activity history.",
+    "download": "Download my data",
+    "preparing": "Preparing download…",
+    "started": "✅ Download started!",
+    "rateLimited": "You can only export once every 24 hours.",
+    "failed": "Something went wrong. Try again.",
+    "networkError": "Network error. Try again."
+  },
+  "deleteAccount": {
+    "title": "Delete account",
+    "permanent": "⚠️ Permanent action",
+    "loading": "Loading what will happen…",
+    "storeBillingNote": "If you have a subscription via the App Store or Google Play it is not cancelled automatically when the account is deleted. Manage or cancel the subscription in the store.",
+    "button": "Delete my account",
+    "summarySelf": "You remove your own account and your access. The family, children, schedules and data for other adults remain. This cannot be undone.",
+    "summaryLastAdmin": "You are the last adult with administrative access. The whole family and all related data — children, schedules, activities, stars and rewards — will be deleted immediately and permanently. This cannot be undone.",
+    "modalTitleSelf": "Leave the family",
+    "modalTitleFamily": "Delete family and account",
+    "modalTitleFallback": "Permanently delete account",
+    "leadSelf": "You only remove your own account and your access.",
+    "leadFamily": "You delete the whole family and all related data.",
+    "sure": "Are you sure?",
+    "cannotUndo": "This cannot be undone.",
+    "storeBillingModal": "A subscription via the App Store or Google Play is not cancelled automatically — manage it in the store.",
+    "typeConfirmLabel": "Type {{token}} to confirm",
+    "typeConfirmLabelHtml": "Type <strong>RADERA</strong> to confirm",
+    "typeConfirmError": "Type {{token}} to confirm.",
+    "confirmToken": "RADERA",
+    "cancel": "Cancel",
+    "confirmSelf": "Leave the family",
+    "confirmFamily": "Permanently delete everything",
+    "deleting": "Deleting...",
+    "deleted": "✅ The account has been deleted.",
+    "deleteFailed": "Something went wrong while deleting.",
+    "networkError": "Network error. Try again.",
+    "bulletSelfAccount": "Your parent account and your access",
+    "bulletSelfOthersRemain": "The family, children and other adults remain",
+    "bulletParentAccount": "The parent account",
+    "bulletAllChildren": "All children in the family",
+    "bulletAllSchedules": "All schedules, activities and rewards",
+    "bulletAllHistory": "All daily history and stars"
+  },
+  "support": {
+    "title": "Technical info for support",
+    "hint": "Copy app version, cache and a debug ID. No personal data or passwords are included.",
+    "copy": "Copy technical info",
+    "copied": "Copied — paste it into an email to support.",
+    "copyFailed": "Could not copy. Try again."
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  },
+  "consent": {
+    "title": "Consent & privacy",
+    "lead": "Manage your privacy settings and cookie choices.",
+    "change": "Change consent settings",
+    "empty": "No consent settings saved yet.",
+    "modalTitle": "Consent & privacy",
+    "aria": "Consent settings",
+    "intro": "Help us make {{brand}} even better. We use cookies to understand how the app is used and to reach more families. Tap each category to switch ✓ Yes / ✗ No / — Neutral.",
+    "save": "Save choices",
+    "saving": "Saving…",
+    "skip": "Skip",
+    "closing": "Closing…",
+    "analytics": "Analytics & improvement",
+    "analyticsDesc": "Helps us understand how the app is used so we can make it better.",
+    "ads": "Marketing",
+    "adsDesc": "Shows ads tailored to you on Meta (Facebook/Instagram) and Google.",
+    "adUserData": "Data to platforms",
+    "adUserDataDesc": "Shares your data with ad platforms for better matching.",
+    "adPersonalization": "Personalisation",
+    "adPersonalizationDesc": "Personalises ads based on your interests and behaviour.",
+    "email": "Email & tips",
+    "emailDesc": "Emails with tips, news and offers from {{brand}}."
+  },
+  "subscription": {
+    "title": "Subscription",
+    "loading": "Loading subscription…",
+    "loadFailed": "Could not load subscription status.",
+    "restore": "Restore purchases",
+    "manage": "Manage subscription",
+    "activate": "Activate Premium",
+    "viewPlans": "View subscriptions",
+    "howToActivate": "How to activate Premium",
+    "webActivateHint": "Premium is activated in the iPhone or Android app.",
+    "restoreSuccess": "Purchases restored. Premium is active.",
+    "restoreNone": "No purchases found to restore.",
+    "restoreFailed": "Could not restore purchases.",
+    "launchHoldTitle": "Launch access — billing is not live yet",
+    "launchHoldBody": "You can keep using the app. A subscription is not required while billing is off.",
+    "launchTitle": "Launch access",
+    "launchBody": "You can use the app now. A subscription is not required yet.",
+    "launchBodyUntil": "You can use the app now. A subscription is not required yet. Paid start: {{date}}.",
+    "noPremium": "No active Premium",
+    "choosePlan": "Choose Premium Monthly or Premium Yearly to unlock full access.",
+    "billingNotLive": "A subscription is not required yet. Billing is not live.",
+    "activateBody": "Activate Premium for full access to the app.",
+    "grandfatheredTitle": "Premium included permanently",
+    "grandfatheredBody": "Your family has full access at no cost.",
+    "trialTitle": "Premium – free trial",
+    "ends": "Ends {{date}}",
+    "giftTitle": "Premium – gift card",
+    "validUntil": "Valid until {{date}}",
+    "graceTitle": "Premium – payment needs updating",
+    "graceBody": "Access still works, but payment needs to be fixed in {{store}}.",
+    "activeTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "yearly plan",
+    "planMonthly": "monthly plan"
+  },
+  "theme": {
+    "title": "Appearance",
+    "darkMode": "Dark mode",
+    "darkHint": "Turn on a dark theme for more comfortable use in the dark",
+    "toggleAria": "Toggle dark mode",
+    "colorBlind": "Colour-blindness theme",
+    "colorBlindHint": "Adjusts colours for different types of colour blindness",
+    "colorNone": "None (default)",
+    "protanopia": "Protanopia (red-blind)",
+    "deuteranopia": "Deuteranopia (green-blind)",
+    "tritanopia": "Tritanopia (blue-blind)"
+  },
+  "viewMode": {
+    "dualAccess": "You have access to both the parent and educator views.",
+    "switchPedagog": "🌟 Switch to educator view",
+    "switchParent": "👨‍👩‍👧 Switch to parent view"
+  },
+  "loadError": {
+    "title": "Family settings could not be loaded",
+    "fallback": "Could not load family settings right now.",
+    "retry": "Try again",
+    "retryIn": "Try again in {{seconds}} s"
   }
 }

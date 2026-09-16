@@ -11,7 +11,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Inställningar - Min Stjärndag</title>
+  <title data-i18n="settings.pageTitle">Inställningar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -27,7 +27,7 @@
   <script src="/js/auth.js?v=2.14.0"></script>
   <script src="/js/api-error-classification.js?v=2.18.0"></script>
   <script src="/js/shared-family-fetch.js?v=2.18.0"></script>
-  <script src="/js/settings-page-bootstrap.js?v=2.18.0"></script>
+  <script src="/js/settings-page-bootstrap.js?v=2.19.0"></script>
   <script src="/js/pwa-install.js?v=2.14.0"></script>
   <script src="/js/push-manager.js?v=2.14.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
@@ -53,9 +53,9 @@
   <script src="/js/parent-pin-handoff-gate.js?v=1.0.0"></script>
   <script src="/js/settings-this-device.js?v=1.0.1"></script>
   <script src="/js/billing-ui.js?v=1"></script>
-  <script src="/js/settings-subscription.js?v=1.2.0"></script>
+  <script src="/js/settings-subscription.js?v=1.3.0"></script>
   <script src="/js/settings-parent-i18n.js?v=1"></script>
-  <script src="/js/support-diagnostics.js?v=1"></script>
+  <script src="/js/support-diagnostics.js?v=2"></script>
   <style>
     /* WCAG 2.5.8: minimum 44×44px touch target for all checkboxes */
     .checkbox-touch { display: flex; align-items: center; gap: 12px; cursor: pointer; }
@@ -75,9 +75,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
   <!-- Consent Manager (GA4 + Meta Pixel + GDPR) -->
-  <script src="/js/app-consent.js?v=2.13.0"></script>
+  <script src="/js/app-consent.js?v=2.14.0"></script>
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="settings" data-i18n-manual-init="true">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="settings" data-i18n-manual-init="true" data-i18n-title="settings.pageTitle">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="hidden md:block w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen parent-magic-legacy-hide">
@@ -86,19 +86,19 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
-        <li><a href="/daily-log" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-        <li><a href="/schedule" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/library" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Familjen &amp; inställningar</a></li>
+        <li><a href="/dashboard" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.overview">Översikt</a></li>
+        <li><a href="/daily-log" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/schedule" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/library" class="block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.library">Bibliotek</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 <span data-i18n="nav.treasureChest">Skattkammaren</span></a></li>
+        <li><a href="/family" class="block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="toggleDarkMode()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
         <button type="button" id="switchUserBtn" class="w-full px-4 py-2 mb-2 bg-sky hover:bg-lavender text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.switchUser">Byt användare</button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -113,12 +113,12 @@
 
       <!-- View switch (dual-role only) -->
       <div id="viewSwitchSection" class="hidden bg-lavender border-b border-lavender p-4 md:p-6 parent-magic-legacy-hide">
-        <p class="text-sm text-text-soft mb-3">Du har tillgång till både föräldra- och pedagogvyn.</p>
+        <p class="text-sm text-text-soft mb-3" data-i18n="settings.viewMode.dualAccess">Du har tillgång till både föräldra- och pedagogvyn.</p>
         <div class="flex gap-3 flex-wrap">
-          <button id="switchToPedagog" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors">
+          <button id="switchToPedagog" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors" data-i18n="settings.viewMode.switchPedagog">
             🌟 Byt till pedagogvy
           </button>
-          <button id="switchToParent" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors">
+          <button id="switchToParent" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white text-sm font-semibold rounded-xl transition-colors" data-i18n="settings.viewMode.switchParent">
             👨‍👩‍👧 Byt till föräldravy
           </button>
         </div>
@@ -147,7 +147,7 @@
         <!-- Prenumeration (billing) — rendered by settings-subscription.js -->
         <section id="prenumeration">
           <div id="subscriptionMount">
-            <p class="text-sm text-text-soft">Laddar prenumeration…</p>
+            <p class="text-sm text-text-soft" data-i18n="settings.subscription.loading">Laddar prenumeration…</p>
           </div>
         </section>
 
@@ -155,25 +155,25 @@
 
         <!-- Notifications -->
         <section id="aviseringar">
-          <h3 class="text-xl font-heading font-bold text-navy mb-4">Notis-inställningar</h3>
+          <h3 class="text-xl font-heading font-bold text-navy mb-4" data-i18n="settings.notifications.title">Notis-inställningar</h3>
           <form id="notifForm" class="space-y-4">
             <label for="weeklySummary" class="checkbox-touch text-sm text-navy">
               <input type="checkbox" id="weeklySummary" checked>
-              <span>Veckosammanfattning (söndag 21:00)</span>
+              <span data-i18n="settings.notifications.weeklySummary">Veckosammanfattning (söndag 21:00)</span>
             </label>
             <label for="rewardRedemption" class="checkbox-touch text-sm text-navy">
               <input type="checkbox" id="rewardRedemption" checked>
-              <span>Belöningsinlösen</span>
+              <span data-i18n="settings.notifications.rewardRedemption">Belöningsinlösen</span>
             </label>
             <label for="newsletterSubscribed" class="checkbox-touch text-sm text-navy" id="newsletterInline" data-feature="nyhetsbrev">
               <input type="checkbox" id="newsletterSubscribed" checked>
-              <span>Nyhetsbrev via e-post</span>
+              <span data-i18n="settings.notifications.newsletter">Nyhetsbrev via e-post</span>
             </label>
             <label for="emailEnabled" class="checkbox-touch text-sm text-navy" id="emailEnabledLabel" style="display: none;">
               <input type="checkbox" id="emailEnabled" checked>
-              <span>Alla mejl globalt</span>
+              <span data-i18n="settings.notifications.emailGlobal">Alla mejl globalt</span>
             </label>
-            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">Spara notis-inställningar</button>
+            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors" data-i18n="settings.notifications.save">Spara notis-inställningar</button>
             <div id="notifMsg" class="text-sm min-h-[1.4em]"></div>
           </form>
         </section>
@@ -309,17 +309,17 @@
 
         <!-- Påminnelser (Reminders) — moved here from Overview -->
         <section id="reminderSection">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">Påminnelser</h3>
-          <p class="text-sm text-text-soft mb-4">Ställ in en daglig påminnelse för att komma ihåg att kolla schemat.</p>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.reminders.title">Påminnelser</h3>
+          <p class="text-sm text-text-soft mb-4" data-i18n="settings.reminders.lead">Ställ in en daglig påminnelse för att komma ihåg att kolla schemat.</p>
 
           <div class="flex items-center justify-between mb-4">
             <div>
-              <label class="text-sm font-semibold text-navy">Daglig påminnelse</label>
-              <p class="text-xs text-text-soft">Får en påminnelse vid vald tid på valda dagar</p>
+              <label class="text-sm font-semibold text-navy" data-i18n="settings.reminders.daily">Daglig påminnelse</label>
+              <p class="text-xs text-text-soft" data-i18n="settings.reminders.hint">Får en påminnelse vid vald tid på valda dagar</p>
             </div>
             <button id="reminderMainToggle" type="button"
               class="relative w-12 h-7 rounded-full transition-colors duration-200 bg-gray-300"
-              aria-label="Växla påminnelse">
+              data-i18n-aria-label="settings.reminders.toggleAria" aria-label="Växla påminnelse">
               <span id="reminderMainKnob" class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200"></span>
             </button>
           </div>
@@ -327,12 +327,12 @@
           <!-- Time + days (shown when enabled) -->
           <div id="reminderSettings" class="hidden space-y-4 mb-4 pl-2 border-l-2 border-gold">
             <div class="flex items-center gap-3">
-              <label class="text-sm font-semibold text-navy w-12">Tid</label>
+              <label class="text-sm font-semibold text-navy w-12" data-i18n="settings.reminders.time">Tid</label>
               <input type="time" id="reminderTime" value="07:30"
                 class="px-3 py-2 border-2 border-lavender focus:border-gold rounded-xl text-sm font-semibold text-navy outline-none transition-colors" />
             </div>
             <div>
-              <label class="text-sm font-semibold text-navy block mb-2">Dagar</label>
+              <label class="text-sm font-semibold text-navy block mb-2" data-i18n="settings.reminders.days">Dagar</label>
               <div class="flex gap-2 flex-wrap" id="reminderDays"></div>
             </div>
           </div>
@@ -354,15 +354,15 @@
           <form id="familyForm" class="space-y-4">
             <input type="hidden" id="parentName">
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Familjenamn</label>
-              <input type="text" id="familyName" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" placeholder="T.ex. Familjen Svensson">
+              <label class="block text-sm font-semibold text-navy mb-1" data-i18n="settings.familyName.label">Familjenamn</label>
+              <input type="text" id="familyName" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" data-i18n-placeholder="settings.familyName.placeholder" placeholder="T.ex. Familjen Svensson">
             </div>
             <div>
               <label for="soundEnabled" class="checkbox-touch text-sm font-semibold text-navy">
                 <input type="checkbox" id="soundEnabled">
-                <span>Ljud på</span>
+                <span data-i18n="settings.sound.label">Ljud på</span>
               </label>
-              <p class="text-xs text-text-soft mt-1 ml-14">Spelar upp ett ljud när barnet bockar av en aktivitet i sin dagvy.</p>
+              <p class="text-xs text-text-soft mt-1 ml-14" data-i18n="settings.sound.hint">Spelar upp ett ljud när barnet bockar av en aktivitet i sin dagvy.</p>
             </div>
 
             <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors" data-i18n="settings.family.save">Spara familjeinställningar</button>
@@ -374,11 +374,12 @@
 
         <!-- People/access live on Familj — Settings only links there (E1+E3). -->
         <section id="coParentInviteSection" class="hidden" data-settings-people="family">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👨‍👩‍👧 Vuxna och åtkomst</h3>
-          <p class="text-sm text-text-soft mb-3">Bjud in medförälder och se vem som har tillgång under Familj.</p>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.people.adultsTitle">👨‍👩‍👧 Vuxna och åtkomst</h3>
+          <p class="text-sm text-text-soft mb-3" data-i18n="settings.people.adultsBody">Bjud in medförälder och se vem som har tillgång under Familj.</p>
           <p id="coParentInvitePendingHint" class="text-sm text-text-soft mb-3 hidden"></p>
           <a href="/family" id="coParentInviteOpenBtn"
-            class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+            class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]"
+            data-i18n="settings.people.openFamily">
             Öppna Familj
           </a>
         </section>
@@ -386,9 +387,10 @@
         <hr class="border-lavender hidden" id="coParentInviteHr">
 
         <section id="pedagogInviteSection" class="hidden" data-settings-people="pedagog">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">👩‍🏫 Pedagoger</h3>
-          <p class="text-sm text-text-soft mb-4">Pedagoginbjudningar och åtkomst hanteras under Familj.</p>
-          <a href="/family" class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]">
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.people.pedagogsTitle">👩‍🏫 Pedagoger</h3>
+          <p class="text-sm text-text-soft mb-4" data-i18n="settings.people.pedagogsBody">Pedagoginbjudningar och åtkomst hanteras under Familj.</p>
+          <a href="/family" class="block w-full text-center px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors min-h-[48px]"
+            data-i18n="settings.people.openFamily">
             Öppna Familj
           </a>
         </section>
@@ -397,10 +399,10 @@
 
         <!-- GDPR Data Export -->
         <section id="dataExportSection">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">Min data</h3>
-          <p class="text-sm text-text-soft mb-4">Ladda ner en kopia av all din data i CSV-format (ZIP-fil). Inkluderar profil, barn, scheman, belöningar och aktivitetshistorik.</p>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.dataExport.title">Min data</h3>
+          <p class="text-sm text-text-soft mb-4" data-i18n="settings.dataExport.body">Ladda ner en kopia av all din data i CSV-format (ZIP-fil). Inkluderar profil, barn, scheman, belöningar och aktivitetshistorik.</p>
           <button id="downloadDataBtn" class="w-full px-4 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors flex items-center justify-center gap-2">
-            <span>⬇️</span> Ladda ner min data
+            <span>⬇️</span> <span data-i18n="settings.dataExport.download">Ladda ner min data</span>
           </button>
           <div id="exportMsg" class="text-sm min-h-[1.4em] mt-2"></div>
         </section>
@@ -409,13 +411,13 @@
 
         <!-- Account Deletion -->
         <section id="deletionSection">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">Radera konto</h3>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.deleteAccount.title">Radera konto</h3>
           <div class="bg-coral rounded-xl p-4 mb-4">
-            <p class="text-sm text-navy font-semibold mb-1">⚠️ Permanent åtgärd</p>
-            <p id="deletionSummaryText" class="text-sm text-navy">Laddar information om vad som händer…</p>
-            <p id="deletionStoreBillingNote" class="text-sm text-navy mt-2 hidden">Om du har prenumeration via App Store eller Google Play avslutas den inte automatiskt när kontot raderas. Hantera eller avsluta prenumerationen i butiken.</p>
+            <p class="text-sm text-navy font-semibold mb-1" data-i18n="settings.deleteAccount.permanent">⚠️ Permanent åtgärd</p>
+            <p id="deletionSummaryText" class="text-sm text-navy" data-i18n="settings.deleteAccount.loading">Laddar information om vad som händer…</p>
+            <p id="deletionStoreBillingNote" class="text-sm text-navy mt-2 hidden" data-i18n="settings.deleteAccount.storeBillingNote">Om du har prenumeration via App Store eller Google Play avslutas den inte automatiskt när kontot raderas. Hantera eller avsluta prenumerationen i butiken.</p>
           </div>
-          <button id="deleteAccountBtn" class="w-full px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors">Radera mitt konto</button>
+          <button id="deleteAccountBtn" class="w-full px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors" data-i18n="settings.deleteAccount.button">Radera mitt konto</button>
           <div id="deletionMsg" class="text-sm min-h-[1.4em] mt-2"></div>
         </section>
 
@@ -423,10 +425,11 @@
 
         <!-- R0-06: Support diagnostics (no PII) -->
         <section id="supportDiagnosticsSection">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">Teknisk info för support</h3>
-          <p class="text-sm text-text-soft mb-4">Kopiera appversion, cache och felsöknings-ID. Inga personuppgifter eller lösenord ingår.</p>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.support.title">Teknisk info för support</h3>
+          <p class="text-sm text-text-soft mb-4" data-i18n="settings.support.hint">Kopiera appversion, cache och felsöknings-ID. Inga personuppgifter eller lösenord ingår.</p>
           <button type="button" id="copySupportDiagnosticsBtn"
-            class="w-full min-h-[44px] px-4 py-3 bg-sky hover:bg-sky/80 text-navy rounded-xl font-heading font-bold transition-colors">
+            class="w-full min-h-[44px] px-4 py-3 bg-sky hover:bg-sky/80 text-navy rounded-xl font-heading font-bold transition-colors"
+            data-i18n="settings.support.copy">
             Kopiera teknisk info
           </button>
           <p id="supportDiagnosticsMsg" class="text-sm min-h-[1.4em] mt-2" role="status" aria-live="polite"></p>
@@ -437,10 +440,10 @@
         <!-- Privacy & Terms links in app -->
         <section id="settingsLegalSection" class="pb-8 flex flex-col gap-2">
           <a href="/privacy" class="text-sm text-text-soft hover:text-gold transition-colors flex items-center gap-2">
-            <span>🔒</span> Integritetspolicy
+            <span>🔒</span> <span data-i18n="settings.legal.privacy">Integritetspolicy</span>
           </a>
           <a href="/terms" class="text-sm text-text-soft hover:text-gold transition-colors flex items-center gap-2">
-            <span>📄</span> Användarvillkor
+            <span>📄</span> <span data-i18n="settings.legal.terms">Användarvillkor</span>
           </a>
         </section>
 
@@ -448,10 +451,10 @@
 
         <!-- Samtycke & Integritet -->
         <section id="consentSection">
-          <h3 class="text-xl font-heading font-bold text-navy mb-2">Samtycke & Integritet</h3>
-          <p class="text-sm text-text-soft mb-4">Hantera dina integritetsinställningar och cookie-val.</p>
+          <h3 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="settings.consent.title">Samtycke & Integritet</h3>
+          <p class="text-sm text-text-soft mb-4" data-i18n="settings.consent.lead">Hantera dina integritetsinställningar och cookie-val.</p>
           <div id="consentSummary" class="bg-sky rounded-xl p-4 mb-4 text-sm text-navy space-y-2"></div>
-          <button id="openConsentBtn" type="button" class="w-full px-4 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors">
+          <button id="openConsentBtn" type="button" class="w-full px-4 py-3 bg-navy hover:bg-navy-soft text-white rounded-xl font-heading font-bold transition-colors" data-i18n="settings.consent.change">
             Ändra samtyckesinställningar
           </button>
         </section>
@@ -460,26 +463,26 @@
 
         <!-- Theme Settings (classic only — magic uses Inställningar → Utseende) -->
         <section id="legacyThemeSection" class="parent-magic-legacy-hide">
-          <h3 class="text-xl font-heading font-bold text-navy mb-4">Utseende</h3>
+          <h3 class="text-xl font-heading font-bold text-navy mb-4" data-i18n="settings.theme.title">Utseende</h3>
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <label class="text-sm font-semibold text-navy">Mörkt läge</label>
-                <p class="text-xs text-text-soft">Aktivera mörkt tema för bekvämare användning i mörker</p>
+                <label class="text-sm font-semibold text-navy" data-i18n="settings.theme.darkMode">Mörkt läge</label>
+                <p class="text-xs text-text-soft" data-i18n="settings.theme.darkHint">Aktivera mörkt tema för bekvämare användning i mörker</p>
               </div>
-              <button id="darkModeToggle" type="button" class="relative w-12 h-7 rounded-full transition-colors duration-200 bg-gray-300" aria-label="Växla mörkt läge">
+              <button id="darkModeToggle" type="button" class="relative w-12 h-7 rounded-full transition-colors duration-200 bg-gray-300" data-i18n-aria-label="settings.theme.toggleAria" aria-label="Växla mörkt läge">
                 <span id="darkModeKnob" class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200"></span>
               </button>
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Färgblindhetstema</label>
-              <p class="text-xs text-text-soft mb-2">Anpassar färgerna för olika typer av färgblindhet</p>
+              <label class="block text-sm font-semibold text-navy mb-1" data-i18n="settings.theme.colorBlind">Färgblindhetstema</label>
+              <p class="text-xs text-text-soft mb-2" data-i18n="settings.theme.colorBlindHint">Anpassar färgerna för olika typer av färgblindhet</p>
               <select id="colorBlindMode" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white">
-                <option value="none">Inget (standard)</option>
-                <option value="protanopia">Protanopi (röd-blind)</option>
-                <option value="deuteranopia">Deuteranopi (grön-blind)</option>
-                <option value="tritanopia">Tritanopi (blå-blind)</option>
+                <option value="none" data-i18n="settings.theme.colorNone">Inget (standard)</option>
+                <option value="protanopia" data-i18n="settings.theme.protanopia">Protanopi (röd-blind)</option>
+                <option value="deuteranopia" data-i18n="settings.theme.deuteranopia">Deuteranopi (grön-blind)</option>
+                <option value="tritanopia" data-i18n="settings.theme.tritanopia">Tritanopi (blå-blind)</option>
               </select>
             </div>
           </div>
@@ -508,21 +511,21 @@
 
         <!-- Password Change — hidden when accountSection is loaded (settings-account.js takes over) -->
         <section id="legacyPasswordSection" class="pb-8 hidden">
-          <h3 class="text-xl font-heading font-bold text-navy mb-4">Byt lösenord</h3>
+          <h3 class="text-xl font-heading font-bold text-navy mb-4" data-i18n="settings.account.changePassword">Byt lösenord</h3>
           <form id="passwordForm" class="space-y-4">
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Nuvarande lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1" data-i18n="settings.account.currentPassword">Nuvarande lösenord</label>
               <input type="password" id="currentPw" required class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Nytt lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1" data-i18n="settings.account.newPassword">Nytt lösenord</label>
               <input type="password" id="newPw" required minlength="8" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-navy mb-1">Bekräfta nytt lösenord</label>
+              <label class="block text-sm font-semibold text-navy mb-1" data-i18n="settings.account.confirmNewPassword">Bekräfta nytt lösenord</label>
               <input type="password" id="confirmPw" required minlength="8" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
             </div>
-            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors">Byt lösenord</button>
+            <button type="submit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors" data-i18n="settings.account.changePassword">Byt lösenord</button>
             <div id="pwMsg" class="text-sm min-h-[1.4em]"></div>
           </form>
         </section>
@@ -536,19 +539,19 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
       <div class="bg-red-500 px-6 py-4 flex items-center gap-3">
         <span class="text-2xl">⚠️</span>
-        <h3 id="deleteModalTitle" class="text-xl font-heading font-bold text-white">Radera konto permanent</h3>
+        <h3 id="deleteModalTitle" class="text-xl font-heading font-bold text-white" data-i18n="settings.deleteAccount.modalTitleFallback">Radera konto permanent</h3>
       </div>
       <div class="p-6">
         <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
-          <p id="deleteModalLead" class="text-sm text-red-700 font-semibold mb-1">Är du säker?</p>
+          <p id="deleteModalLead" class="text-sm text-red-700 font-semibold mb-1" data-i18n="settings.deleteAccount.sure">Är du säker?</p>
           <ul id="deleteModalBullets" class="text-sm text-red-600 list-disc list-inside space-y-0.5">
-            <li>Ditt föräldrakonto och din åtkomst</li>
+            <li data-i18n="settings.deleteAccount.bulletSelfAccount">Ditt föräldrakonto och din åtkomst</li>
           </ul>
-          <p id="deleteModalStoreBilling" class="text-sm text-red-700 mt-2 hidden">Prenumeration via App Store eller Google Play avslutas inte automatiskt — hantera den i butiken.</p>
-          <p class="text-sm text-red-700 font-semibold mt-2">Detta kan inte ångras.</p>
+          <p id="deleteModalStoreBilling" class="text-sm text-red-700 mt-2 hidden" data-i18n="settings.deleteAccount.storeBillingModal">Prenumeration via App Store eller Google Play avslutas inte automatiskt — hantera den i butiken.</p>
+          <p class="text-sm text-red-700 font-semibold mt-2" data-i18n="settings.deleteAccount.cannotUndo">Detta kan inte ångras.</p>
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-navy mb-1">
+          <label id="deleteConfirmLabel" class="block text-sm font-semibold text-navy mb-1" data-i18n-html="settings.deleteAccount.typeConfirmLabelHtml">
             Skriv <strong>RADERA</strong> för att bekräfta
           </label>
           <input type="text" id="deleteConfirmText" autocomplete="off" autocapitalize="off" spellcheck="false"
@@ -557,9 +560,9 @@
         </div>
         <div id="deleteModalErr" class="text-sm text-red-500 min-h-[1.2em] mb-3"></div>
         <div class="flex gap-3">
-          <button id="cancelModalBtn" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-navy rounded-xl font-semibold transition-colors">Avbryt</button>
+          <button id="cancelModalBtn" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-navy rounded-xl font-semibold transition-colors" data-i18n="settings.deleteAccount.cancel">Avbryt</button>
           <button id="confirmDeleteBtn" disabled
-            class="flex-1 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold transition-colors cursor-not-allowed">Radera allt permanent</button>
+            class="flex-1 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold transition-colors cursor-not-allowed" data-i18n="settings.deleteAccount.confirmFamily">Radera allt permanent</button>
         </div>
       </div>
     </div>
@@ -578,14 +581,28 @@
       return deletionImpactMode === 'self';
     }
 
+    const DELETE_CONFIRM_TOKEN = 'RADERA';
+
+    function deleteConfirmActionLabel() {
+      return isSelfLeaveDeletion()
+        ? spt('settings.deleteAccount.confirmSelf')
+        : spt('settings.deleteAccount.confirmFamily');
+    }
+
+    function appendBullet(list, key) {
+      const li = document.createElement('li');
+      li.textContent = spt(key);
+      list.appendChild(li);
+    }
+
     function refreshDeletionCopy() {
       const multi = isSelfLeaveDeletion();
       const summaryEl = document.getElementById('deletionSummaryText');
       const storeNote = document.getElementById('deletionStoreBillingNote');
       if (summaryEl) {
         summaryEl.textContent = multi
-          ? 'Du tar bort ditt eget konto och din åtkomst. Familjen, barnen, scheman och data för övriga vuxna finns kvar. Det går inte att ångra.'
-          : 'Du är sista vuxna med administrativ åtkomst. Hela familjen och all tillhörande data — barn, scheman, aktiviteter, stjärnor och belöningar — raderas omedelbart och permanent. Det går inte att ångra.';
+          ? spt('settings.deleteAccount.summarySelf')
+          : spt('settings.deleteAccount.summaryLastAdmin');
       }
       if (storeNote) storeNote.classList.remove('hidden');
     }
@@ -598,21 +615,30 @@
       const storeBilling = document.getElementById('deleteModalStoreBilling');
       const confirmBtn = document.getElementById('confirmDeleteBtn');
       if (title) {
-        title.textContent = multi ? 'Lämna familjen' : 'Radera familj och konto';
+        title.textContent = multi
+          ? spt('settings.deleteAccount.modalTitleSelf')
+          : spt('settings.deleteAccount.modalTitleFamily');
       }
       if (lead) {
         lead.textContent = multi
-          ? 'Du tar bort bara ditt eget konto och din åtkomst.'
-          : 'Du raderar hela familjen och all tillhörande data.';
+          ? spt('settings.deleteAccount.leadSelf')
+          : spt('settings.deleteAccount.leadFamily');
       }
       if (bullets) {
-        bullets.innerHTML = multi
-          ? '<li>Ditt föräldrakonto och din åtkomst</li><li>Familjen, barnen och övriga vuxna finns kvar</li>'
-          : '<li>Föräldrakontot</li><li>Alla barn i familjen</li><li>Alla scheman, aktiviteter och belöningar</li><li>All daglig historik och stjärnor</li>';
+        bullets.textContent = '';
+        if (multi) {
+          appendBullet(bullets, 'settings.deleteAccount.bulletSelfAccount');
+          appendBullet(bullets, 'settings.deleteAccount.bulletSelfOthersRemain');
+        } else {
+          appendBullet(bullets, 'settings.deleteAccount.bulletParentAccount');
+          appendBullet(bullets, 'settings.deleteAccount.bulletAllChildren');
+          appendBullet(bullets, 'settings.deleteAccount.bulletAllSchedules');
+          appendBullet(bullets, 'settings.deleteAccount.bulletAllHistory');
+        }
       }
       if (storeBilling) storeBilling.classList.remove('hidden');
       if (confirmBtn && confirmBtn.disabled === false) {
-        confirmBtn.textContent = multi ? 'Lämna familjen' : 'Radera allt permanent';
+        confirmBtn.textContent = deleteConfirmActionLabel();
       }
     }
 
@@ -834,7 +860,7 @@
       const btn = document.getElementById('downloadDataBtn');
       const msgEl = document.getElementById('exportMsg');
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> Förbereder nedladdning…';
+      btn.innerHTML = '<span>⏳</span> ' + spt('settings.dataExport.preparing');
       msgEl.textContent = '';
       msgEl.className = 'text-sm min-h-[1.4em] mt-2';
 
@@ -844,13 +870,13 @@
 
         if (response.status === 429) {
           const data = await response.json().catch(() => ({}));
-          msgEl.textContent = data.error || 'Du kan bara exportera en gång per 24 timmar.';
+          msgEl.textContent = data.error || spt('settings.dataExport.rateLimited');
           msgEl.className = 'text-sm min-h-[1.4em] mt-2 text-amber-600';
           return;
         }
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          msgEl.textContent = data.error || 'Något gick fel. Försök igen.';
+          msgEl.textContent = data.error || spt('settings.dataExport.failed');
           msgEl.className = 'text-sm min-h-[1.4em] mt-2 text-red-500';
           return;
         }
@@ -868,14 +894,14 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        msgEl.textContent = '✅ Nedladdning startad!';
+        msgEl.textContent = spt('settings.dataExport.started');
         msgEl.className = 'text-sm min-h-[1.4em] mt-2 text-green-600';
       } catch (err) {
-        msgEl.textContent = 'Nätverksfel. Försök igen.';
+        msgEl.textContent = spt('settings.dataExport.networkError');
         msgEl.className = 'text-sm min-h-[1.4em] mt-2 text-red-500';
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>⬇️</span> Ladda ner min data';
+        btn.innerHTML = '<span>⬇️</span> ' + spt('settings.dataExport.download');
       }
     });
 
@@ -900,15 +926,15 @@
     // Enable/disable confirm button based on RADERA text match
     function updateConfirmBtnState(value) {
       const btn = document.getElementById('confirmDeleteBtn');
-      const match = value.trim().toUpperCase() === 'RADERA';
+      const match = value.trim().toUpperCase() === DELETE_CONFIRM_TOKEN;
       if (match) {
         btn.disabled = false;
         btn.className = 'flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors';
-        btn.textContent = isSelfLeaveDeletion() ? 'Lämna familjen' : 'Radera allt permanent';
+        btn.textContent = deleteConfirmActionLabel();
       } else {
         btn.disabled = true;
         btn.className = 'flex-1 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-bold transition-colors cursor-not-allowed';
-        btn.textContent = isSelfLeaveDeletion() ? 'Lämna familjen' : 'Radera allt permanent';
+        btn.textContent = deleteConfirmActionLabel();
       }
     }
     document.getElementById('deleteConfirmText').addEventListener('input', (e) => {
@@ -921,14 +947,14 @@
       const confirmText = document.getElementById('deleteConfirmText').value.trim().toUpperCase();
       const errEl = document.getElementById('deleteModalErr');
 
-      if (confirmText !== 'RADERA') {
-        errEl.textContent = 'Skriv RADERA för att bekräfta.';
+      if (confirmText !== DELETE_CONFIRM_TOKEN) {
+        errEl.textContent = spt('settings.deleteAccount.typeConfirmError', { token: DELETE_CONFIRM_TOKEN });
         return;
       }
 
       const btn = document.getElementById('confirmDeleteBtn');
       btn.disabled = true;
-      btn.textContent = 'Raderar...';
+      btn.textContent = spt('settings.deleteAccount.deleting');
       errEl.textContent = '';
 
       try {
@@ -944,11 +970,11 @@
 
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || 'Något gick fel vid radering.');
+          throw new Error(data.error || spt('settings.deleteAccount.deleteFailed'));
         }
 
         // Data gone — redirect to landing page
-        document.getElementById('deletionMsg').textContent = '✅ Kontot har raderats.';
+        document.getElementById('deletionMsg').textContent = spt('settings.deleteAccount.deleted');
         document.getElementById('deletionMsg').className = 'text-sm text-green-600 mt-2';
         closeDeleteModal();
         // Clear local auth state and redirect
@@ -959,9 +985,9 @@
         document.cookie = 'csrf_token=; Max-Age=0; path=/; SameSite=strict';
         setTimeout(() => { window.location.href = '/'; }, 1500);
       } catch (err) {
-        errEl.textContent = err.message || 'Nätverksfel. Försök igen.';
+        errEl.textContent = err.message || spt('settings.deleteAccount.networkError');
         btn.disabled = false;
-        btn.textContent = 'Radera allt permanent';
+        btn.textContent = deleteConfirmActionLabel();
       }
     });
 
@@ -975,7 +1001,7 @@
       if (!familyNameVal) {
         const parentName = document.getElementById('parentName').value.trim();
         if (parentName) {
-          familyNameVal = parentName + 's familj';
+          familyNameVal = spt('settings.familyName.autoFromParent', { name: parentName });
           document.getElementById('familyName').value = familyNameVal;
         }
       }
@@ -1021,8 +1047,9 @@
 
     // ── Påminnelser (Reminders) ─────────────────────────────────────────────────
     async function initReminderSection() {
-      const DAY_LABELS = ['S', 'M', 'T', 'O', 'T', 'F', 'L'];
-      const DAY_NAMES  = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
+      function dayShort(idx) {
+        return spt('schedule.daysShort.' + idx);
+      }
       const mainToggle = document.getElementById('reminderMainToggle');
       const mainKnob = document.getElementById('reminderMainKnob');
       const settingsEl = document.getElementById('reminderSettings');
@@ -1068,14 +1095,14 @@
           const btn = document.createElement('button');
           const active = days.includes(idx);
           btn.type = 'button';
-          btn.title = DAY_NAMES[idx];
+          btn.title = dayShort(idx);
           btn.className = [
             'w-9 h-9 rounded-full text-xs font-bold border-2 transition-all',
             active
               ? 'bg-navy text-white border-navy'
               : 'bg-white text-text-soft border-lavender hover:border-navy'
           ].join(' ');
-          btn.textContent = DAY_LABELS[idx];
+          btn.textContent = String(dayShort(idx) || '').charAt(0);
           btn.addEventListener('click', () => {
             const i = days.indexOf(idx);
             if (i >= 0) {
@@ -1129,11 +1156,11 @@
 
     // ── Samtycke & Integritet ──────────────────────────────────────────────────
     const CONSENT_LABELS = {
-      analytics_storage:  'Analys & Förbättring',
-      ad_storage:         'Marknadsföring',
-      ad_user_data:       'Data till plattformar',
-      ad_personalization: 'Personalisering',
-      email_communication:'E-post & Tips',
+      analytics_storage:  'settings.consent.analytics',
+      ad_storage:         'settings.consent.ads',
+      ad_user_data:       'settings.consent.adUserData',
+      ad_personalization: 'settings.consent.adPersonalization',
+      email_communication:'settings.consent.email',
     };
     const CONSENT_ICONS = { granted: '✓', denied: '✗', pending: '—' };
     const CONSENT_COLORS = { granted: 'text-green-600', denied: 'text-red-500', pending: 'text-text-soft' };
@@ -1143,13 +1170,14 @@
       if (!summary) return;
       const c = window.AppConsent && window.AppConsent.get ? window.AppConsent.get() : null;
       if (!c) {
-        summary.textContent = 'Inga samtyckesinställningar sparade ännu.';
+        summary.textContent = spt('settings.consent.empty');
         return;
       }
-      summary.innerHTML = Object.entries(CONSENT_LABELS).map(([key, label]) => {
+      summary.innerHTML = Object.entries(CONSENT_LABELS).map(([key, labelKey]) => {
         const val = c[key] || 'pending';
         const icon = CONSENT_ICONS[val];
         const color = CONSENT_COLORS[val];
+        const label = spt(labelKey);
         return `<div class="flex items-center justify-between"><span class="font-medium">${label}</span><span class="${color} font-bold text-base">${icon}</span></div>`;
       }).join('');
     }

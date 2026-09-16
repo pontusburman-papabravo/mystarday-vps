@@ -107,10 +107,14 @@ describe('post-onboarding UX fixes — copy', () => {
   const FIRST_STAR_LIB = read('src/lib/first-star-mode.js');
 
   it('9: grandfathered sv-SE copy exact', () => {
-    assert.match(SUB, /Premium ingår permanent/);
-    assert.match(SUB, /Din familj har full tillgång utan kostnad\./);
-    assert.match(SUB, /Premium included permanently/);
-    assert.match(SUB, /Your family has full access at no cost\./);
+    const SET_SV = JSON.parse(read('config/i18n/settings-sv-SE.json'));
+    const SET_EN = JSON.parse(read('config/i18n/settings-en-GB.json'));
+    assert.equal(SET_SV.subscription.grandfatheredTitle, 'Premium ingår permanent');
+    assert.equal(SET_SV.subscription.grandfatheredBody, 'Din familj har full tillgång utan kostnad.');
+    assert.equal(SET_EN.subscription.grandfatheredTitle, 'Premium included permanently');
+    assert.equal(SET_EN.subscription.grandfatheredBody, 'Your family has full access at no cost.');
+    assert.match(SUB, /settings\.subscription\.grandfatheredTitle/);
+    assert.match(SUB, /settings\.subscription\.grandfatheredBody/);
   });
 
   it('10–11: First Star copy sv-SE exact and en-GB natural', () => {
@@ -131,7 +135,7 @@ describe('post-onboarding UX fixes — settings premium regression', () => {
   const PREMIUM_TEST = read('test/settings-premium-magic.test.js');
 
   it('13: settings-premium-magic tests updated for new grandfathered copy', () => {
-    assert.match(PREMIUM_TEST, /Premium ingår permanent/);
+    assert.match(PREMIUM_TEST, /grandfatheredTitle/);
     assert.doesNotMatch(PREMIUM_TEST, /Premium permanent/);
   });
 });

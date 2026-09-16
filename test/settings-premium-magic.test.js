@@ -11,6 +11,9 @@ const { registerAndLogin } = require('./helpers/auth-session.js');
 const { resolveSubscriptionUiVisibility } = require('../src/lib/subscription-ui-visibility');
 const { getNativePurchaseEligibility } = require('../src/lib/iap-native-purchase-gate');
 
+const { loadLocales, t } = require('../src/lib/i18n');
+loadLocales();
+
 const ROOT = path.join(__dirname, '..');
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
@@ -135,8 +138,8 @@ describe('subscription UI visibility — server contract', () => {
   it('D: grandfathered premium shows UI without activate CTA copy', () => {
     const sub = loadSubscriptionModule();
     assert.match(sub, /is_grandfathered/);
-    assert.match(sub, /Premium ingår permanent/);
-    assert.match(sub, /Din familj har full tillgång utan kostnad\./);
+    assert.match(sub, /settings\.subscription\.grandfatheredTitle/);
+    assert.match(sub, /settings\.subscription\.grandfatheredBody/);
     assert.match(sub, /cta: null/);
   });
 });
@@ -218,10 +221,10 @@ describe('settings premium magic — client wiring', () => {
   const SUB = loadSubscriptionModule();
 
   it('E: eligible no-premium copy includes Aktivera Premium /paywall', () => {
-    assert.match(SUB, /Aktivera Premium/);
+    assert.match(SUB, /settings\.subscription\.activate/);
     assert.match(SUB, /href: '\/paywall'/);
     assert.match(SUB, /nativePurchaseEligible === true/);
-    assert.match(SUB, /Premium Månadsvis eller Premium Årsvis/);
+    assert.match(SUB, /settings\.subscription\.choosePlan/);
   });
 
   it('F/G: magic settings hub has premium group wired with server visibility fetch', () => {
@@ -249,7 +252,7 @@ describe('settings premium magic — client wiring', () => {
   // look broken ("nothing happens"). A success alert was missing entirely — only
   // the failure paths showed one.
   it('restore purchases shows success feedback (not silent) when already active', () => {
-    assert.match(SUB, /Köpet är återställt\. Premium är aktivt\./);
+    assert.match(SUB, /settings\.subscription\.restoreSuccess/);
   });
 
   // Feedback uses the app's shared branded toast (toast.js) instead of a bare
@@ -258,7 +261,7 @@ describe('settings premium magic — client wiring', () => {
     assert.match(SUB, /function notify\(/);
     assert.match(SUB, /window\.showSuccessToast/);
     assert.match(SUB, /window\.showToast\(msg, true\)/);
-    assert.match(SUB, /notify\('Köpet är återställt\. Premium är aktivt\.', false\)/);
+    assert.match(SUB, /notify\(spt\('settings\.subscription\.restoreSuccess'\), false\)/);
     assert.match(SUB, /notify\(result\.ok && !result\.active/);
   });
 
@@ -301,6 +304,17 @@ function loadSettingsSubscriptionHarness(options) {
       isNative() {
         return options.native !== false;
       },
+    },
+    I18n: {
+      getLocale() {
+        return 'sv-SE';
+      },
+      t(key, params) {
+        return t('sv-SE', key, params || {});
+      },
+    },
+    pt(key, params) {
+      return t('sv-SE', key, params || {});
     },
     IAPManager: {
       init: async () => {
