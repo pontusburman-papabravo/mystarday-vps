@@ -45,6 +45,7 @@
     "verify:android-release-hardening": "node scripts/verify-android-release-hardening.mjs",
     "verify:storefront-billing": "node scripts/verify-storefront-billing.mjs",
     "verify:app-review-iap": "node scripts/ops/verify-app-review-iap-path.cjs",
+    "reset:app-review-iap": "node scripts/ops/reset-app-review-iap-family.cjs",
     "sync:daily-logs": "node scripts/sync-family-daily-logs.js",
     "import:gdpr-history": "node scripts/import-gdpr-history.js",
     "bootstrap:migration": "node scripts/bootstrap-migration-local.js",

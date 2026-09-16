@@ -81,6 +81,19 @@ Prod read-only family inspection (on VPS):
 cd "$VPS_APP_PATH" && source .env && node scripts/ops/inspect-app-review-iap-prod.cjs
 ```
 
+### Reset IAP review family after a sandbox purchase
+
+When the IAP review account has completed a sandbox purchase and you need to repeat the flow (e.g. test Monthly after Yearly), reset backend + RevenueCat — billing stays OFF:
+
+```bash
+cd "$VPS_APP_PATH" && source .env
+APP_REVIEW_IAP_EMAIL="$APP_REVIEW_IAP_EMAIL" node scripts/ops/reset-app-review-iap-family.cjs
+```
+
+This revokes store entitlements, syncs mirrors to limited/expired, and deletes the RevenueCat subscriber. Sandbox allowlist env vars are unchanged.
+
+On the device: force-quit and relaunch the app (or log out/in). If StoreKit still reports an active sandbox subscription, cancel it under iOS Settings → Apple Account → Subscriptions, or wait for sandbox accelerated expiry.
+
 As the **complimentary** review account:
 
 - Settings may show complimentary Premium
