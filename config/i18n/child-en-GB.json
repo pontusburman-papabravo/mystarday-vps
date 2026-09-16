@@ -59,7 +59,12 @@
     "parentAria": "Grown-up — PIN required",
     "parentLockAria": "Adult mode",
     "switchChild": "Switch child",
-    "ariaLabel": "Child navigation"
+    "ariaLabel": "Child navigation",
+    "home": "Home",
+    "schedule": "Schedule",
+    "more": "More",
+    "family": "Family",
+    "adult": "Grown-up"
   },
   "today": {
     "dayView": "Day view",
@@ -612,6 +617,11 @@
     "otherDays": "Other days",
     "goToday": "Today",
     "wholeWeek": "Whole week",
+    "wholeWeekTitle": "See the whole week's schedule",
+    "pageTitle": "My Schedule — My Starday",
+    "mySchedule": "My schedule",
+    "logoutTitle": "Leave child mode (may open grown-up view if a parent was signed in)",
+    "todayTasks": "Today's tasks",
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "weekThis": "This week",

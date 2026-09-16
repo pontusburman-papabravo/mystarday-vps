@@ -30,11 +30,19 @@
       const nav = document.getElementById('childBottomNav');
       const scheduleView = document.getElementById('scheduleView');
       const homeView = document.getElementById('homeView');
+      const progress = document.getElementById('progressSection');
+      const weekNav = document.getElementById('weekNavDetails');
+      const moreView = document.getElementById('moreView');
+      const legacyNav = document.getElementById('childLayerNav');
       if (header) I18n.apply(header);
       if (todayMount) I18n.apply(todayMount);
       if (nav) I18n.apply(nav);
       if (scheduleView) I18n.apply(scheduleView);
       if (homeView) I18n.apply(homeView);
+      if (progress) I18n.apply(progress);
+      if (weekNav) I18n.apply(weekNav);
+      if (moreView) I18n.apply(moreView);
+      if (legacyNav) I18n.apply(legacyNav);
     }
   }
 

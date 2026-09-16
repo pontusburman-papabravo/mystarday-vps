@@ -39,7 +39,8 @@ describe('barnmeny v2 — Sprint 1 three-world nav', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-worlds-nav.js'), 'utf8');
     assert.match(src, /ChildWorlds\.CHILD_WORLDS/);
     assert.match(src, /aria-current/);
-    assert.match(src, /Barnnavigering/);
+    assert.match(src, /cpt\('nav\.ariaLabel'\)/);
+    assert.doesNotMatch(src, /aria-label="Barnnavigering"/);
   });
 
   it('child-system-menu.js uses ParentalGate', () => {
