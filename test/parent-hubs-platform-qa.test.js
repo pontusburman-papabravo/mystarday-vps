@@ -60,7 +60,7 @@ describe('Parent hubs platform QA — hub boundaries (static)', () => {
     const readiness = fs.readFileSync(path.join(ROOT, 'public/js/home-readiness.js'), 'utf8');
     const pending = fs.readFileSync(path.join(ROOT, 'public/js/pending-approvals.js'), 'utf8');
     assert.match(readiness, /isExceptionItem|Kräver åtgärd/);
-    assert.match(pending, /vill ha "/);
+    assert.match(pending, /home\.approvals\.wantsRedeemNamed/);
     assert.doesNotMatch(readiness, /pending_redemptions/);
   });
 });

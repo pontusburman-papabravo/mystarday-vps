@@ -9,47 +9,51 @@
 (function () {
   const { DAYS } = window.ScheduleCore;
 
+  function spt(key, params) {
+    return window.ScheduleI18n ? ScheduleI18n.t(key, params) : (window.pt ? window.pt(key, params) : key);
+  }
+
   function confirmDeleteSchedule() {
-    openConfirmModal(`Ta bort hela schemat för ${DAYS[currentDay]}?`, async () => {
+    openConfirmModal(spt('schedule.actions.deleteDayConfirm', { day: DAYS[currentDay] }), async () => {
       const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/${currentScheduleId}`, { method: 'DELETE' });
-      if (res.ok) { showToast('Schemat har tagits bort'); currentScheduleId = null; scheduleItems = []; renderEmptyDay(); }
-      else { const d = await res.json(); showToast(d.error || 'Fel uppstod', true); }
+      if (res.ok) { showToast(spt('schedule.copy.deleted')); currentScheduleId = null; scheduleItems = []; renderEmptyDay(); }
+      else { const d = await res.json(); showToast(d.error || spt('schedule.validation.generic'), true); }
     });
   }
 
   // ── Copy day/child ────────────────────────────────────────
   function openCopyDayModal() {
-    if (!currentScheduleId) { showToast('Inget schema att kopiera', true); return; }
+    if (!currentScheduleId) { showToast(spt('schedule.copy.nothingToCopy'), true); return; }
     copyDaySelections = [];
-    document.getElementById('copyFromLabel').innerHTML = `Kopiera schemat från <strong>${DAYS[currentDay]}</strong> till:`;
+    document.getElementById('copyFromLabel').innerHTML = spt('schedule.copy.fromLabel', { day: DAYS[currentDay] });
     document.getElementById('copyDayPicker').innerHTML = [1, 2, 3, 4, 5, 6, 0].filter(d => d !== currentDay).map(d => `<button type="button" onclick="toggleCopyDay(${d},this)" class="px-4 py-3 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-navy text-navy" data-day="${d}">${DAYS[d]}</button>`).join('');
     document.getElementById('copyDayModal').classList.remove('hidden');
   }
   function toggleCopyDay(d, btn) { const idx = copyDaySelections.indexOf(d); if (idx === -1) { copyDaySelections.push(d); btn.classList.add('bg-navy', 'text-white', 'border-navy'); } else { copyDaySelections.splice(idx, 1); btn.classList.remove('bg-navy', 'text-white', 'border-navy'); } }
   function closeCopyDayModal() { document.getElementById('copyDayModal').classList.add('hidden'); }
   async function submitCopyDay() {
-    if (!copyDaySelections.length) { showToast('Välj minst en dag', true); return; }
+    if (!copyDaySelections.length) { showToast(spt('schedule.copy.selectDay'), true); return; }
     const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-day`, { method: 'POST', body: JSON.stringify({ from_day: currentDay, to_days: copyDaySelections }) });
     const data = await res.json();
-    if (res.ok) { closeCopyDayModal(); showToast(`Schema kopierat till ${data.copied_to_days.length} dag(ar)`); }
-    else showToast(data.error || 'Fel uppstod', true);
+    if (res.ok) { closeCopyDayModal(); showToast(spt('schedule.copy.copiedDays', { count: data.copied_to_days.length })); }
+    else showToast(data.error || spt('schedule.validation.generic'), true);
   }
   function openCopyChildModal() {
     if (!currentChildId) return;
     copyTargetChildId = null;
     const others = children.filter(c => c.id !== currentChildId);
-    if (!others.length) { showToast('Inga andra barn', true); return; }
+    if (!others.length) { showToast(spt('schedule.copy.noOtherChildren'), true); return; }
     document.getElementById('copyChildPicker').innerHTML = others.map(c => `<button type="button" onclick="selectCopyChild('${c.id}',this)" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-lavender hover:border-gold transition-colors text-left" data-cid="${c.id}"><span class="text-2xl">${c.emoji || '👤'}</span><span class="font-semibold text-navy">${escHtml(c.name)}</span></button>`).join('');
     document.getElementById('copyChildModal').classList.remove('hidden');
   }
   function selectCopyChild(id, btn) { copyTargetChildId = id; document.querySelectorAll('#copyChildPicker button').forEach(b => { b.classList.toggle('border-gold', b.dataset.cid === id); b.classList.toggle('bg-sky', b.dataset.cid === id); }); }
   function closeCopyChildModal() { document.getElementById('copyChildModal').classList.add('hidden'); }
   async function submitCopyChild() {
-    if (!copyTargetChildId) { showToast('Välj ett barn', true); return; }
+    if (!copyTargetChildId) { showToast(spt('schedule.copy.selectChild'), true); return; }
     const res = await window.apiFetch(`/api/children/${currentChildId}/schedules/copy-to-child`, { method: 'POST', body: JSON.stringify({ target_child_id: copyTargetChildId }) });
     const data = await res.json();
-    if (res.ok) { closeCopyChildModal(); showToast('Veckoschemat har kopierats'); }
-    else showToast(data.error || 'Fel uppstod', true);
+    if (res.ok) { closeCopyChildModal(); showToast(spt('schedule.copy.copiedWeek')); }
+    else showToast(data.error || spt('schedule.validation.generic'), true);
   }
 
   // ── Confirm modal ─────────────────────────────────────────
@@ -64,7 +68,7 @@
         await cb();
         closeConfirmModal();
       } catch (_) {
-        showToast('Nätverksfel. Försök igen.', true);
+        showToast(spt('schedule.validation.networkError'), true);
       } finally {
         okBtn.disabled = false;
       }

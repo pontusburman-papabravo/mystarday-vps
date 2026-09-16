@@ -45,7 +45,7 @@
       '/js/dashboard-home-hub.js?v=8',
       '/js/dashboard-daily-summary.js?v=2026-06-09-warmth',
       '/js/dashboard-child-handoff.js?v=2026-09-09-td-activation',
-      '/js/dashboard.js?v=2.38.0',
+      '/js/dashboard.js?v=2.42.0-android',
       '/js/coparent-invite-ui.js?v=1',
     ],
     'for-dig': ['/js/for-dig.js?v=2.11'],
@@ -64,7 +64,7 @@
     planning: ['/js/planning-back-nav.js?v=1', '/js/planning-hub.js?v=1.6.1'],
     calendar: ['/js/calendar-page.js?v=1'],
     rewards: [
-      '/js/pending-approvals.js?v=1',
+      '/js/pending-approvals.js?v=2',
       '/js/rewards-hub.js?v=1.2.1',
     ],
     skattkammaren: ['/js/skattkammaren-parent-page.js?v=2'],

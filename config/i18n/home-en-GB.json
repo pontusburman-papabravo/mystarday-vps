@@ -431,6 +431,42 @@
     "goalChangeTo": "To: {{name}}",
     "wantsRedeem": "Wants to redeem",
     "approve": "Approve",
-    "deny": "Decline"
+    "deny": "Decline",
+    "requiresApproval": "Needs approval",
+    "requiresApprovalCount": "Needs approval ({{count}})",
+    "goalApproved": "🎯 Goal change approved!",
+    "redemptionApproved": "🎉 Redemption approved!",
+    "goalDenied": "Goal change declined.",
+    "redemptionDenied": "Redemption declined.",
+    "updateFailed": "Could not update",
+    "genericError": "Error",
+    "wantsGoalNamed": "{{name}} wants to change the goal to {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Wants to change the goal to {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} wants \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Adjust time today",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Could not adjust time",
+    "undone": "Undone",
+    "undoFailed": "Could not undo"
+  },
+  "loading": {
+    "initFailed": "Something went wrong while loading. Reload the page.",
+    "couldNotLoad": "Could not load.",
+    "checkConnection": "Check your internet connection",
+    "reloadPage": "Reload the page"
+  },
+  "activationProgram": {
+    "exitConfirm": "Do you want to end the 7-day programme?",
+    "reflectionPlaceholder": "Optional: tell us more…",
+    "send": "Send",
+    "reflectionQuestion": "Has the app made everyday life easier?",
+    "previewEmpty": "Open child login to see the schedule.",
+    "optOutTitle": "End programme",
+    "skipToday": "Skip today",
+    "orOpenChildLogin": "Or open child login",
+    "dayOf": "Day {{day}} of {{total}}"
   }
 }

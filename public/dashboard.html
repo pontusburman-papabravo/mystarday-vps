@@ -534,7 +534,7 @@
   </div>
 
   <script src="/js/dashboard-impersonation.js?v=2.12.0"></script>
-  <script src="/js/skeleton.js?v=1.0.0"></script>
+  <script src="/js/skeleton.js?v=1.1.0"></script>
   <script src="/js/dashboard-polish.js?v=2026-05-29-release-os" defer></script>
   <script src="/js/dashboard-daily-summary.js?v=2026-06-09-warmth"></script>
   <script src="/js/dashboard-child-handoff.js?v=2026-09-09-td-activation"></script>
@@ -550,21 +550,21 @@
   <script src="/js/engine-coach-change.js?v=1"></script>
   <script src="/js/engine-client.js?v=1"></script>
   <script src="/js/engine-coach.js?v=3"></script>
-  <script src="/js/home-bump-time.js?v=1"></script>
+  <script src="/js/home-bump-time.js?v=2"></script>
   <script src="/js/schedule-core.js?v=2"></script>
   <script src="/js/schedule-cal-nav.js?v=1"></script>
   <script src="/js/for-dig-goal-badge.js?v=1"></script>
-  <script src="/js/dashboard.js?v=2.41.0-android"></script>
+  <script src="/js/dashboard.js?v=2.42.0-android"></script>
   <script src="/js/dashboard-cards.js?v=4"></script>
-  <script src="/js/dashboard-copy-modals.js?v=1"></script>
+  <script src="/js/dashboard-copy-modals.js?v=2"></script>
   <script src="/js/dashboard-card-actions.js?v=3"></script>
   <script src="/js/dashboard-approvals.js?v=3"></script>
-  <script src="/js/dashboard-views.js?v=1"></script>
+  <script src="/js/dashboard-views.js?v=2"></script>
   <script src="/js/pictogram-registry.js?v=1"></script>
   <script src="/js/schedule-i18n.js?v=2"></script>
   <script src="/js/dashboard-activity-modal.js?v=4"></script>
-  <script src="/js/dashboard-dnd.js?v=1"></script>
-  <script src="/js/dashboard-special-days.js?v=1"></script>
+  <script src="/js/dashboard-dnd.js?v=2"></script>
+  <script src="/js/dashboard-special-days.js?v=2"></script>
   <script src="/js/referral-share.js?v=1.1.0"></script>
   <script src="/js/dashboard-cta.js?v=1"></script>
   <script src="/js/growth-feedback.js?v=1.0.0"></script>
@@ -989,14 +989,14 @@
   <div id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Kopiera dag</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyDayTitle">Kopiera dag</h3>
         <button onclick="closeCopyDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p id="copyFromLabel" class="text-sm text-text-soft mb-3">Kopiera schemat från <strong></strong> till:</p>
+      <p id="copyFromLabel" class="text-sm text-text-soft mb-3" data-i18n-html="schedule.copy.fromLabel">Kopiera schemat från <strong></strong> till:</p>
       <div id="copyDayPicker" class="grid grid-cols-2 gap-2 mb-5"></div>
       <div class="flex gap-3">
-        <button onclick="closeCopyDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitCopyDay()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Kopiera</button>
+        <button onclick="closeCopyDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCopyDay()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold" data-i18n="schedule.copy.copyBtn">Kopiera</button>
       </div>
     </div>
   </div>
@@ -1005,14 +1005,14 @@
   <div id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Kopiera till annat barn</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyChildTitle">Kopiera till annat barn</h3>
         <button onclick="closeCopyChildModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-3">Hela veckoschemat kopieras och skriver över befintliga scheman för det valda barnet.</p>
+      <p class="text-sm text-text-soft mb-3" data-i18n="schedule.copy.copyChildBody">Hela veckoschemat kopieras och skriver över befintliga scheman för det valda barnet.</p>
       <div id="copyChildPicker" class="space-y-2 mb-5"></div>
       <div class="flex gap-3">
-        <button onclick="closeCopyChildModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitCopyChild()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">Kopiera</button>
+        <button onclick="closeCopyChildModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitCopyChild()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold" data-i18n="schedule.copy.copyBtn">Kopiera</button>
       </div>
     </div>
   </div>
@@ -1028,13 +1028,13 @@
       <div class="flex flex-col gap-3">
         <button id="dayDndCopyBtn" class="px-4 py-3 bg-sky hover:bg-blue-100 text-navy rounded-xl font-semibold flex items-center gap-3 text-left">
           <span class="text-2xl">📋</span>
-          <div><div class="font-bold">Kopiera</div><div class="text-xs text-text-soft">Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)</div></div>
+          <div><div class="font-bold" data-i18n="schedule.chrome.dayDragCopyTitle">Kopiera</div><div class="text-xs text-text-soft" data-i18n="schedule.chrome.dayDragCopyDesc">Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)</div></div>
         </button>
         <button id="dayDndSwapBtn" class="px-4 py-3 bg-mint hover:bg-green-100 text-navy rounded-xl font-semibold flex items-center gap-3 text-left">
           <span class="text-2xl">🔄</span>
-          <div><div class="font-bold">Byta plats</div><div class="text-xs text-text-soft">De två dagarnas aktiviteter byter plats med varandra</div></div>
+          <div><div class="font-bold" data-i18n="schedule.chrome.dayDragSwapTitle">Byta plats</div><div class="text-xs text-text-soft" data-i18n="schedule.chrome.dayDragSwapDesc">De två dagarnas aktiviteter byter plats med varandra</div></div>
         </button>
-        <button onclick="closeDayDndModal()" class="px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
+        <button onclick="closeDayDndModal()" class="px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
       </div>
     </div>
   </div>
@@ -1042,11 +1042,11 @@
   <!-- Confirm modal -->
   <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
-      <h3 class="text-lg font-heading font-bold text-navy mb-3">Bekräfta</h3>
+      <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="schedule.chrome.confirmTitle">Bekräfta</h3>
       <p id="confirmMsg" class="text-text-soft mb-6"></p>
       <div class="flex gap-3">
-        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button type="button" id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold">Ta bort</button>
+        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button type="button" id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold" data-i18n="schedule.chrome.confirmDelete">Ta bort</button>
       </div>
     </div>
   </div>
@@ -1189,30 +1189,30 @@
   <div id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
-        <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle">Specialdag</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle" data-i18n="schedule.specialDays.modalFallbackTitle">Specialdag</h3>
         <button onclick="closeSpecialDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <p id="specialDayDateLabel" class="text-sm text-text-soft mb-4"></p>
 
       <!-- Note field -->
       <div class="mb-4">
-        <label class="block text-xs font-semibold text-navy mb-1">Anteckning (valfritt)</label>
-        <input type="text" id="specialDayNote" placeholder="T.ex. Utflyktsdag, Ledig, Sjuk…" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
+        <label class="block text-xs font-semibold text-navy mb-1" data-i18n="schedule.specialDays.noteLabel">Anteckning (valfritt)</label>
+        <input type="text" id="specialDayNote" data-i18n-placeholder="schedule.specialDays.notePlaceholder" placeholder="T.ex. Utflyktsdag, Ledig, Sjuk…" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
       </div>
 
       
       <!-- Items list -->
       <div id="sdItemsList" class="space-y-2 mb-4 min-h-[60px]">
-        <div class="text-text-soft text-sm text-center py-4">Inga aktiviteter — lägg till nedan</div>
+        <div class="text-text-soft text-sm text-center py-4" data-i18n="schedule.specialDays.noActivities">Inga aktiviteter — lägg till nedan</div>
       </div>
 
       <!-- Add activity row -->
       <div class="border-t border-lavender pt-4 mb-4">
-        <p class="text-xs font-semibold text-navy mb-2">Lägg till aktivitet</p>
+        <p class="text-xs font-semibold text-navy mb-2" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</p>
         <div class="flex gap-2 flex-wrap items-end">
           <div class="flex-1 min-w-0">
             <select id="sdAddTemplateSelect" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
-              <option value="">-- Välj aktivitet --</option>
+              <option value="" data-i18n="schedule.specialDays.pickActivity">-- Välj aktivitet --</option>
             </select>
           </div>
           <div>
@@ -1223,16 +1223,16 @@
               <option value="natt">🌙 Natt</option>
             </select>
           </div>
-          <button onclick="sdAddItem()" class="px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap">+ Lägg till</button>
+          <button onclick="sdAddItem()" class="px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap" data-i18n="schedule.specialDays.addBtn">+ Lägg till</button>
         </div>
       </div>
 
       <div id="specialDayError" class="text-red-500 text-sm hidden mb-3"></div>
 
       <div class="flex gap-3 flex-wrap">
-        <button onclick="closeSpecialDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Stäng</button>
-        <button onclick="sdDeleteSpecialDay()" id="sdDeleteBtn" class="hidden px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm transition-colors">🗑 Ta bort specialdag</button>
-        <button onclick="sdSave()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">Spara</button>
+        <button onclick="closeSpecialDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.chrome.close">Stäng</button>
+        <button onclick="sdDeleteSpecialDay()" id="sdDeleteBtn" class="hidden px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.specialDays.deleteBtn">🗑 Ta bort specialdag</button>
+        <button onclick="sdSave()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors" data-i18n="schedule.chrome.save">Spara</button>
       </div>
     </div>
   </div>
@@ -1486,7 +1486,7 @@
   <script src="/js/home-primary-action.js?v=2"></script>
   <script src="/js/journey-first-week.js?v=1.1.0"></script>
   <script src="/js/activation-program-aha-card.js?v=1.0.0"></script>
-  <script src="/js/activation-program-banner.js?v=1.1.0"></script>
+  <script src="/js/activation-program-banner.js?v=1.2.0"></script>
   <script src="/js/for-dig-outcome-banner.js?v=2.0.0"></script>
   <script src="/js/preview-shell.js?v=1.0.0"></script>
   <script src="/js/package-interest-triggers.js?v=1.0.0"></script>

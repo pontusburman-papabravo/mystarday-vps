@@ -694,12 +694,6 @@
       "snippet": "Familjens egen mall — valt av dig"
     },
     {
-      "id": "0053a87a77d30109",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Ta bort"
-    },
-    {
       "id": "02642f542010cbb8",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -734,12 +728,6 @@
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "förhandsgranska barnets dag"
-    },
-    {
-      "id": "07c1902f04519c81",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "-- Välj aktivitet --"
     },
     {
       "id": "09661b9e8f418d66",
@@ -782,12 +770,6 @@
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "Hur lägger jag till en aktivitet?"
-    },
-    {
-      "id": "155408ac5ca76b4f",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Stäng"
     },
     {
       "id": "1975fb07b4a7f755",
@@ -880,12 +862,6 @@
       "snippet": "• Barnet samlar stjärnor när aktiviteter bockas av i barnvyn"
     },
     {
-      "id": "3448c3fda3799feb",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Inga aktiviteter — lägg till nedan"
-    },
-    {
       "id": "380e1f33a9038b11",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -898,22 +874,10 @@
       "snippet": "Barnet klarade en aktivitet!"
     },
     {
-      "id": "3988df209c270046",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
-    },
-    {
       "id": "3b1c134df65a9471",
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "Nästa →"
-    },
-    {
-      "id": "3ba74b7537fd8bae",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Lägg till aktivitet"
     },
     {
       "id": "3daa185edd4b9a21",
@@ -970,22 +934,10 @@
       "snippet": "← Dra aktivitet till dag-flik för att kopiera"
     },
     {
-      "id": "4e00a71ec680186d",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "+ Lägg till"
-    },
-    {
       "id": "4f4ac6b4ec31652e",
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "📅 Schema"
-    },
-    {
-      "id": "53183e81f0f1c7e8",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Hela veckoschemat kopieras och skriver över befintliga scheman för det valda barnet."
     },
     {
       "id": "5816eb9cc5b5abe8",
@@ -1066,12 +1018,6 @@
       "snippet": "Hur lägger jag till ett syskon?"
     },
     {
-      "id": "74a3d13a81d1cee3",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
-    },
-    {
       "id": "74b0283f8bc0189f",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -1096,12 +1042,6 @@
       "snippet": "Ja! I barnets schemavyn (klicka på ett kort på Översikten) kan du hålla in och dra aktiviteter för att ändra ordning. Du kan också dra en aktivitet till en anna"
     },
     {
-      "id": "7b2d17a20fa86677",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Spara"
-    },
-    {
       "id": "7ee4726db0f47d77",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -1120,22 +1060,10 @@
       "snippet": "Barnet"
     },
     {
-      "id": "8b11e590198340fe",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
-    },
-    {
       "id": "8b43bcc6fbe4826e",
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "Barnet"
-    },
-    {
-      "id": "9080e37479063767",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "De två dagarnas aktiviteter byter plats med varandra"
     },
     {
       "id": "90c1bc9a897112e8",
@@ -1166,12 +1094,6 @@
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "\"+ Lägg till barn\""
-    },
-    {
-      "id": "99a77e6f1c500fb4",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Bekräfta"
     },
     {
       "id": "9aa9d99751551ee0",
@@ -1246,12 +1168,6 @@
       "snippet": "På Översikten → klicka på"
     },
     {
-      "id": "c3ef44176d0ca049",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "🗑 Ta bort specialdag"
-    },
-    {
       "id": "c7ff679c5e0de95e",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -1294,12 +1210,6 @@
       "snippet": "Avbryt"
     },
     {
-      "id": "dc3cdcee14e21750",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Källdagens aktiviteter läggs till på måldagen (ersätter befintliga)"
-    },
-    {
       "id": "df0fbbd65f490d14",
       "path": "public/dashboard.html",
       "rule": "html-text",
@@ -1334,18 +1244,6 @@
       "path": "public/dashboard.html",
       "rule": "html-text",
       "snippet": "🔒 Du är i support-läge: Visar data för familj"
-    },
-    {
-      "id": "efc7287337295a61",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Kopiera schemat från"
-    },
-    {
-      "id": "f21f5bcbda367f66",
-      "path": "public/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Avbryt"
     },
     {
       "id": "f683657f0d3e5358",
@@ -1598,12 +1496,6 @@
       "path": "public/js/activation-program-aha-card.js",
       "rule": "or-fallback",
       "snippet": "Barnet"
-    },
-    {
-      "id": "b879b8c31304cf19",
-      "path": "public/js/activation-program-banner.js",
-      "rule": "placeholder",
-      "snippet": "Valfritt: berätta mer…"
     },
     {
       "id": "cdba3ffb2f39a461",
@@ -2080,42 +1972,6 @@
       "snippet": "✓ Sparat!"
     },
     {
-      "id": "befc9ba391cd89b2",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "innerHTML",
-      "snippet": "Kopiera schemat från <strong>${…}</strong> till:"
-    },
-    {
-      "id": "10f6de3268b28ade",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "showToast",
-      "snippet": "Schema kopierat till ${…} dag(ar)"
-    },
-    {
-      "id": "1f0a738cecc27e8b",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "showToast",
-      "snippet": "Välj ett barn"
-    },
-    {
-      "id": "207ba1567038ed9f",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "showToast",
-      "snippet": "Schemat har tagits bort"
-    },
-    {
-      "id": "89dee447f4bfe618",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "showToast",
-      "snippet": "Välj minst en dag"
-    },
-    {
-      "id": "fdeefd8d6ea8ffe5",
-      "path": "public/js/dashboard-copy-modals.js",
-      "rule": "showToast",
-      "snippet": "Nätverksfel. Försök igen."
-    },
-    {
       "id": "b4b0a31f036ac133",
       "path": "public/js/dashboard-cta.js",
       "rule": "or-fallback",
@@ -2126,36 +1982,6 @@
       "path": "public/js/dashboard-cta.js",
       "rule": "textContent",
       "snippet": "Något gick fel. Kontrollera din uppkoppling."
-    },
-    {
-      "id": "4eb65c7b3bef6569",
-      "path": "public/js/dashboard-dnd.js",
-      "rule": "showToast",
-      "snippet": "Kunde inte bestämma datum"
-    },
-    {
-      "id": "ad6045e207199060",
-      "path": "public/js/dashboard-dnd.js",
-      "rule": "showToast",
-      "snippet": "Ordning sparad bara för idag ✅"
-    },
-    {
-      "id": "ce695fddc7b21b24",
-      "path": "public/js/dashboard-dnd.js",
-      "rule": "showToast",
-      "snippet": "Ordning sparad för alla ${…} ✅"
-    },
-    {
-      "id": "4514c5083b254000",
-      "path": "public/js/dashboard-dnd.js",
-      "rule": "textContent",
-      "snippet": "Vad vill du göra med ${…}s schema?"
-    },
-    {
-      "id": "5d9044ee2dadb701",
-      "path": "public/js/dashboard-dnd.js",
-      "rule": "throw-error",
-      "snippet": "Kunde inte hämta dagens schema"
     },
     {
       "id": "5da4f279b568fb71",
@@ -2182,154 +2008,10 @@
       "snippet": "Inaktiverat i support-läge"
     },
     {
-      "id": "cb2b7bd9c62a005c",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "confirm",
-      "snippet": "Ta bort specialdagen? Veckodagsmallen används igen för det datumet."
-    },
-    {
-      "id": "13e28cb76affa35f",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "innerHTML",
-      "snippet": "<option value=\"\">-- Välj aktivitet --</option>"
-    },
-    {
-      "id": "8ec5e5af8b2f8e3e",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "innerHTML",
-      "snippet": "<div class=\"text-text-soft text-sm text-center py-4\">Inga aktiviteter — lägg till nedan</div>"
-    },
-    {
-      "id": "0fee641bab7da6b6",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "showToast",
-      "snippet": "Välj en aktivitet"
-    },
-    {
-      "id": "127601e2cb3a2e3e",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "showToast",
-      "snippet": "Specialdag borttagen. Veckodagsmallen gäller igen."
-    },
-    {
-      "id": "3cb1f3f5433ecc33",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "showToast",
-      "snippet": "Kopierat från veckodagsmall!"
-    },
-    {
-      "id": "c99ac6f90b3b5f63",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "showToast",
-      "snippet": "Specialdag finns redan. Lägg till aktiviteter manuellt."
-    },
-    {
-      "id": "3830d062dcef9c49",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "textContent",
-      "snippet": "📋 Kopiera från veckodagsmall"
-    },
-    {
-      "id": "9f72d9eea0c58059",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "textContent",
-      "snippet": "🌟 Redigera specialdag"
-    },
-    {
-      "id": "d6f4bec624428422",
-      "path": "public/js/dashboard-special-days.js",
-      "rule": "textContent",
-      "snippet": "Laddar…"
-    },
-    {
       "id": "65ac8ad4bb4e1c22",
       "path": "public/js/dashboard-system-messages.js",
       "rule": "textContent",
       "snippet": "Gå till Biblioteket →"
-    },
-    {
-      "id": "94675b19ec397143",
-      "path": "public/js/dashboard-views.js",
-      "rule": "innerHTML",
-      "snippet": "<div class=\"mb-3\"><h3 class=\"text-lg font-heading font-bold text-navy\">${…} — Jämför barn</h3> <p class=\"text-xs text-text-soft\">📋 Dra en aktivitet från ett ba"
-    },
-    {
-      "id": "8e82e4213771764e",
-      "path": "public/js/dashboard-views.js",
-      "rule": "showToast",
-      "snippet": "Fel vid tidsändring"
-    },
-    {
-      "id": "ce22dcaa640bf354",
-      "path": "public/js/dashboard-views.js",
-      "rule": "showToast",
-      "snippet": "Källschema saknas"
-    },
-    {
-      "id": "e7c7ebea81014861",
-      "path": "public/js/dashboard-views.js",
-      "rule": "showToast",
-      "snippet": "Aktiviteten är redan hos detta barn"
-    },
-    {
-      "id": "161ccd047248f716",
-      "path": "public/js/dashboard-views.js",
-      "rule": "title",
-      "snippet": "Engångsaktivitet"
-    },
-    {
-      "id": "67c121983031655a",
-      "path": "public/js/dashboard-views.js",
-      "rule": "title",
-      "snippet": "Engångsaktivitet"
-    },
-    {
-      "id": "7ba28f8a2a6679fe",
-      "path": "public/js/dashboard-views.js",
-      "rule": "title",
-      "snippet": "Engångsaktivitet"
-    },
-    {
-      "id": "7d590ace345385e6",
-      "path": "public/js/dashboard-views.js",
-      "rule": "title",
-      "snippet": "Ta bort"
-    },
-    {
-      "id": "5f30627a83de429f",
-      "path": "public/js/dashboard.js",
-      "rule": "aria-label",
-      "snippet": "Dra för att ändra ordning"
-    },
-    {
-      "id": "731abf2cb677ec77",
-      "path": "public/js/dashboard.js",
-      "rule": "innerHTML",
-      "snippet": "<div class=\"text-center py-8 text-red-500 font-semibold\">Något gick fel vid laddning. Ladda om sidan.</div>"
-    },
-    {
-      "id": "baaebf15d0b9fba6",
-      "path": "public/js/dashboard.js",
-      "rule": "innerHTML",
-      "snippet": "<div class=\"text-center py-10 text-text-soft\">Laddar…</div>"
-    },
-    {
-      "id": "cc66ae68e28bda02",
-      "path": "public/js/dashboard.js",
-      "rule": "title",
-      "snippet": "Engångsaktivitet"
-    },
-    {
-      "id": "e2e880aea21f6923",
-      "path": "public/js/dashboard.js",
-      "rule": "title",
-      "snippet": "Ta bort"
-    },
-    {
-      "id": "ef347782064bb260",
-      "path": "public/js/dashboard.js",
-      "rule": "title",
-      "snippet": "Redigera"
     },
     {
       "id": "9efc64dbaf14c0e2",
@@ -2342,24 +2024,6 @@
       "path": "public/js/for-dig-goal-badge.js",
       "rule": "or-fallback",
       "snippet": "För dig"
-    },
-    {
-      "id": "09a2221e72da5a40",
-      "path": "public/js/home-bump-time.js",
-      "rule": "showToast",
-      "snippet": "Ångrat"
-    },
-    {
-      "id": "54607e6913eacc5d",
-      "path": "public/js/home-bump-time.js",
-      "rule": "showToast",
-      "snippet": "Kunde inte ångra"
-    },
-    {
-      "id": "5a7cdfe23dc695b9",
-      "path": "public/js/home-bump-time.js",
-      "rule": "showToast",
-      "snippet": "Kunde inte justera tid"
     },
     {
       "id": "d35fb44138993570",
@@ -2552,30 +2216,6 @@
       "path": "public/js/pedagog-historik.js",
       "rule": "innerHTML",
       "snippet": "<p class=\"text-text-soft text-sm py-8 text-center\">Laddar historik…</p>"
-    },
-    {
-      "id": "e31f13865bd093bb",
-      "path": "public/js/pending-approvals.js",
-      "rule": "innerHTML",
-      "snippet": "<p class=\"text-sm text-coral py-2\">Kunde inte ladda förfrågningar.</p>"
-    },
-    {
-      "id": "e5e4cf472530fc5f",
-      "path": "public/js/pending-approvals.js",
-      "rule": "innerHTML",
-      "snippet": "<p class=\"text-sm text-text-soft py-2\">Laddar förfrågningar…</p>"
-    },
-    {
-      "id": "07df8b0c70991fb5",
-      "path": "public/js/pending-approvals.js",
-      "rule": "or-fallback",
-      "snippet": "Kunde inte uppdatera"
-    },
-    {
-      "id": "6f9d15328dbc7b1d",
-      "path": "public/js/pending-approvals.js",
-      "rule": "throw-error",
-      "snippet": "Kunde inte ladda förfrågningar"
     },
     {
       "id": "ea81f1efb7fdf0a4",
@@ -2774,18 +2414,6 @@
       "path": "public/js/skattkammaren-parent-page.js",
       "rule": "showToast",
       "snippet": "Kunde inte ladda Skattkammaren"
-    },
-    {
-      "id": "5fd1e2147a65d7a5",
-      "path": "public/js/skeleton.js",
-      "rule": "or-fallback",
-      "snippet": "Försök igen — och kontrollera att wifi är på"
-    },
-    {
-      "id": "82622a407ee9071f",
-      "path": "public/js/skeleton.js",
-      "rule": "or-fallback",
-      "snippet": "Hmm, något gick fel."
     },
     {
       "id": "a4bf4d0268ffe7a7",

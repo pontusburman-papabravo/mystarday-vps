@@ -152,26 +152,29 @@ function childScheduleErrorCopy(options) {
   };
   if (opts.reason === 'rate_limit') {
     return {
-      title: tr('scheduleChrome.rateLimitTitle') || 'Ta en kort paus',
+      title: tr('scheduleChrome.rateLimitTitle'),
       hint: tr('scheduleChrome.rateLimitHint') || tr('checkoff.tooFast'),
     };
   }
   return {
-    title: tr('scheduleChrome.errorTitle') || 'Hmm, något gick fel.',
-    hint: tr('scheduleChrome.errorWifiHint') || 'Försök igen — och kontrollera att wifi är på',
+    title: tr('scheduleChrome.errorTitle'),
+    hint: tr('scheduleChrome.errorWifiHint'),
   };
 }
 
 function showChildScheduleError(container, dateStr, options) {
   if (!container) return;
   const copy = childScheduleErrorCopy(options);
+  const retry = (typeof window.childT === 'function')
+    ? childT('ui.retry')
+    : ((typeof window.cpt === 'function') ? cpt('ui.retry') : '');
   $html(container, `
     <div class="skeleton-error">
       <div class="skeleton-error-icon">🌟</div>
       <p class="skeleton-error-text">${copy.title}</p>
       <p class="skeleton-error-hint">${copy.hint}</p>
       <button class="skeleton-retry-btn" onclick="loadDay('${dateStr}', false)">
-        🔄 Försök igen
+        🔄 ${retry}
       </button>
     </div>
   `);
@@ -184,13 +187,14 @@ function showChildScheduleRateLimit(container, dateStr) {
 // Error state for parent dashboard
 function showParentDashboardError(container) {
   if (!container) return;
+  const pt = (key) => (typeof window.pt === 'function') ? window.pt(key) : key;
   $html(container, `
     <div class="skeleton-error">
       <div class="skeleton-error-icon">📡</div>
-      <p class="skeleton-error-text">Kunde inte ladda.</p>
-      <p class="skeleton-error-hint">Kontrollera din internetanslutning</p>
+      <p class="skeleton-error-text">${pt('home.loading.couldNotLoad')}</p>
+      <p class="skeleton-error-hint">${pt('home.loading.checkConnection')}</p>
       <button class="skeleton-retry-btn" onclick="window.location.reload()">
-        🔄 Ladda om sidan
+        🔄 ${pt('home.loading.reloadPage')}
       </button>
     </div>
   `);

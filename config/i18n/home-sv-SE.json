@@ -431,6 +431,42 @@
     "goalChangeTo": "Till: {{name}}",
     "wantsRedeem": "Vill lösa in",
     "approve": "Godkänn",
-    "deny": "Neka"
+    "deny": "Neka",
+    "requiresApproval": "Kräver godkännande",
+    "requiresApprovalCount": "Kräver godkännande ({{count}})",
+    "goalApproved": "🎯 Målbyte godkänt!",
+    "redemptionApproved": "🎉 Inlösen godkänd!",
+    "goalDenied": "Målbyte nekat.",
+    "redemptionDenied": "Inlösen nekad.",
+    "updateFailed": "Kunde inte uppdatera",
+    "genericError": "Fel",
+    "wantsGoalNamed": "{{name}} vill byta mål till {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Vill byta mål till {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} vill ha \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Justera tid idag",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Kunde inte justera tid",
+    "undone": "Ångrat",
+    "undoFailed": "Kunde inte ångra"
+  },
+  "loading": {
+    "initFailed": "Något gick fel vid laddning. Ladda om sidan.",
+    "couldNotLoad": "Kunde inte ladda.",
+    "checkConnection": "Kontrollera din internetanslutning",
+    "reloadPage": "Ladda om sidan"
+  },
+  "activationProgram": {
+    "exitConfirm": "Vill du avsluta 7-dagarsprogrammet?",
+    "reflectionPlaceholder": "Valfritt: berätta mer…",
+    "send": "Skicka",
+    "reflectionQuestion": "Har appen gjort vardagen enklare?",
+    "previewEmpty": "Öppna barninloggningen för att se schemat.",
+    "optOutTitle": "Avsluta program",
+    "skipToday": "Hoppa över idag",
+    "orOpenChildLogin": "Eller öppna barninloggningen",
+    "dayOf": "Dag {{day}} av {{total}}"
   }
 }
