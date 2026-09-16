@@ -135,7 +135,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1063.0",
-    "@revenuecat/purchases-capacitor": "^11.2.5",
+    "@revenuecat/purchases-capacitor": "^13.2.0",
     "@vitalets/google-translate-api": "^9.2.1",
     "archiver": "^8.0.0",
     "capacitor-adult-biometric": "file:plugins/capacitor-adult-biometric",
