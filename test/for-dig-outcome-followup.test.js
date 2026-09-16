@@ -146,6 +146,18 @@ async function listen(app) {
   });
 }
 
+test('followupIdempotencyKey is stable per batch+recipient and unique otherwise', () => {
+  const { followupIdempotencyKey } = require('../db/for-dig-outcome-followup');
+  const sameA = followupIdempotencyKey('batch-1', 'rec-1');
+  const sameB = followupIdempotencyKey('batch-1', 'rec-1');
+  const otherRecipient = followupIdempotencyKey('batch-1', 'rec-2');
+  const otherBatch = followupIdempotencyKey('batch-2', 'rec-1');
+  assert.equal(sameA, 'for-dig-followup:batch-1:rec-1');
+  assert.equal(sameA, sameB);
+  assert.notEqual(sameA, otherRecipient);
+  assert.notEqual(sameA, otherBatch);
+});
+
 test('groupPendingByParent maps 72 items / 24 parents to 24 groups', () => {
   const { groupPendingByParent } = require('../db/for-dig-outcome-followup');
   const rows = [];
@@ -894,6 +906,83 @@ test('20. partial failure is not sent; retry sends only failed with same key', a
     assert.equal(keysBeforeRetry.includes(retryKey), true);
   } finally {
     restore();
+    await db.cleanup();
+  }
+});
+
+test('21. crash after provider accept retries with the same HTTP Idempotency-Key', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  const prevKey = process.env.RESEND_API_KEY;
+  process.env.RESEND_API_KEY = 're_test_followup_idempotency';
+  const fetchCalls = [];
+  const originalFetch = global.fetch;
+  global.fetch = async (url, opts) => {
+    if (url !== 'https://api.resend.com/emails') {
+      throw new Error(`unexpected fetch: ${url}`);
+    }
+    fetchCalls.push({
+      httpHeaders: { ...(opts.headers || {}) },
+      body: JSON.parse(opts.body),
+    });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: `re_mock_${fetchCalls.length}` }),
+    };
+  };
+  const emailLib = require('../src/lib/email');
+  const originalSend = emailLib.sendEmail;
+  let crashOnce = true;
+  emailLib.sendEmail = async (opts) => {
+    const result = await originalSend(opts);
+    if (crashOnce) {
+      crashOnce = false;
+      throw new Error('simulated crash after provider acceptance');
+    }
+    return result;
+  };
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db, {
+      email: `followup-${uniqueSuffix()}@acme.se`,
+    });
+    await seedPending({ db, family, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id, { maxRecipients: 10 });
+    const recipients = await followup.listRecipients(batch.id);
+    assert.equal(recipients.length, 1);
+    const expectedKey = followup.followupIdempotencyKey(batch.id, recipients[0].id);
+
+    const first = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(first.sent, 0);
+    assert.equal(first.failed, 1);
+    assert.equal(first.batch_status, 'failed');
+    assert.equal(fetchCalls.length, 1);
+    assert.equal(fetchCalls[0].httpHeaders['Idempotency-Key'], expectedKey);
+    assert.equal(fetchCalls[0].httpHeaders['Content-Type'], 'application/json');
+    assert.equal(fetchCalls[0].httpHeaders.Authorization, 'Bearer re_test_followup_idempotency');
+    assert.match(fetchCalls[0].body.headers['List-Unsubscribe'], /^<https?:\/\//);
+    assert.equal(fetchCalls[0].body.headers['List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click');
+    assert.equal(fetchCalls[0].body.headers['Idempotency-Key'], undefined);
+
+    const retry = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(retry.sent, 1);
+    assert.equal(retry.failed, 0);
+    assert.equal(retry.batch_status, 'sent');
+    assert.equal(fetchCalls.length, 2);
+    assert.equal(fetchCalls[1].httpHeaders['Idempotency-Key'], expectedKey);
+    assert.equal(fetchCalls[0].httpHeaders['Idempotency-Key'], fetchCalls[1].httpHeaders['Idempotency-Key']);
+    assert.equal(fetchCalls[1].body.headers['Idempotency-Key'], undefined);
+    assert.equal(
+      fetchCalls[1].body.headers['List-Unsubscribe'],
+      fetchCalls[0].body.headers['List-Unsubscribe']
+    );
+  } finally {
+    emailLib.sendEmail = originalSend;
+    global.fetch = originalFetch;
+    if (prevKey === undefined) delete process.env.RESEND_API_KEY;
+    else process.env.RESEND_API_KEY = prevKey;
     await db.cleanup();
   }
 });

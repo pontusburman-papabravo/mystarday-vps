@@ -98,18 +98,20 @@ async function sendEmail({
   const toList = recipients;
 
   const listHeaders = buildListUnsubscribeHeaders(unsubscribeUrl);
-  const headers = { ...(extraHeaders || {}), ...(listHeaders || {}) };
+  const emailHeaders = { ...(extraHeaders || {}), ...(listHeaders || {}) };
+  // List-Unsubscribe stays on the email JSON. Idempotency-Key is a Resend HTTP header.
+  const requestHeaders = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey}`,
+  };
   if (idempotencyKey) {
-    headers['Idempotency-Key'] = String(idempotencyKey).slice(0, 256);
+    requestHeaders['Idempotency-Key'] = String(idempotencyKey).slice(0, 256);
   }
 
   try {
     const res = await fetch(RESEND_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers: requestHeaders,
       body: JSON.stringify({
         from: from || FROM_HEADER,
         to: toList,
@@ -118,7 +120,7 @@ async function sendEmail({
         text: plainText,
         reply_to: FROM_ADDRESS,
         tags: Array.isArray(tags) && tags.length > 0 ? tags : undefined,
-        headers: Object.keys(headers).length > 0 ? headers : undefined,
+        headers: Object.keys(emailHeaders).length > 0 ? emailHeaders : undefined,
       }),
       signal: AbortSignal.timeout(10000),
     });
