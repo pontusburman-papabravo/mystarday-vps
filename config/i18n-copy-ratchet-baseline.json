@@ -304,102 +304,6 @@
       "snippet": "Barn/Stöd — [brand]"
     },
     {
-      "id": "9fddcd902abdd00d",
-      "path": "public/child-dashboard.html",
-      "rule": "aria-label",
-      "snippet": "Öppna Skattkammaren och se ditt mål"
-    },
-    {
-      "id": "26f268fca7da04e8",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "🌙 Mörkt läge"
-    },
-    {
-      "id": "341e1e72e7f92a1e",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "⭐ Dagens stjärnor"
-    },
-    {
-      "id": "3c1b6827bb1594ed",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "Välj ett mål i Skattkammaren"
-    },
-    {
-      "id": "6c031f3f7e0bc43f",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "Tryck här för att välja"
-    },
-    {
-      "id": "74b14516507c971a",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "🏡 Familj"
-    },
-    {
-      "id": "7d597b9f94c5a179",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "Mitt Schema - [brand]"
-    },
-    {
-      "id": "86b51cdb8e763976",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "0 stjärnor"
-    },
-    {
-      "id": "e7819492c8a72e81",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "Schema"
-    },
-    {
-      "id": "eff45fa1dbbaeeee",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "Mitt mål"
-    },
-    {
-      "id": "fd5629ce8472af64",
-      "path": "public/child-dashboard.html",
-      "rule": "html-text",
-      "snippet": "🏡 Familj"
-    },
-    {
-      "id": "0b3e0fe69fd0336f",
-      "path": "public/child-dashboard.html",
-      "rule": "title",
-      "snippet": "Växla vy"
-    },
-    {
-      "id": "62282f9a66cdc025",
-      "path": "public/child-dashboard.html",
-      "rule": "title",
-      "snippet": "Nästa vecka"
-    },
-    {
-      "id": "754c6cee651bdf55",
-      "path": "public/child-dashboard.html",
-      "rule": "title",
-      "snippet": "Gå till idag"
-    },
-    {
-      "id": "99272545078b43b7",
-      "path": "public/child-dashboard.html",
-      "rule": "title",
-      "snippet": "Föregående vecka"
-    },
-    {
-      "id": "be8c746b09b29fa7",
-      "path": "public/child-dashboard.html",
-      "rule": "title",
-      "snippet": "Mörkt läge"
-    },
-    {
       "id": "4a6a11c1cefc7b0c",
       "path": "public/child-login.html",
       "rule": "html-text",
@@ -1874,12 +1778,6 @@
       "path": "public/js/child-world-wayfinder.js",
       "rule": "or-fallback",
       "snippet": "Tillbaka"
-    },
-    {
-      "id": "69aacd39b6cd2abd",
-      "path": "public/js/child-worlds-nav.js",
-      "rule": "aria-label",
-      "snippet": "Barnnavigering"
     },
     {
       "id": "e413ca443ea37741",

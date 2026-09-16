@@ -22,7 +22,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Mitt Schema - Min Stjärndag</title>
+  <title data-i18n="child.scheduleChrome.pageTitle">Mitt Schema — Stjärndag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2294,7 +2294,7 @@
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
 </head>
-<body class="bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white">
+<body class="bg-sky font-body text-navy min-h-screen dark:bg-navy dark:text-white" data-i18n-manual-init="true" data-i18n-title="child.scheduleChrome.pageTitle">
   <div id="childWorldBg" aria-hidden="true">
     <div class="cwb-layer cwb-today" role="presentation"></div>
     <div class="cwb-layer cwb-world" role="presentation"></div>
@@ -2305,7 +2305,7 @@
     <div class="flex items-center justify-between max-w-lg mx-auto">
       <div class="flex items-center gap-2">
         <!-- Progress ring wrapping child emoji — shows today's X/Y activity progress -->
-        <div id="childHeaderRing" style="position:relative;width:44px;height:44px;flex-shrink:0;" title="Dagens framsteg">
+        <div id="childHeaderRing" style="position:relative;width:44px;height:44px;flex-shrink:0;" data-i18n-title="child.scheduleChrome.progressToday" title="Dagens framsteg">
           <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;inset:0;transform:rotate(-90deg);" aria-hidden="true">
             <!-- Track -->
             <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="3.5"/>
@@ -2332,19 +2332,20 @@
         <!-- View toggle button -->
         <button onclick="toggleViewType()" id="viewToggleBtn"
           class="min-h-[44px] flex items-center justify-center gap-1 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition-colors"
+          data-i18n-title="child.scheduleChrome.viewToggleTitle"
           title="Växla vy">
           <span id="viewToggleIcon">🌅</span>
           <span id="viewToggleLabel" class="hidden sm:inline">Dagsvy</span>
         </button>
-        <button onclick="window.print()" id="printBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" title="Skriv ut">🖨️</button>
-        <button onclick="toggleChildDarkMode()" id="childDarkBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" title="Mörkt läge">🌙</button>
-        <button type="button" onclick="switchChildMember()" id="switchChildBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors" title="Byt profil" aria-label="Byt profil">
+        <button onclick="window.print()" id="printBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" data-i18n-title="child.scheduleChrome.print" title="Skriv ut">🖨️</button>
+        <button onclick="toggleChildDarkMode()" id="childDarkBtn" class="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 hover:bg-navy-soft rounded-lg transition-colors text-lg" data-i18n-title="child.scheduleChrome.darkMode" title="Mörkt läge">🌙</button>
+        <button type="button" onclick="switchChildMember()" id="switchChildBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-colors" data-i18n-title="child.settings.switchProfile" data-i18n-aria-label="child.settings.switchProfile" title="Byt profil" aria-label="Byt profil">
           <span aria-hidden="true">🔄</span>
-          <span>Byt profil</span>
+          <span data-i18n="child.settings.switchProfile">Byt profil</span>
         </button>
-        <button type="button" onclick="childLogout()" id="logoutBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-red-500/30 text-white rounded-lg text-xs font-semibold transition-colors" title="Avsluta barnläge (kan öppna vuxenvy om förälder var inloggad)">
+        <button type="button" onclick="childLogout()" id="logoutBtn" class="min-h-[44px] flex items-center justify-center gap-1 px-2.5 py-2 bg-white/15 hover:bg-red-500/30 text-white rounded-lg text-xs font-semibold transition-colors" data-i18n-title="child.scheduleChrome.logoutTitle" title="Avsluta barnläge (kan öppna vuxenvy om förälder var inloggad)">
           <span aria-hidden="true">🚪</span>
-          <span>Logga ut</span>
+          <span data-i18n="child.scheduleChrome.logout">Logga ut</span>
         </button>
       </div>
     </div>
@@ -2358,12 +2359,12 @@
     <div id="weekNavSection">
     <div class="flex items-center justify-between gap-2 px-2 pt-2 max-w-lg mx-auto">
       <div class="flex items-center gap-1 flex-1 min-w-0">
-      <button onclick="navigateWeek(-1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" title="Föregående vecka">‹</button>
+      <button onclick="navigateWeek(-1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" data-i18n-title="child.scheduleChrome.prevWeek" title="Föregående vecka">‹</button>
       <div class="flex-1 text-center text-xs font-semibold text-text-soft truncate" id="weekLabel"></div>
-      <button id="todayBtn" onclick="goToToday()" class="hidden flex-shrink-0 px-3 h-9 flex items-center justify-center rounded-lg bg-gold text-white font-semibold text-xs transition-colors hover:bg-yellow-500" title="Gå till idag">Idag</button>
-      <button onclick="navigateWeek(1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" title="Nästa vecka">›</button>
+      <button id="todayBtn" onclick="goToToday()" class="hidden flex-shrink-0 px-3 h-9 flex items-center justify-center rounded-lg bg-gold text-white font-semibold text-xs transition-colors hover:bg-yellow-500" data-i18n="child.scheduleChrome.goToday" data-i18n-title="child.scheduleChrome.goToday" title="Gå till idag">Idag</button>
+      <button onclick="navigateWeek(1)" class="flex-shrink-0 w-11 h-11 flex items-center justify-center rounded-lg bg-sky hover:bg-lavender text-navy font-bold text-lg transition-colors" data-i18n-title="child.scheduleChrome.nextWeek" title="Nästa vecka">›</button>
       </div>
-      <button type="button" id="childWeekOverviewBtn" onclick="window.ChildWeekOverview && ChildWeekOverview.open()" class="flex-shrink-0 min-h-[44px] px-2.5 text-xs font-semibold text-navy/70 hover:text-navy underline-offset-2 hover:underline" title="Se hela veckans schema">Hela veckan</button>
+      <button type="button" id="childWeekOverviewBtn" onclick="window.ChildWeekOverview && ChildWeekOverview.open()" class="flex-shrink-0 min-h-[44px] px-2.5 text-xs font-semibold text-navy/70 hover:text-navy underline-offset-2 hover:underline" data-i18n="child.scheduleChrome.wholeWeek" data-i18n-title="child.scheduleChrome.wholeWeekTitle" title="Se hela veckans schema">Hela veckan</button>
     </div>
     <div class="flex gap-1 p-2 max-w-lg mx-auto overflow-x-auto" id="dayTabs"></div>
     </div>
@@ -2376,7 +2377,7 @@
       <!-- Dagens uppgifter -->
       <div>
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">✅ Dagens uppgifter</span>
+          <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">✅ <span data-i18n="child.scheduleChrome.todayTasks">Dagens uppgifter</span></span>
           <span class="text-sm font-heading font-bold text-navy" id="progressLabel">0 av 0 klara</span>
         </div>
         <div class="w-full bg-lavender rounded-full h-3.5 overflow-hidden relative" id="progressBarContainer">
@@ -2392,17 +2393,17 @@
 
       <!-- Dagens stjärnor -->
       <div class="flex items-center justify-between bg-gradient-to-r from-gold-light to-white rounded-xl px-3 py-2.5 border border-gold/25">
-        <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">⭐ Dagens stjärnor</span>
-        <span class="text-sm font-heading font-bold text-gold" id="todayStarsEarned">0 stjärnor</span>
+        <span class="text-xs font-semibold text-text-soft uppercase tracking-wider">⭐ <span data-i18n="child.scheduleChrome.todayStarsLabel">Dagens stjärnor</span></span>
+        <span class="text-sm font-heading font-bold text-gold" id="todayStarsEarned">0 stjärnor</span><!-- i18n-ignore: JS warmth overwrites before first paint -->
       </div>
 
       <!-- Mitt mål — compact link to Skattkammaren -->
-      <button type="button" id="goalTeaserBtn" onclick="showTab('rewards')" class="child-goal-teaser" aria-label="Öppna Skattkammaren och se ditt mål">
+      <button type="button" id="goalTeaserBtn" onclick="showTab('rewards')" class="child-goal-teaser" data-i18n-aria-label="child.scheduleChrome.goalTeaserAria" aria-label="Öppna Skattkammaren och se ditt mål">
         <span id="goalTeaserIcon" class="child-goal-teaser-icon">🎯</span>
         <div class="child-goal-teaser-text">
-          <div class="child-goal-teaser-label">Mitt mål</div>
-          <div id="goalTeaserName" class="child-goal-teaser-name">Välj ett mål i Skattkammaren</div>
-          <div id="goalTeaserSub" class="child-goal-teaser-sub">Tryck här för att välja</div>
+          <div class="child-goal-teaser-label" data-i18n="child.scheduleChrome.goalTeaserLabel">Mitt mål</div>
+          <div id="goalTeaserName" class="child-goal-teaser-name">Välj ett mål i Skattkammaren</div><!-- i18n-ignore: JS warmth overwrites; Swedish fallback until first paint -->
+          <div id="goalTeaserSub" class="child-goal-teaser-sub">Tryck här för att välja</div><!-- i18n-ignore: JS warmth overwrites; Swedish fallback until first paint -->
         </div>
         <span class="child-goal-teaser-arrow" aria-hidden="true">→</span>
       </button>
@@ -2424,9 +2425,9 @@
   <!-- Tab Nav: legacy top tabs (klassisk vy) -->
   <div class="bg-white border-b border-lavender hidden" id="childLayerNav" aria-hidden="true">
     <div class="flex max-w-lg mx-auto">
-      <button type="button" id="tabScheduleLegacy" class="flex-1 py-3 text-sm font-semibold text-navy border-b-2 border-gold" onclick="showTab('schedule')">☀️ Idag</button>
-      <button type="button" id="tabRewardsLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('rewards')">💎 Skattkammaren</button>
-      <button type="button" id="tabFamilyLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('family')">🏡 Familj</button>
+      <button type="button" id="tabScheduleLegacy" class="flex-1 py-3 text-sm font-semibold text-navy border-b-2 border-gold" onclick="showTab('schedule')">☀️ <span data-i18n="child.nav.today">Idag</span></button>
+      <button type="button" id="tabRewardsLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('rewards')">💎 <span data-i18n="child.nav.treasureChest">Skattkammaren</span></button>
+      <button type="button" id="tabFamilyLegacy" class="flex-1 py-3 text-sm font-semibold text-text-soft border-b-2 border-transparent" onclick="showTab('family')">🏡 <span data-i18n="child.nav.family">Familj</span></button>
     </div>
   </div>
 
@@ -2477,12 +2478,12 @@
 
   <!-- Mer: snabbmeny -->
   <div id="moreView" class="hidden pb-20 max-w-lg mx-auto p-4" data-layer="more">
-    <h2 class="text-lg font-heading font-bold text-navy mb-4">Mer</h2>
+    <h2 class="text-lg font-heading font-bold text-navy mb-4" data-i18n="child.nav.more">Mer</h2>
     <div class="space-y-2">
-      <button type="button" onclick="showTab('family')" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">🏡 Familj</button>
-      <button type="button" onclick="switchChildMember()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">👤 Byt barn</button>
-      <button type="button" onclick="toggleChildDarkMode()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">🌙 Mörkt läge</button>
-      <button type="button" onclick="childLogout()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-coral text-left font-semibold text-navy min-h-[52px]">🚪 Logga ut</button>
+      <button type="button" onclick="showTab('family')" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">🏡 <span data-i18n="child.nav.family">Familj</span></button>
+      <button type="button" onclick="switchChildMember()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">👤 <span data-i18n="child.nav.switchChild">Byt barn</span></button>
+      <button type="button" onclick="toggleChildDarkMode()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-lavender text-left font-semibold text-navy min-h-[52px]">🌙 <span data-i18n="child.scheduleChrome.darkMode">Mörkt läge</span></button>
+      <button type="button" onclick="childLogout()" class="w-full flex items-center gap-3 p-4 bg-white rounded-xl border border-coral text-left font-semibold text-navy min-h-[52px]">🚪 <span data-i18n="child.scheduleChrome.logout">Logga ut</span></button>
     </div>
   </div>
 
@@ -2581,22 +2582,22 @@
   </div>
 
   <!-- Bottom tab bar (mockup: Hem / Schema / Skattkammaren / Mer) -->
-  <nav id="childBottomNav" class="child-bottom-nav" aria-label="Huvudnavigering">
+  <nav id="childBottomNav" class="child-bottom-nav" data-i18n-aria-label="child.nav.ariaLabel" aria-label="Barnnavigering">
     <button type="button" id="tabHome" class="child-bottom-nav-btn" onclick="showTab('home')">
       <span class="child-bottom-nav-icon" aria-hidden="true">🏠</span>
-      <span>Hem</span>
+      <span data-i18n="child.nav.home">Hem</span>
     </button>
     <button type="button" id="tabSchedule" class="child-bottom-nav-btn" onclick="showTab('schedule')">
       <span class="child-bottom-nav-icon" aria-hidden="true">📅</span>
-      <span>Schema</span>
+      <span data-i18n="child.nav.schedule">Schema</span>
     </button>
     <button type="button" id="tabRewards" class="child-bottom-nav-btn" onclick="showTab('rewards')">
       <span class="child-bottom-nav-icon" aria-hidden="true">💎</span>
-      <span>Skattkammaren</span>
+      <span data-i18n="child.nav.treasureChest">Skattkammaren</span>
     </button>
     <button type="button" id="tabMore" class="child-bottom-nav-btn" onclick="showTab('more')">
       <span class="child-bottom-nav-icon" aria-hidden="true">⋯</span>
-      <span>Mer</span>
+      <span data-i18n="child.nav.more">Mer</span>
     </button>
   </nav>
 
@@ -2657,13 +2658,13 @@
   <script src="/js/child-activity-card-size-picker.js?v=1.0.0"></script>
   <script src="/js/child-customization-entries.js?v=1.0.1"></script>
   <script src="/js/child-settings-view.js?v=1.0.0"></script>
-  <script src="/js/child-capabilities.js?v=1.0.0"></script>
+  <script src="/js/child-capabilities.js?v=1.0.1"></script>
   <script src="/js/profile-switch-chrome.js?v=1.0.0"></script>
   <script src="/js/child-trusted-chrome.js?v=1.1.0"></script>
   <script src="/js/child-placements.js?v=1.0.0"></script>
-  <script src="/js/child-worlds-nav.js?v=1.1.0"></script>
-  <script src="/js/child-today-i18n-bootstrap.js?v=1.0.1"></script>
-  <script src="/js/child-system-menu.js?v=1.0.0"></script>
+  <script src="/js/child-worlds-nav.js?v=1.1.1"></script>
+  <script src="/js/child-today-i18n-bootstrap.js?v=1.0.2"></script>
+  <script src="/js/child-system-menu.js?v=1.0.1"></script>
   <script src="/js/child-shell.js?v=1.0.1"></script>
   <script src="/js/child-today.js?v=1.0.0"></script>
   <script src="/js/child-world.js?v=1.0.1"></script>
@@ -2695,7 +2696,7 @@
   <script src="/js/child-session-context.js?v=1.0.0"></script>
   <script src="/js/child-dashboard-load-day.js?v=1"></script>
   <script src="/js/child-dashboard-checkoff.js?v=1"></script>
-  <script src="/js/child-dashboard.js?v=2.28.0"></script>
+  <script src="/js/child-dashboard.js?v=2.28.1"></script>
   <script src="/js/child-dashboard-rewards.js?v=4.5"></script>
   <script src="/js/child-treasure-present.js?v=1.6.0"></script>
   <script src="/js/child-dashboard-celebrations.js?v=1"></script>
