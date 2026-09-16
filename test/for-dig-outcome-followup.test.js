@@ -306,7 +306,7 @@ test('7. single-item template uses goal_title + child_name; multi uses generic c
   assert.match(single, /https:\/\/example\.test\/dashboard/);
   assert.match(single, new RegExp(GOAL_TITLE));
   assert.match(single, /Astrid/);
-  assert.match(single, new RegExp(UNATTEND_FOOTER));
+  assert.equal(single.includes(UNATTEND_FOOTER), true);
   assert.doesNotMatch(single, /transaktionell/i);
   const multi = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
