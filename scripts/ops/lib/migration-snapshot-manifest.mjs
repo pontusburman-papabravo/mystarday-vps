@@ -132,6 +132,10 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  '1810510000000_for_dig_outcome_followup_one_parent': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**

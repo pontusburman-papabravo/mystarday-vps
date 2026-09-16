@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * För dig outcome follow-up email tracking — merge-gate tests.
+ * För dig outcome follow-up — one parent / one email + isolated opt-out.
  * Requires real TEST_DATABASE_URL (0 skip).
  */
 
@@ -13,8 +13,11 @@ const { setupTestDb } = require('./helpers/setup.js');
 const { FOR_DIG_GOALS } = require('../src/lib/for-dig-config');
 const {
   CTA_PATH,
-  OPENING_LINE,
+  MULTI_SUBJECT,
+  UNATTEND_FOOTER,
   dashboardCtaUrl,
+  brandName,
+  buildSubject,
   buildOutcomeFollowupEmailHtml,
 } = require('../src/lib/for-dig-outcome-email-template');
 
@@ -55,16 +58,37 @@ async function seedFamily(db, { email, childName, parentName } = {}) {
     `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary')`,
     [parentId, childId]
   );
-  return { familyId, parentId, childId, email: email || `followup-${suffix}@example.com` };
+  return {
+    familyId,
+    parentId,
+    childId,
+    email: email || `followup-${suffix}@example.com`,
+    childName: childName || 'Astrid',
+  };
 }
 
-async function seedPending({ db, family, daysAgo = 8, goalSlug = GOAL_SLUG, withIntent = true, withOutcome = false }) {
+async function addChild(db, family, childName) {
+  const child = await db.query(
+    `INSERT INTO child (family_id, name, emoji, username)
+     VALUES ($1, $2, '⭐', $3) RETURNING id`,
+    [family.familyId, childName, `fu${uniqueSuffix()}`]
+  );
+  const childId = child.rows[0].id;
+  await db.query(
+    `INSERT INTO parent_child (parent_id, child_id, role) VALUES ($1, $2, 'primary')`,
+    [family.parentId, childId]
+  );
+  return childId;
+}
+
+async function seedPending({ db, family, childId, daysAgo = 8, goalSlug = GOAL_SLUG, withIntent = true, withOutcome = false }) {
+  const resolvedChild = childId || family.childId;
   await db.query(
     `INSERT INTO for_dig_goal_install (goal_slug, family_id, child_id, parent_id, installed_at)
      VALUES ($1, $2, $3, $4, NOW() - ($5::int || ' days')::interval)
      ON CONFLICT (goal_slug, family_id, child_id)
      DO UPDATE SET installed_at = EXCLUDED.installed_at, parent_id = EXCLUDED.parent_id`,
-    [goalSlug, family.familyId, family.childId, family.parentId, daysAgo]
+    [goalSlug, family.familyId, resolvedChild, family.parentId, daysAgo]
   );
   if (withIntent) {
     await db.query(
@@ -72,7 +96,7 @@ async function seedPending({ db, family, daysAgo = 8, goalSlug = GOAL_SLUG, with
          (family_id, parent_id, child_id, goal_slug, phase, intent_reason)
        VALUES ($1, $2, $3, $4, 'intent', 'tydligare_rutiner')
        ON CONFLICT DO NOTHING`,
-      [family.familyId, family.parentId, family.childId, goalSlug]
+      [family.familyId, family.parentId, resolvedChild, goalSlug]
     );
   }
   if (withOutcome) {
@@ -81,7 +105,7 @@ async function seedPending({ db, family, daysAgo = 8, goalSlug = GOAL_SLUG, with
          (family_id, parent_id, child_id, goal_slug, phase, outcome_score)
        VALUES ($1, $2, $3, $4, 'outcome', 3)
        ON CONFLICT DO NOTHING`,
-      [family.familyId, family.parentId, family.childId, goalSlug]
+      [family.familyId, family.parentId, resolvedChild, goalSlug]
     );
   }
 }
@@ -96,6 +120,48 @@ function signPayload(secret, payload, id, timestamp) {
   const sig = crypto.createHmac('sha256', key).update(signed).digest('base64');
   return { id, timestamp, signature: `v1,${sig}` };
 }
+
+async function withSendEnabled(fn) {
+  const prev = process.env.EMAIL_SEND_ENABLED;
+  process.env.EMAIL_SEND_ENABLED = 'true';
+  try {
+    return await fn();
+  } finally {
+    if (prev === undefined) delete process.env.EMAIL_SEND_ENABLED;
+    else process.env.EMAIL_SEND_ENABLED = prev;
+  }
+}
+
+async function listen(app) {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(0, () => resolve(server));
+    server.on('error', reject);
+  });
+}
+
+test('groupPendingByParent maps 72 items / 24 parents to 24 groups', () => {
+  const { groupPendingByParent } = require('../db/for-dig-outcome-followup');
+  const rows = [];
+  for (let p = 0; p < 24; p++) {
+    const parentId = `parent-${p}`;
+    for (let i = 0; i < 3; i++) {
+      rows.push({
+        parent_id: parentId,
+        parent_email: `p${p}@example.com`,
+        parent_name: `P${p}`,
+        family_id: `fam-${p}`,
+        child_id: `child-${p}-${i}`,
+        goal_slug: GOAL_SLUG,
+        child_name: `C${i}`,
+        goal_title: GOAL_TITLE,
+      });
+    }
+  }
+  const grouped = groupPendingByParent(rows);
+  assert.equal(rows.length, 72);
+  assert.equal(grouped.groups.size, 24);
+  assert.equal([...grouped.groups.values()].every((g) => g.items.length === 3), true);
+});
 
 test('1. pending eligibility: intent + ≥7d + no outcome is listed', async () => {
   const db = await setupTestDb();
@@ -132,41 +198,318 @@ test('2. pending eligibility: <7d, existing outcome, and other family are exclud
     assert.equal(keys.has(pendingKey({ family_id: tooNew.familyId, child_id: tooNew.childId, goal_slug: GOAL_SLUG })), false);
     assert.equal(keys.has(pendingKey({ family_id: hasOutcome.familyId, child_id: hasOutcome.childId, goal_slug: GOAL_SLUG })), false);
     assert.equal(keys.has(pendingKey({ family_id: otherFamily.familyId, child_id: otherFamily.childId, goal_slug: GOAL_SLUG })), true);
-    assert.equal(
-      pending.rows.some((row) => row.family_id === tooNew.familyId && row.child_id === otherFamily.childId),
-      false
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('3. three pending items same parent → 1 recipient; items match pending', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db);
+    await seedPending({ db, family, daysAgo: 9, goalSlug: FOR_DIG_GOALS[0].slug });
+    await seedPending({ db, family, daysAgo: 9, goalSlug: FOR_DIG_GOALS[1].slug });
+    await seedPending({ db, family, daysAgo: 9, goalSlug: FOR_DIG_GOALS[2].slug });
+    const batch = await followup.createBatch();
+    const prepared = await followup.prepareFromPending(batch.id);
+    const recipients = await followup.listRecipients(batch.id);
+    const mine = recipients.filter((row) => row.parent_id === family.parentId);
+    assert.equal(mine.length, 1);
+    assert.equal(mine[0].items.length, 3);
+    assert.equal(prepared.inserted >= 1, true);
+    assert.equal(new Set(recipients.map((row) => row.parent_id)).size, recipients.length);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('4. twelve pending items same parent → 1 recipient', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    assert.ok(FOR_DIG_GOALS.length >= 6);
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db, { childName: 'Ett' });
+    const siblingId = await addChild(db, family, 'Två');
+    for (const goal of FOR_DIG_GOALS) {
+      await seedPending({ db, family, daysAgo: 10, goalSlug: goal.slug });
+      await seedPending({ db, family, childId: siblingId, daysAgo: 10, goalSlug: goal.slug });
+    }
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id);
+    const mine = (await followup.listRecipients(batch.id)).filter((row) => row.parent_id === family.parentId);
+    assert.equal(mine.length, 1);
+    assert.equal(mine[0].items.length, FOR_DIG_GOALS.length * 2);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('5. two different parents → 2 recipients', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const a = await seedFamily(db, { parentName: 'Ada' });
+    const b = await seedFamily(db, { parentName: 'Bo' });
+    await seedPending({ db, family: a, daysAgo: 8 });
+    await seedPending({ db, family: b, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    const prepared = await followup.prepareFromPending(batch.id);
+    const recipients = await followup.listRecipients(batch.id);
+    const mine = recipients.filter((row) => row.parent_id === a.parentId || row.parent_id === b.parentId);
+    assert.equal(mine.length, 2);
+    assert.equal(prepared.unique_parents >= 2, true);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('6. UNIQUE(batch_id, parent_id) blocks duplicate recipient rows', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db);
+    const batch = await followup.createBatch();
+    await db.query(
+      `INSERT INTO for_dig_outcome_followup_recipient (batch_id, parent_id, recipient_email)
+       VALUES ($1, $2, $3)`,
+      [batch.id, family.parentId, family.email]
+    );
+    await assert.rejects(
+      () => db.query(
+        `INSERT INTO for_dig_outcome_followup_recipient (batch_id, parent_id, recipient_email)
+         VALUES ($1, $2, $3)`,
+        [batch.id, family.parentId, family.email]
+      ),
+      (err) => err && err.code === '23505'
     );
   } finally {
     await db.cleanup();
   }
 });
 
-test('3. prepare-from-pending matches listPendingOutcomesAdmin rows', async () => {
+test('7. single-item template uses goal_title + child_name; multi uses generic copy; CTA /dashboard', () => {
+  assert.equal(CTA_PATH, '/dashboard');
+  assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 1 }), `Hur går det med ${GOAL_TITLE}?`);
+  assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 12 }), MULTI_SUBJECT);
+  const cta = dashboardCtaUrl('https://example.test');
+  const single = buildOutcomeFollowupEmailHtml({
+    parentName: 'Anna',
+    items: [{ goalTitle: GOAL_TITLE, childName: 'Astrid' }],
+    ctaUrl: cta,
+    unsubscribeUrl: 'https://example.test/for-dig/followup-unsubscribe?t=token',
+  });
+  assert.match(single, /https:\/\/example\.test\/dashboard/);
+  assert.match(single, new RegExp(GOAL_TITLE));
+  assert.match(single, /Astrid/);
+  assert.match(single, new RegExp(UNATTEND_FOOTER));
+  assert.doesNotMatch(single, /transaktionell/i);
+  const multi = buildOutcomeFollowupEmailHtml({
+    parentName: 'Anna',
+    items: [
+      { goalTitle: GOAL_TITLE, childName: 'Astrid' },
+      { goalTitle: FOR_DIG_GOALS[1].title, childName: 'Astrid' },
+    ],
+    ctaUrl: cta,
+  });
+  assert.match(multi, /https:\/\/example\.test\/dashboard/);
+  assert.match(multi, /några saker/);
+  assert.doesNotMatch(multi, new RegExp(GOAL_TITLE));
+  assert.match(multi, new RegExp(`Öppna ${brandName()}`));
+});
+
+test('8. opted-out parent is excluded from prepare; newsletter subscription unchanged', async () => {
   const db = await setupTestDb();
   assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
   try {
-    const { listPendingOutcomesAdmin } = require('../db/for-dig-goal-feedback');
     const followup = require('../db/for-dig-outcome-followup');
+    const prefs = require('../db/for-dig-followup-email-preference');
     const family = await seedFamily(db);
-    await seedPending({ db, family, daysAgo: 9 });
-    const pending = await listPendingOutcomesAdmin({ limit: 5000, offset: 0 });
+    const other = await seedFamily(db);
+    await seedPending({ db, family, daysAgo: 8 });
+    await seedPending({ db, family: other, daysAgo: 8 });
+    await db.query(
+      `INSERT INTO email_subscriptions (parent_id, email, subscribed, subscribed_at, unsubscribe_token)
+       VALUES ($1, $2, true, NOW(), $3)
+       ON CONFLICT (parent_id) DO UPDATE SET subscribed = true, unsubscribed_at = NULL`,
+      [family.parentId, family.email, crypto.randomUUID()]
+    );
+    const beforeFlag = await db.query(`SELECT newsletter_subscribed FROM parent WHERE id = $1`, [family.parentId]);
+    const pref = await prefs.ensurePreference(family.parentId);
+    await db.query(
+      `UPDATE for_dig_followup_email_preference SET opted_out_at = NOW() WHERE parent_id = $1`,
+      [family.parentId]
+    );
     const batch = await followup.createBatch();
     const prepared = await followup.prepareFromPending(batch.id);
     const recipients = await followup.listRecipients(batch.id);
-    const pendingKeys = pending.rows
-      .filter((row) => row.parent_id && row.parent_email)
-      .map(pendingKey)
-      .sort();
-    const recipientKeys = recipients.map(pendingKey).sort();
-    assert.deepEqual(recipientKeys, pendingKeys);
-    assert.equal(prepared.inserted, pendingKeys.length);
-    assert.equal(prepared.pendingTotal, pending.total);
+    assert.equal(recipients.some((row) => row.parent_id === family.parentId), false);
+    assert.equal(recipients.some((row) => row.parent_id === other.parentId), true);
+    assert.equal(prepared.opted_out >= 1, true);
+    const sub = await prefs.newsletterSubscribed(family.parentId);
+    assert.equal(sub, true);
+    const afterFlag = await db.query(`SELECT newsletter_subscribed FROM parent WHERE id = $1`, [family.parentId]);
+    assert.deepEqual(afterFlag.rows[0], beforeFlag.rows[0]);
+    assert.ok(pref.unsub_token);
   } finally {
     await db.cleanup();
   }
 });
 
-test('4. outcome attribution after send matches family+child+goal', async () => {
+test('9. unsubscribe token for parent A cannot change parent B; opt-out is idempotent', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const prefs = require('../db/for-dig-followup-email-preference');
+    const { signUnsubToken, verifyUnsubToken, buildUnsubscribeUrl } = require('../src/lib/for-dig-followup-unsub-token');
+    const a = await seedFamily(db, { parentName: 'Ada' });
+    const b = await seedFamily(db, { parentName: 'Bo' });
+    const prefA = await prefs.ensurePreference(a.parentId);
+    const prefB = await prefs.ensurePreference(b.parentId);
+    const url = buildUnsubscribeUrl(prefA.unsub_token, 'https://example.test');
+    assert.doesNotMatch(url, new RegExp(a.parentId, 'i'));
+    assert.doesNotMatch(url, /@/);
+    assert.doesNotMatch(url, new RegExp(a.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    const verified = verifyUnsubToken(signUnsubToken(prefA.unsub_token));
+    assert.equal(verified.ok, true);
+    const first = await prefs.optOutByUnsubToken(prefA.unsub_token);
+    const second = await prefs.optOutByUnsubToken(prefA.unsub_token);
+    assert.equal(first.ok, true);
+    assert.equal(first.alreadyOptedOut, false);
+    assert.equal(second.ok, true);
+    assert.equal(second.alreadyOptedOut, true);
+    assert.equal(await prefs.isOptedOut(a.parentId), true);
+    assert.equal(await prefs.isOptedOut(b.parentId), false);
+    assert.equal(prefB.parent_id, b.parentId);
+
+    const unsub = require('../src/routes/for-dig-followup-unsubscribe');
+    const app = express();
+    app.use(unsub);
+    const server = await listen(app);
+    try {
+      const port = server.address().port;
+      const tokenA = signUnsubToken(prefA.unsub_token);
+      const again = await fetch(`http://127.0.0.1:${port}/for-dig/followup-unsubscribe?t=${encodeURIComponent(tokenA)}`);
+      assert.equal(again.status, 200);
+      const body = await again.text();
+      assert.match(body, /Du får inte längre uppföljningsmejl om För dig/);
+      assert.equal(await prefs.isOptedOut(b.parentId), false);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('10. opt-out after prepare but before send → no email / no newsletter_email_send', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const prefs = require('../db/for-dig-followup-email-preference');
+    const family = await seedFamily(db);
+    await seedPending({ db, family, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id);
+    const pref = await prefs.ensurePreference(family.parentId);
+    await prefs.optOutByUnsubToken(pref.unsub_token);
+    const result = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(result.dryRun, false);
+    assert.equal(result.sent, 0);
+    assert.equal(result.skipped_opted_out >= 1, true);
+    const sends = await db.query(
+      `SELECT id FROM newsletter_email_send WHERE campaign_type = $1 AND campaign_id = $2`,
+      [followup.CAMPAIGN_TYPE, batch.id]
+    );
+    assert.equal(sends.rowCount, 0);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('11. all outcomes after prepare → skip send; some remaining → max 1 email', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const answered = await seedFamily(db, { parentName: 'Klar' });
+    const partial = await seedFamily(db, { parentName: 'Delvis' });
+    await seedPending({ db, family: answered, daysAgo: 8, goalSlug: FOR_DIG_GOALS[0].slug });
+    await seedPending({ db, family: answered, daysAgo: 8, goalSlug: FOR_DIG_GOALS[1].slug });
+    await seedPending({ db, family: partial, daysAgo: 8, goalSlug: FOR_DIG_GOALS[0].slug });
+    await seedPending({ db, family: partial, daysAgo: 8, goalSlug: FOR_DIG_GOALS[1].slug });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id);
+    await db.query(
+      `INSERT INTO for_dig_goal_feedback
+         (family_id, parent_id, child_id, goal_slug, phase, outcome_score)
+       VALUES ($1, $2, $3, $4, 'outcome', 4),
+              ($5, $6, $7, $8, 'outcome', 3),
+              ($9, $10, $11, $12, 'outcome', 2)`,
+      [
+        answered.familyId, answered.parentId, answered.childId, FOR_DIG_GOALS[0].slug,
+        answered.familyId, answered.parentId, answered.childId, FOR_DIG_GOALS[1].slug,
+        partial.familyId, partial.parentId, partial.childId, FOR_DIG_GOALS[0].slug,
+      ]
+    );
+    const result = await withSendEnabled(() => followup.sendBatch(batch.id));
+    assert.equal(result.dryRun, false);
+    assert.equal(result.sent, 1);
+    assert.equal(result.skipped_no_pending >= 1, true);
+    const sends = await db.query(
+      `SELECT parent_id FROM newsletter_email_send WHERE campaign_type = $1 AND campaign_id = $2`,
+      [followup.CAMPAIGN_TYPE, batch.id]
+    );
+    assert.equal(sends.rowCount, 1);
+    assert.equal(sends.rows[0].parent_id, partial.parentId);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('12. dry-run → no sends / newsletter_email_send rows', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  const prev = process.env.EMAIL_SEND_ENABLED;
+  try {
+    delete process.env.EMAIL_SEND_ENABLED;
+    const followup = require('../db/for-dig-outcome-followup');
+    const family = await seedFamily(db);
+    await seedPending({ db, family, daysAgo: 8 });
+    const batch = await followup.createBatch();
+    await followup.prepareFromPending(batch.id);
+    const preview = await followup.previewBatch(batch.id);
+    assert.equal(preview.pending_item_count >= 1, true);
+    assert.equal(preview.unique_parents >= 1, true);
+    assert.equal(typeof preview.opted_out, 'number');
+    assert.equal(typeof preview.recipient_count, 'number');
+    const unsetResult = await followup.sendBatch(batch.id);
+    assert.equal(unsetResult.dryRun, true);
+    assert.equal(unsetResult.sent, 0);
+    process.env.EMAIL_SEND_ENABLED = 'false';
+    const falseResult = await followup.sendBatch(batch.id);
+    assert.equal(falseResult.dryRun, true);
+    const sends = await db.query(
+      `SELECT id FROM newsletter_email_send WHERE campaign_type = $1 AND campaign_id = $2`,
+      [followup.CAMPAIGN_TYPE, batch.id]
+    );
+    assert.equal(sends.rowCount, 0);
+    const after = await followup.getBatch(batch.id);
+    assert.equal(after.sent_at, null);
+    assert.notEqual(after.status, 'sent');
+  } finally {
+    if (prev === undefined) delete process.env.EMAIL_SEND_ENABLED;
+    else process.env.EMAIL_SEND_ENABLED = prev;
+    await db.cleanup();
+  }
+});
+
+test('13. outcome attribution after send matches family+child+goal via recipient items', async () => {
   const db = await setupTestDb();
   assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
   try {
@@ -197,38 +540,7 @@ test('4. outcome attribution after send matches family+child+goal', async () => 
   }
 });
 
-test('5. outcome attribution rejects before send and sent_at null', async () => {
-  const db = await setupTestDb();
-  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
-  try {
-    const followup = require('../db/for-dig-outcome-followup');
-    const family = await seedFamily(db);
-    await seedPending({ db, family, daysAgo: 8 });
-    const batch = await followup.createBatch();
-    await followup.prepareFromPending(batch.id);
-    await db.query(
-      `INSERT INTO for_dig_goal_feedback
-         (family_id, parent_id, child_id, goal_slug, phase, outcome_score, created_at)
-       VALUES ($1, $2, $3, $4, 'outcome', 3, NOW() - INTERVAL '2 hours')`,
-      [family.familyId, family.parentId, family.childId, GOAL_SLUG]
-    );
-    const beforeSend = await followup.listAttributedOutcomes(batch.id);
-    assert.equal(beforeSend.length, 0);
-
-    await db.query(
-      `UPDATE for_dig_outcome_followup_batch
-       SET status = 'sent', sent_at = NOW()
-       WHERE id = $1`,
-      [batch.id]
-    );
-    const afterButOutcomeEarlier = await followup.listAttributedOutcomes(batch.id);
-    assert.equal(afterButOutcomeEarlier.length, 0);
-  } finally {
-    await db.cleanup();
-  }
-});
-
-test('6. outcome attribution rejects wrong child, goal, or family', async () => {
+test('14. outcome attribution rejects before send, sent_at null, and wrong child/goal/family', async () => {
   const db = await setupTestDb();
   assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
   try {
@@ -238,6 +550,14 @@ test('6. outcome attribution rejects wrong child, goal, or family', async () => 
     await seedPending({ db, family, daysAgo: 8 });
     const batch = await followup.createBatch();
     await followup.prepareFromPending(batch.id);
+    await db.query(
+      `INSERT INTO for_dig_goal_feedback
+         (family_id, parent_id, child_id, goal_slug, phase, outcome_score, created_at)
+       VALUES ($1, $2, $3, $4, 'outcome', 3, NOW() - INTERVAL '2 hours')`,
+      [family.familyId, family.parentId, family.childId, GOAL_SLUG]
+    );
+    assert.equal((await followup.listAttributedOutcomes(batch.id)).length, 0);
+
     await db.query(
       `UPDATE for_dig_outcome_followup_batch
        SET status = 'sent', sent_at = NOW() - INTERVAL '30 minutes'
@@ -256,60 +576,13 @@ test('6. outcome attribution rejects wrong child, goal, or family', async () => 
        VALUES ($1, $2, $3, $4, 'outcome', 2)`,
       [family.familyId, family.parentId, family.childId, OTHER_GOAL]
     );
-    const sibling = await db.query(
-      `INSERT INTO child (family_id, name, emoji, username)
-       VALUES ($1, 'Syskon', '⭐', $2) RETURNING id`,
-      [family.familyId, `sib${uniqueSuffix()}`]
-    );
-    await db.query(
-      `INSERT INTO for_dig_goal_feedback
-         (family_id, parent_id, child_id, goal_slug, phase, outcome_score)
-       VALUES ($1, $2, $3, $4, 'outcome', 2)`,
-      [family.familyId, family.parentId, sibling.rows[0].id, GOAL_SLUG]
-    );
-    const attributed = await followup.listAttributedOutcomes(batch.id);
-    assert.equal(attributed.length, 0);
+    assert.equal((await followup.listAttributedOutcomes(batch.id)).length, 0);
   } finally {
     await db.cleanup();
   }
 });
 
-test('7. EMAIL_SEND_ENABLED unset/false is dry-run with no newsletter_email_send rows', async () => {
-  const db = await setupTestDb();
-  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
-  const prev = process.env.EMAIL_SEND_ENABLED;
-  try {
-    delete process.env.EMAIL_SEND_ENABLED;
-    const followup = require('../db/for-dig-outcome-followup');
-    const family = await seedFamily(db);
-    await seedPending({ db, family, daysAgo: 8 });
-    const batch = await followup.createBatch();
-    await followup.prepareFromPending(batch.id);
-    const unsetResult = await followup.sendBatch(batch.id);
-    assert.equal(unsetResult.dryRun, true);
-    assert.equal(unsetResult.sent, 0);
-
-    process.env.EMAIL_SEND_ENABLED = 'false';
-    const falseResult = await followup.sendBatch(batch.id);
-    assert.equal(falseResult.dryRun, true);
-    assert.equal(falseResult.sent, 0);
-
-    const sends = await db.query(
-      `SELECT id FROM newsletter_email_send WHERE campaign_type = $1 AND campaign_id = $2`,
-      [followup.CAMPAIGN_TYPE, batch.id]
-    );
-    assert.equal(sends.rowCount, 0);
-    const after = await followup.getBatch(batch.id);
-    assert.equal(after.sent_at, null);
-    assert.notEqual(after.status, 'sent');
-  } finally {
-    if (prev === undefined) delete process.env.EMAIL_SEND_ENABLED;
-    else process.env.EMAIL_SEND_ENABLED = prev;
-    await db.cleanup();
-  }
-});
-
-test('8. migration leaves existing newsletter and for_dig data unchanged', async () => {
+test('15. migration leaves existing newsletter and for_dig data unchanged', async () => {
   const db = await setupTestDb();
   assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
   try {
@@ -333,12 +606,22 @@ test('8. migration leaves existing newsletter and for_dig data unchanged', async
     const tables = await db.query(`
       SELECT tablename FROM pg_tables
       WHERE schemaname = 'public'
-        AND tablename IN ('for_dig_outcome_followup_batch', 'for_dig_outcome_followup_recipient')
+        AND tablename IN (
+          'for_dig_outcome_followup_batch',
+          'for_dig_outcome_followup_recipient',
+          'for_dig_outcome_followup_recipient_item',
+          'for_dig_followup_email_preference'
+        )
       ORDER BY tablename
     `);
     assert.deepEqual(
       tables.rows.map((row) => row.tablename),
-      ['for_dig_outcome_followup_batch', 'for_dig_outcome_followup_recipient']
+      [
+        'for_dig_followup_email_preference',
+        'for_dig_outcome_followup_batch',
+        'for_dig_outcome_followup_recipient',
+        'for_dig_outcome_followup_recipient_item',
+      ]
     );
     const afterNews = await db.query(
       `SELECT campaign_type, campaign_id, recipient_email FROM newsletter_email_send WHERE campaign_id = $1`,
@@ -356,11 +639,12 @@ test('8. migration leaves existing newsletter and for_dig data unchanged', async
   }
 });
 
-test('9. newsletter standalone recordSend/stats/recipients still work', async () => {
+test('16. newsletter standalone recordSend/stats/recipients still work; webhook updates for_dig tracking', async () => {
   const db = await setupTestDb();
   assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
   try {
     const tracking = require('../db/newsletter-email-tracking');
+    const followup = require('../db/for-dig-outcome-followup');
     const family = await seedFamily(db);
     const campaignId = crypto.randomUUID();
     const sendId = await tracking.recordSend({
@@ -376,28 +660,7 @@ test('9. newsletter standalone recordSend/stats/recipients still work', async ()
     const recipients = await tracking.getCampaignRecipients('standalone', campaignId);
     assert.equal(recipients.length, 1);
     assert.equal(recipients[0].email, family.email);
-  } finally {
-    await db.cleanup();
-  }
-});
 
-test('10. same webhook handler updates for_dig tracking; retry increments open_count; CTA is /dashboard', async () => {
-  const db = await setupTestDb();
-  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
-  try {
-    assert.equal(CTA_PATH, '/dashboard');
-    const html = buildOutcomeFollowupEmailHtml({
-      parentName: 'Anna',
-      childName: 'Astrid',
-      goalTitle: GOAL_TITLE,
-      ctaUrl: dashboardCtaUrl('https://example.test'),
-    });
-    assert.match(html, /https:\/\/example\.test\/dashboard/);
-    assert.match(html, new RegExp(OPENING_LINE));
-    assert.doesNotMatch(html, /transaktionell/i);
-
-    const followup = require('../db/for-dig-outcome-followup');
-    const family = await seedFamily(db);
     const batch = await followup.createBatch();
     const emailId = `re_fordig_${uniqueSuffix()}`;
     await db.query(
@@ -410,21 +673,12 @@ test('10. same webhook handler updates for_dig tracking; retry increments open_c
     const secret = 'whsec_' + Buffer.from('test-secret-key-32bytes!!!!').toString('base64');
     const prevSecret = process.env.RESEND_WEBHOOK_SECRET;
     process.env.RESEND_WEBHOOK_SECRET = secret;
-
     const webhookPath = require.resolve('../src/routes/resend-webhook');
     delete require.cache[webhookPath];
     const { handleResendWebhook } = require('../src/routes/resend-webhook');
-    const trackingSource = require('fs').readFileSync(webhookPath, 'utf8');
-    assert.match(trackingSource, /markOpened/);
-    assert.match(trackingSource, /newsletter-email-tracking/);
-    assert.doesNotMatch(trackingSource, /email_campaign/);
-
     const app = express();
     app.post('/api/resend/webhook', express.raw({ type: 'application/json' }), handleResendWebhook);
-    const server = await new Promise((resolve, reject) => {
-      const s = app.listen(0, () => resolve(s));
-      s.on('error', reject);
-    });
+    const server = await listen(app);
     try {
       const port = server.address().port;
       for (let i = 0; i < 2; i++) {

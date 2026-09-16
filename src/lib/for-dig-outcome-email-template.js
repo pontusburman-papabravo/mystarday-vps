@@ -9,8 +9,11 @@ const { escapeHtml } = require('./escape-html');
 const config = require('./config');
 
 const DEFAULT_SUBJECT_TEMPLATE = 'Hur går det med {{goal_title}}?';
+const MULTI_SUBJECT = 'Hur har det gått?';
 const CTA_PATH = '/dashboard';
-const OPENING_LINE = 'För ett tag sedan aktiverade du';
+const UNATTEND_FOOTER = 'Vill du inte få fler uppföljningsmejl om För dig? Avregistrera här.';
+const ASK_LEAD = 'Nu är vi nyfikna:';
+const ASK_EMPHASIS = 'hur har det gått?';
 
 function brandName() {
   return config.email.fromName;
@@ -31,25 +34,26 @@ function interpolate(template, vars) {
   });
 }
 
-function buildSubject({ goalTitle, subjectTemplate } = {}) {
+function buildSubject({ goalTitle, itemCount = 1, subjectTemplate } = {}) {
+  if (Number(itemCount) > 1) return MULTI_SUBJECT;
   return interpolate(subjectTemplate || DEFAULT_SUBJECT_TEMPLATE, {
     goal_title: goalTitle || 'målet',
   });
 }
 
-function buildOutcomeFollowupEmailHtml({
-  parentName,
-  childName,
-  goalTitle,
-  subject,
-  ctaUrl,
-} = {}) {
-  const safeParent = escapeHtml(parentName || 'du');
-  const safeChild = escapeHtml(childName || 'ditt barn');
-  const safeGoal = escapeHtml(goalTitle || 'målet');
-  const safeSubject = escapeHtml(subject || buildSubject({ goalTitle }));
+function wrapEmail({ subject, bodyInner, ctaUrl, unsubscribeUrl }) {
+  const safeSubject = escapeHtml(subject);
   const href = escapeHtml(ctaUrl || dashboardCtaUrl());
   const safeBrand = escapeHtml(brandName());
+  const footer = unsubscribeUrl
+    ? `<tr>
+            <td style="padding:0 40px 32px 40px;color:#6b7280;font-size:13px;line-height:1.6;">
+              <p style="margin:0;">
+                <a href="${escapeHtml(unsubscribeUrl)}" style="color:#6b7280;text-decoration:underline;">${escapeHtml(UNATTEND_FOOTER)}</a>
+              </p>
+            </td>
+          </tr>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="sv">
@@ -71,8 +75,7 @@ function buildOutcomeFollowupEmailHtml({
           </tr>
           <tr>
             <td style="padding:40px 40px 32px 40px;color:#374151;font-size:16px;line-height:1.7;">
-              <p style="margin:0 0 16px 0;">Hej ${safeParent},</p>
-              <p style="margin:0 0 16px 0;">${OPENING_LINE} <strong>${safeGoal}</strong> för ${safeChild}. Hur går det?</p>
+              ${bodyInner}
             </td>
           </tr>
           <tr>
@@ -82,6 +85,7 @@ function buildOutcomeFollowupEmailHtml({
               </a>
             </td>
           </tr>
+          ${footer}
         </table>
       </td>
     </tr>
@@ -90,10 +94,75 @@ function buildOutcomeFollowupEmailHtml({
 </html>`;
 }
 
+function buildSingleBodyHtml({ parentName, childName, goalTitle }) {
+  const safeParent = escapeHtml(parentName || 'du');
+  const safeChild = escapeHtml(childName || 'ditt barn');
+  const safeGoal = escapeHtml(goalTitle || 'målet');
+  const safeBrand = escapeHtml(brandName());
+  return `
+              <p style="margin:0 0 16px 0;">Hej ${safeParent}!</p>
+              <p style="margin:0 0 16px 0;">För ett tag sedan aktiverade du <strong>${safeGoal}</strong> för ${safeChild} i För dig.</p>
+              <p style="margin:0 0 16px 0;">${escapeHtml(ASK_LEAD)} <strong>${escapeHtml(ASK_EMPHASIS)}</strong></p>
+              <p style="margin:0 0 16px 0;">Öppna appen och gå till <strong>Hem</strong>. Där finns en kort fråga med fyra svarsalternativ (😊 🙂 😐 🙁). Det tar mindre än en minut, och du kan lägga till en kommentar om du vill.</p>
+              <p style="margin:0 0 16px 0;">Ditt svar påverkar inte ditt konto eller dina inställningar. Det hjälper oss att förstå vad som fungerar för familjer — och vad vi kan göra bättre.</p>
+              <p style="margin:24px 0 0 0;">Tack för att du hjälper oss utveckla ${safeBrand}!</p>
+              <p style="margin:8px 0 0 0;">/${escapeHtml(brandName())}-teamet</p>`;
+}
+
+function buildMultiBodyHtml({ parentName }) {
+  const safeParent = escapeHtml(parentName || 'du');
+  const safeBrand = escapeHtml(brandName());
+  return `
+              <p style="margin:0 0 16px 0;">Hej ${safeParent}!</p>
+              <p style="margin:0 0 16px 0;">För ett tag sedan aktiverade du några saker i För dig.</p>
+              <p style="margin:0 0 16px 0;">${escapeHtml(ASK_LEAD)} <strong>${escapeHtml(ASK_EMPHASIS)}</strong></p>
+              <p style="margin:0 0 16px 0;">Öppna appen och gå till <strong>Hem</strong>. Där kan du svara på de korta frågorna. Det tar bara någon minut.</p>
+              <p style="margin:0 0 16px 0;">Ditt svar påverkar inte ditt konto eller dina inställningar. Det hjälper oss att förstå vad som fungerar för familjer — och vad vi kan göra bättre.</p>
+              <p style="margin:24px 0 0 0;">Tack för att du hjälper oss utveckla ${safeBrand}!</p>
+              <p style="margin:8px 0 0 0;">/${escapeHtml(brandName())}-teamet</p>`;
+}
+
+function buildOutcomeFollowupEmailHtml({
+  parentName,
+  childName,
+  goalTitle,
+  items,
+  subject,
+  ctaUrl,
+  unsubscribeUrl,
+} = {}) {
+  const itemList = Array.isArray(items) && items.length ? items : [{
+    childName,
+    goalTitle,
+  }];
+  const itemCount = itemList.length;
+  const first = itemList[0] || {};
+  const resolvedSubject = subject || buildSubject({
+    goalTitle: first.goalTitle || goalTitle,
+    itemCount,
+  });
+  const bodyInner = itemCount > 1
+    ? buildMultiBodyHtml({ parentName })
+    : buildSingleBodyHtml({
+      parentName,
+      childName: first.childName || childName,
+      goalTitle: first.goalTitle || goalTitle,
+    });
+  return wrapEmail({
+    subject: resolvedSubject,
+    bodyInner,
+    ctaUrl,
+    unsubscribeUrl,
+  });
+}
+
 module.exports = {
   DEFAULT_SUBJECT_TEMPLATE,
+  MULTI_SUBJECT,
   CTA_PATH,
-  OPENING_LINE,
+  UNATTEND_FOOTER,
+  ASK_LEAD,
+  ASK_EMPHASIS,
   brandName,
   ctaLabel,
   dashboardCtaUrl,

@@ -159,6 +159,9 @@ function registerRoutes(app) {
   // ─── PWA + child view routes ─────────────────────────────────
   app.use('/', require('./static-routes'));
 
+  // Public För dig follow-up unsubscribe (signed token, no login)
+  app.use(require('./for-dig-followup-unsubscribe'));
+
   // ─── Feature-gated HTML pages (/reports, /pedagog-note) ─
   app.use(require('./feature-gated-pages'));
 
