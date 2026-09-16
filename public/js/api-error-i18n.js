@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var CODE_KEYS = {
+  const CODE_KEYS = {
     UPLOAD_NOT_CONFIGURED: 'family.errors.uploadNotConfigured',
     UPLOAD_NO_FILE: 'family.errors.uploadNoFile',
     UPLOAD_FILE_TOO_LARGE: 'family.errors.uploadTooLarge',
@@ -107,7 +107,7 @@
     RATING_SERVER_ERROR: 'today.errors.saveRating',
   };
 
-  var SWEDISH_COPY = /[åäöÅÄÖ]|kunde inte|ogiltig|måste vara|hittades inte|något gick fel|krävs|för stor|inte tillåten|försök igen/i;
+  const SWEDISH_COPY = /[åäöÅÄÖ]|kunde inte|ogiltig|måste vara|hittades inte|något gick fel|krävs|för stor|inte tillåten|försök igen/i;
 
   function currentLang() {
     if (window.I18n && typeof I18n.getCurrentLang === 'function') {
@@ -127,7 +127,7 @@
   function translate(key, params) {
     if (!key) return '';
     if (window.I18n && typeof I18n.t === 'function') {
-      var text = I18n.t(key, params || {});
+      const text = I18n.t(key, params || {});
       if (text && text !== key) return text;
     }
     return '';
@@ -139,21 +139,21 @@
   }
 
   function apiErrorMessage(dataOrErr, fallbackKey) {
-    var data = dataOrErr || {};
+    let data = dataOrErr || {};
     if (data.body && typeof data.body === 'object') data = data.body;
 
-    var details = detailsObject(data.details);
-    var code = data.code;
+    const details = detailsObject(data.details);
+    let code = data.code;
     if (!code && isErrorCode(data.error)) code = data.error;
     if (!code && isErrorCode(data.status)) code = data.status;
 
     if (code && CODE_KEYS[code]) {
-      var mapped = translate(CODE_KEYS[code], details);
+      const mapped = translate(CODE_KEYS[code], details);
       if (mapped) return mapped;
     }
 
     if (fallbackKey) {
-      var fallback = translate(fallbackKey, details);
+      const fallback = translate(fallbackKey, details);
       if (fallback) return fallback;
     }
 
@@ -161,7 +161,7 @@
       return data.error;
     }
 
-    var generic = translate('auth.errors.serverError');
+    const generic = translate('auth.errors.serverError');
     if (generic) return generic;
     if (data.error && !SWEDISH_COPY.test(String(data.error)) && !isErrorCode(data.error)) {
       return String(data.error);
