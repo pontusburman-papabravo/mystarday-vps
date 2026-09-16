@@ -614,6 +614,33 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, true, JSON.stringify(result.drift));
   });
 
+  test('for_dig_outcome_followup_one_parent has schema-only deploy contract', async () => {
+    const { loadMigrationSnapshotContract, aggregateMigrationContracts } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810510000000_for_dig_outcome_followup_one_parent';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract, name);
+    assert.equal(contract.backwardCompatible, true);
+    assert.equal(contract.schemaOnly, true);
+    const { missing } = aggregateMigrationContracts([name], REPO_ROOT);
+    assert.deepEqual(missing, []);
+
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810500000000_for_dig_outcome_followup_email'],
+      tables: baseTables(),
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
   test('for_dig_outcome_followup_email has schema-only deploy contract', async () => {
     const { loadMigrationSnapshotContract, aggregateMigrationContracts } = await import(
       '../scripts/ops/lib/migration-snapshot-manifest.mjs'

@@ -39,6 +39,9 @@ router.post('/for-dig/outcome-followup/batches/:id/prepare-from-pending', asyncR
   res.json({
     batch_id: result.batchId,
     pending_total: result.pendingTotal,
+    pending_item_count: result.pending_item_count,
+    unique_parents: result.unique_parents,
+    opted_out: result.opted_out,
     inserted: result.inserted,
     skipped: result.skipped,
   });
