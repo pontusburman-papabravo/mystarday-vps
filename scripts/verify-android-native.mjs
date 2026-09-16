@@ -15,6 +15,9 @@ import {
   OPEN_CHILD_PATH,
   verifyGeneratedAppLinks,
 } from './lib/android-app-links.mjs';
+import {
+  assertAndroidStringsHaveRealBrand,
+} from './lib/native-brand-name.mjs';
 
 const ROOT = process.cwd();
 let failed = false;
@@ -183,6 +186,27 @@ if (fs.existsSync(path.join(ROOT, 'android', 'variables.gradle'))) {
     fail(`compileSdkVersion must be >= ${sdkCfg.compileSdkVersion}`);
   } else {
     ok(`compileSdkVersion ${compileMatch[1]}`);
+  }
+}
+
+const androidRes = path.join(ROOT, 'android', 'app', 'src', 'main', 'res');
+if (fs.existsSync(androidRes)) {
+  const valueDirs = fs.readdirSync(androidRes, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && e.name.startsWith('values'));
+  if (valueDirs.length === 0) {
+    fail('android res/ has no values* folders');
+  }
+  for (const dir of valueDirs) {
+    const stringsPath = path.join(androidRes, dir.name, 'strings.xml');
+    if (!fs.existsSync(stringsPath)) continue;
+    const xml = fs.readFileSync(stringsPath, 'utf8');
+    if (!xml.includes('name="app_name"')) continue;
+    try {
+      const appName = assertAndroidStringsHaveRealBrand(xml, stringsPath);
+      ok(`${dir.name}/strings.xml app_name is a real brand (${appName.length} chars)`);
+    } catch (err) {
+      fail(err.message);
+    }
   }
 }
 
