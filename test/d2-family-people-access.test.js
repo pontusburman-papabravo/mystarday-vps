@@ -198,6 +198,7 @@ describe('D2 Familj people/access honesty', () => {
   it('pedagog interest error is not hidden as empty', () => {
     const hub = read('public/js/family-hub.js');
     assert.match(hub, /data-pedagog-interest-state/);
-    assert.match(hub, /Kunde inte ladda pedagogsamarbete/);
+    assert.match(hub, /family\.pedagog\.loadError/);
+    assert.match(hub, /role="alert"/);
   });
 });
