@@ -146,8 +146,10 @@ describe('IE/FI release gates cannot be conflated', () => {
 
   it('settings UI treats prebilling as launch access, not a store subscription', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/settings-subscription.js'), 'utf8');
+    const en = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/settings-en-GB.json'), 'utf8'));
     assert.match(js, /premium\.source === 'prebilling'/);
-    assert.match(js, /A subscription is not required yet/);
+    assert.match(js, /settings\.subscription\.launchBody/);
+    assert.match(en.subscription.launchBody, /A subscription is not required yet/);
     assert.doesNotMatch(js, /Subscribe now/);
   });
 });

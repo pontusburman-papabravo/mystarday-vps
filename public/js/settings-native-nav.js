@@ -8,6 +8,12 @@
   const OVERLAY_ID = 'msj-widget-prompt-overlay';
   const WRAP_ID = 'nativeSettingsBackLinkWrap';
 
+  function spt(key, params) {
+    if (typeof global.pt === 'function') return global.pt(key, params);
+    if (global.I18n && typeof global.I18n.t === 'function') return global.I18n.t(key, params);
+    return key;
+  }
+
   function isNative() {
     return global.Platform && typeof Platform.isNative === 'function' && Platform.isNative();
   }
@@ -66,10 +72,10 @@
     wrap.className = 'native-settings-back-wrap';
     wrap.innerHTML =
       '<a id="nativeSettingsBackLink" href="/dashboard" class="native-settings-back-link">' +
-      '← Till Hem</a>' +
+      spt('today.shell.backToHome') + '</a>' +
       (showMenu
         ? '<button type="button" id="nativeSettingsMenuLink" class="native-settings-menu-link">' +
-          'Inställningsmeny</button>'
+          spt('settings.title') + '</button>'
         : '');
 
     if (scroll) {
