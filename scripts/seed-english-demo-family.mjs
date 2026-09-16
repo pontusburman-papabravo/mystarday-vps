@@ -41,6 +41,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const db = require('../src/lib/db');
+const familySubscriptions = require('../db/family-subscriptions');
 const { hashPassword } = require('../src/lib/hash');
 
 const DEMO_EMAIL = 'english.demo@mystarday.se'; // pragma: allowlist secret
@@ -74,11 +75,24 @@ const ACTIVITIES = [
 const WEEKDAY_ONLY = new Set(['School', 'Homework', 'Pack school bag']);
 
 const REWARDS = [
-  ['Movie night', '🎬', 25],
-  ['Ice cream', '🍦', 10],
-  ['Trip to the swimming pool', '🏊', 40],
+  ['Movie night with popcorn', '🎬', 25],
+  ['Restaurant visit', '🍽️', 30],
+  ['Trip to the playground', '🛝', 15],
   ['Choose Saturday dinner', '🍕', 20],
 ];
+
+/** TEACCH overlay for store screenshots — English-only user content. */
+const BRUSH_TEETH_SEVEN_QUESTIONS = {
+  where: { text: 'Bathroom', emoji: '🚿' },
+  who: { text: 'Me', emoji: '🙂' },
+  how_long: { text: '2 minutes', minutes: 2 },
+  what_next: { text: 'Get dressed', emoji: '👕' },
+  what_need: { text: 'Toothbrush and toothpaste', emoji: '🪥' },
+  why: { text: 'Clean teeth keep us healthy', emoji: '✨' },
+};
+
+/** First incomplete activity on "today" for morning-routine store shot. */
+const TODAY_DONE_ACTIVITIES = new Set(['Wake up', 'Make the bed', 'Get dressed']);
 
 function randomPassword() {
   return `Demo-${crypto.randomBytes(9).toString('base64url')}`;
@@ -106,11 +120,11 @@ async function main() {
   const pinHash = await hashPassword(pin);
 
   const client = await db.getClient();
+  let familyId;
   try {
     await client.query('BEGIN');
 
     // ── Family + parent (upsert by demo email) ──
-    let familyId;
     let parentId;
     const existing = await client.query(
       'SELECT id, family_id FROM parent WHERE LOWER(email) = LOWER($1)',
@@ -192,13 +206,14 @@ async function main() {
     if (childRow.rows.length > 0) {
       childId = childRow.rows[0].id;
       await client.query(
-        `UPDATE child SET emoji = $1, birthday = $2, username = $3, pin = $4 WHERE id = $5`,
+        `UPDATE child SET emoji = $1, birthday = $2, username = $3, pin = $4,
+           show_now_next = true, view_type = 'now_next_later' WHERE id = $5`,
         [DEMO_CHILD.emoji, DEMO_CHILD.birthday, DEMO_CHILD.username, pinHash, childId]
       );
     } else {
       const ch = await client.query(
-        `INSERT INTO child (family_id, name, emoji, birthday, username, pin)
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        `INSERT INTO child (family_id, name, emoji, birthday, username, pin, show_now_next, view_type)
+         VALUES ($1, $2, $3, $4, $5, $6, true, 'now_next_later') RETURNING id`,
         [familyId, DEMO_CHILD.name, DEMO_CHILD.emoji, DEMO_CHILD.birthday, DEMO_CHILD.username, pinHash]
       );
       childId = ch.rows[0].id;
@@ -227,6 +242,12 @@ async function main() {
         [familyId, categoryIds[category], name, icon, stars, section, i]
       );
       activityIds[name] = act.rows[0].id;
+      if (name === 'Brush teeth') {
+        await client.query(
+          `UPDATE activity_template SET seven_questions = $1::jsonb WHERE id = $2`,
+          [JSON.stringify(BRUSH_TEETH_SEVEN_QUESTIONS), activityIds[name]]
+        );
+      }
       for (const [j, step] of (subSteps || []).entries()) {
         await client.query(
           'INSERT INTO activity_sub_step (activity_template_id, name, sort_order) VALUES ($1, $2, $3)',
@@ -253,8 +274,8 @@ async function main() {
       }
     }
 
-    // ── Star history: yesterday fully done, today morning done ──
-    for (const [offset, doneSections] of [[-1, ['morgon', 'dag', 'kvall']], [0, ['morgon']]]) {
+    // ── Star history: yesterday fully done; today partial morning (Brush teeth = NU) ──
+    for (const [offset, doneSections] of [[-1, ['morgon', 'dag', 'kvall']], [0, []]]) {
       const date = londonToday(offset);
       const log = await client.query(
         'INSERT INTO daily_log (child_id, date) VALUES ($1, $2) RETURNING id',
@@ -263,7 +284,10 @@ async function main() {
       let sort = 0;
       for (const [name, icon, stars, section] of ACTIVITIES) {
         if (WEEKDAY_ONLY.has(name) && ['0', '6'].includes(String(new Date(date + 'T12:00:00Z').getUTCDay()))) continue;
-        const done = doneSections.includes(section);
+        const done =
+          offset < 0
+            ? doneSections.includes(section)
+            : TODAY_DONE_ACTIVITIES.has(name);
         await client.query(
           `INSERT INTO daily_log_item (daily_log_id, activity_template_id, name, icon, star_value, section,
              sort_order, completed, completed_at, completed_date)
@@ -274,15 +298,52 @@ async function main() {
       }
     }
 
-    // ── Rewards ──
+    // ── Rewards + approved redemptions (family museum top_rewards for store shot 07) ──
+    const rewardIds = [];
     for (const [i, [name, icon, cost]] of REWARDS.entries()) {
-      await client.query(
-        `INSERT INTO reward (family_id, name, icon, star_cost, sort_order) VALUES ($1, $2, $3, $4, $5)`,
+      const rew = await client.query(
+        `INSERT INTO reward (family_id, name, icon, star_cost, sort_order) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [familyId, name, icon, cost, i]
       );
+      rewardIds.push({ id: rew.rows[0].id, name, icon, cost });
+    }
+
+    const redemptionPlan = [
+      { name: 'Movie night with popcorn', count: 3 },
+      { name: 'Restaurant visit', count: 2 },
+      { name: 'Choose Saturday dinner', count: 2 },
+      { name: 'Trip to the playground', count: 1 },
+    ];
+    for (const plan of redemptionPlan) {
+      const reward = rewardIds.find((r) => r.name === plan.name);
+      if (!reward) continue;
+      for (let i = 0; i < plan.count; i++) {
+        await client.query(
+          `INSERT INTO reward_redemption (reward_id, child_id, status, star_cost, redeemed_at)
+           VALUES ($1, $2, 'approved', $3, NOW() - ($4 || ' days')::interval)`,
+          [reward.id, childId, reward.cost, String(14 - i)]
+        );
+      }
     }
 
     await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Seed failed:', err);
+    process.exitCode = 1;
+  } finally {
+    client.release();
+  }
+
+  if (process.exitCode) {
+    await db.pool.end().catch(() => {});
+    process.exit(process.exitCode);
+  }
+
+  try {
+    await familySubscriptions.grantComponent(familyId, 'teacch', null, {
+      source: 'english_demo_seed',
+    });
 
     console.log('English demo family seeded ✅');
     console.log(`  family_id : ${familyId}`);
@@ -292,11 +353,9 @@ async function main() {
     console.log(`  child PIN : ${process.env.DEMO_CHILD_PIN ? '(from DEMO_CHILD_PIN env)' : pin}`);
     console.log('  locale    : en-GB · flags english_app + english_child_experience · lifetime free');
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('Seed failed:', err);
+    console.error('Teacch grant failed:', err);
     process.exitCode = 1;
   } finally {
-    client.release();
     await db.pool.end().catch(() => {});
     process.exit(process.exitCode || 0);
   }
