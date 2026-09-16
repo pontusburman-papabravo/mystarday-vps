@@ -6,8 +6,8 @@
   const TABS = [
     {
       key: 'produktanalys',
-      label: 'Hur går det?',
-      hint: 'Användning, första veckan och var familjer fastnar',
+      label: 'Produktanalys',
+      hint: 'Siffror om användning, första veckan och var familjer fastnar',
       route: '#produktanalys',
     },
     {

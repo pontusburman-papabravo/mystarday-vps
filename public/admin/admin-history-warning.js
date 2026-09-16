@@ -7,8 +7,8 @@
 
   const MESSAGE =
     'Historik begränsad efter serverbyte. Databasen har cirka 21 dagars aktivitetshistorik. ' +
-    'Mått märkta 30 dagar eller mer kan vara ofullständiga. Retention Day 30/60 och kohorter ' +
-    'längre än 3 veckor är inte tillförlitliga förrän tillräcklig historik finns.';
+    'Mått märkta 30 dagar eller mer kan vara ofullständiga. "Kommer de tillbaka?" efter mer än tre veckor ' +
+    'är inte tillförlitligt förrän tillräcklig historik finns.';
 
   function escapeHtml(str) {
     return String(str || '')

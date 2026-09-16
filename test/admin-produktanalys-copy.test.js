@@ -33,7 +33,7 @@ describe('Produktanalys copy is readable Swedish', () => {
 
   it('workspace tabs ask questions instead of duplicating the nav label', () => {
     const shell = read('public/admin/admin-produktanalys-shell.js');
-    assert.match(shell, /Hur går det\?/);
+    assert.match(shell, /label: 'Produktanalys'/);
     assert.match(shell, /Nya och aktiva/);
     assert.match(shell, /Vilka användare/);
     assert.match(shell, /hint:/);
