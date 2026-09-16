@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Barnprofil — Min Stjärndag</title>
+  <title data-i18n="family.childProfile.pageTitle">Barnprofil</title>
   <script src="/js/dom-utils.js?v=2.12.0"></script>
   <script src="/js/member-avatar.js?v=1"></script>
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
@@ -95,14 +95,14 @@
       <div class="text-center">
         <p class="text-5xl mb-4" aria-hidden="true">⚠️</p>
         <h3 id="deleteChildModalTitle" class="text-xl font-heading font-bold text-navy mb-2"></h3>
-        <p id="deleteChildTargetMessage" class="text-sm text-text-soft mb-6">Alla aktiviteter, scheman och belöningshistorik för detta barn raderas permanent.</p>
+        <p id="deleteChildTargetMessage" class="text-sm text-text-soft mb-6" data-i18n="family.childProfile.deleteChildMessage">Alla aktiviteter, scheman och belöningshistorik för detta barn raderas permanent.</p>
         <div class="flex gap-3">
           <button type="button" id="deleteChildCancelBtn"
-            class="flex-1 px-4 py-2 border border-gray-200 text-text-soft rounded-xl font-semibold hover:bg-gray-50 transition-colors min-h-[44px]">
+            class="flex-1 px-4 py-2 border border-gray-200 text-text-soft rounded-xl font-semibold hover:bg-gray-50 transition-colors min-h-[44px]" data-i18n="family.childProfile.deleteChildCancel">
             Avbryt
           </button>
           <button type="button" id="deleteChildConfirmBtn"
-            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors min-h-[44px]">
+            class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-heading font-bold transition-colors min-h-[44px]" data-i18n="family.childProfile.deleteChildConfirm">
             Ta bort
           </button>
         </div>
@@ -111,12 +111,12 @@
   </div>
   <div id="manualStarModal" class="hidden fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl">
-      <h3 id="manualStarModalTitle" class="text-lg font-heading font-bold text-navy mb-3">Ge extra stjärnor</h3>
+      <h3 id="manualStarModalTitle" class="text-lg font-heading font-bold text-navy mb-3" data-i18n="family.childProfile.manualStarsTitle">Ge extra stjärnor</h3>
       <input id="manualStarCount" type="number" min="1" max="100" value="1" class="w-full border border-lavender rounded-xl px-3 py-2 mb-3">
-      <textarea id="manualStarReason" rows="3" required placeholder="Varför? (syns för barnet)" class="w-full border border-lavender rounded-xl px-3 py-2 mb-4"></textarea>
+      <textarea id="manualStarReason" rows="3" required data-i18n-placeholder="family.childProfile.manualStarsReasonPlaceholder" placeholder="Varför? (syns för barnet)" class="w-full border border-lavender rounded-xl px-3 py-2 mb-4"></textarea>
       <div class="flex gap-2">
-        <button type="button" id="manualStarCancel" class="flex-1 py-3 border rounded-xl font-semibold">Avbryt</button>
-        <button type="button" id="manualStarSubmit" class="flex-1 py-3 bg-gold text-white rounded-xl font-bold">Ge ⭐</button>
+        <button type="button" id="manualStarCancel" class="flex-1 py-3 border rounded-xl font-semibold" data-i18n="family.childProfile.manualStarsCancel">Avbryt</button>
+        <button type="button" id="manualStarSubmit" class="flex-1 py-3 bg-gold text-white rounded-xl font-bold" data-i18n="family.childProfile.manualStarsSubmit">Ge ⭐</button>
       </div>
     </div>
   </div>
