@@ -38,7 +38,7 @@ describe('custody-settings (Phase 4.5d)', () => {
     assert.match(src, /PATTERN_CUSTOM/);
     assert.match(src, /mondayOfWeek/);
     assert.match(src, /CUSTOM_HELP_TEXT/);
-    assert.match(src, /minst två olika hem/);
+    assert.match(src, /family\.errors\.custodyTwoHomesRequired/);
   });
 
   it('override section uses custody override API — no client date logic', () => {
