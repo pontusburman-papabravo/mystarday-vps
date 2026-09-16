@@ -182,7 +182,9 @@
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        return { success: false, error: err.error || pt('settings.push.errors.subscriptionFailed') };
+        return { success: false, error: (typeof window.apiErrorMessage === 'function'
+          ? window.apiErrorMessage(err, 'settings.push.errors.subscriptionFailed')
+          : '') || pt('settings.push.errors.subscriptionFailed') };
       }
 
       return { success: true };

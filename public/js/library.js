@@ -11,6 +11,14 @@ function lpt(key, params) {
   return (typeof window.pt === 'function') ? window.pt(key, params) : key;
 }
 
+function libApiError(data, fallbackKey) {
+  if (typeof window.apiErrorMessage === 'function') {
+    const msg = window.apiErrorMessage(data, fallbackKey);
+    if (msg) return msg;
+  }
+  return lpt(fallbackKey);
+}
+
 // ─── Overflow menu (mobile ⋯ per-row action menu) ─────────
 function closeOverflowMenus() {
   document.querySelectorAll('.overflow-menu-popup.open').forEach(m => m.classList.remove('open'));
@@ -699,7 +707,7 @@ async function submitCategory(e) {
     if (!id && data.id) activeSchemaTab = data.id;
     await loadCategories(); await loadActivities();
   } else {
-    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
+    errEl.textContent = libApiError(data, 'library.errors.generic'); errEl.classList.remove('hidden');
   }
   btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
@@ -717,7 +725,7 @@ function deleteCategory(id, name) {
       if (activeSchemaTab === id) activeSchemaTab = null;
       await loadCategories(); await loadActivities();
     }
-    else showToast(data.error || lpt('library.errors.deleteCategory'), true);
+    else showToast(libApiError(data, 'library.errors.deleteCategory'), true);
   });
 }
 
@@ -752,7 +760,7 @@ async function deleteCategoryWithConfirm(id, name) {
       await loadCategories();
       await loadActivities();
     } else {
-      showToast(data.error || lpt('library.errors.deleteCategory'), true);
+      showToast(libApiError(data, 'library.errors.deleteCategory'), true);
     }
   });
 }
@@ -1140,7 +1148,7 @@ async function submitActivity(e) {
     if (activityId) delete subStepsCache[activityId];
     await loadActivities();
   } else {
-    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
+    errEl.textContent = libApiError(data, 'library.errors.generic'); errEl.classList.remove('hidden');
   }
   btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
@@ -1150,7 +1158,7 @@ function deleteActivity(id, name) {
     const res = await window.apiFetch(`/api/activities/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) { showToast(lpt('library.saved.activityDeleted')); await loadActivities(); }
-    else showToast(data.error || lpt('library.errors.deleteActivity'), true);
+    else showToast(libApiError(data, 'library.errors.deleteActivity'), true);
   });
 }
 
@@ -1283,7 +1291,7 @@ async function copyStandardActivityToLibrary(stdActivity) {
     const searchInput = document.getElementById('activitySearchInput');
     if (searchInput) { searchInput.value = ''; onActivitySearch(''); }
   } else {
-    showToast(data.error || lpt('library.errors.copyActivity'), true);
+    showToast(libApiError(data, 'library.errors.copyActivity'), true);
   }
 }
 
@@ -1406,7 +1414,7 @@ async function copyStandardRewardToLibrary(stdReward) {
     const searchInput = document.getElementById('rewardSearchInput');
     if (searchInput) { searchInput.value = ''; onRewardSearch(''); }
   } else {
-    showToast(data.error || lpt('library.errors.copyReward'), true);
+    showToast(libApiError(data, 'library.errors.copyReward'), true);
   }
 }
 
@@ -1641,7 +1649,7 @@ async function submitReward(e) {
     closeRewardModal(); showToast(lpt('library.saved.reward'));
     await loadRewards();
   } else {
-    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
+    errEl.textContent = libApiError(data, 'library.errors.generic'); errEl.classList.remove('hidden');
   }
   btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
@@ -1651,7 +1659,7 @@ function deleteReward(id, name) {
     const res = await window.apiFetch(`/api/rewards/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) { showToast(lpt('library.saved.rewardDeleted')); await loadRewards(); }
-    else showToast(data.error || lpt('library.errors.deleteReward'), true);
+    else showToast(libApiError(data, 'library.errors.deleteReward'), true);
   });
 }
 

@@ -535,6 +535,7 @@ function injectPlatformHtml(body, reqPath, req) {
   }
   headParts.push(
     '<script src="/js/sanitize-return-url.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/api-error-i18n.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/package-access-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/features-cache.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/device-mode.js?v=' + RELEASE_TAG + '"><\/script>',

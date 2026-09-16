@@ -539,8 +539,9 @@ const Auth = {
     }
 
     if (!res.ok) {
-      // Surface detailed backend message; fallback to status text if body is empty
-      const msg = data?.error || (data?.message) || res.statusText || Auth._localizedServerError();
+      const msg = (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(data) : '')
+        || Auth._localizedServerError()
+        || res.statusText;
       throw Object.assign(new Error(msg), { status: res.status, body: data });
     }
     return data;

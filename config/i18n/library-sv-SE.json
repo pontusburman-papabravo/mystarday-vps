@@ -16,11 +16,26 @@
     "addSchedule": "+ Schema",
     "back": "Tillbaka",
     "sections": {
-      "standard": { "title": "Standardbibliotek", "subtitle": "Schema, aktiviteter och belöningar att kopiera" },
-      "activities": { "title": "Aktiviteter", "subtitle": "Dina aktiviteter — emoji eller eget foto" },
-      "images": { "title": "Bildarkiv", "subtitle": "Egna foton — tandborste, säng, skola" },
-      "rewards": { "title": "Belöningar", "subtitle": "Mål barnen strävar mot" },
-      "mine": { "title": "Mina bibliotek", "subtitle": "Egna scheman och mallor" }
+      "standard": {
+        "title": "Standardbibliotek",
+        "subtitle": "Schema, aktiviteter och belöningar att kopiera"
+      },
+      "activities": {
+        "title": "Aktiviteter",
+        "subtitle": "Dina aktiviteter — emoji eller eget foto"
+      },
+      "images": {
+        "title": "Bildarkiv",
+        "subtitle": "Egna foton — tandborste, säng, skola"
+      },
+      "rewards": {
+        "title": "Belöningar",
+        "subtitle": "Mål barnen strävar mot"
+      },
+      "mine": {
+        "title": "Mina bibliotek",
+        "subtitle": "Egna scheman och mallor"
+      }
     }
   },
   "errors": {
@@ -38,7 +53,28 @@
     "deleteActivity": "Kunde inte ta bort aktiviteten",
     "copyActivity": "Kunde inte kopiera aktiviteten",
     "deleteSchedule": "Kunde inte ta bort schemat",
-    "generic": "Fel uppstod"
+    "generic": "Fel uppstod",
+    "activityNameRequired": "Aktivitetsnamn krävs",
+    "activityStarsRange": "Stjärnvärde måste vara mellan 1 och 5",
+    "categoryNotFound": "Kategorin hittades inte",
+    "activityTimerRange": "Timer måste vara mellan 5 och 3600 sekunder",
+    "activityNotFound": "Aktiviteten hittades inte",
+    "activityInUse": "Aktiviteten används i ett eller flera veckoscheman. Ta bort den därifrån först.",
+    "nothingToUpdate": "Inget att uppdatera",
+    "activityInvalidFeedback": "Ogiltigt värde för vem som ger feedback",
+    "activityInvalidTimeGroup": "Ogiltig tidsgrupp",
+    "substepNameRequired": "Namn krävs",
+    "substepNotFound": "Delsteget hittades inte",
+    "rewardNameCostRequired": "Namn och stjärnkostnad krävs",
+    "rewardCostMin": "Stjärnkostnad måste vara minst 1",
+    "rewardNotFound": "Belöning hittades inte",
+    "redemptionNotFound": "Inlösen hittades inte",
+    "insufficientStars": "Inte tillräckligt med stjärnor",
+    "serviceBusy": "Tjänsten är upptagen, försök igen.",
+    "redeemPending": "Det finns redan en väntande inlösen för den här belöningen",
+    "redeemTaken": "Den här belöningen har redan låsts in av ett annat barn",
+    "rewardInactive": "Den här belöningen är inte längre tillgänglig",
+    "redeemHandled": "Redan hanterad"
   },
   "empty": {
     "noCategories": "Inga kategorier ännu",

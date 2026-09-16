@@ -20,6 +20,7 @@ const { vapidPublicKey } = require('../lib/push-notifications');
 const { validate } = require('../middleware/validate');
 const { PushSubscribeSchema, PushPreferencesSchema } = require('../lib/schemas');
 const pushSubscriptions = require('../../db/push-subscriptions');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ const router = express.Router();
 // No auth required — key is public by design.
 router.get('/vapid-public-key', (req, res) => {
   if (!vapidPublicKey) {
-    return res.status(503).json({ error: 'Push-notiser är inte konfigurerade' });
+    return sendApiError(res, 503, 'PUSH_NOT_CONFIGURED');
   }
   res.json({ publicKey: vapidPublicKey });
 });
@@ -44,7 +45,7 @@ router.post('/subscribe', requireParent, requireFeature('push_notiser'), validat
       !subscription.keys?.p256dh ||
       !subscription.keys?.auth
     ) {
-      return res.status(400).json({ error: 'Ogiltigt subscription-objekt' });
+      return sendApiError(res, 400, 'PUSH_INVALID_SUBSCRIPTION');
     }
 
     const parentId = req.user.id;
@@ -64,7 +65,7 @@ router.post('/subscribe', requireParent, requireFeature('push_notiser'), validat
     res.status(201).json({ success: true });
   } catch (err) {
     console.error('[PUSH] Subscribe error:', err);
-    res.status(500).json({ error: 'Kunde inte spara push-prenumeration' });
+    sendApiError(res, 500, 'PUSH_SAVE_FAILED');
   }
 });
 
@@ -74,7 +75,7 @@ router.post('/unsubscribe', requireParent, async (req, res) => {
     const { endpoint } = req.body;
 
     if (!endpoint || typeof endpoint !== 'string') {
-      return res.status(400).json({ error: 'endpoint krävs' });
+      return sendApiError(res, 400, 'PUSH_ENDPOINT_REQUIRED');
     }
 
     const parentId = req.user.id;
@@ -88,7 +89,7 @@ router.post('/unsubscribe', requireParent, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[PUSH] Unsubscribe error:', err);
-    res.status(500).json({ error: 'Kunde inte ta bort push-prenumeration' });
+    sendApiError(res, 500, 'PUSH_UNSUBSCRIBE_FAILED');
   }
 });
 
@@ -99,17 +100,17 @@ router.post('/register-native', requireParent, async (req, res) => {
     const { token, platform } = req.body;
 
     if (!token || typeof token !== 'string' || token.length < 10) {
-      return res.status(400).json({ error: 'Ogiltig token' });
+      return sendApiError(res, 400, 'PUSH_INVALID_TOKEN');
     }
     if (!['ios', 'android'].includes(platform)) {
-      return res.status(400).json({ error: 'Platform måste vara "ios" eller "android"' });
+      return sendApiError(res, 400, 'PUSH_INVALID_PLATFORM');
     }
 
     await pushSubscriptions.upsertNativeSubscription(req.user.id, token, platform);
     res.status(201).json({ success: true });
   } catch (err) {
     console.error('[PUSH] register-native error:', err);
-    res.status(500).json({ error: 'Kunde inte spara push-token' });
+    sendApiError(res, 500, 'PUSH_TOKEN_SAVE_FAILED');
   }
 });
 
@@ -119,14 +120,14 @@ router.post('/unregister-native', requireParent, async (req, res) => {
     const { token, platform } = req.body;
 
     if (!token || !['ios', 'android'].includes(platform)) {
-      return res.status(400).json({ error: 'token och platform krävs' });
+      return sendApiError(res, 400, 'PUSH_TOKEN_REQUIRED');
     }
 
     await pushSubscriptions.deleteNativeSubscription(req.user.id, token, platform);
     res.json({ success: true });
   } catch (err) {
     console.error('[PUSH] unregister-native error:', err);
-    res.status(500).json({ error: 'Kunde inte ta bort push-token' });
+    sendApiError(res, 500, 'PUSH_TOKEN_DELETE_FAILED');
   }
 });
 
@@ -137,14 +138,14 @@ router.get('/preferences', requireParent, async (req, res) => {
       'SELECT push_preferences, admin_push_enabled FROM parent WHERE id = $1',
       [req.user.id]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: 'Förälder hittades inte' });
+    if (!result.rows[0]) return sendApiError(res, 404, 'PUSH_PARENT_NOT_FOUND');
     res.json({
       push_preferences: result.rows[0].push_preferences || {},
       admin_push_enabled: result.rows[0].admin_push_enabled || false,
     });
   } catch (err) {
     console.error('[PUSH] Get preferences error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta push-inställningar' });
+    sendApiError(res, 500, 'PUSH_PREFS_LOAD_FAILED');
   }
 });
 
@@ -159,7 +160,7 @@ router.put('/preferences', requireParent, validate(PushPreferencesSchema), async
       'SELECT push_preferences, admin_push_enabled FROM parent WHERE id = $1',
       [req.user.id]
     );
-    if (!existingResult.rows[0]) return res.status(404).json({ error: 'Förälder hittades inte' });
+    if (!existingResult.rows[0]) return sendApiError(res, 404, 'PUSH_PARENT_NOT_FOUND');
 
     const existing = existingResult.rows[0].push_preferences || {};
     const prefs = { ...existing };
@@ -193,7 +194,7 @@ router.put('/preferences', requireParent, validate(PushPreferencesSchema), async
     res.json({ ok: true });
   } catch (err) {
     console.error('[PUSH] Update preferences error:', err);
-    res.status(500).json({ error: 'Kunde inte spara push-inställningar' });
+    sendApiError(res, 500, 'PUSH_PREFS_SAVE_FAILED');
   }
 });
 

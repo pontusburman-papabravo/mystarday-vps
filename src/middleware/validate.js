@@ -7,7 +7,7 @@
  * Rollback: set env var, redeploy — no code change needed.
  */
 
-const { ZodError } = require('zod');
+const { sendApiError } = require('../lib/api-user-error');
 
 const VALIDATION_ENABLED = process.env.VALIDATION_ENABLED !== 'false';
 
@@ -52,7 +52,7 @@ function sanitizeStrings(obj) {
  */
 function formatZodErrors(error) {
   return error.errors.map(e => {
-    const field = e.path.length > 0 ? e.path.join('.') : 'värde';
+    const field = e.path.length > 0 ? e.path.join('.') : 'value';
     return `${field}: ${e.message}`;
   });
 }
@@ -88,8 +88,7 @@ function validate(schema) {
     const result = schema.safeParse(req.body);
     if (!result.success) {
       logValidationFailure(req, result.error.errors);
-      return res.status(400).json({
-        error: 'Ogiltiga värden',
+      return sendApiError(res, 400, 'VALIDATION_INVALID_VALUES', {
         details: formatZodErrors(result.error),
       });
     }
@@ -112,8 +111,7 @@ function validateParams(schema) {
     const result = schema.safeParse(req.params);
     if (!result.success) {
       logValidationFailure(req, result.error.errors);
-      return res.status(400).json({
-        error: 'Ogiltiga URL-parametrar',
+      return sendApiError(res, 400, 'VALIDATION_INVALID_PARAMS', {
         details: formatZodErrors(result.error),
       });
     }
@@ -134,8 +132,7 @@ function validateQuery(schema) {
     const result = schema.safeParse(req.query);
     if (!result.success) {
       logValidationFailure(req, result.error.errors);
-      return res.status(400).json({
-        error: 'Ogiltiga query-parametrar',
+      return sendApiError(res, 400, 'VALIDATION_INVALID_QUERY', {
         details: formatZodErrors(result.error),
       });
     }

@@ -278,7 +278,9 @@ async function submitAddActivity() {
         await refreshAfterOnceTaskChange();
       } else {
         const err = await res.json();
-        document.getElementById('addActivityError').textContent = err.error || spt('schedule.validation.generic');
+        document.getElementById('addActivityError').textContent = (typeof window.apiErrorMessage === 'function'
+          ? window.apiErrorMessage(err.body || err, 'schedule.validation.generic')
+          : '') || spt('schedule.validation.generic');
         document.getElementById('addActivityError').classList.remove('hidden');
       }
     } finally {
@@ -734,7 +736,9 @@ async function submitOnceTaskDirect(tplId, tpl) {
       await refreshAfterOnceTaskChange();
     } else {
       const err = await res.json();
-      document.getElementById('createActivityError').textContent = err.error || spt('schedule.validation.generic');
+      document.getElementById('createActivityError').textContent = (typeof window.apiErrorMessage === 'function'
+        ? window.apiErrorMessage(err.body || err, 'schedule.validation.generic')
+        : '') || spt('schedule.validation.generic');
       document.getElementById('createActivityError').classList.remove('hidden');
     }
   } finally {
@@ -784,7 +788,9 @@ async function submitCreateActivity() {
         openRecurrenceModal();
       }
     } else {
-      document.getElementById('createActivityError').textContent = data.error || spt('schedule.validation.createFailed');
+      document.getElementById('createActivityError').textContent = (typeof window.apiErrorMessage === 'function'
+        ? window.apiErrorMessage(data, 'schedule.validation.createFailed')
+        : '') || spt('schedule.validation.createFailed');
       document.getElementById('createActivityError').classList.remove('hidden');
     }
   } catch (_e) {

@@ -404,6 +404,15 @@
     );
   }
 
+  function cycleDayLabel(dayKey) {
+    const labels = (window.LocaleDateTime && typeof LocaleDateTime.weekDayLabelsMondayFirst === 'function')
+      ? LocaleDateTime.weekDayLabelsMondayFirst()
+      : null;
+    const idx = CYCLE_DAY_KEYS.indexOf(dayKey);
+    if (Array.isArray(labels) && labels[idx]) return labels[idx];
+    return CYCLE_DAY_LABELS[dayKey] || dayKey;
+  }
+
   function validateCustomBeforeSave(cycleWeeks) {
     const homeIds = new Set();
     for (let w = 0; w < cycleWeeks.length; w += 1) {
@@ -411,13 +420,13 @@
         const dayKey = CYCLE_DAY_KEYS[d];
         const id = cycleWeeks[w][dayKey];
         if (!id) {
-          return 'Välj hem för alla dagar i vecka ' + (w + 1) + ' (' + CYCLE_DAY_LABELS[dayKey] + ').';
+          return pt('family.errors.custodyCycleDayRequired', { week: w + 1, day: cycleDayLabel(dayKey) });
         }
         homeIds.add(id);
       }
     }
     if (homeIds.size < 2) {
-      return 'Eget mönster behöver minst två olika hem. Stäng av boendeschema om barnet alltid bor på samma ställe.';
+      return pt('family.errors.custodyTwoHomesRequired');
     }
     return null;
   }

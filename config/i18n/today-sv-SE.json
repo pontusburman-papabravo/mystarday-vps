@@ -41,7 +41,14 @@
     "selectChild": "Välj ett barn först",
     "custodyDisabled": "Boendeschema är inte aktiverat",
     "loadWeek": "Kunde inte ladda veckan",
-    "saveRating": "Kunde inte spara betyg"
+    "saveRating": "Kunde inte spara betyg",
+    "ratingScoreOrEmotion": "Ange antingen betyg eller ett känslokort",
+    "ratingScoreRange": "Betyg måste vara mellan 1 och 10",
+    "ratingInvalidEmotion": "Ogiltigt känslokort",
+    "ratingActivityNotFound": "Aktiviteten hittades inte",
+    "ratingNotAllowed": "Betygsättning är inte tillåten för det här barnet på den här aktiviteten",
+    "ratingParentScoreRange": "Betyg måste vara mellan 1 och 5",
+    "ratingParentDisabled": "Förälderns betygsättning är inte aktiverad för den här aktiviteten"
   },
   "empty": {
     "noActivitiesToday": "Inga aktiviteter idag!",

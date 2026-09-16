@@ -21,6 +21,7 @@ const {
   VALID_FAMILY_ROLES,
 } = require('../../lib/family-duplicates');
 const { resolveInviteChildIdsForParent } = require('../../lib/family-invite-child-ids');
+const { sendApiError } = require('../../lib/api-user-error');
 const { syncAccountType } = require('../../../db/parent-access');
 
 const router = express.Router();
@@ -35,14 +36,14 @@ router.post('/check-member', validate(CheckFamilyMemberSchema), async (req, res)
       const adult = await checkAdultInviteEligibility(db, email, req.user.familyId);
       result.adult = adult.ok
         ? { status: 'available' }
-        : { status: adult.code, error: adult.error, existingName: adult.existingName || null };
+        : { status: adult.code, code: adult.code, error: adult.error, existingName: adult.existingName || null };
     }
 
     if (childName) {
       const child = await checkChildNameInFamily(db, childName, req.user.familyId);
       result.child = child.ok
         ? { status: 'available' }
-        : { status: child.code, error: child.error, suggestions: child.suggestions || [] };
+        : { status: child.code, code: child.code, error: child.error, suggestions: child.suggestions || [], details: { name: child.existingName || childName } };
     }
 
     res.json(result);
@@ -69,7 +70,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     let inviteeFamilyRole = null;
     if (familyRole !== undefined && familyRole !== null && familyRole !== '') {
       if (!VALID_FAMILY_ROLES.includes(familyRole)) {
-        return res.status(400).json({ error: 'Ogiltig roll. Välj: mamma, pappa, bonusförälder eller annan' });
+        return sendApiError(res, 400, 'INVITE_INVALID_ROLE');
       }
       inviteeFamilyRole = familyRole;
     }
@@ -93,7 +94,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
       requestedChildIds
     );
     if (!childResolution.ok) {
-      return res.status(childResolution.status).json({ error: childResolution.error });
+      return sendApiError(res, childResolution.status, childResolution.code || 'INVITE_INVALID_CHILDREN');
     }
     const inviteChildIds = childResolution.childIds;
 
@@ -110,7 +111,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     // Send invite email
     const emailResult = await sendInviteEmail(normalizedEmail, token, { inviteeName, inviterName, familyName, locale });
     if (!emailResult.success) {
-      return res.status(502).json({ error: 'Kunde inte skicka inbjudan via e-post. Försök igen.' });
+      return sendApiError(res, 502, 'INVITE_SEND_FAILED');
     }
 
     try {

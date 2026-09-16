@@ -116,7 +116,7 @@ describe('family avatar v1 — upload validation', () => {
     assert.ok(AVATAR_MAX_INPUT_PIXELS > 0);
     await assert.rejects(
       () => sanitizeAvatarImageBuffer(Buffer.from('not-an-image'), 'image/jpeg'),
-      (err) => err.userMessage && /tillåtna|läsas/i.test(err.userMessage)
+      (err) => err.code === 'UPLOAD_INVALID_IMAGE' || err.userMessage === 'UPLOAD_INVALID_IMAGE'
     );
   });
 

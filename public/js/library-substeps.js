@@ -257,7 +257,9 @@ async function submitSubStep(e) {
     const steps = subStepsCache[templateId] || [];
     updateSubStepBadge(templateId, steps.length);
   } else {
-    errEl.textContent = data.error || lpt('library.errors.generic'); errEl.classList.remove('hidden');
+    errEl.textContent = (typeof window.apiErrorMessage === 'function'
+      ? window.apiErrorMessage(data, 'library.errors.generic')
+      : '') || lpt('library.errors.generic'); errEl.classList.remove('hidden');
   }
   btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
@@ -290,7 +292,9 @@ async function deleteSubStep(templateId, stepId, name) {
       const steps = subStepsCache[templateId] || [];
       updateSubStepBadge(templateId, steps.length);
     } else {
-      showToast(data.error || lpt('library.errors.generic'), true);
+      showToast((typeof window.apiErrorMessage === 'function'
+        ? window.apiErrorMessage(data, 'library.errors.generic')
+        : '') || lpt('library.errors.generic'), true);
     }
   });
 }

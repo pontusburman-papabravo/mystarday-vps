@@ -65,7 +65,11 @@
   async function formatApiError(res, fallback) {
     try {
       const data = await res.json();
-      if (data && data.error) {
+      if (typeof window.apiErrorMessage === 'function') {
+        const mapped = window.apiErrorMessage(data, 'family.childProfile.errors.generic');
+        if (mapped) return mapped;
+      }
+      if (data && data.error && window.I18n && I18n.getCurrentLang && String(I18n.getCurrentLang()).indexOf('sv') === 0) {
         if (data.details && data.details.length) {
           return data.error + ' (' + data.details.join('; ') + ')';
         }

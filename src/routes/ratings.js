@@ -15,6 +15,7 @@ const db = require('../lib/db');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
 const { isValidEmotionKey } = require('../../config/emotion-keys');
+const { sendApiError } = require('../lib/api-user-error');
 
 // ─── Child rating router ──────────────────────────────────
 
@@ -37,14 +38,14 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
     const hasEmotion = emotionKey !== undefined && emotionKey !== null && emotionKey !== '';
 
     if (!hasScore && !hasEmotion) {
-      return res.status(400).json({ error: 'Ange antingen betyg (1–10) eller ett känslokort' });
+      return sendApiError(res, 400, 'RATING_SCORE_OR_EMOTION_REQUIRED');
     }
 
     let parsedScore = null;
     if (hasScore) {
       const s = parseInt(score, 10);
       if (Number.isNaN(s) || s < 1 || s > 10) {
-        return res.status(400).json({ error: 'Betyg måste vara mellan 1 och 10' });
+        return sendApiError(res, 400, 'RATING_SCORE_RANGE');
       }
       parsedScore = s;
     }
@@ -52,7 +53,7 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
     let parsedEmotion = null;
     if (hasEmotion) {
       if (!isValidEmotionKey(emotionKey)) {
-        return res.status(400).json({ error: 'Ogiltigt känslokort' });
+        return sendApiError(res, 400, 'RATING_INVALID_EMOTION');
       }
       parsedEmotion = emotionKey;
     }
@@ -67,11 +68,11 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
       [itemId, childId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'RATING_ACTIVITY_NOT_FOUND');
     }
     const feedbackFor = itemResult.rows[0].feedback_for;
     if (feedbackFor === 'parent' || feedbackFor === 'none') {
-      return res.status(403).json({ error: 'Betygsättning är inte tillåten för detta barn på den här aktiviteten' });
+      return sendApiError(res, 403, 'RATING_NOT_ALLOWED');
     }
 
     // Upsert rating — score OR emotion_key on same row
@@ -91,7 +92,7 @@ childRouter.post('/daily-log-items/:itemId/rate', async (req, res) => {
     res.json({ rating: result.rows[0], message: 'Betyg sparat! ⭐' });
   } catch (err) {
     console.error('[RATINGS] Child rate error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'RATING_SERVER_ERROR');
   }
 });
 
@@ -112,7 +113,7 @@ childRouter.get('/daily-log-items/:itemId/rating', async (req, res) => {
       [itemId, childId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'RATING_ACTIVITY_NOT_FOUND');
     }
 
     const result = await db.query(
@@ -127,7 +128,7 @@ childRouter.get('/daily-log-items/:itemId/rating', async (req, res) => {
     res.json(result.rows[0] || { child_score: null, child_comment: null, parent_score: null, parent_comment: null });
   } catch (err) {
     console.error('[RATINGS] Child get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'RATING_SERVER_ERROR');
   }
 });
 
@@ -150,7 +151,7 @@ parentRouter.post('/:itemId/rate', async (req, res) => {
     // Validate score — parent uses 1–5 stars
     const s = parseInt(score, 10);
     if (isNaN(s) || s < 1 || s > 5) {
-      return res.status(400).json({ error: 'Betyg måste vara mellan 1 och 5' });
+      return sendApiError(res, 400, 'RATING_PARENT_SCORE_RANGE');
     }
 
     // Verify item belongs to one of this parent's children; get feedback_for config
@@ -164,11 +165,11 @@ parentRouter.post('/:itemId/rate', async (req, res) => {
       [itemId, parentId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'RATING_ACTIVITY_NOT_FOUND');
     }
     const feedbackFor = itemResult.rows[0].feedback_for;
     if (feedbackFor === 'child' || feedbackFor === 'none') {
-      return res.status(403).json({ error: 'Förälderns betygsättning är inte aktiverad för den här aktiviteten' });
+      return sendApiError(res, 403, 'RATING_PARENT_NOT_ENABLED');
     }
 
     // Upsert rating
@@ -184,7 +185,7 @@ parentRouter.post('/:itemId/rate', async (req, res) => {
     res.json({ rating: result.rows[0], message: 'Betyg sparat!' });
   } catch (err) {
     console.error('[RATINGS] Parent rate error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'RATING_SERVER_ERROR');
   }
 });
 
@@ -206,7 +207,7 @@ parentRouter.get('/:itemId/ratings', async (req, res) => {
       [itemId, parentId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'RATING_ACTIVITY_NOT_FOUND');
     }
 
     const result = await db.query(
@@ -221,7 +222,7 @@ parentRouter.get('/:itemId/ratings', async (req, res) => {
     res.json(result.rows[0] || { child_score: null, child_comment: null, parent_score: null, parent_comment: null });
   } catch (err) {
     console.error('[RATINGS] Parent get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'RATING_SERVER_ERROR');
   }
 });
 

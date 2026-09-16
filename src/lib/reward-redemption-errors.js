@@ -3,27 +3,27 @@
 const REWARD_REDEMPTION_ERRORS = {
   reward_already_redeemed: {
     status: 409,
-    error: 'Den här belöningen har redan låsts in av ett annat barn',
+    error: 'reward_already_redeemed',
     code: 'reward_already_redeemed',
   },
   redemption_pending_exists: {
     status: 409,
-    error: 'Du har redan en väntande inlösen för den här belöningen',
+    error: 'redemption_pending_exists',
     code: 'redemption_pending_exists',
   },
   redemption_not_pending: {
     status: 409,
-    error: 'Redan hanterad',
+    error: 'redemption_not_pending',
     code: 'redemption_not_pending',
   },
   insufficient_stars: {
     status: 400,
-    error: 'Inte tillräckligt med stjärnor',
+    error: 'insufficient_stars',
     code: 'insufficient_stars',
   },
   reward_inactive: {
     status: 400,
-    error: 'Den här belöningen är inte längre tillgänglig',
+    error: 'reward_inactive',
     code: 'reward_inactive',
   },
 };

@@ -5,6 +5,7 @@ const express = require('express');
 const multer = require('multer');
 const { requireParent } = require('../middleware/auth');
 const { uploadImage, isObjectStorageConfigured } = require('../lib/object-storage');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router();
 
@@ -68,8 +69,9 @@ async function normalizeUploadBuffer(buffer, declaredType) {
     return { buffer: out, contentType: 'image/jpeg' };
   } catch (err) {
     console.error('[UPLOAD] HEIC conversion error:', err.message);
-    const convErr = new Error('HEIC_CONVERT_FAILED');
-    convErr.userMessage = 'iPhone-bilden (HEIC) kunde inte konverteras. Välj bilden från albumet eller spara som JPEG.';
+    const convErr = new Error('UPLOAD_HEIC_CONVERT_FAILED');
+    convErr.code = 'UPLOAD_HEIC_CONVERT_FAILED';
+    convErr.userMessage = 'UPLOAD_HEIC_CONVERT_FAILED';
     throw convErr;
   }
 }
@@ -92,15 +94,15 @@ function handleMulterError(err, req, res, next) {
   if (!err) return next();
   if (err.code === 'LIMIT_FILE_SIZE') {
     const isAvatar = (req.path || '').includes('avatar');
-    return res.status(413).json({
-      error: isAvatar ? 'Bilden är för stor (max 2 MB)' : 'Bilden är för stor (max 5 MB)',
+    return sendApiError(res, 413, 'UPLOAD_FILE_TOO_LARGE', {
+      details: { maxMb: isAvatar ? 2 : 5 },
     });
   }
   if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-    return res.status(400).json({ error: 'Ogiltigt fältnamn för bilduppladdning' });
+    return sendApiError(res, 400, 'UPLOAD_INVALID_FIELD');
   }
   console.error('[UPLOAD] Multer error:', err.message);
-  return res.status(400).json({ error: 'Kunde inte ta emot bilden' });
+  return sendApiError(res, 400, 'UPLOAD_RECEIVE_FAILED');
 }
 
 function avatarUpload(req, res, next) {
@@ -120,26 +122,26 @@ function imageUpload(req, res, next) {
 async function handleImageUpload(req, res) {
   try {
     if (!isObjectStorageConfigured()) {
-      return res.status(503).json({ error: 'Bilduppladdning är inte konfigurerad' });
+      return sendApiError(res, 503, 'UPLOAD_NOT_CONFIGURED');
     }
-    if (!req.file) return res.status(400).json({ error: 'Ingen bild skickad' });
+    if (!req.file) return sendApiError(res, 400, 'UPLOAD_NO_FILE');
 
     const declaredType = (req.file.mimetype || '').toLowerCase();
     if (isDangerousDeclaredType(declaredType)) {
-      return res.status(400).json({ error: 'Filtypen är inte tillåten' });
+      return sendApiError(res, 400, 'UPLOAD_TYPE_NOT_ALLOWED');
     }
 
     let normalized;
     try {
       normalized = await normalizeUploadBuffer(req.file.buffer, declaredType);
     } catch (normErr) {
-      if (normErr.userMessage) {
-        return res.status(400).json({ error: normErr.userMessage });
+      if (normErr.code || normErr.userMessage) {
+        return sendApiError(res, 400, normErr.code || 'UPLOAD_HEIC_CONVERT_FAILED');
       }
       throw normErr;
     }
     if (!normalized) {
-      return res.status(400).json({ error: 'Filen verkar inte vara en giltig bild (JPEG, PNG eller WebP krävs)' });
+      return sendApiError(res, 400, 'UPLOAD_INVALID_IMAGE');
     }
 
     let safeFilename = sanitizeFilename(req.file.originalname);
@@ -157,7 +159,7 @@ async function handleImageUpload(req, res) {
     res.json({ url });
   } catch (err) {
     console.error('[UPLOAD] Image error:', err.message);
-    res.status(500).json({ error: 'Uppladdning misslyckades' });
+    sendApiError(res, 500, 'UPLOAD_FAILED');
   }
 }
 
@@ -165,9 +167,7 @@ router.post('/', requireParent, imageUpload, handleImageUpload);
 router.post('/image', requireParent, imageUpload, handleImageUpload);
 
 router.post('/avatar', requireParent, (_req, res) => {
-  res.status(410).json({
-    error: 'Använd PUT /api/children/:childId/avatar eller PUT /api/account/avatar',
-  });
+  sendApiError(res, 410, 'UPLOAD_AVATAR_GONE');
 });
 
 module.exports = router;

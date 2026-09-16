@@ -29,6 +29,7 @@ const {
   applyWarmEchoOptInMetadata,
 } = require('../lib/child-view-config');
 const { isRolloutDisabled } = require('../lib/activity-timer-rollout');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router();
 
@@ -277,15 +278,11 @@ function generatePin() {
  */
 function validatePin(pin) {
   // Reject all same digit
-  if (/^(\d)\1{3}$/.test(pin)) return 'PIN-koden kan inte bestå av fyra likadana siffror';
-
-  // Reject sequential (ascending)
+  if (/^(\d)\1{3}$/.test(pin)) return 'VALIDATION_PIN_SAME_DIGITS';
   const seqAsc = ['0123', '1234', '2345', '3456', '4567', '5678', '6789', '7890'];
-  if (seqAsc.includes(pin)) return 'PIN-koden kan inte vara en stigande sifferföljd';
-
-  // Reject sequential (descending)
+  if (seqAsc.includes(pin)) return 'VALIDATION_PIN_SEQUENTIAL_ASC';
   const seqDesc = ['9876', '8765', '7654', '6543', '5432', '4321', '3210', '2109'];
-  if (seqDesc.includes(pin)) return 'PIN-koden kan inte vara en sjunkande sifferföljd';
+  if (seqDesc.includes(pin)) return 'VALIDATION_PIN_SEQUENTIAL_DESC';
 
   return null;
 }
@@ -385,17 +382,16 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
 
     // Validation
     if (!name || !emoji) {
-      return res.status(400).json({ error: 'Namn och emoji krävs' });
+      return sendApiError(res, 400, 'CHILD_NAME_EMOJI_REQUIRED');
     }
     if (name.trim().length < 1) {
-      return res.status(400).json({ error: 'Namn krävs' });
+      return sendApiError(res, 400, 'CHILD_NAME_REQUIRED');
     }
 
     const dupName = await checkChildNameInFamily(db, name.trim(), req.user.familyId);
     if (!dupName.ok) {
-      return res.status(409).json({
-        error: dupName.error,
-        code: dupName.code,
+      return sendApiError(res, 409, dupName.code, {
+        details: { name: dupName.existingName || name.trim() },
         suggestions: dupName.suggestions,
       });
     }
@@ -404,7 +400,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
     if (birthday) {
       const birthDate = new Date(birthday);
       if (isNaN(birthDate.getTime())) {
-        return res.status(400).json({ error: 'Ogiltigt datumformat' });
+        return sendApiError(res, 400, 'CHILD_INVALID_DATE');
       }
     }
 
@@ -412,11 +408,11 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
     let rawPin;
     if (pin !== undefined && pin !== null && pin !== '') {
       if (!/^\d{4}$/.test(pin)) {
-        return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
+        return sendApiError(res, 400, 'CHILD_PIN_INVALID_FORMAT');
       }
       const pinError = validatePin(pin);
       if (pinError) {
-        return res.status(400).json({ error: pinError });
+        return sendApiError(res, 400, pinError);
       }
       rawPin = pin;
     } else {
@@ -457,7 +453,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
     // Check (name + PIN) uniqueness globally.
     // Siblings within the same family may share a PIN as long as their names differ.
     if (pinExistsResult.rows.length > 0) {
-      return res.status(409).json({ error: 'Den kombinationen är inte tillgänglig. Försök med ett annat namn eller en annan PIN.' });
+      return sendApiError(res, 409, 'CHILD_NAME_PIN_TAKEN');
     }
 
     const client = await db.getClient();
@@ -655,7 +651,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
 
     if (name !== undefined) {
       if (name.trim().length < 1) {
-        return res.status(400).json({ error: 'Namn krävs' });
+        return sendApiError(res, 400, 'CHILD_NAME_REQUIRED');
       }
       updates.push(`name = $${idx++}`);
       values.push(name.trim());
@@ -667,7 +663,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     if (birthday !== undefined) {
       const d = new Date(birthday);
       if (isNaN(d.getTime())) {
-        return res.status(400).json({ error: 'Ogiltigt datumformat' });
+        return sendApiError(res, 400, 'CHILD_INVALID_DATE');
       }
       updates.push(`birthday = $${idx++}`);
       values.push(birthday);
@@ -814,13 +810,13 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
   try {
     const { pin } = req.body;
     if (!pin || !/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
+      return sendApiError(res, 400, 'CHILD_PIN_INVALID_FORMAT');
     }
 
     // Reject weak PINs
     const weakError = validatePin(pin);
     if (weakError) {
-      return res.status(400).json({ error: weakError });
+      return sendApiError(res, 400, weakError);
     }
 
     // Fetch child's name so we can check (name + PIN) combination uniqueness.
@@ -835,7 +831,7 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
       [pinFp, childName, req.params.id]
     );
     if (pinExists.rows.length > 0) {
-      return res.status(409).json({ error: 'Den kombinationen är inte tillgänglig. Försök med ett annat namn eller en annan PIN.' });
+      return sendApiError(res, 409, 'CHILD_NAME_PIN_TAKEN');
     }
 
     const pinHash = await hashPassword(pin);

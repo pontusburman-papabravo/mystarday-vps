@@ -6,6 +6,7 @@ const { canManageChildAvatar } = require('../lib/avatar-authz');
 const { avatarApiFields } = require('../lib/avatar-api');
 const { avatarUpload, parseAvatarUploadFile } = require('../lib/avatar-upload');
 const { setChildAvatar, clearChildAvatar } = require('../lib/avatar-service');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router({ mergeParams: true });
 
@@ -25,20 +26,22 @@ router.put('/:childId/avatar', requireParent, avatarUpload, async (req, res) => 
     const childId = req.params.childId;
     const canManage = await canManageChildAvatar(req.user.id, childId);
     if (!canManage) {
-      return res.status(403).json({ error: 'Du har inte behörighet att ändra denna profilbild' });
+      return sendApiError(res, 403, 'AVATAR_FORBIDDEN');
     }
 
     const parsed = await parseAvatarUploadFile(req.file);
     const updated = await setChildAvatar(childId, parsed);
-    if (!updated) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!updated) return sendApiError(res, 404, 'AVATAR_CHILD_NOT_FOUND');
 
     res.json(serializeChild(updated));
   } catch (err) {
-    if (err.userMessage) {
-      return res.status(err.status || 400).json({ error: err.userMessage });
+    if (err.code || err.userMessage) {
+      return sendApiError(res, err.status || 400, err.code || err.userMessage, {
+        details: err.details,
+      });
     }
     console.error('[CHILD-AVATAR] PUT error:', err.message);
-    res.status(500).json({ error: 'Kunde inte spara profilbilden' });
+    sendApiError(res, 500, 'AVATAR_SAVE_FAILED');
   }
 });
 
@@ -48,16 +51,16 @@ router.delete('/:childId/avatar', requireParent, async (req, res) => {
     const childId = req.params.childId;
     const canManage = await canManageChildAvatar(req.user.id, childId);
     if (!canManage) {
-      return res.status(403).json({ error: 'Du har inte behörighet att ta bort denna profilbild' });
+      return sendApiError(res, 403, 'AVATAR_FORBIDDEN');
     }
 
     const updated = await clearChildAvatar(childId);
-    if (!updated) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!updated) return sendApiError(res, 404, 'AVATAR_CHILD_NOT_FOUND');
 
     res.json(serializeChild(updated));
   } catch (err) {
     console.error('[CHILD-AVATAR] DELETE error:', err.message);
-    res.status(500).json({ error: 'Kunde inte ta bort profilbilden' });
+    sendApiError(res, 500, 'AVATAR_DELETE_FAILED');
   }
 });
 

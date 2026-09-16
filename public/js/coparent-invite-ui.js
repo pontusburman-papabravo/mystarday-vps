@@ -87,7 +87,12 @@
       });
       if (check.adult && check.adult.status !== 'available') {
         if (msgEl) {
-          msgEl.textContent = check.adult.error || fpt('family.errors.memberAlreadyExists');
+          msgEl.textContent = (typeof window.apiErrorMessage === 'function'
+            ? window.apiErrorMessage({
+              code: check.adult.code || check.adult.status,
+              details: { name: check.adult.existingName },
+            })
+            : '') || fpt('family.errors.memberAlreadyExists');
           msgEl.className = 'text-sm text-red-500 font-medium';
         }
         return false;

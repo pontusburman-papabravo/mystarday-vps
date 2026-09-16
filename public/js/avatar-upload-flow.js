@@ -27,7 +27,11 @@
     });
     if (!res.ok) {
       const err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error || ('Uppladdning misslyckades (' + res.status + ')'));
+      throw new Error(
+        (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(err, 'family.errors.upload') : '')
+        || (window.I18n ? I18n.t('family.errors.upload') : '')
+        || String(res.status)
+      );
     }
     return res.json();
   }
@@ -41,7 +45,11 @@
     });
     if (!res.ok) {
       const err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error || ('Kunde inte ta bort (' + res.status + ')'));
+      throw new Error(
+        (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(err, 'family.errors.avatarDeleteFailed') : '')
+        || (window.I18n ? I18n.t('family.errors.avatarDeleteFailed') : '')
+        || String(res.status)
+      );
     }
     return res.json();
   }

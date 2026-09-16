@@ -7,6 +7,16 @@ const {
   isDangerousDeclaredType,
 } = require('../routes/upload');
 const { isObjectStorageConfigured } = require('./object-storage');
+const { sendApiError } = require('./api-user-error');
+
+function uploadFail(code, status, extra) {
+  const err = new Error(code);
+  err.status = status;
+  err.code = code;
+  err.userMessage = code;
+  if (extra && extra.details) err.details = extra.details;
+  throw err;
+}
 
 /** Max edge after server normalize — client crop is 512px; cap decoded pixels. */
 const AVATAR_MAX_EDGE_PX = 2048;
@@ -19,10 +29,7 @@ const AVATAR_MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
 async function sanitizeAvatarImageBuffer(buffer, declaredType) {
   const normalized = await normalizeUploadBuffer(buffer, declaredType);
   if (!normalized) {
-    const err = new Error('BAD_IMAGE');
-    err.status = 400;
-    err.userMessage = 'Endast JPEG, PNG eller WebP är tillåtna';
-    throw err;
+    uploadFail('UPLOAD_INVALID_IMAGE', 400);
   }
 
   let sharp;
@@ -41,17 +48,11 @@ async function sanitizeAvatarImageBuffer(buffer, declaredType) {
   try {
     meta = await pipeline.metadata();
   } catch (metaErr) {
-    const err = new Error('BAD_IMAGE');
-    err.status = 400;
-    err.userMessage = 'Bilden kunde inte läsas eller är för stor';
-    throw err;
+    uploadFail('UPLOAD_INVALID_IMAGE', 400);
   }
 
   if (!meta.width || !meta.height) {
-    const err = new Error('BAD_IMAGE');
-    err.status = 400;
-    err.userMessage = 'Bilden kunde inte läsas';
-    throw err;
+    uploadFail('UPLOAD_INVALID_IMAGE', 400);
   }
 
   if (meta.width > AVATAR_MAX_EDGE_PX || meta.height > AVATAR_MAX_EDGE_PX) {
@@ -65,17 +66,11 @@ async function sanitizeAvatarImageBuffer(buffer, declaredType) {
   try {
     out = await pipeline.rotate().jpeg({ quality: 88, mozjpeg: true }).toBuffer();
   } catch (encodeErr) {
-    const err = new Error('BAD_IMAGE');
-    err.status = 400;
-    err.userMessage = 'Bilden kunde inte bearbetas';
-    throw err;
+    uploadFail('UPLOAD_INVALID_IMAGE', 400);
   }
 
   if (out.length > AVATAR_MAX_OUTPUT_BYTES) {
-    const err = new Error('TOO_LARGE');
-    err.status = 413;
-    err.userMessage = 'Bilden är för stor (max 2 MB)';
-    throw err;
+    uploadFail('UPLOAD_FILE_TOO_LARGE', 413, { details: { maxMb: 2 } });
   }
 
   return { buffer: out, contentType: 'image/jpeg' };
@@ -90,36 +85,27 @@ function avatarUpload(req, res, next) {
   avatarMiddleware.single('image')(req, res, function (err) {
     if (!err) return next();
     if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: 'Bilden är för stor (max 2 MB)' });
+      return sendApiError(res, 413, 'UPLOAD_FILE_TOO_LARGE', { details: { maxMb: 2 } });
     }
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({ error: 'Ogiltigt fältnamn för bilduppladdning' });
+      return sendApiError(res, 400, 'UPLOAD_INVALID_FIELD');
     }
     console.error('[AVATAR-UPLOAD] Multer error:', err.message);
-    return res.status(400).json({ error: 'Kunde inte ta emot bilden' });
+    return sendApiError(res, 400, 'UPLOAD_RECEIVE_FAILED');
   });
 }
 
 async function parseAvatarUploadFile(file) {
   if (!isObjectStorageConfigured()) {
-    const err = new Error('NOT_CONFIGURED');
-    err.status = 503;
-    err.userMessage = 'Bilduppladdning är inte konfigurerad';
-    throw err;
+    uploadFail('UPLOAD_NOT_CONFIGURED', 503);
   }
   if (!file) {
-    const err = new Error('NO_FILE');
-    err.status = 400;
-    err.userMessage = 'Ingen bild skickad';
-    throw err;
+    uploadFail('UPLOAD_NO_FILE', 400);
   }
 
   const declaredType = (file.mimetype || '').toLowerCase();
   if (isDangerousDeclaredType(declaredType)) {
-    const err = new Error('BAD_TYPE');
-    err.status = 400;
-    err.userMessage = 'Filtypen är inte tillåten';
-    throw err;
+    uploadFail('UPLOAD_TYPE_NOT_ALLOWED', 400);
   }
 
   let normalized;
@@ -127,19 +113,13 @@ async function parseAvatarUploadFile(file) {
     normalized = await sanitizeAvatarImageBuffer(file.buffer, declaredType);
   } catch (normErr) {
     if (normErr.userMessage) {
-      const err = new Error('NORMALIZE');
-      err.status = normErr.status || 400;
-      err.userMessage = normErr.userMessage;
-      throw err;
+      uploadFail(normErr.code || normErr.userMessage || 'UPLOAD_INVALID_IMAGE', normErr.status || 400);
     }
     throw normErr;
   }
 
   if (!normalized) {
-    const err = new Error('BAD_IMAGE');
-    err.status = 400;
-    err.userMessage = 'Endast JPEG, PNG eller WebP är tillåtna';
-    throw err;
+    uploadFail('UPLOAD_INVALID_IMAGE', 400);
   }
 
   let safeFilename = sanitizeFilename(file.originalname || 'avatar.jpg');

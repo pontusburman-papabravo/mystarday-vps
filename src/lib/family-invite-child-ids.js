@@ -13,7 +13,7 @@ async function resolveInviteChildIdsForParent(parentId, familyId, requestedChild
   const accessibleIds = new Set(accessible.map((c) => c.id));
 
   if (accessibleIds.size === 0) {
-    return { ok: false, status: 403, error: 'Du har inga barn att dela åtkomst till' };
+    return { ok: false, status: 403, error: 'INVITE_NO_CHILDREN', code: 'INVITE_NO_CHILDREN' };
   }
 
   let childIds = Array.isArray(requestedChildIds) ? requestedChildIds : [];
@@ -25,7 +25,8 @@ async function resolveInviteChildIdsForParent(parentId, familyId, requestedChild
       return {
         ok: false,
         status: 403,
-        error: 'Du kan bara bjuda in till barn du har åtkomst till',
+        error: 'INVITE_CHILD_ACCESS',
+        code: 'INVITE_CHILD_ACCESS',
       };
     }
     const inFamily = await db.query(
@@ -33,7 +34,7 @@ async function resolveInviteChildIdsForParent(parentId, familyId, requestedChild
       [familyId, childIds]
     );
     if (inFamily.rows.length !== childIds.length) {
-      return { ok: false, status: 400, error: 'Ogiltiga barn' };
+      return { ok: false, status: 400, error: 'INVITE_INVALID_CHILDREN', code: 'INVITE_INVALID_CHILDREN' };
     }
   }
 
