@@ -135,7 +135,7 @@ describe('post-onboarding UX fixes — settings premium regression', () => {
   const PREMIUM_TEST = read('test/settings-premium-magic.test.js');
 
   it('13: settings-premium-magic tests updated for new grandfathered copy', () => {
-    assert.match(PREMIUM_TEST, /Premium ingår permanent/);
+    assert.match(PREMIUM_TEST, /grandfatheredTitle/);
     assert.doesNotMatch(PREMIUM_TEST, /Premium permanent/);
   });
 });
