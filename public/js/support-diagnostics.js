@@ -45,6 +45,12 @@
     el.classList.toggle('text-green-700', !isError && !!msg);
   }
 
+  function spt(key, params) {
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+    return key;
+  }
+
   async function copyToClipboard() {
     const btn = document.getElementById('copySupportDiagnosticsBtn');
     if (btn) btn.disabled = true;
@@ -64,10 +70,10 @@
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
       }
-      setStatus('Kopierat — klistra in i mejl till support.');
+      setStatus(spt('settings.support.copied'));
     } catch (err) {
       console.error('[support-diagnostics]', err);
-      setStatus('Kunde inte kopiera. Försök igen.', true);
+      setStatus(spt('settings.support.copyFailed'), true);
     } finally {
       if (btn) btn.disabled = false;
     }

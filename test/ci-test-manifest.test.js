@@ -72,6 +72,7 @@ const CRITICAL_UNIT = [
   'test/i18n-family-remainder.test.js',
   'test/i18n-family-child-runtime.test.js',
   'test/i18n-assign-schedule-runtime.test.js',
+  'test/i18n-settings-remainder.test.js',
   'test/i18n-copy-ratchet.test.js',
   'test/i18n-fragment-guards.test.js',
   'test/support-reply-token.test.js',
