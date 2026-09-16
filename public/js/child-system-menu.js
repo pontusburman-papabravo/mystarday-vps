@@ -105,7 +105,7 @@
     const dailyUx = window.ChildTrustedChrome && ChildTrustedChrome.isDailyUxActive
       ? ChildTrustedChrome.isDailyUxActive()
       : false;
-    const adultLabel = dailyUx ? 'Vuxen' : t('nav.parent');
+    const adultLabel = dailyUx ? t('nav.adult') : t('nav.parent');
     const adultIcon = dailyUx ? '🔒' : (window.IconSystem ? IconSystem.nav('installningar') : '⚙️');
     btn.setAttribute('aria-label', dailyUx ? t('nav.parentLockAria') : t('nav.parentAria'));
     btn.setAttribute('aria-haspopup', dailyUx ? 'false' : 'menu');
@@ -161,7 +161,7 @@
         '<button type="button" role="menuitem" class="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-sky min-h-[44px]" data-system-action="' +
         action.id +
         '">' +
-        action.label +
+        t(action.labelKey) +
         '</button>'
       );
     }).join('');

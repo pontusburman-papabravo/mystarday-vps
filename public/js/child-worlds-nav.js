@@ -10,6 +10,10 @@
   const LEGACY_BTN_CLASS = 'flex-1 py-3 text-sm font-semibold border-b-2';
   let _initialized = false;
 
+  function childNavAriaLabel() {
+    return typeof window.cpt === 'function' ? cpt('nav.ariaLabel') : '';
+  }
+
   function isFirstStarModeActive() {
     return !!(window.ChildFirstStarMode && ChildFirstStarMode.isActive());
   }
@@ -102,7 +106,7 @@
     nav.innerHTML = html;
     nav.setAttribute('data-nav-ready', 'true');
     nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', typeof window.cpt === 'function' ? cpt('nav.ariaLabel') : 'Barnnavigering');
+    nav.setAttribute('aria-label', childNavAriaLabel());
     nav.style.display = '';
     nav.removeAttribute('aria-hidden');
     document.body.classList.add('child-has-bottom-nav');
@@ -134,7 +138,7 @@
     const worlds = ChildWorlds.getChildWorlds ? ChildWorlds.getChildWorlds() : ChildWorlds.CHILD_WORLDS;
 
     let inner =
-      '<div class="flex max-w-lg mx-auto" role="navigation" aria-label="Barnnavigering">';
+      '<div class="flex max-w-lg mx-auto" role="navigation">';
     worlds.forEach(function (world) {
       const isActive = world.id === activeId;
       inner +=
@@ -154,6 +158,8 @@
     });
     inner += '</div>';
     legacy.innerHTML = inner;
+    const navWrap = legacy.querySelector('[role="navigation"]');
+    if (navWrap) navWrap.setAttribute('aria-label', childNavAriaLabel());
     legacy.classList.add('hidden');
     legacy.setAttribute('aria-hidden', 'true');
 

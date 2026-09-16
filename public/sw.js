@@ -318,8 +318,10 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v975: För dig outcome banner after child chrome leftover i18n merge
+const CACHE_NAME = 'stjarndag-v975';
+// stjarndag-v974: child chrome leftovers via child.scheduleChrome / child.nav / child.settings
 // stjarndag-v974: För dig outcome banner after dashboard/home satellite i18n merge
-const CACHE_NAME = 'stjarndag-v974';
 // stjarndag-v973: dashboard/home satellite copy via schedule.specialDays / copy / dnd / home.timeAdjust / approvals
 // stjarndag-v973: För dig outcome banner + explicit email CTA after main i18n merge
 // stjarndag-v972: settings remainder copy via settings.notifications / reminders / deleteAccount / consent / subscription

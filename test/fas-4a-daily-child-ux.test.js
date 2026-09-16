@@ -80,7 +80,7 @@ describe('Fas 4A — client contracts', () => {
 
   it('child-system-menu shows Vuxen lock on daily UX', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-system-menu.js'), 'utf8');
-    assert.match(src, /Vuxen/);
+    assert.match(src, /t\('nav\.adult'\)/);
     assert.match(src, /🔒/);
   });
 

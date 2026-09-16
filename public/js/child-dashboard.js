@@ -690,7 +690,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Prune stale data on every app open (keep last 7 days)
       OfflineStore.clearStaleData(7).catch(() => {});
     }
-    document.getElementById('childName').textContent = me.name || 'Mitt schema';
+    document.getElementById('childName').textContent = me.name
+      || (typeof window.cpt === 'function' ? cpt('scheduleChrome.mySchedule') : '');
     document.getElementById('childEmoji').textContent = me.emoji || '⭐';
     if (window.ChildTodayFocus) ChildTodayFocus.init(me.name);
     const darkBtn = document.getElementById('childDarkBtn');

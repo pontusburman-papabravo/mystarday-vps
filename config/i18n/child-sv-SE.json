@@ -59,7 +59,12 @@
     "parentAria": "Förälder — kräver PIN",
     "parentLockAria": "Vuxenläge",
     "switchChild": "Byt barn",
-    "ariaLabel": "Barnnavigering"
+    "ariaLabel": "Barnnavigering",
+    "home": "Hem",
+    "schedule": "Schema",
+    "more": "Mer",
+    "family": "Familj",
+    "adult": "Vuxen"
   },
   "today": {
     "dayView": "Dagsvy",
@@ -612,6 +617,11 @@
     "otherDays": "Andra dagar",
     "goToday": "Idag",
     "wholeWeek": "Hela veckan",
+    "wholeWeekTitle": "Se hela veckans schema",
+    "pageTitle": "Mitt Schema — Stjärndag",
+    "mySchedule": "Mitt schema",
+    "logoutTitle": "Avsluta barnläge (kan öppna vuxenvy om förälder var inloggad)",
+    "todayTasks": "Dagens uppgifter",
     "prevWeek": "Föregående vecka",
     "nextWeek": "Nästa vecka",
     "weekThis": "Denna vecka",
