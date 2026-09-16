@@ -294,7 +294,7 @@
   "forDig": {
     "outcome": {
       "title": "Hur har det gått med {{goal}}?",
-      "sub": "För {{name}} — aktiverat för över en vecka sedan",
+      "sub": "För {{name}}",
       "great": "Stor förbättring",
       "better": "Lite bättre",
       "same": "Ingen skillnad",
@@ -303,7 +303,12 @@
       "followUpWorse": "Vad saknas?",
       "optional": "(valfritt)",
       "send": "Skicka",
-      "skip": "Hoppa över"
+      "skip": "Hoppa över",
+      "dismissAria": "Stäng",
+      "thanks": "Tack! Ditt svar är sparat.",
+      "alreadyAnswered": "Tack! Det ser ut som att du redan har svarat.",
+      "next": "Svara på nästa",
+      "done": "Klar"
     }
   },
   "dashboardTour": {

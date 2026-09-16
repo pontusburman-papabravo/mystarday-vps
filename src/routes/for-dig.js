@@ -209,6 +209,32 @@ router.get('/feedback/pending', async (req, res) => {
   }
 });
 
+router.post('/feedback/dismiss', async (req, res) => {
+  const { child_id: childId, goal_slug: goalSlug } = req.body || {};
+  if (!childId || !goalSlug) {
+    return res.status(400).json({ error: 'child_id och goal_slug krävs' });
+  }
+  if (!getGoalBySlug(goalSlug)) {
+    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+  }
+  try {
+    const child = await authz.getChildAccess(req.user.id, childId);
+    if (!child) {
+      return res.status(403).json({ error: 'Du har inte åtkomst till ett av valda barn.' });
+    }
+    await feedbackDb.dismissPendingOutcome({
+      parentId: req.user.id,
+      familyId: child.family_id,
+      childId: child.id,
+      goalSlug,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[FOR-DIG] dismiss error:', err);
+    res.status(500).json({ error: 'Kunde inte stänga frågan' });
+  }
+});
+
 router.post('/:slug/preview-plan', async (req, res) => {
   const { slug } = req.params;
   const { child_ids: childIdsBody } = req.body || {};

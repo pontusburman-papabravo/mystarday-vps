@@ -294,7 +294,7 @@
   "forDig": {
     "outcome": {
       "title": "How has {{goal}} been going?",
-      "sub": "For {{name}} — active for over a week",
+      "sub": "For {{name}}",
       "great": "Big improvement",
       "better": "A bit better",
       "same": "No difference",
@@ -303,7 +303,12 @@
       "followUpWorse": "What's missing?",
       "optional": "(optional)",
       "send": "Send",
-      "skip": "Skip"
+      "skip": "Skip",
+      "dismissAria": "Close",
+      "thanks": "Thanks! Your answer is saved.",
+      "alreadyAnswered": "Thanks! It looks like you already answered.",
+      "next": "Answer the next one",
+      "done": "Done"
     }
   },
   "dashboardTour": {
