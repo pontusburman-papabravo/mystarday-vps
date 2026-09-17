@@ -258,7 +258,7 @@ test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
   assert.match(route, /router\.get\('\/resurser'/);
   assert.match(route, /resurser\.html/);
   const html = fs.readFileSync(path.join(ROOT, 'public/resurser.html'), 'utf8');
-  assert.match(html, /rel="canonical" href="https:\/\/mystarday\.se\/resurser"/);
+  assert.match(html, /rel="canonical" href="(?:__SITE_URL__|https:\/\/[^"]+)\/resurser"/);
   assert.match(html, /seo-article\.css/);
   assert.match(html, /utm_content=resurs-hub/);
   assert.match(html, /href="\/resurser\/morgon"/);

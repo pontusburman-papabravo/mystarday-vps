@@ -1,0 +1,406 @@
+{
+  "meta": {
+    "htmlLang": "sv",
+    "brand": "[REDACTED]",
+    "locale": "sv-SE"
+  },
+  "ui": {
+    "backLibrary": "← Resursbibliotek",
+    "downloadHeading": "Ladda ner",
+    "pdfA4": "PDF · A4 · gratis",
+    "seeOnScreen": "Se bildkorten på skärmen",
+    "howToHeading": "Så kan du använda materialet",
+    "relatedHeading": "Mer i biblioteket",
+    "printPage": "Skriv ut den här sidan",
+    "downloadPdf": "Ladda ner PDF",
+    "ctaTitle": "Vill du slippa skriva ut nya scheman när dagen ändras?",
+    "ctaBody": "Skapa ett levande schema i [REDACTED] — barnet ser vad som händer nu och härnäst, utan att du skriver ut om.",
+    "ctaButton": "Testa [REDACTED] gratis",
+    "footerPdf": "Gratis resursbibliotek",
+    "pageLabel": "Sida",
+    "teacchDisclaimer": "TEACCH-inspirerat material på papper — inte samma sak som appens levande schema, och inte officiell TEACCH-metod.",
+    "bildkortIntro": "Klipp ut korten. Laminera gärna. Använd på tavla eller kylskåp.",
+    "activityCol": "Aktivitet",
+    "starsCol": "Stjärnor",
+    "rewardGoalLine": "Mål: _____ stjärnor. Belöning: _______________________",
+    "rewardNote": "Utskrivbart stjärnschema — samma idé som Skattkammaren i appen, men på papper.",
+    "weeklyNote": "Statisk veckomall. I appen uppdateras veckoschemat utan att du skriver ut om.",
+    "weekdays": [
+      "Måndag",
+      "Tisdag",
+      "Onsdag",
+      "Torsdag",
+      "Fredag",
+      "Lördag",
+      "Söndag"
+    ],
+    "weekdaysShort": [
+      "Mån",
+      "Tis",
+      "Ons",
+      "Tors",
+      "Fre",
+      "Lör",
+      "Sön"
+    ],
+    "weeklyExampleRow": [
+      "Skola",
+      "Sim",
+      "Skola",
+      "Skola",
+      "Skola",
+      "Lek",
+      "Vila"
+    ],
+    "allCategories": "Alla kategorier",
+    "freeBadge": "Gratis att skriva ut"
+  },
+  "howTo": [
+    "Skriv ut på A4 och sätt upp där barnet ser dagen.",
+    "Bocka av steg med penna, eller klipp ut bildkorten till en tavla.",
+    "När rutinen sitter kan barnet följa samma steg i appen — utan ny utskrift varje gång dagen ändras."
+  ],
+  "hub": {
+    "title": "Gratis bildstöd att skriva ut",
+    "description": "Gratis resursbibliotek med utskrivbara bildscheman, bildkort och PDF-mallar för barns vardagsrutiner. Statiskt material — skilt från den interaktiva appen.",
+    "h1": "Gratis resurser — bildstöd att skriva ut",
+    "lead": "Här finns <strong>gratis PDF:er och bildkort</strong> att skriva ut hemma eller i förskola. Det är ett statiskt bibliotek. Appen [REDACTED] är det levande alternativet — barnet bockar av, samlar stjärnor och ser vad som händer nu.",
+    "categoriesHeading": "Kategorier",
+    "otherHeading": "Övriga mallar",
+    "paperVsAppHeading": "Utskrift eller app?",
+    "paperVsAppBody": "Papper fungerar när du vill ha något fysiskt på väggen. Appen är till för familjer som vill slippa skriva ut nya scheman varje vecka."
+  },
+  "categories": {
+    "morning": {
+      "nav": "Morgon",
+      "title": "Morgon — gratis bildstöd att skriva ut",
+      "description": "Gratis morgonschema och bildkort för barns morgonrutin. Ladda ner PDF och skriv ut hemma eller i förskola.",
+      "h1": "Morgon — bildstöd att skriva ut",
+      "lead": "Tre färdiga PDF:er för morgonrutinen: en tom mall, ett exempel med vanliga steg, och bildkort att klippa ut. Gratis. Inget konto krävs."
+    },
+    "evening": {
+      "nav": "Kväll",
+      "title": "Kväll — gratis bildstöd att skriva ut",
+      "description": "Gratis kvällsschema och bildkort för lugna kvällsrutiner. Ladda ner PDF och skriv ut.",
+      "h1": "Kväll — bildstöd att skriva ut",
+      "lead": "Tre PDF:er för kvällen: tom mall, exempel med lugna steg, och bildkort att klippa ut. Gratis att skriva ut hemma eller i förskola."
+    },
+    "emotions": {
+      "nav": "Känslor",
+      "title": "Känslor — gratis känslokort att skriva ut",
+      "description": "Åtta utskrivbara känslokort för barn. Gratis PDF att ladda ner och laminera.",
+      "h1": "Känslor — kort att skriva ut",
+      "lead": "Åtta vanliga känslor som utskrivbara kort. Samma nycklar som i appen. Klipp ut, laminera gärna och använd när barnet ska sätta ord på hur det känns."
+    },
+    "transitions": {
+      "nav": "Övergångar",
+      "title": "Övergångar — först–sedan och vänta-kort",
+      "description": "Gratis övergångskort med först, sedan, nu och vänta — för lugnare byten mellan aktiviteter.",
+      "h1": "Övergångar — först, sedan och vänta",
+      "lead": "Övergångar är ofta det svåraste. Här finns schema och kort med först, sedan, nu och vänta — att skriva ut hemma eller i förskola."
+    },
+    "teacch": {
+      "nav": "TEACCH-inspirerat",
+      "title": "TEACCH-inspirerat — utskrivbara kort",
+      "description": "TEACCH-inspirerade utskrivbara kort: Först, Sedan, Klar med mera. Inte officiell TEACCH-metod eller certifiering.",
+      "h1": "TEACCH-inspirerat — kort att skriva ut",
+      "lead": "Utskrivbara kort inspirerade av visuellt stöd: Först, Sedan, Klar, Paus, Arbeta, Vila och Hjälp. <strong>Inte</strong> officiell TEACCH-metod eller certifiering. Appen har inget digitalt ATT GÖRA/GÖR/KLAR-system."
+    },
+    "school": {
+      "nav": "Skola",
+      "title": "Skola — gratis bildstöd för skoldagen",
+      "description": "Utskrivbara skolscheman och bildkort för rast, läxa, matsal och mer.",
+      "h1": "Skola — bildstöd att skriva ut",
+      "lead": "Schema och bildkort för skoldagen. Statiskt material att skriva ut. Appen håller samma rutin levande i mobilen när dagen ändras."
+    },
+    "hygiene": {
+      "nav": "Hygien",
+      "title": "Hygien — bildkort att skriva ut",
+      "description": "Gratis hygien-bildkort och schema — tvätta händer, borsta tänder, toalett och mer.",
+      "h1": "Hygien — bildstöd att skriva ut",
+      "lead": "Schema och bildkort för hygienrutiner. Skriv ut hemma eller i förskola."
+    }
+  },
+  "bildkortPages": {
+    "morning": {
+      "title": "Morgon-bildkort att skriva ut",
+      "h1": "Morgon-bildkort",
+      "lead": "Åtta vanliga morgonsteg som kort. Klipp ut, laminera gärna och använd på tavla eller kylskåp. Samma bilder som i PDF:en och i appen."
+    },
+    "evening": {
+      "title": "Kväll-bildkort att skriva ut",
+      "h1": "Kväll-bildkort",
+      "lead": "Sex kvällssteg som kort. Klipp ut och använd på tavla eller kylskåp."
+    },
+    "emotions": {
+      "title": "Känslokort att skriva ut",
+      "h1": "Känslokort",
+      "lead": "Åtta känslor som kort. Samma nycklar som i appen."
+    },
+    "transitions": {
+      "title": "Övergångskort att skriva ut",
+      "h1": "Övergångskort",
+      "lead": "Först, sedan, nu, vänta och klart — som kort att klippa ut."
+    },
+    "teacch": {
+      "title": "TEACCH-inspirerade kort att skriva ut",
+      "h1": "TEACCH-inspirerade kort",
+      "lead": "Först, Sedan, Klar med mera. Inspirerat av visuellt stöd — inte officiell metod."
+    },
+    "school": {
+      "title": "Skola-bildkort att skriva ut",
+      "h1": "Skola-bildkort",
+      "lead": "Kort för skoldagen: rast, läxa, matsal och mer."
+    },
+    "hygiene": {
+      "title": "Hygien-bildkort att skriva ut",
+      "h1": "Hygien-bildkort",
+      "lead": "Kort för tvätta händer, tänder, toalett och mer."
+    }
+  },
+  "pdfLandings": {
+    "morning-schedule": {
+      "title": "Morgonschema PDF — mall med bildstöd",
+      "description": "Gratis morgonschema att skriva ut — tom mall och exempel med vanliga morgonsteg.",
+      "h1": "Morgonschema PDF",
+      "lead": "Ladda ner tom mall om du vill skriva egna steg, eller exempel-PDF:en med vanliga morgonsteg. Bildkorten finns som separat fil."
+    },
+    "evening-schedule": {
+      "title": "Kvällsschema PDF — mall med bildstöd",
+      "description": "Gratis kvällsschema att skriva ut — tom mall och exempel.",
+      "h1": "Kvällsschema PDF",
+      "lead": "Tom mall eller exempel med lugna kvällssteg. Bildkorten finns som separat fil."
+    },
+    "emotions": {
+      "title": "Känslokort PDF",
+      "description": "Gratis känslokort att skriva ut och laminera.",
+      "h1": "Känslokort PDF",
+      "lead": "Åtta känslokort på en A4. Klipp ut och laminera gärna."
+    },
+    "transitions": {
+      "title": "Övergångsschema PDF",
+      "description": "Gratis övergångsschema och kort med först–sedan.",
+      "h1": "Övergångsschema PDF",
+      "lead": "Tom mall, exempel och bildkort för övergångar."
+    },
+    "teacch": {
+      "title": "TEACCH-inspirerade kort PDF",
+      "description": "TEACCH-inspirerade kort att skriva ut. Inte officiell metod.",
+      "h1": "TEACCH-inspirerade kort PDF",
+      "lead": "Utskrivbara kort. Inspirerat av visuellt stöd — inte certifiering."
+    },
+    "school": {
+      "title": "Skolaschema PDF",
+      "description": "Gratis skolaschema och bildkort att skriva ut.",
+      "h1": "Skolaschema PDF",
+      "lead": "Tom mall, exempel och bildkort för skoldagen."
+    },
+    "hygiene": {
+      "title": "Hygienschema PDF",
+      "description": "Gratis hygienschema och bildkort att skriva ut.",
+      "h1": "Hygienschema PDF",
+      "lead": "Tom mall, exempel och bildkort för hygienrutiner."
+    },
+    "reward-chart": {
+      "title": "Belöningsschema PDF",
+      "description": "Gratis utskrivbart stjärnschema för barn.",
+      "h1": "Belöningsschema PDF",
+      "lead": "Ett stjärnschema på papper. I appen följer stjärnorna barnets schema automatiskt."
+    },
+    "weekly-schedule": {
+      "title": "Veckoschema PDF",
+      "description": "Gratis statisk veckomall att skriva ut.",
+      "h1": "Veckoschema PDF",
+      "lead": "Tom veckomall och ett exempel. När veckan ändras är appen enklare än ny utskrift."
+    },
+    "weekend-schedule": {
+      "title": "Helgschema PDF",
+      "description": "Gratis helgschema att skriva ut.",
+      "h1": "Helgschema PDF",
+      "lead": "Ett exempel på lugna helgsteg utan skolstress."
+    },
+    "homework-schedule": {
+      "title": "Läxschema PDF",
+      "description": "Gratis läxschema steg för steg.",
+      "h1": "Läxschema PDF",
+      "lead": "Dela upp läxan i små moment med paus och klart."
+    }
+  },
+  "pdf": {
+    "morning-blank": {
+      "title": "Morgonschema — tom mall",
+      "subtitle": "Bocka av stegen, eller skriv egna i rutorna.",
+      "cardTitle": "Morgonschema – tom mall",
+      "cardHint": "Förtryckta steg med tomma rutor"
+    },
+    "morning-example": {
+      "title": "Morgonschema — exempel",
+      "subtitle": "Vanliga morgonsteg att utgå från. Justera efter er familj.",
+      "cardTitle": "Morgonschema – färdigt exempel",
+      "cardHint": "Samma steg, med nummer i rutorna"
+    },
+    "morning-cards": {
+      "title": "Morgon-bildkort",
+      "cardTitle": "Bildkort – morgon",
+      "cardHint": "Åtta kort att klippa ut"
+    },
+    "evening-blank": {
+      "title": "Kvällsschema — tom mall",
+      "subtitle": "Tomma rutor för er kvällsrutin.",
+      "cardTitle": "Kvällsschema – tom mall",
+      "cardHint": "Förtryckta steg med tomma rutor"
+    },
+    "evening-example": {
+      "title": "Kvällsschema — exempel",
+      "subtitle": "Lugna kvällssteg — anpassa ordning och antal.",
+      "cardTitle": "Kvällsschema – färdigt exempel",
+      "cardHint": "Samma steg, med nummer i rutorna"
+    },
+    "evening-cards": {
+      "title": "Kväll-bildkort",
+      "cardTitle": "Bildkort – kväll",
+      "cardHint": "Sex kort att klippa ut"
+    },
+    "emotion-cards": {
+      "title": "Känslokort",
+      "cardTitle": "Känslokort",
+      "cardHint": "Åtta kort att klippa ut"
+    },
+    "transition-blank": {
+      "title": "Övergångsschema — tom mall",
+      "subtitle": "Tomma rutor för först–sedan och övergångssteg.",
+      "cardTitle": "Övergångsschema – tom mall",
+      "cardHint": "Förtryckta steg med tomma rutor"
+    },
+    "transition-example": {
+      "title": "Övergångsschema — exempel",
+      "subtitle": "Vanliga övergångssteg — först, sedan, nu och vänta.",
+      "cardTitle": "Övergångsschema – färdigt exempel",
+      "cardHint": "Samma steg, med nummer i rutorna"
+    },
+    "transition-cards": {
+      "title": "Övergångskort",
+      "cardTitle": "Bildkort – övergångar",
+      "cardHint": "Kort att klippa ut"
+    },
+    "teacch-cards": {
+      "title": "TEACCH-inspirerade kort",
+      "cardTitle": "TEACCH-inspirerade kort",
+      "cardHint": "Sju kort att klippa ut"
+    },
+    "school-blank": {
+      "title": "Skolaschema — tom mall",
+      "subtitle": "Tomma rutor för skoldagsrutinen.",
+      "cardTitle": "Skolaschema – tom mall",
+      "cardHint": "Förtryckta steg med tomma rutor"
+    },
+    "school-example": {
+      "title": "Skolaschema — exempel",
+      "subtitle": "Vanliga skoldagssteg — anpassa efter barnets vecka.",
+      "cardTitle": "Skolaschema – färdigt exempel",
+      "cardHint": "Samma steg, med nummer i rutorna"
+    },
+    "school-cards": {
+      "title": "Skola-bildkort",
+      "cardTitle": "Bildkort – skola",
+      "cardHint": "Kort att klippa ut"
+    },
+    "hygiene-blank": {
+      "title": "Hygienschema — tom mall",
+      "subtitle": "Tomma rutor för hygienrutinen.",
+      "cardTitle": "Hygienschema – tom mall",
+      "cardHint": "Förtryckta steg med tomma rutor"
+    },
+    "hygiene-example": {
+      "title": "Hygienschema — exempel",
+      "subtitle": "Vanliga hygiensteg — tvätta händer, tänder med mera.",
+      "cardTitle": "Hygienschema – färdigt exempel",
+      "cardHint": "Samma steg, med nummer i rutorna"
+    },
+    "hygiene-cards": {
+      "title": "Hygien-bildkort",
+      "cardTitle": "Bildkort – hygien",
+      "cardHint": "Kort att klippa ut"
+    },
+    "reward-chart": {
+      "title": "Belöningsschema — stjärnschema",
+      "subtitle": "Skriv aktiviteter till vänster. Fyll i stjärnor när barnet klarat dem.",
+      "cardTitle": "Belöningsschema",
+      "cardHint": "Stjärnrutor att fylla i"
+    },
+    "weekly-blank": {
+      "title": "Veckoschema — tom mall",
+      "subtitle": "Fyll i vad som händer varje veckodag — mån till sön.",
+      "cardTitle": "Veckoschema – tom mall",
+      "cardHint": "Måndag till söndag"
+    },
+    "weekly-example": {
+      "title": "Veckoschema — exempel",
+      "subtitle": "Exempel på hur veckan kan se ut — justera efter er familj.",
+      "cardTitle": "Veckoschema – exempel",
+      "cardHint": "Med exempel på första raden"
+    },
+    "weekend-example": {
+      "title": "Helgschema — exempel",
+      "subtitle": "Lugna helgsteg utan skolstress — justera efter er familj.",
+      "cardTitle": "Helgschema",
+      "cardHint": "Exempel för helgen"
+    },
+    "homework-example": {
+      "title": "Läxschema — steg för steg",
+      "subtitle": "Dela upp läxor i små moment — paus och klart markerade.",
+      "cardTitle": "Läxschema",
+      "cardHint": "Steg för steg med paus"
+    }
+  },
+  "pictogramLabels": {
+    "wake_up": "Vakna",
+    "toilet": "Toalett",
+    "wash_hands": "Tvätta händer",
+    "dress": "Klä på sig",
+    "breakfast": "Frukost",
+    "brush_teeth": "Borsta tänder",
+    "pack_bag": "Packa väskan",
+    "school": "Skola",
+    "dinner": "Middag",
+    "shower": "Duscha",
+    "pajamas": "Pyjamas",
+    "read_book": "Läsa bok",
+    "sleep": "Sova",
+    "happy": "Glad",
+    "angry": "Arg",
+    "sad": "Ledsen",
+    "tired": "Trött",
+    "worried": "Orolig",
+    "proud": "Stolt",
+    "scared": "Rädd",
+    "stressed": "Stressad",
+    "first": "Först",
+    "then": "Sedan",
+    "now": "Nu",
+    "soon": "Snart",
+    "five_minutes": "Om fem minuter",
+    "wait": "Vänta",
+    "done": "Färdig",
+    "finished": "Klar",
+    "pause": "Paus",
+    "work": "Arbeta",
+    "rest": "Vila",
+    "help": "Hjälp",
+    "homework": "Läxa",
+    "recess": "Rast",
+    "cafeteria": "Matsal",
+    "listen": "Lyssna",
+    "pencil": "Penna",
+    "teacher": "Lärare",
+    "pe": "Idrott",
+    "bath": "Bada",
+    "hair_brush": "Hårborstning",
+    "bathroom": "Badrum",
+    "outside": "Utomhus",
+    "friend": "Kompis",
+    "lunch": "Lunch",
+    "bike": "Cykel",
+    "snack": "Mellanmål"
+  }
+}
