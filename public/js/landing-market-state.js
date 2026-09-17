@@ -41,21 +41,27 @@
     return parts.join(' ');
   }
 
-  function hideStaleEnglishComingSoon() {
+  function hideStaleEnglishComingSoon(state) {
+    document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
+      el.setAttribute('aria-label', 'Download the app');
+    });
+    document.querySelectorAll('a[href*="apple.co"], a[href*="apps.apple.com"]').forEach((el) => {
+      if (/Download for iPhone \(Swedish\)/i.test(el.textContent || '')) {
+        el.textContent = 'Download for iPhone';
+      }
+    });
+
     document.querySelectorAll('.store-locale-note').forEach((el) => {
       if (el.id === 'landingMarketState') return;
       el.hidden = true;
     });
-    document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
-      el.setAttribute('aria-label', 'Download the app');
-    });
     const heroBody = document.querySelector('.hero-launch-card__body');
     if (heroBody) {
-      heroBody.innerHTML = 'The app is live on the App Store and Google Play in Swedish and English. Create an account if your country is open. If it is not, you can leave your email to be notified.';
+      heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android — in Swedish and English. Create an account if your country is open. If it is not, you can leave your email to be notified.';
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
       if (!/Swedish only|English is coming soon|English coming soon/i.test(el.textContent || '')) return;
-      el.textContent = 'The App Store and Google Play apps are available in Swedish and English. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
+      el.textContent = 'The app is available on the App Store for iPhone and iPad, and on Google Play for Android. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
     });
     document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => {
       try {
@@ -64,7 +70,7 @@
         data.mainEntity.forEach((item) => {
           const answer = item && item.acceptedAnswer && item.acceptedAnswer.text;
           if (typeof answer === 'string' && /Swedish only|English is coming soon/i.test(answer)) {
-            item.acceptedAnswer.text = 'The App Store and Google Play apps are available in Swedish and English. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
+            item.acceptedAnswer.text = 'The app is available on the App Store for iPhone and iPad, and on Google Play for Android. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
           }
         });
         el.textContent = JSON.stringify(data);
@@ -140,7 +146,7 @@
     if (!res.ok) return;
     const state = await res.json();
     if (state.english_available === true) {
-      hideStaleEnglishComingSoon();
+      hideStaleEnglishComingSoon(state);
     }
     const canRegister = anyOpen(state, ['SE', 'IE', 'FI']);
     retargetPrimaryCtas(canRegister);

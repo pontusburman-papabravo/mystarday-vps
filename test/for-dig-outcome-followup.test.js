@@ -407,6 +407,14 @@ test('9. unsubscribe token for parent A cannot change parent B; opt-out is idemp
     assert.equal(await prefs.isOptedOut(b.parentId), false);
     assert.equal(prefB.parent_id, b.parentId);
 
+    await db.query(
+      `INSERT INTO email_subscriptions (parent_id, email, subscribed, subscribed_at, unsubscribe_token)
+       VALUES ($1, $2, true, NOW(), $3)
+       ON CONFLICT (parent_id) DO UPDATE SET subscribed = true, unsubscribed_at = NULL`,
+      [a.parentId, a.email, crypto.randomUUID()]
+    );
+    await db.query(`UPDATE parent SET newsletter_subscribed = true WHERE id = $1`, [a.parentId]);
+
     const unsub = require('../src/routes/for-dig-followup-unsubscribe');
     const app = express();
     app.use(unsub);
@@ -419,6 +427,16 @@ test('9. unsubscribe token for parent A cannot change parent B; opt-out is idemp
       const body = await again.text();
       assert.match(body, /Du får inte längre uppföljningsmejl om För dig/);
       assert.equal(await prefs.isOptedOut(b.parentId), false);
+      const news = await db.query(
+        `SELECT subscribed FROM email_subscriptions WHERE parent_id = $1`,
+        [a.parentId]
+      );
+      assert.equal(news.rows[0].subscribed, true);
+      const flag = await db.query(
+        `SELECT newsletter_subscribed FROM parent WHERE id = $1`,
+        [a.parentId]
+      );
+      assert.equal(flag.rows[0].newsletter_subscribed, true);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }
@@ -745,6 +763,113 @@ test('16. newsletter standalone recordSend/stats/recipients still work; webhook 
     assert.ok(row.rows[0].delivered_at);
     assert.ok(row.rows[0].first_opened_at);
     assert.ok(row.rows[0].first_clicked_at);
+  } finally {
+    await db.cleanup();
+  }
+});
+
+test('16b. for-dig bounce/complaint are tracked without mutating newsletter or for-dig opt-out', async () => {
+  const db = await setupTestDb();
+  assert.equal(db.skip, false, 'TEST_DATABASE_URL required');
+  try {
+    const followup = require('../db/for-dig-outcome-followup');
+    const prefs = require('../db/for-dig-followup-email-preference');
+    const family = await seedFamily(db);
+    await prefs.ensurePreference(family.parentId);
+    await db.query(
+      `INSERT INTO email_subscriptions (parent_id, email, subscribed, subscribed_at, unsubscribe_token)
+       VALUES ($1, $2, true, NOW(), $3)
+       ON CONFLICT (parent_id) DO UPDATE SET subscribed = true, unsubscribed_at = NULL`,
+      [family.parentId, family.email, crypto.randomUUID()]
+    );
+    await db.query(`UPDATE parent SET newsletter_subscribed = true WHERE id = $1`, [family.parentId]);
+
+    const batch = await followup.createBatch();
+    const bounceId = `re_fordig_bounce_${uniqueSuffix()}`;
+    const complaintId = `re_fordig_complaint_${uniqueSuffix()}`;
+    await db.query(
+      `INSERT INTO newsletter_email_send
+         (campaign_type, campaign_id, parent_id, recipient_email, resend_email_id)
+       VALUES ($1, $2, $3, $4, $5), ($1, $2, $3, $4, $6)`,
+      [followup.CAMPAIGN_TYPE, batch.id, family.parentId, family.email, bounceId, complaintId]
+    );
+
+    const secret = 'whsec_' + Buffer.from('test-secret-key-32bytes!!!!').toString('base64');
+    const prevSecret = process.env.RESEND_WEBHOOK_SECRET;
+    process.env.RESEND_WEBHOOK_SECRET = secret;
+    const webhookPath = require.resolve('../src/routes/resend-webhook');
+    delete require.cache[require.resolve('../src/lib/newsletter-unsubscribe')];
+    delete require.cache[webhookPath];
+    const { handleResendWebhook } = require('../src/routes/resend-webhook');
+    const app = express();
+    app.post('/api/resend/webhook', express.raw({ type: 'application/json' }), handleResendWebhook);
+    const server = await listen(app);
+    try {
+      const port = server.address().port;
+      async function postWebhook(emailId, type, extraData, msgId) {
+        const payload = JSON.stringify({
+          type,
+          created_at: new Date().toISOString(),
+          data: { email_id: emailId, to: [family.email], ...(extraData || {}) },
+        });
+        const ts = String(Math.floor(Date.now() / 1000));
+        const { id, timestamp, signature } = signPayload(secret, payload, msgId, ts);
+        const res = await fetch(`http://127.0.0.1:${port}/api/resend/webhook`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'svix-id': id,
+            'svix-timestamp': timestamp,
+            'svix-signature': signature,
+          },
+          body: payload,
+        });
+        assert.equal(res.status, 200);
+        return res.json();
+      }
+      const bounceBody = await postWebhook(
+        bounceId,
+        'email.bounced',
+        { bounce: { type: 'Permanent' } },
+        'msg_fordig_bounce'
+      );
+      assert.equal(bounceBody.action, 'bounce_processed');
+      const bounceReplay = await postWebhook(
+        bounceId,
+        'email.bounced',
+        { bounce: { type: 'Permanent' } },
+        'msg_fordig_bounce_replay'
+      );
+      assert.equal(bounceReplay.action, 'bounce_processed');
+      const complaintBody = await postWebhook(complaintId, 'email.complained', {}, 'msg_fordig_complaint');
+      assert.equal(complaintBody.action, 'complaint_processed');
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+      if (prevSecret === undefined) delete process.env.RESEND_WEBHOOK_SECRET;
+      else process.env.RESEND_WEBHOOK_SECRET = prevSecret;
+    }
+
+    const events = await db.query(
+      `SELECT event_type, email_id FROM resend_webhook_event
+        WHERE email_id IN ($1, $2) ORDER BY received_at, event_type`,
+      [bounceId, complaintId]
+    );
+    const bounceEvents = events.rows.filter((row) => row.email_id === bounceId && row.event_type === 'email.bounced');
+    const complaintEvents = events.rows.filter((row) => row.email_id === complaintId && row.event_type === 'email.complained');
+    assert.equal(bounceEvents.length, 2);
+    assert.equal(complaintEvents.length, 1);
+
+    const news = await db.query(
+      `SELECT subscribed FROM email_subscriptions WHERE parent_id = $1`,
+      [family.parentId]
+    );
+    assert.equal(news.rows[0].subscribed, true);
+    const flag = await db.query(
+      `SELECT newsletter_subscribed FROM parent WHERE id = $1`,
+      [family.parentId]
+    );
+    assert.equal(flag.rows[0].newsletter_subscribed, true);
+    assert.equal(await prefs.isOptedOut(family.parentId), false);
   } finally {
     await db.cleanup();
   }

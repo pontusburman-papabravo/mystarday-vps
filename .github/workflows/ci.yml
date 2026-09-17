@@ -63,6 +63,12 @@ jobs:
         run: npm run lint:public
         # Budget: config/lint-public-budget.json — lower with npm run lint:public:sync-budget
 
+      - name: i18n strict audit
+        run: npm run audit:i18n:strict
+
+      - name: i18n copy ratchet
+        run: npm run audit:i18n
+
       - name: Migrate
         run: npm run migrate
 

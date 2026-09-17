@@ -83,6 +83,8 @@
     "cannot be purchased yet",
     "inte tillg[äa]nglig [äa]n",
     "english\\s+(is\\s+)?coming\\s+soon",
+    "android\\s+coming\\s+soon",
+    "android\\s+is\\s+coming\\s+soon",
     "packages are coming soon"
   ],
 

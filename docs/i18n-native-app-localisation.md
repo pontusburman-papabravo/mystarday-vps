@@ -53,6 +53,7 @@ node scripts/install-android-l10n.mjs
 - Server-generated push notification body copy (parent/child) — separate PR.
 - Email templates — existing parent i18n track.
 - Full Android project not committed (`/android/` gitignored); templates live under `scripts/android/l10n/`.
+- Android widget `values-en-rGB` now has **full key parity** with default `values/strings.xml` (no allowlist).
 
 ## Child Core dependency
 

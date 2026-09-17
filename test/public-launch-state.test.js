@@ -39,10 +39,24 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
+    assert.match(js, /Google Play for Android/);
+    assert.doesNotMatch(js, /Android coming soon/);
+    assert.doesNotMatch(js, /applyIeIosFirstStorePresentation/);
+  });
+
+  it('paywall shows both store links for Ireland web users', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/paywall.js'), 'utf8');
+    assert.doesNotMatch(js, /applyIeWebPaywallPresentation/);
+    assert.doesNotMatch(js, /statusAndroidComingSoon/);
+    assert.doesNotMatch(js, /replacePlayLinkWithComingSoon/);
+    assert.match(js, /cfg\.storeLinks\.play/);
   });
 
   it('English landing does not claim English is coming soon', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/en.html'), 'utf8');
+    assert.match(html, /app-store-badge-en\.svg/);
+    assert.match(html, /google-play-badge-en\.svg/);
+    assert.doesNotMatch(html, /app-store-badge-sv\.svg/);
     assert.doesNotMatch(html, /English coming soon/i);
     assert.doesNotMatch(html, /Swedish only/i);
     assert.doesNotMatch(html, /priceCurrency": "SEK"/);

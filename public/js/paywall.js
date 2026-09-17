@@ -238,6 +238,22 @@
     setPurchaseCtaEnabled(false);
   }
 
+  async function prefetchPaywallCountryCode() {
+    if (paywallCountryCode) return paywallCountryCode;
+    const platform = isAndroid() ? 'android' : 'ios';
+    try {
+      const configRes = await fetch('/api/iap/config?platform=' + encodeURIComponent(platform), {
+        credentials: 'include',
+      });
+      if (!configRes.ok) return null;
+      const config = await configRes.json();
+      paywallCountryCode = config.country_code || null;
+      return paywallCountryCode;
+    } catch (_) {
+      return null;
+    }
+  }
+
   async function loadNativePricing() {
     if (!isNative() || !window.IAPManager) return false;
 
@@ -247,6 +263,7 @@
     pricesReady = false;
 
     await IAPManager.init();
+    await prefetchPaywallCountryCode();
     if (!IAPManager.canPurchase()) {
       showLoadingPrices(false);
       hide(document.getElementById('paywallPlans'));
@@ -396,7 +413,9 @@
         const apple = document.getElementById('paywallAppleLink');
         const play = document.getElementById('paywallPlayLink');
         if (apple && cfg.storeLinks.apple) apple.href = cfg.storeLinks.apple;
-        if (play && cfg.storeLinks.play) play.href = cfg.storeLinks.play;
+        if (play && cfg.storeLinks.play) {
+          play.href = cfg.storeLinks.play;
+        }
       }
     } catch (_) {}
   }

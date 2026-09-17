@@ -22,6 +22,7 @@
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
@@ -68,7 +69,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-i18n-manual-init="true" data-i18n-title="library.page.activitiesTitle">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
@@ -77,19 +78,19 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Min panel</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familj</a></li>
-        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-        <li><a href="/library" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Bibliotek</a></li>
-        <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/settings" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Inställningar</a></li>
+        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="library.page.myPanel">Min panel</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;" data-i18n="nav.treasureChest">🏆 Skattkammaren</a></li>
+        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.primary.family">Familj</a></li>
+        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/library" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.library">Bibliotek</a></li>
+        <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/settings" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.settings">Inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -97,7 +98,7 @@
     <main class="flex-1 flex flex-col">
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center">
-        <h2 class="text-xl font-heading font-bold text-navy">Aktiviteter</h2>
+        <h2 class="text-xl font-heading font-bold text-navy" data-i18n="library.actions.activitiesTab">Aktiviteter</h2>
       </div>
 
       <div class="flex-1 p-4 md:p-8 overflow-auto space-y-6">
@@ -109,8 +110,8 @@
         <section>
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
             <div>
-              <h3 class="text-lg font-heading font-bold text-navy">Alla aktiviteter</h3>
-              <p class="text-sm text-text-soft mt-0.5">Klicka på en kategori för att expandera</p>
+              <h3 class="text-lg font-heading font-bold text-navy" data-i18n="library.page.allActivities">Alla aktiviteter</h3>
+              <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.expandHint">Klicka på en kategori för att expandera</p>
             </div>
             <div class="flex gap-2 flex-wrap">
               <button id="expandAllBtn" onclick="toggleAllCategories(true)" class="px-3 py-1.5 text-sm font-semibold text-text-soft hover:text-navy transition-colors">
@@ -123,7 +124,7 @@
           </div>
 
           <div id="activitiesContainer" class="space-y-3">
-            <div class="text-center py-8 text-text-soft">Laddar aktiviteter…</div>
+            <div class="text-center py-8 text-text-soft" data-i18n="library.loading.activities">Laddar aktiviteter…</div>
           </div>
         </section>
       </div>
@@ -134,7 +135,7 @@
   <div id="categoryModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 id="categoryModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till kategori</h3>
+        <h3 id="categoryModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="library.page.addCategory">Lägg till kategori</h3>
         <button onclick="closeCategoryModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="categoryForm" class="space-y-4" onsubmit="submitCategory(event)">
@@ -147,8 +148,8 @@
         </div>
         <div id="categoryError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeCategoryModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="categorySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeCategoryModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="categorySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -158,7 +159,7 @@
   <div id="activityModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-6">
-        <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy">Lägg till aktivitet</h3>
+        <h3 id="activityModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="library.page.addActivity">Lägg till aktivitet</h3>
         <button onclick="closeActivityModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="activityForm" class="space-y-5" onsubmit="submitActivity(event)">
@@ -166,10 +167,10 @@
 
         <!-- Name -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Aktivitetsnamn *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.nameLabel">Aktivitetsnamn *</label>
           <input type="text" id="activityName" required maxlength="200"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-            placeholder="T.ex. Borsta tänderna">
+            data-i18n-placeholder="library.activityModal.namePlaceholder" placeholder="T.ex. Borsta tänderna">
         </div>
 
         <!-- Icon picker -->
@@ -177,7 +178,7 @@
           <label class="block text-sm font-semibold text-navy mb-2">Ikon</label>
           <div class="flex items-center gap-3 mb-3">
             <div id="selectedIconDisplay" class="text-3xl w-12 h-12 flex items-center justify-center bg-sky rounded-xl">❓</div>
-            <span class="text-sm text-text-soft">Välj en ikon nedan</span>
+            <span class="text-sm text-text-soft" data-i18n="library.page.pickIconBelow">Välj en ikon nedan</span>
           </div>
           <input type="hidden" id="activityIcon">
           <div id="iconPicker" class="flex flex-wrap gap-1 max-h-48 overflow-y-auto p-2 bg-sky rounded-xl"></div>
@@ -188,13 +189,13 @@
           <label class="block text-sm font-semibold text-navy mb-1">Kategori</label>
           <select id="activityCategory"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white">
-            <option value="">Ingen kategori</option>
+            <option value="" data-i18n="library.chrome.noCategory">Ingen kategori</option>
           </select>
         </div>
 
         <!-- Star value -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Stjärnvärde (1–5 ⭐)</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="library.activityModal.starValueLabel">Stjärnvärde (1–5 ⭐)</label>
           <div class="flex gap-2" id="starPicker">
             <button type="button" class="star-btn px-4 py-2 rounded-xl border-2 border-lavender hover:border-gold transition-colors font-bold" data-val="1" onclick="selectStar(1)">1 ⭐</button>
             <button type="button" class="star-btn px-4 py-2 rounded-xl border-2 border-lavender hover:border-gold transition-colors font-bold" data-val="2" onclick="selectStar(2)">2 ⭐</button>
@@ -211,7 +212,7 @@
             class="w-10 h-6 rounded-full bg-lavender transition-colors relative flex-shrink-0">
             <span id="favDot" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform shadow"></span>
           </button>
-          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleFavorite()">
+          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleFavorite()" data-i18n="library.favorite.label">
             Favorit — visas först i schemat
           </label>
           <input type="hidden" id="activityFavorite" value="false">
@@ -219,15 +220,15 @@
 
         <!-- Feedback for ("Hur gick det?") -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.activityModal.feedbackLabel">
             "Hur gick det?" — vem ser frågan?
           </label>
           <select id="activityFeedbackFor"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors bg-white text-sm">
-            <option value="both">🧒👨‍👩‍👧 Både barnet och föräldern (standard)</option>
-            <option value="child">🧒 Bara barnet</option>
-            <option value="parent">👨‍👩‍👧 Bara föräldern</option>
-            <option value="none">🚫 Ingen (avstängd)</option>
+            <option value="both" data-i18n="library.activityModal.feedbackBoth">🧒👨‍👩‍👧 Både barnet och föräldern (standard)</option>
+            <option value="child" data-i18n="library.activityModal.feedbackChild">🧒 Bara barnet</option>
+            <option value="parent" data-i18n="library.activityModal.feedbackParent">👨‍👩‍👧 Bara föräldern</option>
+            <option value="none" data-i18n="library.activityModal.feedbackNone">🚫 Ingen (avstängd)</option>
           </select>
           <p class="text-xs text-text-soft mt-1">Visas efter att aktiviteten bockats av</p>
         </div>
@@ -236,10 +237,10 @@
 
         <!-- Substeps -->
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n-html="library.activityModal.substepsLabel">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
           <div id="libActSubstepList" class="space-y-1 mb-2"></div>
           <div class="flex gap-2">
-            <input type="text" id="libActSubstepInput" placeholder="Lägg till delsteg…" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addLibActSubstep();}">
+            <input type="text" id="libActSubstepInput" placeholder="Lägg till delsteg…" data-i18n-placeholder="library.substeps.placeholder" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" onkeydown="if(event.key==='Enter'){event.preventDefault();addLibActSubstep();}">
             <button type="button" onclick="addLibActSubstep()" class="px-3 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold transition-colors">+</button>
           </div>
         </div>
@@ -247,7 +248,7 @@
         <div id="libActSubstepEditModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
           <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl">
             <div class="flex justify-between items-center mb-4">
-              <h4 class="text-base font-heading font-bold text-navy">Redigera delsteg</h4>
+              <h4 class="text-base font-heading font-bold text-navy" data-i18n="library.activityModal.substepEditTitle">Redigera delsteg</h4>
               <button onclick="closeLibActSubstepEdit()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
             </div>
             <div class="space-y-4">
@@ -255,7 +256,7 @@
                 <label class="block text-sm font-semibold text-navy mb-1">Namn</label>
                 <input type="text" id="libActStepEditName" maxlength="200"
                   class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-                  placeholder="T.ex. Ta tandkräm">
+                  data-i18n-placeholder="library.activityModal.stepNamePlaceholder" placeholder="T.ex. Ta tandkräm">
               </div>
               <div>
                 <label class="block text-sm font-semibold text-navy mb-2">Ikon (valfri)</label>
@@ -268,14 +269,14 @@
               </div>
             </div>
             <div class="flex gap-3 mt-5">
-              <button type="button" onclick="closeLibActSubstepEdit()" class="flex-1 px-4 py-2.5 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors text-sm">Avbryt</button>
-              <button type="button" onclick="submitLibActSubstepEdit()" class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm">Spara</button>
+              <button type="button" onclick="closeLibActSubstepEdit()" class="flex-1 px-4 py-2.5 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors text-sm" data-i18n="library.actions.cancel">Avbryt</button>
+              <button type="button" onclick="submitLibActSubstepEdit()" class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm" data-i18n="library.actions.save">Spara</button>
             </div>
           </div>
         </div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors">Avbryt</button>
-          <button type="submit" id="activitySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+          <button type="button" onclick="closeActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
+          <button type="submit" id="activitySubmitBtn" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.save">Spara</button>
         </div>
       </form>
     </div>
@@ -284,16 +285,28 @@
   <!-- ── Confirm Delete Modal ──────────────────────────── -->
   <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h3 class="text-lg font-heading font-bold text-navy mb-3">Bekräfta borttagning</h3>
-      <p id="confirmMsg" class="text-text-soft mb-6">Är du säker?</p>
+      <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="library.chrome.confirmTitle">Bekräfta borttagning</h3>
+      <p id="confirmMsg" class="text-text-soft mb-6" data-i18n="library.confirm.areYouSure">Är du säker?</p>
       <div class="flex gap-3">
-        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors">Ta bort</button>
+        <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="library.actions.cancel">Avbryt</button>
+        <button id="confirmOkBtn" class="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors" data-i18n="library.actions.delete">Ta bort</button>
       </div>
     </div>
   </div>
 
 <script>
+function lpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
+function actError(data, fallbackKey) {
+  if (typeof window.apiErrorMessage === 'function') {
+    const msg = window.apiErrorMessage(data, fallbackKey);
+    if (msg) return msg;
+  }
+  return lpt(fallbackKey);
+}
+
 // ─── State ────────────────────────────────────────────────
 let categories = [];
 let activities = [];
@@ -321,6 +334,10 @@ const CATEGORY_COLORS = {
 document.addEventListener('DOMContentLoaded', async () => {
   const user = await window.authGuard();
   if (!user) return;
+
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n(user.preferred_locale);
+  }
 
   document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
   // logoutBtn2 removed — logout only in sidebar/hamburger menu now
@@ -351,7 +368,7 @@ function renderCategories() {
 function buildCategoryOptions() {
   const sel = document.getElementById('activityCategory');
   const current = sel.value;
-  sel.innerHTML = '<option value="">Ingen kategori</option>' +
+  sel.innerHTML = '<option value="">' + lpt('library.chrome.noCategory') + '</option>' +
     categories.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
   if (current) sel.value = current;
 }
@@ -518,7 +535,7 @@ function initActivityDnD() {
           });
           if (!res.ok) console.error('Reorder failed');
         } catch (err) {
-          showToast('Kunde inte spara ordningen', true);
+          showToast(lpt('library.errors.saveOrder'), true);
         }
       },
     });
@@ -640,7 +657,7 @@ function setFavorite(val) {
 function openCategoryModal(cat) {
   document.getElementById('categoryId').value = cat ? cat.id : '';
   document.getElementById('categoryName').value = cat ? cat.name : '';
-  document.getElementById('categoryModalTitle').textContent = cat ? 'Redigera kategori' : 'Lägg till kategori';
+  document.getElementById('categoryModalTitle').textContent = cat ? lpt('library.modal.editCategory') : lpt('library.page.addCategory');
   document.getElementById('categoryError').classList.add('hidden');
   document.getElementById('categoryModal').classList.remove('hidden');
   setTimeout(() => document.getElementById('categoryName').focus(), 100);
@@ -657,7 +674,7 @@ async function submitCategory(e) {
   const btn = document.getElementById('categorySubmitBtn');
   const errEl = document.getElementById('categoryError');
   errEl.classList.add('hidden');
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
 
   const url = id ? `/api/categories/${id}` : '/api/categories';
   const method = id ? 'PUT' : 'POST';
@@ -666,26 +683,26 @@ async function submitCategory(e) {
 
   if (res.ok) {
     closeCategoryModal();
-    showToast('Kategorin har sparats');
+    showToast(lpt('library.saved.category'));
     await loadCategories();
     await loadActivities();
   } else {
-    errEl.textContent = data.error || 'Fel uppstod';
+    errEl.textContent = actError(data, 'library.errors.generic');
     errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function deleteCategory(id, name) {
-  openConfirmModal(`Ta bort kategorin "${name}"? Aktiviteter i den kategorin förlorar sin kategori.`, async () => {
+  openConfirmModal(lpt('library.confirm.deleteCategory', { name }), async () => {
     const res = await window.apiFetch(`/api/categories/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
-      showToast('Kategorin har tagits bort');
+      showToast(lpt('library.saved.categoryDeleted'));
       await loadCategories();
       await loadActivities();
     } else {
-      showToast(data.error || 'Kunde inte ta bort kategorin', true);
+      showToast(actError(data, 'library.errors.deleteCategory'), true);
     }
   });
 }
@@ -699,7 +716,7 @@ function renderLibActSubsteps() {
   if (!list) return;
   const visible = _libActSubsteps.filter(s => !s._deleted);
   if (visible.length === 0) {
-    list.innerHTML = '<p class="text-xs text-text-soft italic">Inga delsteg ännu. Lägg till nedan.</p>';
+    list.innerHTML = '<p class="text-xs text-text-soft italic">' + lpt('library.empty.noSubsteps') + '</p>';
     return;
   }
   list.innerHTML = visible.map((s, vi) => {
@@ -838,7 +855,7 @@ async function openActivityModal(act) {
   selectStar(act ? act.star_value : 1);
   setFavorite(act ? act.is_favorite : false);
   document.getElementById('activityFeedbackFor').value = (act && act.feedback_for) ? act.feedback_for : 'both';
-  document.getElementById('activityModalTitle').textContent = act ? 'Redigera aktivitet' : 'Lägg till aktivitet';
+  document.getElementById('activityModalTitle').textContent = act ? lpt('library.modal.editActivity') : lpt('library.page.addActivity');
   document.getElementById('activityError').classList.add('hidden');
   const currentIcon = act && act.icon ? act.icon : null;
   document.querySelectorAll('#iconPicker button').forEach(btn => {
@@ -887,7 +904,7 @@ async function submitActivity(e) {
   const btn = document.getElementById('activitySubmitBtn');
   const errEl = document.getElementById('activityError');
   errEl.classList.add('hidden');
-  btn.disabled = true; btn.textContent = 'Sparar…';
+  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
 
   const url = id ? `/api/activities/${id}` : '/api/activities';
   const method = id ? 'PUT' : 'POST';
@@ -902,26 +919,27 @@ async function submitActivity(e) {
     const failedSteps = await syncLibActSubsteps(activityId);
     closeActivityModal();
     if (failedSteps > 0)
-      showToast(`Aktiviteten sparades men ${failedSteps} delsteg misslyckades`, true);
+      showToast(lpt('library.saved.activityPartial', { count: failedSteps }), true);
     else
-      showToast('Aktiviteten har sparats');
+      showToast(lpt('library.saved.activity'));
     await loadActivities();
   } else {
-    errEl.textContent = data.error || 'Fel uppstod';
+    errEl.textContent = actError(data, 'library.errors.generic');
     errEl.classList.remove('hidden');
   }
-  btn.disabled = false; btn.textContent = 'Spara';
+  btn.disabled = false; btn.textContent = lpt('library.actions.save');
 }
 
 function deleteActivity(id, name) {
-  openConfirmModal(`Ta bort aktiviteten "${name}"?`, async () => {
+  openConfirmModal(lpt('library.confirm.deleteActivity', { name }), async () => {
     const res = await window.apiFetch(`/api/activities/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
-      showToast('Aktiviteten har tagits bort');
+      showToast(lpt('library.saved.activityDeleted'));
       await loadActivities();
     } else {
-      showToast(data.error || 'Kunde inte ta bort aktiviteten', true);
+      showToast(actError(data, 'library.errors.deleteActivity'), true);
+    }
     }
   });
 }

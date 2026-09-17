@@ -210,6 +210,8 @@
       "pickDays": "Choose weekdays:",
       "back": "← Back",
       "addConfirm": "Add ✓",
+      "addToSelected": "Add to selected days",
+      "whichDays": "Which days?",
       "childHint": "Applies to: {{names}}",
       "deleteTitle": "Remove activity"
     },
@@ -224,7 +226,8 @@
       "starsLabel": "Number of stars",
       "reasonLabel": "Reason *",
       "success": "{{count}} stars given!",
-      "successOne": "1 star given!"
+      "successOne": "1 star given!",
+      "pickerHint": "Choose which child to give stars to:"
     }
   },
   "validation": {
@@ -277,6 +280,7 @@
   },
   "views": {
     "normal": "Schedule",
+    "specialDays": "🌟 Special days",
     "sbsTitle": "Compare children",
     "noSubsteps": "No steps",
     "emptySection": "No activities",
