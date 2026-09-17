@@ -318,11 +318,14 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v989: merge origin/main (#1239 resources) into i18n final closure
 // stjarndag-v988: För dig activate errors as stable codes
 // stjarndag-v987: PIN confirm/current-pin error codes + API error map
 // stjarndag-v986: i18n test:gate alignment — codes/keys, child-settings cst, notif fallback
+// stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
-const CACHE_NAME = 'stjarndag-v988';
+// stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
+const CACHE_NAME = 'stjarndag-v989';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak
@@ -746,6 +749,7 @@ const CACHE_NAME = 'stjarndag-v988';
 // stjarndag-v965: merge — en-GB parent chrome + admin Start date honesty
 
 // stjarndag-v966: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v985: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { R1_INDEXABLE_PATHS, MORNING_KEYS, EVENING_KEYS } = require('../config/resurser-r1');
 const { labelsForKeys, generateResurserPdf } = require('../src/lib/resurser-pdf');
+const { listenApp } = require('./helpers/http');
 
 const ROOT = path.join(__dirname, '..');
 const PDF_DIR = path.join(ROOT, 'public/resurser/pdf');
@@ -113,6 +114,82 @@ describe('resurser R1 — page registry', () => {
     ];
     for (const file of files) {
       assert.ok(fs.existsSync(path.join(ROOT, file)), file);
+    }
+  });
+});
+
+describe('English resource PDF downloads', () => {
+  function collectEnPdfHrefs() {
+    const hrefs = new Set();
+    function walk(dir) {
+      for (const name of fs.readdirSync(dir)) {
+        const full = path.join(dir, name);
+        if (fs.statSync(full).isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (!name.endsWith('.html')) continue;
+        const html = fs.readFileSync(full, 'utf8');
+        for (const match of html.matchAll(/href="(\/en\/resources\/pdf\/[a-z0-9-]+\.pdf)"/g)) {
+          hrefs.add(match[1]);
+        }
+      }
+    }
+    walk(path.join(ROOT, 'public/en'));
+    return [...hrefs];
+  }
+
+  it('English HTML PDF hrefs map to locale-specific files', () => {
+    const hrefs = collectEnPdfHrefs();
+    assert.ok(hrefs.includes('/en/resources/pdf/morning-schedule.pdf')
+      || hrefs.includes('/en/resources/pdf/morgonschema.pdf'));
+    for (const href of hrefs) {
+      const filename = href.slice('/en/resources/pdf/'.length);
+      const enFull = path.join(ROOT, 'public/en/resources/pdf', filename);
+      const svFull = path.join(PDF_DIR, filename);
+      const mapped = require('../config/resurser-catalog').englishFilenameFor(filename);
+      const mappedFull = mapped ? path.join(ROOT, 'public/en/resources/pdf', mapped) : null;
+      assert.ok(
+        fs.existsSync(enFull) || fs.existsSync(svFull) || (mappedFull && fs.existsSync(mappedFull)),
+        `missing binary for ${href}`,
+      );
+    }
+  });
+
+  it('GET /en/resources/pdf/*.pdf serves English PDFs, including Swedish aliases', async () => {
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
+    }
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      const morning = await fetch(`${http.baseUrl}/en/resources/morning`);
+      assert.equal(morning.status, 200);
+
+      const landing = await fetch(`${http.baseUrl}/en/resources/pdf/morning-schedule`);
+      assert.equal(landing.status, 200);
+      assert.match(landing.headers.get('content-type') || '', /html/i);
+
+      const en = await fetch(`${http.baseUrl}/en/resources/pdf/morning-schedule.pdf`);
+      const alias = await fetch(`${http.baseUrl}/en/resources/pdf/morgonschema.pdf`);
+      const sv = await fetch(`${http.baseUrl}/resurser/pdf/morgonschema.pdf`);
+      assert.equal(en.status, 200);
+      assert.equal(alias.status, 200);
+      assert.equal(sv.status, 200);
+      assert.match(en.headers.get('content-type') || '', /pdf/i);
+      const enBuf = Buffer.from(await en.arrayBuffer());
+      const aliasBuf = Buffer.from(await alias.arrayBuffer());
+      const svBuf = Buffer.from(await sv.arrayBuffer());
+      assert.match(enBuf.toString('latin1').slice(0, 5), /%PDF-/);
+      assert.equal(enBuf.equals(aliasBuf), true);
+      assert.equal(enBuf.equals(svBuf), false);
+
+      const missing = await fetch(`${http.baseUrl}/en/resources/pdf/does-not-exist.pdf`, {
+        redirect: 'manual',
+      });
+      assert.equal(missing.status, 404);
+    } finally {
+      await http.close();
     }
   });
 });

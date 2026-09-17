@@ -95,6 +95,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'guide_next_step_click',
   'guide_hub_nav_click',
   'article_faq_expand',
+  'resource_page_viewed',
+  'resource_pdf_download',
+  'resource_cta_clicked',
   // Dashboard viral CTAs (dashboard-cta.js + coparent-invite-ui.js)
   'cta_invite_co_parent_shown',
   'cta_invite_co_parent_clicked',

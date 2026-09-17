@@ -198,7 +198,15 @@ function createApp() {
     next();
   });
 
-  app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+  app.use(express.static(path.join(__dirname, 'public'), {
+    index: false,
+    redirect: false,
+    setHeaders(res, filePath) {
+      if (/\.pdf$/i.test(filePath) && /[/\\](resurser|resources)[/\\]pdf[/\\]/.test(filePath)) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+      }
+    },
+  }));
 
   const { getLocalUploadDir } = require('./src/lib/object-storage');
   app.use('/uploads', (req, res, next) => {
@@ -226,6 +234,15 @@ function createApp() {
         + '<title>Sidan hittades inte — Min Stjärndag</title></head><body>'
         + '<h1>Sidan hittades inte</h1>'
         + '<p><a href="/resurser">Till resursbiblioteket</a></p></body></html>',
+      );
+    }
+    if (req.path.startsWith('/en/resources/')) {
+      return res.status(404).type('html').send(
+        '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+        + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        + '<title>Page not found</title></head><body>'
+        + '<h1>Page not found</h1>'
+        + '<p><a href="/en/resources">Back to the resource library</a></p></body></html>',
       );
     }
     res.redirect('/');
