@@ -22,6 +22,9 @@ brew link node@20 --overwrite --force 2>/dev/null || true
 xcode_cloud_run node_version node --version
 xcode_cloud_run npm_version npm --version
 
+echo "🚫 Refuse App Store/TestFlight archive unless ios-v* tag"
+xcode_cloud_node verify_archive_tag scripts/verify-ios-archive-release-tag.mjs
+
 echo "📦 Installing npm dependencies"
 xcode_cloud_run npm_config npm config set maxsockets 3
 xcode_cloud_run npm_ci npm ci --legacy-peer-deps --include=dev

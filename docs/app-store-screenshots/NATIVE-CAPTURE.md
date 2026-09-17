@@ -62,7 +62,7 @@ Döp om filerna t.ex. `01-parent.png` … `05-family.png` innan upload.
 
 ## 5. Ladda upp i App Store Connect
 
-Screenshots on an **already approved / Ready for Distribution** version cannot be replaced. Create the **next** native version (`1.4.5` or later) and upload there. Approved 1.4.3 / 1.4.4 pages cannot be swapped.
+Screenshots on an **already approved / Ready for Distribution** version cannot be replaced. Create the **next** native version (`1.4.6` or later) and upload there. Approved 1.4.3 / 1.4.4 / 1.4.5 pages cannot be swapped.
 
 1. **App Store** → **the new version page** (not a live/approved version) → **Screenshots**
 2. Välj iPhone-slot som matchar ditt mått (6.5" / 6.7" — Connect-etiketten varierar)
