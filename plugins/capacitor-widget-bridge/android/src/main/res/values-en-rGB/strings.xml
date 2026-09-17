@@ -17,7 +17,15 @@
     <string name="widget_revoked">Device access revoked</string>
     <string name="widget_switching">Switching child…</string>
     <string name="widget_feedback_done">✓ Done!</string>
+    <string name="widget_feedback_done_for">✓ Done for %1$s</string>
+    <string name="widget_cd_child_prev">Previous child</string>
+    <string name="widget_cd_child_next">Next child</string>
     <string name="widget_feedback_stars">⭐ +%1$d</string>
     <string name="widget_progress_fmt">%1$d of %2$d done</string>
     <string name="widget_private_activity">Next step</string>
+    <string name="widget_configure_title">Choose widget</string>
+    <string name="widget_configure_personal">Personal (one child)</string>
+    <string name="widget_configure_family">Family (switch child)</string>
+    <string name="widget_configure_save">Save</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
 </resources>

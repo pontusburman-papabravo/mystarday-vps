@@ -16,19 +16,9 @@ const EN_XML = path.join(
 );
 
 /**
- * Known en-rGB key drift locked by PR 0. Do not grow this list.
- * Translate/add the English strings in a later native i18n PR, then shrink it.
+ * Known en-rGB key drift. Must stay empty — add English strings instead of growing this list.
  */
-const ALLOWED_MISSING_IN_EN_GB = Object.freeze([
-  'widget_feedback_done_for',
-  'widget_cd_child_prev',
-  'widget_cd_child_next',
-  'widget_configure_title',
-  'widget_configure_personal',
-  'widget_configure_family',
-  'widget_configure_save',
-  'widget_api_base_url',
-]);
+const ALLOWED_MISSING_IN_EN_GB = Object.freeze([]);
 
 function readXmlKeys(filePath) {
   const xml = fs.readFileSync(filePath, 'utf8');
@@ -54,6 +44,13 @@ describe('Android widget string resource parity', () => {
     const staleAllow = ALLOWED_MISSING_IN_EN_GB.filter((k) => en.has(k) || !def.includes(k));
     assert.deepEqual(unexpected, [], `new widget keys missing in en-rGB: ${unexpected.join(', ')}`);
     assert.deepEqual(staleAllow, [], `stale widget allowlist entries: ${staleAllow.join(', ')}`);
+  });
+
+  it('en-rGB has full key parity with default values', () => {
+    const def = readXmlKeys(DEFAULT_XML);
+    const en = new Set(readXmlKeys(EN_XML));
+    assert.deepEqual(def.filter((k) => !en.has(k)), []);
+    assert.equal(ALLOWED_MISSING_IN_EN_GB.length, 0);
   });
 
   it('en-rGB does not invent keys absent from default values', () => {
