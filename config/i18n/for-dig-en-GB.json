@@ -99,6 +99,9 @@
     "loadInstalls": "Could not read which goals are activated.",
     "retry": "Try again",
     "activationFailed": "Activation failed",
+    "libraryUnavailable": "The material for this goal is not available right now. Try again later.",
+    "noValidDays": "No valid days were given",
+    "nothingToActivate": "This goal has nothing to activate yet",
     "saveFavorite": "Could not save favourite",
     "generic": "Something went wrong",
     "sendSuggestion": "Could not send"

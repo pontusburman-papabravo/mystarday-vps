@@ -99,6 +99,9 @@
     "loadInstalls": "Kunde inte läsa vilka mål som är aktiverade.",
     "retry": "Försök igen",
     "activationFailed": "Aktivering misslyckades",
+    "libraryUnavailable": "Materialet för detta mål är inte tillgängligt just nu. Försök igen senare.",
+    "noValidDays": "Inga giltiga dagar angivna",
+    "nothingToActivate": "Detta mål har inget att aktivera ännu",
     "saveFavorite": "Kunde inte spara favorit",
     "generic": "Något gick fel",
     "sendSuggestion": "Kunde inte skicka"

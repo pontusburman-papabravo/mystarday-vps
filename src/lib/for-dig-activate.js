@@ -86,11 +86,15 @@ function findByNames(items, names) {
   return matched;
 }
 
+function codedError(code, status) {
+  const err = new Error(code);
+  err.status = status;
+  err.code = code;
+  return err;
+}
+
 function libraryUnavailableError(context) {
-  const err = new Error(
-    'Materialet för detta mål är inte tillgängligt just nu. Försök igen senare eller kontakta oss om problemet kvarstår.'
-  );
-  err.status = 503;
+  const err = codedError('FOR_DIG_LIBRARY_UNAVAILABLE', 503);
   err.context = context;
   return err;
 }
@@ -194,18 +198,14 @@ async function buildActivationPlanPreview({ parentId, childIds, goalSlug }) {
 
   const ids = Array.isArray(childIds) ? childIds.filter(Boolean) : [];
   if (ids.length === 0) {
-    const err = new Error('Minst ett barn krävs.');
-    err.status = 400;
-    throw err;
+    throw codedError('FOR_DIG_CHILDREN_REQUIRED', 400);
   }
 
   const verifiedChildren = [];
   for (const id of ids) {
     const child = await verifyChildAccess(parentId, id);
     if (!child) {
-      const err = new Error('Du har inte åtkomst till ett av valda barn.');
-      err.status = 403;
-      throw err;
+      throw codedError('FOR_DIG_CHILD_ACCESS', 403);
     }
     verifiedChildren.push(child);
   }
@@ -393,9 +393,7 @@ async function copySchedule(client, familyId, childId, scheduleName, days, targe
 
   const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
   if (validDays.length === 0) {
-    const err = new Error('Inga giltiga dagar angivna.');
-    err.status = 400;
-    throw err;
+    throw codedError('FOR_DIG_NO_VALID_DAYS', 400);
   }
 
   const activityTemplateMap = {};
@@ -864,27 +862,21 @@ async function activateGoal({
 }) {
   const goal = getGoalBySlug(goalSlug);
   if (!goal) {
-    const err = new Error('Utvecklingsmålet hittades inte.');
-    err.status = 404;
-    throw err;
+    throw codedError('GOAL_NOT_FOUND', 404);
   }
 
   const ids = Array.isArray(childIds) && childIds.length > 0
     ? childIds
     : (childId ? [childId] : []);
   if (ids.length === 0) {
-    const err = new Error('Minst ett barn krävs.');
-    err.status = 400;
-    throw err;
+    throw codedError('FOR_DIG_CHILDREN_REQUIRED', 400);
   }
 
   const verifiedChildren = [];
   for (const id of ids) {
     const child = await verifyChildAccess(parentId, id);
     if (!child) {
-      const err = new Error('Du har inte åtkomst till ett av valda barn.');
-      err.status = 403;
-      throw err;
+      throw codedError('FOR_DIG_CHILD_ACCESS', 403);
     }
     verifiedChildren.push(child);
   }
@@ -947,9 +939,7 @@ async function activateGoal({
     }
 
     if (!scheduleResult && !activityResult && !rewardResult) {
-      const err = new Error('Detta mål har inget att aktivera ännu.');
-      err.status = 400;
-      throw err;
+      throw codedError('FOR_DIG_NOTHING_TO_ACTIVATE', 400);
     }
 
     if (activityResult && activityResult.matched === 0 && !scheduleResult && !rewardResult) {

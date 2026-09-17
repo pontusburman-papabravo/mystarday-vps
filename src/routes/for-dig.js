@@ -264,7 +264,7 @@ router.post('/:slug/preview-plan', async (req, res) => {
   } catch (err) {
     console.error('[FOR-DIG] preview-plan error:', err);
     const status = err.status || 500;
-    sendApiError(res, status, 'FOR_DIG_LOAD_PLAN');
+    sendApiError(res, status, err.code || 'FOR_DIG_LOAD_PLAN');
   }
 });
 
@@ -354,10 +354,7 @@ router.post('/:slug/activate', async (req, res) => {
     });
 
     const status = err.status || 500;
-    const message = status === 500
-      ? 'Något gick fel vid aktivering. Försök igen eller gå till biblioteket.'
-      : err.message;
-    res.status(status).json({ error: message });
+    sendApiError(res, status, err.code || 'FOR_DIG_ACTIVATE_FAILED');
   }
 });
 
