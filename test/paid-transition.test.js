@@ -60,15 +60,15 @@ describe('paid transition notice', () => {
 });
 
 describe('IE/FI release gates cannot be conflated', () => {
-  it('committed evidence: IE billing+device yes, open/paid no; FI billing/device no', () => {
+  it('committed evidence: IE billing+device yes, open/paid yes (GO IE); FI billing/device no', () => {
     const gates = evaluateIeFiReleaseGates(loadCommittedEvidence());
     assert.equal(gates.IE.CLOSED_CODE_READY, true);
     assert.equal(gates.IE.PREBILLING_MARKET_READY, true);
     assert.equal(gates.IE.BILLING_CONFIGURATION_READY, true);
     assert.equal(gates.IE.BILLING_READY, true);
     assert.equal(gates.IE.DEVICE_VERIFIED, true);
-    assert.equal(gates.IE.READY_TO_OPEN, false);
-    assert.equal(gates.IE.PAID_ROLLOUT_READY, false);
+    assert.equal(gates.IE.READY_TO_OPEN, true);
+    assert.equal(gates.IE.PAID_ROLLOUT_READY, true);
     assert.equal(gates.IE.device_evidence.ios_purchase, 'PASS');
     assert.equal(gates.IE.device_evidence.ios_restore, 'PASS');
     assert.equal(gates.IE.device_evidence.android_purchase, 'PASS');

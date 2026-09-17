@@ -4,9 +4,9 @@
   "prebilling_code_ready": true,
   "public_surfaces_ready": true,
   "paid_transition_code_ready": true,
-  "founder_open_approved_ie": false,
+  "founder_open_approved_ie": true,
   "founder_open_approved_fi": false,
-  "paid_rollout_approved_ie": false,
+  "paid_rollout_approved_ie": true,
   "paid_rollout_approved_fi": false,
   "apple_iap_ie": "PASS",
   "apple_iap_fi": "NOT VERIFIED",
@@ -36,6 +36,7 @@
     "apple_download_price=FREE and apple_paid_download_unresolved_p0=false reflect ASC 1.4.5 approval (free download + IAP), not the stale 2026-08-31 scrape.",
     "Google Play store review status is separate from play_named_skus_ie configuration PASS — check ops runbook for Play review pending.",
     "External legal review of /en/eea/* is not recorded as PASS here. Track 1 internal sign-off only — see docs/p-ie-launch/track-1-legal-compliance/.",
-    "DEVICE_VERIFIED requires all four: ios_purchase, ios_restore, android_purchase, android_restore."
+    "DEVICE_VERIFIED requires all four: ios_purchase, ios_restore, android_purchase, android_restore.",
+    "EVIDENCE_SOURCE: founder_observation 2026-09-17 GO IE — explicit founder launch approval for Ireland iOS-first open."
   ]
 }
