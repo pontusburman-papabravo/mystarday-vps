@@ -18,7 +18,13 @@
     return state.public_billing_usable ? 'open_paid' : 'open_prebilling';
   }
 
+  function isEnglishLandingPath() {
+    return location.pathname === '/en' || location.pathname.startsWith('/en/');
+  }
+
   function isIeIosFirstLaunch(state) {
+    // English landing shows both stores when IE is open; iOS-first was interim copy only.
+    if (isEnglishLandingPath()) return false;
     return launchState('IE', state) !== 'closed';
   }
 

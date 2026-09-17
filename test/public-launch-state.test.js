@@ -42,6 +42,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(js, /Android coming soon/);
     assert.match(js, /Available now on iPhone and iPad/);
     assert.match(js, /applyIeIosFirstStorePresentation/);
+    assert.match(js, /isEnglishLandingPath/);
   });
 
   it('paywall replaces Play CTA for Ireland web users', () => {
@@ -53,6 +54,9 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
 
   it('English landing does not claim English is coming soon', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/en.html'), 'utf8');
+    assert.match(html, /app-store-badge-en\.svg/);
+    assert.match(html, /google-play-badge-en\.svg/);
+    assert.doesNotMatch(html, /app-store-badge-sv\.svg/);
     assert.doesNotMatch(html, /English coming soon/i);
     assert.doesNotMatch(html, /Swedish only/i);
     assert.doesNotMatch(html, /priceCurrency": "SEK"/);
