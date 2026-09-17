@@ -21,7 +21,7 @@
 1. Encode `1.4.5` in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
 2. Keep repo `MARKETING_VERSION` at **1.4.6** so an accidental archive is not another closed-train delivery.
 3. **Do not** upload another 1.4.5 binary (including 1233). That is what produces the repeated ITMS-90186 / ITMS-90062 emails.
-4. **Do not** create App Store Connect version 1.4.6, tag `ios-v1.4.6`, or start Xcode Cloud on every `main` push. Web/Capacitor deploys do not need a new IPA. Tag and create 1.4.6 in ASC only when a native binary is actually required.
+4. **Do not** create App Store Connect version 1.4.6 or tag `ios-v1.4.6` until founder says it is time. Xcode Cloud archives without an `ios-v*` tag are refused in `ci_scripts` so `main` merges cannot deliver another IPA. Web/Capacitor deploys do not need a new IPA.
 
 Closed trains `1.4.3`, `1.4.4`, and `1.4.5` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
 

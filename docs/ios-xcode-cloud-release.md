@@ -7,6 +7,7 @@ Normal iOS releases: **Cursor/GitHub → merge `main` → `ios-v*` tag → Xcode
 - **Web deploy is not an App Store version.** Capacitor loads the remote web app. Ordinary web/UX/backend deploys do **not** get a new IPA, a new App Store version, or an `ios-v*` tag.
 - **A closed train cannot take another binary.** After Apple approves a `CFBundleShortVersionString` (ITMS-90186 / ITMS-90062), add it to `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions` and bump `MARKETING_VERSION` in the same PR so the *next* native archive is valid. `npm run ios:xcode-cloud:version` and Xcode Cloud `ci_pre_xcodebuild` refuse closed trains.
 - **Repo bump ≠ store submission.** Bumping `MARKETING_VERSION` to **1.4.6** only prepares the next native archive. Tag `ios-v*` and Submit only when a native binary is actually required (plugins, permissions, entitlements, screenshot replacement after Ready for Distribution, or Apple requires a new binary).
+- **No archive without `ios-v*` tag.** `ci_post_clone` / `ci_pre_xcodebuild` refuse `CI_XCODEBUILD_ACTION=archive` unless the workflow started from an `ios-v*` tag. That stops accidental App Store Connect deliveries (and the ITMS emails) when Xcode Cloud is still set to archive on every `main` change. Web deploys do not need an IPA. When it is time to ship: tag `ios-v1.4.6` on merged `main`.
 - **Closed trains:** `1.4.3`, `1.4.4`, **`1.4.5`**. **Next native train:** `1.4.6`. Do not upload build 1233 or any other `1.4.5` binary. Do not reuse rejected builds **1182** or **1188**.
 
 ## Preconditions
