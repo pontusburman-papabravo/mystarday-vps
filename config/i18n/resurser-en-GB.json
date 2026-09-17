@@ -1,0 +1,406 @@
+{
+  "meta": {
+    "htmlLang": "en",
+    "brand": "My Starday",
+    "locale": "en-GB"
+  },
+  "ui": {
+    "backLibrary": "← Resource library",
+    "downloadHeading": "Download",
+    "pdfA4": "PDF · A4 · free",
+    "seeOnScreen": "View the picture cards on screen",
+    "howToHeading": "How to use this",
+    "relatedHeading": "More in the library",
+    "printPage": "Print this page",
+    "downloadPdf": "Download PDF",
+    "ctaTitle": "Tired of reprinting every time the day changes?",
+    "ctaBody": "Make a living schedule in My Starday — your child sees what’s now and what’s next, without a new print-out.",
+    "ctaButton": "Try My Starday free",
+    "footerPdf": "My Starday — free resource library",
+    "pageLabel": "Page",
+    "teacchDisclaimer": "TEACCH-inspired paper materials — not the same as the app’s live schedule, and not an official TEACCH method.",
+    "bildkortIntro": "Cut out the cards. Laminate if you can. Use them on a board or the fridge.",
+    "activityCol": "Activity",
+    "starsCol": "Stars",
+    "rewardGoalLine": "Goal: _____ stars   →   Reward: _______________________",
+    "rewardNote": "A printable star chart — the same idea as the Treasure Chamber in the app, on paper.",
+    "weeklyNote": "A static weekly template. In the app the week updates without reprinting.",
+    "weekdays": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "weekdaysShort": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
+    "weeklyExampleRow": [
+      "School",
+      "Swim",
+      "School",
+      "School",
+      "School",
+      "Play",
+      "Rest"
+    ],
+    "allCategories": "All categories",
+    "freeBadge": "Free to print"
+  },
+  "howTo": [
+    "Print on A4 and put it where your child can see the day.",
+    "Tick steps with a pen, or cut out the picture cards for a board.",
+    "Once the routine sticks, your child can follow the same steps in the app — no reprint when the day changes."
+  ],
+  "hub": {
+    "title": "Free visual supports to print",
+    "description": "Free printable visual schedules, picture cards and PDF templates for children’s daily routines. Static printables — separate from the interactive app.",
+    "h1": "Free resources — visual supports to print",
+    "lead": "Free <strong>PDFs and picture cards</strong> to print at home or in preschool. This is a static library. The My Starday app is the living version — your child ticks steps, earns stars and sees what happens next.",
+    "categoriesHeading": "Categories",
+    "otherHeading": "Other templates",
+    "paperVsAppHeading": "Print-out or app?",
+    "paperVsAppBody": "Paper works when you want something on the wall. The app is for families who don’t want to reprint every time the week changes."
+  },
+  "categories": {
+    "morning": {
+      "nav": "Morning",
+      "title": "Morning — free visual supports to print",
+      "description": "Free morning schedule and picture cards for children’s morning routines. Download the PDF and print at home or in preschool.",
+      "h1": "Morning — visual supports to print",
+      "lead": "Three free PDFs for the morning: a blank template, a filled-in example, and picture cards to cut out. No account needed."
+    },
+    "evening": {
+      "nav": "Evening",
+      "title": "Evening — free visual supports to print",
+      "description": "Free evening schedule and picture cards for calmer evenings. Download the PDF and print.",
+      "h1": "Evening — visual supports to print",
+      "lead": "Three PDFs for the evening: a blank template, a calm example, and picture cards to cut out. Free to print at home or in preschool."
+    },
+    "emotions": {
+      "nav": "Emotions",
+      "title": "Emotions — free feeling cards to print",
+      "description": "Eight printable feeling cards for children. Free PDF to download and laminate.",
+      "h1": "Emotions — cards to print",
+      "lead": "Eight everyday feelings as printable cards. The same keys as in the app. Cut them out, laminate if you can, and use them when your child needs words for how they feel."
+    },
+    "transitions": {
+      "nav": "Transitions",
+      "title": "Transitions — first–then and wait cards",
+      "description": "Free transition cards with first, then, now and wait — for calmer changes between activities.",
+      "h1": "Transitions — first, then and wait",
+      "lead": "Transitions are often the hardest part. Here are schedules and cards for first, then, now and wait — to print at home or in preschool."
+    },
+    "teacch": {
+      "nav": "TEACCH-inspired",
+      "title": "TEACCH-inspired — printable cards",
+      "description": "TEACCH-inspired printable cards: First, Then, Done and more. Not an official TEACCH method or certification.",
+      "h1": "TEACCH-inspired — cards to print",
+      "lead": "Printable cards inspired by visual structure: First, Then, Done, Pause, Work, Rest and Help. <strong>Not</strong> an official TEACCH method or certification. The app does not include a digital TO DO / DOING / DONE system."
+    },
+    "school": {
+      "nav": "School",
+      "title": "School — free visual supports for the school day",
+      "description": "Printable school schedules and picture cards for break, homework, lunch and more.",
+      "h1": "School — visual supports to print",
+      "lead": "Schedules and picture cards for the school day. Static printables. The app keeps the same routine live on the phone when the day changes."
+    },
+    "hygiene": {
+      "nav": "Hygiene",
+      "title": "Hygiene — picture cards to print",
+      "description": "Free hygiene picture cards and schedule — wash hands, brush teeth, toilet and more.",
+      "h1": "Hygiene — visual supports to print",
+      "lead": "Schedules and picture cards for hygiene routines. Print at home or in preschool."
+    }
+  },
+  "bildkortPages": {
+    "morning": {
+      "title": "Morning picture cards to print",
+      "h1": "Morning picture cards",
+      "lead": "Eight everyday morning steps as cards. Cut them out, laminate if you can, and use them on a board or the fridge. The same pictures as in the PDF and the app."
+    },
+    "evening": {
+      "title": "Evening picture cards to print",
+      "h1": "Evening picture cards",
+      "lead": "Six evening steps as cards. Cut them out and use them on a board or the fridge."
+    },
+    "emotions": {
+      "title": "Feeling cards to print",
+      "h1": "Feeling cards",
+      "lead": "Eight feelings as cards. The same keys as in the app."
+    },
+    "transitions": {
+      "title": "Transition cards to print",
+      "h1": "Transition cards",
+      "lead": "First, then, now, wait and done — as cards to cut out."
+    },
+    "teacch": {
+      "title": "TEACCH-inspired cards to print",
+      "h1": "TEACCH-inspired cards",
+      "lead": "First, Then, Done and more. Inspired by visual structure — not an official method."
+    },
+    "school": {
+      "title": "School picture cards to print",
+      "h1": "School picture cards",
+      "lead": "Cards for the school day: break, homework, lunch and more."
+    },
+    "hygiene": {
+      "title": "Hygiene picture cards to print",
+      "h1": "Hygiene picture cards",
+      "lead": "Cards for washing hands, teeth, toilet and more."
+    }
+  },
+  "pdfLandings": {
+    "morning-schedule": {
+      "title": "Morning schedule PDF — visual support template",
+      "description": "Free morning schedule to print — blank template and an example with everyday morning steps.",
+      "h1": "Morning schedule PDF",
+      "lead": "Download the blank template if you want to write your own steps, or the example PDF with everyday morning steps. Picture cards are a separate file."
+    },
+    "evening-schedule": {
+      "title": "Evening schedule PDF — visual support template",
+      "description": "Free evening schedule to print — blank template and example.",
+      "h1": "Evening schedule PDF",
+      "lead": "Blank template or a calm evening example. Picture cards are a separate file."
+    },
+    "emotions": {
+      "title": "Feeling cards PDF",
+      "description": "Free feeling cards to print and laminate.",
+      "h1": "Feeling cards PDF",
+      "lead": "Eight feeling cards on one A4 sheet. Cut them out and laminate if you can."
+    },
+    "transitions": {
+      "title": "Transition schedule PDF",
+      "description": "Free transition schedule and first–then cards.",
+      "h1": "Transition schedule PDF",
+      "lead": "Blank template, example and picture cards for transitions."
+    },
+    "teacch": {
+      "title": "TEACCH-inspired cards PDF",
+      "description": "TEACCH-inspired cards to print. Not an official method.",
+      "h1": "TEACCH-inspired cards PDF",
+      "lead": "Printable cards. Inspired by visual structure — not a certification."
+    },
+    "school": {
+      "title": "School schedule PDF",
+      "description": "Free school schedule and picture cards to print.",
+      "h1": "School schedule PDF",
+      "lead": "Blank template, example and picture cards for the school day."
+    },
+    "hygiene": {
+      "title": "Hygiene schedule PDF",
+      "description": "Free hygiene schedule and picture cards to print.",
+      "h1": "Hygiene schedule PDF",
+      "lead": "Blank template, example and picture cards for hygiene routines."
+    },
+    "reward-chart": {
+      "title": "Reward chart PDF",
+      "description": "Free printable star chart for children.",
+      "h1": "Reward chart PDF",
+      "lead": "A star chart on paper. In the app, stars follow the child’s schedule automatically."
+    },
+    "weekly-schedule": {
+      "title": "Weekly schedule PDF",
+      "description": "Free static weekly template to print.",
+      "h1": "Weekly schedule PDF",
+      "lead": "A blank week and an example. When the week changes, the app is easier than reprinting."
+    },
+    "weekend-schedule": {
+      "title": "Weekend schedule PDF",
+      "description": "Free weekend schedule to print.",
+      "h1": "Weekend schedule PDF",
+      "lead": "An example of a calm weekend without school pressure."
+    },
+    "homework-schedule": {
+      "title": "Homework schedule PDF",
+      "description": "Free step-by-step homework schedule.",
+      "h1": "Homework schedule PDF",
+      "lead": "Break homework into small steps with a pause and a done card."
+    }
+  },
+  "pdf": {
+    "morning-blank": {
+      "title": "Morning schedule — blank template",
+      "subtitle": "Tick the steps, or write your own in the boxes.",
+      "cardTitle": "Morning schedule – blank template",
+      "cardHint": "Printed steps with empty tick boxes"
+    },
+    "morning-example": {
+      "title": "Morning schedule — example",
+      "subtitle": "Everyday morning steps to start from. Adjust for your family.",
+      "cardTitle": "Morning schedule – filled-in example",
+      "cardHint": "The same steps, numbered"
+    },
+    "morning-cards": {
+      "title": "Morning picture cards",
+      "cardTitle": "Picture cards – morning",
+      "cardHint": "Eight cards to cut out"
+    },
+    "evening-blank": {
+      "title": "Evening schedule — blank template",
+      "subtitle": "Empty boxes for your evening routine.",
+      "cardTitle": "Evening schedule – blank template",
+      "cardHint": "Printed steps with empty tick boxes"
+    },
+    "evening-example": {
+      "title": "Evening schedule — example",
+      "subtitle": "Calm evening steps — change the order or the number.",
+      "cardTitle": "Evening schedule – filled-in example",
+      "cardHint": "The same steps, numbered"
+    },
+    "evening-cards": {
+      "title": "Evening picture cards",
+      "cardTitle": "Picture cards – evening",
+      "cardHint": "Six cards to cut out"
+    },
+    "emotion-cards": {
+      "title": "Feeling cards",
+      "cardTitle": "Feeling cards",
+      "cardHint": "Eight cards to cut out"
+    },
+    "transition-blank": {
+      "title": "Transition schedule — blank template",
+      "subtitle": "Empty boxes for first–then and transition steps.",
+      "cardTitle": "Transition schedule – blank template",
+      "cardHint": "Printed steps with empty tick boxes"
+    },
+    "transition-example": {
+      "title": "Transition schedule — example",
+      "subtitle": "Everyday transition steps — first, then, now and wait.",
+      "cardTitle": "Transition schedule – filled-in example",
+      "cardHint": "The same steps, numbered"
+    },
+    "transition-cards": {
+      "title": "Transition cards",
+      "cardTitle": "Picture cards – transitions",
+      "cardHint": "Cards to cut out"
+    },
+    "teacch-cards": {
+      "title": "TEACCH-inspired cards",
+      "cardTitle": "TEACCH-inspired cards",
+      "cardHint": "Seven cards to cut out"
+    },
+    "school-blank": {
+      "title": "School schedule — blank template",
+      "subtitle": "Empty boxes for the school-day routine.",
+      "cardTitle": "School schedule – blank template",
+      "cardHint": "Printed steps with empty tick boxes"
+    },
+    "school-example": {
+      "title": "School schedule — example",
+      "subtitle": "Everyday school-day steps — adjust for your child’s week.",
+      "cardTitle": "School schedule – filled-in example",
+      "cardHint": "The same steps, numbered"
+    },
+    "school-cards": {
+      "title": "School picture cards",
+      "cardTitle": "Picture cards – school",
+      "cardHint": "Cards to cut out"
+    },
+    "hygiene-blank": {
+      "title": "Hygiene schedule — blank template",
+      "subtitle": "Empty boxes for the hygiene routine.",
+      "cardTitle": "Hygiene schedule – blank template",
+      "cardHint": "Printed steps with empty tick boxes"
+    },
+    "hygiene-example": {
+      "title": "Hygiene schedule — example",
+      "subtitle": "Everyday hygiene steps — wash hands, teeth and more.",
+      "cardTitle": "Hygiene schedule – filled-in example",
+      "cardHint": "The same steps, numbered"
+    },
+    "hygiene-cards": {
+      "title": "Hygiene picture cards",
+      "cardTitle": "Picture cards – hygiene",
+      "cardHint": "Cards to cut out"
+    },
+    "reward-chart": {
+      "title": "Reward chart — star chart",
+      "subtitle": "Write activities on the left. Fill in stars when your child finishes them.",
+      "cardTitle": "Reward chart",
+      "cardHint": "Star boxes to fill in"
+    },
+    "weekly-blank": {
+      "title": "Weekly schedule — blank template",
+      "subtitle": "Fill in what happens each day — Monday to Sunday.",
+      "cardTitle": "Weekly schedule – blank template",
+      "cardHint": "Monday to Sunday"
+    },
+    "weekly-example": {
+      "title": "Weekly schedule — example",
+      "subtitle": "An example week — adjust for your family.",
+      "cardTitle": "Weekly schedule – example",
+      "cardHint": "With an example on the first row"
+    },
+    "weekend-example": {
+      "title": "Weekend schedule — example",
+      "subtitle": "Calm weekend steps without school pressure — adjust for your family.",
+      "cardTitle": "Weekend schedule",
+      "cardHint": "Weekend example"
+    },
+    "homework-example": {
+      "title": "Homework schedule — step by step",
+      "subtitle": "Break homework into small steps — with a pause and a done mark.",
+      "cardTitle": "Homework schedule",
+      "cardHint": "Step by step with a pause"
+    }
+  },
+  "pictogramLabels": {
+    "wake_up": "Wake up",
+    "toilet": "Toilet",
+    "wash_hands": "Wash hands",
+    "dress": "Get dressed",
+    "breakfast": "Breakfast",
+    "brush_teeth": "Brush teeth",
+    "pack_bag": "Pack bag",
+    "school": "School",
+    "dinner": "Dinner",
+    "shower": "Shower",
+    "pajamas": "Pajamas",
+    "read_book": "Read a book",
+    "sleep": "Sleep",
+    "happy": "Happy",
+    "angry": "Angry",
+    "sad": "Sad",
+    "tired": "Tired",
+    "worried": "Worried",
+    "proud": "Proud",
+    "scared": "Scared",
+    "stressed": "Stressed",
+    "first": "First",
+    "then": "Then",
+    "now": "Now",
+    "soon": "Soon",
+    "five_minutes": "In five minutes",
+    "wait": "Wait",
+    "done": "Done",
+    "finished": "Finished",
+    "pause": "Pause",
+    "work": "Work",
+    "rest": "Rest",
+    "help": "Help",
+    "homework": "Homework",
+    "recess": "Break",
+    "cafeteria": "Lunch hall",
+    "listen": "Listen",
+    "pencil": "Pencil",
+    "teacher": "Teacher",
+    "pe": "PE",
+    "bath": "Bath",
+    "hair_brush": "Brush hair",
+    "bathroom": "Bathroom",
+    "outside": "Outside",
+    "friend": "Friend",
+    "lunch": "Lunch",
+    "bike": "Bike",
+    "snack": "Snack"
+  }
+}

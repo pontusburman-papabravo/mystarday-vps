@@ -43,6 +43,76 @@
   text-underline-offset: 2px;
 }
 
+.resurser-downloads {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.resurser-download-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.95rem 1.1rem;
+  min-height: 44px;
+  border: 1.5px solid rgba(28, 35, 64, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+}
+
+.resurser-download-card:hover,
+.resurser-download-card:focus-visible {
+  border-color: var(--amber-dk, #d4891a);
+  outline: none;
+}
+
+.resurser-download-card__title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--navy, #1C2340);
+  line-height: 1.3;
+}
+
+.resurser-download-card__meta {
+  font-size: 0.85rem;
+  color: #5A6378;
+}
+
+.resurser-onscreen {
+  margin: 0 0 1.75rem;
+}
+
+.resurser-onscreen a {
+  font-weight: 600;
+  color: var(--navy, #1C2340);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.resurser-howto {
+  margin: 0 0 2rem;
+  padding-left: 1.25rem;
+}
+
+.resurser-howto li {
+  margin-bottom: 0.45rem;
+}
+
+.resurser-bildkort__img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.resurser-bildkort__badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #F3EFE6;
+}
+
 .resurser-bildkort-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

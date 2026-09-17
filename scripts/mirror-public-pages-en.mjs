@@ -18,6 +18,8 @@ const PUBLIC = path.join(ROOT, 'public');
 const CACHE_PATH = path.join(ROOT, 'data', 'en-translate-cache.json');
 
 const { MIRROR_ENTRIES, buildLangRoutesMap, HAND_TRANSLATED_EN_FILES } = require('../config/en-public-mirror');
+const { generatedEnHtmlFiles } = require('../config/resurser-catalog');
+const SKIP_EN_FILES = new Set([...HAND_TRANSLATED_EN_FILES, ...generatedEnHtmlFiles()]);
 const { sortedUiPhrases } = require('../config/en-ui-phrases');
 
 const CHECK_ONLY = process.argv.includes('--check');
@@ -55,8 +57,8 @@ function replaceUrlPath(urlPath) {
       break;
     }
   }
-  // PDF binaries stay under public/resurser/pdf/. The EN path
-  // /en/resources/pdf/*.pdf is an alias served by public-pages.js.
+  // PDF binaries: core pages use locale filenames. Longtail EN hrefs may still
+  // use Swedish filenames, which public-pages.js aliases to the English file.
   return out;
 }
 
@@ -270,7 +272,7 @@ async function main() {
   for (const entry of MIRROR_ENTRIES) {
     const srcPath = path.join(PUBLIC, entry.fileSv);
     if (!fs.existsSync(srcPath)) continue;
-    if (HAND_TRANSLATED_EN_FILES.has(entry.fileEn)) continue;
+    if (SKIP_EN_FILES.has(entry.fileEn)) continue;
     const svHtml = fs.readFileSync(srcPath, 'utf8');
     const html = preprocessHtml(svHtml);
     const { protectedHtml, blocks } = protectBlocks(html);
@@ -299,7 +301,7 @@ async function main() {
   const errors = [];
 
   for (const { entry, html, blocks, segments } of preprocessed) {
-    if (HAND_TRANSLATED_EN_FILES.has(entry.fileEn)) continue;
+    if (SKIP_EN_FILES.has(entry.fileEn)) continue;
     const destPath = path.join(PUBLIC, entry.fileEn);
 
     const { protectedHtml } = protectBlocks(restoreBlocks(html, blocks));

@@ -139,18 +139,24 @@ describe('English resource PDF downloads', () => {
     return [...hrefs];
   }
 
-  it('English HTML PDF hrefs map to shipped files in public/resurser/pdf', () => {
+  it('English HTML PDF hrefs map to locale-specific files', () => {
     const hrefs = collectEnPdfHrefs();
-    assert.ok(hrefs.includes('/en/resources/pdf/morgonschema.pdf'));
-    assert.ok(hrefs.includes('/en/resources/pdf/bildkort-morgon.pdf'));
+    assert.ok(hrefs.includes('/en/resources/pdf/morning-schedule.pdf')
+      || hrefs.includes('/en/resources/pdf/morgonschema.pdf'));
     for (const href of hrefs) {
       const filename = href.slice('/en/resources/pdf/'.length);
-      const full = path.join(PDF_DIR, filename);
-      assert.ok(fs.existsSync(full), `missing binary for ${href}`);
+      const enFull = path.join(ROOT, 'public/en/resources/pdf', filename);
+      const svFull = path.join(PDF_DIR, filename);
+      const mapped = require('../config/resurser-catalog').englishFilenameFor(filename);
+      const mappedFull = mapped ? path.join(ROOT, 'public/en/resources/pdf', mapped) : null;
+      assert.ok(
+        fs.existsSync(enFull) || fs.existsSync(svFull) || (mappedFull && fs.existsSync(mappedFull)),
+        `missing binary for ${href}`,
+      );
     }
   });
 
-  it('GET /en/resources/pdf/*.pdf serves the same PDF as /resurser/pdf/*.pdf', async () => {
+  it('GET /en/resources/pdf/*.pdf serves English PDFs, including Swedish aliases', async () => {
     if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
       process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
     }
@@ -164,16 +170,19 @@ describe('English resource PDF downloads', () => {
       assert.equal(landing.status, 200);
       assert.match(landing.headers.get('content-type') || '', /html/i);
 
-      for (const file of ['morgonschema.pdf', 'bildkort-morgon.pdf']) {
-        const en = await fetch(`${http.baseUrl}/en/resources/pdf/${file}`);
-        const sv = await fetch(`${http.baseUrl}/resurser/pdf/${file}`);
-        assert.equal(en.status, 200, file);
-        assert.match(en.headers.get('content-type') || '', /pdf/i, file);
-        const enBuf = Buffer.from(await en.arrayBuffer());
-        const svBuf = Buffer.from(await sv.arrayBuffer());
-        assert.match(enBuf.toString('latin1').slice(0, 5), /%PDF-/);
-        assert.equal(enBuf.equals(svBuf), true, `${file} EN/SV bytes differ`);
-      }
+      const en = await fetch(`${http.baseUrl}/en/resources/pdf/morning-schedule.pdf`);
+      const alias = await fetch(`${http.baseUrl}/en/resources/pdf/morgonschema.pdf`);
+      const sv = await fetch(`${http.baseUrl}/resurser/pdf/morgonschema.pdf`);
+      assert.equal(en.status, 200);
+      assert.equal(alias.status, 200);
+      assert.equal(sv.status, 200);
+      assert.match(en.headers.get('content-type') || '', /pdf/i);
+      const enBuf = Buffer.from(await en.arrayBuffer());
+      const aliasBuf = Buffer.from(await alias.arrayBuffer());
+      const svBuf = Buffer.from(await sv.arrayBuffer());
+      assert.match(enBuf.toString('latin1').slice(0, 5), /%PDF-/);
+      assert.equal(enBuf.equals(aliasBuf), true);
+      assert.equal(enBuf.equals(svBuf), false);
 
       const missing = await fetch(`${http.baseUrl}/en/resources/pdf/does-not-exist.pdf`, {
         redirect: 'manual',
