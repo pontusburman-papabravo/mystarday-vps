@@ -18,17 +18,17 @@ Refresh after Google Play review clears — see [Delta runbook](#delta-runbook-a
 | **Founder open approval** | **NOT GIVEN** | `founder_open_approved_ie` stays `false` in evidence until explicit ops decision. |
 | **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). `/en/eea/*` external review remains founder-owned risk — not auto-green because other gates pass. |
 | ASC store config | PASS | en-GB screenshots in 1.4.5; binary approved for distribution. |
-| Play store config (pre-review) | PASS (founder-verified) | Listing/metadata updated; binary in review. |
+| Play store config | PASS (founder-verified) | Named SKUs/base plans IE; en-GB screenshots uploaded. Store **review** may still be pending. |
 | RevenueCat | PASS (founder-verified) | Dashboard + webhook path attested. |
-| iOS purchase + restore (IE) | PASS (founder-verified) | Physical device (sandbox/test track — not a substitute for store review). |
-| Android purchase + restore (IE) | PASS (founder-verified) | Physical device (sandbox/test track — not a substitute for store review). |
-| **Committed evidence JSON** | **STALE** | `config/ie-fi-release-evidence.json` still shows NOT VERIFIED / BLOCKED — update in delta pass after both reviews, not before. |
+| iOS purchase + restore (IE) | PASS (founder-verified) | Physical device. |
+| Android purchase + restore (IE) | PASS (founder-verified) | Physical device. |
+| **Committed evidence JSON** | **SYNCED** (2026-09-17) | `IE_BILLING_CONFIGURATION_READY=YES`, `IE_DEVICE_VERIFIED=YES`; `IE_READY_TO_OPEN=NO` until founder approval. |
 | **Prod runtime** | **CLOSED** | `market_ie_open=false`, `public_billing_usable=false`, `BILLING_UI_DISABLED=true`. |
 
-**Effective blockers today:** **Google Play review pending** · founder approval pending · evidence file not yet synced to attested PASS values (delta after Play).
+**Effective blockers today:** **Google Play review pending** (if not yet approved) · **founder approval** · legal conscious risk. No launch until founder go + Steps A–F.
 
 ```bash
-npm run ie-fi:release-gates   # reads committed JSON — expect NO until delta updates evidence
+npm run ie-fi:release-gates   # IE billing+device YES; READY_TO_OPEN NO until founder_open_approved_ie
 # On VPS after deploy (see deploy-ops):
 curl -s http://127.0.0.1:3000/api/market/registration-gates | jq '{ie:.market_ie_open,billing:.public_billing_usable,signup:.signup_allowed.IE}'
 curl -s http://127.0.0.1:3000/health | jq '{sha:.git_sha,billing:.iap_readiness.billing_ui_globally_disabled,paid:.iap_paid_rollout_ready,pg:.payment_go_live}'
@@ -126,9 +126,9 @@ Hourly: `/health` + `/api/market/registration-gates`.
 
 **Do not re-run a full audit.** Update only when **both** ASC and Google Play have cleared review (or document a deliberate single-platform launch — not default for IE).
 
-1. **Apple 1.4.5 review** → **PASS** (2026-09-16; submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`)
+1. **Apple 1.4.5 review** → **PASS** ✓ (2026-09-17; submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`)
 2. **Google Play review** → `PASS` or `FAIL` (if FAIL: stop; no Steps A–F)
-3. **`config/ie-fi-release-evidence.json`** — sync attested values:
+3. **`config/ie-fi-release-evidence.json`** → **SYNCED** ✓ (2026-09-17 founder attestation)
    - `apple_iap_ie`, `play_named_skus_ie`, `revenuecat` → verified
    - `ios_purchase_ie`, `ios_restore_ie`, `android_purchase_ie`, `android_restore_ie` → verified
    - `apple_download_price` / `apple_paid_download_unresolved_p0` if ASC confirms free download
