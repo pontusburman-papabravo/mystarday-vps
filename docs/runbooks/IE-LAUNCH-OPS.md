@@ -9,7 +9,7 @@
 
 | Gate | Status | Notes |
 |------|--------|-------|
-| **Apple 1.4.5 review (ASC)** | **PASS** | Approved 2026-09-16 06:47 PDT. Submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`. |
+| **Apple 1.4.5 review (ASC)** | **PASS** | Approved 2026-09-16 06:47 PDT. Submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`. **Train closed** for new binaries (ITMS-90186 / ITMS-90062 on 1.4.5 build 1233). Next native archive is **1.4.6**. |
 | **Google Play review** | **PENDING** | iOS-first launch: `/en` shows “Android coming soon”; Play links hidden when IE open. |
 | **Founder open approval** | **GIVEN** | `founder_open_approved_ie=true`, `paid_rollout_approved_ie=true` in evidence JSON (GO IE 2026-09-17). |
 | **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). External `/en/eea/*` review remains founder-owned. |
