@@ -1,11 +1,35 @@
 # App Store Review Notes — Min Stjärndag
 
 > English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-09-14 | 1.4.4 train closed. Next native train 1.4.5. Do not submit 1.4.5 unless a native binary is required.
+> Last updated: 2026-09-17 | 1.4.5 train closed. Next native train 1.4.6. Do not submit 1.4.6 unless a native binary is required.
+
+---
+
+## Operator — 1.4.5 closed (ITMS-90186 / ITMS-90062, 2026-09-17)
+
+**Do not paste this section to App Review.**
+
+**Delivery rejection (version 1.4.5, build 1233):**
+
+- **ITMS-90186:** Invalid Pre-Release Train — train version `1.4.5` is closed for new build submissions.
+- **ITMS-90062:** `CFBundleShortVersionString` `[1.4.5]` must be higher than the previously approved version `[1.4.5]`.
+
+**Root cause:** Apple already approved marketing version 1.4.5 (ASC 2026-09-16). A new binary cannot reuse that train.
+
+**Standing response:**
+
+1. Encode `1.4.5` in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
+2. Keep repo `MARKETING_VERSION` at **1.4.6** so the *next* native archive is valid.
+3. Do **not** tag `ios-v1.4.6` or Submit 1.4.6 unless a native binary is actually required (plugins, permissions, entitlements, screenshot replacement after Ready for Distribution). Web/Capacitor deploys continue without a new IPA.
+4. Do **not** upload another 1.4.5 binary (including 1233).
+
+Closed trains `1.4.3`, `1.4.4`, and `1.4.5` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
 
 ---
 
 ## Operator — 1.4.4 closed (ITMS-90186 / ITMS-90062, 2026-09-14)
+
+**Historical.** 1.4.4 is itself closed; 1.4.5 is now also closed (see operator section). Do not follow the tag/submit steps below.
 
 **Do not paste this section to App Review.**
 
@@ -19,11 +43,11 @@
 **Standing response:**
 
 1. Encode `1.4.4` in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
-2. Keep repo `MARKETING_VERSION` at **1.4.5** so the *next* native archive is valid.
-3. Do **not** tag `ios-v1.4.5` or Submit 1.4.5 unless a native binary is actually required (plugins, permissions, entitlements, screenshot replacement after Ready for Distribution). Web/Capacitor deploys continue without a new IPA.
+2. Repo `MARKETING_VERSION` is now **1.4.6** (1.4.5 closed 2026-09-17).
+3. Do **not** tag or Submit a closed train. Web/Capacitor deploys continue without a new IPA.
 4. Do **not** upload another 1.4.4 binary (including 1188).
 
-Closed trains `1.4.3` and `1.4.4` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
+Closed trains `1.4.3`, `1.4.4`, and `1.4.5` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
 
 ---
 

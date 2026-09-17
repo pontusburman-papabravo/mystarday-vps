@@ -61,7 +61,7 @@ This is a **review-access fix** — not the start of paid rollout. Do **not** fl
 | 8 | Ordinary live-app families unaffected; billing stays **OFF** | VPS: global payment switch off + billing UI disabled | ☐ |
 | 9 | App Store Connect Review Information lists **both accounts with explicit labels** (IAP vs complimentary) | Paste from `docs/app-store-review-notes.md` § Build 1160 | ☐ |
 
-**1.4.4 train is closed** (ITMS-90186 / ITMS-90062, Apple delivery 1.4.4 build 1188). Do **not** upload another 1.4.4 binary. Physical IAP proof (rows 4–6) belongs on the **next native submission** (1.4.5) if that binary is actually required. Web/paywall changes continue to reach Capacitor without a new IPA.
+**1.4.5 train is closed** (ITMS-90186 / ITMS-90062, Apple delivery 1.4.5 build 1233). Do **not** upload another 1.4.5 binary. Physical IAP proof (rows 4–6) belongs on the **next native submission** (1.4.6) if that binary is actually required. Web/paywall changes continue to reach Capacitor without a new IPA.
 
 Public SE listing already shows Premium Årsvis + Premium Månadsvis with prices — do **not** re-attach those products to a new version unless ASC still shows first-of-type unapproved (`docs/app-store-review-notes.md`).
 
@@ -101,7 +101,7 @@ Do **not** use `/review/subscription-preview` as the purchase path (admin-only, 
 
 ## Versioning
 
-`MARKETING_VERSION` **1.4.4 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.4). The next native train is **1.4.5**. Do **not** tag `ios-v1.4.5` or Submit unless a native binary is actually required. Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected builds **1182** or **1188**.
+`MARKETING_VERSION` **1.4.5 is closed** (ITMS-90186 / ITMS-90062 — Apple already approved 1.4.5). The next native train is **1.4.6**. Do **not** tag `ios-v1.4.6` or Submit unless a native binary is actually required. Xcode Cloud applies `CI_BUILD_NUMBER` at archive; do **not** reuse rejected builds **1182**, **1188**, or **1233**.
 
 Android `versionName` is **1.4.5** / `versionCode` **14** (Play AAB after the launcher-name placeholder leak).
 
