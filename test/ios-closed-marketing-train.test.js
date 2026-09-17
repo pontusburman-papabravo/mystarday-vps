@@ -30,7 +30,7 @@ describe('verify-ios-closed-marketing-train', () => {
     const original = fs.readFileSync(PBX, 'utf8');
     const fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-closed-train-'));
     const fixturePbx = path.join(fixtureDir, 'project.pbxproj');
-    fs.writeFileSync(fixturePbx, original.replace(/MARKETING_VERSION = [\d.]+;/g, 'MARKETING_VERSION = 1.4.4;'));
+    fs.writeFileSync(fixturePbx, original.replace(/MARKETING_VERSION = [\d.]+;/g, 'MARKETING_VERSION = 1.4.5;'));
     try {
       const r = runVerify({ IOS_XCODE_PROJECT_PATH: fixturePbx });
       assert.notEqual(r.status, 0);

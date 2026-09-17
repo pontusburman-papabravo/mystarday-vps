@@ -12,6 +12,9 @@ if [ -n "$NODE20_PREFIX" ] && [ -d "$NODE20_PREFIX/bin" ]; then
   export PATH="$NODE20_PREFIX/bin:$PATH"
 fi
 
+echo "🚫 Refuse App Store/TestFlight archive unless ios-v* tag"
+xcode_cloud_node verify_archive_tag scripts/verify-ios-archive-release-tag.mjs
+
 echo "🧹 Refresh Pods tree (no Google Sign-In SDK)"
 xcode_cloud_node prepare_native scripts/prepare-ios-native.mjs
 

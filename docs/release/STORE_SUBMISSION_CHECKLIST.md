@@ -10,16 +10,16 @@ Legend: **AUTO** = covered by `npm run release:compliance` / `release:pre-public
 
 ## 0. New version after Ready for Distribution
 
-Use this when the previous train is **closed** (approved / Ready for Distribution) and a new `CFBundleShortVersionString` is required. **Do not** create a new App Store version for ordinary web/Capacitor deploys. Current closed trains: `1.4.3`, `1.4.4`. Next native train: `1.4.5`.
+Use this when the previous train is **closed** (approved / Ready for Distribution) and a new `CFBundleShortVersionString` is required. **Do not** create a new App Store version for ordinary web/Capacitor deploys. Current closed trains: `1.4.3`, `1.4.4`, `1.4.5`. Next native train: `1.4.6`.
 
 - [ ] **Metadata copied, then verified** — MANUAL  
   PASS criterion: after creating the new version, Swedish + English (UK) Description, keywords, URLs, and What’s New match the current live version unless an intentional edit is made. Apple **transfers metadata from the current version automatically** ([Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version)). Do **not** treat the new version as blank and re-enter every field.
 
 - [ ] **Screenshots replaced on the new version** — MANUAL  
-  PASS criterion: the **new** version page (currently 1.4.5 or later) shows the intended screenshot set. Screenshots on an already approved/live version cannot be swapped; a new version is required. That is why replacements did not appear on public 1.4.3, and cannot be swapped on approved 1.4.4 either.
+  PASS criterion: the **new** version page (currently 1.4.6 or later) shows the intended screenshot set. Screenshots on an already approved/live version cannot be swapped; a new version is required. That is why replacements did not appear on public 1.4.3, and cannot be swapped on approved 1.4.4 or 1.4.5 either.
 
 - [ ] **In-App Purchases / subscriptions — status first, then maybe same draft** — MANUAL  
-  PASS criterion: ASC product status is read before Submit. Apple requires the **first** In-App Purchase **of each type** (including the first auto-renewable subscription) to be submitted **with a new app version**. After that type is approved, additional items of the same type can be submitted **without** a new app version ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** assume Monthly/Yearly must be “re-linked” to every new version. Include them in the **same draft submission as the new app version only if they are not yet approved**. Public 1.4.3 listing (Premium Årsvis / Premium Månadsvis with prices on the live SE product page) is evidence the first subscription type already shipped — **default for 1.4.5 is leave them off the draft**. ASC enum remains a 30-second console glance at Submit, not a merge blocker (`docs/app-store-review-notes.md`).
+  PASS criterion: ASC product status is read before Submit. Apple requires the **first** In-App Purchase **of each type** (including the first auto-renewable subscription) to be submitted **with a new app version**. After that type is approved, additional items of the same type can be submitted **without** a new app version ([Submit an In-App Purchase](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-in-app-purchase)). Do **not** assume Monthly/Yearly must be “re-linked” to every new version. Include them in the **same draft submission as the new app version only if they are not yet approved**. Public 1.4.3 listing (Premium Årsvis / Premium Månadsvis with prices on the live SE product page) is evidence the first subscription type already shipped — **default for 1.4.6 is leave them off the draft**. ASC enum remains a 30-second console glance at Submit, not a merge blocker (`docs/app-store-review-notes.md`).
 
 ---
 
@@ -238,7 +238,7 @@ Use this when the previous train is **closed** (approved / Ready for Distributio
 ## 10. Post-submission check
 
 - [ ] **Confirm the correct build/version was actually submitted** — MANUAL
-  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version. iOS `CFBundleShortVersionString` (`MARKETING_VERSION`) must be **strictly higher** than the last approved version (ITMS-90186 / ITMS-90062). Repo Check I fails if `MARKETING_VERSION` is in `versionSources.closedIosMarketingVersions` (currently `1.4.3`, `1.4.4`).
+  PASS criterion: App Store Connect / Play Console shows the expected build number / versionCode attached to the submitted version. iOS `CFBundleShortVersionString` (`MARKETING_VERSION`) must be **strictly higher** than the last approved version (ITMS-90186 / ITMS-90062). Repo Check I fails if `MARKETING_VERSION` is in `versionSources.closedIosMarketingVersions` (currently `1.4.3`, `1.4.4`, `1.4.5`).
 
 - [ ] **Monitor for a rejection and log it** — MANUAL
   PASS criterion: any rejection is appended to `docs/app-store-review-notes.md` (Apple) or an equivalent Play rejection log, with root cause and fix — do not let it become an undocumented one-off fix a second time.
