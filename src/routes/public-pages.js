@@ -110,9 +110,47 @@ const mirroredEnPaths = new Set([
 for (const entry of MIRROR_ENTRIES) {
   if (mirroredEnPaths.has(entry.en)) continue;
   router.get(entry.en, (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public', entry.fileEn));
+    const htmlPath = path.join(__dirname, '../../public', entry.fileEn);
+    let html = fs.readFileSync(htmlPath, 'utf8');
+    html = injectSiteUrl(html);
+    html = injectBrandPlaceholders(html);
+    res.type('html').send(html);
   });
 }
+
+// English PDF binaries live in public/en/resources/pdf/ (English filenames).
+// Swedish filenames on the EN path stay as aliases so old links keep working.
+const { englishFilenameFor } = require('../../config/resurser-catalog');
+const RESURSER_PDF_DIR = path.join(__dirname, '../../public/resurser/pdf');
+const EN_RESOURCES_PDF_DIR = path.join(__dirname, '../../public/en/resources/pdf');
+const EN_RESOURCES_PDF_FILE_RE = /^[a-z0-9-]+\.pdf$/;
+
+function sendPdfNoIndex(res, pdfPath) {
+  res.set('X-Robots-Tag', 'noindex, nofollow');
+  res.type('application/pdf');
+  res.sendFile(pdfPath);
+}
+
+function resolveEnglishPdf(filename) {
+  const direct = path.join(EN_RESOURCES_PDF_DIR, filename);
+  if (fs.existsSync(direct)) return direct;
+  const mapped = englishFilenameFor(filename);
+  if (mapped) {
+    const aliased = path.join(EN_RESOURCES_PDF_DIR, mapped);
+    if (fs.existsSync(aliased)) return aliased;
+  }
+  const svFallback = path.join(RESURSER_PDF_DIR, filename);
+  if (fs.existsSync(svFallback)) return svFallback;
+  return null;
+}
+
+router.get('/en/resources/pdf/:filename', (req, res, next) => {
+  const filename = String(req.params.filename || '');
+  if (!EN_RESOURCES_PDF_FILE_RE.test(filename)) return next();
+  const pdfPath = resolveEnglishPdf(filename);
+  if (!pdfPath) return next();
+  sendPdfNoIndex(res, pdfPath);
+});
 
 // Public landing page for pedagogue/therapist audience
 // Gate 2F: redirect to / if professionell_landingssida feature is OFF
@@ -184,13 +222,15 @@ const { R3_ALIAS_REDIRECTS } = require('../../config/resurser-r3-aliases');
 
 function sendPublicHtml(relativeFile) {
   return (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public', relativeFile));
+    const htmlPath = path.join(__dirname, '../../public', relativeFile);
+    let html = fs.readFileSync(htmlPath, 'utf8');
+    html = injectSiteUrl(html);
+    html = injectBrandPlaceholders(html);
+    res.type('html').send(html);
   };
 }
 
-router.get('/resurser', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public', 'resurser.html'));
-});
+router.get('/resurser', sendPublicHtml('resurser.html'));
 
 for (const { from, to } of R3_ALIAS_REDIRECTS) {
   router.get(from, (req, res) => res.redirect(301, to));

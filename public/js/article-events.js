@@ -11,6 +11,9 @@
     guide_next_step_click: true,
     guide_hub_nav_click: true,
     article_faq_expand: true,
+    resource_page_viewed: true,
+    resource_pdf_download: true,
+    resource_cta_clicked: true,
   };
 
   function getOrCreateSessionNonce() {
@@ -34,6 +37,25 @@
     if (p === '/alternativ-bildschema-tavla') return 'alternativ-bildschema-tavla';
     if (p === '/veckoschema-bildstod') return 'veckoschema-bildstod';
     return p.replace(/^\//, '') || 'unknown';
+  }
+
+  function isResourcePath(pathname) {
+    const p = pathname || '';
+    return p === '/resurser' || p.indexOf('/resurser/') === 0
+      || p === '/en/resources' || p.indexOf('/en/resources/') === 0;
+  }
+
+  function resourceMeta(extra) {
+    const p = (global.location && global.location.pathname) || '';
+    const locale = p.indexOf('/en/resources') === 0 ? 'en-GB' : 'sv-SE';
+    const parts = p.replace(/^\/en\/resources\/?/, '/').replace(/^\/resurser\/?/, '/').split('/').filter(Boolean);
+    const category = parts[0] || 'hub';
+    return Object.assign({
+      page: 'resource_library',
+      locale: locale,
+      category: category,
+      path: p,
+    }, extra || {});
   }
 
   function track(eventType, metadata) {
@@ -66,6 +88,20 @@
 
   function init() {
     bindTracked('[data-track="article_cta_register"]', 'article_cta_register');
+
+    if (isResourcePath((global.location && global.location.pathname) || '')) {
+      track('resource_page_viewed', resourceMeta());
+      bindTracked('[data-track="article_cta_register"]', 'resource_cta_clicked', function () {
+        return resourceMeta({ resource_type: 'app_cta' });
+      });
+      bindTracked('[data-resource-pdf]', 'resource_pdf_download', function (el) {
+        return resourceMeta({
+          pdf_id: el.getAttribute('data-resource-pdf') || '',
+          resource_type: el.getAttribute('data-resource-pdf') || 'pdf',
+          file: el.getAttribute('data-resource-file') || '',
+        });
+      });
+    }
 
     bindTracked('[data-track="guide_hub_nav_click"]', 'guide_hub_nav_click', function (el) {
       return {
