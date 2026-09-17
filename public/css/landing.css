@@ -452,6 +452,35 @@ body.landing-menu-open {
   height: 44px;
 }
 
+.store-android-soon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(26, 35, 50, 0.14);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgba(26, 35, 50, 0.62);
+  background: rgba(255, 255, 255, 0.72);
+  flex-shrink: 0;
+}
+
+.landing-hero .store-android-soon,
+.landing-mobile-menu .store-android-soon {
+  color: rgba(255, 255, 255, 0.78);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.landing-footer .store-android-soon {
+  color: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .store-locale-note {
   margin: 0 0 0.55rem;
   font-size: 0.82rem;
