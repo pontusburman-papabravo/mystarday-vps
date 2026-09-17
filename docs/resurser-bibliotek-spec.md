@@ -49,7 +49,7 @@ Piktogramnycklar är samma `icon_key` som appen (`config/pictogram-library.js`).
 
 - Generator: `src/lib/resurser-pdf.js`
 - Bygge: `npm run generate:resurser-pdfs`
-- A4, PDFKit, Helvetica
+- A4, PDFKit, Helvetica (WinAnsi). Inga pilar, stjärn-glypher eller andra tecken Helvetica inte kan rita.
 - En sida för varje resurs som ryms på en sida
 - Titel, ingress, instruktion/disclaimer, footer och sidnummer från locale-bundle
 - Illustrationer: design-kit-SVG rasteriseras till PNG via `sharp` (`src/lib/resurser-icons.js`). Samma semantiska bild som i appen. Textetikett finns alltid. Saknas kit-fil används numrerad yta, inte emoji.

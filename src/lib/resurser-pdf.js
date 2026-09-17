@@ -35,8 +35,28 @@ function labelsForKeys(keys, locale) {
   }));
 }
 
+/** Helvetica (WinAnsi) cannot draw arrows/stars — they become garbage glyphs. */
+const PDFKIT_UNSAFE = /[→←↔⇒⇐★☆✓✔✕✖]/g;
+
+function pdfSafeText(value) {
+  return String(value || '').replace(PDFKIT_UNSAFE, (ch) => (
+    (ch === '→' || ch === '←' || ch === '↔' || ch === '⇒' || ch === '⇐') ? '-' : ''
+  ));
+}
+
+function sanitizePdfCopy(value) {
+  if (typeof value === 'string') return pdfSafeText(value);
+  if (Array.isArray(value)) return value.map(sanitizePdfCopy);
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [key, nested] of Object.entries(value)) out[key] = sanitizePdfCopy(nested);
+    return out;
+  }
+  return value;
+}
+
 function strings(locale) {
-  return loadResurserI18n(locale || 'sv-SE');
+  return sanitizePdfCopy(loadResurserI18n(locale || 'sv-SE'));
 }
 
 function writeFooter(doc, pageNum, t) {
@@ -272,6 +292,7 @@ module.exports = {
   labelsForKeys,
   generateResurserPdf,
   preloadResurserIcons,
+  pdfSafeText,
   BELONING_STAR_ROWS,
   BELONING_STAR_COLS,
 };

@@ -117,6 +117,21 @@ describe('resurser generated PDFs', () => {
       assert.match(sv, /Sida 1|Gratis resursbibliotek/, asset.fileSv);
     }
   });
+
+  it('does not use arrows that Helvetica cannot draw', () => {
+    const forbidden = /[→←↔⇒⇐★☆]/;
+    for (const locale of ['sv-SE', 'en-GB']) {
+      const t = loadResurserI18n(locale);
+      assert.equal(forbidden.test(t.ui.rewardGoalLine), false, locale);
+      assert.equal(forbidden.test(t.ui.footerPdf), false, locale);
+    }
+    const enReward = pdfVisibleText(fs.readFileSync(path.join(EN_PDF_DIR, 'reward-chart.pdf')));
+    const svReward = pdfVisibleText(fs.readFileSync(path.join(SV_PDF_DIR, 'beloningsschema.pdf')));
+    assert.match(enReward, /Reward:/);
+    assert.match(svReward, /Belöning:/);
+    assert.doesNotMatch(enReward, /!'/);
+    assert.doesNotMatch(svReward, /!'/);
+  });
 });
 
 describe('resurser core HTML IA', () => {
