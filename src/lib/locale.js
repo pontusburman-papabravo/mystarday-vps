@@ -16,9 +16,6 @@ const ALIASES = Object.freeze({
   'sv-se': 'sv-SE',
   'en-gb': 'en-GB',
   'en-us': 'en-GB',
-  /** Finland is a Swedish-speaking market in this phase — no fi locale exists. */
-  fi: 'sv-SE',
-  'fi-fi': 'sv-SE',
 });
 
 /**
@@ -39,7 +36,8 @@ function normalizeLocale(raw) {
   const base = trimmed.split(/[-_]/)[0].toLowerCase();
   if (base === 'sv') return 'sv-SE';
   if (base === 'en') return 'en-GB';
-  if (base === 'fi') return 'sv-SE';
+  // Unsupported tags (fi / fi-FI / fr-FR / …) stay unsupported.
+  // FI as a country still defaults to sv-SE via COUNTRY_DEFAULTS — that is not a locale alias.
 
   return null;
 }

@@ -10,9 +10,24 @@
 
   function t(key, fallback) {
     try {
-      if (window.authT) return window.authT(key);
-      if (window.I18n && typeof window.I18n.t === 'function') return window.I18n.t(key);
+      if (window.authT) {
+        const fromAuth = window.authT(key);
+        if (fromAuth && fromAuth !== key) return fromAuth;
+      }
+      if (window.I18n && typeof window.I18n.tOrLiteral === 'function') {
+        return window.I18n.tOrLiteral(key, fallback);
+      }
+      if (window.I18n && typeof window.I18n.t === 'function') {
+        const fromI18n = window.I18n.t(key);
+        if (fromI18n && fromI18n !== key) return fromI18n;
+        if (typeof window.I18n.literalFallback === 'function') {
+          return window.I18n.literalFallback(key, fallback);
+        }
+      }
     } catch (_) { /* keep fallback */ }
+    if (window.I18n && typeof window.I18n.literalFallback === 'function') {
+      return window.I18n.literalFallback(key, fallback);
+    }
     return fallback || key;
   }
 

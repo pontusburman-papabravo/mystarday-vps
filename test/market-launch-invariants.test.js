@@ -192,12 +192,14 @@ describe('worldwide grandfather by lifetime_free_until', () => {
 });
 
 describe('Finland Swedish locale fallback', () => {
-  it('fi and fi-FI normalize to sv-SE — no Finnish locale is created', () => {
-    assert.equal(normalizeLocale('fi'), 'sv-SE');
-    assert.equal(normalizeLocale('fi-FI'), 'sv-SE');
-    assert.equal(normalizeLocale('fi_FI'), 'sv-SE');
+  it('Finnish language tags are unsupported, not aliased to sv-SE', () => {
+    assert.equal(normalizeLocale('fi'), null);
+    assert.equal(normalizeLocale('fi-FI'), null);
+    assert.equal(normalizeLocale('fi_FI'), null);
+    assert.equal(parseAcceptLanguage('fi-FI'), null);
     assert.equal(parseAcceptLanguage('fi-FI,sv;q=0.8'), 'sv-SE');
     assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI' }), 'sv-SE');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
   });
 
   it('FI defaultLocale is Swedish', () => {
