@@ -365,6 +365,8 @@
     PARENT_CHILD_ID_REQUIRED: 'family.errors.parentChildIdRequired',
     ACCESS_REVOKED: 'family.toasts.accessRevoked',
     PIN_OR_PASSWORD_REQUIRED: 'family.errors.pinOrPasswordRequired',
+    PIN_CONFIRM_MISMATCH: 'family.errors.pinConfirmMismatch',
+    INVALID_CURRENT_PIN: 'family.errors.invalidCurrentPin',
     PIN_REQUIRED_NO_PASSWORD: 'family.errors.pinRequiredNoPassword',
     GATE_SESSION_EXPIRED: 'family.errors.gateSessionExpired',
     GATE_TOKEN_REQUIRED: 'family.errors.gateTokenRequired',

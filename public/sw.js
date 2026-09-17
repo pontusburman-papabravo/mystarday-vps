@@ -318,9 +318,10 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v987: PIN confirm/current-pin error codes + API error map
 // stjarndag-v986: i18n test:gate alignment — codes/keys, child-settings cst, notif fallback
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
-const CACHE_NAME = 'stjarndag-v986';
+const CACHE_NAME = 'stjarndag-v987';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak

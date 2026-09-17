@@ -56,7 +56,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
       return sendApiError(res, 400, 'VALIDATION_PIN_4_DIGITS');
     }
     if (pin !== confirmPin) {
-      return res.status(400).json({ error: 'PIN-koderna matchar inte' });
+      return sendApiError(res, 400, 'PIN_CONFIRM_MISMATCH');
     }
 
     const pinRow = await parentPinDb.getParentPinRow(req.user.id);
@@ -70,7 +70,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
       if (currentPin) {
         const pinOk = await require('../../lib/hash').comparePassword(currentPin, pinRow.parent_pin_hash);
         if (!pinOk) {
-          return res.status(401).json({ error: 'Felaktig nuvarande PIN-kod' });
+          return sendApiError(res, 401, 'INVALID_CURRENT_PIN');
         }
       } else {
         const parentResult = await db.query(

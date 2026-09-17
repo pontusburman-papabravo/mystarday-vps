@@ -108,10 +108,9 @@ test('banner source: Hem script, dismiss X, explicit mode, no home chain, parent
   );
 
   const route = read('src/routes/for-dig.js');
-  assert.match(route, /parentApiMessage\(locale, `errors\.forDig\.\$\{key\}`\)/);
-  assert.match(route, /forDigApiError\(res, familyId, 'childAndGoalRequired', 400\)/);
-  assert.match(route, /forDigApiError\(res, familyId, 'childAccessDenied', 403\)/);
-  assert.match(route, /forDigApiError\(res, familyId, 'dismissFailed', 500\)/);
+  assert.match(route, /sendApiError\(res, 400, 'CHILD_ID_INTENT_REQUIRED'\)/);
+  assert.match(route, /sendApiError\(res, 403, 'FOR_DIG_CHILD_ACCESS'\)/);
+  assert.match(route, /sendApiError\(res, 500, 'GENERIC_SERVER_ERROR'\)/);
   assert.doesNotMatch(route, /child_id och goal_slug krävs/);
   assert.doesNotMatch(route, /Kunde inte stänga frågan/);
   loadLocales();
@@ -174,20 +173,16 @@ test('pending/dismiss/submit/explicit isolation + child cannot leave outcome', a
       body: {},
     });
     assert.equal(missingFields.res.status, 400, missingFields.text);
-    assert.equal(
-      missingFields.json.error,
-      parentApiMessage('sv-SE', 'errors.forDig.childAndGoalRequired')
-    );
+    assert.equal(missingFields.json.error, 'CHILD_ID_INTENT_REQUIRED');
+    assert.equal(missingFields.json.code, 'CHILD_ID_INTENT_REQUIRED');
 
     const foreignChild = await authFetch(http.baseUrl, session, '/api/for-dig/feedback/dismiss', {
       method: 'POST',
       body: { child_id: '00000000-0000-4000-8000-000000000099', goal_slug: GOAL_SLUG },
     });
     assert.equal(foreignChild.res.status, 403, foreignChild.text);
-    assert.equal(
-      foreignChild.json.error,
-      parentApiMessage('sv-SE', 'errors.forDig.childAccessDenied')
-    );
+    assert.equal(foreignChild.json.error, 'FOR_DIG_CHILD_ACCESS');
+    assert.equal(foreignChild.json.code, 'FOR_DIG_CHILD_ACCESS');
 
     const dismiss = await authFetch(http.baseUrl, session, '/api/for-dig/feedback/dismiss', {
       method: 'POST',

@@ -19,7 +19,7 @@ const { FOR_DIG_GOALS } = require('../src/lib/for-dig-config');
 const ROOT = path.join(__dirname, '..');
 const GOAL_SLUG = FOR_DIG_GOALS[0].slug;
 const INTENT_REASON = 'tydligare_rutiner';
-const ACCESS_DENIED = 'Du har inte åtkomst till ett av valda barn.';
+const ACCESS_DENIED = 'FOR_DIG_CHILD_ACCESS';
 const EXTRA_PASSWORD = 'p04-for-dig-pass-12';
 
 process.env.REQUIRE_EMAIL_VERIFICATION = 'false';
@@ -231,7 +231,7 @@ describe('P0.4 För Dig authorization', () => {
     assert.match(routeSrc, /getInstallsForParent\(req\.user\.id\)/);
     assert.match(routeSrc, /authz\.getChildAccess\(req\.user\.id, childId\)/);
     assert.match(routeSrc, /familyId = child\.family_id/);
-    assert.match(routeSrc, /Du har inte åtkomst till ett av valda barn\./);
+    assert.match(routeSrc, /FOR_DIG_CHILD_ACCESS/);
   });
 
   test('primary can write feedback; suggestion without child_id stays allowed', async (t) => {

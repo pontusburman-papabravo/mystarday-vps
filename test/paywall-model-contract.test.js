@@ -84,7 +84,8 @@ test('paywall contract: per-route component gating + core API access', async (t)
     assert.notEqual(grantedBody.code, 'COMPONENT_MISSING', grantedText);
     assert.notEqual(grantedBody.code, 'COMPONENT_ARCHIVED', grantedText);
     assert.equal(grantedRes.status, 403, grantedText);
-    assert.match(grantedBody.error, /åtkomst/i);
+    assert.equal(grantedBody.error, 'ACCESS_DENIED');
+    assert.equal(grantedBody.code, 'ACCESS_DENIED');
 
     await familySubscriptions.grantComponent(familyId, 'pedagog', null, { state: 'archived' });
     const archivedRes = await fetch(`${http.baseUrl}${PEDAGOG_ROUTE}`, {

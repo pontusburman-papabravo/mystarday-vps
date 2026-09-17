@@ -239,6 +239,8 @@
     "inviteNotFound": "Inbjudan hittades inte eller är redan accepterad",
     "parentChildIdRequired": "parentId och childId krävs",
     "pinOrPasswordRequired": "Ange nuvarande PIN-kod eller lösenord för att ändra",
+    "pinConfirmMismatch": "PIN-koderna matchar inte",
+    "invalidCurrentPin": "Felaktig nuvarande PIN-kod",
     "pinRequiredNoPassword": "Kontot saknar lösenord — ange nuvarande PIN-kod",
     "gateSessionExpired": "Sessionen har gått ut. Ange PIN-koden igen.",
     "gateTokenRequired": "gateToken krävs",

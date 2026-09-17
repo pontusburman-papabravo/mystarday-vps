@@ -239,6 +239,8 @@
     "inviteNotFound": "Invite not found or already accepted",
     "parentChildIdRequired": "parentId and childId are required",
     "pinOrPasswordRequired": "Enter the current PIN or password to change it",
+    "pinConfirmMismatch": "The PIN codes do not match",
+    "invalidCurrentPin": "The current PIN is incorrect",
     "pinRequiredNoPassword": "This account has no password — enter the current PIN",
     "gateSessionExpired": "The session has expired. Enter the PIN again.",
     "gateTokenRequired": "gateToken is required",
