@@ -60,22 +60,26 @@ describe('paid transition notice', () => {
 });
 
 describe('IE/FI release gates cannot be conflated', () => {
-  it('committed evidence: prebilling yes, billing/open/paid no; IE device yes, FI device no', () => {
+  it('committed evidence: IE billing+device yes, open/paid no; FI billing/device no', () => {
     const gates = evaluateIeFiReleaseGates(loadCommittedEvidence());
-    for (const cc of ['IE', 'FI']) {
-      assert.equal(gates[cc].CLOSED_CODE_READY, true);
-      assert.equal(gates[cc].PREBILLING_MARKET_READY, true);
-      assert.equal(gates[cc].BILLING_CONFIGURATION_READY, false);
-      assert.equal(gates[cc].BILLING_READY, false);
-      assert.equal(gates[cc].READY_TO_OPEN, false);
-      assert.equal(gates[cc].PAID_ROLLOUT_READY, false);
-    }
-    assert.equal(gates.IE.DEVICE_VERIFIED, false);
-    assert.equal(gates.FI.DEVICE_VERIFIED, false);
-    assert.equal(gates.IE.device_evidence.ios_purchase, 'YES');
-    assert.equal(gates.IE.device_evidence.ios_restore, 'NOT VERIFIED');
+    assert.equal(gates.IE.CLOSED_CODE_READY, true);
+    assert.equal(gates.IE.PREBILLING_MARKET_READY, true);
+    assert.equal(gates.IE.BILLING_CONFIGURATION_READY, true);
+    assert.equal(gates.IE.BILLING_READY, true);
+    assert.equal(gates.IE.DEVICE_VERIFIED, true);
+    assert.equal(gates.IE.READY_TO_OPEN, false);
+    assert.equal(gates.IE.PAID_ROLLOUT_READY, false);
+    assert.equal(gates.IE.device_evidence.ios_purchase, 'PASS');
+    assert.equal(gates.IE.device_evidence.ios_restore, 'PASS');
     assert.equal(gates.IE.device_evidence.android_purchase, 'PASS');
-    assert.equal(gates.IE.device_evidence.android_restore, 'NOT VERIFIED');
+    assert.equal(gates.IE.device_evidence.android_restore, 'PASS');
+    assert.equal(gates.FI.CLOSED_CODE_READY, true);
+    assert.equal(gates.FI.PREBILLING_MARKET_READY, true);
+    assert.equal(gates.FI.BILLING_CONFIGURATION_READY, false);
+    assert.equal(gates.FI.BILLING_READY, false);
+    assert.equal(gates.FI.DEVICE_VERIFIED, false);
+    assert.equal(gates.FI.READY_TO_OPEN, false);
+    assert.equal(gates.FI.PAID_ROLLOUT_READY, false);
   });
 
   it('purchase evidence does not imply restore PASS', () => {
