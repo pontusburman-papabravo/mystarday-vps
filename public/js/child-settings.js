@@ -16,7 +16,7 @@ let pinBuffer = '';
 let selectedEmoji = '';
 let rewardsData = [];
 
-function t(key, params) {
+function cst(key, params) {
   if (typeof window.pt === 'function') return window.pt(key, params);
   if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
   return key;
@@ -27,7 +27,7 @@ function apiErr(err, fallbackKey) {
     const mapped = window.apiErrorMessage(err, fallbackKey);
     if (mapped) return mapped;
   }
-  return t(fallbackKey);
+  return cst(fallbackKey);
 }
 
 // showToast (red/navy) and showSuccessToast (green) are in /js/toast.js
@@ -83,7 +83,7 @@ function makeToggle(id, field, value, onChange) {
     track.classList.toggle('on');
     try {
       await saveSetting(field, newVal);
-      showSuccessToast(newVal ? t('family.childSettings.settingsEnabled') : t('family.childSettings.settingsDisabled'));
+      showSuccessToast(newVal ? cst('family.childSettings.settingsEnabled') : cst('family.childSettings.settingsDisabled'));
       if (onChange) onChange(newVal);
     } catch(_e) {
       // revert
@@ -153,7 +153,7 @@ function initViewConfigPanel() {
           classicBtn.classList.add('active');
           newBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.add('hidden');
-          showSuccessToast(t('family.childSettings.classicSaved'));
+          showSuccessToast(cst('family.childSettings.classicSaved'));
         }
       }
     };
@@ -166,7 +166,7 @@ function initViewConfigPanel() {
           newBtn.classList.add('active');
           classicBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.remove('hidden');
-          showSuccessToast(t('family.childSettings.newDesignSaved'));
+          showSuccessToast(cst('family.childSettings.newDesignSaved'));
         }
       }
     };
@@ -192,7 +192,7 @@ function initViewConfigPanel() {
       el.classList.toggle('on');
       const ok = await saveViewConfig({ ...current, [field]: newVal });
       if (ok) {
-        showSuccessToast(newVal ? t('family.childSettings.shownInNewView') : t('family.childSettings.hiddenInNewView'));
+        showSuccessToast(newVal ? cst('family.childSettings.shownInNewView') : cst('family.childSettings.hiddenInNewView'));
       } else {
         el.classList.toggle('on'); // revert
       }
@@ -208,7 +208,7 @@ function initViewConfigPanel() {
       minimalTrack.classList.toggle('on');
       const ok = await saveViewConfig({ ...current, minimal_ui: newVal });
       if (ok) {
-        showSuccessToast(newVal ? t('family.childSettings.minimalOn') : t('family.childSettings.minimalOff'));
+        showSuccessToast(newVal ? cst('family.childSettings.minimalOn') : cst('family.childSettings.minimalOff'));
         // Fire analytics event
         if (newVal && childId) {
           fetch('/api/analytics/event', {
@@ -261,7 +261,7 @@ function initViewToggle(initialType) {
     setActive('day_sections');
     try {
       await saveSetting('view_type', 'day_sections');
-      showSuccessToast(t('family.childSettings.dayViewSaved'));
+      showSuccessToast(cst('family.childSettings.dayViewSaved'));
     } catch(_e) { setActive('now_next_later'); }
   };
   tlBtn.onclick = async () => {
@@ -269,7 +269,7 @@ function initViewToggle(initialType) {
     setActive('now_next_later');
     try {
       await saveSetting('view_type', 'now_next_later');
-      showSuccessToast(t('family.childSettings.timelineSaved'));
+      showSuccessToast(cst('family.childSettings.timelineSaved'));
     } catch(_e) { setActive('day_sections'); }
   };
 }
@@ -308,7 +308,7 @@ function setHeaderAvatarPreview(child) {
 async function saveProfile(e) {
   e.preventDefault();
   const nameVal = document.getElementById('profileName').value.trim();
-  if (!nameVal) { showToast(t('family.childProfile.setup.identity.nameRequired'), true); return; }
+  if (!nameVal) { showToast(cst('family.childProfile.setup.identity.nameRequired'), true); return; }
   const bdYear = document.getElementById('bdYear').value;
   const bdMonth = document.getElementById('bdMonth').value;
   const bdDay = document.getElementById('bdDay').value;
@@ -322,10 +322,10 @@ async function saveProfile(e) {
       body: JSON.stringify(body),
     });
     childData = { ...childData, ...updated };
-    document.getElementById('pageTitle').textContent = updated.name || t('family.childSettings.heading');
+    document.getElementById('pageTitle').textContent = updated.name || cst('family.childSettings.heading');
     document.getElementById('pageEmoji').textContent = updated.emoji || '⭐';
     if (updated.has_avatar !== undefined) setHeaderAvatarPreview({ ...childData, ...updated });
-    showSuccessToast(t('family.childSettings.settingsSaved'));
+    showSuccessToast(cst('family.childSettings.settingsSaved'));
   } catch (err) {
     showToast(apiErr(err, 'family.childProfile.setup.saveFailed'), true);
   }
@@ -337,7 +337,7 @@ async function changeChildPhoto() {
   if (!btn || !window.AvatarUploadFlow) return;
   const orig = btn.textContent;
   btn.disabled = true;
-  btn.textContent = t('family.childProfile.setup.loading');
+  btn.textContent = cst('family.childProfile.setup.loading');
   try {
     const endpoint = '/api/children/' + encodeURIComponent(childId) + '/avatar';
     const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
@@ -347,11 +347,11 @@ async function changeChildPhoto() {
     if (childData.username && typeof Auth.persistKnownChildrenFromSession === 'function') {
       Auth.persistKnownChildrenFromSession([childData], Auth.getFamilyId());
     }
-    btn.textContent = t('family.childSettings.photoSaved');
+    btn.textContent = cst('family.childSettings.photoSaved');
     btn.classList.remove('text-gold');
     btn.classList.add('text-green-600');
     setTimeout(function () {
-      btn.textContent = t('family.childSettings.changePhoto');
+      btn.textContent = cst('family.childSettings.changePhoto');
       btn.classList.remove('text-green-600');
       btn.classList.add('text-gold');
     }, 2000);
@@ -360,7 +360,7 @@ async function changeChildPhoto() {
     showToast(apiErr(err, 'family.childSettings.changePhotoFailed'), true);
   } finally {
     btn.disabled = false;
-    if (btn.textContent === t('family.childProfile.setup.loading')) btn.textContent = orig;
+    if (btn.textContent === cst('family.childProfile.setup.loading')) btn.textContent = orig;
   }
 }
 
@@ -382,7 +382,7 @@ function initHapticsToggle() {
     track.classList.toggle('on');
     // Persist to localStorage
     localStorage.setItem('stjarndag_haptics_enabled', newVal ? 'true' : 'false');
-    showSuccessToast(newVal ? t('family.childProfile.setup.toggles.haptics.on') : t('family.childProfile.setup.toggles.haptics.off'));
+    showSuccessToast(newVal ? cst('family.childProfile.setup.toggles.haptics.on') : cst('family.childProfile.setup.toggles.haptics.off'));
   };
 }
 
@@ -419,13 +419,13 @@ function renderPinDots() {
 async function submitPin() {
   if (pinBuffer.length !== 4) return;
   const btn = document.getElementById('pinSaveBtn');
-  if (btn) { btn.disabled = true; btn.textContent = t('settings.account.saving'); }
+  if (btn) { btn.disabled = true; btn.textContent = cst('settings.account.saving'); }
   try {
     await Auth.api(`/api/children/${childId}/pin`, {
       method: 'PUT',
       body: JSON.stringify({ pin: pinBuffer }),
     });
-    showSuccessToast(t('family.childProfile.pinSaved'));
+    showSuccessToast(cst('family.childProfile.pinSaved'));
     pinBuffer = '';
     renderPinDots();
   } catch (err) {
@@ -433,7 +433,7 @@ async function submitPin() {
     pinBuffer = '';
     renderPinDots();
   }
-  if (btn) { btn.disabled = false; btn.textContent = t('family.childProfile.pinSave'); }
+  if (btn) { btn.disabled = false; btn.textContent = cst('family.childProfile.pinSave'); }
 }
 
 // ── Rewards ─────────────────────────────────────────────
@@ -447,7 +447,7 @@ async function loadRewards() {
       return r && r.is_active !== false;
     });
     if (rewardsData.length === 0) {
-      container.innerHTML = '<p class="text-sm text-text-soft italic">' + t('family.childSettings.emptyRewards') + ' <a href="/library" class="text-gold underline">' + t('family.childSettings.createInLibrary') + '</a></p>';
+      container.innerHTML = '<p class="text-sm text-text-soft italic">' + cst('family.childSettings.emptyRewards') + ' <a href="/library" class="text-gold underline">' + cst('family.childSettings.createInLibrary') + '</a></p>';
       return;
     }
     container.innerHTML = rewardsData.map(r => {
@@ -506,7 +506,7 @@ async function loadRewards() {
           });
           // Update local cache
           if (rewardEntry) rewardEntry.visible_to_children = updated.visible_to_children;
-          showSuccessToast(wasOn ? t('family.childSettings.hiddenForChild') : t('family.childSettings.visibleForChild'));
+          showSuccessToast(wasOn ? cst('family.childSettings.hiddenForChild') : cst('family.childSettings.visibleForChild'));
         } catch (err) {
           track.classList.toggle('on'); // revert
           showToast(apiErr(err, 'family.childProfile.setup.updateFailed'), true);
@@ -514,7 +514,7 @@ async function loadRewards() {
       };
     });
   } catch (_err) {
-    if (container) container.innerHTML = '<p class="text-sm text-red-500">' + t('family.childProfile.errors.loadRewards') + '</p>';
+    if (container) container.innerHTML = '<p class="text-sm text-red-500">' + cst('family.childProfile.errors.loadRewards') + '</p>';
   }
 }
 
@@ -545,10 +545,10 @@ function renderPage(child) {
       ${avatarBlock}
       <div>
         <h2 class="text-xl font-heading font-bold text-navy">${escHtml(child.name)}</h2>
-        <p class="text-sm text-text-soft">${ageText ? ageText : t('family.child.ageUnknown')}</p>
+        <p class="text-sm text-text-soft">${ageText ? ageText : cst('family.child.ageUnknown')}</p>
         <!-- Byt profilbild (PWA + native) -->
         <button id="changePhotoBtn" onclick="changeChildPhoto()" class="mt-1.5 text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
-          ${t('family.childSettings.changePhoto')}
+          ${cst('family.childSettings.changePhoto')}
         </button>
       </div>
     </div>
@@ -556,30 +556,30 @@ function renderPage(child) {
 
   <!-- 1. Profil -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.profileTitle')}</div>
+    <div class="section-title">${cst('family.childSettings.profileTitle')}</div>
     <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childSettings.nameLabel')}</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${cst('family.childSettings.nameLabel')}</label>
         <input id="profileName" type="text" value="${escHtml(child.name)}" required
           class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none transition-colors"
-          placeholder="${t('family.childProfile.setup.identity.nameLabel')}" />
+          placeholder="${cst('family.childProfile.setup.identity.nameLabel')}" />
       </div>
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childProfile.setup.identity.birthdayLabel')}</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${cst('family.childProfile.setup.identity.birthdayLabel')}</label>
         <div class="grid grid-cols-3 gap-2">
           <select id="bdYear" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">${t('family.childProfile.setup.identity.year')}</option>
+            <option value="">${cst('family.childProfile.setup.identity.year')}</option>
           </select>
           <select id="bdMonth" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">${t('family.childProfile.setup.identity.month')}</option>
+            <option value="">${cst('family.childProfile.setup.identity.month')}</option>
           </select>
           <select id="bdDay" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">${t('family.childProfile.setup.identity.day')}</option>
+            <option value="">${cst('family.childProfile.setup.identity.day')}</option>
           </select>
         </div>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childProfile.setup.identity.emojiLabel')}</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${cst('family.childProfile.setup.identity.emojiLabel')}</label>
         <div class="flex flex-wrap gap-2">
           ${['👧','👦','🧒','👶','🌟','🦄','🐱','🐶','🐻','🦊','🌈','🎀'].map(em =>
             `<button type="button" class="emoji-opt" data-emoji="${em}">${em}</button>`
@@ -588,23 +588,23 @@ function renderPage(child) {
       </div>
       <button type="submit"
         class="w-full py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors">
-        ${t('family.childProfile.setup.identity.saveProfile')}
+        ${cst('family.childProfile.setup.identity.saveProfile')}
       </button>
     </form>
   </div>
 
   <!-- 2. Vy -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.viewTitle')}</div>
-    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.viewLead')}</p>
+    <div class="section-title">${cst('family.childSettings.viewTitle')}</div>
+    <p class="text-xs text-text-soft mb-4">${cst('family.childSettings.viewLead')}</p>
     <div class="view-toggle" id="viewToggle">
       <button class="view-btn" id="viewBtnDay" type="button">
-        ${t('family.childSettings.viewDay')}<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.viewDayHint')}</span>
+        ${cst('family.childSettings.viewDay')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${cst('family.childSettings.viewDayHint')}</span>
       </button>
       <button class="view-btn" id="viewBtnTimeline" type="button">
-        ${t('family.childSettings.viewTimeline')}<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.viewTimelineHint')}</span>
+        ${cst('family.childSettings.viewTimeline')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${cst('family.childSettings.viewTimelineHint')}</span>
       </button>
     </div>
     <div class="mt-4 p-3 rounded-xl" id="viewExplanation"
@@ -615,27 +615,27 @@ function renderPage(child) {
 
   <!-- 2b. Barnvy-inställningar -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.childViewTitle')}</div>
-    <p class="text-xs text-text-soft mb-2">${t('family.childSettings.childViewLead', { name: escHtml(child.name) })}</p>
-    <p class="text-xs text-text-soft mb-4" style="opacity:0.85">${t('family.childSettings.childViewPreviewHint')}</p>
+    <div class="section-title">${cst('family.childSettings.childViewTitle')}</div>
+    <p class="text-xs text-text-soft mb-2">${cst('family.childSettings.childViewLead', { name: escHtml(child.name) })}</p>
+    <p class="text-xs text-text-soft mb-4" style="opacity:0.85">${cst('family.childSettings.childViewPreviewHint')}</p>
     <div class="view-toggle mb-4" id="childViewToggle">
       <button class="view-btn" id="viewModeClassic" type="button">
-        ${t('family.childSettings.classic')}<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.classicHint')}</span>
+        ${cst('family.childSettings.classic')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${cst('family.childSettings.classicHint')}</span>
       </button>
       <button class="view-btn" id="viewModeNew" type="button">
-        ${t('family.childSettings.newDesign')}<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.newDesignHint')}</span>
+        ${cst('family.childSettings.newDesign')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${cst('family.childSettings.newDesignHint')}</span>
       </button>
     </div>
     <!-- Element visibility — only shown when new view is selected -->
     <div id="viewConfigElements" class="hidden mt-4">
-      <p class="text-xs font-semibold text-text-soft mb-3">${t('family.childSettings.elementsHeading')}</p>
+      <p class="text-xs font-semibold text-text-soft mb-3">${cst('family.childSettings.elementsHeading')}</p>
       <div class="space-y-1">
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.countdownTimer')}</p>
-            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.countdownHint')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.countdownTimer')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.countdownHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgTimer" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -643,8 +643,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.timelinePipeline')}</p>
-            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.timelinePipelineHint')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.timelinePipeline')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.timelinePipelineHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgTimeline" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -652,8 +652,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.profileCard')}</p>
-            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.profileCardHint')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.profileCard')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.profileCardHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgCard" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -661,8 +661,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.progressRing')}</p>
-            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.progressRingHint')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.progressRing')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.progressRingHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgRing" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -670,8 +670,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2" style="border-bottom:none;">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.starGoal')}</p>
-            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.starGoalHint')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.starGoal')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.starGoalHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgGoal" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -685,10 +685,10 @@ function renderPage(child) {
       <div class="flex items-start gap-3">
         <span class="text-xl mt-0.5">🧘</span>
         <div class="flex-1">
-          <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.view.minimalUiLabel')}</p>
-          <p class="text-xs text-text-soft mt-0.5 mb-3">${t('family.childSettings.minimalHint')}</p>
+          <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.view.minimalUiLabel')}</p>
+          <p class="text-xs text-text-soft mt-0.5 mb-3">${cst('family.childSettings.minimalHint')}</p>
           <div class="flex items-center justify-between">
-            <span class="text-xs text-text-soft">${childViewConfig && childViewConfig.minimal_ui ? t('family.childSettings.enabled') : t('family.childSettings.disabled')}</span>
+            <span class="text-xs text-text-soft">${childViewConfig && childViewConfig.minimal_ui ? cst('family.childSettings.enabled') : cst('family.childSettings.disabled')}</span>
             <div class="toggle-track ${childViewConfig && childViewConfig.minimal_ui ? 'on' : ''}" id="viewCfgMinimalUi" style="min-width:44px;min-height:24px;display:flex;align-items:center;justify-content:center;">
               <div class="toggle-thumb"></div>
             </div>
@@ -700,39 +700,39 @@ function renderPage(child) {
 
   <!-- 3. Belöningar -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.rewardsTitle')}</div>
-    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.rewardsLead', { name: escHtml(child.name) })}</p>
+    <div class="section-title">${cst('family.childSettings.rewardsTitle')}</div>
+    <p class="text-xs text-text-soft mb-4">${cst('family.childSettings.rewardsLead', { name: escHtml(child.name) })}</p>
     <div id="rewardsList">
-      <p class="text-sm text-text-soft italic">${t('family.childProfile.setup.moodRewards.loadingRewards')}</p>
+      <p class="text-sm text-text-soft italic">${cst('family.childProfile.setup.moodRewards.loadingRewards')}</p>
     </div>
     <a href="/library" class="block mt-4 text-center text-xs text-gold hover:underline">
-      ${t('family.childSettings.createMoreRewards')}
+      ${cst('family.childSettings.createMoreRewards')}
     </a>
   </div>
 
   <!-- 4. Känslor -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.moodTitle')}</div>
+    <div class="section-title">${cst('family.childSettings.moodTitle')}</div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.moodRewards.moodLabel')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.moodHint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.moodRewards.moodLabel')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.moodHint')}</p>
       </div>
       <div class="toggle-track ${child.show_mood_rating !== false ? 'on' : ''}" id="toggle-show_mood_rating">
         <div class="toggle-thumb"></div>
       </div>
     </div>
     <div class="mt-4 pt-3 border-t border-lavender/60">
-      <p class="text-xs font-semibold text-text-soft mb-2">${t('family.childSettings.moodHow')}</p>
+      <p class="text-xs font-semibold text-text-soft mb-2">${cst('family.childSettings.moodHow')}</p>
       <div class="flex flex-col gap-2" id="moodModeGroup">
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="slider" ${moodMode === 'slider' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodSlider')}
+          <input type="radio" name="mood_input_mode" value="slider" ${moodMode === 'slider' ? 'checked' : ''} class="accent-gold"> ${cst('family.childSettings.moodSlider')}
         </label>
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="cards" ${moodMode === 'cards' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodCards')}
+          <input type="radio" name="mood_input_mode" value="cards" ${moodMode === 'cards' ? 'checked' : ''} class="accent-gold"> ${cst('family.childSettings.moodCards')}
         </label>
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="off" ${moodMode === 'off' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodOff')}
+          <input type="radio" name="mood_input_mode" value="off" ${moodMode === 'off' ? 'checked' : ''} class="accent-gold"> ${cst('family.childSettings.moodOff')}
         </label>
       </div>
     </div>
@@ -741,22 +741,22 @@ function renderPage(child) {
   ${hasTransitionSupportAccess ? `
   <!-- 4b. Övergångsstöd (Extra stöd) -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childProfile.setup.transition.title')}</div>
-    <p class="text-xs text-text-soft mb-3">${t('family.childProfile.setup.transition.body')}</p>
+    <div class="section-title">${cst('family.childProfile.setup.transition.title')}</div>
+    <p class="text-xs text-text-soft mb-3">${cst('family.childProfile.setup.transition.body')}</p>
     <div class="flex flex-col gap-2" id="transitionLeadGroup">
       ${[5, 3, 1].map((m) => `
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
           <input type="checkbox" class="transition-lead-cb accent-gold" data-minutes="${m}" ${leadMins.includes(m) ? 'checked' : ''}>
-          ${m === 1 ? t('family.childProfile.setup.transition.leadOne', { minutes: m }) : t('family.childProfile.setup.transition.leadMany', { minutes: m })}
+          ${m === 1 ? cst('family.childProfile.setup.transition.leadOne', { minutes: m }) : cst('family.childProfile.setup.transition.leadMany', { minutes: m })}
         </label>`).join('')}
     </div>
-    <p class="text-xs text-text-soft mt-3">${t('family.childProfile.setup.transition.hint')}</p>
+    <p class="text-xs text-text-soft mt-3">${cst('family.childProfile.setup.transition.hint')}</p>
   </div>
   ` : ''}
 
   <!-- 5. PIN -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.pinTitle')}</div>
+    <div class="section-title">${cst('family.childSettings.pinTitle')}</div>
 
     <!-- Lockout warning banner (shown if child is currently locked out) -->
     <div id="lockoutBanner" class="hidden mb-4 p-3 bg-lavender rounded-xl border border-purple-300">
@@ -764,18 +764,18 @@ function renderPage(child) {
         <div class="flex items-center gap-2">
           <span class="text-xl">🔒</span>
           <div>
-            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.lockedOut', { name: escHtml(child.name) })}</p>
-            <p class="text-xs text-text-soft" id="lockoutBannerText">${t('family.childSettings.lockoutAttempts')}</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childSettings.lockedOut', { name: escHtml(child.name) })}</p>
+            <p class="text-xs text-text-soft" id="lockoutBannerText">${cst('family.childSettings.lockoutAttempts')}</p>
           </div>
         </div>
         <button id="unlockBtn" onclick="unlockChild()"
           class="flex-shrink-0 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-heading font-bold text-xs transition-colors">
-          ${t('family.childSettings.unlock')}
+          ${cst('family.childSettings.unlock')}
         </button>
       </div>
     </div>
 
-    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.pinLead', { name: escHtml(child.name) })}</p>
+    <p class="text-xs text-text-soft mb-4">${cst('family.childSettings.pinLead', { name: escHtml(child.name) })}</p>
     <div class="pin-dots">
       <div class="pin-dot"></div>
       <div class="pin-dot"></div>
@@ -798,17 +798,17 @@ function renderPage(child) {
     </div>
     <button id="pinSaveBtn" onclick="submitPin()" disabled
       class="w-full mt-4 py-3 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors disabled:opacity-40">
-      ${t('family.childProfile.pinSave')}
+      ${cst('family.childProfile.pinSave')}
     </button>
   </div>
 
   <!-- 6. Avancerade inställningar -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.advancedTitle')}</div>
+    <div class="section-title">${cst('family.childSettings.advancedTitle')}</div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.nnl.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.nnlHint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.nnl.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childSettings.nnlHint')}</p>
       </div>
       <div class="toggle-track ${isNnlModeEnabled(child) ? 'on' : ''}" id="toggle-show_now_next">
         <div class="toggle-thumb"></div>
@@ -816,8 +816,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.reorder.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.reorder.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.reorder.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.reorder.hint')}</p>
       </div>
       <div class="toggle-track ${child.allow_child_reorder ? 'on' : ''}" id="toggle-allow_child_reorder">
         <div class="toggle-thumb"></div>
@@ -825,8 +825,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.hideClock.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.hideClock.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.hideClock.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.hideClock.hint')}</p>
       </div>
       <div class="toggle-track ${child.hide_clock ? 'on' : ''}" id="toggle-hide_clock">
         <div class="toggle-thumb"></div>
@@ -834,8 +834,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.lockSchedule.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.lockSchedule.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.lockSchedule.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.lockSchedule.hint')}</p>
       </div>
       <div class="toggle-track ${child.lock_schedule ? 'on' : ''}" id="toggle-lock_schedule">
         <div class="toggle-thumb"></div>
@@ -843,8 +843,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.dopamin.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.dopamin.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.dopamin.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.dopamin.hint')}</p>
       </div>
       <div class="toggle-track ${child.dopamin_animation !== false ? 'on' : ''}" id="toggle-dopamin_animation">
         <div class="toggle-thumb"></div>
@@ -852,8 +852,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row" id="hapticsToggleRow">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.haptics.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.haptics.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.haptics.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.haptics.hint')}</p>
       </div>
       <div class="toggle-track on" id="toggle-haptics_enabled" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
         <div class="toggle-thumb"></div>
@@ -861,8 +861,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.activityTimers.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.activityTimers.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.activityTimers.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.activityTimers.hint')}</p>
       </div>
       <div class="toggle-track ${child.activity_timers_enabled === true ? 'on' : ''}" id="toggle-activity_timers_enabled">
         <div class="toggle-thumb"></div>
@@ -870,8 +870,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.visualTimer.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.visualTimer.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.visualTimer.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.visualTimer.hint')}</p>
       </div>
       <div class="toggle-track ${child.visual_timer !== false ? 'on' : ''}" id="toggle-visual_timer">
         <div class="toggle-thumb"></div>
@@ -879,8 +879,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.colorCoding.label')}</p>
-        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.colorCoding.hint')}</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${cst('family.childProfile.setup.toggles.colorCoding.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${cst('family.childProfile.setup.toggles.colorCoding.hint')}</p>
       </div>
       <div class="toggle-track ${child.color_coding !== false ? 'on' : ''}" id="toggle-color_coding">
         <div class="toggle-thumb"></div>
@@ -890,14 +890,14 @@ function renderPage(child) {
 
   <!-- 7. Schema -->
   <div class="section-card fade-in">
-    <div class="section-title">${t('family.childSettings.scheduleTitle')}</div>
+    <div class="section-title">${cst('family.childSettings.scheduleTitle')}</div>
     <a href="/schedule?child=${childId}"
       class="flex items-center justify-between gap-3 w-full px-4 py-3.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">
       <div class="flex items-center gap-2">
         <span class="text-lg">✏️</span>
         <div>
-          <div class="font-heading font-bold text-sm">${t('family.childSettings.editSchedule')}</div>
-          <div class="text-xs opacity-80">${t('family.childSettings.editScheduleHint')}</div>
+          <div class="font-heading font-bold text-sm">${cst('family.childSettings.editSchedule')}</div>
+          <div class="text-xs opacity-80">${cst('family.childSettings.editScheduleHint')}</div>
         </div>
       </div>
       <span>→</span>
@@ -906,12 +906,12 @@ function renderPage(child) {
 
   <!-- Bottom spacer -->
   <div class="section-card fade-in" style="border: 1px solid rgba(239,68,68,0.25);">
-    <div class="section-title text-red-700">${t('family.childSettings.dangerZone')}</div>
+    <div class="section-title text-red-700">${cst('family.childSettings.dangerZone')}</div>
     <button type="button" id="deleteChildBtn"
       class="w-full px-4 py-3 bg-coral hover:bg-red-100 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">
-      ${t('family.childProfile.setup.delete.button')}
+      ${cst('family.childProfile.setup.delete.button')}
     </button>
-    <p class="text-xs text-text-soft mt-2 text-center">${t('family.childSettings.deleteHint')}</p>
+    <p class="text-xs text-text-soft mt-2 text-center">${cst('family.childSettings.deleteHint')}</p>
   </div>
 
   <div class="h-8"></div>
@@ -948,7 +948,7 @@ function renderPage(child) {
       nnlTrack.classList.toggle('on');
       try {
         await saveNnlMode(newVal);
-        showSuccessToast(newVal ? t('family.childProfile.setup.toggles.nnl.on') : t('family.childProfile.setup.toggles.nnl.off'));
+        showSuccessToast(newVal ? cst('family.childProfile.setup.toggles.nnl.on') : cst('family.childProfile.setup.toggles.nnl.off'));
       } catch (_) {
         nnlTrack.classList.toggle('on');
       }
@@ -960,7 +960,7 @@ function renderPage(child) {
       if (!radio.checked) return;
       try {
         await saveSetting('mood_input_mode', radio.value);
-        showSuccessToast(t('family.childSettings.moodSaved'));
+        showSuccessToast(cst('family.childSettings.moodSaved'));
       } catch (_) { /* reverted by saveSetting */ }
     });
   });
@@ -971,13 +971,13 @@ function renderPage(child) {
         .map((el) => parseInt(el.dataset.minutes, 10))
         .filter((n) => !Number.isNaN(n));
       if (selected.length === 0) {
-        showToast(t('family.childProfile.setup.transition.selectAtLeastOne'), true);
+        showToast(cst('family.childProfile.setup.transition.selectAtLeastOne'), true);
         cb.checked = true;
         return;
       }
       try {
         await saveSetting('transition_lead_minutes', selected);
-        showSuccessToast(t('family.childProfile.setup.transition.saved'));
+        showSuccessToast(cst('family.childProfile.setup.transition.saved'));
       } catch (_) {
         cb.checked = !cb.checked;
       }
@@ -998,16 +998,16 @@ function initDeleteChild(child) {
   }
 
   btn.addEventListener('click', () => {
-    const name = child.name || t('family.childProfile.deleteChildDefaultName');
+    const name = child.name || cst('family.childProfile.deleteChildDefaultName');
     const ok = window.confirm(
-      t('family.childSettings.deleteConfirm', { name: name })
+      cst('family.childSettings.deleteConfirm', { name: name })
     );
     if (!ok) return;
 
     btn.disabled = true;
     Auth.api('/api/family/children/' + childId, { method: 'DELETE' })
       .then(() => {
-        showSuccessToast(t('family.childProfile.deleteChildSuccess'));
+        showSuccessToast(cst('family.childProfile.deleteChildSuccess'));
         window.location.href = '/family';
       })
       .catch((err) => {
@@ -1021,9 +1021,9 @@ function updateViewExplanation(type) {
   const el = document.getElementById('viewExplainText');
   if (!el) return;
   if (type === 'day_sections') {
-    el.textContent = t('family.childSettings.viewExplainDay');
+    el.textContent = cst('family.childSettings.viewExplainDay');
   } else {
-    el.textContent = t('family.childSettings.viewExplainTimeline');
+    el.textContent = cst('family.childSettings.viewExplainTimeline');
   }
 }
 
@@ -1034,9 +1034,9 @@ function calcAge(birthday) {
   let age = today.getFullYear() - bday.getFullYear();
   const m = today.getMonth() - bday.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
-  if (age <= 0) return t('family.childSettings.ageUnderOne');
-  if (age === 1) return t('family.child.yearsOne', { count: age });
-  return t('family.child.yearsMany', { count: age });
+  if (age <= 0) return cst('family.childSettings.ageUnderOne');
+  if (age === 1) return cst('family.child.yearsOne', { count: age });
+  return cst('family.child.yearsMany', { count: age });
 }
 
 // ── PIN lockout management ───────────────────────────────
@@ -1050,13 +1050,13 @@ async function checkPinLockout() {
       const mins = Math.ceil((until - Date.now()) / 60_000);
       document.getElementById('lockoutBannerText').textContent =
         mins > 1
-          ? t('family.childSettings.lockoutMinutes', { minutes: mins })
-          : t('family.childSettings.lockoutOneMinute');
+          ? cst('family.childSettings.lockoutMinutes', { minutes: mins })
+          : cst('family.childSettings.lockoutOneMinute');
       banner.classList.remove('hidden');
     } else if (status.attempt_count >= 3) {
       // Warn parent that child has had failed attempts (but not locked)
       document.getElementById('lockoutBannerText').textContent =
-        t('family.childSettings.failedAttempts', {
+        cst('family.childSettings.failedAttempts', {
           count: status.attempt_count,
           remaining: status.max_attempts - status.attempt_count,
         });
@@ -1074,14 +1074,14 @@ async function checkPinLockout() {
 
 async function unlockChild() {
   const btn = document.getElementById('unlockBtn');
-  if (btn) { btn.disabled = true; btn.textContent = t('family.childSettings.unlocking'); }
+  if (btn) { btn.disabled = true; btn.textContent = cst('family.childSettings.unlocking'); }
   try {
     await Auth.api(`/api/children/${childId}/unlock-pin`, { method: 'POST' });
-    showSuccessToast(t('family.childSettings.unlocked'));
+    showSuccessToast(cst('family.childSettings.unlocked'));
     document.getElementById('lockoutBanner')?.classList.add('hidden');
   } catch (err) {
     showToast(apiErr(err, 'family.childSettings.unlockFailed'), true);
-    if (btn) { btn.disabled = false; btn.textContent = t('family.childSettings.unlock'); }
+    if (btn) { btn.disabled = false; btn.textContent = cst('family.childSettings.unlock'); }
   }
 }
 
@@ -1108,7 +1108,7 @@ async function init() {
       return;
     }
     // Update header
-    document.getElementById('pageTitle').textContent = childData.name || t('family.childSettings.heading');
+    document.getElementById('pageTitle').textContent = childData.name || cst('family.childSettings.heading');
     document.getElementById('pageEmoji').textContent = childData.emoji || '⭐';
     renderPage(childData);
     initViewConfigPanel();
@@ -1121,8 +1121,8 @@ async function init() {
     document.getElementById('loadingState').innerHTML = `
       <div class="text-center py-12">
         <p class="text-4xl mb-3">😕</p>
-        <p class="text-text-soft text-sm">${t('family.childSettings.loadFailed', { detail: apiErr(err, 'family.childProfile.errors.generic') })}</p>
-        <a href="/family" class="mt-4 inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold text-sm">${t('family.childSettings.back')}</a>
+        <p class="text-text-soft text-sm">${cst('family.childSettings.loadFailed', { detail: apiErr(err, 'family.childProfile.errors.generic') })}</p>
+        <a href="/family" class="mt-4 inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold text-sm">${cst('family.childSettings.back')}</a>
       </div>`;
   }
 }

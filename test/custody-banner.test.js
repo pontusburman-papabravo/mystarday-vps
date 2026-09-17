@@ -19,8 +19,8 @@ describe('custody-banner (Phase 4.5a)', () => {
 
   it('shows home label and next handoff hint from API', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/custody-banner.js'), 'utf8');
-    assert.match(src, /Denna vecka: hos /);
-    assert.match(src, /Nästa byte på /);
+    assert.match(src, /family\.custody\.thisWeekAt/);
+    assert.match(src, /family\.custody\.nextChange/);
     assert.match(src, /activeHome/);
     assert.match(src, /bannerMarkerHtml/);
   });

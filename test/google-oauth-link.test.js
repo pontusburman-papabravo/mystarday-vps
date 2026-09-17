@@ -114,7 +114,8 @@ test('POST /google/link links Google ID to logged-in parent', async () => {
 
   await handler(req, res);
   assert.deepEqual(mockLinkArgs, { parentId: 'parent-1', googleUserId: 'google-sub-link' });
-  assert.equal(body.message, 'Google-konto länkat!');
+  assert.equal(body.code, 'GOOGLE_LINKED');
+  assert.equal(body.message, undefined);
 });
 
 test('POST /google/link requires parent session', async () => {
