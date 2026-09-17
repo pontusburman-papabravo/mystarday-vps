@@ -506,7 +506,7 @@
 
   <!-- ─── IMPERSONATION BANNER (hidden until activated) ─────── -->
   <div id="impersonationBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:#DC2626; color:white; padding:10px 16px; font-weight:700; font-size:14px; text-align:center; border-bottom:3px solid #991B1B; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-    🔒 Du är i support-läge: Visar data för familj <span id="impersonationFamilyName" style="font-weight:800;"></span>. Ingen data kan ändras. Sessionen löper ut om <span id="impersonationCountdown" style="font-family:monospace; font-weight:800;">15:00</span>.
+    <span data-i18n="home.dash.supportPrefix">🔒 Du är i support-läge: Visar data för familj</span> <span id="impersonationFamilyName" style="font-weight:800;"></span><span data-i18n="home.dash.supportSuffix">. Ingen data kan ändras. Sessionen löper ut om</span> <span id="impersonationCountdown" style="font-family:monospace; font-weight:800;">15:00</span>.
   </div>
   <!-- Spacer: same height as banner so content doesn't go under it -->
   <div id="impersonationBannerSpacer" style="display:none; height:46px; flex-shrink:0;"></div>
@@ -525,11 +525,11 @@
     <div style="display:flex; align-items:flex-start; gap:12px; max-width:800px; margin:0 auto;">
       <span style="font-size:20px; flex-shrink:0; margin-top:1px;">📣</span>
       <div style="flex:1; min-width:0;">
-        <p style="font-size:11px; font-weight:700; letter-spacing:0.06em; opacity:0.7; text-transform:uppercase; margin:0 0 4px 0;">Meddelande från Min Stjärndag</p>
+        <p style="font-size:11px; font-weight:700; letter-spacing:0.06em; opacity:0.7; text-transform:uppercase; margin:0 0 4px 0;" data-i18n="home.dash.systemMsgFrom">Meddelande från appen</p>
         <p id="systemMsgText" style="font-size:14px; font-weight:600; margin:0; line-height:1.4;"></p>
         <p id="systemMsgTime" style="font-size:11px; opacity:0.6; margin:4px 0 0 0;"></p>
       </div>
-      <button id="systemMsgClose" onclick="dismissSystemMessage()" style="flex-shrink:0; background:rgba(255,255,255,0.15); border:none; color:white; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer; margin-top:2px;" onmouseover="this.style.background='rgba(245,166,35,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">Stäng ✕</button>
+      <button id="systemMsgClose" onclick="dismissSystemMessage()" style="flex-shrink:0; background:rgba(255,255,255,0.15); border:none; color:white; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer; margin-top:2px;" onmouseover="this.style.background='rgba(245,166,35,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'" data-i18n="home.dash.systemMsgClose">Stäng ✕</button>
     </div>
   </div>
 
@@ -583,21 +583,21 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Översikt</a></li>
-        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-        <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
-        <li><a href="/reports" data-feature="klinisk_rapportering" data-component="reporting" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
-        <li><a href="/pedagog-note" data-feature="pedagoganteckningar" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📝 Pedagoganteckningar</a></li>
-        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80">📚 Bibliotek (avancerat)</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
+        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.overview">Översikt</a></li>
+        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ <span data-i18n="nav.primary.forYou">För dig</span></a></li>
+        <li><a href="/reports" data-feature="klinisk_rapportering" data-component="reporting" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 <span data-i18n="nav.reports">Rapporter</span></a></li>
+        <li><a href="/pedagog-note" data-feature="pedagoganteckningar" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.pedagogNotes">📝 Pedagoganteckningar</a></li>
+        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors text-sm opacity-80" data-i18n="nav.libraryAdvanced">📚 Bibliotek (avancerat)</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 <span data-i18n="nav.treasureChest">Skattkammaren</span></a></li>
+        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -606,18 +606,18 @@
       <div id="appViewToggleMount" class="app-view-toggle-wrap"></div>
       <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-hide-header">
         <div class="flex justify-between items-center mb-3">
-          <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy">🌟 Familjens framsteg idag</h2>
+          <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy" data-i18n="home.dash.heading">🌟 Familjens framsteg idag</h2>
           <div class="flex items-center gap-3">
-            <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors">← Alla barn</button>
+            <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="home.dash.allChildren">← Alla barn</button>
           </div>
         </div>
         <!-- Dag / Vecka / Månad toggle + week navigation -->
         <div id="calNavBar" class="hidden flex flex-wrap items-center gap-2">
           <!-- View type toggle -->
           <div class="flex rounded-xl border-2 border-lavender overflow-hidden">
-            <button id="btnViewDay" onclick="setCalView('day')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender">Dag</button>
-            <button id="btnViewWeek" onclick="setCalView('week')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-navy text-white">Vecka</button>
-            <button id="btnViewMonth" onclick="setCalView('month')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender">Månad</button>
+            <button id="btnViewDay" onclick="setCalView('day')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="home.dash.calViewDay">Dag</button>
+            <button id="btnViewWeek" onclick="setCalView('week')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-navy text-white" data-i18n="home.dash.calViewWeek">Vecka</button>
+            <button id="btnViewMonth" onclick="setCalView('month')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="home.dash.calViewMonth">Månad</button>
           </div>
           <!-- Week/day navigation -->
           <div class="flex items-center gap-1 ml-1">
@@ -625,7 +625,7 @@
             <span id="calNavLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center px-1"></span>
             <button id="calNavNext" onclick="calNavNext()" class="w-8 h-8 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors text-sm">›</button>
           </div>
-          <button onclick="calNavToday()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors">Idag</button>
+          <button onclick="calNavToday()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors" data-i18n="time.today">Idag</button>
         </div>
       </div>
 
@@ -638,7 +638,7 @@
           <p class="font-heading font-bold text-navy text-sm mb-0.5" id="appBannerTitle"></p>
           <p class="text-text-soft text-xs leading-relaxed" id="appBannerBody"></p>
         </div>
-        <button onclick="dismissAppBanner()" class="flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none transition-colors" title="Stäng">✕</button>
+        <button onclick="dismissAppBanner()" class="flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none transition-colors" title="Stäng" data-i18n-title="schedule.chrome.close">✕</button>
       </div>
 
       <!-- Active sharing indicator (shown on overview only) -->
@@ -646,7 +646,7 @@
         <span class="text-xl flex-shrink-0">🔗</span>
         <div class="flex-1">
           <p class="font-semibold text-sm text-indigo-900" id="activeSharingText"></p>
-          <p class="text-xs text-indigo-600">Klicka för att hantera delade rapporter</p>
+          <p class="text-xs text-indigo-600" data-i18n="home.dash.sharingManage">Klicka för att hantera delade rapporter</p>
         </div>
         <span class="text-indigo-400 text-lg">→</span>
       </a>
@@ -658,17 +658,17 @@
            class="mx-4 mt-3 rounded-xl border-2 border-gold bg-gradient-to-r from-gold-light to-white px-4 py-3 flex items-center gap-3">
         <span class="text-2xl flex-shrink-0">👨‍👩‍👧</span>
         <div class="flex-1 min-w-0">
-          <p class="font-semibold text-navy text-sm leading-snug">Bjud in en medförälder</p>
-          <p class="text-xs text-text-soft leading-snug">Så slipper ni fråga varandra om schemat</p>
+          <p class="font-semibold text-navy text-sm leading-snug" data-i18n="home.dash.inviteTitle">Bjud in en medförälder</p>
+          <p class="text-xs text-text-soft leading-snug" data-i18n="home.dash.inviteSub">Så slipper ni fråga varandra om schemat</p>
         </div>
         <button id="medforalderCtaBtn"
                 onclick="openMedforalderCtaInvite()"
-                class="flex-shrink-0 bg-gold hover:bg-yellow-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors whitespace-nowrap">
+                class="flex-shrink-0 bg-gold hover:bg-yellow-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors whitespace-nowrap" data-i18n="home.dash.inviteBtn">
           Bjud in
         </button>
         <button onclick="dismissMedforalderCtaBanner()"
                 class="flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none transition-colors w-8 h-8 flex items-center justify-center"
-                title="Stäng">✕</button>
+                title="Stäng" data-i18n-title="schedule.chrome.close">✕</button>
       </div>
 
       <!-- Dela appen CTA banner (feature-gated, all families) -->
@@ -678,17 +678,17 @@
            class="mx-4 mt-3 rounded-xl border-2 border-purple-300 bg-gradient-to-r from-purple-50 to-white px-4 py-3 flex items-center gap-3">
         <span class="text-2xl flex-shrink-0">🎉</span>
         <div class="flex-1 min-w-0">
-          <p class="font-semibold text-navy text-sm leading-snug">Min Stjärndag — Tipsa en vän!</p>
-          <p class="text-xs text-text-soft leading-snug">Hjälp en annan familj att få struktur i vardagen</p>
+          <p class="font-semibold text-navy text-sm leading-snug" data-i18n="home.dash.shareTitle">Tipsa en vän!</p>
+          <p class="text-xs text-text-soft leading-snug" data-i18n="home.dash.shareSub">Hjälp en annan familj att få struktur i vardagen</p>
         </div>
         <button id="delaAppenCtaBtn"
                 onclick="openDelaAppenShare()"
-                class="flex-shrink-0 bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors whitespace-nowrap">
+                class="flex-shrink-0 bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition-colors whitespace-nowrap" data-i18n="home.dash.shareBtn">
           Dela
         </button>
         <button onclick="dismissDelaAppenCtaBanner()"
                 class="flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none transition-colors w-8 h-8 flex items-center justify-center"
-                title="Stäng">✕</button>
+                title="Stäng" data-i18n-title="schedule.chrome.close">✕</button>
       </div>
 
       <!-- Positive daily summary (warmth banner) -->
@@ -710,10 +710,10 @@
           <!-- Header -->
           <div class="mb-5 flex items-center justify-end flex-wrap gap-3 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 flex-wrap quick-actions-bar">
-              <a href="/daily-log" class="px-3 py-2 text-sm bg-white hover:bg-gold-light text-navy border-2 border-gold rounded-lg font-semibold transition-colors flex items-center gap-1 no-underline">📝 Fyll i i efterhand</a>
-              <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1">⭐ Ge extra stjärnor</button>
-              <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">📋 Engångsaktivitet</button>
-              <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1">🏠 Ledig dag</button>
+              <a href="/daily-log" class="px-3 py-2 text-sm bg-white hover:bg-gold-light text-navy border-2 border-gold rounded-lg font-semibold transition-colors flex items-center gap-1 no-underline" data-i18n="home.dash.retroactiveFull">📝 Fyll i i efterhand</a>
+              <button onclick="openGiveStarsQuick()" class="px-3 py-2 text-sm bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center gap-1" data-i18n="home.dash.extraStarsFull">⭐ Ge extra stjärnor</button>
+              <button onclick="openOnceTaskModal()" class="px-3 py-2 text-sm bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1" data-i18n="home.dash.onceTaskFull">📋 Engångsaktivitet</button>
+              <button onclick="openLedigDagModal()" class="px-3 py-2 text-sm bg-sky hover:bg-blue-100 text-navy rounded-lg font-semibold transition-colors flex items-center gap-1" data-i18n="home.dash.dayOffFull">🏠 Ledig dag</button>
             </div>
           </div>
 
@@ -754,13 +754,13 @@
           <div class="mt-6 bg-sky border border-lavender rounded-2xl p-4 parent-magic-legacy-hide">
             <div class="flex items-center gap-2 mb-2">
               <span class="text-lg">💡</span>
-              <span class="font-semibold text-navy text-sm">Tips: Så funkar stjärnor</span>
+              <span class="font-semibold text-navy text-sm" data-i18n="home.dash.starTipsTitle">Tips: Så funkar stjärnor</span>
             </div>
             <ul class="text-xs text-text-soft space-y-1.5">
-              <li>• Barnet samlar stjärnor när aktiviteter bockas av i barnvyn</li>
-              <li>• Ge extra stjärnor direkt från barnkortet för insatser utanför schemat</li>
-              <li>• Stjärnorna räknas mot sparade belöningar — sätt upp mål i Bibliotek</li>
-              <li>• Klicka på ett barnkort för att se och redigera dess veckoschema</li>
+              <li data-i18n="home.dash.starTipsCollect">• Barnet samlar stjärnor när aktiviteter bockas av i barnvyn</li>
+              <li data-i18n="home.dash.starTipsExtra">• Ge extra stjärnor direkt från barnkortet för insatser utanför schemat</li>
+              <li data-i18n="home.dash.starTipsRewards">• Stjärnorna räknas mot sparade belöningar — sätt upp mål i Bibliotek</li>
+              <li data-i18n="home.dash.starTipsEdit">• Klicka på ett barnkort för att se och redigera dess veckoschema</li>
             </ul>
           </div>
 
@@ -774,28 +774,28 @@
 
           <!-- View mode bar (schema/tidsvy/jämför/specialdagar — secondary views) -->
           <div id="viewModeBar" class="hidden flex flex-wrap items-center gap-2 mb-3">
-            <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active">📋 Schema</button>
-            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn">⏱ Tidsvy</button>
-            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn">👥 Jämför barn</button>
-            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn">🌟 Specialdagar</button>
-            <span class="drag-copy-hint">← Dra aktivitet till dag-flik för att kopiera</span>
+            <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active">📋 <span data-i18n="schedule.views.normal">Schema</span></button>
+            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn">⏱ <span data-i18n="schedule.views.timelineMode">Tidsvy</span></button>
+            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn">👥 <span data-i18n="schedule.views.sbsTitle">Jämför barn</span></button>
+            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn" data-i18n="schedule.views.specialDays">🌟 Specialdagar</button>
+            <span class="drag-copy-hint" data-i18n="schedule.actions.dragCopyHint">← Dra aktivitet till dag-flik för att kopiera</span>
           </div>
 
           <!-- Day selector -->
           <div id="daySelectorWrap" class="hidden">
-            <p class="text-xs text-text-soft mb-2">Välj dag — <em>dra dag-flik till annan dag för att kopiera/byta</em></p>
+            <p class="text-xs text-text-soft mb-2" data-i18n-html="schedule.chrome.daySelectorHint">Välj dag — <em data-i18n="home.dash.dayDragInner">dra dag-flik till annan dag för att kopiera/byta</em></p>
             <div class="flex gap-1 overflow-x-auto pb-1" id="dayTabs"></div>
           </div>
 
           <!-- SBS child picker -->
           <div id="sbsChildSelector" class="hidden mb-4 p-4 bg-lavender rounded-2xl">
-            <p class="text-sm font-semibold text-navy mb-2">Välj barn att jämföra med:</p>
+            <p class="text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sbsPickerHint">Välj barn att jämföra med:</p>
             <div id="sbsChildOptions" class="flex gap-2 flex-wrap"></div>
           </div>
 
           <!-- Content -->
           <div id="scheduleContent">
-            <div class="text-center py-16 text-text-soft"><p class="text-4xl mb-3">📅</p><p class="font-semibold">Välj ett barn ovan</p></div>
+            <div class="text-center py-16 text-text-soft"><p class="text-4xl mb-3">📅</p><p class="font-semibold" data-i18n="schedule.chrome.pickChildAbove">Välj ett barn ovan</p></div>
           </div>
         </div>
 
@@ -863,32 +863,32 @@
   <div id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[9200] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Skapa ny aktivitet</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.createActivity.title">Skapa ny aktivitet</h3>
         <button onclick="closeCreateActivityModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Namn *</label>
-        <input type="text" id="newActName" placeholder="T.ex. Borsta tänderna" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.nameLabel">Namn *</label>
+        <input type="text" id="newActName" data-i18n-placeholder="schedule.chrome.nameExamplePlaceholder" placeholder="T.ex. Borsta tänderna" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors">
       </div>
       <div class="mb-3">
-        <label class="block text-sm font-semibold text-navy mb-1">Emoji</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.emojiLabel">Emoji</label>
         <div class="flex gap-2 items-center mb-2">
           <span id="newActEmojiPreview" class="text-3xl w-10 h-10 flex items-center justify-center border-2 border-lavender rounded-xl">📌</span>
-          <input type="text" id="newActEmojiInput" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewNewActEmoji()">
+          <input type="text" id="newActEmojiInput" data-i18n-placeholder="schedule.chrome.emojiPlaceholder" placeholder="Skriv eller klistra in emoji" maxlength="50" class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors" oninput="previewNewActEmoji()">
         </div>
         <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto" id="newActEmojiGrid"></div>
         <div class="mt-2">
-          <button type="button" id="newActPictogramToggle" class="text-sm font-semibold text-purple-700 hover:text-purple-900" aria-expanded="false" onclick="toggleNewActPictogramPanel()">🖼️ Välj bildstöd <span class="font-normal text-text-soft">(valfritt)</span></button>
+          <button type="button" id="newActPictogramToggle" class="text-sm font-semibold text-purple-700 hover:text-purple-900" aria-expanded="false" onclick="toggleNewActPictogramPanel()"><span data-i18n="schedule.chrome.pictogramToggle">🖼️ Välj bildstöd</span> <span class="font-normal text-text-soft" data-i18n="schedule.chrome.pictogramOptional">(valfritt)</span></button>
           <div id="newActPictogramPanel" class="hidden mt-2 p-3 bg-purple-50 rounded-xl border border-purple-100">
-            <input type="search" id="newActPictogramSearch" placeholder="Sök bild…" class="w-full mb-2 px-3 py-2 rounded-lg border border-lavender text-sm" oninput="filterNewActPictograms(this.value)">
+            <input type="search" id="newActPictogramSearch" data-i18n-placeholder="schedule.chrome.pictogramSearchPlaceholder" placeholder="Sök bild…" class="w-full mb-2 px-3 py-2 rounded-lg border border-lavender text-sm" oninput="filterNewActPictograms(this.value)">
             <div id="newActPictogramGrid" class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto"></div>
-            <button type="button" class="mt-2 text-xs text-text-soft hover:text-navy" onclick="clearNewActPictogram()">Ta bort bildstöd</button>
+            <button type="button" class="mt-2 text-xs text-text-soft hover:text-navy" onclick="clearNewActPictogram()" data-i18n="schedule.chrome.pictogramClear">Ta bort bildstöd</button>
           </div>
           <input type="hidden" id="newActIconKeyInput" value="">
         </div>
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Stjärnvärde</label>
+        <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.starValueLabel">Stjärnvärde</label>
         <div class="flex gap-2">
           <button type="button" class="star-val-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-gold" data-val="1" onclick="pickStarVal(1)">⭐ 1</button>
           <button type="button" class="star-val-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold transition-colors hover:border-gold" data-val="2" onclick="pickStarVal(2)">⭐ 2</button>
@@ -899,10 +899,10 @@
         <input type="hidden" id="newActStarValue" value="1">
       </div>
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-navy mb-1">Delsteg <span class="font-normal text-text-soft text-xs">(valfritt)</span></label>
+        <label class="block text-sm font-semibold text-navy mb-1"><span data-i18n="schedule.chrome.substepsLabel">Delsteg</span> <span class="font-normal text-text-soft text-xs" data-i18n="schedule.chrome.substepsOptional">(valfritt)</span></label>
         <div id="newActSubstepList" class="space-y-1 mb-2"></div>
         <div class="flex gap-2">
-          <input type="text" id="newActSubstepInput" placeholder="Lägg till delsteg…"
+          <input type="text" id="newActSubstepInput" data-i18n-placeholder="schedule.chrome.substepsAddPlaceholder" placeholder="Lägg till delsteg…"
             class="flex-1 px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors"
             onkeydown="if(event.key==='Enter'){event.preventDefault();addNewActSubstep();}">
           <button type="button" onclick="addNewActSubstep()"
@@ -911,11 +911,11 @@
       </div>
       <div id="createActivityError" class="text-red-500 text-sm hidden mb-3"></div>
       <div id="createActivityChildrenWrap" class="hidden mb-3 p-3 bg-purple-50 rounded-xl border border-purple-200">
-        <p class="text-xs font-semibold text-purple-600 mb-2">Gäller barn:</p>
+        <p class="text-xs font-semibold text-purple-600 mb-2" data-i18n="schedule.chrome.appliesToChildren">Gäller barn:</p>
       </div>
       <div class="flex gap-2 sm:gap-3 flex-nowrap">
-        <button onclick="closeCreateActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm">Avbryt</button>
-        <button id="createActivitySubmitBtn" onclick="submitCreateActivity()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm">Skapa &amp; lägg till</button>
+        <button onclick="closeCreateActivityModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button id="createActivitySubmitBtn" onclick="submitCreateActivity()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors text-sm" data-i18n="schedule.modals.createActivity.createAndAdd">Skapa &amp; lägg till</button>
       </div>
     </div>
   </div>
@@ -925,34 +925,34 @@
     <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl">
       <div class="text-center mb-5">
         <div class="text-3xl mb-2">🗓️</div>
-        <h3 class="text-lg font-heading font-bold text-navy mb-1">En gång eller flera gånger?</h3>
+        <h3 class="text-lg font-heading font-bold text-navy mb-1" data-i18n="schedule.modals.recurrence.title">En gång eller flera gånger?</h3>
         <p id="recurrenceActivityName" class="text-sm text-text-soft"></p>
       </div>
       <div id="recurrenceChildrenWrap" class="hidden mb-3 p-3 bg-purple-50 rounded-xl border border-purple-200">
-        <p class="text-xs font-semibold text-purple-600 mb-2">Gäller barn:</p>
+        <p class="text-xs font-semibold text-purple-600 mb-2" data-i18n="schedule.chrome.appliesToChildren">Gäller barn:</p>
       </div>
       <p id="recurrenceChildHint" class="hidden text-xs text-text-soft mb-2 font-medium"></p>
       <div class="space-y-3 mb-4">
         <button type="button" id="recurrenceOnceBtn" class="w-full px-4 py-3 bg-sky hover:bg-blue-100 text-navy rounded-xl font-semibold transition-colors border-2 border-blue-200 text-left">
-          <div class="font-bold" id="recurrenceOnceLbl">📌 Bara idag</div>
-          <div class="text-xs text-text-soft mt-0.5" id="recurrenceOnceDesc">Läggs till för dagens schema</div>
+          <div class="font-bold" id="recurrenceOnceLbl">📌 <span data-i18n="schedule.modals.recurrence.onceLbl">Bara idag</span></div>
+          <div class="text-xs text-text-soft mt-0.5" id="recurrenceOnceDesc" data-i18n="schedule.modals.recurrence.onceDesc">Läggs till för dagens schema</div>
         </button>
         <button type="button" id="recurrenceWeeklyBtn" class="w-full px-4 py-3 bg-lavender hover:bg-purple-100 text-navy rounded-xl font-semibold transition-colors border-2 border-purple-200 text-left">
-          <div class="font-bold" id="recurrenceWeeklyLbl">🔁 Flera gånger</div>
-          <div class="text-xs text-text-soft mt-0.5" id="recurrenceWeeklyDesc">Välj vilka veckodagar</div>
+          <div class="font-bold" id="recurrenceWeeklyLbl">🔁 <span data-i18n="schedule.modals.recurrence.weeklyLbl">Flera gånger</span></div>
+          <div class="text-xs text-text-soft mt-0.5" id="recurrenceWeeklyDesc" data-i18n="schedule.modals.recurrence.weeklyDesc">Välj vilka veckodagar</div>
         </button>
         <button type="button" id="recurrenceAllDaysBtn" class="hidden w-full px-4 py-3 bg-lavender hover:bg-purple-100 text-navy rounded-xl font-semibold transition-colors border-2 border-purple-200 text-left">
-          <div class="font-bold" id="recurrenceAllDaysLbl">🗓️ Alla dagar i veckan</div>
-          <div class="text-xs text-text-soft mt-0.5" id="recurrenceAllDaysDesc">Tar bort från måndag till söndag</div>
+          <div class="font-bold" id="recurrenceAllDaysLbl">🗓️ <span data-i18n="schedule.modals.recurrence.allDaysLbl">Alla dagar i veckan</span></div>
+          <div class="text-xs text-text-soft mt-0.5" id="recurrenceAllDaysDesc" data-i18n="schedule.modals.recurrence.allDaysDesc">Tar bort från måndag till söndag</div>
         </button>
       </div>
       <div id="weekdayPickerSection" class="hidden mb-4">
-        <p class="text-sm font-semibold text-navy mb-2">Vilka dagar?</p>
+        <p class="text-sm font-semibold text-navy mb-2" data-i18n="schedule.modals.recurrence.whichDays">Vilka dagar?</p>
         <div class="grid grid-cols-4 gap-2" id="weekdayPicker"></div>
-        <button onclick="confirmRecurrence('weekly')" class="w-full mt-3 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Lägg till i valda dagar</button>
+        <button onclick="confirmRecurrence('weekly')" class="w-full mt-3 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="schedule.modals.recurrence.addToSelected">Lägg till i valda dagar</button>
       </div>
       <div id="recurrenceError" class="text-red-500 text-sm hidden mb-3"></div>
-      <button onclick="closeRecurrenceModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm text-text-soft">Avbryt</button>
+      <button onclick="closeRecurrenceModal()" class="w-full px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm text-text-soft" data-i18n="schedule.modals.common.cancel">Avbryt</button>
     </div>
   </div>
 
@@ -960,27 +960,27 @@
   <div id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">Redigera tid</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editTime">Redigera tid</h3>
         <button onclick="closeEditItemModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <input type="hidden" id="editItemId">
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><label class="block text-sm font-semibold text-navy mb-1">Starttid</label><input type="time" id="editStartTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
-        <div><label class="block text-sm font-semibold text-navy mb-1">Sluttid</label><input type="time" id="editEndTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.startTimePlaceholder">Starttid</label><input type="time" id="editStartTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.endTimePlaceholder">Sluttid</label><input type="time" id="editEndTime" class="w-full px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"></div>
       </div>
       <div class="mb-5">
-        <label class="block text-sm font-semibold text-navy mb-2">Sektion</label>
+        <label class="block text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sectionLabel">Sektion</label>
         <div class="flex gap-2 flex-wrap">
-          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="setEditSection('morgon')">🌅 Morgon</button>
-          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="setEditSection('dag')">☀️ Dag</button>
-          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="setEditSection('kvall')">🌆 Kväll</button>
-          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="setEditSection('natt')">🌙 Natt</button>
+          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="morgon" onclick="setEditSection('morgon')">🌅 <span data-i18n="schedule.sections.morgon">Morgon</span></button>
+          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="dag" onclick="setEditSection('dag')">☀️ <span data-i18n="schedule.sections.dag">Dag</span></button>
+          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="kvall" onclick="setEditSection('kvall')">🌆 <span data-i18n="schedule.sections.kvall">Kväll</span></button>
+          <button type="button" class="edit-sec-btn px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold hover:border-gold transition-colors" data-sec="natt" onclick="setEditSection('natt')">🌙 <span data-i18n="schedule.sections.natt">Natt</span></button>
         </div>
         <input type="hidden" id="editSection" value="dag">
       </div>
       <div class="flex gap-3">
-        <button onclick="closeEditItemModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold">Avbryt</button>
-        <button onclick="submitEditItem()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">Spara</button>
+        <button onclick="closeEditItemModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
+        <button onclick="submitEditItem()" class="flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors" data-i18n="schedule.chrome.save">Spara</button>
       </div>
     </div>
   </div>
@@ -1099,10 +1099,10 @@
   <div id="giveStarsPickerModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-heading font-bold text-navy">⭐ Ge extra stjärnor</h3>
+        <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.giveStars.pickerTitle">⭐ Ge extra stjärnor</h3>
         <button onclick="document.getElementById('giveStarsPickerModal').classList.add('hidden'); if (window.closeGiveStarsPickerModal) closeGiveStarsPickerModal();" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p class="text-sm text-text-soft mb-4">Välj vilket barn du vill ge stjärnor till:</p>
+      <p class="text-sm text-text-soft mb-4" data-i18n="schedule.modals.giveStars.pickerHint">Välj vilket barn du vill ge stjärnor till:</p>
       <div id="giveStarsPickerList" class="flex flex-col gap-2"></div>
     </div>
   </div>
@@ -1144,9 +1144,9 @@
         <button onclick="document.getElementById('addChildModal').classList.add('hidden')" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
       <form id="addChildForm" class="space-y-4">
-        <div><label class="block text-sm font-semibold text-navy mb-1">Förnamn *</label><input type="text" id="childName" required class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" placeholder="T.ex. Anna"></div>
+        <div><label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.firstNameLabel">Förnamn *</label><input type="text" id="childName" required class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" data-i18n-placeholder="schedule.chrome.firstNamePlaceholder" placeholder="T.ex. Anna"></div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Emoji *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.emojiRequiredLabel">Emoji *</label>
           <div class="flex gap-2 flex-wrap" id="emojiPicker">
             <button type="button" class="emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👧">👧</button>
             <button type="button" class="emoji-opt text-2xl p-2 rounded-lg border-2 border-transparent hover:border-gold transition-colors" data-emoji="👦">👦</button>
@@ -1160,24 +1160,24 @@
           <input type="hidden" id="childEmoji" required>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Födelsedatum *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="schedule.chrome.birthdayLabel">Födelsedatum *</label>
           <div class="grid grid-cols-3 gap-2">
             <select id="childBirthdayYear" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayHidden('childBirthday')">
-              <option value="">År</option>
+              <option value="" data-i18n="schedule.chrome.yearPlaceholder">År</option>
             </select>
             <select id="childBirthdayMonth" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayDays('childBirthday');updateBirthdayHidden('childBirthday')">
-              <option value="">Månad</option>
+              <option value="" data-i18n="schedule.chrome.monthPlaceholder">Månad</option>
             </select>
             <select id="childBirthdayDay" required class="px-3 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm" onchange="updateBirthdayHidden('childBirthday')">
-              <option value="">Dag</option>
+              <option value="" data-i18n="schedule.chrome.dayPlaceholder">Dag</option>
             </select>
           </div>
           <input type="hidden" id="childBirthday">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">PIN-kod <span class="text-text-soft font-normal">(4 siffror, valfritt)</span></label>
-          <input type="text" id="childPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" placeholder="T.ex. 4721">
-          <p class="text-xs text-text-soft mt-1">Lämna tomt för slumpmässig kod.</p>
+          <label class="block text-sm font-semibold text-navy mb-1"><span data-i18n="schedule.chrome.pinLabel">PIN-kod</span> <span class="text-text-soft font-normal" data-i18n="schedule.chrome.pinOptional">(4 siffror, valfritt)</span></label>
+          <input type="text" id="childPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors" data-i18n-placeholder="schedule.chrome.pinPlaceholder" placeholder="T.ex. 4721">
+          <p class="text-xs text-text-soft mt-1" data-i18n="schedule.chrome.pinRandomHint">Lämna tomt för slumpmässig kod.</p>
         </div>
         <button type="submit" id="addChildSubmit" class="w-full px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-heading font-bold transition-colors" data-i18n="schedule.modals.addActivity.addBtn">Lägg till</button>
         <div id="addChildMsg" class="text-sm min-h-[1.4em]"></div>
@@ -1217,10 +1217,10 @@
           </div>
           <div>
             <select id="sdAddSection" class="px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
-              <option value="morgon">🌅 Morgon</option>
-              <option value="dag" selected>☀️ Dag</option>
-              <option value="kvall">🌆 Kväll</option>
-              <option value="natt">🌙 Natt</option>
+              <option value="morgon" data-i18n="schedule.sections.morgon">🌅 Morgon</option>
+              <option value="dag" selected data-i18n="schedule.sections.dag">☀️ Dag</option>
+              <option value="kvall" data-i18n="schedule.sections.kvall">🌆 Kväll</option>
+              <option value="natt" data-i18n="schedule.sections.natt">🌙 Natt</option>
             </select>
           </div>
           <button onclick="sdAddItem()" class="px-3 py-2 bg-gold hover:bg-yellow-500 text-white rounded-xl text-sm font-semibold transition-colors whitespace-nowrap" data-i18n="schedule.specialDays.addBtn">+ Lägg till</button>
@@ -1257,11 +1257,11 @@
       <!-- Buttons -->
       <div class="flex gap-2">
         <button id="tourSkipBtn" onclick="skipTour()"
-          class="flex-1 px-4 py-2.5 border-2 border-lavender hover:border-navy text-text-soft hover:text-navy rounded-xl font-semibold text-sm transition-colors">
+          class="flex-1 px-4 py-2.5 border-2 border-lavender hover:border-navy text-text-soft hover:text-navy rounded-xl font-semibold text-sm transition-colors" data-i18n="home.dash.tourSkip">
           Hoppa över
         </button>
         <button id="tourNextBtn" onclick="nextTourStep()"
-          class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors">
+          class="flex-1 px-4 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors" data-i18n="home.dash.tourNext">
           Nästa →
         </button>
       </div>
@@ -1289,17 +1289,17 @@
     <div class="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl mb-2">
       <!-- Header -->
       <div class="sticky top-0 bg-white border-b border-lavender px-5 py-4 flex items-center justify-between rounded-t-2xl">
-        <h2 class="font-heading font-bold text-navy text-lg">❓ Hur funkar det?</h2>
+        <h2 class="font-heading font-bold text-navy text-lg" data-i18n="home.helpPanel.title">❓ Hur funkar det?</h2>
         <button onclick="toggleHelpPanel()" class="w-9 h-9 rounded-full bg-lavender hover:bg-purple-200 text-navy font-bold text-lg flex items-center justify-center transition-colors">×</button>
       </div>
 
       <!-- Tabs -->
       <div class="flex gap-1 p-3 border-b border-lavender overflow-x-auto" id="helpTabs">
-        <button class="help-tab active whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-navy text-white" data-tab="schema" onclick="switchHelpTab(this, 'schema')">📅 Schema</button>
-        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="stars" onclick="switchHelpTab(this, 'stars')">⭐ Stjärnor</button>
-        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="family" onclick="switchHelpTab(this, 'family')">👨‍👩‍👧 Familj</button>
-        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="adults" onclick="switchHelpTab(this, 'adults')">🔑 Fler vuxna</button>
-        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="trouble" onclick="switchHelpTab(this, 'trouble')">🔧 Felsökning</button>
+        <button class="help-tab active whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-navy text-white" data-tab="schema" onclick="switchHelpTab(this, 'schema')" data-i18n="home.helpPanel.tabSchema">📅 Schema</button>
+        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="stars" onclick="switchHelpTab(this, 'stars')" data-i18n="home.helpPanel.tabStars">⭐ Stjärnor</button>
+        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="family" onclick="switchHelpTab(this, 'family')" data-i18n="home.helpPanel.tabFamily">👨‍👩‍👧 Familj</button>
+        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="adults" onclick="switchHelpTab(this, 'adults')" data-i18n="home.helpPanel.tabAdults">🔑 Fler vuxna</button>
+        <button class="help-tab whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-lavender text-navy hover:bg-purple-200" data-tab="trouble" onclick="switchHelpTab(this, 'trouble')" data-i18n="home.helpPanel.tabTrouble">🔧 Felsökning</button>
       </div>
 
       <!-- Tab content -->
@@ -1309,30 +1309,30 @@
         <div id="help-schema">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur lägger jag till en aktivitet?
+              <span data-i18n="home.helpPanel.addActivityQ">Hur lägger jag till en aktivitet?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.addActivityA">
               Klicka på ett barnkort på Översikten → välj dag → klicka "+" för att lägga till en aktivitet från ditt bibliotek. Du kan också skapa egna aktiviteter i <strong>Bibliotek</strong>.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Kan jag dra och flytta aktiviteter?
+              <span data-i18n="home.helpPanel.dragQ">Kan jag dra och flytta aktiviteter?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.dragA">
               Ja! I barnets schemavyn (klicka på ett kort på Översikten) kan du hålla in och dra aktiviteter för att ändra ordning. Du kan också dra en aktivitet till en annan dagflik för att kopiera den.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur kopierar jag schemat till alla dagar?
+              <span data-i18n="home.helpPanel.copyQ">Hur kopierar jag schemat till alla dagar?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.copyA">
               I schemaredigeraren (📋-knappen) → välj "Kopiera till andra dagar" för att kopiera en dags schema till resten av veckan.
             </div>
           </div>
@@ -1342,40 +1342,40 @@
         <div id="help-stars" class="hidden">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur tjänar barnet stjärnor?
+              <span data-i18n="home.helpPanel.earnStarsQ">Hur tjänar barnet stjärnor?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Varje avklarad aktivitet ger <strong>1 stjärna</strong>. Barnet bockar av i sin barnvy. Du kan också ge <strong>bonus-stjärnor</strong> manuellt direkt från barnkortet på Översikten.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.earnStarsA">
+              Varje avklarad aktivitet ger <strong data-i18n="home.helpPanel.innerOneStar">1 stjärna</strong>. Barnet bockar av i sin barnvy. Du kan också ge <strong data-i18n="home.helpPanel.innerBonusStars">bonus-stjärnor</strong> manuellt direkt från barnkortet på Översikten.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur funkar Skattkammaren?
+              <span data-i18n="home.helpPanel.treasureQ">Hur funkar Skattkammaren?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.treasureA">
               I barnvyn kan barnet trycka på ⭐-ikonen för att se Skattkammaren — en lista med belöningar och hur många stjärnor som krävs. Barnet kan begära ut en belöning när det sparat tillräckligt.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur fyller jag i stjärnor för dagar jag glömt?
+              <span data-i18n="home.helpPanel.retroQ">Hur fyller jag i stjärnor för dagar jag glömt?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.retroA">
               Gå till <strong>Daglig logg</strong> (☰-menyn → Daglig logg, eller knappen <strong>Fyll i i efterhand</strong> på startsidan). Välj barnet, bläddra till rätt dag med pilarna eller datumväljaren, och bocka av aktiviteterna som klara. Stjärnorna sparas med rätt datum.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur lägger jag till eller redigerar belöningar?
+              <span data-i18n="home.helpPanel.rewardsQ">Hur lägger jag till eller redigerar belöningar?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.rewardsA">
               Gå till <strong>Bibliotek</strong> i menyn → fliken "Belöningar". Här kan du lägga till egna belöningar, redigera stjärnkostnad och välja vilka barn som ser belöningen.
             </div>
           </div>
@@ -1385,21 +1385,21 @@
         <div id="help-family" class="hidden">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur lägger jag till ett syskon?
+              <span data-i18n="home.helpPanel.siblingQ">Hur lägger jag till ett syskon?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              På Översikten → klicka på <strong>"+ Lägg till barn"</strong>. Varje barn får sitt eget schema, egna aktiviteter och egna stjärnor.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.siblingA">
+              På Översikten → klicka på <strong data-i18n="home.helpPanel.innerAddChild">"+ Lägg till barn"</strong>. Varje barn får sitt eget schema, egna aktiviteter och egna stjärnor.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur loggar barnet in?
+              <span data-i18n="home.helpPanel.childLoginQ">Hur loggar barnet in?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Under de första dagarna kan du <strong>förhandsgranska barnets dag</strong> via Daglig logg. När ni är redo loggar barnet in på <strong>/child-login</strong> med användarnamn och PIN — inga lösenord. Uppgifterna hittar du under <strong>Familjen &amp; inställningar → Barn</strong>.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.childLoginA">
+              Under de första dagarna kan du <strong data-i18n="home.helpPanel.innerPreview">förhandsgranska barnets dag</strong> via Daglig logg. När ni är redo loggar barnet in på <strong>/child-login</strong> med användarnamn och PIN — inga lösenord. Uppgifterna hittar du under <strong data-i18n="home.helpPanel.innerFamilyChildren">Familjen &amp; inställningar → Barn</strong>.
             </div>
           </div>
         </div>
@@ -1408,21 +1408,21 @@
         <div id="help-adults" class="hidden">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Hur bjuder jag in en annan vuxen?
+              <span data-i18n="home.helpPanel.inviteAdultQ">Hur bjuder jag in en annan vuxen?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Gå till <strong>Familjen &amp; inställningar → Familjemedlemmar</strong> → klicka på "Bjud in". Den inbjudna personen får ett e-postmeddelande med en länk där de skapar sitt eget konto och direkt får åtkomst till familjen.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.inviteAdultA">
+              Gå till <strong data-i18n="home.helpPanel.innerFamilyMembersPath">Familjen &amp; inställningar → Familjemedlemmar</strong> → klicka på "Bjud in". Den inbjudna personen får ett e-postmeddelande med en länk där de skapar sitt eget konto och direkt får åtkomst till familjen.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Kan den inbjudna vuxne se alla barn?
+              <span data-i18n="home.helpPanel.inviteSeeQ">Kan den inbjudna vuxne se alla barn?</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Du väljer vilka barn personen ska se när du skickar inbjudan. Du kan ändra det senare under <strong>Familjemedlemmar</strong> → klicka på personen → justera barn-åtkomst.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.inviteSeeA">
+              Du väljer vilka barn personen ska se när du skickar inbjudan. Du kan ändra det senare under <strong data-i18n="home.helpPanel.innerMembers">Familjemedlemmar</strong> → klicka på personen → justera barn-åtkomst.
             </div>
           </div>
         </div>
@@ -1431,31 +1431,33 @@
         <div id="help-trouble" class="hidden">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Barnet ser inga aktiviteter idag
+              <span data-i18n="home.helpPanel.noActivitiesQ">Barnet ser inga aktiviteter idag</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.noActivitiesA">
               Kontrollera att schemat är inställt för rätt dag. Gå till barnets schema (klicka på barnkortet) → välj dagens dag → se om det finns aktiviteter. Om schemat är tomt: använd "Kopiera till andra dagar" för att fylla på.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Jag har glömt barnets PIN
+              <span data-i18n="home.helpPanel.forgotPinQ">Jag har glömt barnets PIN</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
-            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Gå till <strong>Familjen &amp; inställningar → Barn</strong> → välj barnet → klicka "Ändra PIN" för att sätta en ny PIN-kod.
+            <div class="hidden pb-3 text-xs text-text-soft leading-relaxed" data-i18n-html="home.helpPanel.forgotPinA">
+              Gå till <strong data-i18n="home.helpPanel.innerFamilyChildren">Familjen &amp; inställningar → Barn</strong> → välj barnet → klicka "Ändra PIN" för att sätta en ny PIN-kod.
             </div>
           </div>
           <hr class="border-lavender">
           <div class="help-faq-item">
             <button class="w-full text-left flex items-center justify-between py-2 font-semibold text-navy text-sm" onclick="toggleFaq(this)">
-              Kontakta support
+              <span data-i18n="home.helpPanel.supportQ">Kontakta support</span>
               <span class="text-text-soft text-lg flex-shrink-0">+</span>
             </button>
             <div class="hidden pb-3 text-xs text-text-soft leading-relaxed">
-              Maila oss på <a href="mailto:info@mystarday.se" class="text-gold font-semibold">info@mystarday.se</a> — vi svarar inom 24 timmar.
+              <span data-i18n="home.helpPanel.supportLead">Maila oss på</span>
+              <a href="mailto:info@mystarday.se" class="text-gold font-semibold">info@mystarday.se</a> <!-- pragma: allowlist secret -->
+              <span data-i18n="home.helpPanel.supportTail"> — vi svarar inom 24 timmar.</span>
             </div>
           </div>
         </div>
@@ -1545,16 +1547,16 @@
   <div id="journeyParentAckModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9320] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🌱</div>
-      <h2 id="journeyParentAckHeadline" class="text-xl font-heading font-bold text-navy mb-3 leading-snug">
+      <h2 id="journeyParentAckHeadline" class="text-xl font-heading font-bold text-navy mb-3 leading-snug" data-i18n="home.journeyAck.headline">
         Barnet klarade en aktivitet!
       </h2>
       <p id="journeyParentAckBody" class="text-text-soft text-sm mb-4 leading-relaxed hidden"></p>
       <p id="journeyParentAckDetail" class="text-text-soft text-xs mb-6 leading-relaxed">
-        <span id="journeyParentAckChild">Barnet</span> klarade &ldquo;<span id="journeyParentAckActivity">en aktivitet</span>&rdquo;
+        <span id="journeyParentAckChild" data-i18n="home.journeyAck.childFallback">Barnet</span> klarade &ldquo;<span id="journeyParentAckActivity" data-i18n="home.journeyAck.activityFallback">en aktivitet</span>&rdquo;
       </p>
       <button id="journeyParentAckDismissBtn"
               type="button"
-              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]" data-i18n="home.journeyAck.dismiss">
         Det ser jag
       </button>
     </div>
@@ -1564,15 +1566,15 @@
   <div id="journeyCelebrationModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9350] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🌱</div>
-      <h2 id="journeyCelebrationHeadline" class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
+      <h2 id="journeyCelebrationHeadline" class="text-xl font-heading font-bold text-navy mb-2 leading-snug" data-i18n="home.journeyCelebration.headline">
         Ni gjorde det tillsammans
       </h2>
-      <p id="journeyCelebrationBody" class="text-text-soft text-sm mb-6 leading-relaxed">
+      <p id="journeyCelebrationBody" class="text-text-soft text-sm mb-6 leading-relaxed" data-i18n="home.journeyCelebration.body">
         Barnet började — och du såg det.
       </p>
       <button id="journeyCelebrationDismissBtn"
               type="button"
-              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]" data-i18n="home.journeyCelebration.dismiss">
         Toppen!
       </button>
     </div>
@@ -1583,14 +1585,14 @@
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🎉</div>
       <h2 class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
-        <span id="activationAhaChildName">Barnet</span> klarade &ldquo;<span id="activationAhaActivityName">en aktivitet</span>&rdquo;
+        <span id="activationAhaChildName" data-i18n="home.journeyAck.childFallback">Barnet</span> klarade &ldquo;<span id="activationAhaActivityName" data-i18n="home.journeyAck.activityFallback">en aktivitet</span>&rdquo;
       </h2>
-      <p class="text-text-soft text-sm mb-6 leading-relaxed">
+      <p class="text-text-soft text-sm mb-6 leading-relaxed" data-i18n="home.activationAha.body">
         Utan att du behövde påminna.
       </p>
       <button id="activationAhaDismissBtn"
               type="button"
-              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]">
+              class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98]" data-i18n="home.activationAha.dismiss">
         Toppen!
       </button>
     </div>
@@ -1602,13 +1604,13 @@
       <div class="w-14 h-14 bg-gradient-to-br from-gold-light to-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
         <span class="text-2xl">👨‍👩‍👧</span>
       </div>
-      <h2 class="text-lg font-heading font-bold text-navy mb-1">Bjud in medförälder</h2>
-      <p class="text-text-soft text-sm mb-5 leading-relaxed">
+      <h2 class="text-lg font-heading font-bold text-navy mb-1" data-i18n="home.dash.inviteModalTitle">Bjud in medförälder</h2>
+      <p class="text-text-soft text-sm mb-5 leading-relaxed" data-i18n="home.dash.inviteModalBody">
         Din partner får en e-post med en direktlänk — inget krångligt, inga nya appar.
       </p>
       <div id="medforalderCtaForm">
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-navy mb-1 text-left">E-postadress</label>
+          <label class="block text-sm font-semibold text-navy mb-1 text-left" data-i18n="family.form.email">E-postadress</label>
           <input type="email" id="medforalderCtaEmail"
                  placeholder="t.ex. partner@email.se"
                  class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm">
@@ -1616,21 +1618,21 @@
         <p id="medforalderCtaError" class="text-red-500 text-sm hidden mb-3"></p>
         <button id="medforalderCtaSubmit"
                 onclick="submitMedforalderCtaInvite()"
-                class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98] mb-3">
+                class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98] mb-3" data-i18n="family.invites.sendBtn">
           Skicka inbjudan
         </button>
         <button onclick="closeMedforalderCtaModal()"
-                class="w-full text-text-soft hover:text-navy text-sm py-2 transition-colors">
+                class="w-full text-text-soft hover:text-navy text-sm py-2 transition-colors" data-i18n="schedule.modals.common.cancel">
           Avbryt
         </button>
       </div>
       <!-- Success state -->
       <div id="medforalderCtaSuccess" class="hidden">
         <div class="text-4xl mb-3">✉️</div>
-        <p class="font-semibold text-navy text-base mb-1">Inbjudan skickad!</p>
-        <p class="text-text-soft text-sm mb-5">Din partner kan nu logga in och se schemat.</p>
+        <p class="font-semibold text-navy text-base mb-1" data-i18n="family.invites.sent">Inbjudan skickad!</p>
+        <p class="text-text-soft text-sm mb-5" data-i18n="home.dash.inviteSentBody">Din partner kan nu logga in och se schemat.</p>
         <button onclick="closeMedforalderCtaModal()"
-                class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 rounded-xl transition-colors shadow-lg">
+                class="w-full bg-gold hover:bg-yellow-500 text-white font-bold text-base py-3 rounded-xl transition-colors shadow-lg" data-i18n="home.dash.inviteDone">
           Klart
         </button>
       </div>

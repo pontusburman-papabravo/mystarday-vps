@@ -77,6 +77,7 @@ const CRITICAL_UNIT = [
   'test/i18n-child-chrome-leftovers.test.js',
   'test/i18n-api-error-contracts.test.js',
   'test/i18n-fallback-contract.test.js',
+  'test/i18n-dashboard-remainder.test.js',
   'test/i18n-copy-ratchet.test.js',
   'test/i18n-fragment-guards.test.js',
   'test/support-reply-token.test.js',

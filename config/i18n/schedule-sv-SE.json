@@ -210,6 +210,8 @@
       "pickDays": "Välj veckodagar:",
       "back": "← Tillbaka",
       "addConfirm": "Lägg till ✓",
+      "addToSelected": "Lägg till i valda dagar",
+      "whichDays": "Vilka dagar?",
       "childHint": "Gäller: {{names}}",
       "deleteTitle": "Ta bort aktivitet"
     },
@@ -224,7 +226,8 @@
       "starsLabel": "Antal stjärnor",
       "reasonLabel": "Anledning *",
       "success": "{{count}} stjärnor givna!",
-      "successOne": "1 stjärna given!"
+      "successOne": "1 stjärna given!",
+      "pickerHint": "Välj vilket barn du vill ge stjärnor till:"
     }
   },
   "validation": {
@@ -277,6 +280,7 @@
   },
   "views": {
     "normal": "Schema",
+    "specialDays": "🌟 Specialdagar",
     "sbsTitle": "Jämför barn",
     "noSubsteps": "Inga delsteg",
     "emptySection": "Inga aktiviteter",
