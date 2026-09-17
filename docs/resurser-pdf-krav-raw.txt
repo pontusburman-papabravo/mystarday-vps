@@ -1,0 +1,293 @@
+RESURSBIBLIOTEKET — PDF-KRAV (RAW)
+==================================
+Skrivet 2026-09-17 från kod + produktplan, inte från en separat PDF-designspec.
+Status: v1 är live. Illustrationer i PDF är inte levererade.
+
+Källor
+------
+docs/bildstod-app-plan.md          §1 (två spår), §5 (kategorier, URL-träd)
+docs/bildstod-app-tasklist.md      PR R1 / R2 / R3
+docs/i18n-pdf-print-audit.md       resurser-PDF:er är fortfarande svenska
+src/lib/resurser-pdf.js            layoutmotor
+scripts/generate-resurser-pdfs.mjs byggjobb
+config/resurser-r1.js              morgon/kväll
+config/resurser-r2.js              övriga kategorier
+config/resurser-r3-pdf-keys.js     helg/läxa
+config/pictogram-library.js        nycklar + svenska etiketter
+public/resurser/pdf/*.pdf          22 committade binärer
+
+
+1. PRODUKTKRAV (LÅSTA)
+----------------------
+Appen är INTE ett utskriftsverktyg.
+PDF-biblioteket är ett separat SEO-spår: statiskt, utskrivbart, sökbart.
+Mål: den som söker "bildschema pdf" / "bildkort skriva ut" landar här
+och möter CTA: "Vill du slippa skriva ut nya scheman varje gång? Testa appen gratis."
+
+Varje kategori ska ha:
+  - landningssida
+  - färdiga PDF-mallar
+  - illustrationer (plan). I v1: text/nummer, inte riktiga bilder.
+
+Delat bildbibliotek (96 nycklar) ska mata BÅDE appens icon_key OCH PDF:erna.
+Det sista steget (riktiga illustrationer i PDF) är öppet.
+
+CTA på varje sida. Ingen betalvägg på PDF:erna. Alltid gratis.
+
+TEACCH-copy: "TEACCH-inspirerat" — inte officiell metod eller certifiering.
+
+
+2. SIDTYPER OCH URL-TRÄD
+------------------------
+Typ            Svensk URL                         Engelsk URL
+hub            /resurser                          /en/resources
+kategori       /resurser/{kategori}               /en/resources/{en-kategori}
+bildkort HTML  /resurser/bildkort/{kategori}      /en/resources/picture-cards/{en}
+PDF-landning   /resurser/pdf/{mall}               /en/resources/pdf/{en-mall}
+PDF-binär      /resurser/pdf/{fil}.pdf            /en/resources/pdf/{fil}.pdf
+long-tail SEO  /resurser/{sokintent}              /en/resources/{en-slug}
+
+Binärfilernas FILNAMN är svenska även på engelska URL:en
+(ex. /en/resources/pdf/morgonschema.pdf).
+Engelska sökvägen är ett alias till samma filer i public/resurser/pdf/.
+HTML-landningar (utan .pdf) är sidor, inte filer.
+
+Kategori-slug SV -> EN:
+  morgon             -> morning
+  kvall              -> evening
+  kanslor            -> emotions
+  overgangar         -> transitions
+  teacch-inspirerat  -> teacch-inspired
+  skola              -> school
+  hygien             -> hygiene
+
+PDF-landning SV -> EN:
+  morgonschema       -> morning-schedule
+  kvallsschema       -> evening-schedule
+  kanslor            -> emotions
+  overgangar         -> transitions
+  teacch-inspirerat  -> teacch-inspired
+  skola              -> school
+  hygien             -> hygiene
+  beloningsschema    -> reward-chart
+  veckoschema        -> weekly-schedule
+  helgschema         -> weekend-schedule
+  laxschema          -> homework-schedule
+
+
+3. TEKNISK PDF-SPEC (V1, KODSANNING)
+------------------------------------
+Generator:   PDFKit (Node), scripts/generate-resurser-pdfs.mjs
+Motor:       src/lib/resurser-pdf.js
+Utdata:      public/resurser/pdf/  (committas, serveras statiskt)
+Sidformat:   A4, margin 40 pt
+En sida:     krav i tester (footer får inte skapa blank sida 2)
+Typsnitt:    Helvetica / Helvetica-Bold (inga custom fonts)
+Emoji:       förbjudet i PDF (PDFKit utan symbolfont)
+Språk:       svenska i PDF-innehåll (även när sidan är /en/...)
+Färger:      navy #1C2340, amber #F5A623, gray #5A6378, border #E8E4DC
+Footer Y:    780 pt  (A4-höjd 841.89, bottenmarginal ~802 — överskrid = extra blank sida)
+Footertext:  "{brand} — gratis resursbibliotek · {domain}/resurser"
+Sidnummer:   "Sida 1" höger
+
+Layouttyper
+  schedule     checklista, en rad per steg, 22x22 pt ruta + etikett
+               emptyBoxes=true  -> tom ruta (föräldern skriver/klistrar)
+               emptyBoxes=false -> nummer i rutan (exempelsteg)
+               disclaimer under listan:
+               "TEACCH-inspirerat material på papper — inte samma sak som appens levande schema."
+  bildkort     2 kolumner, kort 240x100 pt, rounded 8, nummer 28 pt amber, etikett 14 pt navy
+               ingress: "Klipp ut korten · laminera gärna · använd på tavla eller kylskåp"
+  beloning     5 rader x 10 stjärnrutor, vänster kolumn "Aktivitet"
+               rad: "Mål: _____ stjärnor  →  Belöning: _______"
+  veckoschema  7 kolumner mån–sön, 3 tomma rader (exempel: 4 rader, första raden förifylld)
+
+Bygg om:  node scripts/generate-resurser-pdfs.mjs
+
+
+4. ALLA 22 FILER
+----------------
+R1 morgon/kväll
+  morgonschema.pdf              schedule, tom mall, MORNING_KEYS
+  morgonschema-exempel.pdf      schedule, numrerat, MORNING_KEYS
+  bildkort-morgon.pdf           bildkort, MORNING_KEYS
+  kvallsschema.pdf              schedule, tom mall, EVENING_KEYS
+  kvallsschema-exempel.pdf      schedule, numrerat, EVENING_KEYS
+  bildkort-kvall.pdf            bildkort, EVENING_KEYS
+
+R2
+  bildkort-kanslor.pdf          bildkort, EMOTION_KEYS
+  overgangsschema.pdf           schedule, tom mall, TRANSITION_KEYS
+  overgangsschema-exempel.pdf   schedule, numrerat, TRANSITION_KEYS
+  bildkort-overgangar.pdf       bildkort, TRANSITION_KEYS
+  bildkort-teacch.pdf           bildkort, TEACCH_KEYS
+  skolaschema.pdf               schedule, tom mall, SCHOOL_KEYS
+  skolaschema-exempel.pdf       schedule, numrerat, SCHOOL_KEYS
+  bildkort-skola.pdf            bildkort, SCHOOL_KEYS
+  hygienschema.pdf              schedule, tom mall, HYGIENE_KEYS
+  hygienschema-exempel.pdf      schedule, numrerat, HYGIENE_KEYS
+  bildkort-hygien.pdf           bildkort, HYGIENE_KEYS
+  beloningsschema.pdf           beloning (ingen key-lista)
+  veckoschema.pdf               veckoschema, tomt
+  veckoschema-exempel.pdf       veckoschema, exempelrad: Skola, Sim, Skola, Skola, Skola, Lek, Vila
+
+R3
+  helgschema.pdf                schedule, numrerat, WEEKEND_KEYS
+  laxschema.pdf                 schedule, numrerat, HOMEWORK_KEYS
+
+
+5. STEGLISTOR (KOD, SVENSKA ETIKETTER)
+--------------------------------------
+Morgon (MORNING_KEYS) — 8 steg, denna ordning i PDF:
+  1 Vakna
+  2 Toalett
+  3 Tvätta händer
+  4 Klä på sig
+  5 Frukost
+  6 Borsta tänder
+  7 Packa väskan
+  8 Skola
+
+  Avvikelse mot plan §5.2 som listar tandborstning före kläder/frukost.
+  Koden är den mer realistiska morgonordningen.
+
+Kväll (EVENING_KEYS) — 6 steg:
+  1 Middag
+  2 Duscha
+  3 Borsta tänder
+  4 Pyjamas
+  5 Läsa bok
+  6 Sova
+
+Känslor (EMOTION_KEYS) — 8 kort, samma som appen:
+  Glad, Arg, Ledsen, Trött, Orolig, Stolt, Rädd, Stressad
+
+Övergångar (TRANSITION_KEYS):
+  Först, Sedan, Nu, Snart, Om fem minuter, Vänta, Färdig, Klar
+
+TEACCH-inspirerat (TEACCH_KEYS):
+  Först, Sedan, Klar, Paus, Arbeta, Vila, Hjälp
+
+Skola (SCHOOL_KEYS):
+  Skola, Läxa, Rast, Matsal, Lyssna, Penna, Lärare, Idrott
+
+Hygien (HYGIENE_KEYS):
+  Tvätta händer, Borsta tänder, Toalett, Bada, Hårborstning, Badrum
+
+Helg (WEEKEND_KEYS):
+  Vakna, Frukost, Utomhus, Kompis, Lunch, Cykel, Middag, Pyjamas, Läsa bok, Sova
+
+Läxa (HOMEWORK_KEYS):
+  Läxa, Penna, Lyssna, Arbeta, Paus, Mellanmål, Sedan, Klar
+
+HTML-bildkortssidor visar emoji. PDF:en visar BARA nummer + text.
+
+
+6. HUR SIDORNA ÄR TÄNKTA ATT FUNGERA
+------------------------------------
+Kategorisida (ex /resurser/morgon eller /en/resources/morning)
+  Ingress: vad materialet är, papper vs app.
+  Block "Ladda ner" / "Download".
+  Kort text om vanliga steg.
+  CTA till registrering (utm_content=resurs-morgon).
+  Relaterat: kväll + hub.
+
+PDF-landning (ex /resurser/pdf/morgonschema)
+  Tre faktiska PDF-länkar med download-attribut:
+    tom mall, exempel med steg, bildkort-rutnät.
+  "Så använder du mallen" (skriv ut A4, markera, sen appen).
+  CTA.
+
+Bildkort-HTML (ex /resurser/bildkort/morgon)
+  Knapp "Ladda ner PDF" + "Skriv ut denna sida".
+  Rutnät med emoji + etikett på skärmen.
+  CTA.
+
+Detta URL-träd är medvetet för SEO (indexerbara landningar + binärer).
+
+
+7. PLACERING PÅ SIDAN — BEDÖMNING
+---------------------------------
+Kategorisidan är INTE logisk som nedladdningsyta idag.
+
+Nuvarande lista på /en/resources/morning (samma mönster på svenska):
+  1. "Morgonschema PDF"        -> HTML-landning, inte fil
+     text lovar "tom mall och färdigt exempel"
+     men exempel-PDF:en ligger INTE i listan
+  2. "Morgon-bildkort"         -> HTML-bildkortssida, inte fil
+  3. "Direct link: tom mall"   -> morgonschema.pdf
+  4. "Direct link: bildkort"   -> bildkort-morgon.pdf
+
+Problem:
+  - Blandar sidor och filer i samma "Download"-lista.
+  - Extra klick innan utskrift.
+  - Exempel-PDF saknas på kategorisidan (finns bara på mallsidan).
+  - Engelska sidan har mixad sv/en-copy (maskinöversatt spegel).
+  - PDF-innehållet är svenskt även under /en/.
+
+Mallsidan /en/resources/pdf/morning-schedule ÄR logisk:
+  tre riktiga PDF:er (tom / exempel / bildkort).
+
+Rekommenderad kategorisida (gör så här):
+  Tre nedladdningsknappar, inga "direct links", ingen extra hopp:
+    - Morgonschema — tom mall (PDF)       -> morgonschema.pdf
+    - Morgonschema — exempel (PDF)        -> morgonschema-exempel.pdf
+    - Morgon-bildkort (PDF)               -> bildkort-morgon.pdf
+  Sekundärt: "Se korten på skärmen" -> bildkort-HTML.
+  CTA till appen under det.
+
+
+8. ENGELSK SPEGEL — TEKNISKT KRAV
+---------------------------------
+Engelsk HTML skrivs om från svenska sökvägar:
+  /resurser/pdf/morgonschema.pdf  ->  /en/resources/pdf/morgonschema.pdf
+
+Binärerna ligger bara i public/resurser/pdf/.
+Därför måste servern aliasa GET /en/resources/pdf/:fil.pdf
+till samma fil (allowlist ^[a-z0-9-]+\\.pdf$).
+Saknad /en/resources/* ska ge 404, inte redirect till startsidan.
+
+Detta var buggen 2026-09-17: klick på engelska PDF-länkar dumpade
+besökaren på hem.
+
+
+9. I18N / SPRÅK
+---------------
+Resurser-PDF:er är medvetet svenska-only i v1
+(docs/i18n-pdf-print-audit.md: "Not in this PR").
+Appens levande schema-PDF (/print-schema) ÄR lokaliserad (sv-SE / en-GB).
+Det är en annan produkt: familjens eget schema, inte biblioteket.
+
+
+10. TESTKRAV SOM REDAN FINNS
+----------------------------
+test/resurser-r1.test.js
+  sex R1-PDF:er finns, >500 bytes, exakt 1 sida
+  engelska hrefs /en/resources/pdf/*.pdf har matchande binär
+  GET EN-PDF = samma bytes som SV-PDF, content-type application/pdf
+  saknad EN-PDF = 404
+
+test/resurser-r2.test.js  sexton R2-filer, 1 sida
+test/resurser-r3.test.js  okänd /resurser/* = 404 (inte hem)
+test/seo-pages.test.js    indexering + HTTP 200 på landningar
+
+
+11. ÖPPET / INTE KRAV ÄNNU
+--------------------------
+Riktiga illustrationer i PDF (plan: delat bildbibliotek).
+Engelska PDF-binärer (översatta etiketter + engelska filnamn).
+Handöversatt engelska landningssidor (idag maskinspegel).
+Omkategorisering av Download-listan på kategorisidor (rekommenderas, inte byggt).
+Analytics-event per PDF-klick (checklistan nämner det som framtida).
+
+
+12. MORGON — MINIMAL ACCEPTANS FÖR "NEDLADDNINGSBAR"
+----------------------------------------------------
+Givet /en/resources/morning:
+  Direct link tom mall     -> 200 application/pdf, %PDF-, samma som /resurser/pdf/morgonschema.pdf
+  Direct link bildkort     -> 200 application/pdf, %PDF-, samma som /resurser/pdf/bildkort-morgon.pdf
+  HTML-landning morning-schedule ska fortsätta vara HTML, inte PDF.
+  Okänd .pdf under /en/resources/pdf/ ska 404.
+
+Detta är vad som fixades 2026-09-17.
+"Logisk placering på sidan" är ett separat UX-krav, se §7.
