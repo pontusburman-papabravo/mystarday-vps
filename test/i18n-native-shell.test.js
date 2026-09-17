@@ -74,4 +74,14 @@ describe('i18n native shell', () => {
   it('documentation exists', () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'docs/i18n-native-app-localisation.md')));
   });
+
+  it('iOS widget l10n has English and Swedish for child-switch and done-for copy', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetL10n.swift'), 'utf8');
+    assert.match(src, /Previous child/);
+    assert.match(src, /Föregående barn/);
+    assert.match(src, /Next child/);
+    assert.match(src, /Nästa barn/);
+    assert.match(src, /Done for/);
+    assert.match(src, /Klart för/);
+  });
 });
