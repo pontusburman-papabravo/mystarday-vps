@@ -34,9 +34,10 @@
       <div>
         <h3 class="text-lg font-heading font-bold text-navy mb-1">Så används appen</h3>
         <p class="text-text-soft text-sm mb-4">Avbockningar och scheman — inte inloggningar och inte den korta händelseloggen. Arkiverade familjer och adminkonton räknas inte.</p>
-        <div class="flex flex-wrap gap-2 mb-6" id="howUsedPeriodBtns">
+        <div class="flex flex-wrap items-center gap-2 mb-6" id="howUsedPeriodBtns">
           <button type="button" data-days="30" class="how-used-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors">30 dagar</button>
           <button type="button" data-days="90" class="how-used-period-btn px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors">90 dagar</button>
+          <button type="button" id="howUsedCsvBtn" class="px-4 py-2 rounded-lg text-sm font-semibold bg-navy text-white hover:opacity-90 transition-colors">Ladda ner CSV</button>
         </div>
       </div>
 
@@ -380,6 +381,29 @@
     renderDefinitions(data);
   }
 
+  async function downloadHowUsedCsv() {
+    try {
+      const res = await fetch(`/api/admin/analytics/usage-over-time.csv?days=${encodeURIComponent(periodDays)}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10);
+      const headerName = res.headers.get('Content-Disposition')?.match(/filename="?([^"]+)"?/)?.[1];
+      a.href = url;
+      a.download = headerName || `anvandning-over-tid-${periodDays}d-${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('[ANALYTICS] usage-over-time csv', err);
+      alert('Kunde inte ladda ner CSV. Försök igen.');
+    }
+  }
+
   async function loadHowUsedData() {
     const headline = document.getElementById('howUsedHeadline');
     if (headline) headline.innerHTML = '<p class="text-sm text-text-soft">Laddar användning…</p>';
@@ -418,6 +442,8 @@
           loadHowUsedData();
         });
       });
+      const csvBtn = document.getElementById('howUsedCsvBtn');
+      if (csvBtn) csvBtn.addEventListener('click', downloadHowUsedCsv);
     }
     stylePeriodButtons();
     await loadHowUsedData();

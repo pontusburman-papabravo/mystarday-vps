@@ -298,4 +298,26 @@ router.get('/analytics/usage-over-time', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/usage-over-time.csv ─────────
+// Same payload as JSON, flattened for Excel (semicolon + UTF-8 BOM).
+router.get('/analytics/usage-over-time.csv', async (req, res) => {
+  try {
+    const { getUsageOverTime } = require('../../../db/usage-over-time');
+    const {
+      clampDays,
+      buildUsageOverTimeCsv,
+      usageCsvFilename,
+    } = require('../../lib/admin-usage-over-time');
+    const days = clampDays(req.query.days);
+    const data = await getUsageOverTime(days);
+    const csv = buildUsageOverTimeCsv(data);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${usageCsvFilename(data)}"`);
+    res.send(csv);
+  } catch (err) {
+    console.error('[ADMIN analytics] usage-over-time.csv error:', err);
+    res.status(500).json({ error: 'Kunde inte exportera användning över tid' });
+  }
+});
+
 module.exports = router;
