@@ -49,7 +49,7 @@ router.post('/check-member', validate(CheckFamilyMemberSchema), async (req, res)
     res.json(result);
   } catch (err) {
     console.error('[FAMILY] check-member error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -130,7 +130,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     });
   } catch (err) {
     console.error('[FAMILY] Invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -151,7 +151,7 @@ router.delete('/invite/:inviteId', async (req, res) => {
 
     if (inviteResult.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     const invite = inviteResult.rows[0];
@@ -181,11 +181,11 @@ router.delete('/invite/:inviteId', async (req, res) => {
     );
 
     await client.query('COMMIT');
-    res.json({ message: 'Inbjudan återkallad' });
+    res.json({ code: 'INVITE_REVOKED' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Revoke invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -198,13 +198,13 @@ router.post('/add-parent', async (req, res) => {
     const { name, email, password } = req.body || {};
 
     if (!name || typeof name !== 'string' || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Namn krävs' });
+      return sendApiError(res, 400, 'NAME_REQUIRED');
     }
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ error: 'Giltig e-postadress krävs' });
+      return sendApiError(res, 400, 'INVITE_EMAIL_REQUIRED');
     }
     if (!password || typeof password !== 'string' || password.length < 6) {
-      return res.status(400).json({ error: 'Lösenordet måste vara minst 6 tecken' });
+      return sendApiError(res, 400, 'PASSWORD_TOO_SHORT_6');
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -216,7 +216,7 @@ router.post('/add-parent', async (req, res) => {
       [normalizedEmail]
     );
     if (existingAny.rows.length > 0) {
-      return res.status(409).json({ error: 'E-postadressen används redan av ett annat konto' });
+      return sendApiError(res, 409, 'EMAIL_ALREADY_REGISTERED');
     }
 
     // Hash password before acquiring a client (CPU-bound, no need to hold connection)
@@ -233,7 +233,7 @@ router.post('/add-parent', async (req, res) => {
       );
       if (doubleCheck.rows.length > 0) {
         await client.query('ROLLBACK');
-        return res.status(409).json({ error: 'E-postadressen används redan av ett annat konto' });
+        return sendApiError(res, 409, 'EMAIL_ALREADY_REGISTERED');
       }
 
       // Create the new parent account (auto-verified, same family, onboarding done)
@@ -291,7 +291,7 @@ router.post('/add-parent', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Add parent error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -301,7 +301,7 @@ router.post('/accept-invite', async (req, res) => {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({ error: 'Inbjudningstoken krävs' });
+      return sendApiError(res, 400, 'INVITE_TOKEN_REQUIRED');
     }
 
     const inviteResult = await db.query(
@@ -311,15 +311,15 @@ router.post('/accept-invite', async (req, res) => {
     );
 
     if (inviteResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     const invite = inviteResult.rows[0];
     if (invite.accepted) {
-      return res.status(400).json({ error: 'Inbjudan har redan accepterats' });
+      return res.status(400).json({ error: 'INVITE_NOT_FOUND' });
     }
     if (new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Inbjudan har gått ut' });
+      return sendApiError(res, 400, 'INVITE_EXPIRED');
     }
 
     const client = await db.getClient();
@@ -349,7 +349,7 @@ router.post('/accept-invite', async (req, res) => {
         );
         if (valid.rows.length !== childIdsToLink.length) {
           await client.query('ROLLBACK');
-          return res.status(400).json({ error: 'Inbjudan innehåller ogiltiga barn' });
+          return sendApiError(res, 400, 'INVITE_INVALID_CHILDREN');
         }
       }
 
@@ -372,7 +372,7 @@ router.post('/accept-invite', async (req, res) => {
         metadata: { parent_id: req.user.id },
       });
 
-      res.json({ message: 'Du har gått med i familjen!' });
+      res.json({ code: 'INVITE_ACCEPTED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -381,7 +381,7 @@ router.post('/accept-invite', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Accept invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

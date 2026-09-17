@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Gift card public + authenticated routes (web purchase + redeem).
  */
@@ -33,7 +35,7 @@ router.get('/settings', async (_req, res) => {
     });
   } catch (err) {
     console.error('[GIFTS] settings error:', err.message);
-    res.status(500).json({ error: 'Kunde inte hämta presentkortsinställningar' });
+    sendApiError(res, 500, 'GIFT_SETTINGS_FAILED');
   }
 });
 
@@ -45,22 +47,19 @@ router.post('/redeem', requireParent, validate(RedeemSchema), async (req, res) =
     });
 
     if (!result.ok) {
-      return res.status(400).json({
-        error: result.message,
-        code: result.code,
-      });
+      return sendApiError(res, 400, result.code || 'GIFT_INVALID_CODE');
     }
 
     const { premium: familyPremium } = await resolveFamilyEntitlements(familyId);
     res.json({
       ok: true,
-      message: 'Presentkortet är inlöst!',
+      code: 'GIFT_REDEEMED',
       premium: familyPremium,
       gift: result.premium,
     });
   } catch (err) {
     console.error('[GIFTS] redeem error:', err.message);
-    res.status(500).json({ error: 'Kunde inte lösa in presentkortet' });
+    sendApiError(res, 500, 'GIFT_REDEEM_FAILED');
   }
 });
 

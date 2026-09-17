@@ -78,10 +78,30 @@
     "loadPlan": "Kunde inte ladda planen",
     "loadCustomize": "Kunde inte ladda anpassning",
     "loadGoals": "Kunde inte ladda mål",
+    "loadActivations": "Kunde inte hämta aktiveringar",
+    "loadPopular": "Kunde inte hämta populära mål",
+    "loadFavorites": "Kunde inte hämta favoriter",
+    "loadPreview": "Kunde inte ladda förhandsvisning",
+    "loadPendingFeedback": "Kunde inte hämta väntande feedback",
+    "saveAnswer": "Kunde inte spara svaret",
+    "goalSlugRequired": "Målet saknas",
+    "goalSlugPhaseRequired": "Mål och fas krävs",
+    "goalNotFound": "Utvecklingsmålet hittades inte",
+    "invalidPhase": "Ogiltig fas",
+    "childIdIntentRequired": "Barn krävs för avsikt och utfall",
+    "invalidIntentReason": "Ogiltig avsikt",
+    "outcomeScoreRange": "Utfallet måste vara 1–4",
+    "freetextMax": "Fritext får vara max 500 tecken",
+    "childAccess": "Du har inte åtkomst till ett av valda barn.",
+    "alreadyAnswered": "Du har redan svarat på den här frågan.",
+    "childrenRequired": "Minst ett barn krävs",
     "loadChildren": "Kunde inte ladda barnen. Det betyder inte att familjen saknar barn.",
     "loadInstalls": "Kunde inte läsa vilka mål som är aktiverade.",
     "retry": "Försök igen",
     "activationFailed": "Aktivering misslyckades",
+    "libraryUnavailable": "Materialet för detta mål är inte tillgängligt just nu. Försök igen senare.",
+    "noValidDays": "Inga giltiga dagar angivna",
+    "nothingToActivate": "Detta mål har inget att aktivera ännu",
     "saveFavorite": "Kunde inte spara favorit",
     "generic": "Något gick fel",
     "sendSuggestion": "Kunde inte skicka"
@@ -112,5 +132,9 @@
     "placeholder": "Berätta kort…",
     "thanks": "Tack för ditt förslag!",
     "submit": "Skicka"
-  }
+  },
+  "outcomeEmail": {
+    "goalFallback": "målet"
+  },
+  "goalBadgeAria": "Från För dig: {{title}}"
 }

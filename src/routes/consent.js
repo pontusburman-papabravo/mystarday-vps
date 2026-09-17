@@ -5,6 +5,7 @@
  */
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
+const { sendApiError } = require('../lib/api-user-error');
 const db = require('../lib/db');
 
 const router = express.Router();
@@ -26,7 +27,7 @@ router.get('/', requireParent, async (req, res) => {
     return res.json({ consent: result.rows[0] });
   } catch (err) {
     console.error('[CONSENT] GET error:', err);
-    return res.status(500).json({ error: 'Serverfel' });
+    return res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 
@@ -40,7 +41,7 @@ router.post('/', requireParent, async (req, res) => {
     for (const field of CONSENT_FIELDS) {
       const val = incoming[field];
       if (!VALID_VALUES.includes(val)) {
-        return res.status(400).json({ error: `Ogiltigt värde för ${field}: ${val}` });
+        return sendApiError(res, 400, 'VALIDATION_INVALID_VALUES', { details: { field, value: val } });
       }
     }
 
@@ -62,7 +63,7 @@ router.post('/', requireParent, async (req, res) => {
     return res.json({ consent: result.rows[0] });
   } catch (err) {
     console.error('[CONSENT] POST error:', err);
-    return res.status(500).json({ error: 'Serverfel' });
+    return res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 

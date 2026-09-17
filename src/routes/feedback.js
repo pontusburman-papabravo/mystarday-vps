@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
@@ -83,16 +85,16 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
     const { type, title, message, metadata: clientMetadata } = req.body;
 
     if (!type || !['bug', 'feedback', 'language'].includes(type)) {
-      return res.status(400).json({ error: 'Ogiltig typ' });
+      return sendApiError(res, 400, 'INVALID_TYPE');
     }
     if (!title || title.trim().length < 3) {
-      return res.status(400).json({ error: 'Titel krävs (minst 3 tecken)' });
+      return sendApiError(res, 400, 'NAME_TOO_SHORT');
     }
     if (!message || message.trim().length < 10) {
-      return res.status(400).json({ error: 'Meddelande krävs (minst 10 tecken)' });
+      return sendApiError(res, 400, 'MESSAGE_TOO_SHORT');
     }
 
-    const parentName = req.user.name || req.user.email || 'Okänd användare';
+    const parentName = req.user.name || req.user.email || 'Unknown user';
     const parentEmail = req.user.email || '';
 
     const familyRow = await db.query(
@@ -180,16 +182,16 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
     });
   } catch (err) {
     if (err.code === 'METADATA_TOO_LARGE') {
-      return res.status(400).json({ error: 'Metadata för stor' });
+      return sendApiError(res, 400, 'METADATA_TOO_LARGE');
     }
     console.error('[FEEDBACK] Error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
 router.get('/', requireParent, async (req, res) => {
   if (!req.user.isAdmin) {
-    return res.status(403).json({ error: 'Förbjuden' });
+    return sendApiError(res, 403, 'ACCESS_DENIED');
   }
   try {
     const result = await db.query(`
@@ -202,7 +204,7 @@ router.get('/', requireParent, async (req, res) => {
     res.json({ feedback: result.rows });
   } catch (err) {
     console.error('[FEEDBACK] List error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

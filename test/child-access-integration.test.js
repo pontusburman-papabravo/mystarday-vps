@@ -51,7 +51,8 @@ test('child daily-log access: valid parent 200, revoked parent 403', async (t) =
     const revokedText = await revokedRes.text();
     assert.equal(revokedRes.status, 403, revokedText);
     const revokedBody = JSON.parse(revokedText);
-    assert.match(revokedBody.error, /åtkomst/i);
+    assert.equal(revokedBody.error, 'CHILD_ACCESS_DENIED');
+    assert.equal(revokedBody.code, 'CHILD_ACCESS_DENIED');
   } finally {
     await http.close();
     await db.cleanup();

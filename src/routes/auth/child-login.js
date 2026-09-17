@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Child login route (E2). POST /api/auth/child-login.
  * Name + PIN with pin_lockout exponential backoff + parent notification.
@@ -68,7 +70,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
         [normalizedInput, clientIp]
       );
       return res.status(401).json({
-        error: 'Felaktigt namn eller PIN-kod',
+        error: 'CHILD_PIN_INVALID',
         code: 'CHILD_PIN_INVALID',
         attempts_remaining: null,
       });
@@ -87,7 +89,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
         .set('Retry-After', String(lockoutStatus.retry_after_seconds))
         .status(429)
         .json({
-          error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+          error: 'CHILD_PIN_LOCKED',
           code: 'CHILD_PIN_LOCKED',
           locked: true,
           retry_after: lockoutStatus.retry_after_seconds,
@@ -175,7 +177,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
           .set('Retry-After', String(minutes * 60))
           .status(429)
           .json({
-            error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+            error: 'CHILD_PIN_LOCKED',
             code: 'CHILD_PIN_LOCKED',
             locked: true,
             retry_after: minutes * 60,
@@ -324,7 +326,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
 
   } catch (err) {
     console.error('[AUTH] Child login error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.', code: 'CHILD_SERVER_ERROR' });
+    sendApiError(res, 500, 'CHILD_SERVER_ERROR');
   }
 });
 module.exports = router;

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Parent PIN (Föräldralås) + login-picker session routes.
  * Mounted at /api/family AFTER router.use(requireParent) in index.js, so every
@@ -36,7 +38,7 @@ router.get('/parent-pin-status', requireAuth, async (req, res) => {
     res.json({ has_pin: hasPin });
   } catch (err) {
     console.error('[FAMILY] parent-pin-status error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -51,10 +53,10 @@ router.post('/set-pin', requireParent, async (req, res) => {
 
     // Validate: exactly 4 digits
     if (!pin || !/^\d{4}$/.test(String(pin))) {
-      return res.status(400).json({ error: 'PIN-koden måste vara exakt 4 siffror' });
+      return sendApiError(res, 400, 'VALIDATION_PIN_4_DIGITS');
     }
     if (pin !== confirmPin) {
-      return res.status(400).json({ error: 'PIN-koderna matchar inte' });
+      return sendApiError(res, 400, 'PIN_CONFIRM_MISMATCH');
     }
 
     const pinRow = await parentPinDb.getParentPinRow(req.user.id);
@@ -62,13 +64,13 @@ router.post('/set-pin', requireParent, async (req, res) => {
     if (pinRow?.parent_pin_hash) {
       // ── Changing existing PIN ──────────────────────────────
       if (!currentPin && !password) {
-        return res.status(400).json({ error: 'Ange nuvarande PIN-kod eller lösenord för att ändra' });
+        return sendApiError(res, 400, 'PIN_OR_PASSWORD_REQUIRED');
       }
 
       if (currentPin) {
         const pinOk = await require('../../lib/hash').comparePassword(currentPin, pinRow.parent_pin_hash);
         if (!pinOk) {
-          return res.status(401).json({ error: 'Felaktig nuvarande PIN-kod' });
+          return sendApiError(res, 401, 'INVALID_CURRENT_PIN');
         }
       } else {
         const parentResult = await db.query(
@@ -76,11 +78,11 @@ router.post('/set-pin', requireParent, async (req, res) => {
           [req.user.id]
         );
         if (!parentResult.rows[0]?.password_hash) {
-          return res.status(400).json({ error: 'Kontot saknar lösenord — ange nuvarande PIN-kod' });
+          return sendApiError(res, 400, 'PIN_REQUIRED_NO_PASSWORD');
         }
         const pwOk = await require('../../lib/hash').comparePassword(password, parentResult.rows[0].password_hash);
         if (!pwOk) {
-          return res.status(401).json({ error: 'Felaktigt lösenord' });
+          return sendApiError(res, 401, 'INVALID_PASSWORD');
         }
       }
     }
@@ -92,7 +94,7 @@ router.post('/set-pin', requireParent, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[FAMILY] set-pin error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -104,7 +106,7 @@ router.post('/verify-pin', parentPinLimiter, requireAuth, async (req, res) => {
   try {
     const { pin } = req.body;
     if (!pin || !/^\d{4}$/.test(pin)) {
-      return res.status(400).json({ error: 'PIN-kod krävs (4 siffror)' });
+      return sendApiError(res, 400, 'PIN_REQUIRED');
     }
 
     const familyId = req.user.familyId;
@@ -140,7 +142,7 @@ router.post('/verify-pin', parentPinLimiter, requireAuth, async (req, res) => {
     res.json({ ok: true, gateToken, expiresAt });
   } catch (err) {
     console.error('[FAMILY] verify-pin error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -151,14 +153,14 @@ router.post('/restore-parent-session', async (req, res) => {
   try {
     const { gateToken } = req.body;
     if (!gateToken) {
-      return res.status(400).json({ error: 'gateToken krävs' });
+      return sendApiError(res, 400, 'GATE_TOKEN_REQUIRED');
     }
 
     let payload;
     try {
       payload = verifyToken(gateToken);
     } catch {
-      return res.status(401).json({ error: 'Sessionen har gått ut. Ange PIN-koden igen.' });
+      return sendApiError(res, 401, 'GATE_SESSION_EXPIRED');
     }
 
     if (payload.type !== 'gate') {
@@ -178,7 +180,7 @@ router.post('/restore-parent-session', async (req, res) => {
     res.json({ restored: true, expiresAt: payload.exp });
   } catch (err) {
     console.error('[FAMILY] restore-parent-session error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

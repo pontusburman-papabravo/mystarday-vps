@@ -516,5 +516,17 @@
         }
       ]
     }
+  },
+  "barnStod": {
+    "pageTitle": "Barn/Stöd — {{brand}}",
+    "loadError": "Kunde inte ladda sidan."
+  },
+  "supportSvar": {
+    "pageTitle": "Ditt ärende",
+    "title": "Ditt ärende",
+    "intro": "Här är hela konversationen. Skriv under om du vill fortsätta. Ett vanligt mejlsvar syns inte här.",
+    "sent": "Skickat. Vi ser det i samma ärende.",
+    "escalate": "Jag behöver mer hjälp från en person",
+    "placeholder": "Skriv vad som händer…"
   }
 }

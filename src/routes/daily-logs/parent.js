@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Parent-scoped daily log routes (mounted at /api/children).
  * GET /:childId/daily-log, GET /:childId/daily-logs
@@ -28,7 +30,7 @@ childRouter.use(requireParent);
 childRouter.get('/:childId/daily-log', async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const dateStr = parseLogDate(req.query.date, child.timezone || 'Europe/Stockholm');
 
@@ -58,7 +60,7 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
     });
   } catch (err) {
     console.error('[DAILY-LOG] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -68,21 +70,21 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 childRouter.get('/:childId/daily-logs', async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from, to } = req.query;
     if (!from || !to) {
-      return res.status(400).json({ error: 'from och to krävs (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'DATE_RANGE_REQUIRED');
     }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
-      return res.status(400).json({ error: 'Ogiltigt datumformat. Använd YYYY-MM-DD.' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
 
     const fromDate = new Date(from);
     const toDate = new Date(to);
     const diffDays = (toDate - fromDate) / (1000 * 60 * 60 * 24);
     if (diffDays > 90) {
-      return res.status(400).json({ error: 'Datumintervallet får inte överstiga 90 dagar' });
+      return sendApiError(res, 400, 'DATE_RANGE_MAX_90');
     }
 
     const result = await db.query(
@@ -100,7 +102,7 @@ childRouter.get('/:childId/daily-logs', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[DAILY-LOG] History error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -202,7 +202,8 @@
         "step3Title": "3. Adults follow progress and build routines together",
         "step3Body": "Multiple children and adults can share the same family in the app.",
         "close": "Close"
-      }
+      },
+      "noscript": "JavaScript required — enable JavaScript to use sign-in. / JavaScript krävs — aktivera JavaScript för att logga in."
     },
     "register": {
       "title": "Create account",
@@ -474,7 +475,44 @@
       "parentPinInvalid": "Wrong PIN — try again",
       "logoutFailed": "Sign-out failed. Please try again.",
       "logoutRateLimited": "Too many attempts. Please wait a moment and try again.",
-      "handoffInvalid": "Could not restore the adult session. Please sign in as a parent."
+      "handoffInvalid": "Could not restore the adult session. Please sign in as a parent.",
+      "userNotFound": "User not found",
+      "invalidPassword": "Incorrect password",
+      "tokenRequired": "Token is required",
+      "idTokenRequired": "idToken is required",
+      "allFieldsRequired": "All fields are required",
+      "messageTooShort": "The message must be at least 10 characters",
+      "serviceUnavailable": "The service is temporarily unavailable",
+      "nameTooShort": "Name is required (at least 2 characters)",
+      "roleRequired": "Role is required",
+      "consentRequired": "You must consent to us storing your details",
+      "refreshInvalid": "Refresh token is invalid or expired",
+      "authRequired": "Authentication required",
+      "passwordTooShort6": "Password must be at least 6 characters"
+    }
+  },
+  "surveys": {
+    "thankYou": "Thank you for your response!",
+    "errors": {
+      "unavailable": "The survey is not available right now",
+      "notFound": "Survey not found",
+      "closed": "The survey is closed",
+      "paused": "The survey is paused",
+      "alreadyAnswered": "You have already answered this survey",
+      "alreadySubmitted": "The survey has already been submitted",
+      "questionIdRequired": "Question is required",
+      "invalidQuestion": "Invalid question",
+      "maxSelections": "You can choose at most {{max}}",
+      "invalidOption": "Invalid answer option",
+      "sessionNotFound": "Session not found",
+      "answerFirst": "Answer the survey first",
+      "contestNotOpen": "The prize draw is not open",
+      "contestClosed": "The prize draw is closed",
+      "ageRequired": "You must be 18 or older to enter",
+      "contestConsent": "Consent is required to enter the prize draw",
+      "contestAlready": "You are already entered in the prize draw",
+      "emailAlready": "This address is already entered",
+      "idActionRequired": "Survey and action are required"
     }
   },
   "dashboard": {

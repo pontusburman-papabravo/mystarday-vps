@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Item-level daily log routes (mounted at /api/daily-log-items).
  */
@@ -32,7 +34,7 @@ itemRouter.put('/reorder', async (req, res) => {
       return res.status(err.statusCode).json({ error: err.message });
     }
     console.error('[DAILY-LOG-ITEM] Parent reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -45,7 +47,7 @@ itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
       [req.params.itemId]
     );
     if (meta.rows[0]?.activity_template_id != null && !meta.rows[0]?.is_once_task) {
-      return res.status(400).json({ error: 'Schemalagda aktiviteter tas bort via veckoschemat' });
+      return sendApiError(res, 400, 'SCHEDULED_VIA_WEEK');
     }
 
     await db.query('DELETE FROM daily_log_item WHERE id = $1', [req.params.itemId]);
@@ -57,7 +59,7 @@ itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Delete once-task error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -134,8 +136,11 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
           db.query('SELECT name FROM child WHERE id = $1', [item.child_id]),
           db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
         ]);
-        const childName = childRow.rows[0]?.name || 'Barnet';
-        const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+        const { t } = require('../../lib/i18n');
+        const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+        const locale = await getFamilyPreferredLocale(fid);
+        const childName = childRow.rows[0]?.name || t(locale, 'family.fallbacks.child');
+        const activityName = activityRow.rows[0]?.name || t(locale, 'family.fallbacks.activity');
         notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch((err) => {
           console.error('[DAILY-LOG-ITEM] notifyParentsChildCompleted failed:', err.message);
         });
@@ -150,7 +155,7 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
       /* ignore */
     }
     console.error('[DAILY-LOG-ITEM] Complete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -173,7 +178,7 @@ itemRouter.put('/:itemId/uncomplete', requireItemAccess('itemId'), async (req, r
     }).catch((err) => console.error('[DAILY-LOG-ITEM] Uncomplete broadcast failed:', err.message));
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Uncomplete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -192,7 +197,7 @@ itemRouter.patch('/:itemId/note', requireItemAccess('itemId'), async (req, res) 
     res.json({ success: true, note: result.rows[0]?.parent_note || null });
   } catch (err) {
     console.error('[DAILY-LOG-ITEM] Note update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

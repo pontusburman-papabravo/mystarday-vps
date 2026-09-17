@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { optionalAuth, requireAuth } = require('../middleware/auth');
 const trusted = require('../lib/trusted-device');
@@ -97,7 +99,7 @@ router.post('/bindings', optionalAuth, async (req, res, next) => {
       }
       const inst = String(installationId || '').trim();
       if (!inst) {
-        return res.status(400).json({ error: 'installation_id krävs' });
+        return sendApiError(res, 400, 'INSTALLATION_ID_REQUIRED');
       }
       const { issueBindingToken } = require('../lib/widget-binding');
       const trustedDeviceId = req.user.trustedDeviceId;
@@ -212,7 +214,7 @@ router.post('/switch-child', requireWidgetBinding, async (req, res, next) => {
   try {
     const { child_id: targetChildId } = req.body || {};
     if (!targetChildId) {
-      return res.status(400).json({ error: 'child_id krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
     }
     if (req.widgetBinding.mode === 'child_session') {
       return res.status(403).json({ status: 'child_switch_forbidden' });
@@ -258,7 +260,7 @@ router.post('/rebind-installation', requireWidgetBinding, async (req, res, next)
   try {
     const { installation_id: installationId, child_id: childId } = req.body || {};
     if (!installationId) {
-      return res.status(400).json({ error: 'installation_id krävs' });
+      return sendApiError(res, 400, 'INSTALLATION_ID_REQUIRED');
     }
     const result = await reissueBindingForInstallation(req.widgetBinding, {
       installationId,
@@ -305,7 +307,7 @@ router.post('/complete-action', requireWidgetBinding, async (req, res, next) => 
 
     const { instance_token: instanceToken, idempotency_key: idempotencyKey } = req.body || {};
     if (!instanceToken || !idempotencyKey || String(idempotencyKey).length > 128) {
-      return res.status(400).json({ error: 'instance_token och idempotency_key krävs' });
+      return sendApiError(res, 400, 'WIDGET_TOKEN_REQUIRED');
     }
 
     const installationId = req.widgetBinding.installation_id;

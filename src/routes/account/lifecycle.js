@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
@@ -7,7 +9,7 @@ const { requireParent } = require('../../middleware/auth');
 const router = express.Router();
 
 const LEGACY_DELETION_GONE = {
-  error: 'Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto.',
+  error: 'DELETE_PATH_RETIRED', code: 'DELETE_PATH_RETIRED',
 };
 
 // ─── POST /api/account/delete ───────────────────────────
@@ -32,7 +34,7 @@ router.get('/widget-order', requireParent, async (req, res) => {
     res.json({ widget_order: result.rows[0]?.widget_order || [] });
   } catch (err) {
     console.error('[ACCOUNT] Get widget-order error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -49,10 +51,10 @@ router.put('/widget-order', requireParent, async (req, res) => {
       [JSON.stringify(widget_order), req.user.id]
     );
 
-    res.json({ message: 'Ordning sparad', widget_order });
+    res.json({ code: 'WIDGET_ORDER_SAVED', widget_order });
   } catch (err) {
     console.error('[ACCOUNT] Save widget-order error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -66,7 +68,7 @@ router.post('/share-notify', requireParent, async (req, res) => {
       [req.user.id]
     );
     if (parentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
 
     const { email: parentEmail, name: parentName } = parentResult.rows[0];
@@ -109,10 +111,10 @@ router.post('/share-notify', requireParent, async (req, res) => {
       console.warn('[ACCOUNT] Failed to send share notification:', err.message);
     });
 
-    res.json({ message: 'Tack för att du delade!' });
+    res.json({ code: 'SHARE_THANKS' });
   } catch (err) {
     console.error('[ACCOUNT] Share notify error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -146,7 +148,7 @@ router.get('/referral', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] Referral code error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta värvningskod' });
+    sendApiError(res, 500, 'REFERRAL_CODE_FAILED');
   }
 });
 
@@ -200,7 +202,7 @@ router.post('/attribution', requireParent, async (req, res) => {
 // Legacy bypass removed — use Settings → DELETE /api/family/delete-account.
 router.post('/delete-immediate', requireParent, async (_req, res) => {
   return res.status(410).json({
-    error: 'Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto.',
+    error: 'DELETE_PATH_RETIRED', code: 'DELETE_PATH_RETIRED',
   });
 });
 

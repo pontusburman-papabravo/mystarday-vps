@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Journey-gated in-product system help for stuck families.
  * GET  /api/growth/system-help/context
@@ -32,7 +34,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `growth-system-help:${req.user?.id || req.ip}`,
   handler: (_req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen senare.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 

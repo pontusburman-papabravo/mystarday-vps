@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Transition support — child-scoped config (Extra stöd / teacch).
  * GET /api/me/transition-support
@@ -27,13 +29,13 @@ router.get('/', async (req, res) => {
       [childId]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
     const leadMinutes = normalizeLeadMinutes(result.rows[0].transition_lead_minutes);
     res.json({ lead_minutes: leadMinutes });
   } catch (err) {
     console.error('[TRANSITION-SUPPORT] GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

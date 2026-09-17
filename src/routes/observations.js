@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Child observation routes.
  * Free-standing notes (observations) per child per date — not tied to an activity.
@@ -43,21 +44,21 @@ async function verifyObservationOwnership(parentId, observationId) {
 router.get('/:childId/observations', async (req, res) => {
   try {
     const child = await verifyChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from, to } = req.query;
     if (!from || !to) {
-      return res.status(400).json({ error: 'from och to krävs (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'DATE_RANGE_REQUIRED');
     }
     if (!isValidDate(from) || !isValidDate(to)) {
-      return res.status(400).json({ error: 'Ogiltigt datumformat. Använd YYYY-MM-DD.' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
 
     const observations = await getObservationsForRange(req.params.childId, from, to);
     res.json({ observations });
   } catch (err) {
     console.error('[OBSERVATIONS] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -68,25 +69,25 @@ router.get('/:childId/observations', async (req, res) => {
 router.post('/:childId/observations', async (req, res) => {
   try {
     const child = await verifyChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { date, section, content, is_important } = req.body;
     if (!date || !section || content === undefined) {
-      return res.status(400).json({ error: 'date, section och content krävs' });
+      return sendApiError(res, 400, 'OBS_FIELDS_REQUIRED');
     }
     if (!isValidDate(date)) {
-      return res.status(400).json({ error: 'Ogiltigt datumformat. Använd YYYY-MM-DD.' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
     const allowedSections = ['fm', 'em', 'kvall'];
     if (!allowedSections.includes(section)) {
-      return res.status(400).json({ error: 'section måste vara: fm, em eller kvall' });
+      return sendApiError(res, 400, 'INVALID_SECTION_FM_EM');
     }
     const trimmed = String(content).trim();
     if (!trimmed) {
-      return res.status(400).json({ error: 'content får inte vara tomt' });
+      return sendApiError(res, 400, 'CONTENT_REQUIRED');
     }
     if (trimmed.length > 2000) {
-      return res.status(400).json({ error: 'Anteckningen får vara max 2000 tecken' });
+      return sendApiError(res, 400, 'NOTE_MAX_CHARS');
     }
 
     const observation = await upsertObservation({
@@ -100,7 +101,7 @@ router.post('/:childId/observations', async (req, res) => {
     res.status(201).json({ observation });
   } catch (err) {
     console.error('[OBSERVATIONS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -116,13 +117,13 @@ router.patch('/:id', async (req, res) => {
     const updates = {};
     if (section !== undefined) {
       if (!['fm', 'em', 'kvall'].includes(section)) {
-        return res.status(400).json({ error: 'section måste vara: fm, em eller kvall' });
+        return sendApiError(res, 400, 'INVALID_SECTION_FM_EM');
       }
       updates.section = section;
     }
     if (content !== undefined) {
       const trimmed = String(content).trim();
-      if (!trimmed) return res.status(400).json({ error: 'content får inte vara tomt' });
+      if (!trimmed) return sendApiError(res, 400, 'CONTENT_REQUIRED');
       if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
       updates.content = trimmed;
     }
@@ -148,7 +149,7 @@ router.patch('/:id', async (req, res) => {
     res.json({ observation: updated.rows[0] });
   } catch (err) {
     console.error('[OBSERVATIONS] Patch error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -164,7 +165,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[OBSERVATIONS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Apple Sign In routes + ID-token verification helpers (E2).
  * POST /api/auth/apple, POST /api/auth/apple/link.
@@ -62,7 +64,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
       console.warn('[APPLE] auth rejected: missing idToken');
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     console.log('[APPLE] auth request received', { ip: req.ip });
@@ -176,7 +178,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
 
   } catch (err) {
     console.error('[AUTH] Apple Sign In error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -187,12 +189,12 @@ router.post('/apple/link', appleLoginLimiter, async (req, res) => {
   try {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     // User must be authenticated via password (not Apple) to link
     if (!req.user || req.user.type !== 'parent') {
-      return res.status(401).json({ error: 'Du måste vara inloggad för att länka Apple-konto' });
+      return sendApiError(res, 401, 'APPLE_LINK_LOGIN_REQUIRED');
     }
 
     const appleUser = await verifyAppleIdToken(idToken);
@@ -205,17 +207,17 @@ router.post('/apple/link', appleLoginLimiter, async (req, res) => {
     // Check if Apple user ID already belongs to another account
     const existing = await parentDb.getParentByAppleUserId(appleUserId);
     if (existing && existing.id !== req.user.id) {
-      return res.status(409).json({ error: 'Detta Apple-konto är redan linkat till ett annat konto' });
+      return sendApiError(res, 409, 'APPLE_LINKED_OTHER_ACCOUNT');
     }
 
     // Link the Apple ID to the current parent account
     await parentDb.linkAppleUserId(req.user.id, appleUserId, appleEmail || null);
     await persistAppleRefreshToken(req.user.id, req);
 
-    res.json({ message: 'Apple-konto länkat!' });
+    res.json({ code: 'APPLE_LINKED' });
   } catch (err) {
     console.error('[AUTH] Apple link error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Public family-invite routes (mounted at /api/family, BEFORE requireParent).
  * No authentication: invite validation + new-account acceptance.
@@ -26,14 +28,14 @@ router.get('/invite/:token', async (req, res) => {
       [req.params.token]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
     const invite = result.rows[0];
     if (invite.accepted) {
-      return res.status(400).json({ error: 'Inbjudan har redan accepterats' });
+      return res.status(400).json({ error: 'INVITE_NOT_FOUND' });
     }
     if (new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Inbjudan/länken har gått ut, begär en ny' });
+      return sendApiError(res, 400, 'INVITE_EXPIRED');
     }
     let children = [];
     if (invite.child_ids && invite.child_ids.length > 0) {
@@ -54,7 +56,7 @@ router.get('/invite/:token', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Validate invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -66,10 +68,10 @@ router.post('/invite/accept-new', async (req, res) => {
     const { token, password } = req.body;
 
     if (!token) {
-      return res.status(400).json({ error: 'Inbjudningstoken krävs' });
+      return sendApiError(res, 400, 'INVITE_TOKEN_REQUIRED');
     }
     if (!password || typeof password !== 'string' || password.length < 8) {
-      return res.status(400).json({ error: 'Lösenordet måste vara minst 8 tecken' });
+      return sendApiError(res, 400, 'PASSWORD_TOO_SHORT');
     }
 
     // Look up invite
@@ -84,16 +86,16 @@ router.post('/invite/accept-new', async (req, res) => {
     );
 
     if (inviteResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     const invite = inviteResult.rows[0];
 
     if (invite.accepted) {
-      return res.status(400).json({ error: 'Inbjudan har redan accepterats' });
+      return res.status(400).json({ error: 'INVITE_NOT_FOUND' });
     }
     if (new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Inbjudan/länken har gått ut, begär en ny' });
+      return sendApiError(res, 400, 'INVITE_EXPIRED');
     }
 
     const normalizedEmail = invite.email.toLowerCase().trim();
@@ -104,7 +106,7 @@ router.post('/invite/accept-new', async (req, res) => {
       [normalizedEmail]
     );
     if (existingParent.rows.length > 0) {
-      return res.status(409).json({ error: 'Det finns redan ett konto med den e-postadressen. Logga in och acceptera inbjudan istället.' });
+      return sendApiError(res, 409, 'EMAIL_EXISTS_ACCEPT_INVITE');
     }
 
     const passwordHash = await hashPassword(password);
@@ -152,7 +154,7 @@ router.post('/invite/accept-new', async (req, res) => {
         );
         if (valid.rows.length !== childIdsToLink.length) {
           await client.query('ROLLBACK');
-          return res.status(400).json({ error: 'Inbjudan innehåller ogiltiga barn' });
+          return sendApiError(res, 400, 'INVITE_INVALID_CHILDREN');
         }
       }
 
@@ -171,7 +173,7 @@ router.post('/invite/accept-new', async (req, res) => {
       await syncAccountType(newParent.id);
 
       res.status(201).json({
-        message: 'Konto aktiverat! Du kan nu logga in.',
+        code: 'ACCOUNT_ACTIVATED',
         email: newParent.email,
         name: newParent.name,
       });
@@ -183,7 +185,7 @@ router.post('/invite/accept-new', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Accept-new invite error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

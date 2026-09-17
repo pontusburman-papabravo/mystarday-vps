@@ -82,8 +82,10 @@
       color: #9CA3AF;
     }
   </style>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body>
+<body data-i18n-manual-init="true" data-i18n-title="family.offlinePage.title">
   <div>
     <!-- Inline SVG star — no external dependency -->
     <div class="star-icon">
@@ -92,12 +94,13 @@
       </svg>
     </div>
 
-    <h1>Hoppsan!</h1>
-    <p>Kontrollera internetanslutningen och tryck på knappen nedan för att komma tillbaka till dina stjärnor.</p>
+    <h1 data-i18n="family.offlinePage.title">Hoppsan!</h1>
+    <p data-i18n="family.offlinePage.body">Kontrollera internetanslutningen och tryck på knappen nedan för att komma tillbaka till dina stjärnor.</p>
 
-    <button onclick="location.reload()">Försök igen</button>
+    <button onclick="location.reload()" data-i18n="family.offlinePage.retry">Försök igen</button>
 
-    <p class="hint">Ibland hjälper det att slå på wifi eller flygplansläge och tillbaka</p>
+    <p class="hint" data-i18n="family.offlinePage.hint">Ibland hjälper det att slå på wifi eller flygplansläge och tillbaka</p>
   </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

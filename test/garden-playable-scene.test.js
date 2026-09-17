@@ -83,7 +83,7 @@ describe('garden_playable — playable scene (experience slice)', () => {
     );
     assert.match(src, /isPlayableEnabled\(req\.user\.familyId\)/);
     assert.match(src, /503/);
-    assert.match(src, /Trädgården ej aktiverad/);
+    assert.match(src, /GARDEN_DISABLED/);
     assert.match(src, /\/garden\/slots/);
     assert.match(src, /\/garden\/slots\/:slotId\/verb/);
     assert.match(src, /garden-loe/);

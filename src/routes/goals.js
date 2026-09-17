@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Reward Goals, Goal Change Requests & Manual Star Grants
  *
@@ -278,7 +279,7 @@ parentRouter.put('/goal-change-requests/:id/approve', async (req, res) => {
         [req.user.id, req.params.id]
       );
       await client.query('COMMIT');
-      res.json({ message: 'Målbyte godkänt!' });
+      res.json({ code: 'GOAL_CHANGE_APPROVED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -311,7 +312,7 @@ parentRouter.put('/goal-change-requests/:id/deny', async (req, res) => {
        WHERE id = $2`,
       [req.user.id, req.params.id]
     );
-    res.json({ message: 'Målbyte nekat.' });
+    res.json({ code: 'GOAL_CHANGE_DENIED' });
   } catch (err) {
     console.error('[GOALS] Deny change request error:', err);
     return parentGoalsError(res, req.user.familyId, 'generic');
@@ -342,7 +343,7 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
        VALUES ($1, $2, $3, $4, $5)`,
       [child_id, req.user.id, count, reason.trim(), image_url || null]
     );
-    res.status(201).json({ message: `⭐ ${count} stjärnor givna!` });
+    res.status(201).json({ code: 'STARS_GIVEN', details: { count } });
     // Broadcast STAR_GRANTED + push notify (fire-and-forget)
     getChildFamilyId(child_id).then(async (fid) => {
       if (!fid) return;
@@ -352,8 +353,11 @@ parentRouter.post('/manual-stars', validate(ManualStarsSchema), async (req, res)
           db.query('SELECT name FROM child WHERE id = $1', [child_id]),
           db.query('SELECT name FROM parent WHERE id = $1', [req.user.id]),
         ]);
-        const childName = childRow.rows[0]?.name || 'Barnet';
-        const parentName = parentRow.rows[0]?.name || 'En förälder';
+        const { t } = require('../lib/i18n');
+        const { getFamilyPreferredLocale } = require('../lib/family-locale');
+        const locale = await getFamilyPreferredLocale(fid);
+        const childName = childRow.rows[0]?.name || t(locale, 'family.fallbacks.child');
+        const parentName = parentRow.rows[0]?.name || t(locale, 'family.fallbacks.parent');
         notifyChildStarGranted(child_id, childName, count, parentName).catch((err) => {
           console.error('[GOALS] notifyChildStarGranted failed:', err.message);
         });
@@ -525,7 +529,7 @@ childRouter.get('/goal', async (req, res) => {
     });
   } catch (err) {
     console.error('[GOALS] Child goal get error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -651,7 +655,7 @@ childRouter.get('/manual-stars', async (req, res) => {
     res.json({ grants: result.rows });
   } catch (err) {
     console.error('[GOALS] Child manual stars error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -186,6 +186,6 @@ describe('custody custom pattern (FEAT-1B PR-B)', () => {
     );
     assert.match(routes, /PATTERN_CUSTOM/);
     assert.match(routes, /validateCustomConfiguration/);
-    assert.match(routes, /anchor_date måste vara en måndag/);
+    assert.match(routes, /ANCHOR_MUST_MONDAY/);
   });
 });

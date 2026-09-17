@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * CSRF + refresh token routes (E2). GET /api/auth/csrf-token, POST /api/auth/refresh.
  */
@@ -31,7 +33,7 @@ router.post('/refresh', async (req, res) => {
 
     if (!rotation.ok) {
       clearRefreshCookie(res);
-      return res.status(401).json({ error: 'Refresh-token ogiltig eller utgången' });
+      return sendApiError(res, 401, 'REFRESH_TOKEN_INVALID');
     }
 
     const { row, newRaw, newRow } = rotation;
@@ -46,7 +48,7 @@ router.post('/refresh', async (req, res) => {
       );
       if (!pr.rows[0]) {
         clearRefreshCookie(res);
-        return res.status(401).json({ error: 'Användare hittades inte' });
+        return sendApiError(res, 401, 'USER_NOT_FOUND');
       }
       const p = pr.rows[0];
       const parentClaims = {
@@ -72,12 +74,12 @@ router.post('/refresh', async (req, res) => {
       );
       if (!cr.rows[0]) {
         clearRefreshCookie(res);
-        return res.status(401).json({ error: 'Användare hittades inte' });
+        return sendApiError(res, 401, 'USER_NOT_FOUND');
       }
       const c = cr.rows[0];
       if (row.trusted_device_id && !newRow?.trusted_device_id) {
         clearRefreshCookie(res);
-        return res.status(401).json({ error: 'Refresh-token ogiltig eller utgången' });
+        return sendApiError(res, 401, 'REFRESH_TOKEN_INVALID');
       }
       const childClaims = {
         id: c.id,
@@ -103,7 +105,7 @@ router.post('/refresh', async (req, res) => {
     res.json({ csrfToken, expiresAt });
   } catch (err) {
     console.error('[AUTH] Refresh error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 module.exports = router;

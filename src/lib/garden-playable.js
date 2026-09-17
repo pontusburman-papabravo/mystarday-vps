@@ -6,6 +6,8 @@ const {
   getWorldDef,
 } = require('./experience-pack');
 const { buildSceneryFromPack, buildSceneryWithGates } = require('./world-ambient');
+const { t } = require('./i18n');
+const { getFamilyPreferredLocale } = require('./family-locale');
 
 const FEATURE_SLUG = 'garden_playable';
 
@@ -25,6 +27,7 @@ async function isPlayableEnabled(familyId) {
 async function buildSceneState(childId, familyId) {
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, GARDEN_WORLD_SLUG);
+  const locale = familyId ? await getFamilyPreferredLocale(familyId) : 'sv-SE';
 
   const scenery = familyId
     ? await buildSceneryWithGates(familyId, worldDef)
@@ -34,9 +37,9 @@ async function buildSceneState(childId, familyId) {
     enabled: true,
     pack_id: pack.manifest.pack_id,
     world_slug: GARDEN_WORLD_SLUG,
-    display_name: worldDef?.display_name_sv || 'Trädgården',
-    first_enter_message: worldDef?.first_unlock_message || 'Trädgården väntar på dig',
-    ambient_message: worldDef?.ambient_message_sv || 'Gräset rör sig långsamt i brisen.',
+    display_name: worldDef?.display_name_sv || t(locale, 'child.worlds.garden.name'),
+    first_enter_message: worldDef?.first_unlock_message || t(locale, 'child.worlds.garden.waiting'),
+    ambient_message: worldDef?.ambient_message_sv || t(locale, 'child.worlds.garden.ambient'),
     scenery,
   };
 }

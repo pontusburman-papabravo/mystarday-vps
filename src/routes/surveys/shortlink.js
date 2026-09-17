@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * SMS shortlink routes (mounted at /tyck).
  */
@@ -14,7 +16,7 @@ function requireFeaturePublic(slug) {
     const { hasAccess } = require('../../../db/features');
     const allowed = await hasAccess(null, slug);
     if (!allowed) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
     next();
   };
@@ -45,11 +47,11 @@ shortlinkRouter.get('/:slug', async (req, res) => {
   try {
     const allowed = await isPublicSurveySlugAllowed(req.params.slug);
     if (!allowed) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
     sendTyckHtml(res);
   } catch {
-    res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+    return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
   }
 });
 

@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[CATEGORIES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
   try {
     const { name, sort_order } = req.body;
     if (!name || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Kategorinamn krävs' });
+      return sendApiError(res, 400, 'CATEGORY_NAME_REQUIRED');
     }
 
     // Get max sort_order for family
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[CATEGORIES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -68,7 +69,7 @@ router.put('/:id', async (req, res) => {
     let idx = 1;
 
     if (name !== undefined) {
-      if (name.trim().length < 1) return res.status(400).json({ error: 'Kategorinamn krävs' });
+      if (name.trim().length < 1) return sendApiError(res, 400, 'CATEGORY_NAME_REQUIRED');
       updates.push(`name = $${idx++}`);
       values.push(name.trim());
     }
@@ -77,7 +78,7 @@ router.put('/:id', async (req, res) => {
       values.push(sort_order);
     }
 
-    if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
+    if (updates.length === 0) return res.status(400).json({ error: 'NO_CHANGES' });
 
     values.push(req.params.id);
     const result = await db.query(
@@ -88,7 +89,7 @@ router.put('/:id', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[CATEGORIES] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -122,7 +123,7 @@ router.get('/:id/delete-check', async (req, res) => {
     });
   } catch (err) {
     console.error('[CATEGORIES] Delete check error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -155,7 +156,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Kategorin har tagits bort' });
   } catch (err) {
     console.error('[CATEGORIES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -4,6 +4,10 @@
 // Does NOT own: reward management (library.js), standard library (library-standard.js).
 
 // ─── Skattkammaren (parent read-only view of child's rewards) ─────────────────
+function tpt(key, params) {
+  return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+}
+
 let _treasuryChildsLoaded = false;
 let _treasuryChildren = [];
 let _treasurySelectedChild = null;
@@ -22,19 +26,17 @@ async function loadTreasuryChildren() {
     }
   } catch {
     document.getElementById('treasuryChildSelector').innerHTML =
-      '<p class="text-red-500 text-sm">Kunde inte ladda barn</p>';
+      '<p class="text-red-500 text-sm">' + tpt('family.treasury.loadChildrenFailed') + '</p>';
   }
 }
 
 function renderTreasuryChildSelector() {
   const container = document.getElementById('treasuryChildSelector');
   if (_treasuryChildren.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender w-full">
-        <p class="text-2xl mb-2">👶</p>
-        <p class="font-heading font-bold text-navy mb-1">Inga barn tillagda</p>
-        <p class="text-sm text-text-soft">Lägg till barn under Familjen &amp; inställningar.</p>
-      </div>`;
+    container.innerHTML = '<div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender w-full">'
+      + '<p class="text-2xl mb-2">👶</p>'
+      + '<p class="font-heading font-bold text-navy mb-1">' + tpt('family.treasury.noChildren') + '</p>'
+      + '<p class="text-sm text-text-soft">' + tpt('family.treasury.addHint') + '</p></div>';
     return;
   }
   container.innerHTML = _treasuryChildren.map(child => `
@@ -85,7 +87,7 @@ async function loadTreasuryForChild(childId) {
 
     // Update header
     document.getElementById('treasuryChildName').textContent = `${child.emoji || ''} ${child.name}`;
-    document.getElementById('treasuryRewardCount').textContent = `${rewards.length} belöningar`;
+    document.getElementById('treasuryRewardCount').textContent = tpt('family.treasury.rewardCount', { count: rewards.length });
 
     // Render grid
     const gridInner = document.getElementById('treasuryGridInner');

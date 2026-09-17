@@ -13,7 +13,7 @@ const { z } = require('zod');
 // ─── Shared primitives ────────────────────────────────────
 
 /** UUID param — used for most :id params */
-const uuid = z.string().uuid({ message: 'Ogiltigt ID-format' });
+const uuid = z.string().uuid({ message: 'VALIDATION_INVALID_VALUES' });
 
 /** UUID param that can also be a named route segment */
 const uuidParam = z.object({ id: uuid });
@@ -55,7 +55,7 @@ const timeString = z
 const email = z.string().email({ message: 'VALIDATION_EMAIL_INVALID' }).max(254);
 
 /** URL — optional, must be valid if provided */
-const optionalUrl = z.string().url({ message: 'Ogiltig URL' }).optional().or(z.literal(''));
+const optionalUrl = z.string().url({ message: 'VALIDATION_INVALID_VALUES' }).optional().or(z.literal(''));
 
 // ─── Auth ─────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ const CreateChildSchema = z.object({
   // PIN is optional — auto-generated if not provided
   pin: z.string().regex(/^\d{4}$/).optional(),
   // avatar_url is optional — set after avatar upload; emoji is fallback when NULL
-  avatar_url: z.string().url({ message: "Ogiltig URL" }).max(500).optional(),
+  avatar_url: z.string().url({ message: 'VALIDATION_INVALID_VALUES' }).max(500).optional(),
 });
 
 const UpdateChildSchema = z.object({
@@ -149,7 +149,7 @@ const UpdateChildSchema = z.object({
   transition_lead_minutes: z.array(z.coerce.number().int().min(1).max(60)).max(3).optional(),
   sort_order: z.coerce.number().int().optional(),
   // avatar_url: nullable — set to null to clear avatar and show emoji instead
-  avatar_url: z.string().url({ message: "Ogiltig URL" }).max(500).nullable().optional(),
+  avatar_url: z.string().url({ message: 'VALIDATION_INVALID_VALUES' }).max(500).nullable().optional(),
 });
 
 const ChildPinLoginSchema = z.object({
@@ -364,13 +364,13 @@ const ApplyDateRangeSchema = z.object({
   overwrite: z.boolean().optional(),
   note: z.string().max(200).optional(),
 }).refine((data) => data.end_date >= data.start_date, {
-  message: 'Slutdatum måste vara på eller efter startdatum',
+  message: 'END_BEFORE_START',
   path: ['end_date'],
 }).refine((data) => {
   const sources = [data.template_category_id, data.standard_schedule_id, data.schedule_template_id].filter(Boolean);
   return sources.length === 1;
 }, {
-  message: 'Ange exakt en schema-källa',
+  message: 'SCHEDULE_SOURCE_ONE',
 });
 
 // ─── Special Day Schedules ────────────────────────────────
@@ -432,7 +432,7 @@ const CheckFamilyMemberSchema = z.object({
   email: email.optional(),
   childName: z.string().min(1).max(100).optional(),
 }).refine((d) => d.email || d.childName, {
-  message: 'Ange e-post eller barnnamn att kontrollera',
+  message: 'EMAIL_OR_CHILD_NAME',
 });
 
 const AcceptInviteSchema = z.object({
@@ -487,7 +487,7 @@ const OnboardingActivityGuideSchema = z.object({
 // ─── Messages ────────────────────────────────────────────
 
 const SendMessageSchema = z.object({
-  message: z.string().min(1, 'Meddelande krävs').max(1000),
+  message: z.string().min(1, 'MESSAGE_TOO_SHORT').max(1000),
   family_id: uuid.optional(),
 });
 
@@ -581,21 +581,21 @@ const ItemIdParam = z.object({ itemId: uuid });
 const LogIdParam = z.object({ logId: uuid });
 const FamilyIdParam = z.object({ familyId: uuid });
 
-const adminGrantReason = z.string({ required_error: 'reason krävs' })
+const adminGrantReason = z.string({ required_error: 'REASON_TOO_SHORT' })
   .transform((s) => String(s).trim())
-  .refine((s) => s.length >= 3, { message: 'reason är för kort' })
-  .refine((s) => s.length <= 500, { message: 'reason är för lång' });
+  .refine((s) => s.length >= 3, { message: 'REASON_TOO_SHORT' })
+  .refine((s) => s.length <= 500, { message: 'REASON_TOO_LONG' });
 
-const futureExpiresAt = z.string({ required_error: 'expiresAt krävs' })
-  .min(1, 'expiresAt krävs')
+const futureExpiresAt = z.string({ required_error: 'EXPIRES_AT_FUTURE' })
+  .min(1, 'EXPIRES_AT_FUTURE')
   .superRefine((val, ctx) => {
     const d = new Date(val);
     if (Number.isNaN(d.getTime())) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Ogiltig tidpunkt' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom });
       return;
     }
     if (d.getTime() <= Date.now()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'expiresAt måste vara i framtiden' });
+      ctx.addIssue({ code: z.ZodIssueCode.custom });
     }
   });
 

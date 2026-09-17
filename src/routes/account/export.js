@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const archiver = require('archiver');
 const db = require('../../lib/db');
@@ -206,7 +208,7 @@ router.get('/export-data', requireParent, async (req, res) => {
     console.error('[ACCOUNT] Export data error:', err);
     // Only send error response if headers not yet sent
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+      sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
     }
   }
 });

@@ -74,7 +74,18 @@
     "redeemPending": "Det finns redan en väntande inlösen för den här belöningen",
     "redeemTaken": "Den här belöningen har redan låsts in av ett annat barn",
     "rewardInactive": "Den här belöningen är inte längre tillgänglig",
-    "redeemHandled": "Redan hanterad"
+    "redeemHandled": "Redan hanterad",
+    "categoryNameRequired": "Kategorinamn krävs",
+    "redemptionOf": "Inlösen av",
+    "standardNotFound": "Standardinnehållet hittades inte.",
+    "afterSchoolVariantRequired": "Variant krävs för efter skolan.",
+    "afterSchoolVariantInvalid": "Ogiltig variant för efter skolan.",
+    "visibleChildrenInvalid": "visible_to_children måste vara null eller en array",
+    "rewardsAlreadyInLibrary": "Alla valda belöningar finns redan i ditt bibliotek.",
+    "selectedRewardsNotFound": "Inga av de valda belöningarna hittades.",
+    "standardRewardNotFound": "Standardbelöningen hittades inte.",
+    "noRewardsSelected": "Inga belöningar valda.",
+    "saveFailed": "Kunde inte spara"
   },
   "empty": {
     "noCategories": "Inga kategorier ännu",
@@ -377,7 +388,10 @@
     "genericError": "Något gick fel",
     "copying": "Kopierar…",
     "copyFailed": "Kunde inte kopiera",
-    "copyFailedRewards": "Kunde inte kopiera belöningarna"
+    "copyFailedRewards": "Kunde inte kopiera belöningarna",
+    "activityCopiedToast": "Aktiviteten har kopierats!",
+    "activitiesCopiedToast": "Aktiviteterna har kopierats!",
+    "scheduleCopiedToast": "Schemat har kopierats"
   },
   "page": {
     "activitiesTitle": "Aktiviteter — {{brand}}",
@@ -420,10 +434,35 @@
     "addReward": "+ Ny belöning",
     "categoryHint": "Kategorin visas som en ny flik i ditt bibliotek. Du kan använda den vid schemaskapande.",
     "categoryNamePlaceholder": "T.ex. Helg, Högstadiet, Sommar…",
-    "categoryNameLabel": "Kategorinamn *"
+    "categoryNameLabel": "Kategorinamn *",
+    "waitingApproval": "⏳ Väntar på godkännande",
+    "allRewards": "🌟 Alla belöningar",
+    "addRewardsUnder": "Lägg till belöningar under",
+    "libraryRewardsLink": "Bibliotek → Belöningar",
+    "pickChildAbove": "Välj ett barn ovan",
+    "trophyLead": "Se barnets trofé-hylla, stjärnsaldo och belöningsProgress",
+    "loadingChildren": "Laddar barn…",
+    "goalsToWork": "Mål att jobba mot"
   },
   "sevenQuestions": {
     "title": "🧩 Extra stöd — De sju frågorna",
     "hint": "Visuellt stöd som visas i barnets NU-kort (kräver paketet Extra stöd)."
+  },
+  "toasts": {
+    "rewardDeleted": "Belöning borttagen"
+  },
+  "seven": {
+    "extraSupport": "Visuellt stöd (De sju frågorna) ingår i paketet Extra stöd.",
+    "pickImage": "Välj bild",
+    "interestBtn": "Jag är intresserad av Extra stöd",
+    "pickActivity": "Välj aktivitet (valfritt)",
+    "textPlaceholder": "Text…",
+    "minutesPlaceholder": "min",
+    "where": "Var?",
+    "who": "Vem?",
+    "howLong": "Hur länge?",
+    "whatNext": "Vad händer sen?",
+    "whatNeed": "Vad behöver jag?",
+    "why": "Varför?"
   }
 }

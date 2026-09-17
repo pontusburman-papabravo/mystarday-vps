@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Family-level schedule template management.
  * Mounted at: /api/schedule-templates
@@ -41,7 +42,7 @@ router.get('/', async (req, res) => {
     res.json(templates.rows);
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -54,7 +55,7 @@ router.get('/:templateId', async (req, res) => {
       [req.params.templateId, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Schemamallar hittades inte' });
+      return sendApiError(res, 404, 'TEMPLATES_NOT_FOUND');
     }
 
     const items = await db.query(
@@ -71,7 +72,7 @@ router.get('/:templateId', async (req, res) => {
     res.json({ ...template.rows[0], items: items.rows });
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -80,7 +81,7 @@ router.post('/', validate(CreateScheduleTemplateSchema), async (req, res) => {
   try {
     const { name } = req.body;
     if (!name || !name.trim()) {
-      return res.status(400).json({ error: 'Schemanamn krävs' });
+      return sendApiError(res, 400, 'TEMPLATE_NAME_REQUIRED');
     }
 
     const maxResult = await db.query(
@@ -101,7 +102,7 @@ router.post('/', validate(CreateScheduleTemplateSchema), async (req, res) => {
     res.status(201).json({ ...result.rows[0], item_count: 0 });
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -110,7 +111,7 @@ router.post('/from-standard/:standardId', async (req, res) => {
   try {
     const { name } = req.body;
     if (!name || !name.trim()) {
-      return res.status(400).json({ error: 'Schemanamn krävs' });
+      return sendApiError(res, 400, 'TEMPLATE_NAME_REQUIRED');
     }
 
     const familyId = req.user.familyId;
@@ -119,14 +120,14 @@ router.post('/from-standard/:standardId', async (req, res) => {
       'SELECT id, name, canonical_id FROM default_schedule WHERE id = $1',
       [req.params.standardId]
     );
-    if (schedResult.rows.length === 0) return res.status(404).json({ error: 'Standardschemat hittades inte' });
+    if (schedResult.rows.length === 0) return sendApiError(res, 404, 'STANDARD_SCHEDULE_NOT_FOUND');
 
     const scheduleRow = schedResult.rows[0];
     const canonicalScheduleId = scheduleRow.canonical_id
       || LEGACY_SCHEDULE_NAME_TO_CANONICAL[scheduleRow.name]
       || null;
     if (!canonicalScheduleId) {
-      return res.status(400).json({ error: 'Standardschemat saknar canonical identitet.' });
+      return sendApiError(res, 400, 'STANDARD_SCHEDULE_NO_CANONICAL');
     }
 
     const locale = await getFamilyLocale(familyId);
@@ -193,7 +194,7 @@ router.post('/from-standard/:standardId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Create from standard error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -202,7 +203,7 @@ router.put('/:templateId', async (req, res) => {
   try {
     const { is_favorite: isFavorite } = req.body || {};
     if (isFavorite === undefined) {
-      return res.status(400).json({ error: 'Inget att uppdatera' });
+      return sendApiError(res, 400, 'NOTHING_TO_UPDATE');
     }
 
     const result = await db.query(
@@ -213,12 +214,12 @@ router.put('/:templateId', async (req, res) => {
       [Boolean(isFavorite), req.params.templateId, req.user.familyId]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Schemamallen hittades inte' });
+      return sendApiError(res, 404, 'TEMPLATE_NOT_FOUND');
     }
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -230,7 +231,7 @@ router.delete('/:templateId', async (req, res) => {
       [req.params.templateId, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Schemamallen hittades inte' });
+      return sendApiError(res, 404, 'TEMPLATE_NOT_FOUND');
     }
 
     const client = await db.getClient();
@@ -239,7 +240,7 @@ router.delete('/:templateId', async (req, res) => {
       await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [req.params.templateId]);
       await client.query('DELETE FROM weekly_schedule WHERE id = $1', [req.params.templateId]);
       await client.query('COMMIT');
-      res.json({ message: 'Schemat har tagits bort' });
+      res.json({ code: 'SCHEDULE_DELETED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -248,7 +249,7 @@ router.delete('/:templateId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -266,22 +267,22 @@ router.delete('/:templateId', async (req, res) => {
 router.post('/:templateId/apply', async (req, res) => {
   try {
     const { child_id, days, overwrite, operation_id: rawOperationId } = req.body;
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
-    if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
+    if (!child_id) return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
+    if (!Array.isArray(days) || days.length === 0) return sendApiError(res, 400, 'DAYS_REQUIRED');
 
     const template = await db.query(
       `SELECT id, name FROM weekly_schedule WHERE id = $1 AND family_id = $2 AND child_id IS NULL`,
       [req.params.templateId, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Schemamallen hittades inte' });
+      return sendApiError(res, 404, 'TEMPLATE_NOT_FOUND');
     }
 
     const childAccess = await getChildAccess(req.user.id, child_id);
-    if (!childAccess) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!childAccess) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
-    if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
+    if (validDays.length === 0) return sendApiError(res, 400, 'NO_VALID_DAYS');
 
     const existingByDay = await db.query(
       'SELECT day_of_week FROM weekly_schedule WHERE child_id = $1 AND day_of_week = ANY($2::int[])',
@@ -316,7 +317,7 @@ router.post('/:templateId/apply', async (req, res) => {
     const dayNames = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
     const dayStr = filledDays.map(d => dayNames[d]).join(', ');
     res.status(201).json({
-      message: `"${template.rows[0].name}" tillämpat på ${filledDays.length} dag(ar): ${dayStr}`,
+      code: 'TEMPLATE_APPLIED_DAYS',
       filled_days: filledDays,
     });
   } catch (err) {
@@ -324,7 +325,7 @@ router.post('/:templateId/apply', async (req, res) => {
       return res.status(err.httpStatus).json({ error: err.message, code: err.code, details: err.details });
     }
     console.error('[SCHEDULE-TEMPLATES] Apply error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -6,6 +6,10 @@
 
   let _active = false;
 
+  function hg(key, params) {
+    return window.cpt ? cpt(key, params) : key;
+  }
+
   function esc(str) {
     if (!str) return '';
     return String(str)
@@ -18,7 +22,7 @@
     if (typeof window.me !== 'undefined' && window.me && window.me.name) {
       return window.me.name;
     }
-    return 'du';
+    return hg('newPage.you');
   }
 
   function hideLoader() {
@@ -52,41 +56,41 @@
   function renderHub(opts) {
     const o = opts || {};
     const gardenHint = o.gardenLocked
-      ? 'Bocka av något på Idag först'
-      : 'Plantera och skörda solrosor';
+      ? hg('worlds.hub.checkTodayFirst')
+      : hg('worlds.hub.plantHarvest');
     const gardenDisabled = Boolean(o.gardenLocked);
 
     const hubSub = (window.ChildWorlds && ChildWorlds.worldHubSubcopy)
       ? ChildWorlds.worldHubSubcopy()
-      : 'Vad vill du göra i din värld?';
+      : hg('worlds.hub.whatWorld');
 
     return '<div class="cwh-hub" data-world="hub">' +
       '<header class="cwh-header">' +
-        '<h1 class="cwh-title">Hej ' + esc(childName()) + '!</h1>' +
+        '<h1 class="cwh-title">' + esc(hg('worlds.hub.hello', { name: childName() })) + '</h1>' +
         '<p class="cwh-sub">' + esc(hubSub) + '</p>' +
       '</header>' +
       '<div class="cwh-choices">' +
         '<button type="button" class="cwh-choice cwh-choice--primary' + (gardenDisabled ? ' is-disabled' : '') + '"' +
           ' data-cwh-go="garden"' + (gardenDisabled ? ' disabled' : '') +
-          ' aria-label="Trädgården — ' + esc(gardenHint) + '">' +
+          ' aria-label="' + esc(hg('worlds.hub.gardenAriaHint', { hint: gardenHint })) + '">' +
           '<span class="cwh-choice-icon" aria-hidden="true">🌻</span>' +
           '<span class="cwh-choice-body">' +
-            '<span class="cwh-choice-label">Trädgården</span>' +
+            '<span class="cwh-choice-label">' + hg('worlds.garden.name') + '</span>' +
             '<span class="cwh-choice-hint">' + esc(gardenHint) + '</span>' +
           '</span>' +
         '</button>' +
-        '<button type="button" class="cwh-choice" data-cwh-go="morgonhus" aria-label="Morgonhuset — ditt hem">' +
+        '<button type="button" class="cwh-choice" data-cwh-go="morgonhus" aria-label="' + hg('worlds.hub.morgonhusAria') + '">' +
           '<span class="cwh-choice-icon" aria-hidden="true">🏠</span>' +
           '<span class="cwh-choice-body">' +
-            '<span class="cwh-choice-label">Morgonhuset</span>' +
-            '<span class="cwh-choice-hint">Ditt hem — titta runt</span>' +
+            '<span class="cwh-choice-label">' + hg('worlds.morgonhus.name') + '</span>' +
+            '<span class="cwh-choice-hint">' + hg('worlds.hub.morgonhusHint') + '</span>' +
           '</span>' +
         '</button>' +
-        '<button type="button" class="cwh-choice" data-cwh-go="skatt" aria-label="Skattkammaren — belöningar">' +
+        '<button type="button" class="cwh-choice" data-cwh-go="skatt" aria-label="' + hg('worlds.hub.treasureAria') + '">' +
           '<span class="cwh-choice-icon" aria-hidden="true">💎</span>' +
           '<span class="cwh-choice-body">' +
-            '<span class="cwh-choice-label">Skattkammaren</span>' +
-            '<span class="cwh-choice-hint">Dina stjärnor och belöningar</span>' +
+            '<span class="cwh-choice-label">' + hg('worlds.hub.treasureAria') + '</span>' +
+            '<span class="cwh-choice-hint">' + hg('worlds.hub.treasureHint') + '</span>' +
           '</span>' +
         '</button>' +
       '</div>' +

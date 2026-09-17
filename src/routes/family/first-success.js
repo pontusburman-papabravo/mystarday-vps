@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * GET /api/family/first-success
  * Thin adapter: facts → Engine.evaluate → serialize → JSON.
@@ -22,7 +24,7 @@ router.get('/first-success', requireNotPedagogOnly, async (req, res) => {
   try {
     const familyId = req.user.familyId;
     if (!familyId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
 
     if (!(await isEngineApiEnabled(familyId))) {
@@ -46,7 +48,7 @@ router.get('/first-success', requireNotPedagogOnly, async (req, res) => {
     res.json(serializeEngineOutput(output));
   } catch (err) {
     console.error('[FIRST_SUCCESS] GET /first-success error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

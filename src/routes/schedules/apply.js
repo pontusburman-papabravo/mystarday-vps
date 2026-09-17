@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Phase 1B canonical apply endpoints — the "+ Lägg till" primary action's backend.
  * Mounted at: /api/children/:childId/schedules (childRouter)
@@ -63,14 +64,14 @@ function handleApplyError(err, res) {
 router.post('/apply-source', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { source, days, mode, operation_id: operationId, variants, optional_selections: optionalSelections } = req.body || {};
     if (!source || !source.type || !source.id) {
-      return res.status(400).json({ error: 'source.type och source.id krävs' });
+      return sendApiError(res, 400, 'SOURCE_TYPE_ID_REQUIRED');
     }
     const validDays = parseDays(days);
-    if (!validDays) return res.status(400).json({ error: 'days[] krävs' });
+    if (!validDays) return sendApiError(res, 400, 'DAYS_REQUIRED');
 
     const locale = await getFamilyLocale(child.family_id);
     const result = await applyScheduleSourceToChildPlan({
@@ -97,7 +98,7 @@ router.post('/apply-source', async (req, res) => {
   } catch (err) {
     if (handleApplyError(err, res)) return;
     console.error('[SCHEDULE-APPLY] apply-source error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -111,15 +112,15 @@ router.post('/apply-source', async (req, res) => {
 router.post('/apply-activity', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       activity_template_id: activityTemplateId, days, section, start_time: startTime,
       end_time: endTime, mode, operation_id: operationId,
     } = req.body || {};
-    if (!activityTemplateId) return res.status(400).json({ error: 'activity_template_id krävs' });
+    if (!activityTemplateId) return sendApiError(res, 400, 'ACTIVITY_TEMPLATE_REQUIRED');
     const validDays = parseDays(days);
-    if (!validDays) return res.status(400).json({ error: 'days[] krävs' });
+    if (!validDays) return sendApiError(res, 400, 'DAYS_REQUIRED');
 
     const result = await applyActivityToChild({
       familyId: child.family_id,
@@ -145,7 +146,7 @@ router.post('/apply-activity', async (req, res) => {
   } catch (err) {
     if (handleApplyError(err, res)) return;
     console.error('[SCHEDULE-APPLY] apply-activity error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -165,24 +166,24 @@ router.post('/apply-activity', async (req, res) => {
 router.post('/copy-recurring-day', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       source_child_id: sourceChildId, source_day_of_week: sourceDayOfWeek,
       target_days: targetDays, mode, operation_id: operationId,
     } = req.body || {};
     if (sourceDayOfWeek === undefined || sourceDayOfWeek === null) {
-      return res.status(400).json({ error: 'source_day_of_week krävs' });
+      return sendApiError(res, 400, 'SOURCE_DAY_REQUIRED');
     }
     const validTargetDays = parseDays(targetDays);
-    if (!validTargetDays) return res.status(400).json({ error: 'target_days[] krävs' });
+    if (!validTargetDays) return sendApiError(res, 400, 'TARGET_DAYS_REQUIRED');
 
     // The route layer authorizes the target child (above) and the source child (here, if
     // different) — the canonical service independently re-checks both (§4, §22).
     const resolvedSourceChildId = sourceChildId || req.params.childId;
     if (resolvedSourceChildId !== req.params.childId) {
       const sourceChild = await authz.getChildAccess(req.user.id, resolvedSourceChildId);
-      if (!sourceChild) return res.status(403).json({ error: 'Du har inte åtkomst till källbarnet' });
+      if (!sourceChild) return sendApiError(res, 403, 'SOURCE_CHILD_ACCESS');
     }
 
     const result = await copyScheduleDay({
@@ -209,7 +210,7 @@ router.post('/copy-recurring-day', async (req, res) => {
   } catch (err) {
     if (handleApplyError(err, res)) return;
     console.error('[SCHEDULE-APPLY] copy-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -221,11 +222,11 @@ router.post('/copy-recurring-day', async (req, res) => {
 router.post('/save-as-template', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { day_of_week: dayOfWeek, template_name: templateName, operation_id: operationId } = req.body || {};
-    if (dayOfWeek === undefined || dayOfWeek === null) return res.status(400).json({ error: 'day_of_week krävs' });
-    if (!templateName || !String(templateName).trim()) return res.status(400).json({ error: 'template_name krävs' });
+    if (dayOfWeek === undefined || dayOfWeek === null) return sendApiError(res, 400, 'DAY_OF_WEEK_REQUIRED');
+    if (!templateName || !String(templateName).trim()) return sendApiError(res, 400, 'TEMPLATE_NAME_PARAM_REQUIRED');
 
     const result = await saveWeeklyDayAsFamilyTemplate({
       familyId: child.family_id,
@@ -243,7 +244,7 @@ router.post('/save-as-template', async (req, res) => {
   } catch (err) {
     if (handleApplyError(err, res)) return;
     console.error('[SCHEDULE-APPLY] save-as-template error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

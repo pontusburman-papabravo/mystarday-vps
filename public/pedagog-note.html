@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Pedagoganteckningar — Min Stjärndag</title>
+  <title data-i18n-title="family.pedagog.note.pageTitle">Pedagoganteckningar — Min Stjärndag</title><!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
+  <script src="/js/api-error-i18n.js?v=1"></script>
   <style>
     :root {
       --navy: #1C2340;
@@ -260,7 +263,7 @@
 
 <div id="loading" class="loading-overlay">
   <div class="spinner"></div>
-  <span style="font-size:14px;color:#5A6378;">Laddar...</span>
+  <span style="font-size:14px;color:#5A6378;" data-i18n="family.pedagog.note.loading">Laddar...</span>
 </div>
 
 <div style="max-width:480px;margin:0 auto;padding:16px 16px 80px;">
@@ -269,108 +272,116 @@
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
     <a href="/pedagog-oversikt" style="text-decoration:none;font-size:24px;color:var(--navy);">←</a>
     <div>
-      <h1 style="font-size:20px;font-family:'Instrument Serif',serif;">📝 Dagformulär</h1>
-      <p style="font-size:12px;color:var(--muted);" id="subtitle">Observationer</p>
+      <h1 style="font-size:20px;font-family:'Instrument Serif',serif;" data-i18n="family.pedagog.note.heading">📝 Dagformulär</h1>
+      <p style="font-size:12px;color:var(--muted);" id="subtitle" data-i18n="family.pedagog.note.subtitle">Observationer</p>
     </div>
-    <div id="saveStatus" class="saved-indicator">✓ Sparad</div>
+    <div id="saveStatus" class="saved-indicator" data-i18n="family.pedagog.note.saved">✓ Sparad</div>
   </div>
 
   <!-- Child selector (dropdown) -->
   <div class="form-section">
-    <select id="childSelect" class="child-dropdown" aria-label="Välj barn">
-      <option value="">— Välj barn —</option>
+    <select id="childSelect" class="child-dropdown" data-i18n-aria-label="family.pedagog.note.selectChildAria" aria-label="Välj barn">
+      <option value="" data-i18n="family.pedagog.note.selectChild">— Välj barn —</option>
     </select>
   </div>
 
   <!-- Date picker -->
   <div class="form-section">
-    <input type="date" id="dateInput" max="" aria-label="Datum">
+    <input type="date" id="dateInput" max="" data-i18n-aria-label="family.pedagog.note.dateAria" aria-label="Datum">
   </div>
 
   <!-- Mood -->
   <div class="card form-section">
-    <h2>😊 HUMÖR</h2>
-    <div style="display:flex;gap:8px;" role="group" aria-label="Humör">
-      <button class="mood-btn" data-field="mood" data-val="1" title="Mycket dåligt">😫</button>
-      <button class="mood-btn" data-field="mood" data-val="2" title="Dåligt">😕</button>
-      <button class="mood-btn" data-field="mood" data-val="3" title="Okej">😐</button>
-      <button class="mood-btn" data-field="mood" data-val="4" title="Bra">🙂</button>
-      <button class="mood-btn" data-field="mood" data-val="5" title="Utmärkt">😄</button>
+    <h2 data-i18n="family.pedagog.note.mood">😊 HUMÖR</h2>
+    <div style="display:flex;gap:8px;" role="group" data-i18n-aria-label="family.pedagog.note.moodAria" aria-label="Humör">
+      <button class="mood-btn" data-field="mood" data-val="1" data-i18n-title="family.pedagog.note.moodVeryBad" title="Mycket dåligt">😫</button>
+      <button class="mood-btn" data-field="mood" data-val="2" data-i18n-title="family.pedagog.note.moodBad" title="Dåligt">😕</button>
+      <button class="mood-btn" data-field="mood" data-val="3" data-i18n-title="family.pedagog.note.moodOk" title="Okej">😐</button>
+      <button class="mood-btn" data-field="mood" data-val="4" data-i18n-title="family.pedagog.note.moodGood" title="Bra">🙂</button>
+      <button class="mood-btn" data-field="mood" data-val="5" data-i18n-title="family.pedagog.note.moodGreat" title="Utmärkt">😄</button>
     </div>
   </div>
 
   <!-- Dagsvila -->
   <div class="card form-section">
-    <h2>⏰ DAGSVILA</h2>
+    <h2 data-i18n="family.pedagog.note.rest">⏰ DAGSVILA</h2>
 
-    <label class="sub-label">Tid sovit:</label>
-    <div class="segment-group" role="group" aria-label="Tid sovit">
-      <button class="seg-btn" data-field="sleep_hours" data-value="0">Ingen</button>
-      <button class="seg-btn" data-field="sleep_hours" data-value="0.5">30 min</button>
-      <button class="seg-btn" data-field="sleep_hours" data-value="1">1 tim</button>
-      <button class="seg-btn" data-field="sleep_hours" data-value="1.5">1,5 tim</button>
-      <button class="seg-btn" data-field="sleep_hours" data-value="2">2 tim+</button>
+    <label class="sub-label" data-i18n="family.pedagog.note.sleepTime">Tid sovit:</label>
+    <div class="segment-group" role="group" data-i18n-aria-label="family.pedagog.note.sleepTimeAria" aria-label="Tid sovit">
+      <button class="seg-btn" data-field="sleep_hours" data-value="0" data-i18n="family.pedagog.note.sleepNone">Ingen</button>
+      <button class="seg-btn" data-field="sleep_hours" data-value="0.5" data-i18n="family.pedagog.note.sleep30">30 min</button>
+      <button class="seg-btn" data-field="sleep_hours" data-value="1" data-i18n="family.pedagog.note.sleep1h">1 tim</button>
+      <button class="seg-btn" data-field="sleep_hours" data-value="1.5" data-i18n="family.pedagog.note.sleep1h30">1,5 tim</button>
+      <button class="seg-btn" data-field="sleep_hours" data-value="2" data-i18n="family.pedagog.note.sleep2h">2 tim+</button>
     </div>
 
-    <label class="sub-label">Komma till ro:</label>
-    <div class="segment-group" role="group" aria-label="Komma till ro">
-      <button class="seg-btn seg-green" data-field="sleep_quality" data-value="easy">🟢 Snabbt</button>
-      <button class="seg-btn seg-amber" data-field="sleep_quality" data-value="slow">🟡 Varva ner</button>
-      <button class="seg-btn seg-red" data-field="sleep_quality" data-value="difficult">🔴 Svårt</button>
+    <label class="sub-label" data-i18n="family.pedagog.note.settle">Komma till ro:</label>
+    <div class="segment-group" role="group" data-i18n-aria-label="family.pedagog.note.settleAria" aria-label="Komma till ro">
+      <button class="seg-btn seg-green" data-field="sleep_quality" data-value="easy" data-i18n="family.pedagog.note.settleEasy">🟢 Snabbt</button>
+      <button class="seg-btn seg-amber" data-field="sleep_quality" data-value="slow" data-i18n="family.pedagog.note.settleSlow">🟡 Varva ner</button>
+      <button class="seg-btn seg-red" data-field="sleep_quality" data-value="difficult" data-i18n="family.pedagog.note.settleHard">🔴 Svårt</button>
     </div>
   </div>
 
   <!-- Måltider -->
   <div class="card form-section">
-    <h2>🍽️ MÅLTIDER</h2>
+    <h2 data-i18n="family.pedagog.note.meals">🍽️ MÅLTIDER</h2>
 
-    <label class="sub-label">Frukost:</label>
-    <div class="segment-group" role="group" aria-label="Frukost">
-      <button class="seg-btn seg-green" data-meal="frukost" data-value="good">🟢 Åt bra</button>
-      <button class="seg-btn seg-amber" data-meal="frukost" data-value="little">🟡 Åt lite</button>
-      <button class="seg-btn seg-red" data-meal="frukost" data-value="none">🔴 Åt ej</button>
-      <button class="seg-btn seg-gray" data-meal="frukost" data-value="not_served">⚪ Serverades ej</button>
+    <label class="sub-label" data-i18n="family.pedagog.note.breakfast">Frukost:</label>
+    <div class="segment-group" role="group" data-i18n-aria-label="family.pedagog.note.breakfastAria" aria-label="Frukost">
+      <button class="seg-btn seg-green" data-meal="frukost" data-value="good" data-i18n="family.pedagog.note.ateWell">🟢 Åt bra</button>
+      <button class="seg-btn seg-amber" data-meal="frukost" data-value="little" data-i18n="family.pedagog.note.ateLittle">🟡 Åt lite</button>
+      <button class="seg-btn seg-red" data-meal="frukost" data-value="none" data-i18n="family.pedagog.note.ateNone">🔴 Åt ej</button>
+      <button class="seg-btn seg-gray" data-meal="frukost" data-value="not_served" data-i18n="family.pedagog.note.notServed">⚪ Serverades ej</button>
     </div>
 
-    <label class="sub-label">Lunch:</label>
-    <div class="segment-group" role="group" aria-label="Lunch">
-      <button class="seg-btn seg-green" data-meal="lunch" data-value="good">🟢 Åt bra</button>
-      <button class="seg-btn seg-amber" data-meal="lunch" data-value="little">🟡 Åt lite</button>
-      <button class="seg-btn seg-red" data-meal="lunch" data-value="none">🔴 Åt ej</button>
-      <button class="seg-btn seg-gray" data-meal="lunch" data-value="not_served">⚪ Serverades ej</button>
+    <label class="sub-label" data-i18n="family.pedagog.note.lunch">Lunch:</label>
+    <div class="segment-group" role="group" data-i18n-aria-label="family.pedagog.note.lunchAria" aria-label="Lunch">
+      <button class="seg-btn seg-green" data-meal="lunch" data-value="good" data-i18n="family.pedagog.note.ateWell">🟢 Åt bra</button>
+      <button class="seg-btn seg-amber" data-meal="lunch" data-value="little" data-i18n="family.pedagog.note.ateLittle">🟡 Åt lite</button>
+      <button class="seg-btn seg-red" data-meal="lunch" data-value="none" data-i18n="family.pedagog.note.ateNone">🔴 Åt ej</button>
+      <button class="seg-btn seg-gray" data-meal="lunch" data-value="not_served" data-i18n="family.pedagog.note.notServed">⚪ Serverades ej</button>
     </div>
 
-    <label class="sub-label">Mellanmål:</label>
-    <div class="segment-group" role="group" aria-label="Mellanmål">
-      <button class="seg-btn seg-green" data-meal="mellanmal" data-value="good">🟢 Åt bra</button>
-      <button class="seg-btn seg-amber" data-meal="mellanmal" data-value="little">🟡 Åt lite</button>
-      <button class="seg-btn seg-red" data-meal="mellanmal" data-value="none">🔴 Åt ej</button>
-      <button class="seg-btn seg-gray" data-meal="mellanmal" data-value="not_served">⚪ Serverades ej</button>
+    <label class="sub-label" data-i18n="family.pedagog.note.snack">Mellanmål:</label>
+    <div class="segment-group" role="group" data-i18n-aria-label="family.pedagog.note.snackAria" aria-label="Mellanmål">
+      <button class="seg-btn seg-green" data-meal="mellanmal" data-value="good" data-i18n="family.pedagog.note.ateWell">🟢 Åt bra</button>
+      <button class="seg-btn seg-amber" data-meal="mellanmal" data-value="little" data-i18n="family.pedagog.note.ateLittle">🟡 Åt lite</button>
+      <button class="seg-btn seg-red" data-meal="mellanmal" data-value="none" data-i18n="family.pedagog.note.ateNone">🔴 Åt ej</button>
+      <button class="seg-btn seg-gray" data-meal="mellanmal" data-value="not_served" data-i18n="family.pedagog.note.notServed">⚪ Serverades ej</button>
     </div>
   </div>
 
   <!-- Betende -->
   <div class="card form-section">
-    <h2>🧠 BETEENDE</h2>
-    <textarea id="behaviorField" placeholder="Dagen i gruppen — hur har barnet varit?" rows="3"></textarea>
+    <h2 data-i18n="family.pedagog.note.behavior">🧠 BETEENDE</h2>
+    <textarea id="behaviorField" data-i18n-placeholder="family.pedagog.note.behaviorPlaceholder" placeholder="Dagen i gruppen — hur har barnet varit?" rows="3"></textarea>
   </div>
 
   <!-- Övriga anteckningar -->
   <div class="card form-section">
-    <h2>📋 ÖVRIGT</h2>
-    <textarea id="notesField" placeholder="Övriga observationer..." rows="2"></textarea>
+    <h2 data-i18n="family.pedagog.note.other">📋 ÖVRIGT</h2>
+    <textarea id="notesField" data-i18n-placeholder="family.pedagog.note.otherPlaceholder" placeholder="Övriga observationer..." rows="2"></textarea>
   </div>
 
   <!-- Markera som klar -->
-  <button id="markDoneBtn" class="btn-mark-done" style="display:none;">✓ Markera som klar</button>
+  <button id="markDoneBtn" class="btn-mark-done" style="display:none;" data-i18n="family.pedagog.note.markDone">✓ Markera som klar</button>
 
   <!-- Auto-spara-knapp (draft-sparning) -->
-  <button id="saveDraftBtn" class="btn-save-draft">Spara utkast</button>
+  <button id="saveDraftBtn" class="btn-save-draft" data-i18n="family.pedagog.note.saveDraft">Spara utkast</button>
 
 </div>
 
 <script>
 'use strict';
+
+function pt(key) {
+  if (window.I18n && typeof I18n.t === 'function') {
+    const text = I18n.t(key);
+    if (text && text !== key) return text;
+  }
+  return key;
+}
 
 const params = new URLSearchParams(location.search);
 
@@ -403,7 +414,7 @@ function showSaved(text, isMarkDone) {
   clearTimeout(el._t);
   el._t = setTimeout(() => {
     el.classList.remove('show', 'mark-done');
-    el.textContent = '✓ Sparad';
+    el.textContent = pt('family.pedagog.note.saved');
   }, 3000);
 }
 
@@ -449,17 +460,17 @@ async function loadChildren() {
     children = json.children || [];
     renderChildDropdown();
   } catch (err) {
-    showError('Kunde inte ladda barn');
+    showError(pt('family.pedagog.note.loadChildrenFailed'));
   }
 }
 
 function renderChildDropdown() {
   const sel = $('childSelect');
   if (children.length === 0) {
-    sel.innerHTML = '<option value="">Inga barn kopplade</option>';
+    sel.innerHTML = '<option value="">' + pt('family.pedagog.note.noChildren') + '</option>';
     return;
   }
-  sel.innerHTML = '<option value="">— Välj barn —</option>';
+  sel.innerHTML = '<option value="">' + pt('family.pedagog.note.selectChild') + '</option>';
   children.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c.id;
@@ -530,7 +541,7 @@ async function loadExistingNote() {
       localIsDraft = n.is_draft !== false;
 
       if (!localIsDraft) {
-        $('markDoneBtn').textContent = '✓ Klar — Sparad';
+        $('markDoneBtn').textContent = pt('family.pedagog.note.savedDone');
         $('markDoneBtn').style.background = '#A7F3D0';
         $('markDoneBtn').style.borderColor = '#16A34A';
         $('markDoneBtn').style.color = '#166534';
@@ -559,7 +570,7 @@ function clearForm() {
   $('notesField').value = '';
 
   // Reset Markera som klar button
-  $('markDoneBtn').textContent = '✓ Markera som klar';
+  $('markDoneBtn').textContent = pt('family.pedagog.note.markDone');
   $('markDoneBtn').style.background = '';
   $('markDoneBtn').style.borderColor = '';
   $('markDoneBtn').style.color = '';
@@ -638,7 +649,7 @@ function doAutoSave() {
 // ── Manual save (draft or done) ────────────────────────────
 async function saveNote(isAuto, isMarkDone) {
   if (!selectedChildId) {
-    if (!isAuto) showError('Välj ett barn först');
+    if (!isAuto) showError(pt('family.pedagog.note.selectChildFirst'));
     return;
   }
 
@@ -659,14 +670,14 @@ async function saveNote(isAuto, isMarkDone) {
     formDirty = false;
     if (isMarkDone) {
       localIsDraft = false;
-      showSaved('✓ Klar', true);
+      showSaved(pt('family.pedagog.note.savedShort'), true);
       // Update button appearance
-      $('markDoneBtn').textContent = '✓ Klar — Sparad';
+      $('markDoneBtn').textContent = pt('family.pedagog.note.savedDone');
       $('markDoneBtn').style.background = '#A7F3D0';
       $('markDoneBtn').style.borderColor = '#16A34A';
       $('markDoneBtn').style.color = '#166534';
     } else {
-      showSaved('✓ Sparad', false);
+      showSaved(pt('family.pedagog.note.saved'), false);
     }
   } catch (err) {
     if (!isAuto) showError(err.message);
@@ -719,7 +730,11 @@ window.addEventListener('pagehide', flushIfDirty);
 document.addEventListener('freeze', flushIfDirty);
 
 // ── Init ──────────────────────────────────────────────────
-(function init() {
+async function bootPedagogNote() {
+  if (window.I18n) {
+    await I18n.init();
+    I18n.apply();
+  }
   $('dateInput').max = new Date().toISOString().slice(0, 10);
   $('dateInput').value = selectedDate;
 
@@ -732,7 +747,12 @@ document.addEventListener('freeze', flushIfDirty);
   });
 
   $('loading').style.display = 'none';
-})();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { bootPedagogNote(); });
+} else {
+  bootPedagogNote();
+}
 </script>
 
 </body>

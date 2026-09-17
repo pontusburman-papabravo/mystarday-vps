@@ -177,15 +177,14 @@ const Platform = (function () {
     async signIn() {
       const clientId = await loadGoogleClientId();
       if (!clientId) {
-        throw new Error('Google Sign In är inte redo — försök igen om en stund.');
+        throw new Error((window.I18n && I18n.t('family.errors.googleNotReady')) || 'GOOGLE_NOT_READY');
       }
       if (isNative() && isAndroid()) {
         const GoogleAuth =
           typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.GoogleAuth;
         if (!GoogleAuth || typeof GoogleAuth.initialize !== 'function' || typeof GoogleAuth.signIn !== 'function') {
-          throw new Error(
-            'Google Sign In-plugin saknas. Kör: npm i @codetrix-studio/capacitor-google-auth && npx cap sync android'
-          );
+          // i18n-ignore: native Capacitor plugin diagnostic, not family chrome
+          throw new Error('GOOGLE_PLUGIN_MISSING');
         }
         await GoogleAuth.initialize({
           clientId: clientId,
@@ -201,7 +200,7 @@ const Platform = (function () {
       if (isWeb()) {
         return webGoogleSignIn(clientId);
       }
-      throw new Error('Google Sign In är inte tillgängligt på den här enheten');
+      throw new Error((window.I18n && I18n.t('family.errors.googleUnavailable')) || 'GOOGLE_UNAVAILABLE');
     },
   };
 
@@ -808,7 +807,7 @@ const Platform = (function () {
     if (!Camera) return null;
     const photosOk = await ensurePhotosPermission(Camera, opts);
     if (!photosOk) {
-      return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+      return { error: (window.I18n && I18n.t('family.errors.photoPermission')) || 'PHOTO_PERMISSION' };
     }
     return await nativePickWithFallbacks(Camera, opts);
   }
@@ -816,9 +815,9 @@ const Platform = (function () {
   function pickErrorMessage(err, stage) {
     const detail = (err && err.message) ? String(err.message).trim() : '';
     if (detail && detail.length < 120) {
-      return (stage || 'Kunde inte välja bild') + ': ' + detail;
+      return (stage || ((window.I18n && I18n.t('family.errors.pickImage')) || 'PHOTO_PICK_FAILED')) + ': ' + detail;
     }
-    return stage || 'Kunde inte välja bild. Stäng appen helt och öppna igen.';
+    return stage || ((window.I18n && I18n.t('family.errors.pickImageRestart')) || 'PHOTO_PICK_FAILED');
   }
   function isPickCancelled(err) {
     const msg = ((err && err.message) || String(err || '')).toLowerCase();
@@ -961,7 +960,7 @@ const Platform = (function () {
       canvas.width = cw;
       canvas.height = ch;
       const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Kunde inte bearbeta bilden');
+      if (!ctx) throw new Error((window.I18n && I18n.t('family.errors.imageProcess')) || 'IMAGE_PROCESS');
       ctx.drawImage(img, 0, 0, cw, ch);
       let quality = 0.88;
       let compressed = null;
@@ -977,7 +976,7 @@ const Platform = (function () {
       console.warn('[Platform.camera] compress fallback:', compressErr);
       if (blob.size <= maxBytes) return blob;
     }
-    throw new Error('Bilden är för stor — prova en mindre bild');
+    throw new Error((window.I18n && I18n.t('family.errors.imageTooLargeRetry')) || 'IMAGE_TOO_LARGE');
   }
 
   function postFormDataNative(url, fd, headers) {
@@ -1072,7 +1071,7 @@ const Platform = (function () {
         }
 
         if (lastErr && (lastErr.code === 'USER_DID_NOT_GRANT_PERMISSION' || lastErr.code === 'permission-denied')) {
-          return { error: 'Tillåt fotoåtkomst under Inställningar på din enhet.' };
+          return { error: (window.I18n && I18n.t('family.errors.photoPermission')) || 'PHOTO_PERMISSION' };
         }
         return { error: pickErrorMessage(lastErr, 'Kunde inte öppna fotobiblioteket') };
       }
@@ -1121,7 +1120,7 @@ const Platform = (function () {
       }
       await authObj.ensureCsrfToken();
       const csrf = authObj.getCsrfToken();
-      if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan och försök igen');
+      if (!csrf) throw new Error((window.I18n && I18n.t('family.errors.csrfReload')) || 'CSRF_MISSING');
 
       if (!_nativeFormPostReady()) {
         /* fetch path (default) */
@@ -1137,7 +1136,7 @@ const Platform = (function () {
       });
       if (!result.ok) {
         const err = await result.json().catch(function () { return {}; });
-        if (result.status === 413) throw new Error('Bilden är för stor (max 2 MB)');
+        if (result.status === 413) throw new Error((window.I18n && I18n.t('family.errors.imageTooLarge2mb')) || 'IMAGE_TOO_LARGE');
         throw new Error(err.error || 'Uppladdning misslyckades (' + result.status + ')');
       }
       const json = await result.json();

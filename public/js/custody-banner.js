@@ -91,7 +91,7 @@
       textSpan.setAttribute('data-custody-banner-text', '1');
       banner.appendChild(textSpan);
     }
-    textSpan.textContent = 'Denna vecka: hos ' + homeLabel;
+    textSpan.textContent = (window.pt ? pt('family.custody.thisWeekAt', { home: homeLabel }) : ('This week: at ' + homeLabel));
 
     const handoffIso = nextHandoffDate(data);
     const weekday = handoffWeekdayLabel(handoffIso);
@@ -103,7 +103,7 @@
         handoffSpan.className = 'text-xs font-medium text-navy/80 w-full sm:w-auto';
         banner.appendChild(handoffSpan);
       }
-      handoffSpan.textContent = 'Nästa byte på ' + weekday;
+      handoffSpan.textContent = (window.pt ? pt('family.custody.nextChange') : 'Next change on') + ' ' + weekday;
       handoffSpan.classList.remove('hidden');
     } else if (handoffSpan) {
       handoffSpan.classList.add('hidden');

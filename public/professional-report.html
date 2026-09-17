@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Rapport — Min Stjärndag</title>
+  <title data-i18n="reports.professional.pageTitle">Rapport</title> <!-- pragma: allowlist secret -->
+    <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
+  <script src="/js/locale-datetime.js?v=2.12.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -585,7 +588,7 @@
     }
   </style>
 </head>
-<body>
+<body data-i18n-manual-init="true" data-i18n-title="reports.professional.pageTitle">
 
 <div class="site-bar">
   <span class="site-bar-stars">⭐</span>
@@ -596,27 +599,23 @@
 
   <!-- Disclaimer (always visible) -->
   <div class="disclaimer" id="disclaimer">
-    ⚠️ <strong>Viktigt:</strong> Denna sida visar en sammanställning av vald
-    aktivitets- och belöningsstatistik som en vårdnadshavare aktivt valt att dela.
-    Den är avsedd som underlag för samtal och ersätter inte journalföring eller
-    officiell dokumentation inom skola, hälso- och sjukvård eller socialtjänst.
-    Min Stjärndag är inte ett journalsystem.
+    <!-- filled after I18n.init -->
   </div>
 
   <!-- Loading -->
   <div class="loading-screen" id="loadingScreen">
-    <p>Laddar rapport…</p>
+    <p data-i18n="reports.professional.loading">Laddar rapport…</p>
     <div class="loading-dots"><span></span><span></span><span></span></div>
   </div>
 
   <!-- PIN entry -->
   <div class="pin-wrap" id="pinScreen" style="display:none">
     <div class="pin-icon">🔒</div>
-    <div class="pin-title">Skyddad rapport</div>
-    <div class="pin-sub">Ange koden som du fått av föräldern</div>
+    <div class="pin-title" data-i18n="reports.professional.pinTitle">Skyddad rapport</div>
+    <div class="pin-sub" data-i18n="reports.professional.pinSub">Ange koden som du fått av föräldern</div>
     <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
       class="pin-input" id="pinInput" placeholder="••••" autocomplete="off" autofocus>
-    <button class="pin-btn" id="pinBtn" type="button">Öppna rapport</button>
+    <button class="pin-btn" id="pinBtn" type="button" data-i18n="reports.professional.openReport">Öppna rapport</button>
     <div class="pin-error" id="pinError" aria-live="polite"></div>
   </div>
 
@@ -624,14 +623,14 @@
   <div class="report-toolbar no-print" id="reportToolbar" style="display:none">
     <div class="toolbar-row">
       <div class="toolbar-filters" id="toolbarFilters">
-        <button class="toolbar-filter active" data-filter="all">Alla</button>
-        <button class="toolbar-filter" data-filter="morgon">Morgon</button>
-        <button class="toolbar-filter" data-filter="dag">Dag</button>
-        <button class="toolbar-filter" data-filter="kvall">Kväll</button>
+        <button class="toolbar-filter active" data-filter="all" data-i18n="reports.professional.filterAll">Alla</button>
+        <button class="toolbar-filter" data-filter="morgon" data-i18n="reports.professional.sectionMorning">Morgon</button>
+        <button class="toolbar-filter" data-filter="dag" data-i18n="reports.professional.sectionDay">Dag</button>
+        <button class="toolbar-filter" data-filter="kvall" data-i18n="reports.professional.sectionEvening">Kväll</button>
       </div>
       <div class="toolbar-right">
-        <span class="toolbar-branding">Rapport från Min Stjärndag · mystarday.se</span>
-        <button class="toolbar-pdf-btn" id="btnToolbarPdf">⬇ Ladda ner PDF</button>
+        <span class="toolbar-branding" data-i18n="reports.professional.branding">Rapport</span>
+        <button class="toolbar-pdf-btn" id="btnToolbarPdf" data-i18n="reports.professional.downloadPdf">⬇ Ladda ner PDF</button>
       </div>
     </div>
   </div>
@@ -642,7 +641,7 @@
     <!-- Anonymous notice (hidden by default) -->
     <div class="anonymous-notice" id="anonymousNotice" style="display:none">
       <span style="font-size:20px">🔒</span>
-      <span>Den här rapporten har anonymiserats — barnets namn och emoji visas inte.</span>
+      <span data-i18n="reports.professional.anonymous">Den här rapporten har anonymiserats — barnets namn och emoji visas inte.</span>
     </div>
 
     <!-- Report header -->
@@ -660,16 +659,16 @@
 
     <!-- Footer -->
     <div class="report-footer">
-      Rapport från Min Stjärndag · mystarday.se
+      <span data-i18n="reports.professional.branding">Rapport</span>
     </div>
 
     <!-- Action buttons -->
     <div class="no-print">
       <button class="btn-pdf" id="btnPdf">
-        ⬇ Ladda ner PDF
+        <span data-i18n="reports.professional.downloadPdf">⬇ Ladda ner PDF</span>
       </button>
       <button class="btn-print" onclick="window.print()">
-        🖨 Skriv ut
+        <span data-i18n="reports.professional.print">🖨 Skriv ut</span>
       </button>
     </div>
   </div>
@@ -677,8 +676,8 @@
   <!-- Error screen -->
   <div class="error-screen" id="errorScreen" style="display:none">
     <div style="font-size:48px;margin-bottom:12px;">⚠️</div>
-    <div class="pin-title" id="errorTitle" style="text-align:center">Rapporten hittades inte</div>
-    <div id="errorSub" style="font-size:14px;color:var(--text-2);margin-top:8px;">Länken kan ha återkallats eller gått ut.</div>
+    <div class="pin-title" id="errorTitle" style="text-align:center" data-i18n="reports.professional.errorNotFound">Rapporten hittades inte</div>
+    <div id="errorSub" style="font-size:14px;color:var(--text-2);margin-top:8px;" data-i18n="reports.professional.errorLinkGone">Länken kan ha återkallats eller gått ut.</div>
   </div>
 
 </div>
@@ -689,6 +688,27 @@
 <script>
 (function() {
   'use strict';
+
+  function t(key, params) {
+    if (typeof window.pt === 'function') return window.pt(key, params);
+    if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+    return key;
+  }
+  function brandName() {
+    var b = t('onboarding.common.brand');
+    return b && b !== 'onboarding.common.brand' ? b : 'My Starday';
+  }
+  function applyBranding() {
+    var disc = document.getElementById('disclaimer');
+    if (disc) disc.innerHTML = t('reports.professional.disclaimer', { brand: brandName() });
+    document.querySelectorAll('[data-i18n="reports.professional.branding"]').forEach(function(el) {
+      el.textContent = t('reports.professional.branding', { brand: brandName() });
+    });
+    if (window.I18n) {
+      var title = I18n.t('reports.professional.pageTitle', { brand: brandName() });
+      if (title && title !== 'reports.professional.pageTitle') document.title = title;
+    }
+  }
 
   var currentPublicId = null;
   var _reportData = null; // store fetched report data for playful export
@@ -711,8 +731,9 @@
 
   // ── Helpers ─────────────────────────────────────────────
 
-  var MONTHS_SV = ['jan','feb','mar','apr','maj','jun',
-                   'jul','aug','sep','okt','nov','dec'];
+  function localeTag() {
+    return (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang()) || 'sv-SE';
+  }
 
   // Normalize date: accepts YYYY-MM-DD string, Date object, or ISO string with T.
   // Returns "D month" string or '' on invalid.
@@ -727,8 +748,7 @@
       return '';
     }
     if (isNaN(d.getTime())) return '';
-    var m = d.getMonth();
-    return d.getDate() + ' ' + (MONTHS_SV[m] || '?');
+    return new Intl.DateTimeFormat(localeTag(), { day: 'numeric', month: 'short' }).format(d);
   }
 
   // Returns YYYY-MM-DD in local time (avoids UTC offset issues in summer)
@@ -762,7 +782,7 @@
   }
 
   function showError(title, sub) {
-    errorTitle.textContent = title || 'Något gick fel';
+    errorTitle.textContent = title || t('reports.professional.somethingWentWrong');
     errorSub.textContent   = sub   || '';
     showScreen('error');
   }
@@ -794,7 +814,7 @@
   function renderCompletion(data) {
     if (!data || data.length === 0) return renderEmpty();
     var html = '<div class="table-wrap"><table>';
-    html += '<thead><tr><th>Datum</th><th style="text-align:center">Utförda</th><th style="text-align:center">Totalt</th><th style="text-align:right">%</th></tr></thead><tbody>';
+    html += '<thead><tr><th>' + t('reports.professional.colDate') + '</th><th style="text-align:center">' + t('reports.professional.colDone') + '</th><th style="text-align:center">' + t('reports.professional.colTotal') + '</th><th style="text-align:right">%</th></tr></thead><tbody>';
     data.forEach(function(r) {
       var pct = r.total > 0 ? Math.round((r.completed / r.total) * 100) : 0;
       var w   = Math.max(4, Math.round(pct * 0.6));
@@ -842,8 +862,8 @@
 
     while (cur <= end) {
       var dateStr = localDateStr(cur);
-      var dayName = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'][cur.getDay()];
-      var dayDate = cur.getDate() + ' ' + MONTHS_SV[cur.getMonth()];
+      var dayName = new Intl.DateTimeFormat(localeTag(), { weekday: 'long' }).format(cur);
+      var dayDate = fmtDate(cur);
 
       var items = byDate[dateStr] || [];
       var hasData = items.length > 0;
@@ -865,13 +885,13 @@
 
           if (item.parent_note) {
             html += '<div class="note-block parent">';
-            html += '<div class="note-label parent">Vårdnadshavare</div>';
+            html += '<div class="note-label parent">' + t('reports.professional.parentLabel') + '</div>';
             html += '<div class="note-text">' + esc(item.parent_note) + '</div>';
             html += '</div>';
           }
           if (item.child_note) {
             html += '<div class="note-block child">';
-            html += '<div class="note-label child">Barnet</div>';
+            html += '<div class="note-label child">' + t('reports.professional.childLabel') + '</div>';
             html += '<div class="note-text">' + esc(item.child_note) + '</div>';
             html += '</div>';
           }
@@ -941,7 +961,7 @@
     if (!data || data.length === 0) return renderEmpty();
 
     var mealsLabelMap = { good: 'Åt bra', little: 'Åt lite', none: 'Åt ej', not_served: 'Serverades ej' };
-    var sleepLabelMap = { easy: 'Somnade snabbt', slow: 'Varvade ner', difficult: 'Svårt att somna' };
+    var sleepLabelMap = { easy: t('reports.professional.sleepEasy'), slow: t('reports.professional.sleepSlow'), difficult: t('reports.professional.sleepDifficult') };
     var moodFaces = ['', '😫', '😕', '😐', '🙂', '😄'];
 
     var html = '';
@@ -958,7 +978,7 @@
 
       // Humör
       if (note.mood) {
-        html += '<div style="margin-bottom:6px;"><strong>Humör:</strong> ' + moodFace + ' (' + note.mood + '/5)</div>';
+        html += '<div style="margin-bottom:6px;"><strong>' + t('reports.professional.mood') + ':</strong> ' + moodFace + ' (' + note.mood + '/5)</div>';
       }
 
       // Dagsvila: tid + komma till ro
@@ -972,14 +992,14 @@
           sleepParts.push(sleepLabelMap[note.sleep_quality]);
         }
         if (sleepParts.length > 0) {
-          html += '<div style="margin-bottom:6px;"><strong>Sömn:</strong> ' + esc(sleepParts.join(' · ')) + '</div>';
+          html += '<div style="margin-bottom:6px;"><strong>' + t('reports.professional.sleep') + ':</strong> ' + esc(sleepParts.join(' · ')) + '</div>';
         }
       }
 
       // Måltider: structured or free-text fallback
       if (note.meals_structured && typeof note.meals_structured === 'object') {
         var mealsParts = [];
-        var mealKeys = { frukost: 'Frukost', lunch: 'Lunch', mellanmal: 'Mellanmål' };
+        var mealKeys = { frukost: t('reports.professional.breakfast'), lunch: t('reports.professional.lunch'), mellanmal: t('reports.professional.snack') };
         Object.keys(mealKeys).forEach(function(key) {
           var val = note.meals_structured[key];
           if (val && mealsLabelMap[val]) {
@@ -987,10 +1007,10 @@
           }
         });
         if (mealsParts.length > 0) {
-          html += '<div style="margin-bottom:6px;"><strong>Måltider:</strong> ' + esc(mealsParts.join(' · ')) + '</div>';
+          html += '<div style="margin-bottom:6px;"><strong>' + t('reports.professional.meals') + ':</strong> ' + esc(mealsParts.join(' · ')) + '</div>';
         }
       } else if (note.meals) {
-        html += '<div style="margin-bottom:6px;"><strong>Måltider:</strong> ' + esc(note.meals) + '</div>';
+        html += '<div style="margin-bottom:6px;"><strong>' + t('reports.professional.meals') + ':</strong> ' + esc(note.meals) + '</div>';
       }
 
       // Betende
@@ -1010,7 +1030,7 @@
 
   function renderStars(data) {
     if (!data || data.total == null) return renderEmpty();
-    return '<div class="big-stat"><div class="big-stat-number"><span>⭐</span>' + data.total + '</div><div class="big-stat-label">intjänade stjärnor</div></div>';
+    return '<div class="big-stat"><div class="big-stat-number"><span>⭐</span>' + data.total + '</div><div class="big-stat-label">' + t('reports.professional.starsEarned') + '</div></div>';
   }
 
   function renderRewards(data) {
@@ -1022,8 +1042,8 @@
       html += '<div class="table-wrap"><table>';
       html += '<thead><tr><th>Status</th><th style="text-align:center">Antal</th></tr></thead><tbody>';
       data.counts.forEach(function(r) {
-        var label = r.status === 'approved' ? 'Godkända ✓' :
-                    r.status === 'pending'  ? 'Väntande ⏳' :
+        var label = r.status === 'approved' ? t('reports.professional.approved') :
+                    r.status === 'pending'  ? t('reports.professional.pending') :
                     r.status === 'denied'  ? 'Avslagna ✗'  : esc(r.status);
         var badge = r.status === 'approved' ? 'status-approved' :
                      r.status === 'pending'  ? 'status-pending'  :
@@ -1038,18 +1058,18 @@
 
     // Recent list
     if (data.recent && data.recent.length > 0) {
-      html += '<div style="margin-top:14px;font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.04em;padding-bottom:6px;border-bottom:1px solid #EDE9FE;">Nyligen inlösta</div>';
+      html += '<div style="margin-top:14px;font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.04em;padding-bottom:6px;border-bottom:1px solid #EDE9FE;">' + t('reports.professional.recentRedeemed') + '</div>';
       data.recent.slice(0, 10).forEach(function(r) {
         var badge = r.status === 'approved' ? 'status-approved' :
                      r.status === 'pending'  ? 'status-pending'  :
                      r.status === 'denied'  ? 'status-rejected' : '';
-        var label = r.status === 'approved' ? 'Godkänd ✓' :
-                    r.status === 'pending'  ? 'Väntande ⏳' :
+        var label = r.status === 'approved' ? t('reports.professional.approvedOne') :
+                    r.status === 'pending'  ? t('reports.professional.pending') :
                     r.status === 'denied'  ? 'Avslagen ✗'  : esc(r.status);
         var dateStr = '';
         if (r.created_at) {
           var d = new Date(r.created_at);
-          dateStr = d.getDate() + ' ' + MONTHS_SV[d.getMonth()];
+          dateStr = fmtDate(d);
         }
         html += '<div class="reward-item">';
         html += '<span class="reward-name">' + esc(r.reward_name) + '</span>';
@@ -1069,7 +1089,7 @@
       var face  = '';
       var label = '';
       var lvl   = parseInt(r.level);
-      if (lvl >= 4) { face = '😊'; label = 'Jätteglad'; }
+      if (lvl >= 4) { face = '😊'; label = t('reports.professional.veryHappy'); }
       else if (lvl >= 3) { face = '🙂'; label = 'Glad'; }
       else if (lvl >= 2) { face = '😐'; label = 'Okej'; }
       else { face = '😔'; label = 'Ledsen'; }
@@ -1144,7 +1164,7 @@
       var keys = Object.keys(weekly).sort();
       keys.forEach(function(k) {
         var dt = new Date(k + 'T12:00:00');
-        labels.push(dt.getDate() + ' ' + MONTHS_SV[dt.getMonth()]);
+        labels.push(fmtDate(dt));
         var w = weekly[k];
         values.push(w.total > 0 ? Math.round((w.completed / w.total) * 100) : 0);
       });
@@ -1167,7 +1187,7 @@
       data: {
         labels: data.labels,
         datasets: [{
-          label: 'Genomförande %',
+          label: t('reports.professional.chartCompletion'),
           data: data.values,
           borderColor: '#F5A623',
           backgroundColor: 'rgba(245,166,35,0.15)',
@@ -1220,16 +1240,16 @@
     data.forEach(function(item) {
       var avg = parseFloat(item.avg_score) || 0;
       var face = avg >= 4.5 ? '😄' : avg >= 3.5 ? '🙂' : avg >= 2.5 ? '😐' : avg >= 1.5 ? '😕' : '😔';
-      var sectionLabel = item.section === 'morgon' ? 'Morgon' :
-                          item.section === 'dag' ? 'Dag' :
-                          item.section === 'kvall' ? 'Kväll' :
-                          item.section === 'natt' ? 'Natt' :
-                          item.section === 'formiddag' ? 'Förmiddag' :
-                          item.section === 'eftermiddag' ? 'Eftermiddag' : item.section;
+      var sectionLabel = item.section === 'morgon' ? t('reports.professional.sectionMorning') :
+                          item.section === 'dag' ? t('reports.professional.sectionDay') :
+                          item.section === 'kvall' ? t('reports.professional.sectionEvening') :
+                          item.section === 'natt' ? t('reports.professional.sectionNight') :
+                          item.section === 'formiddag' ? t('reports.professional.sectionAm') :
+                          item.section === 'eftermiddag' ? t('reports.professional.sectionPm') : item.section;
       html += '<div class="emotion-section-row">';
       html += '<span class="emotion-section-name">' + esc(sectionLabel) + '</span>';
       html += '<span class="emotion-section-face">' + face + '</span>';
-      html += '<span class="emotion-section-score">' + avg.toFixed(1) + '/5 (' + item.count + ' dagar)</span>';
+      html += '<span class="emotion-section-score">' + avg.toFixed(1) + '/5 (' + t('reports.professional.daysCount', { count: item.count }) + ')</span>';
       html += '</div>';
     });
     return html;
@@ -1262,52 +1282,52 @@
 
       switch (field) {
         case 'section_summary':
-          title   = 'Genomförande per dagdel';
+          title   = t('reports.professional.titleSection');
           icon    = '📊';
           content = renderSectionSummary(blocks.section_summary);
           break;
         case 'activities':
-          title   = 'Aktiviteter';
+          title   = t('reports.professional.titleActivities');
           icon    = '📋';
           content = renderActivities(blocks.activities, dateFrom, dateTo);
           break;
         case 'parent_notes':
-          title   = 'Anteckningar från vårdnadshavare';
+          title   = t('reports.professional.titleParentNotes');
           icon    = '📝';
           content = renderParentNotes(blocks.parent_notes);
           break;
         case 'child_notes':
-          title   = 'Barnets anteckningar';
+          title   = t('reports.professional.titleChildNotes');
           icon    = '💬';
           content = renderChildNotes(blocks.child_notes);
           break;
         case 'pedagog_notes':
-          title   = 'Pedagoganteckningar';
+          title   = t('reports.professional.titlePedagogNotes');
           icon    = '📝';
           content = renderPedagogNotes(blocks.pedagog_notes);
           break;
         case 'completion':
-          title   = 'Daglig genomförandegrad';
+          title   = t('reports.professional.titleCompletion');
           icon    = '✅';
           content = renderCompletion(blocks.completion);
           break;
         case 'trend_chart':
-          title   = '📈 Trend — Genomförande %';
+          title   = t('reports.professional.titleTrend');
           icon    = '📈';
           content = renderTrendChart(blocks.completion, blocks.completion_by_section);
           break;
         case 'stars':
-          title   = 'Stjärnor';
+          title   = t('reports.professional.titleStars');
           icon    = '⭐';
           content = renderStars(blocks.stars);
           break;
         case 'rewards':
-          title   = 'Belöningar';
+          title   = t('reports.professional.titleRewards');
           icon    = '🎁';
           content = renderRewards(blocks.rewards);
           break;
         case 'emotions':
-          title   = 'Känslor';
+          title   = t('reports.professional.titleEmotions');
           icon    = '😊';
           content = (renderEmotionsPerSection(blocks.emotions_per_section) || '') + (renderEmotions(blocks.emotions) || '');
           break;
@@ -1355,35 +1375,35 @@
           var data = await res.json().catch(function() { return {}; });
           if (data && data.pin_required) { showScreen('pin'); pinInput.focus(); return; }
         } catch (_) { /* non-JSON body */ }
-        showError('Sidan kunde inte laddas.', 'Försök igen senare.');
+        showError(t('reports.professional.pageLoadFailed'), t('reports.professional.tryLater'));
         return;
       }
       if (res.status === 404) {
-        showError('Rapporten hittades inte', 'Länken kan ha återkallats eller gått ut.');
+        showError(t('reports.professional.errorNotFound'), t('reports.professional.errorLinkGone'));
         return;
       }
       if (!res.ok) {
-        showError('Något gick fel', 'Försök igen senare. (Status ' + res.status + ')');
+        showError(t('reports.professional.somethingWentWrong'), t('reports.professional.tryLaterStatus', { status: res.status }));
         return;
       }
 
       var json = await res.json().catch(function() { return null; });
-      if (!json) { showError('Ingen data returnerades.', 'Försök igen senare.'); return; }
+      if (!json) { showError(t('reports.professional.noData'), t('reports.professional.tryLater')); return; }
       renderReport(json);
     } catch (err) {
       console.error('[fetchReport]', err);
       var msg = (err.name === 'TimeoutError' || err.name === 'AbortError')
-        ? 'Timeout — databasen svarade inte. Försök igen.'
-        : 'Något gick fel. Försök igen.';
+        ? t('reports.professional.timeout')
+        : t('reports.professional.genericRetry');
       showError(msg, '');
     }
   }
 
   async function submitPin() {
     var pin = pinInput.value.trim();
-    if (!pin) { pinError.textContent = 'Ange koden.'; pinInput.focus(); return; }
+    if (!pin) { pinError.textContent = t('reports.professional.enterPin'); pinInput.focus(); return; }
     pinBtn.disabled = true;
-    pinBtn.textContent = 'Verifierar…';
+    pinBtn.textContent = t('reports.professional.verifying');
     pinError.textContent = '';
 
     try {
@@ -1396,24 +1416,24 @@
       });
 
       if (res.status === 401) {
-        pinError.textContent = 'Fel kod, försök igen.';
+        pinError.textContent = t('reports.professional.wrongPin');
         pinInput.value = '';
         pinInput.focus();
         pinBtn.disabled = false;
-        pinBtn.textContent = 'Öppna rapport';
+        pinBtn.textContent = t('reports.professional.openReport');
         return;
       }
       if (res.status === 403) {
-        pinError.textContent = 'Sidan kunde inte laddas. Försök igen.';
+        pinError.textContent = t('reports.professional.pageLoadFailed') + ' ' + t('reports.professional.tryLater').replace(/\.$/, '');
         pinInput.value = '';
         pinBtn.disabled = false;
-        pinBtn.textContent = 'Öppna rapport';
+        pinBtn.textContent = t('reports.professional.openReport');
         return;
       }
       if (!res.ok) {
-        pinError.textContent = 'Ett fel inträffade. Försök igen.';
+        pinError.textContent = t('reports.professional.occurred');
         pinBtn.disabled = false;
-        pinBtn.textContent = 'Öppna rapport';
+        pinBtn.textContent = t('reports.professional.openReport');
         return;
       }
 
@@ -1423,9 +1443,9 @@
       showScreen('loading');
       fetchReport();
     } catch (_) {
-      pinError.textContent = 'Kunde inte ansluta. Försök igen.';
+      pinError.textContent = t('reports.professional.connectFailed');
       pinBtn.disabled = false;
-      pinBtn.textContent = 'Öppna rapport';
+      pinBtn.textContent = t('reports.professional.openReport');
     }
   }
 
@@ -1434,7 +1454,7 @@
   function renderReport(data) {
     // Guard: if called with undefined/null, show error and stop
     if (!data || typeof data !== 'object') {
-      showError('Rapporten kunde inte laddas.', 'Ogiltig data från servern.');
+      showError(t('reports.professional.reportLoadFailed'), t('reports.professional.invalidData'));
       return;
     }
     _reportData = data; // store for playful PDF export
@@ -1446,7 +1466,7 @@
     if (data.label) {
       reportLabel.textContent = data.label;
     } else {
-      reportLabel.textContent = 'Rapport';
+      reportLabel.textContent = t('reports.professional.reportFallback');
     }
     // Anonymous: hide emoji + show notice; anonymous report hides child info
     if (data.anonymous) {
@@ -1459,7 +1479,7 @@
     reportRange.textContent = fmtRange(data.dateFrom, data.dateTo);
     if (data.generated_at) {
       var d = new Date(data.generated_at);
-      reportMeta.textContent = 'Genererad ' + d.getDate() + ' ' + MONTHS_SV[d.getMonth()] + ' ' + d.getFullYear();
+      reportMeta.textContent = t('reports.professional.generated', { date: new Intl.DateTimeFormat(localeTag(), { day: 'numeric', month: 'short', year: 'numeric' }).format(d) });
     }
 
     // Build HTML blocks
@@ -1468,7 +1488,7 @@
     // 1. Context Header (föräldrasammanfattning) — FIRST, before all data
     if (data.parent_summary && data.parent_summary.trim()) {
       html += '<div class="context-header">';
-      html += '<div class="context-header-title">📋 Sammanfattning från vårdnadshavare</div>';
+      html += '<div class="context-header-title">' + t('reports.professional.parentSummary') + '</div>';
       html += '<div class="context-header-body">' + esc(data.parent_summary.trim()) + '</div>';
       html += '</div>';
     }
@@ -1542,7 +1562,7 @@
       h += '<div style="text-align:center;">';
       h += '<div style="font-size:64px;">🏅</div>';
       h += '<div style="font-size:42px;font-weight:900;color:#E8944A;">' + vm.starsTotal + '</div>';
-      h += '<div style="font-size:16px;color:#5A6378;">stjärnor</div>';
+      h += '<div style="font-size:16px;color:#5A6378;">' + t('reports.professional.starsWord') + '</div>';
       h += '</div>';
     }
 
@@ -1644,7 +1664,7 @@
         h += '<div style="font-size:14px;padding:4px 0;">';
         h += '<strong>' + esc(n.date) + '</strong>';
         if (n.pedagog) h += ' <span style="color:#5A6378;">(' + esc(n.pedagog) + ')</span>';
-        if (n.mood) h += ' · Humör: ' + esc(n.mood);
+        if (n.mood) h += ' · ' + t('reports.professional.mood') + ': ' + esc(n.mood);
         if (n.notes) h += '<br><span style="color:#5A6378;font-style:italic;">' + esc(n.notes) + '</span>';
         h += '</div>';
       });
@@ -1676,7 +1696,7 @@
   async function downloadPlayfulPdf(btn) {
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = '⏳ Genererar...';
+    btn.textContent = t('reports.professional.generating');
 
     try {
       // Fetch viewModel from /playful endpoint
@@ -1686,7 +1706,7 @@
       if (token) headers['Authorization'] = 'Bearer ' + token;
 
       var res = await fetch(url, { method: 'GET', headers: headers, credentials: 'same-origin', signal: AbortSignal.timeout(15000) });
-      if (res.status === 403) { showScreen('pin'); btn.disabled = false; btn.textContent = '⬇ Ladda ner PDF'; return; }
+      if (res.status === 403) { showScreen('pin'); btn.disabled = false; btn.textContent = t('reports.professional.downloadPdf'); return; }
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var json = await res.json();
       var vm = json.viewModel;
@@ -1734,12 +1754,12 @@
       // Clean up
       container.innerHTML = '';
       btn.disabled = false;
-      btn.textContent = '⬇ Ladda ner PDF';
+      btn.textContent = t('reports.professional.downloadPdf');
     } catch (err) {
       console.error('[PlayfulPDF]', err);
       btn.disabled = false;
-      btn.textContent = '⬇ Ladda ner PDF';
-      alert('Kunde inte generera PDF. Försök igen.');
+      btn.textContent = t('reports.professional.downloadPdf');
+      alert(t('reports.professional.pdfFailed'));
     }
   }
 
@@ -1766,14 +1786,27 @@
 
   // ── Bootstrap ─────────────────────────────────────────────
 
+  async function bootI18n() {
+    if (typeof window.initParentAppI18n === 'function') {
+      await initParentAppI18n();
+    } else if (window.I18n) {
+      await I18n.init();
+      I18n.apply();
+    }
+    applyBranding();
+  }
+
   function init() {
     var match = window.location.pathname.match(/^\/r\/([^\/]+)/);
-    if (!match) { showError('Sidan hittades inte', 'Ogiltig rapportlänk.'); return; }
+    if (!match) { showError(t('reports.professional.pageNotFound'), t('reports.professional.invalidLink')); return; }
     currentPublicId = match[1];
     fetchReport();
   }
 
-  init();
+  bootI18n().then(init).catch(function(err) {
+    console.error('[professional-report] i18n', err);
+    init();
+  });
 })();
 </script>
 </body>

@@ -1,5 +1,9 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+const { t } = require('../../lib/i18n');
+const { DEFAULT_LOCALE, parseAcceptLanguage } = require('../../lib/locale');
+
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
@@ -15,21 +19,21 @@ const OPT_OUT_LABELS = {
   weekly_summary: {
     title: 'Veckosammanfattning avstängd',
     heading: 'Du får inte längre veckosammanfattning',
-    message: 'Vi skickar inte fler veckosammanfattningar till din e-post. Du kan slå på dem igen under Inställningar → Notiser.',
+    messageKey: 'settings.unsubscribe.weekly',
     alreadyHeading: 'Du är redan avstängd',
     alreadyMessage: 'Veckosammanfattning är redan avstängd för din e-post.',
   },
   reward_redemption: {
     title: 'Belöningsaviseringar avstängda',
     heading: 'Du får inte längre belöningsmejl',
-    message: 'Vi skickar inte fler mejl när barnet vill lösa in belöningar. Du kan slå på dem igen under Inställningar → Notiser.',
+    messageKey: 'settings.unsubscribe.reward',
     alreadyHeading: 'Du är redan avstängd',
     alreadyMessage: 'Belöningsaviseringar är redan avstängda för din e-post.',
   },
   all_email: {
     title: 'E-postaviseringar avstängda',
     heading: `Du får inte längre mejl från ${config.email.fromName}`,
-    message: 'Alla e-postaviseringar är avstängda. Du kan slå på dem igen under Inställningar → Notiser.',
+    messageKey: 'settings.unsubscribe.all',
     alreadyHeading: 'Du är redan avstängd',
     alreadyMessage: 'E-postaviseringar är redan avstängda.',
   },
@@ -41,16 +45,23 @@ async function handleOptOut(req, res) {
   const labels = OPT_OUT_LABELS[channel] || OPT_OUT_LABELS.weekly_summary;
 
   if (!token || typeof token !== 'string' || !/^[0-9a-f-]{36}$/i.test(token)) {
-    return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+    return res.status(400).send(renderUnsubscribeErrorPage(
+      t(DEFAULT_LOCALE, 'settings.unsubscribe.invalidTitle'),
+      t(DEFAULT_LOCALE, 'settings.unsubscribe.invalidBody')
+    ));
   }
 
   try {
     const result = await optOutByToken(token, channel);
 
     if (!result.ok && result.reason === 'unknown_token') {
-      return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+      return res.status(400).send(renderUnsubscribeErrorPage(
+        t(DEFAULT_LOCALE, 'settings.unsubscribe.invalidTitle'),
+        t(DEFAULT_LOCALE, 'settings.unsubscribe.invalidBody')
+      ));
     }
 
+    const lang = parseAcceptLanguage(req.headers['accept-language']) || DEFAULT_LOCALE;
     if (result.alreadyOptedOut) {
       return res.send(renderUnsubscribePage({
         title: labels.title,
@@ -60,17 +71,23 @@ async function handleOptOut(req, res) {
     }
 
     if (!result.ok) {
-      return res.status(400).send(renderUnsubscribeErrorPage('Ogiltig länk', 'Länken är ogiltig eller har gått ut.'));
+      return res.status(400).send(renderUnsubscribeErrorPage(
+        t(lang, 'settings.unsubscribe.invalidTitle'),
+        t(lang, 'settings.unsubscribe.invalidBody')
+      ));
     }
 
     res.send(renderUnsubscribePage({
       title: labels.title,
       heading: labels.heading,
-      message: labels.message,
+      message: t(lang, labels.messageKey),
     }));
   } catch (err) {
     console.error('[ACCOUNT] Notification opt-out error:', err);
-    res.status(500).send(renderUnsubscribeErrorPage('Något gick fel', 'Försök igen senare eller gå till Inställningar i appen.'));
+    res.status(500).send(renderUnsubscribeErrorPage(
+      t(DEFAULT_LOCALE, 'settings.unsubscribe.errorTitle'),
+      t(DEFAULT_LOCALE, 'settings.unsubscribe.errorBody')
+    ));
   }
 }
 
@@ -109,7 +126,7 @@ router.put('/notifications', requireParent, validate(UpdateNotificationPrefsSche
       }
 
       if (updates.length === 0) {
-        return res.status(400).json({ error: 'Inga inställningar att uppdatera' });
+        return sendApiError(res, 400, 'NO_SETTINGS_TO_UPDATE');
       }
 
       values.push(req.user.id);
@@ -137,12 +154,12 @@ router.put('/notifications', requireParent, validate(UpdateNotificationPrefsSche
     );
 
     res.json({
-      message: 'Inställningar uppdaterade!',
+      code: 'SETTINGS_UPDATED',
       notifications: prefs.rows[0],
     });
   } catch (err) {
     console.error('[ACCOUNT] Notifications error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -165,7 +182,7 @@ router.get('/notifications', requireParent, async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[ACCOUNT] Get notifications error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -179,7 +196,7 @@ router.get('/status', requireParent, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
 
     const row = result.rows[0];
@@ -199,7 +216,7 @@ router.get('/status', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] Get status error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

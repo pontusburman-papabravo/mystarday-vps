@@ -19,7 +19,7 @@
     const main = document.getElementById('pedagogHistorikMain');
     if (!main) return;
 
-    main.innerHTML = '<p class="text-text-soft text-sm py-8 text-center">Laddar historik…</p>';
+    main.innerHTML = '<p class="text-text-soft text-sm py-8 text-center">' + (window.pt ? pt('family.pedagog.loadingHistory') : 'Loading history…') + '</p>';
 
     const { children } = await Auth.api('/api/pedagog-notes/children');
     if (!children?.length) {

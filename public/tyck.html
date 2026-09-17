@@ -191,7 +191,7 @@
         const res = await fetch(`/api/surveys/s/${encodeURIComponent(slug)}`);
         if (res.status === 410) {
           const data = await res.json();
-          return showError('Enkäten är stängd', data.error || 'Den här enkäten är stängd.');
+          return showError('Enkäten är stängd', 'Den här enkäten är stängd.');
         }
         if (res.status === 503) return showError('Enkäten är pausad', 'Den här enkäten är tillfälligt pausad.');
         if (!res.ok) return showError('Hittades inte', 'Den här enkäten finns inte.');

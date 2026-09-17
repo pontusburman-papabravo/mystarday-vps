@@ -62,8 +62,8 @@ async function gatherChildContext(childId, dailyLogItemId, client) {
   return {
     childId,
     familyId: child?.family_id,
-    childName: child?.name || 'Barnet',
-    activityName: activityRow.rows[0]?.name || 'en aktivitet',
+    childName: child?.name || 'Child',
+    activityName: activityRow.rows[0]?.name || 'an activity',
     dailyLogItemId,
   };
 }

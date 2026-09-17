@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * General observation routes — family-level, time-agnostic notes.
  * Mounted at /api/general-observations (distinct from child_observation routes at /api/observations).
@@ -55,7 +56,7 @@ router.get('/', async (req, res) => {
     res.json({ observations });
   } catch (err) {
     console.error('[GENERAL_OBS] Get active error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -71,7 +72,7 @@ router.get('/archived', async (req, res) => {
     res.json({ observations });
   } catch (err) {
     console.error('[GENERAL_OBS] Get archived error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -86,10 +87,10 @@ router.post('/', async (req, res) => {
 
     const { text, is_important } = req.body;
     if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: 'text krävs' });
+      return sendApiError(res, 400, 'TEXT_REQUIRED');
     }
     const trimmed = text.trim();
-    if (!trimmed) return res.status(400).json({ error: 'Anteckningen får inte vara tom' });
+    if (!trimmed) return sendApiError(res, 400, 'NOTE_EMPTY');
     if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
 
     const observation = await createObservation({
@@ -100,7 +101,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({ observation });
   } catch (err) {
     console.error('[GENERAL_OBS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -116,7 +117,7 @@ router.patch('/:id', async (req, res) => {
     const updates = {};
     if (text !== undefined) {
       const trimmed = String(text).trim();
-      if (!trimmed) return res.status(400).json({ error: 'Text får inte vara tom' });
+      if (!trimmed) return sendApiError(res, 400, 'TEXT_EMPTY');
       if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
       updates.text = trimmed;
     }
@@ -132,7 +133,7 @@ router.patch('/:id', async (req, res) => {
     res.json({ observation: updated });
   } catch (err) {
     console.error('[GENERAL_OBS] Patch error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -148,7 +149,7 @@ router.post('/:id/archive', async (req, res) => {
     res.json({ observation: archived });
   } catch (err) {
     console.error('[GENERAL_OBS] Archive error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -164,7 +165,7 @@ router.post('/:id/restore', async (req, res) => {
     res.json({ observation: restored });
   } catch (err) {
     console.error('[GENERAL_OBS] Restore error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -180,7 +181,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[GENERAL_OBS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

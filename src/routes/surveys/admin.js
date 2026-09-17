@@ -342,7 +342,7 @@ adminRouter.get('/:id/popup-stats', async (req, res) => {
     res.json(stats);
   } catch (err) {
     console.error('[SURVEYS] popup stats error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 
@@ -353,7 +353,7 @@ adminRouter.get('/:id/contest', async (req, res) => {
     res.json(entries);
   } catch (err) {
     console.error('[SURVEYS] contest entries error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 
@@ -367,7 +367,7 @@ adminRouter.post('/:id/contest/pick-winners', async (req, res) => {
     res.json({ winners });
   } catch (err) {
     console.error('[SURVEYS] pick winners error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 
@@ -379,7 +379,7 @@ adminRouter.patch('/:id/contest/:entryId/contacted', async (req, res) => {
     res.json(entry);
   } catch (err) {
     console.error('[SURVEYS] mark contacted error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    res.status(500).json({ error: 'GENERIC_SERVER_ERROR' });
   }
 });
 

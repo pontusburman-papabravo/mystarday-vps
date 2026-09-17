@@ -348,7 +348,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
   if (blocks.activities) {
     Object.values(blocks.activities).forEach((items) => {
       items.forEach((item) => {
-        const name = item.activity_name || '(okänd)';
+        const name = item.activity_name || '(unknown)';
         if (!activityCounts[name]) activityCounts[name] = { done: 0, total: 0 };
         if (item.completed) activityCounts[name].done++;
         activityCounts[name].total++;

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
@@ -20,7 +22,7 @@ childRouter.get('/memory-hall', async (req, res) => {
     res.json(state);
   } catch (err) {
     console.error('[memory-hall] child GET error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

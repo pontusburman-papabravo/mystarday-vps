@@ -217,7 +217,7 @@ async function submitAddActivity() {
   if (templateMode && currentTemplateId) {
     if (!selectedTemplateId) { document.getElementById('addActivityError').textContent=spt('schedule.validation.pickActivityFirst'); document.getElementById('addActivityError').classList.remove('hidden'); return; }
     const addBtn = document.getElementById('addActivityBtn');
-    addBtn.disabled = true; addBtn.textContent = 'Sparar…';
+    addBtn.disabled = true; addBtn.textContent = (window.pt ? pt('schedule.modals.saving') : 'Saving…');
     try {
       const res = await window.apiFetch(`/api/schedules/${currentTemplateId}/items`, {
         method: 'POST',
@@ -232,7 +232,7 @@ async function submitAddActivity() {
         window.renderTemplate();
       } else {
         const err = await res.json();
-        document.getElementById('addActivityError').textContent = err.error || 'Kunde inte spara';
+        document.getElementById('addActivityError').textContent = err.error || (window.pt ? pt('schedule.modals.saveFailed') : 'Could not save');
         document.getElementById('addActivityError').classList.remove('hidden');
       }
     } finally {
@@ -709,7 +709,7 @@ async function submitCreateActivity() {
     });
     const data = await res.json();
     if (!res.ok) {
-      document.getElementById('createActivityError').textContent = data.error || 'Kunde inte skapa aktiviteten';
+      document.getElementById('createActivityError').textContent = data.error || (window.pt ? pt('schedule.modals.createFailed') : 'Could not create the activity');
       document.getElementById('createActivityError').classList.remove('hidden');
       return;
     }
@@ -849,7 +849,7 @@ async function submitEditTemplate() {
   });
   if (!res.ok) {
     const err = await res.json();
-    document.getElementById('editTemplateError').textContent = err.error || 'Kunde inte spara';
+    document.getElementById('editTemplateError').textContent = err.error || (window.pt ? pt('schedule.modals.saveFailed') : 'Could not save');
     document.getElementById('editTemplateError').classList.remove('hidden');
     return;
   }

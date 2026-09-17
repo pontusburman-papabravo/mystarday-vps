@@ -222,7 +222,7 @@ async function removeParentFromFamily(client, { parentId, familyId, revokedBy })
     parentId
   );
   if (!deleteAuthz.ok) {
-    const err = new Error(deleteAuthz.message || 'Åtkomst nekad');
+    const err = new Error(deleteAuthz.code || 'ACCESS_DENIED');
     err.code = deleteAuthz.code || 'FORBIDDEN';
     throw err;
   }
@@ -234,7 +234,7 @@ async function removeParentFromFamily(client, { parentId, familyId, revokedBy })
     []
   );
   if (!orphanCheck.ok) {
-    const err = new Error(orphanCheck.message || 'Åtkomst nekad');
+    const err = new Error(orphanCheck.code || 'LAST_ADMIN');
     err.code = orphanCheck.code || 'LAST_ADMIN';
     throw err;
   }

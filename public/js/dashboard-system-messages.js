@@ -50,7 +50,7 @@
             textEl.parentNode.insertBefore(actionLink, document.getElementById('systemMsgTime'));
           }
           actionLink.href = linkUrl;
-          actionLink.textContent = 'Gå till Biblioteket →';
+          actionLink.textContent = (window.pt ? pt('family.systemMessages.goLibrary') : 'Go to the Library →');
           actionLink.style.display = 'inline-block';
         } else if (actionLink) {
           actionLink.style.display = 'none';

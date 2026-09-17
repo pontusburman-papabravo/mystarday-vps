@@ -25,7 +25,7 @@
       headline.textContent = celebrationCopy?.headline || exp.headline || 'Ni gjorde det tillsammans';
     }
     if (body) {
-      body.textContent = celebrationCopy?.body || exp.body || 'Barnet började — och du såg det.';
+      body.textContent = celebrationCopy?.body || exp.body || (window.pt ? pt('journey.celebration.started') : 'Your child started — and you saw it.');
     }
     if (btn) {
       btn.textContent = celebrationCopy?.cta || exp.cta || 'Vad fint';

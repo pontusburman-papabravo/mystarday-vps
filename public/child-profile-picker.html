@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Välj profil | My Starday</title>
+  <title data-i18n="child.profilePicker.pageTitle">Välj profil | My Starday</title>
   <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
   <link rel="stylesheet" href="/css/child-login-magic.css?v=154">
   <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
@@ -95,8 +95,10 @@
       padding: 0.5rem 1rem;
     }
   </style>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/child-app-i18n.js?v=1"></script>
 </head>
-<body class="child-login-magic-bg safe-area-top safe-area-bottom">
+<body data-i18n-manual-init="true" data-i18n-title="child.profilePicker.pageTitle" class="child-login-magic-bg safe-area-top safe-area-bottom">
   <main class="child-login-layout" role="main">
     <header class="child-login-header">
       <div style="width:80px;"></div>
@@ -104,15 +106,16 @@
       <div style="width:80px;"></div>
     </header>
     <section class="cl-step active" aria-labelledby="cppTitle">
-      <h1 id="cppTitle" class="cl-select-title">Vem använder appen?</h1>
-      <p id="cppSub" class="cl-select-sub">Tryck på din profil</p>
+      <h1 id="cppTitle" class="cl-select-title" data-i18n="child.profilePicker.who">Vem använder appen?</h1>
+      <p id="cppSub" class="cl-select-sub" data-i18n="child.profilePicker.tap">Tryck på din profil</p>
       <div id="cppError" class="cl-error-box hidden" role="alert"></div>
       <div id="cppGrid" class="cpp-picker-grid" role="list"></div>
-      <a id="cppLegacyLink" class="cpp-fallback-link hidden" href="/child-login">Logga in med användarnamn och PIN</a>
+      <a id="cppLegacyLink" class="cpp-fallback-link hidden" href="/child-login" data-i18n="child.profilePicker.namePin">Logga in med användarnamn och PIN</a>
       <button type="button" id="cppParentBackupLink" class="cpp-fallback-link cpp-fallback-btn">
         Logga in som vuxen med e-post eller Apple/Google
       </button>
     </section>
   </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initChildAppI18n)initChildAppI18n();});</script>
 </body>
 </html>

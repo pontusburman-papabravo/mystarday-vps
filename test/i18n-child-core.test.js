@@ -55,7 +55,7 @@ describe('i18n child core', () => {
     assert.match(src, /validateChildLoginBody/);
     assert.match(src, /code: 'CHILD_PIN_LOCKED'/);
     assert.match(src, /code: 'CHILD_PIN_INVALID'/);
-    assert.match(src, /code: 'CHILD_SERVER_ERROR'/);
+    assert.match(src, /sendApiError\(res, 500, 'CHILD_SERVER_ERROR'\)/);
   });
 
   it('child dashboard loads i18n bootstrap scripts', () => {

@@ -135,7 +135,7 @@ async function buildCustodyContextRangeResponse({
   if (spanDays < 1 || spanDays > CONTEXT_RANGE_MAX_DAYS) {
     return {
       ok: false,
-      error: `Datumintervallet måste vara 1–${CONTEXT_RANGE_MAX_DAYS} dagar`,
+      error: 'DATE_RANGE_MAX_DAYS', details: { max: CONTEXT_RANGE_MAX_DAYS },
     };
   }
 

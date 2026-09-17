@@ -54,7 +54,7 @@ window.addEventListener('sse:DAILY_LOG_ITEM_COMPLETED', function (e) {
   }
 });
 window.addEventListener('sse:SCHEDULE_UPDATED', () => {
-  if (typeof showToast === 'function') showToast('📅 Schema uppdaterat!');
+  if (typeof showToast === 'function') showToast(window.cpt ? cpt('sse.scheduleUpdated') : '📅 Schedule updated!');
   scheduleSSEReload();
 });
 window.addEventListener('sse:STAR_GRANTED', () => {

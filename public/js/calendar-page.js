@@ -54,7 +54,7 @@ async function loadChildren() {
     const res = await window.apiFetch('/api/children');
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Kunde inte hämta barn');
+      throw new Error(err.error || (window.pt ? pt('family.errors.fetchChildrenFailed') : 'Could not fetch children'));
     }
     const data = await res.json();
     children = Array.isArray(data) ? data : (data.children || []);
@@ -124,7 +124,7 @@ async function loadCalendar() {
     const res = await window.apiFetch(`/api/children/${selectedChildId}/calendar-week?weekOffset=${weekOffset}`);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Kunde inte ladda kalender');
+      throw new Error(err.error || (window.pt ? pt('schedule.calendar.loadFailed') : 'Could not load calendar'));
     }
     const data = await res.json();
     currentData = normalizeCalendarWeekPayload(data);

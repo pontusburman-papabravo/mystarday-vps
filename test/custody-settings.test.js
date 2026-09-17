@@ -63,7 +63,7 @@ describe('custody-settings (Phase 4.5d)', () => {
   it('PUT pattern route accepts pattern_type and weekend configuration', () => {
     const routes = fs.readFileSync(path.join(ROOT, 'src/routes/family/custody.js'), 'utf8');
     assert.match(routes, /pattern_type/);
-    assert.match(routes, /default_home_id krävs för varannan helg/);
+    assert.match(routes, /DEFAULT_HOME_ALT_WEEKEND/);
     assert.match(routes, /alternate_weekends/);
     assert.match(routes, /weekend_home_a/);
     assert.match(routes, /custody_schedule_updated/);

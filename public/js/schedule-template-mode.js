@@ -133,7 +133,7 @@ function renderTemplateScheduleItem(item) {
     </div>
     <button onclick="deleteTemplateItem('${item.id}')"
       class="opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 text-red-500 hover:bg-red-50 rounded-lg text-xs font-semibold"
-      title="Ta bort">🗑</button>
+      title="' + (window.pt ? pt('schedule.chrome.delete') : 'Delete') + '">🗑</button>
   </div>`;
 }
 

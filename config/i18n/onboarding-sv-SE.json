@@ -46,8 +46,18 @@
     "birthMonthAria": "Födelsemånad",
     "birthDayAria": "Födelsedag",
     "months": [
-      "Januari", "Februari", "Mars", "April", "Maj", "Juni",
-      "Juli", "Augusti", "September", "Oktober", "November", "December"
+      "Januari",
+      "Februari",
+      "Mars",
+      "April",
+      "Maj",
+      "Juni",
+      "Juli",
+      "Augusti",
+      "September",
+      "Oktober",
+      "November",
+      "December"
     ],
     "emojiLabel": "Välj en emoji",
     "customEmojiPlaceholder": "Eller skriv din egen emoji…",
@@ -317,12 +327,24 @@
     "personalizeFailed": "Kunde inte anpassa schema",
     "completeFailed": "Kunde inte slutföra",
     "packages": {
-      "morning-short": { "name": "Kort morgon" },
-      "evening-routine": { "name": "Kvällsrutin" },
-      "preschool-day": { "name": "Förskola vardag" },
-      "school-day": { "name": "Skola vardag" },
-      "weekend": { "name": "Helg" },
-      "getting-ready": { "name": "Kort morgon" }
+      "morning-short": {
+        "name": "Kort morgon"
+      },
+      "evening-routine": {
+        "name": "Kvällsrutin"
+      },
+      "preschool-day": {
+        "name": "Förskola vardag"
+      },
+      "school-day": {
+        "name": "Skola vardag"
+      },
+      "weekend": {
+        "name": "Helg"
+      },
+      "getting-ready": {
+        "name": "Kort morgon"
+      }
     },
     "questions": {
       "child_name": {
@@ -484,12 +506,53 @@
       "description": "Helgrutin"
     },
     "previewFallback": {
-      "forskola": ["Vakna", "Klä på dig", "Frukost", "Förskola", "Leka", "Middag", "Sagostund"],
-      "skola": ["Vakna", "Frukost", "Packa väska", "Skola", "Läxor", "Middag", "Sagostund"],
-      "morgon": ["Vakna", "Klä på dig", "Borsta tänderna", "Frukost", "Packa väska"],
-      "dag": ["Förskola", "Leka ute", "Mellanmål", "Lunch", "Pyssel"],
-      "kvall": ["Middag", "Borsta tänderna", "Pyjamas", "Sagostund", "Sova"],
-      "helg": ["Vakna", "Frukost", "Leka fritt", "Utflykt", "Familjaktivitet", "Middag"]
+      "forskola": [
+        "Vakna",
+        "Klä på dig",
+        "Frukost",
+        "Förskola",
+        "Leka",
+        "Middag",
+        "Sagostund"
+      ],
+      "skola": [
+        "Vakna",
+        "Frukost",
+        "Packa väska",
+        "Skola",
+        "Läxor",
+        "Middag",
+        "Sagostund"
+      ],
+      "morgon": [
+        "Vakna",
+        "Klä på dig",
+        "Borsta tänderna",
+        "Frukost",
+        "Packa väska"
+      ],
+      "dag": [
+        "Förskola",
+        "Leka ute",
+        "Mellanmål",
+        "Lunch",
+        "Pyssel"
+      ],
+      "kvall": [
+        "Middag",
+        "Borsta tänderna",
+        "Pyjamas",
+        "Sagostund",
+        "Sova"
+      ],
+      "helg": [
+        "Vakna",
+        "Frukost",
+        "Leka fritt",
+        "Utflykt",
+        "Familjaktivitet",
+        "Middag"
+      ]
     }
   },
   "sections": {
@@ -537,5 +600,8 @@
     "scheduleNameRequired": "scheduleName krävs",
     "templateNotFound": "Mall hittades inte",
     "enrollChoiceUnavailable": "Val-skärmen är inte tillgänglig"
+  },
+  "starterPlan": {
+    "firstSchedule": "Ert första schema"
   }
 }

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const { requireParent } = require('../../middleware/auth');
 const { avatarApiFields } = require('../../lib/avatar-api');
@@ -23,14 +25,14 @@ router.put('/avatar', requireParent, avatarUpload, async (req, res) => {
   try {
     const parsed = await parseAvatarUploadFile(req.file);
     const updated = await setParentAvatar(req.user.id, parsed);
-    if (!updated) return res.status(404).json({ error: 'Konto hittades inte' });
+    if (!updated) return res.status(404).json({ error: 'USER_NOT_FOUND' });
     res.json(serializeParent(updated));
   } catch (err) {
     if (err.userMessage) {
       return res.status(err.status || 400).json({ error: err.userMessage });
     }
     console.error('[ACCOUNT-AVATAR] PUT error:', err.message);
-    res.status(500).json({ error: 'Kunde inte spara profilbilden' });
+    sendApiError(res, 500, 'AVATAR_SAVE_FAILED');
   }
 });
 
@@ -38,11 +40,11 @@ router.put('/avatar', requireParent, avatarUpload, async (req, res) => {
 router.delete('/avatar', requireParent, async (req, res) => {
   try {
     const updated = await clearParentAvatar(req.user.id);
-    if (!updated) return res.status(404).json({ error: 'Konto hittades inte' });
+    if (!updated) return res.status(404).json({ error: 'USER_NOT_FOUND' });
     res.json(serializeParent(updated));
   } catch (err) {
     console.error('[ACCOUNT-AVATAR] DELETE error:', err.message);
-    res.status(500).json({ error: 'Kunde inte ta bort profilbilden' });
+    sendApiError(res, 500, 'AVATAR_DELETE_FAILED');
   }
 });
 

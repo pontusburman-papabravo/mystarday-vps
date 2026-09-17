@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * POST /api/family/activation/defer — durable server-side defer for current activation step (#1023 PR A).
  */
@@ -18,20 +20,20 @@ router.post('/activation/defer', requireNotPedagogOnly, async (req, res) => {
     const familyId = req.user.familyId;
     const parentId = req.user.id;
     if (!familyId || !parentId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
 
     const flagOn = await isActivationFlagEnabled(FLAG_KEYS.firstSuccessV1, familyId);
     if (!flagOn) {
-      return res.status(404).json({ error: 'Ej tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const nextAction = String(req.body?.next_action || '').trim();
     if (!nextAction) {
-      return res.status(400).json({ error: 'Ogiltig åtgärd', code: 'INVALID_ACTIVATION_ACTION' });
+      return res.status(400).json({ error: 'INVALID_ACTION', code: 'INVALID_ACTIVATION_ACTION' });
     }
     if (!isDeferrableActivationAction(nextAction)) {
-      return res.status(400).json({ error: 'Ogiltig åtgärd', code: 'INVALID_ACTIVATION_ACTION' });
+      return res.status(400).json({ error: 'INVALID_ACTION', code: 'INVALID_ACTIVATION_ACTION' });
     }
 
     const current = await buildCanonicalNextAction(familyId, {
@@ -41,7 +43,7 @@ router.post('/activation/defer', requireNotPedagogOnly, async (req, res) => {
 
     if (!current.next_action || current.next_action === 'none') {
       return res.status(409).json({
-        error: 'Inget aktiveringssteg att skjuta upp',
+        error: 'ACTIVATION_NO_STEP',
         code: 'ACTIVATION_NO_STEP',
       });
     }
@@ -62,10 +64,10 @@ router.post('/activation/defer', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     if (err.code === 'INVALID_ACTIVATION_ACTION') {
-      return res.status(400).json({ error: 'Ogiltig åtgärd', code: 'INVALID_ACTIVATION_ACTION' });
+      return res.status(400).json({ error: 'INVALID_ACTION', code: 'INVALID_ACTIVATION_ACTION' });
     }
     console.error('[FAMILY] POST /activation/defer error:', err);
-    return res.status(500).json({ error: 'Kunde inte spara valet' });
+    return sendApiError(res, 500, 'SAVE_CHOICE_FAILED');
   }
 });
 

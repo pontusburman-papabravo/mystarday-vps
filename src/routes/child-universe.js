@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireChild, requireParent } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
@@ -39,7 +41,7 @@ childRouter.use(requireChild);
 childRouter.get('/universe', async (req, res, next) => {
   try {
     const state = await universeEngine.getUniverseState(req.user.id);
-    if (!state) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!state) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     res.json(state);
   } catch (err) {
     next(err);
@@ -61,7 +63,7 @@ childRouter.patch('/house', validate(HousePatchSchema), async (req, res, next) =
     const stats = await universeDb.getChildStats(req.user.id);
     const unlocked = universeEngine.computeUnlockedThemes(stats.lifetime_stars);
     if (req.body.theme && !unlocked.includes(req.body.theme)) {
-      return res.status(403).json({ error: 'Temat är inte upplåst ännu' });
+      return sendApiError(res, 403, 'THEME_LOCKED');
     }
     const config = await universeDb.updateHouseConfig(req.user.id, req.body);
     res.json({ house_config: config });
@@ -75,7 +77,7 @@ childRouter.post('/pet', validate(PetSchema), async (req, res, next) => {
     const stats = await universeDb.getChildStats(req.user.id);
     const rooms = universeEngine.computeUnlockedRooms(stats.lifetime_stars);
     if (!rooms.includes('pet')) {
-      return res.status(403).json({ error: 'Husdjursrummet är inte upplåst ännu' });
+      return sendApiError(res, 403, 'PET_ROOM_LOCKED');
     }
     const pet = await universeDb.upsertPet(req.user.id, req.body);
     res.json({ pet });
@@ -89,15 +91,15 @@ childRouter.post('/collectibles/buy', validate(BuyCollectibleSchema), async (req
     const catalog = await universeDb.getAllCollectibles();
     const item = catalog.find((c) => c.slug === req.body.slug);
     if (!item || !item.star_cost) {
-      return res.status(400).json({ error: 'Ogiltigt samlarföremål' });
+      return sendApiError(res, 400, 'INVALID_COLLECTIBLE');
     }
     const owned = await universeDb.getChildCollectibles(req.user.id);
     if (owned.some((c) => c.slug === item.slug)) {
-      return res.status(409).json({ error: 'Du har redan detta föremål' });
+      return sendApiError(res, 409, 'COLLECTIBLE_OWNED');
     }
     const balance = await getStarBalance(req.user.id);
     if (balance < item.star_cost) {
-      return res.status(402).json({ error: 'Inte tillräckligt med stjärnor', need: item.star_cost, have: balance });
+      return res.status(402).json({ error: 'insufficient_stars', need: item.star_cost, have: balance });
     }
     await universeDb.unlockCollectible(req.user.id, item.slug);
     const collectibles = await universeDb.getChildCollectibles(req.user.id);
@@ -114,7 +116,7 @@ const parentRouter = express.Router();
 parentRouter.get('/museum', requireParent, async (req, res, next) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
-    if (!familyId) return res.status(400).json({ error: 'Ingen familj' });
+    if (!familyId) return res.status(400).json({ error: 'FAMILY_NOT_FOUND' });
     const museum = await universeDb.getFamilyMuseumStats(familyId);
     res.json(museum);
   } catch (err) {

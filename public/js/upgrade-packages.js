@@ -83,7 +83,7 @@
         if (owned) {
           const badge = document.createElement('p');
           badge.className = 'text-sm font-semibold text-green-700';
-          badge.textContent = '✓ Aktivt för er familj';
+          badge.textContent = (window.pt ? pt('family.upgrade.activeFamily') : '✓ Active for your family');
           card.appendChild(badge);
         } else if (previewPath) {
           const link = document.createElement('a');

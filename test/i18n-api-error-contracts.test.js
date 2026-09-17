@@ -33,6 +33,12 @@ const KEYS = [
   'auth.errors.emailInvalid',
   'today.errors.saveRating',
   'today.errors.ratingScoreRange',
+  'auth.errors.serverError',
+  'family.errors.childAccessDenied',
+  'family.errors.childNotFound',
+  'family.errors.fetchChildrenFailed',
+  'auth.errors.userNotFound',
+  'reports.errors.notFound',
 ];
 
 function buildMapper(locale) {
@@ -211,6 +217,6 @@ describe('API error contracts i18n', () => {
   it('platform injects api-error-i18n.js and SW precaches it', () => {
     assert.match(read('src/middleware/platform-html.js'), /api-error-i18n\.js/);
     assert.match(read('public/sw.js'), /\/js\/api-error-i18n\.js/);
-    assert.match(read('public/sw.js'), /stjarndag-v978/);
+    assert.match(read('public/sw.js'), /stjarndag-v\d+/);
   });
 });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Betalning genomförd – Min Stjärndag</title>
+  <title data-i18n="family.paymentSuccess.pageTitle">Betalning genomförd – Min Stjärndag</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,18 +14,20 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <!-- Cookie-banner med GCM v2 + Meta Pixel + granulära val -->
   <script src="/js/cookie-banner.js?v=2.12.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body class="bg-white font-body text-navy min-h-screen flex items-center justify-center px-4">
+<body data-i18n-manual-init="true" data-i18n-title="family.paymentSuccess.pageTitle" class="bg-white font-body text-navy min-h-screen flex items-center justify-center px-4">
 
   <div class="w-full max-w-md text-center">
     <div class="text-6xl mb-6">🎉</div>
-    <h1 class="font-heading text-3xl font-bold text-navy mb-4">Betalning genomförd!</h1>
+    <h1 class="font-heading text-3xl font-bold text-navy mb-4" data-i18n="family.paymentSuccess.title">Betalning genomförd!</h1>
     <p class="text-text-soft text-lg mb-8">
-      Tack för ditt köp. Ditt konto är nu aktiverat. Välkommen till Min Stjärndag!
+      <span data-i18n="family.paymentSuccess.body">Tack för ditt köp. Ditt konto är nu aktiverat. Välkommen till Min Stjärndag!</span> <!-- pragma: allowlist secret -->
     </p>
     <a href="/settings#prenumeration"
        class="inline-block bg-gold text-white font-heading font-bold px-8 py-3 rounded-xl hover:opacity-90 transition">
-      Gå till inställningar
+      <span data-i18n="family.paymentSuccess.settings">Gå till inställningar</span>
     </a>
   </div>
 
@@ -41,5 +43,6 @@
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

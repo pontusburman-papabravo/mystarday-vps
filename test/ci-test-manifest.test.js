@@ -80,6 +80,7 @@ const CRITICAL_UNIT = [
   'test/i18n-library-remainder.test.js',
   'test/i18n-strict-ci.test.js',
   'test/i18n-dashboard-remainder.test.js',
+  'test/i18n-final-closure.test.js',
   'test/i18n-copy-ratchet.test.js',
   'test/i18n-fragment-guards.test.js',
   'test/i18n-widget-resource-parity.test.js',

@@ -270,7 +270,8 @@ test('limited parent PIN security access integration A–I', async (t) => {
       const text = await res.text();
       assert.equal(res.status, 400, text);
       const body = JSON.parse(text);
-      assert.match(body.error, /nuvarande PIN|lösenord/i);
+      assert.equal(body.error, 'PIN_OR_PASSWORD_REQUIRED');
+      assert.equal(body.code, 'PIN_OR_PASSWORD_REQUIRED');
     });
   } finally {
     if (http) await http.close();

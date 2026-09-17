@@ -18,7 +18,8 @@ describe('Android Play stability guards', () => {
 
   it('platform.js guards Google Sign In before native signIn()', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/platform.js'), 'utf8');
-    assert.match(src, /Google Sign In är inte redo/);
+    assert.match(src, /family\.errors\.googleNotReady/);
+    assert.match(src, /GOOGLE_PLUGIN_MISSING/);
     assert.match(src, /await GoogleAuth\.initialize/);
     assert.doesNotMatch(src, /await import\('@capacitor\/haptics'\)/);
   });

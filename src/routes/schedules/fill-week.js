@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Child-scoped fill-week: insert a template schedule into multiple days at once.
  * Does NOT handle: CRUD, bulk copy/swap, item management, templates.
@@ -26,15 +27,15 @@ router.post('/fill-week', async (req, res) => {
   try {
     const childRow = req.authzChild || await getChildAccess(req.user.id, req.params.childId);
     if (!childRow) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const { template_category_id, days, overwrite } = req.body;
-    if (!template_category_id) return res.status(400).json({ error: 'template_category_id krävs' });
-    if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
+    if (!template_category_id) return sendApiError(res, 400, 'TEMPLATE_CATEGORY_REQUIRED');
+    if (!Array.isArray(days) || days.length === 0) return sendApiError(res, 400, 'DAYS_REQUIRED');
 
     const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
-    if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar angavs (0=sön, 1=mån…6=lör)' });
+    if (validDays.length === 0) return sendApiError(res, 400, 'NO_VALID_DAYS');
 
     const familyId = childRow.family_id;
 
@@ -42,7 +43,7 @@ router.post('/fill-week', async (req, res) => {
       'SELECT id, name FROM category WHERE id = $1 AND family_id = $2',
       [template_category_id, familyId]
     );
-    if (catResult.rows.length === 0) return res.status(404).json({ error: 'Kategorin hittades inte' });
+    if (catResult.rows.length === 0) return sendApiError(res, 404, 'CATEGORY_NOT_FOUND');
     const catName = (catResult.rows[0].name || '').toLowerCase();
 
     const isSchoolSchema = ['skola', 'förskola', 'forskola', 'school'].some(k => catName.includes(k));
@@ -51,10 +52,7 @@ router.post('/fill-week', async (req, res) => {
     const allowedDays = isSchoolSchema ? validDays.filter(d => !weekendDays.has(d)) : validDays;
 
     if (allowedDays.length === 0) {
-      return res.status(400).json({
-        error: 'Skolscheman kan inte läggas in på helger (lör/sön). Välj ett helgschema istället.',
-        blocked_days: blockedDays,
-      });
+      return sendApiError(res, 400, 'SCHOOL_ON_WEEKEND', { blocked_days: blockedDays });
     }
 
     const templates = await db.query(
@@ -91,8 +89,7 @@ router.post('/fill-week', async (req, res) => {
 
     const daysWithExisting = allowedDays.filter(d => existingByDay[d]);
     if (daysWithExisting.length > 0 && !overwrite) {
-      return res.status(409).json({
-        error: 'Några dagar har redan scheman',
+      return sendApiError(res, 409, 'DAYS_ALREADY_HAVE_SCHEDULES', {
         days_with_existing: daysWithExisting,
         blocked_days: blockedDays,
       });
@@ -145,7 +142,7 @@ router.post('/fill-week', async (req, res) => {
       }
 
       res.json({
-        message: `Schema infogat på ${filledDays.length} dag(ar)`,
+        code: 'SCHEDULE_INSERTED_DAYS',
         filled_days: filledDays,
         blocked_days: blockedDays,
       });
@@ -157,7 +154,7 @@ router.post('/fill-week', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] fill-week error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

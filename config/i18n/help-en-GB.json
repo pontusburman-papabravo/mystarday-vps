@@ -516,5 +516,17 @@
         }
       ]
     }
+  },
+  "barnStod": {
+    "pageTitle": "Child support — {{brand}}",
+    "loadError": "Could not load the page."
+  },
+  "supportSvar": {
+    "pageTitle": "Your case",
+    "title": "Your case",
+    "intro": "Here is the full conversation. Write below if you want to continue. A normal email reply does not show here.",
+    "sent": "Sent. We will see it on the same case.",
+    "escalate": "I need more help from a person",
+    "placeholder": "Write what is happening…"
   }
 }

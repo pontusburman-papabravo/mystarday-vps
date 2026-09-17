@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Child-scoped schedule CRUD + once-tasks.
  * Handles: list, create, delete schedules; one-time tasks.
@@ -106,7 +107,7 @@ async function resolveCustodyScheduleFilter(child, childId, query) {
 router.get('/', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const filter = await resolveCustodyScheduleFilter(child, req.params.childId, req.query);
     if (filter.error) {
@@ -131,7 +132,7 @@ router.get('/', async (req, res) => {
     res.json(schedules.rows);
   } catch (err) {
     console.error('[SCHEDULES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -139,15 +140,15 @@ router.get('/', async (req, res) => {
 router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { day_of_week, template_category_id } = req.body;
     if (day_of_week === undefined || day_of_week === null) {
-      return res.status(400).json({ error: 'Veckodag krävs (0=sön, 1=mån, … 6=lör)' });
+      return sendApiError(res, 400, 'WEEKDAY_REQUIRED');
     }
     const dow = parseInt(day_of_week, 10);
     if (isNaN(dow) || dow < 0 || dow > 6) {
-      return res.status(400).json({ error: 'Veckodag måste vara ett tal 0–6' });
+      return sendApiError(res, 400, 'DAY_RANGE');
     }
 
     const filter = await resolveCustodyScheduleFilter(
@@ -175,10 +176,10 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
 
       const homeInFamily = await custodyDb.getHomeInFamily(custodyHomeId, child.family_id);
       if (!homeInFamily) {
-        return res.status(400).json({ error: 'custody_home_id tillhör inte familjen' });
+        return sendApiError(res, 400, 'CUSTODY_HOME_NOT_IN_FAMILY');
       }
     } else if (req.body.week_variant || req.body.custody_home_id) {
-      return res.status(400).json({ error: 'custody_home_id och week_variant stöds bara när boendeschema är aktivt' });
+      return sendApiError(res, 400, 'CUSTODY_ONLY_WHEN_ACTIVE');
     }
 
     const existing = await db.query(
@@ -192,7 +193,7 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
       [req.params.childId, dow, custodyHomeId, custodyHomeId ? null : weekVariant]
     );
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'Det finns redan ett schema för den veckodagen', id: existing.rows[0].id });
+      return sendApiError(res, 409, 'DAY_ALREADY_HAS_SCHEDULE', { id: existing.rows[0].id });
     }
 
     const client = await db.getClient();
@@ -266,7 +267,7 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -274,14 +275,14 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
 router.delete('/:scheduleId', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const schedule = await db.query(
       'SELECT id FROM weekly_schedule WHERE id = $1 AND child_id = $2',
       [req.params.scheduleId, req.params.childId]
     );
     if (schedule.rows.length === 0) {
-      return res.status(404).json({ error: 'Schemat hittades inte' });
+      return sendApiError(res, 404, 'SCHEDULE_NOT_FOUND');
     }
 
     const client = await db.getClient();
@@ -290,7 +291,7 @@ router.delete('/:scheduleId', async (req, res) => {
       await client.query('DELETE FROM weekly_schedule_item WHERE weekly_schedule_id = $1', [req.params.scheduleId]);
       await client.query('DELETE FROM weekly_schedule WHERE id = $1', [req.params.scheduleId]);
       await client.query('COMMIT');
-      res.json({ message: 'Schemat har tagits bort' });
+      res.json({ code: 'SCHEDULE_DELETED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -299,7 +300,7 @@ router.delete('/:scheduleId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -307,13 +308,13 @@ router.delete('/:scheduleId', async (req, res) => {
 router.post('/once-tasks', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       name, section, date: rawDate, start_time, end_time, star_value, icon, child_ids,
       activity_template_id, sub_steps,
     } = req.body;
-    if (!name || !name.trim()) return res.status(400).json({ error: 'Namn krävs' });
+    if (!name || !name.trim()) return sendApiError(res, 400, 'NAME_REQUIRED');
 
     // Normalise date: accept YYYY-MM-DD, nullish, or ISO-8600 with time. Default to today.
     let date = rawDate;
@@ -325,7 +326,7 @@ router.post('/once-tasks', async (req, res) => {
       date = date.substring(0, 10);
     }
     if (start_time && end_time && end_time < start_time) {
-      return res.status(400).json({ error: 'Sluttid kan inte vara före starttid' });
+      return sendApiError(res, 400, 'END_BEFORE_START');
     }
 
     const safeSection = ['morgon', 'dag', 'kvall', 'natt'].includes(section) ? section : 'dag';
@@ -339,7 +340,7 @@ router.post('/once-tasks', async (req, res) => {
         [child.family_id, child_ids]
       );
       targetChildIds = familyResult.rows.map(r => r.id);
-      if (targetChildIds.length === 0) return res.status(400).json({ error: 'Inga giltiga barn valda' });
+      if (targetChildIds.length === 0) return sendApiError(res, 400, 'NO_VALID_CHILDREN');
     }
 
     const templateId = await resolveOnceTaskTemplateId(child.family_id, {
@@ -381,7 +382,7 @@ router.post('/once-tasks', async (req, res) => {
     res.status(201).json({ created, count: created.length });
   } catch (err) {
     console.error('[ONCE-TASKS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

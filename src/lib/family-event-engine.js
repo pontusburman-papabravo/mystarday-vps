@@ -24,10 +24,10 @@ async function recordActivityContribution({
   const stars = Math.max(0, parseInt(starValue, 10) || 0);
   const payload = {
     activityId,
-    activityName: activityName || 'Aktivitet',
+    activityName: activityName || 'Activity',
     starValue: stars,
     childId,
-    childName: childName || 'Barn',
+    childName: childName || 'Child',
   };
 
   const client = await db.getClient();

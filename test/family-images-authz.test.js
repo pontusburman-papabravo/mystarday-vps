@@ -48,7 +48,8 @@ test('family-images /source: cross-family /uploads/ URL returns 403', async (t) 
     const text = await res.text();
     assert.equal(res.status, 403, text);
     const body = JSON.parse(text);
-    assert.match(body.error, /familjen/i);
+    assert.equal(body.error, 'IMAGE_NOT_FAMILY');
+    assert.equal(body.code, 'IMAGE_NOT_FAMILY');
   } finally {
     await http.close();
     await db.cleanup();

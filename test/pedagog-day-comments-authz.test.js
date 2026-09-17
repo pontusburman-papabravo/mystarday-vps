@@ -58,7 +58,8 @@ test('pedagog-day-comments POST: cross-family childId returns 403 and creates no
     const text = await res.text();
     assert.equal(res.status, 403, text);
     const body = JSON.parse(text);
-    assert.match(body.error, /åtkomst/i);
+    assert.equal(body.error, 'CHILD_ACCESS_DENIED');
+    assert.equal(body.code, 'CHILD_ACCESS_DENIED');
 
     const after = await db.query('SELECT COUNT(*)::int AS n FROM pedagog_day_comment');
     assert.equal(after.rows[0].n, before.rows[0].n, 'no comment row should be created');

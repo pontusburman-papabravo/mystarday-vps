@@ -110,7 +110,7 @@ describe('custody weekly_schedule home backfill (Phase 5)', () => {
       week_variant: 'a',
       custody_home_id: homeB,
     });
-    assert.match(mismatch.error, /matchar inte/);
+    assert.equal(mismatch.error, 'CUSTODY_HOME_VARIANT_MISMATCH');
   });
 
   it('child-crud accepts custody_home_id on create path', () => {

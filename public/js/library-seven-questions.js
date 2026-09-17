@@ -4,14 +4,20 @@
 (function (global) {
   'use strict';
 
-  const FIELDS = [
-    { key: 'where', label: 'Var?' },
-    { key: 'who', label: 'Vem?' },
-    { key: 'how_long', label: 'Hur länge?' },
-    { key: 'what_next', label: 'Vad händer sen?' },
-    { key: 'what_need', label: 'Vad behöver jag?' },
-    { key: 'why', label: 'Varför?' },
-  ];
+  function sqt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
+  function sevenFields() {
+    return [
+      { key: 'where', label: sqt('library.seven.where') },
+      { key: 'who', label: sqt('library.seven.who') },
+      { key: 'how_long', label: sqt('library.seven.howLong') },
+      { key: 'what_next', label: sqt('library.seven.whatNext') },
+      { key: 'what_need', label: sqt('library.seven.whatNeed') },
+      { key: 'why', label: sqt('library.seven.why') },
+    ];
+  }
 
   let pictograms = [];
   let familyActivities = [];
@@ -79,21 +85,21 @@
 
     let extra = '';
     if (isHowLong) {
-      extra = `<input type="number" min="1" max="120" placeholder="min" class="sq-minutes w-16 px-2 py-1 rounded-lg border border-lavender text-sm" value="${val.minutes != null ? esc(val.minutes) : ''}" data-field="${field.key}">`;
+      extra = `<input type="number" min="1" max="120" placeholder="${sqt('library.seven.minutesPlaceholder')}" class="sq-minutes w-16 px-2 py-1 rounded-lg border border-lavender text-sm" value="${val.minutes != null ? esc(val.minutes) : ''}" data-field="${field.key}">`;
     }
     if (isWhatNext && familyActivities.length) {
       const opts = familyActivities.map((a) =>
         `<option value="${a.id}" ${val.activity_template_id === a.id ? 'selected' : ''}>${esc(a.name)}</option>`
       ).join('');
       extra += `<select class="sq-next-activity mt-1 w-full px-2 py-1 rounded-lg border border-lavender text-sm" data-field="${field.key}">
-        <option value="">Välj aktivitet (valfritt)</option>${opts}</select>`;
+        <option value="">${sqt('library.seven.pickActivity')}</option>${opts}</select>`;
     }
 
     return `<div class="sq-field border border-lavender/60 rounded-xl p-3" data-sq-field="${field.key}">
       <label class="text-xs font-bold text-navy block mb-1">${field.label}</label>
       <div class="flex gap-2 items-start flex-wrap">
-        <button type="button" class="sq-pic-btn text-xl w-10 h-10 rounded-lg bg-sky border border-lavender" data-field="${field.key}" title="Välj bild">${emoji}</button>
-        <input type="text" class="sq-text flex-1 min-w-[120px] px-3 py-2 rounded-lg border border-lavender text-sm" data-field="${field.key}" placeholder="Text…" value="${esc(val.text || '')}">
+        <button type="button" class="sq-pic-btn text-xl w-10 h-10 rounded-lg bg-sky border border-lavender" data-field="${field.key}" title="${sqt('library.seven.pickImage')}">${emoji}</button>
+        <input type="text" class="sq-text flex-1 min-w-[120px] px-3 py-2 rounded-lg border border-lavender text-sm" data-field="${field.key}" placeholder="${sqt('library.seven.textPlaceholder')}" value="${esc(val.text || '')}">
         ${extra}
       </div>
       <div class="sq-pic-picker hidden flex flex-wrap gap-1 mt-2 max-h-24 overflow-y-auto p-2 bg-sky rounded-lg" data-picker="${field.key}"></div>
@@ -106,10 +112,9 @@
     if (!section || !body) return;
 
     if (!editorEnabled) {
-      body.innerHTML = `
-        <p class="text-sm text-text-soft mb-3">Visuellt stöd (De sju frågorna) ingår i paketet Extra stöd.</p>
-        <button type="button" id="libSqInterestBtn" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl text-sm font-semibold">Jag är intresserad av Extra stöd</button>
-        <p id="libSqInterestMsg" class="text-xs text-green-700 mt-2 hidden"></p>`;
+      body.innerHTML = '<p class="text-sm text-text-soft mb-3">' + sqt('library.seven.extraSupport') + '</p>'
+        + '<button type="button" id="libSqInterestBtn" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-navy rounded-xl text-sm font-semibold">' + sqt('library.seven.interestBtn') + '</button>'
+        + '<p id="libSqInterestMsg" class="text-xs text-green-700 mt-2 hidden"></p>';
       const btn = document.getElementById('libSqInterestBtn');
       if (btn && global.PackageInterestTriggers) {
         btn.addEventListener('click', () => {
@@ -119,7 +124,7 @@
       return;
     }
 
-    body.innerHTML = FIELDS.map(renderFieldRow).join('');
+    body.innerHTML = sevenFields().map(renderFieldRow).join('');
     body.querySelectorAll('.sq-pic-btn').forEach((btn) => {
       btn.addEventListener('click', () => togglePicker(btn.dataset.field));
     });
@@ -151,7 +156,7 @@
 
   function collectFromDom() {
     const out = {};
-    FIELDS.forEach((field) => {
+    sevenFields().forEach((field) => {
       const textEl = document.querySelector(`.sq-text[data-field="${field.key}"]`);
       const minutesEl = document.querySelector(`.sq-minutes[data-field="${field.key}"]`);
       const nextEl = document.querySelector(`.sq-next-activity[data-field="${field.key}"]`);

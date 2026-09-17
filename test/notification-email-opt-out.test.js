@@ -74,7 +74,8 @@ test('notifications route uses neutral copy for invalid opt-out links', () => {
     path.join(__dirname, '../src/routes/account/notifications.js'),
     'utf8'
   );
-  assert.match(src, /Länken är ogiltig eller har gått ut/);
+  assert.match(src, /settings\.unsubscribe\.invalidTitle/);
+  assert.match(src, /settings\.unsubscribe\.invalidBody/);
   assert.match(src, /Du är redan avstängd/);
 });
 

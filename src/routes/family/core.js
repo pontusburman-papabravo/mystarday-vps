@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Core family routes: family read/update, settings, dashboard-stats,
  * readiness, star-history, subscription-status.
@@ -55,7 +57,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     );
 
     if (familyResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Familj hittades inte' });
+      return sendApiError(res, 404, 'FAMILY_NOT_FOUND');
     }
 
     const family = familyResult.rows[0];
@@ -126,7 +128,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -149,7 +151,7 @@ router.put('/', validate(UpdateFamilySchema), async (req, res) => {
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ error: 'Inga ändringar att spara' });
+      return sendApiError(res, 400, 'NO_CHANGES');
     }
 
     values.push(req.user.familyId);
@@ -160,13 +162,13 @@ router.put('/', validate(UpdateFamilySchema), async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Familj hittades inte' });
+      return sendApiError(res, 404, 'FAMILY_NOT_FOUND');
     }
 
-    res.json({ message: 'Familj uppdaterad!', family: result.rows[0] });
+    res.json({ code: 'FAMILY_UPDATED', family: result.rows[0] });
   } catch (err) {
     console.error('[FAMILY] Put error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -241,7 +243,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     if (time_display_mode !== undefined) {
       const validModes = ['simple', 'starttime', 'full'];
       if (!validModes.includes(time_display_mode)) {
-        return res.status(400).json({ error: 'Ogiltigt tidsvisningsläge. Välj: simple, starttime eller full' });
+        return sendApiError(res, 400, 'INVALID_TIME_DISPLAY');
       }
       updates.push(`time_display_mode = $${idx++}`);
       values.push(time_display_mode);
@@ -257,7 +259,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     for (const [field, value] of Object.entries(timeFields)) {
       if (value !== undefined) {
         if (!timeRegex.test(value)) {
-          return res.status(400).json({ error: `Ogiltigt tidsformat för ${field}. Använd HH:MM` });
+          return sendApiError(res, 400, 'INVALID_TIME_HHMM', { details: { field } });
         }
         updates.push(`${field} = $${idx++}`);
         values.push(value);
@@ -268,7 +270,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     if (streak_start_day !== undefined) {
       const day = parseInt(streak_start_day);
       if (isNaN(day) || day < 0 || day > 6) {
-        return res.status(400).json({ error: 'Ogiltigt värde för streak-startdag (0-6)' });
+        return sendApiError(res, 400, 'INVALID_STREAK_START');
       }
       updates.push(`streak_start_day = $${idx++}`);
       values.push(day);
@@ -285,7 +287,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ error: 'Inga inställningar att uppdatera' });
+      return sendApiError(res, 400, 'NO_SETTINGS_TO_UPDATE');
     }
 
     values.push(req.user.familyId);
@@ -299,12 +301,12 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     );
 
     res.json({
-      message: 'Inställningar uppdaterade!',
+      code: 'SETTINGS_UPDATED',
       settings: result.rows[0],
     });
   } catch (err) {
     console.error('[FAMILY] Settings error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -333,7 +335,7 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] locale-options error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -698,7 +700,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Dashboard stats error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -890,7 +892,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error('[FAMILY] Readiness error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -996,7 +998,7 @@ router.get('/star-history', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Star history error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -1008,7 +1010,7 @@ router.get('/subscription-status', requireParent, async (req, res) => {
       `SELECT subscription_status, trial_ends_at, is_lifetime_free FROM family WHERE id = $1`,
       [req.user.familyId || req.user.family_id]
     );
-    if (!rows.length) return res.status(404).json({ error: 'Familj hittades inte' });
+    if (!rows.length) return sendApiError(res, 404, 'FAMILY_NOT_FOUND');
     const { subscription_status, trial_ends_at, is_lifetime_free } = rows[0];
     let trial_days_remaining = null;
     if (subscription_status === 'trial' && trial_ends_at) {
@@ -1028,7 +1030,7 @@ router.get('/subscription-status', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] subscription-status error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta prenumerationsstatus' });
+    sendApiError(res, 500, 'SUBSCRIPTION_STATUS_FAILED');
   }
 });
 
@@ -1078,7 +1080,7 @@ router.get('/activation-config', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] activation-config error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta aktiveringsinställningar' });
+    sendApiError(res, 500, 'ACTIVATION_SETTINGS_FAILED');
   }
 });
 
@@ -1094,7 +1096,7 @@ router.post('/activation/handoff-film-seen', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[FAMILY] handoff-film-seen error:', err);
-    res.status(500).json({ error: 'Kunde inte spara handoff-filmstatus' });
+    sendApiError(res, 500, 'HANDOFF_FILM_SAVE_FAILED');
   }
 });
 

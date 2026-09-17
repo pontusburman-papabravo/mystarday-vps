@@ -19,7 +19,7 @@
     const activityEl = document.getElementById('activationAhaActivityName');
     const btn = document.getElementById('activationAhaDismissBtn');
 
-    if (childEl) childEl.textContent = item.child_name || 'Barnet';
+    if (childEl) childEl.textContent = item.child_name || (window.pt ? pt('family.fallbacks.child') : 'Child');
     if (activityEl) activityEl.textContent = item.activity_name || 'en aktivitet';
     if (btn) {
       btn.dataset.dailyLogItemId = item.daily_log_item_id;

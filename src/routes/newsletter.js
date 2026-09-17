@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 // Newsletter subscription management.
 // User-facing: toggle opt-in/opt-out.
 // Admin-facing: subscriber list, CSV export, standalone newsletter compose + send.
@@ -56,7 +57,7 @@ router.get('/subscription', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[NEWSLETTER] Get subscription error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta prenumerationsstatus' });
+    sendApiError(res, 500, 'SUBSCRIPTION_STATUS_FAILED');
   }
 });
 
@@ -76,7 +77,7 @@ router.put('/subscription', requireParent, async (req, res) => {
       [req.user.id]
     );
     if (parentResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     const email = parentResult.rows[0].email;
 

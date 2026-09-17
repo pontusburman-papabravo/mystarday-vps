@@ -301,7 +301,7 @@ async function recordSupportRequested(familyId, meta = {}) {
          VALUES ($1, $2, $3, 'bug', $4, $5::jsonb)
          RETURNING id`,
         [
-          (meta.parentName || 'Förälder').slice(0, 120),
+          (meta.parentName || 'Parent').slice(0, 120),
           String(meta.parentEmail).slice(0, 255),
           message.slice(0, 8000),
           familyId,

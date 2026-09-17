@@ -50,7 +50,7 @@
       if (_children.length === 1) selectChild(_children[0].id);
     } catch (_e) {
       const chips = document.getElementById('childChips');
-      if (chips) chips.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda barn</p>';
+      if (chips) chips.innerHTML = '<p class="text-sm text-red-500">' + (window.pt ? pt('family.treasury.loadChildrenFailed') : 'Could not load children') + '</p>';
     }
   }
 
@@ -146,7 +146,7 @@
       renderTreasury(await res.json());
     } catch (_e) {
       setView('placeholder');
-      if (window.showToast) showToast('Kunde inte ladda Skattkammaren', 'error');
+      if (window.showToast) showToast((window.pt ? pt('family.treasury.loadFailed') : 'Could not load the treasure chest'), 'error');
     }
   }
 

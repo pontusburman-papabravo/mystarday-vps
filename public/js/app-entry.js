@@ -264,13 +264,13 @@
     }
 
     const title = document.getElementById('entryRoleTitle');
-    if (title) title.textContent = 'Vem ska använda appen nu?';
+    if (title && window.I18n) title.textContent = I18n.t('auth.entry.role.title');
 
     const kidSub = document.querySelector('#kid-role-card .card-sub');
-    if (kidSub) kidSub.textContent = 'Jag vill se mitt schema';
+    if (kidSub && window.I18n) kidSub.textContent = I18n.t('auth.entry.role.kidSub');
 
     const parentSub = document.querySelector('#parent-role-card .card-sub');
-    if (parentSub) parentSub.textContent = 'Jag vill logga in eller komma igång';
+    if (parentSub && window.I18n) parentSub.textContent = I18n.t('auth.entry.role.parentSub');
   }
 
   function bindAdultStartActions() {

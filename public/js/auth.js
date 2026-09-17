@@ -1713,7 +1713,7 @@ function setLoading(btn, loading) {
   if (loading) {
     btn.disabled = true;
     btn.dataset.originalText = btn.textContent;
-    btn.textContent = 'Laddar...';
+    btn.textContent = (window.I18n ? I18n.t('auth.common.loading') : 'Loading...');
   } else {
     btn.disabled = false;
     btn.textContent = btn.dataset.originalText || btn.textContent;

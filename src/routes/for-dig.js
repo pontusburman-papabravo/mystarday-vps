@@ -26,17 +26,11 @@ const {
   getGoalBySlug,
   getGoalsForLocale,
 } = require('../lib/for-dig-config');
-const { getFamilyPreferredLocale } = require('../lib/family-locale');
-const { parentApiMessage } = require('../lib/parent-api-messages');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router();
 router.use(requireParent);
 router.use(requireFeature('for_dig'));
-
-async function forDigApiError(res, familyId, key, status) {
-  const locale = await getFamilyPreferredLocale(familyId);
-  return res.status(status).json({ error: parentApiMessage(locale, `errors.forDig.${key}`) });
-}
 
 function trackEvent(familyId, eventType, metadata) {
   analytics.track(familyId, eventType, metadata).catch(() => {});
@@ -52,7 +46,7 @@ router.get('/goals', async (req, res) => {
     res.json({ goals: getGoalsForLocale(locale) });
   } catch (err) {
     console.error('[FOR-DIG] goals error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta mål' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_GOALS');
   }
 });
 
@@ -62,7 +56,7 @@ router.get('/installs', async (req, res) => {
     res.json({ installs: rows });
   } catch (err) {
     console.error('[FOR-DIG] installs error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta aktiveringar' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_ACTIVATIONS');
   }
 });
 
@@ -74,7 +68,7 @@ router.get('/popular', async (req, res) => {
     res.json({ goals: rows });
   } catch (err) {
     console.error('[FOR-DIG] popular error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta populära mål' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_POPULAR');
   }
 });
 
@@ -84,14 +78,14 @@ router.get('/favorites', async (req, res) => {
     res.json(favorites);
   } catch (err) {
     console.error('[FOR-DIG] favorites list error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta favoriter' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_FAVORITES');
   }
 });
 
 router.post('/favorites', async (req, res) => {
   const { goal_slug: goalSlug } = req.body || {};
   if (!goalSlug) {
-    return res.status(400).json({ error: 'goal_slug krävs' });
+    return sendApiError(res, 400, 'GOAL_SLUG_REQUIRED');
   }
 
   try {
@@ -109,7 +103,7 @@ router.post('/favorites', async (req, res) => {
   } catch (err) {
     const status = err.status || 500;
     console.error('[FOR-DIG] favorites toggle error:', err);
-    res.status(status).json({ error: err.message || 'Kunde inte uppdatera favorit' });
+    sendApiError(res, status, 'FOR_DIG_SAVE_FAVORITE');
   }
 });
 
@@ -124,34 +118,34 @@ router.post('/feedback', async (req, res) => {
   } = req.body || {};
 
   if (!goalSlug || !phase) {
-    return res.status(400).json({ error: 'goal_slug och phase krävs' });
+    return sendApiError(res, 400, 'GOAL_SLUG_PHASE_REQUIRED');
   }
 
   if (!getGoalBySlug(goalSlug)) {
-    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    return sendApiError(res, 404, 'GOAL_NOT_FOUND');
   }
 
   if (!['intent', 'outcome', 'suggestion'].includes(phase)) {
-    return res.status(400).json({ error: 'Ogiltig phase' });
+    return sendApiError(res, 400, 'INVALID_PHASE');
   }
 
   if ((phase === 'intent' || phase === 'outcome') && !childId) {
-    return res.status(400).json({ error: 'child_id krävs för intent och outcome' });
+    return sendApiError(res, 400, 'CHILD_ID_INTENT_REQUIRED');
   }
 
   if (phase === 'intent' && (!intentReason || !VALID_INTENT_REASONS.has(intentReason))) {
-    return res.status(400).json({ error: 'Ogiltig intent_reason' });
+    return sendApiError(res, 400, 'INVALID_INTENT_REASON');
   }
 
   if (phase === 'outcome') {
     const score = parseInt(outcomeScore, 10);
     if (!score || score < 1 || score > 4) {
-      return res.status(400).json({ error: 'outcome_score måste vara 1–4' });
+      return sendApiError(res, 400, 'OUTCOME_SCORE_RANGE');
     }
   }
 
   if (freeText && String(freeText).length > 500) {
-    return res.status(400).json({ error: 'Fritext får vara max 500 tecken' });
+    return sendApiError(res, 400, 'FREETEXT_MAX');
   }
 
   try {
@@ -160,7 +154,7 @@ router.post('/feedback', async (req, res) => {
     if (childId) {
       const child = await authz.getChildAccess(req.user.id, childId);
       if (!child) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till ett av valda barn.' });
+        return sendApiError(res, 403, 'FOR_DIG_CHILD_ACCESS');
       }
       familyId = child.family_id;
       scopedChildId = child.id;
@@ -199,10 +193,10 @@ router.post('/feedback', async (req, res) => {
     res.status(201).json({ ok: true });
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ error: 'Du har redan svarat på den här frågan.' });
+      return sendApiError(res, 409, 'FOR_DIG_ALREADY_ANSWERED');
     }
     console.error('[FOR-DIG] feedback error:', err);
-    res.status(500).json({ error: 'Kunde inte spara svaret' });
+    sendApiError(res, 500, 'FOR_DIG_SAVE_ANSWER');
   }
 });
 
@@ -212,7 +206,7 @@ router.get('/feedback/pending', async (req, res) => {
     res.json(pending);
   } catch (err) {
     console.error('[FOR-DIG] pending error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta väntande feedback' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_FEEDBACK');
   }
 });
 
@@ -220,15 +214,15 @@ router.post('/feedback/dismiss', async (req, res) => {
   const { child_id: childId, goal_slug: goalSlug } = req.body || {};
   const familyId = req.user.familyId;
   if (!childId || !goalSlug) {
-    return forDigApiError(res, familyId, 'childAndGoalRequired', 400);
+    return sendApiError(res, 400, 'CHILD_ID_INTENT_REQUIRED');
   }
   if (!getGoalBySlug(goalSlug)) {
-    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    return sendApiError(res, 404, 'GOAL_NOT_FOUND');
   }
   try {
     const child = await authz.getChildAccess(req.user.id, childId);
     if (!child) {
-      return forDigApiError(res, familyId, 'childAccessDenied', 403);
+      return sendApiError(res, 403, 'FOR_DIG_CHILD_ACCESS');
     }
     await feedbackDb.dismissPendingOutcome({
       parentId: req.user.id,
@@ -239,7 +233,7 @@ router.post('/feedback/dismiss', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[FOR-DIG] dismiss error:', err);
-    return forDigApiError(res, familyId, 'dismissFailed', 500);
+    return sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -249,12 +243,12 @@ router.post('/:slug/preview-plan', async (req, res) => {
 
   const goal = getGoalBySlug(slug);
   if (!goal) {
-    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    return sendApiError(res, 404, 'GOAL_NOT_FOUND');
   }
 
   const childIds = Array.isArray(childIdsBody) ? childIdsBody.filter(Boolean) : [];
   if (childIds.length === 0) {
-    return res.status(400).json({ error: 'Minst ett barn krävs (child_ids)' });
+    return sendApiError(res, 400, 'FOR_DIG_CHILDREN_REQUIRED');
   }
 
   try {
@@ -264,13 +258,13 @@ router.post('/:slug/preview-plan', async (req, res) => {
       goalSlug: slug,
     });
     if (!plan) {
-      return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+      return sendApiError(res, 404, 'GOAL_NOT_FOUND');
     }
     res.json(plan);
   } catch (err) {
     console.error('[FOR-DIG] preview-plan error:', err);
     const status = err.status || 500;
-    res.status(status).json({ error: err.message || 'Kunde inte ladda planen' });
+    sendApiError(res, status, err.code || 'FOR_DIG_LOAD_PLAN');
   }
 });
 
@@ -278,18 +272,18 @@ router.get('/:slug/preview', async (req, res) => {
   const { slug } = req.params;
   const goal = getGoalBySlug(slug);
   if (!goal) {
-    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    return sendApiError(res, 404, 'GOAL_NOT_FOUND');
   }
 
   try {
     const preview = await getGoalActivationPreview(slug);
     if (!preview) {
-      return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+      return sendApiError(res, 404, 'GOAL_NOT_FOUND');
     }
     res.json(preview);
   } catch (err) {
     console.error('[FOR-DIG] preview error:', err);
-    res.status(500).json({ error: 'Kunde inte ladda förhandsvisning' });
+    sendApiError(res, 500, 'FOR_DIG_LOAD_PREVIEW');
   }
 });
 
@@ -307,12 +301,12 @@ router.post('/:slug/activate', async (req, res) => {
     : (legacyChildId ? [legacyChildId] : []);
 
   if (childIds.length === 0) {
-    return res.status(400).json({ error: 'Minst ett barn krävs (child_ids)' });
+    return sendApiError(res, 400, 'FOR_DIG_CHILDREN_REQUIRED');
   }
 
   const goal = getGoalBySlug(slug);
   if (!goal) {
-    return res.status(404).json({ error: 'Utvecklingsmålet hittades inte' });
+    return sendApiError(res, 404, 'GOAL_NOT_FOUND');
   }
 
   for (const childId of childIds) {
@@ -360,10 +354,7 @@ router.post('/:slug/activate', async (req, res) => {
     });
 
     const status = err.status || 500;
-    const message = status === 500
-      ? 'Något gick fel vid aktivering. Försök igen eller gå till biblioteket.'
-      : err.message;
-    res.status(status).json({ error: message });
+    sendApiError(res, status, err.code || 'FOR_DIG_ACTIVATE_FAILED');
   }
 });
 

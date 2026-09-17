@@ -46,8 +46,18 @@
     "birthMonthAria": "Birth month",
     "birthDayAria": "Birth day",
     "months": [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
     ],
     "emojiLabel": "Choose an emoji",
     "customEmojiPlaceholder": "Or type your own emoji…",
@@ -317,12 +327,24 @@
     "personalizeFailed": "Could not customise schedule",
     "completeFailed": "Could not complete",
     "packages": {
-      "morning-short": { "name": "Short morning" },
-      "evening-routine": { "name": "Evening routine" },
-      "preschool-day": { "name": "Nursery weekday" },
-      "school-day": { "name": "School weekday" },
-      "weekend": { "name": "Weekend" },
-      "getting-ready": { "name": "Short morning" }
+      "morning-short": {
+        "name": "Short morning"
+      },
+      "evening-routine": {
+        "name": "Evening routine"
+      },
+      "preschool-day": {
+        "name": "Nursery weekday"
+      },
+      "school-day": {
+        "name": "School weekday"
+      },
+      "weekend": {
+        "name": "Weekend"
+      },
+      "getting-ready": {
+        "name": "Short morning"
+      }
     },
     "questions": {
       "child_name": {
@@ -484,12 +506,53 @@
       "description": "Weekend routine"
     },
     "previewFallback": {
-      "forskola": ["Wake up", "Get dressed", "Breakfast", "Nursery", "Play", "Dinner", "Bedtime story"],
-      "skola": ["Wake up", "Breakfast", "Pack bag", "School", "Homework", "Dinner", "Bedtime story"],
-      "morgon": ["Wake up", "Get dressed", "Brush teeth", "Breakfast", "Pack bag"],
-      "dag": ["Nursery", "Play outside", "Snack", "Lunch", "Crafts"],
-      "kvall": ["Dinner", "Brush teeth", "Pyjamas", "Bedtime story", "Sleep"],
-      "helg": ["Wake up", "Breakfast", "Free play", "Day out", "Family activity", "Dinner"]
+      "forskola": [
+        "Wake up",
+        "Get dressed",
+        "Breakfast",
+        "Nursery",
+        "Play",
+        "Dinner",
+        "Bedtime story"
+      ],
+      "skola": [
+        "Wake up",
+        "Breakfast",
+        "Pack bag",
+        "School",
+        "Homework",
+        "Dinner",
+        "Bedtime story"
+      ],
+      "morgon": [
+        "Wake up",
+        "Get dressed",
+        "Brush teeth",
+        "Breakfast",
+        "Pack bag"
+      ],
+      "dag": [
+        "Nursery",
+        "Play outside",
+        "Snack",
+        "Lunch",
+        "Crafts"
+      ],
+      "kvall": [
+        "Dinner",
+        "Brush teeth",
+        "Pyjamas",
+        "Bedtime story",
+        "Sleep"
+      ],
+      "helg": [
+        "Wake up",
+        "Breakfast",
+        "Free play",
+        "Day out",
+        "Family activity",
+        "Dinner"
+      ]
     }
   },
   "sections": {
@@ -537,5 +600,8 @@
     "scheduleNameRequired": "scheduleName is required",
     "templateNotFound": "Template not found",
     "enrollChoiceUnavailable": "Choice screen is not available"
+  },
+  "starterPlan": {
+    "firstSchedule": "Your first schedule"
   }
 }

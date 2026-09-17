@@ -7,10 +7,14 @@
  */
 
 (function () {
-  const MONTH_NAMES_SV = [
-    'Januari','Februari','Mars','April','Maj','Juni',
-    'Juli','Augusti','September','Oktober','November','December'
-  ];
+  function monthNames() {
+    const locale = (window.I18n && typeof I18n.getCurrentLang === 'function')
+      ? I18n.getCurrentLang()
+      : 'sv-SE';
+    return Array.from({ length: 12 }, function (_, i) {
+      return new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2020, i, 1));
+    });
+  }
 
   /**
    * Initialize birthday year/month selects.
@@ -43,8 +47,8 @@
       yearSel.appendChild(opt);
     }
 
-    // Months (full Swedish names)
-    MONTH_NAMES_SV.forEach(function (name, i) {
+    // Months (locale-owned via Intl)
+    monthNames().forEach(function (name, i) {
       const opt = document.createElement('option');
       opt.value = String(i + 1).padStart(2, '0');
       opt.textContent = name;

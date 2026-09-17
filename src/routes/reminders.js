@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Reminder settings routes
  *
@@ -33,7 +34,7 @@ router.get('/', async (req, res) => {
     res.json({ enabled: row.enabled, time: row.time, days: row.days });
   } catch (err) {
     console.error('[REMINDERS] GET error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta påminnelseinställningar' });
+    sendApiError(res, 500, 'REMINDER_FETCH_FAILED');
   }
 });
 
@@ -44,7 +45,7 @@ router.put('/', async (req, res) => {
 
     // Validate time format HH:MM
     if (typeof time !== 'string' || !/^\d{2}:\d{2}$/.test(time)) {
-      return res.status(400).json({ error: 'Ogiltigt tidsformat. Använd HH:MM.' });
+      return sendApiError(res, 400, 'INVALID_TIME_HHMM');
     }
     const [hh, mm] = time.split(':').map(Number);
     if (hh < 0 || hh > 23 || mm < 0 || mm > 59) {
@@ -53,7 +54,7 @@ router.put('/', async (req, res) => {
 
     // Validate days array
     if (!Array.isArray(days) || days.length === 0 || !days.every(d => VALID_DAYS.has(Number(d)))) {
-      return res.status(400).json({ error: 'Välj minst en dag.' });
+      return sendApiError(res, 400, 'DAYS_REQUIRED');
     }
     days = [...new Set(days.map(Number))].sort();
 
@@ -73,7 +74,7 @@ router.put('/', async (req, res) => {
     res.json({ success: true, enabled, time, days });
   } catch (err) {
     console.error('[REMINDERS] PUT error:', err);
-    res.status(500).json({ error: 'Kunde inte spara påminnelseinställningar' });
+    sendApiError(res, 500, 'REMINDER_SAVE_FAILED');
   }
 });
 

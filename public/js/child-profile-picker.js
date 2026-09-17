@@ -352,14 +352,14 @@
   function showBootstrapError(message, retrySec) {
     const grid = document.getElementById('cppGrid');
     if (grid) {
-      grid.innerHTML = '<button type="button" id="cppRetryBtn" class="cpp-fallback-link cpp-fallback-btn">Försök igen</button>';
+      grid.innerHTML = '<button type="button" id="cppRetryBtn" class="cpp-fallback-link cpp-fallback-btn">' + (window.cpt ? cpt('profilePicker.retry') : 'Try again') + '</button>';
       const retryBtn = grid.querySelector('#cppRetryBtn');
       if (retryBtn) retryBtn.addEventListener('click', bootstrap);
     }
     showError(message);
     const sub = document.getElementById('cppSub');
     if (sub && retrySec) {
-      sub.textContent = 'Försök igen om ' + retrySec + ' s';
+      sub.textContent = window.cpt ? cpt('profilePicker.retryInSeconds', { seconds: retrySec }) : ('Try again in ' + retrySec + ' s');
     }
   }
 

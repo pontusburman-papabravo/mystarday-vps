@@ -117,7 +117,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        errorEl.textContent = data.error || 'Något gick fel. Försök igen.';
+        errorEl.textContent = data.error || (window.pt ? pt('family.cta.genericRetry') : 'Something went wrong. Try again.');
         errorEl.classList.remove('hidden');
       } else {
         // Success
@@ -131,7 +131,7 @@
         }, 1500);
       }
     } catch (_e) {
-      errorEl.textContent = 'Något gick fel. Kontrollera din uppkoppling.';
+      errorEl.textContent = (window.pt ? pt('family.cta.networkError') : 'Something went wrong. Check your connection.');
       errorEl.classList.remove('hidden');
     } finally {
       submitBtn.disabled = false;

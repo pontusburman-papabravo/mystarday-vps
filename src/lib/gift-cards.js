@@ -87,12 +87,12 @@ async function logRedemptionAttempt({ codeFingerprint, familyId, ipAddress, succ
 async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
   const code = normalizeGiftCode(rawCode);
   if (!code || code.length < 8) {
-    return { ok: false, code: 'INVALID_CODE', message: 'Ogiltig presentkod' };
+    return { ok: false, code: 'INVALID_CODE' };
   }
 
   const settings = await getGiftSettings();
   if (!settings.gift_cards_enabled) {
-    return { ok: false, code: 'GIFTS_DISABLED', message: 'Presentkort är tillfälligt avstängda' };
+    return { ok: false, code: 'GIFTS_DISABLED' };
   }
 
   const codeHash = hashGiftCode(code);
@@ -117,7 +117,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: 'rate_limited',
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'RATE_LIMITED', message: 'För många försök. Vänta en stund.' };
+      return { ok: false, code: 'RATE_LIMITED' };
     }
 
     const cardRes = await client.query(
@@ -139,7 +139,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: 'not_found',
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'NOT_FOUND', message: 'Presentkoden hittades inte' };
+      return { ok: false, code: 'NOT_FOUND' };
     }
 
     if (card.status === 'redeemed' || card.redeemed_at) {
@@ -151,7 +151,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: 'already_redeemed',
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'ALREADY_REDEEMED', message: 'Presentkoden är redan inlöst' };
+      return { ok: false, code: 'ALREADY_REDEEMED' };
     }
 
     if (['blocked', 'refunded', 'chargeback'].includes(card.status) || card.blocked_at) {
@@ -163,7 +163,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: card.status,
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'BLOCKED', message: 'Presentkoden kan inte användas' };
+      return { ok: false, code: 'BLOCKED' };
     }
 
     if (card.status === 'expired' || (card.redemption_expires_at && new Date(card.redemption_expires_at) <= new Date())) {
@@ -175,7 +175,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: 'expired',
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'EXPIRED', message: 'Presentkoden har gått ut' };
+      return { ok: false, code: 'EXPIRED' };
     }
 
     if (card.payment_status && !['paid', 'succeeded', 'complete'].includes(card.payment_status)) {
@@ -187,7 +187,7 @@ async function redeemGiftCode(familyId, rawCode, { ipAddress = null } = {}) {
         failureReason: 'payment_incomplete',
       }, client);
       await client.query('COMMIT');
-      return { ok: false, code: 'PAYMENT_INCOMPLETE', message: 'Presentkortet är inte betalt' };
+      return { ok: false, code: 'PAYMENT_INCOMPLETE' };
     }
 
     const months = card.premium_months || settings.gift_premium_months || 12;

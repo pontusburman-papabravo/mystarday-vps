@@ -202,7 +202,8 @@
         "step3Title": "3. Vuxna följer framsteg och bygger rutiner tillsammans",
         "step3Body": "Flera barn och vuxna kan dela samma familj i appen.",
         "close": "Stäng"
-      }
+      },
+      "noscript": "JavaScript krävs — aktivera JavaScript för att logga in. / JavaScript required — enable JavaScript to use sign-in."
     },
     "register": {
       "title": "Skapa konto",
@@ -474,7 +475,44 @@
       "parentPinInvalid": "Felaktig PIN-kod — försök igen",
       "logoutFailed": "Utloggningen misslyckades. Försök igen.",
       "logoutRateLimited": "För många försök. Vänta en stund och försök igen.",
-      "handoffInvalid": "Vuxensessionen kunde inte återställas. Logga in som vuxen."
+      "handoffInvalid": "Vuxensessionen kunde inte återställas. Logga in som vuxen.",
+      "userNotFound": "Användare hittades inte",
+      "invalidPassword": "Felaktigt lösenord",
+      "tokenRequired": "Token krävs",
+      "idTokenRequired": "idToken krävs",
+      "allFieldsRequired": "Alla fält krävs",
+      "messageTooShort": "Meddelandet måste vara minst 10 tecken",
+      "serviceUnavailable": "Tjänsten är tillfälligt otillgänglig",
+      "nameTooShort": "Namn krävs (minst 2 tecken)",
+      "roleRequired": "Roll krävs",
+      "consentRequired": "Du måste godkänna att vi sparar dina uppgifter",
+      "refreshInvalid": "Refresh-token ogiltig eller utgången",
+      "authRequired": "Autentisering krävs",
+      "passwordTooShort6": "Lösenordet måste vara minst 6 tecken"
+    }
+  },
+  "surveys": {
+    "thankYou": "Tack för ditt svar!",
+    "errors": {
+      "unavailable": "Enkäten är inte tillgänglig just nu",
+      "notFound": "Enkät hittades inte",
+      "closed": "Enkäten är stängd",
+      "paused": "Enkäten är pausad",
+      "alreadyAnswered": "Du har redan svarat på denna enkät",
+      "alreadySubmitted": "Enkäten är redan inskickad",
+      "questionIdRequired": "Fråga krävs",
+      "invalidQuestion": "Ogiltig fråga",
+      "maxSelections": "Du kan välja högst {{max}}",
+      "invalidOption": "Ogiltigt svarsalternativ",
+      "sessionNotFound": "Session hittades inte",
+      "answerFirst": "Svara på enkäten först",
+      "contestNotOpen": "Utlottningen är inte öppen",
+      "contestClosed": "Utlottningen är stängd",
+      "ageRequired": "Du måste vara 18 år eller äldre för att delta",
+      "contestConsent": "Samtycke krävs för att delta i utlottningen",
+      "contestAlready": "Du är redan anmäld till utlottningen",
+      "emailAlready": "Den här adressen är redan anmäld",
+      "idActionRequired": "Enkät och åtgärd krävs"
     }
   },
   "dashboard": {

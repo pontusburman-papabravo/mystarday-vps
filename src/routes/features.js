@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Public feature access routes (authenticated family).
  * Owns: listing accessible features for the current family.
@@ -20,7 +21,7 @@ router.get('/', requireAuth, async (req, res) => {
     res.json(features);
   } catch (err) {
     console.error('[FEATURES] get accessible error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta funktioner' });
+    sendApiError(res, 500, 'FEATURES_FETCH_FAILED');
   }
 });
 

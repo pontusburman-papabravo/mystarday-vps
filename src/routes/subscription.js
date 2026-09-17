@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Subscription status routes.
  * Owns: exposing family subscription state to the frontend.
@@ -44,7 +45,7 @@ router.get('/preview-data', requireAuth, async (req, res) => {
     res.json(packages);
   } catch (err) {
     console.error('[SUBSCRIPTION] preview-data error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta förhandsvisning' });
+    sendApiError(res, 500, 'PREVIEW_FAILED');
   }
 });
 
@@ -56,7 +57,7 @@ router.get('/access', requireAuth, async (req, res) => {
   try {
     const familyId = req.user.familyId || req.user.family_id;
     if (!familyId) {
-      return res.status(400).json({ error: 'Ingen familj kopplad till kontot' });
+      return res.status(400).json({ error: 'FAMILY_NOT_FOUND' });
     }
 
     const session = {
@@ -71,7 +72,7 @@ router.get('/access', requireAuth, async (req, res) => {
     res.json(access);
   } catch (err) {
     console.error('[SUBSCRIPTION] access error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta pakettillgång' });
+    sendApiError(res, 500, 'PACKAGE_ACCESS_FAILED');
   }
 });
 
@@ -88,14 +89,14 @@ router.post('/interest', requireParent, validate(InterestBodySchema), async (req
     const access = await getFamilyAccess(familyId, req.user);
     if (access.rollout_mode !== 'interest') {
       return res.status(400).json({
-        error: 'Intresseanmälan är inte aktiv just nu',
+        error: 'INTEREST_INACTIVE',
         code: 'INTEREST_NOT_ENABLED',
       });
     }
 
     if (access.components[component]?.has) {
       return res.status(400).json({
-        error: 'Er familj har redan tillgång till detta paket',
+        error: 'PACKAGE_ALREADY_OWNED',
         code: 'COMPONENT_ALREADY_ACTIVE',
       });
     }
@@ -120,7 +121,7 @@ router.post('/interest', requireParent, validate(InterestBodySchema), async (req
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] interest error:', err);
-    res.status(500).json({ error: 'Kunde inte registrera intresse' });
+    sendApiError(res, 500, 'INTEREST_SIGNUP_FAILED');
   }
 });
 
@@ -177,7 +178,7 @@ router.get('/status', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] status error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta prenumerationsstatus' });
+    sendApiError(res, 500, 'SUBSCRIPTION_STATUS_FAILED');
   }
 });
 
@@ -191,7 +192,7 @@ router.get('/entitlements', requireParent, async (req, res) => {
     res.json(resolved);
   } catch (err) {
     console.error('[SUBSCRIPTION] entitlements error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta tillgång' });
+    sendApiError(res, 500, 'ACCESS_FETCH_FAILED');
   }
 });
 

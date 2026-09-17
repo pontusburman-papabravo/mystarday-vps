@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Pedagog (educator) invite + access routes.
  * Mounted at /api/family AFTER router.use(requireParent) in index.js.
@@ -22,16 +24,16 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
     const { email, name, childIds } = req.body || {};
 
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ error: 'Giltig e-postadress krävs' });
+      return sendApiError(res, 400, 'INVITE_EMAIL_REQUIRED');
     }
     if (!Array.isArray(childIds) || childIds.length === 0) {
-      return res.status(400).json({ error: 'Välj minst ett barn att dela med pedagogen' });
+      return sendApiError(res, 400, 'PEDAGOG_CHILD_REQUIRED');
     }
 
     const { verifyPrimaryChildrenForInvite, createInvite } = require('../../../db/pedagog-invite');
     const childCheck = await verifyPrimaryChildrenForInvite(req.user.id, req.user.familyId, childIds);
     if (childCheck.length !== childIds.length) {
-      return res.status(400).json({ error: 'Ett eller flera barn hittades inte eller saknar behörighet' });
+      return sendApiError(res, 400, 'INVITE_CHILD_ACCESS');
     }
 
     const invite = await createInvite({
@@ -48,12 +50,12 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
       'SELECT name, COALESCE(preferred_locale, \'sv-SE\') AS preferred_locale FROM family WHERE id = $1',
       [req.user.familyId]
     );
-    const inviterName = inviterResult.rows[0]?.name || 'En förälder';
-    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
+    const { t } = require('../../lib/i18n');
     const locale = require('../../lib/communication-locale').resolveCommunicationLocale(
       familyResult.rows[0]?.preferred_locale
     );
-
+    const inviterName = inviterResult.rows[0]?.name || t(locale, 'family.fallbacks.parent');
+    const familyName = familyResult.rows[0]?.name || 'Min Stjärndag'; // pragma: allowlist secret
     const emailResult = await require('../../lib/email').sendPedagogInviteEmail({
       to: email,
       inviteeName: name || null,
@@ -74,7 +76,7 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
     });
   } catch (err) {
     console.error('[FAMILY] invite-pedagog POST error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -118,7 +120,7 @@ router.get('/invite-pedagog', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] invite-pedagog GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -130,13 +132,13 @@ router.delete('/invite-pedagog/:id', requirePrimaryParent, async (req, res) => {
     const deleted = await revokeInvite(req.params.id, req.user.familyId);
 
     if (!deleted) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte eller är redan accepterad' });
+      return sendApiError(res, 404, 'INVITE_NOT_FOUND');
     }
 
-    res.json({ message: 'Inbjudan återkallad' });
+    res.json({ code: 'INVITE_REVOKED' });
   } catch (err) {
     console.error('[FAMILY] revoke invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -148,7 +150,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
     const { pedagogParentId, childId } = req.body || {};
 
     if (!pedagogParentId || !childId) {
-      return res.status(400).json({ error: 'parentId och childId krävs' });
+      return sendApiError(res, 400, 'PARENT_CHILD_ID_REQUIRED');
     }
 
     const { revokePedagogLink } = require('../../../db/pedagog-invite');
@@ -159,7 +161,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
       [childId, req.user.familyId]
     );
     if (childCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Barn hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     // Verify the pedagog parent exists
@@ -184,10 +186,10 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
 
     notifyParentAccessRevoked(pedagogParentId, req.user.familyId);
 
-    res.json({ message: 'Åtkomst återkallad' });
+    res.json({ code: 'ACCESS_REVOKED' });
   } catch (err) {
     console.error('[FAMILY] pedagog-access revoke error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

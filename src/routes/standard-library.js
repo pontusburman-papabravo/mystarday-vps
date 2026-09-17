@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Standard Library routes — browse & copy admin-created default activities, rewards, and schedules.
  *
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
     res.json(await localizeActivityItems(activities, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -73,7 +74,7 @@ router.post('/activities/copy-batch', async (req, res) => {
   try {
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ error: 'Inga aktiviteter valda.' });
+      return res.status(400).json({ error: 'NO_ACTIVITIES_SELECTED' });
     }
 
     // Fetch all requested default activities
@@ -84,21 +85,21 @@ router.post('/activities/copy-batch', async (req, res) => {
       ids
     );
     if (defaults.rows.length === 0) {
-      return res.status(404).json({ error: 'Inga av de valda aktiviteterna hittades.' });
+      return res.status(404).json({ error: 'ACTIVITIES_NOT_FOUND' });
     }
 
     const locale = await getFamilyLocale(req.user.familyId);
     const toCopy = [];
     for (const act of defaults.rows) {
       if (!act.canonical_id) {
-        return res.status(400).json({ error: 'Aktiviteten saknar canonical identitet.' });
+        return res.status(400).json({ error: 'CANONICAL_IDENTITY_REQUIRED' });
       }
       const exists = await familyHasCanonicalActivity(db, req.user.familyId, act.canonical_id);
       if (!exists) toCopy.push(act);
     }
 
     if (toCopy.length === 0) {
-      return res.status(409).json({ error: 'Alla valda aktiviteter finns redan i ditt bibliotek.' });
+      return res.status(409).json({ error: 'ACTIVITIES_ALREADY_IN_LIBRARY' });
     }
 
     const maxSort = await db.query(
@@ -139,7 +140,7 @@ router.post('/activities/copy-batch', async (req, res) => {
     res.status(201).json({ message, copied: toCopy.length, skipped });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Batch activity copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -155,12 +156,12 @@ router.post('/activities/:id/copy', async (req, res) => {
       [id]
     );
     if (defaultAct.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte.' });
+      return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
     }
 
     const act = defaultAct.rows[0];
     if (!act.canonical_id) {
-      return res.status(400).json({ error: 'Aktiviteten saknar canonical identitet.' });
+      return res.status(400).json({ error: 'CANONICAL_IDENTITY_REQUIRED' });
     }
 
     const locale = await getFamilyLocale(req.user.familyId);
@@ -197,10 +198,10 @@ router.post('/activities/:id/copy', async (req, res) => {
       client.release();
     }
 
-    res.status(201).json({ message: `"${act.name}" har kopierats till ditt bibliotek!` });
+    res.status(201).json({ code: 'STANDARD_ACTIVITY_COPIED', details: { name: act.name } });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Activity copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -218,7 +219,7 @@ router.post('/:group/copy', async (req, res) => {
     );
 
     if (activities.rows.length === 0) {
-      return res.status(404).json({ error: 'Inga aktiviteter hittades.' });
+      return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
     }
 
     const locale = await getFamilyLocale(req.user.familyId);
@@ -229,7 +230,7 @@ router.post('/:group/copy', async (req, res) => {
     }
 
     if (toCopy.length === 0) {
-      return res.status(409).json({ error: 'Alla aktiviteter finns redan i ditt bibliotek.' });
+      return res.status(409).json({ error: 'ACTIVITIES_ALREADY_IN_LIBRARY' });
     }
 
     const maxSort = await db.query(
@@ -264,12 +265,13 @@ router.post('/:group/copy', async (req, res) => {
     }
 
     res.status(201).json({
-      message: `${toCopy.length} aktiviteter har kopierats till ditt bibliotek!`,
+      code: 'STANDARD_ACTIVITIES_COPIED',
+      details: { count: toCopy.length },
       activities_copied: toCopy.length,
     });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -299,7 +301,7 @@ router.get('/rewards', async (req, res) => {
     res.json(await localizeRewardItems(rewards, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Rewards list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -309,7 +311,7 @@ router.post('/rewards/copy-batch', async (req, res) => {
   try {
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ error: 'Inga belöningar valda.' });
+      return sendApiError(res, 400, 'NO_REWARDS_SELECTED');
     }
 
     const placeholders = ids.map((_, i) => `$${i + 1}`).join(', ');
@@ -318,7 +320,7 @@ router.post('/rewards/copy-batch', async (req, res) => {
       ids
     );
     if (defaultRewards.rows.length === 0) {
-      return res.status(404).json({ error: 'Inga av de valda belöningarna hittades.' });
+      return sendApiError(res, 404, 'REWARDS_NOT_FOUND');
     }
 
     const existingCopies = await db.query(
@@ -330,7 +332,7 @@ router.post('/rewards/copy-batch', async (req, res) => {
     const toCopy = defaultRewards.rows.filter(r => !alreadyCopiedIds.has(r.id));
 
     if (toCopy.length === 0) {
-      return res.status(409).json({ error: 'Alla valda belöningar finns redan i ditt bibliotek.' });
+      return sendApiError(res, 409, 'REWARDS_ALREADY_IN_LIBRARY');
     }
 
     const maxSort = await db.query(
@@ -354,7 +356,7 @@ router.post('/rewards/copy-batch', async (req, res) => {
     res.status(201).json({ message, copied: toCopy.length, skipped });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Batch reward copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -369,7 +371,7 @@ router.post('/rewards/:id/copy', async (req, res) => {
       [id]
     );
     if (defaultReward.rows.length === 0) {
-      return res.status(404).json({ error: 'Standardbelöningen hittades inte.' });
+      return sendApiError(res, 404, 'STANDARD_REWARD_NOT_FOUND');
     }
 
     const r = defaultReward.rows[0];
@@ -394,10 +396,10 @@ router.post('/rewards/:id/copy', async (req, res) => {
       [req.user.familyId, r.name, r.icon, r.star_cost, nextOrder, r.id]
     );
 
-    res.status(201).json({ message: `"${r.name}" har kopierats till ditt belöningsbibliotek!` });
+    res.status(201).json({ code: 'STANDARD_REWARD_COPIED', details: { name: r.name } });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Reward copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -450,7 +452,7 @@ router.get('/schedules', async (req, res) => {
     res.json(await localizeStandardSchedules(schedules, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Schedules list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -469,19 +471,19 @@ router.post('/schedules/:id/copy', async (req, res) => {
   let locale = 'sv-SE';
   try {
     const { child_id, days, overwrite, optional_selections, variants, operation_id: rawOperationId } = req.body;
-    if (!child_id) return res.status(400).json({ error: 'child_id krävs' });
-    if (!Array.isArray(days) || days.length === 0) return res.status(400).json({ error: 'days[] krävs (t.ex. [1,2,3,4,5])' });
+    if (!child_id) return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
+    if (!Array.isArray(days) || days.length === 0) return sendApiError(res, 400, 'DAYS_REQUIRED');
 
     const childAccess = await db.query(
       'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
       [req.user.id, child_id]
     );
-    if (childAccess.rows.length === 0) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (childAccess.rows.length === 0) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     const familyId = childAccess.rows[0].family_id;
     locale = await getFamilyLocale(familyId);
 
     const validDays = days.map((d) => parseInt(d, 10)).filter((d) => !Number.isNaN(d) && d >= 0 && d <= 6);
-    if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
+    if (validDays.length === 0) return res.status(400).json({ error: 'NO_VALID_DAYS' });
 
     const existingByDay = await db.query(
       'SELECT day_of_week FROM weekly_schedule WHERE child_id = $1 AND day_of_week = ANY($2::int[])',
@@ -537,7 +539,8 @@ router.post('/schedules/:id/copy', async (req, res) => {
     const dayStr = filledDays.map((d) => dayNames[d]).join(', ');
 
     res.status(201).json({
-      message: `"${scheduleName}" kopierat till ${filledDays.length} dag(ar): ${dayStr}`,
+      code: 'STANDARD_SCHEDULE_COPIED',
+      details: { name: scheduleName, count: filledDays.length },
       filled_days: filledDays,
       activities_created: activitiesCreated,
       schedule_canonical_id: scheduleCanonicalId,
@@ -549,7 +552,7 @@ router.post('/schedules/:id/copy', async (req, res) => {
     const mapped = mapCanonicalCopyErrorToHttp(err, locale);
     if (mapped) return res.status(mapped.status).json(mapped.body);
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Journey-gated growth feedback API.
  * GET  /api/growth/feedback/eligible
@@ -23,7 +25,7 @@ const feedbackLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `growth-feedback:${req.user?.id || req.ip}`,
   handler: (_req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen senare.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 
@@ -61,7 +63,7 @@ router.post('/', requireParent, feedbackLimiter, async (req, res) => {
     const familyId = req.user.familyId;
     const parsed = SubmitSchema.safeParse(req.body || {});
     if (!parsed.success) {
-      return res.status(400).json({ error: 'Ogiltig feedback', details: parsed.error.flatten() });
+      return res.status(400).json({ error: 'VALIDATION_INVALID_VALUES', details: parsed.error.flatten() });
     }
     const body = parsed.data;
 
@@ -72,7 +74,7 @@ router.post('/', requireParent, feedbackLimiter, async (req, res) => {
     });
     if (!eligibility.eligible) {
       return res.status(403).json({
-        error: 'Feedback inte tillgänglig just nu',
+        error: 'FEEDBACK_UNAVAILABLE',
         reason: eligibility.reason,
       });
     }
@@ -81,7 +83,7 @@ router.post('/', requireParent, feedbackLimiter, async (req, res) => {
       eligibility.prompt.promptKey !== body.prompt_key
     ) {
       return res.status(403).json({
-        error: 'Fel prompt för nuvarande journey-läge',
+        error: 'JOURNEY_PROMPT_MISMATCH',
         reason: 'prompt_mismatch',
       });
     }
@@ -90,7 +92,7 @@ router.post('/', requireParent, feedbackLimiter, async (req, res) => {
       (eligibility.prompt?.answers || []).map((a) => a.value)
     );
     if (allowedAnswers.size > 0 && !allowedAnswers.has(body.answer)) {
-      return res.status(400).json({ error: 'Ogiltigt svar' });
+      return res.status(400).json({ error: 'VALIDATION_INVALID_VALUES' });
     }
 
     const row = await feedbackDb.insertFeedback({
@@ -112,7 +114,7 @@ router.post('/', requireParent, feedbackLimiter, async (req, res) => {
     res.json({ ok: true, stored: Boolean(row), duplicate: !row });
   } catch (err) {
     console.error('[GROWTH-FEEDBACK] submit error:', err);
-    res.status(500).json({ error: 'Kunde inte spara feedback' });
+    sendApiError(res, 500, 'FEEDBACK_SAVE_FAILED');
   }
 });
 

@@ -27,9 +27,9 @@
     const back = cfg.back;
     const backHtml = back
       ? '<button type="button" class="cww-back' + (immersive ? ' cww-back--float' : '') + '" data-cww-action="back"' +
-          ' aria-label="' + esc(back.label || 'Tillbaka') + '">' +
+          ' aria-label="' + esc(back.label || (window.cpt ? cpt('catalog.back') : 'Back')) + '">' +
           '<span class="cww-back-arrow" aria-hidden="true">←</span>' +
-          (immersive ? '' : '<span class="cww-back-label">' + esc(back.short || back.label || 'Tillbaka') + '</span>') +
+          (immersive ? '' : '<span class="cww-back-label">' + esc(back.short || back.label || (window.cpt ? cpt('catalog.back') : 'Back')) + '</span>') +
         '</button>'
       : '';
 
@@ -67,7 +67,7 @@
     return '<div class="' + chromeCls + '" data-cww-place="' + esc(cfg.placeId || '') + '">' +
       placeBar +
       (actionsHtml
-        ? '<nav class="cww-actions" aria-label="Vad vill du göra?">' + actionsHtml + '</nav>'
+        ? '<nav class="cww-actions" aria-label="' + (window.cpt ? cpt('worlds.hub.what') : 'What do you want to do?') + '">' + actionsHtml + '</nav>'
         : '') +
     '</div>';
   }

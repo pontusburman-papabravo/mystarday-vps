@@ -341,7 +341,7 @@
     const grid = block.querySelector('.custody-preview-grid');
     if (!grid) return;
     const range = previewRangeFromToday();
-    grid.textContent = 'Laddar…';
+    grid.textContent = pt('family.custody.loading');
     try {
       const data = await Auth.api(
         '/api/family/custody/context-range?childId=' + encodeURIComponent(childId) +
@@ -349,12 +349,12 @@
         '&to=' + encodeURIComponent(range.to)
       );
       if (!data.active || !data.days || !data.days.length) {
-        grid.innerHTML = '<p class="text-text-soft">Aktivera mönster för att se förhandsvisning.</p>';
+        grid.innerHTML = '<p class="text-text-soft">' + pt('family.custody.previewEnable') + '</p>';
         return;
       }
       grid.innerHTML = previewGridHtml(data.days);
     } catch (err) {
-      grid.innerHTML = '<p class="text-text-soft">Kunde inte ladda förhandsvisning.</p>';
+      grid.innerHTML = '<p class="text-text-soft">' + pt('family.custody.previewFailed') + '</p>';
       console.warn('[custody-settings] preview', err.message);
     }
   }
@@ -531,11 +531,11 @@
       const end = endEl ? endEl.value : '';
       const homeId = homeEl ? homeEl.value : '';
       if (!start || !end || !homeId) {
-        showToast('Fyll i datum och hem för undantaget', true);
+        showToast(pt('family.custody.fillException'), true);
         return;
       }
       if (start > end) {
-        showToast('Startdatum får inte vara efter slutdatum', true);
+        showToast(pt('family.custody.dateOrder'), true);
         return;
       }
       try {
@@ -554,7 +554,7 @@
         if (reasonEl) reasonEl.value = '';
         await load();
       } catch (err) {
-        showToast('Kunde inte lägga till undantag: ' + (err.message || 'fel'), true);
+        showToast(pt('family.custody.addExceptionFailed') + ' ' + (err.message || ''), true);
       }
     });
 
@@ -570,7 +570,7 @@
           track('custody_override_deleted', { child_id: childId, override_id: overrideId });
           await load();
         } catch (err) {
-          showToast('Kunde inte ta bort undantag: ' + (err.message || 'fel'), true);
+          showToast(pt('family.custody.removeExceptionFailed') + ' ' + (err.message || ''), true);
         }
       });
     });
@@ -629,13 +629,13 @@
           '<label class="sr-only" for="custody-color-' + h.id + '">' + escapeHtml(colorLabel) + '</label>' +
           '<input type="color" id="custody-color-' + h.id + '" class="custody-color w-10 h-10 rounded border-0" value="' + h.color + '" aria-label="' + escapeHtml(colorLabel) + '" />' +
           '<label class="sr-only" for="custody-label-' + h.id + '">Namn på hem</label>' +
-          '<input type="text" id="custody-label-' + h.id + '" class="custody-label flex-1 min-w-[8rem] border rounded-lg px-2 py-1 text-sm" value="' + escapeHtml(h.label) + '" maxlength="64" placeholder="Hemnamn" aria-label="Namn på hem" />' +
+          '<input type="text" id="custody-label-' + h.id + '" class="custody-label flex-1 min-w-[8rem] border rounded-lg px-2 py-1 text-sm" value="' + escapeHtml(h.label) + '" maxlength="64" placeholder="Hemnamn" aria-label="' + pt('family.custody.homeNameAria') + '" />' +
           '</div>'
         );
       }).join('') +
       '</div>' +
       '<div class="mt-4"><h4 class="text-sm font-semibold text-navy dark:text-white mb-2">Förälder ↔ hem</h4><div class="space-y-2">' + parentRows + '</div></div>' +
-      '<div class="mt-4"><h4 class="text-sm font-semibold text-navy dark:text-white mb-2">Barn</h4><div class="space-y-3">' + (childBlocks || '<p class="text-sm text-text-soft">Lägg till ett barn först.</p>') + '</div></div>' +
+      '<div class="mt-4"><h4 class="text-sm font-semibold text-navy dark:text-white mb-2">Barn</h4><div class="space-y-3">' + (childBlocks || ('<p class="text-sm text-text-soft">' + pt('family.custody.addChildFirst') + '</p>')) + '</div></div>' +
       '<button type="button" id="custodySaveBtn" class="mt-4 px-4 py-2 bg-navy text-white rounded-lg font-semibold text-sm min-h-[44px]">Spara boendeschema</button>' +
       '<p id="custodySaveMsg" class="mt-2 text-sm text-gold font-medium hidden"></p>';
 
@@ -674,7 +674,7 @@
       await Auth.api('/api/family/custody/setup', { method: 'POST' });
       await load();
     } catch (err) {
-      showToast('Kunde inte starta: ' + (err.message || 'fel'), true);
+      showToast(pt('family.custody.startFailed') + ' ' + (err.message || ''), true);
     }
   }
 
@@ -718,7 +718,7 @@
 
   async function saveAll() {
     const msg = el('custodySaveMsg');
-    if (msg) { msg.textContent = 'Sparar…'; msg.classList.remove('hidden'); }
+    if (msg) { msg.textContent = pt('family.custody.saving'); msg.classList.remove('hidden'); }
 
     try {
       const homeRows = document.querySelectorAll('.custody-home-row');
@@ -765,7 +765,7 @@
           payload = readPatternPayload(block);
         } catch (validationErr) {
           if (msg) msg.classList.add('hidden');
-          showToast(validationErr.message || 'Kontrollera mönstret', true);
+          showToast(validationErr.message || pt('family.custody.checkPattern'), true);
           return;
         }
         await Auth.api('/api/family/custody/pattern/' + childId, {
@@ -775,11 +775,11 @@
       }
 
       track('custody_schedule_updated', { source: 'family_settings_save' });
-      if (msg) { msg.textContent = '✓ Sparat!'; setTimeout(function () { msg.classList.add('hidden'); }, 2000); }
+      if (msg) { msg.textContent = pt('family.custody.saved'); setTimeout(function () { msg.classList.add('hidden'); }, 2000); }
       await load();
     } catch (err) {
       if (msg) msg.classList.add('hidden');
-      showToast('Kunde inte spara: ' + (err.message || 'fel'), true);
+      showToast(pt('family.custody.saveFailed') + ' ' + (err.message || ''), true);
     }
   }
 

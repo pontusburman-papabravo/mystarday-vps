@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog daily-log API — Modell A read (E12).
  */
@@ -25,11 +26,11 @@ router.get('/', async (req, res) => {
   try {
     const { childId, date } = req.query;
     if (!childId || !date) {
-      return res.status(400).json({ error: 'childId och date krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
     }
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const { rows } = await db.query(
       `SELECT dli.id, dli.activity_template_id, dli.completed, dli.completed_at,
@@ -54,7 +55,7 @@ router.get('/', async (req, res) => {
     res.json({ items: rows });
   } catch (err) {
     console.error('[PEDAGOG-DAILY-LOG] GET error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta daglogg' });
+    sendApiError(res, 500, 'DAILY_LOG_FETCH_FAILED');
   }
 });
 
@@ -72,22 +73,22 @@ router.patch('/items/:id', async (req, res) => {
       [itemId]
     );
     const item = rows[0];
-    if (!item) return res.status(404).json({ error: 'Aktivitet hittades inte' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     const ok = await verifyPedagogChild(req.user.id, item.child_id);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     // Modell A (§4.4.11): first completion wins. Any prior completion that was
     // not made by a pedagog (home: parent/child, or legacy NULL) blocks re-completion.
     if (item.completed && item.completed_by !== 'pedagog') {
       return res.status(409).json({
-        error: 'Aktiviteten är redan klar hemma',
+        error: 'ACTIVITY_DONE_HOME',
         code: 'ACTIVITY_ALREADY_COMPLETED',
       });
     }
 
     if (completed === false) {
-      return res.status(400).json({ error: 'Pedagog kan inte avmarkera aktivitet' });
+      return res.status(400).json({ error: 'PEDAGOG_CANNOT_UNCOMPLETE' });
     }
 
     await db.query(
@@ -113,7 +114,7 @@ router.patch('/items/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[PEDAGOG-DAILY-LOG] PATCH error:', err);
-    res.status(500).json({ error: 'Kunde inte uppdatera aktivitet' });
+    sendApiError(res, 500, 'ACTIVITY_UPDATE_FAILED');
   }
 });
 

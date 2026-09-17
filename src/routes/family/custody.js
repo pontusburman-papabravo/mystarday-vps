@@ -29,7 +29,7 @@ async function requireCustodyFeature(req, res, next) {
   try {
     const enabled = await isActivationFlagEnabled(FLAG_KEYS.custodySchedule, req.user.familyId);
     if (!enabled) {
-      return res.status(404).json({ error: 'Funktionen är inte tillgänglig' });
+      return sendApiError(res, 404, 'FEATURE_UNAVAILABLE');
     }
     next();
   } catch (err) {
@@ -79,10 +79,10 @@ router.get('/context', requireNotPedagogOnly, requireCustodyFeature, async (req,
   try {
     const { childId, date } = req.query;
     if (!childId || typeof childId !== 'string') {
-      return res.status(400).json({ error: 'childId krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
     }
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const dateStr = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
       ? date
@@ -106,20 +106,20 @@ router.get('/context-range', requireNotPedagogOnly, requireCustodyFeature, async
   try {
     const { childId, from, to } = req.query;
     if (!childId || typeof childId !== 'string') {
-      return res.status(400).json({ error: 'childId krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
     }
     if (typeof from !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
-      return res.status(400).json({ error: 'from krävs (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'FROM_DATE_REQUIRED');
     }
     if (typeof to !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
-      return res.status(400).json({ error: 'to krävs (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'TO_DATE_REQUIRED');
     }
     if (from > to) {
-      return res.status(400).json({ error: 'from får inte vara efter to' });
+      return sendApiError(res, 400, 'FROM_AFTER_TO');
     }
 
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const payload = await buildCustodyContextRangeResponse({
       childId,
@@ -145,7 +145,7 @@ router.put('/homes', requireNotPedagogOnly, requireCustodyFeature, async (req, r
     const familyId = req.user.familyId;
     const { homes } = req.body || {};
     if (!Array.isArray(homes) || homes.length < 1 || homes.length > 4) {
-      return res.status(400).json({ error: 'homes måste vara en array (1–4 hem)' });
+      return sendApiError(res, 400, 'HOMES_ARRAY_REQUIRED');
     }
 
     const saved = [];
@@ -153,7 +153,7 @@ router.put('/homes', requireNotPedagogOnly, requireCustodyFeature, async (req, r
       const h = homes[i];
       const label = String(h.label || '').trim().slice(0, 64);
       const color = HEX_COLOR.test(h.color || '') ? h.color : '#4F46E5';
-      if (!label) return res.status(400).json({ error: 'Varje hem behöver en etikett' });
+      if (!label) return sendApiError(res, 400, 'HOME_LABEL_REQUIRED');
 
       const row = await custodyDb.upsertHome({
         id: h.id || null,
@@ -178,7 +178,7 @@ router.put('/parent-homes', requireNotPedagogOnly, requireCustodyFeature, async 
     const familyId = req.user.familyId;
     const { mappings } = req.body || {};
     if (!Array.isArray(mappings)) {
-      return res.status(400).json({ error: 'mappings krävs' });
+      return sendApiError(res, 400, 'MAPPINGS_REQUIRED');
     }
 
     for (const m of mappings) {
@@ -189,7 +189,7 @@ router.put('/parent-homes', requireNotPedagogOnly, requireCustodyFeature, async 
       if (!parentCheck.rows[0]) continue;
       if (m.custodyHomeId) {
         const home = await custodyDb.getHomeInFamily(m.custodyHomeId, familyId);
-        if (!home) return res.status(400).json({ error: 'Ogiltigt hem' });
+        if (!home) return sendApiError(res, 400, 'CUSTODY_INVALID_HOME');
       }
       await custodyDb.setParentHome(m.parentId, m.custodyHomeId || null);
     }
@@ -207,7 +207,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
     const familyId = req.user.familyId;
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const {
       anchor_date: anchorDate,
@@ -227,7 +227,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
     }
 
     if (!anchorDate) {
-      return res.status(400).json({ error: 'anchor_date krävs' });
+      return sendApiError(res, 400, 'ANCHOR_DATE_REQUIRED');
     }
 
     const familyHomes = await custodyDb.listHomes(familyId, client);
@@ -240,7 +240,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
 
     if (patternType === PATTERN_CUSTOM) {
       if (!isMondayAnchor(anchorDate)) {
-        return res.status(400).json({ error: 'anchor_date måste vara en måndag' });
+        return sendApiError(res, 400, 'ANCHOR_MUST_MONDAY');
       }
       const customCheck = validateCustomConfiguration(bodyConfiguration, validHomeIds);
       if (!customCheck.ok) {
@@ -254,10 +254,10 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       resolvedWeekB = customCheck.distinctHomeIds[1];
     } else {
       if (!weekAHomeId || !weekBHomeId) {
-        return res.status(400).json({ error: 'anchor_date och två hem krävs' });
+        return sendApiError(res, 400, 'ANCHOR_TWO_HOMES_REQUIRED');
       }
       if (weekAHomeId === weekBHomeId) {
-        return res.status(400).json({ error: 'De två hemmen måste vara olika' });
+        return sendApiError(res, 400, 'HOMES_MUST_DIFFER');
       }
 
       const homeA = await custodyDb.getHomeInFamily(weekAHomeId, familyId, client);
@@ -274,11 +274,11 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
 
       if (resolvedType === 'alternate_weekends') {
         if (!defaultHomeId) {
-          return res.status(400).json({ error: 'default_home_id krävs för varannan helg' });
+          return sendApiError(res, 400, 'DEFAULT_HOME_ALT_WEEKEND');
         }
         const defaultHome = await custodyDb.getHomeInFamily(defaultHomeId, familyId, client);
         if (!defaultHome) {
-          return res.status(400).json({ error: 'Ogiltigt bashem för vardagar' });
+          return sendApiError(res, 400, 'INVALID_WEEKDAY_HOME');
         }
         configuration = {
           default_home: defaultHomeId,
@@ -345,7 +345,7 @@ router.get('/overrides/:childId', requireNotPedagogOnly, requireCustodyFeature, 
   try {
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const overrides = await custodyDb.listOverridesForChild(childId);
     res.json({ overrides });
@@ -360,11 +360,11 @@ router.post('/overrides/:childId', requireNotPedagogOnly, requireCustodyFeature,
     const familyId = req.user.familyId;
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const pattern = await custodyDb.getPattern(childId);
     if (!pattern) {
-      return res.status(400).json({ error: 'Sätt ett grundschema innan du lägger till undantag' });
+      return sendApiError(res, 400, 'CUSTODY_BASE_REQUIRED');
     }
 
     const familyHomes = await custodyDb.listHomes(familyId);
@@ -376,7 +376,7 @@ router.post('/overrides/:childId', requireNotPedagogOnly, requireCustodyFeature,
 
     const home = await custodyDb.getHomeInFamily(check.row.home_id, familyId);
     if (!home) {
-      return res.status(400).json({ error: 'Ogiltigt hem' });
+      return sendApiError(res, 400, 'CUSTODY_INVALID_HOME');
     }
 
     const override = await custodyDb.createOverride({
@@ -402,11 +402,11 @@ router.put('/overrides/:childId/:overrideId', requireNotPedagogOnly, requireCust
     const familyId = req.user.familyId;
     const { childId, overrideId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const existing = await custodyDb.getOverrideInFamily(overrideId, familyId);
     if (!existing || existing.child_id !== childId) {
-      return res.status(404).json({ error: 'Undantag hittades inte' });
+      return sendApiError(res, 404, 'CUSTODY_OVERRIDE_NOT_FOUND');
     }
 
     const familyHomes = await custodyDb.listHomes(familyId);
@@ -430,11 +430,11 @@ router.delete('/overrides/:childId/:overrideId', requireNotPedagogOnly, requireC
     const familyId = req.user.familyId;
     const { childId, overrideId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const existing = await custodyDb.getOverrideInFamily(overrideId, familyId);
     if (!existing || existing.child_id !== childId) {
-      return res.status(404).json({ error: 'Undantag hittades inte' });
+      return sendApiError(res, 404, 'CUSTODY_OVERRIDE_NOT_FOUND');
     }
 
     await custodyDb.deleteOverride(overrideId);

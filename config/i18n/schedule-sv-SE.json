@@ -19,7 +19,83 @@
     "generic": "Fel uppstod",
     "pickEmoji": "Välj en emoji",
     "sessionExpired": "Din session har löpt ut. Du loggas in igen…",
-    "parentPermission": "föräldrabehörighet"
+    "parentPermission": "föräldrabehörighet",
+    "sourceTypeIdRequired": "Källa (typ och id) krävs",
+    "daysRequired": "Välj minst en dag",
+    "activityTemplateRequired": "Aktivitet krävs",
+    "endBeforeStart": "Sluttid kan inte vara före starttid",
+    "endBeforeStartUpdateEnd": "Sluttid kan inte vara före starttid. Uppdatera även sluttiden.",
+    "orderRequired": "Ordning krävs",
+    "activityNotFound": "Aktiviteten hittades inte",
+    "activityNotInSchedule": "Aktiviteten hittades inte i schemat",
+    "invalidSection": "Ogiltig sektion",
+    "nothingToUpdate": "Inget att uppdatera",
+    "activityNotInWeek": "Aktiviteten fanns inte i veckoschemat",
+    "invalidDate": "Ogiltigt datum (YYYY-MM-DD)",
+    "notFound": "Hittades inte",
+    "fromDayToDaysRequired": "Från-dag och måldagar krävs",
+    "dayRange": "Veckodag måste vara 0–6",
+    "noScheduleForDay": "Inget schema finns för den angivna veckodagen",
+    "targetChildRequired": "Målbarn krävs",
+    "cannotCopySameChild": "Kan inte kopiera till samma barn",
+    "targetChildAccess": "Du har inte åtkomst till målbarnet",
+    "fromDayOffsetsRequired": "Från-dag och veckor krävs",
+    "copyItemFieldsRequired": "Aktivitet, källschema och måldag krävs",
+    "copyItemChildFieldsRequired": "Aktivitet, källschema, målbarn och måldag krävs",
+    "invalidDays": "Ogiltiga dagar",
+    "invalidDateRange": "Ogiltigt datumintervall",
+    "noActivitiesInSchedule": "Inga aktiviteter hittades i valt schema",
+    "templateCategoryRequired": "Mallkategori krävs",
+    "noValidDays": "Inga giltiga dagar",
+    "categoryNotFound": "Kategorin hittades inte",
+    "schoolOnWeekend": "Skolscheman kan inte läggas in på helger. Välj ett helgschema istället.",
+    "daysAlreadyHaveSchedules": "Några dagar har redan scheman",
+    "weekdayRequired": "Veckodag krävs",
+    "custodyHomeNotInFamily": "Boendet tillhör inte familjen",
+    "custodyOnlyWhenActive": "Boendeinställningar stöds bara när boendeschema är aktivt",
+    "dayAlreadyHasSchedule": "Det finns redan ett schema för den veckodagen",
+    "scheduleNotFound": "Schemat hittades inte",
+    "nameRequired": "Namn krävs",
+    "noValidChildren": "Inga giltiga barn valda",
+    "templatesNotFound": "Schemamallar hittades inte",
+    "templateNameRequired": "Schemanamn krävs",
+    "standardScheduleNotFound": "Standardschemat hittades inte",
+    "standardScheduleNoCanonical": "Standardschemat saknar canonical identitet.",
+    "templateNotFound": "Schemamallen hittades inte",
+    "childIdRequired": "Barn krävs",
+    "sourceDayRequired": "Källdag krävs",
+    "targetDaysRequired": "Måldagar krävs",
+    "sourceChildAccess": "Du har inte åtkomst till källbarnet",
+    "dayOfWeekRequired": "Veckodag krävs",
+    "templateNameParamRequired": "Mallnamn krävs",
+    "dateRangeMaxDays": "Max {{max}} dagar i taget",
+    "oneScheduleSource": "Ange exakt en schema-källa",
+    "invalidWeekOffset": "Ogiltig veckoförskjutning",
+    "removeViaWeek": "Schemalagda aktiviteter tas bort via veckoschemat",
+    "nameOrTemplateRequired": "name eller activity_template_id krävs",
+    "specialDayNotFound": "Ingen specialdag hittades för det datumet"
+  },
+  "familyWeek": {
+    "pageTitle": "Familjevy — {{brand}}",
+    "title": "Familjevy",
+    "lead": "Alla barn — klicka på en dag för att redigera",
+    "today": "Idag",
+    "share": "📤 Dela",
+    "shareTitle": "Dela veckans schema",
+    "childrenCol": "Barn",
+    "loadingSchedule": "Laddar schema…",
+    "addChildHint": "Lägg till barn från veckoschema-sidan.",
+    "goToSchedule": "Gå till Veckoschema",
+    "clickCell": "Klicka på en cell för att redigera schemat",
+    "loadChildrenFailed": "Kunde inte ladda barn",
+    "shareUnavailable": "Dela-funktionen är inte tillgänglig på denna enhet.",
+    "shareFailed": "Kunde inte dela",
+    "shareWeekTitle": "Veckans schema {{week}} – {{brand}}",
+    "shareEmpty": "Veckans schema {{week}}\n({{brand}})",
+    "shared": "Delat!",
+    "more": "+{{count}} till",
+    "noChildrenTitle": "Inga barn tillagda",
+    "sectionsLegend": "Sektioner:"
   },
   "empty": {
     "noChildrenTitle": "Inga barn tillagda ännu",
@@ -138,7 +214,11 @@
     "morgon": "Morgon",
     "dag": "Dag",
     "kvall": "Kväll",
-    "natt": "Natt"
+    "natt": "Natt",
+    "kvallOption": "🌆 Kväll",
+    "morgonOption": "🌅 Morgon",
+    "dagOption": "☀️ Dag",
+    "nattOption": "🌙 Natt"
   },
   "addActivity": "Aktivitet",
   "emptySection": "Inga aktiviteter",
@@ -228,7 +308,10 @@
       "success": "{{count}} stjärnor givna!",
       "successOne": "1 stjärna given!",
       "pickerHint": "Välj vilket barn du vill ge stjärnor till:"
-    }
+    },
+    "saveFailed": "Kunde inte spara",
+    "createFailed": "Kunde inte skapa aktiviteten",
+    "saving": "Sparar…"
   },
   "validation": {
     "pickActivity": "Välj en aktivitet",
@@ -276,7 +359,8 @@
     "addedToTemplate": "Aktivitet tillagd i schemamallen",
     "addedWeekly": "Aktiviteten tillagd varje vecka: {{days}}",
     "createdAndAdded": "\"{{name}}\" skapad och tillagd i ditt bibliotek!",
-    "activityNotFound": "Aktiviteten hittades inte"
+    "activityNotFound": "Aktiviteten hittades inte",
+    "specialDayRemoved": "Specialdagen har tagits bort — veckodagsmallen gäller igen"
   },
   "views": {
     "normal": "Schema",
@@ -424,7 +508,12 @@
     "newTemplatePlaceholder": "T.ex. Skoldag, Helg, Fotbollsdag…",
     "createTemplateBtn": "Skapa schema",
     "replaceTitle": "Ersätt befintligt schema?",
-    "deleteTemplateTitle": "Ta bort schemat?"
+    "deleteTemplateTitle": "Ta bort schemat?",
+    "deleted": "Schemat har tagits bort",
+    "deleteFailed": "Kunde inte ta bort schemat",
+    "deleteExistingFailed": "Kunde inte ta bort befintligt schema",
+    "createdNamed": "Schemat \"{{name}}\" har skapats ✓",
+    "deleteTitle": "Ta bort schema"
   },
   "chrome": {
     "weeklyPlanningTitle": "📅 Veckoplanering",
@@ -507,7 +596,10 @@
     "timePlacementTip": "💡 Tips: Lägg till en tid så placeras aktiviteten rätt i NU / NÄSTA / SEDAN-vyn",
     "dateRequiredLabel": "Datum *",
     "appliesToChildren": "Gäller barn:",
-    "loadFailed": "Fel vid laddning"
+    "loadFailed": "Fel vid laddning",
+    "copyFrom": "Kopiera schemat från",
+    "daySelectorHintEm": "dra dag-flik till annan dag för att kopiera/byta",
+    "delete": "Ta bort"
   },
   "months": {
     "0": "Januari",
@@ -700,5 +792,8 @@
     "deleteFailed": "Fel vid borttagning av befintligt schema",
     "createFailed": "Fel vid skapande av schema",
     "genericError": "Något gick fel"
+  },
+  "starter": {
+    "firstSchedule": "Ert första schema"
   }
 }

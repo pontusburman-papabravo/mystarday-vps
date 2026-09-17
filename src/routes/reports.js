@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Reports API — authenticated parent endpoints.
  * Owns: professional_share_link CRUD for authenticated parents.
@@ -73,13 +74,13 @@ router.post('/', async (req, res) => {
     const { child_id, label, parent_summary, date_from, date_to, fields, pin, anonymous } = req.body;
 
     if (!child_id || typeof child_id !== 'string') {
-      return res.status(400).json({ error: 'child_id krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
     }
     if (!label || typeof label !== 'string' || label.trim().length === 0) {
-      return res.status(400).json({ error: 'label krävs' });
+      return sendApiError(res, 400, 'LABEL_REQUIRED');
     }
     if (!date_from || !date_to) {
-      return res.status(400).json({ error: 'date_from och date_to krävs' });
+      return sendApiError(res, 400, 'REPORT_DATES_REQUIRED');
     }
     const dateFromParsed = new Date(date_from);
     const dateToParsed   = new Date(date_to);
@@ -87,10 +88,10 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Ogiltigt datumformat (YYYY-MM-DD)' });
     }
     if (dateToParsed < dateFromParsed) {
-      return res.status(400).json({ error: 'date_to måste vara efter date_from' });
+      return sendApiError(res, 400, 'REPORT_DATE_ORDER');
     }
     if (!Array.isArray(fields) || fields.length === 0) {
-      return res.status(400).json({ error: 'fields krävs (array med minst ett värde)' });
+      return sendApiError(res, 400, 'FIELDS_REQUIRED');
     }
 
     // CreateLink uses a transaction + FK validation — no separate childBelongsToFamily call
@@ -131,7 +132,7 @@ router.post('/', async (req, res) => {
     }
     if (pgCode === '42P01') {
       console.error('[REPORTS] Create report error — missing table:', msg, err instanceof Error ? err.stack : '');
-      return res.status(503).json({ error: 'Databasen behöver uppdateras' });
+      return sendApiError(res, 503, 'DB_NEEDS_MIGRATION');
     }
     console.error('[REPORTS] Create report error:', msg, pgCode ? `pgCode=${pgCode}` : '', err instanceof Error ? err.stack : '');
     res.status(500).json({ error: 'Internt serverfel' });
@@ -148,17 +149,17 @@ router.patch('/:id', async (req, res) => {
     if (renew === true) {
       const renewed = await shareLink.renewLink(id, req.user.familyId);
       if (!renewed) {
-        return res.status(404).json({ error: 'Rapport hittades inte eller är återkallad' });
+        return sendApiError(res, 404, 'REPORT_NOT_FOUND');
       }
       return res.json({ ok: true, expires_at: renewed.expires_at });
     }
 
     // Handle content update
     if (!parent_summary && !fields) {
-      return res.status(400).json({ error: 'parent_summary, fields eller renew krävs' });
+      return sendApiError(res, 400, 'REPORT_UPDATE_FIELDS');
     }
     if (fields && !Array.isArray(fields)) {
-      return res.status(400).json({ error: 'fields måste vara en array' });
+      return sendApiError(res, 400, 'FIELDS_MUST_ARRAY');
     }
 
     const updated = await shareLink.updateLink(id, req.user.familyId, {
@@ -186,7 +187,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const deleted = await shareLink.deleteLink(req.params.id, req.user.familyId);
     if (!deleted) {
-      return res.status(404).json({ error: 'Rapport hittades inte eller redan återkallad' });
+      return sendApiError(res, 404, 'REPORT_NOT_FOUND');
     }
     res.json({ ok: true });
   } catch (err) {
@@ -201,7 +202,7 @@ router.patch('/:id/revoke', async (req, res) => {
   try {
     const revoked = await shareLink.revokeLink(req.params.id, req.user.familyId);
     if (!revoked) {
-      return res.status(404).json({ error: 'Rapport hittades inte eller redan återkallad' });
+      return sendApiError(res, 404, 'REPORT_NOT_FOUND');
     }
     res.json({ ok: true });
   } catch (err) {
