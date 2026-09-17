@@ -200,9 +200,10 @@ describe('i18n fallback contract', () => {
   });
 
   it('SW cache is bumped with the fallback-contract change', () => {
-    assert.match(read('public/sw.js'), /stjarndag-v980/);
     const cache = JSON.parse(read('config/cache-version.json'));
-    assert.equal(cache.cacheName, 'stjarndag-v980');
+    assert.match(read('public/sw.js'), new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
+    const n = Number(String(cache.cacheName).replace(/^stjarndag-v/, ''));
+    assert.ok(n >= 980, 'fallback-contract shipped at v980; later i18n PRs may bump further');
   });
 });
 

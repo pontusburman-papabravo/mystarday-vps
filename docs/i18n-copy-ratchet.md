@@ -12,7 +12,7 @@ Locks existing hardcoded user-copy debt. **Does not migrate product copy and doe
 | `npm run audit:i18n:strict` | Legacy åäö scan of i18n infrastructure files (0 hits) |
 | `npm run test:i18n:parity` | Fragment domain registration + key parity |
 
-CI: `test:gate` includes the ratchet test plus fragment/widget guards.
+CI: `test:gate` includes the ratchet test plus fragment/widget guards. `audit:i18n:strict` and `audit:i18n` also run as **always-on** CI steps (not only when L3 is required).
 
 ## What the ratchet scans
 
