@@ -3,7 +3,7 @@
 /**
  * Canonical resource-library catalog.
  * Paths, PDF variants, and which downloads belong on which page.
- * Copy lives in config/i18n/resurser-*.json (sv-SE / en-GB).
+ * Copy lives in config/resurser-i18n/*.json (sv-SE / en-GB).
  */
 
 const { translateSlug } = require('./en-slug-words');

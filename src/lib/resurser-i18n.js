@@ -3,10 +3,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const BUNDLE_DIR = path.join(__dirname, '../../config/i18n');
+const BUNDLE_DIR = path.join(__dirname, '../../config/resurser-i18n');
 const BUNDLES = {
-  'sv-SE': 'resurser-sv-SE.json',
-  'en-GB': 'resurser-en-GB.json',
+  'sv-SE': 'sv-SE.json',
+  'en-GB': 'en-GB.json',
 };
 
 const cache = new Map();

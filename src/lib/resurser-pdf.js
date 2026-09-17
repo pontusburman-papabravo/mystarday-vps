@@ -2,7 +2,7 @@
 
 /**
  * Static printable PDFs for the resource library.
- * Locale copy from config/i18n/resurser-*.json. Icons from the design-kit SVGs.
+ * Locale copy from config/resurser-i18n/*.json. Icons from the design-kit SVGs.
  * No emoji glyphs — PDFKit Helvetica cannot render them.
  */
 

@@ -30,7 +30,7 @@ Kanoniska engelska filnamn följer slug-översättningen (`morgonschema.pdf` →
 
 ## C. Resursmodell
 
-Katalog: `config/resurser-catalog.js`. Copy: `config/i18n/resurser-sv-SE.json` och `config/i18n/resurser-en-GB.json`.
+Katalog: `config/resurser-catalog.js`. Copy: `config/resurser-i18n/sv-SE.json` och `config/resurser-i18n/en-GB.json`.
 
 PDF-varianter (22 × två locales):
 
