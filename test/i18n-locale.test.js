@@ -120,10 +120,12 @@ describe('i18n bundles', () => {
     assert.equal(result, 'My Starday');
   });
 
-  it('getLocale merges en-GB over sv-SE fallback', () => {
+  it('getLocale en-GB is English-only without Swedish merge', () => {
     loadLocales();
     const en = getLocale('en-GB');
     assert.equal(en.app.name, 'My Starday');
+    const sv = getLocale('sv-SE');
+    assert.notEqual(en.app.name, sv.app.name);
   });
 });
 

@@ -318,8 +318,9 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v979: language-neutral i18n fallback (requested → en-GB → key)
+const CACHE_NAME = 'stjarndag-v979';
 // stjarndag-v978: API error codes mapped to locale keys
-const CACHE_NAME = 'stjarndag-v978';
 // stjarndag-v977: admin Produktanalys — Så används appen (avbockningar, veckodagar, scheman)
 // stjarndag-v977: API error codes mapped to locale keys
 // stjarndag-v976: admin Produktanalys — honest KPI definitions + heatmap weekday fix

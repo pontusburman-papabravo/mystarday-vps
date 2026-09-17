@@ -31,9 +31,7 @@ Swedish diacritics **or** the locked word list (Avbryt, Spara, Laddar, …).
 
 ## data-i18n HTML
 
-Tags with `data-i18n*` may keep Swedish inner text / attributes in this PR (current fallback contract).
-
-**Remove or tighten this exception in the fallback-contract PR.** After that PR, Swedish remaining in `data-i18n` DOM is a leak.
+Tags with `data-i18n*` may still keep Swedish inner text as **pre-JS placeholders**. Runtime locale payloads no longer merge `sv-SE` into non-Swedish. Remaining Swedish in the DOM before `I18n.apply()` is flash-of-Swedish debt, not a silent bundle merge.
 
 ## Escape hatch
 
@@ -49,11 +47,18 @@ showToast('debug only'); // i18n-ignore: internal diagnostic toast, not shown to
 
 When a surface is migrated, rerun `npm run audit:i18n:write-baseline` (no `--force-raise`). Count must not increase. New hits require `--force-raise` plus a PR note.
 
-## Runtime fallback (unchanged)
+## Runtime fallback
 
-Still known debt, later PR:
+Contract (this PR):
 
-- `getLocale('en-GB')` merges missing keys from `sv-SE`
-- `data-i18n` can leave Swedish DOM copy
+- Requested locale first
+- Then explicit canonical fallback `en-GB`
+- Then missing-key handling (return the key)
+- `getLocale('en-GB')` does **not** merge `sv-SE`
+- Client `I18n.load('en-GB')` never fetches `/api/i18n/sv-SE` as a silent fallback
+
+Still later:
+
+- `data-i18n` HTML can flash Swedish before JS apply
 - `tx(key, 'Avbryt')` Swedish helper fallback
-- `fi-FI` aliases to `sv-SE`
+- `fi-FI` aliases to `sv-SE` (market mapping, no fi-FI files)

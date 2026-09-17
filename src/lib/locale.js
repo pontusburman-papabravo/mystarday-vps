@@ -7,6 +7,8 @@
 
 const SUPPORTED_LOCALES = Object.freeze(['sv-SE', 'en-GB']);
 const DEFAULT_LOCALE = 'sv-SE';
+/** Message fallback when a key is missing in the requested locale. Never sv-SE for non-Swedish. */
+const CANONICAL_FALLBACK_LOCALE = 'en-GB';
 
 const ALIASES = Object.freeze({
   sv: 'sv-SE',
@@ -164,6 +166,7 @@ function htmlLang(locale) {
 module.exports = {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
+  CANONICAL_FALLBACK_LOCALE,
   ALIASES,
   normalizeLocale,
   isSupportedLocale,

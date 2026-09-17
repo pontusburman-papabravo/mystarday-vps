@@ -4,7 +4,8 @@
  * High-signal hardcoded user-copy scanner + monotonic ratchet.
  *
  * This PR locks existing debt. It does not change runtime fallback.
- * data-i18n HTML with Swedish inner text is allowed until the fallback-contract PR.
+ * data-i18n HTML with Swedish inner text is still skipped (pre-JS placeholders).
+ * Runtime fallback is language-neutral: requested → en-GB → key.
  *
  * Escape hatch (one hit): `i18n-ignore: reason` on the same or previous line.
  * Reason is required. No directory-wide ignores.
@@ -476,7 +477,7 @@ function serializeBaseline(hits) {
   return `${JSON.stringify({
     version: BASELINE_VERSION,
     generated_by: 'scripts/lib/i18n-copy-ratchet.js',
-    note: 'Monotonic ratchet: hits may disappear, never grow without --force-raise. data-i18n Swedish inner HTML is allowed until the fallback-contract PR. Brand/site tokens in snippets are product copy, not credentials.',
+    note: 'Monotonic ratchet: hits may disappear, never grow without --force-raise. data-i18n Swedish inner HTML is pre-JS placeholder debt. Brand/site tokens in snippets are product copy, not credentials.',
     hits: safeHits,
   }, null, 2)}\n`;
 }

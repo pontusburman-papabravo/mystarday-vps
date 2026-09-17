@@ -7,6 +7,8 @@ const I18n = {
   lang: 'sv-SE',
   _ready: null,
   _englishAppEnabled: false,
+  DEFAULT_LOCALE: 'sv-SE',
+  CANONICAL_FALLBACK_LOCALE: 'en-GB',
 
   STORAGE_KEY: 'sd_preferred_locale',
 
@@ -60,7 +62,7 @@ const I18n = {
       }
 
       if (!lang) {
-        lang = this._fromNavigator() || 'sv-SE';
+        lang = this._fromNavigator() || this.DEFAULT_LOCALE;
       }
 
       await this.load(lang);
@@ -90,16 +92,29 @@ const I18n = {
     return null;
   },
 
-  async load(lang = 'sv-SE') {
-    const canonical = this._normalize(lang) || 'sv-SE';
+  async _fetchLocale(locale) {
     try {
-      const res = await fetch(`/api/i18n/${encodeURIComponent(canonical)}`);
-      if (!res.ok) {
-        const fallback = await fetch('/api/i18n/sv-SE');
-        this.locale = await fallback.json();
-        this.lang = 'sv-SE';
+      const res = await fetch(`/api/i18n/${encodeURIComponent(locale)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async load(lang = this.DEFAULT_LOCALE) {
+    const canonical = this._normalize(lang) || this.DEFAULT_LOCALE;
+    try {
+      const fetched = await this._fetchLocale(canonical);
+      if (fetched) {
+        this.locale = fetched;
+        this.lang = canonical;
+      } else if (canonical !== this.CANONICAL_FALLBACK_LOCALE) {
+        const fallback = await this._fetchLocale(this.CANONICAL_FALLBACK_LOCALE);
+        this.locale = fallback || {};
+        this.lang = fallback ? this.CANONICAL_FALLBACK_LOCALE : canonical;
       } else {
-        this.locale = await res.json();
+        this.locale = {};
         this.lang = canonical;
       }
       sessionStorage.setItem(this.STORAGE_KEY, this.lang);
