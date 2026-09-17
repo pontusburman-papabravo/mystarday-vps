@@ -11,7 +11,7 @@
     }
     await authObj.ensureCsrfToken();
     const csrf = authObj.getCsrfToken();
-    if (!csrf) throw new Error('Kunde inte hämta CSRF-token — ladda om sidan');
+    if (!csrf) throw new Error((window.I18n && I18n.t('family.errors.csrfReload')) || 'CSRF_MISSING');
     return csrf;
   }
 
@@ -56,7 +56,7 @@
 
   async function pickCropAndUpload(endpoint) {
     if (!window.Platform || !Platform.camera || typeof Platform.camera.pick !== 'function') {
-      throw new Error('Kamera är inte tillgänglig');
+      throw new Error((window.I18n && I18n.t('family.errors.cameraUnavailable')) || 'CAMERA_UNAVAILABLE');
     }
     const picked = await Platform.camera.pick({ quality: 'medium' });
     if (!picked) return null;
@@ -68,16 +68,16 @@
       file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
     }
     if (!file && !window.AvatarImageCrop) {
-      throw new Error('Kunde inte läsa bilden');
+      throw new Error((window.I18n && I18n.t('family.errors.imageRead')) || 'IMAGE_READ');
     }
     if (!file && picked.dataUrl) {
       const res = await fetch(picked.dataUrl);
       const blob = await res.blob();
       file = new File([blob], 'avatar.jpg', { type: blob.type || 'image/jpeg' });
     }
-    if (!file) throw new Error('Kunde inte läsa bilden');
+    if (!file) throw new Error((window.I18n && I18n.t('family.errors.imageRead')) || 'IMAGE_READ');
 
-    if (!window.AvatarImageCrop) throw new Error('Beskärning saknas');
+    if (!window.AvatarImageCrop) throw new Error((window.I18n && I18n.t('family.errors.cropMissing')) || 'CROP_MISSING');
     const cropped = await AvatarImageCrop.openFromFile(file);
     if (!cropped) return null;
 

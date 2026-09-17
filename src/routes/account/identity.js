@@ -28,7 +28,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
     const { verifyAppleIdToken } = require('../../lib/apple-auth');
     const appleUser = await verifyAppleIdToken(idToken);
     if (!appleUser) {
-      return res.status(401).json({ error: 'Ogiltig Apple-identitetstoken' });
+      return sendApiError(res, 401, 'INVALID_APPLE_TOKEN');
     }
 
     const { sub: appleUserId, email: appleEmail } = appleUser;
@@ -39,7 +39,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
       'SELECT apple_user_id FROM parent WHERE id = $1', [parentId]
     );
     if (current.rows[0]?.apple_user_id) {
-      return res.status(409).json({ error: 'Apple-konto är redan kopplat till detta konto' });
+      return sendApiError(res, 409, 'APPLE_ALREADY_LINKED');
     }
 
     // Check if apple_user_id belongs to ANOTHER account
@@ -47,7 +47,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
       'SELECT id FROM parent WHERE apple_user_id = $1', [appleUserId]
     );
     if (existing.rows.length > 0 && existing.rows[0].id !== parentId) {
-      return res.status(409).json({ error: 'Detta Apple-konto är redan kopplat till ett annat konto' });
+      return sendApiError(res, 409, 'APPLE_LINKED_OTHER_ACCOUNT');
     }
 
     // Link it
@@ -58,7 +58,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
 
     const accountAuth = await getAccountAuth(parentId);
     res.json({
-      message: 'Apple-konto länkat!',
+      code: 'APPLE_LINKED',
       accountAuth,
     });
   } catch (err) {
@@ -74,7 +74,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
   try {
     const { password } = req.body;
     if (!password) {
-      return res.status(400).json({ error: 'Lösenord krävs för att koppla bort Apple' });
+      return sendApiError(res, 400, 'PASSWORD_REQUIRED_UNLINK');
     }
 
     const parentId = req.user.id;
@@ -89,7 +89,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
     }
     const row = parentRow.rows[0];
     if (!row.has_password) {
-      return res.status(400).json({ error: 'Sätt ett lösenord innan du kopplar bort Apple' });
+      return sendApiError(res, 400, 'SET_PASSWORD_BEFORE_UNLINK');
     }
 
     // Verify password
@@ -108,7 +108,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
 
     const accountAuth = await getAccountAuth(parentId);
     res.json({
-      message: 'Apple-konto bortkopplat',
+      code: 'APPLE_UNLINKED',
       accountAuth,
     });
   } catch (err) {
@@ -132,12 +132,12 @@ router.post('/link-google', requireParent, async (req, res) => {
       payload = await verifyGoogleIdToken(idToken);
     } catch (verifyErr) {
       console.error('[ACCOUNT] Google token verification failed:', verifyErr.message);
-      return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
+      return sendApiError(res, 401, 'INVALID_GOOGLE_TOKEN');
     }
 
     const googleUserId = payload.sub;
     if (!googleUserId) {
-      return res.status(401).json({ error: 'Ogiltig Google-identitetstoken' });
+      return sendApiError(res, 401, 'INVALID_GOOGLE_TOKEN');
     }
 
     const parentId = req.user.id;
@@ -146,14 +146,14 @@ router.post('/link-google', requireParent, async (req, res) => {
       'SELECT google_user_id FROM parent WHERE id = $1', [parentId]
     );
     if (current.rows[0]?.google_user_id) {
-      return res.status(409).json({ error: 'Google-konto är redan kopplat till detta konto' });
+      return sendApiError(res, 409, 'GOOGLE_ALREADY_LINKED');
     }
 
     const existing = await db.query(
       'SELECT id FROM parent WHERE google_user_id = $1', [googleUserId]
     );
     if (existing.rows.length > 0 && existing.rows[0].id !== parentId) {
-      return res.status(409).json({ error: 'Detta Google-konto är redan kopplat till ett annat konto' });
+      return sendApiError(res, 409, 'GOOGLE_LINKED_OTHER_ACCOUNT');
     }
 
     await db.query(
@@ -163,7 +163,7 @@ router.post('/link-google', requireParent, async (req, res) => {
 
     const accountAuth = await getAccountAuth(parentId);
     res.json({
-      message: 'Google-konto länkat!',
+      code: 'GOOGLE_LINKED',
       accountAuth,
     });
   } catch (err) {
@@ -177,7 +177,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
   try {
     const { password } = req.body;
     if (!password) {
-      return res.status(400).json({ error: 'Lösenord krävs för att koppla bort Google' });
+      return sendApiError(res, 400, 'PASSWORD_REQUIRED_UNLINK');
     }
 
     const parentId = req.user.id;
@@ -190,7 +190,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
     }
     const row = parentRow.rows[0];
     if (!row.has_password) {
-      return res.status(400).json({ error: 'Sätt ett lösenord innan du kopplar bort Google' });
+      return sendApiError(res, 400, 'SET_PASSWORD_BEFORE_UNLINK');
     }
 
     const valid = await comparePassword(password, row.password_hash);
@@ -205,7 +205,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
 
     const accountAuth = await getAccountAuth(parentId);
     res.json({
-      message: 'Google-konto bortkopplat',
+      code: 'GOOGLE_UNLINKED',
       accountAuth,
     });
   } catch (err) {
@@ -222,7 +222,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
     const { newEmail, password } = req.body;
 
     if (!newEmail || !password) {
-      return res.status(400).json({ error: 'Ny e-postadress och lösenord krävs' });
+      return sendApiError(res, 400, 'EMAIL_PASSWORD_REQUIRED');
     }
     const normalizedEmail = newEmail.toLowerCase().trim();
     if (!normalizedEmail.includes('@')) {
@@ -240,7 +240,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
       return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     if (!parentRow.rows[0].has_password) {
-      return res.status(400).json({ error: 'Sätt ett lösenord först innan du kan byta e-postadress' });
+      return sendApiError(res, 400, 'SET_PASSWORD_BEFORE_EMAIL');
     }
 
     // Verify password
@@ -255,7 +255,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
       [normalizedEmail, parentId]
     );
     if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'E-postadressen är redan registrerad på ett annat konto' });
+      return sendApiError(res, 409, 'EMAIL_ALREADY_REGISTERED');
     }
 
     // Invalidate all existing tokens for this parent
@@ -294,7 +294,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
     });
 
     res.json({
-      message: `Vi har skickat en bekräftelselänk till ${normalizedEmail}`,
+      code: 'EMAIL_CHANGE_SENT',
       pendingEmail: normalizedEmail,
     });
   } catch (err) {
@@ -319,14 +319,14 @@ router.post('/change-email/confirm', async (req, res) => {
       [token]
     );
     if (!tokenRow.rows.length) {
-      return res.status(400).json({ error: 'Ogiltig eller utgången länk. Begär en ny ändring i Inställningar.' });
+      return sendApiError(res, 400, 'EMAIL_CHANGE_LINK_INVALID');
     }
     const tk = tokenRow.rows[0];
     if (tk.used_at) {
-      return res.status(400).json({ error: 'Länken har redan använts. Begär en ny ändring i Inställningar.' });
+      return sendApiError(res, 400, 'EMAIL_CHANGE_LINK_USED');
     }
     if (new Date(tk.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Länken har gått ut. Begär en ny ändring i Inställningar.' });
+      return sendApiError(res, 400, 'EMAIL_CHANGE_LINK_EXPIRED');
     }
 
     const client = await db.getClient();
@@ -343,7 +343,7 @@ router.post('/change-email/confirm', async (req, res) => {
     }
 
     res.json({
-      message: 'E-postadressen har uppdaterats! Du kan nu logga in med din nya adress.',
+      code: 'EMAIL_UPDATED',
     });
   } catch (err) {
     console.error('[ACCOUNT] change-email/confirm error:', err);
@@ -369,7 +369,7 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
     const row = existing.rows[0];
 
     if (row.has_password) {
-      return res.status(409).json({ error: 'Lösenord finns redan. Använd "Byt lösenord" för att uppdatera.' });
+      return sendApiError(res, 409, 'PASSWORD_ALREADY_SET');
     }
 
     const { newPassword } = req.body;
@@ -391,7 +391,7 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
     };
 
     res.json({
-      message: 'Lösenordet har satts. Du kan nu logga in med e-post och lösenord.',
+      code: 'PASSWORD_SET',
       accountAuth,
     });
   } catch (err) {

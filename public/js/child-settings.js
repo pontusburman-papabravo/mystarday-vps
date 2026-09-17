@@ -16,6 +16,20 @@ let pinBuffer = '';
 let selectedEmoji = '';
 let rewardsData = [];
 
+function t(key, params) {
+  if (typeof window.pt === 'function') return window.pt(key, params);
+  if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+  return key;
+}
+
+function apiErr(err, fallbackKey) {
+  if (typeof window.apiErrorMessage === 'function') {
+    const mapped = window.apiErrorMessage(err, fallbackKey);
+    if (mapped) return mapped;
+  }
+  return t(fallbackKey);
+}
+
 // showToast (red/navy) and showSuccessToast (green) are in /js/toast.js
 
 // ── API save ────────────────────────────────────────────
@@ -29,7 +43,7 @@ async function saveSetting(field, value) {
     if (childData) childData[field] = value;
     return updated;
   } catch (err) {
-    showToast('Kunde inte spara: ' + err.message, true);
+    showToast(apiErr(err, 'family.childProfile.setup.saveFailed'), true);
     throw err;
   }
 }
@@ -50,7 +64,7 @@ async function saveNnlMode(enabled) {
     }
     return updated;
   } catch (err) {
-    showToast('Kunde inte spara: ' + err.message, true);
+    showToast(apiErr(err, 'family.childProfile.setup.saveFailed'), true);
     throw err;
   }
 }
@@ -69,7 +83,7 @@ function makeToggle(id, field, value, onChange) {
     track.classList.toggle('on');
     try {
       await saveSetting(field, newVal);
-      showSuccessToast(newVal ? 'Inställningar aktiverade!' : 'Inställningar inaktiverade!');
+      showSuccessToast(newVal ? t('family.childSettings.settingsEnabled') : t('family.childSettings.settingsDisabled'));
       if (onChange) onChange(newVal);
     } catch(_e) {
       // revert
@@ -108,7 +122,7 @@ async function saveViewConfig(config) {
     return true;
   } catch (err) {
     console.error('[child-settings] PATCH view-config error:', err.message);
-    showToast('Kunde inte spara: ' + err.message, true);
+    showToast(apiErr(err, 'family.childProfile.setup.saveFailed'), true);
     return false;
   }
 }
@@ -139,7 +153,7 @@ function initViewConfigPanel() {
           classicBtn.classList.add('active');
           newBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.add('hidden');
-          showSuccessToast('Klassisk vy sparad!');
+          showSuccessToast(t('family.childSettings.classicSaved'));
         }
       }
     };
@@ -152,7 +166,7 @@ function initViewConfigPanel() {
           newBtn.classList.add('active');
           classicBtn.classList.remove('active');
           document.getElementById('viewConfigElements')?.classList.remove('hidden');
-          showSuccessToast('Ny design sparad!');
+          showSuccessToast(t('family.childSettings.newDesignSaved'));
         }
       }
     };
@@ -178,7 +192,7 @@ function initViewConfigPanel() {
       el.classList.toggle('on');
       const ok = await saveViewConfig({ ...current, [field]: newVal });
       if (ok) {
-        showSuccessToast(newVal ? 'Visas i ny vy!' : 'Doldt i ny vy!');
+        showSuccessToast(newVal ? t('family.childSettings.shownInNewView') : t('family.childSettings.hiddenInNewView'));
       } else {
         el.classList.toggle('on'); // revert
       }
@@ -194,7 +208,7 @@ function initViewConfigPanel() {
       minimalTrack.classList.toggle('on');
       const ok = await saveViewConfig({ ...current, minimal_ui: newVal });
       if (ok) {
-        showSuccessToast(newVal ? 'Distraktionsfri vy aktiverad!' : 'Distraktionsfri vy avaktiverad');
+        showSuccessToast(newVal ? t('family.childSettings.minimalOn') : t('family.childSettings.minimalOff'));
         // Fire analytics event
         if (newVal && childId) {
           fetch('/api/analytics/event', {
@@ -247,7 +261,7 @@ function initViewToggle(initialType) {
     setActive('day_sections');
     try {
       await saveSetting('view_type', 'day_sections');
-      showSuccessToast('Dagsvy sparad!');
+      showSuccessToast(t('family.childSettings.dayViewSaved'));
     } catch(_e) { setActive('now_next_later'); }
   };
   tlBtn.onclick = async () => {
@@ -255,7 +269,7 @@ function initViewToggle(initialType) {
     setActive('now_next_later');
     try {
       await saveSetting('view_type', 'now_next_later');
-      showSuccessToast('Nu/Nästa/Senare sparat!');
+      showSuccessToast(t('family.childSettings.timelineSaved'));
     } catch(_e) { setActive('day_sections'); }
   };
 }
@@ -294,7 +308,7 @@ function setHeaderAvatarPreview(child) {
 async function saveProfile(e) {
   e.preventDefault();
   const nameVal = document.getElementById('profileName').value.trim();
-  if (!nameVal) { showToast('Namn krävs', true); return; }
+  if (!nameVal) { showToast(t('family.childProfile.setup.identity.nameRequired'), true); return; }
   const bdYear = document.getElementById('bdYear').value;
   const bdMonth = document.getElementById('bdMonth').value;
   const bdDay = document.getElementById('bdDay').value;
@@ -308,12 +322,12 @@ async function saveProfile(e) {
       body: JSON.stringify(body),
     });
     childData = { ...childData, ...updated };
-    document.getElementById('pageTitle').textContent = updated.name || 'Inställningar';
+    document.getElementById('pageTitle').textContent = updated.name || t('family.childSettings.heading');
     document.getElementById('pageEmoji').textContent = updated.emoji || '⭐';
     if (updated.has_avatar !== undefined) setHeaderAvatarPreview({ ...childData, ...updated });
-    showSuccessToast('Inställningar sparade!');
+    showSuccessToast(t('family.childSettings.settingsSaved'));
   } catch (err) {
-    showToast('Kunde inte spara: ' + err.message, true);
+    showToast(apiErr(err, 'family.childProfile.setup.saveFailed'), true);
   }
 }
 
@@ -323,7 +337,7 @@ async function changeChildPhoto() {
   if (!btn || !window.AvatarUploadFlow) return;
   const orig = btn.textContent;
   btn.disabled = true;
-  btn.textContent = 'Laddar…';
+  btn.textContent = t('family.childProfile.setup.loading');
   try {
     const endpoint = '/api/children/' + encodeURIComponent(childId) + '/avatar';
     const updated = await AvatarUploadFlow.pickCropAndUpload(endpoint);
@@ -333,20 +347,20 @@ async function changeChildPhoto() {
     if (childData.username && typeof Auth.persistKnownChildrenFromSession === 'function') {
       Auth.persistKnownChildrenFromSession([childData], Auth.getFamilyId());
     }
-    btn.textContent = '✓ Bild sparad';
+    btn.textContent = t('family.childSettings.photoSaved');
     btn.classList.remove('text-gold');
     btn.classList.add('text-green-600');
     setTimeout(function () {
-      btn.textContent = '🔄 Byt bild';
+      btn.textContent = t('family.childSettings.changePhoto');
       btn.classList.remove('text-green-600');
       btn.classList.add('text-gold');
     }, 2000);
   } catch (err) {
     console.error('[child-settings] photo change failed:', err.message);
-    showToast(err.message || 'Kunde inte byta bild. Försök igen.', true);
+    showToast(apiErr(err, 'family.childSettings.changePhotoFailed'), true);
   } finally {
     btn.disabled = false;
-    if (btn.textContent === 'Laddar…') btn.textContent = orig;
+    if (btn.textContent === t('family.childProfile.setup.loading')) btn.textContent = orig;
   }
 }
 
@@ -368,7 +382,7 @@ function initHapticsToggle() {
     track.classList.toggle('on');
     // Persist to localStorage
     localStorage.setItem('stjarndag_haptics_enabled', newVal ? 'true' : 'false');
-    showSuccessToast(newVal ? 'Vibration påslagen!' : 'Vibration avstängd');
+    showSuccessToast(newVal ? t('family.childProfile.setup.toggles.haptics.on') : t('family.childProfile.setup.toggles.haptics.off'));
   };
 }
 
@@ -405,21 +419,21 @@ function renderPinDots() {
 async function submitPin() {
   if (pinBuffer.length !== 4) return;
   const btn = document.getElementById('pinSaveBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Sparar…'; }
+  if (btn) { btn.disabled = true; btn.textContent = t('settings.account.saving'); }
   try {
     await Auth.api(`/api/children/${childId}/pin`, {
       method: 'PUT',
       body: JSON.stringify({ pin: pinBuffer }),
     });
-    showSuccessToast('PIN sparad!');
+    showSuccessToast(t('family.childProfile.pinSaved'));
     pinBuffer = '';
     renderPinDots();
   } catch (err) {
-    showToast('Kunde inte spara PIN: ' + err.message, true);
+    showToast(apiErr(err, 'family.childProfile.pinSaveFailed'), true);
     pinBuffer = '';
     renderPinDots();
   }
-  if (btn) { btn.disabled = false; btn.textContent = 'Spara PIN'; }
+  if (btn) { btn.disabled = false; btn.textContent = t('family.childProfile.pinSave'); }
 }
 
 // ── Rewards ─────────────────────────────────────────────
@@ -433,7 +447,7 @@ async function loadRewards() {
       return r && r.is_active !== false;
     });
     if (rewardsData.length === 0) {
-      container.innerHTML = '<p class="text-sm text-text-soft italic">Inga belöningar. <a href="/library" class="text-gold underline">Skapa i Biblioteket.</a></p>';
+      container.innerHTML = '<p class="text-sm text-text-soft italic">' + t('family.childSettings.emptyRewards') + ' <a href="/library" class="text-gold underline">' + t('family.childSettings.createInLibrary') + '</a></p>';
       return;
     }
     container.innerHTML = rewardsData.map(r => {
@@ -492,15 +506,15 @@ async function loadRewards() {
           });
           // Update local cache
           if (rewardEntry) rewardEntry.visible_to_children = updated.visible_to_children;
-          showSuccessToast(wasOn ? 'Dold för barnet!' : 'Synlig för barnet!');
+          showSuccessToast(wasOn ? t('family.childSettings.hiddenForChild') : t('family.childSettings.visibleForChild'));
         } catch (err) {
           track.classList.toggle('on'); // revert
-          showToast('Kunde inte uppdatera: ' + err.message, true);
+          showToast(apiErr(err, 'family.childProfile.setup.updateFailed'), true);
         }
       };
     });
   } catch (_err) {
-    if (container) container.innerHTML = '<p class="text-sm text-red-500">Kunde inte ladda belöningar.</p>';
+    if (container) container.innerHTML = '<p class="text-sm text-red-500">' + t('family.childProfile.errors.loadRewards') + '</p>';
   }
 }
 
@@ -531,10 +545,10 @@ function renderPage(child) {
       ${avatarBlock}
       <div>
         <h2 class="text-xl font-heading font-bold text-navy">${escHtml(child.name)}</h2>
-        <p class="text-sm text-text-soft">${ageText ? ageText : 'Ålder okänd'}</p>
+        <p class="text-sm text-text-soft">${ageText ? ageText : t('family.child.ageUnknown')}</p>
         <!-- Byt profilbild (PWA + native) -->
         <button id="changePhotoBtn" onclick="changeChildPhoto()" class="mt-1.5 text-xs text-gold font-semibold hover:text-gold-dark transition-colors">
-          📷 Byt bild
+          ${t('family.childSettings.changePhoto')}
         </button>
       </div>
     </div>
@@ -542,30 +556,30 @@ function renderPage(child) {
 
   <!-- 1. Profil -->
   <div class="section-card fade-in">
-    <div class="section-title">👤 Profil</div>
+    <div class="section-title">${t('family.childSettings.profileTitle')}</div>
     <form id="profileForm" onsubmit="saveProfile(event)" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">Namn</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childSettings.nameLabel')}</label>
         <input id="profileName" type="text" value="${escHtml(child.name)}" required
           class="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none transition-colors"
-          placeholder="Barnets namn" />
+          placeholder="${t('family.childProfile.setup.identity.nameLabel')}" />
       </div>
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">Födelsedag</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childProfile.setup.identity.birthdayLabel')}</label>
         <div class="grid grid-cols-3 gap-2">
           <select id="bdYear" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">År</option>
+            <option value="">${t('family.childProfile.setup.identity.year')}</option>
           </select>
           <select id="bdMonth" onchange="updateBirthdayDays('bd')" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">Månad</option>
+            <option value="">${t('family.childProfile.setup.identity.month')}</option>
           </select>
           <select id="bdDay" class="w-full min-w-0 px-2 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-navy dark:text-white font-body text-sm focus:border-gold focus:outline-none">
-            <option value="">Dag</option>
+            <option value="">${t('family.childProfile.setup.identity.day')}</option>
           </select>
         </div>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-text-soft mb-1.5">Emoji</label>
+        <label class="block text-xs font-semibold text-text-soft mb-1.5">${t('family.childProfile.setup.identity.emojiLabel')}</label>
         <div class="flex flex-wrap gap-2">
           ${['👧','👦','🧒','👶','🌟','🦄','🐱','🐶','🐻','🦊','🌈','🎀'].map(em =>
             `<button type="button" class="emoji-opt" data-emoji="${em}">${em}</button>`
@@ -574,23 +588,23 @@ function renderPage(child) {
       </div>
       <button type="submit"
         class="w-full py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors">
-        Spara profil
+        ${t('family.childProfile.setup.identity.saveProfile')}
       </button>
     </form>
   </div>
 
   <!-- 2. Vy -->
   <div class="section-card fade-in">
-    <div class="section-title">👁 Vy – hur barnet ser sin dag</div>
-    <p class="text-xs text-text-soft mb-4">Välj hur aktiviteterna presenteras i barnets dagvy. Standardvy är Dagsvy.</p>
+    <div class="section-title">${t('family.childSettings.viewTitle')}</div>
+    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.viewLead')}</p>
     <div class="view-toggle" id="viewToggle">
       <button class="view-btn" id="viewBtnDay" type="button">
-        🌅 Dagsvy<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Morgon/Dag/Kväll</span>
+        ${t('family.childSettings.viewDay')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.viewDayHint')}</span>
       </button>
       <button class="view-btn" id="viewBtnTimeline" type="button">
-        ⚡ Tidslinje<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">NU/NÄSTA/SEDAN</span>
+        ${t('family.childSettings.viewTimeline')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.viewTimelineHint')}</span>
       </button>
     </div>
     <div class="mt-4 p-3 rounded-xl" id="viewExplanation"
@@ -601,27 +615,27 @@ function renderPage(child) {
 
   <!-- 2b. Barnvy-inställningar -->
   <div class="section-card fade-in">
-    <div class="section-title">🎨 Barnvy-inställningar</div>
-    <p class="text-xs text-text-soft mb-2">Hur ser <strong>${escHtml(child.name)}</strong> appen? Samma val som barnets vyväxlare (Klassisk / Ny design).</p>
-    <p class="text-xs text-text-soft mb-4" style="opacity:0.85">Preview-familjer får Ny design i barn-dashboard. Övriga familjer använder legacy child-new tills magic rullas ut brett.</p>
+    <div class="section-title">${t('family.childSettings.childViewTitle')}</div>
+    <p class="text-xs text-text-soft mb-2">${t('family.childSettings.childViewLead', { name: escHtml(child.name) })}</p>
+    <p class="text-xs text-text-soft mb-4" style="opacity:0.85">${t('family.childSettings.childViewPreviewHint')}</p>
     <div class="view-toggle mb-4" id="childViewToggle">
       <button class="view-btn" id="viewModeClassic" type="button">
-        ○ Klassisk<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Nuvarande layout</span>
+        ${t('family.childSettings.classic')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.classicHint')}</span>
       </button>
       <button class="view-btn" id="viewModeNew" type="button">
-        ● Ny design<br>
-        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">Magic-vy</span>
+        ${t('family.childSettings.newDesign')}<br>
+        <span style="font-size:0.7rem;font-weight:500;opacity:0.7">${t('family.childSettings.newDesignHint')}</span>
       </button>
     </div>
     <!-- Element visibility — only shown when new view is selected -->
     <div id="viewConfigElements" class="hidden mt-4">
-      <p class="text-xs font-semibold text-text-soft mb-3">Vilka element ska synas?</p>
+      <p class="text-xs font-semibold text-text-soft mb-3">${t('family.childSettings.elementsHeading')}</p>
       <div class="space-y-1">
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">⏱ Nedräkningstimer</p>
-            <p class="text-xs text-text-soft mt-0.5">Visar återstående tid till nästa aktivitet</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.countdownTimer')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.countdownHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgTimer" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -629,8 +643,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">🕐 Tidslinje-pipeline</p>
-            <p class="text-xs text-text-soft mt-0.5">Klockikoner som visar aktivitetsflödet</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.timelinePipeline')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.timelinePipelineHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgTimeline" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -638,8 +652,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">👤 Barnprofil-kort</p>
-            <p class="text-xs text-text-soft mt-0.5">Visar barnets namn och emoji nere på sidan</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.profileCard')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.profileCardHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgCard" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -647,8 +661,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">⭐ Progress-ring</p>
-            <p class="text-xs text-text-soft mt-0.5">Omgivande cirkel runt barnets emoji</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.progressRing')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.progressRingHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgRing" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -656,8 +670,8 @@ function renderPage(child) {
         </div>
         <div class="setting-row py-2" style="border-bottom:none;">
           <div class="flex-1 pr-4">
-            <p class="text-sm font-semibold text-navy dark:text-white">🌟 Stjärnmål</p>
-            <p class="text-xs text-text-soft mt-0.5">Långsiktigt belöningsmål och stjärnsamling</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.starGoal')}</p>
+            <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.starGoalHint')}</p>
           </div>
           <div class="toggle-track on" id="viewCfgGoal" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
             <div class="toggle-thumb"></div>
@@ -671,10 +685,10 @@ function renderPage(child) {
       <div class="flex items-start gap-3">
         <span class="text-xl mt-0.5">🧘</span>
         <div class="flex-1">
-          <p class="text-sm font-semibold text-navy dark:text-white">Distraktionsfri vy</p>
-          <p class="text-xs text-text-soft mt-0.5 mb-3">Rekommenderas för barn med ADHD eller autism. Döljer extra knappar och ersätter vuxentext med enklare instruktioner.</p>
+          <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.view.minimalUiLabel')}</p>
+          <p class="text-xs text-text-soft mt-0.5 mb-3">${t('family.childSettings.minimalHint')}</p>
           <div class="flex items-center justify-between">
-            <span class="text-xs text-text-soft">${childViewConfig && childViewConfig.minimal_ui ? 'Aktiverad' : 'Avaktiverad'}</span>
+            <span class="text-xs text-text-soft">${childViewConfig && childViewConfig.minimal_ui ? t('family.childSettings.enabled') : t('family.childSettings.disabled')}</span>
             <div class="toggle-track ${childViewConfig && childViewConfig.minimal_ui ? 'on' : ''}" id="viewCfgMinimalUi" style="min-width:44px;min-height:24px;display:flex;align-items:center;justify-content:center;">
               <div class="toggle-thumb"></div>
             </div>
@@ -686,39 +700,39 @@ function renderPage(child) {
 
   <!-- 3. Belöningar -->
   <div class="section-card fade-in">
-    <div class="section-title">🏆 Belöningar</div>
-    <p class="text-xs text-text-soft mb-4">Välj vilka belöningar som är synliga för ${escHtml(child.name)}.</p>
+    <div class="section-title">${t('family.childSettings.rewardsTitle')}</div>
+    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.rewardsLead', { name: escHtml(child.name) })}</p>
     <div id="rewardsList">
-      <p class="text-sm text-text-soft italic">Laddar belöningar…</p>
+      <p class="text-sm text-text-soft italic">${t('family.childProfile.setup.moodRewards.loadingRewards')}</p>
     </div>
     <a href="/library" class="block mt-4 text-center text-xs text-gold hover:underline">
-      Skapa fler belöningar i Biblioteket →
+      ${t('family.childSettings.createMoreRewards')}
     </a>
   </div>
 
   <!-- 4. Känslor -->
   <div class="section-card fade-in">
-    <div class="section-title">💛 Känslor</div>
+    <div class="section-title">${t('family.childSettings.moodTitle')}</div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Känsloregistrering</p>
-        <p class="text-xs text-text-soft mt-0.5">Fråga barnet efter avbockning (kan stängas av helt)</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.moodRewards.moodLabel')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.moodHint')}</p>
       </div>
       <div class="toggle-track ${child.show_mood_rating !== false ? 'on' : ''}" id="toggle-show_mood_rating">
         <div class="toggle-thumb"></div>
       </div>
     </div>
     <div class="mt-4 pt-3 border-t border-lavender/60">
-      <p class="text-xs font-semibold text-text-soft mb-2">Hur barnet svarar</p>
+      <p class="text-xs font-semibold text-text-soft mb-2">${t('family.childSettings.moodHow')}</p>
       <div class="flex flex-col gap-2" id="moodModeGroup">
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="slider" ${moodMode === 'slider' ? 'checked' : ''} class="accent-gold"> Slider (1–10)
+          <input type="radio" name="mood_input_mode" value="slider" ${moodMode === 'slider' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodSlider')}
         </label>
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="cards" ${moodMode === 'cards' ? 'checked' : ''} class="accent-gold"> Känslokort (8 val)
+          <input type="radio" name="mood_input_mode" value="cards" ${moodMode === 'cards' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodCards')}
         </label>
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
-          <input type="radio" name="mood_input_mode" value="off" ${moodMode === 'off' ? 'checked' : ''} class="accent-gold"> Av — ingen fråga
+          <input type="radio" name="mood_input_mode" value="off" ${moodMode === 'off' ? 'checked' : ''} class="accent-gold"> ${t('family.childSettings.moodOff')}
         </label>
       </div>
     </div>
@@ -727,22 +741,22 @@ function renderPage(child) {
   ${hasTransitionSupportAccess ? `
   <!-- 4b. Övergångsstöd (Extra stöd) -->
   <div class="section-card fade-in">
-    <div class="section-title">⏳ Övergångsstöd</div>
-    <p class="text-xs text-text-soft mb-3">Välj när barnet ser varningstext i NU-kortet: Snart → Om X min → Nu.</p>
+    <div class="section-title">${t('family.childProfile.setup.transition.title')}</div>
+    <p class="text-xs text-text-soft mb-3">${t('family.childProfile.setup.transition.body')}</p>
     <div class="flex flex-col gap-2" id="transitionLeadGroup">
       ${[5, 3, 1].map((m) => `
         <label class="flex items-center gap-2 text-sm text-navy dark:text-white cursor-pointer">
           <input type="checkbox" class="transition-lead-cb accent-gold" data-minutes="${m}" ${leadMins.includes(m) ? 'checked' : ''}>
-          Om ${m} min${m === 1 ? '' : 'uter'}
+          ${m === 1 ? t('family.childProfile.setup.transition.leadOne', { minutes: m }) : t('family.childProfile.setup.transition.leadMany', { minutes: m })}
         </label>`).join('')}
     </div>
-    <p class="text-xs text-text-soft mt-3">Minst en lead-tid rekommenderas. Standard: 5 och 1 minut.</p>
+    <p class="text-xs text-text-soft mt-3">${t('family.childProfile.setup.transition.hint')}</p>
   </div>
   ` : ''}
 
   <!-- 5. PIN -->
   <div class="section-card fade-in">
-    <div class="section-title">🔑 PIN-kod</div>
+    <div class="section-title">${t('family.childSettings.pinTitle')}</div>
 
     <!-- Lockout warning banner (shown if child is currently locked out) -->
     <div id="lockoutBanner" class="hidden mb-4 p-3 bg-lavender rounded-xl border border-purple-300">
@@ -750,18 +764,18 @@ function renderPage(child) {
         <div class="flex items-center gap-2">
           <span class="text-xl">🔒</span>
           <div>
-            <p class="text-sm font-semibold text-navy dark:text-white">${escHtml(child.name)} är utlåst</p>
-            <p class="text-xs text-text-soft" id="lockoutBannerText">Flera felaktiga PIN-försök</p>
+            <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childSettings.lockedOut', { name: escHtml(child.name) })}</p>
+            <p class="text-xs text-text-soft" id="lockoutBannerText">${t('family.childSettings.lockoutAttempts')}</p>
           </div>
         </div>
         <button id="unlockBtn" onclick="unlockChild()"
           class="flex-shrink-0 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-heading font-bold text-xs transition-colors">
-          Lås upp 🔓
+          ${t('family.childSettings.unlock')}
         </button>
       </div>
     </div>
 
-    <p class="text-xs text-text-soft mb-4">${escHtml(child.name)} loggar in med namn + PIN. Ange en ny 4-siffrig PIN nedan.</p>
+    <p class="text-xs text-text-soft mb-4">${t('family.childSettings.pinLead', { name: escHtml(child.name) })}</p>
     <div class="pin-dots">
       <div class="pin-dot"></div>
       <div class="pin-dot"></div>
@@ -784,17 +798,17 @@ function renderPage(child) {
     </div>
     <button id="pinSaveBtn" onclick="submitPin()" disabled
       class="w-full mt-4 py-3 bg-navy hover:bg-navy-soft dark:bg-gold dark:hover:bg-yellow-500 text-white rounded-xl font-heading font-bold text-sm transition-colors disabled:opacity-40">
-      Spara PIN
+      ${t('family.childProfile.pinSave')}
     </button>
   </div>
 
   <!-- 6. Avancerade inställningar -->
   <div class="section-card fade-in">
-    <div class="section-title">⚙️ Avancerade inställningar</div>
+    <div class="section-title">${t('family.childSettings.advancedTitle')}</div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">NU / NÄSTA / SEDAN</p>
-        <p class="text-xs text-text-soft mt-0.5">Guidad ordning — barnet bockar av en i taget. Standard: barnet väljer själv vilken aktivitet som ska bockas av.</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.nnl.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childSettings.nnlHint')}</p>
       </div>
       <div class="toggle-track ${isNnlModeEnabled(child) ? 'on' : ''}" id="toggle-show_now_next">
         <div class="toggle-thumb"></div>
@@ -802,8 +816,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Barnets omsortering</p>
-        <p class="text-xs text-text-soft mt-0.5">Barnet kan dra om aktiviteter</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.reorder.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.reorder.hint')}</p>
       </div>
       <div class="toggle-track ${child.allow_child_reorder ? 'on' : ''}" id="toggle-allow_child_reorder">
         <div class="toggle-thumb"></div>
@@ -811,8 +825,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Dölj klockslag</p>
-        <p class="text-xs text-text-soft mt-0.5">Minskar stress för tidskänsliga barn</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.hideClock.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.hideClock.hint')}</p>
       </div>
       <div class="toggle-track ${child.hide_clock ? 'on' : ''}" id="toggle-hide_clock">
         <div class="toggle-thumb"></div>
@@ -820,8 +834,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Lås schema</p>
-        <p class="text-xs text-text-soft mt-0.5">Barnet kan inte bläddra till andra dagar</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.lockSchedule.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.lockSchedule.hint')}</p>
       </div>
       <div class="toggle-track ${child.lock_schedule ? 'on' : ''}" id="toggle-lock_schedule">
         <div class="toggle-thumb"></div>
@@ -829,8 +843,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Dopamin-animation</p>
-        <p class="text-xs text-text-soft mt-0.5">Stjärnburst vid avbockning</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.dopamin.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.dopamin.hint')}</p>
       </div>
       <div class="toggle-track ${child.dopamin_animation !== false ? 'on' : ''}" id="toggle-dopamin_animation">
         <div class="toggle-thumb"></div>
@@ -838,8 +852,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row" id="hapticsToggleRow">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">📳 Vibration</p>
-        <p class="text-xs text-text-soft mt-0.5">Taktil feedback vid stjärnor och belöningar</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.haptics.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.haptics.hint')}</p>
       </div>
       <div class="toggle-track on" id="toggle-haptics_enabled" style="min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;">
         <div class="toggle-thumb"></div>
@@ -847,8 +861,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Aktivitetstimer (timglas)</p>
-        <p class="text-xs text-text-soft mt-0.5">Masterbrytare. Sätt tid per aktivitet i biblioteket.</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.activityTimers.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.activityTimers.hint')}</p>
       </div>
       <div class="toggle-track ${child.activity_timers_enabled === true ? 'on' : ''}" id="toggle-activity_timers_enabled">
         <div class="toggle-thumb"></div>
@@ -856,8 +870,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Visuell timer</p>
-        <p class="text-xs text-text-soft mt-0.5">Cirkulär klocka vid pågående aktivitet</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.visualTimer.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.visualTimer.hint')}</p>
       </div>
       <div class="toggle-track ${child.visual_timer !== false ? 'on' : ''}" id="toggle-visual_timer">
         <div class="toggle-thumb"></div>
@@ -865,8 +879,8 @@ function renderPage(child) {
     </div>
     <div class="setting-row">
       <div class="flex-1 pr-4">
-        <p class="text-sm font-semibold text-navy dark:text-white">Färgkodning</p>
-        <p class="text-xs text-text-soft mt-0.5">Färgkodade aktivitetskort</p>
+        <p class="text-sm font-semibold text-navy dark:text-white">${t('family.childProfile.setup.toggles.colorCoding.label')}</p>
+        <p class="text-xs text-text-soft mt-0.5">${t('family.childProfile.setup.toggles.colorCoding.hint')}</p>
       </div>
       <div class="toggle-track ${child.color_coding !== false ? 'on' : ''}" id="toggle-color_coding">
         <div class="toggle-thumb"></div>
@@ -876,14 +890,14 @@ function renderPage(child) {
 
   <!-- 7. Schema -->
   <div class="section-card fade-in">
-    <div class="section-title">📅 Schema</div>
+    <div class="section-title">${t('family.childSettings.scheduleTitle')}</div>
     <a href="/schedule?child=${childId}"
       class="flex items-center justify-between gap-3 w-full px-4 py-3.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">
       <div class="flex items-center gap-2">
         <span class="text-lg">✏️</span>
         <div>
-          <div class="font-heading font-bold text-sm">Redigera schema</div>
-          <div class="text-xs opacity-80">Lägg till, ta bort och ändra aktiviteter</div>
+          <div class="font-heading font-bold text-sm">${t('family.childSettings.editSchedule')}</div>
+          <div class="text-xs opacity-80">${t('family.childSettings.editScheduleHint')}</div>
         </div>
       </div>
       <span>→</span>
@@ -892,12 +906,12 @@ function renderPage(child) {
 
   <!-- Bottom spacer -->
   <div class="section-card fade-in" style="border: 1px solid rgba(239,68,68,0.25);">
-    <div class="section-title text-red-700">Farlig zon</div>
+    <div class="section-title text-red-700">${t('family.childSettings.dangerZone')}</div>
     <button type="button" id="deleteChildBtn"
       class="w-full px-4 py-3 bg-coral hover:bg-red-100 text-red-700 rounded-xl text-sm font-semibold transition-colors min-h-[44px]">
-      🗑 Radera barn permanent
+      ${t('family.childProfile.setup.delete.button')}
     </button>
-    <p class="text-xs text-text-soft mt-2 text-center">Tar bort schema, stjärnor och all historik. Går inte att ångra.</p>
+    <p class="text-xs text-text-soft mt-2 text-center">${t('family.childSettings.deleteHint')}</p>
   </div>
 
   <div class="h-8"></div>
@@ -934,7 +948,7 @@ function renderPage(child) {
       nnlTrack.classList.toggle('on');
       try {
         await saveNnlMode(newVal);
-        showSuccessToast(newVal ? 'NU / NÄSTA / SEDAN aktiverat' : 'Fri avbockning — barnet väljer själv');
+        showSuccessToast(newVal ? t('family.childProfile.setup.toggles.nnl.on') : t('family.childProfile.setup.toggles.nnl.off'));
       } catch (_) {
         nnlTrack.classList.toggle('on');
       }
@@ -946,7 +960,7 @@ function renderPage(child) {
       if (!radio.checked) return;
       try {
         await saveSetting('mood_input_mode', radio.value);
-        showSuccessToast('Känsloläge sparat');
+        showSuccessToast(t('family.childSettings.moodSaved'));
       } catch (_) { /* reverted by saveSetting */ }
     });
   });
@@ -957,13 +971,13 @@ function renderPage(child) {
         .map((el) => parseInt(el.dataset.minutes, 10))
         .filter((n) => !Number.isNaN(n));
       if (selected.length === 0) {
-        showToast('Välj minst en lead-tid', true);
+        showToast(t('family.childProfile.setup.transition.selectAtLeastOne'), true);
         cb.checked = true;
         return;
       }
       try {
         await saveSetting('transition_lead_minutes', selected);
-        showSuccessToast('Övergångstider sparade');
+        showSuccessToast(t('family.childProfile.setup.transition.saved'));
       } catch (_) {
         cb.checked = !cb.checked;
       }
@@ -984,20 +998,20 @@ function initDeleteChild(child) {
   }
 
   btn.addEventListener('click', () => {
-    const name = child.name || 'barnet';
+    const name = child.name || t('family.childProfile.deleteChildDefaultName');
     const ok = window.confirm(
-      'Ta bort ' + name + ' permanent?\n\nAlla aktiviteter, scheman och belöningshistorik raderas. Detta går inte att ångra.'
+      t('family.childSettings.deleteConfirm', { name: name })
     );
     if (!ok) return;
 
     btn.disabled = true;
     Auth.api('/api/family/children/' + childId, { method: 'DELETE' })
       .then(() => {
-        showSuccessToast('Barnet är borttaget');
+        showSuccessToast(t('family.childProfile.deleteChildSuccess'));
         window.location.href = '/family';
       })
       .catch((err) => {
-        showToast('Kunde inte ta bort: ' + (err.message || 'okänt fel'), true);
+        showToast(apiErr(err, 'family.childProfile.deleteChildFailed'), true);
         btn.disabled = false;
       });
   });
@@ -1007,9 +1021,9 @@ function updateViewExplanation(type) {
   const el = document.getElementById('viewExplainText');
   if (!el) return;
   if (type === 'day_sections') {
-    el.textContent = '🌅 Dagsvy: Aktiviteterna visas i färgkodade dagdelssektioner — Morgon, Dag, Kväll och Natt. Bra för strukturerad överblick av hela dagen.';
+    el.textContent = t('family.childSettings.viewExplainDay');
   } else {
-    el.textContent = '⚡ Tidslinje: Visar NU (aktiv), Nästa (härnäst) och Senare (kommande). Fokuserar på vad som gäller just nu.';
+    el.textContent = t('family.childSettings.viewExplainTimeline');
   }
 }
 
@@ -1020,8 +1034,9 @@ function calcAge(birthday) {
   let age = today.getFullYear() - bday.getFullYear();
   const m = today.getMonth() - bday.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) age--;
-  if (age <= 0) return 'Under 1 år';
-  return `${age} år`;
+  if (age <= 0) return t('family.childSettings.ageUnderOne');
+  if (age === 1) return t('family.child.yearsOne', { count: age });
+  return t('family.child.yearsMany', { count: age });
 }
 
 // ── PIN lockout management ───────────────────────────────
@@ -1034,12 +1049,17 @@ async function checkPinLockout() {
       const until = new Date(status.locked_until);
       const mins = Math.ceil((until - Date.now()) / 60_000);
       document.getElementById('lockoutBannerText').textContent =
-        `Utlåst i ${mins > 1 ? mins + ' minuter' : 'ungefär 1 minut'} till`;
+        mins > 1
+          ? t('family.childSettings.lockoutMinutes', { minutes: mins })
+          : t('family.childSettings.lockoutOneMinute');
       banner.classList.remove('hidden');
     } else if (status.attempt_count >= 3) {
       // Warn parent that child has had failed attempts (but not locked)
       document.getElementById('lockoutBannerText').textContent =
-        `${status.attempt_count} misslyckade försök (${status.max_attempts - status.attempt_count} kvar)`;
+        t('family.childSettings.failedAttempts', {
+          count: status.attempt_count,
+          remaining: status.max_attempts - status.attempt_count,
+        });
       banner.classList.remove('hidden');
       // Hide unlock button since not locked
       const unlockBtn = document.getElementById('unlockBtn');
@@ -1054,14 +1074,14 @@ async function checkPinLockout() {
 
 async function unlockChild() {
   const btn = document.getElementById('unlockBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Låser upp…'; }
+  if (btn) { btn.disabled = true; btn.textContent = t('family.childSettings.unlocking'); }
   try {
     await Auth.api(`/api/children/${childId}/unlock-pin`, { method: 'POST' });
-    showSuccessToast('Låsning upphävd! Barnet kan logga in igen.');
+    showSuccessToast(t('family.childSettings.unlocked'));
     document.getElementById('lockoutBanner')?.classList.add('hidden');
   } catch (err) {
-    showToast('Kunde inte låsa upp: ' + err.message, true);
-    if (btn) { btn.disabled = false; btn.textContent = 'Lås upp 🔓'; }
+    showToast(apiErr(err, 'family.childSettings.unlockFailed'), true);
+    if (btn) { btn.disabled = false; btn.textContent = t('family.childSettings.unlock'); }
   }
 }
 
@@ -1088,7 +1108,7 @@ async function init() {
       return;
     }
     // Update header
-    document.getElementById('pageTitle').textContent = childData.name || 'Inställningar';
+    document.getElementById('pageTitle').textContent = childData.name || t('family.childSettings.heading');
     document.getElementById('pageEmoji').textContent = childData.emoji || '⭐';
     renderPage(childData);
     initViewConfigPanel();
@@ -1101,10 +1121,20 @@ async function init() {
     document.getElementById('loadingState').innerHTML = `
       <div class="text-center py-12">
         <p class="text-4xl mb-3">😕</p>
-        <p class="text-text-soft text-sm">Kunde inte ladda: ${err.message}</p>
-        <a href="/family" class="mt-4 inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold text-sm">Tillbaka</a>
+        <p class="text-text-soft text-sm">${t('family.childSettings.loadFailed', { detail: apiErr(err, 'family.childProfile.errors.generic') })}</p>
+        <a href="/family" class="mt-4 inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold text-sm">${t('family.childSettings.back')}</a>
       </div>`;
   }
 }
 
-init();
+async function boot() {
+  if (typeof window.initParentAppI18n === 'function') {
+    await initParentAppI18n();
+  } else if (window.I18n && typeof I18n.init === 'function') {
+    await I18n.init();
+    if (window.I18n.apply) I18n.apply();
+  }
+  await init();
+}
+
+boot();

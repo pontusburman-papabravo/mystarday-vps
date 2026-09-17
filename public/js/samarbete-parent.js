@@ -35,27 +35,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     const res = await Auth.api('/api/pedagog/day-comments/samarbete/notes');
     const data = res || { notes: [] };
 
-    main.innerHTML = `
-      <div class="py-6 space-y-4">
-        <h1 class="text-2xl font-heading font-bold">Samarbete</h1>
-        <p class="text-text-soft text-sm">Publicerade pedagoganteckningar från er skola/förskola.</p>
-        <div class="space-y-3" id="samarbeteNotesList"></div>
-        <a href="/pedagog-note" class="inline-block text-sm text-navy underline">Öppna pedagogverktyg</a>
-      </div>`;
+    const spt = function (key) { return (typeof window.pt === 'function') ? window.pt(key) : key; };
+    main.innerHTML = '<div class="py-6 space-y-4">'
+      + '<h1 class="text-2xl font-heading font-bold">' + spt('family.samarbete.title') + '</h1>'
+      + '<p class="text-text-soft text-sm">' + spt('family.samarbete.lead') + '</p>'
+      + '<div class="space-y-3" id="samarbeteNotesList"></div>'
+      + '<a href="/pedagog-note" class="inline-block text-sm text-navy underline">' + spt('family.samarbete.openTools') + '</a></div>';
 
     const list = document.getElementById('samarbeteNotesList');
     if (!data.notes?.length) {
-      list.innerHTML = '<p class="text-text-soft text-sm">Inga publicerade anteckningar ännu.</p>';
+      list.innerHTML = '<p class="text-text-soft text-sm">' + ((typeof window.pt === 'function') ? pt('family.samarbete.empty') : 'No published notes yet.') + '</p>';
       return;
     }
 
     list.innerHTML = data.notes.map((n) => `
       <article class="bg-white rounded-2xl border border-lavender p-4">
-        <p class="text-xs text-text-soft">${n.date} · ${n.child_name} · ${n.pedagog_name || 'Pedagog'}</p>
+        <p class="text-xs text-text-soft">${n.date} · ${n.child_name} · ${n.pedagog_name || ((typeof window.pt === 'function') ? pt('family.samarbete.pedagogFallback') : 'Educator')}</p>
         <p class="text-sm text-navy mt-2">${(n.notes || '').replace(/</g, '&lt;')}</p>
       </article>
     `).join('');
   } catch (_) {
-    main.innerHTML = '<p class="text-center text-text-soft py-12">Kunde inte ladda Samarbete.</p>';
+    main.innerHTML = '<p class="text-center text-text-soft py-12">' + ((typeof window.pt === 'function') ? pt('family.samarbete.loadError') : 'Could not load Collaboration.') + '</p>';
   }
 });

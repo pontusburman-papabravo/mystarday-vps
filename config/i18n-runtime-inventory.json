@@ -10,7 +10,22 @@
     "public/library.html",
     "public/activities.html",
     "public/pedagog-note.html",
-    "public/pedagog-oversikt.html"
+    "public/pedagog-oversikt.html",
+    "public/child-wizard.html",
+    "public/professional-report.html",
+    "public/family-week.html",
+    "public/skattkammaren-parent.html",
+    "public/child-new.html",
+    "public/pedagog-invite.html",
+    "public/accept-invite.html",
+    "public/notifications.html",
+    "public/child-settings.html",
+    "public/schedule.html",
+    "public/child-profile-picker.html",
+    "public/open-child.html",
+    "public/child-login.html",
+    "public/login.html",
+    "public/register.html"
   ],
   "productRuntimeHtml": [
     "public/pedagog-note.html",

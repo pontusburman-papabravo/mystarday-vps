@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * SSE (Server-Sent Events) endpoint.
  *
@@ -63,14 +64,14 @@ async function getFamilyId(user) {
 router.get('/', asyncHandler(async (req, res) => {
   const user = extractUser(req);
   if (!user) {
-    return res.status(401).json({ error: 'Autentisering krävs' });
+    return sendApiError(res, 401, 'AUTH_REQUIRED');
   }
 
   // getFamilyId throws on DB errors — asyncHandler forwards to error middleware.
   // If familyId is null (user not found), we send a 403 response before SSE headers.
   const familyId = await getFamilyId(user);
   if (!familyId) {
-    return res.status(403).json({ error: 'Kunde inte bestämma familj' });
+    return sendApiError(res, 403, 'FAMILY_UNRESOLVED');
   }
 
   // SSE headers — response committed. After this, res.json() won't work.

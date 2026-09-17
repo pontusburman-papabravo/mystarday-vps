@@ -253,13 +253,13 @@ parentRouter.delete('/:id', async (req, res) => {
       return sendApiError(res, 404, 'REWARD_NOT_FOUND');
     }
     if (!existing.rows[0].is_active) {
-      return res.json({ message: 'Belöning borttagen' });
+      return res.json({ code: 'REWARD_DELETED' });
     }
     await db.query(
       `UPDATE reward SET is_active = false, modified_by_family = true WHERE id = $1 AND family_id = $2`,
       [req.params.id, req.user.familyId]
     );
-    res.json({ message: 'Belöning borttagen' });
+    res.json({ code: 'REWARD_DELETED' });
   } catch (err) {
     console.error('[REWARDS] Delete error:', err);
     sendApiError(res, 500, 'REWARD_SERVER_ERROR');
@@ -374,7 +374,7 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
     }
 
     await client.query('COMMIT');
-    res.json({ message: 'Inlösen av ' + reward_name + ' godkänd!' });
+    res.json({ code: 'REDEMPTION_APPROVED', details: { name: reward_name } });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '40P01') {
@@ -422,8 +422,8 @@ parentRouter.put('/redemptions/:id/deny', async (req, res) => {
     }
 
     await client.query('COMMIT');
-    const reward_name = updated.rows[0].reward_name || 'belöningen';
-    res.json({ message: 'Inlösen av ' + reward_name + ' nekad.' });
+    const reward_name = updated.rows[0].reward_name || '';
+    res.json({ code: 'REDEMPTION_DENIED', details: { name: reward_name } });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '40P01') {
@@ -601,8 +601,10 @@ childRouter.post('/rewards/:id/redeem', async (req, res) => {
     console.error('[REWARDS] Redemption notification error:', err.message);
   });
   // Push notification to parents for this child's family
-  db.query('SELECT name FROM child WHERE id = $1', [childId]).then(cr => {
-    const childName = cr.rows[0]?.name || 'Barnet';
+  db.query('SELECT name FROM child WHERE id = $1', [childId]).then(async (cr) => {
+    const { t } = require('../lib/i18n');
+    const locale = await getFamilyPreferredLocale(familyIdForNotify);
+    const childName = cr.rows[0]?.name || t(locale, 'family.fallbacks.child');
     return notifyParentsRewardRequest(familyIdForNotify, childId, childName, rewardForNotify.name);
   }).catch(() => {});
 });

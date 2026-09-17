@@ -25,7 +25,7 @@ async function verifyPedagogChild(pedagogId, childId) {
 router.put('/', async (req, res) => {
   try {
     const { childId, date, reason } = req.body;
-    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+    if (!childId || !date) return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
 
     const ok = await verifyPedagogChild(req.user.id, childId);
     if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
@@ -51,14 +51,14 @@ router.put('/', async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error('[PEDAGOG-ABSENCE] PUT error:', err);
-    res.status(500).json({ error: 'Kunde inte rapportera frånvaro' });
+    sendApiError(res, 500, 'ABSENCE_REPORT_FAILED');
   }
 });
 
 router.delete('/', async (req, res) => {
   try {
     const { childId, date } = req.query;
-    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+    if (!childId || !date) return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
 
     const ok = await verifyPedagogChild(req.user.id, childId);
     if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
@@ -70,14 +70,14 @@ router.delete('/', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[PEDAGOG-ABSENCE] DELETE error:', err);
-    res.status(500).json({ error: 'Kunde inte ta bort frånvaro' });
+    sendApiError(res, 500, 'ABSENCE_DELETE_FAILED');
   }
 });
 
 router.get('/', async (req, res) => {
   try {
     const { childId, date } = req.query;
-    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+    if (!childId || !date) return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
 
     const ok = await verifyPedagogChild(req.user.id, childId);
     if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
@@ -89,7 +89,7 @@ router.get('/', async (req, res) => {
     res.json({ absence: rows[0] || null });
   } catch (err) {
     console.error('[PEDAGOG-ABSENCE] GET error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta frånvaro' });
+    sendApiError(res, 500, 'ABSENCE_FETCH_FAILED');
   }
 });
 

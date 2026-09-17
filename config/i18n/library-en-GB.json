@@ -74,7 +74,18 @@
     "redeemPending": "There is already a pending redemption for this reward",
     "redeemTaken": "This reward has already been claimed by another child",
     "rewardInactive": "This reward is no longer available",
-    "redeemHandled": "Already handled"
+    "redeemHandled": "Already handled",
+    "categoryNameRequired": "Category name is required",
+    "redemptionOf": "Redemption of",
+    "standardNotFound": "Standard content was not found.",
+    "afterSchoolVariantRequired": "A variant is required for after school.",
+    "afterSchoolVariantInvalid": "Invalid after-school variant.",
+    "visibleChildrenInvalid": "visible_to_children must be null or an array",
+    "rewardsAlreadyInLibrary": "All selected rewards are already in your library.",
+    "selectedRewardsNotFound": "None of the selected rewards were found.",
+    "standardRewardNotFound": "The standard reward was not found.",
+    "noRewardsSelected": "No rewards selected.",
+    "saveFailed": "Could not save"
   },
   "empty": {
     "noCategories": "No categories yet",
@@ -377,7 +388,10 @@
     "genericError": "Something went wrong",
     "copying": "Copying…",
     "copyFailed": "Could not copy",
-    "copyFailedRewards": "Could not copy rewards"
+    "copyFailedRewards": "Could not copy rewards",
+    "activityCopiedToast": "The activity has been copied!",
+    "activitiesCopiedToast": "The activities have been copied!",
+    "scheduleCopiedToast": "The schedule has been copied"
   },
   "page": {
     "activitiesTitle": "Activities — {{brand}}",
@@ -410,7 +424,7 @@
     "starBalance": "Star balance",
     "noRewardsYet": "No rewards yet",
     "addRewardsOnTab": "Add rewards under the Rewards tab.",
-    "openingTreasure": "Opening Treasure Chest…",
+    "openingTreasure": "Opening the treasure chest…",
     "standardLead": "Ready-made activities from the standard library — copy into yours in one tap",
     "readyDaySchedules": "Ready-made day schedules — copy to a child and adapt freely",
     "readyActivitiesLead": "Ready-made activities — copy one or all into your own library",
@@ -420,10 +434,35 @@
     "addReward": "+ New reward",
     "categoryHint": "The category appears as a new tab in your library. You can use it when creating schedules.",
     "categoryNamePlaceholder": "E.g. Weekend, secondary school, summer…",
-    "categoryNameLabel": "Category name *"
+    "categoryNameLabel": "Category name *",
+    "waitingApproval": "⏳ Waiting for approval",
+    "allRewards": "🌟 All rewards",
+    "addRewardsUnder": "Add rewards under",
+    "libraryRewardsLink": "Library → Rewards",
+    "pickChildAbove": "Choose a child above",
+    "trophyLead": "See the child's trophy shelf, star balance and reward progress",
+    "loadingChildren": "Loading children…",
+    "goalsToWork": "Goals to work toward"
   },
   "sevenQuestions": {
     "title": "🧩 Extra support — The seven questions",
     "hint": "Visual support shown on the child's NOW card (requires the Extra support pack)."
+  },
+  "toasts": {
+    "rewardDeleted": "Reward removed"
+  },
+  "seven": {
+    "extraSupport": "Visual support (The seven questions) is included in Extra support.",
+    "pickImage": "Choose image",
+    "interestBtn": "I am interested in Extra support",
+    "pickActivity": "Choose activity (optional)",
+    "textPlaceholder": "Text…",
+    "minutesPlaceholder": "min",
+    "where": "Where?",
+    "who": "Who?",
+    "howLong": "How long?",
+    "whatNext": "What happens next?",
+    "whatNeed": "What do I need?",
+    "why": "Why?"
   }
 }

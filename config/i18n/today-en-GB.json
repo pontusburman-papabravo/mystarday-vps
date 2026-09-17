@@ -48,7 +48,10 @@
     "ratingActivityNotFound": "Activity not found",
     "ratingNotAllowed": "Rating is not allowed for this child on this activity",
     "ratingParentScoreRange": "Rating must be between 1 and 5",
-    "ratingParentDisabled": "Parent rating is not enabled for this activity"
+    "ratingParentDisabled": "Parent rating is not enabled for this activity",
+    "dayPaused": "The day is paused",
+    "dailyLogItemRequired": "daily_log_item_id is required",
+    "invalidTimerMinutes": "Invalid minutes. Allowed values: 5, 10, 15, 30."
   },
   "empty": {
     "noActivitiesToday": "No activities today!",

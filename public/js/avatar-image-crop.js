@@ -61,7 +61,7 @@
     });
     modalEl.querySelector('#avatarCropConfirmBtn').addEventListener('click', function () {
       exportFile().then(function (file) { close(file); }).catch(function (err) {
-        if (typeof showToast === 'function') showToast(err.message || 'Kunde inte spara', true);
+        if (typeof showToast === 'function') showToast(err.message || (window.pt ? pt('family.childProfile.setup.saveFailed') : 'Could not save'), true);
       });
     });
     modalEl.addEventListener('click', function (e) {

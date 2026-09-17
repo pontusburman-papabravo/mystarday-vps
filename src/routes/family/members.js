@@ -42,13 +42,13 @@ router.put('/members/:id', validate(UpdateFamilyMemberSchema), async (req, res) 
       [memberId, req.user.familyId]
     );
     if (memberResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Medlem hittades inte' });
+      return sendApiError(res, 404, 'MEMBER_NOT_FOUND');
     }
 
     const validRoles = ['mamma', 'pappa', 'bonusförälder', 'annan'];
     if (family_role !== undefined) {
       if (family_role !== null && !validRoles.includes(family_role)) {
-        return res.status(400).json({ error: 'Ogiltig roll. Välj: mamma, pappa, bonusförälder eller annan' });
+        return sendApiError(res, 400, 'INVITE_INVALID_ROLE');
       }
       await db.query(
         'UPDATE parent SET family_role = $1 WHERE id = $2',
@@ -56,7 +56,7 @@ router.put('/members/:id', validate(UpdateFamilyMemberSchema), async (req, res) 
       );
     }
 
-    res.json({ message: 'Roll uppdaterad!' });
+    res.json({ code: 'ROLE_UPDATED' });
   } catch (err) {
     console.error('[FAMILY] Member update error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
@@ -72,12 +72,12 @@ router.put('/members/:id/children', async (req, res) => {
     const childIds = req.body.child_ids || req.body.childIds;
 
     if (!Array.isArray(childIds) || childIds.length === 0) {
-      return res.status(400).json({ error: 'Minst ett barn måste väljas' });
+      return sendApiError(res, 400, 'INVITE_NO_CHILDREN');
     }
 
     const authzCheck = await assertCanUpdateMemberChildren(req.user.id, memberId, req.user.familyId);
     if (!authzCheck.ok) {
-      return res.status(403).json({ error: authzCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, authzCheck.code || 'ACCESS_DENIED');
     }
 
     await client.query('BEGIN');
@@ -88,7 +88,7 @@ router.put('/members/:id/children', async (req, res) => {
     );
     if (memberResult.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Medlem hittades inte' });
+      return sendApiError(res, 404, 'MEMBER_NOT_FOUND');
     }
 
     const childResult = await client.query(
@@ -100,7 +100,7 @@ router.put('/members/:id/children', async (req, res) => {
     const invalidIds = childIds.filter((id) => !familyChildIdSet.has(id));
     if (invalidIds.length > 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Ogiltiga barn-ID:n' });
+      return sendApiError(res, 400, 'INVALID_CHILD_IDS');
     }
 
     await lockParentChildRowsForChildren(client, familyChildIds);
@@ -114,7 +114,7 @@ router.put('/members/:id/children', async (req, res) => {
     );
     if (!deltaCheck.ok) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: deltaCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, deltaCheck.code || 'ACCESS_DENIED');
     }
 
     const orphanCheck = await assertNoChildWithoutAdmin(
@@ -125,7 +125,7 @@ router.put('/members/:id/children', async (req, res) => {
     );
     if (!orphanCheck.ok) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: orphanCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, orphanCheck.code || 'ACCESS_DENIED');
     }
 
     await setActiveChildrenForParent(client, memberId, childIds, { revokedBy: req.user.id });
@@ -137,7 +137,7 @@ router.put('/members/:id/children', async (req, res) => {
     await syncAccountType(memberId);
     await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
 
-    res.json({ message: 'Barnkopplingar uppdaterade!' });
+    res.json({ code: 'CHILD_LINKS_UPDATED' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Update member children error:', err);
@@ -155,7 +155,7 @@ router.delete('/members/:id', async (req, res) => {
 
     const authzCheck = await assertCanUpdateMemberChildren(req.user.id, memberId, req.user.familyId);
     if (!authzCheck.ok) {
-      return res.status(403).json({ error: authzCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, authzCheck.code || 'ACCESS_DENIED');
     }
 
     await client.query('BEGIN');
@@ -166,7 +166,7 @@ router.delete('/members/:id', async (req, res) => {
     );
     if (allParents.rows.length <= 1) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Kan inte ta bort sista föräldern i familjen' });
+      return sendApiError(res, 400, 'LAST_PARENT');
     }
 
     const memberResult = await client.query(
@@ -175,12 +175,12 @@ router.delete('/members/:id', async (req, res) => {
     );
     if (memberResult.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Medlem hittades inte' });
+      return sendApiError(res, 404, 'MEMBER_NOT_FOUND');
     }
 
     if (!req.user.isAdmin && memberResult.rows[0].is_admin) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: 'Kan inte ta bort en admin' });
+      return sendApiError(res, 403, 'CANNOT_DELETE_ADMIN');
     }
 
     const childResult = await client.query(
@@ -198,7 +198,7 @@ router.delete('/members/:id', async (req, res) => {
     );
     if (!deleteAuthz.ok) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: deleteAuthz.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, deleteAuthz.code || 'ACCESS_DENIED');
     }
 
     const orphanCheck = await assertNoChildWithoutAdmin(
@@ -209,7 +209,7 @@ router.delete('/members/:id', async (req, res) => {
     );
     if (!orphanCheck.ok) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: orphanCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, 403, orphanCheck.code || 'ACCESS_DENIED');
     }
 
     await revokeAllActiveLinksForParent(client, memberId, req.user.id);
@@ -228,7 +228,7 @@ router.delete('/members/:id', async (req, res) => {
     notifyParentAccessRevoked(memberId, req.user.familyId);
     await revokeAllRefreshTokens({ userId: memberId, userType: 'parent' });
 
-    res.json({ message: 'Förälder borttagen från familjen.' });
+    res.json({ code: 'PARENT_REMOVED' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Member delete error:', err);
@@ -254,13 +254,13 @@ router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, re
     if (!recoverCheck.ok) {
       await client.query('ROLLBACK');
       const status = recoverCheck.code === 'NOT_FOUND' ? 404 : 403;
-      return res.status(status).json({ error: recoverCheck.message || 'Åtkomst nekad' });
+      return sendApiError(res, status, recoverCheck.code || 'ACCESS_DENIED');
     }
 
     await lockParentChildRowsForChildren(client, [childId]);
     if (!(await childHasNoAdministrativeAdult(client, childId))) {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: 'Barnet har redan en vuxen med åtkomst' });
+      return sendApiError(res, 403, 'CHILD_HAS_ADULT');
     }
     await grantPrimaryAdminLink(client, req.user.id, childId);
 
@@ -270,7 +270,7 @@ router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, re
       childId,
       callerId: req.user.id,
     });
-    res.json({ message: 'Åtkomst återställd för barnet' });
+    res.json({ code: 'CHILD_ACCESS_RESTORED' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Orphan recover error:', err);
@@ -293,7 +293,7 @@ router.delete('/children/:id', requireNotPedagogOnly, async (req, res) => {
       childId: req.params.id,
     });
     if (!outcome.ok) {
-      return res.status(outcome.status).json({ error: outcome.error });
+      return sendApiError(res, outcome.status, outcome.code || outcome.error || 'ACCESS_DENIED');
     }
     capturedAvatarKeys = outcome.capturedAvatarKeys;
     committed = true;
@@ -306,7 +306,7 @@ router.delete('/children/:id', requireNotPedagogOnly, async (req, res) => {
 
   if (committed) {
     await childDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
-    return res.json({ message: 'Barn borttaget' });
+    return res.json({ code: 'CHILD_DELETED' });
   }
 });
 

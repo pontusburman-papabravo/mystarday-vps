@@ -17,8 +17,9 @@
     const color = forDigGoal.accentColor || '#F5A623';
     const bg = forDigGoal.accentBg || '#FFF3D6';
     const icon = forDigGoal.icon || '⭐';
-    const title = forDigGoal.title || 'För dig';
-    return `<span class="for-dig-goal-badge" style="--fdg-accent:${esc(color)};--fdg-bg:${esc(bg)}" title="${esc(title)}" aria-label="Från För dig: ${esc(title)}"><span class="for-dig-goal-badge__icon" aria-hidden="true">${icon}</span></span>`;
+    const title = forDigGoal.title || (window.pt ? pt('nav.primary.forYou') : 'For you');
+    const aria = window.pt ? pt('forDig.goalBadgeAria', { title: title }) : ('From For you: ' + title);
+    return '<span class="for-dig-goal-badge" style="--fdg-accent:' + esc(color) + ';--fdg-bg:' + esc(bg) + '" title="' + esc(title) + '" aria-label="' + esc(aria) + '"><span class="for-dig-goal-badge__icon" aria-hidden="true">' + icon + '</span></span>';
   }
 
   window.ForDigGoalBadge = { render: render };

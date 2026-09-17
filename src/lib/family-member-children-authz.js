@@ -56,7 +56,6 @@ async function assertCanUpdateMemberChildren(callerId, targetMemberId, familyId)
     return {
       ok: false,
       code: 'FORBIDDEN',
-      message: 'Endast familjens huvudförälder kan ändra andra vuxnas barnåtkomst',
     };
   }
   return { ok: true };
@@ -86,7 +85,6 @@ async function assertAuthorizedChildLinkDelta(client, callerId, familyId, target
         return {
           ok: false,
           code: 'FORBIDDEN',
-          message: 'Du kan bara ge åtkomst till barn du själv administrerar',
         };
       }
     }
@@ -99,7 +97,6 @@ async function assertAuthorizedChildLinkDelta(client, callerId, familyId, target
       return {
         ok: false,
         code: 'FORBIDDEN',
-        message: 'Du kan bara ändra kopplingar för barn där du är huvudförälder',
       };
     }
   }
@@ -156,7 +153,6 @@ async function assertNoChildWithoutAdmin(client, familyId, targetParentId, newCh
     return {
       ok: false,
       code: 'LAST_ADMIN',
-      message: 'Varje barn måste ha minst en vuxen med åtkomst',
     };
   }
   return { ok: true };
@@ -185,7 +181,6 @@ async function assertAuthorizedMemberDelete(client, callerId, familyId, targetMe
       return {
         ok: false,
         code: 'FORBIDDEN',
-        message: 'Du kan bara ta bort vuxna för barn där du är huvudförälder',
       };
     }
   }
@@ -226,18 +221,17 @@ async function assertCanRecoverOrphanChild(client, callerId, familyId, childId) 
     [childId, familyId]
   );
   if (!childRes.rows[0]) {
-    return { ok: false, code: 'NOT_FOUND', message: 'Barn hittades inte' };
+    return { ok: false, code: 'NOT_FOUND' };
   }
   const isOrphan = await childHasNoAdministrativeAdult(client, childId);
   if (!isOrphan) {
-    return { ok: false, code: 'NOT_ORPHAN', message: 'Barnet har redan en vuxen med åtkomst' };
+    return { ok: false, code: 'NOT_ORPHAN' };
   }
   const principalId = await familyRecoveryPrincipalId(client, familyId);
   if (!principalId || callerId !== principalId) {
     return {
       ok: false,
       code: 'FORBIDDEN',
-      message: 'Endast familjens huvudkonto kan återställa åtkomst för ett barn utan vuxen',
     };
   }
   return { ok: true };

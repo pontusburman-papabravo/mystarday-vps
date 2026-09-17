@@ -180,7 +180,7 @@ childRouter.delete('/:date', async (req, res) => {
       [req.params.childId, dateParam]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Ingen specialdag hittades för det datumet' });
+      return sendApiError(res, 404, 'SPECIAL_DAY_NOT_FOUND');
     }
 
     const client = await db.getClient();
@@ -210,7 +210,7 @@ childRouter.delete('/:date', async (req, res) => {
         try { broadcast(child.family_id, 'SCHEDULE_UPDATED', { childId: req.params.childId, date: dateParam }); } catch (_) {}
       }
 
-      res.json({ message: 'Specialdagen har tagits bort — veckodagsmallen gäller igen' });
+      res.json({ code: 'SPECIAL_DAY_REMOVED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -271,13 +271,13 @@ scheduleRouter.post('/', async (req, res) => {
         'SELECT name, icon, star_value FROM activity_template WHERE id = $1',
         [activity_template_id]
       );
-      if (tpl.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      if (tpl.rows.length === 0) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
       if (!itemName) itemName = tpl.rows[0].name;
       if (!itemIcon) itemIcon = tpl.rows[0].icon;
       if (star_value === undefined) itemStarValue = tpl.rows[0].star_value;
     }
 
-    if (!itemName) return res.status(400).json({ error: 'name eller activity_template_id krävs' });
+    if (!itemName) return sendApiError(res, 400, 'NAME_OR_TEMPLATE_REQUIRED');
 
     // Next sort_order
     const maxResult = await db.query(
@@ -317,7 +317,7 @@ scheduleRouter.put('/reorder', async (req, res) => {
     if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { order } = req.body;
-    if (!Array.isArray(order)) return res.status(400).json({ error: 'order[] krävs' });
+    if (!Array.isArray(order)) return sendApiError(res, 400, 'ORDER_REQUIRED');
 
     const client = await db.getClient();
     try {
@@ -369,7 +369,7 @@ scheduleRouter.put('/:itemId', async (req, res) => {
       'SELECT id FROM special_day_schedule_item WHERE id = $1 AND special_day_schedule_id = $2',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (existing.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (existing.rows.length === 0) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     const { name, icon, start_time, end_time, star_value, sort_order, section } = req.body;
     const updates = [];
@@ -389,7 +389,7 @@ scheduleRouter.put('/:itemId', async (req, res) => {
       values.push(section);
     }
 
-    if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
+    if (updates.length === 0) return res.status(400).json({ error: 'NO_CHANGES' });
 
     values.push(req.params.itemId);
     const result = await db.query(
@@ -421,7 +421,7 @@ scheduleRouter.delete('/:itemId', async (req, res) => {
       'DELETE FROM special_day_schedule_item WHERE id = $1 AND special_day_schedule_id = $2 RETURNING id',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (result.rows.length === 0) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     // Sync child's daily log to reflect the removed item (fixes child view stale snapshot)
     try {

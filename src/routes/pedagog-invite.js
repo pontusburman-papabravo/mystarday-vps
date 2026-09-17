@@ -53,17 +53,17 @@ router.post('/', requireParent, requirePrimaryParent, async (req, res) => {
     const { email, name, childIds } = req.body || {};
 
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ error: 'Giltig e-postadress krävs' });
+      return sendApiError(res, 400, 'INVITE_EMAIL_REQUIRED');
     }
 
     if (!Array.isArray(childIds) || childIds.length === 0) {
-      return res.status(400).json({ error: 'Välj minst ett barn att dela med pedagogen' });
+      return sendApiError(res, 400, 'PEDAGOG_CHILD_REQUIRED');
     }
 
     const { verifyPrimaryChildrenForInvite, createInvite } = require('../../db/pedagog-invite');
     const childCheck = await verifyPrimaryChildrenForInvite(req.user.id, req.user.familyId, childIds);
     if (childCheck.length !== childIds.length) {
-      return res.status(400).json({ error: 'Ett eller flera barn hittades inte eller saknar behörighet' });
+      return sendApiError(res, 400, 'INVITE_CHILD_ACCESS');
     }
 
     const invite = await createInvite({
@@ -77,7 +77,8 @@ router.post('/', requireParent, requirePrimaryParent, async (req, res) => {
     // Send invite email
     const inviterResult = await db.query('SELECT name FROM parent WHERE id = $1', [req.user.id]);
     const familyResult = await db.query('SELECT name FROM family WHERE id = $1', [req.user.familyId]);
-    const inviterName = inviterResult.rows[0]?.name || 'En förälder';
+    const { t } = require('../lib/i18n');
+    const inviterName = inviterResult.rows[0]?.name || t('sv-SE', 'family.fallbacks.parent');
     const familyName = familyResult.rows[0]?.name || 'Min Stjärndag';
 
     const emailResult = await sendPedagogInviteEmail({
@@ -114,29 +115,27 @@ router.post('/accept', async (req, res) => {
     const { token } = req.body || {};
 
     if (!token) {
-      return res.status(400).json({ error: 'Token krävs' });
+      return sendApiError(res, 400, 'TOKEN_REQUIRED');
     }
 
     const { getInviteByToken, acceptExistingParent } = require('../../db/pedagog-invite');
     const invite = await getInviteByToken(token);
 
     if (!invite) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     if (invite.accepted) {
-      return res.status(400).json({ error: 'Inbjudan har redan accepterats' });
+      return res.status(400).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     if (new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Inbjudan/länken har gått ut' });
+      return sendApiError(res, 400, 'INVITE_EXPIRED');
     }
 
     // Verify the logged-in user's email matches the invite email
     if (req.user.email.toLowerCase() !== invite.email.toLowerCase()) {
-      return res.status(403).json({
-        error: 'Inbjudan är skickad till en annan e-postadress. Logga in med ' + invite.email + ' för att acceptera.'
-      });
+      return sendApiError(res, 403, 'INVITE_EMAIL_MISMATCH', { details: { email: invite.email } });
     }
 
     const result = await acceptExistingParent({
@@ -153,7 +152,7 @@ router.post('/accept', async (req, res) => {
     const newAccountType = await syncAccountType(req.user.id);
 
     res.json({
-      message: 'Du är nu kopplad som pedagog!',
+      code: 'PEDAGOG_LINKED',
       accountType: newAccountType,
       redirectUrl: '/pedagog-oversikt',
     });
@@ -170,25 +169,25 @@ router.post('/accept-new', async (req, res) => {
     const { token, password } = req.body || {};
 
     if (!token) {
-      return res.status(400).json({ error: 'Token krävs' });
+      return sendApiError(res, 400, 'TOKEN_REQUIRED');
     }
     if (!password || typeof password !== 'string' || password.length < 8) {
-      return res.status(400).json({ error: 'Lösenordet måste vara minst 8 tecken' });
+      return sendApiError(res, 400, 'PASSWORD_TOO_SHORT');
     }
 
     const { getInviteByToken, acceptNewParent } = require('../../db/pedagog-invite');
     const invite = await getInviteByToken(token);
 
     if (!invite) {
-      return res.status(404).json({ error: 'Inbjudan hittades inte' });
+      return res.status(404).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     if (invite.accepted) {
-      return res.status(400).json({ error: 'Inbjudan har redan accepterats' });
+      return res.status(400).json({ error: 'INVITE_NOT_FOUND' });
     }
 
     if (new Date(invite.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Inbjudan/länken har gått ut' });
+      return sendApiError(res, 400, 'INVITE_EXPIRED');
     }
 
     const result = await acceptNewParent({
@@ -202,7 +201,7 @@ router.post('/accept-new', async (req, res) => {
     }
 
     res.status(201).json({
-      message: 'Konto aktiverat! Du kan nu logga in.',
+      code: 'ACCOUNT_ACTIVATED',
       email: result.newParent.email,
       name: result.newParent.name,
       accountType: result.newParent.account_type,

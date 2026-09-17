@@ -152,7 +152,30 @@
     "linkSentTo": "Länk skickad till {{email}}",
     "passwordChanged": "Lösenordet har ändrats!",
     "linkAppleBtn": "🍎 Koppla Apple-konto",
-    "linkGoogleBtn": "G Koppla Google-konto"
+    "linkGoogleBtn": "G Koppla Google-konto",
+    "emailUpdated": "E-postadressen har uppdaterats! Du kan nu logga in med din nya adress.",
+    "passwordSet": "Lösenordet har satts. Du kan nu logga in med e-post och lösenord.",
+    "errors": {
+      "invalidAppleToken": "Ogiltig Apple-identitetstoken",
+      "invalidGoogleToken": "Ogiltig Google-identitetstoken",
+      "appleAlreadyLinkedThis": "Apple-konto är redan kopplat till detta konto",
+      "googleAlreadyLinkedThis": "Google-konto är redan kopplat till detta konto",
+      "passwordRequiredUnlink": "Lösenord krävs för att koppla bort kontot",
+      "setPasswordBeforeUnlink": "Sätt ett lösenord innan du kopplar bort kontot",
+      "emailPasswordRequired": "Ny e-postadress och lösenord krävs",
+      "setPasswordBeforeEmail": "Sätt ett lösenord först innan du kan byta e-postadress",
+      "emailAlreadyRegistered": "E-postadressen är redan registrerad på ett annat konto",
+      "emailChangeLinkInvalid": "Ogiltig eller utgången länk. Begär en ny ändring i Inställningar.",
+      "emailChangeLinkUsed": "Länken har redan använts. Begär en ny ändring i Inställningar.",
+      "emailChangeLinkExpired": "Länken har gått ut. Begär en ny ändring i Inställningar.",
+      "passwordAlreadySet": "Lösenord finns redan. Använd \"Byt lösenord\" för att uppdatera.",
+      "emailAllOff": "Alla e-postaviseringar är avstängda. Du kan slå på dem igen under Inställningar → Notiser.",
+      "weeklyEmailOff": "Vi skickar inte fler veckosammanfattningar till din e-post. Du kan slå på dem igen under Inställningar → Notiser.",
+      "redeemEmailOff": "Vi skickar inte fler mejl när barnet vill lösa in belöningar. Du kan slå på dem igen under Inställningar → Notiser.",
+      "passwordCurrentAndNew": "Nuvarande och nytt lösenord krävs",
+      "appleLinkLoginRequired": "Du måste vara inloggad för att länka Apple-konto",
+      "googleLinkLoginRequired": "Du måste vara inloggad för att länka Google-konto"
+    }
   },
   "toast": {
     "saved": "Sparat!",
@@ -453,5 +476,21 @@
     "fallback": "Kunde inte ladda familjeinställningar just nu.",
     "retry": "Försök igen",
     "retryIn": "Försök igen om {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Vi skickar inte fler veckosammanfattningar till din e-post. Du kan slå på dem igen under Inställningar → Notiser.",
+    "reward": "Vi skickar inte fler mejl när barnet vill lösa in belöningar. Du kan slå på dem igen under Inställningar → Notiser.",
+    "all": "Alla e-postaviseringar är avstängda. Du kan slå på dem igen under Inställningar → Notiser.",
+    "invalidTitle": "Ogiltig länk",
+    "invalidBody": "Länken är ogiltig eller har gått ut.",
+    "errorTitle": "Något gick fel",
+    "errorBody": "Försök igen senare eller gå till Inställningar i appen."
+  },
+  "notifArchive": {
+    "retry": "Försök igen",
+    "failedHidden": "Misslyckade eller avstängda utskick visas inte här.",
+    "loading": "Hämtar push-arkiv…",
+    "loadError": "Kunde inte ladda push-arkivet. Det betyder inte att du saknar notiser.",
+    "markAll": "Markera alla som lästa"
   }
 }

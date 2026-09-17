@@ -45,6 +45,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       container: main,
     });
   } catch (_) {
-    main.innerHTML = '<p class="text-center text-text-soft py-12">Kunde inte ladda sidan.</p>';
+    main.innerHTML = '<p class="text-center text-text-soft py-12">' + (window.pt ? pt('help.barnStod.loadError') : 'Could not load the page.') + '</p>';
   }
 });

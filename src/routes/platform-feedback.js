@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireParent, requireChild } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
@@ -21,7 +23,7 @@ parentRouter.get('/platform-feedback/:childId/:dailyLogItemId', async (req, res)
     res.json(feedback);
   } catch (err) {
     console.error('[platform-feedback] parent GET error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -37,7 +39,7 @@ parentRouter.get('/platform-pack', async (_req, res) => {
     });
   } catch (err) {
     console.error('[platform-feedback] pack error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -54,7 +56,7 @@ childRouter.get('/platform-feedback', async (req, res) => {
     res.json(feedback);
   } catch (err) {
     console.error('[platform-feedback] child GET error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -67,7 +69,7 @@ childRouter.post('/platform-feedback/replay', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('[platform-feedback] replay error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

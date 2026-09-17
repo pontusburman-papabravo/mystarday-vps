@@ -25,7 +25,7 @@ async function verifyPedagogChild(pedagogId, childId) {
 router.get('/', async (req, res) => {
   try {
     const { childId } = req.query;
-    if (!childId) return res.status(400).json({ error: 'childId krävs' });
+    if (!childId) return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
 
     const ok = await verifyPedagogChild(req.user.id, childId);
     if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
     res.json({ activities: rows });
   } catch (err) {
     console.error('[PEDAGOG-SCHOOL] GET error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta skolaktiviteter' });
+    sendApiError(res, 500, 'SCHOOL_ACTIVITIES_FAILED');
   }
 });
 
@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
   try {
     const { childId, name, icon } = req.body;
     if (!childId || !name?.trim()) {
-      return res.status(400).json({ error: 'childId och name krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_NAME_REQUIRED');
     }
 
     const ok = await verifyPedagogChild(req.user.id, childId);
@@ -73,7 +73,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error('[PEDAGOG-SCHOOL] POST error:', err);
-    res.status(500).json({ error: 'Kunde inte skapa aktivitet' });
+    sendApiError(res, 500, 'ACTIVITY_CREATE_FAILED');
   }
 });
 
@@ -87,7 +87,7 @@ router.delete('/:id', async (req, res) => {
       [req.params.id, req.user.id]
     );
     const act = rows[0];
-    if (!act) return res.status(404).json({ error: 'Aktivitet hittades inte' });
+    if (!act) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     const ok = await verifyPedagogChild(req.user.id, act.child_id);
     if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
@@ -96,7 +96,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[PEDAGOG-SCHOOL] DELETE error:', err);
-    res.status(500).json({ error: 'Kunde inte ta bort aktivitet' });
+    sendApiError(res, 500, 'ACTIVITY_DELETE_FAILED');
   }
 });
 

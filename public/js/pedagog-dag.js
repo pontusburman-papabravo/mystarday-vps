@@ -9,6 +9,10 @@
   let dateStr = new Date().toLocaleDateString('sv-SE');
   let absence = null;
 
+  function ppt(key, params) {
+    return (typeof window.pt === 'function') ? window.pt(key, params) : key;
+  }
+
   function esc(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
   }
@@ -27,7 +31,7 @@
     const main = document.getElementById('pedagogDagMain');
     if (!main || !childId) return;
 
-    main.innerHTML = '<p class="text-text-soft text-sm py-8 text-center">Laddar dagvy…</p>';
+    main.innerHTML = '<p class="text-text-soft text-sm py-8 text-center">' + ppt('family.pedagog.loadingDay') + '</p>';
 
     const [logRes, absenceRes, schoolRes, noteRes] = await Promise.all([
       api(`/api/pedagog/daily-log?childId=${childId}&date=${dateStr}`).catch(() => ({ items: [] })),
@@ -41,54 +45,55 @@
     const school = schoolRes.activities || [];
     const note = noteRes.note;
 
-    const child = children.find((c) => c.id === childId);
     const readOnly = !!absence;
+    const noteStatus = note?.note_status === 'published'
+      ? ppt('family.pedagog.day.published')
+      : note?.note_status === 'locked'
+        ? ppt('family.pedagog.day.locked')
+        : ppt('family.pedagog.day.draft');
 
-    main.innerHTML = `
-      <header class="mb-4">
-        <label class="text-xs font-semibold text-text-soft">Barn</label>
-        <select id="pedagogChildSelect" class="w-full mt-1 px-3 py-2 rounded-xl border border-lavender text-sm">
-          ${children.map((c) => `<option value="${c.id}" ${c.id === childId ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
-        </select>
-        <div class="flex gap-2 mt-3 items-center">
-          <input type="date" id="pedagogDateInput" value="${dateStr}" class="flex-1 px-3 py-2 rounded-xl border border-lavender text-sm">
-          <button type="button" id="pedagogAbsenceBtn" class="px-3 py-2 rounded-xl text-xs font-semibold ${absence ? 'bg-orange-100 text-orange-800' : 'bg-sky text-navy'}">
-            ${absence ? 'Frånvarande ✓' : 'Markera frånvaro'}
-          </button>
-        </div>
-        ${absence ? '<p class="mt-2 text-sm text-orange-700 bg-orange-50 rounded-xl px-3 py-2">⚠️ Barn markerat som frånvarande — aktiviteter är skrivskyddade.</p>' : ''}
-      </header>
-
-      <section class="mb-6">
-        <h2 class="text-sm font-bold text-navy mb-2">1. Dagens aktiviteter</h2>
-        <div class="space-y-2" id="pedagogLogItems">
-          ${items.length ? items.map(renderLogItem).join('') : '<p class="text-text-soft text-sm">Inga aktiviteter idag.</p>'}
-        </div>
-      </section>
-
-      <section class="mb-6">
-        <h2 class="text-sm font-bold text-navy mb-2">2. Daganteckning</h2>
-        <textarea id="pedagogNoteInput" rows="4" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm" placeholder="Observationer från dagen…" ${readOnly ? 'disabled' : ''}>${esc(note?.notes || '')}</textarea>
-        <div class="flex gap-2 mt-2">
-          <button type="button" id="pedagogSaveNoteBtn" class="px-4 py-2 bg-lavender text-navy rounded-xl text-sm font-semibold" ${readOnly ? 'disabled' : ''}>Spara utkast</button>
-          <button type="button" id="pedagogPublishNoteBtn" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-semibold" ${readOnly ? 'disabled' : ''}>Publicera</button>
-        </div>
-        <p id="pedagogNoteStatus" class="text-xs text-text-soft mt-1">${note?.note_status === 'published' ? 'Publicerad' : note?.note_status === 'locked' ? 'Låst' : 'Utkast'}</p>
-      </section>
-
-      <section>
-        <h2 class="text-sm font-bold text-navy mb-2">3. Skolaktiviteter</h2>
-        <ul class="space-y-2 mb-3" id="pedagogSchoolList">
-          ${school.map((a) => `<li class="flex justify-between items-center bg-white border border-lavender rounded-xl px-3 py-2 text-sm">
+    const schoolRows = school.map((a) => `<li class="flex justify-between items-center bg-white border border-lavender rounded-xl px-3 py-2 text-sm">
             <span>${a.icon || '📌'} ${esc(a.name)}</span>
-            ${!readOnly ? `<button type="button" data-id="${a.id}" class="pedagogDelSchool text-red-600 text-xs">Ta bort</button>` : ''}
-          </li>`).join('') || '<li class="text-text-soft text-sm">Inga skolaktiviteter.</li>'}
-        </ul>
-        ${!readOnly ? `<div class="flex gap-2">
-          <input type="text" id="pedagogSchoolName" placeholder="Ny skolaktivitet…" class="flex-1 px-3 py-2 rounded-xl border border-lavender text-sm">
-          <button type="button" id="pedagogAddSchoolBtn" class="px-3 py-2 bg-gold rounded-xl text-sm font-semibold">+</button>
-        </div>` : ''}
-      </section>`;
+            ${!readOnly ? `<button type="button" data-id="${a.id}" class="pedagogDelSchool text-red-600 text-xs">${ppt('family.pedagog.day.remove')}</button>` : ''}
+          </li>`).join('') || ('<li class="text-text-soft text-sm">' + ppt('family.pedagog.day.noSchool') + '</li>');
+
+    main.innerHTML = '' +
+      '<header class="mb-4">' +
+        '<label class="text-xs font-semibold text-text-soft">' + ppt('family.pedagog.day.child') + '</label>' +
+        '<select id="pedagogChildSelect" class="w-full mt-1 px-3 py-2 rounded-xl border border-lavender text-sm">' +
+          children.map((c) => `<option value="${c.id}" ${c.id === childId ? 'selected' : ''}>${esc(c.name)}</option>`).join('') +
+        '</select>' +
+        '<div class="flex gap-2 mt-3 items-center">' +
+          '<input type="date" id="pedagogDateInput" value="' + dateStr + '" class="flex-1 px-3 py-2 rounded-xl border border-lavender text-sm">' +
+          '<button type="button" id="pedagogAbsenceBtn" class="px-3 py-2 rounded-xl text-xs font-semibold ' + (absence ? 'bg-orange-100 text-orange-800' : 'bg-sky text-navy') + '">' +
+            (absence ? ppt('family.pedagog.day.absent') : ppt('family.pedagog.day.markAbsence')) +
+          '</button>' +
+        '</div>' +
+        (absence ? ('<p class="mt-2 text-sm text-orange-700 bg-orange-50 rounded-xl px-3 py-2">' + ppt('family.pedagog.day.absentHint') + '</p>') : '') +
+      '</header>' +
+      '<section class="mb-6">' +
+        '<h2 class="text-sm font-bold text-navy mb-2">' + ppt('family.pedagog.day.todayActivities') + '</h2>' +
+        '<div class="space-y-2" id="pedagogLogItems">' +
+          (items.length ? items.map(renderLogItem).join('') : ('<p class="text-text-soft text-sm">' + ppt('family.pedagog.day.noActivities') + '</p>')) +
+        '</div>' +
+      '</section>' +
+      '<section class="mb-6">' +
+        '<h2 class="text-sm font-bold text-navy mb-2">' + ppt('family.pedagog.day.noteHeading') + '</h2>' +
+        '<textarea id="pedagogNoteInput" rows="4" class="w-full px-3 py-2 rounded-xl border border-lavender text-sm" placeholder="' + ppt('family.pedagog.notesPlaceholder') + '" ' + (readOnly ? 'disabled' : '') + '>' + esc(note?.notes || '') + '</textarea>' +
+        '<div class="flex gap-2 mt-2">' +
+          '<button type="button" id="pedagogSaveNoteBtn" class="px-4 py-2 bg-lavender text-navy rounded-xl text-sm font-semibold" ' + (readOnly ? 'disabled' : '') + '>' + ppt('family.pedagog.day.saveDraft') + '</button>' +
+          '<button type="button" id="pedagogPublishNoteBtn" class="px-4 py-2 bg-gold text-navy rounded-xl text-sm font-semibold" ' + (readOnly ? 'disabled' : '') + '>' + ppt('family.pedagog.day.publish') + '</button>' +
+        '</div>' +
+        '<p id="pedagogNoteStatus" class="text-xs text-text-soft mt-1">' + noteStatus + '</p>' +
+      '</section>' +
+      '<section>' +
+        '<h2 class="text-sm font-bold text-navy mb-2">' + ppt('family.pedagog.day.schoolHeading') + '</h2>' +
+        '<ul class="space-y-2 mb-3" id="pedagogSchoolList">' + schoolRows + '</ul>' +
+        (!readOnly ? ('<div class="flex gap-2">' +
+          '<input type="text" id="pedagogSchoolName" placeholder="' + ppt('family.pedagog.day.newSchool') + '" class="flex-1 px-3 py-2 rounded-xl border border-lavender text-sm">' +
+          '<button type="button" id="pedagogAddSchoolBtn" class="px-3 py-2 bg-gold rounded-xl text-sm font-semibold">+</button>' +
+        '</div>') : '') +
+      '</section>';
 
     document.getElementById('pedagogChildSelect').addEventListener('change', (e) => {
       childId = e.target.value;
@@ -115,13 +120,13 @@
   function renderLogItem(item) {
     const done = item.completed;
     const schoolDone = done && item.completed_by === 'pedagog';
-    const homeDone = done && !schoolDone; // parent, child, or legacy NULL
+    const homeDone = done && !schoolDone;
     let status = '';
-    if (schoolDone) status = '<span class="text-xs text-blue-700">Klar i skola</span>';
-    else if (homeDone) status = '<span class="text-xs text-green-700">Klar hemma</span>';
+    if (schoolDone) status = '<span class="text-xs text-blue-700">' + ppt('family.pedagog.day.doneSchool') + '</span>';
+    else if (homeDone) status = '<span class="text-xs text-green-700">' + ppt('family.pedagog.day.doneHome') + '</span>';
 
     const btn = !done && !absence
-      ? `<button type="button" class="pedagog-check-item px-3 py-1 bg-mint rounded-lg text-xs font-semibold" data-id="${item.id}">Klar</button>`
+      ? `<button type="button" class="pedagog-check-item px-3 py-1 bg-mint rounded-lg text-xs font-semibold" data-id="${item.id}">${ppt('family.pedagog.day.done')}</button>`
       : '';
 
     return `<div class="flex items-center justify-between bg-white border border-lavender rounded-xl px-3 py-2">
@@ -138,7 +143,7 @@
       });
       await loadDay();
     } catch (err) {
-      alert(err.message || 'Kunde inte markera aktivitet');
+      alert(err.message || ppt('family.pedagog.markFailed'));
     }
   }
 
@@ -148,7 +153,7 @@
       method: 'POST',
       body: JSON.stringify({ childId, date: dateStr, notes, isDraft: true }),
     });
-    document.getElementById('pedagogNoteStatus').textContent = 'Utkast sparat';
+    document.getElementById('pedagogNoteStatus').textContent = ppt('family.pedagog.day.draftSaved');
   }
 
   async function publishNote() {
@@ -157,7 +162,7 @@
       method: 'POST',
       body: JSON.stringify({ childId, date: dateStr }),
     });
-    document.getElementById('pedagogNoteStatus').textContent = 'Publicerad';
+    document.getElementById('pedagogNoteStatus').textContent = ppt('family.pedagog.day.published');
   }
 
   async function addSchool() {
@@ -199,7 +204,7 @@
       await loadChildren();
       if (!children.length) {
         document.getElementById('pedagogDagMain').innerHTML =
-          '<p class="text-text-soft text-center py-12">Inga barn kopplade. Be en förälder bjuda in dig.</p>';
+          '<p class="text-text-soft text-center py-12">' + ppt('family.pedagog.noChildren') + '</p>';
         return;
       }
       await loadDay();

@@ -19,7 +19,83 @@
     "generic": "Something went wrong",
     "pickEmoji": "Choose an emoji",
     "sessionExpired": "Your session has expired. Signing you in again…",
-    "parentPermission": "Parent permission required"
+    "parentPermission": "Parent permission required",
+    "sourceTypeIdRequired": "Source (type and id) is required",
+    "daysRequired": "Choose at least one day",
+    "activityTemplateRequired": "An activity is required",
+    "endBeforeStart": "End time cannot be before start time",
+    "endBeforeStartUpdateEnd": "End time cannot be before start time. Update the end time too.",
+    "orderRequired": "Order is required",
+    "activityNotFound": "Activity not found",
+    "activityNotInSchedule": "Activity not found in the schedule",
+    "invalidSection": "Invalid section",
+    "nothingToUpdate": "Nothing to update",
+    "activityNotInWeek": "The activity was not in the weekly schedule",
+    "invalidDate": "Invalid date (YYYY-MM-DD)",
+    "notFound": "Not found",
+    "fromDayToDaysRequired": "From-day and target days are required",
+    "dayRange": "Weekday must be 0–6",
+    "noScheduleForDay": "No schedule exists for that weekday",
+    "targetChildRequired": "A target child is required",
+    "cannotCopySameChild": "Cannot copy to the same child",
+    "targetChildAccess": "You do not have access to the target child",
+    "fromDayOffsetsRequired": "From-day and weeks are required",
+    "copyItemFieldsRequired": "Activity, source schedule and target day are required",
+    "copyItemChildFieldsRequired": "Activity, source schedule, target child and target day are required",
+    "invalidDays": "Invalid days",
+    "invalidDateRange": "Invalid date range",
+    "noActivitiesInSchedule": "No activities found in the selected schedule",
+    "templateCategoryRequired": "A template category is required",
+    "noValidDays": "No valid days",
+    "categoryNotFound": "Category not found",
+    "schoolOnWeekend": "School schedules cannot be added on weekends. Choose a weekend schedule instead.",
+    "daysAlreadyHaveSchedules": "Some days already have schedules",
+    "weekdayRequired": "Weekday is required",
+    "custodyHomeNotInFamily": "That home does not belong to the family",
+    "custodyOnlyWhenActive": "Home settings are only supported when a home schedule is active",
+    "dayAlreadyHasSchedule": "There is already a schedule for that weekday",
+    "scheduleNotFound": "Schedule not found",
+    "nameRequired": "Name is required",
+    "noValidChildren": "No valid children selected",
+    "templatesNotFound": "Schedule templates not found",
+    "templateNameRequired": "Schedule name is required",
+    "standardScheduleNotFound": "Standard schedule not found",
+    "standardScheduleNoCanonical": "The standard schedule is missing a canonical identity.",
+    "templateNotFound": "Schedule template not found",
+    "childIdRequired": "A child is required",
+    "sourceDayRequired": "Source day is required",
+    "targetDaysRequired": "Target days are required",
+    "sourceChildAccess": "You do not have access to the source child",
+    "dayOfWeekRequired": "Weekday is required",
+    "templateNameParamRequired": "Template name is required",
+    "dateRangeMaxDays": "Maximum {{max}} days at a time",
+    "oneScheduleSource": "Specify exactly one schedule source",
+    "invalidWeekOffset": "Invalid week offset",
+    "removeViaWeek": "Scheduled activities are removed via the weekly schedule",
+    "nameOrTemplateRequired": "name or activity_template_id is required",
+    "specialDayNotFound": "No special day was found for that date"
+  },
+  "familyWeek": {
+    "pageTitle": "Family view — {{brand}}",
+    "title": "Family view",
+    "lead": "All children — tap a day to edit",
+    "today": "Today",
+    "share": "📤 Share",
+    "shareTitle": "Share this week’s schedule",
+    "childrenCol": "Children",
+    "loadingSchedule": "Loading schedule…",
+    "addChildHint": "Add children from the weekly schedule page.",
+    "goToSchedule": "Go to Weekly schedule",
+    "clickCell": "Tap a cell to edit the schedule",
+    "loadChildrenFailed": "Could not load children",
+    "shareUnavailable": "Sharing is not available on this device.",
+    "shareFailed": "Could not share",
+    "shareWeekTitle": "This week’s schedule {{week}} – {{brand}}",
+    "shareEmpty": "This week’s schedule {{week}}\n({{brand}})",
+    "shared": "Shared!",
+    "more": "+{{count}} more",
+    "noChildrenTitle": "No children added",
+    "sectionsLegend": "Sections:"
   },
   "empty": {
     "noChildrenTitle": "No children added yet",
@@ -138,7 +214,11 @@
     "morgon": "Morning",
     "dag": "Day",
     "kvall": "Evening",
-    "natt": "Night"
+    "natt": "Night",
+    "kvallOption": "🌆 Evening",
+    "morgonOption": "🌅 Morning",
+    "dagOption": "☀️ Day",
+    "nattOption": "🌙 Night"
   },
   "addActivity": "Activity",
   "emptySection": "No activities",
@@ -228,7 +308,10 @@
       "success": "{{count}} stars given!",
       "successOne": "1 star given!",
       "pickerHint": "Choose which child to give stars to:"
-    }
+    },
+    "saveFailed": "Could not save",
+    "createFailed": "Could not create the activity",
+    "saving": "Saving…"
   },
   "validation": {
     "pickActivity": "Choose an activity",
@@ -276,7 +359,8 @@
     "addedToTemplate": "Activity added to schedule template",
     "addedWeekly": "Activity added every week: {{days}}",
     "createdAndAdded": "\"{{name}}\" created and added to your library!",
-    "activityNotFound": "Activity not found"
+    "activityNotFound": "Activity not found",
+    "specialDayRemoved": "The special day has been removed — the weekday template applies again"
   },
   "views": {
     "normal": "Schedule",
@@ -424,7 +508,12 @@
     "newTemplatePlaceholder": "E.g. School day, Weekend, Football day…",
     "createTemplateBtn": "Create schedule",
     "replaceTitle": "Replace existing schedule?",
-    "deleteTemplateTitle": "Delete the schedule?"
+    "deleteTemplateTitle": "Delete the schedule?",
+    "deleted": "The schedule has been removed",
+    "deleteFailed": "Could not delete the schedule",
+    "deleteExistingFailed": "Could not delete the existing schedule",
+    "createdNamed": "Schedule \"{{name}}\" has been created ✓",
+    "deleteTitle": "Delete schedule"
   },
   "chrome": {
     "weeklyPlanningTitle": "📅 Weekly planning",
@@ -507,7 +596,10 @@
     "timePlacementTip": "💡 Tip: add a time and the activity lands in the right place in the NOW / NEXT / LATER view",
     "dateRequiredLabel": "Date *",
     "appliesToChildren": "Applies to:",
-    "loadFailed": "Failed to load"
+    "loadFailed": "Failed to load",
+    "copyFrom": "Copy the schedule from",
+    "daySelectorHintEm": "drag a day tab onto another day to copy/swap",
+    "delete": "Delete"
   },
   "months": {
     "0": "January",
@@ -700,5 +792,8 @@
     "deleteFailed": "Could not remove the existing schedule",
     "createFailed": "Could not create schedule",
     "genericError": "Something went wrong"
+  },
+  "starter": {
+    "firstSchedule": "Your first schedule"
   }
 }

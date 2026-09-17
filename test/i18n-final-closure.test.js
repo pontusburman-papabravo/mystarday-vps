@@ -44,7 +44,12 @@ describe('i18n final closure', () => {
       result.unclassified.slice(0, 12).map((h) => `${h.path} [${h.rule}] ${h.snippet}`).join('\n')
     );
     assert.equal(result.classified.length, hits.length);
-    for (const cls of ['A', 'B', 'C', 'D']) {
+    assert.equal(
+      result.byClass.A,
+      0,
+      result.classified.filter((h) => h.class === 'A').slice(0, 12).map((h) => `${h.path} [${h.rule}] ${h.snippet}`).join('\n')
+    );
+    for (const cls of ['B', 'C', 'D']) {
       assert.ok(Number.isInteger(result.byClass[cls]));
     }
   });

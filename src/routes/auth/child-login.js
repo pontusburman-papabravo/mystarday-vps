@@ -70,7 +70,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
         [normalizedInput, clientIp]
       );
       return res.status(401).json({
-        error: 'Felaktigt namn eller PIN-kod',
+        error: 'CHILD_PIN_INVALID',
         code: 'CHILD_PIN_INVALID',
         attempts_remaining: null,
       });
@@ -89,7 +89,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
         .set('Retry-After', String(lockoutStatus.retry_after_seconds))
         .status(429)
         .json({
-          error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+          error: 'CHILD_PIN_LOCKED',
           code: 'CHILD_PIN_LOCKED',
           locked: true,
           retry_after: lockoutStatus.retry_after_seconds,
@@ -177,7 +177,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
           .set('Retry-After', String(minutes * 60))
           .status(429)
           .json({
-            error: `Vänta en liten stund ⏰ Du kan försöka igen om ${minutes} ${minuteText}`,
+            error: 'CHILD_PIN_LOCKED',
             code: 'CHILD_PIN_LOCKED',
             locked: true,
             retry_after: minutes * 60,

@@ -288,7 +288,7 @@ function renderSchemaTabs() {
 
   const showAllActive = !activeSchemaTab || !categories.find(c => c.id === activeSchemaTab);
 
-  container.innerHTML = `
+  container.innerHTML = '' + `
     <div class="flex items-center gap-1 schema-tab ${showAllActive ? 'active' : ''}"
       data-cat-tab="__all__"
       onclick="selectSchemaTab(null)">

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireParent } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
@@ -22,7 +24,7 @@ async function requireContextApi(req, res, next) {
   const familyId = req.user && req.user.familyId;
   const enabled = await isJourneyFlagEnabledForFamily(FLAG_KEYS.contextApi, familyId);
   if (!enabled) {
-    return res.status(503).json({ error: 'Family Journey API är inte aktiverat' });
+    return sendApiError(res, 503, 'JOURNEY_API_DISABLED');
   }
   next();
 }
@@ -32,13 +34,13 @@ router.use(requireContextApi);
 router.get('/journey-context', async (req, res) => {
   try {
     const familyId = req.user.familyId;
-    if (!familyId) return res.status(400).json({ error: 'Ingen familj kopplad' });
+    if (!familyId) return sendApiError(res, 400, 'NO_FAMILY');
     const pedagogSkip = req.user.accountType === 'educator' && req.user.preferredViewMode === 'pedagog';
     const context = await buildContextForFamily(familyId, { pedagogSkip });
     res.json(context);
   } catch (err) {
     console.error('[journey-context] GET error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -47,10 +49,10 @@ router.get('/journey-debug', async (req, res) => {
     const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
     const debugFlag = await isFlagEnabled(FLAG_KEYS.debugApi);
     if (!isDev && !debugFlag && !req.user.isAdmin) {
-      return res.status(403).json({ error: 'Ej behörig' });
+      return sendApiError(res, 403, 'ACCESS_DENIED');
     }
     const familyId = req.user.familyId;
-    if (!familyId) return res.status(400).json({ error: 'Ingen familj kopplad' });
+    if (!familyId) return sendApiError(res, 400, 'NO_FAMILY');
 
     const milestones = await familyMilestones.getMilestoneMap(familyId);
     const phase = await familyMilestones.getJourneyPhase(familyId);
@@ -68,7 +70,7 @@ router.get('/journey-debug', async (req, res) => {
     });
   } catch (err) {
     console.error('[journey-context] debug error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -76,7 +78,7 @@ router.post('/journey-context/events', async (req, res) => {
   try {
     const familyId = req.user.familyId;
     const { intent, child_id: childId, daily_log_item_id: dailyLogItemId, metadata } = req.body || {};
-    if (!familyId || !intent) return res.status(400).json({ error: 'intent krävs' });
+    if (!familyId || !intent) return sendApiError(res, 400, 'INTENT_REQUIRED');
 
     const eventMetadata = metadata && typeof metadata === 'object' ? { ...metadata } : {};
     if (dailyLogItemId) eventMetadata.daily_log_item_id = dailyLogItemId;
@@ -91,13 +93,13 @@ router.post('/journey-context/events', async (req, res) => {
 
     if (!result.ok) {
       const status = result.error === 'invalid_phase' ? 409 : 400;
-      return res.status(status).json({ error: result.error || 'Kunde inte registrera händelse' });
+      return sendApiError(res, status, result.error || 'INTENT_FAILED');
     }
 
     res.json({ ok: true, context: await buildContextForFamily(familyId) });
   } catch (err) {
     console.error('[journey-context] events error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -120,7 +122,7 @@ router.get('/journey-context/registry', async (req, res) => {
     }
     res.json(registry);
   } catch (err) {
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -177,7 +179,7 @@ router.get('/journey-context/pending-completions', async (req, res) => {
     res.json({ completions });
   } catch (err) {
     console.error('[journey-context] pending-completions error:', err);
-    res.status(500).json({ error: 'Något gick fel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

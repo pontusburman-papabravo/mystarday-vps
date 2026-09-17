@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * src/routes/notification-log.js
  * Owns: parent notification archive — list, mark-as-read, unread count.
@@ -41,7 +42,7 @@ router.get('/', requireParent, async (req, res) => {
     res.json(visibleArchiveRows(rows, accessibleChildIds));
   } catch (err) {
     console.error('[NOTIFICATIONS] Get error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta notiser' });
+    sendApiError(res, 500, 'NOTIF_FETCH_FAILED');
   }
 });
 
@@ -58,7 +59,7 @@ router.get('/unread-count', requireParent, async (req, res) => {
     res.json({ count });
   } catch (err) {
     console.error('[NOTIFICATIONS] Count error:', err);
-    res.status(500).json({ error: 'Kunde inte räkna notiser' });
+    sendApiError(res, 500, 'NOTIF_COUNT_FAILED');
   }
 });
 
@@ -70,7 +71,7 @@ router.put('/read-all', requireParent, async (req, res) => {
     res.json({ success: true, updated });
   } catch (err) {
     console.error('[NOTIFICATIONS] Mark all read error:', err);
-    res.status(500).json({ error: 'Kunde inte markera notiser som lästa' });
+    sendApiError(res, 500, 'NOTIF_READ_ALL_FAILED');
   }
 });
 
@@ -84,7 +85,7 @@ router.put('/:id/read', requireParent, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[NOTIFICATIONS] Mark read error:', err);
-    res.status(500).json({ error: 'Kunde inte markera notisen som läst' });
+    sendApiError(res, 500, 'NOTIF_READ_FAILED');
   }
 });
 

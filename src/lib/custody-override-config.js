@@ -22,16 +22,16 @@ function validateOverrideInput(body, validHomeIds) {
   const priority = body.priority != null ? Number(body.priority) : 0;
 
   if (!isIsoDate(startDate) || !isIsoDate(endDate)) {
-    return { ok: false, error: 'start_date och end_date krävs (YYYY-MM-DD)' };
+    return { ok: false, error: 'START_END_DATE_REQUIRED' };
   }
   if (startDate > endDate) {
-    return { ok: false, error: 'start_date får inte vara efter end_date' };
+    return { ok: false, error: 'START_AFTER_END' };
   }
   if (!homeId || !validHomeIds.has(homeId)) {
-    return { ok: false, error: 'Ogiltigt hem för undantaget' };
+    return { ok: false, error: 'CUSTODY_INVALID_OVERRIDE_HOME' };
   }
   if (!Number.isFinite(priority) || priority < -32768 || priority > 32767) {
-    return { ok: false, error: 'Ogiltig prioritet' };
+    return { ok: false, error: 'CUSTODY_INVALID_PRIORITY' };
   }
 
   return {

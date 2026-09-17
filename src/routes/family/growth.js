@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * R4.7 — Growth dismiss snooze + weekly highlight payload.
  */
@@ -25,10 +27,10 @@ router.post('/growth/dismiss', requireNotPedagogOnly, async (req, res) => {
     const parentId = req.user.id;
     const action = String(req.body?.action || '').trim();
     if (!familyId || !parentId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
     if (!(await isGrowthHomeEnabled(familyId))) {
-      return res.status(404).json({ error: 'Ej tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     if (action === 'snooze_invite_adult') {
@@ -39,10 +41,10 @@ router.post('/growth/dismiss', requireNotPedagogOnly, async (req, res) => {
       await setSnooze(familyId, 'growth_share_week_snoozed', parentId, SHARE_SNOOZE_DAYS);
       return res.json({ ok: true });
     }
-    return res.status(400).json({ error: 'Ogiltig åtgärd' });
+    return sendApiError(res, 400, 'INVALID_ACTION');
   } catch (err) {
     console.error('[FAMILY] POST /growth/dismiss error:', err);
-    res.status(500).json({ error: 'Kunde inte spara valet' });
+    sendApiError(res, 500, 'SAVE_CHOICE_FAILED');
   }
 });
 
@@ -51,7 +53,7 @@ router.get('/growth/weekly-highlight', requireNotPedagogOnly, async (req, res) =
     const familyId = req.user.familyId;
     const parentId = req.user.id;
     if (!familyId || !parentId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
     if (!(await isGrowthHomeEnabled(familyId))) {
       return res.json({ enabled: false });
@@ -74,7 +76,7 @@ router.get('/growth/weekly-highlight', requireNotPedagogOnly, async (req, res) =
     });
   } catch (err) {
     console.error('[FAMILY] GET /growth/weekly-highlight error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta veckohöjdpunkt' });
+    sendApiError(res, 500, 'WEEKLY_HIGHLIGHT_FAILED');
   }
 });
 

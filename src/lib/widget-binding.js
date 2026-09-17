@@ -75,7 +75,7 @@ async function resolveBindingFromTrustedDevice(rawDeviceToken, { childId, instal
 
   const inst = String(installationId || '').trim();
   if (!inst || inst.length > 128) {
-    return { ok: false, code: 'reauth_required', error: 'installation_id krävs' };
+    return { ok: false, code: 'reauth_required', error: 'INSTALLATION_ID_REQUIRED' };
   }
 
   const token = issueBindingToken({
@@ -103,7 +103,7 @@ async function resolveBindingFromParent(parentId, familyId, { childId, installat
   }
   const inst = String(installationId || '').trim();
   if (!inst || inst.length > 128) {
-    return { ok: false, code: 'reauth_required', error: 'installation_id krävs' };
+    return { ok: false, code: 'reauth_required', error: 'INSTALLATION_ID_REQUIRED' };
   }
   const token = issueBindingToken({
     mode: 'parent',

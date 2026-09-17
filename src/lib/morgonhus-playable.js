@@ -1,6 +1,8 @@
 'use strict';
 
 const { hasAccess } = require('../../db/features');
+const { t } = require('./i18n');
+const { getFamilyPreferredLocale } = require('./family-locale');
 const { hasLivingWorldAccess } = require('./living-world-access');
 const {
   resolvePackForChild,
@@ -86,6 +88,7 @@ async function buildSceneState(childId, familyIdOrClient) {
 
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, WORLD_SLUG);
+  const locale = familyId ? await getFamilyPreferredLocale(familyId) : 'sv-SE';
   const unlockedRows = await progressionDb.listUnlockedNodes(childId, client);
   const unlockedIds = new Set(unlockedRows.map((row) => row.node_id));
 
@@ -102,8 +105,8 @@ async function buildSceneState(childId, familyIdOrClient) {
     enabled: true,
     pack_id: pack.manifest.pack_id,
     world_slug: WORLD_SLUG,
-    display_name: worldDef?.display_name_sv || 'Morgonhuset',
-    first_enter_message: worldDef?.first_unlock_message || 'Morgonhuset väntar på dig',
+    display_name: worldDef?.display_name_sv || t(locale, 'child.worlds.morgonhus.name'),
+    first_enter_message: worldDef?.first_unlock_message || t(locale, 'child.worlds.morgonhus.waiting'),
     gate_to_garden: gateToGarden,
     props: buildPropsFromPack(pack, unlockedIds, gateToGarden),
     unlocked_node_ids: [...unlockedIds],

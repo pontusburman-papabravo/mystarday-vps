@@ -23,7 +23,7 @@
     el.className = 'hidden fixed bottom-28 left-1/2 -translate-x-1/2 z-[60] max-w-xs text-center';
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.innerHTML = '<button type="button" class="platform-feedback-whisper text-sm font-heading text-navy/80 italic px-4 py-2 rounded-full bg-white/90 shadow-md border border-amber-50/80 backdrop-blur-sm min-h-[44px]" aria-label="Stäng meddelande"></button>';
+    el.innerHTML = '<button type="button" class="platform-feedback-whisper text-sm font-heading text-navy/80 italic px-4 py-2 rounded-full bg-white/90 shadow-md border border-amber-50/80 backdrop-blur-sm min-h-[44px]" aria-label="' + (window.cpt ? cpt('feedback.close') : 'Close message') + '"></button>';
     el.querySelector('button').addEventListener('click', function () {
       hideWhisper();
     });

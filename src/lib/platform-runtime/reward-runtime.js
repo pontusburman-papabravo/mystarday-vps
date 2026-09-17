@@ -13,7 +13,7 @@ async function processRewards({ childId, familyId, pack, signal, context }, clie
   if (existing) return { granted: false, duplicate: true, feedback: existing };
 
   const vars = {
-    child_name: context.childName || 'Barnet',
+    child_name: context.childName || 'Child',
     activity_name: context.activityName || 'en aktivitet',
   };
 

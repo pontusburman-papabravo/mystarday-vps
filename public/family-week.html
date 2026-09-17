@@ -12,7 +12,7 @@
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Familjevy — Min Stjärndag</title>
+  <title data-i18n="schedule.familyWeek.pageTitle">Familjevy</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,6 +24,8 @@
   <script src="/js/auth.js?v=2.13.0"></script>
   <script src="/js/feedback.js?v=2.12.0"></script>
   <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/api-error-i18n.js?v=2.18.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="/js/birthday-picker.js?v=2.12.0"></script>
   <style>
@@ -126,7 +128,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
 </head>
-<body class="bg-white font-body text-navy dark:bg-navy dark:text-white">
+<body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-i18n-manual-init="true" data-i18n-title="schedule.familyWeek.pageTitle">
   <div class="min-h-screen flex flex-col md:flex-row">
     <!-- Sidebar -->
     <nav class="w-full md:w-64 bg-navy text-white p-4 md:p-6 md:min-h-screen">
@@ -135,18 +137,18 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
-        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
-        <li><a href="/schedule?view=family" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold">Veckoschema</a></li>
-        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
-        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
+        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.overview">Översikt</a></li>
+        <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.dailyLog">Daglig logg</a></li>
+        <li><a href="/schedule?view=family" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" data-i18n="nav.weekSchedule">Veckoschema</a></li>
+        <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.library">Bibliotek</a></li>
+        <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" style="color:#F5A623;font-weight:600;" data-i18n="nav.treasureChest">🏆 Skattkammaren</a></li>
+        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
           <span>🌙</span> <span data-i18n="nav.darkMode">Mörkt läge</span>
         </button>
-        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors">Logga ut</button>
+        <button id="logoutBtn" class="w-full px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-lg font-semibold transition-colors" data-i18n="nav.logout">Logga ut</button>
       </div>
     </nav>
 
@@ -156,16 +158,16 @@
       <div class="bg-sky border-b border-lavender p-4 md:p-6">
         <div class="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 class="text-xl font-heading font-bold text-navy">Familjevy</h2>
-            <p class="text-sm text-text-soft">Alla barn — klicka på en dag för att redigera</p>
+            <h2 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.familyWeek.title">Familjevy</h2>
+            <p class="text-sm text-text-soft" data-i18n="schedule.familyWeek.lead">Alla barn — klicka på en dag för att redigera</p>
           </div>
           <!-- Week navigation -->
           <div class="flex items-center gap-2">
             <button id="prevWeekBtn" onclick="changeWeek(-1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">‹</button>
-            <span id="weekLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center">Laddar…</span>
+            <span id="weekLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center" data-i18n="family.shell.loading">Laddar…</span>
             <button id="nextWeekBtn" onclick="changeWeek(1)" class="w-9 h-9 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors">›</button>
-            <button onclick="goToCurrentWeek()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors">Idag</button>
-            <button onclick="shareWeekSchedule()" class="px-3 py-1.5 text-xs border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 rounded-lg font-semibold text-blue-600 transition-colors" title="Dela veckans schema">📤 Dela</button>
+            <button onclick="goToCurrentWeek()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors" data-i18n="schedule.familyWeek.today">Idag</button>
+            <button onclick="shareWeekSchedule()" class="px-3 py-1.5 text-xs border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 rounded-lg font-semibold text-blue-600 transition-colors" data-i18n-title="schedule.familyWeek.shareTitle" title="Dela veckans schema" data-i18n="schedule.familyWeek.share">📤 Dela</button>
           </div>
         </div>
       </div>
@@ -180,14 +182,14 @@
             <table class="week-grid">
               <thead>
                 <tr>
-                  <th class="child-header-cell child-name-col">Barn</th>
-                  <th class="day-header">Mån</th>
-                  <th class="day-header">Tis</th>
-                  <th class="day-header">Ons</th>
-                  <th class="day-header">Tor</th>
-                  <th class="day-header">Fre</th>
-                  <th class="day-header">Lör</th>
-                  <th class="day-header">Sön</th>
+                  <th class="child-header-cell child-name-col" data-i18n="schedule.familyWeek.childrenCol">Barn</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.1">Mån</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.2">Tis</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.3">Ons</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.4">Tor</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.5">Fre</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.6">Lör</th>
+                  <th class="day-header" data-i18n="schedule.daysShort.0">Sön</th>
                 </tr>
               </thead>
               <tbody id="tableBody">
@@ -195,7 +197,7 @@
                   <td class="child-name-cell" colspan="8">
                     <div class="flex items-center justify-center py-12 text-text-soft gap-2">
                       <span class="animate-spin text-xl">⏳</span>
-                      <span class="font-semibold">Laddar schema…</span>
+                      <span class="font-semibold" data-i18n="schedule.familyWeek.loadingSchedule">Laddar schema…</span>
                     </div>
                   </td>
                 </tr>
@@ -207,31 +209,46 @@
         <!-- Empty state (no children) -->
         <div id="emptyState" class="hidden text-center py-20">
           <p class="text-5xl mb-4">👨‍👩‍👧</p>
-          <p class="font-heading font-bold text-navy text-xl mb-2">Inga barn tillagda</p>
-          <p class="text-sm text-text-soft mb-6">Lägg till barn från veckoschema-sidan.</p>
-          <a href="/schedule" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold inline-block">Gå till Veckoschema</a>
+          <p class="font-heading font-bold text-navy text-xl mb-2" data-i18n="schedule.familyWeek.noChildrenTitle">Inga barn tillagda</p>
+          <p class="text-sm text-text-soft mb-6" data-i18n="schedule.familyWeek.addChildHint">Lägg till barn från veckoschema-sidan.</p>
+          <a href="/schedule" class="px-6 py-3 bg-gold text-white rounded-xl font-semibold inline-block" data-i18n="schedule.familyWeek.goToSchedule">Gå till Veckoschema</a>
         </div>
 
         <!-- Legend -->
         <div id="legend" class="hidden mt-4 flex flex-wrap items-center gap-3 text-xs text-text-soft">
-          <span class="font-semibold">Sektioner:</span>
-          <span class="flex items-center gap-1"><span class="section-dot morgon"></span> Morgon</span>
-          <span class="flex items-center gap-1"><span class="section-dot dag"></span> Dag</span>
-          <span class="flex items-center gap-1"><span class="section-dot kvall"></span> Kväll</span>
-          <span class="flex items-center gap-1"><span class="section-dot natt"></span> Natt</span>
-          <span class="ml-auto text-[11px] opacity-70">Klicka på en cell för att redigera schemat</span>
+          <span class="font-semibold" data-i18n="schedule.familyWeek.sectionsLegend">Sektioner:</span>
+          <span class="flex items-center gap-1"><span class="section-dot morgon"></span><span data-i18n="schedule.sections.morgon">Morgon</span></span>
+          <span class="flex items-center gap-1"><span class="section-dot dag"></span><span data-i18n="schedule.sections.dag">Dag</span></span>
+          <span class="flex items-center gap-1"><span class="section-dot kvall"></span><span data-i18n="schedule.sections.kvall">Kväll</span></span>
+          <span class="flex items-center gap-1"><span class="section-dot natt"></span><span data-i18n="schedule.sections.natt">Natt</span></span>
+          <span class="ml-auto text-[11px] opacity-70" data-i18n="schedule.familyWeek.clickCell">Klicka på en cell för att redigera schemat</span>
         </div>
       </div>
     </main>
   </div>
 
 <script>
+function t(key, params) {
+  if (typeof window.pt === 'function') return window.pt(key, params);
+  if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+  return key;
+}
+function daysShort() {
+  return [0,1,2,3,4,5,6].map(function (d) { return t('schedule.daysShort.' + d); });
+}
+function daysFull() {
+  return [0,1,2,3,4,5,6].map(function (d) { return t('schedule.days.' + d); });
+}
 // ── Constants ────────────────────────────────────────────
 // day-of-week mapping: JS Sunday=0, Monday=1…Saturday=6
 // Display order: Mon(1), Tue(2), Wed(3), Thu(4), Fri(5), Sat(6), Sun(0)
 const DOW_ORDER = [1, 2, 3, 4, 5, 6, 0];
-const DAYS_SHORT = ['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'];
-const DAYS_FULL = ['Söndag', 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag'];
+let DAYS_SHORT = [];
+let DAYS_FULL = [];
+function refreshDayNames() {
+  DAYS_SHORT = daysShort();
+  DAYS_FULL = daysFull();
+}
 
 // ── State ───────────────────────────────────────────────
 let children = [];
@@ -268,7 +285,7 @@ function getWeekNumber(d) {
 function updateWeekLabel() {
   const ws = getWeekStart(weekOffset);
   const wn = getWeekNumber(ws);
-  document.getElementById('weekLabel').textContent = `Vecka ${wn}, ${ws.getFullYear()}`;
+  document.getElementById('weekLabel').textContent = t('schedule.familyGrid.weekLabel', { week: wn, year: ws.getFullYear() });
 }
 
 function getDatesForWeek(offset) {
@@ -288,7 +305,7 @@ function getDatesForWeek(offset) {
 async function loadAll() {
   // Load children
   const res = await window.apiFetch('/api/children');
-  if (!res.ok) { showToast('Kunde inte ladda barn', true); return; }
+  if (!res.ok) { showToast(t('schedule.familyWeek.loadChildrenFailed'), true); return; }
   children = await res.json();
 
   if (children.length === 0) {
@@ -363,6 +380,10 @@ function renderGrid() {
       const items = dayData?.items || [];
       const isToday = dow === todayDow && weekOffset === 0;
       const hasAct = items.length > 0;
+      const date = weekDates[dow];
+      const dateStr = date
+        ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        : '';
 
       let cellContent = '';
       if (hasAct) {
@@ -379,7 +400,7 @@ function renderGrid() {
           </div>`;
         }).join('');
         if (rest > 0) {
-          cellContent += `<div class="more-pill">+${rest} till</div>`;
+          cellContent += `<div class="more-pill">${escHtml(t('schedule.familyWeek.more', { count: rest }))}</div>`;
         }
       } else {
         cellContent = `<div class="empty-indicator">—</div>`;
@@ -407,7 +428,7 @@ function renderGrid() {
       <table class="week-grid">
         <thead>
           <tr>
-            <th class="child-header-cell child-name-col">Barn</th>
+            <th class="child-header-cell child-name-col">${escHtml(t('schedule.familyWeek.childrenCol'))}</th>
             ${headerCells}
           </tr>
         </thead>
@@ -443,20 +464,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const user = await window.authGuard();
     if (!user) return;
+    if (typeof window.initParentAppI18n === 'function') {
+      await initParentAppI18n(user.preferred_locale);
+    }
+    refreshDayNames();
     document.getElementById('logoutBtn').addEventListener('click', () => window.logout());
     updateWeekLabel();
     await loadAll();
   } catch (err) {
     console.error('[FAMILY-WEEK] Init error:', err);
     const tb = document.getElementById('tableBody');
-    if (tb) tb.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</td></tr>';
+    if (tb) tb.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-red-500 font-semibold">' + t('schedule.errors.loadPage') + '</td></tr>';
   }
 });
 
 // ── Share week schedule ────────────────────────────────────
 async function shareWeekSchedule() {
   if (!window.Platform || !window.Platform.share) {
-    alert('Dela-funktionen är inte tillgänglig på denna enhet.');
+    alert(t('schedule.familyWeek.shareUnavailable'));
     return;
   }
   const label = document.getElementById('weekLabel');
@@ -487,27 +512,23 @@ async function shareWeekSchedule() {
     }
   });
 
+  const brand = t('onboarding.common.brand');
   const text = lines.length
-    ? `${weekText}\n${lines.join('\n')}\n(Min Stjärndag)`
-    : `Veckans schema ${weekText}\n(Min Stjärndag)`;
+    ? `${weekText}\n${lines.join('\n')}\n(${brand})`
+    : t('schedule.familyWeek.shareEmpty', { week: weekText, brand: brand });
 
   try {
     const result = await window.Platform.share({
-      title: `Veckans schema ${weekText} – Min Stjärndag`,
+      title: t('schedule.familyWeek.shareWeekTitle', { week: weekText, brand: brand }),
       text,
     });
-    if (!result) showToast('Delat!', false);
+    if (!result) showToast(t('schedule.familyWeek.shared'), false);
   } catch (err) {
     if (err.name !== 'AbortError') {
-      showToast('Kunde inte dela: ' + err.message, true);
+      showToast((typeof apiErrorMessage === 'function' ? apiErrorMessage(err, 'schedule.familyWeek.shareFailed') : t('schedule.familyWeek.shareFailed')), true);
     }
   }
 }
-    console.error('[FAMILY-WEEK] Init error:', err);
-    const tb = document.getElementById('tableBody');
-    if (tb) tb.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-red-500 font-semibold">Något gick fel vid laddning. Ladda om sidan.</td></tr>';
-  }
-});
 </script>
 
   <!-- Service Worker Registration (update detection in /js/sw-register.js) -->

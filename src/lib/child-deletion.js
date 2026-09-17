@@ -8,13 +8,13 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 const DENIED = {
   ok: false,
   status: 403,
-  error: 'Åtkomst nekad. Du har inte behörighet att ta bort barnet.',
+  code: 'CHILD_DELETE_FORBIDDEN', error: 'CHILD_DELETE_FORBIDDEN',
 };
 
 const NOT_FOUND = {
   ok: false,
   status: 404,
-  error: 'Barn hittades inte',
+  code: 'CHILD_NOT_FOUND', error: 'CHILD_NOT_FOUND',
 };
 
 /**

@@ -197,7 +197,13 @@
     "pinWarningLast": "Nästan slut på försök! 1 försök kvar — fråga mamma eller pappa om du behöver hjälp 💛",
     "pinWarningLow": "Hmm, det var inte rätt PIN 🤔 Du har {{remaining}} försök kvar",
     "parentPinInvalid": "Felaktig PIN-kod — försök igen",
-    "handoffRestoreFailed": "Kunde inte öppna föräldraläge. Försök igen eller be en vuxen om hjälp."
+    "handoffRestoreFailed": "Kunde inte öppna föräldraläge. Försök igen eller be en vuxen om hjälp.",
+    "petRoomLocked": "Husdjursrummet är inte upplåst ännu",
+    "themeLocked": "Temat är inte upplåst ännu",
+    "invalidCollectible": "Ogiltigt samlarföremål",
+    "collectibleOwned": "Du har redan detta föremål",
+    "gardenDisabled": "Trädgården ej aktiverad",
+    "slotNotFound": "Platsen hittades inte"
   },
   "common": {
     "cancel": "Avbryt",
@@ -677,7 +683,8 @@
       "what_next": "Vad händer sen?",
       "what_need": "Vad behöver jag?",
       "why": "Varför?"
-    }
+    },
+    "nextActivity": "Nästa aktivitet"
   },
   "todayWarmth": {
     "narrativeMorgon": "Idag hjälper vi kroppen att vakna 🌞",
@@ -792,5 +799,95 @@
         ]
       }
     ]
+  },
+  "newPage": {
+    "loading": "Laddar din stjärndag...",
+    "askParent": "Be din förälder aktivera något!",
+    "childBang": "Barn!",
+    "starsToday": "Stjärnor totalt idag",
+    "untilReward": "5 stjärnor tills belöning",
+    "yourRewards": "Dina belöningar",
+    "zeroStars": "0 stjärnor",
+    "stars": "Stjärnor",
+    "schedule": "Schema",
+    "child": "Barnet",
+    "noRewardsYet": "Inga belöningar ännu",
+    "starsTodayShort": "Stjärnor idag",
+    "childShort": "Barn",
+    "you": "du"
+  },
+  "profilePicker": {
+    "pageTitle": "Välj profil | {{brand}}",
+    "who": "Vem använder appen?",
+    "tap": "Tryck på din profil",
+    "namePin": "Logga in med användarnamn och PIN",
+    "retry": "Försök igen",
+    "retryIn": "Försök igen om",
+    "retryInSeconds": "Försök igen om {{seconds}} s"
+  },
+  "worlds": {
+    "garden": {
+      "name": "Trädgården",
+      "waiting": "Trädgården väntar på dig",
+      "ambient": "Gräset rör sig långsamt i brisen.",
+      "wake": "Gör en sak på Idag så vaknar jorden.",
+      "bed": "Blomsterbädden",
+      "tryAgain": "Det gick inte just nu — försök igen.",
+      "pathBusy": "Stigen svarar inte just nu — försök igen.",
+      "harvest": "Skörda solrosen",
+      "water": "Vattna fröet i blomsterbädden",
+      "plant": "Plantera i blomsterbädden",
+      "bedLocked": "Blomsterbädden — gör en sak på Idag först",
+      "growing": "Solrosen växer",
+      "todayFlower": "Dagens blomma",
+      "waterHint": "Vattna fröet så växer det!",
+      "growingHint": "Solrosen växer…",
+      "pathConfirm": "Stigen till Minnesrummet — tryck igen om du vill gå dit.",
+      "finishTodayFirst": "Klarmarkera något på Idag först!",
+      "backMorgonhus": "Tillbaka till Morgonhuset"
+    },
+    "memory": {
+      "name": "Minnesrummet",
+      "waiting": "Här finns det du varit stolt över.",
+      "ambient": "Det känns varmt och tryggt här.",
+      "soft": "Ett mjukt minne från en bra dag.",
+      "window": "Fönstret",
+      "backGarden": "Tillbaka till trädgården",
+      "myMemories": "Mina minnen",
+      "emptyFrame": "Tom ram",
+      "rememberTitle": "Du minns {{title}}. Det var fint.",
+      "rememberFine": "Du minns något fint här.",
+      "meansSomething": "Det här minnet betyder något för dig.",
+      "backWorld": "Tillbaka till Min värld"
+    },
+    "morgonhus": {
+      "name": "Morgonhuset",
+      "waiting": "Morgonhuset väntar på dig"
+    },
+    "hub": {
+      "treasureAria": "Skattkammaren — belöningar",
+      "what": "Vad vill du göra?",
+      "gardenAria": "Trädgården",
+      "gardenAriaHint": "Trädgården — {{hint}}",
+      "morgonhusAria": "Morgonhuset — ditt hem",
+      "morgonhusHint": "Ditt hem — titta runt",
+      "treasureHint": "Dina stjärnor och belöningar",
+      "hello": "Hej {{name}}!",
+      "whatWorld": "Vad vill du göra i din värld?",
+      "checkTodayFirst": "Bocka av något på Idag först",
+      "plantHarvest": "Plantera och skörda solrosor"
+    }
+  },
+  "familyHall": {
+    "helpsHome": "Hjälper mig hemma"
+  },
+  "sse": {
+    "scheduleUpdated": "📅 Schema uppdaterat!"
+  },
+  "feedback": {
+    "close": "Stäng meddelande"
+  },
+  "catalog": {
+    "back": "Tillbaka"
   }
 }

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Family account-deletion route.
  * Mounted at /api/family AFTER router.use(requireParent) in index.js.
@@ -36,7 +38,7 @@ router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (re
       [req.user.id]
     );
     if (parentRow.rows.length === 0) {
-      return res.status(404).json({ error: 'Konto hittades inte' });
+      return res.status(404).json({ error: 'USER_NOT_FOUND' });
     }
 
     const parentId = parentRow.rows[0].id;
@@ -47,7 +49,7 @@ router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (re
     const impact = await familyDeletion.deletionConsequenceForCaller(client, parentId, familyId);
     if (impact.mode === 'denied') {
       await client.query('ROLLBACK');
-      return res.status(403).json({ error: 'Åtkomst nekad. Kontot har inte behörighet att radera familjedata.' });
+      return sendApiError(res, 403, 'FAMILY_DELETE_FORBIDDEN');
     }
 
     if (impact.mode === 'family') {
@@ -73,11 +75,11 @@ router.delete('/delete-account', requireParent, requireNotPedagogOnly, async (re
     await client.query('ROLLBACK').catch(() => {});
     console.error('[FAMILY] delete-account error:', err);
     const status = err.code === 'FORBIDDEN' || err.code === 'LAST_ADMIN' ? 403 : 500;
-    return res.status(status).json({
-      error: status === 403
-        ? (err.message || 'Åtkomst nekad')
-        : 'Något gick fel vid radering. Försök igen.',
-    });
+    return sendApiError(
+      res,
+      status,
+      status === 403 ? (err.code || 'ACCESS_DENIED') : 'DELETE_ACCOUNT_FAILED'
+    );
   } finally {
     client.release();
   }

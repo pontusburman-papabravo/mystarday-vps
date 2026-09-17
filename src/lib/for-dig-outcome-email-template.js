@@ -37,7 +37,7 @@ function interpolate(template, vars) {
 function buildSubject({ goalTitle, itemCount = 1, subjectTemplate } = {}) {
   if (Number(itemCount) > 1) return MULTI_SUBJECT;
   return interpolate(subjectTemplate || DEFAULT_SUBJECT_TEMPLATE, {
-    goal_title: goalTitle || 'målet',
+    goal_title: goalTitle || 'the goal',
   });
 }
 
@@ -97,7 +97,7 @@ function wrapEmail({ subject, bodyInner, ctaUrl, unsubscribeUrl }) {
 function buildSingleBodyHtml({ parentName, childName, goalTitle }) {
   const safeParent = escapeHtml(parentName || 'du');
   const safeChild = escapeHtml(childName || 'ditt barn');
-  const safeGoal = escapeHtml(goalTitle || 'målet');
+  const safeGoal = escapeHtml(goalTitle || 'the goal');
   const safeBrand = escapeHtml(brandName());
   return `
               <p style="margin:0 0 16px 0;">Hej ${safeParent}!</p>

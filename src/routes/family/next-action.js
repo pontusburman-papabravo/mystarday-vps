@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * GET /api/family/next-action — canonical Hem coach contract (Prompt 1A).
  */
@@ -15,7 +17,7 @@ router.get('/next-action', requireNotPedagogOnly, async (req, res) => {
   try {
     const familyId = req.user.familyId;
     if (!familyId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
 
     const flagOn = await isActivationFlagEnabled(FLAG_KEYS.firstSuccessV1, familyId);
@@ -39,7 +41,7 @@ router.get('/next-action', requireNotPedagogOnly, async (req, res) => {
     res.json(payload);
   } catch (err) {
     console.error('[FAMILY] GET /next-action error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta nästa steg' });
+    sendApiError(res, 500, 'NEXT_ACTION_FAILED');
   }
 });
 

@@ -36,8 +36,8 @@
     }
     return {
       url: '/register',
-      message: 'Tipsa om appen — visuella rutiner och stjärnor för barn.',
-      text: 'Tipsa om appen — visuella rutiner och stjärnor för barn. /register',
+      message: (window.I18n && I18n.t('family.share.tipMessage')) || 'SHARE_TIP',
+      text: ((window.I18n && I18n.t('family.share.tipMessage')) || 'SHARE_TIP') + ' /register',
     };
   }
 
@@ -89,11 +89,11 @@
       '<div class="share-popup-card" role="dialog" aria-labelledby="parentShareRecipientTitle">' +
         '<div class="share-popup-header">' +
           '<strong id="parentShareRecipientTitle">Tipsa en familj</strong>' +
-          '<button type="button" class="share-popup-close" aria-label="Stäng">&times;</button>' +
+          '<button type="button" class="share-popup-close" aria-label="' + (window.pt ? pt('family.share.close') : 'Close') + '">&times;</button>' +
         '</div>' +
         '<p class="share-popup-text" style="margin-bottom:12px;">Vem tipsar du om? (valfritt — hjälper oss följa upp)</p>' +
         '<label class="share-popup-field-label" for="parentShareRecipientInput">Till vem</label>' +
-        '<input id="parentShareRecipientInput" type="text" maxlength="200" placeholder="Namn, e-post eller &quot;kollega på förskolan&quot;" ' +
+        '<input id="parentShareRecipientInput" type="text" maxlength="200" placeholder="' + (window.pt ? pt('family.share.placeholder') : 'Name, email or colleague') + '" ' +
           'class="share-popup-field-input" />' +
         '<div class="share-popup-actions" style="justify-content:flex-end;">' +
           '<button type="button" class="share-popup-btn share-popup-copy" id="parentShareRecipientCancel">Avbryt</button>' +
@@ -148,7 +148,7 @@
       '<div class="share-popup-card">' +
         '<div class="share-popup-header">' +
           '<strong>Tipsa en familj om appen!</strong>' +
-          '<button class="share-popup-close" aria-label="Stäng">&times;</button>' +
+          '<button class="share-popup-close" aria-label="' + (window.pt ? pt('family.share.close') : 'Close') + '">&times;</button>' +
         '</div>' +
         (recipient
           ? '<p class="share-popup-text" style="font-size:0.85rem;margin:0 0 8px;"><strong>Till:</strong> ' + recipient.replace(/</g, '&lt;') + '</p>'
@@ -156,7 +156,7 @@
         '<p class="share-popup-text">' + shareText.replace(/</g, '&lt;') + '</p>' +
         '<div class="share-popup-actions">' +
           '<button class="share-popup-btn share-popup-copy" type="button">' +
-            '<span>📋</span> Kopiera länk' +
+            '<span>📋</span> ' + (window.pt ? pt('family.share.copyLink') : 'Copy link') + '' +
           '</button>' +
           '<a href="mailto:?subject=' + mailSubject + '&body=' + mailBody + '" class="share-popup-btn share-popup-email">' +
             '<span>✉️</span> E-post' +
@@ -183,7 +183,7 @@
       copyToClipboard(shareUrl, function () {
         btn.innerHTML = '<span>✅</span> Kopierad!';
         notifyShareBackend({ recipient: recipient, channel: 'copy' });
-        setTimeout(function () { btn.innerHTML = '<span>📋</span> Kopiera länk'; }, 2000);
+        setTimeout(function () { btn.innerHTML = '<span>📋</span> ' + (window.pt ? pt('family.share.copyLink') : 'Copy link') + ''; }, 2000);
       });
     });
 

@@ -318,8 +318,8 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
-// stjarndag-v984: final i18n closure (pedagog notes + API error codes)
-const CACHE_NAME = 'stjarndag-v984';
+// stjarndag-v985: final i18n closure — Class A runtime copy = 0
+const CACHE_NAME = 'stjarndag-v985';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak
@@ -1105,7 +1105,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request, { cache: 'no-store' }).catch(() =>
         new Response(
-          JSON.stringify({ error: 'Offline', message: 'Du är offline. Anslut till internet.' }),
+          JSON.stringify({ error: 'OFFLINE', message: 'OFFLINE' }),
           { status: 503, headers: { 'Content-Type': 'application/json' } }
         )
       )

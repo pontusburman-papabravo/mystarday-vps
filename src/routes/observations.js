@@ -48,10 +48,10 @@ router.get('/:childId/observations', async (req, res) => {
 
     const { from, to } = req.query;
     if (!from || !to) {
-      return res.status(400).json({ error: 'from och to krävs (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'DATE_RANGE_REQUIRED');
     }
     if (!isValidDate(from) || !isValidDate(to)) {
-      return res.status(400).json({ error: 'Ogiltigt datumformat. Använd YYYY-MM-DD.' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
 
     const observations = await getObservationsForRange(req.params.childId, from, to);
@@ -73,21 +73,21 @@ router.post('/:childId/observations', async (req, res) => {
 
     const { date, section, content, is_important } = req.body;
     if (!date || !section || content === undefined) {
-      return res.status(400).json({ error: 'date, section och content krävs' });
+      return sendApiError(res, 400, 'OBS_FIELDS_REQUIRED');
     }
     if (!isValidDate(date)) {
-      return res.status(400).json({ error: 'Ogiltigt datumformat. Använd YYYY-MM-DD.' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
     const allowedSections = ['fm', 'em', 'kvall'];
     if (!allowedSections.includes(section)) {
-      return res.status(400).json({ error: 'section måste vara: fm, em eller kvall' });
+      return sendApiError(res, 400, 'INVALID_SECTION_FM_EM');
     }
     const trimmed = String(content).trim();
     if (!trimmed) {
-      return res.status(400).json({ error: 'content får inte vara tomt' });
+      return sendApiError(res, 400, 'CONTENT_REQUIRED');
     }
     if (trimmed.length > 2000) {
-      return res.status(400).json({ error: 'Anteckningen får vara max 2000 tecken' });
+      return sendApiError(res, 400, 'NOTE_MAX_CHARS');
     }
 
     const observation = await upsertObservation({
@@ -117,13 +117,13 @@ router.patch('/:id', async (req, res) => {
     const updates = {};
     if (section !== undefined) {
       if (!['fm', 'em', 'kvall'].includes(section)) {
-        return res.status(400).json({ error: 'section måste vara: fm, em eller kvall' });
+        return sendApiError(res, 400, 'INVALID_SECTION_FM_EM');
       }
       updates.section = section;
     }
     if (content !== undefined) {
       const trimmed = String(content).trim();
-      if (!trimmed) return res.status(400).json({ error: 'content får inte vara tomt' });
+      if (!trimmed) return sendApiError(res, 400, 'CONTENT_REQUIRED');
       if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
       updates.content = trimmed;
     }

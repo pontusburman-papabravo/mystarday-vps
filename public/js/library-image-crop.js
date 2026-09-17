@@ -190,7 +190,7 @@
     if (sameOrigin) {
       return fetch(absolute, { credentials: 'include' })
         .then(function (res) {
-          if (!res.ok) throw new Error('Kunde inte hämta bilden');
+          if (!res.ok) throw new Error((window.I18n && I18n.t('family.errors.imageFetch')) || 'IMAGE_FETCH');
           return res.blob();
         })
         .then(blobToImage);
@@ -200,7 +200,7 @@
     const proxyPath = '/api/family/images/source?url=' + encodeURIComponent(url);
     return fetchFn(proxyPath, { credentials: 'include' })
       .then(function (res) {
-        if (!res.ok) throw new Error('Kunde inte hämta bilden');
+        if (!res.ok) throw new Error((window.I18n && I18n.t('family.errors.imageFetch')) || 'IMAGE_FETCH');
         return res.blob();
       })
       .then(blobToImage);
@@ -224,7 +224,7 @@
     return loadImageFromFile(file).then(function (img) {
       return openEditor(img);
     }).catch(function (err) {
-      if (typeof showToast === 'function') showToast(err.message || 'Kunde inte öppna bilden', true);
+      if (typeof showToast === 'function') showToast(err.message || (window.pt ? pt('family.errors.imageOpen') : 'Could not open the image'), true);
       return null;
     });
   }
@@ -234,7 +234,7 @@
     return loadImageFromUrl(url).then(function (img) {
       return openEditor(img);
     }).catch(function (err) {
-      if (typeof showToast === 'function') showToast(err.message || 'Kunde inte öppna bilden', true);
+      if (typeof showToast === 'function') showToast(err.message || (window.pt ? pt('family.errors.imageOpen') : 'Could not open the image'), true);
       return null;
     });
   }
@@ -311,7 +311,7 @@
         exportFile().then(function (file) {
           closeModal(file);
         }).catch(function (err) {
-          if (typeof showToast === 'function') showToast(err.message || 'Kunde inte spara', true);
+          if (typeof showToast === 'function') showToast(err.message || (window.pt ? pt('library.errors.saveFailed') : 'Could not save'), true);
         }).finally(function () {
           confirmBtn.disabled = false;
         });

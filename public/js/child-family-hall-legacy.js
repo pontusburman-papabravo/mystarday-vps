@@ -111,7 +111,7 @@
         avatarUrl: p.avatar_src || '',
         hasAvatar: !!p.has_avatar,
         kind: 'parent',
-        roleLabel: p.roleLabel || 'Hjälper mig hemma',
+        roleLabel: p.roleLabel || (window.cpt ? cpt('familyHall.helpsHome') : 'Helps me at home'),
         cardNote: '',
       };
       sheetPersons.push(person);

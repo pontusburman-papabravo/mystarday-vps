@@ -72,7 +72,7 @@ function renderInsertDaySchemaList() {
           </div>
         </button>
         <button onclick="confirmDeleteScheduleTemplate('${t.id}', '${escHtml(t.name).replace(/'/g, '\\\'')}')"
-          title="Ta bort schema"
+          title="${spt('schedule.insert.deleteTitle')}"
           class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl border-2 border-lavender hover:border-red-400 hover:bg-red-50 text-text-soft hover:text-red-500 transition-colors text-sm font-bold">
           ✕
         </button>
@@ -126,7 +126,7 @@ async function doInsertDayFromTemplate(templateId, forceOverwrite = false) {
       const delRes = await window.apiFetch(
         `/api/children/${currentChildId}/schedules/${existing.id}`, { method: 'DELETE' }
       );
-      if (!delRes.ok) { showToast('Kunde inte ta bort befintligt schema', true); return; }
+      if (!delRes.ok) { showToast((window.pt ? pt('schedule.insert.deleteExistingFailed') : 'Could not delete the existing schedule'), true); return; }
     }
 
     // Apply template to this day
@@ -214,7 +214,7 @@ async function doInsertDayExecute(categoryId, existingScheduleId) {
       const delRes = await window.apiFetch(
         `/api/children/${currentChildId}/schedules/${existingScheduleId}`, { method: 'DELETE' }
       );
-      if (!delRes.ok) { showToast('Kunde inte ta bort befintligt schema', true); return; }
+      if (!delRes.ok) { showToast((window.pt ? pt('schedule.insert.deleteExistingFailed') : 'Could not delete the existing schedule'), true); return; }
     }
 
     // Create new empty schedule
@@ -271,7 +271,7 @@ async function submitNewScheduleTemplate() {
       renderInsertDaySchemaList();
       // Re-open the insert modal so user can select the new template
       document.getElementById('insertDayModal').classList.remove('hidden');
-      showToast(`Schemat "${name}" har skapats ✓`);
+      showToast(spt('schedule.insert.createdNamed', { name: name }));
     } else {
       errEl.textContent = data.error || spt('schedule.errors.generic'); errEl.classList.remove('hidden');
       btn.disabled = false; btn.textContent = 'Skapa schema';
@@ -303,12 +303,12 @@ async function executeDeleteScheduleTemplate() {
     const res = await window.apiFetch(`/api/schedule-templates/${id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
-      showToast('Schemat har tagits bort');
+      showToast((window.pt ? pt('schedule.insert.deleted') : 'The schedule has been removed'));
       await loadFamilyScheduleTemplates();
       renderInsertDaySchemaList();
       document.getElementById('insertDayModal').classList.remove('hidden');
     } else {
-      showToast(data.error || 'Kunde inte ta bort schemat', true);
+      showToast(data.error || (window.pt ? pt('schedule.insert.deleteFailed') : 'Could not delete the schedule'), true);
     }
   } catch {
     showToast(spt('schedule.validation.generic'), true);

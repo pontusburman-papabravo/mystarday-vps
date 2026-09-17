@@ -7,7 +7,7 @@
   <meta property="og:description" content="Du har bjudits in som pedagog i Min Stjärndag">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <title>Pedagog-inbjudan — Min Stjärndag</title>
+  <title data-i18n="family.pedagogInvite.pageTitle">Pedagog-inbjudan — Min Stjärndag</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,20 +19,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body class="bg-sky font-body text-navy min-h-screen flex items-center justify-center p-4">
+<body data-i18n-manual-init="true" data-i18n-title="family.pedagogInvite.pageTitle" class="bg-sky font-body text-navy min-h-screen flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl">
 
     <!-- Loading state -->
     <div id="loading" class="text-center py-8 text-text-soft">
       <div class="text-4xl mb-3">📚</div>
-      <p>Laddar inbjudan...</p>
+      <p data-i18n="family.pedagogInvite.loading">Laddar inbjudan...</p>
     </div>
 
     <!-- Error state -->
     <div id="errorState" class="hidden text-center py-8">
       <div class="text-4xl mb-3">❌</div>
-      <h2 class="text-xl font-heading font-bold text-navy mb-2">Inbjudan gäller inte</h2>
+      <h2 class="text-xl font-heading font-bold text-navy mb-2" data-i18n="family.pedagogInvite.invalid">Inbjudan gäller inte</h2>
       <p id="errorMessage" class="text-text-soft mb-6"></p>
       <a href="/" class="inline-block bg-gold text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-500 transition-colors">
         Till startsidan
@@ -43,7 +45,7 @@
     <div id="inviteValid" class="hidden">
       <div class="text-center mb-6">
         <div class="text-5xl mb-3">📚</div>
-        <h1 class="text-2xl font-heading font-bold text-navy mb-1">Välkommen som pedagog!</h1>
+        <h1 class="text-2xl font-heading font-bold text-navy mb-1" data-i18n="family.pedagogInvite.welcome">Välkommen som pedagog!</h1>
         <p id="inviteSubtitle" class="text-text-soft text-sm"></p>
       </div>
 
@@ -53,7 +55,7 @@
       <!-- Logged-in state: show accept button -->
       <div id="loggedInPanel" class="hidden">
         <p class="text-sm text-text-soft mb-4 text-center">
-          Du är inloggad som <span id="loggedInEmail" class="font-semibold text-navy"></span>
+          <span data-i18n="family.pedagogInvite.loggedInAs">Du är inloggad som</span> <span id="loggedInEmail" class="font-semibold text-navy"></span>
         </p>
         <button
           id="acceptLoggedInBtn"
@@ -88,7 +90,7 @@
           </div>
 
           <div>
-            <label for="password" class="block text-sm font-semibold text-navy mb-1">Välj lösenord</label>
+            <label for="password" class="block text-sm font-semibold text-navy mb-1" data-i18n="family.pedagogInvite.choosePassword">Välj lösenord</label>
             <input
               type="password"
               id="password"
@@ -117,7 +119,7 @@
       <div id="alreadyAccepted" class="hidden text-center py-4">
         <div class="text-4xl mb-3">✅</div>
         <h2 class="text-xl font-heading font-bold text-navy mb-2">Inbjudan redan accepterad</h2>
-        <p class="text-text-soft mb-4">Denna inbjudan har redan använts.</p>
+        <p class="text-text-soft mb-4" data-i18n="family.pedagogInvite.alreadyUsed">Denna inbjudan har redan använts.</p>
         <a href="/login" class="inline-block bg-gold text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-500 transition-colors">
           Logga in
         </a>
@@ -127,8 +129,8 @@
       <div id="successState" class="hidden text-center py-4">
         <div class="text-5xl mb-3">🎉</div>
         <h2 class="text-xl font-heading font-bold text-navy mb-2">Klart!</h2>
-        <p class="text-text-soft mb-4">Du är nu registrerad som pedagog.</p>
-        <a href="/pedagog-oversikt" class="inline-block bg-gold text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-500 transition-colors">
+        <p class="text-text-soft mb-4" data-i18n="family.pedagogInvite.registered">Du är nu registrerad som pedagog.</p>
+        <a href="/pedagog-oversikt" class="inline-block bg-gold text-white font-semibold px-6 py-3 rounded-lg hover:bg-orange-500 transition-colors" data-i18n="family.pedagogInvite.openApp"> <!-- pragma: allowlist secret -->
           Öppna Min Stjärndag →
         </a>
       </div>
@@ -159,17 +161,17 @@ async function loadInvite() {
     const data = await res.json();
 
     if (!data.valid) {
-      if (data.reason === 'not_found') showError('Denna inbjudan hittades inte. Den kan ha tagits bort.');
-      else if (data.reason === 'already_accepted') showError('Denna inbjudan har redan accepterats.');
-      else if (data.reason === 'expired') showError('Denna inbjudan har gått ut. Begär en ny inbjudan från föräldern.');
-      else showError('Något gick fel med inbjudan.');
+      if (data.reason === 'not_found') showError(window.pt ? pt('family.pedagogInvite.notFound') : 'INVITE_NOT_FOUND');
+      else if (data.reason === 'already_accepted') showError(window.pt ? pt('family.pedagogInvite.alreadyAccepted') : 'INVITE_ACCEPTED');
+      else if (data.reason === 'expired') showError(window.pt ? pt('family.pedagogInvite.expired') : 'INVITE_EXPIRED');
+      else showError(window.pt ? pt('family.pedagogInvite.inviteFailed') : 'INVITE_FAILED');
       return;
     }
 
     inviteData = data;
     renderInvite(data);
   } catch (err) {
-    showError('Kunde inte ladda inbjudan. Försök igen senare.');
+    showError(window.pt ? pt('family.pedagogInvite.loadFailed') : 'INVITE_LOAD_FAILED');
   }
 }
 
@@ -179,21 +181,15 @@ function renderInvite(data) {
   document.getElementById('inviteValid').classList.remove('hidden');
 
   document.getElementById('inviteSubtitle').textContent =
-    `${data.inviterName || 'En förälder'} från ${data.familyName || 'familjen'} har bjudit in dig.`;
+    (window.pt ? pt('family.pedagogInvite.invitedBy', { inviter: data.inviterName || pt('family.fallbacks.parent'), family: data.familyName || pt('family.pedagogInvite.theFamily') }) : (data.inviterName || 'Parent'));
 
   // Children list
   const detailsEl = document.getElementById('inviteDetails');
   if (data.children && data.children.length > 0) {
     const childNames = data.children.map(c => `${c.emoji || '👦'} ${c.name}`).join(', ');
-    detailsEl.innerHTML = `
-      <div class="flex items-start">
-        <span class="mr-2">👦</span>
-        <div>
-          <p class="font-semibold text-navy">Barn:</p>
-          <p class="text-text-soft">${childNames}</p>
-        </div>
-      </div>
-    `;
+    detailsEl.innerHTML = '<div class="flex items-start"><span class="mr-2">👦</span><div><p class="font-semibold text-navy">'
+      + (window.pt ? pt('family.pedagogInvite.childrenLabel') : 'Children:') + '</p><p class="text-text-soft">'
+      + childNames + '</p></div></div>';
   }
 
   // Check if user is logged in
@@ -268,7 +264,7 @@ document.getElementById('acceptLoggedInBtn').addEventListener('click', async () 
     const data = await res.json();
 
     if (!res.ok) {
-      errorEl.textContent = data.error || 'Något gick fel';
+      errorEl.textContent = (window.apiErrorMessage ? apiErrorMessage(data, 'family.pedagogInvite.genericError') : null) || (window.pt ? pt('family.pedagogInvite.genericError') : 'ERROR');
       errorEl.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = 'Acceptera inbjudan →';
@@ -279,7 +275,7 @@ document.getElementById('acceptLoggedInBtn').addEventListener('click', async () 
     // Success — redirect
     window.location.href = '/pedagog-oversikt';
   } catch (err) {
-    errorEl.textContent = 'Kunde inte ansluta. Försök igen.';
+    errorEl.textContent = window.pt ? pt('family.pedagogInvite.connectFailed') : 'CONNECT_FAILED';
     errorEl.classList.remove('hidden');
     btn.disabled = false;
     btn.textContent = 'Acceptera inbjudan →';
@@ -310,7 +306,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const data = await res.json();
 
     if (!res.ok) {
-      errorEl.textContent = data.error || 'Något gick fel';
+      errorEl.textContent = (window.apiErrorMessage ? apiErrorMessage(data, 'family.pedagogInvite.genericError') : null) || (window.pt ? pt('family.pedagogInvite.genericError') : 'ERROR');
       errorEl.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = 'Skapa konto och acceptera';
@@ -320,7 +316,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     // Success — auto-login via cookie from accept-new (optional) then redirect
     window.location.href = '/pedagog-oversikt';
   } catch (err) {
-    errorEl.textContent = 'Kunde inte ansluta. Kontrollera din internetuppkoppling.';
+    errorEl.textContent = window.pt ? pt('family.pedagogInvite.connectNetwork') : 'CONNECT_FAILED';
     errorEl.classList.remove('hidden');
     btn.disabled = false;
     btn.textContent = 'Skapa konto och acceptera';
@@ -334,5 +330,6 @@ function showError(msg) {
   document.getElementById('errorState').classList.remove('hidden');
 }
 </script>
+  <script>document.addEventListener('DOMContentLoaded', function () { if (window.initParentAppI18n) initParentAppI18n(); });</script>
 </body>
 </html>

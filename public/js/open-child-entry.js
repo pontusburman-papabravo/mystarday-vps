@@ -57,13 +57,13 @@
     var btn = document.getElementById('openChildContinueBtn');
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Öppnar…';
+      btn.textContent = (window.pt ? pt('family.openChild.openingShort') : 'Opening…');
     }
     var ok = await tryChildEntry();
     if (!ok) {
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Fortsätt i webbläsaren';
+        btn.textContent = (window.pt ? pt('family.openChild.continueWeb') : 'Continue in the browser');
       }
       showError('Kunde inte öppna barnupplevelsen här. Prova appen eller logga in som förälder först.');
     }

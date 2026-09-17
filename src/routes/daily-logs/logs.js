@@ -63,7 +63,7 @@ logRouter.put('/:logId/bump-time', requireLogAccess('logId'), async (req, res) =
     const ALLOWED_MINUTES = [5, 10, 15, 30];
     const minutes = parseInt(req.body.minutes, 10);
     if (!ALLOWED_MINUTES.includes(minutes)) {
-      return res.status(400).json({ error: 'Ogiltigt antal minuter. Tillåtna värden: 5, 10, 15, 30.' });
+      return sendApiError(res, 400, 'INVALID_TIMER_MINUTES');
     }
 
     // Fetch all uncompleted items with a start_time for this log
@@ -123,7 +123,7 @@ logRouter.put('/:logId/bump-time-undo', requireLogAccess('logId'), async (req, r
   try {
     const snapshot = req.body.snapshot;
     if (!Array.isArray(snapshot) || snapshot.length === 0) {
-      return res.status(400).json({ error: 'Ogiltig snapshot' });
+      return res.status(400).json({ error: 'VALIDATION_INVALID_VALUES' });
     }
 
     // Restore each item's times. Use unnest for a single efficient query.

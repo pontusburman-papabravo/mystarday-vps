@@ -73,6 +73,12 @@
       "reason": "Public landing waitlist/news routes"
     },
     {
+      "pathPrefix": "src/routes/onboarding.js",
+      "rule": "or-fallback",
+      "class": "D",
+      "reason": "Default schedule name lookup tokens matching harvested library rows, not chrome"
+    },
+    {
       "pathPrefix": "",
       "class": "A",
       "reason": "Remaining product runtime copy still locale-unowned"

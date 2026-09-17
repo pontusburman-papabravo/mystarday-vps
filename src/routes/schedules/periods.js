@@ -97,7 +97,7 @@ router.post('/', async (req, res) => {
       operation_id: operationId, variants, optional_selections: optionalSelections,
     } = req.body || {};
     if (!source || !source.type || !source.id) {
-      return res.status(400).json({ error: 'source.type och source.id krävs' });
+      return sendApiError(res, 400, 'SOURCE_TYPE_ID_REQUIRED');
     }
 
     const locale = await getFamilyLocale(child.family_id);

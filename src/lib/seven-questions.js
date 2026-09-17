@@ -78,7 +78,7 @@ async function scrubWhatNextReferences(client, familyId, deletedActivityId, snap
     if (!wn || wn.activity_template_id !== deletedActivityId) continue;
 
     const frozen = {
-      text: snapshot.name || wn.text || 'Nästa aktivitet',
+      text: snapshot.name || wn.text || 'Next activity',
       emoji: snapshot.emoji || wn.emoji || null,
       icon_key: snapshot.icon_key || wn.icon_key || null,
       frozen_at: new Date().toISOString(),

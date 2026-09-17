@@ -205,7 +205,7 @@
 
   function renderForDigHero(opts) {
     const greeting = (opts && opts.greeting) || 'Hej 👋';
-    const focus = (opts && opts.focus) || 'Vad vill du fokusera på just nu?';
+    const focus = (opts && opts.focus) || (window.pt ? pt('forDig.focus') : 'What do you want to focus on right now?');
     return '<div class="magic-page-shell magic-3d-scene">' +
       '<div class="magic-page-hero for-dig-magic-hero">' +
       '<div class="magic-page-hero-icon magic-3d-card" aria-hidden="true">' + pageIcon('for-dig') + '</div>' +
@@ -268,7 +268,7 @@
         '<button type="button" class="magic-settings-group-card magic-3d-card" data-profile-switch-settings="1">' +
         '<span class="magic-settings-group-icon app" aria-hidden="true">' + pageIcon('profil', 28) + '</span>' +
         '<span class="magic-settings-group-text"><strong>' + escHtml(switchLabel) + '</strong>' +
-        '<span>' + escHtml((typeof window.cpt === 'function' && cpt('settings.switchProfileHint')) || 'Välj barn eller vuxen på denna enhet') + '</span></span>' +
+        '<span>' + escHtml((typeof window.cpt === 'function' && cpt('settings.switchProfileHint')) || (window.pt ? pt('nav.switchUser') : 'Choose child or adult on this device')) + '</span></span>' +
         '<span class="library-magic-menu-arrow" aria-hidden="true">›</span></button>';
     }
     return '<div class="magic-page-shell magic-3d-scene magic-page-hero-wrap">' +

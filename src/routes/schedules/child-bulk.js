@@ -31,12 +31,12 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
 
     const { from_day, to_days } = req.body;
     if (from_day === undefined || !Array.isArray(to_days) || to_days.length === 0) {
-      return res.status(400).json({ error: 'from_day och to_days[] krävs' });
+      return sendApiError(res, 400, 'FROM_DAY_TO_DAYS_REQUIRED');
     }
 
     const fromDow = parseInt(from_day, 10);
     if (isNaN(fromDow) || fromDow < 0 || fromDow > 6) {
-      return res.status(400).json({ error: 'from_day måste vara 0–6' });
+      return sendApiError(res, 400, 'DAY_RANGE');
     }
 
     const sourceResult = await db.query(
@@ -44,7 +44,7 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
       [req.params.childId, fromDow]
     );
     if (sourceResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Inget schema finns för den angivna veckodagen' });
+      return sendApiError(res, 404, 'NO_SCHEDULE_FOR_DAY');
     }
     const sourceId = sourceResult.rows[0].id;
 
@@ -99,7 +99,7 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
         }
       }
 
-      res.json({ message: `Schema kopierat till ${results.length} dag(ar)`, copied_to_days: results });
+      res.json({ code: 'SCHEDULE_COPIED_DAYS', copied_to_days: results });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -119,11 +119,11 @@ router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
     if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { target_child_id, days, overwrite } = req.body;
-    if (!target_child_id) return res.status(400).json({ error: 'target_child_id krävs' });
-    if (target_child_id === req.params.childId) return res.status(400).json({ error: 'Kan inte kopiera till samma barn' });
+    if (!target_child_id) return sendApiError(res, 400, 'TARGET_CHILD_REQUIRED');
+    if (target_child_id === req.params.childId) return sendApiError(res, 400, 'CANNOT_COPY_SAME_CHILD');
 
     const targetChild = await authz.getChildAccess(req.user.id, target_child_id);
-    if (!targetChild) return res.status(403).json({ error: 'Du har inte åtkomst till målbarnet' });
+    if (!targetChild) return sendApiError(res, 403, 'TARGET_CHILD_ACCESS');
 
     const dayFilter = Array.isArray(days) && days.length > 0
       ? days.map(d => parseInt(d, 10)).filter(d => d >= 0 && d <= 6)
@@ -216,12 +216,12 @@ router.post('/copy-to-weeks', async (req, res) => {
 
     const { from_day, week_offsets } = req.body;
     if (from_day === undefined || !Array.isArray(week_offsets) || week_offsets.length === 0) {
-      return res.status(400).json({ error: 'from_day och week_offsets[] krävs' });
+      return sendApiError(res, 400, 'FROM_DAY_OFFSETS_REQUIRED');
     }
 
     const fromDow = parseInt(from_day, 10);
     if (isNaN(fromDow) || fromDow < 0 || fromDow > 6) {
-      return res.status(400).json({ error: 'from_day måste vara 0–6' });
+      return sendApiError(res, 400, 'DAY_RANGE');
     }
 
     const sourceResult = await db.query(
@@ -229,7 +229,7 @@ router.post('/copy-to-weeks', async (req, res) => {
       [req.params.childId, fromDow]
     );
     if (sourceResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Inget schema finns för den angivna veckodagen' });
+      return sendApiError(res, 404, 'NO_SCHEDULE_FOR_DAY');
     }
     const sourceId = sourceResult.rows[0].id;
 
@@ -301,7 +301,7 @@ router.post('/copy-to-weeks', async (req, res) => {
       }
 
       await client.query('COMMIT');
-      res.json({ message: `Schema kopierat till ${copiedCount} kommande vecka${copiedCount !== 1 ? 'r' : ''}`, copied_count: copiedCount });
+      res.json({ code: 'SCHEDULE_COPIED_WEEKS', copied_count: copiedCount });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -322,11 +322,11 @@ router.post('/copy-item-to-day', async (req, res) => {
 
     const { item_id, from_schedule_id, to_day } = req.body;
     if (!item_id || !from_schedule_id || to_day === undefined) {
-      return res.status(400).json({ error: 'item_id, from_schedule_id, to_day krävs' });
+      return sendApiError(res, 400, 'COPY_ITEM_FIELDS_REQUIRED');
     }
     const toDow = parseInt(to_day, 10);
     if (isNaN(toDow) || toDow < 0 || toDow > 6) {
-      return res.status(400).json({ error: 'to_day måste vara 0–6' });
+      return sendApiError(res, 400, 'DAY_RANGE');
     }
 
     const itemResult = await db.query(
@@ -336,7 +336,7 @@ router.post('/copy-item-to-day', async (req, res) => {
       [item_id, from_schedule_id, req.params.childId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
     const item = itemResult.rows[0];
 
@@ -365,7 +365,7 @@ router.post('/copy-item-to-day', async (req, res) => {
       );
       if (existingItem.rows.length > 0) {
         await client.query('ROLLBACK');
-        return res.json({ message: 'Aktiviteten finns redan den dagen', schedule_id: targetScheduleId, skipped: true });
+        return res.json({ code: 'ACTIVITY_ALREADY_ON_DAY', schedule_id: targetScheduleId, skipped: true });
       }
 
       const maxResult = await client.query(
@@ -387,7 +387,7 @@ router.post('/copy-item-to-day', async (req, res) => {
         console.error('[SCHEDULES] copy-item-to-day sync error (non-fatal):', syncErr.message);
       }
 
-      res.json({ message: 'Aktiviteten kopierades', item_id: result.rows[0].id, schedule_id: targetScheduleId });
+      res.json({ code: 'ACTIVITY_COPIED', item_id: result.rows[0].id, schedule_id: targetScheduleId });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -408,15 +408,15 @@ router.post('/copy-item-to-child', async (req, res) => {
 
     const { item_id, from_schedule_id, to_child_id, to_day } = req.body;
     if (!item_id || !from_schedule_id || !to_child_id || to_day === undefined) {
-      return res.status(400).json({ error: 'item_id, from_schedule_id, to_child_id, to_day krävs' });
+      return sendApiError(res, 400, 'COPY_ITEM_CHILD_FIELDS_REQUIRED');
     }
     const toDow = parseInt(to_day, 10);
     if (isNaN(toDow) || toDow < 0 || toDow > 6) {
-      return res.status(400).json({ error: 'to_day måste vara 0–6' });
+      return sendApiError(res, 400, 'DAY_RANGE');
     }
 
     const targetChild = await authz.getChildAccess(req.user.id, to_child_id);
-    if (!targetChild) return res.status(403).json({ error: 'Du har inte åtkomst till målbarnet' });
+    if (!targetChild) return sendApiError(res, 403, 'TARGET_CHILD_ACCESS');
 
     const itemResult = await db.query(
       `SELECT wsi.* FROM weekly_schedule_item wsi
@@ -425,7 +425,7 @@ router.post('/copy-item-to-child', async (req, res) => {
       [item_id, from_schedule_id, req.params.childId]
     );
     if (itemResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
     const item = itemResult.rows[0];
 
@@ -454,7 +454,7 @@ router.post('/copy-item-to-child', async (req, res) => {
       );
       if (existingItem.rows.length > 0) {
         await client.query('ROLLBACK');
-        return res.json({ message: 'Aktiviteten finns redan', schedule_id: targetScheduleId, skipped: true });
+        return res.json({ code: 'ACTIVITY_ALREADY_EXISTS', schedule_id: targetScheduleId, skipped: true });
       }
 
       const maxResult = await client.query(
@@ -474,7 +474,7 @@ router.post('/copy-item-to-child', async (req, res) => {
         console.error('[SCHEDULES] copy-item-to-child sync error (non-fatal):', syncErr.message);
       }
 
-      res.json({ message: 'Aktiviteten kopierades till det andra barnet', item_id: result.rows[0].id });
+      res.json({ code: 'ACTIVITY_COPIED_TO_CHILD', item_id: result.rows[0].id });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -497,7 +497,7 @@ router.post('/swap-day', async (req, res) => {
     const dowA = parseInt(day_a, 10);
     const dowB = parseInt(day_b, 10);
     if (isNaN(dowA) || isNaN(dowB) || dowA < 0 || dowA > 6 || dowB < 0 || dowB > 6 || dowA === dowB) {
-      return res.status(400).json({ error: 'Ogiltiga dagar' });
+      return sendApiError(res, 400, 'INVALID_DAYS');
     }
 
     const client = await db.getClient();
@@ -572,7 +572,7 @@ router.post('/swap-day', async (req, res) => {
         }
       }
 
-      res.json({ message: 'Dagarna har bytts' });
+      res.json({ code: 'DAYS_SWAPPED' });
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -751,10 +751,10 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
     } = req.body;
     const dates = listDatesInclusive(start_date, end_date);
     if (dates.length === 0) {
-      return res.status(400).json({ error: 'Ogiltigt datumintervall' });
+      return sendApiError(res, 400, 'INVALID_DATE_RANGE');
     }
     if (dates.length > MAX_DATE_RANGE_DAYS) {
-      return res.status(400).json({ error: `Max ${MAX_DATE_RANGE_DAYS} dagar i taget` });
+      return sendApiError(res, 400, 'DATE_RANGE_MAX_DAYS', { details: { max: MAX_DATE_RANGE_DAYS } });
     }
 
     const client = await db.getClient();
@@ -770,7 +770,7 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
     }
 
     if (!scheduleItems || !scheduleItems.length) {
-      return res.status(400).json({ error: 'Inga aktiviteter hittades i valt schema' });
+      return sendApiError(res, 400, 'NO_ACTIVITIES_IN_SCHEDULE');
     }
 
     const shouldOverwrite = overwrite !== false;
@@ -855,7 +855,7 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
     });
 
     res.status(201).json({
-      message: `Schema tillämpat på ${appliedCount} dag${appliedCount === 1 ? '' : 'ar'}`,
+      code: 'SCHEDULE_APPLIED_DAYS',
       applied_count: appliedCount,
       start_date,
       end_date,

@@ -289,12 +289,12 @@ router.post('/enroll-choice', async (req, res) => {
   try {
     if (!(await isFlagEnabled(FLAG_KEYS.activationNewEnrollments))) {
       return res.status(410).json({
-        error: 'Nya aktiveringsprogram stängs av. Använd Family Journey.',
+        error: 'ACTIVATION_CLOSED',
         migration: '/api/me/journey-context',
       });
     }
     if (!isProgramFeatureLive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const familyId = req.user.familyId;
@@ -397,12 +397,12 @@ router.get('/', async (req, res) => {
 router.post('/skip-day', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
     if (!ctx || !shouldShowBanner(ctx.program)) {
-      return res.status(404).json({ error: 'Inget aktivt program' });
+      return res.status(404).json({ error: 'ACTIVATION_CLOSED' });
     }
 
     const effectiveDay = getEffectiveProgramDay(ctx.program, ctx.timezone);
@@ -419,12 +419,12 @@ router.post('/skip-day', async (req, res) => {
 router.post('/complete-day', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
     if (!ctx || !shouldShowBanner(ctx.program)) {
-      return res.status(404).json({ error: 'Inget aktivt program' });
+      return res.status(404).json({ error: 'ACTIVATION_CLOSED' });
     }
 
     const day = req.body?.day || getEffectiveProgramDay(ctx.program, ctx.timezone);
@@ -441,12 +441,12 @@ router.post('/complete-day', async (req, res) => {
 router.post('/solo-day', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
     if (!ctx || !shouldShowBanner(ctx.program)) {
-      return res.status(404).json({ error: 'Inget aktivt program' });
+      return res.status(404).json({ error: 'ACTIVATION_CLOSED' });
     }
 
     const { dayStatus } = markDayDone(ctx.program.day_status || {}, 6, 'solo_dismiss');
@@ -463,12 +463,12 @@ router.post('/solo-day', async (req, res) => {
 router.post('/opt-out', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
     if (!ctx || ctx.program.status !== 'active') {
-      return res.status(404).json({ error: 'Inget aktivt program' });
+      return res.status(404).json({ error: 'ACTIVATION_CLOSED' });
     }
 
     const effectiveDay = getEffectiveProgramDay(ctx.program, ctx.timezone);
@@ -484,21 +484,21 @@ router.post('/opt-out', async (req, res) => {
 router.post('/reflection', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
     if (!ctx || !shouldShowBanner(ctx.program)) {
-      return res.status(404).json({ error: 'Inget aktivt program' });
+      return res.status(404).json({ error: 'ACTIVATION_CLOSED' });
     }
 
     if (!showReflection(ctx.program, ctx.timezone) && ctx.program.status === 'active') {
-      return res.status(400).json({ error: 'Reflektionen är inte tillgänglig än' });
+      return sendApiError(res, 400, 'REFLECTION_NOT_READY');
     }
 
     const score = parseInt(req.body?.score, 10);
     if (!score || score < 1 || score > 5) {
-      return res.status(400).json({ error: 'Ogiltigt betyg' });
+      return res.status(400).json({ error: 'VALIDATION_INVALID_VALUES' });
     }
     const text = req.body?.text ? String(req.body.text).trim().substring(0, 500) : null;
 
@@ -525,7 +525,7 @@ router.post('/push-clicked', async (req, res) => {
 
     const day = parseInt(req.body?.day, 10);
     if (!Number.isFinite(day) || day < 2 || day > 7) {
-      return res.status(400).json({ error: 'Ogiltig dag' });
+      return res.status(400).json({ error: 'INVALID_DATE' });
     }
 
     const ctx = await loadProgramContext(req.user.familyId);
@@ -633,7 +633,7 @@ router.get('/new-completions', async (req, res) => {
 router.post('/aha-dismiss', async (req, res) => {
   try {
     if (!isFeatureActive()) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const familyId = req.user.familyId;
@@ -641,12 +641,12 @@ router.post('/aha-dismiss', async (req, res) => {
     const dailyLogItemId = req.body?.daily_log_item_id;
 
     if (!familyId || !dailyLogItemId) {
-      return res.status(400).json({ error: 'daily_log_item_id krävs' });
+      return sendApiError(res, 400, 'DAILY_LOG_ITEM_REQUIRED');
     }
 
     const program = await parentActivationProgram.getBannerProgramByFamily(familyId);
     if (!program || !shouldShowBanner(program)) {
-      return res.status(404).json({ error: 'Inte tillgängligt' });
+      return sendApiError(res, 404, 'NOT_AVAILABLE');
     }
 
     const access = await parentSeenCompletion.verifyFamilyItemAccess(
@@ -655,7 +655,7 @@ router.post('/aha-dismiss', async (req, res) => {
       dailyLogItemId
     );
     if (!access) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
     }
 
     await parentSeenCompletion.markSeen(parentId, dailyLogItemId);

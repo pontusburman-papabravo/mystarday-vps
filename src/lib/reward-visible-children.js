@@ -15,7 +15,7 @@ async function normalizeVisibleToChildren(db, familyId, input) {
     return { value: null };
   }
   if (!Array.isArray(input)) {
-    return { error: 'visible_to_children måste vara null eller en array' };
+    return { error: 'VISIBLE_CHILDREN_INVALID' };
   }
   const rawIds = [...new Set(
     input.filter((id) => typeof id === 'string' && id.length > 0)

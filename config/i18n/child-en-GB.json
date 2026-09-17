@@ -197,7 +197,13 @@
     "pinWarningLast": "Almost out of tries! 1 try left — ask a grown-up if you need help 💛",
     "pinWarningLow": "Hmm, that wasn't the right PIN 🤔 You have {{remaining}} tries left",
     "parentPinInvalid": "Wrong PIN — try again",
-    "handoffRestoreFailed": "Could not open parent mode. Try again or ask a grown-up for help."
+    "handoffRestoreFailed": "Could not open parent mode. Try again or ask a grown-up for help.",
+    "petRoomLocked": "The pet room is not unlocked yet",
+    "themeLocked": "The theme is not unlocked yet",
+    "invalidCollectible": "Invalid collectible",
+    "collectibleOwned": "You already have this item",
+    "gardenDisabled": "The garden is not enabled",
+    "slotNotFound": "Place not found"
   },
   "common": {
     "cancel": "Cancel",
@@ -677,7 +683,8 @@
       "what_next": "What happens next?",
       "what_need": "What do I need?",
       "why": "Why?"
-    }
+    },
+    "nextActivity": "Next activity"
   },
   "todayWarmth": {
     "narrativeMorgon": "Today we help your body wake up 🌞",
@@ -792,5 +799,95 @@
         ]
       }
     ]
+  },
+  "newPage": {
+    "loading": "Loading your star day...",
+    "askParent": "Ask a parent to turn something on!",
+    "childBang": "Child!",
+    "starsToday": "Stars in total today",
+    "untilReward": "5 stars until a reward",
+    "yourRewards": "Your rewards",
+    "zeroStars": "0 stars",
+    "stars": "Stars",
+    "schedule": "Schedule",
+    "child": "Child",
+    "noRewardsYet": "No rewards yet",
+    "starsTodayShort": "Stars today",
+    "childShort": "Child",
+    "you": "you"
+  },
+  "profilePicker": {
+    "pageTitle": "Choose profile | {{brand}}",
+    "who": "Who is using the app?",
+    "tap": "Tap your profile",
+    "namePin": "Sign in with username and PIN",
+    "retry": "Try again",
+    "retryIn": "Try again in",
+    "retryInSeconds": "Try again in {{seconds}} s"
+  },
+  "worlds": {
+    "garden": {
+      "name": "The Garden",
+      "waiting": "The garden is waiting for you",
+      "ambient": "The grass moves slowly in the breeze.",
+      "wake": "Do one thing on Today and the earth wakes up.",
+      "bed": "The flower bed",
+      "tryAgain": "That did not work just now — try again.",
+      "pathBusy": "The path is not answering right now — try again.",
+      "harvest": "Harvest the sunflower",
+      "water": "Water the seed in the flower bed",
+      "plant": "Plant in the flower bed",
+      "bedLocked": "The flower bed — do one thing on Today first",
+      "growing": "The sunflower is growing",
+      "todayFlower": "Today’s flower",
+      "waterHint": "Water the seed and it will grow!",
+      "growingHint": "The sunflower is growing…",
+      "pathConfirm": "The path to the Memory Hall — tap again if you want to go there.",
+      "finishTodayFirst": "Tick something off on Today first!",
+      "backMorgonhus": "Back to Morning House"
+    },
+    "memory": {
+      "name": "The Memory Hall",
+      "waiting": "Here is what you have been proud of.",
+      "ambient": "It feels warm and safe here.",
+      "soft": "A soft memory from a good day.",
+      "window": "The window",
+      "backGarden": "Back to the garden",
+      "myMemories": "My memories",
+      "emptyFrame": "Empty frame",
+      "rememberTitle": "You remember {{title}}. That was lovely.",
+      "rememberFine": "You remember something lovely here.",
+      "meansSomething": "This memory means something to you.",
+      "backWorld": "Back to My world"
+    },
+    "morgonhus": {
+      "name": "Morning House",
+      "waiting": "Morning House is waiting for you"
+    },
+    "hub": {
+      "treasureAria": "Treasure chest — rewards",
+      "what": "What do you want to do?",
+      "gardenAria": "The Garden",
+      "gardenAriaHint": "The Garden — {{hint}}",
+      "morgonhusAria": "Morning House — your home",
+      "morgonhusHint": "Your home — look around",
+      "treasureHint": "Your stars and rewards",
+      "hello": "Hi {{name}}!",
+      "whatWorld": "What do you want to do in your world?",
+      "checkTodayFirst": "Tick something off on Today first",
+      "plantHarvest": "Plant and harvest sunflowers"
+    }
+  },
+  "familyHall": {
+    "helpsHome": "Helps me at home"
+  },
+  "sse": {
+    "scheduleUpdated": "📅 Schedule updated!"
+  },
+  "feedback": {
+    "close": "Close message"
+  },
+  "catalog": {
+    "back": "Back"
   }
 }

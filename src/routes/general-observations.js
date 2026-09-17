@@ -87,10 +87,10 @@ router.post('/', async (req, res) => {
 
     const { text, is_important } = req.body;
     if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: 'text krävs' });
+      return sendApiError(res, 400, 'TEXT_REQUIRED');
     }
     const trimmed = text.trim();
-    if (!trimmed) return res.status(400).json({ error: 'Anteckningen får inte vara tom' });
+    if (!trimmed) return sendApiError(res, 400, 'NOTE_EMPTY');
     if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
 
     const observation = await createObservation({
@@ -117,7 +117,7 @@ router.patch('/:id', async (req, res) => {
     const updates = {};
     if (text !== undefined) {
       const trimmed = String(text).trim();
-      if (!trimmed) return res.status(400).json({ error: 'Text får inte vara tom' });
+      if (!trimmed) return sendApiError(res, 400, 'TEXT_EMPTY');
       if (trimmed.length > 2000) return res.status(400).json({ error: 'Max 2000 tecken' });
       updates.text = trimmed;
     }

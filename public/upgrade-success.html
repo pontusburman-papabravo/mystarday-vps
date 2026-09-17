@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Välkommen till My Starday!</title>
+  <title data-i18n="family.upgradeSuccess.pageTitle">Välkommen till My Starday!</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,8 +13,10 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#F5A623">
   <style>body { background: linear-gradient(135deg, #FFF8F0 0%, #F0FFF4 100%); }</style>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body class="font-body text-navy min-h-screen flex flex-col">
+<body data-i18n-manual-init="true" data-i18n-title="family.upgradeSuccess.pageTitle" class="font-body text-navy min-h-screen flex flex-col">
 
   <!-- Nav -->
   <nav class="w-full px-4 py-4 flex items-center justify-between max-w-5xl mx-auto">
@@ -38,23 +40,24 @@
       </div>
 
       <h1 class="text-3xl font-heading font-bold text-navy mb-4">
-        Välkommen till My Starday!
+        <span data-i18n="family.upgradeSuccess.welcome">Välkommen till My Starday!</span> <!-- pragma: allowlist secret -->
       </h1>
       <p class="text-text-soft text-lg mb-10 leading-relaxed">
-        Ditt konto är aktivt. Nu har du tillgång till alla funktioner för hela din familj.
+        <span data-i18n="family.upgradeSuccess.body">Ditt konto är aktivt. Nu har du tillgång till alla funktioner för hela din familj.</span>
       </p>
 
       <a href="/dashboard"
          class="inline-block w-full bg-gold hover:bg-yellow-600 text-white font-heading font-bold text-lg py-4 px-8 rounded-xl transition-all shadow-lg shadow-amber-200 hover:shadow-xl active:scale-[0.98]">
-        Gå till din översikt
+        <span data-i18n="family.upgradeSuccess.home">Gå till din översikt</span>
       </a>
 
       <p class="text-text-soft text-sm mt-8">
-        Frågor? Skriv till <a href="mailto:info@mystarday.se" class="text-navy font-medium underline hover:no-underline">info@mystarday.se</a>
+        <span data-i18n="family.upgradeSuccess.questions">Frågor? Skriv till</span> <a href="mailto:info@mystarday.se" class="text-navy font-medium underline hover:no-underline">info@mystarday.se</a> <!-- pragma: allowlist secret -->
       </p>
 
     </div>
   </main>
 
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

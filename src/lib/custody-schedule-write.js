@@ -59,14 +59,14 @@ function resolveScheduleWriteFields(pattern, input) {
   if (rawHomeId && rawVariant) {
     const derived = variantForHomeId(pattern, rawHomeId);
     if (derived && derived !== rawVariant) {
-      return { error: 'custody_home_id matchar inte week_variant' };
+      return { error: 'CUSTODY_HOME_VARIANT_MISMATCH' };
     }
   }
 
   if (rawHomeId) {
     const variant = variantForHomeId(pattern, rawHomeId);
     if (!variant) {
-      return { error: 'custody_home_id tillhör inte barnets boendeschema' };
+      return { error: 'CUSTODY_HOME_NOT_IN_FAMILY' };
     }
     return { weekVariant: variant, custodyHomeId: rawHomeId };
   }
@@ -74,12 +74,12 @@ function resolveScheduleWriteFields(pattern, input) {
   if (rawVariant === 'a' || rawVariant === 'b') {
     const homeId = homeIdForVariant(pattern, rawVariant);
     if (!homeId) {
-      return { error: 'Boendeschemat saknar hem för vald veckovariant' };
+      return { error: 'CUSTODY_VARIANT_HOME_MISSING' };
     }
     return { weekVariant: rawVariant, custodyHomeId: homeId };
   }
 
-  return { error: 'custody_home_id eller week_variant krävs när boendeschema är aktivt' };
+  return { error: 'CUSTODY_HOME_OR_VARIANT_REQUIRED' };
 }
 
 module.exports = {

@@ -24,7 +24,11 @@
         short: ChildWorlds.worldBackShort(),
       };
     }
-    return { label: 'Tillbaka till Min värld', short: 'Min värld' };
+    return { label: mg('worlds.memory.backWorld'), short: mg('nav.myWorld') };
+  }
+
+  function mg(key, params) {
+    return window.cpt ? cpt(key, params) : key;
   }
 
   function pipeline() {
@@ -51,14 +55,14 @@
     return '<div class="mu-scene mu-scene--empty mu-scene--scaffold" data-world="memory_hall">' +
       renderScaffoldDecor() +
       '<header class="mu-scene-header">' +
-        '<h1 class="mu-scene-title">Minnesrummet</h1>' +
-        '<p class="mu-scene-subtitle">Här växer minnen när du gör saker du är stolt över.</p>' +
+        '<h1 class="mu-scene-title">' + mg('worlds.memory.name') + '</h1>' +
+        '<p class="mu-scene-subtitle">' + mg('worlds.memory.waiting') + '</p>' +
       '</header>' +
-      '<div class="mu-memory-wall" role="list" aria-label="Mina minnen">' +
+      '<div class="mu-memory-wall" role="list" aria-label="' + mg('worlds.memory.myMemories') + '">' +
         renderEmptyFrames(3) +
       '</div>' +
       '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
-      '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
+      '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="' + mg('worlds.memory.backGarden') + '">' +
         '<span class="mu-back-icon" aria-hidden="true"></span>' +
       '</button>' +
     '</div>';
@@ -76,7 +80,7 @@
   function renderEmptyFrames(count) {
     let items = '';
     for (let i = 0; i < count; i += 1) {
-      items += '<div class="mu-frame mu-frame--empty" role="listitem" aria-label="Tom ram">' +
+      items += '<div class="mu-frame mu-frame--empty" role="listitem" aria-label="' + mg('worlds.memory.emptyFrame') + '">' +
         '<span class="mu-frame-inner" aria-hidden="true"></span>' +
       '</div>';
     }
@@ -87,13 +91,13 @@
     if (!slot) return '';
     if (slot.slot_type === 'warm_echo') {
       return (slot.content && slot.content.toast)
-        || 'Ett mjukt minne från en bra dag.';
+        || mg('worlds.memory.soft');
     }
     const title = (slot.content && slot.content.title) || slot.label_sv || '';
     if (slot.slot_type === 'remembered_gift') {
-      return title ? ('Du minns ' + title + '. Det var fint.') : 'Du minns något fint här.';
+      return title ? mg('worlds.memory.rememberTitle', { title: title }) : mg('worlds.memory.rememberFine');
     }
-    return 'Det här minnet betyder något för dig.';
+    return mg('worlds.memory.meansSomething');
   }
 
   function renderExhibitSlots(slots, opts) {
@@ -123,14 +127,14 @@
     }
 
     const emptyCount = Math.max(0, Math.min(3, MAX_WALL_FRAMES - slots.length));
-    return '<div class="mu-memory-wall" role="list" aria-label="Mina minnen">' +
+    return '<div class="mu-memory-wall" role="list" aria-label="' + mg('worlds.memory.myMemories') + '">' +
       filled + renderEmptyFrames(emptyCount) +
     '</div>';
   }
 
   function renderScaffoldHeader(state) {
-    const title = state.display_name || 'Minnesrummet';
-    const intro = state.first_enter_message || 'Här finns det du varit stolt över.';
+    const title = state.display_name || mg('worlds.memory.name');
+    const intro = state.first_enter_message || mg('worlds.memory.waiting');
     return '<header class="mu-scene-header">' +
       '<h1 class="mu-scene-title">' + esc(title) + '</h1>' +
       '<p class="mu-scene-subtitle">' + esc(intro) + '</p>' +
@@ -144,7 +148,7 @@
     if (!hasScenery && !hasExhibits) return renderEmptyState();
 
     const illustrated = opts && opts.illustrated;
-    const title = state.display_name || 'Minnesrummet';
+    const title = state.display_name || mg('worlds.memory.name');
     const intro = state.first_enter_message || '';
 
     const sceneryHtml = hasScenery ? (state.scenery || []).map(function (s) {
@@ -165,10 +169,10 @@
         renderScaffoldHeader(state) +
         renderExhibitSlots(state.exhibits, { illustrated: false }) +
         '<button type="button" class="mu-window-tap" data-scenery="memory_hall_window"' +
-          ' aria-label="Fönstret">Fönstret</button>' +
+          ' aria-label="' + mg('worlds.memory.window') + '">' + mg('worlds.memory.window') + '</button>' +
         '<div class="mu-scene-toast mu-toast-off" id="muSceneToast" role="status" aria-live="polite"></div>' +
         '<div class="mu-scene-status" id="muSceneStatus" role="status" aria-live="polite" aria-atomic="true"></div>' +
-        '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="Tillbaka till trädgården">' +
+        '<button type="button" class="mu-back-fab" id="muBackGarden" aria-label="' + mg('worlds.memory.backGarden') + '">' +
           '<span class="mu-back-icon" aria-hidden="true"></span>' +
         '</button>' +
       '</div>';

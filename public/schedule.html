@@ -11,7 +11,7 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://mystarday.se/og-image.png">
-  <title>Schema - Min Stjärndag</title>
+  <title data-i18n="schedule.documentTitle">Schema - Min Stjärndag</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -544,7 +544,7 @@
 
           <!-- Day selector -->
           <div id="daySelectorWrap" class="hidden">
-            <p class="text-xs text-text-soft mb-2" data-i18n-html="schedule.chrome.daySelectorHint">Välj dag — <em>dra dag-flik till annan dag för att kopiera/byta</em></p>
+            <p class="text-xs text-text-soft mb-2" data-i18n-html="schedule.chrome.daySelectorHint">Välj dag — <em data-i18n="schedule.chrome.daySelectorHintEm">dra dag-flik till annan dag för att kopiera/byta</em></p>
             <div class="flex gap-1 overflow-x-auto pb-1" id="dayTabs"></div>
           </div>
 
@@ -814,7 +814,7 @@
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyDayTitle">Kopiera dag</h3>
         <button onclick="closeCopyDayModal()" class="text-text-soft hover:text-navy text-2xl">&times;</button>
       </div>
-      <p id="copyFromLabel" class="text-sm text-text-soft mb-3">Kopiera schemat från <strong></strong> till:</p>
+      <p id="copyFromLabel" class="text-sm text-text-soft mb-3"><span data-i18n="schedule.chrome.copyFrom">Kopiera schemat från</span> <strong></strong> till:</p>
       <div id="copyDayPicker" class="grid grid-cols-2 gap-2 mb-5"></div>
       <div class="flex gap-3">
         <button onclick="closeCopyDayModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="schedule.modals.common.cancel">Avbryt</button>
@@ -1110,7 +1110,7 @@
             <select id="sdAddSection" class="px-3 py-2 rounded-xl border-2 border-lavender focus:border-gold outline-none text-sm transition-colors">
               <option value="morgon">🌅 Morgon</option>
               <option value="dag" selected>☀️ Dag</option>
-              <option value="kvall">🌆 Kväll</option>
+              <option value="kvall" data-i18n="schedule.sections.kvallOption">🌆 Kväll</option>
               <option value="natt">🌙 Natt</option>
             </select>
           </div>

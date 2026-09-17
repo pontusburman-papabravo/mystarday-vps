@@ -94,7 +94,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     const activityCounts = {};
     Object.values(blocks.activities).forEach(items => {
       items.forEach(item => {
-        const name = item.activity_name || '(okänd)';
+        const name = item.activity_name || '(unknown)';
         if (!activityCounts[name]) activityCounts[name] = { done: 0, total: 0, icon: item.activity_icon };
         if (item.completed) activityCounts[name].done++;
         activityCounts[name].total++;
@@ -113,7 +113,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     const order = ['Morgon', 'Dag', 'Kväll', 'Natt'];
     vm.sections = blocks.section_summary
       .map(s => ({
-        label: sectionMap[s.section?.toLowerCase()] || s.section || 'Övrigt',
+        label: sectionMap[s.section?.toLowerCase()] || s.section || 'Other',
         pct: s.completion_pct || 0,
         completed: s.completed || 0,
         total: s.total || 0,

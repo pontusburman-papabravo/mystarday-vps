@@ -33,6 +33,10 @@
       .replace(/"/g, '&quot;');
   }
 
+  function cg(key, params) {
+    return window.cpt ? cpt(key, params) : key;
+  }
+
   function pipeline() {
     return window.GardenAssetPipeline || null;
   }
@@ -130,27 +134,27 @@
   }
 
   function bedAriaLabel(slot) {
-    if (!slot) return 'Blomsterbädden';
+    if (!slot) return cg('worlds.garden.bed');
     const verbs = slot.available_verbs || [];
     if (verbs.some(function (v) { return v.verb === 'harvest'; })) {
-      return 'Skörda solrosen';
+      return cg('worlds.garden.harvest');
     }
     if (verbs.some(function (v) { return v.verb === 'water'; })) {
-      return 'Vattna fröet i blomsterbädden';
+      return cg('worlds.garden.water');
     }
     if (verbs.some(function (v) { return v.verb === 'plant'; })) {
-      return 'Plantera i blomsterbädden';
+      return cg('worlds.garden.plant');
     }
     if (slot.plant_locked && slot.state_key === 'empty') {
-      return 'Blomsterbädden — gör en sak på Idag först';
+      return cg('worlds.garden.bedLocked');
     }
     if (slot.state_key === 'watered' || slot.state_key === 'planted') {
-      return 'Solrosen växer';
+      return cg('worlds.garden.growing');
     }
     if (slot.state_key === 'harvested') {
-      return slot.label_state_sv || 'Dagens blomma';
+      return slot.label_state_sv || cg('worlds.garden.todayFlower');
     }
-    return slot.label_sv || 'Blomsterbädden';
+    return slot.label_sv || cg('worlds.garden.bed');
   }
 
   function loePlantImage(slot) {
@@ -245,7 +249,7 @@
       ? rt.renderLayer('garden', state || _state, gardenAmbientContext({}, state))
       : '';
 
-    return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="Trädgården">' +
+    return '<div class="gd-scene gd-scene--illustrated gd-scene--entering" data-world="garden" role="img" aria-label="' + cg('worlds.hub.gardenAria') + '">' +
       '<div class="gd-scene-canvas" style="' + bedCanvasStyle() + '" aria-hidden="true">' +
         scenePictureMarkup() +
         ambientHtml +
@@ -260,10 +264,10 @@
   function wayfinderConfig(state) {
     return {
       placeId: 'garden',
-      placeLabel: 'Trädgården',
+      placeLabel: cg('worlds.garden.name'),
       placeIcon: '🌻',
       immersive: true,
-      back: { label: 'Tillbaka till Morgonhuset', short: 'Hem' },
+      back: { label: cg('worlds.garden.backMorgonhus'), short: cg('nav.home') },
       actions: [],
     };
   }
@@ -566,12 +570,12 @@
       triggerVisual(root, 'garden_bed');
       if (bed.plant_locked && bed.state_key === 'empty') {
         const msg = (_slotsPayload && _slotsPayload.plant_locked_message_sv)
-          || 'Gör en sak på Idag så vaknar jorden.';
+          || cg('worlds.garden.wake');
         showLoeFeedback(msg);
       } else if (bed.state_key === 'planted') {
-        showLoeFeedback('Vattna fröet så växer det!');
+        showLoeFeedback(cg('worlds.garden.waterHint'));
       } else if (bed.state_key === 'watered') {
-        showLoeFeedback('Solrosen växer…');
+        showLoeFeedback(cg('worlds.garden.growingHint'));
       }
       return;
     }
@@ -586,8 +590,8 @@
     if (!result || !result.ok) {
       triggerVisual(root, 'garden_bed');
       const msg = (result && result.child_message_sv)
-        || (result && result.error === 'plant_locked' ? 'Klarmarkera något på Idag först!' : null)
-        || 'Det gick inte just nu — försök igen.';
+        || (result && result.error === 'plant_locked' ? cg('worlds.garden.finishTodayFirst') : null)
+        || cg('worlds.garden.tryAgain');
       showLoeFeedback(msg);
       return;
     }
@@ -627,14 +631,14 @@
       if (now > _pathConfirmUntil) {
         _pathConfirmUntil = now + PATH_CONFIRM_MS;
         triggerVisual(root, sceneryId);
-        showPathHint(root, 'Stigen till Minnesrummet — tryck igen om du vill gå dit.');
+        showPathHint(root, cg('worlds.garden.pathConfirm'));
         return;
       }
       _pathConfirmUntil = 0;
       const entered = await window.LivingWorldTransition.enterMemoryHall({ pathEl: btn });
       if (!entered) {
         triggerVisual(root, sceneryId);
-        showPathHint(root, scenery.ambient_message || 'Stigen svarar inte just nu — försök igen.');
+        showPathHint(root, scenery.ambient_message || cg('worlds.garden.pathBusy'));
       }
       return;
     }
@@ -662,7 +666,7 @@
       return;
     }
     triggerVisual(root, null);
-    showPathHint(root, 'Stigen svarar inte just nu — försök igen.');
+    showPathHint(root, cg('worlds.garden.pathBusy'));
   }
 
   function finishEnterAnimation(root) {

@@ -48,7 +48,10 @@
     "ratingActivityNotFound": "Aktiviteten hittades inte",
     "ratingNotAllowed": "Betygsättning är inte tillåten för det här barnet på den här aktiviteten",
     "ratingParentScoreRange": "Betyg måste vara mellan 1 och 5",
-    "ratingParentDisabled": "Förälderns betygsättning är inte aktiverad för den här aktiviteten"
+    "ratingParentDisabled": "Förälderns betygsättning är inte aktiverad för den här aktiviteten",
+    "dayPaused": "Dagen är pausad",
+    "dailyLogItemRequired": "daily_log_item_id krävs",
+    "invalidTimerMinutes": "Ogiltigt antal minuter. Tillåtna värden: 5, 10, 15, 30."
   },
   "empty": {
     "noActivitiesToday": "Inga aktiviteter idag!",

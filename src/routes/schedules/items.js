@@ -278,10 +278,10 @@ router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
     if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { activity_template_id, start_time, end_time, sort_order, section, date } = req.body;
-    if (!activity_template_id) return res.status(400).json({ error: 'activity_template_id krävs' });
+    if (!activity_template_id) return sendApiError(res, 400, 'ACTIVITY_TEMPLATE_REQUIRED');
 
     if (start_time && end_time && end_time < start_time) {
-      return res.status(400).json({ error: 'Sluttid kan inte vara före starttid' });
+      return sendApiError(res, 400, 'END_BEFORE_START');
     }
 
     const familyResult = await db.query(
@@ -294,7 +294,7 @@ router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
       'SELECT id FROM activity_template WHERE id = $1 AND family_id = $2',
       [activity_template_id, familyId]
     );
-    if (template.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (template.rows.length === 0) return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
 
     const maxResult = await db.query(
       'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM weekly_schedule_item WHERE weekly_schedule_id = $1',
@@ -340,7 +340,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
     if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { order } = req.body;
-    if (!Array.isArray(order)) return res.status(400).json({ error: 'order[] krävs' });
+    if (!Array.isArray(order)) return sendApiError(res, 400, 'ORDER_REQUIRED');
 
     const client = await db.getClient();
     try {
@@ -368,7 +368,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
         console.error('[SCHEDULE-ITEMS] Sync error (non-fatal):', syncErr.message);
       }
 
-      res.json({ message: 'Sorteringsordning uppdaterad' });
+      res.json({ code: 'ORDER_UPDATED' });
       const famRes = await db.query('SELECT family_id FROM child WHERE id = $1', [schedule.child_id]).catch(() => ({ rows: [] }));
       if (famRes.rows[0]?.family_id) broadcast(famRes.rows[0].family_id, 'SCHEDULE_UPDATED', { childId: schedule.child_id, dayOfWeek: schedule.day_of_week });
     } catch (err) {
@@ -393,25 +393,25 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
       'SELECT id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (existing.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte i schemat' });
+    if (existing.rows.length === 0) return sendApiError(res, 404, 'ACTIVITY_NOT_IN_SCHEDULE');
 
     const { start_time, end_time, sort_order, section, activity_template_id } = req.body;
 
     if (start_time !== undefined && end_time !== undefined && start_time && end_time && end_time < start_time) {
-      return res.status(400).json({ error: 'Sluttid kan inte vara före starttid' });
+      return sendApiError(res, 400, 'END_BEFORE_START');
     }
     if (start_time !== undefined && end_time === undefined && start_time) {
       const existingItem = await db.query('SELECT end_time FROM weekly_schedule_item WHERE id = $1', [req.params.itemId]);
       const existingEnd = existingItem.rows[0]?.end_time;
       if (existingEnd && existingEnd < start_time) {
-        return res.status(400).json({ error: 'Sluttid kan inte vara före starttid. Uppdatera även sluttiden.' });
+        return sendApiError(res, 400, 'END_BEFORE_START_UPDATE_END');
       }
     }
     if (end_time !== undefined && start_time === undefined && end_time) {
       const existingItem = await db.query('SELECT start_time FROM weekly_schedule_item WHERE id = $1', [req.params.itemId]);
       const existingStart = existingItem.rows[0]?.start_time;
       if (existingStart && end_time < existingStart) {
-        return res.status(400).json({ error: 'Sluttid kan inte vara före starttid' });
+        return sendApiError(res, 400, 'END_BEFORE_START');
       }
     }
 
@@ -424,7 +424,7 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
     if (sort_order !== undefined) { updates.push(`sort_order = $${idx++}`); values.push(sort_order); }
     if (section !== undefined) {
       const validSections = ['morgon', 'dag', 'kvall', 'natt'];
-      if (!validSections.includes(section)) return res.status(400).json({ error: 'Ogiltig sektion (morgon/dag/kvall/natt)' });
+      if (!validSections.includes(section)) return sendApiError(res, 400, 'INVALID_SECTION');
       updates.push(`section = $${idx++}`);
       values.push(section);
     }
@@ -439,12 +439,12 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
         [activity_template_id, familyId]
       );
       if (tplCheck.rows.length === 0)
-        return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+        return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
       updates.push(`activity_template_id = $${idx++}`);
       values.push(activity_template_id);
     }
 
-    if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
+    if (updates.length === 0) return sendApiError(res, 400, 'NOTHING_TO_UPDATE');
 
     values.push(req.params.itemId);
     const result = await db.query(
@@ -476,7 +476,7 @@ router.delete('/:itemId/all-days', async (req, res) => {
       'SELECT activity_template_id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (!itemRes.rows.length) return res.status(404).json({ error: 'Aktiviteten hittades inte i schemat' });
+    if (!itemRes.rows.length) return sendApiError(res, 404, 'ACTIVITY_NOT_IN_SCHEDULE');
 
     const { activity_template_id: activityTemplateId } = itemRes.rows[0];
 
@@ -490,7 +490,7 @@ router.delete('/:itemId/all-days', async (req, res) => {
       [schedule.child_id, activityTemplateId]
     );
     if (deleteResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten fanns inte i veckoschemat' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_IN_WEEK');
     }
 
     await db.query(
@@ -521,7 +521,7 @@ router.delete('/:itemId/all-days', async (req, res) => {
     } catch (_) { /* SSE broadcast is best-effort */ }
 
     res.json({
-      message: 'Aktiviteten har tagits bort från alla dagar',
+      code: 'ACTIVITY_REMOVED_ALL_DAYS',
       deleted_count: deleteResult.rows.length,
     });
   } catch (err) {
@@ -540,7 +540,7 @@ router.delete('/:itemId', async (req, res) => {
       'DELETE FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2 RETURNING id',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Aktiviteten hittades inte i schemat' });
+    if (result.rows.length === 0) return sendApiError(res, 404, 'ACTIVITY_NOT_IN_SCHEDULE');
 
     // Sync today's daily log with the updated weekly schedule.
     // Pass targetDate to force sync even when the modified day is not today
@@ -568,7 +568,7 @@ router.delete('/:itemId', async (req, res) => {
       }
     } catch (_) { /* SSE broadcast is best-effort */ }
 
-    res.json({ message: 'Aktiviteten har tagits bort från schemat' });
+    res.json({ code: 'ACTIVITY_REMOVED_FROM_SCHEDULE' });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Delete error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
@@ -583,7 +583,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
   try {
     const { date } = req.body;
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return res.status(400).json({ error: 'Ogiltigt datum (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'INVALID_DATE');
     }
 
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
@@ -593,7 +593,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
       'SELECT activity_template_id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
       [req.params.itemId, req.params.scheduleId]
     );
-    if (!itemRes.rows.length) return res.status(404).json({ error: 'Hittades inte' });
+    if (!itemRes.rows.length) return sendApiError(res, 404, 'NOT_FOUND');
 
     const { activity_template_id } = itemRes.rows[0];
 
@@ -620,7 +620,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
       }
     } catch (_) { /* SSE broadcast is best-effort */ }
 
-    res.json({ message: 'Aktiviteten borttagen för detta datum' });
+    res.json({ code: 'ACTIVITY_REMOVED_FOR_DATE' });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Exclude-date error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');

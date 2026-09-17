@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * In-App Purchase routes — RevenueCat SDK config.
  * Webhook handler is mounted in app.js before express.json() (see iap-webhook-handler.js).
@@ -100,23 +101,23 @@ router.post('/sync', requireParent, async (req, res) => {
     console.error('[IAP] sync error:', err.message);
     if (err.code === 'RC_NOT_CONFIGURED') {
       return res.status(503).json({
-        error: 'Prenumerationsverifiering är inte tillgänglig just nu',
+        error: 'IAP_VERIFY_UNAVAILABLE',
         code: 'RC_NOT_CONFIGURED',
       });
     }
     if (err.code === 'RC_VERIFY_FAILED') {
       return res.status(502).json({
-        error: 'Kunde inte verifiera prenumeration hos RevenueCat',
+        error: 'IAP_RC_VERIFY_FAILED',
         code: 'RC_VERIFY_FAILED',
       });
     }
     if (err.code === 'RC_NO_SUBSCRIBER' || err.code === 'RC_NO_PRODUCT' || err.code === 'RC_PRODUCT_NOT_ALLOWED') {
       return res.status(502).json({
-        error: 'Kunde inte läsa prenumerationsstatus',
+        error: 'IAP_STATUS_FAILED',
         code: err.code,
       });
     }
-    res.status(500).json({ error: 'Kunde inte synka prenumeration' });
+    sendApiError(res, 500, 'IAP_SYNC_FAILED');
   }
 });
 

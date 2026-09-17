@@ -1,5 +1,7 @@
 'use strict';
 
+const { t } = require('./i18n');
+const { getFamilyPreferredLocale } = require('./family-locale');
 const { hasLivingWorldAccess, MEMORY_HALL_WORLD_SLUG } = require('./living-world-access');
 const {
   resolvePackForChild,
@@ -27,6 +29,7 @@ async function isPlayableEnabled(familyId) {
 async function buildSceneState(childId, familyId) {
   const pack = resolvePackForChild(childId);
   const worldDef = getWorldDef(pack, MEMORY_HALL_WORLD_SLUG);
+  const locale = familyId ? await getFamilyPreferredLocale(familyId) : 'sv-SE';
   const packExhibits = buildExhibitViews(pack, MEMORY_HALL_WORLD_SLUG);
   const memories = await resolveExhibitsForChild(childId);
   const exhibits = packExhibits.length ? packExhibits : memories;
@@ -37,9 +40,9 @@ async function buildSceneState(childId, familyId) {
     tone: 'pride',
     pack_id: pack.manifest.pack_id,
     world_slug: MEMORY_HALL_WORLD_SLUG,
-    display_name: worldDef?.display_name_sv || 'Minnesrummet',
-    first_enter_message: worldDef?.first_unlock_message || 'Här finns det du varit stolt över.',
-    ambient_message: worldDef?.ambient_message_sv || 'Det känns varmt och tryggt här.',
+    display_name: worldDef?.display_name_sv || t(locale, 'child.worlds.memory.name'),
+    first_enter_message: worldDef?.first_unlock_message || t(locale, 'child.worlds.memory.waiting'),
+    ambient_message: worldDef?.ambient_message_sv || t(locale, 'child.worlds.memory.ambient'),
     scenery: buildSceneryFromPack(worldDef),
     exhibits,
   };

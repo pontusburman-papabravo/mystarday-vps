@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Public market registration gate status (pre-auth).
  */
@@ -103,7 +105,7 @@ router.get('/registration-gates', async (req, res) => {
     });
   } catch (err) {
     console.error('[MARKET] registration-gates error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta marknadsstatus' });
+    sendApiError(res, 500, 'MARKET_STATUS_FAILED');
   }
 });
 
@@ -114,7 +116,7 @@ router.get('/registration-status', async (req, res) => {
     res.json({ markets });
   } catch (err) {
     console.error('[MARKET] registration-status error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta marknadsstatus' });
+    sendApiError(res, 500, 'MARKET_STATUS_FAILED');
   }
 });
 
@@ -133,7 +135,7 @@ router.get('/countries', async (req, res) => {
     res.json({ countries });
   } catch (err) {
     console.error('[MARKET] countries error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta länder' });
+    sendApiError(res, 500, 'MARKET_COUNTRIES_FAILED');
   }
 });
 
@@ -147,7 +149,7 @@ router.get('/config', (req, res) => {
     res.json(config);
   } catch (err) {
     console.error('[MARKET] config error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta marknadskonfiguration' });
+    sendApiError(res, 500, 'MARKET_CONFIG_FAILED');
   }
 });
 
@@ -166,7 +168,7 @@ router.get('/legal-routes', (req, res) => {
     });
   } catch (err) {
     console.error('[MARKET] legal-routes error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta juridiska länkar' });
+    sendApiError(res, 500, 'MARKET_LEGAL_FAILED');
   }
 });
 

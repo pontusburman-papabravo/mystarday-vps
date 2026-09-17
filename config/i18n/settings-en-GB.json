@@ -152,7 +152,30 @@
     "linkSentTo": "Link sent to {{email}}",
     "passwordChanged": "Password has been changed!",
     "linkAppleBtn": "🍎 Link Apple account",
-    "linkGoogleBtn": "G Link Google account"
+    "linkGoogleBtn": "G Link Google account",
+    "emailUpdated": "Your email has been updated! You can now sign in with your new address.",
+    "passwordSet": "Password is set. You can now sign in with email and password.",
+    "errors": {
+      "invalidAppleToken": "Invalid Apple identity token",
+      "invalidGoogleToken": "Invalid Google identity token",
+      "appleAlreadyLinkedThis": "An Apple account is already linked to this account",
+      "googleAlreadyLinkedThis": "A Google account is already linked to this account",
+      "passwordRequiredUnlink": "Password is required to unlink the account",
+      "setPasswordBeforeUnlink": "Set a password before unlinking the account",
+      "emailPasswordRequired": "New email address and password are required",
+      "setPasswordBeforeEmail": "Set a password before you can change email address",
+      "emailAlreadyRegistered": "This email is already registered on another account",
+      "emailChangeLinkInvalid": "Invalid or expired link. Request a new change in Settings.",
+      "emailChangeLinkUsed": "This link has already been used. Request a new change in Settings.",
+      "emailChangeLinkExpired": "This link has expired. Request a new change in Settings.",
+      "passwordAlreadySet": "A password already exists. Use \"Change password\" to update it.",
+      "emailAllOff": "All email notifications are off. You can turn them back on under Settings → Notifications.",
+      "weeklyEmailOff": "We will not send more weekly summaries to your email. You can turn them back on under Settings → Notifications.",
+      "redeemEmailOff": "We will not send more emails when the child wants to redeem rewards. You can turn them back on under Settings → Notifications.",
+      "passwordCurrentAndNew": "Current and new password are required",
+      "appleLinkLoginRequired": "You must be signed in to link an Apple account",
+      "googleLinkLoginRequired": "You must be signed in to link a Google account"
+    }
   },
   "toast": {
     "saved": "Saved!",
@@ -453,5 +476,21 @@
     "fallback": "Could not load family settings right now.",
     "retry": "Try again",
     "retryIn": "Try again in {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "We will not send more weekly summaries to your email. You can turn them back on under Settings → Notifications.",
+    "reward": "We will not send more emails when the child wants to redeem rewards. You can turn them back on under Settings → Notifications.",
+    "all": "All email notifications are off. You can turn them back on under Settings → Notifications.",
+    "invalidTitle": "Invalid link",
+    "invalidBody": "The link is invalid or has expired.",
+    "errorTitle": "Something went wrong",
+    "errorBody": "Please try again later or go to Settings in the app."
+  },
+  "notifArchive": {
+    "retry": "Try again",
+    "failedHidden": "Failed or disabled sends are not shown here.",
+    "loading": "Loading push archive…",
+    "loadError": "Could not load the push archive. That does not mean you have no notifications.",
+    "markAll": "Mark all as read"
   }
 }

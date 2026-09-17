@@ -41,6 +41,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
 <body class="bg-white font-body text-navy dark:bg-navy dark:text-white" data-magic-page="skattkammaren">
   <div class="min-h-screen flex flex-col md:flex-row">
@@ -52,14 +54,14 @@
         <h1 class="text-xl font-heading font-bold">Min Stjärndag</h1>
       </a>
       <ul class="space-y-2">
-        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Översikt</a></li>
+        <li><a href="/dashboard" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.overview">Översikt</a></li>
         <li><a href="/daily-log" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Daglig logg</a></li>
         <li><a href="/schedule" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Veckoschema</a></li>
-        <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">✨ För dig</a></li>
+        <li><a href="/for-dig" data-feature="for_dig" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.primary.forYou">✨ För dig</a></li>
         <li><a href="/reports" data-feature="klinisk_rapportering" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">📊 Rapporter</a></li>
         <li><a href="/library" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Bibliotek</a></li>
         <li><a href="/skattkammaren" class="sidebar-nav block px-4 py-3 rounded-lg bg-gold text-navy font-semibold" style="background:linear-gradient(135deg,#F5A623,#FBBF24);color:#1B2340;">🏆 Skattkammaren</a></li>
-        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors">Familjen &amp; inställningar</a></li>
+        <li><a href="/family" class="sidebar-nav block px-4 py-3 text-white hover:bg-navy-soft rounded-lg transition-colors" data-i18n="nav.familySettings">Familjen &amp; inställningar</a></li>
       </ul>
       <div class="mt-8 pt-4 border-t border-navy-soft space-y-2">
         <button onclick="Theme.toggleDark()" class="w-full px-4 py-2 text-white hover:bg-navy-soft rounded-lg transition-colors text-left flex items-center gap-2">
@@ -88,13 +90,13 @@
         </div>
         <!-- Content -->
         <div style="position:relative;z-index:2;text-align:center;">
-          <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Mål att jobba mot</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;" data-i18n="library.page.goalsToWork">Mål att jobba mot</div>
           <div style="font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;color:white;letter-spacing:0.02em;margin-bottom:16px;">🎁 Skattkammaren</div>
           <!-- Chest + balance row (hidden until child selected) -->
           <div id="heroBalance" class="hidden" style="display:none;align-items:center;justify-content:center;gap:20px;">
             <span style="font-size:2.5rem;animation:skattFloat 3.5s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));">🪙</span>
             <div>
-              <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:2px;">Stjärnsaldo</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,215,0,0.7);margin-bottom:2px;" data-i18n="library.page.starBalance">Stjärnsaldo</div>
               <div id="heroBalanceNum" style="font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:800;color:#FFD700;line-height:1;text-shadow:0 0 20px rgba(255,215,0,0.5);">⭐ 0</div>
               <div id="heroChildName" style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:3px;font-family:'Plus Jakarta Sans',sans-serif;"></div>
             </div>
@@ -106,7 +108,7 @@
       <!-- Child selector strip -->
       <div class="bg-white border-b border-lavender px-4 py-3">
         <div id="childChips" class="flex flex-wrap gap-2">
-          <div class="text-sm text-text-soft py-2">Laddar barn…</div>
+          <div class="text-sm text-text-soft py-2" data-i18n="library.page.loadingChildren">Laddar barn…</div>
         </div>
       </div>
 
@@ -116,14 +118,14 @@
         <!-- Initial placeholder (before child selected) -->
         <div id="placeholderState" class="flex flex-col items-center justify-center py-20 px-6 text-center">
           <div style="font-size:4rem;margin-bottom:16px;animation:skattFloat 3s ease-in-out infinite;display:inline-block;">🏆</div>
-          <div class="font-heading font-bold text-navy text-xl mb-2">Välj ett barn ovan</div>
-          <div class="text-text-soft text-sm">Se barnets trofé-hylla, stjärnsaldo och belöningsProgress</div>
+          <div class="font-heading font-bold text-navy text-xl mb-2" data-i18n="library.page.pickChildAbove">Välj ett barn ovan</div>
+          <div class="text-text-soft text-sm" data-i18n="library.page.trophyLead">Se barnets trofé-hylla, stjärnsaldo och belöningsProgress</div>
         </div>
 
         <!-- Loading spinner -->
         <div id="loadingState" class="hidden flex-col items-center justify-center py-20 text-text-soft text-center">
           <span style="font-size:3rem;display:inline-block;animation:spin 1s linear infinite;">⭐</span>
-          <p class="mt-3 font-semibold text-sm">Öppnar Skattkammaren…</p>
+          <p class="mt-3 font-semibold text-sm" data-i18n="library.page.openingTreasure">Öppnar Skattkammaren…</p>
         </div>
 
         <!-- Main treasury view (filled by JS) -->
@@ -137,21 +139,21 @@
 
           <!-- Pending redemptions -->
           <div id="pendingSection" class="hidden mb-6">
-            <div class="section-label">⏳ Väntar på godkännande</div>
+            <div class="section-label" data-i18n="library.page.waitingApproval">⏳ Väntar på godkännande</div>
             <div id="pendingList" class="space-y-2"></div>
           </div>
 
           <!-- Available rewards -->
           <div id="rewardsSection" class="hidden mb-6">
-            <div class="section-label">🌟 Alla belöningar</div>
+            <div class="section-label" data-i18n="library.page.allRewards">🌟 Alla belöningar</div>
             <div id="rewardsGrid" class="trg-grid"></div>
           </div>
 
           <!-- Empty state -->
           <div id="emptyState" class="hidden text-center py-16">
             <div class="text-5xl mb-3">🎁</div>
-            <div class="font-heading font-bold text-navy text-lg mb-2">Inga belöningar än</div>
-            <div class="text-text-soft text-sm">Lägg till belöningar under <a href="/library" class="text-gold font-semibold underline">Bibliotek → Belöningar</a></div>
+            <div class="font-heading font-bold text-navy text-lg mb-2" data-i18n="library.page.noRewardsYet">Inga belöningar än</div>
+            <div class="text-text-soft text-sm"><span data-i18n="library.page.addRewardsUnder">Lägg till belöningar under</span> <a href="/library" class="text-gold font-semibold underline" data-i18n="library.page.libraryRewardsLink">Bibliotek → Belöningar</a></div>
           </div>
 
         </div>
@@ -172,5 +174,6 @@
   <script src="/js/parent-magic-shell.js?v=1"></script>
   <script src="/js/parent-magic-bootstrap.js?v=1"></script>
   <script src="/js/help-bubble.js?v=2.12.0"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

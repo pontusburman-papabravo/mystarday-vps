@@ -130,7 +130,7 @@ router.get('/calendar-week', async (req, res) => {
     const weekOffset = parseInt(req.query.weekOffset || '0', 10);
 
     if (isNaN(weekOffset) || weekOffset < -52 || weekOffset > 52) {
-      return res.status(400).json({ error: 'Ogiltig veckoförskjutning' });
+      return sendApiError(res, 400, 'INVALID_WEEK_OFFSET');
     }
 
     // Verify parent-child access

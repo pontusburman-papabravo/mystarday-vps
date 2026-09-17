@@ -18,10 +18,10 @@ router.put('/change-password', requireParent, validate(ChangePasswordSchema), as
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: 'Nuvarande och nytt lösenord krävs' });
+      return sendApiError(res, 400, 'PASSWORD_CURRENT_AND_NEW');
     }
     if (newPassword.length < 8) {
-      return res.status(400).json({ error: 'Lösenordet måste vara minst 8 tecken' });
+      return sendApiError(res, 400, 'PASSWORD_TOO_SHORT');
     }
 
     // Verify current password
@@ -30,12 +30,12 @@ router.put('/change-password', requireParent, validate(ChangePasswordSchema), as
       [req.user.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
 
     const valid = await comparePassword(currentPassword, result.rows[0].password_hash);
     if (!valid) {
-      return res.status(401).json({ error: 'Nuvarande lösenord är felaktigt' });
+      return sendApiError(res, 401, 'INVALID_PASSWORD');
     }
 
     // Update password
@@ -49,7 +49,7 @@ router.put('/change-password', requireParent, validate(ChangePasswordSchema), as
     // Without this, a compromised refresh token remains valid for up to 30 days.
     await revokeAllRefreshTokens({ userId: req.user.id, userType: 'parent' });
 
-    res.json({ message: 'Lösenordet har ändrats!' });
+    res.json({ code: 'PASSWORD_CHANGED' });
   } catch (err) {
     console.error('[ACCOUNT] Change password error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');

@@ -103,14 +103,14 @@ function mapCanonicalCopyErrorToHttp(err, locale = 'sv-SE') {
   if (!(err instanceof CanonicalCopyError)) return null;
   switch (err.code) {
     case CANONICAL_VARIANT_REQUIRED:
-      return { status: 400, body: { error: 'Variant krävs för efter skolan.', code: err.code, details: localizeVariantOptions(err.details, locale) } };
+      return { status: 400, body: { error: err.code, code: err.code, details: localizeVariantOptions(err.details, locale) } };
     case CANONICAL_VARIANT_INVALID:
-      return { status: 400, body: { error: 'Ogiltig variant för efter skolan.', code: err.code, details: localizeVariantOptions(err.details, locale) } };
+      return { status: 400, body: { error: err.code, code: err.code, details: localizeVariantOptions(err.details, locale) } };
     case CANONICAL_DUPLICATE_IDENTITY:
-      return { status: 409, body: { error: 'Standardbiblioteket har duplicerad identitet.', code: err.code, details: err.details } };
+      return { status: 409, body: { error: err.code, code: err.code, details: err.details } };
     case CANONICAL_SCHEDULE_NOT_FOUND:
     case CANONICAL_SOURCE_INVALID:
-      return { status: 400, body: { error: 'Standardinnehållet hittades inte.', code: err.code, details: err.details } };
+      return { status: 400, body: { error: err.code, code: err.code, details: err.details } };
     default:
       return { status: 400, body: { error: err.message, code: err.code, details: err.details } };
   }

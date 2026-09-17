@@ -27,7 +27,7 @@ router.put('/profile-photo', requireChild, avatarUpload, async (req, res) => {
       return res.status(err.status || 400).json({ error: err.userMessage });
     }
     console.error('[ME-PROFILE-PHOTO] PUT error:', err.message);
-    res.status(500).json({ error: 'Kunde inte spara profilbilden' });
+    sendApiError(res, 500, 'AVATAR_SAVE_FAILED');
   }
 });
 
@@ -44,7 +44,7 @@ router.delete('/profile-photo', requireChild, async (req, res) => {
     });
   } catch (err) {
     console.error('[ME-PROFILE-PHOTO] DELETE error:', err.message);
-    res.status(500).json({ error: 'Kunde inte ta bort profilbilden' });
+    sendApiError(res, 500, 'AVATAR_DELETE_FAILED');
   }
 });
 

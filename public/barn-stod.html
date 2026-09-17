@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Barn/Stöd — My Starday</title>
+  <title data-i18n="help.barnStod.pageTitle">Barn/Stöd — My Starday</title> <!-- pragma: allowlist secret -->
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/preview-shell.css">
   <script src="/js/platform.js"></script>
   <script src="/js/theme.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body class="bg-cream text-navy font-body">
+<body data-i18n-manual-init="true" data-i18n-title="help.barnStod.pageTitle" class="bg-cream text-navy font-body">
   <main id="barnStodMain" class="p-4 max-w-lg mx-auto min-h-screen"></main>
   <script src="/js/preview-back.js?v=1.0.0"></script>
   <script src="/js/preview-guest.js?v=1.0.0"></script>
   <script src="/js/preview-shell.js?v=1.0.0"></script>
   <script src="/js/barn-stod-hub.js?v=1.0.0"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

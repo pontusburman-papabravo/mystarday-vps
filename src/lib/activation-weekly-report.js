@@ -46,7 +46,6 @@ function computeActivationRateLift(p0Weekly) {
   if (!p0Weekly || p0Weekly.length < 2) {
     return {
       delta_pp: null,
-      message: 'Behöver minst två veckors data för jämförelse.',
     };
   }
   const current = p0Weekly[0];
@@ -54,7 +53,6 @@ function computeActivationRateLift(p0Weekly) {
   if (!current.signups || !previous.signups) {
     return {
       delta_pp: null,
-      message: 'För få signups i senaste eller föregående vecka för jämförelse.',
     };
   }
   const delta = Math.round((current.rate_48h - previous.rate_48h) * 10) / 10;

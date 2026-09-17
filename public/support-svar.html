@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Cache-Control" content="no-store">
-  <title>Ditt ärende</title>
+  <title data-i18n="help.supportSvar.pageTitle">Ditt ärende</title>
   <link rel="stylesheet" href="/css/landing.css?v=1">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <style>
@@ -68,25 +68,28 @@
       margin: 0 0 0.85rem;
     }
   </style>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body>
+<body data-i18n-manual-init="true" data-i18n-title="help.supportSvar.pageTitle">
   <div class="kontakt-page">
-    <h1>Ditt ärende</h1>
-    <p class="intro">Här är hela konversationen. Skriv under om du vill fortsätta. Ett vanligt mejlsvar syns inte här.</p>
+<h1 data-i18n="help.supportSvar.title">Ditt ärende</h1>
+<p class="intro" data-i18n="help.supportSvar.intro">Här är hela konversationen. Skriv under om du vill fortsätta. Ett vanligt mejlsvar syns inte här.</p>
     <p class="intro" id="supportMeta" hidden></p>
     <div class="contact-error" id="followUpError"></div>
     <div id="supportThread" class="thread" hidden></div>
     <div class="contact-form-card" id="supportComposer" hidden>
-      <p class="contact-success" id="followUpSuccess">Skickat. Vi ser det i samma ärende.</p>
+  <p class="contact-success" id="followUpSuccess" data-i18n="help.supportSvar.sent">Skickat. Vi ser det i samma ärende.</p>
       <form id="followUpForm" novalidate>
         <input type="hidden" id="followUpToken" name="token">
         <label for="followUpMessage">Skriv till oss</label>
-        <textarea id="followUpMessage" name="message" required minlength="10" placeholder="Skriv vad som händer…"></textarea>
+        <textarea id="followUpMessage" name="message" required minlength="10" placeholder="Skriv vad som händer…" data-i18n-placeholder="help.supportSvar.placeholder"></textarea>
         <button type="submit" class="btn-primary" id="followUpSubmit" style="width:100%;min-height:44px;">Skicka</button>
       </form>
-      <button type="button" class="btn-primary" id="supportEscalateBtn" style="width:100%;min-height:44px;margin-top:0.75rem;background:#1B2340;color:#fff;">Jag behöver mer hjälp från en person</button>
+      <button type="button" class="btn-primary" id="supportEscalateBtn" style="width:100%;min-height:44px;margin-top:0.75rem;background:#1B2340;color:#fff;" data-i18n="help.supportSvar.escalate">Jag behöver mer hjälp från en person</button>
     </div>
   </div>
   <script src="/js/support-follow-up.js?v=3"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

@@ -71,7 +71,7 @@
       '</div>' +
       hotspots +
       '<button type="button" class="cr-back-fab" id="crBackFab" aria-label="' +
-        esc(room.exit_label_sv || 'Tillbaka') + '">' +
+        esc(room.exit_label_sv || (window.cpt ? cpt('catalog.back') : 'Back')) + '">' +
         '<span class="cr-back-icon" aria-hidden="true"></span>' +
       '</button>' +
       '<div class="cr-scene-toast cr-toast-off" id="crSceneToast" role="status" aria-live="polite"></div>' +

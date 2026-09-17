@@ -25,7 +25,7 @@ function googleDisplayName(payload, email) {
   const given = payload.given_name && String(payload.given_name).trim();
   const family = payload.family_name && String(payload.family_name).trim();
   if (given || family) return `${given || ''} ${family || ''}`.trim();
-  return email.split('@')[0] || 'Förälder';
+  return email.split('@')[0] || 'Parent';
 }
 
 // ─── POST /api/auth/google ───────────────────────────────
@@ -37,7 +37,7 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
   try {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     let payload;
@@ -130,11 +130,11 @@ router.post('/google/link', appleLoginLimiter, async (req, res) => {
   try {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     if (!req.user || req.user.type !== 'parent') {
-      return res.status(401).json({ error: 'Du måste vara inloggad för att länka Google-konto' });
+      return sendApiError(res, 401, 'GOOGLE_LINK_LOGIN_REQUIRED');
     }
 
     let payload;
@@ -152,12 +152,12 @@ router.post('/google/link', appleLoginLimiter, async (req, res) => {
 
     const existing = await parentDb.getParentByGoogleUserId(googleUserId);
     if (existing && existing.id !== req.user.id) {
-      return res.status(409).json({ error: 'Detta Google-konto är redan kopplat till ett annat konto' });
+      return sendApiError(res, 409, 'GOOGLE_LINKED_OTHER_ACCOUNT');
     }
 
     await parentDb.linkGoogleUserId(req.user.id, googleUserId);
 
-    res.json({ message: 'Google-konto länkat!' });
+    res.json({ code: 'GOOGLE_LINKED' });
   } catch (err) {
     console.error('[AUTH] Google link error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');

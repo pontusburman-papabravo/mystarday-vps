@@ -47,7 +47,7 @@ itemRouter.delete('/:itemId', requireItemAccess('itemId'), async (req, res) => {
       [req.params.itemId]
     );
     if (meta.rows[0]?.activity_template_id != null && !meta.rows[0]?.is_once_task) {
-      return res.status(400).json({ error: 'Schemalagda aktiviteter tas bort via veckoschemat' });
+      return sendApiError(res, 400, 'SCHEDULED_VIA_WEEK');
     }
 
     await db.query('DELETE FROM daily_log_item WHERE id = $1', [req.params.itemId]);
@@ -136,8 +136,11 @@ itemRouter.put('/:itemId/complete', requireItemAccess('itemId'), async (req, res
           db.query('SELECT name FROM child WHERE id = $1', [item.child_id]),
           db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
         ]);
-        const childName = childRow.rows[0]?.name || 'Barnet';
-        const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+        const { t } = require('../../lib/i18n');
+        const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+        const locale = await getFamilyPreferredLocale(fid);
+        const childName = childRow.rows[0]?.name || t(locale, 'family.fallbacks.child');
+        const activityName = activityRow.rows[0]?.name || t(locale, 'family.fallbacks.activity');
         notifyParentsChildCompleted(fid, item.child_id, childName, activityName, req.user.id).catch((err) => {
           console.error('[DAILY-LOG-ITEM] notifyParentsChildCompleted failed:', err.message);
         });

@@ -75,9 +75,26 @@
     "annat": "Other"
   },
   "errors": {
-    "loadPlan": "Could not load plan",
+    "loadPlan": "Could not load the plan",
     "loadCustomize": "Could not load customisation",
     "loadGoals": "Could not load goals",
+    "loadActivations": "Could not load activations",
+    "loadPopular": "Could not load popular goals",
+    "loadFavorites": "Could not load favourites",
+    "loadPreview": "Could not load preview",
+    "loadPendingFeedback": "Could not load pending feedback",
+    "saveAnswer": "Could not save the answer",
+    "goalSlugRequired": "A goal is required",
+    "goalSlugPhaseRequired": "Goal and phase are required",
+    "goalNotFound": "Development goal not found",
+    "invalidPhase": "Invalid phase",
+    "childIdIntentRequired": "A child is required for intent and outcome",
+    "invalidIntentReason": "Invalid intent",
+    "outcomeScoreRange": "Outcome must be 1–4",
+    "freetextMax": "Free text can be at most 500 characters",
+    "childAccess": "You do not have access to one of the selected children.",
+    "alreadyAnswered": "You have already answered this question.",
+    "childrenRequired": "At least one child is required",
     "loadChildren": "Could not load children. That does not mean the family has none.",
     "loadInstalls": "Could not read which goals are activated.",
     "retry": "Try again",
@@ -112,5 +129,9 @@
     "placeholder": "Tell us briefly…",
     "thanks": "Thanks for your suggestion!",
     "submit": "Send"
-  }
+  },
+  "outcomeEmail": {
+    "goalFallback": "the goal"
+  },
+  "goalBadgeAria": "From For you: {{title}}"
 }

@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * src/routes/messages.js
  * Owns: user-facing system-message endpoints (unread list, mark-as-read).
@@ -25,7 +26,7 @@ router.get('/unread', requireParent, async (req, res) => {
     res.json(messages);
   } catch (err) {
     console.error('[MESSAGES] Get unread error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta meddelanden' });
+    sendApiError(res, 500, 'MESSAGES_FETCH_FAILED');
   }
 });
 
@@ -45,7 +46,7 @@ router.put('/:id/read', requireParent, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[MESSAGES] Mark read error:', err);
-    res.status(500).json({ error: 'Kunde inte uppdatera meddelande' });
+    sendApiError(res, 500, 'MESSAGE_UPDATE_FAILED');
   }
 });
 

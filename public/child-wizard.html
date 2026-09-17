@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Välkommen! - Min Stjärndag</title>
+  <title data-i18n="family.childWizard.pageTitle">Välkommen!</title> <!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="/css/theme.css?v=2.12.0">
   <script src="/js/theme.js?v=2.12.0"></script>
   <script src="/js/auth.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/api-error-i18n.js?v=2.18.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -36,7 +39,7 @@
     .step-dot.active { background: #F5A623; }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gold-light via-sky to-lavender min-h-screen font-body">
+<body class="bg-gradient-to-br from-gold-light via-sky to-lavender min-h-screen font-body" data-i18n-manual-init="true" data-i18n-title="family.childWizard.pageTitle">
 
   <div class="max-w-lg mx-auto px-4 py-8">
 
@@ -54,22 +57,22 @@
         <h1 class="text-2xl font-heading font-bold text-navy mb-2">
           <span id="wizardChildName">Ditt barn</span> är redo!
         </h1>
-        <p class="text-text-soft text-sm mb-6">Barnet har skapats och ett schema är klart. Spara PIN-koden nedan.</p>
+        <p class="text-text-soft text-sm mb-6" data-i18n="family.childWizard.createdLead">Barnet har skapats och ett schema är klart. Spara PIN-koden nedan.</p>
 
         <!-- PIN display -->
         <div class="bg-gold-light border-2 border-gold rounded-2xl p-5 mb-6">
-          <p class="text-xs font-bold text-gold uppercase tracking-widest mb-2">🔐 PIN-kod</p>
+          <p class="text-xs font-bold text-gold uppercase tracking-widest mb-2" data-i18n="family.childWizard.pinLabel">🔐 PIN-kod</p>
           <div class="text-5xl font-heading font-bold tracking-widest text-navy" id="wizardPin">----</div>
-          <p class="text-xs text-text-soft mt-3">Barnet använder den här koden för att logga in. Spara den på ett säkert ställe!</p>
+          <p class="text-xs text-text-soft mt-3" data-i18n="family.childWizard.pinHint">Barnet använder den här koden för att logga in. Spara den på ett säkert ställe!</p>
         </div>
 
         <button onclick="goToStep(2)"
           class="w-full px-6 py-4 bg-gold hover:bg-yellow-500 text-white rounded-2xl font-heading font-bold text-lg transition-colors shadow-lg">
-          Se schemat →
+          <span data-i18n="family.childWizard.seeSchedule">Se schemat →</span>
         </button>
       </div>
 
-      <p class="text-center text-xs text-text-soft">Steg 1 av 3 — Barnkonto skapat</p>
+      <p class="text-center text-xs text-text-soft" data-i18n="family.childWizard.step1">Steg 1 av 3 — Barnkonto skapat</p>
     </div>
 
     <!-- Step 2: Schedule Preview + Choice -->
@@ -78,8 +81,8 @@
         <div class="flex items-start gap-3 mb-4">
           <div class="w-12 h-12 rounded-2xl bg-mint flex items-center justify-center text-2xl flex-shrink-0">📅</div>
           <div>
-            <h2 class="text-xl font-heading font-bold text-navy">Välj schema</h2>
-            <p class="text-sm text-text-soft">Vi föreslår ett schema baserat på ålder — du väljer själv.</p>
+            <h2 class="text-xl font-heading font-bold text-navy" data-i18n="family.childWizard.chooseSchedule">Välj schema</h2>
+            <p class="text-sm text-text-soft" data-i18n="family.childWizard.chooseLead">Vi föreslår ett schema baserat på ålder — du väljer själv.</p>
           </div>
         </div>
 
@@ -90,8 +93,8 @@
             class="schema-choice w-full flex items-center gap-3 px-4 py-3 bg-mint/60 rounded-xl border-2 border-green-300 text-left transition-all">
             <span class="text-xl">✅</span>
             <div class="flex-1 min-w-0">
-              <span class="font-semibold text-sm text-navy block" id="wizardScheduleLabel">Föreslaget schema</span>
-              <span class="text-xs text-text-soft">Baserat på barnets ålder</span>
+              <span class="font-semibold text-sm text-navy block" id="wizardScheduleLabel" data-i18n="family.childWizard.suggested">Föreslaget schema</span>
+              <span class="text-xs text-text-soft" data-i18n="family.childWizard.basedOnAge">Baserat på barnets ålder</span>
             </div>
           </button>
           <!-- Option 2: Pick another -->
@@ -99,8 +102,8 @@
             class="schema-choice w-full flex items-center gap-3 px-4 py-3 bg-white rounded-xl border-2 border-lavender text-left transition-all hover:border-gold">
             <span class="text-xl">📋</span>
             <div class="flex-1 min-w-0">
-              <span class="font-semibold text-sm text-navy block">Välj ett annat schema</span>
-              <span class="text-xs text-text-soft">Standardscheman och familjens egna mallar</span>
+              <span class="font-semibold text-sm text-navy block" data-i18n="family.childWizard.pickOther">Välj ett annat schema</span>
+              <span class="text-xs text-text-soft" data-i18n="family.childWizard.pickOtherHint">Standardscheman och familjens egna mallar</span>
             </div>
           </button>
           <!-- Option 3: No schedule -->
@@ -108,67 +111,67 @@
             class="schema-choice w-full flex items-center gap-3 px-4 py-3 bg-white rounded-xl border-2 border-lavender text-left transition-all hover:border-gold">
             <span class="text-xl">🚫</span>
             <div class="flex-1 min-w-0">
-              <span class="font-semibold text-sm text-navy block">Inget schema</span>
-              <span class="text-xs text-text-soft">Börja med tomt schema — fyll i själv</span>
+              <span class="font-semibold text-sm text-navy block" data-i18n="family.childWizard.noSchedule">Inget schema</span>
+              <span class="text-xs text-text-soft" data-i18n="family.childWizard.emptyStart">Börja med tomt schema — fyll i själv</span>
             </div>
           </button>
         </div>
 
         <!-- Preview of selected schedule -->
         <div id="wizardSchedulePreview" class="space-y-2 max-h-72 overflow-y-auto mb-4">
-          <div class="text-center py-6 text-text-soft text-sm">Laddar schema…</div>
+          <div class="text-center py-6 text-text-soft text-sm" data-i18n="family.childWizard.loadingSchedule">Laddar schema…</div>
         </div>
 
         <!-- Schema picker (shown when "other" is selected) -->
         <div id="schemaPicker" class="hidden mb-4 bg-sky/60 rounded-2xl p-4 space-y-2">
-          <p class="text-sm font-semibold text-navy mb-2">Standardscheman:</p>
+          <p class="text-sm font-semibold text-navy mb-2" data-i18n="family.childWizard.standardSchedules">Standardscheman:</p>
           <div id="schemaPickerOptions" class="space-y-2">
-            <div class="text-center py-3 text-text-soft text-xs">Laddar scheman…</div>
+            <div class="text-center py-3 text-text-soft text-xs" data-i18n="family.childWizard.loadingSchedules">Laddar scheman…</div>
           </div>
           <div id="familyTemplatesSection" class="hidden mt-3 pt-3 border-t border-lavender/50">
-            <p class="text-sm font-semibold text-navy mb-2">Familjens egna mallar:</p>
+            <p class="text-sm font-semibold text-navy mb-2" data-i18n="family.childWizard.familyTemplates">Familjens egna mallar:</p>
             <div id="familyTemplateOptions" class="space-y-2"></div>
           </div>
         </div>
 
-        <p class="text-xs text-text-soft mb-4">Du kan alltid ändra enskilda dagar i Veckoschema.</p>
+        <p class="text-xs text-text-soft mb-4" data-i18n="family.childWizard.canChangeLater">Du kan alltid ändra enskilda dagar i Veckoschema.</p>
 
         <div class="flex gap-3">
           <button onclick="goToStep(1)" class="flex-1 px-4 py-3 border-2 border-lavender rounded-2xl font-semibold text-navy hover:bg-lavender transition-colors text-sm">
-            ← Tillbaka
+            <span data-i18n="family.childWizard.back">← Tillbaka</span>
           </button>
           <button onclick="goToStep(3)"
             class="flex-1 px-4 py-3 bg-navy hover:bg-navy-soft text-white rounded-2xl font-semibold transition-colors text-sm">
-            Ser bra ut →
+            <span data-i18n="family.childWizard.looksGood">Ser bra ut →</span>
           </button>
         </div>
       </div>
 
-      <p class="text-center text-xs text-text-soft">Steg 2 av 3 — Välj schema</p>
+      <p class="text-center text-xs text-text-soft" data-i18n="family.childWizard.step2">Steg 2 av 3 — Välj schema</p>
     </div>
 
     <!-- Step 3: Done! -->
     <div id="step3" class="hidden">
       <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 text-center mb-6">
         <div class="text-6xl mb-4">🎉</div>
-        <h2 class="text-2xl font-heading font-bold text-navy mb-2">Klart!</h2>
-        <p class="text-text-soft text-sm mb-6">
-          <strong id="confirmName">Barnet</strong> har ett färdigt schema och är redo att börja. Du kan alltid anpassa schemat och lägga till fler aktiviteter.
+        <h2 class="text-2xl font-heading font-bold text-navy mb-2" data-i18n="family.childWizard.done">Klart!</h2>
+        <p class="text-text-soft text-sm mb-6" id="confirmLead">
+          <strong id="confirmName" data-i18n="family.childWizard.child">Barnet</strong>
         </p>
 
         <div class="space-y-3">
           <a href="/dashboard"
             class="block w-full px-6 py-4 bg-gold hover:bg-yellow-500 text-white rounded-2xl font-heading font-bold text-base transition-colors shadow-lg">
-            ✅ Klar
+            <span data-i18n="family.childWizard.finish">✅ Klar</span>
           </a>
           <button onclick="goToStep(2)"
             class="block w-full px-6 py-4 bg-sky hover:bg-blue-100 text-navy rounded-2xl font-semibold text-sm transition-colors">
-            📅 Redigera schema
+            <span data-i18n="family.childWizard.editSchedule">📅 Redigera schema</span>
           </button>
         </div>
       </div>
 
-      <p class="text-center text-xs text-text-soft">Steg 3 av 3 — Allt klart!</p>
+      <p class="text-center text-xs text-text-soft" data-i18n="family.childWizard.step3">Steg 3 av 3 — Allt klart!</p>
     </div>
 
   </div>
@@ -176,6 +179,11 @@
   <script>
     // Alias escapeHtml from dom-utils.js — other pages call it escHtml
     function escHtml(s) { return escapeHtml(s); }
+    function t(key, params) {
+      if (typeof window.pt === 'function') return window.pt(key, params);
+      if (window.I18n && typeof I18n.t === 'function') return I18n.t(key, params);
+      return key;
+    }
 
     // Feature gate: child_creation_wizard must be enabled for this page.
     // Fail-open: if the features list is empty or the call fails, we proceed normally.
@@ -207,7 +215,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const childId = params.get('id');
-    const childName = params.get('name') || 'Barnet';
+    const childName = params.get('name') || t('family.childWizard.child');
     const scheduleName = params.get('schedule') || '';
     if (params.has('pin')) {
       params.delete('pin');
@@ -217,10 +225,23 @@
 
     let currentStep = 1;
     let schemaPickerLoaded = false;
-    const SECTION_LABELS = { morgon: '🌅 Morgon', dag: '☀️ Dag', kvall: '🌆 Kväll', natt: '🌙 Natt' };
+    function sectionLabels() {
+      return {
+        morgon: '🌅 ' + t('schedule.sections.morgon'),
+        dag: '☀️ ' + t('schedule.sections.dag'),
+        kvall: '🌆 ' + t('schedule.sections.kvall'),
+        natt: '🌙 ' + t('schedule.sections.natt')
+      };
+    }
     const SECTION_BADGE  = { morgon: 'badge-morgon', dag: 'badge-dag', kvall: 'badge-kvall', natt: 'badge-natt' };
 
     document.addEventListener('DOMContentLoaded', async () => {
+      if (typeof window.initParentAppI18n === 'function') {
+        await initParentAppI18n();
+      } else if (window.I18n) {
+        await I18n.init();
+        I18n.apply();
+      }
       try {
         Auth.requireAuth();
       } catch (e) {
@@ -245,10 +266,14 @@
       document.getElementById('wizardPin').textContent = pin || '----';
       document.getElementById('wizardChildName').textContent = childName;
       document.getElementById('confirmName').textContent = childName;
+      const confirmLead = document.getElementById('confirmLead');
+      if (confirmLead) confirmLead.textContent = t('family.childWizard.confirmLead', { name: childName });
+      const heading = document.querySelector('#step1 h1');
+      if (heading) heading.textContent = t('family.childWizard.childReady', { name: childName });
 
       if (scheduleName) {
         document.getElementById('wizardScheduleLabel').textContent =
-          `${scheduleName} — anpassat efter ålder`;
+          t('family.childWizard.suggestedNamed', { name: scheduleName });
       }
 
       // Load schedule preview in background
@@ -263,21 +288,21 @@
         // Step 1: get the list of schedules for this child
         const schedules = await Auth.api(`/api/children/${cid}/schedules`);
         if (!schedules || schedules.length === 0) {
-          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">Schema är tomt — du kan fylla det i under Veckoschema.</p>';
+          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">' + t('family.childWizard.emptyFillLater') + '</p>';
           return;
         }
 
         // Pick Monday (dow=1) or the first available schedule as preview
         const monSchedule = schedules.find(s => s.day_of_week === 1) || schedules[0];
         if (!monSchedule) {
-          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">Schema är tomt.</p>';
+          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">' + t('family.childWizard.empty') + '</p>';
           return;
         }
 
         // Step 2: get items for that schedule
         const res = await Auth.api(`/api/schedules/${monSchedule.id}/items`);
         if (!res || !res.items || res.items.length === 0) {
-          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">Schema är tomt — du kan fylla det i under Veckoschema.</p>';
+          previewEl.innerHTML = '<p class="text-center text-text-soft text-sm py-4">' + t('family.childWizard.emptyFillLater') + '</p>';
           return;
         }
 
@@ -285,7 +310,7 @@
       } catch (e) {
         console.error('[WIZARD] loadSchedulePreview error:', e);
         previewEl.innerHTML =
-          '<p class="text-center text-text-soft text-sm py-4">Kunde inte ladda schema — du kan se det under Veckoschema.</p>';
+          '<p class="text-center text-text-soft text-sm py-4">' + t('family.childWizard.loadFailed') + '</p>';
       }
     }
 
@@ -304,7 +329,7 @@
         if (!sections[sec] || sections[sec].length === 0) continue;
         html += `<div class="mb-3">
           <div class="flex items-center gap-2 mb-2">
-            <span class="section-badge ${SECTION_BADGE[sec] || 'badge-dag'}">${SECTION_LABELS[sec] || sec}</span>
+            <span class="section-badge ${SECTION_BADGE[sec] || 'badge-dag'}">${sectionLabels()[sec] || sec}</span>
           </div>
           <div class="space-y-1">`;
         for (const item of sections[sec]) {
@@ -319,7 +344,7 @@
         }
         html += '</div></div>';
       }
-      container.innerHTML = html || '<p class="text-center text-text-soft text-sm py-4">Inga aktiviteter.</p>';
+      container.innerHTML = html || '<p class="text-center text-text-soft text-sm py-4">' + t('family.childWizard.noActivities') + '</p>';
     }
 
     // ── Schema choice: keep, other, or none ──
@@ -351,7 +376,7 @@
         picker.classList.remove('hidden');
         if (!schemaPickerLoaded) loadSchemaOptions();
       } else if (choice === 'none') {
-        preview.innerHTML = '<div class="text-center py-6"><p class="text-3xl mb-2">📝</p><p class="text-sm text-text-soft">Tomt schema — du kan fylla i aktiviteter under Veckoschema.</p></div>';
+        preview.innerHTML = '<div class="text-center py-6"><p class="text-3xl mb-2">📝</p><p class="text-sm text-text-soft">' + t('family.childWizard.emptyFillWeek') + '</p></div>';
         preview.classList.remove('hidden');
         picker.classList.add('hidden');
         // Clear the child's schedule
@@ -383,7 +408,7 @@
       try {
         const groups = await Auth.api('/api/onboarding/template-groups');
         if (!groups || groups.length === 0) {
-          container.innerHTML = '<p class="text-xs text-text-soft text-center py-2">Inga standardscheman.</p>';
+          container.innerHTML = '<p class="text-xs text-text-soft text-center py-2">' + t('family.childWizard.noStandard') + '</p>';
         } else {
           container.innerHTML = groups.map(g => `
             <button onclick="applySchema('${escHtml(g.key)}')"
@@ -398,7 +423,7 @@
         }
         schemaPickerLoaded = true;
       } catch (e) {
-        container.innerHTML = '<p class="text-xs text-text-soft text-center py-2">Kunde inte hämta scheman.</p>';
+        container.innerHTML = '<p class="text-xs text-text-soft text-center py-2">' + t('family.childWizard.fetchFailed') + '</p>';
       }
 
       // Also load family templates
@@ -413,8 +438,8 @@
               class="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-xl border-2 border-transparent hover:border-gold transition-all text-left">
               <span class="text-2xl">📁</span>
               <div class="flex-1">
-                <span class="font-semibold text-sm text-navy">${escHtml(t.name || 'Mitt schema')}</span>
-                <span class="text-xs text-text-soft block">Familjens egen mall</span>
+                <span class="font-semibold text-sm text-navy">${escHtml(t.name || t('family.childWizard.mySchedule'))}</span>
+                <span class="text-xs text-text-soft block">${t('family.childWizard.familyTemplateTag')}</span>
               </div>
             </button>
           `).join('');
@@ -427,7 +452,7 @@
     async function applySchema(groupKey) {
       if (!childId) return;
       const previewEl = document.getElementById('wizardSchedulePreview');
-      previewEl.innerHTML = '<div class="text-center py-6 text-text-soft text-sm">Byter schema…</div>';
+      previewEl.innerHTML = '<div class="text-center py-6 text-text-soft text-sm">' + t('family.childWizard.switching') + '</div>';
 
       try {
         await Auth.api('/api/onboarding/schedule', {
@@ -438,18 +463,18 @@
         // Update label and highlight the "other" choice as active
         const groups = { forskola: 'Förskola vardag', skola: 'Skola vardag', helg: 'Helg', morgon: 'Kort morgon', kvall: 'Kvällsrutin', dag: 'Dagschema' };
         document.getElementById('wizardScheduleLabel').textContent =
-          `${groups[groupKey] || groupKey} — valt av dig`;
+          t('family.childWizard.chosenByYou', { name: groups[groupKey] || groupKey });
 
         await loadSchedulePreview(childId);
       } catch (e) {
-        previewEl.innerHTML = '<p class="text-center text-red-500 text-sm py-4">Kunde inte byta schema. Försök igen.</p>';
+        previewEl.innerHTML = '<p class="text-center text-red-500 text-sm py-4">' + t('family.childWizard.switchFailed') + '</p>';
       }
     }
 
     async function applyFamilyTemplate(templateId) {
       if (!childId) return;
       const previewEl = document.getElementById('wizardSchedulePreview');
-      previewEl.innerHTML = '<div class="text-center py-6 text-text-soft text-sm">Applicerar familjemall…</div>';
+      previewEl.innerHTML = '<div class="text-center py-6 text-text-soft text-sm">' + t('family.childWizard.applyingFamily') + '</div>';
 
       try {
         await Auth.api(`/api/schedule-templates/${templateId}/apply`, {
@@ -457,10 +482,10 @@
           body: JSON.stringify({ child_id: childId, days: [0,1,2,3,4,5,6], overwrite: true }),
         });
 
-        document.getElementById('wizardScheduleLabel').textContent = 'Familjens egen mall — valt av dig';
+        document.getElementById('wizardScheduleLabel').textContent = t('family.childWizard.familyTemplateChosen');
         await loadSchedulePreview(childId);
       } catch (e) {
-        previewEl.innerHTML = '<p class="text-center text-red-500 text-sm py-4">Kunde inte applicera mallen. Försök igen.</p>';
+        previewEl.innerHTML = '<p class="text-center text-red-500 text-sm py-4">' + t('family.childWizard.applyFailed') + '</p>';
       }
     }
 

@@ -33,8 +33,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Min Stjärndag">
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
 </head>
-<body class="font-body">
+<body data-i18n-manual-init="true" data-i18n-title="family.verifyEmailChange.pageTitle" class="font-body">
 
   <!-- Star Logo Home Link -->
   <a href="/" class="fixed top-6 left-6 z-10 hover:scale-110 transition-transform duration-200">
@@ -57,10 +59,10 @@
           <div class="w-16 h-16 border-4 border-gold-light border-t-gold rounded-full animate-spin"></div>
         </div>
         <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
-          Bekräftar e-postadress
+          <span data-i18n="family.verifyEmailChange.confirming">Bekräftar e-postadress</span>
         </h1>
         <p class="text-lg text-text-soft">
-          Vänta medan vi uppdaterar din e-postadress...
+          <span data-i18n="family.verifyEmailChange.wait">Vänta medan vi uppdaterar din e-postadress...</span>
         </p>
       </div>
 
@@ -73,14 +75,14 @@
           E-post uppdaterad!
         </h1>
         <p class="text-lg text-text-soft mb-2">
-          Din nya e-postadress är nu verifierad.
+          <span data-i18n="family.verifyEmailChange.verified">Din nya e-postadress är nu verifierad.</span>
         </p>
         <p class="text-sm text-text-soft mb-6">
-          Logga in med din nya e-postadress för att fortsätta.
+          <span data-i18n="family.verifyEmailChange.loginHint">Logga in med din nya e-postadress för att fortsätta.</span>
         </p>
         <a href="/login"
           class="inline-block px-8 py-3 bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-navy font-heading font-bold text-lg rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
-          Gå till inloggning
+          <span data-i18n="family.verifyEmailChange.goLogin">Gå till inloggning</span>
         </a>
       </div>
 
@@ -90,21 +92,21 @@
           <span class="text-8xl">⚠️</span>
         </div>
         <h1 class="font-heading text-3xl md:text-4xl font-bold text-navy mb-3">
-          Något gick fel
+          <span data-i18n="family.verifyEmailChange.error">Något gick fel</span>
         </h1>
         <p id="errorMessage" class="text-lg text-text-soft mb-6">
-          Länken är ogiltig eller har gått ut.
+          <span data-i18n="family.verifyEmailChange.invalid">Länken är ogiltig eller har gått ut.</span>
         </p>
         <a href="/settings"
           class="inline-block px-8 py-3 bg-navy hover:bg-navy-soft text-white font-heading font-bold text-lg rounded-lg transition-all duration-200">
-          Gå till Inställningar
+          <span data-i18n="family.verifyEmailChange.goSettings">Gå till Inställningar</span>
         </a>
       </div>
 
       <!-- Footer -->
       <div class="mt-12 text-center">
         <p class="text-sm text-text-soft">
-          Behöver du hjälp? <a href="mailto:info@mystarday.se" class="text-gold font-semibold hover:underline">Kontakta oss</a>
+          <span data-i18n="family.verifyEmailChange.needHelp">Behöver du hjälp?</span> <a href="mailto:info@mystarday.se" class="text-gold font-semibold hover:underline">Kontakta oss</a> <!-- pragma: allowlist secret -->
         </p>
       </div>
     </div>
@@ -130,7 +132,7 @@
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          showError(err.error || 'Länken är ogiltig eller har gått ut.');
+          showError((window.apiErrorMessage ? apiErrorMessage(err, 'family.verifyEmailChange.invalid') : null) || (window.pt ? pt('family.verifyEmailChange.invalid') : 'LINK_INVALID'));
           return;
         }
 
@@ -161,5 +163,6 @@
   <script src="/js/support-bubble.js?v=2.13.0"></script>
   <!-- Service Worker -->
   <script src="/js/sw-register.js?v=2.12.0"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.initParentAppI18n)initParentAppI18n();});</script>
 </body>
 </html>

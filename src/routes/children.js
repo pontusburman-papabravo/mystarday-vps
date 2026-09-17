@@ -532,7 +532,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
       res.status(201).json({
         ...toChildListResponse(child),
         pin: rawPin,
-        message: `${name.trim()} har lagts till! Spara PIN-koden: ${rawPin}`,
+        code: 'CHILD_ADDED_WITH_PIN',
         wizard: true,
         default_schedule_name: defaultScheduleName,
       });
@@ -547,7 +547,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
       const trimmedName = req.body.name.trim();
       const suggestions = buildNameSuggestions(trimmedName);
       return res.status(409).json({
-        error: `${trimmedName} finns redan i din familj`,
+        error: 'DUPLICATE_CHILD_NAME', code: 'DUPLICATE_CHILD_NAME', details: { name: trimmedName },
         code: 'DUPLICATE_CHILD_NAME',
         suggestions,
       });
@@ -626,7 +626,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[CHILDREN] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel vid sparandet.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -679,7 +679,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     if (view_type !== undefined) {
       const allowed = ['day_sections', 'now_next_later'];
       if (!allowed.includes(view_type)) {
-        return res.status(400).json({ error: 'Ogiltigt view_type' });
+        return res.status(400).json({ error: 'INVALID_VIEW_TYPE' });
       }
       updates.push(`view_type = $${idx++}`);
       values.push(view_type);
@@ -703,7 +703,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     if (mood_input_mode !== undefined) {
       const allowedModes = ['cards', 'slider', 'off'];
       if (!allowedModes.includes(mood_input_mode)) {
-        return res.status(400).json({ error: 'Ogiltigt mood_input_mode' });
+        return res.status(400).json({ error: 'VALIDATION_INVALID_VALUES' });
       }
       updates.push(`mood_input_mode = $${idx++}`);
       values.push(mood_input_mode);
@@ -744,7 +744,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ error: 'Inget att uppdatera' });
+      return res.status(400).json({ error: 'NO_CHANGES' });
     }
 
     values.push(req.params.id);
@@ -760,7 +760,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       const trimmedName = (req.body.name || '').trim();
       const suggestions = buildNameSuggestions(trimmedName);
       return res.status(409).json({
-        error: `${trimmedName} finns redan i din familj`,
+        error: 'DUPLICATE_CHILD_NAME', code: 'DUPLICATE_CHILD_NAME', details: { name: trimmedName },
         code: 'DUPLICATE_CHILD_NAME',
         suggestions,
       });
@@ -801,7 +801,7 @@ router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
 
   if (committed) {
     await childDeletion.cleanupAvatarStorageKeysAfterCommit(capturedAvatarKeys);
-    return res.json({ message: 'Barn borttaget' });
+    return res.json({ code: 'CHILD_DELETED' });
   }
 });
 
@@ -861,7 +861,7 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
       client.release();
     }
 
-    res.json({ message: 'PIN-koden har ändrats!' });
+    res.json({ code: 'PIN_CHANGED' });
   } catch (err) {
     console.error('[CHILDREN] Change PIN error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
@@ -882,7 +882,7 @@ router.post('/:id/unlock-pin', validateParams(UUIDParam), requireChildAccess('id
       parent_id: req.user.id,
     }).catch(() => {});
 
-    res.json({ message: 'Låsning upphävd. Barnet kan logga in igen.' });
+    res.json({ code: 'PIN_UNLOCKED' });
   } catch (err) {
     console.error('[CHILDREN] Unlock PIN error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
@@ -899,7 +899,7 @@ router.get('/:id/wizard-pin', validateParams(UUIDParam), async (req, res) => {
     }
     const pin = wizardPinReveal.consumeCreatedPin(req.params.id, req.user.id);
     if (!pin) {
-      return res.status(404).json({ error: 'PIN är inte tillgänglig' });
+      return sendApiError(res, 404, 'PIN_UNAVAILABLE');
     }
     res.json({ pin });
   } catch (err) {

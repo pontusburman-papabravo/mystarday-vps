@@ -458,7 +458,6 @@ async function sendStuckIntervention(familyId, adminParentId) {
       eligible: false,
       blockers: [{
         code: 'delivery_state_unknown',
-        message: 'Mejl skickat men leveransstatus oklar — kontrollera innan nytt försök',
       }],
       interventionId: claimed.id,
       family: evaluated.family,

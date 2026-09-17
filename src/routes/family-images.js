@@ -122,12 +122,12 @@ router.get('/source', async (req, res) => {
   try {
     const imageUrl = typeof req.query.url === 'string' ? req.query.url.trim() : '';
     if (!imageUrl) {
-      return res.status(400).json({ error: 'url krävs' });
+      return sendApiError(res, 400, 'URL_REQUIRED');
     }
 
     const allowed = await isImageUrlAllowedForFamily(req.user.familyId, imageUrl);
     if (!allowed) {
-      return res.status(403).json({ error: 'Bilden tillhör inte familjen' });
+      return sendApiError(res, 403, 'IMAGE_NOT_FAMILY');
     }
 
     const localPath = resolveLocalUploadPath(imageUrl);
@@ -142,7 +142,7 @@ router.get('/source', async (req, res) => {
           return res.status(404).json({ error: 'Bilden hittades inte' });
         }
         console.error('[FAMILY-IMAGES] Local read error:', readErr.message);
-        return res.status(500).json({ error: 'Kunde inte hämta bilden' });
+        return sendApiError(res, 500, 'IMAGE_FETCH_FAILED');
       }
     }
 
@@ -152,16 +152,16 @@ router.get('/source', async (req, res) => {
     res.send(response.buffer);
   } catch (err) {
     if (err.code === 'BLOCKED_HOST' || err.code === 'INVALID_PROTOCOL' || err.code === 'INVALID_URL') {
-      return res.status(403).json({ error: 'URL ej tillåten' });
+      return sendApiError(res, 403, 'URL_NOT_ALLOWED');
     }
     if (err.code === 'NOT_IMAGE') {
-      return res.status(400).json({ error: 'Filen är inte en giltig bild' });
+      return sendApiError(res, 400, 'UPLOAD_INVALID_IMAGE');
     }
     if (err.code === 'TIMEOUT' || err.code === 'TOO_LARGE') {
-      return res.status(502).json({ error: 'Kunde inte hämta bilden' });
+      return sendApiError(res, 502, 'IMAGE_FETCH_FAILED');
     }
     console.error('[FAMILY-IMAGES] Source proxy error:', err.message);
-    res.status(500).json({ error: 'Kunde inte hämta bilden' });
+    sendApiError(res, 500, 'IMAGE_FETCH_FAILED');
   }
 });
 
@@ -190,7 +190,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateFamilyImageSchema),
       values.push(sort_order);
     }
     if (updates.length === 0) {
-      return res.status(400).json({ error: 'Inget att uppdatera' });
+      return res.status(400).json({ error: 'NO_CHANGES' });
     }
 
     values.push(req.params.id);

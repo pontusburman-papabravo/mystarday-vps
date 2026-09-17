@@ -325,8 +325,8 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       [req.params.itemId, req.user.id]
     );
     const item = itemResult.rows[0];
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
-    if (item.is_paused) return res.status(400).json({ error: 'Dagen är pausad' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
+    if (item.is_paused) return sendApiError(res, 400, 'DAY_PAUSED');
 
     const lifetimeCompletionsBefore = item.completed
       ? null
@@ -442,7 +442,7 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
               program,
               childId: req.user.id,
               dailyLogItemId: req.params.itemId,
-              activityName: activityRow.rows[0]?.name || 'en aktivitet',
+              activityName: activityRow.rows[0]?.name || 'an activity',
               timezone,
             });
           }
@@ -456,8 +456,11 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
           db.query('SELECT name FROM child WHERE id = $1', [req.user.id]),
           db.query('SELECT name FROM daily_log_item WHERE id = $1', [req.params.itemId]),
         ]);
-        const childName = childRow.rows[0]?.name || 'Barnet';
-        const activityName = activityRow.rows[0]?.name || 'en aktivitet';
+        const { t } = require('../../lib/i18n');
+        const { getFamilyPreferredLocale } = require('../../lib/family-locale');
+        const locale = await getFamilyPreferredLocale(fid);
+        const childName = childRow.rows[0]?.name || t(locale, 'family.fallbacks.child');
+        const activityName = activityRow.rows[0]?.name || t(locale, 'family.fallbacks.activity');
         notifyParentsChildCompleted(fid, req.user.id, childName, activityName).catch((err) => {
           console.error('[DAILY-LOG-CHILD] notifyParentsChildCompleted failed:', err.message);
         });
@@ -517,7 +520,7 @@ childSelfRouter.put('/daily-log-items/:itemId/uncomplete', async (req, res) => {
       [req.params.itemId, req.user.id]
     );
     const item = itemResult.rows[0];
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     const result = await db.query(
       `UPDATE daily_log_item
@@ -543,7 +546,7 @@ childSelfRouter.put('/daily-log-items/:itemId/uncomplete', async (req, res) => {
 childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
   try {
     const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     // Get sub-steps from template (with completion state if any)
     const stepsResult = await db.query(
@@ -593,8 +596,8 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
 childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/complete', async (req, res) => {
   try {
     const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
-    if (item.is_paused) return res.status(400).json({ error: 'Dagen är pausad' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
+    if (item.is_paused) return sendApiError(res, 400, 'DAY_PAUSED');
 
     // Verify sub-step belongs to this item's template
     const stepResult = await db.query(
@@ -628,7 +631,7 @@ childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/complete', as
 childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/uncomplete', async (req, res) => {
   try {
     const item = await getChildOwnedLogItem(req.params.itemId, req.user.id);
-    if (!item) return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+    if (!item) return res.status(404).json({ error: 'ACTIVITY_NOT_FOUND' });
 
     // Verify sub-step belongs to this item's template
     const stepResult = await db.query(
@@ -728,7 +731,7 @@ childSelfRouter.put('/view-type', async (req, res) => {
     const { view_type } = req.body;
     const allowed = ['day_sections', 'now_next_later'];
     if (!view_type || !allowed.includes(view_type)) {
-      return res.status(400).json({ error: 'Ogiltigt view_type. Tillåtna värden: day_sections, now_next_later' });
+      return sendApiError(res, 400, 'INVALID_VIEW_TYPE');
     }
     await db.query(
       'UPDATE child SET view_type = $1 WHERE id = $2',

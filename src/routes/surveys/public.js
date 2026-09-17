@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Public survey respondent routes (mounted at /api/surveys).
  */
@@ -28,7 +30,7 @@ const surveyContestLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `survey-contest:${req.ip}`,
   handler: (req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen senare.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 
@@ -98,7 +100,7 @@ publicRouter.get('/popup/logged-in', requireAuth, requireFeature('enkater'), asy
     res.json({ survey });
   } catch (err) {
     console.error('[SURVEYS] popup logged-in error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -119,7 +121,7 @@ publicRouter.get('/popup/landing', async (req, res) => {
     });
   } catch (err) {
     console.error('[SURVEYS] popup landing error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -127,7 +129,7 @@ publicRouter.get('/popup/landing', async (req, res) => {
 publicRouter.post('/popup/interaction', async (req, res) => {
   try {
     const { survey_id, action, snooze_days, cookie_token } = req.body;
-    if (!survey_id || !action) return res.status(400).json({ error: 'survey_id och action krävs' });
+    if (!survey_id || !action) return sendApiError(res, 400, 'SURVEY_ID_ACTION_REQUIRED');
 
     // Logged-in parent check (optional auth)
     const parentId = req.user?.type === 'parent' ? req.user.id : null;
@@ -142,7 +144,7 @@ publicRouter.post('/popup/interaction', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[SURVEYS] popup interaction error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -151,23 +153,23 @@ publicRouter.get('/s/:slug', async (req, res) => {
   try {
     const allowed = await isPublicSurveySlugAllowed(req.params.slug);
     if (!allowed) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
     const survey = await db.getSurveyFullBySlug(req.params.slug);
-    if (!survey) return res.status(404).json({ error: 'Enkät hittades inte' });
-    if (survey.status === 'closed') return res.status(410).json({ error: 'Enkäten är stängd', status: 'closed' });
-    if (survey.status === 'paused') return res.status(503).json({ error: 'Enkäten är pausad', status: 'paused' });
-    if (survey.status === 'draft') return res.status(404).json({ error: 'Enkät hittades inte' });
+    if (!survey) return sendApiError(res, 404, 'SURVEY_NOT_FOUND');
+    if (survey.status === 'closed') return sendApiError(res, 410, 'SURVEY_CLOSED', { status: 'closed' });
+    if (survey.status === 'paused') return sendApiError(res, 503, 'SURVEY_PAUSED', { status: 'paused' });
+    if (survey.status === 'draft') return sendApiError(res, 404, 'SURVEY_NOT_FOUND');
     // Auto-close if closes_at is past
     if (survey.closes_at && new Date(survey.closes_at) < new Date()) {
-      return res.status(410).json({ error: 'Enkäten har stängts', status: 'closed', closes_at: survey.closes_at });
+      return sendApiError(res, 410, 'SURVEY_CLOSED', { status: 'closed', closes_at: survey.closes_at });
     }
     // Track view for response-rate calculation (fire-and-forget)
     db.incrementViewCount(survey.id).catch(() => {});
     res.json(survey);
   } catch (err) {
     console.error('[SURVEYS] public get error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -176,14 +178,14 @@ publicRouter.post('/s/:slug/start', async (req, res) => {
   try {
     const allowed = await isPublicSurveySlugAllowed(req.params.slug);
     if (!allowed) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
     const survey = await db.getSurveyBySlug(req.params.slug);
     if (!survey || survey.status !== 'active') {
-      return res.status(404).json({ error: 'Enkät ej tillgänglig' });
+      return sendApiError(res, 404, 'SURVEY_NOT_FOUND');
     }
     if (survey.closes_at && new Date(survey.closes_at) < new Date()) {
-      return res.status(410).json({ error: 'Enkäten har stängts', status: 'closed' });
+      return sendApiError(res, 410, 'SURVEY_CLOSED', { status: 'closed' });
     }
 
     const { fingerprint, cookie_token } = req.body;
@@ -192,7 +194,7 @@ publicRouter.post('/s/:slug/start', async (req, res) => {
     if (cookie_token) {
       const dup = await db.checkDuplicate(survey.id, cookie_token);
       if (dup && dup.status === 'submitted') {
-        return res.status(409).json({ error: 'Du har redan svarat på denna enkät', duplicate: true });
+        return sendApiError(res, 409, 'SURVEY_ALREADY_ANSWERED', { duplicate: true });
       }
     }
 
@@ -208,7 +210,7 @@ publicRouter.post('/s/:slug/start', async (req, res) => {
     res.status(201).json({ response_id: response.id, survey_id: survey.id });
   } catch (err) {
     console.error('[SURVEYS] start error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -216,19 +218,19 @@ publicRouter.post('/s/:slug/start', async (req, res) => {
 publicRouter.post('/responses/:rid/answers', async (req, res) => {
   try {
     const { question_id, answer_text, selected_option_ids, freetext_value, scale_value } = req.body;
-    if (!question_id) return res.status(400).json({ error: 'question_id krävs' });
+    if (!question_id) return sendApiError(res, 400, 'SURVEY_QUESTION_ID_REQUIRED');
     const response = await db.getResponse(req.params.rid);
-    if (!response) return res.status(404).json({ error: 'Session hittades inte' });
-    if (response.status === 'submitted') return res.status(409).json({ error: 'Enkäten är redan inskickad' });
+    if (!response) return sendApiError(res, 404, 'SURVEY_SESSION_NOT_FOUND');
+    if (response.status === 'submitted') return sendApiError(res, 409, 'SURVEY_ALREADY_SUBMITTED');
 
     const survey = await db.getSurveyById(response.survey_id);
     if (!(await assertSurveyPubliclyAllowed(survey))) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
 
     const question = await db.getQuestion(question_id);
     if (!question || question.survey_id !== response.survey_id) {
-      return res.status(400).json({ error: 'Ogiltig fråga' });
+      return sendApiError(res, 400, 'SURVEY_INVALID_QUESTION');
     }
 
     let optionIds = Array.isArray(selected_option_ids) ? selected_option_ids.filter(Boolean) : [];
@@ -236,13 +238,13 @@ publicRouter.post('/responses/:rid/answers', async (req, res) => {
       optionIds = optionIds.slice(0, 1);
     }
     if (question.question_type === 'checkbox' && question.max_selections && optionIds.length > question.max_selections) {
-      return res.status(400).json({ error: `Du kan välja högst ${question.max_selections}` });
+      return sendApiError(res, 400, 'SURVEY_MAX_SELECTIONS', { details: { max: question.max_selections } });
     }
     if (optionIds.length > 0) {
       const options = await db.getOptionsForQuestion(question.id);
       const valid = new Set(options.map((o) => String(o.id)));
       if (optionIds.some((id) => !valid.has(String(id)))) {
-        return res.status(400).json({ error: 'Ogiltigt svarsalternativ' });
+        return sendApiError(res, 400, 'SURVEY_INVALID_OPTION');
       }
     }
 
@@ -258,7 +260,7 @@ publicRouter.post('/responses/:rid/answers', async (req, res) => {
     res.json(answer);
   } catch (err) {
     console.error('[SURVEYS] save answer error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -267,12 +269,12 @@ publicRouter.post('/responses/:rid/submit', async (req, res) => {
   try {
     const { gdpr_consent, respondent_email, contest_gdpr_consent } = req.body;
     const response = await db.getResponse(req.params.rid);
-    if (!response) return res.status(404).json({ error: 'Session hittades inte' });
-    if (response.status === 'submitted') return res.status(409).json({ error: 'Enkäten är redan inskickad' });
+    if (!response) return sendApiError(res, 404, 'SURVEY_SESSION_NOT_FOUND');
+    if (response.status === 'submitted') return sendApiError(res, 409, 'SURVEY_ALREADY_SUBMITTED');
 
     const survey = await db.getSurveyById(response.survey_id);
     if (!(await assertSurveyPubliclyAllowed(survey))) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
 
     const separateContest = survey?.contest_collect_after_submit === true;
@@ -296,7 +298,7 @@ publicRouter.post('/responses/:rid/submit', async (req, res) => {
 
     res.json({
       ok: true,
-      thank_you_message: survey?.thank_you_message || 'Tack för ditt svar!',
+      thank_you_message: survey?.thank_you_message || null,
       thank_you_cta_text: survey?.thank_you_cta_text || null,
       thank_you_cta_url: survey?.thank_you_cta_url || null,
       target_tag: survey?.target_tag || null,
@@ -309,7 +311,7 @@ publicRouter.post('/responses/:rid/submit', async (req, res) => {
     });
   } catch (err) {
     console.error('[SURVEYS] submit error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -317,42 +319,42 @@ publicRouter.post('/responses/:rid/submit', async (req, res) => {
 publicRouter.post('/responses/:rid/contest', surveyContestLimiter, async (req, res) => {
   try {
     const response = await db.getResponse(req.params.rid);
-    if (!response) return res.status(404).json({ error: 'Session hittades inte' });
+    if (!response) return sendApiError(res, 404, 'SURVEY_SESSION_NOT_FOUND');
     if (response.status !== 'submitted') {
-      return res.status(409).json({ error: 'Svara på enkäten först' });
+      return sendApiError(res, 409, 'SURVEY_ANSWER_FIRST');
     }
 
     const survey = await db.getSurveyById(response.survey_id);
     if (!(await assertSurveyPubliclyAllowed(survey))) {
-      return res.status(403).json({ error: 'Enkäten är inte tillgänglig just nu' });
+      return sendApiError(res, 403, 'SURVEY_UNAVAILABLE');
     }
     if (!survey?.contest_enabled) {
-      return res.status(400).json({ error: 'Utlottningen är inte öppen' });
+      return sendApiError(res, 400, 'SURVEY_CONTEST_NOT_OPEN');
     }
 
     const contestClose = survey.contest_closes_at || survey.closes_at;
     if (contestClose && new Date(contestClose) < new Date()) {
-      return res.status(410).json({ error: 'Utlottningen är stängd' });
+      return sendApiError(res, 410, 'SURVEY_CONTEST_CLOSED');
     }
 
     const { age_confirmed_18, contest_gdpr_consent } = req.body || {};
     if (age_confirmed_18 !== true) {
-      return res.status(400).json({ error: 'Du måste vara 18 år eller äldre för att delta' });
+      return sendApiError(res, 400, 'SURVEY_AGE_REQUIRED');
     }
     if (contest_gdpr_consent !== true) {
-      return res.status(400).json({ error: 'Samtycke krävs för att delta i utlottningen' });
+      return sendApiError(res, 400, 'SURVEY_CONTEST_CONSENT');
     }
 
     const email = normalizeEmail(req.body.email || req.body.respondent_email);
     if (!email) {
-      return res.status(400).json({ error: 'Ogiltig e-postadress' });
+      return sendApiError(res, 400, 'VALIDATION_EMAIL_INVALID');
     }
 
     if (await db.getContestEntryByResponse(response.id)) {
-      return res.status(409).json({ error: 'Du är redan anmäld till utlottningen' });
+      return sendApiError(res, 409, 'SURVEY_CONTEST_ALREADY');
     }
     if (await db.getContestEntryByEmail(survey.id, email)) {
-      return res.status(409).json({ error: 'Den här adressen är redan anmäld' });
+      return sendApiError(res, 409, 'SURVEY_EMAIL_ALREADY');
     }
 
     try {
@@ -364,7 +366,7 @@ publicRouter.post('/responses/:rid/contest', surveyContestLimiter, async (req, r
       });
     } catch (err) {
       if (err.code === '23505') {
-        return res.status(409).json({ error: 'Den här adressen är redan anmäld' });
+        return sendApiError(res, 409, 'SURVEY_EMAIL_ALREADY');
       }
       throw err;
     }
@@ -372,7 +374,7 @@ publicRouter.post('/responses/:rid/contest', surveyContestLimiter, async (req, r
     res.status(201).json({ ok: true });
   } catch (err) {
     console.error('[SURVEYS] contest entry error:', err);
-    res.status(500).json({ error: 'Serverfel' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

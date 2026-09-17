@@ -30,7 +30,7 @@
     if (!plugin) {
       return Promise.reject(new Error('BIOMETRIC_UNAVAILABLE'));
     }
-    const reason = (options && options.reason) || 'Bekräfta att du är vuxen';
+    const reason = (options && options.reason) || (window.pt ? pt('family.biometric.confirmAdult') : 'Confirm you are an adult');
     return plugin.authenticate({ reason: reason });
   }
 

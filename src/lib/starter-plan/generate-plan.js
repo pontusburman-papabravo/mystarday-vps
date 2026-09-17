@@ -44,7 +44,7 @@ async function generateStarterPlan(input) {
 
   try {
     const userPrompt = JSON.stringify({
-      childName: input.childName || 'Barnet',
+      childName: input.childName || 'Child',
       ageBand: input.ageBand,
       routineType: input.routineType,
       mainChallenges: input.mainChallenges || [],
@@ -86,14 +86,14 @@ async function generateStarterPlan(input) {
 }
 
 function buildFallback(input, baseItems, reason) {
-  const childName = input.childName || 'Barnet';
+  const childName = input.childName || 'Child';
   const items = baseItems.map((base) => ({
     ...base,
     name: personalizeFallbackTitle(base.name, childName),
   }));
 
   return {
-    planTitle: input.scheduleName || 'Ert första schema',
+    planTitle: input.scheduleName || 'Your first schedule',
     introText: `${childName} får ett tydligt schema att följa — ni kan alltid justera senare.`,
     items,
     used_ai: false,
@@ -108,7 +108,7 @@ function sanitizeTitle(s) {
 }
 
 function personalizeFallbackTitle(originalName, childName) {
-  const name = childName || 'Barnet';
+  const name = childName || 'Child';
   if (!originalName) return `Steg med ${name}`;
   if (originalName.toLowerCase().includes(name.toLowerCase())) return originalName;
   return `${originalName} (${name})`;

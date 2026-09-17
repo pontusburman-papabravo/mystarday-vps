@@ -14,7 +14,7 @@ router.use(requireParent);
 router.get('/', requireComponent('pedagog'), async (req, res) => {
   try {
     const { childId, date } = req.query;
-    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+    if (!childId || !date) return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
 
     const { rows } = await db.query(
       `SELECT pdc.*, p.name AS parent_name
@@ -27,7 +27,7 @@ router.get('/', requireComponent('pedagog'), async (req, res) => {
     res.json({ comments: rows });
   } catch (err) {
     console.error('[PEDAGOG-COMMENTS] GET error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta kommentarer' });
+    sendApiError(res, 500, 'COMMENTS_FETCH_FAILED');
   }
 });
 
@@ -35,7 +35,7 @@ router.post('/', requireComponent('pedagog'), async (req, res) => {
   try {
     const { childId, date, content } = req.body;
     if (!childId || !date || !content?.trim()) {
-      return res.status(400).json({ error: 'childId, date och content krävs' });
+      return sendApiError(res, 400, 'COMMENT_FIELDS_REQUIRED');
     }
 
     const owns = await db.query(
@@ -57,7 +57,7 @@ router.post('/', requireComponent('pedagog'), async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error('[PEDAGOG-COMMENTS] POST error:', err);
-    res.status(500).json({ error: 'Kunde inte spara kommentar' });
+    sendApiError(res, 500, 'COMMENT_SAVE_FAILED');
   }
 });
 
@@ -88,7 +88,7 @@ router.get('/samarbete/notes', requireComponent('pedagog'), async (req, res) => 
     res.json({ notes: rows });
   } catch (err) {
     console.error('[SAMARBETE] notes error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta anteckningar' });
+    sendApiError(res, 500, 'NOTE_FETCH_FAILED');
   }
 });
 

@@ -24,7 +24,7 @@ router.get('/first-success', requireNotPedagogOnly, async (req, res) => {
   try {
     const familyId = req.user.familyId;
     if (!familyId) {
-      return res.status(401).json({ error: 'Ej inloggad' });
+      return res.status(401).json({ error: 'AUTH_REQUIRED' });
     }
 
     if (!(await isEngineApiEnabled(familyId))) {
