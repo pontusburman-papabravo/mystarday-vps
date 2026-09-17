@@ -99,8 +99,8 @@ describe('resurser generated PDFs', () => {
   it('does not embed emoji in generated PDFs', () => {
     const emoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
     for (const asset of PDF_ASSETS) {
-      const sv = fs.readFileSync(path.join(SV_PDF_DIR, asset.fileSv), 'utf8');
-      const en = fs.readFileSync(path.join(EN_PDF_DIR, asset.fileEn), 'utf8');
+      const sv = pdfVisibleText(fs.readFileSync(path.join(SV_PDF_DIR, asset.fileSv)));
+      const en = pdfVisibleText(fs.readFileSync(path.join(EN_PDF_DIR, asset.fileEn)));
       assert.equal(emoji.test(sv), false, `emoji in ${asset.fileSv}`);
       assert.equal(emoji.test(en), false, `emoji in ${asset.fileEn}`);
     }

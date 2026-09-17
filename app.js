@@ -200,6 +200,7 @@ function createApp() {
 
   app.use(express.static(path.join(__dirname, 'public'), {
     index: false,
+    redirect: false,
     setHeaders(res, filePath) {
       if (/\.pdf$/i.test(filePath) && /[/\\](resurser|resources)[/\\]pdf[/\\]/.test(filePath)) {
         res.setHeader('X-Robots-Tag', 'noindex, nofollow');
