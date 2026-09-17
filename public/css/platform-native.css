@@ -304,3 +304,12 @@ html.is-native-android main > .parent-nav-header-actions:not(.parent-top-chrome 
 html.is-native-android body:not(.parent-magic-dashboard) #childCardsGrid {
   display: flex !important;
 }
+
+/* Hide Swedish data-i18n placeholders until apply() for non-Swedish locales. */
+html[data-i18n-pending] [data-i18n],
+html[data-i18n-pending] [data-i18n-html],
+html[data-i18n-pending] [data-i18n-placeholder],
+html[data-i18n-pending] [data-i18n-title],
+html[data-i18n-pending] [data-i18n-aria-label] {
+  visibility: hidden !important;
+}

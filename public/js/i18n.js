@@ -7,6 +7,8 @@ const I18n = {
   lang: 'sv-SE',
   _ready: null,
   _englishAppEnabled: false,
+  DEFAULT_LOCALE: 'sv-SE',
+  CANONICAL_FALLBACK_LOCALE: 'en-GB',
 
   STORAGE_KEY: 'sd_preferred_locale',
 
@@ -60,7 +62,7 @@ const I18n = {
       }
 
       if (!lang) {
-        lang = this._fromNavigator() || 'sv-SE';
+        lang = this._fromNavigator() || this.DEFAULT_LOCALE;
       }
 
       await this.load(lang);
@@ -78,36 +80,100 @@ const I18n = {
     const base = s.split(/[-_]/)[0].toLowerCase();
     if (base === 'sv') return 'sv-SE';
     if (base === 'en') return 'en-GB';
+    // Unsupported tags (including fi / fi-FI) stay unsupported — never alias to sv-SE.
     return null;
   },
 
+  isSwedishLocale(raw) {
+    const canonical = this._normalize(raw != null && raw !== '' ? raw : this.lang);
+    return canonical === this.DEFAULT_LOCALE;
+  },
+
+  allowsSwedishLiteralFallback() {
+    return this.isSwedishLocale();
+  },
+
+  literalFallback(key, fallback) {
+    if (fallback == null || fallback === '') return key;
+    if (this.allowsSwedishLiteralFallback()) return String(fallback);
+    return key;
+  },
+
+  tOrLiteral(key, fallback, params) {
+    const val = this.t(key, params || {});
+    if (val !== key) return val;
+    return this.literalFallback(key, fallback);
+  },
+
+  _setPending(on) {
+    const html = document.documentElement;
+    if (!html || typeof html.setAttribute !== 'function' || typeof html.removeAttribute !== 'function') {
+      return;
+    }
+    if (on) html.setAttribute('data-i18n-pending', '1');
+    else html.removeAttribute('data-i18n-pending');
+  },
+
+  _clearPending() {
+    this._setPending(false);
+  },
+
+  _applyBootHint() {
+    try {
+      const stored = this._normalize(this._readStoredLocale());
+      const hinted = stored || this._fromNavigator();
+      if (hinted) this.lang = hinted;
+      if (hinted && hinted !== this.DEFAULT_LOCALE) this._setPending(true);
+    } catch {
+      /* incomplete globals (tests) */
+    }
+  },
+
   _fromNavigator() {
-    const langs = navigator.languages || [navigator.language || ''];
-    for (const l of langs) {
-      const n = this._normalize(l);
-      if (n) return n;
+    try {
+      const langs = navigator.languages || [navigator.language || ''];
+      for (const l of langs) {
+        const n = this._normalize(l);
+        if (n) return n;
+      }
+    } catch {
+      return null;
     }
     return null;
   },
 
-  async load(lang = 'sv-SE') {
-    const canonical = this._normalize(lang) || 'sv-SE';
+  async _fetchLocale(locale) {
     try {
-      const res = await fetch(`/api/i18n/${encodeURIComponent(canonical)}`);
-      if (!res.ok) {
-        const fallback = await fetch('/api/i18n/sv-SE');
-        this.locale = await fallback.json();
-        this.lang = 'sv-SE';
+      const res = await fetch(`/api/i18n/${encodeURIComponent(locale)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async load(lang = this.DEFAULT_LOCALE) {
+    const canonical = this._normalize(lang) || this.DEFAULT_LOCALE;
+    try {
+      const fetched = await this._fetchLocale(canonical);
+      if (fetched) {
+        this.locale = fetched;
+        this.lang = canonical;
+      } else if (canonical !== this.CANONICAL_FALLBACK_LOCALE) {
+        const fallback = await this._fetchLocale(this.CANONICAL_FALLBACK_LOCALE);
+        this.locale = fallback || {};
+        this.lang = fallback ? this.CANONICAL_FALLBACK_LOCALE : canonical;
       } else {
-        this.locale = await res.json();
+        this.locale = {};
         this.lang = canonical;
       }
       sessionStorage.setItem(this.STORAGE_KEY, this.lang);
       try { localStorage.setItem(this.STORAGE_KEY, this.lang); } catch { /* ignore */ }
       this._setHtmlLang();
-      this.apply();
     } catch (err) {
       console.warn('[i18n] Failed to load locale:', err);
+    } finally {
+      this.apply();
     }
   },
 
@@ -148,34 +214,48 @@ const I18n = {
 
   /**
    * Apply translations to DOM elements with data-i18n* attributes.
+   * Non-Swedish locales always overwrite Swedish HTML placeholders (even with the key).
    */
   apply(root = document) {
-    root.querySelectorAll('[data-i18n]').forEach((el) => {
+    const writeMissing = !this.allowsSwedishLiteralFallback();
+    const maybeWrite = (text, key) => writeMissing || text !== key;
+    const query = (root && typeof root.querySelectorAll === 'function')
+      ? root
+      : (typeof document.querySelectorAll === 'function' ? document : null);
+    if (!query) {
+      this._clearPending();
+      return;
+    }
+
+    query.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = el.getAttribute('data-i18n');
       const text = this.t(key);
-      if (text !== key) el.textContent = text;
+      if (maybeWrite(text, key)) el.textContent = text;
     });
-    root.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    query.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
       const key = el.getAttribute('data-i18n-placeholder');
       const text = this.t(key);
-      if (text !== key) el.placeholder = text;
+      if (maybeWrite(text, key)) el.placeholder = text;
     });
-    root.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    query.querySelectorAll('[data-i18n-title]').forEach((el) => {
       const key = el.getAttribute('data-i18n-title');
       const text = this.t(key);
-      if (text !== key) el.title = text;
+      if (maybeWrite(text, key)) el.title = text;
     });
-    root.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+    query.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
       const key = el.getAttribute('data-i18n-aria-label');
       const text = this.t(key);
-      if (text !== key) el.setAttribute('aria-label', text);
+      if (maybeWrite(text, key)) el.setAttribute('aria-label', text);
     });
-    root.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    query.querySelectorAll('[data-i18n-html]').forEach((el) => {
       const key = el.getAttribute('data-i18n-html');
       const text = this.t(key);
       // Trusted static locale JSON only — never user input
-      if (text !== key) el.innerHTML = text;
+      if (maybeWrite(text, key)) el.innerHTML = text;
     });
+    if (!root || root === document || root === document.documentElement) {
+      this._clearPending();
+    }
   },
 
   getCurrentLang() {
@@ -199,7 +279,12 @@ const I18n = {
 
 window.I18n = I18n;
 
+I18n._applyBootHint();
+
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body?.dataset?.i18nManualInit === 'true') return;
-  I18n.init().catch((err) => console.warn('[i18n] init failed:', err));
+  I18n.init().catch((err) => {
+    console.warn('[i18n] init failed:', err);
+    I18n.apply();
+  });
 });

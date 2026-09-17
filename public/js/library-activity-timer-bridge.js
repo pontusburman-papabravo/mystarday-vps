@@ -15,7 +15,15 @@
 
   function t(key, fallback, params) {
     let raw = typeof global.lpt === 'function' ? global.lpt(key, params) : key;
-    if (!raw || raw === key) raw = fallback;
+    if (!raw || raw === key) {
+      if (global.I18n && typeof global.I18n.tOrLiteral === 'function') {
+        raw = global.I18n.tOrLiteral(key, fallback, params);
+      } else if (global.I18n && typeof global.I18n.literalFallback === 'function') {
+        raw = global.I18n.literalFallback(key, fallback);
+      } else {
+        raw = fallback;
+      }
+    }
     return applyParams(raw, params);
   }
 
