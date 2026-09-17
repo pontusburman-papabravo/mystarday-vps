@@ -81,6 +81,8 @@ const CRITICAL_UNIT = [
   'test/i18n-strict-ci.test.js',
   'test/i18n-copy-ratchet.test.js',
   'test/i18n-fragment-guards.test.js',
+  'test/i18n-widget-resource-parity.test.js',
+  'test/i18n-native-shell.test.js',
   'test/support-reply-token.test.js',
   'test/support-follow-up.test.js',
   'test/support-ooo.test.js',
