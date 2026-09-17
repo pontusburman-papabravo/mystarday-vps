@@ -16,7 +16,7 @@ Controlled **English Beta in Sweden** — store metadata, native beta builds, an
 
 | Platform | Marketing | Build / versionCode | Previous | Bump reason |
 |----------|-----------|---------------------|----------|-------------|
-| iOS | 1.4.5 | **30** | 29 | Closed trains 1.4.3/1.4.4; English screenshots + native train |
+| iOS | 1.4.6 | **30** | 29 | Closed trains 1.4.3/1.4.4/1.4.5; next native train |
 | Android | 1.4.5 | **14** | 13 | Real launcher names (sv + en-GB); must exceed last uploaded versionCode |
 
 Files: `ios/App/App.xcodeproj/project.pbxproj`, `assets/play-store/android-version.json`.
