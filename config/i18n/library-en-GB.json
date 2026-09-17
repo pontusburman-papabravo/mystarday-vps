@@ -192,14 +192,18 @@
     "recropOpening": "Opening…",
     "recropOpenFailed": "Could not open crop tool",
     "recropSaved": "Image updated",
-    "recropSaveFailed": "Could not save crop"
+    "recropSaveFailed": "Could not save crop",
+    "cropTitle": "Crop the image",
+    "cropDragHint": "Drag and zoom so the subject is clear in the child view.",
+    "childPreview": "This is how the child sees the image"
   },
   "substeps": {
     "add": "+ Add step",
     "addTitle": "Add step",
     "edit": "Edit step",
     "loading": "Loading…",
-    "placeholder": "Add a step…"
+    "placeholder": "Add a step…",
+    "timerHint": "The child can start a timer for this step only."
   },
   "chrome": {
     "all": "All",
@@ -299,7 +303,14 @@
     "allChildren": "All children",
     "childrenCount": "{{count}} children",
     "hiddenFromAll": "Hidden from all children",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "nameLabel": "Reward name *",
+    "orPick": "or pick",
+    "starCostLabel": "Star cost *",
+    "starCostHint": "Number of stars needed to redeem the reward",
+    "requiresApproval": "Requires parent approval",
+    "visibleFor": "Visible to",
+    "visibleHint": "Leave all unchecked = visible to every child"
   },
   "rewardsHub": {
     "sections": {
@@ -367,5 +378,52 @@
     "copying": "Copying…",
     "copyFailed": "Could not copy",
     "copyFailedRewards": "Could not copy rewards"
+  },
+  "page": {
+    "activitiesTitle": "Activities — {{brand}}",
+    "myPanel": "My panel",
+    "heading": "📚 Activities & rewards",
+    "lead": "Create activities and rewards that fit your children",
+    "tipsTitle": "💡 Library tips",
+    "tipSubsteps": "• Create activities with steps — the child ticks them off one at a time",
+    "tipCopyStandard": "• Copy from the standard library and adapt for your family",
+    "tipRewardsGoal": "• Rewards become goals the child works towards in their view",
+    "tipVisibility": "• Choose which children see each reward",
+    "tabSchedule": "📅 Schedule",
+    "tabActivities": "📋 Activities",
+    "tabRewards": "🏆 Rewards",
+    "tabLibrary": "📚 Library",
+    "childrenSchedulesTitle": "👧 Children's schedules",
+    "childrenSchedulesLead": "Choose which schedule to change",
+    "editSchedule": "✏️ Edit schedule",
+    "mySchedulesLead": "Your own schedule templates — create, edit and copy to a child",
+    "readySchedulesLead": "Ready-made schedules — copy to a child and adapt afterwards",
+    "groupedByTime": "Grouped by time of day",
+    "addActivity": "Add activity",
+    "addActivityBtn": "+ New activity",
+    "addCategory": "Add category",
+    "allActivities": "All activities",
+    "expandHint": "Tap a category to expand",
+    "pickIconBelow": "Choose an icon below",
+    "activitiesSearchPlaceholder": "🔍 Search your activities and the standard library…",
+    "treasuryLead": "The child's trophy shelf — see which rewards are unlocked and which are next",
+    "starBalance": "Star balance",
+    "noRewardsYet": "No rewards yet",
+    "addRewardsOnTab": "Add rewards under the Rewards tab.",
+    "openingTreasure": "Opening Treasure Chest…",
+    "standardLead": "Ready-made activities from the standard library — copy into yours in one tap",
+    "readyDaySchedules": "Ready-made day schedules — copy to a child and adapt freely",
+    "readyActivitiesLead": "Ready-made activities — copy one or all into your own library",
+    "predefinedRewardsLead": "Predefined rewards — pick and copy into your reward library",
+    "goalsTitle": "🎁 Goals to work towards",
+    "rewardsStriveLead": "Rewards children can work towards with their stars",
+    "addReward": "+ New reward",
+    "categoryHint": "The category appears as a new tab in your library. You can use it when creating schedules.",
+    "categoryNamePlaceholder": "E.g. Weekend, secondary school, summer…",
+    "categoryNameLabel": "Category name *"
+  },
+  "sevenQuestions": {
+    "title": "🧩 Extra support — The seven questions",
+    "hint": "Visual support shown on the child's NOW card (requires the Extra support pack)."
   }
 }

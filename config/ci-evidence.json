@@ -9,6 +9,16 @@
     },
     {
       "job": "test",
+      "stepName": "i18n strict audit",
+      "runIncludes": "audit:i18n:strict"
+    },
+    {
+      "job": "test",
+      "stepName": "i18n copy ratchet",
+      "runIncludes": "audit:i18n"
+    },
+    {
+      "job": "test",
       "stepName": "Test",
       "runIncludes": "test:gate"
     },

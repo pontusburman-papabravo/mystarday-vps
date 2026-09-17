@@ -25,6 +25,8 @@ const HEAD_SHA = 'a'.repeat(40);
 const OLD_CREATED_AT = '2020-01-01T00:00:00Z';
 const REQUIRED_STEP_CONTRACTS = [
   { job: 'test', stepName: 'Credential leak guard', runIncludes: 'check:credentials' },
+  { job: 'test', stepName: 'i18n strict audit', runIncludes: 'audit:i18n:strict' },
+  { job: 'test', stepName: 'i18n copy ratchet', runIncludes: 'audit:i18n' },
   { job: 'test', stepName: 'Test', runIncludes: 'test:gate' },
   { job: 'test', stepName: 'Migration rollback gate (G3c)', runIncludes: 'migration-rollback-gate' },
 ];
@@ -34,6 +36,10 @@ jobs:
     steps:
       - name: Credential leak guard
         run: npm run check:credentials
+      - name: i18n strict audit
+        run: npm run audit:i18n:strict
+      - name: i18n copy ratchet
+        run: npm run audit:i18n
       - name: Test
         run: npm run test:gate
       - name: Migration rollback gate (G3c)
@@ -43,6 +49,8 @@ jobs:
 function ciJobSteps(overrides = {}) {
   return [
     { name: 'Credential leak guard', conclusion: 'success' },
+    { name: 'i18n strict audit', conclusion: 'success' },
+    { name: 'i18n copy ratchet', conclusion: 'success' },
     { name: 'Test', conclusion: 'success' },
     { name: 'Migration rollback gate (G3c)', conclusion: 'success' },
     ...overrides.extra || [],
@@ -194,6 +202,10 @@ jobs:
     steps:
       - name: Credential leak guard
         run: npm run check:credentials
+      - name: i18n strict audit
+        run: npm run audit:i18n:strict
+      - name: i18n copy ratchet
+        run: npm run audit:i18n
       - name: Test
         run: echo "tests temporarily disabled"
       - name: Migration rollback gate (G3c)
@@ -215,6 +227,8 @@ jobs:
               conclusion: 'success',
               steps: [
                 { name: 'Credential leak guard', conclusion: 'success' },
+                { name: 'i18n strict audit', conclusion: 'success' },
+                { name: 'i18n copy ratchet', conclusion: 'success' },
                 { name: 'Test', conclusion: 'failure' },
                 { name: 'Migration rollback gate (G3c)', conclusion: 'success' },
               ],
@@ -320,6 +334,10 @@ jobs:
     steps:
       - name: Credential leak guard
         run: npm run check:credentials
+      - name: i18n strict audit
+        run: npm run audit:i18n:strict
+      - name: i18n copy ratchet
+        run: npm run audit:i18n
       - name: Test
         run: echo "tests disabled"
       - name: Migration rollback gate (G3c)
