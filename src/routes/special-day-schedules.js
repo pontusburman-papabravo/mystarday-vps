@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Special Day Schedule routes.
  *
@@ -37,7 +38,7 @@ scheduleRouter.use(authz.requireSpecialDayAccess('scheduleId'));
 childRouter.get('/', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from, to } = req.query;
 
@@ -65,7 +66,7 @@ childRouter.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[SPECIAL-DAYS] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -74,7 +75,7 @@ childRouter.get('/', async (req, res) => {
 childRouter.post('/', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { date, note, copy_from_template } = req.body;
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -159,7 +160,7 @@ childRouter.post('/', async (req, res) => {
     }
   } catch (err) {
     console.error('[SPECIAL-DAYS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -167,7 +168,7 @@ childRouter.post('/', async (req, res) => {
 childRouter.delete('/:date', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const dateParam = req.params.date;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
@@ -218,7 +219,7 @@ childRouter.delete('/:date', async (req, res) => {
     }
   } catch (err) {
     console.error('[SPECIAL-DAYS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -228,7 +229,7 @@ childRouter.delete('/:date', async (req, res) => {
 scheduleRouter.get('/', async (req, res) => {
   try {
     const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const items = await db.query(
       `SELECT sdsi.id, sdsi.activity_template_id, sdsi.name, sdsi.icon,
@@ -247,7 +248,7 @@ scheduleRouter.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('[SPECIAL-DAY-ITEMS] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -256,7 +257,7 @@ scheduleRouter.get('/', async (req, res) => {
 scheduleRouter.post('/', async (req, res) => {
   try {
     const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { activity_template_id, name, icon, start_time, end_time, star_value, sort_order, section } = req.body;
 
@@ -304,7 +305,7 @@ scheduleRouter.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[SPECIAL-DAY-ITEMS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -313,7 +314,7 @@ scheduleRouter.post('/', async (req, res) => {
 scheduleRouter.put('/reorder', async (req, res) => {
   try {
     const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { order } = req.body;
     if (!Array.isArray(order)) return res.status(400).json({ error: 'order[] krävs' });
@@ -354,7 +355,7 @@ scheduleRouter.put('/reorder', async (req, res) => {
     }
   } catch (err) {
     console.error('[SPECIAL-DAY-ITEMS] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -362,7 +363,7 @@ scheduleRouter.put('/reorder', async (req, res) => {
 scheduleRouter.put('/:itemId', async (req, res) => {
   try {
     const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const existing = await db.query(
       'SELECT id FROM special_day_schedule_item WHERE id = $1 AND special_day_schedule_id = $2',
@@ -406,7 +407,7 @@ scheduleRouter.put('/:itemId', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[SPECIAL-DAY-ITEMS] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -414,7 +415,7 @@ scheduleRouter.put('/:itemId', async (req, res) => {
 scheduleRouter.delete('/:itemId', async (req, res) => {
   try {
     const schedule = await authz.getSpecialDayAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const result = await db.query(
       'DELETE FROM special_day_schedule_item WHERE id = $1 AND special_day_schedule_id = $2 RETURNING id',
@@ -440,7 +441,7 @@ scheduleRouter.delete('/:itemId', async (req, res) => {
     res.json({ message: 'Aktiviteten har tagits bort' });
   } catch (err) {
     console.error('[SPECIAL-DAY-ITEMS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

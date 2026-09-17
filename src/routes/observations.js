@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Child observation routes.
  * Free-standing notes (observations) per child per date — not tied to an activity.
@@ -43,7 +44,7 @@ async function verifyObservationOwnership(parentId, observationId) {
 router.get('/:childId/observations', async (req, res) => {
   try {
     const child = await verifyChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from, to } = req.query;
     if (!from || !to) {
@@ -57,7 +58,7 @@ router.get('/:childId/observations', async (req, res) => {
     res.json({ observations });
   } catch (err) {
     console.error('[OBSERVATIONS] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -68,7 +69,7 @@ router.get('/:childId/observations', async (req, res) => {
 router.post('/:childId/observations', async (req, res) => {
   try {
     const child = await verifyChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { date, section, content, is_important } = req.body;
     if (!date || !section || content === undefined) {
@@ -100,7 +101,7 @@ router.post('/:childId/observations', async (req, res) => {
     res.status(201).json({ observation });
   } catch (err) {
     console.error('[OBSERVATIONS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -148,7 +149,7 @@ router.patch('/:id', async (req, res) => {
     res.json({ observation: updated.rows[0] });
   } catch (err) {
     console.error('[OBSERVATIONS] Patch error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -164,7 +165,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[OBSERVATIONS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

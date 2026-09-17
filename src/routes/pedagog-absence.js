@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog day absence (§4.4.8, E12).
  */
@@ -27,7 +28,7 @@ router.put('/', async (req, res) => {
     if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const fam = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
     const { rows } = await db.query(
@@ -60,7 +61,7 @@ router.delete('/', async (req, res) => {
     if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     await db.query(
       'DELETE FROM pedagog_day_absence WHERE child_id = $1 AND date = $2::date',
@@ -79,7 +80,7 @@ router.get('/', async (req, res) => {
     if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const { rows } = await db.query(
       'SELECT * FROM pedagog_day_absence WHERE child_id = $1 AND date = $2::date',

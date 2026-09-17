@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Family locale context + English beta offer (P-i18n-Language-Launch-Foundation).
  * Mounted at /api/family after requireParent.
@@ -62,7 +64,7 @@ router.get('/locale-context', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] locale-context error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -163,7 +165,7 @@ router.post('/english-beta-offer', requireNotPedagogOnly, validate(EnglishBetaOf
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] english-beta-offer error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -183,7 +185,7 @@ router.post('/legacy-language-notice/dismiss', requireNotPedagogOnly, async (req
     res.json({ dismissed: true });
   } catch (err) {
     console.error('[FAMILY] legacy-language-notice dismiss error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

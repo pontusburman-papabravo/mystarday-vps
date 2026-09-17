@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const rateLimit = require('express-rate-limit');
@@ -28,7 +29,7 @@ const professionalInterestLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `profi:${req.ip}`,
   handler: (req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen om en timme.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 
@@ -51,7 +52,7 @@ const publicNewsletterLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `pubnews:${req.ip}`,
   handler: (req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen om en timme.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 
@@ -72,13 +73,13 @@ router.post('/contact', async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({ error: 'Alla fält krävs' });
+      return sendApiError(res, 400, 'ALL_FIELDS_REQUIRED');
     }
     if (typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ error: 'Ogiltig e-postadress' });
+      return sendApiError(res, 400, 'VALIDATION_EMAIL_INVALID');
     }
     if (message.trim().length < 10) {
-      return res.status(400).json({ error: 'Meddelandet måste vara minst 10 tecken' });
+      return sendApiError(res, 400, 'MESSAGE_TOO_SHORT');
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -148,7 +149,7 @@ router.post('/contact', async (req, res) => {
     });
   } catch (err) {
     console.error('[CONTACT] Error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -162,7 +163,7 @@ router.get('/family-count', async (req, res) => {
     res.json({ count: parseInt(result.rows[0].count) });
   } catch (err) {
     console.error('[PUBLIC] Family count error:', err);
-    res.status(503).json({ error: 'Tjänsten är tillfälligt otillgänglig' });
+    sendApiError(res, 503, 'SERVICE_UNAVAILABLE');
   }
 });
 
@@ -245,16 +246,16 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
     const { name, email, role, organization, message, gdprConsent } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 2) {
-      return res.status(400).json({ error: 'Namn krävs (minst 2 tecken)' });
+      return sendApiError(res, 400, 'NAME_TOO_SHORT');
     }
     if (!email || typeof email !== 'string' || !email.includes('@') || !email.includes('.')) {
-      return res.status(400).json({ error: 'Ogiltig e-postadress' });
+      return sendApiError(res, 400, 'VALIDATION_EMAIL_INVALID');
     }
     if (!role || typeof role !== 'string' || role.trim().length < 2) {
-      return res.status(400).json({ error: 'Roll krävs' });
+      return sendApiError(res, 400, 'ROLE_REQUIRED');
     }
     if (!gdprConsent) {
-      return res.status(400).json({ error: 'Du måste godkänna att vi sparar dina uppgifter' });
+      return sendApiError(res, 400, 'CONSENT_REQUIRED');
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -317,7 +318,7 @@ router.post('/public/professional-interest', professionalInterestLimiter, async 
     res.json({ ok: true });
   } catch (err) {
     console.error('[PROFESSIONAL-INTEREST] Error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -502,7 +503,7 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
     const { email, name, component, source } = req.body || {};
 
     if (!email || typeof email !== 'string' || !email.includes('@') || !email.includes('.')) {
-      return res.status(400).json({ error: 'Ange en giltig e-postadress.' });
+      return sendApiError(res, 400, 'VALIDATION_EMAIL_INVALID');
     }
 
     const normalizedEmail = email.toLowerCase().trim().slice(0, 255);
@@ -550,7 +551,7 @@ router.post('/public/newsletter-subscribe', publicNewsletterLimiter, async (req,
     res.json({ ok: true, message, already_registered: !result.isNew || result.alreadyHadComponent });
   } catch (err) {
     console.error('[PUBLIC-NEWSLETTER] Error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -579,7 +580,7 @@ const reportPinLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req) => `rpin:${req.ip}`,
   handler: (req, res) => {
-    res.status(429).json({ error: 'För många försök. Försök igen om en timme.' });
+    sendApiError(res, 429, 'RATE_LIMITED');
   },
 });
 
@@ -612,7 +613,7 @@ router.get('/public/report/:publicId', async (req, res) => {
 
     // 404 for everything invalid — do not reveal link existence
     if (!link) {
-      return res.status(404).json({ error: 'Rapporten hittades inte eller länken har gått ut.' });
+      return sendApiError(res, 404, 'REPORT_NOT_FOUND');
     }
 
     // If link has a PIN, verify Bearer token
@@ -693,7 +694,7 @@ router.get('/public/report/:publicId', async (req, res) => {
     });
   } catch (err) {
     console.error('[PUBLIC-REPORT] Error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -706,7 +707,7 @@ router.get('/public/report/:publicId/pdf', async (req, res) => {
     const link = await shareLink.getByPublicId(publicId);
 
     if (!link) {
-      return res.status(404).json({ error: 'Rapporten hittades inte eller länken har gått ut.' });
+      return sendApiError(res, 404, 'REPORT_NOT_FOUND');
     }
 
     if (link.pin_hash) {
@@ -752,7 +753,7 @@ router.get('/public/report/:publicId/pdf', async (req, res) => {
     generateReportPdf(res, { link, fields, blocks, dateFrom, dateTo });
   } catch (err) {
     console.error('[PUBLIC-REPORT-PDF] Error:', err);
-    if (!res.headersSent) res.status(500).json({ error: 'Något gick fel.' });
+    if (!res.headersSent) sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -763,7 +764,7 @@ router.get('/public/report/:publicId/playful', async (req, res) => {
   try {
     const { publicId } = req.params;
     const link = await shareLink.getByPublicId(publicId);
-    if (!link) return res.status(404).json({ error: 'Rapporten hittades inte eller länken har gått ut.' });
+    if (!link) return sendApiError(res, 404, 'REPORT_NOT_FOUND');
 
     if (link.pin_hash) {
       const auth = req.headers['authorization'] || '';
@@ -785,7 +786,7 @@ router.get('/public/report/:publicId/playful', async (req, res) => {
     res.json({ viewModel });
   } catch (err) {
     console.error('[PUBLIC-REPORT-PLAYFUL] Error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -816,13 +817,13 @@ router.post('/public/report/:publicId/session', reportPinLimiter, async (req, re
     const { pin } = req.body;
 
     if (!pin || typeof pin !== 'string' || pin.trim().length === 0) {
-      return res.status(400).json({ error: 'Kod krävs.' });
+      return sendApiError(res, 400, 'PIN_REQUIRED');
     }
 
     const link = await shareLink.getByPublicId(publicId);
     if (!link) {
       // Consistent 404 — don't reveal whether link exists
-      return res.status(404).json({ error: 'Rapporten hittades inte eller länken har gått ut.' });
+      return sendApiError(res, 404, 'REPORT_NOT_FOUND');
     }
 
     if (!link.pin_hash) {
@@ -832,7 +833,7 @@ router.post('/public/report/:publicId/session', reportPinLimiter, async (req, re
 
     const valid = await shareLink.verifyPin(link.pin_hash, pin.trim());
     if (!valid) {
-      return res.status(401).json({ error: 'Fel kod. Försök igen.' });
+      return sendApiError(res, 401, 'INVALID_REPORT_PIN');
     }
 
     // Issue short-lived JWT — 15 min. Stored in sessionStorage (not httpOnly cookie)
@@ -846,7 +847,7 @@ router.post('/public/report/:publicId/session', reportPinLimiter, async (req, re
     res.json({ token });
   } catch (err) {
     console.error('[PUBLIC-REPORT-SESSION] Error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

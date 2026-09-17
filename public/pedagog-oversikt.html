@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Pedagogöversikt — Min Stjärndag</title>
+  <title data-i18n-title="family.pedagog.overview.pageTitle">Pedagogöversikt — Min Stjärndag</title><!-- pragma: allowlist secret -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
   <script src="/js/dom-utils.js?v=2.13.0"></script>
+  <script src="/js/i18n.js?v=2.12.0"></script>
+  <script src="/js/parent-app-i18n.js?v=1"></script>
   <style>
     :root {
       --navy: #1C2340;
@@ -49,7 +51,7 @@
 
 <div id="loading" class="loading-overlay">
   <div class="spinner"></div>
-  <span style="font-size:14px;color:#5A6378;">Laddar...</span>
+  <span style="font-size:14px;color:#5A6378;" data-i18n="family.pedagog.overview.loading">Laddar...</span>
 </div>
 
 <div style="max-width:560px;margin:0 auto;padding:16px 16px 80px;">
@@ -58,7 +60,7 @@
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
     <a href="/dashboard" style="text-decoration:none;font-size:24px;">←</a>
     <div>
-      <h1 style="font-size:22px;">📋 Pedagogöversikt</h1>
+      <h1 style="font-size:22px;" data-i18n="family.pedagog.overview.heading">📋 Pedagogöversikt</h1>
       <p class="progress" id="progress" style="font-size:12px;color:#5A6378;margin:0;">(– av – klara)</p>
     </div>
   </div>
@@ -69,10 +71,10 @@
       style="flex:1;padding:10px 14px;border:2px solid #E8E4DC;border-radius:12px;font-size:14px;font-family:Syne,sans-serif;background:#fff;color:#1C2340;">
     <select id="status-filter"
       style="padding:10px 14px;border:2px solid #E8E4DC;border-radius:12px;font-size:14px;font-family:Syne,sans-serif;background:#fff;color:#1C2340;min-width:130px;">
-      <option value="all">Visa alla</option>
-      <option value="missing">Endast saknas</option>
-      <option value="done">Endast klara</option>
-      <option value="draft">Endast utkast</option>
+      <option value="all" data-i18n="family.pedagog.overview.filterAll">Visa alla</option>
+      <option value="missing" data-i18n="family.pedagog.overview.filterMissing">Endast saknas</option>
+      <option value="done" data-i18n="family.pedagog.overview.filterDone">Endast klara</option>
+      <option value="draft" data-i18n="family.pedagog.overview.filterDraft">Endast utkast</option>
     </select>
   </div>
 
@@ -82,8 +84,8 @@
       <thead>
         <tr style="background:#F5F4F0;">
           <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:#5A6378;text-transform:uppercase;letter-spacing:0.05em;">&nbsp;</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:#5A6378;text-transform:uppercase;letter-spacing:0.05em;">BARN</th>
-          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:#5A6378;text-transform:uppercase;letter-spacing:0.05em;">STATUS</th>
+          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:#5A6378;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="family.pedagog.overview.colChild">BARN</th>
+          <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:600;color:#5A6378;text-transform:uppercase;letter-spacing:0.05em;" data-i18n="family.pedagog.overview.colStatus">STATUS</th>
         </tr>
       </thead>
       <tbody id="children-tbody">
@@ -93,17 +95,17 @@
 
     <!-- Empty state -->
     <div id="empty-state" class="empty-state" style="display:none;padding:48px 24px;text-align:center;">
-      <p style="font-size:14px;color:#5A6378;">Inga barn kopplade.<br>Be en förälder bjuda in dig som pedagog.</p>
+      <p style="font-size:14px;color:#5A6378;"><span data-i18n="family.pedagog.overview.empty">Inga barn kopplade.</span><br><span data-i18n="family.pedagog.overview.emptyHint">Be en förälder bjuda in dig som pedagog.</span></p>
     </div>
   </div>
 
   <!-- Selection bar -->
   <div class="selection-bar" style="display:none;margin-top:12px;background:white;border-radius:16px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <span style="font-size:14px;">Vald: <strong id="selected-child" style="color:#1C2340;">—</strong></span>
+      <span style="font-size:14px;"><span data-i18n="family.pedagog.overview.selected">Vald:</span> <strong id="selected-child" style="color:#1C2340;">—</strong></span>
       <a href="#" id="open-form-btn"
         style="display:inline-block;padding:10px 20px;background:#F5A623;color:#1C2340;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;font-family:Syne,sans-serif;box-shadow:0 2px 8px rgba(245,166,35,0.25);">
-        Öppna formulär →
+        <span data-i18n="family.pedagog.overview.openForm">Öppna formulär →</span>
       </a>
     </div>
   </div>
@@ -111,6 +113,14 @@
 </div>
 
 <script>
+function pt(key, params) {
+  if (window.I18n && typeof I18n.t === 'function') {
+    const text = I18n.t(key, params || {});
+    if (text && text !== key) return text;
+  }
+  return key;
+}
+
 const MOOD_EMOJIS = { 1: '😫', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
 
 let children = [];
@@ -128,17 +138,17 @@ function renderStatus(child) {
   if (child.is_draft === false) {
     const emoji = MOOD_EMOJIS[child.mood] || '';
     const time = child.saved_at ? ' · ' + formatTime(child.saved_at) : '';
-    return `<span class="text-green-600 font-medium">✓ KLAR ${emoji}${time}</span>`;
+    return `<span class="text-green-600 font-medium">${pt('family.pedagog.overview.statusDone')} ${emoji}${time}</span>`;
   }
   if (child.is_draft === true) {
-    return '<span class="text-amber-600 font-medium">◐ UTKAST</span>';
+    return '<span class="text-amber-600 font-medium">' + pt('family.pedagog.overview.statusDraft') + '</span>';
   }
-  return '<span style="color:#94A3B8;">○ SAKNAS</span>';
+  return '<span style="color:#94A3B8;">' + pt('family.pedagog.overview.statusMissing') + '</span>';
 }
 
 function updateProgress() {
   const done = children.filter(c => c.is_draft === false).length;
-  $('progress').textContent = `(${done} av ${children.length} klara)`;
+  $('progress').textContent = pt('family.pedagog.overview.progress', { done, total: children.length });
 }
 
 function updateSelectionBar(childId) {
@@ -235,11 +245,20 @@ $('date-picker').addEventListener('change', () => {
 $('status-filter').addEventListener('change', applyFilter);
 
 // ── Init ────────────────────────────────────────────────
-(function init() {
+async function bootPedagogOverview() {
+  if (window.I18n) {
+    await I18n.init();
+    I18n.apply();
+  }
   const today = new Date().toISOString().slice(0, 10);
   $('date-picker').value = today;
   loadOverview(today);
-})();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { bootPedagogOverview(); });
+} else {
+  bootPedagogOverview();
+}
 </script>
 
 </body>

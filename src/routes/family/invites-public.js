@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Public family-invite routes (mounted at /api/family, BEFORE requireParent).
  * No authentication: invite validation + new-account acceptance.
@@ -54,7 +56,7 @@ router.get('/invite/:token', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Validate invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -183,7 +185,7 @@ router.post('/invite/accept-new', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Accept-new invite error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

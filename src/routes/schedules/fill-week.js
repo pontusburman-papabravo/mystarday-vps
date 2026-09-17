@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Child-scoped fill-week: insert a template schedule into multiple days at once.
  * Does NOT handle: CRUD, bulk copy/swap, item management, templates.
@@ -26,7 +27,7 @@ router.post('/fill-week', async (req, res) => {
   try {
     const childRow = req.authzChild || await getChildAccess(req.user.id, req.params.childId);
     if (!childRow) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const { template_category_id, days, overwrite } = req.body;
@@ -157,7 +158,7 @@ router.post('/fill-week', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] fill-week error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

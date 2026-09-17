@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
@@ -32,7 +34,7 @@ router.get('/widget-order', requireParent, async (req, res) => {
     res.json({ widget_order: result.rows[0]?.widget_order || [] });
   } catch (err) {
     console.error('[ACCOUNT] Get widget-order error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -52,7 +54,7 @@ router.put('/widget-order', requireParent, async (req, res) => {
     res.json({ message: 'Ordning sparad', widget_order });
   } catch (err) {
     console.error('[ACCOUNT] Save widget-order error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

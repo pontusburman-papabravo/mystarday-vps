@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireChild, requireParent } = require('../middleware/auth');
 const { scopeRouterToPath } = require('../middleware/router-path-scope');
@@ -39,7 +41,7 @@ childRouter.use(requireChild);
 childRouter.get('/universe', async (req, res, next) => {
   try {
     const state = await universeEngine.getUniverseState(req.user.id);
-    if (!state) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!state) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     res.json(state);
   } catch (err) {
     next(err);

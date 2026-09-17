@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Log-level daily log routes (mounted at /api/daily-logs).
  */
@@ -25,7 +27,7 @@ logRouter.put('/:logId/pause', requireLogAccess('logId'), async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG] Pause error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -42,7 +44,7 @@ logRouter.put('/:logId/unpause', requireLogAccess('logId'), async (req, res) => 
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG] Unpause error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -107,7 +109,7 @@ logRouter.put('/:logId/bump-time', requireLogAccess('logId'), async (req, res) =
     res.json({ updated: updateResult.rows.length, snapshot, items: updateResult.rows });
   } catch (err) {
     console.error('[DAILY-LOG] Bump-time error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -143,7 +145,7 @@ logRouter.put('/:logId/bump-time-undo', requireLogAccess('logId'), async (req, r
     res.json({ restored: updateResult.rows.length, items: updateResult.rows });
   } catch (err) {
     console.error('[DAILY-LOG] Bump-time-undo error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

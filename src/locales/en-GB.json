@@ -474,7 +474,17 @@
       "parentPinInvalid": "Wrong PIN — try again",
       "logoutFailed": "Sign-out failed. Please try again.",
       "logoutRateLimited": "Too many attempts. Please wait a moment and try again.",
-      "handoffInvalid": "Could not restore the adult session. Please sign in as a parent."
+      "handoffInvalid": "Could not restore the adult session. Please sign in as a parent.",
+      "userNotFound": "User not found",
+      "invalidPassword": "Incorrect password",
+      "tokenRequired": "Token is required",
+      "idTokenRequired": "idToken is required",
+      "allFieldsRequired": "All fields are required",
+      "messageTooShort": "The message must be at least 10 characters",
+      "serviceUnavailable": "The service is temporarily unavailable",
+      "nameTooShort": "Name is required (at least 2 characters)",
+      "roleRequired": "Role is required",
+      "consentRequired": "You must consent to us storing your details"
     }
   },
   "dashboard": {

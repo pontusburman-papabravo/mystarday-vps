@@ -177,6 +177,8 @@
     "loadSharedFailed": "Kunde inte ladda delade rapporter"
   },
   "errors": {
+    "notFound": "Rapporten hittades inte eller länken har gått ut.",
+    "invalidPin": "Fel kod. Försök igen.",
     "loadChildren": "Kunde inte ladda barn ({{status}})",
     "selectChild": "Välj ett barn först",
     "nameRequired": "Ge rapporten ett namn",

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const { requireChild } = require('../middleware/auth');
 const { avatarApiFields } = require('../lib/avatar-api');
@@ -13,7 +15,7 @@ router.put('/profile-photo', requireChild, avatarUpload, async (req, res) => {
   try {
     const parsed = await parseAvatarUploadFile(req.file);
     const updated = await setChildAvatar(req.user.id, parsed);
-    if (!updated) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!updated) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     res.json({
       id: updated.id,
       name: updated.name,
@@ -33,7 +35,7 @@ router.put('/profile-photo', requireChild, avatarUpload, async (req, res) => {
 router.delete('/profile-photo', requireChild, async (req, res) => {
   try {
     const updated = await clearChildAvatar(req.user.id);
-    if (!updated) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!updated) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     res.json({
       id: updated.id,
       name: updated.name,

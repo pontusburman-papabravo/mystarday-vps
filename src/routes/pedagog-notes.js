@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog notes API routes.
  * Owns: pedagog_notes CRUD for pedagog-role parents.
@@ -31,7 +32,7 @@ router.get('/children', async (req, res) => {
     res.json({ children });
   } catch (err) {
     console.error('[PEDAGOG-NOTES] list children error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta barn' });
+    sendApiError(res, 500, 'FETCH_CHILDREN_FAILED');
   }
 });
 
@@ -42,21 +43,21 @@ router.post('/', async (req, res) => {
     const { childId, date, mood, sleepQuality, sleepHours, meals, behavior, notes, mealsStructured, isDraft } = req.body;
 
     if (!childId || !date) {
-      return res.status(400).json({ error: 'childId och date krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
     }
 
     // Verify pedagogen has access to this child
     const hasAccess = await verifyPedagogAccess(req.user.id, childId);
     if (!hasAccess) {
-      return res.status(403).json({ error: 'Åtkomst nekad' });
+      return sendApiError(res, 403, 'ACCESS_DENIED');
     }
 
     // Validate mood/sleepQuality range
     if (mood !== undefined && (mood < 1 || mood > 5)) {
-      return res.status(400).json({ error: 'mood måste vara mellan 1 och 5' });
+      return sendApiError(res, 400, 'MOOD_RANGE');
     }
     if (sleepQuality !== undefined && (sleepQuality < 1 || sleepQuality > 5)) {
-      return res.status(400).json({ error: 'sleepQuality måste vara mellan 1 och 5' });
+      return sendApiError(res, 400, 'SLEEP_QUALITY_RANGE');
     }
 
     const note = await upsertNote({
@@ -76,7 +77,7 @@ router.post('/', async (req, res) => {
     res.json({ ok: true, note });
   } catch (err) {
     console.error('[PEDAGOG-NOTES] upsert error:', err);
-    res.status(500).json({ error: 'Kunde inte spara anteckning' });
+    sendApiError(res, 500, 'NOTE_SAVE_FAILED');
   }
 });
 
@@ -87,13 +88,13 @@ router.get('/', async (req, res) => {
     const { childId, date, from, to } = req.query;
 
     if (!childId) {
-      return res.status(400).json({ error: 'childId krävs' });
+      return sendApiError(res, 400, 'CHILD_ID_REQUIRED');
     }
 
     // Verify pedagogen has access to this child
     const hasAccess = await verifyPedagogAccess(req.user.id, childId);
     if (!hasAccess) {
-      return res.status(403).json({ error: 'Åtkomst nekad' });
+      return sendApiError(res, 403, 'ACCESS_DENIED');
     }
 
     if (date) {
@@ -111,11 +112,11 @@ router.get('/', async (req, res) => {
       );
       res.json({ notes: rows });
     } else {
-      return res.status(400).json({ error: 'Ange date (YYYY-MM-DD) eller from+to' });
+      return sendApiError(res, 400, 'NOTE_DATE_RANGE_REQUIRED');
     }
   } catch (err) {
     console.error('[PEDAGOG-NOTES] get error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta anteckningar' });
+    sendApiError(res, 500, 'NOTE_FETCH_FAILED');
   }
 });
 
@@ -126,13 +127,13 @@ router.get('/overview', async (req, res) => {
   try {
     const { date } = req.query;
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return res.status(400).json({ error: 'date query param required (YYYY-MM-DD)' });
+      return sendApiError(res, 400, 'DATE_REQUIRED');
     }
     const children = await getOverview(req.user.id, date);
     res.json({ success: true, date, children });
   } catch (err) {
     console.error('[PEDAGOG-NOTES] overview error:', err);
-    res.status(500).json({ error: 'Kunde inte hämta översikt' });
+    sendApiError(res, 500, 'OVERVIEW_FETCH_FAILED');
   }
 });
 
@@ -140,10 +141,10 @@ router.get('/overview', async (req, res) => {
 router.post('/publish', async (req, res) => {
   try {
     const { childId, date } = req.body;
-    if (!childId || !date) return res.status(400).json({ error: 'childId och date krävs' });
+    if (!childId || !date) return sendApiError(res, 400, 'CHILD_ID_DATE_REQUIRED');
 
     const hasAccess = await verifyPedagogAccess(req.user.id, childId);
-    if (!hasAccess) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!hasAccess) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const { rows } = await db.query(
       `UPDATE pedagog_notes
@@ -155,7 +156,7 @@ router.post('/publish', async (req, res) => {
        RETURNING *`,
       [childId, req.user.id, date]
     );
-    if (!rows[0]) return res.status(404).json({ error: 'Anteckning hittades inte' });
+    if (!rows[0]) return sendApiError(res, 404, 'NOTE_NOT_FOUND');
 
     const { logPedagogEvent } = require('../lib/pedagog-audit');
     const childRow = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
@@ -169,7 +170,7 @@ router.post('/publish', async (req, res) => {
     res.json({ ok: true, note: rows[0] });
   } catch (err) {
     console.error('[PEDAGOG-NOTES] publish error:', err);
-    res.status(500).json({ error: 'Kunde inte publicera' });
+    sendApiError(res, 500, 'NOTE_PUBLISH_FAILED');
   }
 });
 

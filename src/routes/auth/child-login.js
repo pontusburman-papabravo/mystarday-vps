@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Child login route (E2). POST /api/auth/child-login.
  * Name + PIN with pin_lockout exponential backoff + parent notification.
@@ -324,7 +326,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
 
   } catch (err) {
     console.error('[AUTH] Child login error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.', code: 'CHILD_SERVER_ERROR' });
+    sendApiError(res, 500, 'CHILD_SERVER_ERROR');
   }
 });
 module.exports = router;

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Parent mood summary — daily aggregation of child ratings (emotion_key + scores).
  * GET /api/children/:childId/mood-summary?date=YYYY-MM-DD
@@ -28,7 +30,7 @@ router.get('/:childId/mood-summary', requireFeature('emotion_tracking'), async (
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
     if (!child) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const dateMatch = String(req.query.date || '').match(/^(\d{4}-\d{2}-\d{2})/);
@@ -79,7 +81,7 @@ router.get('/:childId/mood-summary', requireFeature('emotion_tracking'), async (
     });
   } catch (err) {
     console.error('[MOOD-SUMMARY] GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

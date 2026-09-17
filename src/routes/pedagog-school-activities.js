@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog school activities CRUD (§4.4.12, E12).
  */
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
     if (!childId) return res.status(400).json({ error: 'childId krävs' });
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const { rows } = await db.query(
       `SELECT id, name, icon, created_at
@@ -51,7 +52,7 @@ router.post('/', async (req, res) => {
     }
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const fam = await db.query('SELECT family_id FROM child WHERE id = $1', [childId]);
     const { rows } = await db.query(
@@ -89,7 +90,7 @@ router.delete('/:id', async (req, res) => {
     if (!act) return res.status(404).json({ error: 'Aktivitet hittades inte' });
 
     const ok = await verifyPedagogChild(req.user.id, act.child_id);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     await db.query('DELETE FROM pedagog_school_activity WHERE id = $1', [req.params.id]);
     res.json({ ok: true });

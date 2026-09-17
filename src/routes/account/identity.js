@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const crypto = require('crypto');
 const db = require('../../lib/db');
@@ -19,7 +21,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
   try {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     // Verify Apple JWT
@@ -61,7 +63,7 @@ router.post('/link-apple', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] link-apple error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -83,7 +85,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
       [parentId]
     );
     if (!parentRow.rows.length) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     const row = parentRow.rows[0];
     if (!row.has_password) {
@@ -93,7 +95,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
     // Verify password
     const valid = await comparePassword(password, row.password_hash);
     if (!valid) {
-      return res.status(401).json({ error: 'Felaktigt lösenord' });
+      return sendApiError(res, 401, 'INVALID_PASSWORD');
     }
 
     const appleTokenRows = await parentDb.listAppleRefreshTokens({ parentId });
@@ -111,7 +113,7 @@ router.delete('/unlink-apple', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] unlink-apple error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -121,7 +123,7 @@ router.post('/link-google', requireParent, async (req, res) => {
   try {
     const { idToken } = req.body;
     if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ error: 'idToken krävs' });
+      return sendApiError(res, 400, 'ID_TOKEN_REQUIRED');
     }
 
     const { verifyGoogleIdToken } = require('../../lib/google-auth');
@@ -166,7 +168,7 @@ router.post('/link-google', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] link-google error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -184,7 +186,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
       [parentId]
     );
     if (!parentRow.rows.length) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     const row = parentRow.rows[0];
     if (!row.has_password) {
@@ -193,7 +195,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
 
     const valid = await comparePassword(password, row.password_hash);
     if (!valid) {
-      return res.status(401).json({ error: 'Felaktigt lösenord' });
+      return sendApiError(res, 401, 'INVALID_PASSWORD');
     }
 
     await db.query(
@@ -208,7 +210,7 @@ router.delete('/unlink-google', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] unlink-google error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -224,7 +226,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
     }
     const normalizedEmail = newEmail.toLowerCase().trim();
     if (!normalizedEmail.includes('@')) {
-      return res.status(400).json({ error: 'Ogiltig e-postadress' });
+      return sendApiError(res, 400, 'VALIDATION_EMAIL_INVALID');
     }
 
     const parentId = req.user.id;
@@ -235,7 +237,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
       [parentId]
     );
     if (!parentRow.rows.length) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     if (!parentRow.rows[0].has_password) {
       return res.status(400).json({ error: 'Sätt ett lösenord först innan du kan byta e-postadress' });
@@ -244,7 +246,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
     // Verify password
     const valid = await comparePassword(password, parentRow.rows[0].password_hash);
     if (!valid) {
-      return res.status(401).json({ error: 'Felaktigt lösenord' });
+      return sendApiError(res, 401, 'INVALID_PASSWORD');
     }
 
     // Check email is not already taken
@@ -297,7 +299,7 @@ router.post('/change-email/request', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] change-email/request error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -308,7 +310,7 @@ router.post('/change-email/confirm', async (req, res) => {
   try {
     const { token } = req.body;
     if (!token || typeof token !== 'string') {
-      return res.status(400).json({ error: 'Token krävs' });
+      return sendApiError(res, 400, 'TOKEN_REQUIRED');
     }
 
     // Validate token: not expired, not used
@@ -345,7 +347,7 @@ router.post('/change-email/confirm', async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] change-email/confirm error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -362,7 +364,7 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
       [parentId]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Användare hittades inte' });
+      return sendApiError(res, 404, 'USER_NOT_FOUND');
     }
     const row = existing.rows[0];
 
@@ -394,7 +396,7 @@ router.post('/set-password', requireParent, validate(SetPasswordSchema), async (
     });
   } catch (err) {
     console.error('[ACCOUNT] set-password error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

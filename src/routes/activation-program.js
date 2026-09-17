@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Parent activation program API — banner (Fas 3), aha (Fas 2), reflection.
  */
@@ -389,7 +390,7 @@ router.get('/', async (req, res) => {
     res.json(payload);
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -411,7 +412,7 @@ router.post('/skip-day', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] skip-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -433,7 +434,7 @@ router.post('/complete-day', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] complete-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -455,7 +456,7 @@ router.post('/solo-day', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] solo-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -476,7 +477,7 @@ router.post('/opt-out', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] opt-out error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -512,7 +513,7 @@ router.post('/reflection', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] reflection error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -536,7 +537,7 @@ router.post('/push-clicked', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] push-clicked error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -570,7 +571,7 @@ router.post('/cta-clicked', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] cta-clicked error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -622,7 +623,7 @@ router.get('/new-completions', async (req, res) => {
     });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] new-completions error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -671,7 +672,7 @@ router.post('/aha-dismiss', async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[ACTIVATION-PROGRAM] aha-dismiss error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

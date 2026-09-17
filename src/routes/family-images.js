@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 /**
  * Family image library — /api/family/images
  * Parents store reusable photos (toothbrush, bed, school…) for activity icons.
@@ -89,7 +91,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[FAMILY-IMAGES] List error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -111,7 +113,7 @@ router.post('/', validate(CreateFamilyImageSchema), async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[FAMILY-IMAGES] Create error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -200,7 +202,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateFamilyImageSchema),
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[FAMILY-IMAGES] Update error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -259,7 +261,7 @@ router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     console.error('[FAMILY-IMAGES] Delete error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }

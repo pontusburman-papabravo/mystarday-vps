@@ -177,6 +177,8 @@
     "loadSharedFailed": "Could not load shared reports"
   },
   "errors": {
+    "notFound": "The report was not found or the link has expired.",
+    "invalidPin": "Wrong code. Try again.",
     "loadChildren": "Could not load children ({{status}})",
     "selectChild": "Choose a child first",
     "nameRequired": "Give the report a name",

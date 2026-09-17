@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Pedagog (educator) invite + access routes.
  * Mounted at /api/family AFTER router.use(requireParent) in index.js.
@@ -74,7 +76,7 @@ router.post('/invite-pedagog', requireParent, requirePrimaryParent, async (req, 
     });
   } catch (err) {
     console.error('[FAMILY] invite-pedagog POST error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -118,7 +120,7 @@ router.get('/invite-pedagog', async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] invite-pedagog GET error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -136,7 +138,7 @@ router.delete('/invite-pedagog/:id', requirePrimaryParent, async (req, res) => {
     res.json({ message: 'Inbjudan återkallad' });
   } catch (err) {
     console.error('[FAMILY] revoke invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -159,7 +161,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
       [childId, req.user.familyId]
     );
     if (childCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Barn hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     // Verify the pedagog parent exists
@@ -187,7 +189,7 @@ router.post('/pedagog-access/revoke', requirePrimaryParent, async (req, res) => 
     res.json({ message: 'Åtkomst återkallad' });
   } catch (err) {
     console.error('[FAMILY] pedagog-access revoke error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

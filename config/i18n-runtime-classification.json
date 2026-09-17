@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "classes": {
+    "A": "Product runtime user copy that families/children/educators still see in sv-SE/en-GB product surfaces",
+    "B": "Admin, operator, support, or internal tooling — not family multilingual runtime",
+    "C": "Marketing, landing, or commercial waitlist copy outside the in-app product",
+    "D": "Engine internals, decorative SVG labels, or non-user diagnostic tokens"
+  },
+  "rules": [
+    {
+      "pathPrefix": "src/routes/dagens-nyhet.js",
+      "class": "B",
+      "reason": "Admin news publishing plus landing feed; remaining Swedish is operator copy"
+    },
+    {
+      "pathPrefix": "src/routes/newsletter.js",
+      "class": "B",
+      "reason": "Admin newsletter compose plus subscription internals"
+    },
+    {
+      "pathPrefix": "src/lib/dagens-nyhet-email-send.js",
+      "class": "B",
+      "reason": "Admin email send internals"
+    },
+    {
+      "pathPrefix": "src/lib/newsletter-mailer.js",
+      "class": "B",
+      "reason": "Newsletter mailer internals, not in-app chrome"
+    },
+    {
+      "pathPrefix": "src/lib/growth-stuck",
+      "class": "B",
+      "reason": "Internal growth-stuck operator queue"
+    },
+    {
+      "pathPrefix": "src/lib/activation-weekly-report.js",
+      "class": "B",
+      "reason": "Internal activation weekly report"
+    },
+    {
+      "pathPrefix": "src/lib/activation-program-runtime.js",
+      "class": "B",
+      "reason": "Deprecated activation runtime message"
+    },
+    {
+      "pathPrefix": "src/lib/custody-schedule-engine/",
+      "class": "D",
+      "reason": "Custody engine throw-error, not family-facing copy"
+    },
+    {
+      "pathPrefix": "public/images/",
+      "class": "D",
+      "reason": "Decorative SVG title/desc"
+    },
+    {
+      "pathPrefix": "public/img/",
+      "class": "D",
+      "reason": "Decorative SVG title/desc"
+    },
+    {
+      "pathPrefix": "src/lib/journey/daily-analysis.js",
+      "class": "D",
+      "reason": "Internal analysis fallback token"
+    },
+    {
+      "pathPrefix": "src/lib/landing-news-locale.js",
+      "class": "C",
+      "reason": "Public landing news locale helper"
+    },
+    {
+      "pathPrefix": "src/routes/landing.js",
+      "class": "C",
+      "reason": "Public landing waitlist/news routes"
+    },
+    {
+      "pathPrefix": "",
+      "class": "A",
+      "reason": "Remaining product runtime copy still locale-unowned"
+    }
+  ]
+}

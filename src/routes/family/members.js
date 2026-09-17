@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Family member + child management routes.
  * Mounted at /api/family AFTER router.use(requireParent) in index.js.
@@ -57,7 +59,7 @@ router.put('/members/:id', validate(UpdateFamilyMemberSchema), async (req, res) 
     res.json({ message: 'Roll uppdaterad!' });
   } catch (err) {
     console.error('[FAMILY] Member update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -139,7 +141,7 @@ router.put('/members/:id/children', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Update member children error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -230,7 +232,7 @@ router.delete('/members/:id', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Member delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -272,7 +274,7 @@ router.post('/children/:id/recover-admin', requireNotPedagogOnly, async (req, re
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Orphan recover error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -297,7 +299,7 @@ router.delete('/children/:id', requireNotPedagogOnly, async (req, res) => {
     committed = true;
   } catch (err) {
     console.error('[FAMILY] Child delete error:', err);
-    return res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Apple Sign In routes + ID-token verification helpers (E2).
  * POST /api/auth/apple, POST /api/auth/apple/link.
@@ -176,7 +178,7 @@ router.post('/apple', appleLoginLimiter, async (req, res) => {
 
   } catch (err) {
     console.error('[AUTH] Apple Sign In error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -215,7 +217,7 @@ router.post('/apple/link', appleLoginLimiter, async (req, res) => {
     res.json({ message: 'Apple-konto länkat!' });
   } catch (err) {
     console.error('[AUTH] Apple link error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

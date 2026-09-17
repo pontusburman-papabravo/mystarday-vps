@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Child self-access daily log routes (mounted at /api/me).
  */
@@ -303,7 +305,7 @@ childSelfRouter.get('/daily-log', async (req, res) => {
     res.json(responsePayload);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -470,7 +472,7 @@ childSelfRouter.put('/daily-log-items/:itemId/complete', async (req, res) => {
       /* ignore */
     }
     console.error('[DAILY-LOG-CHILD] Complete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -497,7 +499,7 @@ childSelfRouter.put('/daily-log/reorder', async (req, res) => {
       return res.status(err.statusCode).json({ error: err.message });
     }
     console.error('[DAILY-LOG-CHILD] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -527,7 +529,7 @@ childSelfRouter.put('/daily-log-items/:itemId/uncomplete', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Uncomplete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -580,7 +582,7 @@ childSelfRouter.get('/daily-log-items/:itemId/sub-steps', async (req, res) => {
     res.json({ sub_steps });
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Sub-steps get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -615,7 +617,7 @@ childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/complete', as
     res.json(upsertResult.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Sub-step complete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -649,7 +651,7 @@ childSelfRouter.put('/daily-log-items/:itemId/sub-steps/:subStepId/uncomplete', 
     res.json(upsertResult.rows[0]);
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Sub-step uncomplete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -712,7 +714,7 @@ childSelfRouter.get('/weekly-schedule', async (req, res) => {
     res.json({ today: todayStr, days });
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] Weekly schedule read error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -735,7 +737,7 @@ childSelfRouter.put('/view-type', async (req, res) => {
     res.json({ view_type });
   } catch (err) {
     console.error('[DAILY-LOG-CHILD] View type update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

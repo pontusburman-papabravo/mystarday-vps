@@ -72,7 +72,9 @@ const EXCLUDED_PREFIXES = [
   'public/admin/',
   'public/en/',
   'public/mockups/',
+  'public/v2/', // Class B: static /V2.0 design mockup, not product runtime (title "Mockup"; docs/barnmeny-v2.md)
   'node_modules/',
+  'src/routes/surveys/admin.js', // Class B: admin-only survey authoring (/api/admin/surveys)
 ];
 
 /** Explicit SEO / legal / marketing surfaces — not the in-app product. */
@@ -107,6 +109,17 @@ const EXCLUDED_FILES = new Set([
   'public/viktig-information.html',
   'public/skattkammaren.html',
   'public/pricing-info.html',
+  'public/review-subscription-preview.html',
+  'public/onboarding-film-preview.html',
+  'public/img/stjarnadag-quick-actions-v4/preview/index.html',
+  'public/js/dashboard-impersonation.js', // Class B: admin support session chrome
+  'public/js/native-debug.js', // Class B: native debug overlay
+  'public/js/preview-shell.js', // Class B: review/preview shell
+  'public/js/preview-back.js', // Class B: review/preview chrome
+  'public/js/preview-guest.js', // Class B: review/preview guest
+  'public/js/landing-share.js', // Class C: marketing landing share sheet
+  'public/js/landing-founder.js', // Class C: marketing landing founder quote
+  'public/js/landing-login-choice.js', // Class C: marketing landing login chooser
 ]);
 
 const EXCLUDED_DIR_PREFIXES = [
@@ -504,6 +517,7 @@ module.exports = {
   BASELINE_VERSION,
   EXCLUDED_FILES,
   EXCLUDED_PREFIXES,
+  parseI18nIgnore,
   scanRepo,
   loadBaseline,
   validateBaselineFormat,

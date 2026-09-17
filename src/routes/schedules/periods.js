@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Phase 2 canonical Special Period endpoints — Calendar's period CRUD backend.
  * Mounted at its own top-level path: /api/children/:childId/schedule-periods — a SIBLING of
@@ -53,14 +54,14 @@ function handlePeriodError(err, res) {
 router.get('/', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const periods = await listSchedulePeriods({ familyId: child.family_id, childId: req.params.childId });
     res.json({ periods });
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -70,7 +71,7 @@ router.get('/', async (req, res) => {
 router.get('/:periodId', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const period = await getSchedulePeriod({
       familyId: child.family_id, childId: req.params.childId, periodId: req.params.periodId,
@@ -79,7 +80,7 @@ router.get('/:periodId', async (req, res) => {
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -89,7 +90,7 @@ router.get('/:periodId', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       name, start_date: startDate, end_date: endDate, source, apply_mode: applyMode,
@@ -119,7 +120,7 @@ router.post('/', async (req, res) => {
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -127,7 +128,7 @@ router.post('/', async (req, res) => {
 router.patch('/:periodId', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       name, start_date: startDate, end_date: endDate, source, apply_mode: applyMode,
@@ -158,7 +159,7 @@ router.patch('/:periodId', async (req, res) => {
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -166,7 +167,7 @@ router.patch('/:periodId', async (req, res) => {
 router.delete('/:periodId', async (req, res) => {
   try {
     const child = req.authzChild || await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { operation_id: operationId } = req.body || {};
     const result = await deleteSchedulePeriod({
@@ -182,7 +183,7 @@ router.delete('/:periodId', async (req, res) => {
   } catch (err) {
     if (handlePeriodError(err, res)) return;
     console.error('[SCHEDULE-PERIOD] delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

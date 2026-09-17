@@ -38,7 +38,7 @@ router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (re
   try {
     if (req.user.type === 'child') {
       if (req.user.id !== req.params.id) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     } else {
       const access = await db.query(
@@ -47,7 +47,7 @@ router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (re
         [req.user.id, req.params.id]
       );
       if (access.rows.length === 0) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     }
 
@@ -56,13 +56,13 @@ router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (re
       [req.params.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[VIEW-CONFIG] GET error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -70,7 +70,7 @@ router.get('/:id/view-config', requireAuth, validateParams(UUIDParam), async (re
 router.patch('/:id/view-config/self', requireAuth, validateParams(UUIDParam), async (req, res) => {
   try {
     if (req.user.type !== 'child' || req.user.id !== req.params.id) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const { view_mode: viewMode } = req.body || {};
@@ -83,7 +83,7 @@ router.patch('/:id/view-config/self', requireAuth, validateParams(UUIDParam), as
       [req.params.id]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     const current = existing.rows[0].child_view_config || {};
@@ -97,7 +97,7 @@ router.patch('/:id/view-config/self', requireAuth, validateParams(UUIDParam), as
     res.json(merged);
   } catch (err) {
     console.error('[VIEW-CONFIG] PATCH self error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -108,7 +108,7 @@ router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), valida
 
     if (req.user.type === 'child') {
       if (req.user.id !== childId) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     } else {
       const access = await db.query(
@@ -117,7 +117,7 @@ router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), valida
         [req.user.id, childId]
       );
       if (access.rows.length === 0) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     }
 
@@ -133,13 +133,13 @@ router.patch('/:id/visual-theme', requireAuth, validateParams(UUIDParam), valida
       [req.body.visual_theme, childId]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[VISUAL-THEME] PATCH error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -150,7 +150,7 @@ router.patch('/:id/pictogram-pack', requireAuth, validateParams(UUIDParam), vali
 
     if (req.user.type === 'child') {
       if (req.user.id !== childId) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     } else {
       const access = await db.query(
@@ -159,7 +159,7 @@ router.patch('/:id/pictogram-pack', requireAuth, validateParams(UUIDParam), vali
         [req.user.id, childId]
       );
       if (access.rows.length === 0) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     }
 
@@ -175,13 +175,13 @@ router.patch('/:id/pictogram-pack', requireAuth, validateParams(UUIDParam), vali
       [req.body.pictogram_pack, childId]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[PICTOGRAM-PACK] PATCH error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -192,7 +192,7 @@ router.patch('/:id/activity-card-size', requireAuth, validateParams(UUIDParam), 
 
     if (req.user.type === 'child') {
       if (req.user.id !== childId) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     } else {
       const access = await db.query(
@@ -201,7 +201,7 @@ router.patch('/:id/activity-card-size', requireAuth, validateParams(UUIDParam), 
         [req.user.id, childId]
       );
       if (access.rows.length === 0) {
-        return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+        return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
       }
     }
 
@@ -217,13 +217,13 @@ router.patch('/:id/activity-card-size', requireAuth, validateParams(UUIDParam), 
       [req.body.activity_card_size, childId]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     res.json(result.rows[0].child_view_config);
   } catch (err) {
     console.error('[ACTIVITY-CARD-SIZE] PATCH error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -324,7 +324,7 @@ router.get('/', async (req, res) => {
     res.json(rows.map(toChildListResponse));
   } catch (err) {
     console.error('[CHILDREN] List error for parent', req.user.id, ':', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -340,7 +340,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
     );
     if (existing.rows.length === 0) {
       console.warn('[VIEW-CONFIG] PATCH child not found:', req.params.id);
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     // Deep-merge incoming fields over existing config
@@ -365,7 +365,7 @@ router.patch('/:id/view-config', validateParams(UUIDParam), requireChildAccess('
     res.json(merged);
   } catch (err) {
     console.error('[VIEW-CONFIG] PATCH error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -563,7 +563,7 @@ router.post('/', validate(CreateChildSchema), async (req, res) => {
       err.detail || '',
       err.stack
     );
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -572,7 +572,7 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
   try {
     const access = await getChildAccess(req.user.id, req.params.id);
     if (!access) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const result = await db.query(
@@ -584,14 +584,14 @@ router.get('/:id', validateParams(UUIDParam), async (req, res) => {
       [req.params.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Barnet hittades inte' });
+      return sendApiError(res, 404, 'CHILD_NOT_FOUND');
     }
 
     const row = result.rows[0];
     res.json({ ...toChildListResponse(row), role: access.role });
   } catch (err) {
     console.error('[CHILDREN] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -635,7 +635,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
   try {
     const access = await getChildAccess(req.user.id, req.params.id);
     if (!access) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const { name, emoji, birthday, timezone, view_mode, view_type, allow_child_reorder, show_now_next, require_sequential_completion, show_mood_rating, mood_input_mode, transition_lead_minutes, hide_clock, lock_schedule, dopamin_animation, visual_timer, activity_timers_enabled, time_adjustment, color_coding, avatar_url } = req.body;
@@ -766,7 +766,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateChildSchema), async
       });
     }
     console.error('[CHILDREN] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -794,7 +794,7 @@ router.delete('/:id', validateParams(UUIDParam), async (req, res) => {
     committed = true;
   } catch (err) {
     console.error('[CHILDREN] Delete error:', err);
-    return res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    return sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -864,7 +864,7 @@ router.put('/:id/pin', validateParams(UUIDParam), requireChildAccess('id'), vali
     res.json({ message: 'PIN-koden har ändrats!' });
   } catch (err) {
     console.error('[CHILDREN] Change PIN error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -885,7 +885,7 @@ router.post('/:id/unlock-pin', validateParams(UUIDParam), requireChildAccess('id
     res.json({ message: 'Låsning upphävd. Barnet kan logga in igen.' });
   } catch (err) {
     console.error('[CHILDREN] Unlock PIN error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -895,7 +895,7 @@ router.get('/:id/wizard-pin', validateParams(UUIDParam), async (req, res) => {
   try {
     const access = await getChildAccess(req.user.id, req.params.id);
     if (!access) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
     const pin = wizardPinReveal.consumeCreatedPin(req.params.id, req.user.id);
     if (!pin) {
@@ -904,7 +904,7 @@ router.get('/:id/wizard-pin', validateParams(UUIDParam), async (req, res) => {
     res.json({ pin });
   } catch (err) {
     console.error('[CHILDREN] wizard-pin error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -922,7 +922,7 @@ router.get('/:id/pin-status', validateParams(UUIDParam), requireChildAccess('id'
     });
   } catch (err) {
     console.error('[CHILDREN] PIN status error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -945,7 +945,7 @@ router.get('/:id/progress', validateParams(UUIDParam), requireChildAccess('id'),
     });
   } catch (err) {
     console.error('[CHILDREN] Progress error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

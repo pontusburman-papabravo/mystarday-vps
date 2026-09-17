@@ -49,7 +49,7 @@ router.post('/check-member', validate(CheckFamilyMemberSchema), async (req, res)
     res.json(result);
   } catch (err) {
     console.error('[FAMILY] check-member error:', err.message);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -130,7 +130,7 @@ router.post('/invite', inviteLimiter, validate(InviteMemberSchema), async (req, 
     });
   } catch (err) {
     console.error('[FAMILY] Invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -185,7 +185,7 @@ router.delete('/invite/:inviteId', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[FAMILY] Revoke invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -291,7 +291,7 @@ router.post('/add-parent', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Add parent error:', err.message, err.stack);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -381,7 +381,7 @@ router.post('/accept-invite', async (req, res) => {
     }
   } catch (err) {
     console.error('[FAMILY] Accept invite error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

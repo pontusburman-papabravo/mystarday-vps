@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog invite routes.
  * Owns: invite creation, token validation, accept flow for educators.
@@ -42,7 +43,7 @@ router.get('/:token', async (req, res) => {
     });
   } catch (err) {
     console.error('[PEDAGOG-INVITE] GET token error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -99,7 +100,7 @@ router.post('/', requireParent, requirePrimaryParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[PEDAGOG-INVITE] POST error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -158,7 +159,7 @@ router.post('/accept', async (req, res) => {
     });
   } catch (err) {
     console.error('[PEDAGOG-INVITE] accept error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -209,7 +210,7 @@ router.post('/accept-new', async (req, res) => {
     });
   } catch (err) {
     console.error('[PEDAGOG-INVITE] accept-new error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

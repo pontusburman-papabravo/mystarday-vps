@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../lib/api-user-error');
+
 const express = require('express');
 const db = require('../lib/db');
 const { requireParent } = require('../middleware/auth');
@@ -183,7 +185,7 @@ router.post('/', requireParent, requireFeature('feedback_formular'), validate(Fe
       return res.status(400).json({ error: 'Metadata för stor' });
     }
     console.error('[FEEDBACK] Error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

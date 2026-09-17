@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Family-level schedule template management.
  * Mounted at: /api/schedule-templates
@@ -41,7 +42,7 @@ router.get('/', async (req, res) => {
     res.json(templates.rows);
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -71,7 +72,7 @@ router.get('/:templateId', async (req, res) => {
     res.json({ ...template.rows[0], items: items.rows });
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -101,7 +102,7 @@ router.post('/', validate(CreateScheduleTemplateSchema), async (req, res) => {
     res.status(201).json({ ...result.rows[0], item_count: 0 });
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -193,7 +194,7 @@ router.post('/from-standard/:standardId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Create from standard error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -218,7 +219,7 @@ router.put('/:templateId', async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -248,7 +249,7 @@ router.delete('/:templateId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-TEMPLATES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -278,7 +279,7 @@ router.post('/:templateId/apply', async (req, res) => {
     }
 
     const childAccess = await getChildAccess(req.user.id, child_id);
-    if (!childAccess) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!childAccess) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const validDays = days.map(d => parseInt(d, 10)).filter(d => !isNaN(d) && d >= 0 && d <= 6);
     if (validDays.length === 0) return res.status(400).json({ error: 'Inga giltiga dagar' });
@@ -324,7 +325,7 @@ router.post('/:templateId/apply', async (req, res) => {
       return res.status(err.httpStatus).json({ error: err.message, code: err.code, details: err.details });
     }
     console.error('[SCHEDULE-TEMPLATES] Apply error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

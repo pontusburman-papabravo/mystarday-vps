@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Core family routes: family read/update, settings, dashboard-stats,
  * readiness, star-history, subscription-status.
@@ -126,7 +128,7 @@ router.get('/', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -166,7 +168,7 @@ router.put('/', validate(UpdateFamilySchema), async (req, res) => {
     res.json({ message: 'Familj uppdaterad!', family: result.rows[0] });
   } catch (err) {
     console.error('[FAMILY] Put error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -304,7 +306,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
     });
   } catch (err) {
     console.error('[FAMILY] Settings error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -333,7 +335,7 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] locale-options error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -698,7 +700,7 @@ router.get('/dashboard-stats', requireNotPedagogOnly, async (req, res) => {
     });
   } catch (err) {
     console.error('[FAMILY] Dashboard stats error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -890,7 +892,7 @@ router.get('/readiness', requireNotPedagogOnly, async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error('[FAMILY] Readiness error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

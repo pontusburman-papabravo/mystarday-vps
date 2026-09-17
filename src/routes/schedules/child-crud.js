@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Child-scoped schedule CRUD + once-tasks.
  * Handles: list, create, delete schedules; one-time tasks.
@@ -106,7 +107,7 @@ async function resolveCustodyScheduleFilter(child, childId, query) {
 router.get('/', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const filter = await resolveCustodyScheduleFilter(child, req.params.childId, req.query);
     if (filter.error) {
@@ -131,7 +132,7 @@ router.get('/', async (req, res) => {
     res.json(schedules.rows);
   } catch (err) {
     console.error('[SCHEDULES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -139,7 +140,7 @@ router.get('/', async (req, res) => {
 router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { day_of_week, template_category_id } = req.body;
     if (day_of_week === undefined || day_of_week === null) {
@@ -266,7 +267,7 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -274,7 +275,7 @@ router.post('/', validate(CreateChildScheduleSchema), async (req, res) => {
 router.delete('/:scheduleId', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const schedule = await db.query(
       'SELECT id FROM weekly_schedule WHERE id = $1 AND child_id = $2',
@@ -299,7 +300,7 @@ router.delete('/:scheduleId', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -307,7 +308,7 @@ router.delete('/:scheduleId', async (req, res) => {
 router.post('/once-tasks', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       name, section, date: rawDate, start_time, end_time, star_value, icon, child_ids,
@@ -381,7 +382,7 @@ router.post('/once-tasks', async (req, res) => {
     res.status(201).json({ created, count: created.length });
   } catch (err) {
     console.error('[ONCE-TASKS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

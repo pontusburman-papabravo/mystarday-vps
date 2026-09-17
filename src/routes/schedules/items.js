@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Schedule-item CRUD: list, add, update, delete, reorder items within a schedule.
  * Mounted at: /api/schedules/:scheduleId/items
@@ -152,7 +153,7 @@ async function enrichOnceTaskSubSteps(items) {
 router.get('/', async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const items = await db.query(
       `SELECT wsi.id, wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
@@ -266,7 +267,7 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -274,7 +275,7 @@ router.get('/', async (req, res) => {
 router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { activity_template_id, start_time, end_time, sort_order, section, date } = req.body;
     if (!activity_template_id) return res.status(400).json({ error: 'activity_template_id krävs' });
@@ -328,7 +329,7 @@ router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -336,7 +337,7 @@ router.post('/', validate(CreateScheduleItemSchema), async (req, res) => {
 router.put('/reorder', validate(ReorderSchema), async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const { order } = req.body;
     if (!Array.isArray(order)) return res.status(400).json({ error: 'order[] krävs' });
@@ -378,7 +379,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -386,7 +387,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
 router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const existing = await db.query(
       'SELECT id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
@@ -461,7 +462,7 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -469,7 +470,7 @@ router.put('/:itemId', validate(UpdateScheduleItemSchema), async (req, res) => {
 router.delete('/:itemId/all-days', async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const itemRes = await db.query(
       'SELECT activity_template_id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
@@ -525,7 +526,7 @@ router.delete('/:itemId/all-days', async (req, res) => {
     });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Delete all-days error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -533,7 +534,7 @@ router.delete('/:itemId/all-days', async (req, res) => {
 router.delete('/:itemId', async (req, res) => {
   try {
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Du har inte åtkomst till detta schema' });
+    if (!schedule) return sendApiError(res, 403, 'SCHEDULE_ACCESS_DENIED');
 
     const result = await db.query(
       'DELETE FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2 RETURNING id',
@@ -570,7 +571,7 @@ router.delete('/:itemId', async (req, res) => {
     res.json({ message: 'Aktiviteten har tagits bort från schemat' });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -586,7 +587,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
     }
 
     const schedule = await authz.getScheduleAccess(req.user.id, req.params.scheduleId);
-    if (!schedule) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!schedule) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const itemRes = await db.query(
       'SELECT activity_template_id FROM weekly_schedule_item WHERE id = $1 AND weekly_schedule_id = $2',
@@ -622,7 +623,7 @@ router.post('/:itemId/exclude-date', async (req, res) => {
     res.json({ message: 'Aktiviteten borttagen för detta datum' });
   } catch (err) {
     console.error('[SCHEDULE-ITEMS] Exclude-date error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

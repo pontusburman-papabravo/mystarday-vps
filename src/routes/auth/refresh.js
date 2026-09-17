@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * CSRF + refresh token routes (E2). GET /api/auth/csrf-token, POST /api/auth/refresh.
  */
@@ -103,7 +105,7 @@ router.post('/refresh', async (req, res) => {
     res.json({ csrfToken, expiresAt });
   } catch (err) {
     console.error('[AUTH] Refresh error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 module.exports = router;

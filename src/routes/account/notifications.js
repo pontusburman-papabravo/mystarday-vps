@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const db = require('../../lib/db');
 const { requireParent } = require('../../middleware/auth');
@@ -142,7 +144,7 @@ router.put('/notifications', requireParent, validate(UpdateNotificationPrefsSche
     });
   } catch (err) {
     console.error('[ACCOUNT] Notifications error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -165,7 +167,7 @@ router.get('/notifications', requireParent, async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[ACCOUNT] Get notifications error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -199,7 +201,7 @@ router.get('/status', requireParent, async (req, res) => {
     });
   } catch (err) {
     console.error('[ACCOUNT] Get status error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

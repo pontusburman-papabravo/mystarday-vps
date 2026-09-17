@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 const express = require('express');
 const db = require('../../lib/db');
 const { hashPassword, comparePassword } = require('../../lib/hash');
@@ -50,7 +52,7 @@ router.put('/change-password', requireParent, validate(ChangePasswordSchema), as
     res.json({ message: 'Lösenordet har ändrats!' });
   } catch (err) {
     console.error('[ACCOUNT] Change password error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

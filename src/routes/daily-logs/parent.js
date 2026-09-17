@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Parent-scoped daily log routes (mounted at /api/children).
  * GET /:childId/daily-log, GET /:childId/daily-logs
@@ -28,7 +30,7 @@ childRouter.use(requireParent);
 childRouter.get('/:childId/daily-log', async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const dateStr = parseLogDate(req.query.date, child.timezone || 'Europe/Stockholm');
 
@@ -58,7 +60,7 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
     });
   } catch (err) {
     console.error('[DAILY-LOG] Get error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -68,7 +70,7 @@ childRouter.get('/:childId/daily-log', async (req, res) => {
 childRouter.get('/:childId/daily-logs', async (req, res) => {
   try {
     const child = await getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from, to } = req.query;
     if (!from || !to) {
@@ -100,7 +102,7 @@ childRouter.get('/:childId/daily-logs', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[DAILY-LOG] History error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

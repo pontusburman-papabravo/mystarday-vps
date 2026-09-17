@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * General observation routes — family-level, time-agnostic notes.
  * Mounted at /api/general-observations (distinct from child_observation routes at /api/observations).
@@ -55,7 +56,7 @@ router.get('/', async (req, res) => {
     res.json({ observations });
   } catch (err) {
     console.error('[GENERAL_OBS] Get active error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -71,7 +72,7 @@ router.get('/archived', async (req, res) => {
     res.json({ observations });
   } catch (err) {
     console.error('[GENERAL_OBS] Get archived error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -100,7 +101,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({ observation });
   } catch (err) {
     console.error('[GENERAL_OBS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -132,7 +133,7 @@ router.patch('/:id', async (req, res) => {
     res.json({ observation: updated });
   } catch (err) {
     console.error('[GENERAL_OBS] Patch error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -148,7 +149,7 @@ router.post('/:id/archive', async (req, res) => {
     res.json({ observation: archived });
   } catch (err) {
     console.error('[GENERAL_OBS] Archive error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -164,7 +165,7 @@ router.post('/:id/restore', async (req, res) => {
     res.json({ observation: restored });
   } catch (err) {
     console.error('[GENERAL_OBS] Restore error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -180,7 +181,7 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[GENERAL_OBS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

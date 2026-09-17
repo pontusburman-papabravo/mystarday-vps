@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Standard Library routes — browse & copy admin-created default activities, rewards, and schedules.
  *
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
     res.json(await localizeActivityItems(activities, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -139,7 +140,7 @@ router.post('/activities/copy-batch', async (req, res) => {
     res.status(201).json({ message, copied: toCopy.length, skipped });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Batch activity copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -200,7 +201,7 @@ router.post('/activities/:id/copy', async (req, res) => {
     res.status(201).json({ message: `"${act.name}" har kopierats till ditt bibliotek!` });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Activity copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -269,7 +270,7 @@ router.post('/:group/copy', async (req, res) => {
     });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -299,7 +300,7 @@ router.get('/rewards', async (req, res) => {
     res.json(await localizeRewardItems(rewards, locale, 'sv-SE', STANDARD_LIBRARY_SCOPE));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Rewards list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -354,7 +355,7 @@ router.post('/rewards/copy-batch', async (req, res) => {
     res.status(201).json({ message, copied: toCopy.length, skipped });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Batch reward copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -397,7 +398,7 @@ router.post('/rewards/:id/copy', async (req, res) => {
     res.status(201).json({ message: `"${r.name}" har kopierats till ditt belöningsbibliotek!` });
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Reward copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -450,7 +451,7 @@ router.get('/schedules', async (req, res) => {
     res.json(await localizeStandardSchedules(schedules, locale));
   } catch (err) {
     console.error('[STANDARD-LIBRARY] Schedules list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -476,7 +477,7 @@ router.post('/schedules/:id/copy', async (req, res) => {
       'SELECT c.id, c.family_id FROM child c JOIN parent_child pc ON pc.child_id = c.id WHERE pc.parent_id = $1 AND c.id = $2',
       [req.user.id, child_id]
     );
-    if (childAccess.rows.length === 0) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (childAccess.rows.length === 0) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     const familyId = childAccess.rows[0].family_id;
     locale = await getFamilyLocale(familyId);
 
@@ -549,7 +550,7 @@ router.post('/schedules/:id/copy', async (req, res) => {
     const mapped = mapCanonicalCopyErrorToHttp(err, locale);
     if (mapped) return res.status(mapped.status).json(mapped.body);
     console.error('[STANDARD-LIBRARY] Schedule copy error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

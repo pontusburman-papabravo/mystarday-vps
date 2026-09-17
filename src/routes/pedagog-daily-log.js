@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog daily-log API — Modell A read (E12).
  */
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
     }
 
     const ok = await verifyPedagogChild(req.user.id, childId);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     const { rows } = await db.query(
       `SELECT dli.id, dli.activity_template_id, dli.completed, dli.completed_at,
@@ -75,7 +76,7 @@ router.patch('/items/:id', async (req, res) => {
     if (!item) return res.status(404).json({ error: 'Aktivitet hittades inte' });
 
     const ok = await verifyPedagogChild(req.user.id, item.child_id);
-    if (!ok) return res.status(403).json({ error: 'Åtkomst nekad' });
+    if (!ok) return sendApiError(res, 403, 'ACCESS_DENIED');
 
     // Modell A (§4.4.11): first completion wins. Any prior completion that was
     // not made by a pedagog (home: parent/child, or legacy NULL) blocks re-completion.

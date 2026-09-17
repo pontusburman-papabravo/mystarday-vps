@@ -474,7 +474,17 @@
       "parentPinInvalid": "Felaktig PIN-kod — försök igen",
       "logoutFailed": "Utloggningen misslyckades. Försök igen.",
       "logoutRateLimited": "För många försök. Vänta en stund och försök igen.",
-      "handoffInvalid": "Vuxensessionen kunde inte återställas. Logga in som vuxen."
+      "handoffInvalid": "Vuxensessionen kunde inte återställas. Logga in som vuxen.",
+      "userNotFound": "Användare hittades inte",
+      "invalidPassword": "Felaktigt lösenord",
+      "tokenRequired": "Token krävs",
+      "idTokenRequired": "idToken krävs",
+      "allFieldsRequired": "Alla fält krävs",
+      "messageTooShort": "Meddelandet måste vara minst 10 tecken",
+      "serviceUnavailable": "Tjänsten är tillfälligt otillgänglig",
+      "nameTooShort": "Namn krävs (minst 2 tecken)",
+      "roleRequired": "Roll krävs",
+      "consentRequired": "Du måste godkänna att vi sparar dina uppgifter"
     }
   },
   "dashboard": {

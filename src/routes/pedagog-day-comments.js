@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Pedagog day comments + parent Samarbete API (E12).
  */
@@ -42,7 +43,7 @@ router.post('/', requireComponent('pedagog'), async (req, res) => {
       [childId, req.user.familyId]
     );
     if (owns.rows.length === 0) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const { rows } = await db.query(

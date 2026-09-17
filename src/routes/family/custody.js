@@ -82,7 +82,7 @@ router.get('/context', requireNotPedagogOnly, requireCustodyFeature, async (req,
       return res.status(400).json({ error: 'childId krävs' });
     }
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const dateStr = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
       ? date
@@ -119,7 +119,7 @@ router.get('/context-range', requireNotPedagogOnly, requireCustodyFeature, async
     }
 
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const payload = await buildCustodyContextRangeResponse({
       childId,
@@ -207,7 +207,7 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
     const familyId = req.user.familyId;
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const {
       anchor_date: anchorDate,
@@ -345,7 +345,7 @@ router.get('/overrides/:childId', requireNotPedagogOnly, requireCustodyFeature, 
   try {
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, req.user.familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const overrides = await custodyDb.listOverridesForChild(childId);
     res.json({ overrides });
@@ -360,7 +360,7 @@ router.post('/overrides/:childId', requireNotPedagogOnly, requireCustodyFeature,
     const familyId = req.user.familyId;
     const { childId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const pattern = await custodyDb.getPattern(childId);
     if (!pattern) {
@@ -402,7 +402,7 @@ router.put('/overrides/:childId/:overrideId', requireNotPedagogOnly, requireCust
     const familyId = req.user.familyId;
     const { childId, overrideId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const existing = await custodyDb.getOverrideInFamily(overrideId, familyId);
     if (!existing || existing.child_id !== childId) {
@@ -430,7 +430,7 @@ router.delete('/overrides/:childId/:overrideId', requireNotPedagogOnly, requireC
     const familyId = req.user.familyId;
     const { childId, overrideId } = req.params;
     const child = await verifyChildInFamily(childId, familyId);
-    if (!child) return res.status(404).json({ error: 'Barn hittades inte' });
+    if (!child) return sendApiError(res, 404, 'CHILD_NOT_FOUND');
 
     const existing = await custodyDb.getOverrideInFamily(overrideId, familyId);
     if (!existing || existing.child_id !== childId) {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { sendApiError } = require('../../lib/api-user-error');
+
 /**
  * Google Sign In routes (E2).
  * POST /api/auth/google, POST /api/auth/google/link.
@@ -118,7 +120,7 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
     return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'google_login' });
   } catch (err) {
     console.error('[AUTH] Google Sign In error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -158,7 +160,7 @@ router.post('/google/link', appleLoginLimiter, async (req, res) => {
     res.json({ message: 'Google-konto länkat!' });
   } catch (err) {
     console.error('[AUTH] Google link error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

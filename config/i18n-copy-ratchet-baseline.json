@@ -568,18 +568,6 @@
       "snippet": "Tillbaka"
     },
     {
-      "id": "5c0650d57f8aa924",
-      "path": "public/img/stjarnadag-quick-actions-v4/preview/index.html",
-      "rule": "html-text",
-      "snippet": "Extra stjärnor"
-    },
-    {
-      "id": "aab1237087df83fe",
-      "path": "public/img/stjarnadag-quick-actions-v4/preview/index.html",
-      "rule": "html-text",
-      "snippet": "Engångs-aktivitet"
-    },
-    {
       "id": "aa2ccdbf33782655",
       "path": "public/js/activation-program-aha-card.js",
       "rule": "or-fallback",
@@ -1066,30 +1054,6 @@
       "snippet": "Något gick fel. Kontrollera din uppkoppling."
     },
     {
-      "id": "5da4f279b568fb71",
-      "path": "public/js/dashboard-impersonation.js",
-      "rule": "alert",
-      "snippet": "Support-sessionen har gått ut. Du skickas tillbaka till admin."
-    },
-    {
-      "id": "4f3f8afae0d5ca84",
-      "path": "public/js/dashboard-impersonation.js",
-      "rule": "or-fallback",
-      "snippet": "Okänd familj"
-    },
-    {
-      "id": "ce03b3b466d9f023",
-      "path": "public/js/dashboard-impersonation.js",
-      "rule": "or-fallback",
-      "snippet": "Okänd familj"
-    },
-    {
-      "id": "f77b6545f6146063",
-      "path": "public/js/dashboard-impersonation.js",
-      "rule": "title",
-      "snippet": "Inaktiverat i support-läge"
-    },
-    {
       "id": "65ac8ad4bb4e1c22",
       "path": "public/js/dashboard-system-messages.js",
       "rule": "textContent",
@@ -1112,36 +1076,6 @@
       "path": "public/js/journey-celebration.js",
       "rule": "or-fallback",
       "snippet": "Barnet började — och du såg det."
-    },
-    {
-      "id": "a4a717e9a9a6de0b",
-      "path": "public/js/landing-founder.js",
-      "rule": "or-fallback",
-      "snippet": "Används redan av familjer i Sverige"
-    },
-    {
-      "id": "0addd0a2ef544685",
-      "path": "public/js/landing-login-choice.js",
-      "rule": "aria-label",
-      "snippet": "Stäng"
-    },
-    {
-      "id": "eab5c7e5071475c9",
-      "path": "public/js/landing-share.js",
-      "rule": "aria-label",
-      "snippet": "Stäng"
-    },
-    {
-      "id": "843bc3ef73a13903",
-      "path": "public/js/landing-share.js",
-      "rule": "innerHTML",
-      "snippet": "<span aria-hidden=\"true\">📋</span> Kopiera länk"
-    },
-    {
-      "id": "2df6946db96fe5b1",
-      "path": "public/js/landing-share.js",
-      "rule": "server-message",
-      "snippet": "Tipsa-knappen på landningssidan användes"
     },
     {
       "id": "1b1c2d99ab5f280a",
@@ -1208,12 +1142,6 @@
       "path": "public/js/library.js",
       "rule": "innerHTML",
       "snippet": "<div class=\"flex items-center gap-1 schema-tab ${…}\" data-cat-tab=\"__all__\" onclick=\"selectSchemaTab(null)\"> <span class=\"px-4 py-2 font-semibold text-sm cursor"
-    },
-    {
-      "id": "c99fffca53abb11f",
-      "path": "public/js/native-debug.js",
-      "rule": "aria-label",
-      "snippet": "Visa eller dölj logg"
     },
     {
       "id": "512e65cfdc90a366",
@@ -1376,30 +1304,6 @@
       "path": "public/js/platform.js",
       "rule": "throw-error",
       "snippet": "Kunde inte bearbeta bilden"
-    },
-    {
-      "id": "555332a1afd9d5d7",
-      "path": "public/js/preview-back.js",
-      "rule": "title",
-      "snippet": "Tillbaka"
-    },
-    {
-      "id": "5b8f997477da9bed",
-      "path": "public/js/preview-guest.js",
-      "rule": "or-fallback",
-      "snippet": "Kunde inte spara din e-post."
-    },
-    {
-      "id": "842d2700cdeeda3e",
-      "path": "public/js/preview-shell.js",
-      "rule": "or-fallback",
-      "snippet": "Något gick fel. Försök igen."
-    },
-    {
-      "id": "c55a04e4fc03724b",
-      "path": "public/js/preview-shell.js",
-      "rule": "or-fallback",
-      "snippet": "Något gick fel."
     },
     {
       "id": "681a23404b579e0f",
@@ -1600,12 +1504,6 @@
       "snippet": "Försök igen"
     },
     {
-      "id": "ca1429f9c8799951",
-      "path": "public/onboarding-film-preview.html",
-      "rule": "html-text",
-      "snippet": "Förhandsvisning — Onboardingfilm"
-    },
-    {
       "id": "4601daa81960e4d0",
       "path": "public/open-child.html",
       "rule": "html-text",
@@ -1742,216 +1640,6 @@
       "path": "public/pedagog-invite.html",
       "rule": "textContent",
       "snippet": "Kunde inte ansluta. Kontrollera din internetuppkoppling."
-    },
-    {
-      "id": "60254ec8f5a6d7c2",
-      "path": "public/pedagog-note.html",
-      "rule": "aria-label",
-      "snippet": "Mellanmål"
-    },
-    {
-      "id": "9fd118f285dda8b5",
-      "path": "public/pedagog-note.html",
-      "rule": "aria-label",
-      "snippet": "Humör"
-    },
-    {
-      "id": "cdec2730d9ea27c5",
-      "path": "public/pedagog-note.html",
-      "rule": "aria-label",
-      "snippet": "Välj barn"
-    },
-    {
-      "id": "05c970ad85b30712",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "— Välj barn —"
-    },
-    {
-      "id": "1cae5012c4f0bcbe",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟢 Åt bra"
-    },
-    {
-      "id": "37a60057964e3780",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟡 Åt lite"
-    },
-    {
-      "id": "492719a63b2be31b",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🔴 Åt ej"
-    },
-    {
-      "id": "59fc7221f3b09091",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🔴 Åt ej"
-    },
-    {
-      "id": "5a15227421d12e05",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟡 Åt lite"
-    },
-    {
-      "id": "5da7e380a6fc045a",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🔴 Svårt"
-    },
-    {
-      "id": "602995a9bd245b43",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "Laddar..."
-    },
-    {
-      "id": "68c53cd113b47e3f",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🔴 Åt ej"
-    },
-    {
-      "id": "69f0f1320ef7de88",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "Spara utkast"
-    },
-    {
-      "id": "8651c1bfd184e8be",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "📋 ÖVRIGT"
-    },
-    {
-      "id": "89e5c3da2e14204e",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "✓ Sparad"
-    },
-    {
-      "id": "91cba85eaf5f6d1c",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟢 Åt bra"
-    },
-    {
-      "id": "a3790296028ddf1b",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🍽️ MÅLTIDER"
-    },
-    {
-      "id": "bdc510707f3e1437",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "😊 HUMÖR"
-    },
-    {
-      "id": "c39f9be43761e75b",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟢 Åt bra"
-    },
-    {
-      "id": "c8807189fe2c3916",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "🟡 Åt lite"
-    },
-    {
-      "id": "f04fe00eb6233579",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "📝 Dagformulär"
-    },
-    {
-      "id": "fb89be0bd3d1a2d1",
-      "path": "public/pedagog-note.html",
-      "rule": "html-text",
-      "snippet": "Mellanmål:"
-    },
-    {
-      "id": "aed654af98da64b0",
-      "path": "public/pedagog-note.html",
-      "rule": "innerHTML",
-      "snippet": "<option value=\"\">— Välj barn —</option>"
-    },
-    {
-      "id": "32328d03a731d83a",
-      "path": "public/pedagog-note.html",
-      "rule": "placeholder",
-      "snippet": "Övriga observationer..."
-    },
-    {
-      "id": "3ed4c6da437ab325",
-      "path": "public/pedagog-note.html",
-      "rule": "textContent",
-      "snippet": "✓ Klar — Sparad"
-    },
-    {
-      "id": "a31c64e040658aff",
-      "path": "public/pedagog-note.html",
-      "rule": "textContent",
-      "snippet": "✓ Klar — Sparad"
-    },
-    {
-      "id": "ea2382e735005436",
-      "path": "public/pedagog-note.html",
-      "rule": "textContent",
-      "snippet": "✓ Sparad"
-    },
-    {
-      "id": "5c5850c29a2a0521",
-      "path": "public/pedagog-note.html",
-      "rule": "title",
-      "snippet": "Utmärkt"
-    },
-    {
-      "id": "803a684261e96c03",
-      "path": "public/pedagog-note.html",
-      "rule": "title",
-      "snippet": "Dåligt"
-    },
-    {
-      "id": "b8fc560f6b427ec0",
-      "path": "public/pedagog-note.html",
-      "rule": "title",
-      "snippet": "Mycket dåligt"
-    },
-    {
-      "id": "6688879c66c460d2",
-      "path": "public/pedagog-oversikt.html",
-      "rule": "html-text",
-      "snippet": "Öppna formulär →"
-    },
-    {
-      "id": "6c5684c89256b1ef",
-      "path": "public/pedagog-oversikt.html",
-      "rule": "html-text",
-      "snippet": "Laddar..."
-    },
-    {
-      "id": "89edf8da9ebeba54",
-      "path": "public/pedagog-oversikt.html",
-      "rule": "html-text",
-      "snippet": "📋 Pedagogöversikt"
-    },
-    {
-      "id": "a796b23ebb508bc4",
-      "path": "public/pedagog-oversikt.html",
-      "rule": "html-text",
-      "snippet": "Pedagogöversikt — [brand]"
-    },
-    {
-      "id": "bdc0fbd5d5d999cc",
-      "path": "public/pedagog-oversikt.html",
-      "rule": "html-text",
-      "snippet": "Be en förälder bjuda in dig som pedagog."
     },
     {
       "id": "cfa477fd31608758",
@@ -2102,18 +1790,6 @@
       "path": "public/reset-password.html",
       "rule": "html-text",
       "snippet": "JavaScript krävs"
-    },
-    {
-      "id": "29d99552a3935e44",
-      "path": "public/review-subscription-preview.html",
-      "rule": "aria-label",
-      "snippet": "Årsabonnemang, rekommenderat"
-    },
-    {
-      "id": "a70d282515b7bed0",
-      "path": "public/review-subscription-preview.html",
-      "rule": "aria-label",
-      "snippet": "Månadsabonnemang"
     },
     {
       "id": "690dc5c30815e194",
@@ -2354,588 +2030,6 @@
       "path": "public/upgrade.html",
       "rule": "html-text",
       "snippet": "Obegränsat antal barn och aktiviteter"
-    },
-    {
-      "id": "00bf3f7398261da5",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Dina belöningar"
-    },
-    {
-      "id": "0409651867bb01ed",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Städa rummet"
-    },
-    {
-      "id": "0bf2fdc605dd6c60",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Lös in"
-    },
-    {
-      "id": "2168bfb39ce220ee",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Stjärnor totalt idag"
-    },
-    {
-      "id": "56c48e464c76aab0",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Packa väskan"
-    },
-    {
-      "id": "7dc3f313d84726fb",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Schema"
-    },
-    {
-      "id": "84f46a0172334a90",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Föräldrapanel"
-    },
-    {
-      "id": "8711f98d0fe13b9f",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Barnvy"
-    },
-    {
-      "id": "98fc37ecd213d29f",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "[brand] V2.0 — Barnvy Mockup"
-    },
-    {
-      "id": "b6275886eb7dc84f",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Stjärnor"
-    },
-    {
-      "id": "bcb2136de195cb7e",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Kvällstandborstning"
-    },
-    {
-      "id": "c28f53c43c5d21f7",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Borsta tänderna"
-    },
-    {
-      "id": "d94f1a40ccab6d98",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Klä på sig"
-    },
-    {
-      "id": "f436cedd8197f0b5",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Läxa"
-    },
-    {
-      "id": "f500abcb3aeda823",
-      "path": "public/v2/child.html",
-      "rule": "html-text",
-      "snippet": "Spelkväll"
-    },
-    {
-      "id": "0a2fc828529b2418",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "väntar i Skattkammaren"
-    },
-    {
-      "id": "0b9a9bd8158e7086",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "📅 Schema"
-    },
-    {
-      "id": "103d1f2cf56cae34",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Borsta tänderna"
-    },
-    {
-      "id": "1045d280bf68bfb6",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Veckans stjärnor"
-    },
-    {
-      "id": "2c5c2b91694ec74d",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Klarade \"Klä på sig\""
-    },
-    {
-      "id": "2c5da03c44f5d7eb",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "📅 Schema"
-    },
-    {
-      "id": "329ca1df64efe7b5",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Klä på sig"
-    },
-    {
-      "id": "4f0b62df4d1766a9",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Klärde av \"Borsta tänderna\""
-    },
-    {
-      "id": "5e90a55c19f999ab",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Sön"
-    },
-    {
-      "id": "69fc36fc7ae2dff4",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Löste in \"Extra TV-tid\""
-    },
-    {
-      "id": "6bffa83ac108e551",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Familjen totalt · Maj 2026"
-    },
-    {
-      "id": "72f8393a19965eb9",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Inlösningar ikväll"
-    },
-    {
-      "id": "86936b999ef79cc8",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Mån"
-    },
-    {
-      "id": "9168badebf19072d",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Fullständig statistik →"
-    },
-    {
-      "id": "964cf7c1cb4499bd",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "8 år"
-    },
-    {
-      "id": "a46b823546aa0ab1",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "+ Lägg till barn"
-    },
-    {
-      "id": "a6b288e60b317d22",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "↑ 12 mer än igår"
-    },
-    {
-      "id": "aa8e4211c3aa814b",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Stjärnor idag"
-    },
-    {
-      "id": "b63d3815e9b7e5b4",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Läsa 15 min"
-    },
-    {
-      "id": "bc26462c6c5359d4",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Packa väskan"
-    },
-    {
-      "id": "bf14226cfcdb8ef8",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "🏆 Belöning"
-    },
-    {
-      "id": "c2a6ddb2268c0389",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "[brand] V2.0 — Föräldrapanel Mockup"
-    },
-    {
-      "id": "c34071556947231a",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Lör"
-    },
-    {
-      "id": "c66240d774c4db53",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Klärde alla 17 aktiviteter!"
-    },
-    {
-      "id": "d0c675dd37631c0f",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "10 år"
-    },
-    {
-      "id": "d7d0d14950ebc4a0",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Sätta på skor"
-    },
-    {
-      "id": "d967907898e53fea",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Barnvy"
-    },
-    {
-      "id": "dc8ddae316687047",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "6 år"
-    },
-    {
-      "id": "e63a478853f72e0f",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Borsta tänderna"
-    },
-    {
-      "id": "ec60a88c5e3ef076",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Städa rummet"
-    },
-    {
-      "id": "f7874cac72ee14f4",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "📅 Schema"
-    },
-    {
-      "id": "fc5cdbc3ddf83fc6",
-      "path": "public/v2/dashboard.html",
-      "rule": "html-text",
-      "snippet": "Måndag 4 maj 2026 · Vecka 19"
-    },
-    {
-      "id": "0b02ec175103626a",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Belöning"
-    },
-    {
-      "id": "0d04d15136af08bc",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "rättvist"
-    },
-    {
-      "id": "1934dcf6c8e565e2",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Föräldrapanel"
-    },
-    {
-      "id": "1a0e29e62c9988ba",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "★ 12 stjärnor"
-    },
-    {
-      "id": "25c5d53f0c39337c",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Drag & drop-aktiviteter, bildstöd och tydlig tidslinje — perfekt för barn med ADHD eller autism."
-    },
-    {
-      "id": "2ba4369b5c6b8a08",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Visuellt dagschema som barnen förstår"
-    },
-    {
-      "id": "2d45e057d282fd18",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Ensamstående mamma, Göteborg"
-    },
-    {
-      "id": "314a2f9055dbb664",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Pappa till Tilda, 9 år"
-    },
-    {
-      "id": "391022c8804e5068",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Se framstegen vecka för vecka"
-    },
-    {
-      "id": "3930454a5350e93f",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Kom igång"
-    },
-    {
-      "id": "3a0d9b8c17150385",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "litet äventyr"
-    },
-    {
-      "id": "3ecdbed945b2b2f3",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Skapa egna belöningar. Film, glass, en extra seriebok."
-    },
-    {
-      "id": "42ed22ef4aa3fee4",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "\"Vi är tre barn och jag som ensam förälder. Det här är det enda apptipset jag ger vidare. Genuint ändringsbart.\""
-    },
-    {
-      "id": "49b0b55e5c4290cc",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Omdömen"
-    },
-    {
-      "id": "543164ca93d88f2d",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Hantera hela familjen från en föräldrapanel. Varje barn har sin egna vy och PIN."
-    },
-    {
-      "id": "5c6ee06749d4b657",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Borsta tänderna"
-    },
-    {
-      "id": "5f12092de2f403a0",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Visuella scheman och stjärnbelöningar som faktiskt fungerar — utan tjat. Barn älskar det. Föräldrar andas ut."
-    },
-    {
-      "id": "65f136fbd24c6f10",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Barnvy"
-    },
-    {
-      "id": "6d94acbb500c7a4d",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Ingen bindningstid. Testa gratis i 14 dagar. Avsluta när som helst."
-    },
-    {
-      "id": "6e5950d7bfc122f7",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Helgschema, sjukdag, skollov. Enkla avvikelser utan att förstöra ordinarie schema."
-    },
-    {
-      "id": "7533dddc98eb0fde",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "för alltid"
-    },
-    {
-      "id": "7a8d89a32f9f2b5c",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Kom igång"
-    },
-    {
-      "id": "7cc7b245058b1ed5",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "behöver för en"
-    },
-    {
-      "id": "7d15db8bfb97be30",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Mamma till Liam, 7 år"
-    },
-    {
-      "id": "89e472995cd0bf7b",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "stjärnor"
-    },
-    {
-      "id": "89e775576b24219f",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "\"Vi hade tjat varje morgon i 4 år. Tre veckor efter [brand] klär sig Liam på sig utan att vi ens behöver säga till.\""
-    },
-    {
-      "id": "8b72ec462118bf06",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "⭐ Mest populär"
-    },
-    {
-      "id": "902738ca99e1ca29",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Barnet samlar stjärnor för varje avklarad aktivitet."
-    },
-    {
-      "id": "a2570933f4a46a1e",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Enkelt nog för ett 4-årigt barn. Kraftfullt nog för en förälder med tre barn och ett hektiskt morgonschema."
-    },
-    {
-      "id": "a405f61833c44828",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Det tar 2 minuter att sätta upp. Ditt barn kan börja samla stjärnor redan ikväll."
-    },
-    {
-      "id": "a797c9f1ba03c753",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "\"Min dotter har autism och klarar nu sin morgonrutin helt självständigt. Bildstödet är ovärderligt. Tack.\""
-    },
-    {
-      "id": "a9130f4201b96d7a",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "för ditt barn"
-    },
-    {
-      "id": "aabbcfdce2980e95",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Barnvy"
-    },
-    {
-      "id": "af3074f33bc7f069",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Schema"
-    },
-    {
-      "id": "b5b0f61184186e2e",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Familjeplan"
-    },
-    {
-      "id": "b8c92074238592cb",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Byggt med ❤️ för svenska familjer"
-    },
-    {
-      "id": "c44d74a848f36570",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Byt stjärnor mot belöningar"
-    },
-    {
-      "id": "cd6e39a5da009da6",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "★ 8 stjärnor"
-    },
-    {
-      "id": "d24bb42c58afcfa3",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Stjärnor som motiverar"
-    },
-    {
-      "id": "d5fde415e020e044",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Vad föräldrar säger"
-    },
-    {
-      "id": "dc3fe85fc9cf0622",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "per månad"
-    },
-    {
-      "id": "dd22e008963917d6",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Klä på sig"
-    },
-    {
-      "id": "e1b66924f557d999",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Föräldrapanel"
-    },
-    {
-      "id": "e36791452db346c9",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "⭐ Måndag 4 maj"
-    },
-    {
-      "id": "eabce4f4688f216d",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Inte PR-citat — faktiska föräldrar som hittat morgonron."
-    },
-    {
-      "id": "eaffde8bb419efd3",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Familj"
-    },
-    {
-      "id": "ed3f33244053861d",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "© 2026 [brand]. Alla rättigheter förbehållna."
-    },
-    {
-      "id": "ef4af0f47e50ea30",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Visuella scheman och stjärnbelöningar för barn — utan tjat."
-    },
-    {
-      "id": "f803682e29cc0697",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "per månad"
-    },
-    {
-      "id": "fd065413ba2cd7ad",
-      "path": "public/v2/index.html",
-      "rule": "html-text",
-      "snippet": "Visuella staplar visar hur barnet utvecklas — ett kraftfullt samtal för IUP eller 1177-besök."
     },
     {
       "id": "1c4e82999fb865d3",
@@ -3454,64 +2548,16 @@
       "snippet": "Kunde inte spara profilbilden"
     },
     {
-      "id": "35622cff53e6e2f2",
-      "path": "src/routes/account/export.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "088e428a3a8b6c9e",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "idToken krävs"
-    },
-    {
-      "id": "0b5cc09a81874a19",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Användare hittades inte"
-    },
-    {
-      "id": "0fb775224a133bd1",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "13e512a31c727b9a",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Användare hittades inte"
-    },
-    {
       "id": "156c7eb3f755f29e",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
       "snippet": "Sätt ett lösenord innan du kopplar bort Google"
     },
     {
-      "id": "1ceb0c5fadbbce22",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Token krävs"
-    },
-    {
       "id": "202d77515c6edc33",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
       "snippet": "Lösenord krävs för att koppla bort Google"
-    },
-    {
-      "id": "31704de4e925ded8",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "3448c8a53977543b",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Användare hittades inte"
     },
     {
       "id": "3f9914003b4e1a8b",
@@ -3544,12 +2590,6 @@
       "snippet": "Apple-konto är redan kopplat till detta konto"
     },
     {
-      "id": "603e4990a7b07470",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "616cf5601a8cde2a",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
@@ -3568,18 +2608,6 @@
       "snippet": "Länken har redan använts. Begär en ny ändring i Inställningar."
     },
     {
-      "id": "7abc6d782b715e6d",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7b213c39aa768d35",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Felaktigt lösenord"
-    },
-    {
       "id": "7c1b99130b5be990",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
@@ -3592,34 +2620,10 @@
       "snippet": "Apple-konto länkat!"
     },
     {
-      "id": "859f674431b814b2",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "9d68e16c81e5b27f",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Felaktigt lösenord"
-    },
-    {
       "id": "a414fc42b52bc2e3",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
       "snippet": "Lösenordet har satts. Du kan nu logga in med e-post och lösenord."
-    },
-    {
-      "id": "bb944921f940cc00",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "c1df15717d9f7d6d",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Användare hittades inte"
     },
     {
       "id": "cd2a5d5e108f6263",
@@ -3640,12 +2644,6 @@
       "snippet": "E-postadressen är redan registrerad på ett annat konto"
     },
     {
-      "id": "eebb25d8e54b9806",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "idToken krävs"
-    },
-    {
       "id": "f5e634d3bef37326",
       "path": "src/routes/account/identity.js",
       "rule": "server-message",
@@ -3664,28 +2662,10 @@
       "snippet": "Länken har gått ut. Begär en ny ändring i Inställningar."
     },
     {
-      "id": "f9d8d169114cb7f9",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Felaktigt lösenord"
-    },
-    {
-      "id": "fee656dcab276eb3",
-      "path": "src/routes/account/identity.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "143653c954acebea",
       "path": "src/routes/account/lifecycle.js",
       "rule": "server-message",
       "snippet": "Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto."
-    },
-    {
-      "id": "208101613f68ec9f",
-      "path": "src/routes/account/lifecycle.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "2a8277730503dd37",
@@ -3704,12 +2684,6 @@
       "path": "src/routes/account/lifecycle.js",
       "rule": "server-message",
       "snippet": "Den här raderingsvägen är avvecklad. Använd Inställningar → Radera konto."
-    },
-    {
-      "id": "ac21ac4c4e4e2074",
-      "path": "src/routes/account/lifecycle.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "be888464fe249410",
@@ -3746,24 +2720,6 @@
       "path": "src/routes/account/notifications.js",
       "rule": "server-message",
       "snippet": "Vi skickar inte fler veckosammanfattningar till din e-post. Du kan slå på dem igen under Inställningar → Notiser."
-    },
-    {
-      "id": "537ac2e9d89efb72",
-      "path": "src/routes/account/notifications.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "6b701bc099c75b76",
-      "path": "src/routes/account/notifications.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "6cfb42f8b1953d0c",
-      "path": "src/routes/account/notifications.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "795c760d8df352fb",
@@ -3808,22 +2764,10 @@
       "snippet": "Användare hittades inte"
     },
     {
-      "id": "e8320fe2a189ca69",
-      "path": "src/routes/account/password.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "8f7848dcfd4bd4e5",
       "path": "src/routes/account/schemas.js",
       "rule": "server-message",
       "snippet": "Lösenorden matchar inte"
-    },
-    {
-      "id": "03c5490826df944c",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "09925645082cb5df",
@@ -3832,22 +2776,10 @@
       "snippet": "Inte tillgängligt"
     },
     {
-      "id": "14d446a8326eccb6",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "1c307e84ef8efc0d",
       "path": "src/routes/activation-program.js",
       "rule": "server-message",
       "snippet": "Inte tillgängligt"
-    },
-    {
-      "id": "2cf66794e37de622",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "2d42f50cbd0cf828",
@@ -3874,34 +2806,10 @@
       "snippet": "Inte tillgängligt"
     },
     {
-      "id": "5929e0acc1d27718",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "5a0bd9f6169ebdcd",
       "path": "src/routes/activation-program.js",
       "rule": "server-message",
       "snippet": "Inte tillgängligt"
-    },
-    {
-      "id": "71d3b1305b5281c3",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "b4436ee317f52f0b",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d0c68f7ad706dbc3",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "dbffd55791e2fda6",
@@ -3916,24 +2824,6 @@
       "snippet": "Reflektionen är inte tillgänglig än"
     },
     {
-      "id": "e1a4ac5dff22d2b2",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "ed87214e31a99d73",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "f35f094fae741dad",
-      "path": "src/routes/activation-program.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "f78c2267f0f49495",
       "path": "src/routes/activation-program.js",
       "rule": "server-message",
@@ -3946,12 +2836,6 @@
       "snippet": "Inte tillgängligt"
     },
     {
-      "id": "4b514fbce48afb6b",
-      "path": "src/routes/auth/child-login.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "9711149142c2c876",
       "path": "src/routes/auth/child-login.js",
       "rule": "server-message",
@@ -3962,12 +2846,6 @@
       "path": "src/routes/auth/child-login.js",
       "rule": "server-message",
       "snippet": "Vänta en liten stund ⏰ Du kan försöka igen om ${…} ${…}"
-    },
-    {
-      "id": "0d114f6b01ae270f",
-      "path": "src/routes/auth/oauth-apple.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "42c106e1efd1456c",
@@ -3986,12 +2864,6 @@
       "path": "src/routes/auth/oauth-apple.js",
       "rule": "server-message",
       "snippet": "Apple-konto länkat!"
-    },
-    {
-      "id": "6468c1d4a310f929",
-      "path": "src/routes/auth/oauth-apple.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "7aee45a4870522fb",
@@ -4036,18 +2908,6 @@
       "snippet": "idToken krävs"
     },
     {
-      "id": "ac5ebde7cab5bd7d",
-      "path": "src/routes/auth/oauth-google.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "bba0c67b699d890d",
-      "path": "src/routes/auth/oauth-google.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "c09dcbe0b9574d60",
       "path": "src/routes/auth/oauth-google.js",
       "rule": "server-message",
@@ -4058,12 +2918,6 @@
       "path": "src/routes/auth/refresh.js",
       "rule": "server-message",
       "snippet": "Användare hittades inte"
-    },
-    {
-      "id": "3d561720ea7a69c6",
-      "path": "src/routes/auth/refresh.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "4a19b02d1fb51992",
@@ -4084,28 +2938,10 @@
       "snippet": "Användare hittades inte"
     },
     {
-      "id": "1548192eea94d508",
-      "path": "src/routes/calendar.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "4970025803fa077a",
-      "path": "src/routes/calendar.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "9b3ccf66f4981baa",
       "path": "src/routes/calendar.js",
       "rule": "server-message",
       "snippet": "Ogiltig veckoförskjutning"
-    },
-    {
-      "id": "043d7760a4c957ef",
-      "path": "src/routes/categories.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "26b30649d36299cd",
@@ -4114,34 +2950,16 @@
       "snippet": "Kategorinamn krävs"
     },
     {
-      "id": "2e933747bdc4266b",
-      "path": "src/routes/categories.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "6b63c1144a3b7c00",
       "path": "src/routes/categories.js",
       "rule": "server-message",
       "snippet": "Något gick fel."
     },
     {
-      "id": "8aac7ea8a65398ae",
-      "path": "src/routes/categories.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "b95acec029087bd5",
       "path": "src/routes/categories.js",
       "rule": "server-message",
       "snippet": "Kategorinamn krävs"
-    },
-    {
-      "id": "f3e2aaa33ca40342",
-      "path": "src/routes/categories.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "34ec3066a8e7fa74",
@@ -4154,12 +2972,6 @@
       "path": "src/routes/child-universe.js",
       "rule": "server-message",
       "snippet": "Temat är inte upplåst ännu"
-    },
-    {
-      "id": "7e5b2241cde21eb6",
-      "path": "src/routes/child-universe.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
     },
     {
       "id": "c6b6c9a175542268",
@@ -4180,58 +2992,10 @@
       "snippet": "Inte tillräckligt med stjärnor"
     },
     {
-      "id": "07b0eee7b61ba930",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "0a15cea97d7cbf3f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "0cf548292e9d7889",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "0f963ce4feb94482",
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "${…} har lagts till! Spara PIN-koden: ${…}"
-    },
-    {
-      "id": "161b8bfbc0ed2d6e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "1fcabbf30c50f50f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "21cd10cc481183ed",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "2211b2704cdcac27",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "23c3a6ed846f7048",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
     },
     {
       "id": "2795153c25b0a830",
@@ -4240,82 +3004,10 @@
       "snippet": "Låsning upphävd. Barnet kan logga in igen."
     },
     {
-      "id": "3cbd7f53e5448121",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "4d051775ab42c974",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "543a7dd9046232a6",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "58882e758f476379",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "5d1fed9dfea5b50e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "63f4d988884235cd",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "65299cce6805553e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "67038ab7ce95500c",
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "PIN-koden har ändrats!"
-    },
-    {
-      "id": "69335a13ffbfa2c4",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7235c7813c8450c8",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "768333ab1336767b",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "775f18a5d34f680e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7959f47da5eeea6e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "7d59bb7710554835",
@@ -4324,106 +3016,16 @@
       "snippet": "Barn borttaget"
     },
     {
-      "id": "7ec6c20524f488e8",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "7f5b9cd838a4f315",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7fb5aa93ea74393e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "b0eb4a102e965015",
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "PIN är inte tillgänglig"
     },
     {
-      "id": "c04fc4c483a0057f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "c6b7c918058e6dc1",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "d2119c56ac6fab35",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d400caad2606c444",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d48770702162a6f1",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "d4ecdacd4bed27ae",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
       "id": "d54a15eb1caaabc8",
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "Något gick fel vid sparandet."
-    },
-    {
-      "id": "d6cb38670be877ed",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d8b80e1453c0df8d",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "e3f2e65ca878503f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "ee222e97c7c75b65",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "f52dfa93948805d7",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "ff3a96f6a4d60c94",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "bbfa84b3f87c62cc",
@@ -4654,48 +3256,6 @@
       "snippet": "Dagen är pausad"
     },
     {
-      "id": "2b7e5b189b36a9e2",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2c47317bf3b9d2d7",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "319f1644c4f16b56",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "4c8513bc63de8cbf",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "66fb29da27e68306",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7235179139cf5ace",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "798afab8d502deca",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "8cf83c1d96c83c37",
       "path": "src/routes/daily-logs/child-self.js",
       "rule": "server-message",
@@ -4708,40 +3268,10 @@
       "snippet": "Ogiltigt view_type. Tillåtna värden: day_sections, now_next_later"
     },
     {
-      "id": "caa73a008fb444fc",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d6cfe2bbdb353fed",
-      "path": "src/routes/daily-logs/child-self.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "f92f4d3dee0cdda0",
       "path": "src/routes/daily-logs/items.js",
       "rule": "or-fallback",
       "snippet": "Barnet"
-    },
-    {
-      "id": "122f553d0435fad7",
-      "path": "src/routes/daily-logs/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "23541ab2fec44007",
-      "path": "src/routes/daily-logs/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2ea542162ae70d91",
-      "path": "src/routes/daily-logs/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "49949579158c2001",
@@ -4750,64 +3280,10 @@
       "snippet": "Schemalagda aktiviteter tas bort via veckoschemat"
     },
     {
-      "id": "4ee696e461a8c720",
-      "path": "src/routes/daily-logs/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "71b08d24ffd77b93",
-      "path": "src/routes/daily-logs/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "12931c4c5b7d352f",
-      "path": "src/routes/daily-logs/logs.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "15067d6fc05774c0",
-      "path": "src/routes/daily-logs/logs.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "557701566167e0ba",
-      "path": "src/routes/daily-logs/logs.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "893ce638ddaaa46d",
       "path": "src/routes/daily-logs/logs.js",
       "rule": "server-message",
       "snippet": "Ogiltigt antal minuter. Tillåtna värden: 5, 10, 15, 30."
-    },
-    {
-      "id": "ba42a83ee4561c20",
-      "path": "src/routes/daily-logs/logs.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "27abc5077239b49f",
-      "path": "src/routes/daily-logs/parent.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "63a7e70c73752256",
-      "path": "src/routes/daily-logs/parent.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "79c7daeb1ea194f8",
-      "path": "src/routes/daily-logs/parent.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "91f06c7a8370e581",
@@ -4820,12 +3296,6 @@
       "path": "src/routes/daily-logs/parent.js",
       "rule": "server-message",
       "snippet": "from och to krävs (YYYY-MM-DD)"
-    },
-    {
-      "id": "ec68829fd17195f3",
-      "path": "src/routes/daily-logs/parent.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "f920cb8750478471",
@@ -4846,12 +3316,6 @@
       "snippet": "Autentisering krävs"
     },
     {
-      "id": "1c516a3b082d71f3",
-      "path": "src/routes/family-images.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "39e8bb41a935a833",
       "path": "src/routes/family-images.js",
       "rule": "server-message",
@@ -4870,28 +3334,10 @@
       "snippet": "url krävs"
     },
     {
-      "id": "7cf8a9a2c76a22d5",
-      "path": "src/routes/family-images.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "a5c4fe55b0de7199",
       "path": "src/routes/family-images.js",
       "rule": "server-message",
       "snippet": "Kunde inte hämta bilden"
-    },
-    {
-      "id": "aa0c5940fc8ebb01",
-      "path": "src/routes/family-images.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "bad4f575535927d6",
-      "path": "src/routes/family-images.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "d66c9103ae45aa57",
@@ -4984,12 +3430,6 @@
       "snippet": "Kunde inte hämta prenumerationsstatus"
     },
     {
-      "id": "7874497b28b093ad",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "7d6a3cb01422d4d0",
       "path": "src/routes/family/core.js",
       "rule": "server-message",
@@ -5002,22 +3442,10 @@
       "snippet": "Familj hittades inte"
     },
     {
-      "id": "83b0e96f2095688a",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "8e384382283822c7",
       "path": "src/routes/family/core.js",
       "rule": "server-message",
       "snippet": "Inga ändringar att spara"
-    },
-    {
-      "id": "acf2cde06ffada68",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "b2412b85d7cb8d4d",
@@ -5032,28 +3460,10 @@
       "snippet": "Familj uppdaterad!"
     },
     {
-      "id": "bc2428db2093d955",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "c06a966e675397ce",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "d18f97cf0a629cfe",
       "path": "src/routes/family/core.js",
       "rule": "server-message",
       "snippet": "Inställningar uppdaterade!"
-    },
-    {
-      "id": "e3e31a9b3f535ff1",
-      "path": "src/routes/family/core.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "eb4971fc281064da",
@@ -5086,12 +3496,6 @@
       "snippet": "Funktionen är inte tillgänglig"
     },
     {
-      "id": "311caf654b9a67ed",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
       "id": "341efc6292adc9b3",
       "path": "src/routes/family/custody.js",
       "rule": "server-message",
@@ -5116,22 +3520,10 @@
       "snippet": "from får inte vara efter to"
     },
     {
-      "id": "50560a770359585f",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
       "id": "67b9d440adff8bc9",
       "path": "src/routes/family/custody.js",
       "rule": "server-message",
       "snippet": "anchor_date måste vara en måndag"
-    },
-    {
-      "id": "6e149384c3962cd5",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
     },
     {
       "id": "727b784fb7b2287b",
@@ -5150,12 +3542,6 @@
       "path": "src/routes/family/custody.js",
       "rule": "server-message",
       "snippet": "mappings krävs"
-    },
-    {
-      "id": "90d4a0c5ea82b4d5",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
     },
     {
       "id": "94687c49c965fd87",
@@ -5182,40 +3568,16 @@
       "snippet": "from krävs (YYYY-MM-DD)"
     },
     {
-      "id": "cc55c08a6653d13f",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
       "id": "d14ae2770a2b5bd4",
       "path": "src/routes/family/custody.js",
       "rule": "server-message",
       "snippet": "De två hemmen måste vara olika"
     },
     {
-      "id": "d18be4732c321314",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
-      "id": "eb86012d86d1de94",
-      "path": "src/routes/family/custody.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
       "id": "f4ec219499ad971b",
       "path": "src/routes/family/custody.js",
       "rule": "server-message",
       "snippet": "anchor_date och två hem krävs"
-    },
-    {
-      "id": "f4ea98c880c576e3",
-      "path": "src/routes/family/first-success.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "3e0362537ccce574",
@@ -5248,12 +3610,6 @@
       "snippet": "Inbjudan innehåller ogiltiga barn"
     },
     {
-      "id": "38e17b4e20a1f65d",
-      "path": "src/routes/family/invites-public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "592a2d8e4e43cbb2",
       "path": "src/routes/family/invites-public.js",
       "rule": "server-message",
@@ -5278,34 +3634,10 @@
       "snippet": "Inbjudan/länken har gått ut, begär en ny"
     },
     {
-      "id": "ba21fab5c38e40c6",
-      "path": "src/routes/family/invites-public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "dbb91a0c475cf096",
       "path": "src/routes/family/invites-public.js",
       "rule": "server-message",
       "snippet": "Inbjudningstoken krävs"
-    },
-    {
-      "id": "1458d6ac6f564720",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "1a51b6438e5eca96",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "48c4bb8d6230607a",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "4f916b517237d29e",
@@ -5332,12 +3664,6 @@
       "snippet": "Giltig e-postadress krävs"
     },
     {
-      "id": "7b5c673eef2c63e0",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "a29076e9c5dc1d77",
       "path": "src/routes/family/invites.js",
       "rule": "server-message",
@@ -5362,12 +3688,6 @@
       "snippet": "E-postadressen används redan av ett annat konto"
     },
     {
-      "id": "c9ce1b7c8e4eefc6",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "f67efe3de3c62a57",
       "path": "src/routes/family/invites.js",
       "rule": "server-message",
@@ -5378,24 +3698,6 @@
       "path": "src/routes/family/invites.js",
       "rule": "server-message",
       "snippet": "Inbjudan har gått ut"
-    },
-    {
-      "id": "06283c2fb3649742",
-      "path": "src/routes/family/locale.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "507f9eebeafa1eb0",
-      "path": "src/routes/family/locale.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "c402c5cd04b5d501",
-      "path": "src/routes/family/locale.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "555249ccf4e7f63f",
@@ -5452,28 +3754,10 @@
       "snippet": "Åtkomst återställd för barnet"
     },
     {
-      "id": "51511c2d45918a68",
-      "path": "src/routes/family/members.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "5aef8c5091d9e9bb",
       "path": "src/routes/family/members.js",
       "rule": "server-message",
       "snippet": "Förälder borttagen från familjen."
-    },
-    {
-      "id": "705144e3a5ae4e9c",
-      "path": "src/routes/family/members.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7705d911d44fc5f9",
-      "path": "src/routes/family/members.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "90c048dbd1b59950",
@@ -5488,22 +3772,10 @@
       "snippet": "Ogiltig roll. Välj: mamma, pappa, bonusförälder eller annan"
     },
     {
-      "id": "c1505818e03845fd",
-      "path": "src/routes/family/members.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "c4814938d198aa55",
       "path": "src/routes/family/members.js",
       "rule": "server-message",
       "snippet": "Minst ett barn måste väljas"
-    },
-    {
-      "id": "d101f2373dfbe4da",
-      "path": "src/routes/family/members.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "d2058f70ff77a44c",
@@ -5542,22 +3814,10 @@
       "snippet": "Inbjudan återkallad"
     },
     {
-      "id": "71ce5833f7b58384",
-      "path": "src/routes/family/pedagog.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "7d6e0a1f926cd8c2",
       "path": "src/routes/family/pedagog.js",
       "rule": "server-message",
       "snippet": "Välj minst ett barn att dela med pedagogen"
-    },
-    {
-      "id": "7f0af544b480ce6d",
-      "path": "src/routes/family/pedagog.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
     },
     {
       "id": "815cbb3de0eb4374",
@@ -5572,12 +3832,6 @@
       "snippet": "parentId och childId krävs"
     },
     {
-      "id": "aed1165094dfd7c8",
-      "path": "src/routes/family/pedagog.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "ccbac9921828b261",
       "path": "src/routes/family/pedagog.js",
       "rule": "server-message",
@@ -5588,18 +3842,6 @@
       "path": "src/routes/family/pedagog.js",
       "rule": "server-message",
       "snippet": "Giltig e-postadress krävs"
-    },
-    {
-      "id": "d3306e4234109a6b",
-      "path": "src/routes/family/pedagog.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d67a4dedd55a7fad",
-      "path": "src/routes/family/pedagog.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "0e0e59ec5a83b587",
@@ -5696,12 +3938,6 @@
       "path": "src/routes/feedback.js",
       "rule": "server-message",
       "snippet": "Metadata för stor"
-    },
-    {
-      "id": "6bf7c717b7eeba85",
-      "path": "src/routes/feedback.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "96d63d423363b8b7",
@@ -5854,22 +4090,10 @@
       "snippet": "Något gick fel"
     },
     {
-      "id": "0e64d559633f28c7",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "1286b97faab67d29",
       "path": "src/routes/general-observations.js",
       "rule": "server-message",
       "snippet": "text krävs"
-    },
-    {
-      "id": "52e7a8f5cf8902ef",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "78728a31b1966bdd",
@@ -5878,40 +4102,10 @@
       "snippet": "Text får inte vara tom"
     },
     {
-      "id": "9451e3322d5dbefb",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "9a208834aee3c679",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "bd154eb2e59e0053",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "d509aa7a2b6cd67a",
       "path": "src/routes/general-observations.js",
       "rule": "server-message",
       "snippet": "Anteckningen får inte vara tom"
-    },
-    {
-      "id": "d55bc5020dda8ead",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "f6562f90eea965af",
-      "path": "src/routes/general-observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "15c57bbbb8dc931d",
@@ -6136,18 +4330,6 @@
       "snippet": "Kunde inte ta bort profilbilden"
     },
     {
-      "id": "bd0f08b86a5fb187",
-      "path": "src/routes/me-profile-photo.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
-      "id": "c06b6dc705dc5e6c",
-      "path": "src/routes/me-profile-photo.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
       "id": "6f81866e4356a281",
       "path": "src/routes/memory-hall.js",
       "rule": "server-message",
@@ -6164,18 +4346,6 @@
       "path": "src/routes/messages.js",
       "rule": "server-message",
       "snippet": "Kunde inte uppdatera meddelande"
-    },
-    {
-      "id": "80cbc22e55a085b3",
-      "path": "src/routes/mood-summary.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "a94f1e892fdaad0d",
-      "path": "src/routes/mood-summary.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "15b84fe77c386490",
@@ -6352,12 +4522,6 @@
       "snippet": "section måste vara: fm, em eller kvall"
     },
     {
-      "id": "5d1aa30a8ef108f3",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "5f6865953ec46001",
       "path": "src/routes/observations.js",
       "rule": "server-message",
@@ -6376,46 +4540,16 @@
       "snippet": "Ogiltigt datumformat. Använd YYYY-MM-DD."
     },
     {
-      "id": "785a89d484d05a2c",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "918d321fef55ad78",
       "path": "src/routes/observations.js",
       "rule": "server-message",
       "snippet": "section måste vara: fm, em eller kvall"
     },
     {
-      "id": "97a846f8fbc65e56",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "a36c98674af20aa7",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "af5b0b084be5d70b",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "c9dce3222f1992b9",
       "path": "src/routes/observations.js",
       "rule": "server-message",
       "snippet": "content får inte vara tomt"
-    },
-    {
-      "id": "cce4f6ff010e8cda",
-      "path": "src/routes/observations.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "ab145df634709da5",
@@ -6430,28 +4564,10 @@
       "snippet": "Kunde inte rapportera frånvaro"
     },
     {
-      "id": "1a8045b2e24becc4",
-      "path": "src/routes/pedagog-absence.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "453ea9d5010f4fb1",
-      "path": "src/routes/pedagog-absence.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
       "id": "50b5cd6365acd98b",
       "path": "src/routes/pedagog-absence.js",
       "rule": "server-message",
       "snippet": "childId och date krävs"
-    },
-    {
-      "id": "57818bb2a1deca0f",
-      "path": "src/routes/pedagog-absence.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
     },
     {
       "id": "5d13d9240a25e381",
@@ -6478,12 +4594,6 @@
       "snippet": "Kunde inte hämta frånvaro"
     },
     {
-      "id": "1604c529ff494184",
-      "path": "src/routes/pedagog-daily-log.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
       "id": "70d77a7e5dc4cf75",
       "path": "src/routes/pedagog-daily-log.js",
       "rule": "server-message",
@@ -6506,12 +4616,6 @@
       "path": "src/routes/pedagog-daily-log.js",
       "rule": "server-message",
       "snippet": "Kunde inte uppdatera aktivitet"
-    },
-    {
-      "id": "f96b218667f1b227",
-      "path": "src/routes/pedagog-daily-log.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
     },
     {
       "id": "1e1339d5126e58d4",
@@ -6538,12 +4642,6 @@
       "snippet": "Kunde inte hämta anteckningar"
     },
     {
-      "id": "8fd3777dcadbae68",
-      "path": "src/routes/pedagog-day-comments.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "c7750a2922e9cb22",
       "path": "src/routes/pedagog-day-comments.js",
       "rule": "server-message",
@@ -6554,12 +4652,6 @@
       "path": "src/routes/pedagog-invite.js",
       "rule": "or-fallback",
       "snippet": "En förälder"
-    },
-    {
-      "id": "1fe4bba6a0dc67f7",
-      "path": "src/routes/pedagog-invite.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "390bc65277a666a9",
@@ -6592,12 +4684,6 @@
       "snippet": "Du är nu kopplad som pedagog!"
     },
     {
-      "id": "6d8ac2b76f1f5888",
-      "path": "src/routes/pedagog-invite.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "6f6e1045bf40ab53",
       "path": "src/routes/pedagog-invite.js",
       "rule": "server-message",
@@ -6628,106 +4714,10 @@
       "snippet": "Token krävs"
     },
     {
-      "id": "b65ddbbdb0cf3d1c",
-      "path": "src/routes/pedagog-invite.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "f602394677c243cd",
-      "path": "src/routes/pedagog-invite.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "19e23bd64681ea55",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "childId och date krävs"
-    },
-    {
-      "id": "24cfee2499241a71",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta översikt"
-    },
-    {
-      "id": "259beed4c785ac1a",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "sleepQuality måste vara mellan 1 och 5"
-    },
-    {
-      "id": "331f906ff33c82ba",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta barn"
-    },
-    {
-      "id": "4b64b0d7fbc0c34d",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "childId krävs"
-    },
-    {
-      "id": "56069d81ca4fbae3",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "childId och date krävs"
-    },
-    {
-      "id": "5ea8ac0cbc3c481b",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "ac49b7c7cfa6e7b1",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte publicera"
-    },
-    {
-      "id": "ae1d806e765f685d",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "b5c92979976500ee",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta anteckningar"
-    },
-    {
-      "id": "cf16f9520dcf9742",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "eb2036ee3a4eb728",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "mood måste vara mellan 1 och 5"
-    },
-    {
-      "id": "f9cc26b34e699624",
-      "path": "src/routes/pedagog-notes.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte spara anteckning"
-    },
-    {
       "id": "20822ef9436fdcc9",
       "path": "src/routes/pedagog-school-activities.js",
       "rule": "server-message",
       "snippet": "Kunde inte skapa aktivitet"
-    },
-    {
-      "id": "3752fcd9dacce5bb",
-      "path": "src/routes/pedagog-school-activities.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
     },
     {
       "id": "3c0994c2500e529f",
@@ -6740,18 +4730,6 @@
       "path": "src/routes/pedagog-school-activities.js",
       "rule": "server-message",
       "snippet": "childId krävs"
-    },
-    {
-      "id": "799b098f4e01ad33",
-      "path": "src/routes/pedagog-school-activities.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "8cebb4913c1c90d7",
-      "path": "src/routes/pedagog-school-activities.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
     },
     {
       "id": "a43559f4cd12a2dd",
@@ -6788,138 +4766,6 @@
       "path": "src/routes/platform-feedback.js",
       "rule": "server-message",
       "snippet": "Något gick fel"
-    },
-    {
-      "id": "118a534e8d87b782",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "1d46c10347cba210",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Meddelandet måste vara minst 10 tecken"
-    },
-    {
-      "id": "248a66cbee3f73db",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "För många försök. Försök igen om en timme."
-    },
-    {
-      "id": "3469f85d99a90f19",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "3617fe31a61391da",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "385ec77e1d6d8fc3",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "3a4d94a5a7002dd3",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Du måste godkänna att vi sparar dina uppgifter"
-    },
-    {
-      "id": "3ef51fec7a4df948",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Alla fält krävs"
-    },
-    {
-      "id": "4a10b542c0c02ff3",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Rapporten hittades inte eller länken har gått ut."
-    },
-    {
-      "id": "54da0c77f6649269",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Tjänsten är tillfälligt otillgänglig"
-    },
-    {
-      "id": "56e3566215581cf5",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "5897c27aecf5a26c",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "5f785f6f1bdcf621",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Rapporten hittades inte eller länken har gått ut."
-    },
-    {
-      "id": "600e7c843789f944",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Fel kod. Försök igen."
-    },
-    {
-      "id": "604b86e11ceb4a1b",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Rapporten hittades inte eller länken har gått ut."
-    },
-    {
-      "id": "6820b6a74873345f",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Roll krävs"
-    },
-    {
-      "id": "aaffbf9a7908484f",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Rapporten hittades inte eller länken har gått ut."
-    },
-    {
-      "id": "bc3d3d29ee9d42a7",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "För många försök. Försök igen om en timme."
-    },
-    {
-      "id": "c1c6f90cea56c173",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Kod krävs."
-    },
-    {
-      "id": "cd25210d2653e6b3",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Namn krävs (minst 2 tecken)"
-    },
-    {
-      "id": "d7ac994339b346c2",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "e2c7cf26fa5df449",
-      "path": "src/routes/public.js",
-      "rule": "server-message",
-      "snippet": "För många försök. Försök igen om en timme."
     },
     {
       "id": "3628ce357e36cac6",
@@ -7048,28 +4894,10 @@
       "snippet": "Belöning borttagen"
     },
     {
-      "id": "1b3fa969420b1479",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "1e14aa3f1043845e",
       "path": "src/routes/schedules/apply.js",
       "rule": "server-message",
       "snippet": "day_of_week krävs"
-    },
-    {
-      "id": "317dac5ce36fc669",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "42df9a3f57ea528c",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "54f5175d75e817bd",
@@ -7090,28 +4918,10 @@
       "snippet": "Du har inte åtkomst till källbarnet"
     },
     {
-      "id": "967e2888c0ed6738",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "99ba97b0d4a8912d",
       "path": "src/routes/schedules/apply.js",
       "rule": "server-message",
       "snippet": "target_days[] krävs"
-    },
-    {
-      "id": "b1d265c0efb5ff4e",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "b9cf9efff3351716",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "c81f55785b201981",
@@ -7126,22 +4936,10 @@
       "snippet": "source.type och source.id krävs"
     },
     {
-      "id": "e4bdf2cc88aaca53",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "e6292bf5ce623588",
       "path": "src/routes/schedules/apply.js",
       "rule": "server-message",
       "snippet": "days[] krävs"
-    },
-    {
-      "id": "ef92b30467fe881c",
-      "path": "src/routes/schedules/apply.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "f447a92a6b17ff1a",
@@ -7156,18 +4954,6 @@
       "snippet": "from_day och to_days[] krävs"
     },
     {
-      "id": "087e1c80ffa90398",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "0b35ec9ae5846bda",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "1481d75a3b8d8c4c",
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
@@ -7180,28 +4966,10 @@
       "snippet": "item_id, from_schedule_id, to_day krävs"
     },
     {
-      "id": "1eacfdd254d9616a",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "359ebafd85f5e1de",
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
       "snippet": "Du har inte åtkomst till målbarnet"
-    },
-    {
-      "id": "401f1d461ef186d6",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "4142fa9084a00d69",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "5435809a242c7a60",
@@ -7210,40 +4978,16 @@
       "snippet": "Schema kopierat till ${…} dag(ar)"
     },
     {
-      "id": "5f0a8b7f743c2413",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "6c5e8c08c0d5bc31",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "788add61b2172ef9",
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
       "snippet": "Schema kopierat till ${…} kommande vecka${…}"
     },
     {
-      "id": "795c6a80a1c220c8",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "88fdb143d36853be",
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
       "snippet": "Inget schema finns för den angivna veckodagen"
-    },
-    {
-      "id": "8a9b379adcd11edb",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "91440907f3601156",
@@ -7270,24 +5014,6 @@
       "snippet": "from_day och week_offsets[] krävs"
     },
     {
-      "id": "b19274fbb2d8504b",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "b48cdadbb1efbecd",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "bda962555b500e9f",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "c4daaa9b06f128e3",
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
@@ -7298,18 +5024,6 @@
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
       "snippet": "to_day måste vara 0–6"
-    },
-    {
-      "id": "dce5bd14dd138697",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "e021b695c9b20b4f",
-      "path": "src/routes/schedules/child-bulk.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "e2463ac0d368fd9c",
@@ -7328,30 +5042,6 @@
       "path": "src/routes/schedules/child-bulk.js",
       "rule": "server-message",
       "snippet": "from_day måste vara 0–6"
-    },
-    {
-      "id": "05a1822aceeed260",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "0aaa8e326af9f397",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "13062c17e78d8e18",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "1cca7c0d5b79cf5e",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "2baa8aef0731d6c3",
@@ -7384,12 +5074,6 @@
       "snippet": "Veckodag krävs (0=sön, 1=mån, … 6=lör)"
     },
     {
-      "id": "66af28942424cbc5",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "951c98e5dcc9ef64",
       "path": "src/routes/schedules/child-crud.js",
       "rule": "server-message",
@@ -7402,22 +5086,10 @@
       "snippet": "custody_home_id tillhör inte familjen"
     },
     {
-      "id": "b0bd239bf621f7fe",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "b188ffe03f6ec9b2",
       "path": "src/routes/schedules/child-crud.js",
       "rule": "server-message",
       "snippet": "Veckodag måste vara ett tal 0–6"
-    },
-    {
-      "id": "b5499ff2b3dc551c",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "b858a578147751f6",
@@ -7426,22 +5098,10 @@
       "snippet": "Sluttid kan inte vara före starttid"
     },
     {
-      "id": "f5a9a7bdcb12e63f",
-      "path": "src/routes/schedules/child-crud.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "1119f684db57c706",
       "path": "src/routes/schedules/fill-week.js",
       "rule": "server-message",
       "snippet": "template_category_id krävs"
-    },
-    {
-      "id": "1a835a156b9aae80",
-      "path": "src/routes/schedules/fill-week.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "23883a1c2ec2f79f",
@@ -7454,12 +5114,6 @@
       "path": "src/routes/schedules/fill-week.js",
       "rule": "server-message",
       "snippet": "Inga giltiga dagar angavs (0=sön, 1=mån…6=lör)"
-    },
-    {
-      "id": "7ae5b16017725f55",
-      "path": "src/routes/schedules/fill-week.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "931aea696392a037",
@@ -7480,54 +5134,6 @@
       "snippet": "days[] krävs (t.ex. [1,2,3,4,5])"
     },
     {
-      "id": "0ce2c0059c95b901",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "232a73fc2e9e757e",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "28b928a338d3227c",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2915d26365607f7e",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "39362fdb8e413ffb",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "53d59779bb2a008b",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "5d913f5cb1368866",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Åtkomst nekad"
-    },
-    {
-      "id": "620088761316fe3c",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
       "id": "68740028809124f8",
       "path": "src/routes/schedules/items.js",
       "rule": "server-message",
@@ -7538,12 +5144,6 @@
       "path": "src/routes/schedules/items.js",
       "rule": "server-message",
       "snippet": "Sluttid kan inte vara före starttid"
-    },
-    {
-      "id": "71df0f0c1dc0eb24",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "78c3ec5eca1a67b2",
@@ -7564,28 +5164,10 @@
       "snippet": "activity_template_id krävs"
     },
     {
-      "id": "a1bb1464e858d08d",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "a958820ab3a5da68",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "b7afb4c6ef2e7359",
       "path": "src/routes/schedules/items.js",
       "rule": "server-message",
       "snippet": "Aktiviteten borttagen för detta datum"
-    },
-    {
-      "id": "bb6cf9aac7885c48",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "cad9da8f87f1b78b",
@@ -7600,64 +5182,10 @@
       "snippet": "order[] krävs"
     },
     {
-      "id": "d1332f8330a67286",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "ddd18e9c525f61bf",
       "path": "src/routes/schedules/items.js",
       "rule": "server-message",
       "snippet": "Aktiviteten har tagits bort från alla dagar"
-    },
-    {
-      "id": "f415e73b8ab6e471",
-      "path": "src/routes/schedules/items.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "0a221707abe39b40",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "12f6bcc573a7e4c5",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "21b25035b945f004",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "5f5e9f4b84f64dbf",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "978a2f5e41a7101f",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "b32f9e918a4dc1d9",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "c04dfbaded33c151",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "c8bbbf77976d480c",
@@ -7666,64 +5194,16 @@
       "snippet": "source.type och source.id krävs"
     },
     {
-      "id": "e113824d2cb0108a",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "f7fe75cedbc3b058",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "feec50c75d0f1f77",
-      "path": "src/routes/schedules/periods.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "007712ea5354a927",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "264f87b896fba470",
       "path": "src/routes/schedules/templates.js",
       "rule": "server-message",
       "snippet": "Schemat har tagits bort"
     },
     {
-      "id": "386cb032122a18b0",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "3b2b3c0000d98246",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "4b313461e912cd0d",
       "path": "src/routes/schedules/templates.js",
       "rule": "server-message",
       "snippet": "Schemamallen hittades inte"
-    },
-    {
-      "id": "4ee2a054130b1710",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "54b11ed6beabe736",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
     },
     {
       "id": "56bb42a106317137",
@@ -7756,22 +5236,10 @@
       "snippet": "Schemanamn krävs"
     },
     {
-      "id": "8574e01d95dedd26",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "8845d1c2f4ff2c05",
       "path": "src/routes/schedules/templates.js",
       "rule": "server-message",
       "snippet": "child_id krävs"
-    },
-    {
-      "id": "92c2457623d956cd",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "953736ad3b8f5f30",
@@ -7780,46 +5248,10 @@
       "snippet": "Schemamallen hittades inte"
     },
     {
-      "id": "b6f71ceca52fb6e2",
-      "path": "src/routes/schedules/templates.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "c71304c13055462a",
       "path": "src/routes/schedules/templates.js",
       "rule": "server-message",
       "snippet": "\"${…}\" tillämpat på ${…} dag(ar): ${…}"
-    },
-    {
-      "id": "099f35587036255f",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "194d2ca09a402178",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2b9f453c219d156d",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "38dd55a2df2060fa",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "38e487877f9e0118",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
     },
     {
       "id": "4370af533309c64c",
@@ -7828,70 +5260,10 @@
       "snippet": "name eller activity_template_id krävs"
     },
     {
-      "id": "5f6fc55be305edf0",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "6074b8aa6460d606",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "65128c495812fdd3",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "7cb23e21f7e0b88c",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
-    },
-    {
-      "id": "7ffd1bb2555171a2",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "86d452aab36822d1",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "8c79a656f8f995c7",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "8fd22b01254cf1f2",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "a0fded22c2446644",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
       "id": "a77b060ea5349c65",
       "path": "src/routes/special-day-schedules.js",
       "rule": "server-message",
       "snippet": "order[] krävs"
-    },
-    {
-      "id": "bdc17f9c0b8af091",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta schema"
     },
     {
       "id": "e3d3e085cf6934f7",
@@ -7900,58 +5272,16 @@
       "snippet": "Specialdagen har tagits bort — veckodagsmallen gäller igen"
     },
     {
-      "id": "f0928abe2499e232",
-      "path": "src/routes/special-day-schedules.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "f2d496c46306ec0a",
       "path": "src/routes/special-day-schedules.js",
       "rule": "server-message",
       "snippet": "Ingen specialdag hittades för det datumet"
     },
     {
-      "id": "051ceac915128c0d",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "1185e30ed725f7c9",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "12652b0d2c23ad39",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "1b7715cfa0ec8ec4",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "1e597fd79cfaa396",
       "path": "src/routes/standard-library.js",
       "rule": "server-message",
       "snippet": "Alla valda belöningar finns redan i ditt bibliotek."
-    },
-    {
-      "id": "2787e96335fd1aa6",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2eb3b974d1ceae88",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "4738c180c6a8e194",
@@ -7972,12 +5302,6 @@
       "snippet": "Inga belöningar valda."
     },
     {
-      "id": "82f2babe953f4539",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "99683b8663dd6756",
       "path": "src/routes/standard-library.js",
       "rule": "server-message",
@@ -7990,28 +5314,10 @@
       "snippet": "\"${…}\" har kopierats till ditt belöningsbibliotek!"
     },
     {
-      "id": "b2be5cecdf10bc72",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "b349a9324876facf",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "ba66e9da2b649462",
       "path": "src/routes/standard-library.js",
       "rule": "server-message",
       "snippet": "child_id krävs"
-    },
-    {
-      "id": "c65bb002bbade633",
-      "path": "src/routes/standard-library.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "1e8c2df8ab6af646",
@@ -8054,204 +5360,6 @@
       "path": "src/routes/subscription.js",
       "rule": "server-message",
       "snippet": "Kunde inte registrera intresse"
-    },
-    {
-      "id": "01b28309dfe8f5fd",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort alternativ"
-    },
-    {
-      "id": "027316e71e94121b",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta rapport"
-    },
-    {
-      "id": "0bc87fd0577ab310",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Fråga hittades inte"
-    },
-    {
-      "id": "142eaf26f698db13",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte skapa enkät"
-    },
-    {
-      "id": "18aa169e60eb8696",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "28f77469edd84990",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Slug används redan"
-    },
-    {
-      "id": "2c0a86bf59b5cb60",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta enkäter"
-    },
-    {
-      "id": "2f22d8ade83f4aba",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte lägga till alternativ"
-    },
-    {
-      "id": "4154817eb6198170",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Slug används redan"
-    },
-    {
-      "id": "4651448e9a8d6326",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Undersökning hittades inte"
-    },
-    {
-      "id": "48f2749eaa339a3b",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "4a4f650e88a94318",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte uppdatera alternativ"
-    },
-    {
-      "id": "57e9a4dec1163898",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte sortera frågor"
-    },
-    {
-      "id": "6f294e7ab8e32182",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte uppdatera fråga"
-    },
-    {
-      "id": "6f8cf25ae20ea603",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta svar"
-    },
-    {
-      "id": "6f9cfa3e21e36957",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "7facd618e80273d7",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta enkät"
-    },
-    {
-      "id": "8112639533e415f4",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Fråga hittades inte"
-    },
-    {
-      "id": "8813a9b884f560f0",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "8e4322ed6c19a7a7",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte lägga till fråga"
-    },
-    {
-      "id": "92572f7cada04d28",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "order måste vara array"
-    },
-    {
-      "id": "a9909d93aa810659",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "ac2666498655e486",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort fråga"
-    },
-    {
-      "id": "b61cf8c4dba322d0",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Minst 2 enkäter krävs för jämförelse"
-    },
-    {
-      "id": "b8ed927c8892e810",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta jämförelsedata"
-    },
-    {
-      "id": "c0acce51f8772e06",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Enkät hittades inte"
-    },
-    {
-      "id": "c47b189c3cc8a94b",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort enkät"
-    },
-    {
-      "id": "c49eabe1fb47a6e5",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte uppdatera enkät"
-    },
-    {
-      "id": "c5d948438bd365f1",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Frågor från annan undersökning i order"
-    },
-    {
-      "id": "d6b1882a024c1dc6",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte exportera"
-    },
-    {
-      "id": "def57cecb2cf12c2",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Fråga hittades inte"
-    },
-    {
-      "id": "dfeefa3b7d99abd9",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte uppdatera distributionsinställningar"
-    },
-    {
-      "id": "f9ebf8f9533ebaae",
-      "path": "src/routes/surveys/admin.js",
-      "rule": "server-message",
-      "snippet": "slug och title krävs"
     },
     {
       "id": "9c4c61eeaf8b3eb9",
@@ -8444,18 +5552,6 @@
       "path": "src/routes/surveys/shortlink.js",
       "rule": "server-message",
       "snippet": "Enkäten är inte tillgänglig just nu"
-    },
-    {
-      "id": "1eabc247beaeb0d8",
-      "path": "src/routes/transition-support.js",
-      "rule": "server-message",
-      "snippet": "Barnet hittades inte"
-    },
-    {
-      "id": "941c9b638da14564",
-      "path": "src/routes/transition-support.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
     },
     {
       "id": "0b7df94863f6736e",

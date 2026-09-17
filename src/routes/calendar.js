@@ -1,3 +1,4 @@
+const { sendApiError } = require('../lib/api-user-error');
 /**
  * Calendar routes — parent calendar view with weekly navigation.
  *
@@ -142,7 +143,7 @@ router.get('/calendar-week', async (req, res) => {
     );
 
     if (!childResult.rows[0]) {
-      return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+      return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
     }
 
     const child = childResult.rows[0];
@@ -395,7 +396,7 @@ router.get('/calendar-week', async (req, res) => {
     });
   } catch (err) {
     console.error('[CALENDAR] Week error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 

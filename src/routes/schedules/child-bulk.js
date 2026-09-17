@@ -1,3 +1,4 @@
+const { sendApiError } = require('../../lib/api-user-error');
 /**
  * Child-scoped bulk operations: copy day, copy to child, copy to weeks,
  * copy item to day, copy item to child, swap day.
@@ -26,7 +27,7 @@ router.use(requireParent);
 router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from_day, to_days } = req.body;
     if (from_day === undefined || !Array.isArray(to_days) || to_days.length === 0) {
@@ -107,7 +108,7 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Copy-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -115,7 +116,7 @@ router.post('/copy-day', validate(CopyDaySchema), async (req, res) => {
 router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { target_child_id, days, overwrite } = req.body;
     if (!target_child_id) return res.status(400).json({ error: 'target_child_id krävs' });
@@ -203,7 +204,7 @@ router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Copy-to-child error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -211,7 +212,7 @@ router.post('/copy-to-child', validate(CopyToChildSchema), async (req, res) => {
 router.post('/copy-to-weeks', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { from_day, week_offsets } = req.body;
     if (from_day === undefined || !Array.isArray(week_offsets) || week_offsets.length === 0) {
@@ -309,7 +310,7 @@ router.post('/copy-to-weeks', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] Copy-to-weeks error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -317,7 +318,7 @@ router.post('/copy-to-weeks', async (req, res) => {
 router.post('/copy-item-to-day', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { item_id, from_schedule_id, to_day } = req.body;
     if (!item_id || !from_schedule_id || to_day === undefined) {
@@ -395,7 +396,7 @@ router.post('/copy-item-to-day', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] copy-item-to-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -403,7 +404,7 @@ router.post('/copy-item-to-day', async (req, res) => {
 router.post('/copy-item-to-child', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { item_id, from_schedule_id, to_child_id, to_day } = req.body;
     if (!item_id || !from_schedule_id || !to_child_id || to_day === undefined) {
@@ -482,7 +483,7 @@ router.post('/copy-item-to-child', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] copy-item-to-child error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -490,7 +491,7 @@ router.post('/copy-item-to-child', async (req, res) => {
 router.post('/swap-day', async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const { day_a, day_b } = req.body;
     const dowA = parseInt(day_a, 10);
@@ -580,7 +581,7 @@ router.post('/swap-day', async (req, res) => {
     }
   } catch (err) {
     console.error('[SCHEDULES] swap-day error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
@@ -737,7 +738,7 @@ async function resolveDateRangeItems(client, familyId, body) {
 router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res) => {
   try {
     const child = await authz.getChildAccess(req.user.id, req.params.childId);
-    if (!child) return res.status(403).json({ error: 'Du har inte åtkomst till detta barn' });
+    if (!child) return sendApiError(res, 403, 'CHILD_ACCESS_DENIED');
 
     const {
       start_date,
@@ -861,7 +862,7 @@ router.post('/apply-date-range', validate(ApplyDateRangeSchema), async (req, res
     });
   } catch (err) {
     console.error('[SCHEDULES] apply-date-range error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }
 });
 
