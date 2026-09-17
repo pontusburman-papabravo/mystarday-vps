@@ -19,7 +19,11 @@
 
   function localizedOr(key, fallback) {
     const val = localizedString(key);
-    return val === key ? fallback : val;
+    if (val !== key) return val;
+    if (window.I18n && typeof window.I18n.literalFallback === 'function') {
+      return window.I18n.literalFallback(key, fallback);
+    }
+    return fallback;
   }
 
   function dayName(index) {

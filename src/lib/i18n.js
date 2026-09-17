@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   DEFAULT_LOCALE,
+  CANONICAL_FALLBACK_LOCALE,
   SUPPORTED_LOCALES,
   normalizeLocale,
   validateLocale,
@@ -105,15 +106,17 @@ function loadLocales() {
 /**
  * Resolve locale key used in loaded bundles.
  * @param {string|null|undefined} lang
+ * @param {Record<string, object>} [bundles]
  * @returns {string}
  */
-function resolveBundleKey(lang) {
+function resolveBundleKey(lang, bundles = locales) {
   const normalized = normalizeLocale(lang);
-  if (normalized && locales[normalized]) return normalized;
-  if (normalized === 'sv-SE' && locales.sv) return 'sv';
-  if (normalized === 'en-GB' && locales.en) return 'en';
-  if (locales[DEFAULT_LOCALE]) return DEFAULT_LOCALE;
-  if (locales.sv) return 'sv';
+  if (normalized && bundles[normalized]) return normalized;
+  if (normalized === 'sv-SE' && bundles.sv) return 'sv';
+  if (normalized === 'en-GB' && bundles.en) return 'en';
+  if (normalized) return normalized;
+  if (bundles[DEFAULT_LOCALE]) return DEFAULT_LOCALE;
+  if (bundles.sv) return 'sv';
   return DEFAULT_LOCALE;
 }
 
@@ -133,21 +136,24 @@ function lookup(root, key) {
 }
 
 /**
- * Get translation for a key. Falls back to sv-SE when key missing; warns in dev/test.
+ * Resolve a message from explicit bundles.
+ * Chain: requested locale → canonical fallback (en-GB) → key.
+ * Never fills non-Swedish from sv-SE.
  * @param {string} lang
  * @param {string} key
  * @param {Record<string, string|number>} [params]
+ * @param {Record<string, object>} [bundles]
  * @returns {string}
  */
-function t(lang, key, params = {}) {
-  const bundleKey = resolveBundleKey(lang);
-  const fallbackKey = resolveBundleKey(DEFAULT_LOCALE);
+function tWithBundles(lang, key, params = {}, bundles = locales) {
+  const bundleKey = resolveBundleKey(lang, bundles);
+  const canonicalKey = resolveBundleKey(CANONICAL_FALLBACK_LOCALE, bundles);
 
-  let value = lookup(locales[bundleKey], key);
-  if (typeof value !== 'string') {
-    value = lookup(locales[fallbackKey], key);
-    if (typeof value === 'string' && bundleKey !== fallbackKey && isDevOrTest()) {
-      console.warn(`[i18n] Missing key "${key}" for ${bundleKey}, fell back to ${fallbackKey}`);
+  let value = lookup(bundles[bundleKey], key);
+  if (typeof value !== 'string' && bundleKey !== canonicalKey) {
+    value = lookup(bundles[canonicalKey], key);
+    if (typeof value === 'string' && isDevOrTest()) {
+      console.warn(`[i18n] Missing key "${key}" for ${bundleKey}, fell back to ${canonicalKey}`);
     }
   }
 
@@ -159,6 +165,17 @@ function t(lang, key, params = {}) {
   }
 
   return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+}
+
+/**
+ * Get translation for a key. Missing keys use en-GB, then the key itself.
+ * @param {string} lang
+ * @param {string} key
+ * @param {Record<string, string|number>} [params]
+ * @returns {string}
+ */
+function t(lang, key, params = {}) {
+  return tWithBundles(lang, key, params, locales);
 }
 
 /**
@@ -175,20 +192,32 @@ function plural(lang, baseKey, count, params = {}) {
 }
 
 /**
+ * Assemble a locale payload. Non-Swedish locales never merge sv-SE.
+ * Future locales fill missing leaves from en-GB only.
+ * @param {string} lang
+ * @param {Record<string, object>} [bundles]
+ * @returns {object}
+ */
+function assembleLocale(lang, bundles = locales) {
+  const canonical = validateLocale(lang, { fallback: DEFAULT_LOCALE });
+  const bundleKey = resolveBundleKey(canonical, bundles);
+  const primary = bundles[bundleKey] || {};
+  if (canonical === DEFAULT_LOCALE) return { ...primary };
+
+  const canonicalKey = resolveBundleKey(CANONICAL_FALLBACK_LOCALE, bundles);
+  const fallback = bundles[canonicalKey] || {};
+  if (bundleKey === canonicalKey) return { ...primary };
+
+  return deepMergeFallback(fallback, primary);
+}
+
+/**
  * Get all translations for a language (for frontend API).
  * @param {string} lang
  * @returns {object}
  */
 function getLocale(lang) {
-  const canonical = validateLocale(lang, { fallback: DEFAULT_LOCALE });
-  const bundleKey = resolveBundleKey(canonical);
-  const fallbackKey = resolveBundleKey(DEFAULT_LOCALE);
-  const primary = locales[bundleKey] || {};
-  const fallback = locales[fallbackKey] || {};
-
-  if (bundleKey === fallbackKey) return { ...primary };
-
-  return deepMergeFallback(fallback, primary);
+  return assembleLocale(lang, locales);
 }
 
 /**
@@ -249,8 +278,10 @@ function flattenKeys(obj, prefix = '') {
 module.exports = {
   loadLocales,
   t,
+  tWithBundles,
   plural,
   getLocale,
+  assembleLocale,
   getAvailableLanguages,
   resolveBundleKey,
   compareLocaleStructures,

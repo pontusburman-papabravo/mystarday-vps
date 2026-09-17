@@ -34,7 +34,7 @@ node scripts/ie-fi-device-rc.mjs --country FI --lang sv-SE
 
 Finland → Svenska (`sv-SE`) → EUR → same T0/T1/T2/hold loop. Do **not** test FI in English as the acceptance language.
 
-If the device locale is `fi-FI`, expect Swedish (`sv-SE`) via `src/lib/locale.js` — there is no Finnish locale.
+If the device locale is `fi-FI`, it is an unsupported language tag (`normalizeLocale` → `null`), not a Swedish alias. Product default remains `sv-SE` when no supported language is listed; a later `en` / `en-GB` in Accept-Language wins. There is no Finnish locale.
 
 ## Fail-closed
 

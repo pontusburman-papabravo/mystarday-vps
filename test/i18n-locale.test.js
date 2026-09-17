@@ -31,17 +31,17 @@ describe('locale normalization', () => {
     assert.equal(normalizeLocale(''), null);
   });
 
-  it('maps every Finnish tag to sv-SE (no Finnish locale exists)', () => {
-    assert.equal(normalizeLocale('fi'), 'sv-SE');
-    assert.equal(normalizeLocale('fi-FI'), 'sv-SE');
-    assert.equal(normalizeLocale('fi-fi'), 'sv-SE');
-    assert.equal(normalizeLocale('fi_FI'), 'sv-SE');
-    assert.equal(normalizeLocale('fi_fi'), 'sv-SE');
-    assert.equal(parseAcceptLanguage('fi'), 'sv-SE');
-    assert.equal(parseAcceptLanguage('fi-FI'), 'sv-SE');
-    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'sv-SE');
-    assert.equal(parseAcceptLanguage('fi_FI'), 'sv-SE');
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'sv-SE');
+  it('does not alias Finnish tags to sv-SE', () => {
+    assert.equal(normalizeLocale('fi'), null);
+    assert.equal(normalizeLocale('fi-FI'), null);
+    assert.equal(normalizeLocale('fi-fi'), null);
+    assert.equal(normalizeLocale('fi_FI'), null);
+    assert.equal(normalizeLocale('fi_fi'), null);
+    assert.equal(parseAcceptLanguage('fi'), null);
+    assert.equal(parseAcceptLanguage('fi-FI'), null);
+    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'en-GB');
+    assert.equal(parseAcceptLanguage('fi_FI'), null);
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
     assert.equal(SUPPORTED_LOCALES.includes('fi'), false);
     assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), false);
     assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
@@ -120,10 +120,12 @@ describe('i18n bundles', () => {
     assert.equal(result, 'My Starday');
   });
 
-  it('getLocale merges en-GB over sv-SE fallback', () => {
+  it('getLocale en-GB is English-only without Swedish merge', () => {
     loadLocales();
     const en = getLocale('en-GB');
     assert.equal(en.app.name, 'My Starday');
+    const sv = getLocale('sv-SE');
+    assert.notEqual(en.app.name, sv.app.name);
   });
 });
 
