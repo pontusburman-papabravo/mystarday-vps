@@ -365,8 +365,8 @@
       <!-- Header -->
       <div class="bg-sky border-b border-lavender p-4 md:p-6 flex justify-between items-center library-magic-legacy-hide">
         <div>
-          <h2 class="text-xl font-heading font-bold text-navy">📚 Aktiviteter &amp; belöningar</h2>
-          <p class="text-sm text-text-soft mt-0.5">Skapa aktiviteter och belöningar som passar era barn</p>
+          <h2 class="text-xl font-heading font-bold text-navy" data-i18n="library.page.heading">📚 Aktiviteter &amp; belöningar</h2>
+          <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.lead">Skapa aktiviteter och belöningar som passar era barn</p>
         </div>
       </div>
 
@@ -377,13 +377,13 @@
 
         <!-- Tips section (collapsed by default) -->
         <details class="warm-tips library-magic-legacy-hide">
-          <summary class="warm-tips-summary">💡 Tips för biblioteket</summary>
+          <summary class="warm-tips-summary" data-i18n="library.page.tipsTitle">💡 Tips för biblioteket</summary>
           <div class="warm-tips-body">
             <ul class="space-y-1.5">
-              <li>• Skapa aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
-              <li>• Kopiera från standardbiblioteket och anpassa för er familj</li>
-              <li>• Belöningar blir mål barnet strävar mot i sin vy</li>
-              <li>• Välj vilka barn som ser varje belöning</li>
+              <li data-i18n="library.page.tipSubsteps">• Skapa aktiviteter med delsteg — barnet bockar av ett steg i taget</li>
+              <li data-i18n="library.page.tipCopyStandard">• Kopiera från standardbiblioteket och anpassa för er familj</li>
+              <li data-i18n="library.page.tipRewardsGoal">• Belöningar blir mål barnet strävar mot i sin vy</li>
+              <li data-i18n="library.page.tipVisibility">• Välj vilka barn som ser varje belöning</li>
             </ul>
           </div>
         </details>
@@ -392,19 +392,19 @@
         <!-- Skattkammaren removed from tabs — accessible only via sidebar menu -->
         <div class="bg-sky/60 rounded-2xl p-1.5 flex gap-1 sm:gap-1.5 overflow-x-auto library-magic-legacy-hide">
           <button id="tab-schema-btn" onclick="switchTab('schema')"
-            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap">
+            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap" data-i18n="library.page.tabSchedule">
             📅 Schema
           </button>
           <button id="tab-activities-btn" onclick="switchTab('activities')"
-            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap">
+            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap" data-i18n="library.page.tabActivities">
             📋 Aktiviteter
           </button>
           <button id="tab-rewards-btn" onclick="switchTab('rewards')"
-            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap">
+            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap" data-i18n="library.page.tabRewards">
             🏆 Belöningar
           </button>
           <button id="tab-standard-btn" onclick="switchTab('standard')" data-feature="standardbibliotek"
-            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap">
+            class="tab-btn flex-1 px-2 sm:px-3 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-text-soft whitespace-nowrap" data-i18n="library.page.tabLibrary">
             📚 Bibliotek
           </button>
         </div>
@@ -418,10 +418,10 @@
           <div class="library-magic-mine-block" data-mine-block="scheman">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
-                <h3 class="text-lg font-heading font-bold text-navy">👧 Barnens scheman</h3>
-                <p class="text-sm text-text-soft mt-0.5">Välj vilket schema du vill ändra</p>
+                <h3 class="text-lg font-heading font-bold text-navy" data-i18n="library.page.childrenSchedulesTitle">👧 Barnens scheman</h3>
+                <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.childrenSchedulesLead">Välj vilket schema du vill ändra</p>
               </div>
-              <a href="/schedule" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
+              <a href="/schedule" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap" data-i18n="library.page.editSchedule">
                 ✏️ Redigera schema
               </a>
             </div>
@@ -435,7 +435,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">📝 Mina scheman</h3>
-                <p class="text-sm text-text-soft mt-0.5">Egna schemamallar — skapa, redigera och kopiera till barn</p>
+                <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.mySchedulesLead">Egna schemamallar — skapa, redigera och kopiera till barn</p>
               </div>
               <button onclick="openCreateTemplateModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap" data-i18n="library.schema.createNew">
                 + Skapa nytt schema
@@ -451,7 +451,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 library-magic-legacy-hide">
               <div>
                 <h3 class="text-lg font-heading font-bold text-navy">📚 Standardbiblioteket</h3>
-                <p class="text-sm text-text-soft mt-0.5">Färdiga scheman — kopiera till barn och anpassa fritt efteråt</p>
+                <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.readySchedulesLead">Färdiga scheman — kopiera till barn och anpassa fritt efteråt</p>
               </div>
             </div>
             <div id="standardScheduleCards" class="grid gap-4 sm:grid-cols-2">
@@ -496,17 +496,17 @@
           <!-- Header + add button for current tab -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 library-magic-legacy-hide">
             <div>
-              <h3 id="schemaTabTitle" class="text-lg font-heading font-bold text-navy">Aktiviteter</h3>
-              <p class="text-sm text-text-soft mt-0.5">Grupperade efter tid på dagen</p>
+              <h3 id="schemaTabTitle" class="text-lg font-heading font-bold text-navy" data-i18n="library.page.tabActivities">Aktiviteter</h3>
+              <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.groupedByTime">Grupperade efter tid på dagen</p>
             </div>
-            <button onclick="openActivityModal()" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
+            <button onclick="openActivityModal()" class="px-4 py-2 bg-navy hover:bg-navy-soft text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap" data-i18n="library.page.addActivityBtn">
               + Ny aktivitet
             </button>
           </div>
 
           <!-- Search bar -->
           <div class="relative">
-            <input type="text" id="activitySearchInput" placeholder="🔍 Sök bland dina och standardaktiviteter…"
+            <input type="text" id="activitySearchInput" placeholder="🔍 Sök bland dina och standardaktiviteter…" data-i18n-placeholder="library.page.activitiesSearchPlaceholder"
               class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors text-sm"
               oninput="onActivitySearch(this.value)">
             <div id="activitySearchResults" class="hidden mt-2 space-y-2"></div>
@@ -524,7 +524,7 @@
         <div id="tab-treasury" class="tab-pane space-y-5">
           <div>
             <h3 class="text-lg font-heading font-bold text-navy">💎 Skattkammaren</h3>
-            <p class="text-sm text-text-soft mt-0.5">Barnets trofé-hylla — se vilka belöningar som är upplåsta och vilka som är på väg</p>
+            <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.treasuryLead">Barnets trofé-hylla — se vilka belöningar som är upplåsta och vilka som är på väg</p>
           </div>
 
           <!-- Child selector -->
@@ -535,7 +535,7 @@
           <!-- Star balance display -->
           <div id="treasuryBalanceBar" class="hidden bg-gradient-to-r from-amber-400 to-yellow-300 rounded-2xl p-4 flex items-center justify-between shadow-md">
             <div>
-              <div class="text-xs font-bold uppercase tracking-wider text-amber-900 opacity-70">Stjärnsaldo</div>
+              <div class="text-xs font-bold uppercase tracking-wider text-amber-900 opacity-70" data-i18n="library.page.starBalance">Stjärnsaldo</div>
               <div id="treasuryBalanceNum" class="text-3xl font-heading font-extrabold text-amber-900">⭐ 0</div>
             </div>
             <div class="text-4xl">🪙</div>
@@ -554,13 +554,13 @@
 
           <div id="treasuryEmpty" class="hidden text-center py-10 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
             <p class="text-3xl mb-2">🎁</p>
-            <p class="font-heading font-bold text-navy mb-1">Inga belöningar än</p>
-            <p class="text-sm text-text-soft">Lägg till belöningar under fliken Belöningar.</p>
+            <p class="font-heading font-bold text-navy mb-1" data-i18n="library.page.noRewardsYet">Inga belöningar än</p>
+            <p class="text-sm text-text-soft" data-i18n="library.page.addRewardsOnTab">Lägg till belöningar under fliken Belöningar.</p>
           </div>
 
           <div id="treasuryLoading" class="hidden text-center py-8 text-text-soft">
             <span class="text-3xl" style="display:inline-block;animation:spin 1s linear infinite;">⭐</span>
-            <p class="mt-2 text-sm font-semibold">Öppnar Skattkammaren…</p>
+            <p class="mt-2 text-sm font-semibold" data-i18n="library.page.openingTreasure">Öppnar Skattkammaren…</p>
           </div>
         </div>
 
@@ -570,28 +570,28 @@
         <div id="tab-standard" class="tab-pane space-y-5" data-feature="standardbibliotek">
           <div class="library-magic-legacy-hide">
             <h3 class="text-lg font-heading font-bold text-navy">📚 Standardbibliotek</h3>
-            <p class="text-sm text-text-soft mt-0.5">Färdiga aktiviteter från standardbiblioteket — kopiera till ditt bibliotek med ett klick</p>
+            <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.standardLead">Färdiga aktiviteter från standardbiblioteket — kopiera till ditt bibliotek med ett klick</p>
           </div>
 
           <!-- Sub-tabs: Scheman / Aktiviteter / Belöningar -->
           <div class="bg-lavender/30 rounded-xl p-1 flex gap-1 library-magic-legacy-hide">
             <button id="std-sub-schedules-btn" onclick="switchStdSubTab('schedules')"
-              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all">
+              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all" data-i18n="library.standard.segments.schedules">
               📅 Scheman
             </button>
             <button id="std-sub-activities-btn" onclick="switchStdSubTab('activities')"
-              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all">
+              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all" data-i18n="library.standard.segments.activities">
               📋 Aktiviteter
             </button>
             <button id="std-sub-rewards-btn" onclick="switchStdSubTab('rewards')"
-              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all">
+              class="std-sub-btn flex-1 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm text-text-soft transition-all" data-i18n="library.standard.segments.rewards">
               🏆 Belöningar
             </button>
           </div>
 
           <!-- Sub-tab: Scheman -->
           <div id="std-sub-schedules" class="std-sub-pane space-y-4 library-magic-legacy-hide">
-            <p class="text-sm text-text-soft">Färdiga dagscheman — kopiera till ett barn och anpassa fritt</p>
+            <p class="text-sm text-text-soft" data-i18n="library.page.readyDaySchedules">Färdiga dagscheman — kopiera till ett barn och anpassa fritt</p>
             <div id="stdSchedulesContainer" class="grid gap-4 sm:grid-cols-2">
               <div class="text-center py-8 text-text-soft col-span-full" data-i18n="library.loading.standardSchedules">Laddar standardscheman…</div>
             </div>
@@ -599,7 +599,7 @@
 
           <!-- Sub-tab: Aktiviteter -->
           <div id="std-sub-activities" class="std-sub-pane hidden space-y-4 library-magic-legacy-hide">
-            <p class="text-sm text-text-soft">Färdiga aktiviteter — kopiera enskilda eller alla till ditt eget bibliotek</p>
+            <p class="text-sm text-text-soft" data-i18n="library.page.readyActivitiesLead">Färdiga aktiviteter — kopiera enskilda eller alla till ditt eget bibliotek</p>
             <div id="standardLibraryContainer" class="space-y-2">
               <div class="text-center py-8 text-text-soft" data-i18n="library.loading.standardActivities">Laddar standardaktiviteter…</div>
             </div>
@@ -609,7 +609,7 @@
           <div id="std-sub-rewards" class="std-sub-pane hidden space-y-4 library-magic-legacy-hide">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
-                <p class="text-sm text-text-soft">Fördefinierade belöningar — välj och kopiera till ditt belöningsbibliotek</p>
+                <p class="text-sm text-text-soft" data-i18n="library.page.predefinedRewardsLead">Fördefinierade belöningar — välj och kopiera till ditt belöningsbibliotek</p>
               </div>
               <button id="copySelectedRewardsBtn" onclick="copySelectedRewards()"
                 class="hidden px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors whitespace-nowrap shadow-sm">
@@ -629,10 +629,10 @@
           <section>
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 library-magic-legacy-hide">
               <div>
-                <h3 class="text-lg font-heading font-bold text-navy">🎁 Mål att jobba mot</h3>
-                <p class="text-sm text-text-soft mt-0.5">Belöningar barnen kan sträva mot med sina stjärnor</p>
+                <h3 class="text-lg font-heading font-bold text-navy" data-i18n="library.page.goalsTitle">🎁 Mål att jobba mot</h3>
+                <p class="text-sm text-text-soft mt-0.5" data-i18n="library.page.rewardsStriveLead">Belöningar barnen kan sträva mot med sina stjärnor</p>
               </div>
-              <button onclick="openRewardModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap">
+              <button onclick="openRewardModal()" class="px-4 py-2 bg-gold hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors whitespace-nowrap" data-i18n="library.page.addReward">
                 + Ny belöning
               </button>
             </div>
@@ -657,18 +657,18 @@
   <div id="categoryModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
     <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 id="categoryModalTitle" class="text-xl font-heading font-bold text-navy">Ny kategori</h3>
+        <h3 id="categoryModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="library.modal.newCategory">Ny kategori</h3>
         <button onclick="closeCategoryModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="categoryForm" class="space-y-4" onsubmit="submitCategory(event)">
         <input type="hidden" id="categoryId">
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Kategorinamn *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.page.categoryNameLabel">Kategorinamn *</label>
           <input type="text" id="categoryName" required maxlength="100"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-            placeholder="T.ex. Helg, Högstadiet, Sommar…">
+            data-i18n-placeholder="library.page.categoryNamePlaceholder" placeholder="T.ex. Helg, Högstadiet, Sommar…">
         </div>
-        <p class="text-xs text-text-soft">Kategorin visas som en ny flik i ditt bibliotek. Du kan använda den vid schemaskapande.</p>
+        <p class="text-xs text-text-soft" data-i18n="library.page.categoryHint">Kategorin visas som en ny flik i ditt bibliotek. Du kan använda den vid schemaskapande.</p>
         <div id="categoryError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeCategoryModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold hover:border-navy transition-colors" data-i18n="library.actions.cancel">Avbryt</button>
@@ -815,9 +815,9 @@
         <div id="libSevenQuestionsSection" class="hidden border-t border-lavender pt-4">
           <button type="button" id="libSqToggle" onclick="document.getElementById('libSevenQuestionsBody').classList.toggle('hidden'); this.querySelector('span').textContent = document.getElementById('libSevenQuestionsBody').classList.contains('hidden') ? '▼' : '▲';"
             class="flex items-center gap-2 text-sm font-semibold text-navy w-full text-left mb-2">
-            🧩 Extra stöd — De sju frågorna <span class="text-text-soft">▼</span>
+            <span data-i18n="library.sevenQuestions.title">🧩 Extra stöd — De sju frågorna</span> <span class="text-text-soft">▼</span>
           </button>
-          <p class="text-xs text-text-soft mb-3">Visuellt stöd som visas i barnets NU-kort (kräver paketet Extra stöd).</p>
+          <p class="text-xs text-text-soft mb-3" data-i18n="library.sevenQuestions.hint">Visuellt stöd som visas i barnets NU-kort (kräver paketet Extra stöd).</p>
           <div id="libSevenQuestionsBody" class="space-y-3"></div>
         </div>
 
@@ -865,13 +865,13 @@
   <div id="rewardModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-6">
-        <h3 id="rewardModalTitle" class="text-xl font-heading font-bold text-navy">Ny belöning</h3>
+        <h3 id="rewardModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="library.modal.newReward">Ny belöning</h3>
         <button onclick="closeRewardModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="rewardForm" class="space-y-5" onsubmit="submitReward(event)">
         <input type="hidden" id="rewardId">
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Belöningsnamn *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.rewards.nameLabel">Belöningsnamn *</label>
           <input type="text" id="rewardName" required maxlength="200"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
             placeholder="T.ex. Biofilm">
@@ -883,34 +883,34 @@
             <input type="text" id="rewardEmojiTextInput" placeholder="Skriv/klistra emoji…"
               class="emoji-text-input px-2 py-1 rounded-xl border-2 border-lavender focus:border-gold outline-none"
               maxlength="50" oninput="onRewardEmojiTextInput(this.value)">
-            <span class="text-xs text-text-soft">eller välj</span>
+            <span class="text-xs text-text-soft" data-i18n="library.rewards.orPick">eller välj</span>
           </div>
           <input type="hidden" id="rewardIcon" value="🏆">
           <div id="rewardIconPicker" class="flex flex-wrap gap-1 max-h-40 overflow-y-auto p-2 bg-sky rounded-xl"></div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-1">Stjärnkostnad *</label>
+          <label class="block text-sm font-semibold text-navy mb-1" data-i18n="library.rewards.starCostLabel">Stjärnkostnad *</label>
           <input type="number" id="rewardStarCost" required min="1" max="9999" value="10"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
             placeholder="T.ex. 10">
-          <p class="text-xs text-text-soft mt-1">Antal stjärnor som krävs för att lösa in belöningen</p>
+          <p class="text-xs text-text-soft mt-1" data-i18n="library.rewards.starCostHint">Antal stjärnor som krävs för att lösa in belöningen</p>
         </div>
         <div class="flex items-center gap-3">
           <button type="button" id="approvalToggle" onclick="toggleApproval()"
             class="w-10 h-6 rounded-full bg-lavender transition-colors relative flex-shrink-0">
             <span id="approvalDot" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform shadow"></span>
           </button>
-          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleApproval()">
+          <label class="text-sm font-semibold text-navy cursor-pointer" onclick="toggleApproval()" data-i18n="library.rewards.requiresApproval">
             Kräver föräldragodkännande
           </label>
           <input type="hidden" id="rewardRequiresApproval" value="true">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-navy mb-2">Synlig för</label>
+          <label class="block text-sm font-semibold text-navy mb-2" data-i18n="library.rewards.visibleFor">Synlig för</label>
           <div id="rewardVisibilityContainer" class="space-y-2">
             <p class="text-sm text-text-soft" data-i18n="library.loading.children">Laddar barn…</p>
           </div>
-          <p class="text-xs text-text-soft mt-1">Lämna alla avbockade = synlig för alla barn</p>
+          <p class="text-xs text-text-soft mt-1" data-i18n="library.rewards.visibleHint">Lämna alla avbockade = synlig för alla barn</p>
         </div>
         <div id="rewardError" class="text-red-500 text-sm hidden"></div>
         <div class="flex gap-3 pt-2">
@@ -925,7 +925,7 @@
   <div id="subStepModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
     <div class="magic-modal-panel bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-5">
-        <h3 id="subStepModalTitle" class="text-lg font-heading font-bold text-navy">Lägg till delsteg</h3>
+        <h3 id="subStepModalTitle" class="text-lg font-heading font-bold text-navy" data-i18n="library.substeps.addTitle">Lägg till delsteg</h3>
         <button onclick="closeSubStepModal()" class="text-text-soft hover:text-navy text-2xl leading-none">&times;</button>
       </div>
       <form id="subStepForm" class="space-y-4" onsubmit="submitSubStep(event)">
@@ -935,7 +935,7 @@
           <label class="block text-sm font-semibold text-navy mb-1">Namn *</label>
           <input type="text" id="subStepName" required maxlength="200"
             class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-gold outline-none transition-colors"
-            placeholder="T.ex. Ta tandkräm">
+            data-i18n-placeholder="library.activityModal.stepNamePlaceholder" placeholder="T.ex. Ta tandkräm">
         </div>
         <div>
           <label class="block text-sm font-semibold text-navy mb-2">Ikon (valfri)</label>
@@ -948,7 +948,7 @@
         </div>
         <div class="border-t border-lavender pt-4">
           <p class="text-sm font-semibold text-navy mb-1">Timer (valfri)</p>
-          <p class="text-xs text-text-soft mb-2">Barnet kan starta en timer för just detta delsteg.</p>
+          <p class="text-xs text-text-soft mb-2" data-i18n="library.substeps.timerHint">Barnet kan starta en timer för just detta delsteg.</p>
           <input type="hidden" id="subStepDurationSeconds" value="">
           <div id="subStepTimerPresets" class="flex flex-wrap gap-2 mb-2"></div>
           <button type="button" id="subStepTimerClear" class="text-xs text-text-soft underline">Ingen timer</button>
@@ -966,8 +966,8 @@
   <div id="imageCropModal" class="hidden library-modal-overlay fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="image-crop-panel magic-modal-panel bg-white rounded-t-2xl sm:rounded-2xl shadow-xl">
       <div class="image-crop-panel__scroll">
-        <h3 class="text-lg font-heading font-bold text-navy mb-1">Beskär bilden</h3>
-        <p class="text-sm text-text-soft mb-4">Dra bilden och zooma så motivet syns i barnvyn.</p>
+        <h3 class="text-lg font-heading font-bold text-navy mb-1" data-i18n="library.images.cropTitle">Beskär bilden</h3>
+        <p class="text-sm text-text-soft mb-4" data-i18n="library.images.cropDragHint">Dra bilden och zooma så motivet syns i barnvyn.</p>
         <div id="imageCropViewport" class="image-crop-viewport mb-3">
           <img id="imageCropImg" alt="">
           <div class="image-crop-frame-outline" aria-hidden="true"></div>
@@ -975,7 +975,7 @@
         <label class="block text-xs font-semibold text-navy mb-1" for="imageCropZoom">Zooma</label>
         <input type="range" id="imageCropZoom" min="1" max="3" step="0.02" value="1" class="w-full mb-4 accent-gold">
         <div class="mb-2">
-          <p class="text-xs font-semibold text-navy mb-2 text-center">Så här ser barnet bilden</p>
+          <p class="text-xs font-semibold text-navy mb-2 text-center" data-i18n="library.images.childPreview">Så här ser barnet bilden</p>
           <div id="imageCropBarnvyPreviewWrap">
             <canvas id="imageCropBarnvyPreview" aria-hidden="true"></canvas>
           </div>
