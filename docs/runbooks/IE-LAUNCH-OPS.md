@@ -1,31 +1,34 @@
 # Ireland launch — operations runbook
 
-**Status:** Operations base. Prod remains closed until Steps A–F are executed.  
+**Status:** **IE OPEN (iOS-first)** — Steps A–F executed 2026-09-17 after founder **GO IE**.  
 **Authority:** [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md) · ADR-023 · [`docs/ie-fi-release-gates.md`](../ie-fi-release-gates.md)
-
-Do **not** flip `market_ie_open`, enable billing, or open IE from this document without explicit founder go.
 
 ---
 
-## Current launch gate status (2026-09-17)
-
-Refresh after Google Play review clears — see [Delta runbook](#delta-runbook-after-store-review) below.
+## Current launch gate status (2026-09-17 post-GO IE)
 
 | Gate | Status | Notes |
 |------|--------|-------|
-| **Apple 1.4.5 review (ASC)** | **PASS** | Approved 2026-09-16 06:47 PDT. Submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`. Eligible for distribution. [App Store](https://apps.apple.com/app/min-stj%C3%A4rndag/id6774493098) |
-| **Google Play review** | **PENDING** | Listing/submission updated; awaiting Play approval. Listing ≠ review PASS. |
-| **Founder open approval** | **NOT GIVEN** | `founder_open_approved_ie` stays `false` in evidence until explicit ops decision. |
-| **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). `/en/eea/*` external review remains founder-owned risk — not auto-green because other gates pass. |
-| ASC store config | PASS | en-GB screenshots in 1.4.5; binary approved for distribution. |
-| Play store config | PASS (founder-verified) | Named SKUs/base plans IE; en-GB screenshots uploaded. Store **review** may still be pending. |
-| RevenueCat | PASS (founder-verified) | Dashboard + webhook path attested. |
-| iOS purchase + restore (IE) | PASS (founder-verified) | Physical device. |
-| Android purchase + restore (IE) | PASS (founder-verified) | Physical device. |
-| **Committed evidence JSON** | **SYNCED** (2026-09-17) | `IE_BILLING_CONFIGURATION_READY=YES`, `IE_DEVICE_VERIFIED=YES`; `IE_READY_TO_OPEN=NO` until founder approval. |
-| **Prod runtime** | **CLOSED** | `market_ie_open=false`, `public_billing_usable=false`, `BILLING_UI_DISABLED=true`. |
+| **Apple 1.4.5 review (ASC)** | **PASS** | Approved 2026-09-16 06:47 PDT. Submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`. |
+| **Google Play review** | **PENDING** | iOS-first launch: `/en` shows “Android coming soon”; Play links hidden when IE open. |
+| **Founder open approval** | **GIVEN** | `founder_open_approved_ie=true`, `paid_rollout_approved_ie=true` in evidence JSON (GO IE 2026-09-17). |
+| **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). External `/en/eea/*` review remains founder-owned. |
+| ASC / Play / RC / device RC | PASS (founder-verified) | See `config/ie-fi-release-evidence.json`. |
+| **Committed evidence JSON** | **SYNCED** | `IE_READY_TO_OPEN=YES`, `IE_PAID_ROLLOUT_READY=YES`. |
+| **Prod runtime** | **OPEN** | `market_ie_open=true`, `public_billing_usable=true`, `launch_state.IE=open_paid`. Billing infra on (`BILLING_UI_DISABLED` removed). |
 
-**Effective blockers today:** **Google Play review pending** (if not yet approved) · **founder approval** · legal conscious risk. No launch until founder go + Steps A–F.
+### Launch execution log (2026-09-17)
+
+| Step | Time (UTC) | Result |
+|------|------------|--------|
+| A Global billing infra | 12:21 | `payment_enabled=true`, `iap_paid_rollout_ready=true`, `BILLING_UI_DISABLED` removed |
+| B IE payment start | 12:21 | `market_ie_payment_start_at=2026-09-17T12:21:16.701Z` |
+| C QA purchase (signup closed) | 12:22 | Sandbox family `6ea5c94f-…` — iOS/Android purchase allowed |
+| D Founder approval | 12:22 | Evidence JSON + `npm run ie-fi:release-gates` → `IE_READY_TO_OPEN: YES` |
+| E Open acquisition | 12:23 | `market_ie_open=true` → `signup_allowed.IE=true` |
+| F Smoke signup | 14:22 CET | `ie-launch-smoke-*@example.com` → family `2f3960ce-…`, tier `trial`, 14-day trial, no `intro_year` |
+
+**Rollback:** Level 1 `market_ie_open=false` · Level 2 unset `market_ie_payment_start_at` · Level 3 `BILLING_UI_DISABLED=true` + `payment_enabled=false`.
 
 ```bash
 npm run ie-fi:release-gates   # IE billing+device YES; READY_TO_OPEN NO until founder_open_approved_ie
