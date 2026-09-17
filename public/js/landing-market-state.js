@@ -41,7 +41,7 @@
     return parts.join(' ');
   }
 
-  function hideStaleEnglishComingSoon(state) {
+  function hideStaleEnglishComingSoon(_state) {
     document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
       el.setAttribute('aria-label', 'Download the app');
     });
