@@ -114,6 +114,22 @@ for (const entry of MIRROR_ENTRIES) {
   });
 }
 
+// English HTML rewrites /resurser/pdf/*.pdf → /en/resources/pdf/*.pdf, but the
+// binaries only live in public/resurser/pdf/. Serve the same files on the EN path
+// so resource-library downloads work. HTML landing pages (no .pdf suffix) stay
+// on the mirror routes above.
+const RESURSER_PDF_DIR = path.join(__dirname, '../../public/resurser/pdf');
+const EN_RESOURCES_PDF_FILE_RE = /^[a-z0-9-]+\.pdf$/;
+
+router.get('/en/resources/pdf/:filename', (req, res, next) => {
+  const filename = String(req.params.filename || '');
+  if (!EN_RESOURCES_PDF_FILE_RE.test(filename)) return next();
+  const pdfPath = path.join(RESURSER_PDF_DIR, filename);
+  if (!fs.existsSync(pdfPath)) return next();
+  res.type('application/pdf');
+  res.sendFile(pdfPath);
+});
+
 // Public landing page for pedagogue/therapist audience
 // Gate 2F: redirect to / if professionell_landingssida feature is OFF
 router.get('/pedagoger-och-terapeuter', async (req, res) => {

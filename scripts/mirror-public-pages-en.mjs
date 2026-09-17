@@ -55,6 +55,8 @@ function replaceUrlPath(urlPath) {
       break;
     }
   }
+  // PDF binaries stay under public/resurser/pdf/. The EN path
+  // /en/resources/pdf/*.pdf is an alias served by public-pages.js.
   return out;
 }
 

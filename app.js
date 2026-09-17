@@ -228,6 +228,15 @@ function createApp() {
         + '<p><a href="/resurser">Till resursbiblioteket</a></p></body></html>',
       );
     }
+    if (req.path.startsWith('/en/resources/')) {
+      return res.status(404).type('html').send(
+        '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+        + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        + '<title>Page not found</title></head><body>'
+        + '<h1>Page not found</h1>'
+        + '<p><a href="/en/resources">Back to the resource library</a></p></body></html>',
+      );
+    }
     res.redirect('/');
   });
 
