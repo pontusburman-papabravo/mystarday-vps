@@ -191,6 +191,6 @@ test('buildActivationPlanPreview rejects empty child_ids', async () => {
       childIds: [],
       goalSlug: 'trygga-kvallar',
     }),
-    /Minst ett barn/
+    /FOR_DIG_CHILDREN_REQUIRED/
   );
 });
