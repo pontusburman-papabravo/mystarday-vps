@@ -8,11 +8,18 @@
 (function landingMarketState() {
   'use strict';
 
+  const IE_IOS_FIRST_DOWNLOAD_NOTE = 'Available now on iPhone and iPad. Android coming soon.';
+  const ANDROID_COMING_SOON = 'Android coming soon';
+
   function launchState(code, state) {
     if (state.launch_state && state.launch_state[code]) return state.launch_state[code];
     const allowed = !!(state.signup_allowed && state.signup_allowed[code]);
     if (!allowed) return 'closed';
     return state.public_billing_usable ? 'open_paid' : 'open_prebilling';
+  }
+
+  function isIeIosFirstLaunch(state) {
+    return launchState('IE', state) !== 'closed';
   }
 
   function anyOpen(state, codes) {
@@ -41,13 +48,88 @@
     return parts.join(' ');
   }
 
-  function hideStaleEnglishComingSoon() {
+  function replacePlayStoreLinkWithComingSoon(link) {
+    if (!link || link.dataset.iosFirstHandled === '1') return;
+    link.dataset.iosFirstHandled = '1';
+    const span = document.createElement('span');
+    span.className = 'store-android-soon';
+    span.setAttribute('role', 'status');
+    span.textContent = ANDROID_COMING_SOON;
+    link.replaceWith(span);
+  }
+
+  function replaceAllPlayStoreLinks() {
+    document.querySelectorAll(
+      'a[href*="play.google.com"], a[href*="__PLAY_STORE_URL__"], a[data-store-cta="play"]'
+    ).forEach(replacePlayStoreLinkWithComingSoon);
+  }
+
+  function updateDownloadAreaNotes(copy) {
+    document.querySelectorAll('.store-locale-note').forEach((el) => {
+      if (el.id === 'landingMarketState') return;
+      el.hidden = false;
+      el.textContent = copy;
+    });
+  }
+
+  function applyIeIosFirstStorePresentation(state) {
+    if (!isIeIosFirstLaunch(state)) return;
+
+    document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
+      el.setAttribute('aria-label', 'Download the app');
+    });
+
+    replaceAllPlayStoreLinks();
+    updateDownloadAreaNotes(IE_IOS_FIRST_DOWNLOAD_NOTE);
+
+    const heroBody = document.querySelector('.hero-launch-card__body');
+    if (heroBody) {
+      heroBody.textContent = 'The app is available now on the App Store for iPhone and iPad. Android coming soon. Create an account if your country is open. If it is not, you can leave your email to be notified.';
+    }
+
+    document.querySelectorAll('.trust-chip').forEach((el) => {
+      if (/App Store.*Google Play/i.test(el.textContent || '')) {
+        el.textContent = 'App Store (iPhone & iPad)';
+      }
+    });
+
+    document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
+      if (!/App Store|Google Play|browser version/i.test(el.textContent || '')) return;
+      el.textContent = 'The app is available on the App Store for iPhone and iPad. Android coming soon. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA. On iPhone in Safari: Share → Add to Home Screen.';
+    });
+
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => {
+      try {
+        const data = JSON.parse(el.textContent);
+        if (!data || data['@type'] !== 'FAQPage' || !Array.isArray(data.mainEntity)) return;
+        data.mainEntity.forEach((item) => {
+          const answer = item && item.acceptedAnswer && item.acceptedAnswer.text;
+          if (typeof answer === 'string' && /App Store|Google Play|browser version/i.test(answer)) {
+            item.acceptedAnswer.text = 'The app is available on the App Store for iPhone and iPad. Android coming soon. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
+          }
+        });
+        el.textContent = JSON.stringify(data);
+      } catch (_) { /* leave JSON-LD as authored */ }
+    });
+  }
+
+  function hideStaleEnglishComingSoon(state) {
+    document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
+      el.setAttribute('aria-label', 'Download the app');
+    });
+    document.querySelectorAll('a[href*="apple.co"], a[href*="apps.apple.com"]').forEach((el) => {
+      if (/Download for iPhone \(Swedish\)/i.test(el.textContent || '')) {
+        el.textContent = 'Download for iPhone';
+      }
+    });
+    if (isIeIosFirstLaunch(state)) {
+      applyIeIosFirstStorePresentation(state);
+      return;
+    }
+
     document.querySelectorAll('.store-locale-note').forEach((el) => {
       if (el.id === 'landingMarketState') return;
       el.hidden = true;
-    });
-    document.querySelectorAll('[aria-label="Download the app (Swedish only today)"]').forEach((el) => {
-      el.setAttribute('aria-label', 'Download the app');
     });
     const heroBody = document.querySelector('.hero-launch-card__body');
     if (heroBody) {
@@ -140,7 +222,9 @@
     if (!res.ok) return;
     const state = await res.json();
     if (state.english_available === true) {
-      hideStaleEnglishComingSoon();
+      hideStaleEnglishComingSoon(state);
+    } else if (isIeIosFirstLaunch(state)) {
+      applyIeIosFirstStorePresentation(state);
     }
     const canRegister = anyOpen(state, ['SE', 'IE', 'FI']);
     retargetPrimaryCtas(canRegister);

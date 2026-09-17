@@ -39,6 +39,16 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
+    assert.match(js, /Android coming soon/);
+    assert.match(js, /Available now on iPhone and iPad/);
+    assert.match(js, /applyIeIosFirstStorePresentation/);
+  });
+
+  it('paywall replaces Play CTA for Ireland web users', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/paywall.js'), 'utf8');
+    assert.match(js, /applyIeWebPaywallPresentation/);
+    assert.match(js, /statusAndroidComingSoon/);
+    assert.match(js, /replacePlayLinkWithComingSoon/);
   });
 
   it('English landing does not claim English is coming soon', () => {

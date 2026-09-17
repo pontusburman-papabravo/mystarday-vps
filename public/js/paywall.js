@@ -67,6 +67,42 @@
     el.setAttribute('data-i18n', key);
   }
 
+  function isIeCountryCode(countryCode) {
+    return String(countryCode || '').toUpperCase() === 'IE';
+  }
+
+  function replacePlayLinkWithComingSoon(linkEl) {
+    if (!linkEl || linkEl.dataset.androidComingSoon === '1') return;
+    const span = document.createElement('span');
+    span.id = linkEl.id || 'paywallPlayLink';
+    span.dataset.androidComingSoon = '1';
+    span.className = 'inline-flex justify-center rounded-xl border border-navy/15 text-navy/70 py-3 font-semibold';
+    span.setAttribute('role', 'status');
+    span.textContent = t('paywall.androidComingSoon');
+    linkEl.replaceWith(span);
+  }
+
+  function applyIeWebPaywallPresentation(countryCode) {
+    if (!isIeCountryCode(countryCode)) return;
+
+    const noticeBody = document.getElementById('paywallWebNoticeBody');
+    if (noticeBody) {
+      noticeBody.textContent = t('paywall.webNoticeBodyAppleOnly');
+    }
+
+    const legal = document.getElementById('paywallWebLegal');
+    if (legal) {
+      legal.textContent = t('paywall.legalAppleOnly');
+      legal.setAttribute('data-i18n', 'paywall.legalAppleOnly');
+    }
+
+    replacePlayLinkWithComingSoon(document.getElementById('paywallPlayLink'));
+  }
+
+  function setIeAndroidComingSoonStatus() {
+    setStatus(t('paywall.statusAndroidComingSoon'), false);
+  }
+
   async function applyPaywallLegalLinks(countryCode) {
     const locale = (window.I18n && I18n.getCurrentLang && I18n.getCurrentLang()) || 'sv-SE';
     let routes = { terms: '/terms', privacy: '/privacy' };
@@ -238,6 +274,22 @@
     setPurchaseCtaEnabled(false);
   }
 
+  async function prefetchPaywallCountryCode() {
+    if (paywallCountryCode) return paywallCountryCode;
+    const platform = isAndroid() ? 'android' : 'ios';
+    try {
+      const configRes = await fetch('/api/iap/config?platform=' + encodeURIComponent(platform), {
+        credentials: 'include',
+      });
+      if (!configRes.ok) return null;
+      const config = await configRes.json();
+      paywallCountryCode = config.country_code || null;
+      return paywallCountryCode;
+    } catch (_) {
+      return null;
+    }
+  }
+
   async function loadNativePricing() {
     if (!isNative() || !window.IAPManager) return false;
 
@@ -247,10 +299,15 @@
     pricesReady = false;
 
     await IAPManager.init();
+    await prefetchPaywallCountryCode();
     if (!IAPManager.canPurchase()) {
       showLoadingPrices(false);
       hide(document.getElementById('paywallPlans'));
-      setStatus(t('paywall.statusUnavailable'), true);
+      if (isAndroid() && isIeCountryCode(paywallCountryCode)) {
+        setIeAndroidComingSoonStatus();
+      } else {
+        setStatus(t('paywall.statusUnavailable'), true);
+      }
       return false;
     }
 
@@ -258,7 +315,11 @@
     if (!offering || !Logic) {
       showLoadingPrices(false);
       hide(document.getElementById('paywallPlans'));
-      setStatus(t('paywall.statusUnavailable'), true);
+      if (isAndroid() && isIeCountryCode(paywallCountryCode)) {
+        setIeAndroidComingSoonStatus();
+      } else {
+        setStatus(t('paywall.statusUnavailable'), true);
+      }
       return false;
     }
 
@@ -279,7 +340,11 @@
     if (!displays) {
       showLoadingPrices(false);
       hide(document.getElementById('paywallPlans'));
-      setStatus(t('paywall.statusUnavailable'), true);
+      if (isAndroid() && isIeCountryCode(paywallCountryCode)) {
+        setIeAndroidComingSoonStatus();
+      } else {
+        setStatus(t('paywall.statusUnavailable'), true);
+      }
       return false;
     }
 
@@ -396,8 +461,11 @@
         const apple = document.getElementById('paywallAppleLink');
         const play = document.getElementById('paywallPlayLink');
         if (apple && cfg.storeLinks.apple) apple.href = cfg.storeLinks.apple;
-        if (play && cfg.storeLinks.play) play.href = cfg.storeLinks.play;
+        if (play && cfg.storeLinks.play && !isIeCountryCode(paywallCountryCode)) {
+          play.href = cfg.storeLinks.play;
+        }
       }
+      applyIeWebPaywallPresentation(paywallCountryCode);
     } catch (_) {}
   }
 
