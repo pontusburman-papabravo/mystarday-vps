@@ -283,4 +283,19 @@ router.get('/analytics/usage-trends', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/analytics/usage-over-time ─────────────
+// Completions, weekdays, schedules, custom activities (not event-log KPIs).
+router.get('/analytics/usage-over-time', async (req, res) => {
+  try {
+    const { getUsageOverTime } = require('../../../db/usage-over-time');
+    const { clampDays } = require('../../lib/admin-usage-over-time');
+    const days = clampDays(req.query.days);
+    const data = await getUsageOverTime(days);
+    res.json(data);
+  } catch (err) {
+    console.error('[ADMIN analytics] usage-over-time error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta användning över tid' });
+  }
+});
+
 module.exports = router;

@@ -95,6 +95,9 @@ async function switchTab(tabName) {
 
   // Load data for the active tab
   if (tabName === 'overview') await loadOverviewTab();
+  else if (tabName === 'how-used') {
+    if (typeof window.loadHowUsedTab === 'function') await window.loadHowUsedTab();
+  }
   else if (tabName === 'dynamics') await loadDynamics();
   else if (tabName === 'warnings') await loadWarnings();
   else if (tabName === 'retention') await loadRetention();
@@ -116,6 +119,7 @@ function buildAnalyticsHTML() {
       <!-- Tab bar -->
       <div class="flex flex-wrap gap-2 border-b border-sky pb-3">
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-gold text-navy transition-colors cursor-pointer" data-tab="overview">Hur går det?</button>
+        <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="how-used">Så används appen</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="dynamics">Familjer tillsammans</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="warnings">Familjer som fastnar</button>
         <button class="analytics-tab px-4 py-2 rounded-lg text-sm font-semibold bg-lavender text-text-soft hover:bg-sky transition-colors cursor-pointer" data-tab="retention">Kommer de tillbaka?</button>
@@ -132,7 +136,7 @@ function buildAnalyticsHTML() {
 
         <div class="bg-sky rounded-2xl border border-sky p-5">
           <h3 class="text-lg font-heading font-bold text-navy mb-1">Börja här</h3>
-          <p class="text-sm text-text-soft">Korten med aktiva familjer och stjärnor kommer från inloggningar och avbockningar. Tratten, hemskärmen och “kommer de tillbaka” bygger på händelselogg — den är kort efter serverbyte, så lita inte på tapp mellan steg eller månader utan att läsa förklaringen under siffran.</p>
+          <p class="text-sm text-text-soft">Korten med aktiva familjer och stjärnor kommer från inloggningar och avbockningar. Tratten, hemskärmen och “kommer de tillbaka” bygger på händelselogg — den är kort efter serverbyte, så lita inte på tapp mellan steg eller månader utan att läsa förklaringen under siffran. Vill du se vilka dagar och scheman som används, öppna <strong>Så används appen</strong>.</p>
         </div>
 
         <!-- KPI Cards -->
@@ -168,6 +172,11 @@ function buildAnalyticsHTML() {
             <div><dt class="font-semibold text-navy">Startvecka</dt><dd class="text-text-soft">Alla familjer som registrerade sig samma vecka, följda över tid. Visar om de kommer tillbaka.</dd></div>
           </dl>
         </details>
+      </div>
+
+      <!-- ── HOW THE APP IS USED ─────────────────────────── -->
+      <div id="section-how-used" class="analytics-section hidden space-y-8">
+        <div id="howUsedRoot"></div>
       </div>
 
       <!-- ── FAMILY DYNAMICS (Case C) ───────────────────── -->
