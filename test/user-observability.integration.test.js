@@ -52,7 +52,7 @@ function trustedOnly(cookies) {
   return cookies?.trusted_device ? { trusted_device: cookies.trusted_device } : cookies;
 }
 
-async function waitForAnalytics(db, familyId, eventType, { timeoutMs = 3000 } = {}) {
+async function waitForAnalytics(db, familyId, eventType, { timeoutMs = 3000, match } = {}) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     const { rows } = await db.query(
@@ -61,7 +61,7 @@ async function waitForAnalytics(db, familyId, eventType, { timeoutMs = 3000 } = 
        ORDER BY created_at DESC LIMIT 1`,
       [familyId, eventType]
     );
-    if (rows.length) return rows[0].metadata;
+    if (rows.length && (!match || match(rows[0].metadata))) return rows[0].metadata;
     await new Promise((r) => setTimeout(r, 50));
   }
   return null;
@@ -129,7 +129,9 @@ test('user observability integration matrix', async (t) => {
         'trusted restore must not create login_event'
       );
 
-      const meta = await waitForAnalytics(db, familyId, 'parent_session_started');
+      const meta = await waitForAnalytics(db, familyId, 'parent_session_started', {
+        match: (m) => Boolean(m && m.trusted_device_id),
+      });
       assert.ok(meta, 'expected parent_session_started analytics event');
       assert.equal(meta.actor_type, 'parent');
       assert.equal(meta.actor_id, parentId);
