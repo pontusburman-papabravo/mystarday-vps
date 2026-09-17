@@ -75,7 +75,7 @@ describe('custody-custom-config', () => {
     const allA = weekRow({ mon: HOME_A, tue: HOME_A, wed: HOME_A, thu: HOME_A, fri: HOME_A, sat: HOME_A, sun: HOME_A });
     const result = validateCustomConfiguration({ cycle_weeks: [allA] }, [HOME_A, HOME_B]);
     assert.equal(result.ok, false);
-    assert.match(result.error, /två olika hem/);
+    assert.equal(result.code, 'CUSTODY_TWO_HOMES_REQUIRED');
   });
 
   it('validateCustomConfiguration accepts 2-week cycle', () => {

@@ -36,7 +36,7 @@ const positiveInt = z.coerce.number().int().min(1);
 /** 4-digit PIN string */
 const pin4 = z
   .string()
-  .regex(/^\d{4}$/, 'PIN-koden måste bestå av exakt 4 siffror');
+  .regex(/^\d{4}$/, 'VALIDATION_PIN_4_DIGITS');
 
 /** Date string YYYY-MM-DD — nullable because clients send null for empty dates */
 const dateString = z
@@ -52,7 +52,7 @@ const timeString = z
   .nullish();
 
 /** Email */
-const email = z.string().email({ message: 'Ogiltig e-postadress' }).max(254);
+const email = z.string().email({ message: 'VALIDATION_EMAIL_INVALID' }).max(254);
 
 /** URL — optional, must be valid if provided */
 const optionalUrl = z.string().url({ message: 'Ogiltig URL' }).optional().or(z.literal(''));

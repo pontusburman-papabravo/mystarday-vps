@@ -1347,7 +1347,10 @@
           body: JSON.stringify({ score: ratingScore, comment: comment || null }),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || dlPt('today.errors.undo'));
+        if (!res.ok) throw new Error(
+          (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(data, 'today.errors.saveRating') : '')
+          || dlPt('today.errors.saveRating')
+        );
 
         // Update cached rating
         if (!itemRatings[ratingItemId]) itemRatings[ratingItemId] = {};

@@ -4108,24 +4108,6 @@
       "snippet": "För få signups i senaste eller föregående vecka för jämförelse."
     },
     {
-      "id": "4faada8a1cee466c",
-      "path": "src/lib/avatar-upload.js",
-      "rule": "server-message",
-      "snippet": "Ogiltigt fältnamn för bilduppladdning"
-    },
-    {
-      "id": "9bc1805f0c7f3d6d",
-      "path": "src/lib/avatar-upload.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta emot bilden"
-    },
-    {
-      "id": "fddceb697a31abd3",
-      "path": "src/lib/avatar-upload.js",
-      "rule": "server-message",
-      "snippet": "Bilden är för stor (max 2 MB)"
-    },
-    {
       "id": "05274850e613df22",
       "path": "src/lib/canonical-library-runtime.js",
       "rule": "server-message",
@@ -4160,36 +4142,6 @@
       "path": "src/lib/custody-context-api.js",
       "rule": "server-message",
       "snippet": "Datumintervallet måste vara 1–${…} dagar"
-    },
-    {
-      "id": "029808d59a5d17ba",
-      "path": "src/lib/custody-custom-config.js",
-      "rule": "server-message",
-      "snippet": "cycle_weeks[${…}].${…} krävs"
-    },
-    {
-      "id": "057242d36ada7901",
-      "path": "src/lib/custody-custom-config.js",
-      "rule": "server-message",
-      "snippet": "cycle_weeks måste innehålla 1–4 veckor"
-    },
-    {
-      "id": "6a18f123d9f5f0b5",
-      "path": "src/lib/custody-custom-config.js",
-      "rule": "server-message",
-      "snippet": "Eget mönster måste ha minst två olika hem — stäng av boendeschema om barnet alltid bor på samma ställe"
-    },
-    {
-      "id": "7de12fd38be282a0",
-      "path": "src/lib/custody-custom-config.js",
-      "rule": "server-message",
-      "snippet": "configuration.cycle_weeks måste vara en array"
-    },
-    {
-      "id": "f3829c69db0dbecc",
-      "path": "src/lib/custody-custom-config.js",
-      "rule": "server-message",
-      "snippet": "configuration.cycle_weeks krävs för eget mönster"
     },
     {
       "id": "4d2d149908fc07f0",
@@ -4258,46 +4210,10 @@
       "snippet": "Åtkomst nekad"
     },
     {
-      "id": "26029f830ad3e41a",
-      "path": "src/lib/family-duplicates.js",
-      "rule": "server-message",
-      "snippet": "Denna e-postadress är redan kopplad till en annan familj"
-    },
-    {
-      "id": "274fed83ffabdd83",
-      "path": "src/lib/family-duplicates.js",
-      "rule": "server-message",
-      "snippet": "Denna person är redan medlem i din familj"
-    },
-    {
-      "id": "dd78a57e26d086ef",
-      "path": "src/lib/family-duplicates.js",
-      "rule": "server-message",
-      "snippet": "Barnets namn krävs"
-    },
-    {
-      "id": "e67669c4574dd367",
-      "path": "src/lib/family-duplicates.js",
-      "rule": "server-message",
-      "snippet": "Det finns redan en väntande inbjudan för denna e-post"
-    },
-    {
       "id": "ada792f19a3a79f8",
       "path": "src/lib/family-event-engine.js",
       "rule": "or-fallback",
       "snippet": "Barn"
-    },
-    {
-      "id": "55fba130d4673b35",
-      "path": "src/lib/family-invite-child-ids.js",
-      "rule": "server-message",
-      "snippet": "Du har inga barn att dela åtkomst till"
-    },
-    {
-      "id": "86a14f33ed5cccd0",
-      "path": "src/lib/family-invite-child-ids.js",
-      "rule": "server-message",
-      "snippet": "Du kan bara bjuda in till barn du har åtkomst till"
     },
     {
       "id": "2a152131195b75f0",
@@ -4532,30 +4448,6 @@
       "path": "src/lib/report-playful-mapper.js",
       "rule": "or-fallback",
       "snippet": "Övrigt"
-    },
-    {
-      "id": "068567a7ddfb7c8c",
-      "path": "src/lib/reward-redemption-errors.js",
-      "rule": "server-message",
-      "snippet": "Du har redan en väntande inlösen för den här belöningen"
-    },
-    {
-      "id": "10be8dea1fb5fa88",
-      "path": "src/lib/reward-redemption-errors.js",
-      "rule": "server-message",
-      "snippet": "Den här belöningen har redan låsts in av ett annat barn"
-    },
-    {
-      "id": "456ef48f10ea7e8f",
-      "path": "src/lib/reward-redemption-errors.js",
-      "rule": "server-message",
-      "snippet": "Inte tillräckligt med stjärnor"
-    },
-    {
-      "id": "f416efdba76c9be4",
-      "path": "src/lib/reward-redemption-errors.js",
-      "rule": "server-message",
-      "snippet": "Den här belöningen är inte längre tillgänglig"
     },
     {
       "id": "166cd0741bd81ed3",
@@ -5140,138 +5032,6 @@
       "snippet": "Inte tillgängligt"
     },
     {
-      "id": "0bd9fe49c6dbd755",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "15e77755ae4856a0",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Stjärnvärde måste vara mellan 1 och 5"
-    },
-    {
-      "id": "2d64591f15551f34",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Timer måste vara mellan 5 och 3600 sekunder"
-    },
-    {
-      "id": "34e3a5f102649411",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Ogiltigt feedback_for-värde"
-    },
-    {
-      "id": "4250856c2fea6e9c",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "48e8a6caa6ae373a",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "4c0c0420d1472eda",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "63da1902bf5ba298",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "710e9979d8dd630b",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "788bd414440dc1a7",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Namn krävs"
-    },
-    {
-      "id": "a14e6c0bc89fa5f2",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Aktiviteten används i ett eller flera veckoscheman. Ta bort den därifrån först."
-    },
-    {
-      "id": "a3220df8da6b2821",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Timer måste vara mellan 5 och 3600 sekunder"
-    },
-    {
-      "id": "aed3ec85c8b64995",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "afd58d5a0a4ec110",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "b96b7e8ac240ceab",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Timer-tid måste vara 5–3600 sekunder eller tom"
-    },
-    {
-      "id": "bdbbddfd5e2a5af5",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d2fb865bf5a65cfc",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Aktivitetsnamn krävs"
-    },
-    {
-      "id": "d85059769d278b04",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Timer måste vara mellan 5 och 3600 sekunder"
-    },
-    {
-      "id": "ea2cb2460c595e52",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Stjärnvärde måste vara mellan 1 och 5"
-    },
-    {
-      "id": "f93f4d212f8c819e",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Namn krävs"
-    },
-    {
-      "id": "f98355dce14c5fee",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Aktivitetsnamn krävs"
-    },
-    {
-      "id": "ffbe79c0ee35552c",
-      "path": "src/routes/activities.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "4b514fbce48afb6b",
       "path": "src/routes/auth/child-login.js",
       "rule": "server-message",
@@ -5506,42 +5266,6 @@
       "snippet": "Inte tillräckligt med stjärnor"
     },
     {
-      "id": "0ba2b365f458759f",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
-      "id": "2a86634c8f06b3fc",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort profilbilden"
-    },
-    {
-      "id": "6aa6d6d46904153c",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Du har inte behörighet att ta bort denna profilbild"
-    },
-    {
-      "id": "73d3cec07f68e0fd",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Du har inte behörighet att ändra denna profilbild"
-    },
-    {
-      "id": "b55dc42eb65b8800",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Barn hittades inte"
-    },
-    {
-      "id": "bae215c87efc5362",
-      "path": "src/routes/children-avatar.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte spara profilbilden"
-    },
-    {
       "id": "07b0eee7b61ba930",
       "path": "src/routes/children.js",
       "rule": "server-message",
@@ -5602,12 +5326,6 @@
       "snippet": "Låsning upphävd. Barnet kan logga in igen."
     },
     {
-      "id": "313d7d012cc0103f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Den kombinationen är inte tillgänglig. Försök med ett annat namn eller en annan PIN."
-    },
-    {
       "id": "3cbd7f53e5448121",
       "path": "src/routes/children.js",
       "rule": "server-message",
@@ -5638,12 +5356,6 @@
       "snippet": "Något gick fel. Försök igen senare."
     },
     {
-      "id": "62603c4fc2850f95",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Namn och emoji krävs"
-    },
-    {
       "id": "63f4d988884235cd",
       "path": "src/routes/children.js",
       "rule": "server-message",
@@ -5654,12 +5366,6 @@
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "Du har inte åtkomst till detta barn"
-    },
-    {
-      "id": "66c45d02ec9bde2c",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "PIN-koden måste vara exakt 4 siffror"
     },
     {
       "id": "67038ab7ce95500c",
@@ -5722,28 +5428,10 @@
       "snippet": "Något gick fel. Försök igen senare."
     },
     {
-      "id": "97da375a9586509e",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Namn krävs"
-    },
-    {
-      "id": "9e85fc603b01822f",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "PIN-koden måste vara exakt 4 siffror"
-    },
-    {
       "id": "b0eb4a102e965015",
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "PIN är inte tillgänglig"
-    },
-    {
-      "id": "b2da70f81c172830",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Den kombinationen är inte tillgänglig. Försök med ett annat namn eller en annan PIN."
     },
     {
       "id": "c04fc4c483a0057f",
@@ -5792,12 +5480,6 @@
       "path": "src/routes/children.js",
       "rule": "server-message",
       "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "d82b13364673fafb",
-      "path": "src/routes/children.js",
-      "rule": "server-message",
-      "snippet": "Namn krävs"
     },
     {
       "id": "d8b80e1453c0df8d",
@@ -6766,22 +6448,10 @@
       "snippet": "E-postadressen används redan av ett annat konto"
     },
     {
-      "id": "c71711719ea73f0e",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Ogiltig roll. Välj: mamma, pappa, bonusförälder eller annan"
-    },
-    {
       "id": "c9ce1b7c8e4eefc6",
       "path": "src/routes/family/invites.js",
       "rule": "server-message",
       "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "e2014f9ce429e713",
-      "path": "src/routes/family/invites.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte skicka inbjudan via e-post. Försök igen."
     },
     {
       "id": "f67efe3de3c62a57",
@@ -8338,138 +8008,6 @@
       "snippet": "För många försök. Försök igen om en timme."
     },
     {
-      "id": "1afdce44a0264125",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte hämta push-inställningar"
-    },
-    {
-      "id": "334ccd7ca2b58f13",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte spara push-inställningar"
-    },
-    {
-      "id": "4afcc62cd0127313",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Push-notiser är inte konfigurerade"
-    },
-    {
-      "id": "4e362fac9c63b1a3",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort push-prenumeration"
-    },
-    {
-      "id": "5ac7a58d969cc8b3",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Förälder hittades inte"
-    },
-    {
-      "id": "627fdb107366f53a",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "endpoint krävs"
-    },
-    {
-      "id": "a35d783c646a1343",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Platform måste vara \"ios\" eller \"android\""
-    },
-    {
-      "id": "b08d59b64be0c48e",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte spara push-token"
-    },
-    {
-      "id": "cb76ede1b10be6f2",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Förälder hittades inte"
-    },
-    {
-      "id": "cbb2d15880c8c6a9",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte spara push-prenumeration"
-    },
-    {
-      "id": "d766b3de95f37f26",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta bort push-token"
-    },
-    {
-      "id": "decf23fb5c4aa675",
-      "path": "src/routes/push.js",
-      "rule": "server-message",
-      "snippet": "token och platform krävs"
-    },
-    {
-      "id": "05114c79864c5176",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Betyg måste vara mellan 1 och 5"
-    },
-    {
-      "id": "39b42fc96ee9dfe4",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Ange antingen betyg (1–10) eller ett känslokort"
-    },
-    {
-      "id": "70f38fd21f2ea5ff",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "7f44603e43c3a5a1",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Förälderns betygsättning är inte aktiverad för den här aktiviteten"
-    },
-    {
-      "id": "8eb578b60144d376",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Betygsättning är inte tillåten för detta barn på den här aktiviteten"
-    },
-    {
-      "id": "df75a67d0f716b65",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "e0d2225a5d8fd05f",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Ogiltigt känslokort"
-    },
-    {
-      "id": "e976ce49449cda05",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "eb6c98fcf7d89680",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Betyg måste vara mellan 1 och 10"
-    },
-    {
-      "id": "fb8c8d2507a7fbfd",
-      "path": "src/routes/ratings.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
       "id": "3628ce357e36cac6",
       "path": "src/routes/reminders.js",
       "rule": "server-message",
@@ -8572,52 +8110,10 @@
       "snippet": "Barnet"
     },
     {
-      "id": "06ca7435cc5c46e2",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "0f8482f4cfc2e318",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "129dab5c65164a9b",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Belöning hittades inte"
-    },
-    {
-      "id": "1b4a5e01be6f0f00",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel vid sparandet."
-    },
-    {
       "id": "1e2d5f8de0f317c1",
       "path": "src/routes/rewards.js",
       "rule": "server-message",
       "snippet": "Inlösen av"
-    },
-    {
-      "id": "28b6803d9434bee8",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "31039caad3885902",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Tjänsten är upptagen, försök igen."
-    },
-    {
-      "id": "34023d69092b0d57",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Belöning hittades inte"
     },
     {
       "id": "4a20eeaf2fcbccee",
@@ -8626,94 +8122,16 @@
       "snippet": "Belöning borttagen"
     },
     {
-      "id": "5ed1e35fe690d68c",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Namn och stjärnkostnad krävs"
-    },
-    {
-      "id": "698b4668778fc7fd",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "6ae2f8b8f1ac74a8",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Tjänsten är upptagen, försök igen."
-    },
-    {
       "id": "795e64637712ae21",
       "path": "src/routes/rewards.js",
       "rule": "server-message",
       "snippet": "Inlösen av"
     },
     {
-      "id": "804c7f04d57a0882",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Inlösen hittades inte"
-    },
-    {
-      "id": "a9e3ed0184ca2fcb",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Stjärnkostnad måste vara minst 1"
-    },
-    {
-      "id": "abcd4c4af1848464",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "c0fd465777f6a7f7",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Stjärnkostnad måste vara minst 1"
-    },
-    {
-      "id": "c236fb569c95dff7",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Barnet har inte tillräckligt med stjärnor"
-    },
-    {
       "id": "cf0b4e8a283e95c5",
       "path": "src/routes/rewards.js",
       "rule": "server-message",
       "snippet": "Belöning borttagen"
-    },
-    {
-      "id": "d01187349b0297c6",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel vid sparandet."
-    },
-    {
-      "id": "d771abdad54a79fe",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "e15cda98d823b3a7",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "e48f31140986344c",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Något gick fel."
-    },
-    {
-      "id": "f340fa778e36b9ed",
-      "path": "src/routes/rewards.js",
-      "rule": "server-message",
-      "snippet": "Inlösen hittades inte"
     },
     {
       "id": "1b3fa969420b1479",
@@ -10124,42 +9542,6 @@
       "path": "src/routes/transition-support.js",
       "rule": "server-message",
       "snippet": "Något gick fel. Försök igen senare."
-    },
-    {
-      "id": "2b50bf8f4e1f15f7",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Filtypen är inte tillåten"
-    },
-    {
-      "id": "3a8ea3b9008218b6",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Ogiltigt fältnamn för bilduppladdning"
-    },
-    {
-      "id": "3dc2c8ecf0d21a5f",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Bilduppladdning är inte konfigurerad"
-    },
-    {
-      "id": "3f8e8f72a89045ce",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Kunde inte ta emot bilden"
-    },
-    {
-      "id": "cb9263eae760ed7f",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Filen verkar inte vara en giltig bild (JPEG, PNG eller WebP krävs)"
-    },
-    {
-      "id": "ec900282349c8da1",
-      "path": "src/routes/upload.js",
-      "rule": "server-message",
-      "snippet": "Använd PUT /api/children/:childId/avatar eller PUT /api/account/avatar"
     },
     {
       "id": "0b7df94863f6736e",

@@ -735,7 +735,12 @@
           credentials: 'include',
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || fpt('family.errors.upload'));
+        if (!res.ok) {
+          throw new Error(
+            (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(data, 'family.errors.upload') : '')
+            || fpt('family.errors.upload')
+          );
+        }
         urlInput.value = data.url;
         preview.src = data.url;
         preview.classList.remove('hidden');
@@ -1177,7 +1182,12 @@
           body: JSON.stringify({ email }),
         });
         if (check.adult && check.adult.status !== 'available') {
-          msg.textContent = check.adult.error || fpt('family.errors.memberAlreadyExists');
+          msg.textContent = (typeof window.apiErrorMessage === 'function'
+            ? window.apiErrorMessage({
+              code: check.adult.code || check.adult.status,
+              details: { name: check.adult.existingName },
+            })
+            : '') || fpt('family.errors.memberAlreadyExists');
           msg.className = 'text-sm text-red-500 font-medium';
           return;
         }

@@ -110,7 +110,10 @@
     } catch (_) {
       throw new Error(lpt('library.images.uploadBadResponse'));
     }
-    if (!res.ok) throw new Error(data.error || lpt('library.images.uploadFailed'));
+    if (!res.ok) throw new Error(
+      (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(data, 'library.images.uploadFailed') : '')
+      || lpt('library.images.uploadFailed')
+    );
     if (!data.url) throw new Error(lpt('library.images.uploadNoUrl'));
     return data.url;
   }
@@ -158,7 +161,10 @@
     });
     if (!res.ok) {
       const err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error || lpt('library.images.saveFailed'));
+      throw new Error(
+        (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(err, 'library.images.saveFailed') : '')
+        || lpt('library.images.saveFailed')
+      );
     }
     const row = await res.json();
     images.push(row);
@@ -265,7 +271,10 @@
       });
       if (!res.ok) {
         const err = await res.json().catch(function () { return {}; });
-        throw new Error(err.error || lpt('library.images.saveFailed'));
+        throw new Error(
+        (typeof window.apiErrorMessage === 'function' ? window.apiErrorMessage(err, 'library.images.saveFailed') : '')
+        || lpt('library.images.saveFailed')
+      );
       }
       const row = await res.json();
       images.push(row);

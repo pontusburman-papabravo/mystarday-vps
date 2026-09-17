@@ -41,7 +41,14 @@
     "selectChild": "Select a child first",
     "custodyDisabled": "Custody schedule is not enabled",
     "loadWeek": "Could not load the week",
-    "saveRating": "Could not save rating"
+    "saveRating": "Could not save rating",
+    "ratingScoreOrEmotion": "Choose a rating or an emotion card",
+    "ratingScoreRange": "Rating must be between 1 and 10",
+    "ratingInvalidEmotion": "Invalid emotion card",
+    "ratingActivityNotFound": "Activity not found",
+    "ratingNotAllowed": "Rating is not allowed for this child on this activity",
+    "ratingParentScoreRange": "Rating must be between 1 and 5",
+    "ratingParentDisabled": "Parent rating is not enabled for this activity"
   },
   "empty": {
     "noActivitiesToday": "No activities today!",

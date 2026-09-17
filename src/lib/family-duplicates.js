@@ -9,7 +9,11 @@ const VALID_FAMILY_ROLES = ['mamma', 'pappa', 'bonusförälder', 'annan'];
 async function checkAdultInviteEligibility(db, email, familyId) {
   const normalizedEmail = String(email || '').toLowerCase().trim();
   if (!normalizedEmail || !normalizedEmail.includes('@')) {
-    return { ok: false, code: 'INVALID_EMAIL', error: 'Ogiltig e-postadress' };
+    return {
+      ok: false,
+      code: 'INVALID_EMAIL',
+      error: 'INVALID_EMAIL',
+    };
   }
 
   const inFamily = await db.query(
@@ -20,7 +24,7 @@ async function checkAdultInviteEligibility(db, email, familyId) {
     return {
       ok: false,
       code: 'ALREADY_MEMBER',
-      error: 'Denna person är redan medlem i din familj',
+      error: 'ALREADY_MEMBER',
       existingName: inFamily.rows[0].name,
     };
   }
@@ -33,7 +37,7 @@ async function checkAdultInviteEligibility(db, email, familyId) {
     return {
       ok: false,
       code: 'OTHER_FAMILY',
-      error: 'Denna e-postadress är redan kopplad till en annan familj',
+      error: 'OTHER_FAMILY',
     };
   }
 
@@ -46,7 +50,7 @@ async function checkAdultInviteEligibility(db, email, familyId) {
     return {
       ok: false,
       code: 'PENDING_INVITE',
-      error: 'Det finns redan en väntande inbjudan för denna e-post',
+      error: 'PENDING_INVITE',
     };
   }
 
@@ -59,7 +63,7 @@ async function checkAdultInviteEligibility(db, email, familyId) {
 async function checkChildNameInFamily(db, name, familyId, excludeChildId = null) {
   const trimmed = String(name || '').trim();
   if (!trimmed) {
-    return { ok: false, code: 'INVALID_NAME', error: 'Barnets namn krävs' };
+    return { ok: false, code: 'INVALID_NAME', error: 'INVALID_NAME' };
   }
 
   let query = `SELECT id, name FROM child
@@ -75,7 +79,8 @@ async function checkChildNameInFamily(db, name, familyId, excludeChildId = null)
     return {
       ok: false,
       code: 'DUPLICATE_CHILD_NAME',
-      error: `Det finns redan ett barn som heter ${result.rows[0].name} i familjen`,
+      error: 'DUPLICATE_CHILD_NAME',
+      existingName: result.rows[0].name,
       suggestions: [2, 3, 4].map((n) => `${trimmed} ${n}`),
     };
   }

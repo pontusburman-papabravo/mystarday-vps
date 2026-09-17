@@ -22,6 +22,7 @@ const { getFamilyPreferredLocale } = require('../lib/family-locale');
 const { localizeRewardItems } = require('../lib/family-content-display');
 const { resolveChildContentLocaleForFamily } = require('../lib/child-ui-locale');
 const { sendChildTreasureError } = require('../lib/child-treasure-api-errors');
+const { sendApiError } = require('../lib/api-user-error');
 const { normalizeVisibleToChildren } = require('../lib/reward-visible-children');
 const { validate, validateParams } = require('../middleware/validate');
 const {
@@ -91,7 +92,7 @@ parentRouter.get('/child-view/:childId', requireChildAccess('childId'), async (r
     });
   } catch (err) {
     console.error('[REWARDS] Child-view error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -118,7 +119,7 @@ parentRouter.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('[REWARDS] List error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -126,11 +127,11 @@ parentRouter.post('/', validate(CreateRewardSchema), async (req, res) => {
   try {
     const { name, icon, star_cost, requires_approval, visible_to_children } = req.body;
     if (!name || !star_cost) {
-      return res.status(400).json({ error: 'Namn och stjärnkostnad krävs' });
+      return sendApiError(res, 400, 'REWARD_NAME_COST_REQUIRED');
     }
     const cost = parseInt(star_cost, 10);
     if (isNaN(cost) || cost < 1) {
-      return res.status(400).json({ error: 'Stjärnkostnad måste vara minst 1' });
+      return sendApiError(res, 400, 'REWARD_COST_MIN');
     }
     let validatedVisible = null;
     if (visible_to_children !== undefined) {
@@ -149,7 +150,7 @@ parentRouter.post('/', validate(CreateRewardSchema), async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[REWARDS] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -182,7 +183,7 @@ parentRouter.put('/reorder', validate(ReorderSchema), async (req, res) => {
     }
   } catch (err) {
     console.error('[REWARDS] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel vid sparandet.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -193,7 +194,7 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Belöning hittades inte' });
+      return sendApiError(res, 404, 'REWARD_NOT_FOUND');
     }
     const body = req.body;
     const updates = [];
@@ -204,7 +205,7 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
     if (body.star_cost !== undefined) {
       const cost = parseInt(body.star_cost, 10);
       if (isNaN(cost) || cost < 1) {
-        return res.status(400).json({ error: 'Stjärnkostnad måste vara minst 1' });
+        return sendApiError(res, 400, 'REWARD_COST_MIN');
       }
       updates.push('star_cost = $' + idx); idx++; values.push(cost);
     }
@@ -225,7 +226,7 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
       updates.push('visible_to_children = $' + idx); idx++; values.push(norm.value);
     }
     if (updates.length === 0) {
-      return res.status(400).json({ error: 'Inget att uppdatera' });
+      return sendApiError(res, 400, 'REWARD_NOTHING_TO_UPDATE');
     }
     // Mark as family-modified so admin syncs won't overwrite it
     updates.push('modified_by_family = true');
@@ -238,7 +239,7 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[REWARDS] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -249,7 +250,7 @@ parentRouter.delete('/:id', async (req, res) => {
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Belöning hittades inte' });
+      return sendApiError(res, 404, 'REWARD_NOT_FOUND');
     }
     if (!existing.rows[0].is_active) {
       return res.json({ message: 'Belöning borttagen' });
@@ -261,7 +262,7 @@ parentRouter.delete('/:id', async (req, res) => {
     res.json({ message: 'Belöning borttagen' });
   } catch (err) {
     console.error('[REWARDS] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -282,7 +283,7 @@ parentRouter.get('/redemptions', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[REWARDS] Redemptions list error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -318,7 +319,7 @@ parentRouter.put('/redemptions/reorder', validate(ReorderSchema), async (req, re
     }
   } catch (err) {
     console.error('[REWARDS] Redemptions reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel vid sparandet.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   }
 });
 
@@ -340,7 +341,7 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
 
     if (rrLookup.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Inlösen hittades inte' });
+      return sendApiError(res, 404, 'REWARD_REDEMPTION_NOT_FOUND');
     }
 
     const { child_id, star_cost, reward_name } = rrLookup.rows[0];
@@ -356,9 +357,7 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
     const balance = await getStarBalance(child_id, client);
     if (balance < cost) {
       await client.query('ROLLBACK');
-      return sendRewardRedemptionError(res, 'insufficient_stars', {
-        error: 'Barnet har inte tillräckligt med stjärnor',
-      });
+      return sendRewardRedemptionError(res, 'insufficient_stars');
     }
 
     const updated = await client.query(
@@ -380,10 +379,10 @@ parentRouter.put('/redemptions/:id/approve', async (req, res) => {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '40P01') {
       console.error('[REWARDS] Deadlock detected in approve:', err);
-      return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
+      return sendApiError(res, 503, 'REWARD_SERVICE_BUSY');
     }
     console.error('[REWARDS] Approve error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   } finally {
     client.release();
   }
@@ -417,7 +416,7 @@ parentRouter.put('/redemptions/:id/deny', async (req, res) => {
         [req.params.id, req.user.id]
       );
       if (exists.rows.length === 0) {
-        return res.status(404).json({ error: 'Inlösen hittades inte' });
+        return sendApiError(res, 404, 'REWARD_REDEMPTION_NOT_FOUND');
       }
       return sendRewardRedemptionError(res, 'redemption_not_pending');
     }
@@ -429,10 +428,10 @@ parentRouter.put('/redemptions/:id/deny', async (req, res) => {
     await client.query('ROLLBACK').catch(() => {});
     if (err.code === '40P01') {
       console.error('[REWARDS] Deadlock detected in deny:', err);
-      return res.status(503).json({ error: 'Tjänsten är upptagen, försök igen.' });
+      return sendApiError(res, 503, 'REWARD_SERVICE_BUSY');
     }
     console.error('[REWARDS] Deny error:', err);
-    res.status(500).json({ error: 'Något gick fel.' });
+    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
   } finally {
     client.release();
   }

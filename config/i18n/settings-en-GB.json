@@ -236,7 +236,14 @@
       "subscriptionFailed": "Subscription failed",
       "enableFailed": "Could not enable push notifications",
       "disableFailed": "Could not disable push notifications",
-      "iosNotInstalled": "Add the app to your Home Screen for push in Safari."
+      "iosNotInstalled": "Add the app to your Home Screen for push in Safari.",
+      "notConfigured": "Push notifications are not configured",
+      "invalidSubscription": "Invalid push subscription",
+      "endpointRequired": "An endpoint is required",
+      "invalidToken": "Invalid token",
+      "invalidPlatform": "Platform must be iOS or Android",
+      "tokenRequired": "Token and platform are required",
+      "parentNotFound": "Parent not found"
     }
   },
   "widget": {

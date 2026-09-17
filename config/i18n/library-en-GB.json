@@ -16,11 +16,26 @@
     "addSchedule": "+ Schedule",
     "back": "Back",
     "sections": {
-      "standard": { "title": "Standard library", "subtitle": "Schedules, activities and rewards to copy" },
-      "activities": { "title": "Activities", "subtitle": "Your activities — emoji or your own photo" },
-      "images": { "title": "Image archive", "subtitle": "Your photos — toothbrush, bed, school" },
-      "rewards": { "title": "Rewards", "subtitle": "Goals children work towards" },
-      "mine": { "title": "My library", "subtitle": "Your own schedules and templates" }
+      "standard": {
+        "title": "Standard library",
+        "subtitle": "Schedules, activities and rewards to copy"
+      },
+      "activities": {
+        "title": "Activities",
+        "subtitle": "Your activities — emoji or your own photo"
+      },
+      "images": {
+        "title": "Image archive",
+        "subtitle": "Your photos — toothbrush, bed, school"
+      },
+      "rewards": {
+        "title": "Rewards",
+        "subtitle": "Goals children work towards"
+      },
+      "mine": {
+        "title": "My library",
+        "subtitle": "Your own schedules and templates"
+      }
     }
   },
   "errors": {
@@ -38,7 +53,28 @@
     "deleteActivity": "Could not delete activity",
     "copyActivity": "Could not copy activity",
     "deleteSchedule": "Could not delete the schedule",
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "activityNameRequired": "Activity name is required",
+    "activityStarsRange": "Star value must be between 1 and 5",
+    "categoryNotFound": "Category not found",
+    "activityTimerRange": "Timer must be between 5 and 3600 seconds",
+    "activityNotFound": "Activity not found",
+    "activityInUse": "The activity is used in one or more weekly schedules. Remove it there first.",
+    "nothingToUpdate": "Nothing to update",
+    "activityInvalidFeedback": "Invalid feedback setting",
+    "activityInvalidTimeGroup": "Invalid time group",
+    "substepNameRequired": "Name is required",
+    "substepNotFound": "Sub-step not found",
+    "rewardNameCostRequired": "Name and star cost are required",
+    "rewardCostMin": "Star cost must be at least 1",
+    "rewardNotFound": "Reward not found",
+    "redemptionNotFound": "Redemption not found",
+    "insufficientStars": "Not enough stars",
+    "serviceBusy": "The service is busy, try again.",
+    "redeemPending": "There is already a pending redemption for this reward",
+    "redeemTaken": "This reward has already been claimed by another child",
+    "rewardInactive": "This reward is no longer available",
+    "redeemHandled": "Already handled"
   },
   "empty": {
     "noCategories": "No categories yet",

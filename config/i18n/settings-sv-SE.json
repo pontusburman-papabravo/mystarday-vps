@@ -236,7 +236,14 @@
       "subscriptionFailed": "Prenumeration misslyckades",
       "enableFailed": "Kunde inte aktivera push-notiser",
       "disableFailed": "Kunde inte avaktivera push-notiser",
-      "iosNotInstalled": "Lägg till appen på hemskärmen för push i Safari."
+      "iosNotInstalled": "Lägg till appen på hemskärmen för push i Safari.",
+      "notConfigured": "Push-notiser är inte konfigurerade",
+      "invalidSubscription": "Ogiltig push-prenumeration",
+      "endpointRequired": "En push-adress krävs",
+      "invalidToken": "Ogiltig token",
+      "invalidPlatform": "Plattformen måste vara iOS eller Android",
+      "tokenRequired": "Token och plattform krävs",
+      "parentNotFound": "Förälder hittades inte"
     }
   },
   "widget": {

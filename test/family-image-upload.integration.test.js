@@ -101,7 +101,8 @@ describe('POST /api/upload/image', () => {
         mime: 'image/svg+xml',
       });
       assert.equal(res.status, 400);
-      assert.match(res.json.error, /tillåten/i);
+      assert.equal(res.json.code, 'UPLOAD_TYPE_NOT_ALLOWED');
+      assert.equal(res.json.error, 'UPLOAD_TYPE_NOT_ALLOWED');
     });
   });
 
@@ -114,7 +115,8 @@ describe('POST /api/upload/image', () => {
         mime: 'image/jpeg',
       });
       assert.equal(res.status, 400);
-      assert.match(res.json.error, /giltig bild/i);
+      assert.equal(res.json.code, 'UPLOAD_INVALID_IMAGE');
+      assert.equal(res.json.error, 'UPLOAD_INVALID_IMAGE');
     });
   });
 
@@ -127,7 +129,8 @@ describe('POST /api/upload/image', () => {
         mime: 'image/jpeg',
       });
       assert.equal(res.status, 413);
-      assert.match(res.json.error, /5 MB/i);
+      assert.equal(res.json.code, 'UPLOAD_FILE_TOO_LARGE');
+      assert.equal(res.json.error, 'UPLOAD_FILE_TOO_LARGE');
     });
   });
 

@@ -24,6 +24,7 @@ const {
   UpdateSubStepSchema,
   UUIDParam,
 } = require('../lib/schemas');
+const { sendApiError } = require('../lib/api-user-error');
 
 const router = express.Router();
 router.use(requireParent);
@@ -57,7 +58,7 @@ router.get('/', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('[ACTIVITIES] List error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -103,7 +104,7 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, time_group, schema_type, duration_seconds } = req.body;
 
     if (!name || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Aktivitetsnamn krävs' });
+      return sendApiError(res, 400, 'ACTIVITY_NAME_REQUIRED');
     }
     const iconKeyError = validatePictogramKey(icon_key);
     if (iconKeyError) {
@@ -111,7 +112,7 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     }
     const stars = parseInt(star_value, 10) || 1;
     if (stars < 1 || stars > 5) {
-      return res.status(400).json({ error: 'Stjärnvärde måste vara mellan 1 och 5' });
+      return sendApiError(res, 400, 'ACTIVITY_STARS_RANGE');
     }
     const feedbackFor = feedback_for && VALID_FEEDBACK_FOR.has(feedback_for) ? feedback_for : 'both';
     const VALID_TIME_GROUPS = new Set(['morgon', 'formiddag', 'eftermiddag', 'kvall']);
@@ -137,7 +138,7 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
         [category_id, req.user.familyId]
       );
       if (cat.rows.length === 0) {
-        return res.status(404).json({ error: 'Kategorin hittades inte' });
+        return sendApiError(res, 404, 'ACTIVITY_CATEGORY_NOT_FOUND');
       }
     }
 
@@ -145,7 +146,7 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     if (duration_seconds !== undefined) {
       const normalized = normalizeDurationSeconds(duration_seconds);
       if (normalized === undefined) {
-        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+        return sendApiError(res, 400, 'ACTIVITY_TIMER_RANGE');
       }
       normalizedDuration = normalized;
     }
@@ -159,7 +160,7 @@ router.post('/', validate(CreateActivitySchema), async (req, res) => {
     res.status(201).json(enrichPictogramFieldsMany(result.rows)[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -181,7 +182,7 @@ router.put('/reorder', validate(ReorderSchema), async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('[ACTIVITIES] Reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -193,7 +194,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const { name, icon, icon_key, image_url, category_id, star_value, is_favorite, feedback_for, sort_order, time_group, seven_questions, duration_seconds } = req.body;
@@ -202,7 +203,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     let idx = 1;
 
     if (name !== undefined) {
-      if (name.trim().length < 1) return res.status(400).json({ error: 'Aktivitetsnamn krävs' });
+      if (name.trim().length < 1) return sendApiError(res, 400, 'ACTIVITY_NAME_REQUIRED');
       updates.push(`name = $${idx++}`);
       values.push(name.trim());
     }
@@ -228,14 +229,14 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
           'SELECT id FROM category WHERE id = $1 AND family_id = $2',
           [category_id, req.user.familyId]
         );
-        if (cat.rows.length === 0) return res.status(404).json({ error: 'Kategorin hittades inte' });
+        if (cat.rows.length === 0) return sendApiError(res, 404, 'ACTIVITY_CATEGORY_NOT_FOUND');
       }
       updates.push(`category_id = $${idx++}`);
       values.push(category_id);
     }
     if (star_value !== undefined) {
       const stars = parseInt(star_value, 10);
-      if (stars < 1 || stars > 5) return res.status(400).json({ error: 'Stjärnvärde måste vara mellan 1 och 5' });
+      if (stars < 1 || stars > 5) return sendApiError(res, 400, 'ACTIVITY_STARS_RANGE');
       updates.push(`star_value = $${idx++}`);
       values.push(stars);
     }
@@ -244,7 +245,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
       values.push(Boolean(is_favorite));
     }
     if (feedback_for !== undefined) {
-      if (!VALID_FEEDBACK_FOR.has(feedback_for)) return res.status(400).json({ error: 'Ogiltigt feedback_for-värde' });
+      if (!VALID_FEEDBACK_FOR.has(feedback_for)) return sendApiError(res, 400, 'ACTIVITY_INVALID_FEEDBACK');
       updates.push(`feedback_for = $${idx++}`);
       values.push(feedback_for);
     }
@@ -254,7 +255,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     }
     if (time_group !== undefined) {
       const VALID_TIME_GROUPS = new Set(['morgon', 'formiddag', 'eftermiddag', 'kvall']);
-      if (!VALID_TIME_GROUPS.has(time_group)) return res.status(400).json({ error: 'Ogiltig tidsgrupp' });
+      if (!VALID_TIME_GROUPS.has(time_group)) return sendApiError(res, 400, 'ACTIVITY_INVALID_TIME_GROUP');
       updates.push(`time_group = $${idx++}`);
       values.push(time_group);
     }
@@ -265,13 +266,13 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     if (duration_seconds !== undefined) {
       const normalized = normalizeDurationSeconds(duration_seconds);
       if (normalized === undefined) {
-        return res.status(400).json({ error: 'Timer-tid måste vara 5–3600 sekunder eller tom' });
+        return sendApiError(res, 400, 'ACTIVITY_TIMER_RANGE');
       }
       updates.push(`duration_seconds = $${idx++}`);
       values.push(normalized);
     }
 
-    if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
+    if (updates.length === 0) return sendApiError(res, 400, 'ACTIVITY_NOTHING_TO_UPDATE');
 
     // Family customization — stop auto-localization (mirrors reward.modified_by_family).
     updates.push(`source = 'user'`);
@@ -295,7 +296,7 @@ router.put('/:id', validateParams(UUIDParam), validate(UpdateActivitySchema), as
     res.json(enrichPictogramFieldsMany(result.rows)[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -307,7 +308,7 @@ router.get('/:id/sub-steps', async (req, res) => {
       [req.params.id, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
     const result = await db.query(
       `SELECT id, name, icon, sort_order, duration_seconds
@@ -319,7 +320,7 @@ router.get('/:id/sub-steps', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('[ACTIVITIES] Sub-steps list error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -331,18 +332,18 @@ router.post('/:id/sub-steps', validateParams(UUIDParam), validate(CreateSubStepS
       [req.params.id, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const { name, icon, duration_seconds } = req.body;
     if (!name || name.trim().length < 1) {
-      return res.status(400).json({ error: 'Namn krävs' });
+      return sendApiError(res, 400, 'ACTIVITY_SUBSTEP_NAME_REQUIRED');
     }
     let normalizedDuration = null;
     if (duration_seconds !== undefined) {
       const normalized = normalizeDurationSeconds(duration_seconds);
       if (normalized === undefined) {
-        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+        return sendApiError(res, 400, 'ACTIVITY_TIMER_RANGE');
       }
       normalizedDuration = normalized;
     }
@@ -362,7 +363,7 @@ router.post('/:id/sub-steps', validateParams(UUIDParam), validate(CreateSubStepS
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Sub-step create error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -374,7 +375,7 @@ router.put('/:id/sub-steps/reorder', validateParams(UUIDParam), validate(Reorder
       [req.params.id, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const { order } = req.body;
@@ -392,7 +393,7 @@ router.put('/:id/sub-steps/reorder', validateParams(UUIDParam), validate(Reorder
     res.json({ success: true });
   } catch (err) {
     console.error('[ACTIVITIES] Sub-step reorder error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -404,7 +405,7 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
       [req.params.id, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const existing = await db.query(
@@ -412,7 +413,7 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
       [req.params.stepId, req.params.id]
     );
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: 'Delsteget hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_SUBSTEP_NOT_FOUND');
     }
 
     const { name, icon, sort_order, duration_seconds } = req.body;
@@ -421,7 +422,7 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
     let idx = 1;
 
     if (name !== undefined) {
-      if (name.trim().length < 1) return res.status(400).json({ error: 'Namn krävs' });
+      if (name.trim().length < 1) return sendApiError(res, 400, 'ACTIVITY_SUBSTEP_NAME_REQUIRED');
       updates.push(`name = $${idx++}`);
       values.push(name.trim());
     }
@@ -436,13 +437,13 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
     if (duration_seconds !== undefined) {
       const normalized = normalizeDurationSeconds(duration_seconds);
       if (normalized === undefined) {
-        return res.status(400).json({ error: 'Timer måste vara mellan 5 och 3600 sekunder' });
+        return sendApiError(res, 400, 'ACTIVITY_TIMER_RANGE');
       }
       updates.push(`duration_seconds = $${idx++}`);
       values.push(normalized);
     }
 
-    if (updates.length === 0) return res.status(400).json({ error: 'Inget att uppdatera' });
+    if (updates.length === 0) return sendApiError(res, 400, 'ACTIVITY_NOTHING_TO_UPDATE');
 
     values.push(req.params.stepId);
     const result = await db.query(
@@ -453,7 +454,7 @@ router.put('/:id/sub-steps/:stepId', validateParams(UUIDParam), validate(UpdateS
     res.json(result.rows[0]);
   } catch (err) {
     console.error('[ACTIVITIES] Sub-step update error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -465,7 +466,7 @@ router.delete('/:id/sub-steps/:stepId', async (req, res) => {
       [req.params.id, req.user.familyId]
     );
     if (template.rows.length === 0) {
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const result = await db.query(
@@ -473,12 +474,12 @@ router.delete('/:id/sub-steps/:stepId', async (req, res) => {
       [req.params.stepId, req.params.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Delsteget hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_SUBSTEP_NOT_FOUND');
     }
     res.json({ message: 'Delsteget har tagits bort' });
   } catch (err) {
     console.error('[ACTIVITIES] Sub-step delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   }
 });
 
@@ -494,7 +495,7 @@ router.delete('/:id', async (req, res) => {
     );
     if (existing.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Aktiviteten hittades inte' });
+      return sendApiError(res, 404, 'ACTIVITY_NOT_FOUND');
     }
 
     const used = await client.query(
@@ -503,9 +504,7 @@ router.delete('/:id', async (req, res) => {
     );
     if (parseInt(used.rows[0].count, 10) > 0) {
       await client.query('ROLLBACK');
-      return res.status(409).json({
-        error: 'Aktiviteten används i ett eller flera veckoscheman. Ta bort den därifrån först.',
-      });
+      return sendApiError(res, 409, 'ACTIVITY_IN_USE');
     }
 
     const snap = existing.rows[0];
@@ -521,7 +520,7 @@ router.delete('/:id', async (req, res) => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[ACTIVITIES] Delete error:', err);
-    res.status(500).json({ error: 'Något gick fel. Försök igen senare.' });
+    sendApiError(res, 500, 'ACTIVITY_SERVER_ERROR');
   } finally {
     client.release();
   }

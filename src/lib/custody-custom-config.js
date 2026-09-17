@@ -34,15 +34,15 @@ function isMondayAnchor(dateStr) {
 function validateCustomConfiguration(configuration, validHomeIds) {
   const allowed = validHomeIds instanceof Set ? validHomeIds : new Set(validHomeIds);
   if (!configuration || typeof configuration !== 'object') {
-    return { ok: false, error: 'configuration.cycle_weeks krävs för eget mönster' };
+    return { ok: false, code: 'CUSTODY_CYCLE_WEEKS_REQUIRED', error: 'CUSTODY_CYCLE_WEEKS_REQUIRED' };
   }
 
   const cycleWeeks = configuration.cycle_weeks;
   if (!Array.isArray(cycleWeeks)) {
-    return { ok: false, error: 'configuration.cycle_weeks måste vara en array' };
+    return { ok: false, code: 'CUSTODY_CYCLE_WEEKS_NOT_ARRAY', error: 'CUSTODY_CYCLE_WEEKS_NOT_ARRAY' };
   }
   if (cycleWeeks.length < MIN_CYCLE_WEEKS || cycleWeeks.length > MAX_CYCLE_WEEKS) {
-    return { ok: false, error: 'cycle_weeks måste innehålla 1–4 veckor' };
+    return { ok: false, code: 'CUSTODY_CYCLE_WEEKS_LENGTH', error: 'CUSTODY_CYCLE_WEEKS_LENGTH' };
   }
 
   const distinctHomeIds = new Set();
@@ -50,15 +50,25 @@ function validateCustomConfiguration(configuration, validHomeIds) {
   for (let w = 0; w < cycleWeeks.length; w += 1) {
     const week = cycleWeeks[w];
     if (!week || typeof week !== 'object') {
-      return { ok: false, error: `cycle_weeks[${w}] ogiltig` };
+      return {
+        ok: false,
+        code: 'CUSTODY_CYCLE_WEEK_INVALID',
+        error: 'CUSTODY_CYCLE_WEEK_INVALID',
+        details: { index: w },
+      };
     }
     for (const dayKey of CYCLE_DAY_KEYS) {
       const homeId = week[dayKey];
       if (!homeId || typeof homeId !== 'string') {
-        return { ok: false, error: `cycle_weeks[${w}].${dayKey} krävs` };
+        return {
+          ok: false,
+          code: 'CUSTODY_CYCLE_DAY_REQUIRED',
+          error: 'CUSTODY_CYCLE_DAY_REQUIRED',
+          details: { week: w + 1, day: dayKey },
+        };
       }
       if (!allowed.has(homeId)) {
-        return { ok: false, error: 'Ogiltigt hem i cykeln' };
+        return { ok: false, code: 'CUSTODY_INVALID_HOME', error: 'CUSTODY_INVALID_HOME' };
       }
       distinctHomeIds.add(homeId);
     }
@@ -67,7 +77,8 @@ function validateCustomConfiguration(configuration, validHomeIds) {
   if (distinctHomeIds.size < 2) {
     return {
       ok: false,
-      error: 'Eget mönster måste ha minst två olika hem — stäng av boendeschema om barnet alltid bor på samma ställe',
+      code: 'CUSTODY_TWO_HOMES_REQUIRED',
+      error: 'CUSTODY_TWO_HOMES_REQUIRED',
     };
   }
 

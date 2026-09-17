@@ -318,10 +318,14 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v978: API error codes mapped to locale keys
+const CACHE_NAME = 'stjarndag-v978';
 // stjarndag-v977: admin Produktanalys — Så används appen (avbockningar, veckodagar, scheman)
+// stjarndag-v977: API error codes mapped to locale keys
 // stjarndag-v976: admin Produktanalys — honest KPI definitions + heatmap weekday fix
 // stjarndag-v975: För dig outcome banner after child chrome leftover i18n merge
-const CACHE_NAME = 'stjarndag-v977';
+// stjarndag-v975: API error codes mapped to locale keys
+// stjarndag-v975: admin Produktanalys — Swedish readable copy
 // stjarndag-v974: child chrome leftovers via child.scheduleChrome / child.nav / child.settings
 // stjarndag-v974: För dig outcome banner after dashboard/home satellite i18n merge
 // stjarndag-v973: dashboard/home satellite copy via schedule.specialDays / copy / dnd / home.timeAdjust / approvals
@@ -335,7 +339,7 @@ const CACHE_NAME = 'stjarndag-v977';
 // stjarndag-v968: adult PIN-gate copy via auth.parentGate / child.parentGate
 // stjarndag-v967: market-scoped purchase gate + restore-only SDK path (IE before Oct 1)
 // stjarndag-v966: IAP Google basePlan allowlist + native Android detection (VPS cleanup)
-// stjarndag-v975: admin Produktanalys — Swedish readable copy// stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
+// stjarndag-v964: en-GB parent library/Hem chrome + admin Start relative time
 // stjarndag-v963: admin Start relative time — Stockholm igår + live labels
 // stjarndag-v744: fix admin-start.js SyntaxError (restore formatPct)
 // stjarndag-v660: i18n foundation — locale bundles, auth-entry-i18n, locale-switcher
@@ -795,6 +799,7 @@ const STATIC_ASSETS = [
   '/css/tailwind.build.css',
   '/js/platform.js',
   '/js/auth.js',
+  '/js/api-error-i18n.js',
   '/js/sanitize-return-url.js',
   '/js/dom-utils.js',
   '/js/theme.js',

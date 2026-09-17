@@ -19,6 +19,7 @@ const {
 } = require('../../lib/custody-custom-config');
 const { validateOverrideInput } = require('../../lib/custody-override-config');
 const analytics = require('../../../db/analytics');
+const { sendApiError } = require('../../lib/api-user-error');
 
 const router = express.Router();
 
@@ -243,7 +244,9 @@ router.put('/pattern/:childId', requireNotPedagogOnly, requireCustodyFeature, as
       }
       const customCheck = validateCustomConfiguration(bodyConfiguration, validHomeIds);
       if (!customCheck.ok) {
-        return res.status(400).json({ error: customCheck.error });
+        return sendApiError(res, 400, customCheck.code || 'CUSTODY_CYCLE_WEEKS_REQUIRED', {
+          details: customCheck.details,
+        });
       }
       resolvedType = PATTERN_CUSTOM;
       configuration = { cycle_weeks: customCheck.cycleWeeks };
