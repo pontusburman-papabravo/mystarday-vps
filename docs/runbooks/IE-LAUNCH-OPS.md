@@ -7,17 +7,17 @@ Do **not** flip `market_ie_open`, enable billing, or open IE from this document 
 
 ---
 
-## Current launch gate status (2026-09-16)
+## Current launch gate status (2026-09-17)
 
-Refresh this section after **both** store reviews clear — see [Delta runbook](#delta-runbook-after-store-review) below.
+Refresh after Google Play review clears — see [Delta runbook](#delta-runbook-after-store-review) below.
 
 | Gate | Status | Notes |
 |------|--------|-------|
-| **Apple 1.4.5 review (ASC)** | **PENDING** | In App Review. Do not treat as PASS until ASC approves. |
+| **Apple 1.4.5 review (ASC)** | **PASS** | Approved 2026-09-16 06:47 PDT. Submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`. Eligible for distribution. [App Store](https://apps.apple.com/app/min-stj%C3%A4rndag/id6774493098) |
 | **Google Play review** | **PENDING** | Listing/submission updated; awaiting Play approval. Listing ≠ review PASS. |
 | **Founder open approval** | **NOT GIVEN** | `founder_open_approved_ie` stays `false` in evidence until explicit ops decision. |
 | **Legal (extern counsel)** | **CONSCIOUS RISK** | Track 1 internal sign-off (2026-08-20). `/en/eea/*` external review remains founder-owned risk — not auto-green because other gates pass. |
-| ASC store config (pre-review) | PASS (founder-verified) | en-GB screenshots submitted; binary in review. |
+| ASC store config | PASS | en-GB screenshots in 1.4.5; binary approved for distribution. |
 | Play store config (pre-review) | PASS (founder-verified) | Listing/metadata updated; binary in review. |
 | RevenueCat | PASS (founder-verified) | Dashboard + webhook path attested. |
 | iOS purchase + restore (IE) | PASS (founder-verified) | Physical device (sandbox/test track — not a substitute for store review). |
@@ -25,7 +25,7 @@ Refresh this section after **both** store reviews clear — see [Delta runbook](
 | **Committed evidence JSON** | **STALE** | `config/ie-fi-release-evidence.json` still shows NOT VERIFIED / BLOCKED — update in delta pass after both reviews, not before. |
 | **Prod runtime** | **CLOSED** | `market_ie_open=false`, `public_billing_usable=false`, `BILLING_UI_DISABLED=true`. |
 
-**Effective blockers today:** Apple review pending · **Google Play review pending** · founder approval pending · evidence file not yet synced to attested PASS values.
+**Effective blockers today:** **Google Play review pending** · founder approval pending · evidence file not yet synced to attested PASS values (delta after Play).
 
 ```bash
 npm run ie-fi:release-gates   # reads committed JSON — expect NO until delta updates evidence
@@ -126,8 +126,8 @@ Hourly: `/health` + `/api/market/registration-gates`.
 
 **Do not re-run a full audit.** Update only when **both** ASC and Google Play have cleared review (or document a deliberate single-platform launch — not default for IE).
 
-1. **Apple 1.4.5 review** → `PASS` or `FAIL`
-2. **Google Play review** → `PASS` or `FAIL` (if either FAIL: stop; no Steps A–F)
+1. **Apple 1.4.5 review** → **PASS** (2026-09-16; submission `fe4969ce-dfaf-4b39-b9bc-5c581769187c`)
+2. **Google Play review** → `PASS` or `FAIL` (if FAIL: stop; no Steps A–F)
 3. **`config/ie-fi-release-evidence.json`** — sync attested values:
    - `apple_iap_ie`, `play_named_skus_ie`, `revenuecat` → verified
    - `ios_purchase_ie`, `ios_restore_ie`, `android_purchase_ie`, `android_restore_ie` → verified
