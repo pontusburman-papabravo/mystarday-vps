@@ -5,6 +5,9 @@ const db = require('./db');
 
 const TOKEN_RE = /^[0-9a-f-]{36}$/i;
 
+/** Campaign types whose delivery events must not mutate newsletter preferences. */
+const ISOLATED_DELIVERY_CAMPAIGN_TYPES = new Set(['for_dig_outcome_followup']);
+
 async function syncParentNewsletterFlag(parentId) {
   if (!parentId) return;
   await db.query(
@@ -45,6 +48,7 @@ async function unsubscribeByToken(token) {
 /**
  * Auto-unsubscribe after bounce or spam complaint.
  * Skips temporary (soft) bounces — only permanent bounces trigger opt-out.
+ * Isolated campaigns (För dig follow-up) are tracked but do not mutate newsletter prefs.
  */
 async function autoUnsubscribeFromDeliveryEvent({
   resendEmailId,
@@ -59,10 +63,11 @@ async function autoUnsubscribeFromDeliveryEvent({
 
   let parentId = null;
   let email = recipientEmail ? String(recipientEmail).trim() : null;
+  let campaignType = null;
 
   if (resendEmailId) {
     const sendRow = await db.query(
-      `SELECT parent_id, recipient_email
+      `SELECT parent_id, recipient_email, campaign_type
        FROM newsletter_email_send
        WHERE resend_email_id = $1
        LIMIT 1`,
@@ -71,7 +76,24 @@ async function autoUnsubscribeFromDeliveryEvent({
     if (sendRow.rows.length > 0) {
       parentId = sendRow.rows[0].parent_id;
       email = email || sendRow.rows[0].recipient_email;
+      campaignType = sendRow.rows[0].campaign_type || null;
     }
+  }
+
+  if (campaignType && ISOLATED_DELIVERY_CAMPAIGN_TYPES.has(String(campaignType))) {
+    console.log(
+      '[NEWSLETTER-UNSUB] Skipping newsletter mutation for isolated campaign %s (reason=%s)',
+      campaignType,
+      reason
+    );
+    return {
+      ok: true,
+      skipped: true,
+      reason: 'isolated_campaign',
+      campaignType,
+      email,
+      parentId,
+    };
   }
 
   if (!email && !parentId) {
@@ -111,4 +133,5 @@ async function autoUnsubscribeFromDeliveryEvent({
 module.exports = {
   unsubscribeByToken,
   autoUnsubscribeFromDeliveryEvent,
+  ISOLATED_DELIVERY_CAMPAIGN_TYPES,
 };
