@@ -192,14 +192,18 @@
     "recropOpening": "Öppnar…",
     "recropOpenFailed": "Kunde inte öppna beskärningen",
     "recropSaved": "Bilden uppdaterad",
-    "recropSaveFailed": "Kunde inte spara beskärningen"
+    "recropSaveFailed": "Kunde inte spara beskärningen",
+    "cropTitle": "Beskär bilden",
+    "cropDragHint": "Dra bilden och zooma så motivet syns i barnvyn.",
+    "childPreview": "Så här ser barnet bilden"
   },
   "substeps": {
     "add": "+ Lägg till delsteg",
     "addTitle": "Lägg till delsteg",
     "edit": "Redigera delsteg",
     "loading": "Laddar…",
-    "placeholder": "Lägg till delsteg…"
+    "placeholder": "Lägg till delsteg…",
+    "timerHint": "Barnet kan starta en timer för just detta delsteg."
   },
   "chrome": {
     "all": "Alla",
@@ -299,7 +303,14 @@
     "allChildren": "Alla barn",
     "childrenCount": "{{count}} barn",
     "hiddenFromAll": "Dold för alla barn",
-    "inactive": "Inaktiv"
+    "inactive": "Inaktiv",
+    "nameLabel": "Belöningsnamn *",
+    "orPick": "eller välj",
+    "starCostLabel": "Stjärnkostnad *",
+    "starCostHint": "Antal stjärnor som krävs för att lösa in belöningen",
+    "requiresApproval": "Kräver föräldragodkännande",
+    "visibleFor": "Synlig för",
+    "visibleHint": "Lämna alla avbockade = synlig för alla barn"
   },
   "rewardsHub": {
     "sections": {
@@ -367,5 +378,52 @@
     "copying": "Kopierar…",
     "copyFailed": "Kunde inte kopiera",
     "copyFailedRewards": "Kunde inte kopiera belöningarna"
+  },
+  "page": {
+    "activitiesTitle": "Aktiviteter — {{brand}}",
+    "myPanel": "Min panel",
+    "heading": "📚 Aktiviteter & belöningar",
+    "lead": "Skapa aktiviteter och belöningar som passar era barn",
+    "tipsTitle": "💡 Tips för biblioteket",
+    "tipSubsteps": "• Skapa aktiviteter med delsteg — barnet bockar av ett steg i taget",
+    "tipCopyStandard": "• Kopiera från standardbiblioteket och anpassa för er familj",
+    "tipRewardsGoal": "• Belöningar blir mål barnet strävar mot i sin vy",
+    "tipVisibility": "• Välj vilka barn som ser varje belöning",
+    "tabSchedule": "📅 Schema",
+    "tabActivities": "📋 Aktiviteter",
+    "tabRewards": "🏆 Belöningar",
+    "tabLibrary": "📚 Bibliotek",
+    "childrenSchedulesTitle": "👧 Barnens scheman",
+    "childrenSchedulesLead": "Välj vilket schema du vill ändra",
+    "editSchedule": "✏️ Redigera schema",
+    "mySchedulesLead": "Egna schemamallar — skapa, redigera och kopiera till barn",
+    "readySchedulesLead": "Färdiga scheman — kopiera till barn och anpassa fritt efteråt",
+    "groupedByTime": "Grupperade efter tid på dagen",
+    "addActivity": "Lägg till aktivitet",
+    "addActivityBtn": "+ Ny aktivitet",
+    "addCategory": "Lägg till kategori",
+    "allActivities": "Alla aktiviteter",
+    "expandHint": "Klicka på en kategori för att expandera",
+    "pickIconBelow": "Välj en ikon nedan",
+    "activitiesSearchPlaceholder": "🔍 Sök bland dina och standardaktiviteter…",
+    "treasuryLead": "Barnets trofé-hylla — se vilka belöningar som är upplåsta och vilka som är på väg",
+    "starBalance": "Stjärnsaldo",
+    "noRewardsYet": "Inga belöningar än",
+    "addRewardsOnTab": "Lägg till belöningar under fliken Belöningar.",
+    "openingTreasure": "Öppnar Skattkammaren…",
+    "standardLead": "Färdiga aktiviteter från standardbiblioteket — kopiera till ditt bibliotek med ett klick",
+    "readyDaySchedules": "Färdiga dagscheman — kopiera till ett barn och anpassa fritt",
+    "readyActivitiesLead": "Färdiga aktiviteter — kopiera enskilda eller alla till ditt eget bibliotek",
+    "predefinedRewardsLead": "Fördefinierade belöningar — välj och kopiera till ditt belöningsbibliotek",
+    "goalsTitle": "🎁 Mål att jobba mot",
+    "rewardsStriveLead": "Belöningar barnen kan sträva mot med sina stjärnor",
+    "addReward": "+ Ny belöning",
+    "categoryHint": "Kategorin visas som en ny flik i ditt bibliotek. Du kan använda den vid schemaskapande.",
+    "categoryNamePlaceholder": "T.ex. Helg, Högstadiet, Sommar…",
+    "categoryNameLabel": "Kategorinamn *"
+  },
+  "sevenQuestions": {
+    "title": "🧩 Extra stöd — De sju frågorna",
+    "hint": "Visuellt stöd som visas i barnets NU-kort (kräver paketet Extra stöd)."
   }
 }
