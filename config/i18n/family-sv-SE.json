@@ -1091,5 +1091,13 @@
     "noChildren": "Inga barn tillagda",
     "addHint": "Lägg till barn under Familjen & inställningar.",
     "rewardCount": "{{count}} belöningar"
+  },
+  "scanQr": {
+    "title": "Klistra in inbjudan",
+    "lead": "Klistra in e-post, inbjudningslänk eller mailto från QR-koden.",
+    "label": "E-post eller inbjudningslänk",
+    "placeholder": "namn@exempel.se eller inbjudningslänk",
+    "continue": "Fortsätt",
+    "invalid": "Kunde inte läsa e-post eller inbjudningslänk."
   }
 }

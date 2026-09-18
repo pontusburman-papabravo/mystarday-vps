@@ -52,7 +52,7 @@
     family: [
       '/js/api-error-classification.js?v=2.18.0',
       '/js/shared-family-fetch.js?v=2.18.0',
-      '/js/family-invite-scan.js?v=1',
+      '/js/family-invite-scan.js?v=2',
       '/js/settings-account.js?v=2.18.0',
       '/js/family-museum.js?v=1.1.0',
       '/js/family-chest-setting.js?v=1.0.0',
