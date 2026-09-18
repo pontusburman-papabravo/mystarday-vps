@@ -70,16 +70,30 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(html, /data-hero-launch="ireland"/);
     assert.match(html, /Welcome Ireland/);
     assert.match(html, /14-day trial in Ireland/);
+    assert.match(html, /Is My Starday free\?/);
+    assert.match(html, /New families in Ireland get 14 days free/);
+    assert.match(html, /subscription is required to continue using Premium features/);
     assert.doesNotMatch(html, /We are finally live/);
     assert.doesNotMatch(html, /glad-sommar-2026/);
     assert.doesNotMatch(html, /id="summer-greeting"/);
     assert.doesNotMatch(html, /No payment required/);
+    assert.doesNotMatch(html, /Basic is included/);
+    assert.doesNotMatch(html, /at no cost/);
+  });
+
+  it('English FAQ page does not claim a free Basic tier', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/en-faq.html'), 'utf8');
+    assert.match(html, /Is My Starday free\?/);
+    assert.match(html, /New families in Ireland get 14 days free/);
+    assert.doesNotMatch(html, /Basic is included/);
+    assert.doesNotMatch(html, /No payment is required\./);
   });
 
   it('Swedish landing does not add an Ireland welcome bump', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8');
     assert.doesNotMatch(html, /Welcome Ireland/);
     assert.doesNotMatch(html, /data-hero-launch="ireland"/);
+    assert.match(html, /Basic ingår utan kostnad/);
   });
 
   it('English pricing does not send families to a waitlist for English', () => {
