@@ -120,8 +120,9 @@ describe('child profile reports capability gate', () => {
 });
 
 describe('for-dig RC-1 i18n hooks', () => {
-  it('scheduleLabel uses scheduleName not Swedish activateLabel prefix', () => {
+  it('scheduleLabel prefers scheduleDisplayName over the DB scheduleName key', () => {
     const js = fs.readFileSync(path.join(__dirname, '../public/js/for-dig.js'), 'utf8');
+    assert.match(js, /goal\.scheduleDisplayName/);
     assert.match(js, /goal\.scheduleName/);
     assert.doesNotMatch(js, /startsWith\('aktivera/);
   });

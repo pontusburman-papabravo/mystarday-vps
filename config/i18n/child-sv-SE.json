@@ -501,6 +501,7 @@
     "switchChildDailyHint": "Välj ett annat barn på den här enheten",
     "switchProfile": "Byt profil",
     "switchProfileHint": "Välj barn eller vuxen",
+    "returnToChild": "Tillbaka till barn",
     "adultUnlock": "Vuxenläge",
     "adultUnlockHint": "Kräver förälders PIN eller biometri",
     "theme": "Tema",

@@ -10,12 +10,65 @@
   const FLOAT_BTN_ID = 'profileSwitchFloatBtn';
   const RETURN_CHILD_BTN_ID = 'profileReturnToChildBtn';
 
-  function returnToChildLabel() {
-    if (typeof window.childT === 'function') {
-      const t = childT('settings.returnToChild');
-      if (t) return t;
+  function currentChromeLang() {
+    if (window.I18n && typeof window.I18n.getCurrentLang === 'function') {
+      const lang = window.I18n.getCurrentLang();
+      if (lang) return lang;
     }
-    return 'Tillbaka till barn';
+    const htmlLang = document.documentElement && document.documentElement.lang;
+    if (htmlLang) return htmlLang;
+    try {
+      const stored = sessionStorage.getItem('sd_preferred_locale')
+        || localStorage.getItem('sd_preferred_locale');
+      if (stored) return stored;
+    } catch (_) { /* ignore */ }
+    return 'sv-SE';
+  }
+
+  function isEnglishChrome() {
+    const lang = String(currentChromeLang() || '');
+    return lang === 'en-GB' || lang === 'en' || lang.indexOf('en') === 0;
+  }
+
+  function tryTranslate(fn, key) {
+    if (typeof fn !== 'function' || !key) return '';
+    try {
+      const value = fn(key);
+      return typeof value === 'string' ? value.trim() : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function isUnresolvedKey(value, key) {
+    if (!value) return true;
+    if (value === key) return true;
+    if (value === 'child.' + key) return true;
+    return false;
+  }
+
+  function firstResolved(pairs, fallbackSv, fallbackEn) {
+    for (let i = 0; i < pairs.length; i++) {
+      const pair = pairs[i];
+      const value = tryTranslate(pair[0], pair[1]);
+      if (!isUnresolvedKey(value, pair[1])) return value;
+    }
+    return isEnglishChrome() ? fallbackEn : fallbackSv;
+  }
+
+  function i18nT(key) {
+    if (!window.I18n || typeof window.I18n.t !== 'function') return '';
+    return window.I18n.t(key);
+  }
+
+  function returnToChildLabel() {
+    return firstResolved([
+      [window.pt, 'nav.returnToChild'],
+      [window.childT, 'settings.returnToChild'],
+      [window.cpt, 'settings.returnToChild'],
+      [i18nT, 'nav.returnToChild'],
+      [i18nT, 'child.settings.returnToChild'],
+    ], 'Tillbaka till barn', 'Back to child');
   }
 
   function isDailyUxActive() {
@@ -44,15 +97,13 @@
   }
 
   function labelText() {
-    if (typeof window.childT === 'function') {
-      const t = childT('settings.switchProfile');
-      if (t) return t;
-    }
-    if (typeof window.cpt === 'function') {
-      const t = cpt('settings.switchProfile');
-      if (t) return t;
-    }
-    return 'Byt profil';
+    return firstResolved([
+      [window.pt, 'nav.switchUser'],
+      [window.childT, 'settings.switchProfile'],
+      [window.cpt, 'settings.switchProfile'],
+      [i18nT, 'nav.switchUser'],
+      [i18nT, 'child.settings.switchProfile'],
+    ], 'Byt profil', 'Switch profile');
   }
 
   function goSwitch() {
@@ -250,6 +301,9 @@
   document.addEventListener('stjarndag-parent-nav-layout', apply);
   document.addEventListener('stjarndag-magic-navigated', apply);
   document.addEventListener('child-worlds-configured', apply);
+  document.addEventListener('parent-i18n-ready', apply);
+  document.addEventListener('child-i18n-ready', apply);
+  document.addEventListener('locale-changed', apply);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

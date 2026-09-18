@@ -8,6 +8,7 @@
   const ALLOWED_COUNT_KEY = 'stjarndag_entry_allowed_count';
 
   let _pinRequired = false;
+  let _pickerIsSwitch = false;
 
   /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
   function diag(stage, detail) {
@@ -44,6 +45,37 @@
         sessionStorage.setItem('stjarndag_entry_pin_required_for_parents', '0');
       }
     } catch (_) { /* ignore */ }
+  }
+
+  function pickerCopy(key, fallbackSv, fallbackEn) {
+    if (typeof window.cpt === 'function') {
+      const value = cpt(key);
+      if (value && value !== key && value !== 'child.' + key) return value;
+    }
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t('child.' + key);
+      if (value && value !== 'child.' + key) return value;
+    }
+    const lang = (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang())
+      || (document.documentElement && document.documentElement.lang)
+      || '';
+    if (lang === 'en-GB' || lang === 'en' || String(lang).indexOf('en') === 0) return fallbackEn;
+    return fallbackSv;
+  }
+
+  function applyPickerHeadings(isSwitch) {
+    const title = document.getElementById('cppTitle');
+    const sub = document.getElementById('cppSub');
+    if (title) {
+      title.textContent = isSwitch
+        ? pickerCopy('settings.switchProfile', 'Byt profil', 'Switch profile')
+        : pickerCopy('profilePicker.who', 'Vem använder appen?', 'Who is using the app?');
+    }
+    if (sub) {
+      sub.textContent = isSwitch
+        ? pickerCopy('settings.switchProfileHint', 'Välj barn eller vuxen', 'Choose child or adult')
+        : pickerCopy('profilePicker.tap', 'Tryck på din profil', 'Tap your profile');
+    }
   }
 
   function showError(msg) {
@@ -443,19 +475,18 @@
       return;
     }
 
-    const title = document.getElementById('cppTitle');
-    const sub = document.getElementById('cppSub');
-    if (title) {
-      title.textContent = isSwitch ? 'Byt profil' : 'Vem använder appen?';
-    }
-    if (sub) {
-      sub.textContent = isSwitch
-        ? 'Välj barn eller vuxen'
-        : 'Tryck på din profil';
-    }
+    _pickerIsSwitch = isSwitch;
+    applyPickerHeadings(isSwitch);
     renderCards(children, parents);
     wireParentBackupLink();
   }
+
+  document.addEventListener('child-i18n-ready', function () {
+    applyPickerHeadings(_pickerIsSwitch);
+  });
+  document.addEventListener('locale-changed', function () {
+    applyPickerHeadings(_pickerIsSwitch);
+  });
 
   if (typeof window !== 'undefined' && window.__exposePickerRuntimeForTests) {
     window.__PickerRuntimeTestHooks = {

@@ -5,11 +5,17 @@
     "tagline": "Less stress at bedtime.",
     "activateLabel": "Activate evening routine",
     "starsHint": "15–25 stars per week",
+    "scheduleDisplayName": "Evening routine",
     "outcomes": [
       "Wind down",
       "Remember to brush teeth",
       "Follow the bedtime routine",
       "Feel proud of their stars"
+    ],
+    "rewardExamples": [
+      { "icon": "🏆", "label": "Extra story" },
+      { "icon": "🍦", "label": "Ice-cream outing" },
+      { "icon": "🎬", "label": "Movie night" }
     ]
   },
   "bra-morgnar": {
@@ -18,11 +24,17 @@
     "tagline": "Get going without nagging.",
     "activateLabel": "Activate morning routine",
     "starsHint": "10–20 stars per week",
+    "scheduleDisplayName": "Short morning",
     "outcomes": [
       "Wake up on time",
       "Complete the morning routine",
       "Leave without arguments",
       "Start the day with pride"
+    ],
+    "rewardExamples": [
+      { "icon": "🥞", "label": "Pancakes" },
+      { "icon": "🎮", "label": "Extra screen time" },
+      { "icon": "🚗", "label": "Choose the music in the car" }
     ]
   },
   "sjalvstandighet": {
@@ -36,6 +48,11 @@
       "Feel proud",
       "Need fewer reminders",
       "Build lasting habits"
+    ],
+    "rewardExamples": [
+      { "icon": "🏆", "label": "Choose evening activity" },
+      { "icon": "🍦", "label": "Ice cream" },
+      { "icon": "⭐", "label": "Extra star" }
     ]
   },
   "skolansvar": {
@@ -44,11 +61,18 @@
     "tagline": "Homework, bags and responsibility.",
     "activateLabel": "Activate school routine",
     "starsHint": "15–25 stars per week",
+    "scheduleDisplayName": "School weekday",
+    "scheduleSectionLabel": "School",
     "outcomes": [
       "Remember homework",
       "Pack their bag themselves",
       "Take responsibility for school things",
       "Feel prepared"
+    ],
+    "rewardExamples": [
+      { "icon": "🎮", "label": "Games night" },
+      { "icon": "🍕", "label": "Friday night in" },
+      { "icon": "📚", "label": "Choose a book" }
     ]
   },
   "samarbete-hemma": {
@@ -62,6 +86,11 @@
       "Take responsibility for small tasks",
       "Feel included",
       "Get praise for their effort"
+    ],
+    "rewardExamples": [
+      { "icon": "🎬", "label": "Movie night" },
+      { "icon": "🍦", "label": "Ice cream" },
+      { "icon": "🏆", "label": "Choose weekend activity" }
     ]
   },
   "motivation": {
@@ -75,6 +104,11 @@
       "Understand stars → goals",
       "Stay motivated over time",
       "Celebrate small wins"
+    ],
+    "rewardExamples": [
+      { "icon": "🏆", "label": "Extra story" },
+      { "icon": "🍦", "label": "Ice cream" },
+      { "icon": "🎬", "label": "Movie night" }
     ]
   }
 }
