@@ -822,9 +822,25 @@
     "who": "Vem använder appen?",
     "tap": "Tryck på din profil",
     "namePin": "Logga in med användarnamn och PIN",
+    "loginAsAdultEmail": "Logga in som vuxen med e-post eller Apple/Google",
     "retry": "Försök igen",
     "retryIn": "Försök igen om",
-    "retryInSeconds": "Försök igen om {{seconds}} s"
+    "retryInSeconds": "Försök igen om {{seconds}} s",
+    "openFailed": "Kunde inte öppna profilen. Be en vuxen om hjälp.",
+    "unlockFailed": "Kunde inte låsa upp vuxenläge. Försök igen.",
+    "sessionStartFailed": "PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.",
+    "wrongPin": "Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.",
+    "pinNotSet": "Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.",
+    "pinSetupRequired": "En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.",
+    "accessDenied": "Du har inte behörighet att logga in som den här vuxenprofilen.",
+    "deviceNotShared": "Kunde inte logga in som vuxen på den här enheten. Använd knappen nedan för att logga in med e-post eller Apple/Google.",
+    "deviceUnregistered": "Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.",
+    "loginFailed": "Kunde inte logga in som vuxen. Försök igen.",
+    "tooManyAttempts": "För många försök. Vänta en stund och försök igen.",
+    "tooManyRequests": "För många förfrågningar. Vänta en minut och försök igen.",
+    "loadFailed": "Profilerna kunde inte laddas just nu. Kontrollera nätverket och försök igen.",
+    "loadFailedRetry": "Profilerna kunde inte laddas just nu. Försök igen.",
+    "noProfiles": "Inga profiler är tillgängliga på den här enheten."
   },
   "worlds": {
     "garden": {

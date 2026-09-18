@@ -9,6 +9,8 @@
 
   let _pinRequired = false;
   let _pickerIsSwitch = false;
+  let _lastChildren = [];
+  let _lastParents = [];
 
   /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
   function diag(stage, detail) {
@@ -78,6 +80,28 @@
     }
   }
 
+  function adultHintLabel() {
+    return pickerCopy('nav.adult', 'Vuxen', 'Grown-up');
+  }
+
+  function applyPickerFooter() {
+    const link = document.getElementById('cppParentBackupLink');
+    if (!link) return;
+    link.textContent = pickerCopy(
+      'profilePicker.loginAsAdultEmail',
+      'Logga in som vuxen med e-post eller Apple/Google',
+      'Log in as a grown-up with email or Apple/Google'
+    );
+  }
+
+  function applyPickerChrome() {
+    applyPickerHeadings(_pickerIsSwitch);
+    applyPickerFooter();
+    if (_lastChildren.length || _lastParents.length) {
+      renderCards(_lastChildren, _lastParents);
+    }
+  }
+
   function showError(msg) {
     const el = document.getElementById('cppError');
     if (!el) return;
@@ -134,16 +158,17 @@
     });
 
     const parentCards = (parents || []).map(function (parent) {
-      const name = parent.name || 'Vuxen';
+      const adultLabel = adultHintLabel();
+      const name = parent.name || adultLabel;
       const hasAppPin = parent.hasAppPin === true;
       return (
         '<button type="button" class="cpp-profile-card cpp-profile-card-parent" role="listitem" data-profile-kind="parent" data-parent-id="' +
         escHtml(parent.id) +
         '" data-parent-has-app-pin="' + (hasAppPin ? '1' : '0') +
-        '" aria-label="' + escHtml(name) + ', vuxen">' +
+        '" aria-label="' + escHtml(name) + ', ' + escHtml(adultLabel) + '">' +
         parentAvatarHtml(parent) +
         '<span class="cpp-profile-name">' + escHtml(name) + '</span>' +
-        '<span class="cpp-profile-hint">Vuxen</span>' +
+        '<span class="cpp-profile-hint">' + escHtml(adultLabel) + '</span>' +
         '</button>'
       );
     });
@@ -175,7 +200,11 @@
     });
     if (!result.ok && btn) btn.disabled = false;
     if (!result.ok) {
-      showError('Kunde inte öppna profilen. Be en vuxen om hjälp.');
+      showError(pickerCopy(
+        'profilePicker.openFailed',
+        'Kunde inte öppna profilen. Be en vuxen om hjälp.',
+        'Could not open the profile. Ask a grown-up for help.'
+      ));
     }
   }
 
@@ -244,7 +273,13 @@
       overlay.setAttribute('aria-live', 'polite');
       overlay.innerHTML =
         '<div class="ptb-star" aria-hidden="true">\u2B50</div>' +
-        '<div class="ptb-text">Öppnar föräldraläge…</div>';
+        '<div class="ptb-text">' +
+        escHtml(pickerCopy(
+          'parentGate.restoringParentMode',
+          'Öppnar föräldraläge…',
+          'Opening parent mode…'
+        )) +
+        '</div>';
       document.body.appendChild(overlay);
     } catch (_) { /* best-effort visual only — never block navigation */ }
   }
@@ -315,7 +350,11 @@
     // Shared picker → adult is a security boundary. A matching /api/auth/me
     // parent cookie is not authorization for a new child→adult transition.
     if (!window.AdultPrivilege || typeof AdultPrivilege.requestTrustedProfileUnlock !== 'function') {
-      showError('Kunde inte låsa upp vuxenläge. Försök igen.');
+      showError(pickerCopy(
+        'profilePicker.unlockFailed',
+        'Kunde inte låsa upp vuxenläge. Försök igen.',
+        'Could not unlock grown-up mode. Try again.'
+      ));
       if (btn) btn.disabled = false;
       return;
     }
@@ -327,44 +366,100 @@
       if (navigated) return;
       // Verified commit failed (missing/invalid authoritative lease). Fail closed:
       // stay on the picker, show a recoverable error, re-enable the profile button.
-      showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+      showError(pickerCopy(
+        'profilePicker.sessionStartFailed',
+        'PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.',
+        'PIN was accepted but the session could not start. Close the tab and open the app again.'
+      ));
       if (btn) btn.disabled = false;
       return;
     }
 
     if (result && result.code === 'PARENT_PIN_INVALID') {
-      showError('Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.');
+      showError(pickerCopy(
+        'profilePicker.wrongPin',
+        'Fel PIN. Ange din egen app-lås-PIN (fyra siffror under Inställningar → Profil), inte barnets PIN eller lösenord.',
+        'Wrong PIN. Enter your own app-lock PIN (four digits under Settings → Profile), not the child\'s PIN or password.'
+      ));
       if (btn) btn.disabled = false;
       return;
     }
 
     if (!result || !result.ok) {
       if (result && result.code === 'PARENT_PIN_NOT_SET') {
-        showError('Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
+        showError(pickerCopy(
+          'profilePicker.pinNotSet',
+          'Den här vuxenprofilen har ingen app-lås-PIN än. Använd knappen nedan för att logga in med e-post eller Apple/Google.',
+          'This grown-up profile has no app-lock PIN yet. Use the button below to sign in with email or Apple/Google.'
+        ));
       } else if (result && result.code === 'ADULT_PIN_SETUP_REQUIRED') {
-        showError('En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.');
+        showError(pickerCopy(
+          'profilePicker.pinSetupRequired',
+          'En vuxen behöver ställa in app-lås-PIN — eller logga in med e-post eller Apple/Google via knappen nedan.',
+          'A grown-up needs to set an app-lock PIN — or sign in with email or Apple/Google via the button below.'
+        ));
       } else if (result && result.code === 'ADULT_PRIVILEGE_VERIFY_FAILED') {
-        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+        showError(pickerCopy(
+          'profilePicker.sessionStartFailed',
+          'PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.',
+          'PIN was accepted but the session could not start. Close the tab and open the app again.'
+        ));
       } else if (result && result.code === 'PARENT_ACCESS_DENIED') {
-        showError('Du har inte behörighet att logga in som den här vuxenprofilen.');
+        showError(pickerCopy(
+          'profilePicker.accessDenied',
+          'Du har inte behörighet att logga in som den här vuxenprofilen.',
+          'You do not have permission to sign in as this grown-up profile.'
+        ));
       } else if (result && result.code === 'DEVICE_MODE_NOT_SHARED') {
-        showError('Kunde inte logga in som vuxen på den här enheten. Använd knappen nedan för att logga in med e-post eller Apple/Google.');
+        showError(pickerCopy(
+          'profilePicker.deviceNotShared',
+          'Kunde inte logga in som vuxen på den här enheten. Använd knappen nedan för att logga in med e-post eller Apple/Google.',
+          'Could not sign in as a grown-up on this device. Use the button below to sign in with email or Apple/Google.'
+        ));
       } else if (result && result.code === 'TRUSTED_DEVICE_MISSING') {
-        showError('Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.');
+        showError(pickerCopy(
+          'profilePicker.deviceUnregistered',
+          'Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.',
+          'This device is no longer registered. Sign in as a grown-up with email or Apple/Google via the button below.'
+        ));
       } else if (result && result.code === 'TRUSTED_DEVICE_INVALID') {
-        showError('Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.');
+        showError(pickerCopy(
+          'profilePicker.deviceUnregistered',
+          'Enheten är inte registrerad längre. Logga in som vuxen med e-post eller Apple/Google via knappen nedan.',
+          'This device is no longer registered. Sign in as a grown-up with email or Apple/Google via the button below.'
+        ));
       } else if (result && result.code === 'TRUSTED_SELECT_PARENT_FAILED') {
-        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+        showError(pickerCopy(
+          'profilePicker.sessionStartFailed',
+          'PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.',
+          'PIN was accepted but the session could not start. Close the tab and open the app again.'
+        ));
       } else if (result && result.code === 'ADULT_PRIVILEGE_NETWORK') {
-        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+        showError(pickerCopy(
+          'profilePicker.sessionStartFailed',
+          'PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.',
+          'PIN was accepted but the session could not start. Close the tab and open the app again.'
+        ));
       } else if (result && result.code === 'ADULT_PRIVILEGE_POST_SUCCESS_FAILED') {
-        showError('PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.');
+        showError(pickerCopy(
+          'profilePicker.sessionStartFailed',
+          'PIN godkändes men sessionen kunde inte startas. Stäng fliken och öppna appen igen.',
+          'PIN was accepted but the session could not start. Close the tab and open the app again.'
+        ));
       } else if (result && result.status === 429) {
-        showError('För många försök. Vänta en stund och försök igen.');
+        showError(pickerCopy(
+          'profilePicker.tooManyAttempts',
+          'För många försök. Vänta en stund och försök igen.',
+          'Too many tries. Wait a moment and try again.'
+        ));
       } else if (result && (result.code === 'PIN_CANCEL' || result.code === 'BIOMETRIC_CANCEL')) {
         showError('');
       } else {
-        showError('Kunde inte logga in som vuxen. Försök igen.');
+        showError(pickerCopy(
+          'profilePicker.loginFailed',
+          'Kunde inte logga in som vuxen. Försök igen.',
+          'Could not sign in as a grown-up. Try again.'
+        ));
       }
       if (btn) btn.disabled = false;
       return;
@@ -413,6 +508,9 @@
     window.__DEFER_SESSION_GATE_FOR_ENTRY__ = true;
     const params = new URLSearchParams(window.location.search);
     const isSwitch = params.get('switch') === '1';
+    const pickerI18nPromise = (window.initSharedDevicePickerI18n
+      ? initSharedDevicePickerI18n()
+      : Promise.resolve('sv-SE'));
 
     // Diagnostics-only (P1): if a flow id is still present, the picker is being
     // shown again mid/after a previous select-parent attempt for THIS device —
@@ -435,13 +533,28 @@
     try {
       body = await fetchAppEntry();
     } catch (err) {
+      await pickerI18nPromise;
       if (err && err.status === 429) {
         const retrySec = err.retryAfterSec || 60;
-        showBootstrapError('För många förfrågningar. Vänta en minut och försök igen.', retrySec);
+        showBootstrapError(pickerCopy(
+          'profilePicker.tooManyRequests',
+          'För många förfrågningar. Vänta en minut och försök igen.',
+          'Too many requests. Wait a minute and try again.'
+        ), retrySec);
         return;
       }
-      showBootstrapError('Profilerna kunde inte laddas just nu. Kontrollera nätverket och försök igen.', null);
+      showBootstrapError(pickerCopy(
+        'profilePicker.loadFailed',
+        'Profilerna kunde inte laddas just nu. Kontrollera nätverket och försök igen.',
+        'The profiles could not be loaded right now. Check the network and try again.'
+      ), null);
       return;
+    }
+
+    if (body.preferredLocale && window.initSharedDevicePickerI18n) {
+      await initSharedDevicePickerI18n({ preferredLocale: body.preferredLocale });
+    } else {
+      await pickerI18nPromise;
     }
 
     storeEntryMeta(body);
@@ -458,7 +571,11 @@
     }
 
     if (body.orchestratorActive !== true) {
-      showBootstrapError('Profilerna kunde inte laddas just nu. Försök igen.', null);
+      showBootstrapError(pickerCopy(
+        'profilePicker.loadFailedRetry',
+        'Profilerna kunde inte laddas just nu. Försök igen.',
+        'The profiles could not be loaded right now. Try again.'
+      ), null);
       return;
     }
 
@@ -467,7 +584,11 @@
     const totalProfiles = children.length + parents.length;
 
     if (totalProfiles === 0) {
-      showBootstrapError('Inga profiler är tillgängliga på den här enheten.', null);
+      showBootstrapError(pickerCopy(
+        'profilePicker.noProfiles',
+        'Inga profiler är tillgängliga på den här enheten.',
+        'No profiles are available on this device.'
+      ), null);
       return;
     }
     if (totalProfiles === 1 && children.length === 1 && !isSwitch) {
@@ -476,17 +597,15 @@
     }
 
     _pickerIsSwitch = isSwitch;
-    applyPickerHeadings(isSwitch);
-    renderCards(children, parents);
+    _lastChildren = children;
+    _lastParents = parents;
+    applyPickerChrome();
     wireParentBackupLink();
   }
 
-  document.addEventListener('child-i18n-ready', function () {
-    applyPickerHeadings(_pickerIsSwitch);
-  });
-  document.addEventListener('locale-changed', function () {
-    applyPickerHeadings(_pickerIsSwitch);
-  });
+  document.addEventListener('child-i18n-ready', applyPickerChrome);
+  document.addEventListener('picker-i18n-ready', applyPickerChrome);
+  document.addEventListener('locale-changed', applyPickerChrome);
 
   if (typeof window !== 'undefined' && window.__exposePickerRuntimeForTests) {
     window.__PickerRuntimeTestHooks = {

@@ -75,7 +75,7 @@
     if (total > 0 && done === total) return { text: pt('home.status.allDone'), icon: '✅' };
     if (total === 0) return { text: pt('home.status.noSchedule'), icon: '📋' };
     const next = items.find(function (item) { return !item.completed; });
-    if (next) return { text: next.name, icon: next.icon || '📋' };
+    if (next) return { text: next.display_name || next.name, icon: next.icon || '📋' };
     return { text: pt('home.status.progressDone', { done: done, total: total }), icon: '⭐' };
   }
 

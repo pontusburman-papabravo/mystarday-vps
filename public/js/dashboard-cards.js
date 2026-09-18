@@ -256,10 +256,10 @@ function renderDashboardCards() {
       statusRowHtml = `<span class="dash-status-row">${hpt('home.cards.noActivitiesToday')}</span>`;
     } else {
       const lastPart = lastDone
-        ? `<strong>${hpt('home.cards.last')}</strong> ${escHtml(lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
+        ? `<strong>${hpt('home.cards.last')}</strong> ${escHtml(lastDone.display_name || lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
         : '';
       const nextPart = nextPending
-        ? `<strong>${hpt('home.cards.next')}</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.name)}`
+        ? `<strong>${hpt('home.cards.next')}</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.display_name || nextPending.name)}`
         : '';
       statusRowHtml = `<span class="dash-status-row">${[lastPart, nextPart].filter(Boolean).join(' &nbsp;·&nbsp; ')}</span>`;
     }

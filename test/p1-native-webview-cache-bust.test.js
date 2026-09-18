@@ -35,6 +35,7 @@ describe('P1 native WebView cache bust — MAGIC_VERSION', () => {
     assert.match(platformSrc, /parent-nav-header\.js\?v=/);
     assert.match(platformSrc, /journey-context-client\.js\?v=/);
     assert.match(platformSrc, /child-profile-picker\.js\?v=/);
+    assert.match(platformSrc, /child-app-i18n\.js\?v=/);
   });
 });
 
@@ -63,6 +64,7 @@ describe('P1 native WebView cache bust — profile picker path', () => {
     const served = injectPlatformHtml(pickerHtml, '/child/profile-picker', {});
 
     assert.match(served, new RegExp('/js/child-profile-picker\\.js\\?v=' + V));
+    assert.match(served, new RegExp('/js/child-app-i18n\\.js\\?v=' + V));
     assert.match(served, new RegExp('/js/app-entry-orchestrator\\.js\\?v=' + V));
     assert.match(served, new RegExp('/js/adult-privilege\\.js\\?v=' + V));
     assert.doesNotMatch(served, /child-profile-picker\.js\?v=1\.4\.0/);

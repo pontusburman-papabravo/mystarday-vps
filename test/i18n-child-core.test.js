@@ -48,6 +48,7 @@ describe('i18n child core', () => {
     assert.equal(typeof sandbox.window.cpt, 'function');
     assert.equal(typeof sandbox.window.childLoginErrorFromResponse, 'function');
     assert.equal(typeof sandbox.window.initChildAppI18n, 'function');
+    assert.equal(typeof sandbox.window.initSharedDevicePickerI18n, 'function');
   });
 
   it('child-login route uses stable validation middleware', () => {

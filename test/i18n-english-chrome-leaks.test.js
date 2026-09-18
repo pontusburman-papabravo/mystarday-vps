@@ -37,6 +37,45 @@ describe('English chrome leftover Swedish leaks', () => {
     assert.match(src, /profilePicker\.tap/);
     assert.match(src, /applyPickerHeadings/);
     assert.doesNotMatch(src, /title\.textContent = isSwitch \? 'Byt profil'/);
+    assert.match(src, /initSharedDevicePickerI18n/);
+    assert.match(src, /body\.preferredLocale/);
+    assert.match(src, /nav\.adult/);
+    assert.match(src, /profilePicker\.loginAsAdultEmail/);
+    assert.doesNotMatch(src, /parent\.name \|\| 'Vuxen'/);
+    assert.doesNotMatch(src, /cpp-profile-hint">Vuxen/);
+  });
+
+  it('profile picker HTML follows family locale bootstrap, not child UI', () => {
+    const html = read('public/child-profile-picker.html');
+    assert.doesNotMatch(html, /initChildAppI18n/);
+    assert.match(html, /child-app-i18n\.js/);
+    assert.match(html, /data-i18n="child\.profilePicker\.loginAsAdultEmail"/);
+  });
+
+  it('shared picker i18n does not persist child UI locale or gate on english_child_experience', () => {
+    const src = read('public/js/child-app-i18n.js');
+    const start = src.indexOf('async function initSharedDevicePickerI18n');
+    const end = src.indexOf('function applyPageTitle');
+    assert.ok(start > -1 && end > start);
+    const body = src.slice(start, end);
+    assert.doesNotMatch(body, /persistChildUiLocaleHandoff/);
+    assert.doesNotMatch(body, /resolveChildUiLocale/);
+    assert.doesNotMatch(body, /child_ui_locale/);
+    assert.match(body, /preferred_locale/);
+  });
+
+  it('app-entry exposes family preferredLocale for the shared picker', () => {
+    const src = read('src/routes/auth/app-entry.js');
+    assert.match(src, /getFamilyPreferredLocale/);
+    assert.match(src, /preferredLocale/);
+  });
+
+  it('home last\/next and hub status use localized activity display_name', () => {
+    const cards = read('public/js/dashboard-cards.js');
+    const hub = read('public/js/dashboard-home-hub.js');
+    assert.match(cards, /lastDone\.display_name \|\| lastDone\.name/);
+    assert.match(cards, /nextPending\.display_name \|\| nextPending\.name/);
+    assert.match(hub, /next\.display_name \|\| next\.name/);
   });
 
   it('home cards render localized activity display_name', () => {
@@ -55,6 +94,17 @@ describe('English chrome leftover Swedish leaks', () => {
     assert.equal(t('en-GB', 'child.settings.returnToChild'), 'Back to child');
     assert.doesNotMatch(t('en-GB', 'nav.switchUser'), /[åäöÅÄÖ]/);
     assert.doesNotMatch(t('en-GB', 'child.settings.switchProfile'), /[åäöÅÄÖ]/);
+    assert.equal(t('sv-SE', 'child.profilePicker.who'), 'Vem använder appen?');
+    assert.equal(t('en-GB', 'child.profilePicker.who'), 'Who is using the app?');
+    assert.equal(t('sv-SE', 'child.profilePicker.tap'), 'Tryck på din profil');
+    assert.equal(t('en-GB', 'child.profilePicker.tap'), 'Tap your profile');
+    assert.equal(t('en-GB', 'child.nav.adult'), 'Grown-up');
+    assert.equal(t('sv-SE', 'child.nav.adult'), 'Vuxen');
+    assert.equal(
+      t('en-GB', 'child.profilePicker.loginAsAdultEmail'),
+      'Log in as a grown-up with email or Apple/Google'
+    );
+    assert.doesNotMatch(t('en-GB', 'child.profilePicker.loginAsAdultEmail'), /[åäöÅÄÖ]/);
   });
 
   it('English fallback wins on parent pages before I18n.init when locale is en-GB', () => {
@@ -97,5 +147,55 @@ describe('English chrome leftover Swedish leaks', () => {
     vm.runInNewContext(src, sandbox);
     assert.equal(sandbox.window.ProfileSwitchChrome.labelText(), 'Switch profile');
     assert.equal(sandbox.window.ProfileSwitchChrome.returnToChildLabel(), 'Back to child');
+  });
+
+  it('shared picker init uses family en-GB without writing sd_child_ui_locale', async () => {
+    const storage = {
+      _m: { sd_preferred_locale: 'en-GB' },
+      getItem(key) {
+        return Object.prototype.hasOwnProperty.call(this._m, key) ? this._m[key] : null;
+      },
+      setItem(key, val) { this._m[key] = String(val); },
+      removeItem(key) { delete this._m[key]; },
+    };
+    const inits = [];
+    const sandbox = {
+      window: {},
+      document: {
+        body: { dataset: {} },
+        addEventListener() {},
+        dispatchEvent() {},
+      },
+      CustomEvent: function CustomEvent(name, init) {
+        this.type = name;
+        this.detail = init && init.detail;
+      },
+      sessionStorage: storage,
+      localStorage: storage,
+      console,
+    };
+    sandbox.window.document = sandbox.document;
+    sandbox.window.sessionStorage = storage;
+    sandbox.window.localStorage = storage;
+    sandbox.window.I18n = {
+      STORAGE_KEY: 'sd_preferred_locale',
+      lang: 'sv-SE',
+      _normalize(raw) {
+        if (!raw) return null;
+        const s = String(raw).trim();
+        if (s === 'en-GB' || s === 'sv-SE') return s;
+        return null;
+      },
+      async init(lang) { inits.push(lang); this.lang = lang; },
+      apply() {},
+      t(key) { return key; },
+    };
+    vm.runInNewContext(read('public/js/child-app-i18n.js'), sandbox);
+    const lang = await sandbox.window.initSharedDevicePickerI18n();
+    assert.equal(lang, 'en-GB');
+    assert.deepEqual(inits, ['en-GB']);
+    assert.equal(storage.getItem('sd_child_ui_locale'), null);
+    assert.equal(storage.getItem('sd_english_child_experience'), null);
+    assert.equal(storage.getItem('sd_preferred_locale'), 'en-GB');
   });
 });

@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '36'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '37'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -162,7 +162,8 @@ function bumpNativeRuntimeAssetVersions(body) {
     .replace(/\/js\/trusted-select-parent-diag\.js\?v=[^"']+/g, '/js/trusted-select-parent-diag.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/parent-nav-header\.js\?v=[^"']+/g, '/js/parent-nav-header.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
-    .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION);
+    .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/child-app-i18n\.js\?v=[^"']+/g, '/js/child-app-i18n.js?v=' + MAGIC_VERSION);
 }
 
 function bumpMagicAssetVersions(body, reqPath) {
