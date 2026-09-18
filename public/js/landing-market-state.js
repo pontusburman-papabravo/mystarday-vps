@@ -55,8 +55,9 @@
       if (el.id === 'landingMarketState') return;
       el.hidden = true;
     });
+    const irelandWelcome = document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
     const heroBody = document.querySelector('.hero-launch-card__body');
-    if (heroBody) {
+    if (heroBody && !irelandWelcome) {
       heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android — in Swedish and English. Create an account if your country is open. If it is not, you can leave your email to be notified.';
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
@@ -124,7 +125,19 @@
     });
   }
 
+  function hasIrelandWelcome() {
+    return !!document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
+  }
+
+  function quietIrelandWelcomeHero() {
+    if (!hasIrelandWelcome()) return;
+    document.querySelectorAll('.store-locale-note').forEach((el) => {
+      el.hidden = true;
+    });
+  }
+
   function renderStrip(state) {
+    if (hasIrelandWelcome()) return;
     let strip = document.getElementById('landingMarketState');
     if (!strip) {
       strip = document.createElement('p');
@@ -152,6 +165,7 @@
     retargetPrimaryCtas(canRegister);
     retuneWaitlistCopy(state);
     hideSubscribeNowIfPrebilling(state);
+    quietIrelandWelcomeHero();
     renderStrip(state);
   }
 
