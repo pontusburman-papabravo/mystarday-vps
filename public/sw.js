@@ -318,6 +318,7 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v997: landing SV/EN nav + menu links to resource library
 // stjarndag-v996: EN FAQ — "After the 14-day trial" (store language scan)
 // stjarndag-v995: EN FAQ — Ireland 14-day trial, no free Basic
 // stjarndag-v994: Welcome Ireland on /en; remove summer greeting
@@ -332,7 +333,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v996';
+const CACHE_NAME = 'stjarndag-v997';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak

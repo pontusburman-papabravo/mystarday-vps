@@ -20,6 +20,7 @@
     footer_signup_click: true,
     child_view_example_click: true,
     landing_guide_card_click: true,
+    two_track_resurser_click: true,
     landing_share_click: true,
     app_store_click: true,
     play_store_click: true,
@@ -75,6 +76,7 @@
     bindCta('[data-track="footer_signup_click"]', 'footer_signup_click');
     bindCta('[data-track="child_view_example_click"]', 'child_view_example_click');
     bindCta('[data-track="landing_guide_card_click"]', 'landing_guide_card_click');
+    bindCta('[data-track="two_track_resurser_click"]', 'two_track_resurser_click');
     bindCta('[data-track="landing_share_click"]', 'landing_share_click');
     bindCta('[data-track="app_store_click"]', 'app_store_click');
     bindCta('[data-track="play_store_click"]', 'play_store_click');
