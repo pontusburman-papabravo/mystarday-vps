@@ -62,10 +62,7 @@
       'family.scanQr.label',
       'Email or invite link'
     );
-    root.querySelector('#familyScanInviteInput').setAttribute(
-      'placeholder',
-      scanT('family.scanQr.placeholder', 'name@example.com or invite link')
-    );
+    root.querySelector('#familyScanInviteInput').placeholder = scanT('family.scanQr.placeholder', 'name@example.com or invite link');
     root.querySelector('#familyScanInviteCancel').textContent = scanT('family.giveStars.cancel', 'Cancel');
     root.querySelector('#familyScanInviteContinue').textContent = scanT('family.scanQr.continue', 'Continue');
   }

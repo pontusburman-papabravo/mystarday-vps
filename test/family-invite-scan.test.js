@@ -32,6 +32,11 @@ describe('family invite QR paste', () => {
     assert.match(SRC, /familyScanInviteModal/);
   });
 
+  it('sets the paste-field hint via .placeholder (release-compliance SAFE context)', () => {
+    assert.match(SRC, /\.placeholder\s*=/);
+    assert.doesNotMatch(SRC, /setAttribute\(\s*['"]placeholder['"]/);
+  });
+
   it('family.js awaits the paste sheet and maps invalid copy', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
     assert.match(js, /await FamilyInviteScan\.scanAdultQrInteractive\(\)/);
