@@ -125,7 +125,19 @@
     });
   }
 
+  function hasIrelandWelcome() {
+    return !!document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
+  }
+
+  function quietIrelandWelcomeHero() {
+    if (!hasIrelandWelcome()) return;
+    document.querySelectorAll('.store-locale-note').forEach((el) => {
+      el.hidden = true;
+    });
+  }
+
   function renderStrip(state) {
+    if (hasIrelandWelcome()) return;
     let strip = document.getElementById('landingMarketState');
     if (!strip) {
       strip = document.createElement('p');
@@ -153,6 +165,7 @@
     retargetPrimaryCtas(canRegister);
     retuneWaitlistCopy(state);
     hideSubscribeNowIfPrebilling(state);
+    quietIrelandWelcomeHero();
     renderStrip(state);
   }
 

@@ -41,6 +41,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
     assert.match(js, /Google Play for Android/);
     assert.match(js, /data-hero-launch="ireland"/);
+    assert.match(js, /hasIrelandWelcome/);
+    assert.match(js, /quietIrelandWelcomeHero/);
     assert.doesNotMatch(js, /Android coming soon/);
     assert.doesNotMatch(js, /applyIeIosFirstStorePresentation/);
   });
