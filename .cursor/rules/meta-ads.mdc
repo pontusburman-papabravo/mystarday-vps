@@ -10,15 +10,16 @@ alwaysApply: false
 
 ## What agents may do
 
-- Draft campaign JSON matching `docs/meta-ads/examples/se-traffic-register.js`
+- Draft traffic JSON (`docs/meta-ads/examples/se-traffic-register.js`) or boost JSON (`docs/meta-ads/examples/se-boost-post.js`)
 - Validate with `npm run meta-ads:propose -- <file.json>`
-- Import via admin or `--submit` (inserts `pending_approval` / draft in DB)
+- Import via admin, `--submit`, or tell the founder to use **Snabb-boosta**
 
 ## What agents must not do
 
 - Call Meta Marketing API or Graph ad endpoints
 - Auto-approve, raise budget caps, or spend
 - Use fear-based NPF copy, medical claims, or fake urgency
-- Point destination URLs outside mystarday.se / .eu / .app <!-- pragma: allowlist secret -->
+- Point traffic destination URLs outside owned brand domains
+- Start a boost from an iOS client (Apple 30% tax). Server-only.
 
 Approve happens only in `/admin#meta-annonser` by a human admin.

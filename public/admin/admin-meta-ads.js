@@ -38,6 +38,30 @@
     ]);
   }
 
+  function kindLabel(row) {
+    if (row.kind === 'boost') return 'Boost';
+    return 'Trafikannons';
+  }
+
+  function insightsSummary(row) {
+    const payload = row.last_insights;
+    if (!payload) return '';
+    const first = Array.isArray(payload.data) ? payload.data[0] : payload;
+    if (!first || typeof first !== 'object') {
+      return '<pre class="text-xs bg-sky/30 rounded-xl p-3 mt-2 overflow-x-auto">' +
+        esc(JSON.stringify(payload, null, 2)) + '</pre>';
+    }
+    const bits = [];
+    if (first.impressions != null) bits.push(first.impressions + ' visningar');
+    if (first.reach != null) bits.push(first.reach + ' räckvidd');
+    if (first.clicks != null) bits.push(first.clicks + ' klick');
+    if (first.spend != null) bits.push(first.spend + ' kr spend');
+    const cached = row.last_insights_at
+      ? ' · cachad ' + esc(String(row.last_insights_at).slice(0, 16).replace('T', ' '))
+      : '';
+    return '<p class="text-sm text-navy mt-2">' + esc(bits.join(' · ') || 'Resultat hämtade') + cached + '</p>';
+  }
+
   function statusBadge(status) {
     const meta = STATUS_LABELS[status] || { label: status, class: 'bg-gray-100 text-gray-700' };
     return '<span class="px-2 py-0.5 rounded-full text-xs font-semibold ' + meta.class + '">' + esc(meta.label) + '</span>';
@@ -45,6 +69,7 @@
 
   function readForm() {
     return {
+      kind: 'traffic',
       name: document.getElementById('metaAdsName').value,
       slug: document.getElementById('metaAdsSlug').value || undefined,
       destination_url: document.getElementById('metaAdsUrl').value,
@@ -102,8 +127,10 @@
   function actionButtons(row) {
     const id = esc(row.id);
     const buttons = [];
-    if (row.status === 'draft' || row.status === 'rejected') {
+    if ((row.status === 'draft' || row.status === 'rejected') && row.kind !== 'boost') {
       buttons.push('<button type="button" data-meta-ads-edit="' + id + '" class="px-3 py-2 rounded-xl border-2 border-navy text-sm font-semibold text-navy" style="min-height:44px">Redigera</button>');
+    }
+    if (row.status === 'draft' || row.status === 'rejected') {
       buttons.push('<button type="button" data-meta-ads-submit="' + id + '" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold" style="min-height:44px">Skicka för godkännande</button>');
       buttons.push('<button type="button" data-meta-ads-reject="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Avvisa</button>');
     }
@@ -114,8 +141,10 @@
     if (row.status === 'publishing') {
       buttons.push('<button type="button" data-meta-ads-reject="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Avbryt publicering</button>');
     }
-    if (row.status === 'live') {
-      buttons.push('<button type="button" data-meta-ads-pause="' + id + '" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold" style="min-height:44px">Pausa</button>');
+    if (row.status === 'live' || row.status === 'paused') {
+      if (row.status === 'live') {
+        buttons.push('<button type="button" data-meta-ads-pause="' + id + '" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold" style="min-height:44px">Pausa</button>');
+      }
       buttons.push('<button type="button" data-meta-ads-insights="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Hämta resultat</button>');
     }
     if (row.status === 'paused') {
@@ -144,19 +173,22 @@
         '<div class="flex flex-wrap items-start justify-between gap-3">' +
           '<div>' +
             '<h4 class="font-heading font-bold text-navy">' + esc(row.name) + '</h4>' +
-            '<p class="text-xs text-text-soft font-mono mt-1">' + esc(row.slug) + ' · ' + esc(row.created_source) + '</p>' +
+            '<p class="text-xs text-text-soft font-mono mt-1">' + esc(row.slug) + ' · ' +
+              esc(kindLabel(row)) + ' · ' + esc(row.created_source) + '</p>' +
           '</div>' +
           statusBadge(row.status) +
         '</div>' +
         '<p class="text-sm text-navy mt-3">' + esc(row.headline) + '</p>' +
         '<p class="text-sm text-text-soft mt-1">' + esc(row.primary_text) + '</p>' +
         '<p class="text-xs text-text-soft mt-2">' + esc(row.daily_budget_sek) + ' kr/dag · ' +
-          esc((row.countries || []).join(', ')) + ' · ' + esc(row.destination_url) + '</p>' +
+          esc((row.countries || []).join(', ')) +
+          (row.kind === 'boost'
+            ? ' · post ' + esc(row.source_post_id)
+            : ' · ' + esc(row.destination_url)) + '</p>' +
         '<p class="text-xs text-navy mt-2"><span class="font-semibold">Hypotes:</span> ' + esc(row.hypothesis) +
           ' · <span class="font-semibold">Mått:</span> ' + esc(row.primary_metric) + '</p>' +
         (row.last_error ? '<p class="text-sm text-red-700 mt-2">' + esc(row.last_error) + '</p>' : '') +
-        (row.last_insights ? '<pre class="text-xs bg-sky/30 rounded-xl p-3 mt-2 overflow-x-auto">' +
-          esc(JSON.stringify(row.last_insights, null, 2)) + '</pre>' : '') +
+        insightsSummary(row) +
         '<div class="flex flex-wrap gap-2 mt-4">' + actionButtons(row) + '</div>' +
       '</article>';
     }).join('');
@@ -172,12 +204,56 @@
       metaAdsState = data;
       renderConfig(data.config);
       renderList();
+      await loadBoostablePosts();
     } catch (err) {
       if (container) {
         container.innerHTML = '<p class="text-red-600 text-sm">Kunde inte ladda Meta-annonser: ' + esc(err.message) + '</p>';
       }
     } finally {
       metaAdsLoading = false;
+    }
+  }
+
+  async function loadBoostablePosts() {
+    const select = document.getElementById('metaAdsBoostPost');
+    if (!select) return;
+    try {
+      const data = await api('/api/admin/meta-ads/boostable-posts');
+      const posts = (data && data.posts) || [];
+      if (!posts.length) {
+        select.innerHTML = '<option value="">Inga sidinlägg med Facebook-id ännu</option>';
+        return;
+      }
+      select.innerHTML = '<option value="">Välj inlägg</option>' + posts.map((post) => {
+        return '<option value="' + esc(post.id) + '">' + esc(post.title) + '</option>';
+      }).join('');
+    } catch {
+      select.innerHTML = '<option value="">Kunde inte hämta inlägg</option>';
+    }
+  }
+
+  async function queueBoost(event) {
+    event.preventDefault();
+    const nyhetId = document.getElementById('metaAdsBoostPost').value;
+    const pasted = document.getElementById('metaAdsBoostPostId').value.trim();
+    const budget = document.getElementById('metaAdsBoostBudget').value;
+    if (!nyhetId && !pasted) {
+      alert('Välj ett sidinlägg eller klistra in ett Facebook-post-id.');
+      return;
+    }
+    try {
+      await api('/api/admin/meta-ads/boost', {
+        method: 'POST',
+        body: JSON.stringify({
+          dagens_nyhet_id: nyhetId || undefined,
+          source_post_id: pasted || undefined,
+          daily_budget_sek: budget,
+        }),
+      });
+      document.getElementById('metaAdsBoostPostId').value = '';
+      await loadMetaAdsCampaigns();
+    } catch (err) {
+      alert(err.message || 'Kunde inte köa boost');
     }
   }
 
@@ -269,6 +345,10 @@
     const editId = t.getAttribute('data-meta-ads-edit');
     if (editId) {
       const row = (metaAdsState.campaigns || []).find((item) => String(item.id) === String(editId));
+      if (row && row.kind === 'boost') {
+        alert('Boostar redigeras genom att avvisa och köa en ny snabb-boost.');
+        return;
+      }
       if (row) {
         editingId = row.id;
         fillForm(row);
@@ -295,6 +375,11 @@
   }
 
   function bindOnce() {
+    const boostForm = document.getElementById('metaAdsBoostForm');
+    if (boostForm && !boostForm.dataset.bound) {
+      boostForm.dataset.bound = '1';
+      boostForm.addEventListener('submit', queueBoost);
+    }
     const form = document.getElementById('metaAdsForm');
     if (form && !form.dataset.bound) {
       form.dataset.bound = '1';

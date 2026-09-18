@@ -14,6 +14,7 @@ const {
   firstImageHash,
   getPublicMetaAdsConfig,
   sekToOre,
+  normalizeObjectStoryId,
 } = require('../src/lib/meta-ads');
 
 function withEnv(map, fn) {
@@ -100,6 +101,47 @@ describe('meta ads brief schema', () => {
     assert.equal(brief.slug, 'morgon-se-register');
     assert.equal(brief.daily_budget_ore, 5000);
   });
+
+  test('committed Cursor boost example parses', () => {
+    const example = require('../docs/meta-ads/examples/se-boost-post.js');
+    const brief = parseCampaignBrief({ ...example, created_source: 'cursor' });
+    assert.equal(brief.kind, 'boost');
+    assert.equal(brief.objective, 'OUTCOME_ENGAGEMENT');
+    assert.equal(brief.source_post_id, example.source_post_id);
+  });
+
+  test('parses a boost brief without destination or image', () => {
+    const brief = parseCampaignBrief({
+      kind: 'boost',
+      name: 'Boost sidinlagg',
+      source_post_id: '111_222',
+      daily_budget_sek: 40,
+      primary_text: 'Ett redan publicerat sidinlagg boostas till fler foraldrar.',
+      headline: 'Sidinlagg',
+      hypothesis: 'Organisk rackvidd okar nar vi boostar till Sverige.',
+      primary_metric: 'Postengagemang 7d',
+    });
+    assert.equal(brief.kind, 'boost');
+    assert.equal(brief.objective, 'OUTCOME_ENGAGEMENT');
+    assert.equal(brief.source_post_id, '111_222');
+    assert.equal(brief.destination_url, null);
+  });
+
+  test('rejects invalid facebook story ids', () => {
+    assert.throws(
+      () => parseCampaignBrief({
+        kind: 'boost',
+        name: 'Boost bad',
+        source_post_id: 'https://facebook.com/x',
+        daily_budget_sek: 40,
+        primary_text: 'Ett redan publicerat sidinlagg boostas till fler foraldrar.',
+        headline: 'Sidinlagg',
+        hypothesis: 'Organisk rackvidd okar nar vi boostar till Sverige.',
+        primary_metric: 'Postengagemang 7d',
+      }),
+      ZodError
+    );
+  });
 });
 
 describe('meta ads publisher', () => {
@@ -134,8 +176,49 @@ describe('meta ads publisher', () => {
     assert.ok(activate.every((c) => c.body.status === 'ACTIVE'));
   });
 
+  test('boost publisher uses existing post, not a new image or website destination', async () => {
+    const calls = [];
+    const client = {
+      async graph(method, objectPath, body) {
+        calls.push({ method, path: objectPath, body });
+        if (String(objectPath).includes('/campaigns')) return { id: 'camp_b' };
+        if (String(objectPath).includes('/adsets')) return { id: 'adset_b' };
+        if (String(objectPath).includes('/adcreatives')) return { id: 'cr_b' };
+        if (String(objectPath).includes('/ads')) return { id: 'ad_b' };
+        return { success: true };
+      },
+    };
+    const brief = parseCampaignBrief({
+      kind: 'boost',
+      name: 'Boost sidinlagg SE',
+      source_post_id: '555_666',
+      daily_budget_sek: 40,
+      primary_text: 'Ett redan publicerat sidinlagg boostas till fler foraldrar.',
+      headline: 'Sidinlagg',
+      hypothesis: 'Organisk rackvidd okar nar vi boostar till Sverige.',
+      primary_metric: 'Postengagemang 7d',
+    });
+    await withEnv({
+      META_AD_ACCOUNT_ID: 'act_123',
+      META_ADS_PAGE_ID: 'page_9',
+    }, () => publishApprovedCampaign(brief, { graphClient: client }));
+    assert.equal(calls.filter((c) => String(c.path).includes('/adimages')).length, 0);
+    const campaignCreate = calls.find((c) => String(c.path).endsWith('/campaigns'));
+    assert.equal(campaignCreate.body.objective, 'OUTCOME_ENGAGEMENT');
+    const adset = calls.find((c) => String(c.path).endsWith('/adsets'));
+    assert.equal(adset.body.optimization_goal, 'POST_ENGAGEMENT');
+    assert.equal(adset.body.destination_type, undefined);
+    const creative = calls.find((c) => String(c.path).endsWith('/adcreatives'));
+    assert.equal(creative.body.object_story_id, '555_666');
+  });
+
   test('firstImageHash reads the first hash from Meta payload', () => {
     assert.equal(firstImageHash({ images: { a: { hash: 'abc' } } }), 'abc');
+  });
+
+  test('normalizeObjectStoryId prefixes page id when the post id is bare', () => {
+    assert.equal(normalizeObjectStoryId('99', '123'), '99_123');
+    assert.equal(normalizeObjectStoryId('99', '99_123'), '99_123');
   });
 });
 

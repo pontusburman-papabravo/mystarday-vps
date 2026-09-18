@@ -1,7 +1,12 @@
 'use strict';
 
 const { getMetaAdsConfig } = require('./config');
-const { requirePublishableCreative, withCampaignUtm } = require('./schema');
+const {
+  requirePublishableCreative,
+  withCampaignUtm,
+  isBoostCampaign,
+  normalizeObjectStoryId,
+} = require('./schema');
 const { createGraphClientFromEnv, MetaAdsGraphError } = require('./graph');
 
 function firstImageHash(payload) {
@@ -11,19 +16,80 @@ function firstImageHash(payload) {
   return first && first.hash ? String(first.hash) : null;
 }
 
-async function publishApprovedCampaign(campaign, options = {}) {
-  requirePublishableCreative(campaign);
-  const config = getMetaAdsConfig();
-  const client = options.graphClient || createGraphClientFromEnv();
-  const destinationUrl = withCampaignUtm(campaign.destination_url, campaign.slug);
-  const ids = {
+function baseIds(campaign) {
+  return {
     meta_image_hash: campaign.meta_image_hash || null,
     meta_campaign_id: campaign.meta_campaign_id || null,
     meta_adset_id: campaign.meta_adset_id || null,
     meta_creative_id: campaign.meta_creative_id || null,
     meta_ad_id: campaign.meta_ad_id || null,
   };
+}
 
+async function ensureCampaign(client, config, campaign, ids) {
+  if (ids.meta_campaign_id) return;
+  const created = await client.graph('POST', `${config.adAccountId}/campaigns`, {
+    name: campaign.name,
+    objective: campaign.objective,
+    status: 'PAUSED',
+    special_ad_categories: [],
+    buying_type: 'AUCTION',
+  });
+  ids.meta_campaign_id = created.id;
+}
+
+async function ensureTrafficAdSet(client, config, campaign, ids) {
+  if (ids.meta_adset_id) return;
+  const adsetBody = {
+    name: `${campaign.name} — ad set`,
+    campaign_id: ids.meta_campaign_id,
+    daily_budget: campaign.daily_budget_ore,
+    billing_event: 'IMPRESSIONS',
+    optimization_goal: 'LINK_CLICKS',
+    bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+    destination_type: 'WEBSITE',
+    targeting: {
+      geo_locations: { countries: campaign.countries },
+      age_min: campaign.age_min,
+      age_max: campaign.age_max,
+      publisher_platforms: ['facebook', 'instagram'],
+    },
+    status: 'PAUSED',
+  };
+  if (campaign.lifetime_budget_ore) {
+    delete adsetBody.daily_budget;
+    adsetBody.lifetime_budget = campaign.lifetime_budget_ore;
+  }
+  const created = await client.graph('POST', `${config.adAccountId}/adsets`, adsetBody);
+  ids.meta_adset_id = created.id;
+}
+
+async function ensureBoostAdSet(client, config, campaign, ids) {
+  if (ids.meta_adset_id) return;
+  const adsetBody = {
+    name: `${campaign.name} — boost set`,
+    campaign_id: ids.meta_campaign_id,
+    daily_budget: campaign.daily_budget_ore,
+    billing_event: 'IMPRESSIONS',
+    optimization_goal: 'POST_ENGAGEMENT',
+    bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+    targeting: {
+      geo_locations: { countries: campaign.countries },
+      age_min: campaign.age_min,
+      age_max: campaign.age_max,
+      publisher_platforms: ['facebook', 'instagram'],
+    },
+    status: 'PAUSED',
+  };
+  if (campaign.lifetime_budget_ore) {
+    delete adsetBody.daily_budget;
+    adsetBody.lifetime_budget = campaign.lifetime_budget_ore;
+  }
+  const created = await client.graph('POST', `${config.adAccountId}/adsets`, adsetBody);
+  ids.meta_adset_id = created.id;
+}
+
+async function ensureTrafficCreative(client, config, campaign, ids) {
   if (!ids.meta_image_hash) {
     const uploaded = await client.graph('POST', `${config.adAccountId}/adimages`, {
       url: campaign.image_url,
@@ -33,67 +99,57 @@ async function publishApprovedCampaign(campaign, options = {}) {
       throw new MetaAdsGraphError('Meta returnerade ingen image hash');
     }
   }
-
-  if (!ids.meta_campaign_id) {
-    const created = await client.graph('POST', `${config.adAccountId}/campaigns`, {
-      name: campaign.name,
-      objective: campaign.objective,
-      status: 'PAUSED',
-      special_ad_categories: [],
-      buying_type: 'AUCTION',
-    });
-    ids.meta_campaign_id = created.id;
+  if (ids.meta_creative_id) return;
+  const destinationUrl = withCampaignUtm(campaign.destination_url, campaign.slug);
+  const linkData = {
+    message: campaign.primary_text,
+    link: destinationUrl,
+    name: campaign.headline,
+    image_hash: ids.meta_image_hash,
+    call_to_action: {
+      type: campaign.call_to_action,
+      value: { link: destinationUrl },
+    },
+  };
+  if (campaign.description) linkData.description = campaign.description;
+  const objectStorySpec = {
+    page_id: config.pageId,
+    link_data: linkData,
+  };
+  if (config.instagramActorId) {
+    objectStorySpec.instagram_user_id = config.instagramActorId;
   }
+  const created = await client.graph('POST', `${config.adAccountId}/adcreatives`, {
+    name: `${campaign.name} — creative`,
+    object_story_spec: objectStorySpec,
+  });
+  ids.meta_creative_id = created.id;
+}
 
-  if (!ids.meta_adset_id) {
-    const adsetBody = {
-      name: `${campaign.name} — ad set`,
-      campaign_id: ids.meta_campaign_id,
-      daily_budget: campaign.daily_budget_ore,
-      billing_event: 'IMPRESSIONS',
-      optimization_goal: 'LINK_CLICKS',
-      bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
-      destination_type: 'WEBSITE',
-      targeting: {
-        geo_locations: { countries: campaign.countries },
-        age_min: campaign.age_min,
-        age_max: campaign.age_max,
-        publisher_platforms: ['facebook', 'instagram'],
-      },
-      status: 'PAUSED',
-    };
-    if (campaign.lifetime_budget_ore) {
-      delete adsetBody.daily_budget;
-      adsetBody.lifetime_budget = campaign.lifetime_budget_ore;
-    }
-    const created = await client.graph('POST', `${config.adAccountId}/adsets`, adsetBody);
-    ids.meta_adset_id = created.id;
-  }
+async function ensureBoostCreative(client, config, campaign, ids) {
+  if (ids.meta_creative_id) return;
+  const objectStoryId = normalizeObjectStoryId(config.pageId, campaign.source_post_id);
+  const created = await client.graph('POST', `${config.adAccountId}/adcreatives`, {
+    name: `${campaign.name} — boost creative`,
+    object_story_id: objectStoryId,
+  });
+  ids.meta_creative_id = created.id;
+}
 
-  if (!ids.meta_creative_id) {
-    const linkData = {
-      message: campaign.primary_text,
-      link: destinationUrl,
-      name: campaign.headline,
-      image_hash: ids.meta_image_hash,
-      call_to_action: {
-        type: campaign.call_to_action,
-        value: { link: destinationUrl },
-      },
-    };
-    if (campaign.description) linkData.description = campaign.description;
-    const objectStorySpec = {
-      page_id: config.pageId,
-      link_data: linkData,
-    };
-    if (config.instagramActorId) {
-      objectStorySpec.instagram_user_id = config.instagramActorId;
-    }
-    const created = await client.graph('POST', `${config.adAccountId}/adcreatives`, {
-      name: `${campaign.name} — creative`,
-      object_story_spec: objectStorySpec,
-    });
-    ids.meta_creative_id = created.id;
+async function publishApprovedCampaign(campaign, options = {}) {
+  requirePublishableCreative(campaign);
+  const config = getMetaAdsConfig();
+  const client = options.graphClient || createGraphClientFromEnv();
+  const ids = baseIds(campaign);
+  const boost = isBoostCampaign(campaign);
+
+  await ensureCampaign(client, config, campaign, ids);
+  if (boost) {
+    await ensureBoostAdSet(client, config, campaign, ids);
+    await ensureBoostCreative(client, config, campaign, ids);
+  } else {
+    await ensureTrafficAdSet(client, config, campaign, ids);
+    await ensureTrafficCreative(client, config, campaign, ids);
   }
 
   if (!ids.meta_ad_id) {

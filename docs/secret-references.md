@@ -20,7 +20,7 @@ Canonical flow: [`founder-qa-test-account.md`](founder-qa-test-account.md)
 
 | Secret name | Purpose |
 |-------------|---------|
-| `META_ADS_ACCESS_TOKEN` | Meta system user token (`ads_management`, `ads_read`) |
+| `META_ADS_ACCESS_TOKEN` | Meta system user token (`ads_management`, `ads_read`, `business_management`) |
 | `META_AD_ACCOUNT_ID` | Ad account id (`act_…`) |
 | `META_ADS_PAGE_ID` | Page id for ad creatives (or reuse `FACEBOOK_PAGE_ID`) |
 | `META_ADS_INSTAGRAM_ACTOR_ID` | Optional Instagram actor id |

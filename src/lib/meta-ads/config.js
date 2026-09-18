@@ -10,6 +10,7 @@ const DEFAULT_MAX_DAILY_BUDGET_SEK = 200;
 const DEFAULT_MAX_LIFETIME_BUDGET_SEK = 3000;
 const DEFAULT_MIN_DAILY_BUDGET_SEK = 20;
 const ORE_PER_SEK = 100;
+const INSIGHTS_MIN_INTERVAL_MS = 15 * 60 * 1000;
 
 const LIVE_DESTINATION_HOSTS = Object.freeze([
   'mystarday.se', // pragma: allowlist secret
@@ -83,6 +84,8 @@ function getPublicMetaAdsConfig() {
     graphVersion: config.graphVersion,
     allowedHosts: config.allowedHosts,
     objective: 'OUTCOME_TRAFFIC',
+    boostObjective: 'OUTCOME_ENGAGEMENT',
+    insightsMinIntervalMs: INSIGHTS_MIN_INTERVAL_MS,
   };
 }
 
@@ -101,6 +104,7 @@ module.exports = {
   DEFAULT_MAX_LIFETIME_BUDGET_SEK,
   DEFAULT_MIN_DAILY_BUDGET_SEK,
   ORE_PER_SEK,
+  INSIGHTS_MIN_INTERVAL_MS,
   LIVE_DESTINATION_HOSTS,
   getMetaAdsConfig,
   isMetaAdsConfigured,

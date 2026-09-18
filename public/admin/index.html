@@ -1476,6 +1476,23 @@
             <p class="text-text-soft text-sm">Laddar…</p>
           </div>
 
+          <form id="metaAdsBoostForm" class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6 space-y-3">
+            <h4 class="text-lg font-heading font-bold text-navy">Snabb-boosta sidinlägg</h4>
+            <p class="text-sm text-text-soft">Ökar räckvidd på ett redan publicerat sidinlägg. Standard: Sverige, 25–55 år, interaktion. Inget spenderas förrän du godkänner.</p>
+            <label class="block text-sm font-semibold text-navy">Publicerat inlägg
+              <select id="metaAdsBoostPost" class="mt-1 w-full border-2 border-lavender rounded-xl px-4 py-2 bg-white">
+                <option value="">Inga sidinlägg med Facebook-id ännu</option>
+              </select>
+            </label>
+            <label class="block text-sm font-semibold text-navy">Eller klistra in post-id
+              <input id="metaAdsBoostPostId" class="mt-1 w-full border-2 border-lavender rounded-xl px-4 py-2 font-mono text-sm" placeholder="123456789_987654321">
+            </label>
+            <label class="block text-sm font-semibold text-navy">Dagsbudget (kr)
+              <input id="metaAdsBoostBudget" required type="number" min="20" step="1" value="40" class="mt-1 w-full border-2 border-lavender rounded-xl px-4 py-2">
+            </label>
+            <button type="submit" class="px-5 py-2 bg-gold text-navy rounded-xl font-semibold" style="min-height:44px">Köa boost för godkännande</button>
+          </form>
+
           <div class="bg-white rounded-2xl border-2 border-lavender p-4 mb-6">
             <h4 class="text-lg font-heading font-bold text-navy mb-2">Importera JSON från Cursor</h4>
             <p class="text-sm text-text-soft mb-3">Klistra in brief.json som agenten validerat med <span class="font-mono">npm run meta-ads:propose</span>.</p>

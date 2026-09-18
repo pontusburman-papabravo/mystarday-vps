@@ -7,7 +7,7 @@
 const db = require('../src/lib/db');
 
 const PUBLIC_COLUMNS = `
-  id, slug, name, status, objective, destination_url,
+  id, slug, name, status, kind, objective, destination_url, source_post_id,
   daily_budget_ore, lifetime_budget_ore, countries, age_min, age_max,
   primary_text, headline, description, call_to_action, image_url,
   hypothesis, primary_metric, notes, created_source,
@@ -20,21 +20,25 @@ const PUBLIC_COLUMNS = `
 async function insertCampaign(brief, { actorId, actorSource }) {
   const result = await db.query(
     `INSERT INTO meta_ad_campaign (
-       slug, name, objective, destination_url, daily_budget_ore, lifetime_budget_ore,
+       slug, name, kind, objective, destination_url, source_post_id,
+       daily_budget_ore, lifetime_budget_ore,
        countries, age_min, age_max, primary_text, headline, description,
        call_to_action, image_url, hypothesis, primary_metric, notes,
        created_by, created_source, status
      ) VALUES (
        $1, $2, $3, $4, $5, $6,
-       $7, $8, $9, $10, $11, $12,
-       $13, $14, $15, $16, $17,
-       $18, $19, 'draft'
+       $7, $8,
+       $9, $10, $11, $12, $13, $14,
+       $15, $16, $17, $18, $19,
+       $20, $21, 'draft'
      ) RETURNING ${PUBLIC_COLUMNS}`,
     [
       brief.slug,
       brief.name,
+      brief.kind || 'traffic',
       brief.objective,
-      brief.destination_url,
+      brief.destination_url || null,
+      brief.source_post_id || null,
       brief.daily_budget_ore,
       brief.lifetime_budget_ore,
       brief.countries,
@@ -60,11 +64,11 @@ async function insertCampaign(brief, { actorId, actorSource }) {
 async function updateDraft(id, brief) {
   const result = await db.query(
     `UPDATE meta_ad_campaign SET
-       slug = $2, name = $3, objective = $4, destination_url = $5,
-       daily_budget_ore = $6, lifetime_budget_ore = $7, countries = $8,
-       age_min = $9, age_max = $10, primary_text = $11, headline = $12,
-       description = $13, call_to_action = $14, image_url = $15,
-       hypothesis = $16, primary_metric = $17, notes = $18,
+       slug = $2, name = $3, kind = $4, objective = $5, destination_url = $6, source_post_id = $7,
+       daily_budget_ore = $8, lifetime_budget_ore = $9, countries = $10,
+       age_min = $11, age_max = $12, primary_text = $13, headline = $14,
+       description = $15, call_to_action = $16, image_url = $17,
+       hypothesis = $18, primary_metric = $19, notes = $20,
        last_error = NULL, updated_at = NOW()
      WHERE id = $1 AND status IN ('draft', 'rejected')
      RETURNING ${PUBLIC_COLUMNS}`,
@@ -72,8 +76,10 @@ async function updateDraft(id, brief) {
       id,
       brief.slug,
       brief.name,
+      brief.kind || 'traffic',
       brief.objective,
-      brief.destination_url,
+      brief.destination_url || null,
+      brief.source_post_id || null,
       brief.daily_budget_ore,
       brief.lifetime_budget_ore,
       brief.countries,

@@ -18,13 +18,15 @@ Paid acquisition is already allowed as a later growth channel (COS 008, after pr
 3. **Hard budget caps in env.** Default max daily budget 200 SEK (`META_ADS_MAX_DAILY_BUDGET_SEK`). Raise the cap in env, not in code, when unit economics are proven.
 4. **Copy floor in code.** Block medical claims, fake urgency, and fear-based NPF phrases. Human review still required.
 5. **Destination allowlist.** Only mystarday.se / .eu / .app (plus localhost in non-prod). <!-- pragma: allowlist secret --> UTM `meta` / `paid` / campaign slug is applied at publish.
-6. **v1 objective is website traffic only** (`OUTCOME_TRAFFIC`). App promotion and lead ads are out of scope until a later ADR.
-7. **Secrets:** `META_ADS_ACCESS_TOKEN` (system user with `ads_management` + `ads_read`), `META_AD_ACCOUNT_ID`, page id (`META_ADS_PAGE_ID` or existing `FACEBOOK_PAGE_ID`). Do not reuse the page feed token silently.
+6. **Two creative kinds, same spend gate.** `kind=traffic` is a dark post (`OUTCOME_TRAFFIC`, brand destination + image). `kind=boost` promotes an existing page post (`OUTCOME_ENGAGEMENT`, `object_story_id`). App promotion and lead ads stay out of scope.
+7. **Secrets:** `META_ADS_ACCESS_TOKEN` (system user with `ads_management` + `ads_read` + `business_management`), `META_AD_ACCOUNT_ID`, page id (`META_ADS_PAGE_ID` or existing `FACEBOOK_PAGE_ID`). Do not reuse the page feed token silently.
+8. **Snabb-boosta, not Ads Manager.** Defaults: SE, 25–55, engagement. Insights are on-demand and cached 15 minutes. Publish only from the server (avoid Apple’s ~30% in-app boost tax).
 
 ## Consequences
 
 - Admin: Tillväxt → Meta-annonser (`/admin#meta-annonser`).
 - Cursor: validate JSON with `npm run meta-ads:propose`; import in admin or `--submit` against the target database. Agents must not call the Marketing API.
+- Boosts: admin **Snabb-boosta** from Dagens nyhet posts that already have `facebook_post_id`.
 - Publish is best-effort create-then-activate; partial Meta objects stay paused and the row becomes `failed` for retry after approve.
 
 ## Out of scope

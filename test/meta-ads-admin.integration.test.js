@@ -236,4 +236,80 @@ test('admin meta ads approval API', async (t) => {
       await http.close();
     }
   });
+
+  await t.test('boost queues from a page post, publishes via story id, and caches insights', async () => {
+    process.env.META_ADS_ACCESS_TOKEN = 'test-token';
+    process.env.META_AD_ACCOUNT_ID = 'act_1';
+    process.env.META_ADS_PAGE_ID = 'page_1';
+    delete require.cache[require.resolve('../app')];
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    const graph = mockGraphClient();
+    http.app.set('metaAdsGraphClient', graph);
+    try {
+      const admin = await loginAsAdmin(http.baseUrl, db, await registerAndLogin(http.baseUrl));
+      const nyhet = await db.query(
+        `INSERT INTO dagens_nyhet (
+           title, body, show_landing, send_push, post_to_facebook, status,
+           facebook_post_id, published_at, expires_at
+         ) VALUES (
+           $1, $2, false, false, true, 'published',
+           $3, NOW(), NOW() + INTERVAL '2 days'
+         ) RETURNING id`,
+        [
+          'Boostbar nyhet',
+          'En tydlig morgon for familjen i vardagen.',
+          '555_666',
+        ]
+      );
+      const posts = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/boostable-posts`, {
+        headers: headers(admin),
+      }));
+      assert.equal(posts.status, 200, posts.text);
+      assert.ok((posts.body.posts || []).some((p) => p.facebook_post_id === '555_666'));
+
+      const boostRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/boost`, {
+        method: 'POST',
+        headers: headers(admin),
+        body: JSON.stringify({
+          dagens_nyhet_id: nyhet.rows[0].id,
+          daily_budget_sek: 40,
+        }),
+      }));
+      assert.equal(boostRes.status, 201, boostRes.text);
+      assert.equal(boostRes.body.campaign.status, 'pending_approval');
+      assert.equal(boostRes.body.campaign.kind, 'boost');
+      assert.equal(boostRes.body.campaign.source_post_id, '555_666');
+
+      const approveRes = await readJson(await fetch(
+        `${http.baseUrl}/api/admin/meta-ads/${boostRes.body.campaign.id}/approve`,
+        { method: 'POST', headers: headers(admin) }
+      ));
+      assert.equal(approveRes.status, 200, approveRes.text);
+      assert.equal(approveRes.body.campaign.status, 'live');
+      assert.equal(graph.calls.filter((c) => String(c.path).includes('/adimages')).length, 0);
+      const creative = graph.calls.find((c) => String(c.path).endsWith('/adcreatives'));
+      assert.equal(creative.body.object_story_id, '555_666');
+
+      const firstInsights = await readJson(await fetch(
+        `${http.baseUrl}/api/admin/meta-ads/${boostRes.body.campaign.id}/insights`,
+        { headers: headers(admin) }
+      ));
+      assert.equal(firstInsights.status, 200, firstInsights.text);
+      assert.equal(firstInsights.body.cached, undefined);
+      const insightCalls = graph.calls.filter((c) => String(c.path).includes('/insights')).length;
+      const secondInsights = await readJson(await fetch(
+        `${http.baseUrl}/api/admin/meta-ads/${boostRes.body.campaign.id}/insights`,
+        { headers: headers(admin) }
+      ));
+      assert.equal(secondInsights.status, 200, secondInsights.text);
+      assert.equal(secondInsights.body.cached, true);
+      assert.equal(
+        graph.calls.filter((c) => String(c.path).includes('/insights')).length,
+        insightCalls
+      );
+    } finally {
+      await http.close();
+    }
+  });
 });

@@ -10,6 +10,7 @@
 const express = require('express');
 const { ZodError } = require('zod');
 const campaigns = require('../../../db/meta-ad-campaigns');
+const nyhetDb = require('../../../db/dagens-nyhet');
 const {
   parseCampaignBrief,
   requirePublishableCreative,
@@ -19,6 +20,9 @@ const {
   setCampaignStatusOnMeta,
   fetchCampaignInsights,
   oreToSek,
+  rowToBriefInput,
+  defaultBoostCopy,
+  INSIGHTS_MIN_INTERVAL_MS,
 } = require('../../lib/meta-ads');
 
 const router = express.Router();
@@ -56,7 +60,9 @@ function validationError(err, res) {
   if (
     err.code === 'META_ADS_BUDGET_CAP' ||
     err.code === 'META_ADS_BAD_DESTINATION' ||
-    err.code === 'META_ADS_IMAGE_REQUIRED'
+    err.code === 'META_ADS_IMAGE_REQUIRED' ||
+    err.code === 'META_ADS_BAD_STORY' ||
+    err.code === 'META_ADS_POST_NOT_BOOSTABLE'
   ) {
     return res.status(400).json({ error: err.message, code: err.code });
   }
@@ -65,6 +71,70 @@ function validationError(err, res) {
 
 router.get('/status', (req, res) => {
   res.json(getPublicMetaAdsConfig());
+});
+
+router.get('/boostable-posts', async (req, res) => {
+  try {
+    const posts = await nyhetDb.listBoostableFacebookPosts(20);
+    res.json({
+      posts: posts.map((row) => ({
+        id: row.id,
+        title: row.title,
+        facebook_post_id: row.facebook_post_id,
+        published_at: row.published_at,
+        status: row.status,
+      })),
+    });
+  } catch (err) {
+    console.error('[META-ADS] boostable-posts error:', err);
+    res.status(500).json({ error: 'Kunde inte hämta sidinlägg', detail: err.message });
+  }
+});
+
+router.post('/boost', async (req, res) => {
+  try {
+    const body = req.body || {};
+    let nyhet = null;
+    let sourcePostId = String(body.source_post_id || '').trim();
+    if (body.dagens_nyhet_id) {
+      nyhet = await nyhetDb.getNyhetById(body.dagens_nyhet_id);
+      if (!nyhet || !nyhet.facebook_post_id) {
+        const error = new Error('Inlägget är inte publicerat på Facebook och kan inte boostas');
+        error.code = 'META_ADS_POST_NOT_BOOSTABLE';
+        throw error;
+      }
+      sourcePostId = nyhet.facebook_post_id;
+    }
+    const copy = defaultBoostCopy(nyhet || { title: body.headline, body: body.primary_text });
+    const brief = parseCampaignBrief({
+      kind: 'boost',
+      name: body.name || copy.name,
+      source_post_id: sourcePostId,
+      daily_budget_sek: body.daily_budget_sek,
+      countries: body.countries || ['SE'],
+      age_min: body.age_min,
+      age_max: body.age_max,
+      headline: body.headline || copy.headline,
+      primary_text: body.primary_text || copy.primary_text,
+      hypothesis: body.hypothesis || copy.hypothesis,
+      primary_metric: body.primary_metric || copy.primary_metric,
+      notes: body.notes,
+      created_source: body.created_source === 'cursor' ? 'cursor' : 'admin',
+    });
+    const row = await campaigns.insertCampaign(brief, {
+      actorId: actorId(req),
+      actorSource: brief.created_source,
+    });
+    const submitted = await campaigns.submitForApproval(row.id, actorId(req));
+    res.status(201).json({ campaign: publicCampaign(submitted || row) });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Slug används redan — vänta en stund och försök igen' });
+    }
+    if (validationError(err, res)) return;
+    console.error('[META-ADS] boost error:', err);
+    res.status(500).json({ error: 'Kunde inte köa boost', detail: err.message });
+  }
 });
 
 router.get('/', async (req, res) => {
@@ -148,25 +218,7 @@ router.post('/:id/submit', async (req, res) => {
     const existing = await campaigns.getById(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Kampanjen hittades inte' });
     requirePublishableCreative(existing);
-    parseCampaignBrief({
-      name: existing.name,
-      slug: existing.slug,
-      objective: existing.objective,
-      destination_url: existing.destination_url,
-      daily_budget_sek: oreToSek(existing.daily_budget_ore),
-      lifetime_budget_sek: existing.lifetime_budget_ore == null ? null : oreToSek(existing.lifetime_budget_ore),
-      countries: existing.countries,
-      age_min: existing.age_min,
-      age_max: existing.age_max,
-      primary_text: existing.primary_text,
-      headline: existing.headline,
-      description: existing.description,
-      call_to_action: existing.call_to_action,
-      image_url: existing.image_url,
-      hypothesis: existing.hypothesis,
-      primary_metric: existing.primary_metric,
-      notes: existing.notes,
-    });
+    parseCampaignBrief(rowToBriefInput(existing));
     const row = await campaigns.submitForApproval(existing.id, actorId(req));
     if (!row) return res.status(409).json({ error: 'Kampanjen kan inte skickas för godkännande' });
     res.json({ campaign: publicCampaign(row) });
@@ -200,25 +252,7 @@ router.post('/:id/approve', async (req, res) => {
     const existing = await campaigns.getById(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Kampanjen hittades inte' });
     requirePublishableCreative(existing);
-    parseCampaignBrief({
-      name: existing.name,
-      slug: existing.slug,
-      objective: existing.objective,
-      destination_url: existing.destination_url,
-      daily_budget_sek: oreToSek(existing.daily_budget_ore),
-      lifetime_budget_sek: existing.lifetime_budget_ore == null ? null : oreToSek(existing.lifetime_budget_ore),
-      countries: existing.countries,
-      age_min: existing.age_min,
-      age_max: existing.age_max,
-      primary_text: existing.primary_text,
-      headline: existing.headline,
-      description: existing.description,
-      call_to_action: existing.call_to_action,
-      image_url: existing.image_url,
-      hypothesis: existing.hypothesis,
-      primary_metric: existing.primary_metric,
-      notes: existing.notes,
-    });
+    parseCampaignBrief(rowToBriefInput(existing));
     const claimed = await campaigns.claimForPublish(existing.id, actorId(req));
     if (!claimed) {
       return res.status(409).json({ error: 'Kampanjen väntar inte på godkännande' });
@@ -305,6 +339,15 @@ router.get('/:id/insights', async (req, res) => {
     }
     if (!isMetaAdsConfigured()) {
       return res.status(409).json({ error: 'Meta Ads är inte konfigurerat' });
+    }
+    const cachedAt = existing.last_insights_at ? new Date(existing.last_insights_at).getTime() : 0;
+    const freshEnough = existing.last_insights && (Date.now() - cachedAt) < INSIGHTS_MIN_INTERVAL_MS;
+    if (freshEnough && req.query.refresh !== '1') {
+      return res.json({
+        campaign: publicCampaign(existing),
+        insights: existing.last_insights,
+        cached: true,
+      });
     }
     const insights = await fetchCampaignInsights(existing.meta_campaign_id, {
       graphClient: graphClient(req),

@@ -31,10 +31,12 @@ async function main() {
   const raw = abs.endsWith('.js') ? require(abs) : JSON.parse(fs.readFileSync(abs, 'utf8'));
   const brief = parseCampaignBrief({ ...raw, created_source: 'cursor' });
   const preview = {
+    kind: brief.kind,
     slug: brief.slug,
     name: brief.name,
     daily_budget_sek: brief.daily_budget_sek,
     destination_url: brief.destination_url,
+    source_post_id: brief.source_post_id,
     headline: brief.headline,
     hypothesis: brief.hypothesis,
     primary_metric: brief.primary_metric,
