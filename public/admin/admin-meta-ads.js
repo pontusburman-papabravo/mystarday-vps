@@ -17,6 +17,7 @@
 
   let metaAdsState = { campaigns: [], summary: {}, config: {} };
   let metaAdsLoading = false;
+  let editingId = null;
 
   function esc(str) {
     if (str == null) return '';
@@ -102,12 +103,16 @@
     const id = esc(row.id);
     const buttons = [];
     if (row.status === 'draft' || row.status === 'rejected') {
+      buttons.push('<button type="button" data-meta-ads-edit="' + id + '" class="px-3 py-2 rounded-xl border-2 border-navy text-sm font-semibold text-navy" style="min-height:44px">Redigera</button>');
       buttons.push('<button type="button" data-meta-ads-submit="' + id + '" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold" style="min-height:44px">Skicka för godkännande</button>');
       buttons.push('<button type="button" data-meta-ads-reject="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Avvisa</button>');
     }
-    if (row.status === 'pending_approval' || row.status === 'failed' || row.status === 'publishing') {
+    if (row.status === 'pending_approval' || row.status === 'failed') {
       buttons.push('<button type="button" data-meta-ads-approve="' + id + '" class="px-3 py-2 rounded-xl bg-gold text-navy text-sm font-semibold" style="min-height:44px">Godkänn och publicera</button>');
       buttons.push('<button type="button" data-meta-ads-reject="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Avvisa</button>');
+    }
+    if (row.status === 'publishing') {
+      buttons.push('<button type="button" data-meta-ads-reject="' + id + '" class="px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy" style="min-height:44px">Avbryt publicering</button>');
     }
     if (row.status === 'live') {
       buttons.push('<button type="button" data-meta-ads-pause="' + id + '" class="px-3 py-2 rounded-xl bg-navy text-white text-sm font-semibold" style="min-height:44px">Pausa</button>');
@@ -179,10 +184,18 @@
   async function createFromForm(event) {
     event.preventDefault();
     try {
-      await api('/api/admin/meta-ads', {
-        method: 'POST',
-        body: JSON.stringify(readForm()),
-      });
+      if (editingId) {
+        await api('/api/admin/meta-ads/' + editingId, {
+          method: 'PUT',
+          body: JSON.stringify(readForm()),
+        });
+      } else {
+        await api('/api/admin/meta-ads', {
+          method: 'POST',
+          body: JSON.stringify(readForm()),
+        });
+      }
+      editingId = null;
       document.getElementById('metaAdsForm').reset();
       await loadMetaAdsCampaigns();
     } catch (err) {
@@ -209,6 +222,7 @@
         method: 'POST',
         body: JSON.stringify(parsed),
       });
+      editingId = created.campaign.id;
       fillForm(created.campaign);
       document.getElementById('metaAdsJsonImport').value = '';
       await loadMetaAdsCampaigns();
@@ -252,6 +266,17 @@
   function onListClick(event) {
     const t = event.target;
     if (!t || !t.getAttribute) return;
+    const editId = t.getAttribute('data-meta-ads-edit');
+    if (editId) {
+      const row = (metaAdsState.campaigns || []).find((item) => String(item.id) === String(editId));
+      if (row) {
+        editingId = row.id;
+        fillForm(row);
+        const form = document.getElementById('metaAdsForm');
+        if (form && form.scrollIntoView) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
     const mapping = [
       ['data-meta-ads-submit', 'submit'],
       ['data-meta-ads-approve', 'approve'],

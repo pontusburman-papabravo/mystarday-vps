@@ -155,7 +155,7 @@ async function rejectCampaign(id, actorId, reason) {
             rejected_at = NOW(),
             reject_reason = $3,
             updated_at = NOW()
-      WHERE id = $1 AND status IN ('draft', 'pending_approval', 'failed')
+      WHERE id = $1 AND status IN ('draft', 'pending_approval', 'failed', 'publishing')
       RETURNING ${PUBLIC_COLUMNS}`,
     [id, actorId || null, reason || null]
   );
@@ -172,7 +172,7 @@ async function claimForPublish(id, actorId) {
             approved_at = COALESCE(approved_at, NOW()),
             last_error = NULL,
             updated_at = NOW()
-      WHERE id = $1 AND status IN ('pending_approval', 'failed', 'publishing')
+      WHERE id = $1 AND status IN ('pending_approval', 'failed')
       RETURNING ${PUBLIC_COLUMNS}`,
     [id, actorId || null]
   );

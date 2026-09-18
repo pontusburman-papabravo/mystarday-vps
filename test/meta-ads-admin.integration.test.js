@@ -40,6 +40,17 @@ function headers(session) {
   };
 }
 
+async function readJson(res) {
+  const text = await res.text();
+  let body = null;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    body = null;
+  }
+  return { status: res.status, text, body };
+}
+
 const BRIEF = {
   name: 'Testkampanj SE',
   destination_url: 'https://mystarday.se/register', // pragma: allowlist secret
@@ -96,39 +107,47 @@ test('admin meta ads approval API', async (t) => {
       assert.equal(parentRes.status, 403);
 
       const admin = await loginAsAdmin(http.baseUrl, db, await registerAndLogin(http.baseUrl));
-      const createRes = await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
+      const createRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
         method: 'POST',
         headers: headers(admin),
         body: JSON.stringify(BRIEF),
-      });
-      assert.equal(createRes.status, 201, await createRes.text());
-      const created = await createRes.json();
+      }));
+      assert.equal(createRes.status, 201, createRes.text);
+      const created = createRes.body;
       assert.equal(created.campaign.status, 'draft');
       assert.equal(created.campaign.daily_budget_sek, 40);
 
-      const submitRes = await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/submit`, {
+      const submitRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/submit`, {
         method: 'POST',
         headers: headers(admin),
-      });
-      assert.equal(submitRes.status, 200, await submitRes.text());
-      assert.equal((await submitRes.json()).campaign.status, 'pending_approval');
+      }));
+      assert.equal(submitRes.status, 200, submitRes.text);
+      assert.equal(submitRes.body.campaign.status, 'pending_approval');
 
-      const approveRes = await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/approve`, {
+      const approveRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/approve`, {
         method: 'POST',
         headers: headers(admin),
-      });
-      assert.equal(approveRes.status, 200, await approveRes.text());
-      const approved = await approveRes.json();
+      }));
+      assert.equal(approveRes.status, 200, approveRes.text);
+      const approved = approveRes.body;
       assert.equal(approved.campaign.status, 'live');
       assert.equal(approved.campaign.meta_campaign_id, 'camp_live');
       assert.ok(graph.calls.some((c) => String(c.path).endsWith('/campaigns')));
 
-      const pauseRes = await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/pause`, {
+      const secondApprove = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/approve`, {
         method: 'POST',
         headers: headers(admin),
-      });
-      assert.equal(pauseRes.status, 200, await pauseRes.text());
-      assert.equal((await pauseRes.json()).campaign.status, 'paused');
+      }));
+      assert.equal(secondApprove.status, 409, secondApprove.text);
+      const campaignCreates = graph.calls.filter((c) => String(c.path).endsWith('/campaigns'));
+      assert.equal(campaignCreates.length, 1);
+
+      const pauseRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.campaign.id}/pause`, {
+        method: 'POST',
+        headers: headers(admin),
+      }));
+      assert.equal(pauseRes.status, 200, pauseRes.text);
+      assert.equal(pauseRes.body.campaign.status, 'paused');
     } finally {
       await http.close();
     }
@@ -144,29 +163,75 @@ test('admin meta ads approval API', async (t) => {
     const http = await listenApp(createApp);
     try {
       const admin = await loginAsAdmin(http.baseUrl, db, await registerAndLogin(http.baseUrl));
-      const createRes = await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
+      const createRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
         method: 'POST',
         headers: headers(admin),
         body: JSON.stringify({ ...BRIEF, name: 'Okopplad kampanj' }),
-      });
-      assert.equal(createRes.status, 201, await createRes.text());
-      const id = (await createRes.json()).campaign.id;
-      await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}/submit`, {
+      }));
+      assert.equal(createRes.status, 201, createRes.text);
+      const id = createRes.body.campaign.id;
+      const submitRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}/submit`, {
         method: 'POST',
         headers: headers(admin),
-      });
-      const approveRes = await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}/approve`, {
+      }));
+      assert.equal(submitRes.status, 200, submitRes.text);
+      const approveRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}/approve`, {
         method: 'POST',
         headers: headers(admin),
-      });
+      }));
       assert.equal(approveRes.status, 409);
-      const body = await approveRes.json();
-      assert.equal(body.code, 'META_ADS_NOT_CONFIGURED');
-      const getRes = await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}`, {
+      assert.equal(approveRes.body.code, 'META_ADS_NOT_CONFIGURED');
+      const getRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}`, {
         headers: headers(admin),
-      });
-      const got = await getRes.json();
-      assert.equal(got.campaign.status, 'pending_approval');
+      }));
+      assert.equal(getRes.body.campaign.status, 'pending_approval');
+
+      const rejectRes = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${id}/reject`, {
+        method: 'POST',
+        headers: headers(admin),
+        body: JSON.stringify({ reason: 'Saknar Meta-nycklar' }),
+      }));
+      assert.equal(rejectRes.status, 200, rejectRes.text);
+      assert.equal(rejectRes.body.campaign.status, 'rejected');
+    } finally {
+      await http.close();
+    }
+  });
+
+  await t.test('copy guard blocks spend-path create; draft PUT updates before submit', async () => {
+    delete process.env.META_ADS_ACCESS_TOKEN;
+    delete require.cache[require.resolve('../app')];
+    const { createApp } = require('../app');
+    const http = await listenApp(createApp);
+    try {
+      const admin = await loginAsAdmin(http.baseUrl, db, await registerAndLogin(http.baseUrl));
+      const blocked = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
+        method: 'POST',
+        headers: headers(admin),
+        body: JSON.stringify({ ...BRIEF, name: 'Sista chansen test', headline: 'Sista chansen idag' }),
+      }));
+      assert.equal(blocked.status, 400, blocked.text);
+      assert.ok(Array.isArray(blocked.body.violations));
+
+      const created = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads`, {
+        method: 'POST',
+        headers: headers(admin),
+        body: JSON.stringify({ ...BRIEF, name: 'Redigerbar kampanj' }),
+      }));
+      assert.equal(created.status, 201, created.text);
+      const updated = await readJson(await fetch(`${http.baseUrl}/api/admin/meta-ads/${created.body.campaign.id}`, {
+        method: 'PUT',
+        headers: headers(admin),
+        body: JSON.stringify({
+          ...BRIEF,
+          name: 'Redigerad kampanj',
+          daily_budget_sek: 60,
+        }),
+      }));
+      assert.equal(updated.status, 200, updated.text);
+      assert.equal(updated.body.campaign.name, 'Redigerad kampanj');
+      assert.equal(updated.body.campaign.daily_budget_sek, 60);
+      assert.equal(updated.body.campaign.status, 'draft');
     } finally {
       await http.close();
     }
