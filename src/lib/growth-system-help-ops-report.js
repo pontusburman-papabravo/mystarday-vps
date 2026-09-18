@@ -33,6 +33,12 @@ const EVENT_TYPES = Object.freeze([
   PROGRESSED_EVENT,
 ]);
 
+/** Primary schema_no_child_login surface — shown/clicked on Hem handoff CTA. */
+const INLINE_EVENT_TYPES = Object.freeze([
+  'handoff_inline_cta_shown',
+  'handoff_inline_cta_clicked',
+]);
+
 const SUMMARY_EVENT_TYPES = Object.freeze([
   'system_help_engaged',
   'system_help_support_requested',
@@ -79,9 +85,9 @@ function outcomeSummaryMinCompleted() {
   return Number.isFinite(n) && n > 0 ? n : 10;
 }
 
-async function queryEventCounts(since = null) {
+async function queryEventCounts(since = null, eventTypes = EVENT_TYPES) {
   const counts = {};
-  for (const eventType of EVENT_TYPES) {
+  for (const eventType of eventTypes) {
     const params = [eventType];
     let sql = 'SELECT count(*)::int AS c FROM analytics_events WHERE event_type = $1';
     if (since) {
@@ -214,6 +220,8 @@ async function collectMetrics(now = new Date()) {
     outcomeTotals,
     outcome24h,
     recentCompletedOutcomes,
+    inlineTotals,
+    inline24h,
   ] = await Promise.all([
     db.query('SELECT enabled, updated_at FROM feature_flag WHERE key = $1 LIMIT 1', [FLAG_KEY]),
     db.query('SELECT count(*)::int AS c FROM family_feature_override WHERE feature_key = $1', [FLAG_KEY]),
@@ -249,6 +257,8 @@ async function collectMetrics(now = new Date()) {
     queryProgressedOutcomeCounts(),
     queryProgressedOutcomeCounts(since24h),
     queryRecentCompletedOutcomes(outcomeWindowEnd),
+    queryEventCounts(null, INLINE_EVENT_TYPES),
+    queryEventCounts(since24h, INLINE_EVENT_TYPES),
   ]);
 
   const shown = totals.system_help_shown || 0;
@@ -290,6 +300,14 @@ async function collectMetrics(now = new Date()) {
       no_progress: outcome24h.no_progress || 0,
     },
     recent_completed_outcomes: recentCompletedOutcomes,
+    inline_handoff_totals: {
+      handoff_inline_cta_shown: inlineTotals.handoff_inline_cta_shown || 0,
+      handoff_inline_cta_clicked: inlineTotals.handoff_inline_cta_clicked || 0,
+    },
+    inline_handoff_24h: {
+      handoff_inline_cta_shown: inline24h.handoff_inline_cta_shown || 0,
+      handoff_inline_cta_clicked: inline24h.handoff_inline_cta_clicked || 0,
+    },
   };
 }
 
@@ -579,6 +597,18 @@ function buildEmailBody({ metrics, decision, rollbackPerformed }) {
     '  (Hjälp-state = nuvarande episod; analytics = totalt över episoder)'
   );
 
+  const inlineTotals = metrics.inline_handoff_totals || {};
+  const inline24h = metrics.inline_handoff_24h || {};
+  lines.push(
+    '',
+    'Inline handoff CTA (schema_no_child_login):',
+    `  shown: ${inlineTotals.handoff_inline_cta_shown || 0}`,
+    `  clicked: ${inlineTotals.handoff_inline_cta_clicked || 0}`,
+    `  24h shown: ${inline24h.handoff_inline_cta_shown || 0}`,
+    `  24h clicked: ${inline24h.handoff_inline_cta_clicked || 0}`,
+    '  (Hem-CTA för schema utan barnlogin. Klick postar också system_help_engaged.)'
+  );
+
   const recent = metrics.recent_completed_outcomes || [];
   if (recent.length) {
     lines.push('', 'Senaste färdiga outcomes:');
@@ -787,4 +817,5 @@ module.exports = {
   formatRecentOutcomeLine,
   PROGRESSED_EVENT,
   PROGRESSED_OUTCOMES,
+  INLINE_EVENT_TYPES,
 };

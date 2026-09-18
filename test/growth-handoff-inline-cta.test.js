@@ -198,7 +198,7 @@ describe('growth handoff inline CTA — runtime contracts', () => {
   });
 
   it('maybeEnrichHandoff idempotent — no duplicate listeners, links, or shown events', async () => {
-    const { GrowthSystemHelp, tracked } = loadGrowthSystemHelp();
+    const { GrowthSystemHelp, tracked, apiCalls } = loadGrowthSystemHelp();
     const { root, primaryBtn, children } = makeHandoffRoot('legacy');
 
     await GrowthSystemHelp.enrichHandoff(root);
@@ -210,7 +210,9 @@ describe('growth handoff inline CTA — runtime contracts', () => {
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
 
     primaryBtn.click();
+    await Promise.resolve();
     primaryBtn.click();
+    await Promise.resolve();
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_clicked').length, 2);
     tracked
       .filter((e) => e.eventType === 'handoff_inline_cta_clicked')
@@ -218,6 +220,13 @@ describe('growth handoff inline CTA — runtime contracts', () => {
         assert.equal(e.metadata.blocking_step, 'schema_no_child_login');
         assert.equal(e.metadata.help_type, SCHEMA_HELP.helpType);
       });
+
+    const engageCalls = apiCalls.filter((c) => String(c.url).indexOf('/api/growth/system-help/engage') !== -1);
+    assert.equal(engageCalls.length, 1);
+    const engageBody = JSON.parse(engageCalls[0].opts.body);
+    assert.equal(engageBody.surface, 'child_handoff');
+    assert.equal(engageBody.blocking_step, 'schema_no_child_login');
+    assert.equal(engageBody.cta_action, SCHEMA_HELP.ctaAction);
   });
 
   it('flag off / ineligible context leaves handoff copy unchanged (rollback path)', async () => {

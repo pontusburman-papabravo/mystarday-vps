@@ -53,6 +53,14 @@ function baseMetrics(overrides = {}) {
       progressed_outcomes: 1,
       no_progress_rate: 0,
     },
+    inline_handoff_totals: {
+      handoff_inline_cta_shown: 0,
+      handoff_inline_cta_clicked: 0,
+    },
+    inline_handoff_24h: {
+      handoff_inline_cta_shown: 0,
+      handoff_inline_cta_clicked: 0,
+    },
     ...overrides,
   };
 }
@@ -345,7 +353,37 @@ describe('growth-system-help-ops-report', () => {
     assert.match(body, /nuvarande episod/);
     assert.match(body, /Senaste färdiga outcomes:/);
     assert.match(body, /no_progress · schema_no_child_login/);
+    assert.match(body, /Inline handoff CTA \(schema_no_child_login\):/);
+    assert.match(body, /clicked: 0/);
+    assert.match(body, /Klick postar också system_help_engaged/);
     assert.doesNotMatch(body, /ÅTGÄRD: Global flagga/);
+  });
+
+  it('includes inline handoff shown/clicked in the ops email body', () => {
+    const body = buildEmailBody({
+      metrics: baseMetrics({
+        inline_handoff_totals: {
+          handoff_inline_cta_shown: 6,
+          handoff_inline_cta_clicked: 2,
+        },
+        inline_handoff_24h: {
+          handoff_inline_cta_shown: 1,
+          handoff_inline_cta_clicked: 0,
+        },
+      }),
+      decision: {
+        deltas: {},
+        outcomeDeltas: { progressed: 0, no_progress: 0 },
+        alerts: [],
+        reasons: ['no_progress_outcome'],
+      },
+      rollbackPerformed: false,
+    });
+    assert.match(body, /Inline handoff CTA \(schema_no_child_login\):/);
+    assert.match(body, /  shown: 6/);
+    assert.match(body, /  clicked: 2/);
+    assert.match(body, /  24h shown: 1/);
+    assert.match(body, /  24h clicked: 0/);
   });
 
   it('keeps activity_summary when engage arrives with a no_progress close', () => {
