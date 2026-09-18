@@ -62,7 +62,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /priceCurrency": "SEK"/);
     assert.match(html, /href="\/en\/eea\/privacy"/);
     assert.match(html, /href="\/en\/eea\/terms"/);
-    assert.match(html, /Create account/);
+    assert.match(html, /Get the app/);
     assert.match(html, /id="waitlist"/);
   });
 
@@ -70,7 +70,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     const html = fs.readFileSync(path.join(__dirname, '../public/en-pricing.html'), 'utf8');
     assert.doesNotMatch(html, /Join waitlist/);
     assert.doesNotMatch(html, /English version is ready/);
-    assert.match(html, /href="\/register"/);
+    assert.match(html, /Get the app/);
+    assert.doesNotMatch(html, /href="\/register"/);
     assert.match(html, /EUR in Ireland and Finland/);
     assert.match(html, /landing-market-state\.js/);
   });

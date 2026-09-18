@@ -93,9 +93,9 @@
     document.querySelectorAll('a.btn-primary[href="#waitlist"], a.btn-primary[href="/en#waitlist"], a[href="/en#waitlist"]').forEach((el) => {
       if (el.id === 'waitlistSubmitBtn') return;
       if (el.closest('#waitlistForm')) return;
-      el.setAttribute('href', '/register');
+      el.setAttribute('href', '#app-store');
       if (el.textContent && /waitlist/i.test(el.textContent)) {
-        el.textContent = 'Create account';
+        el.textContent = 'Get the app';
       }
     });
   }

@@ -256,7 +256,15 @@
       "successGracePeriod": "You can log in right away and have 24 hours to verify your email.",
       "successLoginBtn": "Sign in",
       "inviteErrorDefault": "Invalid invitation link.",
-      "appleEmailExists": "An account with this email address already exists. Sign in with Apple instead, or use email and password."
+      "appleEmailExists": "An account with this email address already exists. Sign in with Apple instead, or use email and password.",
+      "webDownload": {
+        "title": "Get the app",
+        "lead": "New families create an account in the app. Download it from the App Store or Google Play.",
+        "appStoreAria": "Download on the App Store",
+        "playStoreAria": "Get it on Google Play",
+        "hasAccount": "Already have an account?",
+        "loginLink": "Log in"
+      }
     },
     "parentGate": {
       "title": "Parent lock",

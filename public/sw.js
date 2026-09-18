@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v994: close public web signup — browser /register shows store download
  * v917: contact receipt + on-page link to follow the support thread
  * v916: support web thread — same signed link shows the conversation
  * v915: support follow-up link so user replies land on the ticket
@@ -329,7 +330,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v993';
+const CACHE_NAME = 'stjarndag-v994';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak
@@ -1015,6 +1016,7 @@ const STATIC_ASSETS = [
   '/js/google-auth-ui.js',
   '/js/registration-country-gate.js',
   '/js/register-apple-auth.js',
+  '/js/register-web-signup-gate.js',
   '/js/apple-auth-cancel.js',
   '/js/apple-auth-session.js',
   '/js/apple-auth-completion.js',

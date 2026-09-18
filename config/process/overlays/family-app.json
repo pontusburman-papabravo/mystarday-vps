@@ -44,6 +44,7 @@
         "public/js/country-choice.js",
         "public/js/registration-country-gate.js",
         "public/js/register-apple-auth.js",
+        "public/js/register-web-signup-gate.js",
         "public/js/*login*.js",
         "public/js/*auth*.js",
         "public/js/parental-gate.js",
@@ -72,6 +73,7 @@
         "test/auth-integration.test.js",
         "test/credential-leak-guard.test.js",
         "test/register-form-gate.test.js",
+        "test/public-web-signup-closed.test.js",
         "test/register-oauth-country-gate.test.js",
         "test/register-language-displayed.test.js",
         "test/acquisition-attribution.test.js",
@@ -104,6 +106,7 @@
         "test/r4-final-security-blockers.integration.test.js",
         "test/r4-final-authority.integration.test.js",
         "test/register-form-gate.test.js",
+        "test/public-web-signup-closed.test.js",
         "test/register-oauth-country-gate.test.js",
         "test/register-language-displayed.test.js"
       ]
