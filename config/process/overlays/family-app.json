@@ -177,14 +177,19 @@
         "locales/**",
         "src/locales/**",
         "src/lib/support-locale.js",
-        "config/markets/**"
+        "config/markets/**",
+        "src/lib/meta-ads/**",
+        "src/routes/admin/meta-ads.js",
+        "db/meta-ad-campaigns.js",
+        "public/admin/admin-meta-ads.js"
       ],
       "l1Tests": [
         "test/market-region.test.js",
         "test/market-commercial-policy.test.js",
         "test/legal-routing.test.js",
         "test/i18n-locale.test.js",
-        "test/register-language-displayed.test.js"
+        "test/register-language-displayed.test.js",
+        "test/meta-ads-brief.test.js"
       ],
       "testGlobs": [
         "test/i18n*.test.js",
@@ -198,7 +203,8 @@
         "test/prebilling-market-e2e.test.js",
         "test/public-launch-state.test.js",
         "test/paid-transition.test.js",
-        "test/paid-transition-simulation.test.js"
+        "test/paid-transition-simulation.test.js",
+        "test/meta-ads*.test.js"
       ]
     },
     "planning-schedule": {

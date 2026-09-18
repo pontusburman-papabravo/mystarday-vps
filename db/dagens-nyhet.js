@@ -253,10 +253,24 @@ async function updateNyhet(id, fields) {
   return result.rows[0] || null;
 }
 
+async function listBoostableFacebookPosts(limit = 20) {
+  const result = await db.query(
+    `SELECT id, title, body, facebook_post_id, published_at, status
+       FROM dagens_nyhet
+      WHERE facebook_post_id IS NOT NULL
+        AND facebook_post_id <> ''
+      ORDER BY COALESCE(published_at, created_at) DESC
+      LIMIT $1`,
+    [limit]
+  );
+  return result.rows;
+}
+
 module.exports = {
   createNyhet,
   getActiveLandingNyhet,
   listNyheter,
+  listBoostableFacebookPosts,
   markPushSent,
   markFacebookPosted,
   markEmailSent,
