@@ -49,7 +49,7 @@ function normalizeSevenQuestions(raw) {
 function enrichForClient(activity, sevenQuestions = {}) {
   const sq = { ...sevenQuestions };
   sq.what = {
-    text: activity?.name || '',
+    text: activity?.display_name || activity?.name || '',
     icon_key: activity?.icon_key || null,
     emoji: activity?.icon || null,
     image_url: activity?.avatar_url || null,

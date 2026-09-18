@@ -35,6 +35,11 @@
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
   }
 
+  function activityLabel(item) {
+    if (!item) return '';
+    return item.display_name || item.name || '';
+  }
+
   function renderQuestion(key, val) {
     if (!val || (!val.text && !val.emoji)) return '';
     const emoji = val.emoji || '•';
@@ -52,7 +57,8 @@
 
     const sq = item.seven_questions || {};
     const enriched = { ...sq };
-    enriched.what = { text: item.name, emoji: item.icon || '⭐', virtual: true };
+    const label = activityLabel(item);
+    enriched.what = { text: label, emoji: item.icon || '⭐', virtual: true };
 
     const rows = ORDER.map((k) => renderQuestion(k, enriched[k])).filter(Boolean).join('');
     if (!rows) return null;
@@ -87,7 +93,7 @@
 
     return `
       <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}"
-           data-item-name="${esc(item.name)}" data-item-icon="${esc(item.icon || '⭐')}">
+           data-item-name="${esc(label)}" data-item-icon="${esc(item.icon || '⭐')}">
         <div class="now-badge"><div class="pulse-dot"></div> ${nowBadge}</div>
         <div class="teacch-questions">${rows}</div>
         ${global.ChildActivityTimer && ChildActivityTimer.renderBlock

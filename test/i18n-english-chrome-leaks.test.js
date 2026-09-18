@@ -78,6 +78,12 @@ describe('English chrome leftover Swedish leaks', () => {
     assert.match(hub, /next\.display_name \|\| next\.name/);
   });
 
+  it('child NOW seven-questions card uses display_name so check-off does not flip to Swedish', () => {
+    const src = read('public/js/child-seven-questions.js');
+    assert.match(src, /item\.display_name \|\| item\.name/);
+    assert.doesNotMatch(src, /enriched\.what = \{ text: item\.name/);
+  });
+
   it('home cards render localized activity display_name', () => {
     const src = read('public/js/dashboard-cards.js');
     assert.match(src, /item\.display_name \|\| item\.name/);

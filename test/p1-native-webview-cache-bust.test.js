@@ -36,6 +36,7 @@ describe('P1 native WebView cache bust — MAGIC_VERSION', () => {
     assert.match(platformSrc, /journey-context-client\.js\?v=/);
     assert.match(platformSrc, /child-profile-picker\.js\?v=/);
     assert.match(platformSrc, /child-app-i18n\.js\?v=/);
+    assert.match(platformSrc, /child-seven-questions\.js\?v=/);
   });
 });
 
@@ -73,6 +74,16 @@ describe('P1 native WebView cache bust — profile picker path', () => {
     // The regex must not touch the sibling -lease-policy / -lifecycle scripts.
     assert.match(served, /adult-privilege-lease-policy\.js\?v=/);
     assert.match(served, /adult-privilege-lifecycle\.js\?v=/);
+  });
+});
+
+describe('P1 native WebView cache bust — child dashboard seven-questions', () => {
+  const V = MAGIC_VERSION;
+  it('rewrites child-seven-questions.js on child-dashboard', () => {
+    const html = read('public/child-dashboard.html');
+    const served = injectPlatformHtml(html, '/child-dashboard', {});
+    assert.match(served, new RegExp('/js/child-seven-questions\\.js\\?v=' + V));
+    assert.doesNotMatch(served, /child-seven-questions\.js\?v=1\.0\.0/);
   });
 });
 

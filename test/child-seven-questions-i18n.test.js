@@ -57,4 +57,24 @@ describe('child-seven-questions i18n', () => {
     assert.match(src, /cpt\('todayWarmth\.nowBadge'\)/);
     assert.match(src, /questionLabel\(key\)/);
   });
+
+  it('NOW what-label prefers localized display_name over stored Swedish name', () => {
+    const src = readSrc();
+    assert.match(src, /function activityLabel\(item\)/);
+    assert.match(src, /item\.display_name \|\| item\.name/);
+    assert.doesNotMatch(src, /enriched\.what = \{ text: item\.name/);
+    assert.doesNotMatch(src, /data-item-name="\$\{esc\(item\.name\)\}"/);
+  });
+
+  it('server enrichForClient uses display_name for virtual what', () => {
+    const { enrichForClient } = require('../src/lib/seven-questions');
+    const out = enrichForClient(
+      { name: 'Klä på sig', display_name: 'Get dressed', icon: '👕' },
+      {}
+    );
+    assert.equal(out.what.text, 'Get dressed');
+    assert.equal(out.what.virtual, true);
+    const svOnly = enrichForClient({ name: 'Bädda sängen', icon: '🛏️' }, {});
+    assert.equal(svOnly.what.text, 'Bädda sängen');
+  });
 });
