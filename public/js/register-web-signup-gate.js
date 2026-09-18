@@ -9,7 +9,7 @@
     if (global.Platform && typeof global.Platform.isNative === 'function' && global.Platform.isNative()) {
       return true;
     }
-    var root = global.document && global.document.documentElement;
+    const root = global.document && global.document.documentElement;
     if (root && root.classList) {
       if (root.classList.contains('platform-native')) return true;
       if (root.classList.contains('is-native')) return true;
@@ -20,7 +20,7 @@
   }
 
   function hasInviteToken(search) {
-    var query = search;
+    let query = search;
     if (query == null) {
       query = (global.location && global.location.search) || '';
     }
@@ -35,13 +35,13 @@
   }
 
   function apply() {
-    var close = shouldClosePublicSignup();
-    var download = global.document && global.document.getElementById('webSignupDownload');
-    var nativeRoot = global.document && global.document.getElementById('registerNativeSignup');
+    const close = shouldClosePublicSignup();
+    const download = global.document && global.document.getElementById('webSignupDownload');
+    const nativeRoot = global.document && global.document.getElementById('registerNativeSignup');
     if (download) download.hidden = !close;
     if (nativeRoot) nativeRoot.hidden = close;
     if (close) {
-      var form = global.document && global.document.getElementById('registerForm');
+      const form = global.document && global.document.getElementById('registerForm');
       if (form && form.classList) form.classList.add('hidden');
     }
     return close;
