@@ -66,7 +66,8 @@
    * @returns {Promise<string>}
    */
   async function initSharedDevicePickerI18n(opts) {
-    if (!window.I18n) return 'sv-SE';
+    const i18n = window.I18n;
+    if (!i18n) return 'sv-SE';
     let preferred = (opts && opts.preferredLocale) || null;
 
     if (!preferred && window.Auth && typeof Auth.getUser === 'function') {
@@ -83,13 +84,13 @@
 
     if (!preferred) {
       try {
-        preferred = sessionStorage.getItem(I18n.STORAGE_KEY)
-          || localStorage.getItem(I18n.STORAGE_KEY);
+        preferred = sessionStorage.getItem(i18n.STORAGE_KEY)
+          || localStorage.getItem(i18n.STORAGE_KEY);
       } catch (_) { /* ignore */ }
     }
 
-    const locale = (typeof I18n._normalize === 'function' && I18n._normalize(preferred)) || 'sv-SE';
-    await I18n.init(locale);
+    const locale = (typeof i18n._normalize === 'function' && i18n._normalize(preferred)) || 'sv-SE';
+    await i18n.init(locale);
     applyChildDom();
     document.dispatchEvent(new CustomEvent('picker-i18n-ready', {
       detail: { lang: locale },

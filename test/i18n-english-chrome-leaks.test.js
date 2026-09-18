@@ -177,7 +177,7 @@ describe('English chrome leftover Swedish leaks', () => {
     sandbox.window.document = sandbox.document;
     sandbox.window.sessionStorage = storage;
     sandbox.window.localStorage = storage;
-    sandbox.window.I18n = {
+    const i18nApi = {
       STORAGE_KEY: 'sd_preferred_locale',
       lang: 'sv-SE',
       _normalize(raw) {
@@ -190,6 +190,8 @@ describe('English chrome leftover Swedish leaks', () => {
       apply() {},
       t(key) { return key; },
     };
+    sandbox.window.I18n = i18nApi;
+    sandbox.I18n = i18nApi;
     vm.runInNewContext(read('public/js/child-app-i18n.js'), sandbox);
     const lang = await sandbox.window.initSharedDevicePickerI18n();
     assert.equal(lang, 'en-GB');
