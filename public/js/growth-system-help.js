@@ -6,6 +6,7 @@
   'use strict';
 
   const SHOWN_SESSION_PREFIX = 'msd_system_help_shown_';
+  const ENGAGED_SESSION_PREFIX = 'msd_system_help_engaged_';
   const INLINE_SHOWN_PREFIX = 'msd_handoff_inline_cta_shown_';
   const INLINE_ENRICHED_CLASS = 'growth-handoff-inline-enriched';
   const INLINE_CLICK_BOUND_ATTR = 'data-handoff-inline-click-bound';
@@ -246,12 +247,38 @@
     }).catch(function () {});
   }
 
+  function wasEngagedSession(blockingStep) {
+    try {
+      return Boolean(sessionStorage.getItem(ENGAGED_SESSION_PREFIX + blockingStep));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function markEngagedSession(blockingStep) {
+    try {
+      sessionStorage.setItem(ENGAGED_SESSION_PREFIX + blockingStep, String(Date.now()));
+    } catch (_) {}
+  }
+
+  function recordInlineEngaged(data, help) {
+    if (!data || !data.blockingStep) return Promise.resolve();
+    if (wasEngagedSession(data.blockingStep)) return Promise.resolve();
+    markEngagedSession(data.blockingStep);
+    return postJson('/api/growth/system-help/engage', {
+      surface: 'child_handoff',
+      blocking_step: data.blockingStep,
+      cta_action: help && help.ctaAction,
+    });
+  }
+
   function bindInlineCtaClick(parts, data, help) {
     if (!parts.primaryBtn) return;
     if (parts.primaryBtn.getAttribute(INLINE_CLICK_BOUND_ATTR) === '1') return;
     parts.primaryBtn.setAttribute(INLINE_CLICK_BOUND_ATTR, '1');
     parts.primaryBtn.addEventListener('click', function () {
       trackInlineEvent('handoff_inline_cta_clicked', buildInlineEventMetadata(data, help));
+      recordInlineEngaged(data, help);
     }, { capture: true });
   }
 
