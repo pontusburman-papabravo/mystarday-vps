@@ -7,6 +7,7 @@ const { resolveAppEntry } = require('../../lib/app-entry-resolve');
 const { toPublicEntryDecision } = require('../../lib/app-entry-decision-public');
 const { isFamilyDeviceEntryEnabled } = require('../../lib/family-device-entry-flags');
 const { isFamilyDeviceDailyUxEnabled } = require('../../lib/family-device-daily-ux-flags');
+const { getFamilyPreferredLocale } = require('../../lib/family-locale');
 const parentPinDb = require('../../../db/parent-pin');
 
 const router = express.Router();
@@ -23,9 +24,19 @@ router.get('/app-entry', optionalAuth, async (req, res, next) => {
     const resolved = resolveAppEntry(input);
     const decision = toPublicEntryDecision(resolved, { dailyUxActive });
 
+    let preferredLocale;
+    if (familyId) {
+      try {
+        preferredLocale = await getFamilyPreferredLocale(familyId);
+      } catch (_) {
+        preferredLocale = undefined;
+      }
+    }
+
     return res.json({
       orchestratorActive,
       dailyUxActive,
+      preferredLocale,
       decision,
       allowedChildren: orchestratorActive
         ? input.allowedChildren.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji }))

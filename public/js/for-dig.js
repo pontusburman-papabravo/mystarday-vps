@@ -369,7 +369,7 @@
         <button type="button" class="for-dig-details-toggle text-sm text-gold font-semibold mb-3" data-action="toggle-details">${showDetails ? esc(pt('forDig.cta.hideDetails')) : esc(pt('forDig.cta.showDetails'))}</button>
         ${showDetails ? renderPlanDetails(plan, goal) : ''}
         <div class="for-dig-activate-actions">
-          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">${esc(plan.cta_label || goalCtaLabel(goal))}</button>
+          <button type="button" class="for-dig-cta for-dig-cta-primary" data-action="activate-confirm" style="background:var(--fdg-accent); color:#1B2340">${esc(goalCtaLabel(goal) || plan.cta_label)}</button>
           <button type="button" class="for-dig-cta for-dig-cta-secondary" data-action="activate-customize">${esc(pt('forDig.cta.customize'))}</button>
           <button type="button" class="text-sm text-text-soft underline w-full" data-action="activate-cancel">${esc(pt('forDig.cta.cancel'))}</button>
         </div>
@@ -377,8 +377,10 @@
   }
 
   function scheduleLabel(goal) {
-    if (goal && goal.scheduleName) return goal.scheduleName;
-    return goal ? goal.title : '';
+    if (!goal) return '';
+    if (goal.scheduleDisplayName) return goal.scheduleDisplayName;
+    if (goal.scheduleName) return goal.scheduleName;
+    return goal.title || '';
   }
 
   function renderRecommendations() {

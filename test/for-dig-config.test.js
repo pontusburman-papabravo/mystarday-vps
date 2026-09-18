@@ -68,3 +68,15 @@ test('getGoalsForLocale returns Swedish by default and English overlays for en-G
   assert.notEqual(svMotivation.headline, enMotivation.headline);
   assert.equal(svMotivation.activityNames, enMotivation.activityNames);
 });
+
+test('en-GB overlay localizes visible For you chrome without rewriting scheduleName', () => {
+  const sv = getGoalsForLocale('sv-SE').find((g) => g.slug === 'skolansvar');
+  const en = getGoalsForLocale('en-GB').find((g) => g.slug === 'skolansvar');
+  assert.equal(sv.scheduleName, 'Skola vardag');
+  assert.equal(en.scheduleName, 'Skola vardag');
+  assert.equal(en.scheduleDisplayName, 'School weekday');
+  assert.equal(en.scheduleSectionLabel, 'School');
+  const labels = (en.rewardExamples || []).map((r) => r.label);
+  assert.deepEqual(labels, ['Games night', 'Friday night in', 'Choose a book']);
+  assert.equal((sv.rewardExamples || [])[0].label, 'Spelkväll');
+});

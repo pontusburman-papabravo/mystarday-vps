@@ -1141,9 +1141,13 @@
         openCoParentInviteModal();
         return;
       }
-      const raw = FamilyInviteScan.scanAdultQrInteractive();
+      const raw = await FamilyInviteScan.scanAdultQrInteractive();
       if (!raw) return;
       const parsed = FamilyInviteScan.parseQrPayload(raw);
+      if (!parsed.email && !parsed.inviteToken) {
+        showToast(fpt('family.scanQr.invalid'), true);
+        return;
+      }
       openFamilyModal('addAdultModal');
       const msg = document.getElementById('addAdultMsg');
       msg.textContent = '';

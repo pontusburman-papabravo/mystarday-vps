@@ -59,6 +59,45 @@
     return 'sv-SE';
   }
 
+  /**
+   * Shared adult+child profile picker follows family.preferred_locale.
+   * Must not gate on english_child_experience and must not persist sd_child_ui_locale.
+   * @param {{ preferredLocale?: string }} [opts]
+   * @returns {Promise<string>}
+   */
+  async function initSharedDevicePickerI18n(opts) {
+    const i18n = window.I18n;
+    if (!i18n) return 'sv-SE';
+    let preferred = (opts && opts.preferredLocale) || null;
+
+    if (!preferred && window.Auth && typeof Auth.getUser === 'function') {
+      const user = Auth.getUser();
+      if (user && user.preferred_locale) preferred = user.preferred_locale;
+    }
+
+    if (!preferred && window.Auth && typeof Auth.api === 'function') {
+      try {
+        const me = await Auth.api('/api/auth/me');
+        if (me && me.preferred_locale) preferred = me.preferred_locale;
+      } catch (_) { /* not logged in */ }
+    }
+
+    if (!preferred) {
+      try {
+        preferred = sessionStorage.getItem(i18n.STORAGE_KEY)
+          || localStorage.getItem(i18n.STORAGE_KEY);
+      } catch (_) { /* ignore */ }
+    }
+
+    const locale = (typeof i18n._normalize === 'function' && i18n._normalize(preferred)) || 'sv-SE';
+    await i18n.init(locale);
+    applyChildDom();
+    document.dispatchEvent(new CustomEvent('picker-i18n-ready', {
+      detail: { lang: locale },
+    }));
+    return locale;
+  }
+
   function applyPageTitle() {
     if (!window.I18n) return;
     const titleKey = document.body && document.body.dataset && document.body.dataset.i18nTitle;
@@ -247,6 +286,7 @@
   });
 
   window.initChildAppI18n = initChildAppI18n;
+  window.initSharedDevicePickerI18n = initSharedDevicePickerI18n;
   window.cpt = cpt;
   window.childPlural = childPlural;
   window.childLoginErrorFromResponse = childLoginErrorFromResponse;

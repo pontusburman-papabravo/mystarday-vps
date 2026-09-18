@@ -1091,5 +1091,13 @@
     "noChildren": "No children added",
     "addHint": "Add children under Family & settings.",
     "rewardCount": "{{count}} rewards"
+  },
+  "scanQr": {
+    "title": "Paste invite",
+    "lead": "Paste an email, invite link, or mailto from the QR code.",
+    "label": "Email or invite link",
+    "placeholder": "name@example.com or invite link",
+    "continue": "Continue",
+    "invalid": "Could not read an email or invite link."
   }
 }

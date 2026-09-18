@@ -181,6 +181,16 @@ describe('release-compliance-gate — Check C: placeholder / review-unsafe copy 
     assert.equal(hits.length, 0);
   });
 
+  test('SAFE — JS .placeholder assignment with example.com hint is form chrome, not review-unsafe copy', () => {
+    const js = "el.placeholder = scanT('family.scanQr.placeholder', 'name@example.com or invite link');";
+    const hits = scanTextForPlaceholders(js, {
+      filePath: 'public/js/family-invite-scan.js',
+      fileType: 'js',
+      config: CONFIG,
+    }).filter((h) => h.classification === 'A_CONSUMER_UI');
+    assert.equal(hits.length, 0);
+  });
+
   test('NOT_APPLICABLE — UK placeholder legal pages when market_uk_open=false', () => {
     const hits = withDisposition(
       scanTextForPlaceholders('<h1>UK Privacy Notice (placeholder)</h1>', {

@@ -211,7 +211,9 @@ function localizeGoal(goal, locale) {
   if (!goal || locale !== 'en-GB') return goal;
   const overlay = loadGoalI18nEnGb()[goal.slug];
   if (!overlay) return goal;
-  return { ...goal, ...overlay };
+  const safeOverlay = { ...overlay };
+  delete safeOverlay.scheduleName; // DB lookup key — never replace with display copy
+  return { ...goal, ...safeOverlay };
 }
 
 function getGoalsForLocale(locale) {

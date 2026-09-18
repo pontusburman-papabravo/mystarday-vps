@@ -263,7 +263,9 @@
       && document.querySelector('[data-profile-switch-parent]');
     let switchCard = '';
     if (!hasTopProfileSwitch && window.ProfileSwitchChrome && ProfileSwitchChrome.shouldShow && ProfileSwitchChrome.shouldShow()) {
-      const switchLabel = ProfileSwitchChrome.labelText ? ProfileSwitchChrome.labelText() : 'Byt profil';
+      const switchLabel = ProfileSwitchChrome.labelText
+        ? ProfileSwitchChrome.labelText()
+        : ((typeof window.pt === 'function' && pt('nav.switchUser')) || 'Byt profil');
       switchCard =
         '<button type="button" class="magic-settings-group-card magic-3d-card" data-profile-switch-settings="1">' +
         '<span class="magic-settings-group-icon app" aria-hidden="true">' + pageIcon('profil', 28) + '</span>' +

@@ -256,10 +256,10 @@ function renderDashboardCards() {
       statusRowHtml = `<span class="dash-status-row">${hpt('home.cards.noActivitiesToday')}</span>`;
     } else {
       const lastPart = lastDone
-        ? `<strong>${hpt('home.cards.last')}</strong> ${escHtml(lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
+        ? `<strong>${hpt('home.cards.last')}</strong> ${escHtml(lastDone.display_name || lastDone.name)} ✅${lastDone.start_time ? ' ' + lastDone.start_time.substring(0,5) : ''}`
         : '';
       const nextPart = nextPending
-        ? `<strong>${hpt('home.cards.next')}</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.name)}`
+        ? `<strong>${hpt('home.cards.next')}</strong> ${escHtml(nextPending.icon || '')} ${escHtml(nextPending.display_name || nextPending.name)}`
         : '';
       statusRowHtml = `<span class="dash-status-row">${[lastPart, nextPart].filter(Boolean).join(' &nbsp;·&nbsp; ')}</span>`;
     }
@@ -285,7 +285,8 @@ function renderDashboardCards() {
           ? ForDigGoalBadge.render(item.for_dig_goal)
           : '';
         const starsHtml = item.star_value > 0 ? `<span class="text-[10px] text-gold font-bold ml-auto flex-shrink-0">+${item.star_value}⭐</span>` : '';
-        const nameDisplay = item.completed ? `<span class="line-through opacity-60">${escHtml(item.name)}</span>` : `<span>${escHtml(item.name)}</span>`;
+        const activityLabel = item.display_name || item.name;
+        const nameDisplay = item.completed ? `<span class="line-through opacity-60">${escHtml(activityLabel)}</span>` : `<span>${escHtml(activityLabel)}</span>`;
         const oncePin = item.is_once_task ? `<span title="${hpt('home.cards.onceTask')}" class="text-[10px] flex-shrink-0">📌</span>` : '';
         return `
           <div class="dash-activity-item ${statusClass}" data-item-id="${item.id}">
@@ -336,7 +337,7 @@ function renderDashboardCards() {
       expandedRewardHtml = `
         <div class="mb-3 p-3 bg-navy rounded-xl">
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs text-white/80 font-semibold truncate">${escHtml(nearestReward.icon || '🎁')} ${escHtml(nearestReward.name)}</span>
+            <span class="text-xs text-white/80 font-semibold truncate">${escHtml(nearestReward.icon || '🎁')} ${escHtml(nearestReward.display_name || nearestReward.name)}</span>
             <span class="text-xs text-white/60 ml-2 flex-shrink-0">${stars}/${nearestReward.star_cost} ⭐</span>
           </div>
           <div class="reward-progress-bar-track">
