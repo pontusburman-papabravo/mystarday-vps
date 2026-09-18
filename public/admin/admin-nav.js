@@ -30,6 +30,7 @@
         { key: 'pedagogintresse', navId: 'pedagogintresse', label: 'Pedagogintresse', targetSection: 'intresseanmalningar', aliases: ['intresseanmalningar'], capability: 'stable' },
         { key: 'waitlist', navId: 'waitlist', label: 'Waitlist (EN)', targetSection: 'waitlist', capability: 'stable' },
         { key: 'tillvaxt-pipeline', navId: 'tillvaxt-pipeline', label: 'Pipeline', targetSection: 'growthPipeline', capability: 'stable' },
+        { key: 'meta-annonser', navId: 'meta-annonser', label: 'Meta-annonser', targetSection: 'metaAds', capability: 'stable' },
         {
           key: 'landningssidor',
           navId: 'landningssidor',

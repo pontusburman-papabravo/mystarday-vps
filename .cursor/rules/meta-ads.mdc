@@ -1,0 +1,24 @@
+---
+description: Meta Ads drafts via Cursor — never publish without admin approval.
+globs: docs/meta-ads/**,src/lib/meta-ads/**,src/routes/admin/meta-ads.js,scripts/meta-ads-propose.js
+alwaysApply: false
+---
+
+# Meta Ads (Cursor)
+
+**Authority:** `docs/adr/ADR-024-meta-ads-approval-gate.md` · `docs/meta-ads.md` · COS `008_GROWTH_PLAYBOOK.md`
+
+## What agents may do
+
+- Draft campaign JSON matching `docs/meta-ads/examples/se-traffic-register.js`
+- Validate with `npm run meta-ads:propose -- <file.json>`
+- Import via admin or `--submit` (inserts `pending_approval` / draft in DB)
+
+## What agents must not do
+
+- Call Meta Marketing API or Graph ad endpoints
+- Auto-approve, raise budget caps, or spend
+- Use fear-based NPF copy, medical claims, or fake urgency
+- Point destination URLs outside mystarday.se / .eu / .app <!-- pragma: allowlist secret -->
+
+Approve happens only in `/admin#meta-annonser` by a human admin.

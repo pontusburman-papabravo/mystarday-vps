@@ -16,6 +16,18 @@ Values are stored **outside the repository** in approved secret management (GitH
 
 Canonical flow: [`founder-qa-test-account.md`](founder-qa-test-account.md)
 
+## Meta Ads (admin + Cursor drafts)
+
+| Secret name | Purpose |
+|-------------|---------|
+| `META_ADS_ACCESS_TOKEN` | Meta system user token (`ads_management`, `ads_read`) |
+| `META_AD_ACCOUNT_ID` | Ad account id (`act_…`) |
+| `META_ADS_PAGE_ID` | Page id for ad creatives (or reuse `FACEBOOK_PAGE_ID`) |
+| `META_ADS_INSTAGRAM_ACTOR_ID` | Optional Instagram actor id |
+| `META_ADS_PIXEL_ID` | Optional Pixel id |
+
+Operator guide: [`meta-ads.md`](meta-ads.md). Approval is required before spend.
+
 ## App Store / Play review demo family
 
 | Secret name | Purpose |

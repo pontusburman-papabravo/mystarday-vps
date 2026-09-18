@@ -83,6 +83,8 @@ const TABLE_EXPORT_ORDER = [
   'analytics_events',
   'analytics_daily_snapshots',
   'win_back_email_log',
+  'meta_ad_campaign',
+  'meta_ad_campaign_action',
   'survey_responses',
   'survey_response_answers',
   'survey_participants',

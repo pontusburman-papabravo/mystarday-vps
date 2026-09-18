@@ -128,6 +128,7 @@
       if (name === 'intresseanmalningar' && typeof loadInterests === 'function') loadInterests();
       if (name === 'waitlist' && typeof loadWaitlist === 'function') loadWaitlist();
       if (name === 'growthPipeline' && typeof loadGrowthPipeline === 'function') loadGrowthPipeline();
+      if (name === 'metaAds' && typeof loadMetaAdsCampaigns === 'function') loadMetaAdsCampaigns();
       if (name === 'valkomstmail' && typeof loadWelcomeEmailTemplate === 'function') {
         loadWelcomeEmailTemplate();
       }

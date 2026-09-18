@@ -9,6 +9,7 @@
 // - admin/professional-interest.js (list professional interest submissions)
 // - admin/user-stats.js (parent/child/pedagog statistics)
 // - admin/waitlist.js (English waitlist signups + survey responses)
+// - admin/meta-ads.js (approval-gated Meta Ads drafts / publish)
 
 const express = require('express');
 const { requireAdmin } = require('../middleware/auth');
@@ -60,6 +61,7 @@ const journeyRegistryRouter = require('./admin/journey-registry');
 const localeAnalyticsRouter = require('./admin/locale-analytics');
 const growthStuckCohortsRouter = require('./admin/growth-stuck-cohorts');
 const growthStuckInterventionRouter = require('./admin/growth-stuck-intervention');
+const metaAdsRouter = require('./admin/meta-ads');
 
 router.use(familyRouter);
 router.use(migrationExportRouter);
@@ -99,6 +101,7 @@ router.use(forDigOutcomeFollowupRouter);
 router.use('/welcome-email', welcomeEmailRouter);
 router.use('/email-templates', emailTemplatesRouter);
 router.use('/email-log', emailLogRouter);
+router.use('/meta-ads', metaAdsRouter);
 router.use(professionalInterestRouter);
 router.use(userStatsRouter);
 router.use(waitlistRouter);

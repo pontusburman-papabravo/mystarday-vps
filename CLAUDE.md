@@ -77,9 +77,12 @@ Express.js + Neon PostgreSQL + Tailwind CDN, deployed on Render.
 - **RevenueCat IAP** — sole payment path on native iOS/Android (Apple/Google in-app purchase); `REVENUECAT_API_KEY` + `REVENUECAT_WEBHOOK_SECRET` env vars; `GET /api/iap/config` + `POST /api/iap/webhook` in `src/routes/iap.js`. No web checkout. See `docs/app-store-iap.md`. Stripe removed (Fas 5); history in `docs/ARKIVERAT-STRIPE.md`.
 - **Web Push (VAPID)** — push notifications via VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY env vars
 - **Apple APNs** — iOS native push via raw HTTP/2 + ES256 JWT auth (APNS_KEY_ID, APNS_TEAM_ID, APNS_KEY_PATH, APNS_BUNDLE_ID env vars); BadDeviceToken/Unregistered tokens are auto-deleted from push_subscriptions; docs at `docs/app-store-apns.md`
-- **Facebook Graph API** — cross-post dagens nyhet to page feed (FACEBOOK_PAGE_ACCESS_TOKEN + FACEBOOK_PAGE_ID env vars)
+- **Facebook Graph API** — cross-post dagens nyhet to page feed (`FACEBOOK_PAGE_ACCESS_TOKEN` + `FACEBOOK_PAGE_ID`)
+- **Meta Marketing API** — approval-gated ads from admin + Cursor drafts (`META_ADS_ACCESS_TOKEN`, `META_AD_ACCOUNT_ID`, page id). Nothing spends until admin approve. See `docs/meta-ads.md`.
 
 ## Recent changes
+
+- 2026-09-18: Feature — Meta Ads approval queue in admin (`/admin#meta-annonser`) + Cursor `npm run meta-ads:propose`. Spend requires founder approve. ADR-024. SW v990.
 
 - 2026-08-29: Feature — Release Compliance Gate (`docs/release/RELEASE_GATE_MODEL.md`): permanent Apple/Google policy, legal, and submission-metadata gate (Gates B+C), built after the English-Beta (Guideline 2.2) and EULA-metadata near-misses. `npm run release:compliance` + `npm run release:preflight`; BLOCKER/REVIEW/NOT_APPLICABLE disposition model so FAIL/P0 means verified release risk only (closed-market UK placeholders N/A, historical docs evidence-only, stale Gate A → `CODE READY: NOT_VERIFIED`). 33 regression tests in `test/release-compliance-gate.test.js`. Not wired into PR CI. No product/payment/market/native changes.
 - 2026-07-02: Feature — Bildstöd PR R1 (`docs/bildstod-app-tasklist.md`): morgon- och kvällskategorier i resursbiblioteket — 6 nedladdningsbara PDF:er (`src/lib/resurser-pdf.js`, PDFKit, emoji-fri text) och 6 indexerbara `/resurser/*`-sidor (kategori/bildkort/pdf), registrerade i `config/resurser-r1.js`. Guider och hub länkar nu till dem (TODO-kommentarer från PR 0 upplösta). Screenshot-capture-script för EPIC 1.5 (`npm run capture:marketing-seo`) tillagt — kräver körning mot staging/prod med riktiga konton. SW v474.

@@ -124,7 +124,7 @@ describe('Fas 1 — DOM section targets exist in index.html', () => {
     'retention', 'foraldaraktivering', 'fordig', 'bibliotek',
     'paket', 'extra-stod', 'paket-rapportering', 'paket-pedagog',
     'prenumeration', 'konto',
-    'tillvaxt-pipeline',
+    'tillvaxt-pipeline', 'meta-annonser',
   ];
 
   for (const key of routes) {
@@ -211,6 +211,7 @@ describe('Fas 1 — sidebar render', () => {
     assert.equal((html.match(/class="admin-nav-group"/g) || []).length, 7);
     assert.match(html, /Hem/);
     assert.match(html, /Tillväxt/);
+    assert.match(html, /Meta-annonser/);
     assert.match(html, /Paket/);
     assert.match(html, /Extra stöd/);
     assert.match(html, /Rapportering/);
@@ -239,7 +240,7 @@ describe('Fas 1 — sidebar render', () => {
     const html = renderNavHtml();
     const hrefs = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
     const { resolveRoute } = loadAdminNav();
-    assert.equal(hrefs.length, 29, 'expected 29 hash nav links (+ 1 external Funktioner)');
+    assert.equal(hrefs.length, 30, 'expected 30 hash nav links (+ 1 external Funktioner)');
     const dup = hrefs.filter((h, i) => hrefs.indexOf(h) !== i);
     assert.deepEqual(dup, [], 'duplicate nav hrefs: ' + dup.join(', '));
     for (const h of hrefs) {
@@ -335,7 +336,7 @@ describe('Fas 1 — admin-core wiring', () => {
       'loadAdminImages', 'loadSurveys', 'loadNewsletterSubscribers', 'loadEmailTemplates',
       'loadEmailLog', 'loadAnalytics', 'loadUserStats', 'loadRetentionData',
       'loadActivationProgramAdmin', 'loadForDigAdmin', 'loadNyheter', 'loadSubscriptionSettings',
-      'syncPaketWorkspace',
+      'syncPaketWorkspace', 'loadMetaAdsCampaigns',
     ];
     for (const fn of handlers) {
       assert.match(core, new RegExp(fn), `missing refresh handler ${fn}`);
