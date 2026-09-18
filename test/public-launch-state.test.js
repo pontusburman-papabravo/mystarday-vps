@@ -72,6 +72,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(html, /14-day trial in Ireland/);
     assert.match(html, /Is My Starday free\?/);
     assert.match(html, /New families in Ireland get 14 days free/);
+    assert.match(html, /After the 14-day trial, a subscription is required to continue using Premium features/);
     assert.match(html, /subscription is required to continue using Premium features/);
     assert.doesNotMatch(html, /We are finally live/);
     assert.doesNotMatch(html, /glad-sommar-2026/);
@@ -85,6 +86,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     const html = fs.readFileSync(path.join(__dirname, '../public/en-faq.html'), 'utf8');
     assert.match(html, /Is My Starday free\?/);
     assert.match(html, /New families in Ireland get 14 days free/);
+    assert.match(html, /After the 14-day trial, a subscription is required to continue using Premium features/);
     assert.doesNotMatch(html, /Basic is included/);
     assert.doesNotMatch(html, /No payment is required\./);
   });
