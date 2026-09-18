@@ -1,6 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
- * v994: close public web signup — browser /register shows store download
+ * v997: close public web signup — browser /register shows store download
  * v917: contact receipt + on-page link to follow the support thread
  * v916: support web thread — same signed link shows the conversation
  * v915: support follow-up link so user replies land on the ticket
@@ -319,6 +319,10 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
+// stjarndag-v997: close public web signup — browser /register shows store download
+// stjarndag-v996: EN FAQ — "After the 14-day trial" (store language scan)
+// stjarndag-v995: EN FAQ — Ireland 14-day trial, no free Basic
+// stjarndag-v994: Welcome Ireland on /en; remove summer greeting
 // stjarndag-v993: Child NOW seven-questions uses display_name after check-off
 // stjarndag-v992: Shared profile picker follows family locale (not child UI)
 // stjarndag-v991: Family Scan QR — in-app paste sheet, no native prompt
@@ -330,7 +334,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v994';
+const CACHE_NAME = 'stjarndag-v997';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak
