@@ -19,6 +19,30 @@ describe('start-summary db helpers', () => {
     const metric = startSummaryDb.buildPeriodMetric({ last7d: 3, prev7d: 0, total: 3 });
     assert.equal(metric.deltaPct, null);
   });
+
+  test('buildOpenMarketSignups includes only open gates and zero-fills missing countries', () => {
+    const rows = startSummaryDb.buildOpenMarketSignups(
+      [
+        { key: 'market_se_open', enabled: true },
+        { key: 'market_ie_open', enabled: true },
+        { key: 'market_fi_open', enabled: false },
+      ],
+      [{ country_code: 'IE', total: 4, today: 2, last7d: 4 }]
+    );
+    assert.deepEqual(rows.map((r) => r.code), ['SE', 'IE']);
+    assert.equal(rows[0].name, 'Sverige');
+    assert.equal(rows[0].total, 0);
+    assert.equal(rows[1].name, 'Irland');
+    assert.equal(rows[1].total, 4);
+    assert.equal(rows[1].today, 2);
+  });
+
+  test('buildOpenMarketSignups defaults Sweden open when flag row is missing', () => {
+    const rows = startSummaryDb.buildOpenMarketSignups([], []);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].code, 'SE');
+    assert.equal(rows[0].total, 0);
+  });
 });
 
 test('GET /api/admin/start-summary returns composed payload', async () => {
@@ -26,6 +50,23 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
 
   mock.setQuery(async (sql) => {
     const q = String(sql);
+    if (q.includes("key LIKE 'market_%_open'") || q.includes('key LIKE \'market_%_open\'')) {
+      return {
+        rows: [
+          { key: 'market_se_open', enabled: true },
+          { key: 'market_ie_open', enabled: true },
+          { key: 'market_fi_open', enabled: false },
+        ],
+      };
+    }
+    if (q.includes('COALESCE(country_code') && q.includes('GROUP BY')) {
+      return {
+        rows: [
+          { country_code: 'SE', total: 180, today: 1, last7d: 5 },
+          { country_code: 'IE', total: 3, today: 1, last7d: 3 },
+        ],
+      };
+    }
     if (q.includes('signups_7d') && q.includes('signups_prev_7d') && !q.includes('family_activation_state')) {
       return {
         rows: [{
@@ -99,6 +140,13 @@ test('GET /api/admin/start-summary returns composed payload', async () => {
     assert.equal(body.overview.stuckOnboarding, 4);
     assert.equal(body.overview.unreadMessages, 2);
     assert.equal(body.overview.messagesNeedFollowUp, 3);
+    assert.equal(body.overview.openMarkets.length, 2);
+    assert.equal(body.overview.openMarkets[0].code, 'SE');
+    assert.equal(body.overview.openMarkets[0].name, 'Sverige');
+    assert.equal(body.overview.openMarkets[0].total, 180);
+    assert.equal(body.overview.openMarkets[1].code, 'IE');
+    assert.equal(body.overview.openMarkets[1].total, 3);
+    assert.equal(body.overview.openMarkets[1].today, 1);
     assert.equal(body.recentFamilies.length, 1);
     assert.equal(body.recentFamilies[0].name, 'Testfamilj');
     assert.equal(body.recentFamilies[0].createdAt, '2026-06-20T09:00:00.000Z');
@@ -163,6 +211,8 @@ test('admin-start.js is a slim families overview', () => {
   assert.match(js, /Antal familjer/);
   assert.match(js, /Att göra/);
   assert.match(js, /Senaste familjer/);
+  assert.match(js, /Öppnade marknader/);
+  assert.match(js, /openMarkets/);
   assert.match(js, /data-created-at/);
   assert.doesNotMatch(js, /North Star/);
   assert.doesNotMatch(js, /loadJourneyDailyAnalysis/);
@@ -178,6 +228,7 @@ test('fetchKeyMetrics uses schema_saved_at only (no weekly_schedule fallback)', 
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
   assert.match(html, /id="startKpiBlock"/);
+  assert.match(html, /admin-start\.js\?v=2\.2\.0/);
   assert.doesNotMatch(html, /id="startRecommendationsBlock"/);
   assert.doesNotMatch(html, /id="startMessagesBlock"/);
   assert.doesNotMatch(html, /id="startActivityBlock"/);

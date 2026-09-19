@@ -129,6 +129,26 @@
       : '';
   }
 
+  function renderOpenMarkets(markets) {
+    const items = Array.isArray(markets) ? markets : [];
+    const heading = `
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h3 class="text-sm font-heading font-bold uppercase tracking-wider text-text-soft">Öppnade marknader</h3>
+        <a href="#prenumeration" onclick="return adminNavClick(event)" class="text-sm font-semibold text-gold hover:underline">Marknadsportar →</a>
+      </div>`;
+    if (!items.length) {
+      return `<div class="mb-5">${heading}<p class="text-sm text-text-soft">Inga öppna marknader just nu.</p></div>`;
+    }
+    const cards = items.map((market) => kpiCard(
+      market.name || market.code,
+      market.total ?? '–',
+      `${market.today || 0} idag · ${market.last7d || 0} senaste 7 dagarna`,
+      'text-text-soft',
+      '#familjer'
+    )).join('');
+    return `<div class="mb-5">${heading}<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cards}</div></div>`;
+  }
+
   function renderStartOverview(overview, recentFamilies, quickActions) {
     const o = overview || {};
     const signupDeltaCls = o.signupsDelta > 0 ? 'text-green-700' : o.signupsDelta < 0 ? 'text-red-600' : 'text-text-soft';
@@ -154,6 +174,7 @@
           '#familjer'
         )}
       </div>
+      ${renderOpenMarkets(o.openMarkets)}
       ${renderAttGora(o)}
       <div class="mt-6 pt-5 border-t border-lavender/60">
         ${renderRecentFamilies(recentFamilies)}
