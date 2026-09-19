@@ -1,20 +1,16 @@
 /**
  * landing-login-choice.js — Mobile web: app download vs web entry choice.
- * Shows before /login, /child-login and /register on mobile browser.
+ * Shows before /login and /child-login on mobile browser.
  */
 (function (global) {
   'use strict';
 
   const STORAGE_KEY = 'landing_login_entry_choice_v1';
   const APP_STORE_FALLBACK = 'https://apple.co/4v2ESuH';
-  const ENTRY_PATHS = ['/login', '/child-login', '/register'];
+  const ENTRY_PATHS = ['/login', '/child-login'];
 
   function isEntryPath(href) {
     return ENTRY_PATHS.indexOf(href) !== -1;
-  }
-
-  function isRegisterPath(href) {
-    return href === '/register';
   }
 
   function isNativeShell() {
@@ -111,14 +107,11 @@
 
   function showModal(targetHref) {
     closeModal();
-    const isRegister = isRegisterPath(targetHref);
-    track('landing_login_choice_shown', { target: targetHref, intent: isRegister ? 'register' : 'login' });
+    track('landing_login_choice_shown', { target: targetHref, intent: 'login' });
 
-    const webTitle = isRegister ? 'Skapa konto på webben' : 'Logga in på webben';
-    const webSubtitle = isRegister ? 'Registrera dig i webbläsaren' : 'Fortsätt i webbläsaren';
-    const bodyText = isRegister
-      ? 'Du kan ladda ner appen eller skapa konto direkt i webbläsaren.'
-      : 'Du kan ladda ner appen eller logga in direkt i webbläsaren.';
+    const webTitle = 'Logga in på webben';
+    const webSubtitle = 'Fortsätt i webbläsaren';
+    const bodyText = 'Du kan ladda ner appen eller logga in direkt i webbläsaren.';
 
     const overlay = document.createElement('div');
     overlay.id = 'landingLoginChoiceModal';
@@ -163,7 +156,7 @@
     overlay.querySelector('[data-choice="web"]').addEventListener('click', function () {
       const skipAsk = overlay.querySelector('#landingLoginChoiceSkip').checked;
       if (skipAsk) savePref('web', true);
-      track('landing_login_choice_web', { skip_ask: skipAsk, target: targetHref, intent: isRegister ? 'register' : 'login' });
+      track('landing_login_choice_web', { skip_ask: skipAsk, target: targetHref, intent: 'login' });
       closeModal();
       navigateTo(targetHref);
     });
@@ -189,7 +182,7 @@
 
   function init() {
     document.addEventListener('click', function (e) {
-      const link = e.target.closest('a[href="/login"], a[href="/child-login"], a[href="/register"]');
+      const link = e.target.closest('a[href="/login"], a[href="/child-login"]');
       if (!link) return;
       handleEntryLinkClick(e, link);
     });

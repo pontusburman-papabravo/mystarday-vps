@@ -256,7 +256,15 @@
       "successGracePeriod": "Du kan logga in direkt och har 24 timmar på dig att verifiera din e-post.",
       "successLoginBtn": "Logga in",
       "inviteErrorDefault": "Ogiltig inbjudningslänk.",
-      "appleEmailExists": "Ett konto med denna e-postadress finns redan. Logga in med Apple istället, eller använd lösenordsinloggning."
+      "appleEmailExists": "Ett konto med denna e-postadress finns redan. Logga in med Apple istället, eller använd lösenordsinloggning.",
+      "webDownload": {
+        "title": "Hämta appen",
+        "lead": "Nya familjer skapar konto i appen. Hämta den i App Store eller Google Play.",
+        "appStoreAria": "Hämta i App Store",
+        "playStoreAria": "Hämta i Google Play",
+        "hasAccount": "Har du redan konto?",
+        "loginLink": "Logga in"
+      }
     },
     "parentGate": {
       "title": "Föräldralås",

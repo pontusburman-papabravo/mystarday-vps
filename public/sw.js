@@ -1,5 +1,7 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v998: landing SV/EN nav + menu links to resource library
+ * v997: close public web signup — browser /register shows store download
  * v917: contact receipt + on-page link to follow the support thread
  * v916: support web thread — same signed link shows the conversation
  * v915: support follow-up link so user replies land on the ticket
@@ -318,7 +320,8 @@
 // stjarndag-v898: Apple Review R3 — register CountryChoice gate (never-throw) + IAP review path
 // stjarndag-v897: P0.2 hide child-delete action unless caller role is primary
 // stjarndag-v896: P0.1 settings deletion_impact — leave vs full-family copy from server
-// stjarndag-v997: landing SV/EN nav + menu links to resource library
+// stjarndag-v998: landing SV/EN nav + menu links to resource library
+// stjarndag-v997: close public web signup — browser /register shows store download
 // stjarndag-v996: EN FAQ — "After the 14-day trial" (store language scan)
 // stjarndag-v995: EN FAQ — Ireland 14-day trial, no free Basic
 // stjarndag-v994: Welcome Ireland on /en; remove summer greeting
@@ -333,7 +336,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v997';
+const CACHE_NAME = 'stjarndag-v998';
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak
@@ -758,6 +761,7 @@ const CACHE_NAME = 'stjarndag-v997';
 
 // stjarndag-v966: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v985: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v994: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js
@@ -1019,6 +1023,7 @@ const STATIC_ASSETS = [
   '/js/google-auth-ui.js',
   '/js/registration-country-gate.js',
   '/js/register-apple-auth.js',
+  '/js/register-web-signup-gate.js',
   '/js/apple-auth-cancel.js',
   '/js/apple-auth-session.js',
   '/js/apple-auth-completion.js',

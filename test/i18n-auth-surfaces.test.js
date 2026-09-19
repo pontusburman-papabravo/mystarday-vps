@@ -104,6 +104,7 @@ describe('auth i18n — static surfaces', () => {
       'src/routes/auth/email.js',
       'src/lib/auth-api-messages.js',
       'public/js/auth-entry-failsafe.js',
+      'public/js/register-web-signup-gate.js',
     ];
     for (const file of files) {
       const hits = swedishHits(file);
@@ -181,6 +182,8 @@ describe('auth i18n — locale bundles', () => {
       'auth.parentGate.title',
       'auth.register.termsPrefix',
       'auth.register.successTitle',
+      'auth.register.webDownload.title',
+      'auth.register.webDownload.loginLink',
       'auth.api.errors.userNotFound',
       'auth.api.errors.invalidResetLink',
     ];

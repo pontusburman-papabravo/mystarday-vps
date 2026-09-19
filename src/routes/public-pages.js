@@ -9,6 +9,13 @@ const {
   injectSiteUrl,
   injectBrandPlaceholders,
 } = require('../lib/public-html-placeholders');
+const { getPlayStoreUrl, APPLE_APP_STORE_SHORT_URL } = require('../../config/store-links');
+
+function injectStoreLinks(html) {
+  return html
+    .replace(/__PLAY_STORE_URL__/g, getPlayStoreUrl())
+    .replace(/__APPLE_STORE_URL__/g, APPLE_APP_STORE_SHORT_URL);
+}
 
 function defaultSupportEmail() {
   const raw = process.env.EMAIL_FROM || '';
@@ -92,7 +99,13 @@ const { PUBLIC_WEB_ROUTES, EN_ONLY_STATIC } = require('../../config/public-web-r
 for (const route of PUBLIC_WEB_ROUTES) {
   if (route.en === '/en') continue;
   router.get(route.en, (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public', route.fileEn));
+    const htmlPath = path.join(__dirname, '../../public', route.fileEn);
+    if (route.fileEn === 'en-pricing.html') {
+      let html = fs.readFileSync(htmlPath, 'utf8');
+      html = injectStoreLinks(html);
+      return res.type('html').send(html);
+    }
+    res.sendFile(htmlPath);
   });
 }
 
@@ -178,12 +191,20 @@ router.get('/skattkammaren', optionalAuth, (req, res) => {
 
 // Registration page
 router.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public', 'register.html'));
+  const htmlPath = path.join(__dirname, '../../public', 'register.html');
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectStoreLinks(html);
+  html = injectBrandPlaceholders(html);
+  res.type('html').send(html);
 });
 
 // Founder program / access info — public regardless of billing UI state
 router.get('/pricing-info', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public', 'pricing-info.html'));
+  const htmlPath = path.join(__dirname, '../../public', 'pricing-info.html');
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  html = injectStoreLinks(html);
+  html = injectBrandPlaceholders(html);
+  res.type('html').send(html);
 });
 
 // SEO content articles (cornerstone content for organic acquisition)

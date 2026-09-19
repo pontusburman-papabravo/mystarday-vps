@@ -57,6 +57,7 @@
   <script src="/js/country-choice.js?v=7"></script>
   <script src="/js/registration-country-gate.js?v=1"></script>
   <script src="/js/register-apple-auth.js?v=3"></script>
+  <script src="/js/register-web-signup-gate.js?v=1"></script>
   <script src="/js/apple-auth-session.js?v=1"></script>
   <script src="/js/apple-auth-completion.js?v=1"></script>
   <script src="/js/legal-routes.js?v=1"></script>
@@ -104,6 +105,42 @@
           </div>
           <span class="text-3xl font-heading font-bold text-navy">Min Stjärndag</span> <!-- pragma: allowlist secret -->
         </a>
+        <div id="webSignupDownload" hidden class="mt-4">
+          <h1 class="text-2xl font-heading font-bold text-navy" data-i18n="auth.register.webDownload.title"></h1>
+          <p class="text-text-soft mt-3 text-sm leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.webDownload.lead"></p>
+          <div class="mt-6 flex flex-col items-center gap-3">
+            <a
+              id="webSignupAppStore"
+              href="https://apple.co/4v2ESuH"
+              class="store-badge-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-track="app_store_click"
+              data-i18n-aria-label="auth.register.webDownload.appStoreAria"
+            >
+              <img src="/img/app-store-badge-en.svg" alt="" class="store-badge" width="140" height="47">
+            </a>
+            <a
+              id="webSignupPlayStore"
+              href="__PLAY_STORE_URL__"
+              class="store-badge-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-track="play_store_click"
+              data-i18n-aria-label="auth.register.webDownload.playStoreAria"
+            >
+              <img src="/img/google-play-badge-en.svg" alt="" class="store-badge" width="140" height="47">
+            </a>
+          </div>
+          <p class="text-text-soft text-sm mt-6">
+            <span data-i18n="auth.register.webDownload.hasAccount"></span>
+            <a href="/login" class="text-gold font-semibold hover:underline" data-i18n="auth.register.webDownload.loginLink"></a>
+          </p>
+        </div>
+      </div>
+
+      <div id="registerNativeSignup">
+      <div class="text-center mb-8">
         <h1 class="text-2xl font-heading font-bold text-navy mt-4" data-i18n="auth.register.pageHeading"></h1>
         <p class="text-text-soft mt-3 text-sm leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLead"></p> <!-- pragma: allowlist secret -->
         <p class="text-text-soft mt-2 text-xs leading-relaxed max-w-sm mx-auto" data-i18n="auth.register.pageLeadSecondary"></p>
@@ -311,6 +348,7 @@
       <div class="text-center mt-8">
         <p class="text-text-soft text-sm" data-i18n="auth.register.tagline"></p>
       </div>
+      </div>
     </div>
   </div>
 
@@ -337,6 +375,11 @@
       // Check if already logged in
       if (Auth.isLoggedIn()) {
         Auth.redirectToDashboard();
+        return;
+      }
+
+      if (window.RegisterWebSignupGate && RegisterWebSignupGate.shouldClosePublicSignup()) {
+        RegisterWebSignupGate.apply();
         return;
       }
 
