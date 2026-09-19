@@ -4,6 +4,7 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const vm = require('node:vm');
 const express = require('express');
 const { injectMockDb } = require('./helpers/setup.js');
 const startSummaryDb = require('../db/start-summary');
@@ -213,6 +214,7 @@ test('admin-start.js is a slim families overview', () => {
   assert.match(js, /Senaste familjer/);
   assert.match(js, /Öppnade marknader/);
   assert.match(js, /openMarkets/);
+  assert.match(js, /#familjer\?country=/);
   assert.match(js, /data-created-at/);
   assert.doesNotMatch(js, /North Star/);
   assert.doesNotMatch(js, /loadJourneyDailyAnalysis/);
@@ -228,7 +230,8 @@ test('fetchKeyMetrics uses schema_saved_at only (no weekly_schedule fallback)', 
 test('admin-start.js and overview blocks exist', () => {
   const html = fs.readFileSync(path.join(__dirname, '../public/admin/index.html'), 'utf8');
   assert.match(html, /id="startKpiBlock"/);
-  assert.match(html, /admin-start\.js\?v=2\.2\.0/);
+  assert.match(html, /admin-start\.js\?v=2\.3\.0/);
+  assert.match(html, /id="familiesCountryFilterBanner"/);
   assert.doesNotMatch(html, /id="startRecommendationsBlock"/);
   assert.doesNotMatch(html, /id="startMessagesBlock"/);
   assert.doesNotMatch(html, /id="startActivityBlock"/);
@@ -238,4 +241,32 @@ test('admin-start.js and overview blocks exist', () => {
   assert.match(html, /admin-produktanalys-shell\.js/);
   assert.match(html, /prenumerationWorkspaceTabs/);
   assert.match(html, /admin-deprecated-section/);
+});
+
+test('parseFamiliesCountryFilter reads ISO country from Familjer hash', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-families.js'), 'utf8');
+  const start = src.indexOf('function parseFamiliesCountryFilter');
+  const end = src.indexOf('function familyCountryCode');
+  assert.ok(start >= 0 && end > start);
+  const sandbox = { window: { location: { hash: '#familjer' } }, URLSearchParams };
+  vm.createContext(sandbox);
+  vm.runInContext(src.slice(start, end), sandbox);
+  assert.equal(vm.runInContext('parseFamiliesCountryFilter("#familjer?country=IE")', sandbox), 'IE');
+  assert.equal(vm.runInContext('parseFamiliesCountryFilter("#familjer?country=ie")', sandbox), 'IE');
+  assert.equal(vm.runInContext('parseFamiliesCountryFilter("#familjer")', sandbox), null);
+  assert.equal(vm.runInContext('parseFamiliesCountryFilter("#familjer?country=IRL")', sandbox), null);
+  assert.equal(vm.runInContext('parseFamiliesCountryFilter("#familjer?followup=1")', sandbox), null);
+});
+
+test('familyCountryCode defaults missing country to Sweden', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../public/admin/admin-families.js'), 'utf8');
+  const start = src.indexOf('function familyCountryCode');
+  const end = src.indexOf('function familyMatchesSearch');
+  assert.ok(start >= 0 && end > start);
+  const sandbox = {};
+  vm.createContext(sandbox);
+  vm.runInContext(src.slice(start, end), sandbox);
+  assert.equal(vm.runInContext('familyCountryCode({})', sandbox), 'SE');
+  assert.equal(vm.runInContext('familyCountryCode({ country_code: "IE" })', sandbox), 'IE');
+  assert.equal(vm.runInContext('familyCountryCode({ country_code: "ie" })', sandbox), 'IE');
 });

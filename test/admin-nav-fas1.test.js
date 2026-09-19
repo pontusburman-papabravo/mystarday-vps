@@ -326,6 +326,14 @@ describe('Fas 1 — admin-core wiring', () => {
     assert.match(core, /window\.location\.hash = canonical\.slice\(1\)/);
     assert.match(core, /skipHashWrite: true/);
     assert.match(core, /followup=1/);
+    assert.match(core, /route\.canonicalKey === 'familjer'/);
+  });
+
+  test('resolveRoute strips country query on Familjer hash', () => {
+    const { resolveRoute } = loadAdminNav();
+    const r = resolveRoute('#familjer?country=IE');
+    assert.equal(r.canonicalKey, 'familjer');
+    assert.equal(r.targetSection, 'families');
   });
 
   test('refreshSectionData covers all stable section loaders from spec', () => {
