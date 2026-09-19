@@ -5,6 +5,22 @@ const db = require('../src/lib/db');
 const contactMessages = require('./contact-messages');
 const adminOperationalAlerts = require('./admin-operational-alerts');
 const { familyIsInternalQaSql } = require('../config/internal-qa-families');
+const {
+  GATE_DEFAULTS,
+  MARKET_STATUS_COUNTRIES,
+  gateKeyForCountry,
+} = require('../src/lib/market-region');
+
+const OPEN_MARKET_NAMES_SV = Object.freeze({
+  SE: 'Sverige',
+  IE: 'Irland',
+  FI: 'Finland',
+  NO: 'Norge',
+  DK: 'Danmark',
+  GB: 'Storbritannien',
+  US: 'USA',
+  ZZ: 'Övrigt',
+});
 
 function toIsoUtc(value) {
   if (value == null || value === '') return null;
@@ -164,9 +180,67 @@ async function fetchRecentFamilies(limit = 5) {
   }));
 }
 
+function isMarketFlagOpen(flagMap, gateKey) {
+  if (Object.prototype.hasOwnProperty.call(flagMap, gateKey)) {
+    return flagMap[gateKey] === true;
+  }
+  return GATE_DEFAULTS[gateKey] === true;
+}
+
+/** Map gate flags + per-country family counts to open-market rows for Start. */
+function buildOpenMarketSignups(flagRows, countRows) {
+  const flagMap = {};
+  for (const row of flagRows || []) {
+    if (row && row.key) flagMap[row.key] = row.enabled === true;
+  }
+  const countBy = new Map();
+  for (const row of countRows || []) {
+    if (!row || !row.country_code) continue;
+    countBy.set(row.country_code, {
+      total: parseInt(row.total, 10) || 0,
+      today: parseInt(row.today, 10) || 0,
+      last7d: parseInt(row.last7d, 10) || 0,
+    });
+  }
+  return MARKET_STATUS_COUNTRIES
+    .filter((entry) => isMarketFlagOpen(flagMap, gateKeyForCountry(entry.code)))
+    .map((entry) => {
+      const counts = countBy.get(entry.code) || { total: 0, today: 0, last7d: 0 };
+      return {
+        code: entry.code,
+        name: OPEN_MARKET_NAMES_SV[entry.code] || entry.label,
+        total: counts.total,
+        today: counts.today,
+        last7d: counts.last7d,
+      };
+    });
+}
+
+async function fetchOpenMarketSignups() {
+  const [flags, counts] = await Promise.all([
+    db.query(
+      `SELECT key, enabled FROM feature_flag WHERE key LIKE 'market_%_open'`
+    ),
+    db.query(
+      `SELECT COALESCE(country_code, 'SE') AS country_code,
+         COUNT(*)::int AS total,
+         COUNT(*) FILTER (
+           WHERE created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+         )::int AS today,
+         COUNT(*) FILTER (
+           WHERE created_at >= NOW() - INTERVAL '7 days'
+         )::int AS last7d
+       FROM family
+       WHERE archived_at IS NULL
+       GROUP BY 1`
+    ),
+  ]);
+  return buildOpenMarketSignups(flags.rows, counts.rows);
+}
+
 /** Slim metrics for Start — families + att göra only (no activation funnel). */
 async function fetchStartOverview() {
-  const [signupRow, stuckRow, messageCounts] = await Promise.all([
+  const [signupRow, stuckRow, messageCounts, openMarkets] = await Promise.all([
     db.query(
       `SELECT
          COUNT(*) FILTER (
@@ -185,6 +259,7 @@ async function fetchStartOverview() {
     ),
     fetchStuckOnboardingCounts(),
     contactMessages.getMessageCounts(),
+    fetchOpenMarketSignups(),
   ]);
 
   const week = signupRow.rows[0] || {};
@@ -199,6 +274,7 @@ async function fetchStartOverview() {
     stuckOnboarding: stuckRow.stuck_product || 0,
     unreadMessages: parseInt(counts.meddelanden_unread_count, 10) || 0,
     messagesNeedFollowUp: parseInt(counts.meddelanden_needs_follow_up_count, 10) || 0,
+    openMarkets,
   };
 }
 
@@ -357,5 +433,7 @@ module.exports = {
   fetchActivityFeed,
   fetchRecommendations,
   buildStartSummary,
+  buildOpenMarketSignups,
+  fetchOpenMarketSignups,
   START_QUICK_ACTIONS,
 };
