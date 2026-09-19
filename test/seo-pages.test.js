@@ -370,6 +370,19 @@ test('landing page has guide cards block with tracking', () => {
   assert.match(html, /href="\/veckoschema-bildstod"/);
 });
 
+test('Swedish and English landing pages link to the resource library in nav, menu and guides', () => {
+  const sv = fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8');
+  assert.match(sv, /<a href="\/resurser" class="landing-nav__link"/);
+  assert.match(sv, /<a href="\/resurser" data-track="two_track_resurser_click">Gratis PDF-resurser/);
+  assert.match(sv, /<a href="\/resurser" class="seo-guide-card"/);
+  assert.match(sv, /<a href="\/resurser" class="btn-secondary"/);
+  const en = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
+  assert.match(en, /<a href="\/en\/resources" class="landing-nav__link"/);
+  assert.match(en, /<a href="\/en\/resources" data-track="two_track_resurser_click">Free printable resources/);
+  assert.match(en, /<a href="\/en\/resources" class="seo-guide-card"/);
+  assert.match(en, /<a href="\/en\/resources" class="btn-secondary"/);
+});
+
 test('SEO indexable HTML pages use absolute canonical URLs', () => {
   const pageFiles = {
     '/': 'public/index.html',
@@ -412,7 +425,7 @@ test('llms.txt is available for AI agents', () => {
 
 test('SEO guide analytics events are allowlisted', () => {
   const analytics = fs.readFileSync(path.join(ROOT, 'src/routes/analytics.js'), 'utf8');
-  for (const ev of ['article_cta_register', 'guide_next_step_click', 'guide_hub_nav_click', 'article_faq_expand', 'landing_guide_card_click']) {
+  for (const ev of ['article_cta_register', 'guide_next_step_click', 'guide_hub_nav_click', 'article_faq_expand', 'landing_guide_card_click', 'two_track_resurser_click']) {
     assert.match(analytics, new RegExp(`'${ev}'`));
   }
 });
