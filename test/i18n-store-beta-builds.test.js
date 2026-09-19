@@ -20,11 +20,11 @@ describe('i18n store beta build versions', () => {
     assert.doesNotMatch(pbx, /MARKETING_VERSION = 1\.4\.3;/);
   });
 
-  it('Android versionCode 14 for 1.4.5 native release (Play AAB brand-name fix)', () => {
+  it('Android versionCode 15 for 1.4.5 native release (Play AAB brand-name fix)', () => {
     const ver = JSON.parse(
       fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8')
     );
-    assert.equal(ver.versionCode, 14);
+    assert.equal(ver.versionCode, 15);
     assert.equal(ver.versionName, '1.4.5');
   });
 

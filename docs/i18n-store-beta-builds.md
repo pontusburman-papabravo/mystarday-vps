@@ -32,7 +32,7 @@ Files: `ios/App/App.xcodeproj/project.pbxproj`, `assets/play-store/android-versi
 | Platform | Status | Notes |
 |----------|--------|-------|
 | iOS TestFlight | **READY TO BUILD** on Mac | main `9305f43e` — build 29 includes ATT fix + native l10n |
-| Android Internal Testing | **READY TO BUILD** on Mac | versionCode 14 / 1.4.5 |
+| Android Internal Testing | **READY TO BUILD** on Mac | versionCode 15 / 1.4.5 |
 
 **Mac runbook:** `docs/i18n-beta-mac-session-runbook.md`
 
@@ -55,7 +55,7 @@ npm ci --legacy-peer-deps --include=dev
 npm run cap:sync:android   # patches version + l10n into generated android/
 npm run android:aab
 # Upload assets/play-store/out/*.aab to Play Internal Testing
-# Expected: versionName 1.4.5, versionCode 14
+# Expected: versionName 1.4.5, versionCode 15
 ```
 
 **Important:** VPS web deploy does **not** update native InfoPlist.strings or Android `res/` on installed apps. Beta testers need the new store build.
