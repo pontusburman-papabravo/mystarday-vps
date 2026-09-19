@@ -162,6 +162,15 @@ describe('resurser core HTML IA', () => {
     }
   });
 
+  it('morning picture cards use the same pictograms as the child app', () => {
+    const sv = fs.readFileSync(path.join(ROOT, 'public/resurser/bildkort-morgon.html'), 'utf8');
+    const en = fs.readFileSync(path.join(ROOT, 'public/en/resources/picture-cards/morning.html'), 'utf8');
+    assert.match(sv, /\/images\/child\/pictograms\/simple\/wake-up@2x\.webp/);
+    assert.match(en, /\/images\/child\/pictograms\/simple\/wake-up@2x\.webp/);
+    assert.doesNotMatch(sv, /min-stjarndag-design-kit\/icons\/svg\/light\/vakna/);
+    assert.doesNotMatch(en, /min-stjarndag-design-kit\/icons\/svg\/light\/vakna/);
+  });
+
   it('core English pages have hreflang and no leftover Swedish UI', () => {
     const en = fs.readFileSync(path.join(ROOT, 'public/en/resources/morning.html'), 'utf8');
     assert.match(en, /hreflang="sv"/);

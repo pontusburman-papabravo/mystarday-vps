@@ -51,6 +51,7 @@ const ICON_KEY_ALIASES = Object.freeze({
   toy: 'play',
   screen: 'screen-time',
   toothbrush: 'brush-teeth',
+  bathroom: 'toilet',
 });
 
 const ACTIVITY_KEYS = Object.freeze(new Set(Object.keys(manifest.activities || {})));

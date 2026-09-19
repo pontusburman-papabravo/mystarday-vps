@@ -44,6 +44,7 @@
     toy: 'play',
     screen: 'screen-time',
     toothbrush: 'brush-teeth',
+    bathroom: 'toilet',
   };
 
   const ACTIVITY_KEYS = new Set([

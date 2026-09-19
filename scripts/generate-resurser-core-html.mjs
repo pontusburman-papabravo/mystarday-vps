@@ -25,7 +25,7 @@ const {
   landingById,
 } = require('../config/resurser-catalog');
 const { loadResurserI18n } = require('../src/lib/resurser-i18n');
-const { publicSvgPathForKey } = require('../src/lib/resurser-icons');
+const { publicIconPathForKey } = require('../src/lib/resurser-icons');
 const { pictogramLabel } = require('../src/lib/resurser-i18n');
 
 const CSS_V = '2';
@@ -149,7 +149,7 @@ function onScreenLink(cat, locale, t) {
 function pictogramGrid(keys, locale, ariaLabel) {
   const cards = keys.map((key) => {
     const label = pictogramLabel(key, locale);
-    const src = publicSvgPathForKey(key);
+    const src = publicIconPathForKey(key);
     const visual = src
       ? `<img class="resurser-bildkort__img" src="${src}" alt="" width="64" height="64">`
       : `<span class="resurser-bildkort__badge" aria-hidden="true"></span>`;

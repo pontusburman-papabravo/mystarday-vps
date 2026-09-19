@@ -2,7 +2,9 @@
 
 /**
  * Static printable PDFs for the resource library.
- * Locale copy from config/resurser-i18n/*.json. Icons from the design-kit SVGs.
+ * Locale copy from config/resurser-i18n/*.json.
+ * Icons: same illustrated pictograms as the child app (simple pack),
+ * with design-kit SVG fallback for keys the app pack does not cover.
  * No emoji glyphs — PDFKit Helvetica cannot render them.
  */
 

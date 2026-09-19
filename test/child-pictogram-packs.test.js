@@ -140,6 +140,7 @@ describe('child-pictogram-packs — resolvePack and aliases', () => {
   it('normalizes legacy icon_key aliases to manifest keys', () => {
     assert.equal(serverPacks.normalizeActivityKey('brush_teeth'), 'brush-teeth');
     assert.equal(serverPacks.normalizeActivityKey('wake_up'), 'wake-up');
+    assert.equal(serverPacks.normalizeActivityKey('bathroom'), 'toilet');
     assert.equal(serverPacks.normalizeActivityKey('dress'), 'get-dressed');
     assert.equal(serverPacks.normalizeActivityKey('screen'), 'screen-time');
   });
@@ -433,7 +434,7 @@ test('PATCH /api/children/:id/pictogram-pack — rejects extra config keys', asy
 });
 
 describe('child-pictogram-packs — pictogram-library coverage report', () => {
-  it('maps 44 of 96 library keys; unmappable keys fall through safely', () => {
+  it('maps 45 of 96 library keys; unmappable keys fall through safely', () => {
     const mappable = [];
     const unmappable = [];
     PICTOGRAMS.forEach(function (p) {
@@ -443,8 +444,8 @@ describe('child-pictogram-packs — pictogram-library coverage report', () => {
         unmappable.push(p.key);
       }
     });
-    assert.equal(mappable.length, 44);
-    assert.equal(unmappable.length, 52);
+    assert.equal(mappable.length, 45);
+    assert.equal(unmappable.length, 51);
     unmappable.forEach(function (key) {
       assert.equal(serverPacks.resolveActivityAsset(key, 'simple'), null);
     });
