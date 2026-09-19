@@ -52,7 +52,7 @@ Piktogramnycklar är samma `icon_key` som appen (`config/pictogram-library.js`).
 - A4, PDFKit, Helvetica (WinAnsi). Inga pilar, stjärn-glypher eller andra tecken Helvetica inte kan rita.
 - En sida för varje resurs som ryms på en sida
 - Titel, ingress, instruktion/disclaimer, footer och sidnummer från locale-bundle
-- Illustrationer: design-kit-SVG rasteriseras till PNG via `sharp` (`src/lib/resurser-icons.js`). Samma semantiska bild som i appen. Textetikett finns alltid. Saknas kit-fil används numrerad yta, inte emoji.
+- Illustrationer: barnets `simple`-pictogram (`public/images/child/pictograms/simple/`) rasteriseras till PNG via `sharp` (`src/lib/resurser-icons.js`). Samma bilder som Idag i appen. Nycklar utan app-pictogram (känslor, TEACCH-token) faller tillbaka till design-kit-SVG. Textetikett finns alltid. Saknas båda används numrerad yta, inte emoji.
 - Färg är inte enda bärare av information (ikon + text + kryssruta).
 
 ## E. I18n
