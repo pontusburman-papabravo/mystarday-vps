@@ -161,7 +161,7 @@
       const queryPart = raw.includes('?') ? raw.slice(raw.indexOf('?')) : '';
       const route = resolveRoute(hash);
       let canonical = '#' + route.canonicalKey;
-      if (queryPart && (route.canonicalKey === 'meddelanden' || route.canonicalKey === 'incidenter' || route.canonicalKey === 'start')) {
+      if (queryPart && (route.canonicalKey === 'meddelanden' || route.canonicalKey === 'incidenter' || route.canonicalKey === 'start' || route.canonicalKey === 'familjer')) {
         canonical += queryPart;
       }
       const current = window.location.hash || '';

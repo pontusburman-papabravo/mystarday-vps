@@ -111,6 +111,77 @@
     }
     window.toggleFamilyDevices = toggleFamilyDevices;
 
+    const FAMILY_COUNTRY_NAMES_SV = Object.freeze({
+      SE: 'Sverige',
+      IE: 'Irland',
+      FI: 'Finland',
+      NO: 'Norge',
+      DK: 'Danmark',
+      GB: 'Storbritannien',
+      US: 'USA',
+      ZZ: 'Övrigt',
+    });
+
+    function parseFamiliesCountryFilter(hash) {
+      const raw = String(hash == null ? (window.location.hash || '') : hash);
+      const qIndex = raw.indexOf('?');
+      if (qIndex < 0) return null;
+      let params;
+      try {
+        params = new URLSearchParams(raw.slice(qIndex + 1));
+      } catch {
+        return null;
+      }
+      const code = String(params.get('country') || '').trim().toUpperCase();
+      return /^[A-Z]{2}$/.test(code) ? code : null;
+    }
+
+    function familyCountryCode(family) {
+      const code = String(family && family.country_code ? family.country_code : 'SE').trim().toUpperCase();
+      return /^[A-Z]{2}$/.test(code) ? code : 'SE';
+    }
+
+    function familyMatchesSearch(family, query) {
+      const q = String(query || '').toLowerCase().trim();
+      if (!q) return true;
+      if ((family.family_name || '').toLowerCase().includes(q)) return true;
+      if ((family.parents || []).some((p) =>
+        (p.email || '').toLowerCase().includes(q) ||
+        (p.name || '').toLowerCase().includes(q)
+      )) return true;
+      if ((family.children || []).some((c) =>
+        (c.name || '').toLowerCase().includes(q) ||
+        (c.username || '').toLowerCase().includes(q)
+      )) return true;
+      return false;
+    }
+
+    function renderFamiliesCountryBanner(country) {
+      const el = document.getElementById('familiesCountryFilterBanner');
+      if (!el) return;
+      if (!country) {
+        el.classList.add('hidden');
+        el.innerHTML = '';
+        return;
+      }
+      const name = FAMILY_COUNTRY_NAMES_SV[country] || country;
+      el.classList.remove('hidden');
+      el.innerHTML = `<p class="text-sm text-navy bg-sky rounded-xl px-4 py-2">Visar familjer i ${esc(name)}. <a href="#familjer" onclick="return adminNavClick(event)" class="font-semibold text-gold">Visa alla</a></p>`;
+    }
+
+    function applyFamiliesView() {
+      const container = document.getElementById('familiesContainer');
+      if (!container) return;
+      const country = parseFamiliesCountryFilter();
+      const searchVal = document.getElementById('familySearch')?.value?.trim() || '';
+      const filtered = (window.allFamilies || []).filter((family) => {
+        if (country && familyCountryCode(family) !== country) return false;
+        return familyMatchesSearch(family, searchVal);
+      });
+      renderFamiliesCountryBanner(country);
+      renderFamilyCards(filtered, container, { countryFilter: country });
+    }
+
     async function loadFamilies() {
       const container = document.getElementById('familiesContainer');
       if (!container) return;
@@ -121,12 +192,7 @@
           throw new Error(typeof families?.error === 'string' ? families.error : 'Ogiltigt svar från servern');
         }
         window.allFamilies = families;
-        const searchVal = document.getElementById('familySearch')?.value?.trim() || '';
-        if (searchVal) {
-          filterFamilies(searchVal);
-        } else {
-          renderFamilyCards(families, container);
-        }
+        applyFamiliesView();
       } catch (e) {
         console.error('Failed to load families:', e);
         const detail = e?.message ? ': ' + e.message : '';
@@ -134,35 +200,20 @@
       }
     }
 
-    function filterFamilies(query) {
-      const container = document.getElementById('familiesContainer');
-      const allFamilies = window.allFamilies || [];
-      if (!query || !query.trim()) {
-        renderFamilyCards(allFamilies, container);
-        return;
-      }
-      const q = query.toLowerCase().trim();
-      const filtered = allFamilies.filter(family => {
-        // Match family name
-        if ((family.family_name || '').toLowerCase().includes(q)) return true;
-        // Match parent name or email
-        if ((family.parents || []).some(p =>
-          (p.email || '').toLowerCase().includes(q) ||
-          (p.name || '').toLowerCase().includes(q)
-        )) return true;
-        // Match child name
-        if ((family.children || []).some(c =>
-          (c.name || '').toLowerCase().includes(q) ||
-          (c.username || '').toLowerCase().includes(q)
-        )) return true;
-        return false;
-      });
-      renderFamilyCards(filtered, container);
+    function filterFamilies() {
+      applyFamiliesView();
     }
+    window.parseFamiliesCountryFilter = parseFamiliesCountryFilter;
+    window.familyCountryCode = familyCountryCode;
+    window.applyFamiliesView = applyFamiliesView;
+    window.filterFamilies = filterFamilies;
 
-    function renderFamilyCards(families, container) {
+    function renderFamilyCards(families, container, opts) {
       if (!families || families.length === 0) {
-        container.innerHTML = '<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">Inga familjer än</div>';
+        const country = opts && opts.countryFilter;
+        const name = country ? (FAMILY_COUNTRY_NAMES_SV[country] || country) : null;
+        const emptyMsg = name ? `Inga familjer i ${esc(name)}` : 'Inga familjer än';
+        container.innerHTML = `<div class="text-center text-text-soft py-8 bg-sky rounded-2xl">${emptyMsg}</div>`;
         return;
       }
 

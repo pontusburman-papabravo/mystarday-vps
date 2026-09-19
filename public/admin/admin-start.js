@@ -139,13 +139,17 @@
     if (!items.length) {
       return `<div class="mb-5">${heading}<p class="text-sm text-text-soft">Inga öppna marknader just nu.</p></div>`;
     }
-    const cards = items.map((market) => kpiCard(
-      market.name || market.code,
-      market.total ?? '–',
-      `${market.today || 0} idag · ${market.last7d || 0} senaste 7 dagarna`,
-      'text-text-soft',
-      '#familjer'
-    )).join('');
+    const cards = items.map((market) => {
+      const code = String(market.code || '').trim().toUpperCase();
+      const route = /^[A-Z]{2}$/.test(code) ? `#familjer?country=${code}` : '#familjer';
+      return kpiCard(
+        market.name || market.code,
+        market.total ?? '–',
+        `${market.today || 0} idag · ${market.last7d || 0} senaste 7 dagarna`,
+        'text-text-soft',
+        route
+      );
+    }).join('');
     return `<div class="mb-5">${heading}<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${cards}</div></div>`;
   }
 
