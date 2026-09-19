@@ -80,6 +80,12 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /No payment required/);
     assert.doesNotMatch(html, /Basic is included/);
     assert.doesNotMatch(html, /at no cost/);
+    assert.match(html, /\/img\/en-landing\/01-parent-home\.webp/);
+    assert.match(html, /\/img\/en-landing\/02-child-activity\.webp/);
+    assert.match(html, /\/img\/en-landing\/05-treasure-chest\.webp/);
+    assert.doesNotMatch(html, /pub-629428d185ca4960a0a73c850d32294b/);
+    assert.doesNotMatch(html, /Barninloggning/);
+    assert.doesNotMatch(html, /Välkomstskärm/);
   });
 
   it('English FAQ page does not claim a free Basic tier', () => {
@@ -96,6 +102,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /Welcome Ireland/);
     assert.doesNotMatch(html, /data-hero-launch="ireland"/);
     assert.match(html, /Basic ingår utan kostnad/);
+    assert.match(html, /pub-629428d185ca4960a0a73c850d32294b/);
+    assert.doesNotMatch(html, /\/img\/en-landing\//);
   });
 
   it('English pricing does not send families to a waitlist for English', () => {
