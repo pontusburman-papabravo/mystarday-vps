@@ -15,6 +15,10 @@ const {
   sourceBucketsFromCounts,
   buildUsageHeadline,
   DEFINITIONS,
+  CSV_BOM,
+  CSV_SEPARATOR,
+  buildUsageOverTimeCsv,
+  usageCsvFilename,
 } = require('../src/lib/admin-usage-over-time');
 
 const ROOT = path.join(__dirname, '..');
@@ -98,6 +102,68 @@ describe('usage-over-time number helpers', () => {
   });
 });
 
+describe('usage-over-time CSV export', () => {
+  const weekday = weekdayFromIsoRows([
+    { iso_dow: 1, completions: 10, families: 4 },
+    { iso_dow: 7, completions: 2, families: 1 },
+  ]);
+  const sample = {
+    period: { days: 90, from: '2026-06-20', to: '2026-09-17', timezone: 'Europe/Stockholm' },
+    headline: 'Mån har flest avbockningar (10).',
+    definitions: DEFINITIONS,
+    totals: {
+      product_families: 367,
+      completions: 12,
+      families_active: 5,
+      children_active: 6,
+      peak_daily_families: 3,
+      children: 403,
+      children_with_week: 387,
+      children_with_items: 380,
+    },
+    daily: [
+      { day: '2026-09-16', completions: 7, families: 3, children: 4 },
+    ],
+    weekday,
+    sections: [{ section: 'morgon', label: 'Morgon', completions: 8, families: 3 }],
+    custom: {
+      user_templates: 238,
+      families_with_user: 35,
+      library_templates: 3024,
+      families_with_library: 115,
+      unknown_templates: 6428,
+      families_with_unknown: 265,
+      templates_total: 9690,
+      families_with_any_template: 367,
+    },
+    template_sources: sourceBucketsFromCounts({ user: 238, library: 3024, unknown: 6428 }),
+    completion_sources: {
+      ...sourceBucketsFromCounts({ user: 116, library: 270, unknown: 1339 }),
+      families: { user: 20, library: 40, unknown: 80 },
+    },
+    top_activities: [{ name: 'Borsta tänderna; kväll', completions: 110, families: 40 }],
+    schedule_weekdays: scheduleWeekdaysFromRows([{ day_of_week: 1, items: 20, children: 8 }]),
+    named_templates: [{ name: 'Skoldag', schedule_rows: 12, families: 4, children: 5 }],
+    rewards: { redemptions: 16, families: 4, children: 3 },
+    special_days: { count: 289, children: 26 },
+  };
+
+  it('writes Excel-friendly Swedish CSV from the same payload as the tab', () => {
+    const csv = buildUsageOverTimeCsv(sample);
+    assert.equal(csv.charCodeAt(0), CSV_BOM.charCodeAt(0));
+    assert.match(csv, new RegExp(`^${CSV_BOM}"tabell"${CSV_SEPARATOR}"nyckel"`));
+    assert.match(csv, /"dag";"2026-09-16";"2026-09-16";"7";"3";"4";"";"/);
+    assert.match(csv, /"veckodag";"1";"Mån";"10";"4"/);
+    assert.match(csv, /"aktivitet";"Borsta tänderna; kväll";"Borsta tänderna; kväll";"110";"40"/);
+    assert.match(csv, /"aktivitetskalla";"user".*"238";"35"/);
+    assert.match(csv, /"beloning";"redemptions";"Belöningar hämtade";"16";"4";"3"/);
+    assert.match(csv, /"definition";"customActivities";"Egna aktiviteter"/);
+    assert.match(csv, /Europe\/Stockholm/);
+    assert.doesNotMatch(csv, /analytics_events/);
+    assert.equal(usageCsvFilename(sample), 'anvandning-over-tid-90d-2026-09-17.csv');
+  });
+});
+
 describe('usage-over-time SQL stays on completions and product families', () => {
   const src = read('db/usage-over-time.js');
   const route = read('src/routes/admin/analytics.js');
@@ -121,9 +187,11 @@ describe('usage-over-time SQL stays on completions and product families', () => 
     assert.match(src, /source, ''\) = 'admin'/);
   });
 
-  it('exposes a dedicated admin route', () => {
+  it('exposes a dedicated admin route and CSV download', () => {
     assert.match(route, /\/analytics\/usage-over-time/);
+    assert.match(route, /\/analytics\/usage-over-time\.csv/);
     assert.match(route, /getUsageOverTime/);
+    assert.match(route, /buildUsageOverTimeCsv/);
   });
 });
 
@@ -138,6 +206,8 @@ describe('Så används appen copy', () => {
     assert.match(ui, /Egna aktiviteter eller biblioteket/);
     assert.match(ui, /Namngivna scheman/);
     assert.match(ui, /usage-over-time\?days=/);
+    assert.match(ui, /Ladda ner CSV/);
+    assert.match(ui, /usage-over-time\.csv\?days=/);
     assert.match(html, /admin-usage-over-time\.js/);
     assert.doesNotMatch(ui, /Trusted-device/);
     assert.doesNotMatch(ui, /Ghost Families/);

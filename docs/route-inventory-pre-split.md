@@ -125,6 +125,7 @@
 | GET | `/api/admin/analytics/trends` | src/routes/admin.js | — |
 | GET | `/api/admin/analytics/usage` | src/routes/admin.js | — |
 | GET | `/api/admin/analytics/usage-over-time` | src/routes/admin.js | — |
+| GET | `/api/admin/analytics/usage-over-time.csv` | src/routes/admin.js | — |
 | GET | `/api/admin/analytics/usage-trends` | src/routes/admin.js | — |
 | GET | `/api/admin/analytics/warnings` | src/routes/admin.js | — |
 | GET | `/api/admin/app-config` | src/routes/admin.js | — |
