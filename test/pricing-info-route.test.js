@@ -55,7 +55,9 @@ test('landing mobile login choice script is wired on index', () => {
   const js = fs.readFileSync(path.join(ROOT, 'public/js/landing-login-choice.js'), 'utf8');
   assert.match(html, /landing-login-choice\.js/);
   assert.match(js, /landing_login_entry_choice_v1/);
-  assert.match(js, /\/register/);
+  assert.match(js, /\/login/);
+  assert.match(js, /\/child-login/);
+  assert.doesNotMatch(js, /a\[href="\/register"\]/);
   assert.match(js, /Fråga inte igen/);
 });
 
@@ -82,7 +84,9 @@ test('pricing-info page is public access information (not gated catalog)', () =>
   assert.match(route, /pricing-info\.html/);
   assert.doesNotMatch(route, /isBillingUiEnabled/);
   assert.match(html, /Apple App Store och Google Play/);
-  assert.match(html, /href="\/register"/);
+  assert.match(html, /data-track="app_store_click"/);
+  assert.match(html, /__PLAY_STORE_URL__/);
+  assert.doesNotMatch(html, /href="\/register"/);
 });
 
 test('upgrade page links to program info', () => {
@@ -108,6 +112,8 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.match(html, /id="sa-fungerar-det"/);
   assert.match(html, /id="pris-och-tillgang"/);
   assert.match(html, /data-track="hero_signup_click"/);
+  assert.match(html, /href="#app-store"/);
+  assert.doesNotMatch(html, /href="\/register"/);
   assert.match(html, /href="\/child-login"/);
   assert.match(html, /landing-login-entry/);
   assert.match(html, /Logga in som barn/);
@@ -124,7 +130,8 @@ test('English landing mirrors Swedish layout with EN waitlist funnel', () => {
   assert.match(en, /My Starday/);
   assert.match(en, /landing-nav__lang-label">Svenska</);
   assert.match(en, /href="\/en\/faq"/);
-  assert.match(en, /href="\/register"/);
+  assert.match(en, /href="#app-store"/);
+  assert.doesNotMatch(en, /href="\/register"/);
   assert.match(en, /id="waitlist"/);
   assert.match(en, /waitlist-form/);
   assert.match(landingJs, /serveLandingHtml\(res, 'en\.html'\)/);
