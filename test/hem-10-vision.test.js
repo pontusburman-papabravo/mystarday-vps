@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
+const { isCacheAtLeast } = require('./helpers/cache-version');
+
 const ROOT = path.join(__dirname, '..');
 
 function read(rel) {
@@ -98,6 +100,6 @@ describe('Hem 10/10 — priority ladder', () => {
     const sw = read('public/sw.js');
     const cache = JSON.parse(read('config/cache-version.json'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v435', 'for-dig branch should be at v435+ after merge');
+    assert.ok(isCacheAtLeast(cache.cacheName, 435), 'for-dig branch should be at v435+ after merge');
   });
 });

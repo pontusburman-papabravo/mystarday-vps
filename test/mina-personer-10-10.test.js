@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
+const { isCacheAtLeast } = require('./helpers/cache-version');
+
 const ROOT = path.join(__dirname, '..');
 const HALL = path.join(ROOT, 'public/js/child-family-hall.js');
 const STATE = path.join(ROOT, 'public/js/child-family-state.js');
@@ -112,6 +114,6 @@ describe('Mina personer barn 10/10', () => {
     const sw = fs.readFileSync(path.join(ROOT, 'public/sw.js'), 'utf8');
     const cache = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/cache-version.json'), 'utf8'));
     assert.match(sw, new RegExp("const CACHE_NAME = '" + cache.cacheName + "'"));
-    assert.ok(cache.cacheName >= 'stjarndag-v454');
+    assert.ok(isCacheAtLeast(cache.cacheName, 454));
   });
 });
