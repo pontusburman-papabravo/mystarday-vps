@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1001: English landing uses English Open Graph share image
  * v1000: resource PDFs use the same pictograms as the child app
  * v999: English landing uses en-GB App Store screenshots
  * v998: landing SV/EN nav + menu links to resource library
@@ -340,7 +341,8 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v1000';
+const CACHE_NAME = 'stjarndag-v1001';
+// stjarndag-v1001: English landing uses English Open Graph share image
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall
 // stjarndag-v981: library remainder i18n + always-on strict CI audits
 // stjarndag-v980: fallback contract — no fi→sv-SE alias, no Swedish DOM/helper leak

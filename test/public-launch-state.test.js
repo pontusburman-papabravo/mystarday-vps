@@ -86,6 +86,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /pub-629428d185ca4960a0a73c850d32294b/);
     assert.doesNotMatch(html, /Barninloggning/);
     assert.doesNotMatch(html, /Välkomstskärm/);
+    assert.match(html, /\/og-image-en\.png/);
+    assert.doesNotMatch(html, /property="og:image" content="[^"]*\/og-image\.png"/);
   });
 
   it('English FAQ page does not claim a free Basic tier', () => {
