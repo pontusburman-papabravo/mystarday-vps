@@ -136,6 +136,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  // Already on main without a file-level contract; do not edit 181053.js.
+  '1810530000000_disable_onboarding_handoff_film': {
+    backwardCompatible: true,
+    schemaOnly: false,
+    featureFlagEnabledChanges: [
+      { key: 'activation_onboarding_handoff_film_v1', before: true, after: false },
+    ],
+  },
 };
 
 /**

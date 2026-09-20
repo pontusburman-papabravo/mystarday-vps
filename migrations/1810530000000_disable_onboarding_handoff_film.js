@@ -7,17 +7,6 @@
 
 module.exports = {
   name: '1810530000000_disable_onboarding_handoff_film',
-  snapshotContract: {
-    backwardCompatible: true,
-    schemaOnly: false,
-    featureFlagEnabledChanges: [
-      {
-        key: 'activation_onboarding_handoff_film_v1',
-        before: true,
-        after: false,
-      },
-    ],
-  },
 
   up: async (client) => {
     await client.query(
