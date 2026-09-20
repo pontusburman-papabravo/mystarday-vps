@@ -187,7 +187,14 @@ async function loadFamilyStuckFacts(familyId) {
              'api_error_core_flow'
            )
            AND ae.created_at > NOW() - INTERVAL '14 days'
-       ) AS last_core_flow_error_at
+       ) AS last_core_flow_error_at,
+       (
+         SELECT c.name
+         FROM child c
+         WHERE c.family_id = f.id
+         ORDER BY c.created_at ASC
+         LIMIT 1
+       ) AS primary_child_name
      FROM family f
      JOIN parent p ON p.family_id = f.id
      LEFT JOIN family_activation_state s ON s.family_id = f.id

@@ -115,6 +115,7 @@ describe('growth feedback loop contracts', () => {
     assert.match(client, /schema_no_child_login/);
     assert.match(client, /handoff_inline_cta_shown/);
     assert.match(client, /handoff_inline_cta_clicked/);
+    assert.match(client, /\/api\/growth\/system-help\/engage/);
     assert.match(client, /Problem med barninloggningen/);
     assert.match(client, /DashboardChildHandoff\.startChildLogin/);
     const analytics = read('src/routes/analytics.js');

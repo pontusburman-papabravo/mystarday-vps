@@ -44,7 +44,6 @@
     childId: null,
     childName: null,
     childUsername: null,
-    childPin: null,
     hourglassEnabled: false,
   };
 
@@ -152,58 +151,11 @@
     return window.escapeHtml ? window.escapeHtml(s) : String(s);
   }
 
-  function rememberSlimChildCredentials(childData) {
+  function rememberSlimChild(childData) {
     if (!childData) return;
     if (childData.id) state.childId = childData.id;
     if (childData.name) state.childName = childData.name;
     if (childData.username) state.childUsername = childData.username;
-    if (childData.pin != null && childData.pin !== '') {
-      state.childPin = String(childData.pin);
-    }
-  }
-
-  function slimHandoffHtml() {
-    const name = state.childName || state.answers.child_name || ot('onboarding.common.childFallback');
-    const username = state.childUsername || '';
-    const pin = state.childPin || '';
-    if (!pin) return '';
-    const usernameRow = username
-      ? '  <p class="text-sm text-navy mb-1"><span class="text-text-soft">' +
-        esc(ot('onboarding.starter.slimHandoffUsername')) +
-        '</span> <strong id="slimHandoffUsername">' + esc(username) + '</strong></p>'
-      : '';
-    return [
-      '<div id="slimHandoffCard" class="mt-5 p-4 rounded-xl bg-cream/80 border border-gold/20 text-left" data-slim-handoff="credentials">',
-      '  <p class="text-navy font-heading font-semibold text-sm mb-1">' + esc(ot('onboarding.starter.slimHandoffTitle')) + '</p>',
-      '  <p class="text-text-soft text-sm mb-3">' + esc(ot('onboarding.starter.slimHandoffBody')) + '</p>',
-      '  <p class="text-sm text-navy mb-1"><span class="text-text-soft">' +
-        esc(ot('onboarding.starter.slimHandoffName')) +
-        '</span> <strong id="slimHandoffName">' + esc(name) + '</strong></p>',
-      usernameRow,
-      '  <p class="text-sm text-navy mb-3"><span class="text-text-soft">' +
-        esc(ot('onboarding.starter.slimHandoffPin')) +
-        '</span> <strong id="slimHandoffPin" class="font-mono tracking-widest text-lg">' + esc(pin) + '</strong></p>',
-      '  <button type="button" id="slimCopyPin" class="w-full border-2 border-navy text-navy hover:bg-navy hover:text-white font-semibold py-2.5 rounded-xl min-h-[44px] transition-colors">' +
-        esc(ot('onboarding.starter.slimHandoffCopyPin')) + '</button>',
-      '</div>',
-    ].filter(Boolean).join('');
-  }
-
-  function bindSlimCopyPin() {
-    const btn = document.getElementById('slimCopyPin');
-    if (!btn || !state.childPin) return;
-    btn.addEventListener('click', function () {
-      const pin = state.childPin;
-      function markCopied() {
-        btn.textContent = ot('onboarding.starter.slimHandoffCopied');
-        setTimeout(function () {
-          btn.textContent = ot('onboarding.starter.slimHandoffCopyPin');
-        }, 2000);
-      }
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        navigator.clipboard.writeText(pin).then(markCopied).catch(function () {});
-      }
-    });
   }
 
   function ensureCard() {
@@ -499,7 +451,7 @@
       });
       const childData = await childRes.json();
       if (!childRes.ok) throw new Error(childData.error || ot('onboarding.starter.childCreateFailed'));
-      rememberSlimChildCredentials(childData);
+      rememberSlimChild(childData);
 
       const schedRes = await api('/api/onboarding/schedule', {
         method: 'POST',
@@ -579,7 +531,6 @@
     if (preview) {
       preview.classList.remove('hidden');
       const childName = state.childName || state.answers.child_name || ot('onboarding.common.childFallback');
-      const slimHandoff = slimHandoffHtml();
       const hourglassBlock = !state.hourglassEnabled
         ? [
           '  <div class="mt-5 p-4 rounded-xl bg-cream/80 border border-gold/20 text-left" id="slimHourglassOffer">',
@@ -594,15 +545,13 @@
         '  <div class="text-5xl mb-3" aria-hidden="true">✨</div>',
         '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.starter.slimSuccessTitle')) + '</h2>',
         '  <p class="text-text-soft text-sm mb-1">' + esc(ot('onboarding.starter.previewForChild', { childName: childName, count: state.previewItems.length })) + '</p>',
-        '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight')) + '</p>',
-        slimHandoff,
+        '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight', { childName: childName })) + '</p>',
         '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
         hourglassBlock,
         '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-text-soft py-3 mt-4 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
         '</div>',
       ].join('');
 
-      bindSlimCopyPin();
       const hourglassBtn = document.getElementById('slimEnableHourglass');
       if (hourglassBtn) {
         hourglassBtn.addEventListener('click', function () {
@@ -898,9 +847,12 @@
         detail: { id: data.primary_child_id },
       }));
     }
+    if (dayZero) {
+      state.slim = true;
+      state.signupPath = state.signupPath || 'slim';
+    }
     if (funnelStep === 'child_created') {
       if (dayZero) {
-        state.slim = true;
         hideLegacyStep1();
         ensureCard();
         renderQuestion();

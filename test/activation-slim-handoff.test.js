@@ -30,16 +30,13 @@ describe('activation slim honest handoff (static)', () => {
   const svHome = readJson('config/i18n/home-sv-SE.json');
   const enHome = readJson('config/i18n/home-en-GB.json');
 
-  it('slim success renders child identity and generated PIN once', () => {
-    assert.match(starter, /rememberSlimChildCredentials/);
-    assert.match(starter, /slimHandoffHtml/);
-    assert.match(starter, /id="slimHandoffName"/);
-    assert.match(starter, /id="slimHandoffUsername"/);
-    assert.match(starter, /id="slimHandoffPin"/);
-    assert.match(starter, /id="slimCopyPin"/);
-    assert.match(starter, /data-slim-handoff="credentials"/);
-    assert.match(starter, /slimHandoffHtml\(\)/);
+  it('slim success goes Home without teaching child PIN login', () => {
+    assert.match(starter, /rememberSlimChild\(/);
+    assert.match(starter, /slimSuccessTonight/);
     assert.match(starter, /id="slimGoHome"/);
+    assert.doesNotMatch(starter, /slimHandoffHtml/);
+    assert.doesNotMatch(starter, /id="slimHandoffPin"/);
+    assert.doesNotMatch(starter, /data-slim-handoff="credentials"/);
     assert.doesNotMatch(starter, /completeSignupAndRedirect\(['"]\/child-login/);
   });
 
@@ -74,24 +71,13 @@ describe('activation slim honest handoff (static)', () => {
     assert.match(read('public/dashboard.html'), /href="\/family"/);
   });
 
-  it('Swedish and English copy exist without placeholder keys', () => {
-    const starterKeys = [
-      'slimHandoffTitle',
-      'slimHandoffBody',
-      'slimHandoffName',
-      'slimHandoffUsername',
-      'slimHandoffPin',
-      'slimHandoffCopyPin',
-      'slimHandoffCopied',
-    ];
-    starterKeys.forEach(function (key) {
-      assert.equal(typeof svOnboarding.starter[key], 'string', 'sv ' + key);
-      assert.equal(typeof enOnboarding.starter[key], 'string', 'en ' + key);
-      assert.ok(svOnboarding.starter[key].length > 2, 'sv empty ' + key);
-      assert.ok(enOnboarding.starter[key].length > 2, 'en empty ' + key);
-      assert.notEqual(svOnboarding.starter[key], 'onboarding.starter.' + key);
-      assert.notEqual(enOnboarding.starter[key], 'onboarding.starter.' + key);
-    });
+  it('Swedish and English slim success copy names the child, not a PIN', () => {
+    assert.match(svOnboarding.starter.slimSuccessTonight, /\{\{childName\}\}/);
+    assert.match(enOnboarding.starter.slimSuccessTonight, /\{\{childName\}\}/);
+    assert.doesNotMatch(svOnboarding.starter.slimSuccessTonight, /PIN/i);
+    assert.doesNotMatch(enOnboarding.starter.slimSuccessTonight, /PIN/i);
+    assert.equal(svOnboarding.starter.slimHandoffPin, undefined);
+    assert.equal(enOnboarding.starter.slimHandoffPin, undefined);
     assert.equal(typeof svHome.handoff.changePin, 'string');
     assert.equal(typeof enHome.handoff.changePin, 'string');
     assert.match(svHome.handoff.changePin, /PIN/);
@@ -113,5 +99,16 @@ describe('activation slim honest handoff (static)', () => {
     assert.match(starter, /function savePlan/);
     assert.match(starter, /enterChildHandoff/);
     assert.doesNotMatch(starter, /savePlan[\s\S]*showSlimSuccessAndGoHome/);
+  });
+
+  it('slim resume after schema save goes Home, not the film or PIN step', () => {
+    const onboarding = read('public/js/onboarding.js');
+    const film = read('public/js/onboarding-handoff-film.js');
+    assert.match(onboarding, /completeOnboardingAndGoHome/);
+    assert.match(onboarding, /isSlimFastPath\(\)/);
+    assert.match(onboarding, /completeOnboardingAndGoHome\('\/dashboard'\)/);
+    assert.match(starter, /state\.signupPath = state\.signupPath \|\| 'slim'/);
+    assert.match(film, /isSlimFastPath/);
+    assert.match(film, /completeOnboardingAndGoHome\('\/dashboard'\)/);
   });
 });

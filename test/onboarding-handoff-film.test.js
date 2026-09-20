@@ -51,12 +51,16 @@ describe('Onboarding handoff film', () => {
     assert.notEqual(svLater, enLater);
   });
 
-  it('film enabled by activation state, not slim fast path', () => {
+  it('film stays off on slim fast path and follows the live flag', () => {
     const src = read('public/js/onboarding-handoff-film.js');
     assert.match(src, /schema_saved_at/);
     assert.match(src, /child_access_completed_at/);
     assert.match(src, /handoff_film_completed_at/);
-    assert.doesNotMatch(src, /isSlimFastPath/);
+    assert.match(src, /isSlimFastPath/);
+    assert.match(src, /completeOnboardingAndGoHome/);
+    const disable = read('migrations/1810530000000_disable_onboarding_handoff_film.js');
+    assert.match(disable, /activation_onboarding_handoff_film_v1/);
+    assert.match(disable, /enabled = false/);
   });
 
   it('schema save paths route through goToHandoffAfterSchema or enterChildHandoff', () => {
@@ -73,13 +77,15 @@ describe('Onboarding handoff film', () => {
     assert.match(activation, /loadConfig: loadConfig/);
   });
 
-  it('film CTA try shows handoff panel; later defers to dashboard CTA', () => {
+  it('film CTA try opens child view without teaching PIN; later defers to dashboard', () => {
     const src = read('public/js/onboarding-handoff-film.js');
     assert.match(src, /showHandoffPanel/);
     assert.match(src, /startChildHandoff\('onboarding_film'\)/);
     assert.match(src, /postponeHandoff/);
     assert.match(src, /next_step=child_handoff/);
-    assert.doesNotMatch(src, /\/api\/onboarding\/complete/);
+    assert.doesNotMatch(src, /ohfHandoffPin/);
+    assert.doesNotMatch(src, /getHandoffLoginInfo/);
+    assert.doesNotMatch(src, /copyLogin/);
   });
 
   it('activation-config exposes handoff film flag and state', () => {
@@ -114,14 +120,36 @@ describe('Onboarding handoff film', () => {
     assert.match(src, /OnboardingHandoffFilm\.isEnabled/);
   });
 
-  it('film preview page and route exist', () => {
+  it('film preview page loads locale before play', () => {
     const html = read('public/onboarding-film-preview.html');
     const routes = read('src/routes/index.js');
     const filmJs = read('public/js/onboarding-handoff-film.js');
     assert.match(html, /OnboardingHandoffFilm\.showPreview/);
+    assert.match(html, /\/js\/i18n\.js/);
+    assert.match(html, /onboarding-i18n\.js/);
     assert.match(routes, /\/onboarding\/film-preview/);
     assert.match(filmJs, /showPreview/);
+    assert.match(filmJs, /initOnboardingI18n/);
+    assert.match(filmJs, /previewTitle/);
     assert.match(filmJs, /preview: true/);
+    const svTitle = t('sv-SE', 'onboarding.handoffFilm.previewTitle');
+    const enTitle = t('en-GB', 'onboarding.handoffFilm.previewTitle');
+    assert.match(svTitle, /Onboardingfilm/i);
+    assert.match(enTitle, /Onboarding film/i);
+    assert.notEqual(svTitle, enTitle);
+  });
+
+  it('film copy names the child and does not teach PIN login', () => {
+    const sv = JSON.parse(read('config/i18n/onboarding-sv-SE.json'));
+    const en = JSON.parse(read('config/i18n/onboarding-en-GB.json'));
+    assert.match(sv.handoffFilm.loginLead, /\{\{childName\}\}/);
+    assert.match(en.handoffFilm.loginLead, /\{\{childName\}\}/);
+    assert.doesNotMatch(sv.handoffFilm.loginLead, /PIN/i);
+    assert.doesNotMatch(en.handoffFilm.loginLead, /PIN/i);
+    assert.doesNotMatch(sv.handoffFilm.loginTitle, /PIN/i);
+    assert.doesNotMatch(en.handoffFilm.loginTitle, /PIN/i);
+    assert.doesNotMatch(t('sv-SE', 'onboarding.handoffFilm.loginLead', { childName: 'Alma' }), /PIN/i);
+    assert.doesNotMatch(t('en-GB', 'onboarding.handoffFilm.loginLead', { childName: 'Alma' }), /PIN/i);
   });
 
   it('email resume uses enterChildHandoff', () => {

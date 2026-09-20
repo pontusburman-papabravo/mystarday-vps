@@ -47,7 +47,7 @@ describe('ACT-1 growth completion', () => {
     const onboardingHtml = fs.readFileSync(path.join(ROOT, 'public/onboarding.html'), 'utf8');
     const onboarding = fs.readFileSync(path.join(ROOT, 'public/js/onboarding.js'), 'utf8');
     const i18n = fs.readFileSync(path.join(ROOT, 'config/i18n/onboarding-sv-SE.json'), 'utf8');
-    assert.match(handoffFilm, /handoffFilm\.copyLogin/);
+    assert.match(handoffFilm, /handoffFilm\.openChildMode/);
     assert.match(onboardingHtml, /onboarding\.handoff\.copyInfo/);
     assert.match(onboardingHtml, /onboarding\.handoff\.emailLogin/);
     assert.match(onboarding, /copyLoginInfo/);
