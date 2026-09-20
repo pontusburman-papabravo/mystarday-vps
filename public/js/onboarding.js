@@ -523,6 +523,11 @@ async function resumeAct1Onboarding(funnelStep) {
     return;
   }
   if (step === 'schema_saved') {
+    if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function'
+        && OnboardingStarterPlan.isSlimFastPath()) {
+      await completeOnboardingAndGoHome('/dashboard');
+      return;
+    }
     let filmDone = false;
     try {
       if (window.OnboardingActivation && typeof OnboardingActivation.loadConfig === 'function') {
@@ -534,17 +539,7 @@ async function resumeAct1Onboarding(funnelStep) {
       filmDone = Boolean(cfg && cfg.state && cfg.state.handoff_film_completed_at);
     } catch (_) { /* fall through to handoff */ }
     if (filmDone) {
-      try {
-        const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
-        if (res.ok) {
-          const user = Auth.getUser();
-          if (user) {
-            user.onboarding_completed = true;
-            Auth.setAuth(Auth.getToken(), user);
-          }
-        }
-      } catch (_) { /* ignore */ }
-      window.location.href = '/dashboard?next_step=child_handoff';
+      await completeOnboardingAndGoHome('/dashboard?next_step=child_handoff');
       return;
     }
     await enterChildHandoff('resume_schema_saved');
@@ -597,9 +592,29 @@ async function finalizeSchemaAndGoHandoff() {
   }
 }
 
-/** Unified handoff entry — film when enabled, else steg 5. */
+async function completeOnboardingAndGoHome(targetHref) {
+  try {
+    const res = await window.apiFetch('/api/onboarding/complete', { method: 'POST' });
+    if (res.ok) {
+      const user = Auth.getUser();
+      if (user) {
+        user.onboarding_completed = true;
+        Auth.setAuth(Auth.getToken(), user);
+      }
+    }
+  } catch (_) { /* ignore */ }
+  window.location.href = targetHref || '/dashboard';
+}
+window.completeOnboardingAndGoHome = completeOnboardingAndGoHome;
+
+/** Unified handoff entry — slim goes Home; film when enabled, else steg 5. */
 async function enterChildHandoff(entryPoint) {
   window.__onboardingHandoffEntry = entryPoint || 'unknown';
+  if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function'
+      && OnboardingStarterPlan.isSlimFastPath()) {
+    await completeOnboardingAndGoHome('/dashboard');
+    return;
+  }
   if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
     await OnboardingHandoffFilm.goToHandoffAfterSchema(entryPoint);
     return;

@@ -417,15 +417,16 @@
     "ctaReady": "Redo att testa?",
     "ctaTryNow": "Testa barnläget nu",
     "ctaLater": "Gör det senare",
-    "loginTitle": "Logga in som barnet",
-    "loginLead": "{{childName}} loggar in med namn och PIN.",
+    "loginTitle": "Öppna vyn för barnet",
+    "loginLead": "Schemat är klart. Ge {{childName}} den här enheten så barnet ser sin rutin.",
     "usernameLabel": "Användarnamn",
     "pinLabel": "PIN-kod",
     "loginHint": "Sätt er tillsammans — samma eller annan enhet fungerar.",
     "copyLogin": "📋 Kopiera inloggning",
     "copied": "✓ Kopierat!",
-    "openChildMode": "Öppna barnläget",
-    "copyText": "{{childName}}\nAnvändarnamn: {{username}}\nPIN: {{pin}}"
+    "openChildMode": "Öppna barnets vy",
+    "copyText": "{{childName}}\nÖppna barnets vy i appen.",
+    "previewTitle": "Förhandsvisning — Onboardingfilm"
   },
   "firstStar": {
     "title": "Ge första stjärnan",

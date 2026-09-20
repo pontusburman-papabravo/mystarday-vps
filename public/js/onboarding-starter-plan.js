@@ -847,9 +847,12 @@
         detail: { id: data.primary_child_id },
       }));
     }
+    if (dayZero) {
+      state.slim = true;
+      state.signupPath = state.signupPath || 'slim';
+    }
     if (funnelStep === 'child_created') {
       if (dayZero) {
-        state.slim = true;
         hideLegacyStep1();
         ensureCard();
         renderQuestion();

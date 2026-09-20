@@ -417,15 +417,16 @@
     "ctaReady": "Ready to try?",
     "ctaTryNow": "Try child mode now",
     "ctaLater": "Do it later",
-    "loginTitle": "Log in as your child",
-    "loginLead": "{{childName}} logs in with name and PIN.",
+    "loginTitle": "Open your child's view",
+    "loginLead": "The schedule is ready. Give {{childName}} this device so they can see their routine.",
     "usernameLabel": "Username",
     "pinLabel": "PIN",
-    "loginHint": "Sit down together — same or different device both work.",
+    "loginHint": "Sit down together — same or another device both work.",
     "copyLogin": "📋 Copy login details",
     "copied": "✓ Copied!",
-    "openChildMode": "Open child mode",
-    "copyText": "{{childName}}\nUsername: {{username}}\nPIN: {{pin}}"
+    "openChildMode": "Open child's view",
+    "copyText": "{{childName}}\nOpen the child's view in the app.",
+    "previewTitle": "Preview — Onboarding film"
   },
   "firstStar": {
     "title": "Give the first star",

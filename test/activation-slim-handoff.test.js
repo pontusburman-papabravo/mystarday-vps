@@ -100,4 +100,15 @@ describe('activation slim honest handoff (static)', () => {
     assert.match(starter, /enterChildHandoff/);
     assert.doesNotMatch(starter, /savePlan[\s\S]*showSlimSuccessAndGoHome/);
   });
+
+  it('slim resume after schema save goes Home, not the film or PIN step', () => {
+    const onboarding = read('public/js/onboarding.js');
+    const film = read('public/js/onboarding-handoff-film.js');
+    assert.match(onboarding, /completeOnboardingAndGoHome/);
+    assert.match(onboarding, /isSlimFastPath\(\)/);
+    assert.match(onboarding, /completeOnboardingAndGoHome\('\/dashboard'\)/);
+    assert.match(starter, /state\.signupPath = state\.signupPath \|\| 'slim'/);
+    assert.match(film, /isSlimFastPath/);
+    assert.match(film, /completeOnboardingAndGoHome\('\/dashboard'\)/);
+  });
 });
