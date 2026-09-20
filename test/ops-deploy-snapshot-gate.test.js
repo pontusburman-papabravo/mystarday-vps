@@ -104,6 +104,83 @@ describe('migration-aware snapshot compare', () => {
     assert.equal(result.ok, true, JSON.stringify(result.drift));
   });
 
+  test('declared existing flag toggle is allowed', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const { expectedFeatureFlagEnabledChanges } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810530000000_disable_onboarding_handoff_film';
+    const expected = expectedFeatureFlagEnabledChanges([name], REPO_ROOT);
+    assert.deepEqual(expected, [
+      {
+        key: 'activation_onboarding_handoff_film_v1',
+        before: true,
+        after: false,
+        migration: name,
+      },
+    ]);
+
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810520000000_for_dig_outcome_followup_pilot_safety'],
+      tables: {
+        ...baseTables(),
+        feature_flag: {
+          exists: true,
+          row_count: 2,
+          flag_rows: [
+            { key: 'legacy_flag', enabled: false },
+            { key: 'activation_onboarding_handoff_film_v1', enabled: true },
+          ],
+        },
+      },
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables._migrations.row_count += 1;
+    after.tables.feature_flag.flag_rows = after.tables.feature_flag.flag_rows.map((r) =>
+      r.key === 'activation_onboarding_handoff_film_v1' ? { ...r, enabled: false } : r
+    );
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
+  test('declared flag toggle still fails when another existing flag changes', async () => {
+    const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
+    const name = '1810530000000_disable_onboarding_handoff_film';
+    const before = {
+      database_identity_hash: 'abc',
+      applied_migration_names: ['1810520000000_for_dig_outcome_followup_pilot_safety'],
+      tables: {
+        ...baseTables(),
+        feature_flag: {
+          exists: true,
+          row_count: 2,
+          flag_rows: [
+            { key: 'legacy_flag', enabled: false },
+            { key: 'activation_onboarding_handoff_film_v1', enabled: true },
+          ],
+        },
+      },
+    };
+    const after = structuredClone(before);
+    after.applied_migration_names.push(name);
+    after.tables.feature_flag.flag_rows = after.tables.feature_flag.flag_rows.map((r) =>
+      r.key === 'legacy_flag' ? { ...r, enabled: true } : r
+    );
+
+    const result = compareDbSnapshots(before, after, {
+      mode: 'post-migration',
+      repoRoot: REPO_ROOT,
+    });
+    assert.equal(result.ok, false);
+    assert.ok(result.drift.some((d) => d.issue === 'enabled_changed' && d.key === 'legacy_flag'));
+  });
+
   test('unexpected change to existing flag enabled fails', async () => {
     const { compareDbSnapshots } = await import('../scripts/ops/lib/compare-snapshots.mjs');
     const before = {
@@ -612,6 +689,22 @@ describe('migration-aware snapshot compare', () => {
       repoRoot: REPO_ROOT,
     });
     assert.equal(result.ok, true, JSON.stringify(result.drift));
+  });
+
+  test('disable_onboarding_handoff_film declares the film-flag toggle', async () => {
+    const { loadMigrationSnapshotContract, aggregateMigrationContracts } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810530000000_disable_onboarding_handoff_film';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract, name);
+    assert.equal(contract.backwardCompatible, true);
+    assert.notEqual(contract.schemaOnly, true);
+    assert.deepEqual(contract.featureFlagEnabledChanges, [
+      { key: 'activation_onboarding_handoff_film_v1', before: true, after: false },
+    ]);
+    const { missing } = aggregateMigrationContracts([name], REPO_ROOT);
+    assert.deepEqual(missing, []);
   });
 
   test('for_dig_outcome_followup_pilot_safety has schema-only deploy contract', async () => {

@@ -47,7 +47,7 @@ Declared mutations today:
 
 Future migrations may export `snapshotContract` from `migrations/*.js` (merged with registry).
 
-**Still fails:** toggling existing flags, undeclared inserts/deletes, unrelated table drift, migrations without contract.
+**Still fails:** undeclared flag toggles, undeclared inserts/deletes, unrelated table drift, migrations without contract. Declared `featureFlagEnabledChanges` (`key` + `before`/`after`) on a snapshot contract are allowed.
 
 Snapshots now include `feature_flag.flag_rows` (`key`, `enabled` only — operational keys, not PII).
 
@@ -78,7 +78,7 @@ Mismatch fails deploy before post-deploy runtime snapshot compare.
 2. Secret redaction  
 3. Identical snapshot / runtime compare  
 4. Declared flag insert default OFF  
-5. Unexpected existing flag toggle  
+5. Unexpected existing flag toggle (declared `featureFlagEnabledChanges` allowed)  
 6. Unrelated table drift  
 7. Already-applied migration (no new names)  
 8. Multiple migrations one deploy  

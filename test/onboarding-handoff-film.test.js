@@ -61,6 +61,8 @@ describe('Onboarding handoff film', () => {
     const disable = read('migrations/1810530000000_disable_onboarding_handoff_film.js');
     assert.match(disable, /activation_onboarding_handoff_film_v1/);
     assert.match(disable, /enabled = false/);
+    assert.match(disable, /snapshotContract/);
+    assert.match(disable, /featureFlagEnabledChanges/);
   });
 
   it('schema save paths route through goToHandoffAfterSchema or enterChildHandoff', () => {
