@@ -6,6 +6,7 @@
 import {
   aggregateMigrationContracts,
   allowedBusinessTableFingerprintChanges,
+  expectedFeatureFlagEnabledChanges,
   expectedFeatureFlagInserts,
 } from './migration-snapshot-manifest.mjs';
 
@@ -69,12 +70,18 @@ export function listNewMigrationNames(beforeSnap, afterSnap) {
 /**
  * @param {object} diff
  * @param {Array<{ key: string, enabled: boolean, migration?: string }>} expectedInserts
+ * @param {Array<{ key: string, before: boolean, after: boolean, migration?: string }>} [expectedEnabledChanges]
  */
-export function validateFeatureFlagMigrationDiff(diff, expectedInserts) {
+export function validateFeatureFlagMigrationDiff(diff, expectedInserts, expectedEnabledChanges = []) {
   const drift = [];
   const expectedByKey = new Map(expectedInserts.map((r) => [r.key, r]));
+  const allowedEnabled = new Map(
+    (expectedEnabledChanges || []).map((r) => [r.key, r])
+  );
 
   for (const ch of diff.enabledChanges) {
+    const exp = allowedEnabled.get(ch.key);
+    if (exp && exp.before === ch.before && exp.after === ch.after) continue;
     drift.push({ table: 'feature_flag', issue: 'enabled_changed', ...ch });
   }
   for (const key of diff.deletes) {
@@ -157,6 +164,7 @@ export function compareDbSnapshots(before, after, options = {}) {
     }
 
     const expectedFlags = expectedFeatureFlagInserts(names, options.repoRoot);
+    const expectedEnabled = expectedFeatureFlagEnabledChanges(names, options.repoRoot);
     const allowedFingerprintChanges = hasNewMigrations
       ? allowedBusinessTableFingerprintChanges(names, options.repoRoot)
       : new Set();
@@ -164,7 +172,7 @@ export function compareDbSnapshots(before, after, options = {}) {
     const ffAfter = after.tables?.feature_flag;
     if (ffBefore?.exists && ffAfter?.exists) {
       const flagDiff = diffFeatureFlagRows(ffBefore.flag_rows, ffAfter.flag_rows);
-      const ffResult = validateFeatureFlagMigrationDiff(flagDiff, expectedFlags);
+      const ffResult = validateFeatureFlagMigrationDiff(flagDiff, expectedFlags, expectedEnabled);
       if (!ffResult.ok) drift.push(...ffResult.drift);
     }
 

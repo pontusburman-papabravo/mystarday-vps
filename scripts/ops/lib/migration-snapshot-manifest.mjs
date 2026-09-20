@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-/** @type {Record<string, { backwardCompatible?: boolean, schemaOnly?: boolean, allowedBusinessTableFingerprintChanges?: string[], featureFlagInserts?: { key: string, enabled: boolean }[] }>} */
+/** @type {Record<string, { backwardCompatible?: boolean, schemaOnly?: boolean, allowedBusinessTableFingerprintChanges?: string[], featureFlagInserts?: { key: string, enabled: boolean }[], featureFlagEnabledChanges?: { key: string, before: boolean, after: boolean }[] }>} */
 export const MIGRATION_SNAPSHOT_REGISTRY = {
   '1810140000000_family_acquisition_attribution': {
     backwardCompatible: true,
@@ -136,6 +136,14 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
     backwardCompatible: true,
     schemaOnly: true,
   },
+  // Already on main without a file-level contract; do not edit 181053.js.
+  '1810530000000_disable_onboarding_handoff_film': {
+    backwardCompatible: true,
+    schemaOnly: false,
+    featureFlagEnabledChanges: [
+      { key: 'activation_onboarding_handoff_film_v1', before: true, after: false },
+    ],
+  },
 };
 
 /**
@@ -171,6 +179,10 @@ export function loadMigrationSnapshotContract(migrationName, repoRoot = process.
     featureFlagInserts: [
       ...(fromRegistry?.featureFlagInserts || []),
       ...(fromFile?.featureFlagInserts || []),
+    ],
+    featureFlagEnabledChanges: [
+      ...(fromRegistry?.featureFlagEnabledChanges || []),
+      ...(fromFile?.featureFlagEnabledChanges || []),
     ],
   };
 }
@@ -224,6 +236,24 @@ export function expectedFeatureFlagInserts(migrationNames, repoRoot) {
     }
   }
   return inserts;
+}
+
+/**
+ * Declared existing-flag toggles (key + before/after). Allowed, not required —
+ * a no-op on an already-matching live flag is not drift.
+ * @param {string[]} migrationNames
+ * @param {string} [repoRoot]
+ */
+export function expectedFeatureFlagEnabledChanges(migrationNames, repoRoot) {
+  const changes = [];
+  for (const name of migrationNames) {
+    const c = loadMigrationSnapshotContract(name, repoRoot);
+    if (!c?.featureFlagEnabledChanges) continue;
+    for (const row of c.featureFlagEnabledChanges) {
+      changes.push({ ...row, migration: name });
+    }
+  }
+  return changes;
 }
 
 /**
