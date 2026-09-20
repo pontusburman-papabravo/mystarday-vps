@@ -11,19 +11,21 @@ const db = require('../src/lib/db');
 const emailLib = require('../src/lib/email');
 const { getGoalBySlug } = require('../src/lib/for-dig-config');
 const { recordSend, getCampaignStats, getCampaignRecipients } = require('./newsletter-email-tracking');
-const { listPendingOutcomesAdmin } = require('./for-dig-goal-feedback');
+const { listPendingOutcomesAdmin, insertFeedback } = require('./for-dig-goal-feedback');
 const {
   ensurePreference,
   listOptedOutParentIds,
   isOptedOut,
 } = require('./for-dig-followup-email-preference');
 const { buildUnsubscribeUrl } = require('../src/lib/for-dig-followup-unsub-token');
+const { buildAnswerUrl } = require('../src/lib/for-dig-followup-answer-token');
 const {
   DEFAULT_SUBJECT_TEMPLATE,
   dashboardCtaUrl,
   buildSubject,
   buildOutcomeFollowupEmailHtml,
 } = require('../src/lib/for-dig-outcome-email-template');
+const analytics = require('./analytics');
 
 const CAMPAIGN_TYPE = 'for_dig_outcome_followup';
 const PREPARE_LIMIT = 5000;
@@ -234,7 +236,7 @@ async function listRecipients(batchId) {
                   'child_id', i.child_id,
                   'goal_slug', i.goal_slug,
                   'child_name', c.name
-                ) ORDER BY i.created_at ASC, i.goal_slug ASC
+                ) ORDER BY gi.installed_at ASC NULLS LAST, i.created_at ASC, i.goal_slug ASC
               ) FILTER (WHERE i.id IS NOT NULL),
               '[]'::json
             ) AS items
@@ -242,6 +244,10 @@ async function listRecipients(batchId) {
        LEFT JOIN parent p ON p.id = r.parent_id
        LEFT JOIN for_dig_outcome_followup_recipient_item i ON i.recipient_id = r.id
        LEFT JOIN child c ON c.id = i.child_id
+       LEFT JOIN for_dig_goal_install gi
+         ON gi.family_id = i.family_id
+        AND gi.child_id = i.child_id
+        AND gi.goal_slug = i.goal_slug
       WHERE r.batch_id = $1
       GROUP BY r.id, p.name
       ORDER BY r.created_at ASC`,
@@ -376,24 +382,24 @@ function previewForRecipient(batch, recipient, extras = {}) {
   const first = items[0] || {};
   const subject = buildSubject({
     goalTitle: first.goalTitle,
-    itemCount,
-    subjectTemplate: itemCount > 1 ? undefined : batch.subject,
+    subjectTemplate: batch && batch.subject,
   });
-  const ctaUrl = dashboardCtaUrl();
+  const answerUrl = recipient.id ? buildAnswerUrl(recipient.id) : dashboardCtaUrl();
   return {
     recipient_id: recipient.id,
     parent_id: recipient.parent_id,
     to: recipient.recipient_email,
     item_count: itemCount,
-    template: itemCount > 1 ? 'multi' : 'single',
+    template: 'one_question',
     subject,
-    cta_url: ctaUrl,
+    cta_url: answerUrl,
     html: buildOutcomeFollowupEmailHtml({
       parentName: extras.parentName || recipient.parent_name,
       items,
       subject,
-      ctaUrl,
+      ctaUrl: answerUrl,
       unsubscribeUrl: extras.unsubscribeUrl,
+      recipientId: recipient.id,
     }),
   };
 }
@@ -765,6 +771,100 @@ async function getRecipientsTracking(batchId) {
   });
 }
 
+async function getRecipientById(recipientId) {
+  const result = await db.query(
+    `SELECT r.id, r.batch_id, r.parent_id, r.recipient_email,
+            p.name AS parent_name
+       FROM for_dig_outcome_followup_recipient r
+       LEFT JOIN parent p ON p.id = r.parent_id
+      WHERE r.id = $1`,
+    [recipientId]
+  );
+  return result.rows[0] || null;
+}
+
+async function listAnswerableItems(recipientId) {
+  const result = await db.query(
+    `SELECT i.family_id, i.child_id, i.goal_slug, c.name AS child_name
+       FROM for_dig_outcome_followup_recipient_item i
+       JOIN child c ON c.id = i.child_id
+       LEFT JOIN for_dig_goal_install gi
+         ON gi.family_id = i.family_id
+        AND gi.child_id = i.child_id
+        AND gi.goal_slug = i.goal_slug
+      WHERE i.recipient_id = $1
+        AND NOT EXISTS (
+          SELECT 1 FROM for_dig_goal_feedback f
+           WHERE f.family_id = i.family_id
+             AND f.child_id = i.child_id
+             AND f.goal_slug = i.goal_slug
+             AND f.phase = 'outcome'
+        )
+      ORDER BY gi.installed_at ASC NULLS LAST, i.created_at ASC, i.goal_slug ASC`,
+    [recipientId]
+  );
+  return result.rows.map((row) => ({
+    family_id: row.family_id,
+    child_id: row.child_id,
+    goal_slug: row.goal_slug,
+    child_name: row.child_name,
+    goal_title: (getGoalBySlug(row.goal_slug) || {}).title || row.goal_slug,
+  }));
+}
+
+function parseOutcomeScore(raw) {
+  const score = parseInt(raw, 10);
+  if (!score || score < 1 || score > 4) return null;
+  return score;
+}
+
+async function submitFollowupAnswer({ recipientId, childId, goalSlug, score }) {
+  const recipient = await getRecipientById(recipientId);
+  if (!recipient) return { ok: false, reason: 'invalid_token' };
+  const parsedScore = parseOutcomeScore(score);
+  if (!parsedScore) return { ok: false, reason: 'invalid_score' };
+
+  const pending = await listAnswerableItems(recipientId);
+  const item = pending.find((row) => (
+    String(row.child_id) === String(childId)
+    && String(row.goal_slug) === String(goalSlug)
+  ));
+  if (!item) {
+    return {
+      ok: false,
+      reason: pending.length ? 'not_pending' : 'already_answered',
+      remaining: pending,
+    };
+  }
+
+  try {
+    await insertFeedback({
+      familyId: item.family_id,
+      parentId: recipient.parent_id,
+      childId: item.child_id,
+      goalSlug: item.goal_slug,
+      phase: 'outcome',
+      outcomeScore: parsedScore,
+    });
+  } catch (err) {
+    if (err.code === '23505') {
+      const remaining = await listAnswerableItems(recipientId);
+      return { ok: true, already: true, remaining };
+    }
+    throw err;
+  }
+
+  analytics.track(item.family_id, 'for_dig_feedback_outcome', {
+    goal_slug: item.goal_slug,
+    outcome_score: parsedScore,
+    child_id: item.child_id,
+    source: 'followup_email',
+  }).catch(() => {});
+
+  const remaining = await listAnswerableItems(recipientId);
+  return { ok: true, already: false, item, remaining };
+}
+
 module.exports = {
   CAMPAIGN_TYPE,
   PREPARE_LIMIT,
@@ -777,13 +877,17 @@ module.exports = {
   emailedItemKey,
   followupIdempotencyKey,
   parseMaxRecipients,
+  parseOutcomeScore,
   sortParentsNewestEligibleFirst,
   applyPilotSelection,
   groupPendingByParent,
   createBatch,
   listBatches,
   getBatch,
+  getRecipientById,
   listRecipients,
+  listAnswerableItems,
+  submitFollowupAnswer,
   summarizePendingEligibility,
   previewPilotSelection,
   prepareFromPending,
