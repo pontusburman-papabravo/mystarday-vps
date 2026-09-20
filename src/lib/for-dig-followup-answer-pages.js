@@ -2,7 +2,7 @@
 
 const { escapeHtml } = require('./escape-html');
 const { ANSWER_PATH } = require('./for-dig-followup-answer-token');
-const { OUTCOME_CHOICES } = require('./for-dig-outcome-email-template');
+const { GOAL_FALLBACK, OUTCOME_CHOICES } = require('./for-dig-outcome-email-template');
 
 function pageShell(title, inner) {
   return `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex, nofollow"><title>${escapeHtml(title)}</title>
@@ -15,7 +15,7 @@ function pageShell(title, inner) {
 }
 
 function questionLine(item) {
-  const goal = escapeHtml(item.goal_title || item.goalTitle || 'målet');
+  const goal = escapeHtml(item.goal_title || item.goalTitle || GOAL_FALLBACK);
   const child = escapeHtml(item.child_name || item.childName || 'ditt barn');
   return `Hur har det gått med <strong>${goal}</strong> för ${child}?`;
 }

@@ -18,6 +18,7 @@ const ASK_EMPHASIS = '?';
 const CTA_LABEL = 'Svara här';
 const MORE_ITEMS_NOTE = 'Har du fler mål visar vi nästa efteråt — en fråga i taget.';
 const TRUST_LINE = 'Svaret ändrar inte schemat. Det hjälper oss förstå vad som fungerar.';
+const GOAL_FALLBACK = 'målet';
 
 const OUTCOME_CHOICES = [
   { score: 4, emoji: '😊', label: 'Stor förbättring' },
@@ -47,7 +48,7 @@ function interpolate(template, vars) {
 
 function buildSubject({ goalTitle, subjectTemplate } = {}) {
   return interpolate(subjectTemplate || DEFAULT_SUBJECT_TEMPLATE, {
-    goal_title: goalTitle || 'målet',
+    goal_title: goalTitle || GOAL_FALLBACK,
   });
 }
 
@@ -126,7 +127,7 @@ function wrapEmail({ subject, bodyInner, ctaUrl, unsubscribeUrl, scoreButtonsHtm
 function buildBodyHtml({ parentName, childName, goalTitle, itemCount = 1 }) {
   const safeParent = escapeHtml(parentName || 'du');
   const safeChild = escapeHtml(childName || 'ditt barn');
-  const safeGoal = escapeHtml(goalTitle || 'målet');
+  const safeGoal = escapeHtml(goalTitle || GOAL_FALLBACK);
   const more = Number(itemCount) > 1
     ? `<p style="margin:0 0 16px 0;">${escapeHtml(MORE_ITEMS_NOTE)}</p>`
     : '';
@@ -195,6 +196,7 @@ module.exports = {
   ASK_EMPHASIS,
   MORE_ITEMS_NOTE,
   TRUST_LINE,
+  GOAL_FALLBACK,
   OUTCOME_CHOICES,
   brandName,
   ctaLabel,
