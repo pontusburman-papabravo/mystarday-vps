@@ -140,14 +140,16 @@ describe('Onboarding handoff film', () => {
   });
 
   it('film copy names the child and does not teach PIN login', () => {
-    const svLead = t('sv-SE', 'onboarding.handoffFilm.loginLead');
-    const enLead = t('en-GB', 'onboarding.handoffFilm.loginLead');
-    assert.match(svLead, /\{\{childName\}\}/);
-    assert.match(enLead, /\{\{childName\}\}/);
-    assert.doesNotMatch(svLead, /PIN/i);
-    assert.doesNotMatch(enLead, /PIN/i);
-    assert.doesNotMatch(t('sv-SE', 'onboarding.handoffFilm.loginTitle'), /PIN/i);
-    assert.doesNotMatch(t('en-GB', 'onboarding.handoffFilm.loginTitle'), /PIN/i);
+    const sv = JSON.parse(read('config/i18n/onboarding-sv-SE.json'));
+    const en = JSON.parse(read('config/i18n/onboarding-en-GB.json'));
+    assert.match(sv.handoffFilm.loginLead, /\{\{childName\}\}/);
+    assert.match(en.handoffFilm.loginLead, /\{\{childName\}\}/);
+    assert.doesNotMatch(sv.handoffFilm.loginLead, /PIN/i);
+    assert.doesNotMatch(en.handoffFilm.loginLead, /PIN/i);
+    assert.doesNotMatch(sv.handoffFilm.loginTitle, /PIN/i);
+    assert.doesNotMatch(en.handoffFilm.loginTitle, /PIN/i);
+    assert.doesNotMatch(t('sv-SE', 'onboarding.handoffFilm.loginLead', { childName: 'Alma' }), /PIN/i);
+    assert.doesNotMatch(t('en-GB', 'onboarding.handoffFilm.loginLead', { childName: 'Alma' }), /PIN/i);
   });
 
   it('email resume uses enterChildHandoff', () => {
