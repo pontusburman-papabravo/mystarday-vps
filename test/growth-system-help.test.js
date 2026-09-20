@@ -72,8 +72,9 @@ describe('growth-system-help content', () => {
   it('maps blocking step to contextual surfaces and copy', () => {
     const help = buildHelpPayload('schema_no_child_login', 'sv-SE');
     assert.equal(help.helpType, 'preview_child_login_help');
-    assert.match(help.headline, /logga in/i);
+    assert.match(help.headline, /öppna vyn/i);
     assert.equal(help.ctaAction, 'start_child_login');
+    assert.doesNotMatch(help.body, /PIN/i);
     assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('child_handoff'));
   });
 
@@ -90,7 +91,7 @@ describe('growth-system-help content', () => {
     assert.equal(named.childName, 'Astrid');
     assert.match(named.headline, /Astrid/);
     assert.match(named.body, /Astrid/);
-    assert.match(named.body, /PIN/);
+    assert.doesNotMatch(named.body, /PIN/i);
     assert.doesNotMatch(named.headline, /\{childName\}/);
 
     const fallback = buildHelpPayload('schema_no_child_login', 'sv-SE');
@@ -100,7 +101,7 @@ describe('growth-system-help content', () => {
 
     const en = buildHelpPayload('schema_no_child_login', 'en-GB', { childName: 'Astrid' });
     assert.match(en.headline, /Astrid/);
-    assert.match(en.body, /PIN/i);
+    assert.doesNotMatch(en.body, /PIN/i);
   });
 
   it('computes 24h / 72h progression outcomes', () => {
