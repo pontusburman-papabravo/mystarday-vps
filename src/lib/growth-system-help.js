@@ -56,6 +56,21 @@ const SURFACE_BY_BLOCKING_STEP = Object.freeze({
   ],
 });
 
+const CHILD_NAME_MAX = 40;
+const CHILD_NAME_FALLBACK_SV = 'barnet';
+const CHILD_NAME_FALLBACK_EN = 'your child';
+
+function sanitizeChildName(raw) {
+  if (raw == null) return '';
+  const first = String(raw).trim().split(/\s+/)[0] || '';
+  return first.replace(/[<>]/g, '').slice(0, CHILD_NAME_MAX);
+}
+
+function fillChildName(text, childName) {
+  if (!text) return text;
+  return text.replace(/\{childName\}/g, childName);
+}
+
 const CONTENT = Object.freeze({
   onboarding_incomplete: {
     headlineSv: 'Fortsätt där ni slutade',
@@ -67,12 +82,12 @@ const CONTENT = Object.freeze({
     ctaEn: 'Continue onboarding',
   },
   schema_no_child_login: {
-    headlineSv: 'Hjälp barnet logga in',
-    bodySv: 'Schemat är klart. Låt barnet logga in med namn och PIN på samma enhet.',
+    headlineSv: 'Hjälp {childName} logga in',
+    bodySv: 'Schemat är klart. Ge {childName} den här enheten, välj namnet och skriv PIN. PIN ändrar du under barnets profil.',
     ctaSv: 'Starta barninloggning',
     ctaAction: 'start_child_login',
-    headlineEn: 'Help your child log in',
-    bodyEn: 'The schedule is ready. Let your child log in with their name and PIN on this device.',
+    headlineEn: 'Help {childName} log in',
+    bodyEn: 'The schedule is ready. Hand {childName} this device, choose the name, and enter the PIN. You can change the PIN under the child profile.',
     ctaEn: 'Start child login',
   },
   login_no_completion: {
@@ -109,17 +124,20 @@ function isEnglish(locale) {
   return locale === 'en-GB' || locale === 'en';
 }
 
-function buildHelpPayload(blockingStep, locale) {
+function buildHelpPayload(blockingStep, locale, opts = {}) {
   const copy = CONTENT[blockingStep];
   if (!copy) return null;
   const en = isEnglish(locale);
+  const fallback = en ? CHILD_NAME_FALLBACK_EN : CHILD_NAME_FALLBACK_SV;
+  const childName = sanitizeChildName(opts.childName) || fallback;
   return {
     blockingStep,
     helpType: FOLLOW_UP[blockingStep] || 'system_help',
-    headline: en ? copy.headlineEn : copy.headlineSv,
-    body: en ? copy.bodyEn : copy.bodySv,
+    headline: fillChildName(en ? copy.headlineEn : copy.headlineSv, childName),
+    body: fillChildName(en ? copy.bodyEn : copy.bodySv, childName),
     ctaLabel: en ? copy.ctaEn : copy.ctaSv,
     ctaAction: copy.ctaAction,
+    childName: sanitizeChildName(opts.childName) || null,
     showSupportRequest: Boolean(copy.showSupportRequest),
     surfaces: SURFACE_BY_BLOCKING_STEP[blockingStep] || [SURFACES.help_panel],
   };
@@ -220,7 +238,9 @@ async function evaluateSystemHelp(familyId, opts = {}) {
   }
 
   const locale = opts.locale || facts.locale || 'sv-SE';
-  const help = buildHelpPayload(stuck.blockingStep, locale);
+  const help = buildHelpPayload(stuck.blockingStep, locale, {
+    childName: facts.primary_child_name,
+  });
   if (!help) {
     return { eligible: false, reason: 'no_content' };
   }
@@ -437,6 +457,7 @@ module.exports = {
   SURFACES,
   SURFACE_BY_BLOCKING_STEP,
   CONTENT,
+  sanitizeChildName,
   buildHelpPayload,
   evaluateSystemHelp,
   recordShown,

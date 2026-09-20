@@ -77,6 +77,32 @@ describe('growth-system-help content', () => {
     assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('child_handoff'));
   });
 
+  it('loads primary child name with stuck facts for named help', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const factsSql = fs.readFileSync(path.join(__dirname, '../db/growth-system-help.js'), 'utf8');
+    assert.match(factsSql, /AS primary_child_name/);
+    assert.match(factsSql, /FROM child c/);
+  });
+
+  it('personalizes schema_no_child_login with the child first name', () => {
+    const named = buildHelpPayload('schema_no_child_login', 'sv-SE', { childName: 'Astrid Burman' });
+    assert.equal(named.childName, 'Astrid');
+    assert.match(named.headline, /Astrid/);
+    assert.match(named.body, /Astrid/);
+    assert.match(named.body, /PIN/);
+    assert.doesNotMatch(named.headline, /\{childName\}/);
+
+    const fallback = buildHelpPayload('schema_no_child_login', 'sv-SE');
+    assert.equal(fallback.childName, null);
+    assert.match(fallback.headline, /barnet/);
+    assert.doesNotMatch(fallback.headline, /\{childName\}/);
+
+    const en = buildHelpPayload('schema_no_child_login', 'en-GB', { childName: 'Astrid' });
+    assert.match(en.headline, /Astrid/);
+    assert.match(en.body, /PIN/i);
+  });
+
   it('computes 24h / 72h progression outcomes', () => {
     const shown = new Date('2026-08-18T08:00:00Z');
     assert.equal(
