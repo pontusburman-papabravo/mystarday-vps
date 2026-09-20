@@ -128,8 +128,8 @@ test('GET never writes; POST records one outcome and can continue to next item',
   try {
     const followup = require('../db/for-dig-outcome-followup');
     const family = await seedFamily(db);
-    await seedPending(db, family, { goalSlug: GOAL_SLUG });
-    await seedPending(db, family, { goalSlug: OTHER_GOAL });
+    await seedPending(db, family, { goalSlug: GOAL_SLUG, daysAgo: 12 });
+    await seedPending(db, family, { goalSlug: OTHER_GOAL, daysAgo: 8 });
     const batch = await followup.createBatch();
     await followup.prepareFromPending(batch.id);
     const recipients = await followup.listRecipients(batch.id);
@@ -145,6 +145,7 @@ test('GET never writes; POST records one outcome and can continue to next item',
     assert.match(preview.previews[0].cta_url, /\/for-dig\/hur-gick-det\?/);
     assert.match(preview.previews[0].html, /Stor förbättring/);
     assert.match(preview.previews[0].html, new RegExp(FOR_DIG_GOALS[0].title));
+    assert.match(preview.previews[0].subject, new RegExp(FOR_DIG_GOALS[0].title));
     assert.doesNotMatch(preview.previews[0].html, /några saker/);
     assert.doesNotMatch(preview.previews[0].html, /Öppna /);
 

@@ -236,7 +236,7 @@ async function listRecipients(batchId) {
                   'child_id', i.child_id,
                   'goal_slug', i.goal_slug,
                   'child_name', c.name
-                ) ORDER BY i.created_at ASC, i.goal_slug ASC
+                ) ORDER BY gi.installed_at ASC NULLS LAST, i.created_at ASC, i.goal_slug ASC
               ) FILTER (WHERE i.id IS NOT NULL),
               '[]'::json
             ) AS items
@@ -244,6 +244,10 @@ async function listRecipients(batchId) {
        LEFT JOIN parent p ON p.id = r.parent_id
        LEFT JOIN for_dig_outcome_followup_recipient_item i ON i.recipient_id = r.id
        LEFT JOIN child c ON c.id = i.child_id
+       LEFT JOIN for_dig_goal_install gi
+         ON gi.family_id = i.family_id
+        AND gi.child_id = i.child_id
+        AND gi.goal_slug = i.goal_slug
       WHERE r.batch_id = $1
       GROUP BY r.id, p.name
       ORDER BY r.created_at ASC`,
@@ -784,6 +788,10 @@ async function listAnswerableItems(recipientId) {
     `SELECT i.family_id, i.child_id, i.goal_slug, c.name AS child_name
        FROM for_dig_outcome_followup_recipient_item i
        JOIN child c ON c.id = i.child_id
+       LEFT JOIN for_dig_goal_install gi
+         ON gi.family_id = i.family_id
+        AND gi.child_id = i.child_id
+        AND gi.goal_slug = i.goal_slug
       WHERE i.recipient_id = $1
         AND NOT EXISTS (
           SELECT 1 FROM for_dig_goal_feedback f
@@ -792,7 +800,7 @@ async function listAnswerableItems(recipientId) {
              AND f.goal_slug = i.goal_slug
              AND f.phase = 'outcome'
         )
-      ORDER BY i.created_at ASC, i.goal_slug ASC`,
+      ORDER BY gi.installed_at ASC NULLS LAST, i.created_at ASC, i.goal_slug ASC`,
     [recipientId]
   );
   return result.rows.map((row) => ({

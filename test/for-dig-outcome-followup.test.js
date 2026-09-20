@@ -345,7 +345,8 @@ test('7. one question + four scores even when several items; fallback CTA if no 
   assert.match(single, /Stor förbättring/);
   assert.equal(OUTCOME_CHOICES.every((choice) => single.includes(choice.label)), true);
   assert.doesNotMatch(single, new RegExp(`Öppna ${brandName()}`));
-  assert.doesNotMatch(single, new RegExp(recipientId, 'i'));
+  assert.doesNotMatch(single, /parent_id/i);
+  assert.doesNotMatch(single, /@example\.com/);
 
   const multi = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
