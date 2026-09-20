@@ -13,10 +13,10 @@ const { setupTestDb } = require('./helpers/setup.js');
 const { FOR_DIG_GOALS } = require('../src/lib/for-dig-config');
 const {
   CTA_PATH,
-  MULTI_SUBJECT,
   UNATTEND_FOOTER,
   dashboardCtaUrl,
   brandName,
+  ctaLabel,
   buildSubject,
   buildOutcomeFollowupEmailHtml,
 } = require('../src/lib/for-dig-outcome-email-template');
@@ -311,36 +311,57 @@ test('6. UNIQUE(batch_id, parent_id) blocks duplicate recipient rows', async () 
   }
 });
 
-test('7. single-item template uses goal_title + child_name; multi uses generic copy; CTA explicit feedback', () => {
+test('7. one question + four scores even when several items; fallback CTA if no recipient', () => {
+  const { OUTCOME_CHOICES, MORE_ITEMS_NOTE, CTA_LABEL } = require('../src/lib/for-dig-outcome-email-template');
+  const recipientId = '11111111-1111-4111-8111-111111111111';
   assert.equal(CTA_PATH, '/dashboard?for_dig_feedback=1');
   assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 1 }), `Hur går det med ${GOAL_TITLE}?`);
-  assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 12 }), MULTI_SUBJECT);
+  assert.equal(buildSubject({ goalTitle: GOAL_TITLE, itemCount: 12 }), `Hur går det med ${GOAL_TITLE}?`);
+  assert.equal(ctaLabel(), CTA_LABEL);
   const cta = dashboardCtaUrl('https://example.test');
   assert.equal(cta, 'https://example.test/dashboard?for_dig_feedback=1');
-  const single = buildOutcomeFollowupEmailHtml({
+  const fallback = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
     items: [{ goalTitle: GOAL_TITLE, childName: 'Astrid' }],
     ctaUrl: cta,
     unsubscribeUrl: 'https://example.test/for-dig/followup-unsubscribe?t=token',
   });
-  assert.match(single, /https:\/\/example\.test\/dashboard\?for_dig_feedback=1/);
-  assert.match(single, new RegExp(GOAL_TITLE));
-  assert.match(single, /Astrid/);
-  assert.equal(single.includes(UNATTEND_FOOTER), true);
-  assert.doesNotMatch(single, /transaktionell/i);
-  assert.doesNotMatch(single, /gå till Hem/i);
+  assert.match(fallback, /https:\/\/example\.test\/dashboard\?for_dig_feedback=1/);
+  assert.match(fallback, new RegExp(GOAL_TITLE));
+  assert.match(fallback, /Astrid/);
+  assert.equal(fallback.includes(UNATTEND_FOOTER), true);
+  assert.doesNotMatch(fallback, /transaktionell/i);
+  assert.doesNotMatch(fallback, /gå till Hem/i);
+
+  const single = buildOutcomeFollowupEmailHtml({
+    parentName: 'Anna',
+    items: [{ goalTitle: GOAL_TITLE, childName: 'Astrid' }],
+    recipientId,
+    baseUrl: 'https://example.test',
+    unsubscribeUrl: 'https://example.test/for-dig/followup-unsubscribe?t=token',
+  });
+  assert.match(single, /\/for-dig\/hur-gick-det\?/);
+  assert.match(single, /score=4/);
+  assert.match(single, /Stor förbättring/);
+  assert.equal(OUTCOME_CHOICES.every((choice) => single.includes(choice.label)), true);
+  assert.doesNotMatch(single, new RegExp(`Öppna ${brandName()}`));
+  assert.doesNotMatch(single, new RegExp(recipientId, 'i'));
+
   const multi = buildOutcomeFollowupEmailHtml({
     parentName: 'Anna',
     items: [
       { goalTitle: GOAL_TITLE, childName: 'Astrid' },
       { goalTitle: FOR_DIG_GOALS[1].title, childName: 'Astrid' },
     ],
-    ctaUrl: cta,
+    recipientId,
+    baseUrl: 'https://example.test',
   });
-  assert.match(multi, /https:\/\/example\.test\/dashboard\?for_dig_feedback=1/);
-  assert.match(multi, /några saker/);
-  assert.doesNotMatch(multi, new RegExp(GOAL_TITLE));
-  assert.match(multi, new RegExp(`Öppna ${brandName()}`));
+  assert.match(multi, new RegExp(GOAL_TITLE));
+  assert.match(multi, /Astrid/);
+  assert.match(multi, new RegExp(MORE_ITEMS_NOTE));
+  assert.doesNotMatch(multi, /några saker/);
+  assert.match(multi, /\/for-dig\/hur-gick-det\?/);
+  assert.doesNotMatch(multi, new RegExp(`Öppna ${brandName()}`));
 });
 
 test('8. opted-out parent is excluded from prepare; newsletter subscription unchanged', async () => {
