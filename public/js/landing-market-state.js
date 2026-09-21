@@ -91,12 +91,14 @@
 
   function retargetPrimaryCtas(canRegister) {
     if (!canRegister) return;
+    const onEnglish = (location.pathname || '').startsWith('/en');
+    const registerHref = onEnglish ? '/en/register' : '#app-store';
     document.querySelectorAll('a.btn-primary[href="#waitlist"], a.btn-primary[href="/en#waitlist"], a[href="/en#waitlist"]').forEach((el) => {
       if (el.id === 'waitlistSubmitBtn') return;
       if (el.closest('#waitlistForm')) return;
-      el.setAttribute('href', '#app-store');
+      el.setAttribute('href', registerHref);
       if (el.textContent && /waitlist/i.test(el.textContent)) {
-        el.textContent = 'Get the app';
+        el.textContent = onEnglish ? 'Create account' : 'Get the app';
       }
     });
   }

@@ -216,6 +216,7 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   // i18n language launch (P-i18n-Language-Launch-Foundation)
   'language_choice_viewed',
   'language_selected',
+  'country_selected',
   'existing_family_language_offer_viewed',
   'existing_family_language_offer_accepted',
   'existing_family_language_offer_declined',

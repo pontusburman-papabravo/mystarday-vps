@@ -6,7 +6,7 @@
   'use strict';
 
   const STORAGE_KEY = 'landing_login_entry_choice_v1';
-  const APP_STORE_FALLBACK = 'https://apple.co/4v2ESuH';
+  const APP_STORE_FALLBACK = 'https://apps.apple.com/app/id6774493098';
   const ENTRY_PATHS = ['/login', '/child-login'];
 
   function isEntryPath(href) {
