@@ -52,8 +52,16 @@ function makeButton() {
 function makeHandoffRoot(variant) {
   const classList = makeClassList();
   const primaryBtn = makeButton();
-  const titleEl = { textContent: variant === 'magic' ? 'Magic title' : 'Legacy title' };
-  const subEl = { textContent: variant === 'magic' ? 'Magic sub' : 'Legacy sub' };
+  const titleEl = {
+    textContent: variant === 'coach' ? 'Coach title' : variant === 'magic' ? 'Magic title' : 'Legacy title',
+  };
+  const subEl = {
+    textContent: variant === 'coach' ? 'Coach sub' : variant === 'magic' ? 'Magic sub' : 'Legacy sub',
+  };
+  const pinHintEl = {
+    textContent: 'Barnet använder sin PIN.',
+    classList: makeClassList(),
+  };
   const actionsEl = { parentNode: null, nextSibling: null };
   const children = [];
   const root = {
@@ -64,10 +72,14 @@ function makeHandoffRoot(variant) {
       children.splice(idx === -1 ? children.length : idx, 0, node);
     },
     querySelector(sel) {
-      if (sel.includes('title')) return titleEl;
-      if (sel.includes('sub')) return subEl;
-      if (sel.includes('dashboardChildLoginBtn') || sel.includes('child-login')) return primaryBtn;
-      if (sel.includes('actions')) return actionsEl;
+      if (sel.includes('title') || sel.includes('activation-fs-headline')) return titleEl;
+      if (sel.includes('activation-fs-body')) return subEl;
+      if (sel.includes('.parent-handoff-sub') || sel.includes('.dash-child-handoff-sub')) return subEl;
+      if (sel.includes('activation-fs-cta') || sel.includes('dashboardChildLoginBtn') || sel.includes('child-login')) {
+        return primaryBtn;
+      }
+      if (sel.includes('activation-fs-pin-hint')) return pinHintEl;
+      if (sel.includes('actions') || sel.includes('activation-fs-coach')) return actionsEl;
       if (sel.includes('handoff-secondary')) {
         return children.find((c) => c.className && c.className.includes('handoff-secondary')) || null;
       }
@@ -82,7 +94,7 @@ function makeHandoffRoot(variant) {
   };
   actionsEl.parentNode = root;
   actionsEl.nextSibling = null;
-  return { root, primaryBtn, titleEl, subEl, children };
+  return { root, primaryBtn, titleEl, subEl, pinHintEl, children };
 }
 
 function loadGrowthSystemHelp(options) {
@@ -276,5 +288,18 @@ describe('growth handoff inline CTA — runtime contracts', () => {
     assert.equal(children.filter((c) => c.className.includes('growth-system-help-inline')).length, 1);
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 0);
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_clicked').length, 0);
+  });
+
+  it('enriches the visible First Success coach when Hem hides the handoff card', async () => {
+    const { GrowthSystemHelp, tracked } = loadGrowthSystemHelp();
+    const { root, titleEl, primaryBtn, pinHintEl } = makeHandoffRoot('coach');
+
+    await GrowthSystemHelp.enrichHandoff(root);
+
+    assert.equal(titleEl.textContent, SCHEMA_HELP.headline);
+    assert.equal(primaryBtn.textContent, SCHEMA_HELP.ctaLabel);
+    assert.equal(pinHintEl.textContent, '');
+    assert.equal(pinHintEl.classList.contains('hidden'), true);
+    assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
   });
 });

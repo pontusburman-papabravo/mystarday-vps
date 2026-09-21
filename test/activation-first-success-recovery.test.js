@@ -125,6 +125,11 @@ function createSandbox(overrides) {
       },
       EngineCoach: { load: async () => {} },
       JourneyCoach: { pollCoach: async () => {} },
+      DashboardChildHandoff: {
+        enrichCalls: 0,
+        maybeEnrichHandoff() { this.enrichCalls += 1; },
+        probeTrustedChildPath: async () => ({ available: true }),
+      },
       document: {
         getElementById: (id) => (id === MOUNT_ID ? mount : null),
         contains: () => true,
@@ -621,6 +626,24 @@ describe('activation first-success recovery client (#1023)', () => {
     assert.equal(payload.next_action, 'child_access');
     assert.equal(payload && payload.payload, undefined);
     assert.equal(payload && payload.ok, undefined);
+  });
+
+  it('child_access coach asks Hem to enrich the visible CTA', async () => {
+    const ctx = createSandbox({
+      payload: {
+        enabled: true,
+        show_primary_coach: true,
+        next_action: 'child_access',
+        can_defer: true,
+        headline: 'Öppna barnets vy',
+        body: 'Låt barnet prova',
+        cta_label: 'Öppna',
+      },
+    });
+    await ctx.Hub.load();
+    assert.ok(ctx.mount.innerHTML.includes('activation-fs-headline'));
+    assert.ok(ctx.mount.innerHTML.includes('activation-fs-body'));
+    assert.equal(ctx.win.DashboardChildHandoff.enrichCalls, 1);
   });
 
   it('dashboard handoff contract hides duplicate UI for child_access', async () => {

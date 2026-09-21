@@ -232,8 +232,8 @@
     mount.setAttribute('data-authority', 'activation-first-success-v1');
     mount.innerHTML =
       '<div class="activation-fs-coach rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 mb-4" role="region" aria-label="' + esc(pt('home.firstSuccess.coachAria')) + '">' +
-      '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(headline) + '</p>' +
-      '<p class="text-sm text-navy mb-3">' + esc(body) + '</p>' +
+      '<p class="activation-fs-headline font-heading font-bold text-navy text-base mb-2">' + esc(headline) + '</p>' +
+      '<p class="activation-fs-body text-sm text-navy mb-3">' + esc(body) + '</p>' +
       pinHint +
       '<button type="button" class="activation-fs-cta w-full min-h-[44px] py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(cta) + '</button>' +
       deferHtml +
@@ -258,6 +258,7 @@
       const hintEl = mount.querySelector('.activation-fs-pin-hint');
       const showPinHint = function () {
         if (!hintEl) return;
+        if (mount.classList.contains('growth-handoff-inline-enriched')) return;
         hintEl.textContent = pt('home.firstSuccess.pinHint');
         hintEl.classList.remove('hidden');
       };
@@ -268,6 +269,11 @@
         }).catch(showPinHint);
       } else {
         showPinHint();
+      }
+      if (window.DashboardChildHandoff && typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
+        DashboardChildHandoff.maybeEnrichHandoff(mount);
+      } else if (window.GrowthSystemHelp && typeof GrowthSystemHelp.enrichHandoff === 'function') {
+        GrowthSystemHelp.enrichHandoff(mount);
       }
     }
 
