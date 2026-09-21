@@ -44,6 +44,17 @@ describe('start-summary db helpers', () => {
     assert.equal(rows[0].code, 'SE');
     assert.equal(rows[0].total, 0);
   });
+
+  test('notFutureCreatedSql matches Senaste familjer future-date bound', () => {
+    assert.equal(
+      startSummaryDb.notFutureCreatedSql(),
+      "created_at <= NOW() + INTERVAL '1 minute'"
+    );
+    assert.equal(
+      startSummaryDb.notFutureCreatedSql('f'),
+      "f.created_at <= NOW() + INTERVAL '1 minute'"
+    );
+  });
 });
 
 test('GET /api/admin/start-summary returns composed payload', async () => {
@@ -225,6 +236,22 @@ test('fetchKeyMetrics uses schema_saved_at only (no weekly_schedule fallback)', 
   const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
   assert.match(src, /schema_saved_at IS NOT NULL/);
   assert.doesNotMatch(src, /weekly_schedule/);
+});
+
+test('signup windows exclude future-dated sandbox families', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../db/start-summary.js'), 'utf8');
+  const openMarkets = src.slice(
+    src.indexOf('async function fetchOpenMarketSignups'),
+    src.indexOf('async function fetchStartOverview')
+  );
+  const overview = src.slice(
+    src.indexOf('async function fetchStartOverview'),
+    src.indexOf('async function newFamiliesMetric')
+  );
+  assert.match(src, /function notFutureCreatedSql/);
+  assert.match(src, /created_at <= NOW\(\) \+ INTERVAL '1 minute'/);
+  assert.match(openMarkets, /notFutureCreatedSql\(\)/);
+  assert.match(overview, /notFutureCreatedSql\(\)/);
 });
 
 test('admin-start.js and overview blocks exist', () => {
