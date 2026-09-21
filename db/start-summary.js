@@ -35,6 +35,12 @@ function toIsoUtc(value) {
 
 const DEFAULT_FOUNDER_LIMIT = 225;
 
+/** Sandbox rows with future created_at must not count as "today" or last 7d. */
+function notFutureCreatedSql(alias) {
+  const col = alias ? `${alias}.created_at` : 'created_at';
+  return `${col} <= NOW() + INTERVAL '1 minute'`;
+}
+
 function buildPeriodMetric(row) {
   const last7d = parseInt(row.last7d, 10) || 0;
   const prev7d = parseInt(row.prev7d, 10) || 0;
@@ -85,6 +91,7 @@ async function fetchKeyMetrics() {
       `SELECT
          COUNT(*) FILTER (
            WHERE f.created_at >= NOW() - INTERVAL '7 days'
+             AND ${notFutureCreatedSql('f')}
          )::int AS signups_7d,
          COUNT(*) FILTER (
            WHERE f.created_at >= NOW() - INTERVAL '14 days'
@@ -92,6 +99,7 @@ async function fetchKeyMetrics() {
          )::int AS signups_prev_7d,
          COUNT(*) FILTER (
            WHERE f.created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+             AND ${notFutureCreatedSql('f')}
          )::int AS signups_today,
          COUNT(*) FILTER (
            WHERE f.created_at >= NOW() - INTERVAL '7 days'
@@ -223,12 +231,14 @@ async function fetchOpenMarketSignups() {
     ),
     db.query(
       `SELECT COALESCE(country_code, 'SE') AS country_code,
-         COUNT(*)::int AS total,
+         COUNT(*) FILTER (WHERE ${notFutureCreatedSql()})::int AS total,
          COUNT(*) FILTER (
            WHERE created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+             AND ${notFutureCreatedSql()}
          )::int AS today,
          COUNT(*) FILTER (
            WHERE created_at >= NOW() - INTERVAL '7 days'
+             AND ${notFutureCreatedSql()}
          )::int AS last7d
        FROM family
        WHERE archived_at IS NULL
@@ -245,6 +255,7 @@ async function fetchStartOverview() {
       `SELECT
          COUNT(*) FILTER (
            WHERE created_at >= NOW() - INTERVAL '7 days'
+             AND ${notFutureCreatedSql()}
          )::int AS signups_7d,
          COUNT(*) FILTER (
            WHERE created_at >= NOW() - INTERVAL '14 days'
@@ -252,8 +263,9 @@ async function fetchStartOverview() {
          )::int AS signups_prev_7d,
          COUNT(*) FILTER (
            WHERE created_at >= (date_trunc('day', NOW() AT TIME ZONE 'Europe/Stockholm') AT TIME ZONE 'Europe/Stockholm')
+             AND ${notFutureCreatedSql()}
          )::int AS signups_today,
-         COUNT(*)::int AS total
+         COUNT(*) FILTER (WHERE ${notFutureCreatedSql()})::int AS total
        FROM family
        WHERE archived_at IS NULL`
     ),
@@ -282,7 +294,9 @@ async function newFamiliesMetric() {
   const { rows } = await db.query(
     `SELECT
        COUNT(*) FILTER (
-         WHERE archived_at IS NULL AND created_at >= NOW() - INTERVAL '7 days'
+         WHERE archived_at IS NULL
+           AND created_at >= NOW() - INTERVAL '7 days'
+           AND ${notFutureCreatedSql()}
        )::int AS last7d,
        COUNT(*) FILTER (
          WHERE archived_at IS NULL
@@ -435,5 +449,6 @@ module.exports = {
   buildStartSummary,
   buildOpenMarketSignups,
   fetchOpenMarketSignups,
+  notFutureCreatedSql,
   START_QUICK_ACTIONS,
 };
