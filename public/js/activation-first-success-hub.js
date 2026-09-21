@@ -143,8 +143,9 @@
     });
     const action = payload.next_action;
     if (action === 'child_access' || action === 'await_first_completion' || action === 'welcome_back') {
-      if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
-        DashboardChildHandoff.startChildLogin();
+      const handoff = window.DashboardChildHandoff;
+      if (handoff && typeof handoff.startChildLogin === 'function') {
+        handoff.startChildLogin();
         return;
       }
       if (window.Auth && Auth.logout) {
@@ -262,18 +263,19 @@
         hintEl.textContent = pt('home.firstSuccess.pinHint');
         hintEl.classList.remove('hidden');
       };
-      if (window.DashboardChildHandoff && typeof DashboardChildHandoff.probeTrustedChildPath === 'function') {
-        DashboardChildHandoff.probeTrustedChildPath().then(function (path) {
+      const handoff = window.DashboardChildHandoff;
+      if (handoff && typeof handoff.probeTrustedChildPath === 'function') {
+        handoff.probeTrustedChildPath().then(function (path) {
           if (path && path.available) return;
           showPinHint();
         }).catch(showPinHint);
       } else {
         showPinHint();
       }
-      if (window.DashboardChildHandoff && typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
-        DashboardChildHandoff.maybeEnrichHandoff(mount);
-      } else if (window.GrowthSystemHelp && typeof GrowthSystemHelp.enrichHandoff === 'function') {
-        GrowthSystemHelp.enrichHandoff(mount);
+      if (handoff && typeof handoff.maybeEnrichHandoff === 'function') {
+        handoff.maybeEnrichHandoff(mount);
+      } else if (window.GrowthSystemHelp && typeof window.GrowthSystemHelp.enrichHandoff === 'function') {
+        window.GrowthSystemHelp.enrichHandoff(mount);
       }
     }
 
