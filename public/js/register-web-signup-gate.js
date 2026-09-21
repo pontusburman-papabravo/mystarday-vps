@@ -1,7 +1,8 @@
 /**
- * Close Swedish public web signup: browsers see store download, native WebView keeps register.
- * Invite links keep the form on every platform.
- * English /en/register stays open so Ireland (and later EN markets) can finish signup from ads.
+ * Public web signup must stay open while Ireland is an acquisition market.
+ * The previous store-only gate blocked ads → /en and ads → /register (ADR-023).
+ * Invite links and native WebView already showed the form; browsers now do too.
+ * The store-download panel remains in HTML for maintenance, but is not the default.
  */
 (function (global) {
   'use strict';
@@ -41,7 +42,8 @@
     if (hasInviteToken(opts.search)) return false;
     if (isNativeShell()) return false;
     if (isEnglishRegisterPath(opts.pathname)) return false;
-    return true;
+    // IE campaign is live: never hide the form behind a store-only wall.
+    return false;
   }
 
   function apply() {

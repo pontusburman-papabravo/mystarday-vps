@@ -73,12 +73,12 @@ describe('public web signup closed', () => {
     assert.match(html, /Auth\.api\('\/api\/auth\/register'/);
   });
 
-  it('browser /register hides the form and shows store + login', () => {
+  it('browser /register keeps the form so campaign traffic can finish signup', () => {
     const { sandbox, download, nativeRoot, form } = loadGate({ native: false, pathname: '/register' });
-    assert.equal(sandbox.RegisterWebSignupGate.shouldClosePublicSignup(), true);
-    assert.equal(download.hidden, false);
-    assert.equal(nativeRoot.hidden, true);
-    assert.ok(form.classList.added.includes('hidden'));
+    assert.equal(sandbox.RegisterWebSignupGate.shouldClosePublicSignup(), false);
+    assert.equal(download.hidden, true);
+    assert.equal(nativeRoot.hidden, false);
+    assert.deepEqual(form.classList.added, []);
   });
 
   it('browser /en/register keeps the registration form so Ireland can sign up from ads', () => {
