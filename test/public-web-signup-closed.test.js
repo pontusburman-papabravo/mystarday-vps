@@ -29,7 +29,7 @@ function loadGate(opts) {
     Platform: {
       isNative() { return opts.native === true; },
     },
-    location: { search: opts.search || '' },
+    location: { search: opts.search || '', pathname: opts.pathname || '/register' },
     document: {
       readyState: 'complete',
       documentElement: {
@@ -64,7 +64,7 @@ describe('public web signup closed', () => {
     assert.match(html, /id="webSignupDownload"/);
     assert.match(html, /id="webSignupAppStore"/);
     assert.match(html, /id="webSignupPlayStore"/);
-    assert.match(html, /https:\/\/apple\.co\/4v2ESuH/);
+    assert.match(html, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
     assert.match(html, /__PLAY_STORE_URL__/);
     assert.match(html, /id="webSignupDownload"[\s\S]*href="\/login"/);
     assert.match(html, /id="registerForm"/);
@@ -74,11 +74,20 @@ describe('public web signup closed', () => {
   });
 
   it('browser /register hides the form and shows store + login', () => {
-    const { sandbox, download, nativeRoot, form } = loadGate({ native: false });
+    const { sandbox, download, nativeRoot, form } = loadGate({ native: false, pathname: '/register' });
     assert.equal(sandbox.RegisterWebSignupGate.shouldClosePublicSignup(), true);
     assert.equal(download.hidden, false);
     assert.equal(nativeRoot.hidden, true);
     assert.ok(form.classList.added.includes('hidden'));
+  });
+
+  it('browser /en/register keeps the registration form so Ireland can sign up from ads', () => {
+    const { sandbox, download, nativeRoot, form } = loadGate({ native: false, pathname: '/en/register' });
+    assert.equal(sandbox.RegisterWebSignupGate.shouldClosePublicSignup(), false);
+    assert.equal(sandbox.RegisterWebSignupGate.isEnglishRegisterPath(), true);
+    assert.equal(download.hidden, true);
+    assert.equal(nativeRoot.hidden, false);
+    assert.deepEqual(form.classList.added, []);
   });
 
   it('native WebView /register keeps the registration form', () => {
@@ -133,18 +142,13 @@ describe('public web signup closed', () => {
     assert.match(registerApi, /router\.post\('\/register'/);
   });
 
-  it('landing and marketing CTAs no longer send new families to /register', () => {
+  it('Swedish landing stays store-only; English landing sends new families to /en/register', () => {
     const pages = [
       'public/index.html',
-      'public/en.html',
       'public/om-oss.html',
       'public/faq.html',
-      'public/en-faq.html',
       'public/pricing-info.html',
-      'public/en-pricing.html',
       'public/skattkammaren.html',
-      'public/en/treasury.html',
-      'public/en-how-it-works.html',
     ];
     for (const file of pages) {
       const html = read(file);
@@ -156,8 +160,11 @@ describe('public web signup closed', () => {
     assert.match(index, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(index, /__PLAY_STORE_URL__/);
     assert.match(index, /Hämta appen/);
-    assert.match(en, /https:\/\/apple\.co\/4v2ESuH/);
-    assert.match(en, /Get the app/);
+    assert.doesNotMatch(en, /https:\/\/apple\.co\/4v2ESuH/);
+    assert.match(en, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.match(en, /href="\/en\/register"/);
+    assert.match(en, /Create account/);
+    assert.doesNotMatch(en, /href="\/register"/);
   });
 
   it('web-download copy exists in sv-SE and en-GB', () => {

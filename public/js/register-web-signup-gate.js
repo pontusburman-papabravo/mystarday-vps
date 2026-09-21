@@ -1,6 +1,7 @@
 /**
- * Close public web signup: browsers see store download, native WebView keeps register.
- * Invite links keep the existing form on every platform.
+ * Close Swedish public web signup: browsers see store download, native WebView keeps register.
+ * Invite links keep the form on every platform.
+ * English /en/register stays open so Ireland (and later EN markets) can finish signup from ads.
  */
 (function (global) {
   'use strict';
@@ -27,15 +28,27 @@
     return /(?:^|[?&])(?:invite|token)=/.test(String(query));
   }
 
+  function isEnglishRegisterPath(pathname) {
+    let path = pathname;
+    if (path == null) {
+      path = (global.location && global.location.pathname) || '';
+    }
+    return path === '/en/register' || String(path).indexOf('/en/register/') === 0;
+  }
+
   function shouldClosePublicSignup(opts) {
     opts = opts || {};
     if (hasInviteToken(opts.search)) return false;
     if (isNativeShell()) return false;
+    if (isEnglishRegisterPath(opts.pathname)) return false;
     return true;
   }
 
   function apply() {
-    const close = shouldClosePublicSignup();
+    const close = shouldClosePublicSignup({
+      search: (global.location && global.location.search) || '',
+      pathname: (global.location && global.location.pathname) || '',
+    });
     const download = global.document && global.document.getElementById('webSignupDownload');
     const nativeRoot = global.document && global.document.getElementById('registerNativeSignup');
     if (download) download.hidden = !close;
@@ -50,6 +63,7 @@
   global.RegisterWebSignupGate = {
     isNativeShell: isNativeShell,
     hasInviteToken: hasInviteToken,
+    isEnglishRegisterPath: isEnglishRegisterPath,
     shouldClosePublicSignup: shouldClosePublicSignup,
     apply: apply,
   };
