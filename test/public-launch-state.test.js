@@ -38,6 +38,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(js, /index > 2/);
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
+    assert.match(js, /\/en\/register/);
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
     assert.match(js, /Google Play for Android/);
     assert.match(js, /data-hero-launch="ireland"/);
@@ -65,8 +66,9 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /priceCurrency": "SEK"/);
     assert.match(html, /href="\/en\/eea\/privacy"/);
     assert.match(html, /href="\/en\/eea\/terms"/);
-    assert.match(html, /Get the app/);
-    assert.match(html, /id="waitlist"/);
+    assert.match(html, /Create account/);
+    assert.match(html, /href="\/en\/register"/);
+    assert.doesNotMatch(html, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(html, /data-hero-launch="ireland"/);
     assert.match(html, /Welcome Ireland/);
     assert.match(html, /14-day trial in Ireland/);
@@ -110,7 +112,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     const html = fs.readFileSync(path.join(__dirname, '../public/en-pricing.html'), 'utf8');
     assert.doesNotMatch(html, /Join waitlist/);
     assert.doesNotMatch(html, /English version is ready/);
-    assert.match(html, /Get the app/);
+    assert.match(html, /Create account/);
+    assert.match(html, /href="\/en\/register"/);
     assert.doesNotMatch(html, /href="\/register"/);
     assert.match(html, /EUR in Ireland and Finland/);
     assert.match(html, /landing-market-state\.js/);
@@ -139,5 +142,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.equal(countries.IRELAND.code, 'IE');
     assert.equal(countries.IRELAND.group, 'featured');
     assert.equal(countries.REGISTRATION_COUNTRIES[1].code, 'IE');
+    const analytics = fs.readFileSync(path.join(__dirname, '../src/routes/analytics.js'), 'utf8');
+    assert.match(analytics, /'country_selected'/);
   });
 });

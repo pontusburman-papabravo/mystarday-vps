@@ -11,6 +11,8 @@ const APPLE_APP_STORE_SHORT_URL = 'https://apple.co/4v2ESuH';
 /** Verified externally 2026-08-31 via iTunes lookup trackId (IE + FI listings). */
 const APPLE_APP_STORE_TRACK_ID = '6774493098';
 const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || APPLE_APP_STORE_TRACK_ID;
+/** Storefront-neutral listing — Apple routes by the user's Apple ID country. Do not use the SE short link on English pages. */
+const APPLE_APP_STORE_GEO_NEUTRAL_URL = `https://apps.apple.com/app/id${APPLE_APP_STORE_TRACK_ID}`;
 
 function androidPackageName() {
   if (process.env.ANDROID_PACKAGE_NAME) return process.env.ANDROID_PACKAGE_NAME;
@@ -23,7 +25,7 @@ function getPlayStoreUrl() {
 
 function getAppleAppStoreUrl() {
   if (APPLE_APP_STORE_ID) return `https://apps.apple.com/app/id${APPLE_APP_STORE_ID}`;
-  return APPLE_APP_STORE_SHORT_URL;
+  return APPLE_APP_STORE_GEO_NEUTRAL_URL;
 }
 
 module.exports = {
@@ -32,5 +34,6 @@ module.exports = {
   androidPackageName,
   APPLE_APP_STORE_ID,
   APPLE_APP_STORE_SHORT_URL,
+  APPLE_APP_STORE_GEO_NEUTRAL_URL,
   APPLE_APP_STORE_TRACK_ID,
 };
