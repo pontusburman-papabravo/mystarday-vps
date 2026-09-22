@@ -340,7 +340,8 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v1004';
+const CACHE_NAME = 'stjarndag-v1005';
+// stjarndag-v1005: system-help named CTA on First Success Hem coach
 // stjarndag-v1004: IE English funnel — /en/register open + geo-neutral App Store
 // stjarndag-v1003: skip signup handoff film; preview follows locale
 // stjarndag-v982: IE iOS-first launch — Android coming soon on en landing + paywall

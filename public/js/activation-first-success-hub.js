@@ -143,8 +143,9 @@
     });
     const action = payload.next_action;
     if (action === 'child_access' || action === 'await_first_completion' || action === 'welcome_back') {
-      if (window.DashboardChildHandoff && DashboardChildHandoff.startChildLogin) {
-        DashboardChildHandoff.startChildLogin();
+      const handoff = window.DashboardChildHandoff;
+      if (handoff && typeof handoff.startChildLogin === 'function') {
+        handoff.startChildLogin();
         return;
       }
       if (window.Auth && Auth.logout) {
@@ -232,8 +233,8 @@
     mount.setAttribute('data-authority', 'activation-first-success-v1');
     mount.innerHTML =
       '<div class="activation-fs-coach rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 mb-4" role="region" aria-label="' + esc(pt('home.firstSuccess.coachAria')) + '">' +
-      '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(headline) + '</p>' +
-      '<p class="text-sm text-navy mb-3">' + esc(body) + '</p>' +
+      '<p class="activation-fs-headline font-heading font-bold text-navy text-base mb-2">' + esc(headline) + '</p>' +
+      '<p class="activation-fs-body text-sm text-navy mb-3">' + esc(body) + '</p>' +
       pinHint +
       '<button type="button" class="activation-fs-cta w-full min-h-[44px] py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(cta) + '</button>' +
       deferHtml +
@@ -258,16 +259,23 @@
       const hintEl = mount.querySelector('.activation-fs-pin-hint');
       const showPinHint = function () {
         if (!hintEl) return;
+        if (mount.classList.contains('growth-handoff-inline-enriched')) return;
         hintEl.textContent = pt('home.firstSuccess.pinHint');
         hintEl.classList.remove('hidden');
       };
-      if (window.DashboardChildHandoff && typeof DashboardChildHandoff.probeTrustedChildPath === 'function') {
-        DashboardChildHandoff.probeTrustedChildPath().then(function (path) {
+      const handoff = window.DashboardChildHandoff;
+      if (handoff && typeof handoff.probeTrustedChildPath === 'function') {
+        handoff.probeTrustedChildPath().then(function (path) {
           if (path && path.available) return;
           showPinHint();
         }).catch(showPinHint);
       } else {
         showPinHint();
+      }
+      if (handoff && typeof handoff.maybeEnrichHandoff === 'function') {
+        handoff.maybeEnrichHandoff(mount);
+      } else if (window.GrowthSystemHelp && typeof window.GrowthSystemHelp.enrichHandoff === 'function') {
+        window.GrowthSystemHelp.enrichHandoff(mount);
       }
     }
 

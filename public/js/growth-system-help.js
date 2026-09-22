@@ -215,10 +215,19 @@
 
   function findHandoffParts(rootEl) {
     return {
-      titleEl: rootEl.querySelector('.dash-child-handoff-title, .parent-handoff-title'),
-      subEl: rootEl.querySelector('.dash-child-handoff-sub, .parent-handoff-sub'),
-      primaryBtn: rootEl.querySelector('#dashboardChildLoginBtn, [data-action="child-login"]'),
-      actionsEl: rootEl.querySelector('.dash-child-handoff-actions, .parent-handoff-actions'),
+      titleEl: rootEl.querySelector(
+        '.dash-child-handoff-title, .parent-handoff-title, .activation-fs-headline'
+      ),
+      subEl: rootEl.querySelector(
+        '.dash-child-handoff-sub, .parent-handoff-sub, .activation-fs-body'
+      ),
+      primaryBtn: rootEl.querySelector(
+        '#dashboardChildLoginBtn, [data-action="child-login"], .activation-fs-cta'
+      ),
+      actionsEl: rootEl.querySelector(
+        '.dash-child-handoff-actions, .parent-handoff-actions, .activation-fs-coach'
+      ),
+      pinHintEl: rootEl.querySelector('.activation-fs-pin-hint'),
     };
   }
 
@@ -334,6 +343,12 @@
     if (parts.subEl) parts.subEl.textContent = help.body;
     parts.primaryBtn.textContent = help.ctaLabel;
     parts.primaryBtn.setAttribute('data-handoff-inline-cta', '1');
+    if (parts.pinHintEl) {
+      parts.pinHintEl.textContent = '';
+      if (parts.pinHintEl.classList && typeof parts.pinHintEl.classList.add === 'function') {
+        parts.pinHintEl.classList.add('hidden');
+      }
+    }
     bindInlineCtaClick(parts, data, help);
     appendSecondaryHelpLink(rootEl, parts);
 
