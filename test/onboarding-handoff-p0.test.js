@@ -48,10 +48,13 @@ describe('Onboarding handoff P0', () => {
     assert.doesNotMatch(block, /markParentOnboardingComplete/);
   });
 
-  it('child-login sets child_session_started and child_access', () => {
+  it('child-login sets child_session_started and does not record child_access', () => {
     const src = read('src/routes/auth/child-login.js');
     assert.match(src, /child_session_started/);
-    assert.match(src, /recordActivationMilestone\(child\.family_id, 'child_access'/);
+    assert.doesNotMatch(src, /recordActivationMilestone/);
+    const confirm = read('src/routes/child-access-completed.js');
+    assert.match(confirm, /today_established/);
+    assert.match(confirm, /recordActivationMilestone\(familyId, 'child_access'/);
   });
 
   it('update-pin does not set child_access milestone', () => {

@@ -74,7 +74,7 @@ test('Fas6 Steg3 — child login fail then succeed: child_access only after good
     const good = await childLoginRaw(http.baseUrl, { username: child.body.username, pin: child.body.pin });
     assert.equal(good.status, 200);
     act = await activationRow(db, familyId);
-    assert.ok(act.child_access_completed_at);
+    assert.equal(act.child_access_completed_at, null);
   } finally {
     await http.close();
     await db.cleanup();

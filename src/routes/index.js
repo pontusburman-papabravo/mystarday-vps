@@ -15,6 +15,7 @@ function registerRoutes(app) {
   // Journey Context (parent) — before child /api/me routers whose requireChild middleware
   // would otherwise block GET /api/me/journey-context for parents.
   app.use('/api/me', require('./journey-context'));
+  app.use('/api/me', require('./child-access-completed'));
   const platformFeedback = require('./platform-feedback');
   app.use('/api/me', platformFeedback.childRouter);
   app.use('/api/family', platformFeedback.parentRouter);

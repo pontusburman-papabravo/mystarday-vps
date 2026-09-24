@@ -296,19 +296,10 @@ async function issueParentSessionForDevice(res, row, rawToken, source) {
 }
 
 /**
- * Activation side-effects after a child JWT/refresh session already exists.
- * Failures are non-fatal — same contract as PIN child-login.
- * Does not write Journey child_logged_in (PIN-login milestone).
+ * Starter activity after a child session exists. child_access_completed waits
+ * until Today is established (POST /api/me/child-access-completed).
  */
-async function recordTrustedChildSessionActivation(child, source) {
-  try {
-    const { recordActivationMilestone } = require('./activation-p0');
-    await recordActivationMilestone(child.family_id, 'child_access', {
-      metadata: { child_id: child.id, source },
-    });
-  } catch (err) {
-    console.error('[TRUSTED_DEVICE] activation child_access error:', err.message);
-  }
+async function recordTrustedChildSessionActivation(child, _source) {
   try {
     const { getFamilyPreferredLocale } = require('./family-locale');
     const { ensureFirstStarStarterActivity } = require('./first-star-starter');

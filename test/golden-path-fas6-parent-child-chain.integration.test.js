@@ -58,8 +58,22 @@ test('Fas6 E — parent login → child login → child_access → parent restor
     assert.equal(cl.body.user?.name, 'ChainBarn');
 
     const afterLogin = await activationRow(db, familyId);
-    assert.ok(afterLogin.child_access_completed_at);
-    assert.ok(cl.body.meta_milestones?.child_access_completed === true);
+    assert.equal(afterLogin.child_access_completed_at, null);
+    assert.notEqual(cl.body.meta_milestones?.child_access_completed, true);
+
+    let childCookiesEarly = cookiesAfter(session.cookies, cl.res);
+    const todayRes = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(childCookiesEarly),
+        'X-CSRF-Token': cl.body.csrfToken,
+      },
+      body: JSON.stringify({ today_established: true, source: 'home_handoff', platform: 'android' }),
+    });
+    assert.equal(todayRes.status, 200, await todayRes.text());
+    const afterToday = await activationRow(db, familyId);
+    assert.ok(afterToday.child_access_completed_at);
 
     const setPinRes = await fetch(`${http.baseUrl}/api/family/set-pin`, {
       method: 'POST',

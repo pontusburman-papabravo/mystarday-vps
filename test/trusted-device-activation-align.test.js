@@ -138,6 +138,30 @@ async function enrollSharedDevice(http, session) {
   return cookies;
 }
 
+async function establishChildToday(http, sessionRes) {
+  let cookies = {};
+  for (const header of getSetCookieHeaders(sessionRes)) {
+    cookies = mergeCookies(cookies, [header]);
+  }
+  const csrfRes = await fetch(`${http.baseUrl}/api/auth/csrf-token`, {
+    headers: { Cookie: cookieHeader(cookies) },
+  });
+  for (const header of getSetCookieHeaders(csrfRes)) {
+    cookies = mergeCookies(cookies, [header]);
+  }
+  const csrfBody = await csrfRes.json();
+  const token = csrfBody.csrfToken || csrfBody.token;
+  return fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: cookieHeader(cookies),
+      'X-CSRF-Token': token,
+    },
+    body: JSON.stringify({ today_established: true, source: 'trusted_device', platform: 'ios' }),
+  });
+}
+
 async function restoreChild(http, deviceCookies) {
   return fetch(`${http.baseUrl}/api/auth/trusted-device/restore`, {
     method: 'POST',
@@ -175,6 +199,8 @@ test('A: trusted child restore records child_access with safe source and is idem
     assert.equal(restoreBody.user.type, 'child');
     assert.equal(restoreBody.user.id, childId);
 
+    const todayRes = await establishChildToday(http, restoreRes);
+    assert.equal(todayRes.status, 200, await todayRes.text());
     const first = await waitForChildAccess(db, familyId);
     assert.ok(first.child_access_completed_at);
     assert.equal(await childLoggedInCount(db, familyId), 0);
@@ -317,6 +343,8 @@ test('D+E: shared picker required; child device restores default child', async (
     const selectBody = JSON.parse(selectText);
     assert.equal(selectBody.ok, true);
     assert.equal(selectBody.user.id, childA);
+    const selectToday = await establishChildToday(http, selectRes);
+    assert.equal(selectToday.status, 200, await selectToday.text());
     const afterSelect = await waitForChildAccess(db, sharedFamily);
     assert.ok(afterSelect.child_access_completed_at);
     await new Promise((r) => setTimeout(r, 80));
@@ -333,6 +361,8 @@ test('D+E: shared picker required; child device restores default child', async (
     assert.equal(childRestore.status, 200);
     assert.equal(childBody.ok, true);
     assert.equal(childBody.user.id, onlyChild);
+    const childToday = await establishChildToday(http, childRestore);
+    assert.equal(childToday.status, 200, await childToday.text());
     assert.ok((await waitForChildAccess(db, childFamily)).child_access_completed_at);
   } finally {
     await http.close();
@@ -368,6 +398,9 @@ test('F: PIN child-login still records child_access and is unchanged without Tru
     assert.equal(loginRes.status, 200);
     const loginBody = await loginRes.json();
     assert.equal(loginBody.user.type, 'child');
+    assert.equal((await activationState(db, familyId)).child_access_completed_at, null);
+    const pinToday = await establishChildToday(http, loginRes);
+    assert.equal(pinToday.status, 200, await pinToday.text());
     assert.ok((await waitForChildAccess(db, familyId)).child_access_completed_at);
     const deadline = Date.now() + 4000;
     let sources = [];
@@ -428,6 +461,8 @@ test('G: First Star starter on trusted session is idempotent and non-fatal', asy
     assert.equal(offRestore.status, 200);
     const offBody = JSON.parse(await offRestore.text());
     assert.equal(offBody.ok, true);
+    const offToday = await establishChildToday(http, offRestore);
+    assert.equal(offToday.status, 200, await offToday.text());
     assert.ok((await waitForChildAccess(db, family2)).child_access_completed_at);
   } finally {
     await http.close();
@@ -518,7 +553,8 @@ describe('I / S-10 + contracts: Trusted Device authz is not age-based', () => {
     assert.doesNotMatch(src, /\bageYears\b/);
     assert.doesNotMatch(src, /\bdate_of_birth\b/);
     assert.match(src, /creatorHasChildAccess/);
-    assert.match(src, /recordActivationMilestone/);
+    assert.doesNotMatch(src, /recordActivationMilestone/);
+    assert.match(src, /child-access-completed/);
     assert.match(src, /ensureFirstStarStarterActivity/);
     assert.doesNotMatch(src, /ingestMilestoneAsync/);
     assert.doesNotMatch(src, /milestone:\s*'child_logged_in'/);

@@ -167,24 +167,26 @@
   }
 
   function trackDashboardHandoffAnalytics(deepLink) {
+    const source = 'home_handoff';
+    if (window.ChildAccessHandoff && typeof ChildAccessHandoff.rememberSource === 'function') {
+      ChildAccessHandoff.rememberSource(source);
+    } else {
+      try { sessionStorage.setItem('sd_child_access_source', source); } catch (_) {}
+    }
     if (typeof window.analytics === 'undefined' || !analytics.track) return;
-    const source = deepLink ? 'dashboard_deeplink' : 'dashboard_handoff';
-    const meta = { source: source };
+    const meta = { source: source, deep_link: Boolean(deepLink) };
     if (window.apiFetch) {
       window.apiFetch('/api/family/activation-config')
         .then(function (res) { return res.ok ? res.json() : null; })
         .then(function (cfg) {
           if (cfg && cfg.primary_child_id) meta.child_id = cfg.primary_child_id;
           analytics.track(null, 'child_handoff_started', meta);
-          analytics.track(null, 'child_view_opened', meta);
         })
         .catch(function () {
           analytics.track(null, 'child_handoff_started', meta);
-          analytics.track(null, 'child_view_opened', meta);
         });
     } else {
       analytics.track(null, 'child_handoff_started', meta);
-      analytics.track(null, 'child_view_opened', meta);
     }
   }
 
@@ -319,18 +321,22 @@
     const activationNeeded = await loadActivationHandoffNeeded();
     const deepLink = wantsChildHandoffDeepLink();
 
-    if (deepLink) {
+    if (deepLink && !activationNeeded) {
+      clearHandoffDeepLink();
+    }
+
+    if (deepLink && activationNeeded) {
       try { localStorage.removeItem(DISMISS_KEY); } catch {}
     }
 
-    if (!isNativeShell() && !isMobileWeb() && !activationNeeded && !deepLink) {
+    if (!isNativeShell() && !isMobileWeb() && !activationNeeded && !(deepLink && activationNeeded)) {
       el.classList.add('hidden');
       return;
     }
 
     const trustedPath = await probeTrustedChildPath();
 
-    if (activationNeeded || deepLink) {
+    if (activationNeeded || (deepLink && activationNeeded)) {
       applyLegacyHandoffCopy(el, true, trustedPath);
       el.classList.remove('hidden');
       bindEvents(el, { persistent: true });

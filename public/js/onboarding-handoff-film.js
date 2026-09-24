@@ -455,7 +455,7 @@
     window.__onboardingHandoffEntry = entryPoint || 'schema_saved';
     if (isSlimFastPath()) {
       if (typeof window.completeOnboardingAndGoHome === 'function') {
-        await window.completeOnboardingAndGoHome('/dashboard');
+        await window.completeOnboardingAndGoHome('/dashboard?next_step=child_handoff');
         return;
       }
       window.location.href = '/dashboard';
