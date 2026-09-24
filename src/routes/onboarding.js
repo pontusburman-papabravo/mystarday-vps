@@ -1133,7 +1133,7 @@ router.get('/handoff-context', async (req, res) => {
 // ─── POST /api/onboarding/child-access-complete ──────────
 // Deprecated: parent handoff clicks are not verified child access.
 // child_access_completed_at is written only when child Today is established
-// (POST /api/me/child-access-completed). PIN login alone does not set it.
+// (POST /api/me/child-access-completed). Child login alone does not set it.
 router.post('/child-access-complete', async (req, res) => {
   res.json({
     success: true,
