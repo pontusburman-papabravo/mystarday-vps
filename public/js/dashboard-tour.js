@@ -123,10 +123,48 @@ window.skipTour = function() {
   document.getElementById('tourHighlight').classList.add('hidden');
 };
 
+function ensureGrowthSystemHelp(cb) {
+  if (window.GrowthSystemHelp) {
+    cb();
+    return;
+  }
+  if (window.__msdSystemHelpLoading) {
+    document.addEventListener('growth-system-help-ready', cb, { once: true });
+    return;
+  }
+  window.__msdSystemHelpLoading = true;
+  const s = document.createElement('script');
+  s.src = '/js/growth-system-help.js';
+  s.onload = function () {
+    window.__msdSystemHelpLoading = false;
+    document.dispatchEvent(new Event('growth-system-help-ready'));
+    cb();
+  };
+  s.onerror = function () {
+    window.__msdSystemHelpLoading = false;
+    cb();
+  };
+  document.head.appendChild(s);
+}
+
 function refreshDashboardHelpTip() {
   const mount = document.getElementById('helpJourneyTipMount');
-  if (!mount || !window.HelpJourneyTip) return;
-  HelpJourneyTip.refresh(mount);
+  if (!mount) return;
+
+  function fallbackJourneyTip() {
+    if (window.HelpJourneyTip) HelpJourneyTip.refresh(mount);
+  }
+
+  ensureGrowthSystemHelp(function () {
+    if (window.GrowthSystemHelp && typeof GrowthSystemHelp.refreshHelpPanel === 'function') {
+      GrowthSystemHelp.refreshHelpPanel(mount).then(function (data) {
+        if (data && data.eligible) return;
+        fallbackJourneyTip();
+      });
+      return;
+    }
+    fallbackJourneyTip();
+  });
 }
 
 window.toggleHelpPanel = function() {
