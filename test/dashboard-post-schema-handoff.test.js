@@ -43,6 +43,17 @@ describe('R4.1 — child-first post-schema handoff', () => {
     assert.match(src, /syncPostSchemaHandoffCard/);
     assert.match(src, /child_access/);
     assert.match(src, /applyMagicHandoffCopy/);
+    assert.match(src, /isSessionSuppressed/);
+    assert.match(src, /restoreHandoffIfFirstSuccessHidden/);
+    assert.match(src, /data-hidden-for-first-success/);
+  });
+
+  it('Hem help panel asks system help before the generic journey tip', () => {
+    const tour = read('public/js/dashboard-tour.js');
+    assert.match(tour, /GrowthSystemHelp\.refreshHelpPanel/);
+    assert.match(tour, /HelpJourneyTip\.refresh/);
+    assert.match(tour, /growth-system-help\.js/);
+    assert.match(tour, /function refreshDashboardHelpTip/);
   });
 
   it('en-GB post-schema copy aligns with journey registry handoff_to_child', async () => {

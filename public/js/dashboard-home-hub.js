@@ -334,13 +334,18 @@
     if (window.ActivationFirstSuccessHub) {
       try {
         const payload = await ActivationFirstSuccessHub.fetchNextAction();
+        const suppressed = typeof ActivationFirstSuccessHub.isSessionSuppressed === 'function'
+          && ActivationFirstSuccessHub.isSessionSuppressed();
         if (
           payload &&
           payload.enabled &&
           payload.show_primary_coach &&
+          !payload.deferred &&
+          !suppressed &&
           (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion')
         ) {
           handoff.classList.add('hidden');
+          handoff.setAttribute('data-hidden-for-first-success', '1');
           return;
         }
       } catch (_) { /* non-critical */ }
@@ -349,6 +354,30 @@
     handoff.classList.remove('hidden');
     if (typeof DashboardChildHandoff.applyMagicHandoffCopy === 'function') {
       DashboardChildHandoff.applyMagicHandoffCopy(handoff, postSchema);
+    }
+    if (typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
+      DashboardChildHandoff.maybeEnrichHandoff(handoff);
+    }
+  }
+
+  /** If First Success hid the handoff but never rendered, put Hem's next step back. */
+  function restoreHandoffIfFirstSuccessHidden(mount) {
+    const handoff = mount && mount.querySelector('.parent-handoff-card');
+    if (!handoff || handoff.getAttribute('data-hidden-for-first-success') !== '1') return;
+    if (!window.DashboardChildHandoff) return;
+
+    const fsMount = document.getElementById('activationFirstSuccessCoachMount');
+    const fsShowing = Boolean(
+      fsMount
+      && !fsMount.classList.contains('hidden')
+      && fsMount.innerHTML
+    );
+    if (fsShowing) return;
+
+    handoff.removeAttribute('data-hidden-for-first-success');
+    handoff.classList.remove('hidden');
+    if (typeof DashboardChildHandoff.applyMagicHandoffCopy === 'function') {
+      DashboardChildHandoff.applyMagicHandoffCopy(handoff, true);
     }
     if (typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
       DashboardChildHandoff.maybeEnrichHandoff(handoff);
@@ -470,6 +499,7 @@
       if (window.ActivationFirstSuccessHub && typeof ActivationFirstSuccessHub.load === 'function') {
         await ActivationFirstSuccessHub.load({ force: true }).catch(function () {});
       }
+      restoreHandoffIfFirstSuccessHidden(mount);
       if (window.EngineCoach && typeof EngineCoach.load === 'function') {
         await EngineCoach.load({ force: true }).catch(function () {});
       }

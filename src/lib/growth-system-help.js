@@ -37,6 +37,7 @@ const SURFACE_BY_BLOCKING_STEP = Object.freeze({
     SURFACES.child_login,
     SURFACES.help_panel,
     SURFACES.onboarding,
+    SURFACES.dashboard,
   ],
   login_no_completion: [
     SURFACES.schedule,

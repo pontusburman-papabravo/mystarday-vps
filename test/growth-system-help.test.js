@@ -76,6 +76,8 @@ describe('growth-system-help content', () => {
     assert.equal(help.ctaAction, 'start_child_login');
     assert.doesNotMatch(help.body, /PIN/i);
     assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('child_handoff'));
+    assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('help_panel'));
+    assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('dashboard'));
   });
 
   it('loads primary child name with stuck facts for named help', () => {
