@@ -133,7 +133,16 @@ test('Fas 6 golden path — API timing baseline (read-only measurement)', async 
     const childHeaders = {
       Cookie: cookieHeader(childCookies),
       'X-CSRF-Token': childLoginBody.csrfToken,
+      'Content-Type': 'application/json',
     };
+
+    const todayAccessRes = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: childHeaders,
+      body: JSON.stringify({ today_established: true, source: 'child_login', platform: 'web' }),
+    });
+    apiCalls.push('POST /api/me/child-access-completed');
+    assert.equal(todayAccessRes.status, 200, await todayAccessRes.text());
 
     const dailyLogRes = await fetch(`${http.baseUrl}/api/me/daily-log`, {
       headers: childHeaders,

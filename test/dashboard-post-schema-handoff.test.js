@@ -34,8 +34,8 @@ describe('R4.1 — child-first post-schema handoff', () => {
     assert.match(src, /dash-child-handoff-post-schema/);
     assert.match(src, /parent-i18n-ready/);
     assert.match(src, /child_handoff_started/);
-    assert.match(src, /child_view_opened/);
-    assert.match(src, /dashboard_handoff/);
+    assert.match(src, /home_handoff/);
+    assert.doesNotMatch(src, /child_view_opened/);
   });
 
   it('magic hub syncs post-schema handoff after activation state', () => {

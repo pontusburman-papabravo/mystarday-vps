@@ -292,17 +292,6 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
     } catch (starterErr) {
       console.error('[AUTH] first-star starter ensure failed:', starterErr.message);
     }
-    const { recordActivationMilestone } = require('../../lib/activation-p0');
-    let childAccessNewlyRecorded = false;
-    try {
-      const accessResult = await recordActivationMilestone(child.family_id, 'child_access', {
-        metadata: { child_id: child.id, source: 'child_login' },
-      });
-      childAccessNewlyRecorded = accessResult.newlyRecorded;
-    } catch (err) {
-      console.error('[AUTH] activation child_access error:', err.message);
-    }
-
     const csrfToken = generateCsrfToken(res);
     const user = {
       id: child.id,
@@ -319,9 +308,7 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       csrfToken,
       user,
       expiresAt,
-      meta_milestones: childAccessNewlyRecorded
-        ? { child_access_completed: true, flow: 'child_login' }
-        : {},
+      meta_milestones: {},
     });
 
   } catch (err) {

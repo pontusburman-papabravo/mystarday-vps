@@ -47,7 +47,11 @@ describe('activation slim honest handoff (static)', () => {
     assert.doesNotMatch(starter, /localStorage\.[a-zA-Z]+\([^)]*pin/i);
     assert.doesNotMatch(starter, /sessionStorage\.[a-zA-Z]+\([^)]*pin/i);
     assert.doesNotMatch(starter, /track\([^)]*pin/i);
-    assert.match(starter, /completeSignupAndRedirect\('\/dashboard'\)/);
+    assert.match(starter, /id="slimShowChildToday"/);
+    assert.match(starter, /completeSignupThenHandoff/);
+    assert.match(starter, /first_schedule_handoff/);
+    assert.match(starter, /childAccessAlreadyDone/);
+    assert.match(starter, /completeSignupAndRedirect\('\/dashboard\?next_step=child_handoff'\)/);
     assert.match(starter, /completeSignupAndRedirect\('\/schedule'\)/);
     assert.equal(sanitizeReturnUrl('/dashboard?pin=1234').includes('pin='), false);
   });
@@ -106,9 +110,9 @@ describe('activation slim honest handoff (static)', () => {
     const film = read('public/js/onboarding-handoff-film.js');
     assert.match(onboarding, /completeOnboardingAndGoHome/);
     assert.match(onboarding, /isSlimFastPath\(\)/);
-    assert.match(onboarding, /completeOnboardingAndGoHome\('\/dashboard'\)/);
+    assert.match(onboarding, /completeOnboardingAndGoHome\('\/dashboard\?next_step=child_handoff'\)/);
     assert.match(starter, /state\.signupPath = state\.signupPath \|\| 'slim'/);
     assert.match(film, /isSlimFastPath/);
-    assert.match(film, /completeOnboardingAndGoHome\('\/dashboard'\)/);
+    assert.match(film, /completeOnboardingAndGoHome\('\/dashboard\?next_step=child_handoff'\)/);
   });
 });

@@ -789,6 +789,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (window.ChildTodayI18n && typeof ChildTodayI18n.markReady === 'function') {
         ChildTodayI18n.markReady();
       }
+      if (window.ChildTodayAccess && typeof ChildTodayAccess.confirmEstablished === 'function') {
+        ChildTodayAccess.confirmEstablished();
+      }
     } else {
       loadDayPromise
         .catch(function (err) {

@@ -105,7 +105,7 @@ test('POST /api/onboarding/child-access-complete does not set child_access_compl
   }
 });
 
-test('verified child login sets child_access_completed_at', async (t) => {
+test('verified child login does not set child_access_completed_at', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -133,9 +133,11 @@ test('verified child login sets child_access_completed_at', async (t) => {
       body: JSON.stringify({ username: 'loginchild', pin: '2468' }),
     });
     assert.equal(loginRes.status, 200);
+    const loginBody = JSON.parse(await loginRes.text());
+    assert.equal(loginBody.meta_milestones && loginBody.meta_milestones.child_access_completed, undefined);
 
-    const state = await waitForActivationField(db, familyId, 'child_access_completed_at');
-    assert.ok(state.child_access_completed_at);
+    const state = await getActivationState(db, familyId);
+    assert.equal(state && state.child_access_completed_at, null);
 
     const analytics = await db.query(
       `SELECT COUNT(*)::int AS n FROM analytics_events
@@ -143,6 +145,110 @@ test('verified child login sets child_access_completed_at', async (t) => {
       [familyId]
     );
     assert.ok(analytics.rows[0].n >= 1);
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('Today established sets child_access_completed; PIN-only and aborted handoff do not', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const session = await registerAndLogin(http.baseUrl);
+    const parentRow = await db.query('SELECT family_id FROM parent WHERE email = $1', [session.email]);
+    const familyId = parentRow.rows[0].family_id;
+    await ensureActivationState(familyId);
+    await updateActivationState(familyId, 'schema_saved');
+    const childId = await createChild(http.baseUrl, session, { name: 'Today', emoji: '📅' });
+    const pinHash = await hashPassword('1357');
+    await db.query(
+      `UPDATE child SET username = 'todaychild', pin = $1 WHERE id = $2`,
+      [pinHash, childId]
+    );
+
+    const loginRes = await fetch(`${http.baseUrl}/api/auth/child-login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'todaychild', pin: '1357' }),
+    });
+    const loginBody = JSON.parse(await loginRes.text());
+    assert.equal(loginRes.status, 200);
+    let cookies = {};
+    for (const header of getSetCookieHeaders(loginRes)) {
+      cookies = mergeCookies(cookies, [header]);
+    }
+
+    const aborted = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(cookies),
+        'X-CSRF-Token': loginBody.csrfToken,
+      },
+      body: JSON.stringify({ today_established: false, source: 'first_schedule_handoff', platform: 'web' }),
+    });
+    assert.equal(aborted.status, 400);
+    let state = await getActivationState(db, familyId);
+    assert.equal(state.child_access_completed_at, null);
+
+    const done = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(cookies),
+        'X-CSRF-Token': loginBody.csrfToken,
+      },
+      body: JSON.stringify({
+        today_established: true,
+        source: 'first_schedule_handoff',
+        platform: 'ios',
+      }),
+    });
+    const doneBody = JSON.parse(await done.text());
+    assert.equal(done.status, 200);
+    assert.equal(doneBody.newlyRecorded, true);
+    assert.equal(doneBody.meta_milestones.child_access_completed, true);
+
+    state = await getActivationState(db, familyId);
+    assert.ok(state.child_access_completed_at);
+
+    const events = await db.query(
+      `SELECT metadata FROM analytics_events
+       WHERE family_id = $1 AND event_type = 'child_access_completed'`,
+      [familyId]
+    );
+    assert.equal(events.rows.length, 1);
+    assert.equal(events.rows[0].metadata.source, 'first_schedule_handoff');
+    assert.equal(events.rows[0].metadata.platform, 'ios');
+    assert.equal(events.rows[0].metadata.has_schedule, true);
+    assert.equal(typeof events.rows[0].metadata.seconds_since_first_schedule_saved, 'number');
+
+    const again = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader(cookies),
+        'X-CSRF-Token': loginBody.csrfToken,
+      },
+      body: JSON.stringify({ today_established: true, source: 'home_handoff', platform: 'web' }),
+    });
+    const againBody = JSON.parse(await again.text());
+    assert.equal(again.status, 200);
+    assert.equal(againBody.newlyRecorded, false);
+    const eventsAfter = await db.query(
+      `SELECT COUNT(*)::int AS n FROM analytics_events
+       WHERE family_id = $1 AND event_type = 'child_access_completed'`,
+      [familyId]
+    );
+    assert.equal(eventsAfter.rows[0].n, 1);
   } finally {
     await http.close();
     await db.cleanup();
@@ -236,6 +342,17 @@ test('P0 achieved with schema + verified child login + first completion within 4
     for (const header of getSetCookieHeaders(loginRes)) {
       cookies = mergeCookies(cookies, [header]);
     }
+
+    const accessRes = await fetch(`${http.baseUrl}/api/me/child-access-completed`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieHeader(cookies),
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': loginBody.csrfToken,
+      },
+      body: JSON.stringify({ today_established: true, source: 'home_handoff', platform: 'pwa' }),
+    });
+    assert.equal(accessRes.status, 200);
 
     const completeRes = await fetch(
       `${http.baseUrl}/api/me/daily-log-items/${item.rows[0].id}/complete`,

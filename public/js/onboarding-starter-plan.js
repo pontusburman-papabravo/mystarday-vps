@@ -499,6 +499,43 @@
     }
   }
 
+  async function childAccessAlreadyDone() {
+    try {
+      const res = await api('/api/family/activation-config');
+      if (!res.ok) return false;
+      const cfg = await res.json();
+      return Boolean(cfg && cfg.state && cfg.state.child_access_completed_at);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function completeSignupThenHandoff() {
+    if (await childAccessAlreadyDone()) {
+      await completeSignupAndRedirect('/dashboard');
+      return;
+    }
+    const res = await api('/api/onboarding/complete', { method: 'POST' });
+    if (!res.ok) throw new Error(ot('onboarding.starter.completeFailed'));
+    if (window.Auth) {
+      const user = Auth.getUser();
+      if (user) {
+        user.onboarding_completed = true;
+        Auth.setAuth(Auth.getToken(), user);
+      }
+    }
+    if (window.ChildAccessHandoff && typeof ChildAccessHandoff.begin === 'function') {
+      ChildAccessHandoff.begin('first_schedule_handoff');
+      return;
+    }
+    try { sessionStorage.setItem('sd_child_access_source', 'first_schedule_handoff'); } catch (_) {}
+    if (window.Auth && typeof Auth.logout === 'function') {
+      Auth.logout({ childFlow: true });
+      return;
+    }
+    window.location.href = '/child-login';
+  }
+
   async function completeSignupAndRedirect(targetHref) {
     const res = await api('/api/onboarding/complete', { method: 'POST' });
     if (!res.ok) throw new Error(ot('onboarding.starter.completeFailed'));
@@ -546,7 +583,8 @@
         '  <h2 class="text-2xl font-heading font-bold text-navy mb-2">' + esc(ot('onboarding.starter.slimSuccessTitle')) + '</h2>',
         '  <p class="text-text-soft text-sm mb-1">' + esc(ot('onboarding.starter.previewForChild', { childName: childName, count: state.previewItems.length })) + '</p>',
         '  <p class="text-navy text-sm font-medium mt-4">' + esc(ot('onboarding.starter.slimSuccessTonight', { childName: childName })) + '</p>',
-        '  <button type="button" id="slimGoHome" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
+        '  <button type="button" id="slimShowChildToday" class="w-full bg-gold hover:bg-gold-dark text-white font-semibold py-3.5 rounded-xl mt-6 min-h-[44px]">' + esc(ot('onboarding.starter.showChildToday')) + '</button>',
+        '  <button type="button" id="slimGoHome" class="w-full text-sm font-semibold text-text-soft py-3 min-h-[44px]">' + esc(ot('onboarding.starter.goHome')) + '</button>',
         hourglassBlock,
         '  <button type="button" id="slimCustomize" class="w-full text-sm font-semibold text-text-soft py-3 mt-4 min-h-[44px]">' + esc(ot('onboarding.starter.customizeFirst')) + '</button>',
         '</div>',
@@ -566,10 +604,18 @@
         });
       }
 
+      document.getElementById('slimShowChildToday').addEventListener('click', function () {
+        const btn = document.getElementById('slimShowChildToday');
+        if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.openingChildToday'); }
+        completeSignupThenHandoff().catch(function (err) {
+          showError(err.message || ot('onboarding.starter.completeFailed'));
+          if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.showChildToday'); }
+        });
+      });
       document.getElementById('slimGoHome').addEventListener('click', function () {
         const btn = document.getElementById('slimGoHome');
         if (btn) { btn.disabled = true; btn.textContent = ot('onboarding.starter.openingHome'); }
-        completeSignupAndRedirect('/dashboard').catch(function (err) {
+        completeSignupAndRedirect('/dashboard?next_step=child_handoff').catch(function (err) {
           showError(err.message || ot('onboarding.starter.completeFailed'));
           if (btn) { btn.disabled = false; btn.textContent = ot('onboarding.starter.goHome'); }
         });

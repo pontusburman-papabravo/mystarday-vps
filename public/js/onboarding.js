@@ -525,7 +525,7 @@ async function resumeAct1Onboarding(funnelStep) {
   if (step === 'schema_saved') {
     if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function'
         && OnboardingStarterPlan.isSlimFastPath()) {
-      await completeOnboardingAndGoHome('/dashboard');
+      await completeOnboardingAndGoHome('/dashboard?next_step=child_handoff');
       return;
     }
     let filmDone = false;
@@ -612,7 +612,7 @@ async function enterChildHandoff(entryPoint) {
   window.__onboardingHandoffEntry = entryPoint || 'unknown';
   if (window.OnboardingStarterPlan && typeof OnboardingStarterPlan.isSlimFastPath === 'function'
       && OnboardingStarterPlan.isSlimFastPath()) {
-    await completeOnboardingAndGoHome('/dashboard');
+    await completeOnboardingAndGoHome('/dashboard?next_step=child_handoff');
     return;
   }
   if (window.OnboardingHandoffFilm && typeof OnboardingHandoffFilm.goToHandoffAfterSchema === 'function') {
