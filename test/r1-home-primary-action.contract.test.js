@@ -29,6 +29,25 @@ describe('R1 — Hem primary action orchestration', () => {
     const journeyIdx = hub.indexOf('JourneyCoach.pollCoach');
     const applyIdx = hub.indexOf('HomePrimaryAction.apply');
     assert.ok(journeyIdx > 0 && applyIdx > journeyIdx);
+    const afterIdx = hub.indexOf('afterPrimaryAction');
+    assert.ok(afterIdx > applyIdx);
+  });
+
+  it('keeps a visible child-login CTA after the Hem ladder (system help)', () => {
+    const orch = read('public/js/home-primary-action.js');
+    assert.match(orch, /afterPrimaryAction/);
+    const handoff = read('public/js/dashboard-child-handoff.js');
+    assert.match(handoff, /function afterPrimaryAction/);
+    assert.match(handoff, /hasVisibleChildLoginCta/);
+    assert.match(handoff, /loadActivationHandoffNeeded/);
+    assert.match(handoff, /!coachOffersChildLogin\(journey\)/);
+    assert.match(handoff, /shouldSuppressNonLoginCoaches/);
+    assert.match(orch, /child_access_handoff/);
+    assert.match(read('public/js/journey-coach.js'), /shouldSuppressNonLoginCoaches/);
+    const journey = read('public/js/journey-coach.js');
+    assert.match(journey, /data-child-login-cta/);
+    assert.match(journey, /journey-coach-headline/);
+    assert.match(journey, /maybeEnrichChildLoginCoach/);
   });
 
   it('journey coach defers when canonical Hem hub suppresses legacy coaches (R4.6)', () => {
