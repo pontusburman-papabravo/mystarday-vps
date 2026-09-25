@@ -84,6 +84,18 @@
       if (activationHasPrimary()) return { winner: 'activation' };
       return { winner: 'none', reason: 'journey_retention_silent' };
     }
+    const suppressNonLogin = window.DashboardChildHandoff
+      && typeof DashboardChildHandoff.shouldSuppressNonLoginCoaches === 'function'
+      && DashboardChildHandoff.shouldSuppressNonLoginCoaches();
+    if (suppressNonLogin) {
+      const journeyMount = mountEl('journeyCoachMount');
+      const journeyIsChildLogin = journeyMount
+        && !journeyMount.classList.contains('hidden')
+        && journeyMount.querySelector('[data-child-login-cta]');
+      if (journeyIsChildLogin) return { winner: 'journey' };
+      if (activationHasPrimary()) return { winner: 'activation' };
+      return { winner: 'none', reason: 'child_access_handoff' };
+    }
     if (journeyHasRelevantStep()) return { winner: 'journey' };
     if (activationHasPrimary()) return { winner: 'activation' };
     if (engineHasPrimary()) return { winner: 'engine' };
