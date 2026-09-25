@@ -340,7 +340,8 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v1006';
+const CACHE_NAME = 'stjarndag-v1007';
+// stjarndag-v1007: system-help Hem CTA survives Signup Journey hide (schema_no_child_login)
 // stjarndag-v1006: first schedule handoff lands on child Today; access event after Today loads
 // stjarndag-v1005: system-help named CTA on First Success Hem coach
 // stjarndag-v1004: IE English funnel — /en/register open + geo-neutral App Store

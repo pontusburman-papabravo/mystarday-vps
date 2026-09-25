@@ -334,12 +334,39 @@
     if (window.ActivationFirstSuccessHub) {
       try {
         const payload = await ActivationFirstSuccessHub.fetchNextAction();
-        if (
+        const fsMount = document.getElementById('activationFirstSuccessCoachMount');
+        const fsVisible = Boolean(
           payload &&
           payload.enabled &&
           payload.show_primary_coach &&
-          (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion')
-        ) {
+          (payload.next_action === 'child_access' || payload.next_action === 'await_first_completion') &&
+          fsMount &&
+          !fsMount.classList.contains('hidden') &&
+          fsMount.querySelector('.activation-fs-cta')
+        );
+        if (fsVisible) {
+          handoff.classList.add('hidden');
+          if (typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
+            DashboardChildHandoff.maybeEnrichHandoff(fsMount);
+          }
+          return;
+        }
+      } catch (_) { /* non-critical */ }
+    }
+
+    if (
+      window.DashboardChildHandoff
+      && typeof DashboardChildHandoff.hasVisibleChildLoginCta === 'function'
+      && DashboardChildHandoff.hasVisibleChildLoginCta()
+    ) {
+      handoff.classList.add('hidden');
+      return;
+    }
+
+    if (!postSchema && window.JourneyContextClient) {
+      try {
+        const ctx = await JourneyContextClient.fetchContext();
+        if (ctx?.signup_journey?.active) {
           handoff.classList.add('hidden');
           return;
         }
@@ -451,15 +478,6 @@
     bindShortcutAnalytics(mount);
 
     void (async function refreshHemLadder() {
-      if (window.JourneyContextClient) {
-        try {
-          const ctx = await JourneyContextClient.fetchContext();
-          if (ctx?.signup_journey?.active) {
-            const handoff = mount.querySelector('.parent-handoff-card');
-            if (handoff) handoff.classList.add('hidden');
-          }
-        } catch (_) { /* non-critical */ }
-      }
       await syncPostSchemaHandoffCard(mount);
       if (window.HomeReadiness && typeof HomeReadiness.reload === 'function') {
         await HomeReadiness.reload();
@@ -475,6 +493,9 @@
       }
       if (window.HomePrimaryAction && typeof HomePrimaryAction.apply === 'function') {
         HomePrimaryAction.apply();
+      }
+      if (window.DashboardChildHandoff && typeof DashboardChildHandoff.afterPrimaryAction === 'function') {
+        DashboardChildHandoff.afterPrimaryAction();
       }
     }());
 

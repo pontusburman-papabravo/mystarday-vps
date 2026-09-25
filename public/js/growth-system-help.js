@@ -216,16 +216,16 @@
   function findHandoffParts(rootEl) {
     return {
       titleEl: rootEl.querySelector(
-        '.dash-child-handoff-title, .parent-handoff-title, .activation-fs-headline'
+        '.dash-child-handoff-title, .parent-handoff-title, .activation-fs-headline, .journey-coach-headline'
       ),
       subEl: rootEl.querySelector(
-        '.dash-child-handoff-sub, .parent-handoff-sub, .activation-fs-body'
+        '.dash-child-handoff-sub, .parent-handoff-sub, .activation-fs-body, .journey-coach-body'
       ),
       primaryBtn: rootEl.querySelector(
-        '#dashboardChildLoginBtn, [data-action="child-login"], .activation-fs-cta'
+        '#dashboardChildLoginBtn, [data-action="child-login"], .activation-fs-cta, [data-child-login-cta]'
       ),
       actionsEl: rootEl.querySelector(
-        '.dash-child-handoff-actions, .parent-handoff-actions, .activation-fs-coach'
+        '.dash-child-handoff-actions, .parent-handoff-actions, .activation-fs-coach, .journey-coach-card'
       ),
       pinHintEl: rootEl.querySelector('.activation-fs-pin-hint'),
     };
@@ -393,11 +393,49 @@
     await recordShown(data);
   }
 
+  function isVisibleRoot(el) {
+    return Boolean(el && el.classList && !el.classList.contains('hidden'));
+  }
+
+  function rootOffersChildLogin(el) {
+    if (!isVisibleRoot(el)) return false;
+    const parts = findHandoffParts(el);
+    return Boolean(parts.primaryBtn);
+  }
+
+  /**
+   * After Hem's coach ladder settles, enrich the CTA the parent can actually see.
+   * Hidden First Success / handoff mounts must not consume the shown event.
+   */
+  function findVisibleHemHandoffRoot() {
+    const doc = typeof document !== 'undefined' ? document : null;
+    if (!doc) return null;
+    const candidates = [
+      doc.getElementById('activationFirstSuccessCoachMount'),
+      doc.getElementById('journeyCoachMount'),
+      doc.querySelector('.parent-handoff-card'),
+      doc.getElementById('dashboardChildHandoff'),
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+      if (rootOffersChildLogin(candidates[i])) return candidates[i];
+    }
+    return null;
+  }
+
+  async function enrichVisibleHem() {
+    const root = findVisibleHemHandoffRoot();
+    if (!root) return null;
+    await enrichHandoff(root);
+    return root;
+  }
+
   window.GrowthSystemHelp = {
     detectSurface: detectSurface,
     fetchContext: fetchContext,
     refreshHelpPanel: refreshHelpPanel,
     enrichHandoff: enrichHandoff,
+    enrichVisibleHem: enrichVisibleHem,
+    findVisibleHemHandoffRoot: findVisibleHemHandoffRoot,
     buildCardHtml: buildCardHtml,
     buildTechnicalContext: buildTechnicalContext,
   };

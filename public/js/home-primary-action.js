@@ -103,6 +103,9 @@
     if (show.journey) showMount('journeyCoachMount');
     if (show.activation) showMount('activationFirstSuccessCoachMount');
     if (show.engine) showMount('engineCoachMount');
+    if (window.DashboardChildHandoff && typeof DashboardChildHandoff.afterPrimaryAction === 'function') {
+      DashboardChildHandoff.afterPrimaryAction();
+    }
     return { winner };
   }
 
