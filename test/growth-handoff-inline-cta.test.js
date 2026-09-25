@@ -52,11 +52,14 @@ function makeButton() {
 function makeHandoffRoot(variant) {
   const classList = makeClassList();
   const primaryBtn = makeButton();
+  if (variant === 'journey') {
+    primaryBtn.setAttribute('data-child-login-cta', '1');
+  }
   const titleEl = {
-    textContent: variant === 'coach' ? 'Coach title' : variant === 'magic' ? 'Magic title' : 'Legacy title',
+    textContent: variant === 'coach' ? 'Coach title' : variant === 'magic' ? 'Magic title' : variant === 'journey' ? 'Journey title' : 'Legacy title',
   };
   const subEl = {
-    textContent: variant === 'coach' ? 'Coach sub' : variant === 'magic' ? 'Magic sub' : 'Legacy sub',
+    textContent: variant === 'coach' ? 'Coach sub' : variant === 'magic' ? 'Magic sub' : variant === 'journey' ? 'Journey sub' : 'Legacy sub',
   };
   const pinHintEl = {
     textContent: 'Barnet använder sin PIN.',
@@ -66,20 +69,31 @@ function makeHandoffRoot(variant) {
   const children = [];
   const root = {
     classList,
+    id: variant === 'coach' ? 'activationFirstSuccessCoachMount' : variant === 'journey' ? 'journeyCoachMount' : '',
+    className: variant === 'magic' ? 'parent-handoff-card' : '',
     _children: children,
     insertBefore(node, ref) {
       const idx = ref ? children.indexOf(ref) : children.length;
       children.splice(idx === -1 ? children.length : idx, 0, node);
     },
     querySelector(sel) {
-      if (sel.includes('title') || sel.includes('activation-fs-headline')) return titleEl;
-      if (sel.includes('activation-fs-body')) return subEl;
+      if (sel.includes('title') || sel.includes('activation-fs-headline') || sel.includes('journey-coach-headline')) {
+        return titleEl;
+      }
+      if (sel.includes('activation-fs-body') || sel.includes('journey-coach-body')) return subEl;
       if (sel.includes('.parent-handoff-sub') || sel.includes('.dash-child-handoff-sub')) return subEl;
-      if (sel.includes('activation-fs-cta') || sel.includes('dashboardChildLoginBtn') || sel.includes('child-login')) {
+      if (
+        sel.includes('activation-fs-cta')
+        || sel.includes('dashboardChildLoginBtn')
+        || sel.includes('child-login')
+        || sel.includes('data-child-login-cta')
+      ) {
         return primaryBtn;
       }
       if (sel.includes('activation-fs-pin-hint')) return pinHintEl;
-      if (sel.includes('actions') || sel.includes('activation-fs-coach')) return actionsEl;
+      if (sel.includes('actions') || sel.includes('activation-fs-coach') || sel.includes('journey-coach-card')) {
+        return actionsEl;
+      }
       if (sel.includes('handoff-secondary')) {
         return children.find((c) => c.className && c.className.includes('handoff-secondary')) || null;
       }
@@ -102,6 +116,7 @@ function loadGrowthSystemHelp(options) {
   const storage = {};
   const tracked = [];
   const apiCalls = [];
+  const mounts = options.mounts || {};
 
   const sandbox = {
     console,
@@ -124,6 +139,11 @@ function loadGrowthSystemHelp(options) {
         return el;
       },
       head: { appendChild() {} },
+      getElementById(id) { return mounts[id] || null; },
+      querySelector(sel) {
+        if (sel === '.parent-handoff-card') return mounts.magic || null;
+        return null;
+      },
     },
     window: {},
     analytics: {
@@ -300,6 +320,36 @@ describe('growth handoff inline CTA — runtime contracts', () => {
     assert.equal(primaryBtn.textContent, SCHEMA_HELP.ctaLabel);
     assert.equal(pinHintEl.textContent, '');
     assert.equal(pinHintEl.classList.contains('hidden'), true);
+    assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
+  });
+
+  it('enriches a visible Journey child-login coach (sj_day3 / handoff_to_child)', async () => {
+    const { GrowthSystemHelp, tracked } = loadGrowthSystemHelp();
+    const { root, titleEl, primaryBtn } = makeHandoffRoot('journey');
+
+    await GrowthSystemHelp.enrichHandoff(root);
+
+    assert.equal(titleEl.textContent, SCHEMA_HELP.headline);
+    assert.equal(primaryBtn.textContent, SCHEMA_HELP.ctaLabel);
+    assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
+  });
+
+  it('enrichVisibleHem skips a hidden First Success mount and uses the visible handoff card', async () => {
+    const hiddenFs = makeHandoffRoot('coach');
+    hiddenFs.root.classList.add('hidden');
+    const visibleHandoff = makeHandoffRoot('magic');
+    const { GrowthSystemHelp, tracked } = loadGrowthSystemHelp({
+      mounts: {
+        activationFirstSuccessCoachMount: hiddenFs.root,
+        magic: visibleHandoff.root,
+      },
+    });
+
+    const chosen = await GrowthSystemHelp.enrichVisibleHem();
+
+    assert.equal(chosen, visibleHandoff.root);
+    assert.equal(visibleHandoff.titleEl.textContent, SCHEMA_HELP.headline);
+    assert.equal(hiddenFs.titleEl.textContent, 'Coach title');
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
   });
 });

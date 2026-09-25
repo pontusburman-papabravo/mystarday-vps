@@ -123,6 +123,9 @@ describe('growth feedback loop contracts', () => {
     assert.match(analytics, /handoff_inline_cta_clicked/);
     const hub = read('public/js/dashboard-home-hub.js');
     assert.match(hub, /maybeEnrichHandoff/);
+    assert.match(hub, /afterPrimaryAction/);
+    assert.match(client, /enrichVisibleHem/);
+    assert.match(client, /journey-coach-headline/);
   });
 
   it('English waitlist sends UTM + consent', () => {
