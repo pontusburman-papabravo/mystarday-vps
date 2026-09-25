@@ -350,6 +350,9 @@
 
     Promise.resolve(loadActivationHandoffNeeded()).then(function (needed) {
       if (!needed) return;
+      if (journey && !coachOffersChildLogin(journey)) {
+        journey.classList.add('hidden');
+      }
       const card = document.querySelector('.parent-handoff-card')
         || document.getElementById('dashboardChildHandoff');
       if (!card) return;
