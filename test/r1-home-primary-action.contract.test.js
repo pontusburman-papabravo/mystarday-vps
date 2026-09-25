@@ -41,6 +41,9 @@ describe('R1 — Hem primary action orchestration', () => {
     assert.match(handoff, /hasVisibleChildLoginCta/);
     assert.match(handoff, /loadActivationHandoffNeeded/);
     assert.match(handoff, /!coachOffersChildLogin\(journey\)/);
+    assert.match(handoff, /shouldSuppressNonLoginCoaches/);
+    assert.match(orch, /child_access_handoff/);
+    assert.match(read('public/js/journey-coach.js'), /shouldSuppressNonLoginCoaches/);
     const journey = read('public/js/journey-coach.js');
     assert.match(journey, /data-child-login-cta/);
     assert.match(journey, /journey-coach-headline/);

@@ -203,6 +203,18 @@
       return;
     }
 
+    const expKeyEarly = context?.recommended_experiences?.[0];
+    if (
+      window.DashboardChildHandoff
+      && typeof DashboardChildHandoff.shouldSuppressNonLoginCoaches === 'function'
+      && DashboardChildHandoff.shouldSuppressNonLoginCoaches()
+      && !isChildLoginExperience(expKeyEarly)
+    ) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return;
+    }
+
     if (shouldDeferToExceptions()) {
       mount.classList.add('hidden');
       mount.innerHTML = '';

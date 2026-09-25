@@ -128,6 +128,8 @@
     } catch {}
   }
 
+  let activationHandoffNeededCache = null;
+
   async function loadActivationHandoffNeeded() {
     if (!window.apiFetch) return false;
     try {
@@ -135,10 +137,15 @@
       if (!res.ok) return false;
       const cfg = await res.json();
       const st = cfg.state || {};
-      return Boolean(st.schema_saved_at && !st.child_access_completed_at);
+      activationHandoffNeededCache = Boolean(st.schema_saved_at && !st.child_access_completed_at);
+      return activationHandoffNeededCache;
     } catch {
       return false;
     }
+  }
+
+  function shouldSuppressNonLoginCoaches() {
+    return activationHandoffNeededCache === true;
   }
 
   function isDismissed() {
@@ -348,16 +355,29 @@
       return;
     }
 
-    Promise.resolve(loadActivationHandoffNeeded()).then(function (needed) {
-      if (!needed) return;
+    function revealHandoffAndHideCompetitors() {
       if (journey && !coachOffersChildLogin(journey)) {
         journey.classList.add('hidden');
+      }
+      const engine = document.getElementById('engineCoachMount');
+      if (engine && !coachOffersChildLogin(engine)) {
+        engine.classList.add('hidden');
       }
       const card = document.querySelector('.parent-handoff-card')
         || document.getElementById('dashboardChildHandoff');
       if (!card) return;
       card.classList.remove('hidden');
       maybeEnrichHandoff(card);
+    }
+
+    if (shouldSuppressNonLoginCoaches()) {
+      revealHandoffAndHideCompetitors();
+      return;
+    }
+
+    Promise.resolve(loadActivationHandoffNeeded()).then(function (needed) {
+      if (!needed) return;
+      revealHandoffAndHideCompetitors();
     });
   }
 
@@ -466,5 +486,6 @@
     maybeEnrichHandoff: maybeEnrichHandoff,
     afterPrimaryAction: afterPrimaryAction,
     hasVisibleChildLoginCta: hasVisibleChildLoginCta,
+    shouldSuppressNonLoginCoaches: shouldSuppressNonLoginCoaches,
   };
 })();
