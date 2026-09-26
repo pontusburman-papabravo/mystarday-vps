@@ -43,7 +43,7 @@ Children sign in with their own PIN and see a colourful, star-based view of toda
 - English (UK) parent and child UI (beta, opt-in per family)
 - Localised native strings (sv + en-GB) with real launcher names (not a redacted placeholder)
 - Localised emails and push for en-GB families
-- versionCode 14 / versionName 1.4.5
+- versionCode 15 / versionName 1.4.5
 
 ---
 

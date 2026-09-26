@@ -45,7 +45,7 @@ describe('R4.5 Android release hardening', () => {
 
   it('canonical Android versionCode is monotonic for R4.5 release', () => {
     const v = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
-    assert.ok(v.versionCode >= 14, 'versionCode must be > prior Play upload 13');
+    assert.ok(v.versionCode >= 15, 'versionCode must be > prior Play upload 14');
     assert.equal(v.versionName, '1.4.5');
   });
 });
