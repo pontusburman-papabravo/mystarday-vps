@@ -6,6 +6,7 @@
   'use strict';
 
   const SESSION_KEY = 'analytics_session_nonce';
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
   const STORE_PLACEMENTS = { hero: true, mid_page: true, footer: true, nav: true, menu: true };
 
@@ -33,15 +34,26 @@
     store_cta_clicked: true,
   };
 
+  function createUuid() {
+    if (global.crypto && typeof global.crypto.randomUUID === 'function') {
+      return global.crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
   function getOrCreateSessionNonce() {
     try {
       const existing = global.localStorage && global.localStorage.getItem(SESSION_KEY);
-      if (existing) return existing;
-      const nonce = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      if (existing && UUID_RE.test(existing)) return existing;
+      const nonce = createUuid();
       if (global.localStorage) global.localStorage.setItem(SESSION_KEY, nonce);
       return nonce;
     } catch (_) {
-      return 'anon_' + Date.now();
+      return createUuid();
     }
   }
 

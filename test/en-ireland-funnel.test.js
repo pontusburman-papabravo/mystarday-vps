@@ -107,6 +107,8 @@ describe('Ireland /en analytics', () => {
     assert.match(LANDING_EVENTS, /UtmCapture/);
     assert.match(LANDING_EVENTS, /market/);
     assert.match(LANDING_EVENTS, /placement/);
+    const csrf = read('src/middleware/csrf.js');
+    assert.match(csrf, /\/analytics\/event/);
   });
 
   it('sends landing_view and store_cta_clicked with market, platform, placement, and UTM', () => {
@@ -180,7 +182,7 @@ describe('Ireland /en analytics', () => {
     assert.equal(landingBody.metadata.market, 'IE');
     assert.equal(landingBody.metadata.utm_source, 'ads');
     assert.equal(landingBody.metadata.utm_campaign, 'ie-launch');
-    assert.ok(landingBody.session_id);
+    assert.match(landingBody.session_id, /^[0-9a-f-]{36}$/i);
 
     iosLink._click();
     playLink._click();
