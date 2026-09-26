@@ -58,11 +58,11 @@
     const irelandWelcome = document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
     const heroBody = document.querySelector('.hero-launch-card__body');
     if (heroBody && !irelandWelcome) {
-      heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android — in Swedish and English. Create an account if your country is open. If it is not, you can leave your email to be notified.';
+      heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android — in Swedish and English. Irish families can start today with 14 days free.';
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
       if (!/Swedish only|English is coming soon|English coming soon/i.test(el.textContent || '')) return;
-      el.textContent = 'The app is available on the App Store for iPhone and iPad, and on Google Play for Android. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
+      el.textContent = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is now available in Ireland.';
     });
     document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => {
       try {
@@ -71,7 +71,7 @@
         data.mainEntity.forEach((item) => {
           const answer = item && item.acceptedAnswer && item.acceptedAnswer.text;
           if (typeof answer === 'string' && /Swedish only|English is coming soon/i.test(answer)) {
-            item.acceptedAnswer.text = 'The app is available on the App Store for iPhone and iPad, and on Google Play for Android. Create an account if your country is open. You can also use the browser version and add it to your home screen as a PWA.';
+            item.acceptedAnswer.text = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is now available in Ireland.';
           }
         });
         el.textContent = JSON.stringify(data);
@@ -92,13 +92,12 @@
   function retargetPrimaryCtas(canRegister) {
     if (!canRegister) return;
     const onEnglish = (location.pathname || '').startsWith('/en');
-    const registerHref = onEnglish ? '/en/register' : '#app-store';
     document.querySelectorAll('a.btn-primary[href="#waitlist"], a.btn-primary[href="/en#waitlist"], a[href="/en#waitlist"]').forEach((el) => {
       if (el.id === 'waitlistSubmitBtn') return;
       if (el.closest('#waitlistForm')) return;
-      el.setAttribute('href', registerHref);
-      if (el.textContent && /waitlist/i.test(el.textContent)) {
-        el.textContent = onEnglish ? 'Create account' : 'Get the app';
+      el.setAttribute('href', '#app-store');
+      if (el.textContent && /waitlist|create account/i.test(el.textContent)) {
+        el.textContent = onEnglish ? 'Get My Starday' : 'Get the app';
       }
     });
   }

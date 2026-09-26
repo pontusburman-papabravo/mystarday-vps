@@ -120,7 +120,7 @@ test('landing page links to pricing-info and skattkammaren demo', () => {
   assert.match(html, /landing-nav__lang-label">English</);
 });
 
-test('English landing mirrors Swedish layout with EN waitlist funnel', () => {
+test('English landing mirrors Swedish layout as an Ireland store funnel', () => {
   const en = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
   const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
   assert.match(en, /<html lang="en">/);
@@ -132,8 +132,9 @@ test('English landing mirrors Swedish layout with EN waitlist funnel', () => {
   assert.match(en, /href="\/en\/faq"/);
   assert.match(en, /href="#app-store"/);
   assert.doesNotMatch(en, /href="\/register"/);
-  assert.match(en, /id="waitlist"/);
-  assert.match(en, /waitlist-form/);
+  assert.doesNotMatch(en, /id="waitlist"/);
+  assert.doesNotMatch(en, /waitlist-form/);
+  assert.match(en, /id="get-the-app"/);
   assert.match(landingJs, /serveLandingHtml\(res, 'en\.html'\)/);
   assert.match(landingJs, /injectStoreLinks/);
   assert.doesNotMatch(landingJs, /engelsk_landingssida/);

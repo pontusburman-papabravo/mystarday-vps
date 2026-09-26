@@ -1,8 +1,13 @@
 /**
  * Landing CTA event tracking — analytics whitelist + console in dev.
+ * Ireland /en funnel: landing_view + store_cta_clicked (click ≠ install).
  */
 (function (global) {
   'use strict';
+
+  const SESSION_KEY = 'analytics_session_nonce';
+  const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  const STORE_PLACEMENTS = { hero: true, mid_page: true, footer: true, nav: true, menu: true };
 
   const ALLOWED = {
     hero_signup_click: true,
@@ -24,16 +29,87 @@
     landing_share_click: true,
     app_store_click: true,
     play_store_click: true,
+    landing_view: true,
+    store_cta_clicked: true,
   };
+
+  function getOrCreateSessionNonce() {
+    try {
+      const existing = global.localStorage && global.localStorage.getItem(SESSION_KEY);
+      if (existing) return existing;
+      const nonce = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      if (global.localStorage) global.localStorage.setItem(SESSION_KEY, nonce);
+      return nonce;
+    } catch (_) {
+      return 'anon_' + Date.now();
+    }
+  }
+
+  function pathname() {
+    try {
+      return (global.location && global.location.pathname) || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function isIrelandLanding(path) {
+    const p = path || pathname();
+    return p === '/en' || p === '/en/';
+  }
+
+  function irelandMarket(path) {
+    const p = path || pathname();
+    if (p === '/en' || p === '/en/' || p.indexOf('/en/') === 0) return 'IE';
+    return undefined;
+  }
+
+  function utmMetadata() {
+    const out = {};
+    try {
+      const capture = global.UtmCapture;
+      const data = capture && typeof capture.get === 'function' ? (capture.get() || {}) : {};
+      UTM_KEYS.forEach(function (key) {
+        if (data[key]) out[key] = data[key];
+      });
+    } catch (_) { /* no attribution layer */ }
+    return out;
+  }
+
+  function storePlatform(el) {
+    const track = el && el.getAttribute && el.getAttribute('data-track');
+    const cta = el && el.getAttribute && el.getAttribute('data-store-cta');
+    if (track === 'play_store_click' || cta === 'play') return 'android';
+    return 'ios';
+  }
+
+  function storePlacement(el) {
+    const raw = el && el.getAttribute && el.getAttribute('data-store-placement');
+    return STORE_PLACEMENTS[raw] ? raw : 'unknown';
+  }
+
+  function buildStoreMeta(el) {
+    const meta = Object.assign({
+      page: 'landing',
+      platform: storePlatform(el),
+      placement: storePlacement(el),
+    }, utmMetadata());
+    const market = irelandMarket();
+    if (market) meta.market = market;
+    return meta;
+  }
 
   function track(eventType, metadata) {
     if (!eventType) return;
     try {
+      const resolvedType = eventType.startsWith('faq_expand_') ? 'landing_faq_expand' : eventType;
+      if (!ALLOWED[resolvedType] && resolvedType !== 'landing_faq_expand') return;
       fetch('/api/analytics/event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          event_type: eventType.startsWith('faq_expand_') ? 'landing_faq_expand' : eventType,
+          event_type: resolvedType,
+          session_id: getOrCreateSessionNonce(),
           metadata: Object.assign({ page: 'landing' }, metadata || {}, {
             faq_slug: eventType.startsWith('faq_expand_') ? eventType.replace('faq_expand_', '') : undefined,
           }),
@@ -52,10 +128,25 @@
           if (eventName === 'landing_guide_card_click') {
             meta.guide_slug = el.getAttribute('data-guide-slug') || undefined;
           }
+          if (eventName === 'app_store_click' || eventName === 'play_store_click') {
+            const storeMeta = buildStoreMeta(el);
+            track(eventName, storeMeta);
+            track('store_cta_clicked', storeMeta);
+            return;
+          }
           track(eventName, meta);
         }
       });
     });
+  }
+
+  function trackLandingView() {
+    if (!isIrelandLanding()) return;
+    const meta = Object.assign({
+      page: 'landing',
+      market: 'IE',
+    }, utmMetadata());
+    track('landing_view', meta);
   }
 
   function init() {
@@ -80,6 +171,7 @@
     bindCta('[data-track="landing_share_click"]', 'landing_share_click');
     bindCta('[data-track="app_store_click"]', 'app_store_click');
     bindCta('[data-track="play_store_click"]', 'play_store_click');
+    trackLandingView();
   }
 
   if (document.readyState === 'loading') {
@@ -88,5 +180,11 @@
     init();
   }
 
-  global.LandingEvents = { track: track };
+  global.LandingEvents = {
+    track: track,
+    buildStoreMeta: buildStoreMeta,
+    isIrelandLanding: isIrelandLanding,
+    irelandMarket: irelandMarket,
+    trackLandingView: trackLandingView,
+  };
 })(window);

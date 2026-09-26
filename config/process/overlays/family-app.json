@@ -174,6 +174,8 @@
         "src/lib/market-commercial-policy.js",
         "src/lib/market-launch-invariants.js",
         "public/en.html",
+        "public/js/landing-events.js",
+        "public/js/landing-market-state.js",
         "public/js/i18n*.js",
         "public/js/language-choice.js",
         "public/js/cookie*.js",
@@ -187,7 +189,8 @@
         "test/market-commercial-policy.test.js",
         "test/legal-routing.test.js",
         "test/i18n-locale.test.js",
-        "test/register-language-displayed.test.js"
+        "test/register-language-displayed.test.js",
+        "test/en-ireland-funnel.test.js"
       ],
       "testGlobs": [
         "test/i18n*.test.js",
@@ -200,6 +203,7 @@
         "test/prebilling-launch-access.test.js",
         "test/prebilling-market-e2e.test.js",
         "test/public-launch-state.test.js",
+        "test/en-ireland-funnel.test.js",
         "test/paid-transition.test.js",
         "test/paid-transition-simulation.test.js"
       ]
