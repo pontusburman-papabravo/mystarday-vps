@@ -2046,6 +2046,9 @@ body.landing-menu-open {
 
   .landing-hero__visual { order: -1; }
 
+  html[lang="en"] .landing-hero__copy { order: 1; }
+  html[lang="en"] .landing-hero__visual { order: 2; }
+
   .landing-footer__grid { grid-template-columns: 1fr 1fr; }
 }
 
