@@ -38,7 +38,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(js, /index > 2/);
     assert.match(js, /\/api\/market\/registration-gates/);
     assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
-    assert.match(js, /\/en\/register/);
+    assert.match(js, /#app-store/);
+    assert.match(js, /Get My Starday/);
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);
     assert.match(js, /Google Play for Android/);
     assert.match(js, /data-hero-launch="ireland"/);
@@ -66,12 +67,13 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /priceCurrency": "SEK"/);
     assert.match(html, /href="\/en\/eea\/privacy"/);
     assert.match(html, /href="\/en\/eea\/terms"/);
-    assert.match(html, /Create account/);
-    assert.match(html, /href="\/en\/register"/);
+    assert.match(html, /Get My Starday/);
+    assert.doesNotMatch(html, /Create account/);
+    assert.doesNotMatch(html, /href="\/en\/register"/);
     assert.doesNotMatch(html, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(html, /data-hero-launch="ireland"/);
     assert.match(html, /Welcome Ireland/);
-    assert.match(html, /14-day trial in Ireland/);
+    assert.match(html, /14 days free in Ireland/);
     assert.match(html, /Is My Starday free\?/);
     assert.match(html, /New families in Ireland get 14 days free/);
     assert.match(html, /After the 14-day trial, a subscription is required to continue using Premium features/);
@@ -112,8 +114,9 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     const html = fs.readFileSync(path.join(__dirname, '../public/en-pricing.html'), 'utf8');
     assert.doesNotMatch(html, /Join waitlist/);
     assert.doesNotMatch(html, /English version is ready/);
-    assert.match(html, /Create account/);
-    assert.match(html, /href="\/en\/register"/);
+    assert.match(html, /Get My Starday/);
+    assert.doesNotMatch(html, /Create account/);
+    assert.doesNotMatch(html, /href="\/en\/register"/);
     assert.doesNotMatch(html, /href="\/register"/);
     assert.match(html, /EUR in Ireland and Finland/);
     assert.match(html, /landing-market-state\.js/);

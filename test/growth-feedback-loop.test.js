@@ -129,7 +129,7 @@ describe('growth feedback loop contracts', () => {
     const client = read('public/js/landing-waitlist.js');
     assert.match(client, /utm_source/);
     assert.match(client, /marketing_consent/);
-    assert.match(read('public/en.html'), /waitlistConsent/);
+    assert.match(client, /waitlistConsent/);
     const api = read('src/routes/public.js');
     assert.match(api, /marketingConsent !== true/);
     assert.match(read('db/waitlist.js'), /linkWaitlistConversion/);

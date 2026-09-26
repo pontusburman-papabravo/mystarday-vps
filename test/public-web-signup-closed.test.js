@@ -142,7 +142,7 @@ describe('public web signup closed', () => {
     assert.match(registerApi, /router\.post\('\/register'/);
   });
 
-  it('Swedish landing stays store-only; English landing sends new families to /en/register', () => {
+  it('Swedish landing stays store-only; English landing sends new families to the stores', () => {
     const pages = [
       'public/index.html',
       'public/om-oss.html',
@@ -162,8 +162,9 @@ describe('public web signup closed', () => {
     assert.match(index, /Hämta appen/);
     assert.doesNotMatch(en, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(en, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
-    assert.match(en, /href="\/en\/register"/);
-    assert.match(en, /Create account/);
+    assert.match(en, /Get My Starday/);
+    assert.doesNotMatch(en, /Create account/);
+    assert.doesNotMatch(en, /href="\/en\/register"/);
     assert.doesNotMatch(en, /href="\/register"/);
   });
 

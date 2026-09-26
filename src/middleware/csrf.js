@@ -62,6 +62,8 @@ const CSRF_EXEMPT_PATHS = new Set([
   '/support/escalate',
   '/feedback',
   '/consent',
+  // Public landing analytics beacon — anonymous, no session mutation
+  '/analytics/event',
   // Public waitlist form — no session, no auth; CSRF not applicable
   '/waitlist',
   '/waitlist/survey',
