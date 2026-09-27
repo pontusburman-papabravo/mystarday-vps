@@ -2,6 +2,10 @@
  * Ireland landing funnel health — window math, CTR, and descriptive signals.
  * Session identity for anonymous /en traffic is analytics_events.family_id
  * (the client session_id nonce). This module never returns session values.
+ *
+ * Attribution: a session's canonical UTM is the earliest landing_view in the
+ * period. Orphan store-click sessions (no landing in-period) use the earliest
+ * store_cta_clicked UTM. Conversions are never split across campaign rows.
  */
 'use strict';
 
@@ -14,6 +18,9 @@ const MS_HOUR = 60 * 60 * 1000;
 const MS_DAY = 24 * MS_HOUR;
 
 const PERIOD_KEYS = ['current_24h', 'previous_24h', 'current_7d', 'previous_7d'];
+
+const ATTRIBUTION_RULE =
+  'canonical UTM = earliest landing_view in the period; orphan store clicks use earliest store_cta_clicked UTM';
 
 function toIso(date) {
   return new Date(date).toISOString();
@@ -42,11 +49,15 @@ function windowsOverlap(a, b) {
   return a.from < b.to && b.from < a.to;
 }
 
-function storeCtrPct(storeClickSessions, landingSessions) {
+/**
+ * Funnel CTR: converted_store_sessions / landing_sessions * 100.
+ * Does not clamp. Callers must pass converted ⊆ landing (SQL intersection).
+ */
+function storeCtrPct(convertedStoreSessions, landingSessions) {
   const landing = Number(landingSessions) || 0;
   if (landing === 0) return null;
-  const clicks = Number(storeClickSessions) || 0;
-  return Math.round((clicks / landing) * 10000) / 100;
+  const converted = Number(convertedStoreSessions) || 0;
+  return Math.round((converted / landing) * 10000) / 100;
 }
 
 function normalizeUtmValue(value) {
@@ -63,6 +74,8 @@ function emptyPeriod(window) {
     landing_sessions: 0,
     store_click_events: 0,
     store_click_sessions: 0,
+    converted_store_sessions: 0,
+    orphan_store_click_sessions: 0,
     store_ctr_pct: null,
     platforms: { ios: 0, android: 0, unknown: 0 },
     sources: [],
@@ -74,10 +87,12 @@ function buildSignals(current24h) {
   const storeClickSessions = Number(current24h?.store_click_sessions) || 0;
   const landingEvents = Number(current24h?.landing_events) || 0;
   const storeClickEvents = Number(current24h?.store_click_events) || 0;
+  const orphanStoreClickSessions = Number(current24h?.orphan_store_click_sessions) || 0;
   return {
     has_traffic: landingSessions > 0,
     has_store_clicks: storeClickSessions > 0,
     measurement_alive: landingEvents > 0 || storeClickEvents > 0,
+    has_orphan_store_clicks: orphanStoreClickSessions > 0,
   };
 }
 
@@ -93,6 +108,7 @@ module.exports = {
   UTM_DIRECT,
   SOURCE_LIMIT,
   PERIOD_KEYS,
+  ATTRIBUTION_RULE,
   MS_DAY,
   toIso,
   toInt,

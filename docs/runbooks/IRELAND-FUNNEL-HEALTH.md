@@ -42,7 +42,16 @@ Only `analytics_events` rows where:
 
 Sessions = `COUNT(DISTINCT family_id)`. For anonymous `/en` traffic the client `session_id` nonce is stored as `family_id`. Session values are never returned.
 
-CTR = `store_click_sessions / landing_sessions * 100`. If `landing_sessions = 0` → `store_ctr_pct` is `null` (not `0`).
+| Field | Definition |
+|-------|------------|
+| `landing_sessions` | Distinct sessions with `landing_view` |
+| `store_click_sessions` | Distinct sessions with `store_cta_clicked` |
+| `converted_store_sessions` | Distinct sessions with **both** events in the same period |
+| `orphan_store_click_sessions` | Distinct store-click sessions with no in-period `landing_view` |
+
+CTR = `converted_store_sessions / landing_sessions * 100`. If `landing_sessions = 0` → `store_ctr_pct` is `null` (not `0`). Because the numerator is an intersection of landing sessions, CTR cannot exceed 100. It is not clamped.
+
+**Attribution:** a session's canonical UTM is the earliest `landing_view` in the period. Orphan store-click sessions (no landing) use the earliest `store_cta_clicked` UTM. A conversion is never split across campaign rows.
 
 ## Periods (half-open `[from, to)`)
 
@@ -70,6 +79,8 @@ The last 24 hours are included in both `current_24h` and `current_7d` (different
     "landing_sessions": 0,
     "store_click_events": 0,
     "store_click_sessions": 0,
+    "converted_store_sessions": 0,
+    "orphan_store_click_sessions": 0,
     "store_ctr_pct": null,
     "platforms": { "ios": 0, "android": 0, "unknown": 0 },
     "sources": [
@@ -79,6 +90,8 @@ The last 24 hours are included in both `current_24h` and `current_7d` (different
         "utm_campaign": "ireland-launch",
         "landing_sessions": 0,
         "store_click_sessions": 0,
+        "converted_store_sessions": 0,
+        "orphan_store_click_sessions": 0,
         "store_ctr_pct": null
       }
     ]
@@ -89,7 +102,8 @@ The last 24 hours are included in both `current_24h` and `current_7d` (different
   "signals": {
     "has_traffic": false,
     "has_store_clicks": false,
-    "measurement_alive": false
+    "measurement_alive": false,
+    "has_orphan_store_clicks": false
   }
 }
 ```
@@ -102,6 +116,7 @@ Sources are top 20 per period by `landing_sessions` descending.
 - `has_traffic`: `landing_sessions > 0` on `current_24h`
 - `has_store_clicks`: `store_click_sessions > 0` on `current_24h`
 - `measurement_alive`: at least one of the two event types exists in `current_24h`
+- `has_orphan_store_clicks`: `orphan_store_click_sessions > 0` on `current_24h`
 
 ## Rate limit
 

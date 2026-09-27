@@ -48,6 +48,27 @@ function collectKeys(value, keys = new Set()) {
   return keys;
 }
 
+function assertCtrAtMost100(block, label) {
+  const ctr = block.store_ctr_pct;
+  assert.ok(ctr === null || ctr <= 100, `${label} CTR exceeded 100: ${ctr}`);
+  assert.ok(
+    toIntSafe(block.converted_store_sessions) <= toIntSafe(block.landing_sessions),
+    `${label} converted_store_sessions exceeds landing_sessions`
+  );
+}
+
+function toIntSafe(value) {
+  const n = Number(value) || 0;
+  return n;
+}
+
+function assertPeriodFunnelShape(period, label) {
+  assertCtrAtMost100(period, label);
+  for (const source of period.sources || []) {
+    assertCtrAtMost100(source, `${label} source ${source.utm_source}`);
+  }
+}
+
 function assertNoSensitiveKeys(payload) {
   const serialized = JSON.stringify(payload);
   assert.doesNotMatch(serialized, /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
@@ -88,11 +109,13 @@ describe('Ireland funnel health — unit', () => {
     assert.equal(windowsOverlap(windows.current_7d, windows.previous_7d), false);
   });
 
-  it('CTR uses sessions and is null when landing_sessions = 0', () => {
+  it('CTR is converted/landing and is null when landing_sessions = 0', () => {
     assert.equal(storeCtrPct(1, 0), null);
     assert.equal(storeCtrPct(0, 0), null);
-    assert.equal(storeCtrPct(1, 2), 50);
-    assert.equal(storeCtrPct(1, 1), 100);
+    assert.equal(storeCtrPct(3, 10), 30);
+    assert.equal(storeCtrPct(2, 2), 100);
+    assert.equal(storeCtrPct(0, 5), 0);
+    assert.doesNotMatch(read('src/lib/ireland-funnel-health.js'), /Math\.min\s*\(\s*100/);
   });
 
   it('normalizes missing UTM to (direct) without writing DB values', () => {
@@ -107,20 +130,24 @@ describe('Ireland funnel health — unit', () => {
       store_click_sessions: 0,
       landing_events: 0,
       store_click_events: 0,
+      orphan_store_click_sessions: 0,
     }), {
       has_traffic: false,
       has_store_clicks: false,
       measurement_alive: false,
+      has_orphan_store_clicks: false,
     });
     assert.deepEqual(buildSignals({
       landing_sessions: 2,
       store_click_sessions: 1,
       landing_events: 3,
       store_click_events: 1,
+      orphan_store_click_sessions: 2,
     }), {
       has_traffic: true,
       has_store_clicks: true,
       measurement_alive: true,
+      has_orphan_store_clicks: true,
     });
   });
 
@@ -147,7 +174,8 @@ describe('Ireland funnel health — unit', () => {
     const sql = read('db/ireland-funnel-health.js');
     assert.match(sql, /metadata->>'market' = '\$\{MARKET\}'/);
     assert.match(sql, /event_type IN \('\$\{LANDING_EVENT\}', '\$\{STORE_EVENT\}'\)/);
-    assert.match(sql, /COUNT\(DISTINCT e\.family_id\)/);
+    assert.match(sql, /has_landing AND has_store/);
+    assert.match(sql, /has_store AND NOT has_landing/);
     assert.doesNotMatch(sql, /req\.(query|body|params)/);
     assert.doesNotMatch(sql, /INSERT |UPDATE |DELETE |JOIN family|JOIN parent|JOIN child/i);
     assert.equal(MARKET, 'IE');
@@ -245,12 +273,15 @@ describe('Ireland funnel health — HTTP auth', () => {
       for (const key of PERIOD_KEYS) {
         assert.ok(body[key]);
         assert.equal(body[key].store_ctr_pct, null);
+        assert.equal(body[key].converted_store_sessions, 0);
+        assert.equal(body[key].orphan_store_click_sessions, 0);
         assert.deepEqual(body[key].platforms, { ios: 0, android: 0, unknown: 0 });
       }
       assert.deepEqual(body.signals, {
         has_traffic: false,
         has_store_clicks: false,
         measurement_alive: false,
+        has_orphan_store_clicks: false,
       });
       assertNoSensitiveKeys(body);
     });
@@ -366,11 +397,15 @@ describe('Ireland funnel health — aggregation', () => {
       assert.equal(payload.current_24h.landing_sessions, 2);
       assert.equal(payload.current_24h.store_click_events, 3);
       assert.equal(payload.current_24h.store_click_sessions, 3);
-      assert.equal(payload.current_24h.store_ctr_pct, 150);
+      assert.equal(payload.current_24h.converted_store_sessions, 2);
+      assert.equal(payload.current_24h.orphan_store_click_sessions, 1);
+      assert.equal(payload.current_24h.store_ctr_pct, 100);
       assert.deepEqual(payload.current_24h.platforms, { ios: 1, android: 1, unknown: 1 });
       assert.equal(payload.signals.has_traffic, true);
       assert.equal(payload.signals.has_store_clicks, true);
       assert.equal(payload.signals.measurement_alive, true);
+      assert.equal(payload.signals.has_orphan_store_clicks, true);
+      assertPeriodFunnelShape(payload.current_24h, 'current_24h');
 
       const facebook = payload.current_24h.sources.find((row) => row.utm_source === 'facebook');
       assert.ok(facebook);
@@ -378,20 +413,30 @@ describe('Ireland funnel health — aggregation', () => {
       assert.equal(facebook.utm_campaign, 'ireland-launch');
       assert.equal(facebook.landing_sessions, 1);
       assert.equal(facebook.store_click_sessions, 1);
+      assert.equal(facebook.converted_store_sessions, 1);
+      assert.equal(facebook.orphan_store_click_sessions, 0);
       assert.equal(facebook.store_ctr_pct, 100);
 
       const direct = payload.current_24h.sources.find((row) => row.utm_source === UTM_DIRECT);
       assert.ok(direct);
       assert.equal(direct.landing_sessions, 1);
       assert.equal(direct.store_click_sessions, 2);
+      assert.equal(direct.converted_store_sessions, 1);
+      assert.equal(direct.orphan_store_click_sessions, 1);
+      assert.equal(direct.store_ctr_pct, 100);
 
       assert.equal(payload.previous_24h.landing_sessions, 2);
       assert.equal(payload.previous_24h.store_click_sessions, 0);
+      assert.equal(payload.previous_24h.converted_store_sessions, 0);
+      assert.equal(payload.previous_24h.orphan_store_click_sessions, 0);
       assert.equal(payload.previous_24h.store_ctr_pct, 0);
       assert.equal(payload.previous_7d.landing_sessions, 1);
       assert.ok(payload.current_7d.landing_sessions >= payload.current_24h.landing_sessions);
       assert.equal(windowsOverlap(windows.current_24h, windows.previous_24h), false);
       assert.equal(windowsOverlap(windows.current_7d, windows.previous_7d), false);
+      for (const key of PERIOD_KEYS) {
+        assertPeriodFunnelShape(payload[key], key);
+      }
       assertNoSensitiveKeys(payload);
     } finally {
       await db.cleanup();
@@ -413,10 +458,95 @@ describe('Ireland funnel health — aggregation', () => {
       const payload = await getIrelandFunnelHealth({ now });
       assert.equal(payload.current_24h.landing_sessions, 0);
       assert.equal(payload.current_24h.store_click_sessions, 1);
+      assert.equal(payload.current_24h.converted_store_sessions, 0);
+      assert.equal(payload.current_24h.orphan_store_click_sessions, 1);
       assert.equal(payload.current_24h.store_ctr_pct, null);
       assert.equal(payload.signals.has_traffic, false);
       assert.equal(payload.signals.has_store_clicks, true);
       assert.equal(payload.signals.measurement_alive, true);
+      assert.equal(payload.signals.has_orphan_store_clicks, true);
+      assertPeriodFunnelShape(payload.current_24h, 'orphan-only');
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('counts 10 landings, 3 matched clicks, and 2 click-only as 30% CTR', async () => {
+    const db = await setupTestDb();
+    if (db.skip) return;
+    const { getIrelandFunnelHealth } = require('../db/ireland-funnel-health');
+    const now = new Date('2026-09-27T12:00:00.000Z');
+    const windows = buildIrelandFunnelWindows(now);
+    const t = windows.current_24h.from.getTime();
+    try {
+      for (let i = 0; i < 10; i += 1) {
+        const sessionId = crypto.randomUUID();
+        await insertEvent(db, {
+          familyId: sessionId,
+          eventType: 'landing_view',
+          createdAt: new Date(t + (i + 1) * 60_000),
+        });
+        if (i < 3) {
+          await insertEvent(db, {
+            familyId: sessionId,
+            eventType: 'store_cta_clicked',
+            platform: 'ios',
+            createdAt: new Date(t + (i + 1) * 60_000 + 1_000),
+          });
+        }
+      }
+      for (let i = 0; i < 2; i += 1) {
+        await insertEvent(db, {
+          eventType: 'store_cta_clicked',
+          platform: 'android',
+          createdAt: new Date(t + 800_000 + i * 1_000),
+        });
+      }
+      const payload = await getIrelandFunnelHealth({ now });
+      assert.equal(payload.current_24h.landing_sessions, 10);
+      assert.equal(payload.current_24h.store_click_sessions, 5);
+      assert.equal(payload.current_24h.converted_store_sessions, 3);
+      assert.equal(payload.current_24h.orphan_store_click_sessions, 2);
+      assert.equal(payload.current_24h.store_ctr_pct, 30);
+      assertPeriodFunnelShape(payload.current_24h, '10-3-2');
+    } finally {
+      await db.cleanup();
+    }
+  });
+
+  it('attributes a conversion to the landing UTM, not a mismatched store UTM', async () => {
+    const db = await setupTestDb();
+    if (db.skip) return;
+    const { getIrelandFunnelHealth } = require('../db/ireland-funnel-health');
+    const now = new Date('2026-09-27T12:00:00.000Z');
+    const windows = buildIrelandFunnelWindows(now);
+    const sessionId = crypto.randomUUID();
+    try {
+      await insertEvent(db, {
+        familyId: sessionId,
+        eventType: 'landing_view',
+        utm: { source: 'facebook', medium: 'paid_social', campaign: 'ireland-launch' },
+        createdAt: new Date(windows.current_24h.from.getTime() + 60_000),
+      });
+      await insertEvent(db, {
+        familyId: sessionId,
+        eventType: 'store_cta_clicked',
+        platform: 'ios',
+        utm: { source: 'google', medium: 'cpc', campaign: 'other' },
+        createdAt: new Date(windows.current_24h.from.getTime() + 120_000),
+      });
+      const payload = await getIrelandFunnelHealth({ now });
+      assert.equal(payload.current_24h.converted_store_sessions, 1);
+      assert.equal(payload.current_24h.store_ctr_pct, 100);
+      const facebook = payload.current_24h.sources.find((row) => row.utm_source === 'facebook');
+      const google = payload.current_24h.sources.find((row) => row.utm_source === 'google');
+      assert.ok(facebook);
+      assert.equal(facebook.landing_sessions, 1);
+      assert.equal(facebook.store_click_sessions, 1);
+      assert.equal(facebook.converted_store_sessions, 1);
+      assert.equal(facebook.store_ctr_pct, 100);
+      assert.equal(google, undefined);
+      assertPeriodFunnelShape(payload.current_24h, 'landing-utm-canonical');
     } finally {
       await db.cleanup();
     }
