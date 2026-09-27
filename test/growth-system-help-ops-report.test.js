@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const {
   EVENT_TYPES,
   evaluateReportDecision,
+  shouldSkipBecauseGlobalOff,
   buildEmailSubject,
   buildEmailBody,
   formatSupportReportBlock,
@@ -151,6 +152,30 @@ describe('growth-system-help-ops-report', () => {
       previousState: previousState(),
     });
     assert.equal(decision.shouldRollback, false);
+  });
+
+  it('skips hourly re-mail after the flag is already OFF even if rollback alerts stay critical', () => {
+    const metrics = baseMetrics({
+      global_enabled: false,
+      outcome_cohort: {
+        window_hours: 72,
+        completed_outcomes: 10,
+        no_progress_outcomes: 10,
+        progressed_outcomes: 0,
+        no_progress_rate: 1,
+      },
+    });
+    const decision = evaluateReportDecision({
+      metrics,
+      previousState: previousState({ last_rollback_at: '2026-09-27T00:24:06.193Z' }),
+    });
+    assert.equal(decision.shouldRollback, true);
+    assert.ok(decision.alerts.some((a) => a.code === 'high_no_progress_rate'));
+    assert.equal(shouldSkipBecauseGlobalOff(metrics), true);
+  });
+
+  it('does not skip ops mail while the global flag is still ON', () => {
+    assert.equal(shouldSkipBecauseGlobalOff(baseMetrics({ global_enabled: true })), false);
   });
 
   it('rolls back on 72h-completed no_progress cohort only', () => {
