@@ -65,9 +65,12 @@ function rollbackSupportRate() {
   return Number.isFinite(n) && n > 0 && n <= 1 ? n : 0.2;
 }
 
+/** no_progress is often disinterest (e.g. skip child login), not a broken help UI. */
+const NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT = 40;
+
 function noProgressRollbackMinOutcomes() {
   const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_NO_PROGRESS_MIN_OUTCOMES);
-  return Number.isFinite(n) && n > 0 ? n : 10;
+  return Number.isFinite(n) && n > 0 ? n : NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT;
 }
 
 function noProgressRollbackRate() {
@@ -813,6 +816,7 @@ module.exports = {
   queryNewSupportReports,
   evaluateReportDecision,
   shouldSkipBecauseGlobalOff,
+  NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT,
   buildEmailBody,
   buildEmailSubject,
   formatSupportReportBlock,
