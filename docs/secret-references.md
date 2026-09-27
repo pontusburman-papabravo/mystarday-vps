@@ -42,6 +42,14 @@ See [`rc1-qa-fixture.md`](rc1-qa-fixture.md) — `RC1_QA_*` only.
 | `SMOKE_CHILD_PIN` | Child 1 PIN |
 | `SMOKE_CHILD2_PIN` | Child 2 PIN |
 
+## Ireland funnel ops monitor
+
+| Secret name | Purpose |
+|-------------|---------|
+| `IRELAND_FUNNEL_MONITOR_TOKEN` | Bearer token for `GET /api/ops/ireland-funnel-health` (read-only aggregated IE funnel). Set on VPS only. |
+
+Canonical flow: [`runbooks/IRELAND-FUNNEL-HEALTH.md`](runbooks/IRELAND-FUNNEL-HEALTH.md)
+
 ## GitHub secret scanning
 
 Enable **secret scanning** and **push protection** on the repository when the GitHub plan supports it (Settings → Code security and analysis).

@@ -151,3 +151,4 @@ Commit evidence + this status table in one small PR. Sweden Oct 1 go-live remain
 - Device RC checklist: [`IE-FI-DEVICE-RC.md`](IE-FI-DEVICE-RC.md)
 - Sweden IAP Oct 1 (does not open IE): [`PAYMENTS-GO-LIVE-2026-10-01.md`](PAYMENTS-GO-LIVE-2026-10-01.md)
 - Release gate definitions: [`../ie-fi-release-gates.md`](../ie-fi-release-gates.md)
+- Ireland funnel ops monitor (Bearer, read-only): [`IRELAND-FUNNEL-HEALTH.md`](IRELAND-FUNNEL-HEALTH.md)

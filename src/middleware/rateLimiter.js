@@ -137,6 +137,7 @@ const API_BOOTSTRAP_PREFIXES = [
   '/client-log',
   '/public/professional-interest',
   '/waitlist',
+  '/ops',
 ];
 
 function isApiBootstrapPath(req) {
@@ -185,6 +186,7 @@ const globalLimiter = rateLimit({
     req.path.startsWith('/api/admin') ||
     req.path === '/api/auth/refresh' ||
     req.path === '/api/resend/webhook' ||
+    req.path.startsWith('/api/ops') ||
     (req.user && req.user.id) ||
     STATIC_EXT_RE.test(req.path),
   handler: (req, res, next, options) => {
@@ -543,6 +545,24 @@ const iapWebhookLimiter = rateLimit({
   },
 });
 
+/** Ireland funnel ops monitor — 20 req/min per IP (scheduled health checks). */
+const irelandFunnelMonitorLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => getRealIp(req),
+  skip: () => !ENABLED,
+  handler: (req, res, next, options) => {
+    onLimitReached(req, res, options, 'ireland-funnel-monitor');
+    const retryAfterSec = Math.ceil(options.windowMs / 1000);
+    res
+      .set('Retry-After', String(retryAfterSec))
+      .status(429)
+      .json({ error: 'För många förfrågningar. Vänta en minut och försök igen.', retry_after: retryAfterSec });
+  },
+});
+
 /** Resend email webhook — 200 req/min per IP */
 const resendWebhookLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -570,6 +590,7 @@ module.exports = {
   resendVerificationLimiter,
   appleLoginLimiter,
   iapWebhookLimiter,
+  irelandFunnelMonitorLimiter,
   resendWebhookLimiter,
   parentPinLimiter,
   isChildRoutineBurstPath,

@@ -109,6 +109,8 @@ function registerRoutes(app) {
   app.use('/api/dagens-nyhet', require('./dagens-nyhet'));
   app.use('/api/newsletter', require('./newsletter'));
   app.use('/api/analytics', require('./analytics'));
+  // Read-only ops monitor — Bearer token, no admin session
+  app.use('/api/ops', require('./ops'));
   app.use('/api/subscription', require('./subscription'));
   app.use('/api/pedagog-notes', require('./pedagog-notes'));
   app.use('/api/pedagog/daily-log', require('./pedagog-daily-log'));
