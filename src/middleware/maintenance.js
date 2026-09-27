@@ -22,6 +22,9 @@ async function checkMaintenanceMode(req, res, next) {
   // RevenueCat IAP webhook — must stay reachable during maintenance (entitlement sync).
   if (req.path.startsWith('/api/iap')) return next();
 
+  // Token-gated ops health reads — JSON for scheduled monitors during maintenance.
+  if (req.path.startsWith('/api/ops')) return next();
+
   // Allow static assets needed for login/admin pages and PWA
   if (req.path.startsWith('/js/') || req.path.startsWith('/css/')) return next();
   if (req.path.match(/\.(png|svg|ico|json|js)$/) || req.path === '/sw.js' || req.path === '/manifest.json' || req.path === '/offline.html') return next();

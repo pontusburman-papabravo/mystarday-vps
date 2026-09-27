@@ -35,7 +35,13 @@
         "src/middleware/auth.js",
         "src/middleware/authz.js",
         "src/middleware/rateLimiter.js",
+        "src/middleware/ireland-funnel-monitor-auth.js",
         "src/middleware/subscription.js",
+        "src/routes/ops.js",
+        "src/lib/static-bearer-auth.js",
+        "src/lib/ireland-funnel-health.js",
+        "db/ireland-funnel-health.js",
+        "test/ireland-funnel-health.test.js",
         "src/routes/family/pin.js",
         "src/routes/family/account.js",
         "public/login.html",
@@ -83,7 +89,8 @@
         "test/apple-auth-token-revoke.test.js",
         "test/apple-refresh-token-exposure.test.js",
         "test/apple-login-registration-split.test.js",
-        "test/apple-auth-cancel.test.js"
+        "test/apple-auth-cancel.test.js",
+        "test/ireland-funnel-health.test.js"
       ],
       "testGlobs": [
         "test/*auth*.test.js",
