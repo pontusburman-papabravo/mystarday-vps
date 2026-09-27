@@ -65,9 +65,12 @@ function rollbackSupportRate() {
   return Number.isFinite(n) && n > 0 && n <= 1 ? n : 0.2;
 }
 
+/** no_progress is often disinterest (e.g. skip child login), not a broken help UI. */
+const NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT = 40;
+
 function noProgressRollbackMinOutcomes() {
   const n = Number(process.env.GROWTH_SYSTEM_HELP_ROLLBACK_NO_PROGRESS_MIN_OUTCOMES);
-  return Number.isFinite(n) && n > 0 ? n : 10;
+  return Number.isFinite(n) && n > 0 ? n : NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT;
 }
 
 function noProgressRollbackRate() {
@@ -373,6 +376,14 @@ function isNoProgressOnlySummary(delta, outcomeDeltas) {
  * Pure decision logic — unit tested.
  * @param {{ metrics: object, previousState: object|null, now?: Date }} input
  */
+/**
+ * Hourly job must stay quiet after the flag is already OFF.
+ * Cumulative rollback alerts stay critical, but mailing again is a loop.
+ */
+function shouldSkipBecauseGlobalOff(metrics) {
+  return metrics?.global_enabled === false;
+}
+
 function evaluateReportDecision({ metrics, previousState, now = new Date() }) {
   const alerts = [];
   const reasons = [];
@@ -724,9 +735,11 @@ async function runGrowthSystemHelpOpsReport(opts = {}) {
     };
   }
 
-  if (!metrics.global_enabled && !decision.shouldRollback) {
+  if (shouldSkipBecauseGlobalOff(metrics)) {
     if (!dryRun) {
       await saveState(metrics, {
+        last_report_at: previousState?.last_report_at || null,
+        last_rollback_at: previousState?.last_rollback_at || null,
         outcome_summary_sent: previousState?.outcome_summary_sent || false,
       });
     }
@@ -802,6 +815,8 @@ module.exports = {
   collectMetrics,
   queryNewSupportReports,
   evaluateReportDecision,
+  shouldSkipBecauseGlobalOff,
+  NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT,
   buildEmailBody,
   buildEmailSubject,
   formatSupportReportBlock,

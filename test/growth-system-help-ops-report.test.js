@@ -6,6 +6,8 @@ const assert = require('node:assert/strict');
 const {
   EVENT_TYPES,
   evaluateReportDecision,
+  shouldSkipBecauseGlobalOff,
+  NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT,
   buildEmailSubject,
   buildEmailBody,
   formatSupportReportBlock,
@@ -153,14 +155,40 @@ describe('growth-system-help-ops-report', () => {
     assert.equal(decision.shouldRollback, false);
   });
 
+  it('skips hourly re-mail after the flag is already OFF even if rollback alerts stay critical', () => {
+    const metrics = baseMetrics({
+      global_enabled: false,
+      outcome_cohort: {
+        window_hours: 72,
+        completed_outcomes: NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT,
+        no_progress_outcomes: NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT,
+        progressed_outcomes: 0,
+        no_progress_rate: 1,
+      },
+    });
+    const decision = evaluateReportDecision({
+      metrics,
+      previousState: previousState({ last_rollback_at: '2026-09-27T00:24:06.193Z' }),
+    });
+    assert.equal(decision.shouldRollback, true);
+    assert.ok(decision.alerts.some((a) => a.code === 'high_no_progress_rate'));
+    assert.equal(shouldSkipBecauseGlobalOff(metrics), true);
+  });
+
+  it('does not skip ops mail while the global flag is still ON', () => {
+    assert.equal(shouldSkipBecauseGlobalOff(baseMetrics({ global_enabled: true })), false);
+  });
+
   it('rolls back on 72h-completed no_progress cohort only', () => {
+    const min = NO_PROGRESS_ROLLBACK_MIN_OUTCOMES_DEFAULT;
+    const noProgress = Math.round(min * 0.8);
     const decision = evaluateReportDecision({
       metrics: baseMetrics({
         outcome_cohort: {
           window_hours: 72,
-          completed_outcomes: 10,
-          no_progress_outcomes: 8,
-          progressed_outcomes: 2,
+          completed_outcomes: min,
+          no_progress_outcomes: noProgress,
+          progressed_outcomes: min - noProgress,
           no_progress_rate: 0.8,
         },
       }),
@@ -168,6 +196,23 @@ describe('growth-system-help-ops-report', () => {
     });
     assert.equal(decision.shouldRollback, true);
     assert.ok(decision.alerts.some((a) => a.code === 'high_no_progress_rate'));
+  });
+
+  it('does not rollback a 10/10 no_progress child-login cohort — likely disinterest, not a broken help UI', () => {
+    const decision = evaluateReportDecision({
+      metrics: baseMetrics({
+        outcome_cohort: {
+          window_hours: 72,
+          completed_outcomes: 10,
+          no_progress_outcomes: 10,
+          progressed_outcomes: 0,
+          no_progress_rate: 1,
+        },
+      }),
+      previousState: previousState(),
+    });
+    assert.equal(decision.shouldRollback, false);
+    assert.equal(decision.alerts.some((a) => a.code === 'high_no_progress_rate'), false);
   });
 
   it('does not rollback no_progress before min completed outcomes', () => {
