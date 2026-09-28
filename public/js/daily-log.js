@@ -531,8 +531,15 @@
       }
 
       // ── Date navigation bar ──────────────────────────────
+      const dateLabel = formatDateDisplay(currentDateStr);
+      const dateSep = ' — ';
+      const dateSepAt = dateLabel.indexOf(dateSep);
+      const dateNavLabelHtml = dateSepAt !== -1
+        ? `<div class="text-xs font-semibold text-navy">${escHtml(dateLabel.slice(0, dateSepAt))}</div>
+            <div class="font-heading font-bold text-navy text-sm leading-tight">${escHtml(dateLabel.slice(dateSepAt + dateSep.length))}</div>`
+        : `<div class="font-heading font-bold text-navy text-sm leading-tight">${escHtml(dateLabel)}</div>`;
       const dateNavHtml = `
-        <div class="flex items-center gap-2 sm:gap-3 bg-white dark:bg-navy-soft rounded-2xl p-3 shadow-sm border border-lavender">
+        <div class="date-nav-row flex items-center gap-2 sm:gap-3 bg-white dark:bg-navy-soft rounded-2xl p-3 shadow-sm border border-lavender">
           <button
             onclick="navigateDate(-7)"
             class="nav-btn rounded-xl bg-lavender hover:bg-sky text-navy transition-colors text-xs font-bold"
@@ -549,8 +556,8 @@
             style="min-width:44px;min-height:44px;padding:0 8px">
             ◀
           </button>
-          <div class="flex-1 text-center">
-            <div class="font-heading font-bold text-navy text-base">${formatDateDisplay(currentDateStr)}</div>
+          <div class="flex-1 min-w-0 text-center px-1">
+            ${dateNavLabelHtml}
           </div>
           <button
             onclick="navigateDate(1)"
@@ -568,15 +575,16 @@
             style="min-width:44px;min-height:44px;padding:0 10px">
             ››
           </button>
-          <input
-            type="date"
-            id="datePicker"
-            value="${currentDateStr}"
-            class="nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors text-xs px-2 border-0 outline-none cursor-pointer"
-            onchange="navigateToDate(this.value)"
-            title="${escHtml(dlPt('today.nav.pickDate'))}"
-            style="max-width:44px;min-width:44px;padding:0 4px;color:transparent"
-            aria-label="${escHtml(dlPt('today.nav.pickDate'))}">
+          <label class="dl-date-picker nav-btn rounded-xl bg-sky hover:bg-lavender text-navy transition-colors"
+            title="${escHtml(dlPt('today.nav.pickDate'))}">
+            <span class="dl-date-picker-icon" aria-hidden="true">📅</span>
+            <input
+              type="date"
+              id="datePicker"
+              value="${currentDateStr}"
+              onchange="navigateToDate(this.value)"
+              aria-label="${escHtml(dlPt('today.nav.pickDate'))}">
+          </label>
           ${isToday ? '' : `<button onclick="navigateToDate('${getTodayStr()}')" class="nav-btn rounded-xl bg-gold text-navy font-semibold text-xs px-3 transition-colors hover:bg-yellow-300" style="min-width:auto">${escHtml(dlPt('today.nav.todayBtn'))}</button>`}
         </div>`;
 

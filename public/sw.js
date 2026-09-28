@@ -340,7 +340,8 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v1010';
+const CACHE_NAME = 'stjarndag-v1011';
+// stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
 // stjarndag-v1010: NOW card keeps shared substeps after NEXT→NOW / Exit activity
 // stjarndag-v1009: /en mobile hero shows Ireland CTA before mockup
