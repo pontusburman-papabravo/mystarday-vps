@@ -10,6 +10,7 @@ const ROOT = path.join(__dirname, '..');
 const PBX = path.join(ROOT, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj');
 const PATCH = path.join(ROOT, 'scripts', 'patch-ios-widget-release-hold.mjs');
 const VERIFY = path.join(ROOT, 'scripts', 'verify-ios-widget-release-hold.mjs');
+const { withPbxLock } = require('./helpers/pbxproj-test-lock');
 
 describe('ios widget release hold', () => {
   let original;
@@ -23,16 +24,18 @@ describe('ios widget release hold', () => {
   });
 
   it('normal release path does not embed WidgetRoutine in App target', () => {
-    const pbx = fs.readFileSync(PBX, 'utf8');
-    const appBlock = pbx.match(/504EC3031FED79650016851F \/\* App \*\/ = \{[\s\S]*?\n\t\t\};/);
-    assert.ok(appBlock);
-    assert.doesNotMatch(appBlock[0], /Embed Foundation Extensions/);
-    assert.doesNotMatch(appBlock[0], /PBXTargetDependency/);
-    assert.match(pbx, /R45D01011FED79650016851 \/\* WidgetRoutine \*\/ =/);
+    withPbxLock(() => {
+      const pbx = fs.readFileSync(PBX, 'utf8');
+      const appBlock = pbx.match(/504EC3031FED79650016851F \/\* App \*\/ = \{[\s\S]*?\n\t\t\};/);
+      assert.ok(appBlock);
+      assert.doesNotMatch(appBlock[0], /Embed Foundation Extensions/);
+      assert.doesNotMatch(appBlock[0], /PBXTargetDependency/);
+      assert.match(pbx, /R45D01011FED79650016851 \/\* WidgetRoutine \*\/ =/);
+    });
   });
 
   it('verify-ios-widget-release-hold passes on committed project', () => {
-    const r = spawnSync(process.execPath, [VERIFY], { cwd: ROOT, encoding: 'utf8' });
+    const r = withPbxLock(() => spawnSync(process.execPath, [VERIFY], { cwd: ROOT, encoding: 'utf8' }));
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
   });
 
@@ -54,12 +57,18 @@ describe('ios widget release hold', () => {
       'dependencies = (\n\t\t\t);',
       'dependencies = (\n\t\t\t\tR45D01061FED79650016851 /* PBXTargetDependency */,\n\t\t\t);'
     );
-    fs.writeFileSync(PBX, poisoned);
-    const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
-    assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
-    const updated = fs.readFileSync(PBX, 'utf8');
-    const appBlock = updated.match(/504EC3031FED79650016851F \/\* App \*\/ = \{[\s\S]*?\n\t\t\};/);
-    assert.ok(appBlock);
-    assert.doesNotMatch(appBlock[0], /Embed Foundation Extensions/);
+    withPbxLock(() => {
+      try {
+        fs.writeFileSync(PBX, poisoned);
+        const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
+        assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+        const updated = fs.readFileSync(PBX, 'utf8');
+        const appBlock = updated.match(/504EC3031FED79650016851F \/\* App \*\/ = \{[\s\S]*?\n\t\t\};/);
+        assert.ok(appBlock);
+        assert.doesNotMatch(appBlock[0], /Embed Foundation Extensions/);
+      } finally {
+        fs.writeFileSync(PBX, original);
+      }
+    });
   });
 });

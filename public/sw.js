@@ -1,5 +1,7 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1012: English paywall locale, OG image, closed-market signup
+ * v1011: hide iOS date/time chrome; edit rewards by id
  * v1000: resource PDFs use the same pictograms as the child app
  * v999: English landing uses en-GB App Store screenshots
  * v998: landing SV/EN nav + menu links to resource library
@@ -340,8 +342,10 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
-const CACHE_NAME = 'stjarndag-v1012';
-// stjarndag-v1012: native cold start resumes via app-entry (ADR-022); role picker is not the start screen
+const CACHE_NAME = 'stjarndag-v1013';
+// stjarndag-v1013: native cold start resumes via app-entry (ADR-022); role picker is not the start screen
+// stjarndag-v1012: English paywall locale, OG image, closed-market signup
+// stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
 // stjarndag-v1010: NOW card keeps shared substeps after NEXT→NOW / Exit activity
 // stjarndag-v1009: /en mobile hero shows Ireland CTA before mockup
