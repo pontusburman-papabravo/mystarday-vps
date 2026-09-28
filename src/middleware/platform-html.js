@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '38'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '39'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -164,7 +164,9 @@ function bumpNativeRuntimeAssetVersions(body) {
     .replace(/\/js\/journey-context-client\.js\?v=[^"']+/g, '/js/journey-context-client.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/child-profile-picker\.js\?v=[^"']+/g, '/js/child-profile-picker.js?v=' + MAGIC_VERSION)
     .replace(/\/js\/child-app-i18n\.js\?v=[^"']+/g, '/js/child-app-i18n.js?v=' + MAGIC_VERSION)
-    .replace(/\/js\/child-seven-questions\.js\?v=[^"']+/g, '/js/child-seven-questions.js?v=' + MAGIC_VERSION);
+    .replace(/\/js\/child-seven-questions\.js\?v=[^"']+/g, '/js/child-seven-questions.js?v=' + MAGIC_VERSION)
+    .replace(/\/js\/profile-switch-chrome\.js\?v=[^"']+/g, '/js/profile-switch-chrome.js?v=' + MAGIC_VERSION)
+    .replace(/\/css\/profile-switch-chrome\.css\?v=[^"']+/g, '/css/profile-switch-chrome.css?v=' + MAGIC_VERSION);
 }
 
 function bumpMagicAssetVersions(body, reqPath) {
@@ -551,7 +553,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/adult-privilege.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/app-entry-orchestrator.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/parent-backup-login-intent.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/profile-switch-chrome.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/profile-switch-chrome.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/family-device-entry-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-installation-id.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-client.js?v=' + RELEASE_TAG + '"><\/script>',
@@ -571,7 +573,7 @@ function injectPlatformHtml(body, reqPath, req) {
     headParts.push('<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">');
   }
   headParts.push(
-    '<link rel="stylesheet" href="/css/profile-switch-chrome.css?v=' + RELEASE_TAG + '">',
+    '<link rel="stylesheet" href="/css/profile-switch-chrome.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/icon-system.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.10">',

@@ -20,6 +20,13 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 const SRC = fs.readFileSync(path.join(ROOT, 'public/js/profile-switch-chrome.js'), 'utf8');
 
+function detach(child) {
+  if (!child || !child._parent) return;
+  const ci = child._parent.children.indexOf(child);
+  if (ci !== -1) child._parent.children.splice(ci, 1);
+  child._parent = null;
+}
+
 function makeElement(tag, registry) {
   const el = {
     tagName: tag,
@@ -33,12 +40,18 @@ function makeElement(tag, registry) {
     getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; },
     hasAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k); },
     removeAttribute(k) { delete this._attrs[k]; },
-    appendChild(child) { child._parent = this; this.children.push(child); registry.push(child); },
+    appendChild(child) {
+      detach(child);
+      child._parent = this;
+      this.children.push(child);
+      if (registry.indexOf(child) === -1) registry.push(child);
+    },
     insertBefore(child, ref) {
+      detach(child);
       child._parent = this;
       const idx = ref ? this.children.indexOf(ref) : -1;
       this.children.splice(idx === -1 ? 0 : idx, 0, child);
-      registry.push(child);
+      if (registry.indexOf(child) === -1) registry.push(child);
     },
     remove() {
       const i = registry.indexOf(this);
@@ -50,6 +63,7 @@ function makeElement(tag, registry) {
     },
   };
   Object.defineProperty(el, 'firstChild', { get() { return this.children[0] || null; } });
+  Object.defineProperty(el, 'parentNode', { get() { return this._parent || null; } });
   const classes = new Set();
   el.classList = {
     add: (c) => classes.add(c),
@@ -59,11 +73,15 @@ function makeElement(tag, registry) {
   return el;
 }
 
-function buildSandbox({ pathname, dailyUxActive, profileCount, adultPrivilegeActive }) {
+function buildSandbox({ pathname, dailyUxActive, profileCount, adultPrivilegeActive, headerPresent = true }) {
   const registry = [];
+  const state = { headerPresent };
   const headerBar = makeElement('div', registry);
   headerBar.setAttribute('data-parent-nav-header', '1');
   registry.push(headerBar);
+  const main = makeElement('main', registry);
+  const body = makeElement('body', registry);
+  body.appendChild(main);
 
   const sessionData = {};
   if (dailyUxActive) sessionData.stjarndag_family_device_daily_ux_v1 = '1';
@@ -71,10 +89,12 @@ function buildSandbox({ pathname, dailyUxActive, profileCount, adultPrivilegeAct
 
   const doc = {
     cookie: 'access_token=test-token',
+    body,
     documentElement: { getAttribute: () => null },
     getElementById: (id) => registry.find((el) => el.id === id) || null,
     querySelector: (sel) => {
-      if (sel === '[data-parent-nav-header]') return headerBar;
+      if (sel === '[data-parent-nav-header]') return state.headerPresent ? headerBar : null;
+      if (sel === 'main') return main;
       const match = /^\[([\w-]+)\]$/.exec(sel);
       if (match) return registry.find((el) => el.hasAttribute(match[1])) || null;
       return null;
@@ -108,7 +128,7 @@ function buildSandbox({ pathname, dailyUxActive, profileCount, adultPrivilegeAct
   };
 
   vm.runInNewContext(SRC, sandbox, { filename: 'profile-switch-chrome.js' });
-  return { win, doc, headerBar, registry };
+  return { win, doc, headerBar, main, registry, state };
 }
 
 describe('profile-switch-chrome — canonical control per context', () => {
@@ -142,5 +162,31 @@ describe('profile-switch-chrome — canonical control per context', () => {
     const switchBtn = headerBar.children.find((el) => el.hasAttribute('data-profile-switch-parent'));
     assert.equal(returnBtn, undefined, '"Tillbaka till barn" must not render without an active privilege escalation');
     assert.ok(switchBtn, '"Byt profil" should render normally when there is no competing return-to-child action');
+    assert.equal(switchBtn.classList.contains('profile-switch-parent-fallback'), false);
+  });
+
+  it('moves an early fallback button into the header once the bar exists', () => {
+    const { win, headerBar, main, state } = buildSandbox({
+      pathname: '/settings',
+      dailyUxActive: true,
+      profileCount: 3,
+      adultPrivilegeActive: false,
+      headerPresent: false,
+    });
+
+    win.ProfileSwitchChrome.apply();
+    const early = main.children.find((el) => el.hasAttribute('data-profile-switch-parent'));
+    assert.ok(early, 'without a header the control stays in document flow on main');
+    assert.equal(early.classList.contains('profile-switch-parent-fallback'), true);
+    assert.equal(early.parentNode === headerBar, false);
+
+    state.headerPresent = true;
+    win.ProfileSwitchChrome.apply();
+
+    const anchored = headerBar.children.find((el) => el.hasAttribute('data-profile-switch-parent'));
+    assert.ok(anchored, 'the same control moves into the header bar');
+    assert.equal(anchored, early);
+    assert.equal(anchored.classList.contains('profile-switch-parent-fallback'), false);
+    assert.equal(main.children.some((el) => el.hasAttribute('data-profile-switch-parent')), false);
   });
 });

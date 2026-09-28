@@ -51,6 +51,9 @@ describe('P1 native WebView cache bust — settings served path', () => {
     assert.match(served, new RegExp('/js/settings-native-nav\\.js\\?v=' + V));
     assert.match(served, new RegExp('/js/parent-nav-header\\.js\\?v=' + V));
     assert.match(served, new RegExp('/js/app-entry-orchestrator\\.js\\?v=' + V));
+    assert.match(served, new RegExp('/js/profile-switch-chrome\\.js\\?v=' + V));
+    assert.match(served, new RegExp('/css/profile-switch-chrome\\.css\\?v=' + V));
+    assert.doesNotMatch(served, /profile-switch-chrome\.(?:js|css)\?v=2026-06-24-native-sw-guard/);
 
     assert.doesNotMatch(served, /settings-native-nav\.js\?v=2\.18\.0/);
     assert.doesNotMatch(served, /parent-magic-page-hubs\.js\?v=1\.1\.1/);
