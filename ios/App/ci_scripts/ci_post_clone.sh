@@ -23,6 +23,7 @@ xcode_cloud_run node_version node --version
 xcode_cloud_run npm_version npm --version
 
 echo "🚫 Refuse App Store/TestFlight archive unless ios-v* tag"
+echo "[xcode-cloud] ref CI_TAG=${CI_TAG:-empty} CI_BRANCH=${CI_BRANCH:-empty} CI_COMMIT=${CI_COMMIT:-empty}"
 xcode_cloud_node verify_archive_tag scripts/verify-ios-archive-release-tag.mjs
 
 echo "📦 Installing npm dependencies"

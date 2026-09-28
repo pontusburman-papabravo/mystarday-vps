@@ -342,6 +342,7 @@
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
 const CACHE_NAME = 'stjarndag-v1010';
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
+// stjarndag-v1010: NOW card keeps shared substeps after NEXT→NOW / Exit activity
 // stjarndag-v1009: /en mobile hero shows Ireland CTA before mockup
 // stjarndag-v1008: Ireland funnel analytics persist (CSRF exempt + UUID session)
 // stjarndag-v1007: Ireland /en store funnel — 14 days free, no waitlist, landing_view + store_cta_clicked

@@ -35,28 +35,18 @@
     return item.display_name || item.name || '';
   }
 
-  function renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) {
-    if (!subStepCount) return '';
-    const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
-    const intro = typeof substepIntroState !== 'undefined' ? substepIntroState.seen : true;
-    return (
-      '<div class="mt-3 pt-2 border-t border-lavender/50 px-3 pb-1" onclick="event.stopPropagation()">' +
-        '<div style="position:relative;display:inline-block;">' +
-          '<button class="expand-btn ' + (isExpanded ? 'open' : '') + ' ' + (!isExpanded && !intro ? 'intro-hint' : '') + '" id="expand-btn-' + item.id + '"' +
-                  ' onclick="expandSubSteps(event, \'' + item.id + '\')">' +
-            '📋 ' + esc(t('steps.substepsLabel')) + ' <span class="chevron">▾</span>' +
-          '</button>' +
-          (!isExpanded && !intro
-            ? '<div class="intro-tooltip" id="intro-tooltip-' + item.id + '">' + t('scheduleChrome.substepIntro') + '</div>'
-            : '') +
-        '</div>' +
-        '<div class="substep-container ' + (isExpanded ? 'expanded' : '') + '" id="substeps-' + item.id + '">' +
-          (isExpanded && cachedSteps && typeof renderSubStepListHtml === 'function'
-            ? renderSubStepListHtml(item.id, cachedSteps)
-            : '') +
-        '</div>' +
-      '</div>'
-    );
+  function renderSubstepsBlock(item) {
+    if (typeof window.renderActivitySubstepsBlock === 'function') {
+      return window.renderActivitySubstepsBlock(item, { extraWrapClass: 'px-3 pb-1' });
+    }
+    return '';
+  }
+
+  function substepBadgeHtml(item) {
+    if (typeof window.renderSubstepProgressBadge === 'function') {
+      return window.renderSubstepProgressBadge(item);
+    }
+    return '';
   }
 
   function metaRow(item, timeStr, extraHtml) {
@@ -101,13 +91,11 @@
       ? (item.end_time ? item.start_time + '–' + item.end_time : item.start_time)
       : '';
     const checkAttr = canToggle && !isDone ? 'onclick="toggleItem(\'' + item.id + '\', false)"' : '';
-    const subStepCount = item.sub_step_count || 0;
-    const cachedSteps = typeof subStepCache !== 'undefined' ? subStepCache[item.id] : null;
-    const isExpanded = typeof subStepExpanded !== 'undefined' ? !!subStepExpanded[item.id] : false;
-    const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
-    const subBadge = subStepCount
-      ? '<span class="substep-progress ' + (subDone === subStepCount ? 'all-done' : '') + '" id="substep-badge-' + item.id + '">' + subDone + '/' + subStepCount + '</span>'
-      : '';
+    const cardModel = typeof window.getActivityCardModel === 'function'
+      ? window.getActivityCardModel(item)
+      : { subStepCount: item.sub_step_count || 0 };
+    const subStepCount = cardModel.subStepCount;
+    const subBadge = substepBadgeHtml(item);
     const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(activityTitle(item)) : '';
 
     const showTimer = typeof visualTimer !== 'undefined' && visualTimer && !isDone && item.start_time && item.end_time;
@@ -156,7 +144,7 @@
           ? '<div class="activity-timer-card-row photo-activity-card__timer" onclick="event.stopPropagation()">' + activityTimerHtml + '</div>'
           : '') +
         metaRow(item, timeStr, subBadge) +
-        renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) +
+        renderSubstepsBlock(item) +
       '</div>'
     );
   }
@@ -173,13 +161,11 @@
     const isNext = timeStatus === 'next';
     const isLater = timeStatus === 'later';
     const cardRoleCls = isNext ? ' next-card' : (isLater ? ' later-card' : '');
-    const subStepCount = item.sub_step_count || 0;
-    const cachedSteps = typeof subStepCache !== 'undefined' ? subStepCache[item.id] : null;
-    const isExpanded = typeof subStepExpanded !== 'undefined' ? !!subStepExpanded[item.id] : false;
-    const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
-    const subBadge = subStepCount
-      ? '<span class="substep-progress ' + (subDone === subStepCount ? 'all-done' : '') + '" id="substep-badge-' + item.id + '">' + subDone + '/' + subStepCount + '</span>'
-      : '';
+    const cardModel = typeof window.getActivityCardModel === 'function'
+      ? window.getActivityCardModel(item)
+      : { subStepCount: item.sub_step_count || 0 };
+    const subStepCount = cardModel.subStepCount;
+    const subBadge = substepBadgeHtml(item);
     const colorCls = typeof getChildColorClass === 'function' ? getChildColorClass(activityTitle(item)) : '';
     const feedbackFor = item.feedback_for || 'both';
 
@@ -245,7 +231,7 @@
           ? '<div class="activity-timer-card-row photo-activity-card__timer" onclick="event.stopPropagation()">' + activityTimerHtml + '</div>'
           : '') +
         metaRow(item, timeStr, subBadge + ratingHtml) +
-        renderSubstepsBlock(item, subStepCount, cachedSteps, isExpanded) +
+        renderSubstepsBlock(item) +
       '</div>'
     );
   }

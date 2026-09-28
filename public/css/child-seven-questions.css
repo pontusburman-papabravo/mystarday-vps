@@ -5,6 +5,8 @@
 .teacch-q-emoji { font-size: 1.5rem; }
 .teacch-q-label { display: block; font-size: 0.65rem; text-transform: uppercase; color: #64748b; }
 .teacch-q-text { font-size: 1rem; font-weight: 600; color: #1e293b; }
+.teacch-now-card .activity-substeps-block { margin: 0.25rem 0 0; }
+.teacch-now-substep-progress { margin: 0.25rem 0 0; }
 .teacch-now-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
 .teacch-read-btn, .teacch-exit-btn { padding: 0.5rem 0.85rem; border-radius: 999px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 .teacch-read-btn { background: #e0f2fe; color: #0369a1; }

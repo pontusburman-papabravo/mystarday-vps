@@ -73,10 +73,12 @@ describe('i18n child UI leaks — static wiring', () => {
 
   it('child-dashboard-photo-cards uses substepsLabel from locale', () => {
     const src = read('public/js/child-dashboard-photo-cards.js');
-    assert.match(src, /t\('steps\.substepsLabel'\)/);
+    assert.match(src, /renderActivitySubstepsBlock/);
     assert.doesNotMatch(src, /Delsteg/);
     assert.match(src, /activityTitle\(item\)/);
     assert.match(src, /display_name/);
+    const sub = read('public/js/child-dashboard-substeps.js');
+    assert.match(sub, /t\('steps\.substepsLabel'\)/);
   });
 
   it('photo activity cards do not clip expanded sub-steps', () => {
