@@ -126,7 +126,7 @@
     if (global.ChildPackageNav) ChildPackageNav.setNavHidden(false);
     document.body.classList.remove('child-teacch-nu-active');
     if (typeof global.loadDay === 'function' && global.currentDate) {
-      global.loadDay(global.currentDate, false);
+      global.loadDay(global.currentDate, false, { keepSubstepState: true });
       return;
     }
     location.reload();

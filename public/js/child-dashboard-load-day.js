@@ -30,14 +30,24 @@
     }
   }
 
-  async function loadDay(dateStr, showLoader = true) {
+  async function loadDay(dateStr, showLoader = true, options) {
     if (!dateStr || dateStr === 'null' || dateStr === 'undefined') {
       dateStr = todayStr || getLocalDate();
     }
     if (!me) return;
+    options = options && typeof options === 'object' ? options : {};
+    const keepSubstepState = options.keepSubstepState === true;
 
     const loadGen = window.ChildSessionContext ? ChildSessionContext.capture() : 0;
     currentDate = dateStr;
+    if (!keepSubstepState) {
+      subStepCache = {};
+      if (typeof subStepExpanded === 'object' && subStepExpanded) {
+        Object.keys(subStepExpanded).forEach(function (id) {
+          delete subStepExpanded[id];
+        });
+      }
+    }
     renderDayTabs();
     updateDateLine();
 
@@ -50,7 +60,7 @@
         : Promise.resolve(null));
       if (skeletonTimer) skeletonTimer.stop();
       if (cached) {
-        if (typeof retainSubstepStateForItems === 'function') {
+        if (keepSubstepState && typeof retainSubstepStateForItems === 'function') {
           retainSubstepStateForItems(cached.items || []);
         }
         renderActivities(cached, null);
@@ -134,7 +144,7 @@
       if (window.ChildSevenQuestions?.ready) {
         await ChildSevenQuestions.ready();
       }
-      if (typeof retainSubstepStateForItems === 'function') {
+      if (keepSubstepState && typeof retainSubstepStateForItems === 'function') {
         retainSubstepStateForItems(items);
       }
       renderActivities(data, rwdData?.starBalance);
@@ -159,7 +169,7 @@
         ? OfflineStore.getDailyLog(me?.id, dateStr)
         : Promise.resolve(null));
       if (cached) {
-        if (typeof retainSubstepStateForItems === 'function') {
+        if (keepSubstepState && typeof retainSubstepStateForItems === 'function') {
           retainSubstepStateForItems(cached.items || []);
         }
         renderActivities(cached, null);
@@ -178,12 +188,12 @@
     }
   }
 
-  async function coalescedLoadDay() {
+  async function coalescedLoadDay(options) {
     if (_pendingLoadDay) {
       return _pendingLoadDay;
     }
     const dateStr = currentDate || todayStr || getLocalDate();
-    _pendingLoadDay = loadDay(dateStr, false).finally(() => {
+    _pendingLoadDay = loadDay(dateStr, false, options).finally(() => {
       _pendingLoadDay = null;
     });
     return _pendingLoadDay;

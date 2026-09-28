@@ -160,6 +160,7 @@
     }
   }
 
+  /** Keep surviving item cache after a local NEXT→NOW transition. Regular loadDay wipes instead. */
   function retainSubstepStateForItems(items) {
     const keep = {};
     (items || []).forEach(function (item) {
@@ -368,7 +369,7 @@
           MetaAppEvents.handleServerMilestones(completeData && completeData.meta_milestones);
         }
         if (window.Platform && window.Platform.haptics) window.Platform.haptics.medium();
-        await loadDay(currentDate, false);
+        await loadDay(currentDate, false, { keepSubstepState: true });
       } else if (!allDone && mainIsDone) {
         await Auth.api(`/api/me/daily-log-items/${itemId}/uncomplete`, { method: 'PUT' });
         await loadDay(currentDate, false);

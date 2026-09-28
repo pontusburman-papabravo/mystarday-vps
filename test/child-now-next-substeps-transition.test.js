@@ -165,8 +165,8 @@ function loadHarness(opts) {
     },
     Sortable: function () { return { destroy: function () {} }; },
     showToast: function () {},
-    loadDay: function (date, showLoader) {
-      loadDayCalls.push({ date, showLoader });
+    loadDay: function (date, showLoader, options) {
+      loadDayCalls.push({ date, showLoader, options: options || {} });
       return Promise.resolve();
     },
     fetchPackageAccess: async function () {
@@ -308,6 +308,7 @@ describe('NOW/NEXT share one activity model for substeps', () => {
     assert.equal(loadDayCalls.length, 1);
     assert.equal(loadDayCalls[0].date, '2026-09-28');
     assert.equal(loadDayCalls[0].showLoader, false);
+    assert.equal(loadDayCalls[0].options.keepSubstepState, true);
 
     sandbox.subStepCache['act-b'] = steps;
     sandbox.subStepExpanded['act-b'] = true;
@@ -315,6 +316,24 @@ describe('NOW/NEXT share one activity model for substeps', () => {
     assert.equal(countNamedSteps(afterExit), 3);
     assert.match(afterExit, /Read aloud/);
     assert.match(afterExit, /Exit activity/);
+  });
+
+  it('local NEXT→NOW callers opt in to keepSubstepState; regular refresh does not', () => {
+    const loadDay = read('public/js/child-dashboard-load-day.js');
+    const checkoff = read('public/js/child-dashboard-checkoff.js');
+    const seven = read('public/js/child-seven-questions.js');
+    const substeps = read('public/js/child-dashboard-substeps.js');
+    const sse = read('public/js/child-dashboard-sse.js');
+    const dayNav = read('public/js/child-dashboard-day-nav.js');
+
+    assert.match(checkoff, /coalescedLoadDay\(\{\s*keepSubstepState:\s*true\s*\}\)/);
+    assert.match(seven, /keepSubstepState:\s*true/);
+    assert.match(substeps, /loadDay\(currentDate, false, \{\s*keepSubstepState:\s*true\s*\}\)/);
+    assert.match(loadDay, /subStepCache\s*=\s*\{\s*\}/);
+    assert.match(sse, /loadDay\(currentDate, false\)/);
+    assert.doesNotMatch(sse, /keepSubstepState/);
+    assert.match(dayNav, /loadDay\(newDate\)/);
+    assert.doesNotMatch(dayNav, /keepSubstepState/);
   });
 
   it('retainSubstepStateForItems keeps progress for surviving activities', () => {

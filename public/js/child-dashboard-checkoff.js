@@ -185,7 +185,7 @@
         queuedOffline = true;
         await patchOfflineCompletionCache(itemId, completing);
         if (typeof coalescedLoadDay === 'function') {
-          await coalescedLoadDay().catch(() => {});
+          await coalescedLoadDay({ keepSubstepState: true }).catch(() => {});
         }
         if (!isCurrentlyDone) {
           showToast('📶 ' + t('checkoff.savedOffline'), false);
@@ -262,7 +262,7 @@
 
     try {
       if (typeof coalescedLoadDay === 'function') {
-        await coalescedLoadDay().catch(() => {});
+        await coalescedLoadDay({ keepSubstepState: true }).catch(() => {});
       }
       if (!isCurrentlyDone && window.ChildEventBus) {
         ChildEventBus.emitActivityCompleted({

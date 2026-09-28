@@ -34,14 +34,20 @@ describe('child-login active session resume (no PIN re-prompt)', () => {
   });
 });
 
-describe('loadDay retains substep state across NEXT→NOW', () => {
+describe('loadDay substep cache policy', () => {
   const loadDay = fs.readFileSync(
     path.join(ROOT, 'public/js/child-dashboard-load-day.js'),
     'utf8'
   );
 
-  it('prunes gone items instead of wiping the live cache', () => {
-    assert.match(loadDay, /retainSubstepStateForItems/);
-    assert.doesNotMatch(loadDay, /subStepCache\s*=\s*\{\s*\}/);
+  it('invalidates cache on a regular loadDay', () => {
+    assert.match(loadDay, /subStepCache\s*=\s*\{\s*\}/);
+    assert.match(loadDay, /delete subStepExpanded\[id\]/);
+    assert.match(loadDay, /keepSubstepState === true/);
+  });
+
+  it('retains cache only when keepSubstepState is opted in', () => {
+    assert.match(loadDay, /keepSubstepState && typeof retainSubstepStateForItems/);
+    assert.match(loadDay, /function coalescedLoadDay\(options\)/);
   });
 });
