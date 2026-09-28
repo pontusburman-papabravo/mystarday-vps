@@ -34,14 +34,14 @@ describe('child-login active session resume (no PIN re-prompt)', () => {
   });
 });
 
-describe('loadDay clears expanded substep state', () => {
+describe('loadDay retains substep state across NEXT→NOW', () => {
   const loadDay = fs.readFileSync(
     path.join(ROOT, 'public/js/child-dashboard-load-day.js'),
     'utf8'
   );
 
-  it('clears subStepExpanded when clearing subStepCache', () => {
-    assert.match(loadDay, /subStepCache\s*=\s*\{\s*\}/);
-    assert.match(loadDay, /delete subStepExpanded\[id\]/);
+  it('prunes gone items instead of wiping the live cache', () => {
+    assert.match(loadDay, /retainSubstepStateForItems/);
+    assert.doesNotMatch(loadDay, /subStepCache\s*=\s*\{\s*\}/);
   });
 });

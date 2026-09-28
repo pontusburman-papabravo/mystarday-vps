@@ -140,6 +140,7 @@ async function runViewport(puppeteer, baseUrl, viewport, cacheVersion) {
     health: null,
     orderOk: null,
     substepOk: null,
+    exitActivityNowSubstepsOk: null,
     resumeOk: null,
     errors: [],
   };
@@ -285,6 +286,20 @@ async function runViewport(puppeteer, baseUrl, viewport, cacheVersion) {
       result.substepOk = null;
     }
     log('substep', { substepOk: result.substepOk });
+
+    const exitBtn = await page.$('.teacch-exit-btn');
+    if (exitBtn) {
+      await exitBtn.tap().catch(() => exitBtn.click());
+      await page.waitForSelector(
+        '.now-card .substep-row, .teacch-now-card .substep-row, .now-card .activity-substeps-block',
+        { timeout: 8000 }
+      ).catch(() => null);
+      const nowSubsteps = await page.$$('.now-card .substep-row, .teacch-now-card .substep-row');
+      result.exitActivityNowSubstepsOk = nowSubsteps.length > 0;
+    } else {
+      result.exitActivityNowSubstepsOk = null;
+    }
+    log('exit_activity', { exitActivityNowSubstepsOk: result.exitActivityNowSubstepsOk });
 
     // Resume path: reopen child-login with live child cookie → should redirect
     await page.goto(`${baseUrl}/child-login`, { waitUntil: 'networkidle2', timeout: 30000 });

@@ -38,13 +38,6 @@
 
     const loadGen = window.ChildSessionContext ? ChildSessionContext.capture() : 0;
     currentDate = dateStr;
-    subStepCache = {};
-    // Expanded panels must not keep stale empty lists after cache clear
-    if (typeof subStepExpanded === 'object' && subStepExpanded) {
-      Object.keys(subStepExpanded).forEach(function (id) {
-        delete subStepExpanded[id];
-      });
-    }
     renderDayTabs();
     updateDateLine();
 
@@ -57,6 +50,9 @@
         : Promise.resolve(null));
       if (skeletonTimer) skeletonTimer.stop();
       if (cached) {
+        if (typeof retainSubstepStateForItems === 'function') {
+          retainSubstepStateForItems(cached.items || []);
+        }
         renderActivities(cached, null);
         showOfflineBanner(t('offline.scheduleCached'));
       } else {
@@ -138,6 +134,9 @@
       if (window.ChildSevenQuestions?.ready) {
         await ChildSevenQuestions.ready();
       }
+      if (typeof retainSubstepStateForItems === 'function') {
+        retainSubstepStateForItems(items);
+      }
       renderActivities(data, rwdData?.starBalance);
       try { performance.mark('child-today-first-activities-rendered'); } catch (_) { /* ignore */ }
       updateGoalBar(goalData);
@@ -160,6 +159,9 @@
         ? OfflineStore.getDailyLog(me?.id, dateStr)
         : Promise.resolve(null));
       if (cached) {
+        if (typeof retainSubstepStateForItems === 'function') {
+          retainSubstepStateForItems(cached.items || []);
+        }
         renderActivities(cached, null);
         if (status === 429) {
           showToast(t('checkoff.tooFast'), true);

@@ -18,10 +18,6 @@ function sectionLabel(key) {
   return cda('sections.' + key) || key;
 }
 
-function substepsBtnLabel() {
-  return '📋 ' + cda('steps.substepsLabel');
-}
-
 function activityCanToggle(isToday, isDone, timeStatus) {
   if (!isToday || isDone) return false;
   if (typeof requireSequentialCompletion !== 'undefined' && !requireSequentialCompletion) return true;
@@ -171,15 +167,8 @@ function renderActivities(data, trueStarBalance) {
       container.innerHTML = html;
       initTimeTimers();
       if (window.ChildActivityTimer) ChildActivityTimer.initForItems([item]);
-      const allCards = container.querySelectorAll('[data-sub-step-count]');
-      for (const card of allCards) {
-        const count = parseInt(card.dataset.subStepCount || '0', 10);
-        const itemId = card.dataset.itemId;
-        if (count > 0 && itemId && !subStepExpanded[itemId]) {
-          const btn = document.getElementById('expand-btn-' + itemId);
-          if (btn) expandSubSteps(new Event('click'), itemId);
-          break;
-        }
+      if (typeof autoExpandNowSubsteps === 'function') {
+        autoExpandNowSubsteps(container);
       }
       if (window.ChildTodayTasks) ChildTodayTasks.hideSkattCta();
       return;
@@ -458,20 +447,11 @@ function renderActivities(data, trueStarBalance) {
     ChildActivityTimer.initForItems(items);
   }
 
-  // Auto-expand sub-steps for the NOW activity (first incomplete item with sub-steps)
-  // so the child immediately sees what to do without extra taps.
-  const allCards = container.querySelectorAll('[data-sub-step-count]');
-  for (const card of allCards) {
-    const count = parseInt(card.dataset.subStepCount || '0', 10);
-    const itemId = card.dataset.itemId;
-    if (count > 0 && itemId && !subStepExpanded[itemId]) {
-      // Auto-expand: simulate the expand click
-      const btn = document.getElementById('expand-btn-' + itemId);
-      if (btn) {
-        expandSubSteps(new Event('click'), itemId);
-      }
-      break; // Only auto-expand the first one (the NOW item)
-    }
+  // Auto-expand sub-steps for the NOW activity so the child immediately
+  // sees what to do. Prefer the NOW card — NEXT used to steal this because
+  // TEACCH NU cards lacked data-sub-step-count.
+  if (typeof autoExpandNowSubsteps === 'function') {
+    autoExpandNowSubsteps(container);
   }
   if (window.ChildTodayTasks) ChildTodayTasks.afterRender(data, isToday);
 }
@@ -493,14 +473,14 @@ function renderNowCard(item, canToggle) {
   }
   if (window.ChildPackageNav) ChildPackageNav.setNavHidden(false);
 
-  const isDone = item.completed;
+  const cardModel = typeof getActivityCardModel === 'function'
+    ? getActivityCardModel(item)
+    : { title: item.display_name || item.name || '', completed: !!item.completed, hasSubSteps: (item.sub_step_count || 0) > 0, subStepCount: item.sub_step_count || 0 };
+  const isDone = cardModel.completed;
   const timeStr = item.start_time ? (item.end_time ? `${item.start_time}–${item.end_time}` : item.start_time) : '';
   const checkAttr = canToggle && !isDone ? `onclick="toggleItem('${item.id}', false)"` : '';
-  const hasSubSteps = (item.sub_step_count || 0) > 0;
-  const subStepCount = item.sub_step_count || 0;
-  const cachedSteps = subStepCache[item.id];
-  const subDone = cachedSteps ? cachedSteps.filter(s => s.completed).length : 0;
-  const isExpanded = !!subStepExpanded[item.id];
+  const hasSubSteps = cardModel.hasSubSteps;
+  const subStepCount = cardModel.subStepCount;
 
   // Time Timer: show only if visualTimer is on, item is not done, and has start+end
   const showTimer = visualTimer && !isDone && item.start_time && item.end_time;
@@ -546,7 +526,7 @@ function renderNowCard(item, canToggle) {
           <div class="flex items-center gap-2 mt-0.5">
             ${timeStr && !hideClock ? `<span class="now-time"><span>🕐</span> ${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-sm font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}
-            ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
+            ${hasSubSteps && typeof renderSubstepProgressBadge === 'function' ? renderSubstepProgressBadge(item) : ''}
           </div>
         </div>
         ${timerHtml}
@@ -556,19 +536,7 @@ function renderNowCard(item, canToggle) {
         }
       </div>
       ${activityTimerHtml ? `<div class="activity-timer-card-row" onclick="event.stopPropagation()">${activityTimerHtml}</div>` : ''}
-      ${hasSubSteps ? `
-      <div class="mt-3 pt-2 border-t" style="border-color:rgba(245,166,35,0.25)" onclick="event.stopPropagation()">
-        <div style="position:relative;display:inline-block;">
-          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !substepIntroState.seen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
-                  onclick="expandSubSteps(event, '${item.id}')">
-            ${substepsBtnLabel()} <span class="chevron">▾</span>
-          </button>
-          ${!isExpanded && !substepIntroState.seen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
-        </div>
-        <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
-          ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}
-        </div>
-      </div>` : ''}
+      ${hasSubSteps && typeof renderActivitySubstepsBlock === 'function' ? renderActivitySubstepsBlock(item) : ''}
     </div>`;
 }
 
@@ -661,12 +629,11 @@ function renderActivityCard(item, isToday, timeStatus) {
     badgeHtml = '<span class="inline-block text-[0.62rem] font-bold font-heading uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#D1FAE5] text-[#059669] mb-1">' + cda('today.zoneLater') + '</span>';
   }
 
-  const hasSubSteps = (item.sub_step_count || 0) > 0;
-  const subStepCount = item.sub_step_count || 0;
-  // Pre-compute completed sub-steps from cache (updated optimistically)
-  const cachedSteps = subStepCache[item.id];
-  const subDone = cachedSteps ? cachedSteps.filter(s => s.completed).length : 0;
-  const isExpanded = !!subStepExpanded[item.id];
+  const cardModel = typeof getActivityCardModel === 'function'
+    ? getActivityCardModel(item)
+    : { hasSubSteps: (item.sub_step_count || 0) > 0, subStepCount: item.sub_step_count || 0 };
+  const hasSubSteps = cardModel.hasSubSteps;
+  const subStepCount = cardModel.subStepCount;
 
   const activityTimerHtml = (window.ChildActivityTimer && ChildActivityTimer.renderBlock)
     ? ChildActivityTimer.renderBlock(item)
@@ -701,24 +668,12 @@ function renderActivityCard(item, isToday, timeStatus) {
             ${timeStr && !hideClock ? `<span class="text-xs text-text-soft">${timeStr}</span>` : ''}
             ${item.star_value > 0 ? `<span class="inline-flex items-center gap-0.5 text-xs font-bold" style="color:#F5A623;">${'⭐'.repeat(Math.min(item.star_value, 5))}</span>` : ''}
             ${ratingHtml}
-            ${hasSubSteps ? `<span class="substep-progress ${subDone === subStepCount ? 'all-done' : ''}" id="substep-badge-${item.id}">${subDone}/${subStepCount}</span>` : ''}
+            ${hasSubSteps && typeof renderSubstepProgressBadge === 'function' ? renderSubstepProgressBadge(item) : ''}
           </div>
         </div>
       </div>
       ${activityTimerHtml ? `<div class="activity-timer-card-row" onclick="event.stopPropagation()">${activityTimerHtml}</div>` : ''}
-      ${hasSubSteps ? `
-      <div class="mt-3 pt-2 border-t border-lavender/50" onclick="event.stopPropagation()">
-        <div style="position:relative;display:inline-block;">
-          <button class="expand-btn ${isExpanded ? 'open' : ''} ${!isExpanded && !substepIntroState.seen ? 'intro-hint' : ''}" id="expand-btn-${item.id}"
-                  onclick="expandSubSteps(event, '${item.id}')">
-            ${substepsBtnLabel()} <span class="chevron">▾</span>
-          </button>
-          ${!isExpanded && !substepIntroState.seen ? `<div class="intro-tooltip" id="intro-tooltip-${item.id}">${cda('scheduleChrome.substepIntro')}</div>` : ''}
-        </div>
-        <div class="substep-container ${isExpanded ? 'expanded' : ''}" id="substeps-${item.id}">
-          ${isExpanded && cachedSteps ? renderSubStepListHtml(item.id, cachedSteps) : ''}
-        </div>
-      </div>` : ''}
+      ${hasSubSteps && typeof renderActivitySubstepsBlock === 'function' ? renderActivitySubstepsBlock(item) : ''}
     </div>`;
 }
 
