@@ -9,11 +9,27 @@ const { spawnSync } = require('node:child_process');
 const ROOT = path.join(__dirname, '..');
 const SCRIPT = path.join(ROOT, 'scripts', 'verify-ios-archive-release-tag.mjs');
 
+const UNTAGGED_HEAD = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const TAGGED_HEAD = '119b61c17ce25a69b315e9d9737d0d1c06943381';
+const OTHER_HEAD = '708e1195537003a3ecea4e6d2ca81bef18c85833';
+const ANNOTATED_TAG_OBJECT = 'e8ceb68b254fdb3398f01028ca49ef08fc82427f';
+
+const TAGGED_LS_REMOTE = [
+  `${OTHER_HEAD}\trefs/tags/ios-v1.4.6`,
+  `${ANNOTATED_TAG_OBJECT}\trefs/tags/ios-v1.4.6-r2`,
+  `${TAGGED_HEAD}\trefs/tags/ios-v1.4.6-r2^{}`,
+].join('\n');
+
 function run(extraEnv = {}) {
   return spawnSync(process.execPath, [SCRIPT], {
     cwd: ROOT,
     encoding: 'utf8',
-    env: { ...process.env, ...extraEnv },
+    env: {
+      ...process.env,
+      IOS_ARCHIVE_HEAD_SHA: UNTAGGED_HEAD,
+      IOS_ARCHIVE_LS_REMOTE: '',
+      ...extraEnv,
+    },
   });
 }
 
@@ -46,6 +62,16 @@ describe('verify-ios-archive-release-tag', () => {
     assert.match(r.stdout, /PASS: archive allowed/);
   });
 
+  it('allows archive when CI_TAG is a full refs/tags/ios-v* value', () => {
+    const r = run({
+      CI_XCODEBUILD_ACTION: 'archive',
+      CI_TAG: 'refs/tags/ios-v1.4.6-r2',
+      CI_GIT_REF: 'refs/heads/main',
+    });
+    assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+    assert.match(r.stdout, /PASS: archive allowed/);
+  });
+
   it('allows archive when CI_GIT_REF is an ios-v* tag', () => {
     const r = run({
       CI_XCODEBUILD_ACTION: 'archive',
@@ -53,6 +79,59 @@ describe('verify-ios-archive-release-tag', () => {
       CI_GIT_REF: 'refs/tags/ios-v1.4.6',
     });
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+  });
+
+  it('allows main-workflow archive when a lightweight ios-v* tag points at HEAD', () => {
+    const r = run({
+      CI_XCODEBUILD_ACTION: 'archive',
+      CI_BRANCH: 'main',
+      CI_TAG: '',
+      CI_GIT_REF: 'refs/heads/main',
+      IOS_ARCHIVE_HEAD_SHA: OTHER_HEAD,
+      IOS_ARCHIVE_LS_REMOTE: `${OTHER_HEAD}\trefs/tags/ios-v1.4.6\n`,
+    });
+    assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+    assert.match(r.stdout, /ios-v1\.4\.6/);
+  });
+
+  it('allows main-workflow archive when origin ios-v* tag points at HEAD', () => {
+    const r = run({
+      CI_XCODEBUILD_ACTION: 'archive',
+      CI_BRANCH: 'main',
+      CI_TAG: '',
+      CI_GIT_REF: 'refs/heads/main',
+      IOS_ALLOW_STORE_ARCHIVE: '',
+      IOS_ARCHIVE_HEAD_SHA: TAGGED_HEAD,
+      IOS_ARCHIVE_LS_REMOTE: TAGGED_LS_REMOTE,
+    });
+    assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+    assert.match(r.stdout, /ios-v1\.4\.6-r2/);
+    assert.match(r.stdout, /PASS: archive allowed/);
+  });
+
+  it('refuses main-workflow archive when the ios-v* tag points at another commit', () => {
+    const r = run({
+      CI_XCODEBUILD_ACTION: 'archive',
+      CI_BRANCH: 'main',
+      CI_TAG: '',
+      CI_GIT_REF: 'refs/heads/main',
+      IOS_ARCHIVE_HEAD_SHA: UNTAGGED_HEAD,
+      IOS_ARCHIVE_LS_REMOTE: TAGGED_LS_REMOTE,
+    });
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr + r.stdout, /archive refused without ios-v/);
+  });
+
+  it('does not treat an annotated tag object SHA as HEAD', () => {
+    const r = run({
+      CI_XCODEBUILD_ACTION: 'archive',
+      CI_BRANCH: 'main',
+      CI_TAG: '',
+      CI_GIT_REF: 'refs/heads/main',
+      IOS_ARCHIVE_HEAD_SHA: ANNOTATED_TAG_OBJECT,
+      IOS_ARCHIVE_LS_REMOTE: TAGGED_LS_REMOTE,
+    });
+    assert.notEqual(r.status, 0);
   });
 
   it('allows explicit override IOS_ALLOW_STORE_ARCHIVE=1', () => {
@@ -78,5 +157,6 @@ describe('verify-ios-archive-release-tag', () => {
     assert.ok(preIdx < preArchiveIdx, 'tag freeze runs before build-number patch');
     assert.ok(postIdx > -1, 'post_clone runs tag freeze');
     assert.ok(postIdx < postNpmIdx, 'tag freeze runs before npm ci on archive workflows');
+    assert.match(post, /CI_TAG=\$\{CI_TAG:-empty\}/);
   });
 });

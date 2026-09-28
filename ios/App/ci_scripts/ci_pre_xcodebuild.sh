@@ -13,6 +13,7 @@ if [ -n "$NODE20_PREFIX" ] && [ -d "$NODE20_PREFIX/bin" ]; then
 fi
 
 echo "🚫 Refuse App Store/TestFlight archive unless ios-v* tag"
+echo "[xcode-cloud] ref CI_TAG=${CI_TAG:-empty} CI_BRANCH=${CI_BRANCH:-empty} CI_COMMIT=${CI_COMMIT:-empty} CI_XCODEBUILD_ACTION=${CI_XCODEBUILD_ACTION:-empty}"
 xcode_cloud_node verify_archive_tag scripts/verify-ios-archive-release-tag.mjs
 
 echo "🧹 Refresh Pods tree (no Google Sign-In SDK)"
