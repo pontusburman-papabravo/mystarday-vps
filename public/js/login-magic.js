@@ -116,28 +116,27 @@
     if (isAddChildLoginReturn()) setAddChildReturnMode(true);
 
     kidCard.addEventListener('click', function (e) {
-      e.preventDefault();
       if (_addChildReturnMode || isAddChildLoginReturn()) {
+        e.preventDefault();
         showParentLogin();
         const banner = document.getElementById('addChildLoginBanner');
         if (banner) banner.classList.remove('hidden');
         return;
       }
-      // User chose child login — do not resume add-child parent gate on barnväljare.
+      // Explicit child choice. The link owns navigation.
+      // Cancelling the click and arming a role-screen restore bounced back here.
       try {
         sessionStorage.removeItem('cl_add_child_pending');
         sessionStorage.removeItem('cl_add_child_next');
+        sessionStorage.removeItem('entry_restore');
+        sessionStorage.setItem('entry_explicit_role', 'child');
       } catch { /* ignore */ }
-      if (window.AppEntry && typeof AppEntry.goToChildLogin === 'function' && AppEntry.isFullEntryFlow()) {
-        AppEntry.goToChildLogin();
-        return;
-      }
       if (window.DeviceMode) DeviceMode.enterChild();
-      window.location.href = '/child-login';
     });
 
     parentCard.addEventListener('click', function (e) {
       e.preventDefault();
+      try { sessionStorage.removeItem('entry_restore'); } catch (_) { /* ignore */ }
       // Barnläge + aktiv session → PIN-gate. Utloggad → vuxenstart eller login.
       if (
         window.ParentalGate && window.DeviceMode && DeviceMode.isChildMode() &&
@@ -149,6 +148,8 @@
           } else {
             showParentLogin();
           }
+        }, function () {
+          showParentLogin();
         });
         return;
       }

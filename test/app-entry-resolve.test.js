@@ -39,6 +39,33 @@ function assertParentHome(result, deviceMode) {
 }
 
 describe('resolveAppEntry — decision matrix (Fas 2A)', () => {
+  it('legacy parent privilege, no trusted device → parent-home (not role picker)', () => {
+    const r = resolveAppEntry({
+      parentPrivilegeActive: true,
+      parentSession: { authenticated: true, privilegeActive: true },
+      childSession: null,
+      trustedDevice: null,
+      allowedChildren: [{ id: A }],
+    });
+    assertParentHome(r, null);
+    assert.equal(r.reason, 'legacy_parent_session_no_trusted_device');
+    assert.equal(r.serverAction, SERVER_ACTIONS.NONE);
+    assert.notEqual(r.destination, DESTINATIONS.PARENT_LOGIN);
+  });
+
+  it('legacy child session, no trusted device → child-home', () => {
+    const r = resolveAppEntry({
+      parentPrivilegeActive: false,
+      parentSession: null,
+      childSession: { valid: true, childId: A },
+      trustedDevice: null,
+      allowedChildren: [{ id: A }],
+    });
+    assertChildHome(r, A, null);
+    assert.equal(r.serverAction, SERVER_ACTIONS.NONE);
+    assert.equal(r.reason, 'legacy_child_session_no_trusted_device');
+  });
+
   it('no valid family/device auth → parent-login', () => {
     const r = resolveAppEntry({
       parentSession: null,

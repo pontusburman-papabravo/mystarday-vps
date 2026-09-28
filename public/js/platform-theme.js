@@ -67,11 +67,9 @@
         const path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
         const marketingPaths = ['/', '/index.html', '/en', '/en.html'];
         if (marketingPaths.indexOf(path) !== -1 && !window.location.pathname.startsWith('/api/')) {
-          let loggedIn = false;
-          try {
-            loggedIn = !!localStorage.getItem('stjarndag_user');
-          } catch (_) {}
-          window.location.replace((loggedIn ? '/dashboard' : '/login') + location.search + location.hash);
+          // ADR-022: same hop as platform-html. Do not pick a destination from
+          // stale local storage. /home runs AppEntryOrchestrator.
+          window.location.replace('/home' + window.location.search + window.location.hash);
           return;
         }
       } catch (_) {}

@@ -12,11 +12,12 @@ function read(rel) {
 }
 
 describe('Native startup + family fast path', () => {
-  it('platform-theme redirects native marketing paths to login or dashboard', () => {
+  it('platform-theme sends native marketing paths to /home, not localStorage', () => {
     const theme = read('public/js/platform-theme.js');
     assert.doesNotMatch(theme, /native_landing_redirected/);
-    assert.match(theme, /stjarndag_user/);
-    assert.match(theme, /location\.replace\(\(loggedIn \? '\/dashboard' : '\/login'\) \+ location\.search \+ location\.hash\)/);
+    assert.doesNotMatch(theme, /stjarndag_user/);
+    assert.doesNotMatch(theme, /loggedIn \? '\/dashboard' : '\/login'/);
+    assert.match(theme, /location\.replace\('\/home' \+ window\.location\.search \+ window\.location\.hash\)/);
   });
 
   it('platform-html injects early native redirect to authoritative entry surface', () => {

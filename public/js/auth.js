@@ -198,7 +198,9 @@ const Auth = {
       clearTimeout(this._refreshTimer);
       this._refreshTimer = null;
     }
-    // Clear both localStorage and cookie expiry tracking
+    // Clear both localStorage and cookie expiry tracking.
+    // httpOnly access_token is server-owned (logout / child-login overwrite).
+    // Cold start must trust GET /api/auth/app-entry, not this localStorage wipe.
     document.cookie = 'stjarndag_token_exp=; max-age=0; path=/; samesite=lax';
   },
 

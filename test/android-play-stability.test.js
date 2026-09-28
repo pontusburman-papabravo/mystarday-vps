@@ -126,11 +126,17 @@ describe('Android Play stability guards', () => {
     assert.match(patch, /setWebContentsDebuggingEnabled\(true\)/);
   });
 
-  it('login skips auto-redirect to dashboard on native app (language + role pick)', () => {
+  it('native login resumes via app-entry and does not href /dashboard from /me (53a8b2e0)', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
-    assert.match(html, /nativeStayOnLogin/);
-    assert.match(html, /isNativeApp/);
-    assert.match(html, /AppEntry\.init must run|fall through[\s\S]*AppEntry\.init/);
+    assert.match(html, /resumeFromLogin/);
+    assert.match(html, /isNativeLoginShell/);
+    assert.match(html, /53a8b2e0/);
+    assert.doesNotMatch(html, /nativeStayOnLogin/);
+    assert.match(html, /if \(!nativeShell && Auth\.isLoggedIn\(\)\)/);
+    assert.match(html, /AppEntry\.init/);
+    const nativeBlock = html.slice(html.indexOf('function isNativeLoginShell'), html.indexOf('// Web only'));
+    assert.doesNotMatch(nativeBlock, /location\.href\s*=\s*loginNextUrl \|\| '\/dashboard'/);
+    assert.doesNotMatch(nativeBlock, /location\.reload/);
   });
 
   it('login Google button uses branded markup (logo + label span for loading state)', () => {
@@ -321,10 +327,15 @@ describe('Android Play stability guards', () => {
     assert.match(src, /parent-magic-3d/);
   });
 
-  it('app-entry shows role pick for logged-in Android native', () => {
+  it('role pick is the no-resume fallback, not the native cold-start contract', () => {
     const js = fs.readFileSync(path.join(ROOT, 'public/js/app-entry.js'), 'utf8');
+    const login = fs.readFileSync(path.join(ROOT, 'public/login.html'), 'utf8');
     assert.match(js, /ENTRY_ROLE_PICK/);
-    assert.match(js, /is-native-android[\s\S]*Auth\.isLoggedIn/);
+    assert.match(js, /resume already declined/);
+    assert.doesNotMatch(js, /sessionStorage\.setItem\('entry_restore', 'ENTRY_ROLE_PICK'\)/);
+    const resumeAt = login.indexOf('resumeFromLogin');
+    const initAt = login.indexOf('AppEntry.init()');
+    assert.ok(resumeAt > 0 && initAt > resumeAt, 'resume runs before AppEntry.init');
   });
 
   it('platform-native flat mode covers parent-magic-dashboard', () => {
