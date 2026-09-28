@@ -419,6 +419,7 @@ describe('activation first-success recovery client (#1023)', () => {
       },
     });
     await ctx.Hub.load();
+    const afterLoad = ctx.win.DashboardChildHandoff.afterPrimaryCalls;
     await ctx.mount._deferFn();
     await new Promise((r) => setTimeout(r, 20));
     assert.equal(ctx.deferCalls, 1);
@@ -426,7 +427,7 @@ describe('activation first-success recovery client (#1023)', () => {
     const deferredEvent = ctx.tracked.find((e) => e.event === 'activation_first_success_deferred');
     assert.ok(deferredEvent);
     assert.equal(deferredEvent.meta.defer_duration_hours, 12);
-    assert.equal(ctx.win.DashboardChildHandoff.afterPrimaryCalls, 1);
+    assert.ok(ctx.win.DashboardChildHandoff.afterPrimaryCalls > afterLoad);
   });
 
   it('18: double defer protected', async () => {

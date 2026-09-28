@@ -634,12 +634,14 @@
   }
 
   function restoreHemChildLoginAfterCoachHidden() {
-    if (window.HomePrimaryAction && typeof HomePrimaryAction.apply === 'function') {
-      HomePrimaryAction.apply();
+    const homePrimary = window.HomePrimaryAction;
+    if (homePrimary && typeof homePrimary.apply === 'function') {
+      homePrimary.apply();
       return;
     }
-    if (window.DashboardChildHandoff && typeof DashboardChildHandoff.afterPrimaryAction === 'function') {
-      DashboardChildHandoff.afterPrimaryAction();
+    const handoff = window.DashboardChildHandoff;
+    if (handoff && typeof handoff.afterPrimaryAction === 'function') {
+      handoff.afterPrimaryAction();
     }
   }
 
