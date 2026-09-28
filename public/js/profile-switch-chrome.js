@@ -203,6 +203,31 @@
       && AdultPrivilege.isPrivilegeActive());
   }
 
+  // Persistent header action. Notifications and settings are links, and the
+  // help bubble is its own bottom sheet. This control is not a dismissible
+  // dialog: a later apply() moves an early fallback into the header bar.
+  function anchorParentChromeButton(btn, fallbackClass, placement) {
+    if (window.ParentMagicAuto && typeof ParentMagicAuto.ensureTopChrome === 'function') {
+      try { ParentMagicAuto.ensureTopChrome(); } catch (_) { /* header may not exist yet */ }
+    }
+    const bar = document.querySelector('[data-parent-nav-header]');
+    if (bar) {
+      btn.classList.remove(fallbackClass);
+      if (btn.parentNode !== bar) {
+        if (placement === 'end') bar.appendChild(btn);
+        else bar.insertBefore(btn, bar.firstChild);
+      }
+      return;
+    }
+    btn.classList.add(fallbackClass);
+    const main = document.querySelector('main');
+    const host = main || document.body;
+    if (btn.parentNode !== host) {
+      if (host.firstChild) host.insertBefore(btn, host.firstChild);
+      else host.appendChild(btn);
+    }
+  }
+
   function ensureReturnToChildBtn() {
     const existing = document.getElementById(RETURN_CHILD_BTN_ID);
     const show = isDailyUxActive() && isParentShellPath() && isAdultPrivilegeActive();
@@ -221,14 +246,8 @@
           AdultPrivilege.returnToChildExperience();
         }
       });
-      const bar = document.querySelector('[data-parent-nav-header]');
-      if (bar) {
-        bar.appendChild(btn);
-      } else {
-        btn.classList.add('profile-return-child-fallback');
-        document.body.appendChild(btn);
-      }
     }
+    anchorParentChromeButton(btn, 'profile-return-child-fallback', 'end');
     const label = returnToChildLabel();
     btn.innerHTML = '<span aria-hidden="true">👶</span><span>' + label + '</span>';
     btn.setAttribute('aria-label', label);
@@ -258,14 +277,8 @@
       btn.className = 'profile-switch-parent-btn';
       btn.setAttribute('data-profile-switch-parent', '1');
       btn.addEventListener('click', goSwitch);
-      const bar = document.querySelector('[data-parent-nav-header]');
-      if (bar) {
-        bar.insertBefore(btn, bar.firstChild);
-      } else {
-        btn.classList.add('profile-switch-parent-fallback');
-        document.body.appendChild(btn);
-      }
     }
+    anchorParentChromeButton(btn, 'profile-switch-parent-fallback', 'start');
     btn.innerHTML = '<span aria-hidden="true">🔄</span><span>' + labelText() + '</span>';
     btn.setAttribute('aria-label', labelText());
     btn.setAttribute('title', labelText());
