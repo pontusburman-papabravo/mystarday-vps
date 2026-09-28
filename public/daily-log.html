@@ -103,6 +103,31 @@
       align-items: center;
       justify-content: center;
     }
+    /* iOS paints native date text even with color:transparent — hide it, keep the tap target */
+    .dl-date-picker {
+      position: relative;
+      width: 44px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .dl-date-picker-icon {
+      pointer-events: none;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .dl-date-picker input[type="date"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      opacity: 0;
+      cursor: pointer;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
     .section-header {
       display: flex;
       align-items: center;
@@ -431,7 +456,7 @@
 <script src="/js/parent-magic-shell.js?v=4"></script>
 <script src="/js/parent-magic-auto.js?v=10"></script>
 <script src="/js/parent-magic-bootstrap.js?v=2"></script>
-<script src="/js/daily-log.js?v=2.16.9"></script>
+<script src="/js/daily-log.js?v=2.16.10"></script>
 <!-- Contextual help bubble -->
 <script src="/js/help-bubble.js?v=2.12.1"></script>
 <nav id="parentBottomNav" class="parent-bottom-nav" role="navigation" aria-label="Huvudnavigering"></nav>

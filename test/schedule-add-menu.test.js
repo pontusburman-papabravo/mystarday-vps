@@ -424,6 +424,32 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(src, /'Escape'/);
     assert.match(src, /ScheduleAddMenu\.close\(\)/);
   });
+
+  it('hides iOS native type=time chrome and shows Starttid/Sluttid until a time is chosen', () => {
+    const src = read(MODULE);
+    const html = read(HTML);
+    assert.match(src, /function renderTimeField/);
+    assert.match(src, /function paintTimeField/);
+    const helpers = src.slice(src.indexOf('function timeFieldIds'), src.indexOf('function restoreSearchFocus'));
+    assert.match(helpers, /schedule\.chrome\.startTimePlaceholder/);
+    assert.match(helpers, /schedule\.chrome\.endTimePlaceholder/);
+    assert.match(helpers, /samActivityStartTime/);
+    assert.match(helpers, /samActivityEndTime/);
+    assert.match(helpers, /sam-time-field/);
+    assert.match(helpers, /sam-time-value/);
+    assert.match(helpers, /opacity-0/);
+    assert.match(helpers, /aria-label=/);
+    assert.doesNotMatch(helpers, /new Date\(|toTimeString|getHours/);
+    const setTime = src.slice(src.indexOf('function setActivityTime'), src.indexOf('function toggleActivityDay'));
+    assert.match(setTime, /paintTimeField\(which, val\)/);
+    assert.doesNotMatch(setTime, /renderActivityStep\(\)/);
+    const timeCss = html.slice(html.indexOf('#scheduleAddMenuModal .sam-time-field'), html.indexOf('#scheduleAddMenuModal .sr-only'));
+    assert.match(timeCss, /opacity:\s*0/);
+    assert.match(timeCss, /color:\s*transparent/);
+    assert.match(timeCss, /-webkit-text-fill-color:\s*transparent/);
+    assert.match(timeCss, /min-height:\s*44px/);
+    assert.match(html, /schedule-add-menu\.js\?v=10/);
+  });
 });
 
 function createClassList(el) {
@@ -651,6 +677,27 @@ function createRapidEntrySandbox(opts = {}) {
 }
 
 describe('Rapid Entry — executable Activity submit', () => {
+  it('shows Starttid/Sluttid on empty time fields and never paints a clock time', async () => {
+    const harness = createRapidEntrySandbox();
+    const { ScheduleAddMenu, document } = harness.sandbox;
+    await ScheduleAddMenu.openActivityForDay(5, 'kvall');
+    const html = document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /sam-time-field/);
+    assert.match(html, /id="samActivityStartTime"/);
+    assert.match(html, /id="samActivityEndTime"/);
+    assert.match(html, /aria-label="schedule\.chrome\.startTimePlaceholder"/);
+    assert.match(html, /value=""/);
+    assert.equal(document.getElementById('samActivityStartTimeValue').textContent, 'schedule.chrome.startTimePlaceholder');
+    assert.equal(document.getElementById('samActivityEndTimeValue').textContent, 'schedule.chrome.endTimePlaceholder');
+    assert.doesNotMatch(document.getElementById('samActivityStartTimeValue').textContent, /^\d{1,2}:\d{2}$/);
+    assert.doesNotMatch(html, /value="\d{1,2}:\d{2}"/);
+
+    ScheduleAddMenu.setActivityTime('start', '18:00');
+    assert.equal(document.getElementById('samActivityStartTimeValue').textContent, '18:00');
+    assert.equal(document.getElementById('samActivityEndTimeValue').textContent, 'schedule.chrome.endTimePlaceholder');
+    assert.equal(document.getElementById('samActivitySearch').id, 'samActivitySearch');
+  });
+
   it('keeps the modal open, preserves day/section/time, and refocuses search after an existing save', async () => {
     const harness = createRapidEntrySandbox();
     const { ScheduleAddMenu } = harness.sandbox;
@@ -666,6 +713,8 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.deepEqual([...harness.applyCalls[0].payload.days], [5]);
     assert.equal(harness.applyCalls[0].payload.startTime, '18:00');
     assert.equal(harness.applyCalls[0].payload.endTime, '18:30');
+    assert.equal(harness.sandbox.document.getElementById('samActivityStartTimeValue').textContent, '18:00');
+    assert.equal(harness.sandbox.document.getElementById('samActivityEndTimeValue').textContent, '18:30');
     assert.equal(harness.modalHidden(), false);
     assert.equal(harness.sandbox.document.activeElement.id, 'samActivitySearch');
     assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
