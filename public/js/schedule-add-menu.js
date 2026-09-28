@@ -418,8 +418,8 @@
           <details class="mb-4">
             <summary class="text-xs font-semibold text-navy uppercase tracking-wide cursor-pointer">${t('schedule.addMenu.activity.pickTime')}</summary>
             <div class="flex gap-2 mt-2">
-              <input type="time" value="${activityState.startTime}" onchange="ScheduleAddMenu.setActivityTime('start', this.value)" class="${TOUCH_BTN} flex-1 px-2 py-2 border-2 border-lavender rounded-xl text-sm" />
-              <input type="time" value="${activityState.endTime}" onchange="ScheduleAddMenu.setActivityTime('end', this.value)" class="${TOUCH_BTN} flex-1 px-2 py-2 border-2 border-lavender rounded-xl text-sm" />
+              ${renderTimeField('start', activityState.startTime)}
+              ${renderTimeField('end', activityState.endTime)}
             </div>
           </details>
         </div>
@@ -433,7 +433,41 @@
           </div>
         </div>
       </div>`;
+    paintTimeField('start', activityState.startTime);
+    paintTimeField('end', activityState.endTime);
     syncActivitySavePending();
+  }
+
+  function timeFieldIds(which) {
+    return which === 'start'
+      ? { inputId: 'samActivityStartTime', valueId: 'samActivityStartTimeValue' }
+      : { inputId: 'samActivityEndTime', valueId: 'samActivityEndTimeValue' };
+  }
+
+  function timeFieldLabelKey(which) {
+    return which === 'start'
+      ? 'schedule.chrome.startTimePlaceholder'
+      : 'schedule.chrome.endTimePlaceholder';
+  }
+
+  function renderTimeField(which, value) {
+    const label = t(timeFieldLabelKey(which));
+    const filled = Boolean(value);
+    const ids = timeFieldIds(which);
+    return `<label class="sam-time-field ${TOUCH_BTN} relative flex-1 flex items-center justify-center px-3 py-2 border-2 border-lavender rounded-xl" data-time-field="${which}">
+      <span id="${ids.valueId}" class="sam-time-value pointer-events-none text-sm font-semibold ${filled ? 'text-navy' : 'text-text-soft'}">${escHtml(filled ? value : label)}</span>
+      <input type="time" id="${ids.inputId}" value="${escHtml(value || '')}" onchange="ScheduleAddMenu.setActivityTime('${which}', this.value)"
+        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="${escHtml(label)}" />
+    </label>`;
+  }
+
+  function paintTimeField(which, value) {
+    const span = document.getElementById(timeFieldIds(which).valueId);
+    if (!span) return;
+    const filled = Boolean(value);
+    span.textContent = filled ? value : t(timeFieldLabelKey(which));
+    span.classList.toggle('text-navy', filled);
+    span.classList.toggle('text-text-soft', !filled);
   }
 
   function restoreSearchFocus() {
@@ -493,7 +527,11 @@
   }
 
   function selectActivitySection(key) { activityState.section = key; renderActivityStep(); }
-  function setActivityTime(which, val) { if (which === 'start') activityState.startTime = val; else activityState.endTime = val; }
+  function setActivityTime(which, val) {
+    if (which === 'start') activityState.startTime = val;
+    else activityState.endTime = val;
+    paintTimeField(which, val);
+  }
   function toggleActivityDay(dow, shortcut) {
     if (shortcut === 'all') activityState.days = new Set(WEEKDAY_SET_ALL);
     else if (shortcut === 'weekday') activityState.days = new Set(WEEKDAY_SET_WEEKDAY);
