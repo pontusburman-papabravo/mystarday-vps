@@ -123,6 +123,13 @@
       }
       .country-choice__hint { font-size: 0.75rem; color: #6B3FA0; margin-top: 0.5rem; }
       .country-choice__error { font-size: 0.8125rem; color: #ef4444; margin-top: 0.5rem; text-align: center; }
+      #submitBtn.is-market-closed,
+      #appleRegisterBtn.is-market-closed,
+      #googleRegisterBtn.is-market-closed {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -199,6 +206,31 @@
     return Boolean(code) && isCountryOpen(code) && !closedMarketMessage(code);
   }
 
+  function isRegistrationPage() {
+    try {
+      const path = String((location && location.pathname) || '');
+      return /(^|\/)register\/?$/.test(path) || /register\.html$/.test(path);
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  function syncClosedMarketActions(code) {
+    if (!isRegistrationPage()) return;
+    const closed = Boolean(code) && !isOpenCountry(code);
+    ['submitBtn', 'appleRegisterBtn', 'googleRegisterBtn'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.disabled = closed;
+      if (typeof el.setAttribute === 'function') {
+        el.setAttribute('aria-disabled', closed ? 'true' : 'false');
+      }
+      if (el.classList && typeof el.classList.toggle === 'function') {
+        el.classList.toggle('is-market-closed', closed);
+      }
+    });
+  }
+
   async function mount(container) {
     if (!container || container.dataset.countryChoiceMounted) return;
     injectStyles();
@@ -223,6 +255,7 @@
         hint.textContent = closed;
         hint.hidden = !closed;
       }
+      syncClosedMarketActions(code);
     }
 
     select.addEventListener('change', () => {
