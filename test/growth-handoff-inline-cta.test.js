@@ -20,12 +20,14 @@ const SCHEMA_HELP = {
   ctaLabel: 'Starta barninloggning',
   ctaAction: 'start_child_login',
   helpType: 'preview_child_login_help',
+  reassure: 'Du kommer tillbaka till föräldraläget när barnet är klart.',
 };
 
 function makeClassList() {
   const set = new Set();
   return {
     add(cls) { set.add(cls); },
+    remove(cls) { set.delete(cls); },
     contains(cls) { return set.has(cls); },
   };
 }
@@ -318,8 +320,9 @@ describe('growth handoff inline CTA — runtime contracts', () => {
 
     assert.equal(titleEl.textContent, SCHEMA_HELP.headline);
     assert.equal(primaryBtn.textContent, SCHEMA_HELP.ctaLabel);
-    assert.equal(pinHintEl.textContent, '');
-    assert.equal(pinHintEl.classList.contains('hidden'), true);
+    assert.equal(pinHintEl.textContent, SCHEMA_HELP.reassure);
+    assert.equal(pinHintEl.classList.contains('hidden'), false);
+    assert.doesNotMatch(pinHintEl.textContent, /PIN/i);
     assert.equal(tracked.filter((e) => e.eventType === 'handoff_inline_cta_shown').length, 1);
   });
 

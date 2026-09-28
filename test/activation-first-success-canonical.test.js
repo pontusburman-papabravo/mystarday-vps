@@ -366,6 +366,8 @@ describe('client authority — single primary coach', () => {
     assert.match(src, /engine\.load/);
     assert.match(src, /window\.JourneyCoach/);
     assert.match(src, /pollCoach/);
+    assert.match(src, /restoreHemChildLoginAfterCoachHidden/);
+    assert.match(src, /afterPrimaryAction/);
   });
 });
 

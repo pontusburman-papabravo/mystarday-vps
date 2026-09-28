@@ -152,6 +152,9 @@
       '<p class="help-journey-tip-label">' + esc(isEnglish() ? 'Suggested help' : 'Föreslagen hjälp') + '</p>' +
       '<p class="help-journey-tip-headline">' + esc(help.headline) + '</p>' +
       '<p class="help-journey-tip-body">' + esc(help.body) + '</p>' +
+      (help.reassure
+        ? '<p class="help-journey-tip-body text-text-soft">' + esc(help.reassure) + '</p>'
+        : '') +
       '<button type="button" class="help-journey-tip-cta growth-system-help-cta">' + esc(help.ctaLabel) + '</button>' +
       '<button type="button" class="growth-system-help-report mt-2 w-full text-xs text-slate-500 underline">' +
         esc(reportLabel) + '</button>' +
@@ -312,8 +315,8 @@
     helpLink.className =
       'growth-system-help-handoff-secondary mt-2 text-sm text-slate-500 underline text-left w-full';
     helpLink.textContent = isEnglish()
-      ? 'Problem with child login?'
-      : 'Problem med barninloggningen?';
+      ? 'How does the child start?'
+      : 'Hur gör barnet?';
     helpLink.addEventListener('click', function () {
       if (typeof window.__hbToggle === 'function') window.__hbToggle();
     });
@@ -344,9 +347,14 @@
     parts.primaryBtn.textContent = help.ctaLabel;
     parts.primaryBtn.setAttribute('data-handoff-inline-cta', '1');
     if (parts.pinHintEl) {
-      parts.pinHintEl.textContent = '';
-      if (parts.pinHintEl.classList && typeof parts.pinHintEl.classList.add === 'function') {
-        parts.pinHintEl.classList.add('hidden');
+      const hint = help.reassure || '';
+      parts.pinHintEl.textContent = hint;
+      if (parts.pinHintEl.classList) {
+        if (hint && typeof parts.pinHintEl.classList.remove === 'function') {
+          parts.pinHintEl.classList.remove('hidden');
+        } else if (!hint && typeof parts.pinHintEl.classList.add === 'function') {
+          parts.pinHintEl.classList.add('hidden');
+        }
       }
     }
     bindInlineCtaClick(parts, data, help);
