@@ -47,6 +47,22 @@ describe('daily-log navigation fix (support: stuck on log page)', () => {
     assert.match(src, /AUTH_BOOT_TIMEOUT_MS/);
   });
 
+  it('date picker hides native iOS date text and keeps a 44px calendar target', () => {
+    const html = fs.readFileSync(path.join(ROOT, 'public/daily-log.html'), 'utf8');
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
+    assert.match(html, /\.dl-date-picker input\[type="date"\]/);
+    assert.match(html, /opacity:\s*0/);
+    assert.match(html, /-webkit-text-fill-color:\s*transparent/);
+    assert.match(html, /width:\s*44px/);
+    assert.match(src, /class="dl-date-picker/);
+    assert.match(src, /id="datePicker"/);
+    assert.match(src, /aria-label=/);
+    assert.doesNotMatch(src, /color:transparent/);
+    assert.match(src, /date-nav-row/);
+    assert.match(src, /dateNavLabelHtml/);
+    assert.match(src, /text-sm leading-tight/);
+  });
+
   it('daily-log dlPt does not shadow window.pt (stack overflow regression)', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/daily-log.js'), 'utf8');
     assert.doesNotMatch(src, /function pt\s*\(/);
