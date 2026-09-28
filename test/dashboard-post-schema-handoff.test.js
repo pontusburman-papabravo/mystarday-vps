@@ -43,6 +43,9 @@ describe('R4.1 — child-first post-schema handoff', () => {
     assert.match(src, /syncPostSchemaHandoffCard/);
     assert.match(src, /child_access/);
     assert.match(src, /applyMagicHandoffCopy/);
+    assert.match(src, /afterPrimaryAction/);
+    assert.match(src, /fsVisible/);
+    assert.match(src, /!postSchema && window\.JourneyContextClient/);
   });
 
   it('en-GB post-schema copy aligns with journey registry handoff_to_child', async () => {

@@ -89,6 +89,8 @@ const CONTENT = Object.freeze({
     headlineEn: 'Open the view for {childName}',
     bodyEn: 'The schedule is ready. Hand {childName} this device so they can see their routine.',
     ctaEn: 'Open child view',
+    reassureSv: 'Du kommer tillbaka till föräldraläget när barnet är klart.',
+    reassureEn: 'You can return to parent mode when your child is done.',
   },
   login_no_completion: {
     headlineSv: 'Första stjärnan väntar',
@@ -137,6 +139,7 @@ function buildHelpPayload(blockingStep, locale, opts = {}) {
     body: fillChildName(en ? copy.bodyEn : copy.bodySv, childName),
     ctaLabel: en ? copy.ctaEn : copy.ctaSv,
     ctaAction: copy.ctaAction,
+    reassure: en ? (copy.reassureEn || null) : (copy.reassureSv || null),
     childName: sanitizeChildName(opts.childName) || null,
     showSupportRequest: Boolean(copy.showSupportRequest),
     surfaces: SURFACE_BY_BLOCKING_STEP[blockingStep] || [SURFACES.help_panel],

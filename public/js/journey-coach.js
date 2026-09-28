@@ -156,11 +156,26 @@
     }
   }
 
+  function isChildLoginExperience(expKey) {
+    return expKey === 'handoff_to_child' || expKey === 'sj_day3_child_try';
+  }
+
   function bindCta(card, expKey, exp) {
     const btn = card.querySelector('.journey-coach-cta');
     if (!btn) return;
     if (exp.cta) btn.setAttribute('data-cta-default', exp.cta);
+    if (isChildLoginExperience(expKey)) {
+      btn.setAttribute('data-child-login-cta', '1');
+      btn.setAttribute('data-action', 'child-login');
+    }
     btn.addEventListener('click', function () { onCoachCta(expKey, card, btn); });
+  }
+
+  function maybeEnrichChildLoginCoach(mount) {
+    if (!mount || !window.DashboardChildHandoff) return;
+    if (typeof DashboardChildHandoff.maybeEnrichHandoff === 'function') {
+      DashboardChildHandoff.maybeEnrichHandoff(mount);
+    }
   }
 
   function shouldDeferToExceptions() {
@@ -183,6 +198,18 @@
     if (!mount) return;
 
     if (shouldDeferToFirstSuccessHub()) {
+      mount.classList.add('hidden');
+      mount.innerHTML = '';
+      return;
+    }
+
+    const expKeyEarly = context?.recommended_experiences?.[0];
+    if (
+      window.DashboardChildHandoff
+      && typeof DashboardChildHandoff.shouldSuppressNonLoginCoaches === 'function'
+      && DashboardChildHandoff.shouldSuppressNonLoginCoaches()
+      && !isChildLoginExperience(expKeyEarly)
+    ) {
       mount.classList.add('hidden');
       mount.innerHTML = '';
       return;
@@ -224,8 +251,8 @@
       mount.innerHTML =
         '<div class="journey-coach-card rounded-2xl border-2 border-gold/40 bg-gold-light p-4 mb-4" role="region" aria-label="' + esc(pt('journey.coach.weekReflection')) + '">' +
         '<p class="text-xs font-bold uppercase tracking-wide text-gold-dark mb-1">' + esc(pt('journey.coach.weekLabel')) + '</p>' +
-        '<p class="font-heading font-bold text-navy text-base mb-2">' + esc(exp.headline || pt('journey.coach.weekTogether')) + '</p>' +
-        '<p class="text-sm text-navy whitespace-pre-line mb-3">' + esc(story) + '</p>' +
+        '<p class="journey-coach-headline font-heading font-bold text-navy text-base mb-2">' + esc(exp.headline || pt('journey.coach.weekTogether')) + '</p>' +
+        '<p class="journey-coach-body text-sm text-navy whitespace-pre-line mb-3">' + esc(story) + '</p>' +
         (exp.cta ? '<button type="button" class="journey-coach-cta w-full py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(exp.cta) + '</button>' : '') +
         '</div>';
       bindCta(mount.querySelector('.journey-coach-card'), expKey, exp);
@@ -239,13 +266,16 @@
     mount.innerHTML =
       '<div class="journey-coach-card rounded-2xl border-2 ' + borderClass + ' p-4 mb-4" role="region" aria-label="' + esc(label) + '">' +
       '<p class="text-xs font-bold uppercase tracking-wide ' + labelClass + ' mb-1">' + esc(label) + '</p>' +
-      '<p class="font-heading font-bold text-navy text-base mb-1">' + esc(exp.headline || '') + '</p>' +
-      '<p class="text-sm text-text-soft mb-3">' + esc(exp.body || '') + '</p>' +
+      '<p class="journey-coach-headline font-heading font-bold text-navy text-base mb-1">' + esc(exp.headline || '') + '</p>' +
+      '<p class="journey-coach-body text-sm text-text-soft mb-3">' + esc(exp.body || '') + '</p>' +
       tipsHtml(expKey) +
       (exp.cta ? '<button type="button" class="journey-coach-cta w-full py-3 rounded-xl bg-gold text-white font-semibold text-sm">' + esc(exp.cta) + '</button>' : '') +
       '</div>';
 
     bindCta(mount.querySelector('.journey-coach-card'), expKey, exp);
+    if (isChildLoginExperience(expKey)) {
+      maybeEnrichChildLoginCoach(mount);
+    }
   }
 
   async function pollCoach() {
