@@ -152,10 +152,11 @@ describe('Release scope: Widget + Meta paused, core/IAP/auth intact', () => {
   });
 
   it('WidgetRoutine.appex stays excluded from the App archive (existing release-hold, unaffected)', () => {
-    const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts/verify-ios-widget-release-hold.mjs')], {
+    const { withPbxLock } = require('./helpers/pbxproj-test-lock');
+    const r = withPbxLock(() => spawnSync(process.execPath, [path.join(ROOT, 'scripts/verify-ios-widget-release-hold.mjs')], {
       cwd: ROOT,
       encoding: 'utf8',
-    });
+    }));
     assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
   });
 });
