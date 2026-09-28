@@ -511,7 +511,8 @@
       }
 
       var loginParamsEarly = new URLSearchParams(window.location.search);
-      var explicitEntryChoice = loginParamsEarly.get('parent') === '1' || loginParamsEarly.get('reset') === '1';
+      var parentIntent = loginParamsEarly.get('parent') === '1';
+      var explicitEntryChoice = parentIntent || loginParamsEarly.get('reset') === '1';
       var nativeShell = isNativeLoginShell();
 
       // ADR-022: native /login asks app-entry before any role picker.
@@ -531,13 +532,13 @@
           if (res.ok) {
             const me = await res.json();
             Auth.setAuth(null, me);
-            if (me && me.type === 'child') {
+            if (me && me.type === 'child' && !parentIntent) {
               if (loginNextUrl && loginNextUrl.indexOf('addChild') !== -1) {
                 Auth.clearAuth();
               }
-              // Web child session: stay on login — user can tap Förälder.
+              // Web child session stays on login. Do not href to /child/today.
             }
-            if (window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
+            if (!parentIntent && window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
               window.location.href = '/child-login';
               return;
             }
