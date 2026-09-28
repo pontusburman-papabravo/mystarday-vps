@@ -91,14 +91,27 @@
 
     const exitBtn = `<button type="button" class="teacch-exit-btn" onclick="ChildSevenQuestions.exitNu()">${exitLabel}</button>`;
 
+    const cardModel = typeof global.getActivityCardModel === 'function'
+      ? global.getActivityCardModel(item)
+      : { hasSubSteps: (item.sub_step_count || 0) > 0, subStepCount: item.sub_step_count || 0 };
+    const subBadge = typeof global.renderSubstepProgressBadge === 'function'
+      ? global.renderSubstepProgressBadge(item)
+      : '';
+    const substepsHtml = typeof global.renderActivitySubstepsBlock === 'function'
+      ? global.renderActivitySubstepsBlock(item)
+      : '';
+
     return `
       <div class="now-card teacch-now-card ${isDone ? 'done' : ''}" id="card-${item.id}" data-item-id="${item.id}"
-           data-item-name="${esc(label)}" data-item-icon="${esc(item.icon || '⭐')}">
+           data-item-name="${esc(label)}" data-item-icon="${esc(item.icon || '⭐')}"
+           data-sub-step-count="${cardModel.subStepCount || 0}">
         <div class="now-badge"><div class="pulse-dot"></div> ${nowBadge}</div>
         <div class="teacch-questions">${rows}</div>
         ${global.ChildActivityTimer && ChildActivityTimer.renderBlock
           ? '<div class="teacch-activity-timer">' + ChildActivityTimer.renderBlock(item) + '</div>'
           : ''}
+        ${subBadge ? `<div class="teacch-now-substep-progress">${subBadge}</div>` : ''}
+        ${substepsHtml}
         <div class="teacch-now-actions">
           ${readAloudBtn}
           ${exitBtn}
@@ -113,7 +126,7 @@
     if (global.ChildPackageNav) ChildPackageNav.setNavHidden(false);
     document.body.classList.remove('child-teacch-nu-active');
     if (typeof global.loadDay === 'function' && global.currentDate) {
-      global.loadDay(global.currentDate, false);
+      global.loadDay(global.currentDate, false, { keepSubstepState: true });
       return;
     }
     location.reload();

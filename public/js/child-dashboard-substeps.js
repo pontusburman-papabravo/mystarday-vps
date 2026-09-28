@@ -69,6 +69,115 @@
     return d.innerHTML;
   }
 
+  /**
+   * Shared NOW/NEXT activity model — title, substeps, progress, completion.
+   * Both zone cards and the TEACCH NU overlay must read this, not a reduced copy.
+   */
+  function getActivityCardModel(item) {
+    if (!item) {
+      return {
+        id: '',
+        title: '',
+        completed: false,
+        hasSubSteps: false,
+        subStepCount: 0,
+        cachedSteps: null,
+        subDone: 0,
+        isExpanded: false,
+      };
+    }
+    const subStepCount = item.sub_step_count || 0;
+    const cache = (typeof subStepCache !== 'undefined' && subStepCache) ? subStepCache : {};
+    const cachedSteps = cache[item.id] || null;
+    const expanded = (typeof subStepExpanded !== 'undefined' && subStepExpanded) ? subStepExpanded : {};
+    const subDone = cachedSteps ? cachedSteps.filter(function (s) { return s.completed; }).length : 0;
+    return {
+      id: item.id,
+      title: item.display_name || item.name || '',
+      completed: !!item.completed,
+      hasSubSteps: subStepCount > 0,
+      subStepCount: subStepCount,
+      cachedSteps: cachedSteps,
+      subDone: subDone,
+      isExpanded: !!expanded[item.id],
+    };
+  }
+
+  function renderSubstepProgressBadge(item) {
+    const model = getActivityCardModel(item);
+    if (!model.hasSubSteps) return '';
+    const allDone = model.subDone === model.subStepCount;
+    return '<span class="substep-progress ' + (allDone ? 'all-done' : '') + '" id="substep-badge-' +
+      escHtml(model.id) + '">' + model.subDone + '/' + model.subStepCount + '</span>';
+  }
+
+  function renderActivitySubstepsBlock(item, options) {
+    options = options || {};
+    const model = getActivityCardModel(item);
+    if (!model.hasSubSteps) return '';
+    const introSeen = typeof substepIntroState !== 'undefined' ? substepIntroState.seen : true;
+    const extraWrapClass = options.extraWrapClass ? ' ' + options.extraWrapClass : '';
+    const borderClass = options.borderClass || 'border-lavender/50';
+    const listHtml = model.isExpanded && model.cachedSteps
+      ? renderSubStepListHtml(model.id, model.cachedSteps)
+      : '';
+    return (
+      '<div class="activity-substeps-block mt-3 pt-2 border-t ' + borderClass + extraWrapClass + '" onclick="event.stopPropagation()">' +
+        '<div style="position:relative;display:inline-block;">' +
+          '<button class="expand-btn ' + (model.isExpanded ? 'open' : '') +
+            (!model.isExpanded && !introSeen ? ' intro-hint' : '') +
+            '" id="expand-btn-' + escHtml(model.id) + '" onclick="expandSubSteps(event, \'' +
+            escHtml(model.id) + '\')">' +
+            '📋 ' + escHtml(t('steps.substepsLabel')) + ' <span class="chevron">▾</span>' +
+          '</button>' +
+          (!model.isExpanded && !introSeen
+            ? '<div class="intro-tooltip" id="intro-tooltip-' + escHtml(model.id) + '">' +
+              escHtml(t('scheduleChrome.substepIntro')) + '</div>'
+            : '') +
+        '</div>' +
+        '<div class="substep-container ' + (model.isExpanded ? 'expanded' : '') + '" id="substeps-' +
+          escHtml(model.id) + '">' + listHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  function autoExpandNowSubsteps(container) {
+    const expand = typeof window.expandSubSteps === 'function' ? window.expandSubSteps : expandSubSteps;
+    if (!container || typeof expand !== 'function') return;
+    const nowCards = container.querySelectorAll(
+      '.now-card[data-sub-step-count], .photo-activity-card--now[data-sub-step-count]'
+    );
+    const cards = nowCards.length ? nowCards : container.querySelectorAll('[data-sub-step-count]');
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      const count = parseInt(card.dataset.subStepCount || '0', 10);
+      const itemId = card.dataset.itemId;
+      if (count > 0 && itemId && !subStepExpanded[itemId]) {
+        const btn = document.getElementById('expand-btn-' + itemId);
+        if (btn) expand(new Event('click'), itemId);
+        break;
+      }
+    }
+  }
+
+  /** Keep surviving item cache after a local NEXT→NOW transition. Regular loadDay wipes instead. */
+  function retainSubstepStateForItems(items) {
+    const keep = {};
+    (items || []).forEach(function (item) {
+      if (item && item.id) keep[item.id] = true;
+    });
+    if (typeof subStepCache === 'object' && subStepCache) {
+      Object.keys(subStepCache).forEach(function (id) {
+        if (!keep[id]) delete subStepCache[id];
+      });
+    }
+    if (typeof subStepExpanded === 'object' && subStepExpanded) {
+      Object.keys(subStepExpanded).forEach(function (id) {
+        if (!keep[id] || !subStepCache[id]) delete subStepExpanded[id];
+      });
+    }
+  }
+
   function initChildSortable() {
     if (!allowChildReorder) {
       _childSortables.forEach(s => s.destroy());
@@ -260,7 +369,7 @@
           MetaAppEvents.handleServerMilestones(completeData && completeData.meta_milestones);
         }
         if (window.Platform && window.Platform.haptics) window.Platform.haptics.medium();
-        await loadDay(currentDate, false);
+        await loadDay(currentDate, false, { keepSubstepState: true });
       } else if (!allDone && mainIsDone) {
         await Auth.api(`/api/me/daily-log-items/${itemId}/uncomplete`, { method: 'PUT' });
         await loadDay(currentDate, false);
@@ -326,4 +435,9 @@
   window.renderSubStepList = renderSubStepList;
   window.toggleSubStep = toggleSubStep;
   window.updateSubStepProgressBadge = updateSubStepProgressBadge;
+  window.getActivityCardModel = getActivityCardModel;
+  window.renderSubstepProgressBadge = renderSubstepProgressBadge;
+  window.renderActivitySubstepsBlock = renderActivitySubstepsBlock;
+  window.autoExpandNowSubsteps = autoExpandNowSubsteps;
+  window.retainSubstepStateForItems = retainSubstepStateForItems;
 })();

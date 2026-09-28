@@ -28,6 +28,8 @@ describe('child-core-journey-harness contract', () => {
   it('exercises order, substep, and session resume checks', () => {
     assert.match(harness, /order_check|orderOk/);
     assert.match(harness, /substep-row/);
+    assert.match(harness, /teacch-exit-btn/);
+    assert.match(harness, /exitActivityNowSubstepsOk/);
     assert.match(harness, /session_resume|resumeOk/);
     assert.match(harness, /\/child\/today/);
   });

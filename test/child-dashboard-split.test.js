@@ -37,6 +37,11 @@ const MODULES = {
     'renderSubStepList',
     'toggleSubStep',
     'updateSubStepProgressBadge',
+    'getActivityCardModel',
+    'renderSubstepProgressBadge',
+    'renderActivitySubstepsBlock',
+    'autoExpandNowSubsteps',
+    'retainSubstepStateForItems',
   ],
   'public/js/child-dashboard-checkoff.js': [
     'toggleItem',
