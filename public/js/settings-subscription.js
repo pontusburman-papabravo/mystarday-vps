@@ -9,13 +9,22 @@
       (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
   }
 
+  function subscriptionDateLocale() {
+    let raw = 'sv-SE';
+    if (window.I18n) {
+      if (typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang()) {
+        raw = I18n.getCurrentLang();
+      } else if (typeof I18n.getLocale === 'function' && I18n.getLocale()) {
+        raw = I18n.getLocale();
+      }
+    }
+    return String(raw).toLowerCase().indexOf('en') === 0 ? 'en-GB' : 'sv-SE';
+  }
+
   function formatDate(iso) {
     if (!iso) return '';
     try {
-      const locale = (window.I18n && typeof I18n.getLocale === 'function')
-        ? I18n.getLocale()
-        : 'sv-SE';
-      return new Date(iso).toLocaleDateString(locale === 'en-GB' ? 'en-GB' : 'sv-SE');
+      return new Date(iso).toLocaleDateString(subscriptionDateLocale());
     } catch (_) {
       return iso;
     }
@@ -294,5 +303,10 @@
       renderSubscription();
       scrollToHash();
     }
+    ['parent-i18n-ready', 'settings-parent-i18n-ready', 'locale-changed'].forEach(function (name) {
+      document.addEventListener(name, function () {
+        renderSubscription();
+      });
+    });
   }
 })();

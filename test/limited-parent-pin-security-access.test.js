@@ -123,6 +123,9 @@ test('limited parent PIN security access integration A–I', async (t) => {
     await setPaymentStart('2020-01-01T00:00:00+02:00', db);
     const appSettings = require('../db/app-settings');
     await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+    // Ireland complimentary access lasts until 2027-01-01 regardless of created_at.
+    // This case needs a limited parent: PIN routes stay open, other family writes stay 402.
+    await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
     await db.query(
       `INSERT INTO feature_flag (key, enabled, description)
        VALUES ('market_ie_open', true, 'limited-parent-pin test')

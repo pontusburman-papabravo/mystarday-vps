@@ -197,7 +197,8 @@
         "test/legal-routing.test.js",
         "test/i18n-locale.test.js",
         "test/register-language-displayed.test.js",
-        "test/en-ireland-funnel.test.js"
+        "test/en-ireland-funnel.test.js",
+        "test/og-image-locale.test.js"
       ],
       "testGlobs": [
         "test/i18n*.test.js",
@@ -211,6 +212,7 @@
         "test/prebilling-market-e2e.test.js",
         "test/public-launch-state.test.js",
         "test/en-ireland-funnel.test.js",
+        "test/og-image-locale.test.js",
         "test/paid-transition.test.js",
         "test/paid-transition-simulation.test.js"
       ]

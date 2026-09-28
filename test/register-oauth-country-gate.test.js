@@ -17,6 +17,23 @@ function memStorage() {
   };
 }
 
+function makeActionButton() {
+  const classes = new Set();
+  return {
+    disabled: false,
+    attributes: {},
+    setAttribute(name, value) { this.attributes[name] = String(value); },
+    getAttribute(name) { return this.attributes[name]; },
+    classList: {
+      toggle(name, force) {
+        if (force) classes.add(name);
+        else classes.delete(name);
+      },
+      contains(name) { return classes.has(name); },
+    },
+  };
+}
+
 function loadRegistrationModules(opts) {
   opts = opts || {};
   const sessionStorage = opts.sessionStorage || memStorage();
@@ -51,6 +68,9 @@ function loadRegistrationModules(opts) {
   });
 
   const termsEl = { checked: opts.termsAccepted !== false, focus() {} };
+  const submitBtn = makeActionButton();
+  const appleRegisterBtn = makeActionButton();
+  const googleRegisterBtn = makeActionButton();
   const document = {
     documentElement: { lang: opts.lang || 'sv-SE' },
     querySelector(sel) {
@@ -65,6 +85,9 @@ function loadRegistrationModules(opts) {
       if (id === 'termsAccepted' || id === 'appleTermsAccepted' || id === 'appleCompletionTermsAccepted') {
         return termsEl;
       }
+      if (id === 'submitBtn') return submitBtn;
+      if (id === 'appleRegisterBtn') return appleRegisterBtn;
+      if (id === 'googleRegisterBtn') return googleRegisterBtn;
       return null;
     },
     head: { appendChild() {} },
@@ -114,6 +137,9 @@ function loadRegistrationModules(opts) {
     container,
     selectEl,
     tracked,
+    submitBtn,
+    appleRegisterBtn,
+    googleRegisterBtn,
   };
 }
 
@@ -236,6 +262,37 @@ describe('CountryChoice public registration gate', () => {
     assert.equal(errorEl.hidden, false);
     assert.ok(errorEl.textContent);
     assert.equal(sessionStorage.getItem('sd_country_confirmed'), null);
+  });
+
+  it('closed UK market disables Create account instead of looking enabled', async () => {
+    const { CountryChoice, container, selectEl, errorEl, submitBtn, appleRegisterBtn, googleRegisterBtn } = loadRegistrationModules();
+    await CountryChoice.mount(container);
+    assert.equal(submitBtn.disabled, false);
+    selectEl.value = 'GB';
+    selectEl.dispatchChange();
+    assert.equal(CountryChoice.requireSelection(), false);
+    assert.equal(errorEl.hidden, false);
+    assert.ok(errorEl.textContent);
+    assert.equal(submitBtn.disabled, true);
+    assert.equal(submitBtn.getAttribute('aria-disabled'), 'true');
+    assert.equal(submitBtn.classList.contains('is-market-closed'), true);
+    assert.equal(appleRegisterBtn.disabled, true);
+    assert.equal(googleRegisterBtn.disabled, true);
+    selectEl.value = 'SE';
+    selectEl.dispatchChange();
+    assert.equal(submitBtn.disabled, false);
+    assert.equal(submitBtn.getAttribute('aria-disabled'), 'false');
+    assert.equal(submitBtn.classList.contains('is-market-closed'), false);
+    assert.equal(CountryChoice.requireSelection(), true);
+  });
+
+  it('login page does not disable the login submit button for a closed country', async () => {
+    const { CountryChoice, container, selectEl, submitBtn } = loadRegistrationModules({ pathname: '/login' });
+    await CountryChoice.mount(container);
+    selectEl.value = 'GB';
+    selectEl.dispatchChange();
+    assert.equal(submitBtn.disabled, false);
+    assert.equal(submitBtn.classList.contains('is-market-closed'), false);
   });
 
   it('E: confirmed closed country is fail-closed (isConfirmed alone is not enough)', () => {
