@@ -633,6 +633,18 @@
     }
   }
 
+  function restoreHemChildLoginAfterCoachHidden() {
+    const homePrimary = window.HomePrimaryAction;
+    if (homePrimary && typeof homePrimary.apply === 'function') {
+      homePrimary.apply();
+      return;
+    }
+    const handoff = window.DashboardChildHandoff;
+    if (handoff && typeof handoff.afterPrimaryAction === 'function') {
+      handoff.afterPrimaryAction();
+    }
+  }
+
   async function refreshLegacyCoachMounts() {
     if (!shouldSuppressLegacyCoaches()) return;
     try {
@@ -645,6 +657,7 @@
         await journey.pollCoach();
       }
     } catch (_) { /* legacy coach scripts optional */ }
+    restoreHemChildLoginAfterCoachHidden();
   }
 
   function trackRetention(payload, shown) {

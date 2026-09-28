@@ -128,6 +128,8 @@
     } catch {}
   }
 
+  let activationHandoffNeededCache = null;
+
   async function loadActivationHandoffNeeded() {
     if (!window.apiFetch) return false;
     try {
@@ -135,10 +137,15 @@
       if (!res.ok) return false;
       const cfg = await res.json();
       const st = cfg.state || {};
-      return Boolean(st.schema_saved_at && !st.child_access_completed_at);
+      activationHandoffNeededCache = Boolean(st.schema_saved_at && !st.child_access_completed_at);
+      return activationHandoffNeededCache;
     } catch {
       return false;
     }
+  }
+
+  function shouldSuppressNonLoginCoaches() {
+    return activationHandoffNeededCache === true;
   }
 
   function isDismissed() {
@@ -315,6 +322,65 @@
     document.head.appendChild(s);
   }
 
+  function isVisibleEl(el) {
+    return Boolean(el && el.classList && !el.classList.contains('hidden'));
+  }
+
+  function coachOffersChildLogin(el) {
+    if (!isVisibleEl(el)) return false;
+    return Boolean(el.querySelector(
+      '[data-child-login-cta], [data-action="child-login"], #dashboardChildLoginBtn, .activation-fs-cta'
+    ));
+  }
+
+  function hasVisibleChildLoginCta() {
+    return coachOffersChildLogin(document.getElementById('activationFirstSuccessCoachMount'))
+      || coachOffersChildLogin(document.getElementById('journeyCoachMount'));
+  }
+
+  /**
+   * Signup Journey (days 1–14) used to hide the Hem handoff card even when
+   * Journey was silent/idle and First Success was suppressed — leaving no
+   * child-login CTA. After the coach ladder settles, keep exactly one visible
+   * child-login action for families who still need child access.
+   */
+  function afterPrimaryAction() {
+    const fs = document.getElementById('activationFirstSuccessCoachMount');
+    const journey = document.getElementById('journeyCoachMount');
+    const magic = document.querySelector('.parent-handoff-card');
+
+    if (hasVisibleChildLoginCta()) {
+      if (magic) magic.classList.add('hidden');
+      maybeEnrichHandoff(coachOffersChildLogin(fs) ? fs : journey);
+      return;
+    }
+
+    function revealHandoffAndHideCompetitors() {
+      if (journey && !coachOffersChildLogin(journey)) {
+        journey.classList.add('hidden');
+      }
+      const engine = document.getElementById('engineCoachMount');
+      if (engine && !coachOffersChildLogin(engine)) {
+        engine.classList.add('hidden');
+      }
+      const card = document.querySelector('.parent-handoff-card')
+        || document.getElementById('dashboardChildHandoff');
+      if (!card) return;
+      card.classList.remove('hidden');
+      maybeEnrichHandoff(card);
+    }
+
+    if (shouldSuppressNonLoginCoaches()) {
+      revealHandoffAndHideCompetitors();
+      return;
+    }
+
+    Promise.resolve(loadActivationHandoffNeeded()).then(function (needed) {
+      if (!needed) return;
+      revealHandoffAndHideCompetitors();
+    });
+  }
+
   async function resolveVisibility(el) {
     if (!el) return;
 
@@ -364,11 +430,11 @@
         const journeyOn = await JourneyContextClient.isJourneyApiEnabled();
         if (journeyOn) {
           const ctx = await JourneyContextClient.fetchContext();
-          if (ctx?.signup_journey?.active) {
+          if (ctx?.signup_journey?.active && !activationNeeded) {
             el.classList.add('hidden');
             return;
           }
-          if (ctx?.capabilities?.handoff_v2) {
+          if (ctx?.capabilities?.handoff_v2 && !activationNeeded) {
             el.classList.toggle('hidden', !contextWantsHandoff(ctx));
             if (!contextWantsHandoff(ctx)) return;
             bindEvents(el);
@@ -418,5 +484,8 @@
     probeTrustedChildPath: probeTrustedChildPath,
     tryOpenTrustedChildView: tryOpenTrustedChildView,
     maybeEnrichHandoff: maybeEnrichHandoff,
+    afterPrimaryAction: afterPrimaryAction,
+    hasVisibleChildLoginCta: hasVisibleChildLoginCta,
+    shouldSuppressNonLoginCoaches: shouldSuppressNonLoginCoaches,
   };
 })();

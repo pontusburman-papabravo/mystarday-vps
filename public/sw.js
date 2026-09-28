@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1013: keep Hem child-login CTA when schema is saved
  * v1012: English paywall locale, OG image, closed-market signup
  * v1011: hide iOS date/time chrome; edit rewards by id
  * v1000: resource PDFs use the same pictograms as the child app
@@ -342,8 +343,9 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
+// stjarndag-v1013: keep Hem child-login CTA when schema is saved
+const CACHE_NAME = 'stjarndag-v1013';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
-const CACHE_NAME = 'stjarndag-v1012';
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
 // stjarndag-v1010: NOW card keeps shared substeps after NEXT→NOW / Exit activity

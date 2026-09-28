@@ -75,6 +75,8 @@ describe('growth-system-help content', () => {
     assert.match(help.headline, /öppna vyn/i);
     assert.equal(help.ctaAction, 'start_child_login');
     assert.doesNotMatch(help.body, /PIN/i);
+    assert.match(help.reassure, /föräldraläget/i);
+    assert.doesNotMatch(help.reassure, /PIN/i);
     assert.ok(SURFACE_BY_BLOCKING_STEP.schema_no_child_login.includes('child_handoff'));
   });
 
@@ -102,6 +104,8 @@ describe('growth-system-help content', () => {
     const en = buildHelpPayload('schema_no_child_login', 'en-GB', { childName: 'Astrid' });
     assert.match(en.headline, /Astrid/);
     assert.doesNotMatch(en.body, /PIN/i);
+    assert.match(en.reassure, /parent mode/i);
+    assert.doesNotMatch(en.reassure, /PIN/i);
   });
 
   it('computes 24h / 72h progression outcomes', () => {

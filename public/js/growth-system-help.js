@@ -152,6 +152,9 @@
       '<p class="help-journey-tip-label">' + esc(isEnglish() ? 'Suggested help' : 'Föreslagen hjälp') + '</p>' +
       '<p class="help-journey-tip-headline">' + esc(help.headline) + '</p>' +
       '<p class="help-journey-tip-body">' + esc(help.body) + '</p>' +
+      (help.reassure
+        ? '<p class="help-journey-tip-body text-text-soft">' + esc(help.reassure) + '</p>'
+        : '') +
       '<button type="button" class="help-journey-tip-cta growth-system-help-cta">' + esc(help.ctaLabel) + '</button>' +
       '<button type="button" class="growth-system-help-report mt-2 w-full text-xs text-slate-500 underline">' +
         esc(reportLabel) + '</button>' +
@@ -216,16 +219,16 @@
   function findHandoffParts(rootEl) {
     return {
       titleEl: rootEl.querySelector(
-        '.dash-child-handoff-title, .parent-handoff-title, .activation-fs-headline'
+        '.dash-child-handoff-title, .parent-handoff-title, .activation-fs-headline, .journey-coach-headline'
       ),
       subEl: rootEl.querySelector(
-        '.dash-child-handoff-sub, .parent-handoff-sub, .activation-fs-body'
+        '.dash-child-handoff-sub, .parent-handoff-sub, .activation-fs-body, .journey-coach-body'
       ),
       primaryBtn: rootEl.querySelector(
-        '#dashboardChildLoginBtn, [data-action="child-login"], .activation-fs-cta'
+        '#dashboardChildLoginBtn, [data-action="child-login"], .activation-fs-cta, [data-child-login-cta]'
       ),
       actionsEl: rootEl.querySelector(
-        '.dash-child-handoff-actions, .parent-handoff-actions, .activation-fs-coach'
+        '.dash-child-handoff-actions, .parent-handoff-actions, .activation-fs-coach, .journey-coach-card'
       ),
       pinHintEl: rootEl.querySelector('.activation-fs-pin-hint'),
     };
@@ -312,8 +315,8 @@
     helpLink.className =
       'growth-system-help-handoff-secondary mt-2 text-sm text-slate-500 underline text-left w-full';
     helpLink.textContent = isEnglish()
-      ? 'Problem with child login?'
-      : 'Problem med barninloggningen?';
+      ? 'How does the child start?'
+      : 'Hur gör barnet?';
     helpLink.addEventListener('click', function () {
       if (typeof window.__hbToggle === 'function') window.__hbToggle();
     });
@@ -344,9 +347,14 @@
     parts.primaryBtn.textContent = help.ctaLabel;
     parts.primaryBtn.setAttribute('data-handoff-inline-cta', '1');
     if (parts.pinHintEl) {
-      parts.pinHintEl.textContent = '';
-      if (parts.pinHintEl.classList && typeof parts.pinHintEl.classList.add === 'function') {
-        parts.pinHintEl.classList.add('hidden');
+      const hint = help.reassure || '';
+      parts.pinHintEl.textContent = hint;
+      if (parts.pinHintEl.classList) {
+        if (hint && typeof parts.pinHintEl.classList.remove === 'function') {
+          parts.pinHintEl.classList.remove('hidden');
+        } else if (!hint && typeof parts.pinHintEl.classList.add === 'function') {
+          parts.pinHintEl.classList.add('hidden');
+        }
       }
     }
     bindInlineCtaClick(parts, data, help);
@@ -393,11 +401,49 @@
     await recordShown(data);
   }
 
+  function isVisibleRoot(el) {
+    return Boolean(el && el.classList && !el.classList.contains('hidden'));
+  }
+
+  function rootOffersChildLogin(el) {
+    if (!isVisibleRoot(el)) return false;
+    const parts = findHandoffParts(el);
+    return Boolean(parts.primaryBtn);
+  }
+
+  /**
+   * After Hem's coach ladder settles, enrich the CTA the parent can actually see.
+   * Hidden First Success / handoff mounts must not consume the shown event.
+   */
+  function findVisibleHemHandoffRoot() {
+    const doc = typeof document !== 'undefined' ? document : null;
+    if (!doc) return null;
+    const candidates = [
+      doc.getElementById('activationFirstSuccessCoachMount'),
+      doc.getElementById('journeyCoachMount'),
+      doc.querySelector('.parent-handoff-card'),
+      doc.getElementById('dashboardChildHandoff'),
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+      if (rootOffersChildLogin(candidates[i])) return candidates[i];
+    }
+    return null;
+  }
+
+  async function enrichVisibleHem() {
+    const root = findVisibleHemHandoffRoot();
+    if (!root) return null;
+    await enrichHandoff(root);
+    return root;
+  }
+
   window.GrowthSystemHelp = {
     detectSurface: detectSurface,
     fetchContext: fetchContext,
     refreshHelpPanel: refreshHelpPanel,
     enrichHandoff: enrichHandoff,
+    enrichVisibleHem: enrichVisibleHem,
+    findVisibleHemHandoffRoot: findVisibleHemHandoffRoot,
     buildCardHtml: buildCardHtml,
     buildTechnicalContext: buildTechnicalContext,
   };
