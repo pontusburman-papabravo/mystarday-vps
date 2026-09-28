@@ -276,6 +276,7 @@ test('IE Google new signup after lifetime cutoff with billing off is MARKET_BILL
     await setMarketFlag(db, 'market_ie_open', true);
     await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
     await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+    await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
 
     const handler = getGoogleHandler();
     const req = {

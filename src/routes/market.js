@@ -28,6 +28,10 @@ const {
   isMarketBillingReady,
 } = require('../lib/payment-settings');
 const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
+const {
+  getIrelandFreeUntil,
+  describeIrelandLaunchOffer,
+} = require('../lib/ireland-launch-offer');
 
 const router = express.Router();
 
@@ -37,6 +41,7 @@ router.get('/registration-gates', async (req, res) => {
     const [
       se, ie, fi, no, dk, eu, uk, us, other,
       publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable, lifetimeFreeUntil,
+      irelandFreeUntil,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
@@ -53,6 +58,7 @@ router.get('/registration-gates', async (req, res) => {
       getPaymentStartAtForCountry('FI'),
       isEnglishAppGlobalEnabled(),
       getLifetimeFreeUntil(),
+      getIrelandFreeUntil(),
     ]);
     const now = new Date();
     const paymentStartByCountry = {
@@ -101,6 +107,9 @@ router.get('/registration-gates', async (req, res) => {
         SE: sePaymentStartAt ? sePaymentStartAt.toISOString() : null,
         IE: iePaymentStartAt ? iePaymentStartAt.toISOString() : null,
         FI: fiPaymentStartAt ? fiPaymentStartAt.toISOString() : null,
+      },
+      launch_offer: {
+        IE: describeIrelandLaunchOffer(irelandFreeUntil, now),
       },
     });
   } catch (err) {

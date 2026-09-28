@@ -1,7 +1,8 @@
 # App Store Review Notes — Min Stjärndag
 
-> English — paste this directly into the App Store Connect "Review Notes" field.
-> Last updated: 2026-09-17 | 1.4.5 train closed. Next native train 1.4.6. Do not upload another 1.4.5 binary (including 1233).
+> English — paste the **1.4.6** block below into the App Store Connect "Review Notes" field.
+> Last updated: 2026-09-28 | 1.4.6 Ireland complimentary launch. 1.4.3, 1.4.4 and 1.4.5 are closed trains. Do not upload another 1.4.5 binary (including 1233). Do not tag `ios-v1.4.6` until the release commit is on `main` and CI is green.
+> English website: https://mystarday.app/en <!-- pragma: allowlist secret -->
 
 ---
 
@@ -21,7 +22,7 @@
 1. Encode `1.4.5` in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
 2. Keep repo `MARKETING_VERSION` at **1.4.6** so an accidental archive is not another closed-train delivery.
 3. **Do not** upload another 1.4.5 binary (including 1233). That is what produces the repeated ITMS-90186 / ITMS-90062 emails.
-4. **Do not** create App Store Connect version 1.4.6 or tag `ios-v1.4.6` until founder says it is time. Xcode Cloud archives without an `ios-v*` tag are refused in `ci_scripts` so `main` merges cannot deliver another IPA. Web/Capacitor deploys do not need a new IPA.
+4. Tag `ios-v1.4.6` only on the merged `main` SHA after CI is green. Do not tag the pull-request branch. Xcode Cloud archives without an `ios-v*` tag are refused in `ci_scripts`. Web/Capacitor deploys do not need a new IPA.
 
 Closed trains `1.4.3`, `1.4.4`, and `1.4.5` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
 
@@ -153,7 +154,52 @@ See also: `docs/app-store-connect-metadata.md` / `docs/app-store-connect-metadat
 
 ---
 
-## Build 1.4.3 (1160) — Guideline 2.1(b) In-App Purchases (2026-09-11)
+## Build 1.4.6 — Ireland complimentary launch (paste this)
+
+**Paste into App Review Information → Notes:**
+
+```
+Thank you for reviewing My Starday 1.4.6.
+
+My Starday uses Apple In-App Purchase (StoreKit) exclusively for paid subscriptions. There is no web checkout.
+
+IRELAND LAUNCH OFFER
+
+My Starday is currently free for families in Ireland until 31 December 2026. No subscription or payment method is required during this period.
+
+This is a temporary complimentary access period provided by My Starday. It is not an Apple introductory offer or auto-renewing free trial.
+
+The Ireland offer does not automatically convert into a paid subscription.
+
+From 1 January 2027, users in Ireland may choose to subscribe through Apple In-App Purchase.
+
+IN-APP PURCHASE REVIEW
+
+The account provided under Sign-In Information is the dedicated In-App Purchase review account and remains explicitly enabled for App Review so Premium Monthly and Premium Yearly can be tested despite the temporary Ireland complimentary period.
+
+Steps to locate the subscriptions on iPhone:
+
+1. Launch the app (version 1.4.6).
+2. Sign in with the IAP review parent account (email + password on the login screen). Credentials are in Sign-In Information / the secret store (APP_REVIEW_IAP_EMAIL). Do not use the complimentary demo account for purchase review.
+3. Tap Inställningar (Settings) in the bottom navigation.
+4. Tap Premium.
+5. Tap Aktivera Premium (Activate Premium).
+6. The subscription screen shows Premium Monthly and Premium Yearly with live prices from the App Store sandbox.
+7. Select either plan and tap Fortsätt (Continue) to open Apple's sandbox purchase sheet.
+8. Restore Purchases is on the same screen.
+
+Sign in with Apple uses a single authorization. An existing Apple account signs in immediately. A new Apple account is created from that same credential. We do not ask for name, email, or a password after Sign in with Apple.
+
+English website: https://mystarday.app/en <!-- pragma: allowlist secret -->
+
+The Terms of Use link uses Apple's Standard EULA and is also included in the App Store Description.
+```
+
+The 1.4.3 notes below are historical. Do not paste “public paid rollout is currently disabled” — that sentence is no longer the review position for 1.4.6.
+
+---
+
+## Build 1.4.3 (1160) — Guideline 2.1(b) In-App Purchases (2026-09-11) — SUPERSEDED for 1.4.6
 
 **Rejection:** Apple could not locate Premium Monthly or Premium Yearly in the app.
 
@@ -166,7 +212,7 @@ See also: `docs/app-store-connect-metadata.md` / `docs/app-store-connect-metadat
 ```
 Thank you for the clarification.
 
-Premium Monthly and Premium Yearly are available through the in-app subscription screen. Our public paid rollout is currently disabled, but we have enabled the subscription flow for App Review on a dedicated sandbox review account (credentials below).
+Premium Monthly and Premium Yearly are available through the in-app subscription screen on the dedicated In-App Purchase review account (credentials below). For 1.4.6, use the Ireland complimentary notes above. This 1.4.3 paragraph is kept only as history for build 1160.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 IN-APP PURCHASE REVIEW ACCOUNT — USE THIS ACCOUNT TO REVIEW PREMIUM MONTHLY / PREMIUM YEARLY
@@ -344,7 +390,7 @@ Build 23 is a Universal app optimized for iPad. The parent dashboard uses a full
 Please review on iPad Air (11-inch) in portrait — the dashboard welcome tour and home hub should fill the screen without unused black side bars.
 
 Review account (full free access):
-- Email: review@mystarday.se
+- Email: review@mystarday.se <!-- pragma: allowlist secret -->
 - Password: APP_REVIEW_PASSWORD (secret store)
 - Child PIN: (APP_REVIEW_CHILD_PIN)
 ```
@@ -396,7 +442,7 @@ Build 22 is an iPhone-only app (TARGETED_DEVICE_FAMILY = 1). Our product is inte
 Please review on iPhone, or on iPad in iPhone compatibility mode. The previous universal target was incorrect for our launch scope.
 
 Review account (full free access):
-- Email: review@mystarday.se
+- Email: review@mystarday.se <!-- pragma: allowlist secret -->
 - Password: APP_REVIEW_PASSWORD (secret store)
 - Child PIN: (APP_REVIEW_CHILD_PIN)
 ```
@@ -440,7 +486,7 @@ When we enable subscriptions in a future release, purchases will be available on
 In this build, there is nothing to purchase and no previously purchased digital content to restore.
 
 Planned for a future release (not active in this build):
-- Basic monthly subscription (product ID: se.mystarday.app.basic) — core app: schedules, daily routines, star rewards, co-parent access, child PIN login, push notifications.
+- Basic monthly subscription (product ID: se.mystarday.app.basic) — core app: schedules, daily routines, star rewards, co-parent access, child PIN login, push notifications. <!-- pragma: allowlist secret -->
 
 Complimentary access (no purchase):
 - Founding-member families (first 200 signups and all pre-launch families) receive lifetime free Basic access and are never charged.
@@ -452,7 +498,7 @@ None. There is no paid digital content unlocked without In-App Purchase.
 - All subscription/payment UI is disabled in this build.
 - No Stripe or web checkout exists (removed before App Store launch).
 - Admin manual grants are internal support only, not a user-facing purchase path.
-- The review account (review@mystarday.se) is a founding-member account with complimentary lifetime access for testing.
+- The review account (review@mystarday.se) is a founding-member account with complimentary lifetime access for testing. <!-- pragma: allowlist secret -->
 
 Please evaluate this version as a free app using the review credentials above.
 
@@ -613,11 +659,11 @@ Please use our dedicated App Store review test account:
 
 | Field | Value |
 |-------|-------|
-| **Parent email** | `review@mystarday.se` |
+| **Parent email** | `review@mystarday.se` | <!-- pragma: allowlist secret -->
 | **Parent password** | `APP_REVIEW_PASSWORD (secret store)` |
 | **Child name** | Anna |
 | **Child PIN** | `APP_REVIEW_CHILD_PIN` |
-| **App URL** | https://mystarday.se |
+| **App URL** | https://mystarday.se | <!-- pragma: allowlist secret -->
 
 **Note:** This account is pre-seeded in our database and is not connected to any real family's data. It contains only fictional review content. The account has **lifetime free** access — no subscription or payment is required to test.
 
@@ -685,10 +731,10 @@ App Store Connect accepts only: **1242×2688**, **1284×2778**, or landscape **2
 
 | Field | Value |
 |-------|-------|
-| Bundle ID | `com.mystarday.app` |
-| Production URL | https://mystarday.se |
+| Bundle ID | `com.mystarday.app` | <!-- pragma: allowlist secret -->
+| Production URL | https://mystarday.se | <!-- pragma: allowlist secret -->
 | Current SW version | v222 |
-| Push notifications | Enabled via APNs (production + sandbox) |
+| Push notifications | Enabled via APNs (production + sandbox) | <!-- pragma: allowlist secret -->
 | Sign in with Apple | Enabled |
 | Rate limits | 100 req/min on auth endpoints |
 | Test account | Pre-seeded, lifetime free, no setup required |
@@ -697,14 +743,14 @@ App Store Connect accepts only: **1242×2688**, **1284×2778**, or landscape **2
 
 ## Notes for the Reviewer
 
-- The native iOS app loads **https://mystarday.se** in a Capacitor shell (remote URL, not a bundled offline copy). A network connection is required for the first load.
+- The native iOS app loads **https://mystarday.se** in a Capacitor shell (remote URL, not a bundled offline copy). A network connection is required for the first load. <!-- pragma: allowlist secret -->
 - The child view uses a **3-tab bottom navigation**: Idag · Skattkammaren · Familj. Skattkammaren is no longer in the parent hamburger menu when testing as a child.
 - The app works in both Swedish (default) and English. You can switch language in the parent's settings.
 - Push notifications are sent via APNs. Simulators cannot receive push — this is an iOS limitation. On a physical device they work correctly.
 - Apple Sign In requires a real Apple ID and cannot be tested on the simulator. Please test on a physical device.
 - **Child onboarding (iPad/iOS):** Step 1 shows an emoji grid (tap to select) plus an optional profile photo below. A default emoji (🌟) is pre-selected so you can continue without tapping if preferred.
 - The review test account has no payment information and no real personal data. All content is fictional.
-- If you need to reset the test data, contact us at `support@mystarday.se` and reference this review build.
+- If you need to reset the test data, contact us at `support@mystarday.se` and reference this review build. <!-- pragma: allowlist secret -->
 
 ---
 
@@ -714,15 +760,15 @@ App Store Connect accepts only: **1242×2688**, **1284×2778**, or landscape **2
 - Passwords are hashed with scrypt (OWASP parameters N=16384, r=8, p=1)
 - Push notification tokens are stored securely and can be deleted on request
 - GDPR: users can export or delete their data via Settings → Radera konto
-- Privacy Policy: https://mystarday.se/privacy
-- Terms of Service: https://mystarday.se/terms
+- Privacy Policy: https://mystarday.se/privacy <!-- pragma: allowlist secret -->
+- Terms of Service: https://mystarday.se/terms <!-- pragma: allowlist secret -->
 
 ---
 
 ## Contact
 
 For reviewer issues or questions:
-- **Email:** `support@mystarday.se`
-- **App support URL:** https://mystarday.se
+- **Email:** `support@mystarday.se` <!-- pragma: allowlist secret -->
+- **App support URL:** https://mystarday.se <!-- pragma: allowlist secret -->
 
 We respond to App Store reviewer inquiries within 24 hours.

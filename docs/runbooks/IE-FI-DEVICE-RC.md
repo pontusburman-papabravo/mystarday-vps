@@ -46,4 +46,4 @@ Print live evaluator output with `npm run ie-fi:release-gates`. Do not treat thi
 - `IE_READY_TO_OPEN` stays **NO** until `founder_open_approved_ie` is an explicit ops decision. Device PASS is not that decision.
 - Do **not** set `market_ie_open` or `market_fi_open`.
 
-Ireland launch model is 14-day computed trial (`docs/ie-paid-launch-kravspec.md`, ADR-023), not the historical T0/T1/T2 prebilling path above. Missing store-configuration evidence does **not** block CODE READY or PREBILLING MARKET READY. See `docs/ie-fi-prebilling-access.md`.
+Ireland launch model is complimentary access until 2027-01-01 00:00 Europe/Dublin (ADR-024), not a 14-day converting trial and not the historical T0/T1/T2 prebilling path. `market_ie_open` is unchanged. Finland stays closed.

@@ -144,7 +144,7 @@ test('G3c empty DB: wipe, migrate, rollback latest, re-migrate', async (t) => {
         repoRoot: path.join(__dirname, '..'),
       });
       assert.equal(compare.ok, true, JSON.stringify(compare.drift));
-      assert.deepEqual(compare.newMigrationNames || [], ['1810530000000_disable_onboarding_handoff_film']);
+      assert.deepEqual(compare.newMigrationNames || [], ['1810540000000_market_ie_free_until']);
     } finally {
       client.release();
     }

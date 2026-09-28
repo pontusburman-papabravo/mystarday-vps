@@ -692,6 +692,7 @@ test('child cannot reach parent/admin/billing/premium surfaces (prebilling + lim
         WHERE p.email = $1 AND f.id = p.family_id`,
       [reg.email.toLowerCase(), DEFAULT_TRIAL_DAYS + 1]
     );
+    await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
 
     const limitedDaily = await probe('GET', '/api/me/daily-log');
     assert.equal(limitedDaily.status, 200, limitedDaily.text);

@@ -75,7 +75,7 @@ describe('signup completeness invariant', () => {
     assert.equal(r.reason, 'grandfather_eligible');
   });
 
-  it('open IE after lifetime cutoff without billing is rejected (trial market)', () => {
+  it('open IE during complimentary window can signup without billing', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
@@ -85,11 +85,11 @@ describe('signup completeness invariant', () => {
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,
     });
-    assert.equal(r.allowed, false);
-    assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'complimentary_until');
   });
 
-  it('open IE with global billing but market billing not ready is rejected', () => {
+  it('open IE during complimentary window does not require market billing', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
@@ -98,6 +98,21 @@ describe('signup completeness invariant', () => {
       paymentStartAt: IE_FI_CUTOFF,
       lifetimeFreeUntil: LIFETIME_UNTIL,
       now: AFTER_IE_FI,
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'complimentary_until');
+  });
+
+  it('open IE after complimentary cutoff without billing is rejected', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      marketBillingReady: false,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      irelandFreeUntil: '2027-01-01T00:00:00.000Z',
+      now: new Date('2027-01-01T00:00:00.000Z'),
     });
     assert.equal(r.allowed, false);
     assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
@@ -116,7 +131,7 @@ describe('signup completeness invariant', () => {
     assert.equal(r.code, 'MARKET_BILLING_NOT_READY');
   });
 
-  it('open IE with billing can complete signup as trial, not intro year', () => {
+  it('open IE during complimentary window signs up as complimentary, not trial or intro year', () => {
     const r = evaluateSignupCompleteness({
       countryCode: 'IE',
       marketOpen: true,
@@ -127,7 +142,22 @@ describe('signup completeness invariant', () => {
       now: AFTER_IE_FI,
     });
     assert.equal(r.allowed, true);
-    assert.equal(r.reason, 'trial');
+    assert.equal(r.reason, 'complimentary_until');
+  });
+
+  it('open IE after complimentary cutoff with billing can sign up without creating a trial', () => {
+    const r = evaluateSignupCompleteness({
+      countryCode: 'IE',
+      marketOpen: true,
+      publicBillingUsable: true,
+      marketBillingReady: true,
+      paymentStartAt: IE_FI_CUTOFF,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      irelandFreeUntil: '2027-01-01T00:00:00.000Z',
+      now: new Date('2027-01-01T00:00:01.000Z'),
+    });
+    assert.equal(r.allowed, true);
+    assert.equal(r.reason, 'post_complimentary');
   });
 
   it('SE before lifetime cutoff can signup even if billing is off (grandfather)', () => {

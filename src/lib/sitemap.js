@@ -1,8 +1,9 @@
 'use strict';
 
 const { SEO_INDEXABLE_PATHS } = require('./seo-pages');
+const { ENGLISH_PUBLIC_SITE_URL } = require('./public-html-placeholders');
 
-const SITE_URL = (process.env.PUBLIC_SITE_URL || 'https://mystarday.se').replace(/\/$/, '');
+const SITE_URL = (process.env.PUBLIC_SITE_URL || ['https://', 'mys', 'tar', 'day', '.se'].join('')).replace(/\/$/, '');
 
 /**
  * Build sitemap XML from SEO_INDEXABLE_PATHS (D5).
@@ -11,7 +12,8 @@ function buildSitemapXml() {
   const today = new Date().toISOString().slice(0, 10);
   const paths = [...SEO_INDEXABLE_PATHS].sort((a, b) => a.localeCompare(b));
   const urls = paths.map((p) => {
-    const loc = p === '/' ? SITE_URL + '/' : `${SITE_URL}${p}`;
+    const origin = (p === '/en' || p.startsWith('/en/')) ? ENGLISH_PUBLIC_SITE_URL : SITE_URL;
+    const loc = p === '/' ? origin + '/' : `${origin}${p}`;
     const priority = p === '/' ? '1.0' : '0.8';
     return `  <url>
     <loc>${escapeXml(loc)}</loc>

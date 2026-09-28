@@ -1,7 +1,7 @@
 # Ireland / Finland release gates
 
 > **AUTHORITY (2026-09-14):** Ireland paid launch = [`docs/ie-paid-launch-kravspec.md`](ie-paid-launch-kravspec.md) + [ADR-023](adr/ADR-023-market-commercial-policy.md).  
-> `PREBILLING_MARKET_READY` is **not** permission to open Ireland. IE requires 14-day trial + billing-ready + physical purchase **before** `market_ie_open`.
+> `PREBILLING_MARKET_READY` is **not** permission to open Ireland. Ireland launch access is complimentary until 2027-01-01 00:00 Europe/Dublin ([ADR-024](adr/ADR-024-ireland-complimentary-until.md)). `market_ie_open` is still the registration gate. The offer does not auto-convert to a subscription.
 
 Do **not** flip `market_ie_open`, `market_fi_open`, or public billing from this document.
 

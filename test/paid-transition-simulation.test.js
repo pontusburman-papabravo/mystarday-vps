@@ -144,10 +144,14 @@ describe('same-family paid transition simulation', { concurrency: 1 }, () => {
           headers: jsonHeaders(parent),
         }));
         assert.equal(t0.status, 200, t0.text);
-        assert.equal(t0.body.access_kind, 'trial');
+        assert.equal(t0.body.access_kind, spec.countryCode === 'IE' ? 'complimentary' : 'trial');
         assert.equal(t0.body.requires_paywall, false);
         assert.equal(t0.body.paid_transition.kind, 'none');
         assert.equal(t0.body.premium.is_grandfathered, false);
+        if (spec.countryCode === 'IE') {
+          assert.equal(t0.body.premium.auto_converts, false);
+          assert.equal(t0.body.premium.source, 'complimentary');
+        }
 
         const childRes = await parseJson(await fetch(`${http.baseUrl}/api/onboarding/child`, {
           method: 'POST',
@@ -188,6 +192,14 @@ describe('same-family paid transition simulation', { concurrency: 1 }, () => {
            WHERE id = $1`,
           [familyId, DEFAULT_TRIAL_DAYS + 1]
         );
+        if (spec.countryCode === 'IE') {
+          const stillFree = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
+            headers: jsonHeaders(parent),
+          }));
+          assert.equal(stillFree.body.access_kind, 'complimentary');
+          assert.equal(stillFree.body.requires_paywall, false);
+          await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
+        }
 
           const t2 = await parseJson(await fetch(`${http.baseUrl}/api/subscription/status`, {
             headers: jsonHeaders(parent),

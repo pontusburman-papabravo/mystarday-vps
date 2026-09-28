@@ -949,17 +949,17 @@
       "settingsHint": "You can turn off these notifications under {{settingsLink}}."
     },
     "trialWelcome": {
-      "subject": "Welcome to {{brand}} – your free trial has started!",
+      "subject": "Welcome to {{brand}} – free in Ireland until 31 December 2026",
       "headerBrand": "{{brand}}",
-      "headerTitle": "Your free trial has started! ⭐",
-      "intro": "Welcome! You now have <strong>14 days free</strong> to try all features in {{brand}} — no credit card needed.",
+      "headerTitle": "Free in Ireland until 31 December 2026",
+      "intro": "Welcome! <strong>My Starday is free for families in Ireland until 31 December 2026.</strong> No subscription or payment method is required. This offer does not automatically convert into a paid subscription.",
       "howTitle": "How it works:",
       "how1": "Create schedules and activities for your child",
       "how2": "Let your child collect stars every day",
       "how3": "Set up rewards in the treasure chamber",
-      "pricing": "After 14 days it costs <strong>£5.99/month</strong> — you can upgrade any time.",
-      "cta": "Try Premium ⭐",
-      "ctaHint": "No commitment — cancel any time",
+      "pricing": "From 1 January 2027 you can choose whether to continue with a subscription. Nothing is charged automatically because of this launch offer.",
+      "cta": "Open My Starday",
+      "ctaHint": "No card required. This offer does not automatically become a subscription.",
       "footerIntro": "You are receiving this email because you recently signed up for {{brand}}.",
       "openApp": "Open the app"
     },

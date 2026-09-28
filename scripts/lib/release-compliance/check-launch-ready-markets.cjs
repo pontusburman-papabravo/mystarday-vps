@@ -4,10 +4,9 @@
  * Launch-ready-but-closed markets (IE, FI): verify they can open later via
  * flags alone, and that GATE_DEFAULTS keep them closed.
  *
- * ADR-023: after the lifetime cutoff these countries are trial markets.
- * Hypothetical open-market signup without public billing or per-market
- * payment start must be MARKET_BILLING_NOT_READY. With global billing
- * infra and market billing ready, reason is `trial`.
+ * ADR-024: Ireland is complimentary until 2027-01-01 00:00 Europe/Dublin.
+ * During that window an open IE signup does not require billing and does not
+ * become a trial. Finland stays on the ADR-023 trial policy.
  * Grandfather before the cutoff still completes without billing.
  * This check must not flip gates.
  */
@@ -141,6 +140,7 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       failures.push(`${code} signup in the grandfather window must complete without billing`);
     }
 
+    const complimentary = code === 'IE';
     const openAfterCutoffNoBilling = invariants.evaluateSignupCompleteness({
       countryCode: code,
       marketOpen: true,
@@ -149,7 +149,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterLifetimeCutoff,
     });
-    if (openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'billing_not_ready') {
+    if (complimentary) {
+      if (!openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'complimentary_until') {
+        failures.push(`${code} hypothetical open-market signup during complimentary window must succeed without billing`);
+      }
+    } else if (openAfterCutoffNoBilling.allowed || openAfterCutoffNoBilling.reason !== 'billing_not_ready') {
       failures.push(`${code} hypothetical open-market signup after lifetime cutoff must reject without billing (trial policy)`);
     }
 
@@ -162,7 +166,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterLifetimeCutoff,
     });
-    if (openAfterCutoffGlobalOnly.allowed || openAfterCutoffGlobalOnly.reason !== 'billing_not_ready') {
+    if (complimentary) {
+      if (!openAfterCutoffGlobalOnly.allowed || openAfterCutoffGlobalOnly.reason !== 'complimentary_until') {
+        failures.push(`${code} complimentary signup must not wait on market payment start`);
+      }
+    } else if (openAfterCutoffGlobalOnly.allowed || openAfterCutoffGlobalOnly.reason !== 'billing_not_ready') {
       failures.push(`${code} hypothetical open-market signup after lifetime cutoff must reject when market payment start unset`);
     }
 
@@ -175,7 +183,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterLifetimeCutoff,
     });
-    if (!openAfterCutoffWithBilling.allowed || openAfterCutoffWithBilling.reason !== 'trial') {
+    if (complimentary) {
+      if (!openAfterCutoffWithBilling.allowed || openAfterCutoffWithBilling.reason !== 'complimentary_until') {
+        failures.push(`${code} complimentary signup must not become a trial`);
+      }
+    } else if (!openAfterCutoffWithBilling.allowed || openAfterCutoffWithBilling.reason !== 'trial') {
       failures.push(`${code} hypothetical open-market signup after lifetime cutoff must use trial when billing is ready`);
     }
 
@@ -187,7 +199,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterPaidStart,
     });
-    if (openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'billing_not_ready') {
+    if (complimentary) {
+      if (!openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'complimentary_until') {
+        failures.push(`${code} complimentary access must still apply after the old payment_start fixture`);
+      }
+    } else if (openAfterPaidStartNoBilling.allowed || openAfterPaidStartNoBilling.reason !== 'billing_not_ready') {
       failures.push(`${code} hypothetical open-market signup after payment_start must reject without billing (trial policy)`);
     }
 
@@ -200,7 +216,11 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterPaidStart,
     });
-    if (openAfterPaidStartGlobalOnly.allowed || openAfterPaidStartGlobalOnly.reason !== 'billing_not_ready') {
+    if (complimentary) {
+      if (!openAfterPaidStartGlobalOnly.allowed || openAfterPaidStartGlobalOnly.reason !== 'complimentary_until') {
+        failures.push(`${code} complimentary signup must ignore an unset market payment start`);
+      }
+    } else if (openAfterPaidStartGlobalOnly.allowed || openAfterPaidStartGlobalOnly.reason !== 'billing_not_ready') {
       failures.push(`${code} hypothetical open-market signup after payment_start must reject when market payment start unset`);
     }
 
@@ -213,7 +233,23 @@ function checkLaunchReadyClosedMarkets(repoRoot, config) {
       lifetimeFreeUntil,
       now: afterPaidStart,
     });
-    if (!openAfterPaidStartWithBilling.allowed || openAfterPaidStartWithBilling.reason !== 'trial') {
+    if (complimentary) {
+      if (!openAfterPaidStartWithBilling.allowed || openAfterPaidStartWithBilling.reason !== 'complimentary_until') {
+        failures.push(`${code} complimentary signup must not use trial after the old payment_start fixture`);
+      }
+      const afterOffer = invariants.evaluateSignupCompleteness({
+        countryCode: code,
+        marketOpen: true,
+        publicBillingUsable: false,
+        marketBillingReady: false,
+        irelandFreeUntil: '2027-01-01T00:00:00.000Z',
+        lifetimeFreeUntil,
+        now: new Date('2027-01-01T00:00:00.000Z'),
+      });
+      if (afterOffer.allowed || afterOffer.code !== 'MARKET_BILLING_NOT_READY') {
+        failures.push(`${code} signup after complimentary cutoff must reject without billing`);
+      }
+    } else if (!openAfterPaidStartWithBilling.allowed || openAfterPaidStartWithBilling.reason !== 'trial') {
       failures.push(`${code} hypothetical open-market signup after payment_start must use trial when billing is ready`);
     }
 

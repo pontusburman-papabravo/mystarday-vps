@@ -26,9 +26,16 @@ describe('market commercial policy table (ADR-023)', () => {
     assert.equal(se.requiresBillingReady, false);
   });
 
+  it('Ireland is complimentary until a fixed instant, not a converting trial', () => {
+    const ie = getMarketCommercialPolicy('IE');
+    assert.equal(ie.entitlement, ENTITLEMENT.COMPLIMENTARY_UNTIL);
+    assert.equal(ie.trialDays, 0);
+    assert.equal(ie.requiresBillingReady, false);
+  });
+
   it('new markets inherit 14-day trial that requires billing ready', () => {
     assert.equal(DEFAULT_TRIAL_DAYS, 14);
-    for (const code of ['IE', 'FI', 'NL', 'DE', 'GB', 'AT', 'FR', 'ES']) {
+    for (const code of ['FI', 'NL', 'DE', 'GB', 'AT', 'FR', 'ES']) {
       const policy = getMarketCommercialPolicy(code);
       assert.equal(policy.entitlement, ENTITLEMENT.TRIAL, code);
       assert.equal(policy.trialDays, DEFAULT_TRIAL_DAYS);
@@ -55,28 +62,40 @@ describe('market commercial policy table (ADR-023)', () => {
 describe('computed 14-day trial clock (A4/A5)', () => {
   const created = new Date('2026-10-01T00:00:00+01:00');
 
-  it('trial_ends_at is created_at plus 14 calendar days in Europe/Dublin', () => {
-    const ends = trialEndsAt(created, { countryCode: 'IE', timeZone: 'Europe/Dublin' });
-    assert.equal(ends.toISOString(), new Date('2026-10-15T00:00:00+01:00').toISOString());
-  });
-
-  it('A4: one second before expiry the trial is still active', () => {
-    const ends = trialEndsAt(created, { countryCode: 'IE', timeZone: 'Europe/Dublin' });
+  it('Ireland never uses the computed trial clock', () => {
     assert.equal(isComputedTrialActive({
       countryCode: 'IE',
       createdAt: created,
-      now: new Date(ends.getTime() - 1000),
+      now: created,
       timeZone: 'Europe/Dublin',
+    }), false);
+  });
+
+  it('trial_ends_at is created_at plus 14 calendar days in Europe/Helsinki for Finland', () => {
+    const fiCreated = new Date('2026-10-01T00:00:00+03:00');
+    const ends = trialEndsAt(fiCreated, { countryCode: 'FI', timeZone: 'Europe/Helsinki' });
+    assert.equal(ends.toISOString(), new Date('2026-10-15T00:00:00+03:00').toISOString());
+  });
+
+  it('A4: one second before expiry the Finland trial is still active', () => {
+    const fiCreated = new Date('2026-10-01T00:00:00+03:00');
+    const ends = trialEndsAt(fiCreated, { countryCode: 'FI', timeZone: 'Europe/Helsinki' });
+    assert.equal(isComputedTrialActive({
+      countryCode: 'FI',
+      createdAt: fiCreated,
+      now: new Date(ends.getTime() - 1000),
+      timeZone: 'Europe/Helsinki',
     }), true);
   });
 
-  it('A5: at expiry the computed trial is no longer active', () => {
-    const ends = trialEndsAt(created, { countryCode: 'IE', timeZone: 'Europe/Dublin' });
+  it('A5: at expiry the computed Finland trial is no longer active', () => {
+    const fiCreated = new Date('2026-10-01T00:00:00+03:00');
+    const ends = trialEndsAt(fiCreated, { countryCode: 'FI', timeZone: 'Europe/Helsinki' });
     assert.equal(isComputedTrialActive({
-      countryCode: 'IE',
-      createdAt: created,
+      countryCode: 'FI',
+      createdAt: fiCreated,
       now: ends,
-      timeZone: 'Europe/Dublin',
+      timeZone: 'Europe/Helsinki',
     }), false);
   });
 

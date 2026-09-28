@@ -9,12 +9,10 @@ const {
   injectSiteUrl,
   injectBrandPlaceholders,
 } = require('../lib/public-html-placeholders');
-const { getPlayStoreUrl, APPLE_APP_STORE_SHORT_URL } = require('../../config/store-links');
+const { injectStoreLinkPlaceholders } = require('../../config/store-links');
 
-function injectStoreLinks(html) {
-  return html
-    .replace(/__PLAY_STORE_URL__/g, getPlayStoreUrl())
-    .replace(/__APPLE_STORE_URL__/g, APPLE_APP_STORE_SHORT_URL);
+function injectStoreLinks(html, { ireland = false } = {}) {
+  return injectStoreLinkPlaceholders(html, { ireland });
 }
 
 function defaultSupportEmail() {
@@ -100,18 +98,22 @@ for (const route of PUBLIC_WEB_ROUTES) {
   if (route.en === '/en') continue;
   router.get(route.en, (req, res) => {
     const htmlPath = path.join(__dirname, '../../public', route.fileEn);
-    if (route.fileEn === 'en-pricing.html') {
-      let html = fs.readFileSync(htmlPath, 'utf8');
-      html = injectStoreLinks(html);
-      return res.type('html').send(html);
-    }
-    res.sendFile(htmlPath);
+    let html = fs.readFileSync(htmlPath, 'utf8');
+    html = injectSiteUrl(html);
+    html = injectBrandPlaceholders(html);
+    html = injectStoreLinks(html, { ireland: true });
+    res.type('html').send(html);
   });
 }
 
 for (const route of EN_ONLY_STATIC) {
   router.get(route.path, (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public', route.file));
+    const htmlPath = path.join(__dirname, '../../public', route.file);
+    let html = fs.readFileSync(htmlPath, 'utf8');
+    html = injectSiteUrl(html);
+    html = injectBrandPlaceholders(html);
+    html = injectStoreLinks(html, { ireland: true });
+    res.type('html').send(html);
   });
 }
 
@@ -127,6 +129,7 @@ for (const entry of MIRROR_ENTRIES) {
     let html = fs.readFileSync(htmlPath, 'utf8');
     html = injectSiteUrl(html);
     html = injectBrandPlaceholders(html);
+    html = injectStoreLinks(html, { ireland: true });
     res.type('html').send(html);
   });
 }

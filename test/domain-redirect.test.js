@@ -10,11 +10,11 @@ const {
   REDIRECT_TO_MAIN,
 } = require('../src/lib/domain-redirect');
 
-function runRedirect(host, url = '/activities') {
+function runRedirect(host, url = '/activities', method = 'GET') {
   const middleware = createDomainRedirect();
   let status;
   let location;
-  const req = { headers: { host }, originalUrl: url };
+  const req = { headers: { host }, originalUrl: url, method };
   const res = {
     redirect(code, loc) {
       status = code;
@@ -104,6 +104,33 @@ test('redirect contract: bare .app apex is served without redirect loop', () => 
   assert.equal(nextCalled, true);
   assert.equal(status, undefined);
   assert.equal(location, undefined);
+});
+
+test('Swedish /en marketing redirects to the English canonical host and keeps UTM', () => {
+  const query = '/en?utm_source=ads&utm_medium=cpc&utm_campaign=ie&utm_content=hero&utm_term=routines&fbclid=fb&gclid=gc';
+  const { status, location, nextCalled } = runRedirect(MAIN_DOMAIN, query);
+  assert.equal(nextCalled, false);
+  assert.equal(status, 301);
+  assert.equal(location, `https://${APP_DOMAIN}${query}`);
+});
+
+test('Swedish /en/pricing redirects and preserves the path', () => {
+  const { status, location } = runRedirect(`www.${MAIN_DOMAIN}`, '/en/pricing?utm_source=newsletter');
+  assert.equal(status, 301);
+  assert.equal(location, `https://${APP_DOMAIN}/en/pricing?utm_source=newsletter`);
+});
+
+test('Swedish routes, API, auth and native paths are not sent to the English host', () => {
+  for (const url of ['/', '/login', '/dashboard', '/api/market/registration-gates', '/en/login', '/en/register', '/en/forgot-password', '/api/auth/login']) {
+    const { nextCalled, status } = runRedirect(MAIN_DOMAIN, url);
+    assert.equal(nextCalled, true, url);
+    assert.equal(status, undefined, url);
+  }
+});
+
+test('POST to /en is not redirected', () => {
+  const { nextCalled } = runRedirect(MAIN_DOMAIN, '/en', 'POST');
+  assert.equal(nextCalled, true);
 });
 
 test('domain redirect strips pin query keys', () => {

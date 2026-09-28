@@ -36,35 +36,36 @@ describe('evaluateMarketPurchaseAllowed (pure)', () => {
     }), true);
   });
 
-  it('IE before market_ie_payment_start_at is denied', () => {
+  it('IE during complimentary access cannot start a purchase', () => {
     assert.equal(evaluateMarketPurchaseAllowed({
       countryCode: 'IE',
       now: BEFORE_IE,
+      irelandFreeUntil: '2027-01-01T00:00:00.000Z',
       marketPaymentStartResolved: {
         configured: true,
         invalid: false,
         instant: IE_START,
       },
     }), false);
-  });
-
-  it('IE after market_ie_payment_start_at is allowed', () => {
     assert.equal(evaluateMarketPurchaseAllowed({
       countryCode: 'IE',
       now: AFTER_IE,
-      marketPaymentStartResolved: {
-        configured: true,
-        invalid: false,
-        instant: IE_START,
-      },
-    }), true);
+      irelandFreeUntil: '2027-01-01T00:00:00.000Z',
+    }), false);
   });
 
-  it('IE with unset market payment start fails closed', () => {
+  it('IE at the complimentary cutoff can purchase even if market payment start is unset', () => {
+    const cutoff = new Date('2027-01-01T00:00:00.000Z');
     assert.equal(evaluateMarketPurchaseAllowed({
       countryCode: 'IE',
-      now: AFTER_IE,
+      now: cutoff,
+      irelandFreeUntil: cutoff,
       marketPaymentStartResolved: { configured: false, instant: null },
+    }), true);
+    assert.equal(evaluateMarketPurchaseAllowed({
+      countryCode: 'IE',
+      now: new Date(cutoff.getTime() - 1000),
+      irelandFreeUntil: cutoff,
     }), false);
   });
 
@@ -115,7 +116,8 @@ describe('isMarketPurchaseAllowed (async)', () => {
       assert.equal(await isMarketPurchaseAllowed('SE', BEFORE_SE), false);
       assert.equal(await isMarketPurchaseAllowed('SE', AFTER_SE), true);
       assert.equal(await isMarketPurchaseAllowed('IE', BEFORE_IE), false);
-      assert.equal(await isMarketPurchaseAllowed('IE', AFTER_IE), true);
+      assert.equal(await isMarketPurchaseAllowed('IE', AFTER_IE), false);
+      assert.equal(await isMarketPurchaseAllowed('IE', new Date('2027-01-01T00:00:00.000Z')), true);
       assert.equal(await isMarketPurchaseAllowed('DE', AFTER_SE), false);
     } finally {
       await db.cleanup();
@@ -167,7 +169,7 @@ describe('getNativePurchaseEligibility market gate', () => {
     }
   });
 
-  test('IE family allowed before Oct 1 when market_ie_payment_start_at passed', async (t) => {
+  test('IE family denied during complimentary access even when market_ie_payment_start_at passed', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real TEST_DATABASE_URL');
@@ -189,9 +191,44 @@ describe('getNativePurchaseEligibility market gate', () => {
       );
       const gate = reloadPurchaseGate();
       const result = await gate(familyId, { checkGlobalRollout: true });
-      assert.equal(result.allowed, true, `expected global_rollout, got ${result.reason}`);
-      assert.equal(result.reason, 'global_rollout');
+      assert.equal(result.allowed, false);
+      assert.equal(result.reason, 'market_purchase_not_open');
     } finally {
+      if (snap) await disablePublicBillingForTest(snap);
+      await db.cleanup();
+    }
+  });
+
+  test('IE App Review sandbox family can purchase during complimentary access', async (t) => {
+    const db = await setupTestDb();
+    if (db.skip) {
+      t.skip('No real TEST_DATABASE_URL');
+      return;
+    }
+    const familyId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbc';
+    const prevIds = process.env.REVENUECAT_SANDBOX_FAMILY_IDS;
+    const prevFlag = process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED;
+    reloadPurchaseGate();
+    let snap;
+    try {
+      snap = await enablePublicBillingForTest();
+      process.env.REVENUECAT_SANDBOX_FAMILY_IDS = familyId;
+      process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = 'true';
+      await db.pool.query(
+        `INSERT INTO family (id, name, timezone, country_code, created_at)
+         VALUES ($1, 'IE review', 'Europe/Dublin', 'IE', NOW())
+         ON CONFLICT (id) DO UPDATE SET country_code = EXCLUDED.country_code`,
+        [familyId]
+      );
+      const gate = reloadPurchaseGate();
+      const result = await gate(familyId, { checkGlobalRollout: true });
+      assert.equal(result.allowed, true);
+      assert.equal(result.reason, 'sandbox_family');
+    } finally {
+      if (prevIds === undefined) delete process.env.REVENUECAT_SANDBOX_FAMILY_IDS;
+      else process.env.REVENUECAT_SANDBOX_FAMILY_IDS = prevIds;
+      if (prevFlag === undefined) delete process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED;
+      else process.env.REVENUECAT_SANDBOX_PURCHASES_ENABLED = prevFlag;
       if (snap) await disablePublicBillingForTest(snap);
       await db.cleanup();
     }

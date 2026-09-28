@@ -1,6 +1,6 @@
 # ADR-023 — Market commercial policy (intro year vs trial)
 
-**Status:** Accepted — **PRODUCT DECISION GO** (canonical spec; §0 + A1–A13 unchanged)  
+**Status:** Accepted — **Ireland 14-day trial superseded by [ADR-024](ADR-024-ireland-complimentary-until.md)** (complimentary until 31 December 2026). Sweden and other-market trial defaults in this ADR stay in force.  
 **Date:** 2026-09-14  
 **Amendment (same day):** expansion sequencing — UK deferred; NL parallel preparation; localization after export signal, not after D30.  
 **Amendment (same day):** founder — new-market product trial is **14 days** (not 7); paywall on day 15. Do not stack Apple’s 14-day IAP intro on IE SKUs.  

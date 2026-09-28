@@ -4,18 +4,22 @@
  * Market commercial policy — entitlement model per country.
  * Not a live flag. Does not open markets.
  *
- * Sweden keeps intro year. Every other country defaults to a 14-day product
- * trial that requires public billing before signup (ADR-023).
- * Admin `basic_trial_days` does not own this number.
+ * Sweden keeps intro year. Ireland uses complimentary access until a fixed
+ * instant (see ireland-launch-offer.js), not a converting 14-day trial.
+ * Every other country defaults to a 14-day product trial that requires
+ * public billing before signup (ADR-023). Admin `basic_trial_days` does not
+ * own this number.
  */
 
 const { DateTime } = require('luxon');
 const { normalizeCountryCode } = require('./market-region');
 const { COUNTRY_DEFAULTS, EU_REGION_DEFAULTS } = require('./market-config');
+const { COMPLIMENTARY_UNTIL_COUNTRY_CODES } = require('./ireland-launch-offer');
 
 const ENTITLEMENT = Object.freeze({
   INTRO_YEAR: 'intro_year',
   TRIAL: 'trial',
+  COMPLIMENTARY_UNTIL: 'complimentary_until',
 });
 
 const DEFAULT_TRIAL_DAYS = 14;
@@ -30,6 +34,14 @@ function getMarketCommercialPolicy(countryCode) {
     return Object.freeze({
       countryCode: cc,
       entitlement: ENTITLEMENT.INTRO_YEAR,
+      trialDays: 0,
+      requiresBillingReady: false,
+    });
+  }
+  if (COMPLIMENTARY_UNTIL_COUNTRY_CODES.has(cc)) {
+    return Object.freeze({
+      countryCode: cc,
+      entitlement: ENTITLEMENT.COMPLIMENTARY_UNTIL,
       trialDays: 0,
       requiresBillingReady: false,
     });
@@ -88,6 +100,7 @@ module.exports = {
   ENTITLEMENT,
   DEFAULT_TRIAL_DAYS,
   INTRO_YEAR_COUNTRY_CODES,
+  COMPLIMENTARY_UNTIL_COUNTRY_CODES,
   getMarketCommercialPolicy,
   defaultTimeZoneForCountry,
   trialEndsAt,

@@ -5,7 +5,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { getPlayStoreUrl, APPLE_APP_STORE_GEO_NEUTRAL_URL, androidPackageName } = require('../config/store-links');
+const {
+  getPlayStoreUrl,
+  getIrelandPlayStoreUrl,
+  APPLE_APP_STORE_GEO_NEUTRAL_URL,
+  APPLE_APP_STORE_IE_URL,
+  androidPackageName,
+} = require('../config/store-links');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -35,10 +41,12 @@ describe('Ireland /en conversion funnel', () => {
     assert.match(visible, /My Starday is now available in Ireland/);
   });
 
-  it('uses 14 days free and never 7-day trial copy', () => {
+  it('uses complimentary Ireland copy and never a converting trial', () => {
     const visible = visibleLandingCopy(EN_HTML);
-    assert.match(visible, /14 days free/i);
-    assert.match(visible, /Try My Starday free for 14 days/);
+    assert.match(visible, /Free in Ireland until 31 December 2026\. No card required\./);
+    assert.match(visible, /does not turn into a subscription by itself|does not automatically convert into a paid subscription/);
+    assert.doesNotMatch(visible, /14 days free/i);
+    assert.doesNotMatch(visible, /14-day trial/i);
     assert.doesNotMatch(visible, /7-day/i);
     assert.doesNotMatch(visible, /7 day/i);
     assert.doesNotMatch(visible, /7 days/i);
@@ -53,13 +61,16 @@ describe('Ireland /en conversion funnel', () => {
     assert.doesNotMatch(visible, /Skapa konto/);
   });
 
-  it('uses the existing App Store and Google Play URLs', () => {
-    assert.match(EN_HTML, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+  it('uses the Ireland App Store and English Ireland Play URLs', () => {
+    assert.match(EN_HTML, new RegExp(APPLE_APP_STORE_IE_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.doesNotMatch(EN_HTML, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
     assert.doesNotMatch(EN_HTML, /https:\/\/apple\.co\/4v2ESuH/);
     assert.equal(APPLE_APP_STORE_GEO_NEUTRAL_URL, 'https://apps.apple.com/app/id6774493098');
-    assert.match(EN_HTML, /__PLAY_STORE_URL__/);
+    assert.equal(APPLE_APP_STORE_IE_URL, 'https://apps.apple.com/ie/app/my-starday-family-routines/id6774493098');
     assert.match(EN_HTML, /data-store-cta="play"/);
+    assert.match(EN_HTML, new RegExp(getIrelandPlayStoreUrl().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     assert.equal(getPlayStoreUrl(), 'https://play.google.com/store/apps/details?id=' + androidPackageName());
+    assert.equal(getIrelandPlayStoreUrl(), getPlayStoreUrl() + '&hl=en&gl=IE');
   });
 
   it('keeps login secondary and has no primary web-registration CTA', () => {
@@ -74,18 +85,20 @@ describe('Ireland /en conversion funnel', () => {
     assert.match(EN_HTML, />Get My Starday</);
   });
 
-  it('metadata says Ireland is live with 14 days free', () => {
-    assert.match(EN_HTML, /<title>My Starday — Now available in Ireland \| 14 days free<\/title>/);
-    assert.match(EN_HTML, /name="description" content="My Starday is now available in Ireland/);
-    assert.match(EN_HTML, /og:description" content="My Starday is now available in Ireland/);
+  it('metadata says Ireland is free until 31 December 2026', () => {
+    assert.match(EN_HTML, /<title>My Starday — Visual routines for families \| Free in Ireland until 31 December 2026<\/title>/);
+    assert.match(EN_HTML, /name="description" content="Not just another family calendar\./);
+    assert.match(EN_HTML, /og:description" content="Visual routines that help children see what is happening now/);
+    assert.match(EN_HTML, /https:\/\/mys(?:tar)day\.app\/en/);
     assert.doesNotMatch(EN_HTML, /Sweden only/i);
     assert.doesNotMatch(EN_HTML, /coming soon/i);
     assert.doesNotMatch(EN_HTML, /Join the waitlist/i);
+    assert.doesNotMatch(EN_HTML, /14 days free/i);
   });
 
-  it('hero is about family outcome and store install', () => {
-    assert.match(EN_HTML, /<h1>Calmer days\. Clearer routines\.<\/h1>/);
-    assert.match(EN_HTML, /Help your child know what comes next/);
+  it('hero is about visual routines and store install', () => {
+    assert.match(EN_HTML, /<h1>Not just another family calendar\.<\/h1>/);
+    assert.match(EN_HTML, /what is happening now, what comes next and what they have already achieved/);
     assert.match(EN_HTML, /Available now in Ireland/);
     assert.match(EN_HTML, /data-hero-launch="ireland"/);
     assert.match(EN_HTML, /data-store-placement="hero"/);
@@ -212,11 +225,15 @@ describe('related English public pages stay aligned', () => {
     assert.doesNotMatch(pricing, /Create account/);
     assert.doesNotMatch(faq, /href="\/en\/register"/);
     assert.doesNotMatch(pricing, /href="\/en\/register"/);
-    assert.match(faq, /14 days free/);
-    assert.match(pricing, /14 days free/);
-    assert.match(faq, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
-    assert.match(faq, /__PLAY_STORE_URL__/);
-    assert.match(pricing, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
-    assert.match(pricing, /__PLAY_STORE_URL__/);
+    assert.match(faq, /Free in Ireland until 31 December 2026/);
+    assert.match(pricing, /Free in Ireland until 31 December 2026/);
+    assert.doesNotMatch(faq, /14 days free/i);
+    assert.doesNotMatch(pricing, /14 days free/i);
+    assert.match(faq, /https:\/\/apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/);
+    assert.doesNotMatch(faq, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.match(pricing, /https:\/\/apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/);
+    assert.doesNotMatch(pricing, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.match(faq, /hl=en&amp;gl=IE|hl=en&gl=IE/);
+    assert.match(pricing, /hl=en&amp;gl=IE|hl=en&gl=IE/);
   });
 });

@@ -29,6 +29,18 @@
 
   function describePremium(premium, paidTransition, billingUiEnabled, nativePurchaseEligible) {
     const transition = paidTransition || {};
+    if (premium && premium.source === 'complimentary') {
+      const until = formatDate(premium.expires_at);
+      return {
+        title: spt('settings.subscription.complimentaryTitle'),
+        body: until
+          ? spt('settings.subscription.complimentaryBodyUntil', { date: until })
+          : spt('settings.subscription.complimentaryBody'),
+        cta: nativePurchaseEligible === true
+          ? { href: '/paywall', label: spt('settings.subscription.activate') }
+          : null,
+      };
+    }
     if (premium && premium.source === 'prebilling') {
       const cutoff = formatDate(transition.cutoff_at || premium.expires_at);
       if (transition.kind === 'hold') {

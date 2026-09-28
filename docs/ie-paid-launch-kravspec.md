@@ -1,6 +1,8 @@
 # Irland — betald lansering (kravspecifikation)
 
-**Status:** GO — IE P0 implementation in this PR (2026-09-14). Flags remain OFF.  
+> **SUPERSEDED for Ireland commercial access (2026-09-28):** Ireland is complimentary until 2027-01-01 00:00 Europe/Dublin. See [ADR-024](adr/ADR-024-ireland-complimentary-until.md). This file’s 14-day trial language is historical. Do not implement a converting Ireland trial from it. `market_ie_open` is unchanged. Sweden, Finland and the UK are unchanged.
+
+**Status:** Historical IE P0 spec (2026-09-14). Ireland access model superseded by ADR-024.  
 **Amendment:** expansionssekvens §3.3–3.7 (samma dag) — UK deferred, NL parallell förberedelse.  
 **Amendment:** founder 2026-09-14 — produkttrial är **14 dagar** (inte 7); paywall från dag 15. §0, §3.1, §8, A4/A5.  
 **Nästa beslut:** fysisk IE-enhet (köp + restore) + founder-godkännande innan `market_ie_open`. NL förblir förberedelse ([`docs/nl-market-prep.md`](nl-market-prep.md)) tills NL:s egna gates är låsta.  

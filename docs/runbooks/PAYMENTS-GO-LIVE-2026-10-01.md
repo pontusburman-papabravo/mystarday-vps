@@ -8,7 +8,7 @@ Nya öppna-marknad-konton blockeras **inte** av `MARKET_BILLING_NOT_READY` mella
 
 Detta öppnar **inte** Irland/Finland (`market_ie_open` / `market_fi_open` ska fortsätta vara AV tills separat beslut).
 
-Irland är **inte** intro-år. Ny IE-familj ska få 14 dagars trial + billing-ready, se [`docs/ie-paid-launch-kravspec.md`](../ie-paid-launch-kravspec.md) och [ADR-023](../adr/ADR-023-market-commercial-policy.md). Detta runbook rör **Sveriges** IAP 1 oktober.
+Irland är **inte** intro-år och **inte** en 14-dagars trial som övergår i betalning. IE-familjer har complimentary access till 2027-01-01 00:00 Europe/Dublin ([ADR-024](../adr/ADR-024-ireland-complimentary-until.md)). Detta runbook rör **Sveriges** IAP 1 oktober och ändrar inte det irländska erbjudandet.
 
 ## Vad servern gör automatiskt
 

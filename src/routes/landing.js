@@ -9,7 +9,7 @@ const fs = require('fs');
 const { getFounderStatus } = require('../lib/payment-policy');
 const { getProgramCatalog } = require('../../config/program-catalog');
 const { getActiveItems } = require('../../db/landing-news');
-const { getPlayStoreUrl, APPLE_APP_STORE_SHORT_URL } = require('../../config/store-links');
+const { injectStoreLinkPlaceholders } = require('../../config/store-links');
 const incidentNotice = require('../../config/incident-notice');
 const {
   brandName,
@@ -25,10 +25,8 @@ function injectSocialLinks(html) {
   return html.replace(/__FACEBOOK_SLUG__/g, slug);
 }
 
-function injectStoreLinks(html) {
-  return html
-    .replace(/__PLAY_STORE_URL__/g, getPlayStoreUrl())
-    .replace(/__APPLE_STORE_URL__/g, APPLE_APP_STORE_SHORT_URL);
+function injectStoreLinks(html, { ireland = false } = {}) {
+  return injectStoreLinkPlaceholders(html, { ireland });
 }
 
 const STORE_BADGE_IMG_DIR = path.join(__dirname, '..', '..', 'public', 'img');
@@ -167,7 +165,7 @@ async function serveLandingHtml(res, filename) {
   html = injectBrandPlaceholders(html);
   html = injectSiteUrl(html);
   html = injectSocialLinks(html);
-  html = injectStoreLinks(html);
+  html = injectStoreLinks(html, { ireland: filename === 'en.html' });
   html = injectStoreBadgeSvgs(html);
   html = await injectLandingNews(html, { locale: filename === 'en.html' ? 'en' : 'sv' });
   html = injectIncidentNotice(html);

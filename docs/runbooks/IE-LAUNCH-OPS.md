@@ -26,7 +26,7 @@
 | C QA purchase (signup closed) | 12:22 | Sandbox family `6ea5c94f-…` — iOS/Android purchase allowed |
 | D Founder approval | 12:22 | Evidence JSON + `npm run ie-fi:release-gates` → `IE_READY_TO_OPEN: YES` |
 | E Open acquisition | 12:23 | `market_ie_open=true` → `signup_allowed.IE=true` |
-| F Smoke signup | 14:22 CET | `ie-launch-smoke-*@example.com` → family `2f3960ce-…`, tier `trial`, 14-day trial, no `intro_year` |
+| F Smoke signup | historical | Older smoke used a 14-day trial. Current model is complimentary until `market_ie_free_until` (2027-01-01 00:00 Europe/Dublin). No store subscription is created. |
 
 **Rollback:** Level 1 `market_ie_open=false` · Level 2 unset `market_ie_payment_start_at` · Level 3 `BILLING_UI_DISABLED=true` + `payment_enabled=false`.
 

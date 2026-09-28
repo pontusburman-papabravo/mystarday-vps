@@ -32,7 +32,12 @@ const {
   marketClosedCode,
   normalizeCountryCode,
 } = require('./market-region');
-const { getMarketCommercialPolicy } = require('./market-commercial-policy');
+const { getMarketCommercialPolicy, ENTITLEMENT } = require('./market-commercial-policy');
+const {
+  DEFAULT_IRELAND_FREE_UNTIL,
+  getIrelandFreeUntil,
+  isIrelandComplimentaryActive,
+} = require('./ireland-launch-offer');
 
 const BILLING_NOT_READY_CODE = 'MARKET_BILLING_NOT_READY';
 
@@ -94,6 +99,21 @@ function evaluateSignupCompleteness(input) {
   }
 
   const policy = getMarketCommercialPolicy(countryCode);
+  if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
+    const freeUntil = input.irelandFreeUntil || DEFAULT_IRELAND_FREE_UNTIL;
+    if (isIrelandComplimentaryActive({ countryCode, now, freeUntil })) {
+      return { allowed: true, reason: 'complimentary_until', code: null };
+    }
+    const marketBillingReady = input.marketBillingReady === true;
+    if (!input.publicBillingUsable || !marketBillingReady) {
+      return {
+        allowed: false,
+        reason: 'billing_not_ready',
+        code: BILLING_NOT_READY_CODE,
+      };
+    }
+    return { allowed: true, reason: 'post_complimentary', code: null };
+  }
   if (policy.requiresBillingReady) {
     const marketBillingReady = input.marketBillingReady === true;
     if (!input.publicBillingUsable || !marketBillingReady) {
@@ -130,9 +150,27 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     lifetimeFreeUntil,
   });
   const policy = getMarketCommercialPolicy(countryCode);
+  let irelandFreeUntil = null;
+  if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
+    try {
+      irelandFreeUntil = await getIrelandFreeUntil();
+    } catch (err) {
+      console.error('[market-launch] market_ie_free_until probe failed:', err.message);
+      irelandFreeUntil = new Date(DEFAULT_IRELAND_FREE_UNTIL);
+    }
+  }
+  const complimentaryActive = isIrelandComplimentaryActive({
+    countryCode,
+    now,
+    freeUntil: irelandFreeUntil || DEFAULT_IRELAND_FREE_UNTIL,
+  });
   let publicBillingUsable = false;
   let marketBillingReady = false;
-  if (!grandfatherEligible && policy.requiresBillingReady) {
+  const billingRequired = !grandfatherEligible && (
+    policy.requiresBillingReady
+    || (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL && !complimentaryActive)
+  );
+  if (billingRequired) {
     publicBillingUsable = await isPublicBillingUsable();
     marketBillingReady = await isMarketBillingReady(countryCode, now);
   }
@@ -142,6 +180,7 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     publicBillingUsable,
     marketBillingReady,
     lifetimeFreeUntil,
+    irelandFreeUntil,
     now,
   });
 }

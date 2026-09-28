@@ -1,88 +1,110 @@
 # App Store Connect — English (en-GB) Metadata
 
-> **Beta listing copy** for English-speaking families in **Sweden only**.
-> App name: **My Starday**. Do not imply UK/US/EU availability outside Sweden.
+> **Ireland launch listing** for version **1.4.6**.
+> App name: **My Starday: Family Routines**.
+> This is not a Sweden-only English beta. Do not open Finland, the UK, or other closed markets from this copy.
+> English public website: `https://mystarday.app/en` <!-- pragma: allowlist secret -->
 
-> **EULA line (kept from Apple’s 2026-08-28 rejection, not a generic 3.1.2(c) reading):** Description includes Apple’s Standard EULA URL. Do not label our `/terms` as Apple’s EULA. On a **new version**, metadata copies from the current version — **verify the line transferred**. Live 1.4.3 SE listing already has the Swedish equivalent.
+> **EULA line (kept from Apple’s 2026-08-28 rejection):** Description includes Apple’s Standard EULA URL. Do not label our `/terms` or `/en/terms` as Apple’s EULA. On a **new version**, metadata copies from the current version — **verify the line transferred**.
+
+Verified English routes (do not invent others):
+
+| Field | URL |
+|---|---|
+| Marketing | `https://mystarday.app/en` | <!-- pragma: allowlist secret -->
+| Support | `https://mystarday.app/en/contact` | <!-- pragma: allowlist secret -->
+| Privacy | `https://mystarday.app/en/privacy` | <!-- pragma: allowlist secret -->
+| Terms (our terms, not Apple’s EULA) | `https://mystarday.app/en/terms` | <!-- pragma: allowlist secret -->
+
+In-app Ireland legal routing still uses `/en/eea/privacy` and `/en/eea/terms`. The store Privacy URL is the public English policy above.
 
 ---
 
 ## App Information
 
-**App Name:** My Starday
+**App Name:** My Starday: Family Routines
 
 **Subtitle** (max 30 characters):
-> Calmer everyday routines
+
+> Visual routines for families
 
 ---
 
 ## Description
 
-My Starday helps parents and children enjoy calmer mornings and evenings — together.
+Not just another family calendar.
 
-**For parents:**
-Create daily schedules with activities and rewards, follow progress, and give stars when your child does well. Share selected reports with nursery or school via secure links.
+My Starday helps children understand their everyday routines — what’s happening now, what comes next and what they’ve already achieved.
 
-**For children:**
-Children sign in with their own PIN and see a colourful, star-based view of today's schedule. They earn stars for completed activities — designed for preschool-age independence.
+It was created for families who need more structure, predictability and visual support in everyday life.
 
-**What you get:**
-- Daily and weekly schedules tailored to your child
-- Star rewards and Treasure Chest
-- Push reminders for routines and progress
-- Secure sharing with educators and therapists
-- Offline mode — works without internet
+For children with ADHD, autism — or simply those who benefit from clearer routines — My Starday turns the day into simple, manageable steps.
 
-Suitable for families with children aged 3–10.
+Especially useful for families with children who have ADHD, autism or other neurodivergent needs — but no diagnosis is required. My Starday does not treat ADHD or autism.
 
-**English Beta (Sweden):** English UI is rolling out gradually. Swedish remains the default. Report language issues in Settings → Feedback.
+**What children get:**
+- Clear visual routines for what is happening now and what comes next
+- Step-by-step support and more predictability
+- Stars and progress as positive motivation
+- A path toward more independence and fewer repeated reminders
+
+**What parents get:**
+- Daily schedules with activities and rewards
+- A way to follow progress and give stars
+- Secure sharing of selected reports with nursery or school
+
+My Starday is free for families in Ireland until 31 December 2026. No subscription or payment method is required during this period.
+
+The Ireland offer does not automatically convert into a paid subscription.
+
+From 1 January 2027, users may choose to subscribe through Apple In-App Purchase.
+
+Family schedules, stars and history stay in the app after the complimentary period. Nothing is charged automatically because of this launch offer.
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
-Privacy Policy: [APP_URL]/privacy
+Privacy Policy: https://mystarday.app/en/privacy <!-- pragma: allowlist secret -->
 
 ---
 
 ## Keywords
 
-daily schedule family,picture schedule,routine app,family rewards,star chart,daily structure,parent planner
+visual routine,picture schedule,ADHD routine,autism routine,daily structure,star chart,family rewards
 
 ---
 
 ## Promotional Text (max 170 characters)
 
-Build calm routines with picture schedules and stars. My Starday — one step at a time. ★ English Beta in Sweden.
+Visual routines for children who need more structure — especially helpful for ADHD and autism. Free in Ireland until 31 December. No card required.
+
+Character count: 147 (must stay ≤ 170).
 
 ---
 
-## Review Notes (add to App Store Connect)
+## Review Notes
 
-- **English Beta** — child and parent UI available in en-GB behind per-family flag; default remains Swedish.
-- **Market:** Sweden only. Do not enable other storefronts.
-- **Test account:** see `docs/app-store-demo-konto.md` (review parent account, child Anna).
-- **Native build:** includes sv + en-GB permission strings and app name localisation.
-- **Build:** 29 — i18n native shell + server communications P0.
+Paste the 1.4.6 block in `docs/app-store-review-notes.md`. Do not paste older notes that say public paid rollout is disabled.
 
 ---
 
-## Release Notes (TestFlight / beta)
+## Release Notes (1.4.6)
 
-- English (UK) language support for parent and child experience (beta, opt-in)
-- Localised native permission dialogs (camera, photos, notifications)
-- Localised transactional emails and push reminders (en-GB families)
-- Swedish experience unchanged by default
+- Visual routines for children who need more structure
+- Free in Ireland until 31 December 2026. No card required. The offer does not turn into a subscription by itself
+- From 1 January 2027, Apple In-App Purchase is optional
 
 ---
 
 ## URLs
 
 | Field | Value |
-|-------|-------|
-| Support | `[APP_URL]/kontakt` |
-| Marketing | `[APP_URL]` |
-| Privacy | `[APP_URL]/integritet` |
+|---|---|
+| Support | `https://mystarday.app/en/contact` | <!-- pragma: allowlist secret -->
+| Marketing | `https://mystarday.app/en` | <!-- pragma: allowlist secret -->
+| Privacy | `https://mystarday.app/en/privacy` | <!-- pragma: allowlist secret -->
 
----
+## MANUAL APP STORE CONNECT
 
-## Screenshot captions (en-GB)
-
-See `docs/i18n-beta-screenshot-plan.md`.
+- Set the English (UK) name, subtitle, promotional text, and description from this file on version **1.4.6**.
+- Marketing URL: `https://mystarday.app/en` <!-- pragma: allowlist secret -->
+- Do not create the `ios-v1.4.6` tag until this branch is merged to `main` and CI is green.
+- Do not upload another 1.4.3, 1.4.4, or 1.4.5 binary.

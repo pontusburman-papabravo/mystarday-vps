@@ -9,6 +9,11 @@ const { normalizeCountryCode } = require('./market-region');
 const { parseMarketPaymentStartInstant } = require('./zoned-civil-time');
 const { COUNTRY_DEFAULTS } = require('./market-config');
 const { getMarketCommercialPolicy } = require('./market-commercial-policy');
+const {
+  getIrelandFreeUntil,
+  parseIrelandFreeUntil,
+  DEFAULT_IRELAND_FREE_UNTIL,
+} = require('./ireland-launch-offer');
 
 const { DateTime } = require('luxon');
 
@@ -309,6 +314,13 @@ function evaluateMarketPurchaseAllowed(input = {}) {
     return now.getTime() >= instant.getTime();
   }
 
+  if (cc === 'IE') {
+    const ends = parseIrelandFreeUntil(
+      input.irelandFreeUntil == null ? DEFAULT_IRELAND_FREE_UNTIL : input.irelandFreeUntil
+    );
+    return now.getTime() >= ends.getTime();
+  }
+
   if (MARKET_PAYMENT_START_AT_KEYS[cc]) {
     const resolved = input.marketPaymentStartResolved;
     if (!resolved || !resolved.configured || resolved.invalid || !resolved.instant) {
@@ -334,6 +346,10 @@ async function isMarketPurchaseAllowed(countryCode, now = new Date()) {
   if (cc === 'SE') {
     const paymentStartAt = await getPaymentStartAt();
     return evaluateMarketPurchaseAllowed({ countryCode: cc, now, paymentStartAt });
+  }
+  if (cc === 'IE') {
+    const irelandFreeUntil = await getIrelandFreeUntil();
+    return evaluateMarketPurchaseAllowed({ countryCode: cc, now, irelandFreeUntil });
   }
   if (MARKET_PAYMENT_START_AT_KEYS[cc]) {
     const marketPaymentStartResolved = await resolvePaymentStartForCountry(cc);

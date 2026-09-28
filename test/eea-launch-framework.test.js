@@ -110,7 +110,48 @@ test('market_ie_open ON + billing OFF accepts IE (lifetime grandfather while cut
   }
 });
 
-test('market_ie_open ON + billing OFF after lifetime cutoff rejects IE (MARKET_BILLING_NOT_READY)', async (t) => {
+test('market_ie_open ON + billing OFF during complimentary window accepts IE without a store subscription', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+  const pg = require('../src/lib/db');
+  const appSettings = require('../db/app-settings');
+  await setMarketFlag(pg, 'market_ie_open', true);
+  await setMarketFlag(pg, 'market_eu_open', false);
+  await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('market_ie_free_until', '2027-01-01T00:00:00.000Z');
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+  try {
+    const { res, body, email } = await registerCountry(http.baseUrl, 'IE');
+    assert.equal(res.status, 201, JSON.stringify(body));
+    const fam = await pg.query(
+      `SELECT f.id, f.is_lifetime_free FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rowCount, 1);
+    assert.equal(fam.rows[0].is_lifetime_free, false);
+    const store = await pg.query(
+      `SELECT source FROM family_entitlements WHERE family_id = $1 AND revoked_at IS NULL`,
+      [fam.rows[0].id]
+    );
+    assert.equal(store.rowCount, 0);
+    const { resolveFamilyEntitlements } = require('../src/lib/family-entitlements');
+    const resolved = await resolveFamilyEntitlements(fam.rows[0].id);
+    assert.equal(resolved.access_kind, 'complimentary');
+    assert.equal(resolved.premium.auto_converts, false);
+    assert.equal(resolved.requires_paywall, false);
+  } finally {
+    await setMarketFlag(pg, 'market_ie_open', false);
+    await http.close();
+    await db.cleanup();
+  }
+});
+
+test('market_ie_open ON + billing OFF after complimentary cutoff rejects IE (MARKET_BILLING_NOT_READY)', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -122,6 +163,7 @@ test('market_ie_open ON + billing OFF after lifetime cutoff rejects IE (MARKET_B
   await setMarketFlag(pg, 'market_eu_open', false);
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
   await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
@@ -525,6 +567,7 @@ test('future IE open: limited child can load daily-log before purchase (no 402 d
   const appSettings = require('../db/app-settings');
   await appSettings.upsertSetting('market_ie_payment_start_at', '2026-01-01T00:00:00+02:00');
   await appSettings.upsertSetting('lifetime_free_until', '2020-01-01T00:00:00+02:00');
+  await appSettings.upsertSetting('market_ie_free_until', '2020-01-01T00:00:00.000Z');
   const billingSnap = await enablePublicBillingForTest();
 
   const { createApp } = require('../app');

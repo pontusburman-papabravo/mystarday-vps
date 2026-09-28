@@ -17,8 +17,18 @@ function siteUrl() {
   return ['https://', 'mys', 'tar', 'day', '.se'].join('');
 }
 
+/** English public marketing canonical host. Not the API/native backend host. */
+const ENGLISH_PUBLIC_SITE_URL = ['https://', 'mys', 'tar', 'day', '.app'].join('');
+
+function englishPublicSiteUrl() {
+  return ENGLISH_PUBLIC_SITE_URL;
+}
+
 function injectSiteUrl(html) {
-  return html.replace(/__SITE_URL__/g, siteUrl());
+  return String(html || '')
+    .replace(/__EN_SITE_URL__/g, ENGLISH_PUBLIC_SITE_URL)
+    .replace(/__SITE_URL__\/en/g, `${ENGLISH_PUBLIC_SITE_URL}/en`)
+    .replace(/__SITE_URL__/g, siteUrl());
 }
 
 /** Cloud-agent placeholders in static HTML → real product name at serve time */
@@ -29,6 +39,8 @@ function injectBrandPlaceholders(html) {
 module.exports = {
   brandName,
   siteUrl,
+  englishPublicSiteUrl,
+  ENGLISH_PUBLIC_SITE_URL,
   injectSiteUrl,
   injectBrandPlaceholders,
 };

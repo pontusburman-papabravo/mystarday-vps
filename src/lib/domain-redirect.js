@@ -17,10 +17,42 @@ const EU_REDIRECT_DOMAINS = new Set([ // pragma: allowlist secret
 
 const { sanitizeReturnUrl } = require('./sanitize-return-url');
 
+/** Auth/account pages stay on the app host. Marketing /en pages move to .app. */
+const ENGLISH_AUTH_PATHS = new Set([
+  '/en/login',
+  '/en/register',
+  '/en/forgot-password',
+]);
+
+function englishMarketingPathname(pathname) {
+  const raw = String(pathname || '/').split('?')[0].split('#')[0];
+  if (raw.length > 1 && raw.endsWith('/')) return raw.slice(0, -1);
+  return raw || '/';
+}
+
+function isEnglishPublicMarketingPath(pathname) {
+  const path = englishMarketingPathname(pathname);
+  if (path === '/en') return true;
+  if (!path.startsWith('/en/')) return false;
+  if (ENGLISH_AUTH_PATHS.has(path)) return false;
+  if (path.startsWith('/en/api')) return false;
+  return true;
+}
+
 function createDomainRedirect() {
   return function domainRedirect(req, res, next) {
     const host = (req.headers.host || '').split(':')[0].toLowerCase();
     const safePath = sanitizeReturnUrl(req.originalUrl || '/');
+    const method = String(req.method || 'GET').toUpperCase();
+    const pathname = englishMarketingPathname(safePath);
+    const onSwedishHost = host === MAIN_DOMAIN || host === `www.${MAIN_DOMAIN}`;
+    if (
+      onSwedishHost
+      && (method === 'GET' || method === 'HEAD')
+      && isEnglishPublicMarketingPath(pathname)
+    ) {
+      return res.redirect(301, `https://${APP_DOMAIN}${safePath}`);
+    }
     if (host === `www.${MAIN_DOMAIN}`) {
       return res.redirect(301, `https://${MAIN_DOMAIN}${safePath}`);
     }
@@ -43,4 +75,6 @@ module.exports = {
   APP_DOMAIN,
   REDIRECT_TO_MAIN,
   EU_REDIRECT_DOMAINS,
+  ENGLISH_AUTH_PATHS,
+  isEnglishPublicMarketingPath,
 };

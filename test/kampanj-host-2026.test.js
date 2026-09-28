@@ -65,8 +65,9 @@ test('campaign page uses existing store placeholders, tracking, and screenshots'
 test('campaign route injects existing store URLs and skips landing login-choice', () => {
   assert.match(landingJs, /router\.get\('\/kampanj\/host-2026'/);
   assert.match(landingJs, /kampanj-host-2026\.html/);
-  assert.match(landingJs, /APPLE_APP_STORE_SHORT_URL/);
-  assert.match(landingJs, /__APPLE_STORE_URL__/);
+  assert.match(landingJs, /injectStoreLinks\(html\)/);
+  assert.doesNotMatch(landingJs.slice(landingJs.indexOf('function serveCampaignHtml')), /ireland:\s*true/);
+  assert.match(html, /__APPLE_STORE_URL__/);
   assert.equal(APPLE_APP_STORE_SHORT_URL, 'https://apple.co/4v2ESuH');
   assert.match(getPlayStoreUrl(), /play\.google\.com\/store\/apps\/details\?id=/);
 });

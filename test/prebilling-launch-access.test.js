@@ -70,7 +70,7 @@ describe('Sweden signup matrix', () => {
 });
 
 describe('Ireland + Finland signup matrix', () => {
-  for (const code of ['IE', 'FI']) {
+  for (const code of ['FI']) {
     it(`${code} closed + billing OFF`, () => {
       const r = signup(code, { open: false, billing: false, now: BEFORE, start: IE_FI_START });
       assert.equal(r.allowed, false);
@@ -107,6 +107,15 @@ describe('Ireland + Finland signup matrix', () => {
       assert.equal(r.reason, 'trial');
     });
   }
+
+  it('IE open during complimentary window signs up without billing', () => {
+    const off = signup('IE', { open: true, billing: false, now: AFTER_IE_FI, start: IE_FI_START });
+    assert.equal(off.allowed, true);
+    assert.equal(off.reason, 'complimentary_until');
+    const on = signup('IE', { open: true, billing: true, now: AFTER_IE_FI, start: IE_FI_START });
+    assert.equal(on.allowed, true);
+    assert.equal(on.reason, 'complimentary_until');
+  });
 });
 
 describe('eligibility isolation', () => {
@@ -267,33 +276,57 @@ test('resolver + API transition matrix', async (t) => {
       assert.equal(resolved.access_kind, 'grandfathered');
     });
 
-    await t.test(`${code} family created after lifetime cutoff gets 14-day trial, not intro year`, async () => {
+    await t.test(`${code} family created after lifetime cutoff does not get intro year`, async () => {
       const family = await createFamily(CREATED_IE_POST, code);
       const created = await syncCreatedFamilyAccessMirrors(family.id, family.created_at, code);
-      assert.equal(created.kind, 'trial');
-      const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
-      assert.equal(resolved.premium.active, true);
-      assert.equal(resolved.access_kind, 'trial');
-      assert.equal(resolved.requires_paywall, false);
-      assert.equal(resolved.premium.source, 'trial');
       const intro = await runtimeDb.query(
         `SELECT 1 FROM family_entitlements WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
         [family.id]
       );
       assert.equal(intro.rowCount, 0);
-      const { trialEndsAt } = require('../src/lib/market-commercial-policy');
-      const ends = trialEndsAt(family.created_at, {
-        countryCode: code,
-        timeZone: family.timezone,
-      });
-      const almost = new Date(ends.getTime() - 1000);
-      const stillTrial = await resolveFamilyEntitlements(family.id, almost);
-      assert.equal(stillTrial.access_kind, 'trial');
-      assert.equal(stillTrial.requires_paywall, false);
-      const expired = await resolveFamilyEntitlements(family.id, ends);
-      assert.equal(expired.premium.active, false);
-      assert.equal(expired.requires_paywall, true);
-      assert.equal(expired.access_kind, 'limited');
+      const store = await runtimeDb.query(
+        `SELECT 1 FROM family_entitlements WHERE family_id = $1 AND source IN ('apple', 'google') AND revoked_at IS NULL`,
+        [family.id]
+      );
+      assert.equal(store.rowCount, 0);
+      if (code === 'IE') {
+        assert.equal(created.kind, 'complimentary');
+        const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
+        assert.equal(resolved.premium.active, true);
+        assert.equal(resolved.access_kind, 'complimentary');
+        assert.equal(resolved.requires_paywall, false);
+        assert.equal(resolved.premium.source, 'complimentary');
+        assert.equal(resolved.premium.auto_converts, false);
+        const beforeEnd = new Date('2026-12-31T23:59:59.000Z');
+        const still = await resolveFamilyEntitlements(family.id, beforeEnd);
+        assert.equal(still.access_kind, 'complimentary');
+        const cutoff = new Date('2027-01-01T00:00:00.000Z');
+        const ended = await resolveFamilyEntitlements(family.id, cutoff);
+        assert.equal(ended.premium.active, false);
+        assert.equal(ended.access_kind, 'limited');
+        assert.equal(ended.requires_paywall, true);
+        assert.equal(ended.premium.source == null || ended.premium.source !== 'apple', true);
+      } else {
+        assert.equal(created.kind, 'trial');
+        const resolved = await resolveFamilyEntitlements(family.id, AFTER_IE_FI);
+        assert.equal(resolved.premium.active, true);
+        assert.equal(resolved.access_kind, 'trial');
+        assert.equal(resolved.requires_paywall, false);
+        assert.equal(resolved.premium.source, 'trial');
+        const { trialEndsAt } = require('../src/lib/market-commercial-policy');
+        const ends = trialEndsAt(family.created_at, {
+          countryCode: code,
+          timeZone: family.timezone,
+        });
+        const almost = new Date(ends.getTime() - 1000);
+        const stillTrial = await resolveFamilyEntitlements(family.id, almost);
+        assert.equal(stillTrial.access_kind, 'trial');
+        assert.equal(stillTrial.requires_paywall, false);
+        const expired = await resolveFamilyEntitlements(family.id, ends);
+        assert.equal(expired.premium.active, false);
+        assert.equal(expired.requires_paywall, true);
+        assert.equal(expired.access_kind, 'limited');
+      }
     });
   }
 
