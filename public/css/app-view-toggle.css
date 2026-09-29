@@ -110,6 +110,28 @@ body.child-magic-view .parent-top-chrome {
   z-index: auto;
 }
 
+/* Wide "Switch profile" label: own row inside the sticky header at phone width.
+   The row is in flow, so the first content block starts below it. */
+@media (max-width: 420px) {
+  .parent-top-chrome:has([data-profile-switch-parent]),
+  .parent-top-chrome:has(.profile-return-child-btn) {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .parent-top-chrome:has([data-profile-switch-parent]) .app-view-toggle-wrap,
+  .parent-top-chrome:has(.profile-return-child-btn) .app-view-toggle-wrap,
+  .parent-top-chrome:has([data-profile-switch-parent]) .parent-nav-header-actions,
+  .parent-top-chrome:has(.profile-return-child-btn) .parent-nav-header-actions {
+    flex: 1 1 100%;
+  }
+
+  .parent-top-chrome:has([data-profile-switch-parent]) .parent-nav-header-actions,
+  .parent-top-chrome:has(.profile-return-child-btn) .parent-nav-header-actions {
+    justify-content: flex-end;
+  }
+}
+
 @media (min-width: 768px) {
   .parent-top-chrome {
     max-width: none;

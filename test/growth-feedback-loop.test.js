@@ -116,13 +116,16 @@ describe('growth feedback loop contracts', () => {
     assert.match(client, /handoff_inline_cta_shown/);
     assert.match(client, /handoff_inline_cta_clicked/);
     assert.match(client, /\/api\/growth\/system-help\/engage/);
-    assert.match(client, /Problem med barninloggningen/);
+    assert.match(client, /Hur gör barnet/);
     assert.match(client, /DashboardChildHandoff\.startChildLogin/);
     const analytics = read('src/routes/analytics.js');
     assert.match(analytics, /handoff_inline_cta_shown/);
     assert.match(analytics, /handoff_inline_cta_clicked/);
     const hub = read('public/js/dashboard-home-hub.js');
     assert.match(hub, /maybeEnrichHandoff/);
+    assert.match(hub, /afterPrimaryAction/);
+    assert.match(client, /enrichVisibleHem/);
+    assert.match(client, /journey-coach-headline/);
   });
 
   it('English waitlist sends UTM + consent', () => {
