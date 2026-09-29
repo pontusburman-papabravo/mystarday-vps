@@ -765,6 +765,24 @@
       if ((decision.serverAction || 'none') !== 'none') {
         return { resumed: false, code: 'ORCHESTRATOR_REQUIRED', decision: decision };
       }
+      // DeviceMode never grants parent authority. This is only a veto of
+      // automatic parent resume. Explicit adult flow remains. Fail closed when
+      // a parent cookie and child device state are out of sync: the server has
+      // no trusted-device row, so a legacy parent JWT would otherwise open
+      // /dashboard while the client is still in child mode.
+      const legacyParentOnChildHint =
+        decision.destination === 'parent-home'
+        && decision.reason === 'legacy_parent_session_no_trusted_device'
+        && window.DeviceMode
+        && typeof DeviceMode.isChildMode === 'function'
+        && DeviceMode.isChildMode();
+      if (legacyParentOnChildHint) {
+        return {
+          resumed: false,
+          code: 'LEGACY_PARENT_CHILD_HINT_CONFLICT',
+          decision: decision,
+        };
+      }
       navigateOnce(decision.path);
       return { resumed: true, code: 'LEGACY_RESUME', decision: decision };
     })();
