@@ -13,7 +13,7 @@ describe('i18n store beta build versions', () => {
       path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'),
       'utf8'
     );
-    assert.match(pbx, /CURRENT_PROJECT_VERSION = 30;/);
+    assert.match(pbx, /CURRENT_PROJECT_VERSION = 31;/);
     assert.match(pbx, /MARKETING_VERSION = 1\.4\.6;/);
     assert.doesNotMatch(pbx, /MARKETING_VERSION = 1\.4\.5;/);
     assert.doesNotMatch(pbx, /MARKETING_VERSION = 1\.4\.4;/);
