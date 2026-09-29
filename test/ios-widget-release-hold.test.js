@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, it, before, after } = require('node:test');
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
@@ -13,16 +13,6 @@ const VERIFY = path.join(ROOT, 'scripts', 'verify-ios-widget-release-hold.mjs');
 const { withPbxLock } = require('./helpers/pbxproj-test-lock');
 
 describe('ios widget release hold', () => {
-  let original;
-
-  before(() => {
-    original = fs.readFileSync(PBX, 'utf8');
-  });
-
-  after(() => {
-    fs.writeFileSync(PBX, original);
-  });
-
   it('normal release path does not embed WidgetRoutine in App target', () => {
     withPbxLock(() => {
       const pbx = fs.readFileSync(PBX, 'utf8');
@@ -50,14 +40,15 @@ describe('ios widget release hold', () => {
   });
 
   it('patch removes embed after extension patch reintroduces it', () => {
-    const poisoned = original.replace(
-      '504EC3021FED79650016851F /* Resources */,',
-      '504EC3021FED79650016851F /* Resources */,\n\t\t\t\tR45D01051FED79650016851 /* Embed Foundation Extensions */,'
-    ).replace(
-      'dependencies = (\n\t\t\t);',
-      'dependencies = (\n\t\t\t\tR45D01061FED79650016851 /* PBXTargetDependency */,\n\t\t\t);'
-    );
     withPbxLock(() => {
+      const original = fs.readFileSync(PBX, 'utf8');
+      const poisoned = original.replace(
+        '504EC3021FED79650016851F /* Resources */,',
+        '504EC3021FED79650016851F /* Resources */,\n\t\t\t\tR45D01051FED79650016851 /* Embed Foundation Extensions */,'
+      ).replace(
+        'dependencies = (\n\t\t\t);',
+        'dependencies = (\n\t\t\t\tR45D01061FED79650016851 /* PBXTargetDependency */,\n\t\t\t);'
+      );
       try {
         fs.writeFileSync(PBX, poisoned);
         const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
