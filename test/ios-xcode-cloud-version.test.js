@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('node:child_process');
 const os = require('os');
+const { withPbxLock } = require('./helpers/pbxproj-test-lock');
 
 const ROOT = path.join(__dirname, '..');
 const SCRIPT = path.join(ROOT, 'scripts', 'ios-xcode-cloud-version.mjs');
@@ -26,7 +27,9 @@ describe('ios-xcode-cloud-version', () => {
   let currentMarketing;
 
   before(() => {
-    original = fs.readFileSync(PBX, 'utf8');
+    withPbxLock(() => {
+      original = fs.readFileSync(PBX, 'utf8');
+    });
     currentMarketing = original.match(/MARKETING_VERSION = ([\d.]+);/)[1];
     fixtureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ios-version-'));
     fixturePbx = path.join(fixtureDir, 'project.pbxproj');
@@ -34,7 +37,6 @@ describe('ios-xcode-cloud-version', () => {
   });
 
   after(() => {
-    fs.writeFileSync(PBX, original);
     fs.rmSync(fixtureDir, { recursive: true, force: true });
   });
 
@@ -82,7 +84,7 @@ describe('ios-xcode-cloud-version', () => {
   });
 
   it('does not modify CURRENT_PROJECT_VERSION', () => {
-    const before = fs.readFileSync(PBX, 'utf8');
+    const before = withPbxLock(() => fs.readFileSync(PBX, 'utf8'));
     const env = { IOS_XCODE_PROJECT_PATH: fixturePbx };
     runVersion('1.5', env);
     const afterFixture = fs.readFileSync(fixturePbx, 'utf8');
