@@ -45,6 +45,22 @@ async function waitForActivationField(db, familyId, field, { timeoutMs = 5000, i
   return finalState;
 }
 
+/**
+ * analytics.track() is fire-and-forget and is not part of the HTTP response.
+ * Poll until the row is visible, then the caller still asserts the exact count.
+ */
+async function waitForAnalyticsEvents(db, familyId, eventType, { timeoutMs = 5000, intervalMs = 50 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  const sql = `SELECT metadata FROM analytics_events
+       WHERE family_id = $1 AND event_type = $2`;
+  let events = await db.query(sql, [familyId, eventType]);
+  while (events.rows.length === 0 && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    events = await db.query(sql, [familyId, eventType]);
+  }
+  return events;
+}
+
 describe('child access semantics — static contracts', () => {
   it('startChildHandoff logs child_handoff_started without recordChildAccess', () => {
     const src = read('public/js/onboarding-activation.js');
@@ -220,11 +236,7 @@ test('Today established sets child_access_completed; PIN-only and aborted handof
     state = await getActivationState(db, familyId);
     assert.ok(state.child_access_completed_at);
 
-    const events = await db.query(
-      `SELECT metadata FROM analytics_events
-       WHERE family_id = $1 AND event_type = 'child_access_completed'`,
-      [familyId]
-    );
+    const events = await waitForAnalyticsEvents(db, familyId, 'child_access_completed');
     assert.equal(events.rows.length, 1);
     assert.equal(events.rows[0].metadata.source, 'first_schedule_handoff');
     assert.equal(events.rows[0].metadata.platform, 'ios');
