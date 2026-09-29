@@ -1,8 +1,23 @@
 # App Store Review Notes — Min Stjärndag
 
-> English — paste the **1.4.6** block below into the App Store Connect "Review Notes" field.
-> Last updated: 2026-09-28 | 1.4.6 Ireland complimentary launch. 1.4.3, 1.4.4 and 1.4.5 are closed trains. Do not upload another 1.4.5 binary (including 1233). Do not tag `ios-v1.4.6` until the release commit is on `main` and CI is green.
+> English — paste the **1.4.7** block below into the App Store Connect "Review Notes" field.
+> Last updated: 2026-09-29 | Next native train **1.4.7**. Closed trains: 1.4.3–1.4.6. Do not upload another 1.4.6 binary after Apple approves that train. Tag `ios-v1.4.7` only on merged `main` after CI is green.
 > English website: https://mystarday.app/en <!-- pragma: allowlist secret -->
+
+---
+
+## Operator — 1.4.6 closed (ITMS-90186 / ITMS-90062, 2026-09-29)
+
+**Do not paste this section to App Review.**
+
+**Standing response:**
+
+1. Encode `1.4.6` in `config/release-compliance-gate.json` → `versionSources.closedIosMarketingVersions`.
+2. Keep repo `MARKETING_VERSION` at **1.4.7** so an accidental archive is not another closed-train delivery.
+3. **Do not** upload another 1.4.6 binary after Apple approves that train — that produces repeated ITMS-90186 / ITMS-90062 emails.
+4. Tag `ios-v1.4.7` only on the merged `main` SHA after CI is green. Xcode Cloud archives without an `ios-v*` tag are refused in `ci_scripts`.
+
+Closed trains `1.4.3`–`1.4.6` are encoded in `versionSources.closedIosMarketingVersions`. Xcode Cloud `ci_pre_xcodebuild` fails the archive if `MARKETING_VERSION` is closed.
 
 ---
 
@@ -154,12 +169,12 @@ See also: `docs/app-store-connect-metadata.md` / `docs/app-store-connect-metadat
 
 ---
 
-## Build 1.4.6 — Ireland complimentary launch (paste this)
+## Build 1.4.7 — Ireland complimentary launch (paste this)
 
 **Paste into App Review Information → Notes:**
 
 ```
-Thank you for reviewing My Starday 1.4.6.
+Thank you for reviewing My Starday 1.4.7.
 
 My Starday uses Apple In-App Purchase (StoreKit) exclusively for paid subscriptions. There is no web checkout.
 
@@ -179,7 +194,7 @@ The account provided under Sign-In Information is the dedicated In-App Purchase 
 
 Steps to locate the subscriptions on iPhone:
 
-1. Launch the app (version 1.4.6).
+1. Launch the app (version 1.4.7).
 2. Sign in with the IAP review parent account (email + password on the login screen). Credentials are in Sign-In Information / the secret store (APP_REVIEW_IAP_EMAIL). Do not use the complimentary demo account for purchase review.
 3. Tap Inställningar (Settings) in the bottom navigation.
 4. Tap Premium.
@@ -195,11 +210,17 @@ English website: https://mystarday.app/en <!-- pragma: allowlist secret -->
 The Terms of Use link uses Apple's Standard EULA and is also included in the App Store Description.
 ```
 
-The 1.4.3 notes below are historical. Do not paste “public paid rollout is currently disabled” — that sentence is no longer the review position for 1.4.6.
+The 1.4.3 notes below are historical. Do not paste “public paid rollout is currently disabled” — that sentence is no longer the review position for 1.4.7.
 
 ---
 
-## Build 1.4.3 (1160) — Guideline 2.1(b) In-App Purchases (2026-09-11) — SUPERSEDED for 1.4.6
+## Build 1.4.6 — Ireland complimentary launch — SUPERSEDED for 1.4.7
+
+Historical paste block — use **1.4.7** above for new submissions.
+
+---
+
+## Build 1.4.3 (1160) — Guideline 2.1(b) In-App Purchases (2026-09-11) — SUPERSEDED for 1.4.7
 
 **Rejection:** Apple could not locate Premium Monthly or Premium Yearly in the app.
 
