@@ -185,8 +185,10 @@
   function goToChildLogin() {
     markEntryVersion();
     setEntryPath('role_child');
+    // Do not arm entry_restore=ENTRY_ROLE_PICK. An authoritative redirect back
+    // to /login would otherwise redraw this same screen and look like a dead tap.
     try {
-      sessionStorage.setItem('entry_restore', 'ENTRY_ROLE_PICK');
+      sessionStorage.removeItem('entry_restore');
     } catch (_) { /* ignore */ }
     track('role_child_selected');
     if (window.DeviceMode) DeviceMode.enterChild();
@@ -365,7 +367,8 @@
 
     if (restoreScreenIfNeeded()) return;
 
-    // Returning parent on native app: skip welcome — show role pick (Förälder/Barn).
+    // Role pick only when /login resume already declined (no resumable app-entry).
+    // A logged-in native shell must not sit on ENTRY_ROLE_PICK before that decision.
     const isNativeApp =
       document.documentElement.classList.contains('is-native-android') ||
       document.documentElement.classList.contains('platform-ios') ||

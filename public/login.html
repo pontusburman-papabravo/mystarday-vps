@@ -57,8 +57,8 @@
   <script src="/js/locale-switcher.js?v=4"></script>
   <script src="/js/auth-entry-i18n.js?v=2"></script>
   <script src="/js/app-entry-analytics.js?v=284"></script>
-  <script src="/js/app-entry.js?v=286"></script>
-  <script src="/js/login-magic.js?v=158"></script>
+  <script src="/js/app-entry.js?v=287"></script>
+  <script src="/js/login-magic.js?v=159"></script>
   <script src="/js/apple-sign-in-diagnostics.js?v=2026-06-22b"></script>
   <script src="/js/google-auth-ui.js?v=2026-08-30" defer></script>
   <style>
@@ -484,6 +484,25 @@
       }
     }
 
+    /**
+     * Native shell, including Android WebView when the Capacitor bridge is late.
+     * 53a8b2e0: do not location.href from /login to /dashboard on this shell.
+     * That href reloaded parent-magic 3D CSS, crashed the WebView, and looped
+     * because process death drops the sessionStorage nav guard.
+     */
+    function isNativeLoginShell() {
+      var root = document.documentElement;
+      if (root.classList.contains('is-native')
+        || root.classList.contains('is-native-android')
+        || root.classList.contains('platform-ios')
+        || root.classList.contains('platform-native')
+        || root.classList.contains('platform-android')) return true;
+      if (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) return true;
+      var ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
+      if (/Android/i.test(ua) && (/\bwv\b/.test(ua) || /Version\/\d+\.\d+/.test(ua))) return true;
+      return false;
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       var loginNextUrl = getLoginNextUrl();
       var isAddChildReturn = loginNextUrl && loginNextUrl.indexOf('addChild') !== -1;
@@ -491,34 +510,35 @@
         LoginMagic.setAddChildReturnMode(isAddChildReturn);
       }
 
-      // Redirect already-logged-in users — but VALIDATE the token first
-      // to avoid redirect loops when the token is stale/expired.
-      if (Auth.isLoggedIn()) {
+      var loginParamsEarly = new URLSearchParams(window.location.search);
+      var parentIntent = loginParamsEarly.get('parent') === '1';
+      var explicitEntryChoice = parentIntent || loginParamsEarly.get('reset') === '1';
+      var nativeShell = isNativeLoginShell();
+
+      // ADR-022: native /login asks app-entry before any role picker.
+      // One resume, then return — do not also run a localStorage/DeviceMode redirect.
+      if (nativeShell && !isAddChildReturn && !explicitEntryChoice
+        && window.AppEntryOrchestrator && typeof AppEntryOrchestrator.resumeFromLogin === 'function') {
+        try {
+          var resume = await AppEntryOrchestrator.resumeFromLogin();
+          if (resume && resume.resumed) return;
+        } catch (_) { /* no resumable state — AppEntry.init shows the role picker */ }
+      }
+
+      // Web only. Native must not href to /dashboard from /me (53a8b2e0).
+      if (!nativeShell && Auth.isLoggedIn()) {
         try {
           const res = await window.apiFetch('/api/auth/me');
           if (res.ok) {
             const me = await res.json();
             Auth.setAuth(null, me);
-            const loginParams = new URLSearchParams(window.location.search);
-            const parentIntent = loginParams.get('parent') === '1';
-            // Child session: only auto-open barnvy in native child mode (not when vuxen valt login).
-            if (me && me.type === 'child') {
+            if (me && me.type === 'child' && !parentIntent) {
               if (loginNextUrl && loginNextUrl.indexOf('addChild') !== -1) {
                 Auth.clearAuth();
-              } else {
-                var isNativeApp = document.documentElement.classList.contains('is-native-android')
-                  || document.documentElement.classList.contains('platform-ios')
-                  || (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative());
-                var inChildDeviceMode = window.DeviceMode && DeviceMode.isChildMode();
-                if (isNativeApp && inChildDeviceMode && !parentIntent) {
-                  DeviceMode.enterChild();
-                  window.location.href = '/child/today';
-                  return;
-                }
-                // Web or parent intent: stay on login — user can tap Förälder to restore vuxensession.
               }
+              // Web child session stays on login. Do not href to /child/today.
             }
-            if (window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
+            if (!parentIntent && window.SessionGate && window.DeviceMode && DeviceMode.isChildMode()) {
               window.location.href = '/child-login';
               return;
             }
@@ -528,16 +548,10 @@
               return;
             }
             if (window.DeviceMode) DeviceMode.enterParent();
-            // Native app: stay on login so user can pick language + role (iOS + Android).
-            var isNativeAppLoggedIn = document.documentElement.classList.contains('is-native-android')
-              || document.documentElement.classList.contains('platform-ios')
-              || (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative());
-            var nativeStayOnLogin = isNativeAppLoggedIn && !loginNextUrl;
-            if (!nativeStayOnLogin && me && me.type === 'parent') {
+            if (me && me.type === 'parent') {
               window.location.href = loginNextUrl || '/dashboard';
               return;
             }
-            // Native logged-in or child session on web: fall through — AppEntry.init must run or UI stays blank (logo only).
           } else {
             Auth.clearAuth();
           }

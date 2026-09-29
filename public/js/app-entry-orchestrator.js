@@ -19,6 +19,7 @@
 
   let _coldStartPromise = null;
   let _entryFetchPromise = null;
+  let _loginResumePromise = null;
 
   /** Diagnostics-only (P1): no PIN/token/cookie values, ever. */
   function diag(stage, detail) {
@@ -727,6 +728,72 @@
   }
 
   /**
+   * /login cold start. One GET /api/auth/app-entry, then at most one navigation.
+   * Does not location.reload and does not send the user back to /login.
+   * 53a8b2e0: the crash loop was an unconditional /login → /dashboard href that
+   * reloaded parent-magic 3D CSS, killed the WebView, and lost the sessionStorage
+   * nav guard. Resume uses navigateOnce onto a shell whose GPU CSS is stripped.
+   * @returns {Promise<{resumed:boolean, code?:string, decision?:object}>}
+   */
+  async function resumeFromLogin() {
+    if (_loginResumePromise) return _loginResumePromise;
+    _loginResumePromise = (async function () {
+      const fetched = await fetchEntryDecision(null);
+      if (!fetched.ok) {
+        return { resumed: false, code: fetched.code || 'FETCH_FAILED' };
+      }
+      const decision = fetched.decision || (fetched.body && fetched.body.decision) || null;
+      if (!decision || !decision.destination || !decision.path) {
+        return { resumed: false, code: 'NO_DECISION' };
+      }
+      if (decision.destination === 'parent-login') {
+        return { resumed: false, code: 'NO_RESUMABLE_STATE', decision: decision };
+      }
+      if (fetched.orchestratorActive === true) {
+        const cold = await runColdStart({ source: 'login_resume' });
+        const dest = cold && cold.decision && cold.decision.destination;
+        if (cold && cold.ok && dest && dest !== 'parent-login') {
+          return { resumed: true, code: cold.code || 'ORCHESTRATOR', decision: cold.decision };
+        }
+        return {
+          resumed: false,
+          code: (cold && cold.code) || 'ORCHESTRATOR_DECLINED',
+          decision: (cold && cold.decision) || decision,
+        };
+      }
+      // Flags off: follow a legacy JWT decision. Do not call trusted restore APIs.
+      if ((decision.serverAction || 'none') !== 'none') {
+        return { resumed: false, code: 'ORCHESTRATOR_REQUIRED', decision: decision };
+      }
+      // DeviceMode never grants parent authority. This is only a veto of
+      // automatic parent resume. Explicit adult flow remains. Fail closed when
+      // a parent cookie and child device state are out of sync: the server has
+      // no trusted-device row, so a legacy parent JWT would otherwise open
+      // /dashboard while the client is still in child mode.
+      const legacyParentOnChildHint =
+        decision.destination === 'parent-home'
+        && decision.reason === 'legacy_parent_session_no_trusted_device'
+        && window.DeviceMode
+        && typeof DeviceMode.isChildMode === 'function'
+        && DeviceMode.isChildMode();
+      if (legacyParentOnChildHint) {
+        return {
+          resumed: false,
+          code: 'LEGACY_PARENT_CHILD_HINT_CONFLICT',
+          decision: decision,
+        };
+      }
+      navigateOnce(decision.path);
+      return { resumed: true, code: 'LEGACY_RESUME', decision: decision };
+    })();
+    try {
+      return await _loginResumePromise;
+    } finally {
+      _loginResumePromise = null;
+    }
+  }
+
+  /**
    * After device role setup — re-fetch authoritative entry and navigate once.
    */
   async function applyAfterDeviceSetup() {
@@ -741,6 +808,7 @@
   window.AppEntryOrchestrator = {
     fetchEntryDecision: fetchEntryDecision,
     runColdStart: runColdStart,
+    resumeFromLogin: resumeFromLogin,
     redirectAuthoritativeEntryOrLegacy: redirectAuthoritativeEntryOrLegacy,
     bootstrapOnEntryPage: bootstrapOnEntryPage,
     applyAfterDeviceSetup: applyAfterDeviceSetup,

@@ -45,6 +45,20 @@ test('resolveParentPrivilegeActive: parent device + parent JWT → true', () => 
   assert.equal(resolveParentPrivilegeActive(user, row), true);
 });
 
+test('resolveParentPrivilegeActive: parent JWT with no trusted row → true (flags off)', () => {
+  const user = { type: 'parent', id: 'p1' };
+  assert.equal(resolveParentPrivilegeActive(user, null), true);
+});
+
+test('resolveParentPrivilegeActive: child device row + parent JWT → false', () => {
+  const user = { type: 'parent', id: 'p1' };
+  assert.equal(resolveParentPrivilegeActive(user, { device_mode: 'child' }), false);
+});
+
+test('resolveParentPrivilegeActive: child JWT → false', () => {
+  assert.equal(resolveParentPrivilegeActive({ type: 'child', id: 'c1' }, null), false);
+});
+
 test('app-entry: shared multi-child + parent JWT (no escalation) → profile-picker', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {

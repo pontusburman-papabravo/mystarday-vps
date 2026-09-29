@@ -32,7 +32,12 @@ function resolveParentPrivilegeActive(user, activeTrustedRow) {
   if (activeTrustedRow && activeTrustedRow.device_mode === 'parent') {
     return true;
   }
-  return false;
+  // Shared and child rows stay non-privilege so a dormant parent JWT cannot
+  // skip the child experience on an enrolled device.
+  if (activeTrustedRow) return false;
+  // No enrolled trusted row (trusted_device_v1 off, or not enrolled): a parent
+  // JWT is the legacy parent session. ADR-022 resume must work without a flag.
+  return true;
 }
 
 /**

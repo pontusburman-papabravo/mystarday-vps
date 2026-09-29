@@ -313,6 +313,11 @@ test('entry flag off → orchestratorActive false', async (t) => {
     const parent = await registerAndLogin(http.baseUrl);
     const { body } = await fetchAppEntry(http.baseUrl, parent.cookies);
     assert.equal(body.orchestratorActive, false);
+    assert.equal(body.decision.destination, 'parent-home');
+    assert.equal(body.decision.path, '/dashboard');
+    assert.equal(body.decision.serverAction, 'none');
+    assert.equal(body.decision.reason, 'legacy_parent_session_no_trusted_device');
+    assert.notEqual(body.decision.destination, 'parent-login');
   } finally {
     await http.close();
     await db.cleanup();

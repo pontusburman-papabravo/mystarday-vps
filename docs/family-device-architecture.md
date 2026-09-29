@@ -146,6 +146,32 @@ resolveAppEntry({
 3. `SessionGate` får endast **tillämpa** redan fattat `view_context`, inte omvända entry-beslut.
 4. Handoff (`stjarndag_parent_session`) är **legacy path** för parent↔child-byte under migration; mål är privilege API (Fas 3), inte logout-loop.
 
+### 3.1 `/login` är inte ett hål i cold start
+
+Native start som landar på `/login` anropar `AppEntryOrchestrator.resumeFromLogin` **innan** rollväljaren ritas.
+
+| Serverbeslut | Klient |
+|---------------|--------|
+| `parent-home` / `child-home` / `profile-picker` / `device-setup` och `serverAction: none` | en `navigateOnce` (även när `family_device_entry_v1` är OFF) |
+| samma destinationer och orchestrator ON | `runColdStart` (restore/select, en navigation) |
+| `parent-login` | rollväljaren får visas |
+| `serverAction` som inte är `none` medan orchestrator är OFF | ingen trusted-restore; rollväljaren (enhetsmatrisen kräver flaggan) |
+
+`platform-theme.js` väljer inte `/dashboard` eller `/login` från `localStorage`. Native `/` och marketing går till `/home`, där orchestratorn är ensam beslutsfattare.
+
+Explicit “Jag är barn” sätter `entry_explicit_role` och följer länken `/child-login`. Den sätter inte `entry_restore=ENTRY_ROLE_PICK` (det var studsen tillbaka till samma skärm).
+
+**Flaggor (ingen dold global ON i den här återställningen):**
+
+| | OFF (prod-default) | ON |
+|--|--|--|
+| `trusted_device_v1` | ingen betrodd rad räknas. Parent-JWT utan rad är legacy vuxenprivileg → `parent-home`. Child-JWT → `child-home`. | enrolled `parent` / `shared` / `child` styr matrisen. Shared/child-rad håller parent-JWT **icke-privilegierad**. |
+| `family_device_entry_v1` | klienten navigerar bara när `serverAction` är `none`. | `runColdStart` kör restore/select. |
+
+Vanlig prod-familj utan override får alltså resume av giltig parent- eller child-session. Bunden/delad enhet kräver att båda flaggorna är på för den familjen — det är pilot, inte en tyst global flip. Flaggan är inte historisk och ska inte tas bort i samma ändring.
+
+**Cookie (medvetet kvar till separat PR):** parent och child delar httpOnly `access_token`. `Auth.clearAuth()` rensar localStorage men inte den cookien. Cold start litar på `GET /api/auth/app-entry` (cookie), inte på `stjarndag_user`. Atomisk parent↔child-handoff görs inte här.
+
 ### 3.2 Enhets-setup (engång, intelligent default)
 
 Efter första lyckade parent-login på enheten — **inte** vid varje start:
@@ -426,7 +452,8 @@ Support och revoke ska kunna hanteras här utan att “logga ut hela familjen”
 2. **Privilegieperiod TTL** — exakta sekunder per `device_mode` (shared vs child vs parent).
 3. **Web biometri** — WebAuthn begränsningar; vuxen-PIN som primär på web PWA.
 4. **ADR-019 “Not in this slice”** — superseded av ADR-022 för shared/parent/widget.
+5. **Atomisk parent↔child cookie-handoff** — en httpOnly `access_token` byts ut av child-login; `Auth.clearAuth()` lämnar cookien. Cold start läser servern. Separat PR om handoff ska bli atomisk. Regression: `test/android-cold-start-resume.test.js`.
 
 ---
 
-*Senast uppdaterad: 2026-08-10 · PRODUCT DECISION GO · FREEZE UX MODEL*
+*Senast uppdaterad: 2026-09-28 · `/login` resume återställer ADR-022 utan att slå på flaggor globalt*

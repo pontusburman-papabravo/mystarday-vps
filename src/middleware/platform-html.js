@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '39'; // Bump when parent-magic-common / dashboard-magic CSS changes (native WebView cache bust)
+const MAGIC_VERSION = '41'; // Bump when parent-magic CSS, profile-switch, or app-entry-orchestrator changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -568,7 +568,7 @@ function injectPlatformHtml(body, reqPath, req) {
   if (!/\/js\/utm-capture\.js/i.test(body)) {
     headParts.push('<script src="/js/utm-capture.js?v=' + RELEASE_TAG + '"><\/script>');
   }
-  headParts.push('<script src="/js/platform-theme.js?v=' + RELEASE_TAG + '"><\/script>');
+  headParts.push('<script src="/js/platform-theme.js?v=2026-09-28-adr022"><\/script>');
   if (injectDebug) {
     headParts.push('<link rel="stylesheet" href="/css/native-debug.css?v=1.0.4">');
   }

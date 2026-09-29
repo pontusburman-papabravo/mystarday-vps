@@ -1374,7 +1374,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  if (!resumeAddChild && window.AppEntryOrchestrator
+  // Explicit "Jag är barn" must stay on this page. Do not let a parent-login
+  // decision restore ENTRY_ROLE_PICK on /login (dead tap).
+  let explicitChildRole = false;
+  try {
+    explicitChildRole = sessionStorage.getItem('entry_explicit_role') === 'child';
+    if (explicitChildRole) sessionStorage.removeItem('entry_explicit_role');
+    sessionStorage.removeItem('entry_restore');
+  } catch (_) { /* ignore */ }
+
+  if (!resumeAddChild && !explicitChildRole && window.AppEntryOrchestrator
     && typeof AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy === 'function') {
     const authEntry = await AppEntryOrchestrator.redirectAuthoritativeEntryOrLegacy({
       source: 'child_login_init',
