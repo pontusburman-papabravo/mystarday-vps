@@ -81,12 +81,18 @@ function patchBuildGradle() {
     /android \{\n    namespace/,
     `android {${signingBlock}\n    namespace`
   );
-  g = g.replace(
-    /release \{\n            minifyEnabled false/,
-    `release {
+  const releaseBlockRe = /release\s*\{[^}]*\}/;
+  if (releaseBlockRe.test(g)) {
+    g = g.replace(
+      releaseBlockRe,
+      `release {
             signingConfig signingConfigs.release
-            minifyEnabled false`
-  );
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }`
+    );
+  }
   fs.writeFileSync(gradlePath, g);
   console.log('Patched android/app/build.gradle with release signing');
 }

@@ -201,6 +201,10 @@ keyPassword=DITT_LÖSENORD
 
 Uppdatera `android/app/build.gradle` med signing config (Android Studio: **Build → Generate Signed Bundle** guidar er).
 
+### DEX-optimering (Play Console)
+
+Release-AAB ska ha **R8 minify + shrink** (obfuskering ≥25 %). Det patchas automatiskt via `npm run cap:sync:android` (`patch-android-release-optimization.mjs`). Kant-till-kant: `EdgeToEdge.enable()` i `MainActivity` + `patch-android-edge-to-edge.mjs`.
+
 ### Bygg AAB
 
 1. `npm run cap:android` → öppnar Android Studio
