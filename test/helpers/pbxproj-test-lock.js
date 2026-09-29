@@ -12,8 +12,10 @@ function sleep(ms) {
 
 /**
  * Serializes tests that read or temporarily rewrite ios project.pbxproj.
- * Node's test runner executes files in parallel, and one widget test
- * poisons that file for the duration of a single case.
+ * Node's test runner executes files in parallel, and widget tests poison
+ * that shared file for a single case. Every snapshot, rewrite, and restore
+ * of the shared project must happen inside withPbxLock. A suite before/after
+ * that touches the file outside the lock races with the other writers.
  */
 function withPbxLock(fn) {
   const start = Date.now();

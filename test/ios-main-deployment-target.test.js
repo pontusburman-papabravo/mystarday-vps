@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('node:child_process');
+const { withPbxLock } = require('./helpers/pbxproj-test-lock');
 
 const ROOT = path.join(__dirname, '..');
 const PBX = path.join(ROOT, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj');
@@ -14,6 +15,7 @@ const PODFILE_PATCH = path.join(ROOT, 'scripts', 'patch-ios-podfile.mjs');
 
 describe('patch-ios-main-deployment-target', () => {
   it('main App, Podfile platform, and WidgetRoutine deployment targets', () => {
+    withPbxLock(() => {
     const pbx = fs.readFileSync(PBX, 'utf8');
     const podfile = fs.readFileSync(PODFILE, 'utf8');
     assert.doesNotMatch(pbx, /IPHONEOS_DEPLOYMENT_TARGET = 14\.0;/);
@@ -37,6 +39,7 @@ describe('patch-ios-main-deployment-target', () => {
     for (const block of widgetBlocks) {
       assert.equal(block[1], '17.0');
     }
+    });
   });
 
   it('patch-ios-podfile keeps Podfile platform at iOS 15.0', () => {
@@ -59,8 +62,10 @@ describe('patch-ios-main-deployment-target', () => {
   });
 
   it('patch script is idempotent at iOS 15.0', () => {
-    const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
-    assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
-    assert.match(r.stdout + r.stderr, /already at iOS 15\.0/);
+    withPbxLock(() => {
+      const r = spawnSync(process.execPath, [PATCH], { cwd: ROOT, encoding: 'utf8' });
+      assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
+      assert.match(r.stdout + r.stderr, /already at iOS 15\.0/);
+    });
   });
 });
