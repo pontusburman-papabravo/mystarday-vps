@@ -40,12 +40,29 @@ const AUTH_ME_HANDOFF_POLL_DELAY_MS = 250;
 
 /** Native WebView: cookie auth + skip refresh round-trips (Android Play + iOS parity). */
 function isNativeClient() {
-  if (document.documentElement.classList.contains('is-native-android')) return true;
-  if (document.documentElement.classList.contains('platform-native')) return true;
+  try {
+    if (typeof Capacitor !== 'undefined' && Capacitor && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) {
+      return true;
+    }
+  } catch (_) { /* ignore */ }
+  const html = document.documentElement;
+  if (html && html.classList) {
+    if (html.classList.contains('is-native')) return true;
+    if (html.classList.contains('is-native-android')) return true;
+    if (html.classList.contains('is-native-ios')) return true;
+    if (html.classList.contains('platform-native')) return true;
+    if (html.classList.contains('platform-ios')) return true;
+    if (html.classList.contains('platform-android')) return true;
+  }
   if (typeof window.Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) {
     return true;
   }
   return false;
+}
+
+/** Logged-out native fail-safe. Never used when a cached user should stay signed in. */
+function nativeLoggedOutEntryPath(src) {
+  return '/login?entry=native_first_run&src=' + encodeURIComponent(src || 'auth_failsafe');
 }
 
 const Auth = {
@@ -1825,8 +1842,19 @@ window.authGuard = async function() {
       // transient backend error (500/503) or a deploy restart must NOT log the
       // user out — otherwise a single hiccup bounces everyone to /login.
       if (res.status === 401 || res.status === 403) {
+        const hadCachedUser = !!Auth.getUser();
         Auth.clearAuth();
+        if (!hadCachedUser && isNativeClient()) {
+          window.location.replace(nativeLoggedOutEntryPath('auth_failsafe'));
+          return null;
+        }
         window.location.href = '/login?next=' + encodeURIComponent(Auth._currentSafeReturnPath());
+        return null;
+      }
+      // Brand-new native install: a 5xx must not leave the dashboard on "Laddar…".
+      // A cached user stays — a hiccup must not log an existing family out.
+      if (res.status >= 500 && isNativeClient() && !Auth.getUser()) {
+        window.location.replace(nativeLoggedOutEntryPath('auth_me_5xx'));
         return null;
       }
       return Auth.getUser();
@@ -1869,6 +1897,12 @@ window.authGuard = async function() {
     }
     // Network error (offline, app resuming, server restarting) — keep the
     // session and let the page retry rather than forcing a logout.
+    // A native install with no cached user has nothing to keep: send them to
+    // create-account / log-in instead of an endless "Laddar…".
+    if (isNativeClient() && !Auth.getUser()) {
+      window.location.replace(nativeLoggedOutEntryPath(isTimeout ? 'auth_me_timeout' : 'auth_me_error'));
+      return null;
+    }
     return Auth.getUser();
   }
 };

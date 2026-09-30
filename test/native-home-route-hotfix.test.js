@@ -168,7 +168,7 @@ describe('P0 — /home route exists and does not loop to /', () => {
 });
 
 describe('P0 — /home entry behavior by session and Family Device state', () => {
-  test('D: Family Device OFF + no session → app-entry inactive, /home is stable shell', async (t) => {
+  test('D: Family Device OFF + no session → orchestrator inactive, parent-login still published', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real DATABASE_URL');
@@ -185,6 +185,10 @@ describe('P0 — /home entry behavior by session and Family Device state', () =>
       const entry = await fetch(`${http.baseUrl}/api/auth/app-entry`);
       const body = await entry.json();
       assert.equal(body.orchestratorActive, false);
+      assert.equal(body.decision.destination, 'parent-login');
+      assert.equal(body.decision.reason, 'no_family_or_device_auth');
+      assert.equal(body.decision.applyWhenOrchestratorOff, true);
+      assert.notEqual(body.decision.path, '/child-login');
     } finally {
       await http.close();
       await db.cleanup();
@@ -211,6 +215,8 @@ describe('P0 — /home entry behavior by session and Family Device state', () =>
       });
       const body = await entry.json();
       assert.equal(body.orchestratorActive, false);
+      assert.equal(body.decision.destination, 'parent-home');
+      assert.equal(body.decision.applyWhenOrchestratorOff, false);
     } finally {
       await http.close();
       await db.cleanup();
@@ -297,6 +303,7 @@ describe('P0 — /home entry behavior by session and Family Device state', () =>
       const entryBody = await entry.json();
       assert.equal(entryBody.decision.destination, 'parent-login');
       assert.equal(entryBody.decision.reason, 'trusted_device_revoked');
+      assert.equal(entryBody.decision.applyWhenOrchestratorOff, false);
 
       const restore = await fetch(`${http.baseUrl}/api/auth/trusted-device/restore`, {
         method: 'POST',

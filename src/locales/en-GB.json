@@ -161,7 +161,11 @@
         "chipMultipleUsers": "Multiple children and adults",
         "startBtn": "Get started",
         "existingBtn": "I already have an account",
-        "howItWorksBtn": "How the app works"
+        "howItWorksBtn": "How the app works",
+        "firstRunHeadline": "Welcome to {{brand}}",
+        "firstRunCreateAccount": "Create account",
+        "firstRunLogIn": "Log in",
+        "firstRunChildLink": "I'm a child"
       },
       "role": {
         "title": "Who will use the app now?",

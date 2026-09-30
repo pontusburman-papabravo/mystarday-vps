@@ -39,6 +39,34 @@
     );
   }
 
+  /** Native shell only. PWA standalone keeps the longer welcome. */
+  function isNativeAppShell() {
+    try {
+      if (typeof Capacitor !== 'undefined' && Capacitor && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) {
+        return true;
+      }
+    } catch (_) { /* ignore */ }
+    if (typeof window.Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative()) {
+      return true;
+    }
+    const html = document.documentElement;
+    if (!html || !html.classList) return false;
+    return html.classList.contains('is-native')
+      || html.classList.contains('is-native-android')
+      || html.classList.contains('is-native-ios')
+      || html.classList.contains('platform-native')
+      || html.classList.contains('platform-ios')
+      || html.classList.contains('platform-android');
+  }
+
+  function firstRunMeta() {
+    const meta = (window.EntryAnalytics && typeof EntryAnalytics.acquisitionMeta === 'function')
+      ? EntryAnalytics.acquisitionMeta()
+      : {};
+    if (!meta.entry_source) meta.entry_source = 'native_login';
+    return meta;
+  }
+
   function getLoginNextUrl() {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -254,6 +282,48 @@
         if (e.target === howModal) howModal.classList.add('hidden');
       });
     }
+
+    const createBtn = document.getElementById('entryFirstRunCreateBtn');
+    const loginBtn = document.getElementById('entryFirstRunLoginBtn');
+    const childBtn = document.getElementById('entryFirstRunChildBtn');
+
+    if (createBtn && !createBtn.dataset.bound) {
+      createBtn.dataset.bound = '1';
+      createBtn.addEventListener('click', function () {
+        const meta = firstRunMeta();
+        track('native_create_account_click', meta);
+        track('signup_started', meta);
+        const href = (window.EntryAnalytics && typeof EntryAnalytics.registerHrefFromEntry === 'function')
+          ? EntryAnalytics.registerHrefFromEntry()
+          : '/register?entry=native_first_run&src=login';
+        window.location.href = href;
+      });
+    }
+
+    if (loginBtn && !loginBtn.dataset.bound) {
+      loginBtn.dataset.bound = '1';
+      loginBtn.addEventListener('click', function () {
+        track('native_login_click', firstRunMeta());
+        setEntryPath('welcome_existing');
+        showScreen('ENTRY_ADULT_LOGIN');
+      });
+    }
+
+    if (childBtn && !childBtn.dataset.bound) {
+      childBtn.dataset.bound = '1';
+      childBtn.addEventListener('click', function () {
+        goToChildLogin();
+      });
+    }
+  }
+
+  function showNativeFirstRun() {
+    const legacy = document.getElementById('entryWelcomeLegacy');
+    const first = document.getElementById('entryWelcomeFirstRun');
+    if (legacy) legacy.hidden = true;
+    if (first) first.hidden = false;
+    showScreen('ENTRY_WELCOME');
+    track('native_first_run_shown', firstRunMeta());
   }
 
   function bindRolePickActions() {
@@ -369,15 +439,16 @@
 
     // Role pick only when /login resume already declined (no resumable app-entry).
     // A logged-in native shell must not sit on ENTRY_ROLE_PICK before that decision.
-    const isNativeApp =
-      document.documentElement.classList.contains('is-native-android') ||
-      document.documentElement.classList.contains('platform-ios') ||
-      (typeof Platform !== 'undefined' && typeof Platform.isNative === 'function' && Platform.isNative());
     if (
-      isNativeApp &&
+      isNativeAppShell() &&
       window.Auth && typeof Auth.isLoggedIn === 'function' && Auth.isLoggedIn()
     ) {
       showScreen('ENTRY_ROLE_PICK');
+      return;
+    }
+
+    if (isNativeAppShell()) {
+      showNativeFirstRun();
       return;
     }
 
