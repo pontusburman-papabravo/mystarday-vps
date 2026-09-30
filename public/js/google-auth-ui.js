@@ -19,6 +19,9 @@
     if (data.isNewAccount && window.MarketingEvents && typeof MarketingEvents.trackSignup === 'function') {
       MarketingEvents.trackSignup('google');
     }
+    if (data.isNewAccount === true && window.EntryAnalytics && typeof EntryAnalytics.trackSignupCompleted === 'function') {
+      EntryAnalytics.trackSignupCompleted('google');
+    }
     if (data.user.onboarding_completed === false) {
       window.location.replace('/onboarding');
     } else if (Auth.completeParentAuthRedirect && Auth.completeParentAuthRedirect(data.user)) {
