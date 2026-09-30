@@ -34,6 +34,11 @@ function toPublicEntryDecision(resolved, options) {
     ? resolved.serverAction
     : SERVER_ACTIONS.NONE;
 
+  // Logged-out cold start only. Trusted-device actions stay behind the flag.
+  const applyWhenOrchestratorOff = destination === DESTINATIONS.PARENT_LOGIN
+    && resolved.reason === 'no_family_or_device_auth'
+    && resolved.failClosed !== true;
+
   return {
     destination,
     deviceMode: resolved.deviceMode ?? null,
@@ -43,6 +48,7 @@ function toPublicEntryDecision(resolved, options) {
     reason: resolved.reason,
     serverAction,
     failClosed: resolved.failClosed === true,
+    applyWhenOrchestratorOff,
     path: pathForDestination(destination, options),
   };
 }

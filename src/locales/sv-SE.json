@@ -161,7 +161,11 @@
         "chipMultipleUsers": "Flera barn och vuxna",
         "startBtn": "Kom igång",
         "existingBtn": "Jag har redan konto",
-        "howItWorksBtn": "Så fungerar appen"
+        "howItWorksBtn": "Så fungerar appen",
+        "firstRunHeadline": "Välkommen till {{brand}}",
+        "firstRunCreateAccount": "Skapa konto",
+        "firstRunLogIn": "Logga in",
+        "firstRunChildLink": "Jag är barn"
       },
       "role": {
         "title": "Vem ska använda appen nu?",

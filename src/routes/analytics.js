@@ -67,6 +67,10 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'adult_signup_intro_viewed',
   'signup_started',
   'signup_completed',
+  'native_first_run_shown',
+  'native_create_account_click',
+  'native_login_click',
+  'register_viewed',
   // Landing-page CTA tracking (public/js/landing-events.js + landing-faq.js)
   'hero_signup_click',
   'hero_how_it_works_click',

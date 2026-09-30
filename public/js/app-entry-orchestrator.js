@@ -555,6 +555,44 @@
     return { ok: true };
   }
 
+  /**
+   * Native shell only. Web visitors on / must stay on the marketing page.
+   * Missing classList (tests, incomplete document) is not native.
+   */
+  function isNativeShell() {
+    try {
+      if (typeof Capacitor !== 'undefined' && Capacitor && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) {
+        return true;
+      }
+    } catch (_) { /* ignore */ }
+    try {
+      if (window.Platform && typeof Platform.isNative === 'function' && Platform.isNative()) return true;
+    } catch (_) { /* ignore */ }
+    const el = document && document.documentElement;
+    const list = el && el.classList;
+    if (!list || typeof list.contains !== 'function') return false;
+    return list.contains('is-native')
+      || list.contains('is-native-android')
+      || list.contains('is-native-ios')
+      || list.contains('platform-native')
+      || list.contains('platform-ios')
+      || list.contains('platform-android');
+  }
+
+  /**
+   * Safe no-session parent-login. Does not cover revoked devices or any
+   * destination that needs a trusted-device server action.
+   */
+  function isLoggedOutNativeParentLogin(decision) {
+    return !!(
+      decision
+      && decision.applyWhenOrchestratorOff === true
+      && decision.destination === 'parent-login'
+      && decision.reason === 'no_family_or_device_auth'
+      && decision.failClosed !== true
+    );
+  }
+
   function navigateOnce(path) {
     if (!path) return;
     try {
@@ -609,6 +647,22 @@
         return { ok: false, code: fetched.code || 'FETCH_FAILED' };
       }
       if (!fetched.orchestratorActive) {
+        const offDecision = fetched.body && fetched.body.decision;
+        // family_device_entry_v1 stays off. Only the logged-out native
+        // parent-login decision is applied, and no trusted-device action runs.
+        if (isNativeShell() && isLoggedOutNativeParentLogin(offDecision)) {
+          // Stale local child-mode must not let SessionGate overwrite this hop
+          // with /child-login. There is no server family or trusted device.
+          try {
+            if (window.DeviceMode && typeof DeviceMode.enterParent === 'function') {
+              DeviceMode.enterParent();
+            }
+          } catch (_) { /* ignore */ }
+          if (!opts.skipRedirect) {
+            navigateOnce('/login?entry=native_first_run&src=cold_start');
+          }
+          return { ok: true, code: 'LOGGED_OUT_NATIVE_ENTRY', decision: offDecision };
+        }
         return { ok: false, code: 'ORCHESTRATOR_OFF' };
       }
 
