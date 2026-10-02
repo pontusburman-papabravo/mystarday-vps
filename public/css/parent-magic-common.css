@@ -133,6 +133,11 @@ body.parent-magic-view:not(.parent-theme-light) .magic-page-shell {
   margin-bottom: 16px;
 }
 
+.magic-page-hero > div:last-child {
+  min-width: 0;
+  flex: 1;
+}
+
 .magic-page-hero-icon {
   width: 56px;
   height: 56px;
@@ -151,6 +156,8 @@ body.parent-magic-view:not(.parent-theme-light) .magic-page-shell {
   font-weight: 800;
   margin: 0;
   line-height: 1.15;
+  color: #f4f4ff;
+  overflow-wrap: anywhere;
 }
 
 .magic-page-hero p {
@@ -620,6 +627,12 @@ body.parent-magic-view:not(.parent-theme-light) h2,
 body.parent-magic-view:not(.parent-theme-light) h3,
 body.parent-magic-view:not(.parent-theme-light) h4 {
   color: #f4f4ff !important;
+}
+
+/* Public Skattkammaren demo keeps white cards (inline background).
+   The rule above would paint those h2s nearly white, so the heading disappears. */
+body.parent-magic-view:not(.parent-theme-light) .seo-content h2 {
+  color: #1c2340 !important;
 }
 
 body.parent-magic-view:not(.parent-theme-light) .text-text-soft {
