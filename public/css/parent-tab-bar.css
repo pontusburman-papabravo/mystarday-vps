@@ -12,6 +12,7 @@
   body.modal-open .native-tab-bar,
   body:has(> .fixed.inset-0:not(.hidden)) .native-tab-bar {
     visibility: hidden;
+    pointer-events: none;
   }
 
   body.has-native-tab-bar .native-tab-bar {
@@ -28,7 +29,7 @@
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-top: 0.5px solid rgba(0, 0, 0, 0.12);
-    z-index: 10200;
+    z-index: var(--layer-bottom-nav, 400);
     pointer-events: auto;
   }
 
@@ -125,14 +126,14 @@
   body.has-native-tab-bar #helpBtn,
   body.has-native-tab-bar #hbBtn {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px) !important;
-    z-index: 10001 !important;
+    z-index: var(--layer-fab, 300) !important;
   }
 
   body.has-native-tab-bar #globalFeedbackBtn,
   body.has-native-tab-bar .global-feedback-fab {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
     right: max(16px, env(safe-area-inset-right, 0px)) !important;
-    z-index: 10001 !important;
+    z-index: var(--layer-fab, 300) !important;
   }
 
   /* Mobile FAB defaults (before tab bar mounts) */
@@ -140,7 +141,7 @@
   .global-feedback-fab {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px);
     right: max(16px, env(safe-area-inset-right, 0px));
-    z-index: 10001;
+    z-index: var(--layer-fab, 300);
   }
 
   body:not(.has-native-tab-bar) #globalFeedbackBtn,
@@ -150,7 +151,7 @@
 
   #hbBtn {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px);
-    z-index: 10001;
+    z-index: var(--layer-fab, 300);
   }
 }
 

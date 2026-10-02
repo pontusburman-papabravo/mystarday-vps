@@ -160,14 +160,12 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Trigger button — mobile: stack above native tab bar when present.
-       z-index stays BELOW modal overlays (Tailwind z-50) so the bubble never
-       covers modal CTAs or validation errors. */
+    /* Trigger button — FAB layer. app-layers.css hides it while a modal is open. */
     #hbBtn {
       position: fixed;
       bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px);
       right: max(16px, env(safe-area-inset-right, 0px));
-      z-index: 40;
+      z-index: var(--layer-fab, 300);
       width: 44px;
       height: 44px;
       background: #1B2340;
@@ -195,7 +193,7 @@
       #hbBtn {
         bottom: 24px;
         right: 80px;  /* offset right of support bubble at right:24px */
-        z-index: 40;
+        z-index: var(--layer-fab, 300);
       }
     }
 
@@ -213,7 +211,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.45);
-      z-index: 9980;
+      z-index: var(--layer-modal-backdrop, 500);
     }
     #hbBackdrop.hb-open { display: block; }
 
@@ -230,7 +228,7 @@
       background: white;
       border-radius: 20px 20px 0 0;
       box-shadow: 0 -8px 40px rgba(27,35,64,0.18);
-      z-index: 9981;
+      z-index: var(--layer-modal, 510);
       overflow: hidden;
       flex-direction: column;
       animation: hbSlideUp 0.25s ease-out;
@@ -558,23 +556,29 @@
   }
 
   // ─── Logic ─────────────────────────────────────────────────────────────────
-  window.__hbToggle = function () {
+  function setHelpOverlayOpen(isOpen) {
     const panel = document.getElementById('hbPanel');
     const backdrop = document.getElementById('hbBackdrop');
-    const isOpen = panel.classList.contains('hb-open');
-    if (isOpen) {
-      panel.classList.remove('hb-open');
-      backdrop.classList.remove('hb-open');
-    } else {
-      panel.classList.add('hb-open');
-      backdrop.classList.add('hb-open');
-      refreshJourneyTip();
+    if (!panel || !backdrop) return;
+    panel.classList.toggle('hb-open', isOpen);
+    backdrop.classList.toggle('hb-open', isOpen);
+    if (isOpen) backdrop.setAttribute('data-overlay', 'modal');
+    else backdrop.removeAttribute('data-overlay');
+    if (window.OverlayPolicy && typeof window.OverlayPolicy.sync === 'function') {
+      window.OverlayPolicy.sync();
     }
+  }
+
+  window.__hbToggle = function () {
+    const panel = document.getElementById('hbPanel');
+    if (!panel) return;
+    const isOpen = panel.classList.contains('hb-open');
+    setHelpOverlayOpen(!isOpen);
+    if (!isOpen) refreshJourneyTip();
   };
 
   window.__hbClose = function () {
-    document.getElementById('hbPanel').classList.remove('hb-open');
-    document.getElementById('hbBackdrop').classList.remove('hb-open');
+    setHelpOverlayOpen(false);
   };
 
   window.__hbSwitchTab = function (btn, tabId) {

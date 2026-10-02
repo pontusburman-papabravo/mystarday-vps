@@ -82,7 +82,7 @@ body.parent-magic-view #globalFeedbackBtn,
 body.parent-magic-view .global-feedback-fab {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
   top: auto !important;
-  z-index: 10210 !important;
+  z-index: var(--layer-fab, 300) !important;
 }
 
 body.parent-magic-view #helpBtn,
@@ -90,7 +90,7 @@ body.parent-magic-view #hbBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 68px) !important;
   top: auto !important;
   right: max(16px, env(safe-area-inset-right, 0px)) !important;
-  z-index: 10210 !important;
+  z-index: var(--layer-fab, 300) !important;
 }
 
 body.parent-magic-dashboard #globalFeedbackBtn {
@@ -1297,7 +1297,7 @@ body.parent-magic-view.parent-theme-light.parent-magic-page-assign-schedule .sav
 }
 
 body.parent-magic-view.parent-magic-page-assign-schedule .confirm-overlay {
-  z-index: 10300 !important;
+  z-index: var(--layer-modal, 510) !important;
   pointer-events: auto;
 }
 
@@ -1710,7 +1710,7 @@ body.parent-magic-view #medforalderCtaModal input {
 }
 
 body.parent-magic-view #medforalderCtaModal {
-  z-index: 10050 !important;
+  z-index: var(--layer-modal, 510) !important;
 }
 
 body.parent-magic-view #coParentInviteSection .text-navy,

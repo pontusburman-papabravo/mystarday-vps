@@ -531,6 +531,7 @@
   function showModal(html, onMount) {
     const backdrop = document.createElement('div');
     backdrop.className = 'for-dig-modal-backdrop';
+    backdrop.setAttribute('data-overlay', 'modal');
     backdrop.innerHTML = `<div class="for-dig-modal" role="dialog">${html}</div>`;
     backdrop.addEventListener('click', (e) => {
       if (e.target === backdrop) backdrop.remove();
@@ -656,6 +657,7 @@
 
       const backdrop = document.createElement('div');
       backdrop.className = 'for-dig-modal-backdrop';
+      backdrop.setAttribute('data-overlay', 'modal');
       backdrop.setAttribute('data-activation', '1');
 
       const renderModal = () => {

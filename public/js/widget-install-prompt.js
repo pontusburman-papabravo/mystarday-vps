@@ -51,10 +51,10 @@
   function removeModal() {
     const overlay = global.document.getElementById(OVERLAY_ID);
     if (overlay) overlay.remove();
-    if (global.document && global.document.body) {
-      global.document.body.classList.remove('modal-open');
-    }
     _lastModalOpts = null;
+    if (global.OverlayPolicy && typeof global.OverlayPolicy.sync === 'function') {
+      global.OverlayPolicy.sync();
+    }
   }
 
   function dismissForNavigation() {
@@ -67,7 +67,8 @@
     removeModal();
     const overlay = global.document.createElement('div');
     overlay.id = OVERLAY_ID;
-    overlay.className = 'fixed inset-0 z-[10450] flex items-end sm:items-center justify-center p-4 bg-black/50';
+    overlay.className = 'fixed inset-0 flex items-end sm:items-center justify-center p-4 bg-black/50';
+    overlay.setAttribute('data-overlay', 'modal');
     overlay.setAttribute('role', 'presentation');
 
     overlay.innerHTML =

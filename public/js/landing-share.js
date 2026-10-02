@@ -98,6 +98,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'landingSharePopup';
     overlay.className = 'share-popup-overlay';
+    overlay.setAttribute('data-overlay', 'modal');
     const mailSubject = encodeURIComponent('Tipsa om appen'); // pragma: allowlist secret
     const mailBody = encodeURIComponent(shareText);
     const fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);

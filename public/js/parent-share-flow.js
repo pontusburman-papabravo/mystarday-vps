@@ -85,6 +85,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'parentShareRecipientOverlay';
     overlay.className = 'share-popup-overlay';
+    overlay.setAttribute('data-overlay', 'modal');
     overlay.innerHTML =
       '<div class="share-popup-card" role="dialog" aria-labelledby="parentShareRecipientTitle">' +
         '<div class="share-popup-header">' +
@@ -139,6 +140,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'sharePopup';
     overlay.className = 'share-popup-overlay';
+    overlay.setAttribute('data-overlay', 'modal');
 
     const mailSubject = encodeURIComponent('Tipsa: appen');
     const mailBody = encodeURIComponent(shareText);

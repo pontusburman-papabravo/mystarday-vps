@@ -36,8 +36,9 @@
       overlay.setAttribute('aria-modal', 'true');
       overlay.setAttribute('aria-labelledby', 'adult-pin-gate-title');
       overlay.className = 'adult-pin-gate-overlay';
+      overlay.setAttribute('data-overlay', 'modal');
       overlay.style.cssText = [
-        'position:fixed;inset:0;z-index:10000;background:rgba(27,35,64,0.88);',
+        'position:fixed;inset:0;z-index:var(--layer-modal, 510);background:rgba(27,35,64,0.88);',
         'display:flex;align-items:center;justify-content:center;padding:16px;',
       ].join('');
 

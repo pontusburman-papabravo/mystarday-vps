@@ -41,7 +41,7 @@
         banner.id = 'pinWarningBanner';
         banner.style.cssText = [
           'position: fixed; top: 16px; left: 50%; transform: translateX(-50%);',
-          'z-index: 9999; min-width: 320px; max-width: 480px; width: 90%;',
+          'z-index:var(--layer-toast, 600); min-width: 320px; max-width: 480px; width: 90%;',
           'background: #FFF9C4; border: 2px solid #F5A623; border-radius: 14px;',
           'padding: 14px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);',
           'display: flex; align-items: center; gap: 12px; font-family: Outfit, sans-serif;',
@@ -108,7 +108,7 @@
         banner.setAttribute('role', 'status');
         banner.style.cssText = [
           'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);',
-          'z-index:9990;min-width:320px;max-width:480px;width:90%;',
+          'z-index:var(--layer-toast, 600);min-width:320px;max-width:480px;width:90%;',
           'background:#fff;border:2px solid #F5A623;border-radius:16px;',
           'padding:14px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.12);',
           'display:flex;align-items:center;gap:12px;font-family:Outfit,sans-serif;',
@@ -145,7 +145,7 @@
           if (granted) {
             // Brief success toast
             const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9990;background:#10b981;color:#fff;padding:10px 20px;border-radius:12px;font-family:Outfit,sans-serif;font-weight:700;font-size:0.9rem;box-shadow:0 4px 16px rgba(0,0,0,0.15);';
+            toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:var(--layer-toast, 600);background:#10b981;color:#fff;padding:10px 20px;border-radius:12px;font-family:Outfit,sans-serif;font-weight:700;font-size:0.9rem;box-shadow:0 4px 16px rgba(0,0,0,0.15);';
             toast.textContent = pt('home.pushPrompt.enabledToast');
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
