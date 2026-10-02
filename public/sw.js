@@ -346,6 +346,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
+// stjarndag-v1021: Skattkammaren demo — readable card headings, Swedish hero fallback
 // stjarndag-v1020: Sweden 14-day trial from 3 Oct, landing copy, last-day Hem banner
 // stjarndag-v1019: Canada iOS launch — geo-neutral App Store, Android coming soon on ?country=CA
 // stjarndag-v1018: Canada registration on the English complimentary period
@@ -354,7 +355,7 @@
 // stjarndag-v1015: native cold start resumes via app-entry (ADR-022); role picker is not the start screen
 // stjarndag-v1014: anchor Switch profile in the parent header on phones
 // stjarndag-v1013: keep Hem child-login CTA when schema is saved
-const CACHE_NAME = 'stjarndag-v1020';
+const CACHE_NAME = 'stjarndag-v1021';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host

@@ -21,6 +21,9 @@
     'settings.groups.premium.title': 'Prenumeration',
     'settings.groups.premium.sub': 'Premium, köp och betalning',
     'settings.appearance.backToSettings': '← Tillbaka till inställningar',
+    // Public /skattkammaren has no locale bundle. Never show the raw key.
+    'settings.heroes.treasureChest.title': 'Skattkammaren',
+    'settings.heroes.treasureChest.sub': 'Belöningar och stjärnor',
   };
 
   function pt(key, params) {
