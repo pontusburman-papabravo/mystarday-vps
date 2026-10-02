@@ -161,7 +161,8 @@ describe('public web signup closed', () => {
     assert.match(index, /__PLAY_STORE_URL__/);
     assert.match(index, /Hämta appen/);
     assert.doesNotMatch(en, /https:\/\/apple\.co\/4v2ESuH/);
-    assert.match(en, /https:\/\/apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/);
+    assert.match(en, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.doesNotMatch(en, /https:\/\/apps\.apple\.com\/ie\/app\//);
     assert.match(en, /Get My Starday/);
     assert.doesNotMatch(en, /Create account/);
     assert.doesNotMatch(en, /href="\/en\/register"/);

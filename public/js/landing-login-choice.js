@@ -162,8 +162,14 @@
     });
   }
 
+  function canadaAndroidWebOnly() {
+    const root = document.documentElement;
+    return !!(root && root.getAttribute && root.getAttribute('data-canada-ios-launch') === '1' && isAndroid());
+  }
+
   function handleEntryLinkClick(e, link) {
     if (!isMobileWeb()) return;
+    if (canadaAndroidWebOnly()) return;
 
     const href = link.getAttribute('href');
     if (!isEntryPath(href)) return;

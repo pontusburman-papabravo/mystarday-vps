@@ -14,7 +14,12 @@ const { evaluateSignupCompleteness } = require('../src/lib/market-launch-invaria
 const { evaluateMarketPurchaseAllowed } = require('../src/lib/payment-settings');
 const { GATE_DEFAULTS } = require('../src/lib/market-region');
 const { ENGLISH_PUBLIC_SITE_URL } = require('../src/lib/public-html-placeholders');
-const { APPLE_APP_STORE_IE_URL, getIrelandPlayStoreUrl, getPlayStoreUrl } = require('../config/store-links');
+const {
+  APPLE_APP_STORE_IE_URL,
+  APPLE_APP_STORE_GEO_NEUTRAL_URL,
+  getIrelandPlayStoreUrl,
+  getPlayStoreUrl,
+} = require('../config/store-links');
 
 const ROOT = path.join(__dirname, '..');
 const CUTOFF = new Date(DEFAULT_IRELAND_FREE_UNTIL);
@@ -128,17 +133,21 @@ describe('English Ireland store and canonical surfaces', () => {
     'public/en-terms.html',
   ];
 
-  it('English marketing pages use the Ireland storefront and never the geo-neutral App Store URL', () => {
+  it('English store pages use the geo-neutral App Store id and keep Ireland Play links', () => {
     assert.equal(APPLE_APP_STORE_IE_URL, 'https://apps.apple.com/ie/app/my-starday-family-routines/id6774493098');
+    assert.equal(APPLE_APP_STORE_GEO_NEUTRAL_URL, 'https://apps.apple.com/app/id6774493098');
     assert.match(getIrelandPlayStoreUrl(), /hl=en&gl=IE$/);
     assert.doesNotMatch(getPlayStoreUrl(), /hl=en/);
     const storePages = ['public/en.html', 'public/en-pricing.html', 'public/en-faq.html'];
     for (const rel of storePages) {
       const html = read(rel);
-      assert.match(html, /apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/, rel);
+      assert.match(html, /https:\/\/apps\.apple\.com\/app\/id6774493098/, rel);
+      assert.doesNotMatch(html, /apps\.apple\.com\/ie\/app\//, rel);
       assert.match(html, /hl=en&(?:amp;)?gl=IE/, rel);
+      assert.match(html, enUrlRe('/en'), rel);
     }
-    for (const rel of pages.concat(storePages)) {
+    for (const rel of pages) {
+      if (storePages.indexOf(rel) !== -1) continue;
       const html = read(rel);
       assert.doesNotMatch(html, /https:\/\/apps\.apple\.com\/app\/id6774493098/, rel);
       assert.match(html, enUrlRe('/en'), rel);

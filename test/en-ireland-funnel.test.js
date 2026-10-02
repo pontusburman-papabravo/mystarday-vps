@@ -61,9 +61,9 @@ describe('Ireland /en conversion funnel', () => {
     assert.doesNotMatch(visible, /Skapa konto/);
   });
 
-  it('uses the Ireland App Store and English Ireland Play URLs', () => {
-    assert.match(EN_HTML, new RegExp(APPLE_APP_STORE_IE_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-    assert.doesNotMatch(EN_HTML, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+  it('uses the geo-neutral App Store id and English Ireland Play URLs', () => {
+    assert.match(EN_HTML, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.doesNotMatch(EN_HTML, /apps\.apple\.com\/ie\/app\//);
     assert.doesNotMatch(EN_HTML, /https:\/\/apple\.co\/4v2ESuH/);
     assert.equal(APPLE_APP_STORE_GEO_NEUTRAL_URL, 'https://apps.apple.com/app/id6774493098');
     assert.equal(APPLE_APP_STORE_IE_URL, 'https://apps.apple.com/ie/app/my-starday-family-routines/id6774493098');
@@ -207,8 +207,11 @@ describe('Ireland /en analytics', () => {
     assert.equal(storeEvents[0].metadata.platform, 'ios');
     assert.equal(storeEvents[0].metadata.placement, 'hero');
     assert.equal(storeEvents[0].metadata.market, 'IE');
+    assert.equal(storeEvents[0].metadata.country, 'IE');
+    assert.equal(storeEvents[0].metadata.store, 'app_store');
     assert.equal(storeEvents[0].metadata.utm_source, 'ads');
     assert.equal(storeEvents[1].metadata.platform, 'android');
+    assert.equal(storeEvents[1].metadata.store, 'play');
     assert.equal(storeEvents[1].metadata.placement, 'footer');
     assert.ok(storeEvents[0].session_id);
     assert.ok(storeEvents.every((body) => body.event_type !== 'store_install'));
@@ -229,10 +232,10 @@ describe('related English public pages stay aligned', () => {
     assert.match(pricing, /Free in Ireland until 31 December 2026/);
     assert.doesNotMatch(faq, /14 days free/i);
     assert.doesNotMatch(pricing, /14 days free/i);
-    assert.match(faq, /https:\/\/apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/);
-    assert.doesNotMatch(faq, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
-    assert.match(pricing, /https:\/\/apps\.apple\.com\/ie\/app\/my-starday-family-routines\/id6774493098/);
-    assert.doesNotMatch(pricing, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.match(faq, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.doesNotMatch(faq, /apps\.apple\.com\/ie\/app\//);
+    assert.match(pricing, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
+    assert.doesNotMatch(pricing, /apps\.apple\.com\/ie\/app\//);
     assert.match(faq, /hl=en&amp;gl=IE|hl=en&gl=IE/);
     assert.match(pricing, /hl=en&amp;gl=IE|hl=en&gl=IE/);
   });
