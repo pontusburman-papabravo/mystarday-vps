@@ -36,14 +36,19 @@ function createEl(tag) {
     style: {},
     id: '',
   };
+  function notify() {
+    const doc = el.ownerDoc;
+    if (doc && typeof doc._onMutate === 'function') doc._onMutate();
+  }
   el.classList = {
     contains(token) { return el.classSet.has(token); },
-    add(token) { el.classSet.add(token); },
-    remove(token) { el.classSet.delete(token); },
+    add(token) { el.classSet.add(token); notify(); },
+    remove(token) { el.classSet.delete(token); notify(); },
     toggle(token, force) {
       const on = force === undefined ? !el.classSet.has(token) : !!force;
       if (on) el.classSet.add(token);
       else el.classSet.delete(token);
+      notify();
       return on;
     },
   };
@@ -53,6 +58,7 @@ function createEl(tag) {
     if (key === 'class') {
       el.classSet = new Set(String(value).split(/\s+/).filter(Boolean));
     }
+    notify();
   };
   el.getAttribute = function (key) {
     return Object.prototype.hasOwnProperty.call(el.attributes, key) ? el.attributes[key] : null;
@@ -62,16 +68,21 @@ function createEl(tag) {
   };
   el.removeAttribute = function (key) {
     delete el.attributes[key];
+    notify();
   };
   el.appendChild = function (child) {
     child.parentNode = el;
+    child.ownerDoc = el.ownerDoc || null;
     el.children.push(child);
+    notify();
     return child;
   };
   el.remove = function () {
     if (!el.parentNode) return;
+    const doc = el.ownerDoc;
     el.parentNode.children = el.parentNode.children.filter((child) => child !== el);
     el.parentNode = null;
+    if (doc && typeof doc._onMutate === 'function') doc._onMutate();
   };
   return el;
 }
@@ -103,6 +114,8 @@ function createDocument() {
   doc.documentElement.style.setProperty = function (name, value) {
     doc.documentElement.style[name] = value;
   };
+  doc.documentElement.ownerDoc = doc;
+  doc.body.ownerDoc = doc;
   doc.documentElement.appendChild(doc.body);
   doc.querySelectorAll = function (selector) {
     const out = [];
@@ -120,6 +133,24 @@ function createDocument() {
   return doc;
 }
 
+function trackTarget(target) {
+  target._listeners = Object.create(null);
+  target.addEventListener = function (type, fn) {
+    const list = target._listeners[type] || (target._listeners[type] = []);
+    list.push(fn);
+  };
+  target.removeEventListener = function (type, fn) {
+    const list = target._listeners[type] || [];
+    const index = list.indexOf(fn);
+    if (index !== -1) list.splice(index, 1);
+  };
+  return target;
+}
+
+function listenerCount(target, type) {
+  return (target._listeners && target._listeners[type] && target._listeners[type].length) || 0;
+}
+
 function bootPolicy(doc, extra) {
   const sandbox = {
     console,
@@ -131,13 +162,12 @@ function bootPolicy(doc, extra) {
   sandbox.MutationObserver.prototype.observe = function () {};
   sandbox.MutationObserver.prototype.disconnect = function () {};
   sandbox.window = sandbox;
-  sandbox.visualViewport = {
+  sandbox.visualViewport = trackTarget({
     height: 800,
     offsetTop: 0,
-    addEventListener() {},
-  };
+  });
   sandbox.innerHeight = 800;
-  sandbox.addEventListener = function () {};
+  trackTarget(sandbox);
   Object.assign(sandbox, extra || {});
   vm.createContext(sandbox);
   vm.runInContext(read('public/js/modal-open-observer.js'), sandbox, { filename: 'modal-open-observer.js' });
@@ -321,6 +351,102 @@ describe('overlay policy behavior', () => {
     sandbox.innerHeight = 800;
     assert.equal(sandbox.OverlayPolicy.syncKeyboardInset(), 300);
     assert.equal(doc.documentElement.style['--overlay-keyboard-inset'], '300px');
+  });
+
+  it('ignores hidden, aria-hidden, and display:none overlays', () => {
+    const doc = createDocument();
+    const sandbox = bootPolicy(doc);
+    addOverlay(doc, 'attrHidden', { 'data-overlay': 'modal', hidden: '' });
+    addOverlay(doc, 'ariaHidden', { 'data-overlay': 'modal', 'aria-hidden': 'true' });
+    const styled = addOverlay(doc, 'styledHidden', { 'data-overlay': 'modal' });
+    styled.style.display = 'none';
+    assert.equal(sandbox.OverlayPolicy.sync(), 0);
+    assert.equal(doc.body.classList.contains('modal-open'), false);
+  });
+
+  it('opens the help panel on the same blocking policy without an observer loop', () => {
+    const help = read('public/js/help-bubble.js');
+    assert.match(help, /setAttribute\('data-overlay', 'modal'\)/);
+    assert.match(help, /removeAttribute\('data-overlay'\)/);
+    assert.match(help, /OverlayPolicy\.sync/);
+    assert.doesNotMatch(help, /classList\.(add|remove|toggle)\('modal-open'/);
+
+    const doc = createDocument();
+    let fires = 0;
+    const sandbox = bootPolicy(doc, {
+      MutationObserver: function MutationObserver(cb) {
+        this.observe = function () {
+          doc._onMutate = function () {
+            fires += 1;
+            if (fires > 12) throw new Error('observer loop');
+            cb();
+          };
+        };
+        this.disconnect = function () {
+          doc._onMutate = null;
+        };
+      },
+    });
+    const backdrop = addOverlay(doc, 'hbBackdrop', {});
+    const panel = addOverlay(doc, 'hbPanel', {});
+    const another = addOverlay(doc, 'pinGate', { 'data-overlay': 'modal' });
+    fires = 0;
+    panel.classList.toggle('hb-open', true);
+    backdrop.classList.toggle('hb-open', true);
+    backdrop.setAttribute('data-overlay', 'modal');
+    sandbox.OverlayPolicy.sync();
+    assert.equal(sandbox.OverlayPolicy.openCount(), 2);
+    assert.equal(doc.body.classList.contains('modal-open'), true);
+    assert.ok(fires > 0 && fires <= 12);
+
+    fires = 0;
+    backdrop.removeAttribute('data-overlay');
+    panel.classList.toggle('hb-open', false);
+    backdrop.classList.toggle('hb-open', false);
+    sandbox.OverlayPolicy.sync();
+    assert.equal(sandbox.OverlayPolicy.openCount(), 1);
+    assert.equal(doc.body.classList.contains('modal-open'), true);
+    another.classList.add('hidden');
+    assert.equal(sandbox.OverlayPolicy.openCount(), 0);
+    assert.equal(doc.body.classList.contains('modal-open'), false);
+    assert.ok(fires <= 12);
+  });
+
+  it('binds visualViewport once and removes those listeners on stop', () => {
+    const doc = createDocument();
+    let observers = 0;
+    const sandbox = bootPolicy(doc, {
+      MutationObserver: function MutationObserver() {
+        observers += 1;
+        this.observe = function () {};
+        this.disconnect = function () {};
+      },
+    });
+    assert.equal(listenerCount(sandbox.visualViewport, 'resize'), 1);
+    assert.equal(listenerCount(sandbox.visualViewport, 'scroll'), 1);
+    assert.equal(listenerCount(sandbox, 'resize'), 1);
+    assert.equal(observers, 1);
+
+    vm.runInContext(read('public/js/modal-open-observer.js'), sandbox, { filename: 'modal-open-observer.js' });
+    sandbox.OverlayPolicy.start();
+    assert.equal(listenerCount(sandbox.visualViewport, 'resize'), 1);
+    assert.equal(listenerCount(sandbox.visualViewport, 'scroll'), 1);
+    assert.equal(listenerCount(sandbox, 'resize'), 1);
+    assert.equal(observers, 1);
+
+    sandbox.OverlayPolicy.stop();
+    assert.equal(listenerCount(sandbox.visualViewport, 'resize'), 0);
+    assert.equal(listenerCount(sandbox.visualViewport, 'scroll'), 0);
+    assert.equal(listenerCount(sandbox, 'resize'), 0);
+
+    sandbox.OverlayPolicy.start();
+    assert.equal(listenerCount(sandbox.visualViewport, 'resize'), 1);
+    assert.equal(listenerCount(sandbox.visualViewport, 'scroll'), 1);
+    assert.equal(listenerCount(sandbox, 'resize'), 1);
+    assert.equal(observers, 2);
+    sandbox.OverlayPolicy.start();
+    assert.equal(observers, 2);
+    assert.equal(listenerCount(sandbox.visualViewport, 'resize'), 1);
   });
 });
 

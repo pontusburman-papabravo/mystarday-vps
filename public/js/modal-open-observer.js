@@ -63,22 +63,50 @@
     return inset;
   }
 
-  function start() {
-    sync();
-    syncKeyboardInset();
-    if (!document.body || typeof MutationObserver !== 'function') return;
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'hidden', 'style', 'aria-hidden', 'data-overlay'],
-    });
+  let observer = null;
+  let viewportBound = false;
+
+  function bindViewport() {
+    if (viewportBound) return;
+    viewportBound = true;
     if (window.visualViewport && typeof window.visualViewport.addEventListener === 'function') {
       window.visualViewport.addEventListener('resize', syncKeyboardInset);
       window.visualViewport.addEventListener('scroll', syncKeyboardInset);
     }
     window.addEventListener('resize', syncKeyboardInset);
+  }
+
+  function unbindViewport() {
+    if (!viewportBound) return;
+    viewportBound = false;
+    if (window.visualViewport && typeof window.visualViewport.removeEventListener === 'function') {
+      window.visualViewport.removeEventListener('resize', syncKeyboardInset);
+      window.visualViewport.removeEventListener('scroll', syncKeyboardInset);
+    }
+    window.removeEventListener('resize', syncKeyboardInset);
+  }
+
+  function stop() {
+    unbindViewport();
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+  }
+
+  function start() {
+    sync();
+    syncKeyboardInset();
+    if (document.body && typeof MutationObserver === 'function' && !observer) {
+      observer = new MutationObserver(sync);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'hidden', 'style', 'aria-hidden', 'data-overlay'],
+      });
+    }
+    bindViewport();
   }
 
   window.OverlayPolicy = {
@@ -87,6 +115,8 @@
     sync: sync,
     syncKeyboardInset: syncKeyboardInset,
     openCount: openCount,
+    start: start,
+    stop: stop,
   };
 
   if (document.readyState === 'loading') {
