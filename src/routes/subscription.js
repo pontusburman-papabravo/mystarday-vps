@@ -146,6 +146,11 @@ router.get('/status', requireParent, async (req, res) => {
       STORE_PRODUCT_MONTHLY,
       STORE_PRODUCT_YEARLY,
     } = require('../../config/iap-product-contract');
+    const { shouldShowTrialEndingNotice } = require('../lib/trial-ending-notice');
+
+    const trial_days_remaining = premium.trial && premium.expires_at
+      ? Math.max(0, Math.ceil((new Date(premium.expires_at) - new Date()) / 86400000))
+      : null;
 
     res.json({
       tier: premium.is_grandfathered ? 'lifetime_free' : (premium.active ? (premium.trial ? 'trial' : 'paid') : 'expired'),
@@ -154,9 +159,12 @@ router.get('/status', requireParent, async (req, res) => {
       requires_paywall: !!requires_paywall,
       payment_start_at,
       paid_transition: paid_transition || { kind: 'none', cutoff_at: payment_start_at || null, hold_active: false },
-      trial_days_remaining: premium.trial && premium.expires_at
-        ? Math.max(0, Math.ceil((new Date(premium.expires_at) - new Date()) / 86400000))
-        : null,
+      trial_days_remaining,
+      trial_ending_notice: shouldShowTrialEndingNotice({
+        access_kind,
+        premium,
+        trial_days_remaining,
+      }),
       trial_expired: premium.trial && premium.expires_at ? new Date(premium.expires_at) <= new Date() : false,
       trial_expires_at: premium.trial ? premium.expires_at : (sub?.trial_expires_at || null),
       components: sub?.components || [],

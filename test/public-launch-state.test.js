@@ -109,7 +109,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     const html = fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8');
     assert.doesNotMatch(html, /Welcome Ireland/);
     assert.doesNotMatch(html, /data-hero-launch="ireland"/);
-    assert.match(html, /Basic ingår utan kostnad/);
+    assert.match(html, /14 dagar gratis från 3 oktober/);
+    assert.doesNotMatch(html, /Basic ingår utan kostnad/);
     assert.match(html, /pub-629428d185ca4960a0a73c850d32294b/);
     assert.doesNotMatch(html, /\/img\/en-landing\//);
   });

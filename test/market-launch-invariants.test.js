@@ -186,6 +186,33 @@ describe('signup completeness invariant', () => {
     assert.equal(r.reason, 'intro_year');
   });
 
+  it('SE from 3 Oct requires billing, then signs up onto the 14-day trial', () => {
+    const onTrialStart = new Date('2026-10-03T00:00:00+02:00');
+    const blocked = evaluateSignupCompleteness({
+      countryCode: 'SE',
+      marketOpen: true,
+      publicBillingUsable: false,
+      marketBillingReady: false,
+      paymentStartAt: SE_IAP_START,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: onTrialStart,
+    });
+    assert.equal(blocked.allowed, false);
+    assert.equal(blocked.reason, 'billing_not_ready');
+
+    const allowed = evaluateSignupCompleteness({
+      countryCode: 'SE',
+      marketOpen: true,
+      publicBillingUsable: true,
+      marketBillingReady: true,
+      paymentStartAt: SE_IAP_START,
+      lifetimeFreeUntil: LIFETIME_UNTIL,
+      now: onTrialStart,
+    });
+    assert.equal(allowed.allowed, true);
+    assert.equal(allowed.reason, 'trial');
+  });
+
   it('NL and DE stay closed when the bulk EU gate is off (A13)', () => {
     for (const code of ['NL', 'DE']) {
       const r = evaluateSignupCompleteness({

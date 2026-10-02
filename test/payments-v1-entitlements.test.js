@@ -34,15 +34,40 @@ async function setPaymentStart(iso) {
 
 async function expireIntroYearForEmail(email) {
   const runtimeDb = require('../src/lib/db');
-  await runtimeDb.query(
-    `UPDATE family_entitlements fe
-     SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
-     FROM parent p
-     WHERE p.email = $1
-       AND fe.family_id = p.family_id
-       AND fe.source = 'intro_year'
-       AND fe.revoked_at IS NULL`,
+  const parent = await runtimeDb.query(
+    'SELECT family_id FROM parent WHERE lower(email) = $1 LIMIT 1',
     [email.toLowerCase()]
+  );
+  const familyId = parent.rows[0] && parent.rows[0].family_id;
+  if (!familyId) return;
+  // Families created on/after 3 Oct are on the product trial, which is computed
+  // from created_at. Park them on 2 Oct and keep an already-expired intro-year
+  // row so neither the trial nor a fresh intro year comes back.
+  await runtimeDb.query(
+    `UPDATE family
+        SET created_at = '2026-10-02T12:00:00+02:00'
+      WHERE id = $1
+        AND created_at >= '2026-10-03T00:00:00+02:00'`,
+    [familyId]
+  );
+  await runtimeDb.query(
+    `INSERT INTO family_entitlements (
+       family_id, entitlement_key, source, source_reference, status,
+       starts_at, expires_at, metadata
+     )
+     SELECT $1, 'basic', 'intro_year', 'intro_year_grant', 'active',
+            '2026-10-02T12:00:00+02:00', NOW() - INTERVAL '1 hour', '{}'::jsonb
+      WHERE NOT EXISTS (
+        SELECT 1 FROM family_entitlements
+         WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL
+      )`,
+    [familyId]
+  );
+  await runtimeDb.query(
+    `UPDATE family_entitlements
+        SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+      WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+    [familyId]
   );
 }
 
@@ -174,17 +199,42 @@ test('payments v1 entitlements + gifts + webhook', async (t) => {
     assert.equal(access_kind, 'grandfathered');
   });
 
-  await t.test('2 family after lifetime cutoff → intro year, then paywall after expiry', async () => {
-    const family = await createFamilyDirect(db, '2026-11-01T00:00:00+02:00', 'SE');
-    const during = new Date('2026-11-01T12:00:00+02:00');
+  await t.test('2 family after lifetime cutoff and before 3 Oct → intro year, then paywall after expiry', async () => {
+    const family = await createFamilyDirect(db, '2026-10-02T12:00:00+02:00', 'SE');
+    const during = new Date('2026-10-02T18:00:00+02:00');
     const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(family.id, during);
     assert.equal(premium.active, true);
     assert.equal(premium.source, 'intro_year');
     assert.equal(requires_paywall, false);
     assert.equal(access_kind, 'intro_year');
 
-    const afterYear = new Date('2027-11-02T00:00:00+02:00');
+    const afterYear = new Date('2027-10-03T00:00:00+02:00');
     const expired = await resolveFamilyEntitlements(family.id, afterYear);
+    assert.equal(expired.premium.active, false);
+    assert.equal(expired.requires_paywall, true);
+    assert.equal(expired.access_kind, 'limited');
+  });
+
+  await t.test('2b Swedish family from 3 Oct gets 14 days then paywall, and does not receive intro year', async () => {
+    const createdAt = '2026-10-03T00:00:00+02:00';
+    const family = await createFamilyDirect(db, createdAt, 'SE');
+    const during = new Date('2026-10-16T23:59:59+02:00');
+    const { premium, requires_paywall, access_kind } = await resolveFamilyEntitlements(family.id, during);
+    assert.equal(premium.active, true);
+    assert.equal(premium.source, 'trial');
+    assert.equal(premium.trial, true);
+    assert.equal(requires_paywall, false);
+    assert.equal(access_kind, 'trial');
+    assert.equal(new Date(premium.expires_at).toISOString(), new Date('2026-10-17T00:00:00+02:00').toISOString());
+
+    const introRows = await db.query(
+      `SELECT 1 FROM family_entitlements
+        WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+      [family.id]
+    );
+    assert.equal(introRows.rows.length, 0);
+
+    const expired = await resolveFamilyEntitlements(family.id, new Date('2026-10-17T00:00:00+02:00'));
     assert.equal(expired.premium.active, false);
     assert.equal(expired.requires_paywall, true);
     assert.equal(expired.access_kind, 'limited');

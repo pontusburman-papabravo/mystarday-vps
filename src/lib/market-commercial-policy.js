@@ -4,8 +4,12 @@
  * Market commercial policy — entitlement model per country.
  * Not a live flag. Does not open markets.
  *
- * Sweden keeps intro year. Ireland uses complimentary access until a fixed
- * instant (see ireland-launch-offer.js), not a converting 14-day trial.
+ * Sweden: intro year for families created before 2026-10-03 00:00
+ * Europe/Stockholm (ADR-023). From that instant, new Swedish families get a
+ * 14-day product trial and then the paywall (ADR-025). Existing intro-year
+ * and grandfather rows are not rewritten.
+ * Ireland uses complimentary access until a fixed instant (see
+ * ireland-launch-offer.js), not a converting 14-day trial.
  * Every other country defaults to a 14-day product trial that requires
  * public billing before signup (ADR-023). Admin `basic_trial_days` does not
  * own this number.
@@ -24,13 +28,47 @@ const ENTITLEMENT = Object.freeze({
 
 const DEFAULT_TRIAL_DAYS = 14;
 
+/**
+ * New Swedish families created at or after this instant get a 14-day product
+ * trial. Earlier Swedish families keep grandfather or intro year.
+ * 2026-10-03 00:00 Europe/Stockholm (CEST, UTC+2).
+ */
+const SWEDEN_TRIAL_FROM_ISO = '2026-10-03T00:00:00+02:00';
+const SWEDEN_TRIAL_FROM_MS = new Date(SWEDEN_TRIAL_FROM_ISO).getTime();
+
 /** Sweden is the only intro-year market. New markets inherit trial policy. */
 const INTRO_YEAR_COUNTRY_CODES = Object.freeze(new Set(['SE']));
 
-function getMarketCommercialPolicy(countryCode) {
+function createdAtMillis(createdAt) {
+  if (createdAt == null || createdAt === '') return null;
+  const created = createdAt instanceof Date ? createdAt : new Date(createdAt);
+  if (Number.isNaN(created.getTime())) return null;
+  return created.getTime();
+}
+
+/**
+ * Swedish product trial applies only when the family's created_at is known
+ * and is at or after SWEDEN_TRIAL_FROM. Omitted createdAt stays intro year
+ * so undated callers cannot rewrite existing families.
+ */
+function swedenUsesProductTrial(createdAt) {
+  const createdMs = createdAtMillis(createdAt);
+  if (createdMs == null) return false;
+  return createdMs >= SWEDEN_TRIAL_FROM_MS;
+}
+
+function getMarketCommercialPolicy(countryCode, opts = {}) {
   // Missing/invalid code follows family.country_code DEFAULT 'SE' (legacy rows).
   const cc = normalizeCountryCode(countryCode) || 'SE';
   if (INTRO_YEAR_COUNTRY_CODES.has(cc)) {
+    if (swedenUsesProductTrial(opts.createdAt)) {
+      return Object.freeze({
+        countryCode: cc,
+        entitlement: ENTITLEMENT.TRIAL,
+        trialDays: DEFAULT_TRIAL_DAYS,
+        requiresBillingReady: true,
+      });
+    }
     return Object.freeze({
       countryCode: cc,
       entitlement: ENTITLEMENT.INTRO_YEAR,
@@ -84,24 +122,28 @@ function isComputedTrialActive({
   now,
   timeZone,
 } = {}) {
-  const policy = getMarketCommercialPolicy(countryCode);
+  const policy = getMarketCommercialPolicy(countryCode, { createdAt });
   if (policy.entitlement !== ENTITLEMENT.TRIAL) return false;
+  const startMs = createdAtMillis(createdAt);
   const ends = trialEndsAt(createdAt, {
     timeZone,
     trialDays: policy.trialDays,
     countryCode,
   });
-  if (!ends) return false;
+  if (startMs == null || !ends) return false;
   const clock = now instanceof Date ? now : new Date(now || Date.now());
-  return clock.getTime() < ends.getTime();
+  const nowMs = clock.getTime();
+  return nowMs >= startMs && nowMs < ends.getTime();
 }
 
 module.exports = {
   ENTITLEMENT,
   DEFAULT_TRIAL_DAYS,
+  SWEDEN_TRIAL_FROM_ISO,
   INTRO_YEAR_COUNTRY_CODES,
   COMPLIMENTARY_UNTIL_COUNTRY_CODES,
   getMarketCommercialPolicy,
+  swedenUsesProductTrial,
   defaultTimeZoneForCountry,
   trialEndsAt,
   isComputedTrialActive,

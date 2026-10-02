@@ -221,7 +221,9 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
   let workingRows = rows;
 
   const familyCountryCode = normalizeCountryCode(familyRow?.country_code);
-  const commercialPolicy = getMarketCommercialPolicy(familyCountryCode);
+  const commercialPolicy = getMarketCommercialPolicy(familyCountryCode, {
+    createdAt: familyRow?.created_at,
+  });
   const familyTimeZone = familyRow?.timezone || null;
   const irelandFreeUntil = commercialPolicy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL
     ? await getIrelandFreeUntil()
@@ -541,7 +543,7 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
     return { kind: 'intro_year', row: introRow };
   }
 
-  const policy = getMarketCommercialPolicy(countryCode);
+  const policy = getMarketCommercialPolicy(countryCode, { createdAt: familyCreatedAt });
   if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     const freeUntil = await getIrelandFreeUntil();
     if (isIrelandComplimentaryActive({ countryCode, now: new Date(), freeUntil })) {

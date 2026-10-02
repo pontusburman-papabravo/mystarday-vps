@@ -2,7 +2,7 @@
 
 Slå **inte** på betalning nu. IAP-cutoff är `payment_start_at` = `2026-10-01T00:00:00+02:00` (00:00 Europe/Stockholm).
 
-Livstidsgratis är ett **annat** datum: `lifetime_free_until` = `2026-09-14T00:00:00+02:00`. Alla familjer skapade **före** det ögonblicket (t.o.m. 13 september 2026, alla länder) är grandfatherade. Familjer som registrerar sig från 14 september **i Sverige** (intro-år-policy) får **1 år gratis** från registreringsögonblicket, därefter IAP.
+Livstidsgratis är ett **annat** datum: `lifetime_free_until` = `2026-09-14T00:00:00+02:00`. Alla familjer skapade **före** det ögonblicket (t.o.m. 13 september 2026, alla länder) är grandfatherade. Familjer som registrerar sig från 14 september **till och med 2 oktober** i Sverige (intro-år-policy) får **1 år gratis** från registreringsögonblicket, därefter IAP. Familjer som registrerar sig **från 3 oktober 2026 00:00 svensk tid** får 14 dagars provperiod och väljer sedan abonnemang i appen ([ADR-025](../adr/ADR-025-sweden-trial-from-october-3.md)). Befintliga konton, inklusive 1–2 oktober, ändras inte.
 
 Nya öppna-marknad-konton blockeras **inte** av `MARKET_BILLING_NOT_READY` mellan 14 september och 1 oktober — intro-året gör kontot användbart utan köpväg.
 

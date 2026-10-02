@@ -9,9 +9,10 @@
  *    || !policy.requiresBillingReady
  *    || (publicBillingUsable && marketBillingReady))
  *
- * Sweden intro-year families may finish registration without public billing.
- * Trial markets (default for new countries) require public billing or they
- * get MARKET_BILLING_NOT_READY — never an account the family cannot use.
+ * Sweden intro-year families (created before 2026-10-03 Stockholm) may
+ * finish registration without public billing. Swedish signups from that
+ * instant, and trial markets, require public billing or they get
+ * MARKET_BILLING_NOT_READY — never an account the family cannot use.
  *
  * publicBillingUsable =
  *   payment_enabled && !BILLING_UI_DISABLED && iap_paid_rollout_ready
@@ -98,7 +99,7 @@ function evaluateSignupCompleteness(input) {
     return { allowed: true, reason: 'grandfather_eligible', code: null };
   }
 
-  const policy = getMarketCommercialPolicy(countryCode);
+  const policy = getMarketCommercialPolicy(countryCode, { createdAt: now });
   if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     const freeUntil = input.irelandFreeUntil || DEFAULT_IRELAND_FREE_UNTIL;
     if (isIrelandComplimentaryActive({ countryCode, now, freeUntil })) {
@@ -149,7 +150,7 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     createdAt: now,
     lifetimeFreeUntil,
   });
-  const policy = getMarketCommercialPolicy(countryCode);
+  const policy = getMarketCommercialPolicy(countryCode, { createdAt: now });
   let irelandFreeUntil = null;
   if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     try {

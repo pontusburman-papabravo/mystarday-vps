@@ -50,7 +50,7 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Vad kostar appen?", "acceptedAnswer": { "@type": "Answer", "text": "Basic ingår utan kostnad i den nuvarande versionen. Ingen betalning krävs." }},
+      { "@type": "Question", "name": "Vad kostar appen?", "acceptedAnswer": { "@type": "Answer", "text": "Nya familjer från 3 oktober 2026 provar appen i 14 dagar utan kort. Därefter väljer ni abonnemang i appen via App Store eller Google Play, 59 kr per månad eller 590 kr per år. Familjer som redan har konto behåller sitt erbjudande." }},
       { "@type": "Question", "name": "Är det här rätt för barn med ADHD eller autism?", "acceptedAnswer": { "@type": "Answer", "text": "Min Stjärndag är inte byggd kring en diagnos, men passar ofta bra för barn som behöver tydlig struktur, bildstöd, förutsägbarhet eller mer motivation i vardagen." }},
       { "@type": "Question", "name": "Vad händer med stjärnorna om vi missar en dag?", "acceptedAnswer": { "@type": "Answer", "text": "Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld." }},
       { "@type": "Question", "name": "Kan flera vuxna använda appen tillsammans?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur." }},
@@ -186,27 +186,9 @@
           </a>
         </div>
       </div>
-      <!-- CAMPAIGN host-2026: remove after 2026-09-30 -->
       <p class="campaign-home-offer">
-        <span class="campaign-home-offer__text">Premium i ett år om du registrerar dig senast 30 september</span>
-        <a href="/kampanj/host-2026" class="campaign-home-offer__link" id="campaignHost2026Link">Se erbjudandet</a>
+        <span class="campaign-home-offer__text">14 dagar gratis från 3 oktober. Därefter väljer ni abonnemang i appen.</span>
       </p>
-      <script>
-      (function () {
-        var link = document.getElementById('campaignHost2026Link');
-        if (!link) return;
-        var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-        var fromUrl = new URLSearchParams(window.location.search);
-        var next = new URLSearchParams();
-        for (var i = 0; i < keys.length; i++) {
-          var v = fromUrl.get(keys[i]);
-          if (v) next.set(keys[i], v);
-        }
-        if (!next.toString()) return;
-        link.href = '/kampanj/host-2026?' + next.toString();
-      })();
-      </script>
-      <!-- /CAMPAIGN host-2026 -->
       <h1>Visuella scheman och stjärnor som hjälper barn att klara vardagen – utan tjat</h1>
       <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p>
       <div class="landing-hero__ctas">
@@ -666,7 +648,7 @@
           <li><span class="feature-list__icon">📋</span><div><strong>Färdiga mallar</strong><span>Kom igång snabbare med exempelrutiner som går att anpassa efter ert barn.</span></div></li>
           <li><span class="feature-list__icon">🤝</span><div><strong>Dela med pedagog eller annan vuxen</strong><span>Visa framsteg och rutiner när det behövs – utan att ge bort hela kontot.</span></div></li>
         </ul>
-        <p style="font-size:0.85rem;color:var(--text-3);">Basic ingår utan kostnad just nu. <a href="/pricing-info" class="btn-ghost-link">Läs om program och kommande paket →</a></p>
+        <p style="font-size:0.85rem;color:var(--text-3);">14 dagar gratis för nya familjer från 3 oktober. Därefter abonnemang i appen. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
       </div>
       <div class="feature-split__visual feature-split__visual--stack">
         <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Förälderns dagschema" loading="lazy" width="280" height="600">
@@ -681,8 +663,8 @@
   <div class="landing-inner">
     <div class="founder-block">
       <span class="section-eyebrow">Kom igång</span>
-      <h2>Basic ingår utan kostnad just nu</h2>
-      <p class="founder-block__intro">Skapa konto och få tillgång till Basic utan kostnad. Ingen betalning krävs i den nuvarande versionen.</p>
+      <h2>14 dagar gratis, sedan abonnemang i appen</h2>
+      <p class="founder-block__intro">Nya familjer från 3 oktober 2026 provar hela appen i 14 dagar utan kort. Därefter väljer ni månad eller år i appen via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande.</p>
       <ul class="founder-block__list">
         <li>Obegränsat antal barn</li>
         <li>Barnets egen vy med PIN</li>
@@ -692,7 +674,7 @@
         <li>Familjeinbjudan</li>
       </ul>
       <a href="#app-store" class="btn-primary" data-track="founder_signup_click">Hämta appen</a>
-      <p class="founder-block__note">Längre fram släpper vi fler tillägg för familjer som vill ha rapportering, <strong>Extra stöd</strong> (övergångsstöd och De sju frågorna i appen) eller pedagogsamarbete — paketen kommer snart och går inte att köpa ännu. <a href="/pricing-info" class="btn-ghost-link">Läs om program och kommande paket →</a></p>
+      <p class="founder-block__note">Efter provperioden kostar Premium 59 kr/månad eller 590 kr/år. Valet görs i appen, inte på webben. Extra stöd och andra tillägg går inte att köpa ännu. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
     </div>
   </div>
 </section>
@@ -707,7 +689,7 @@
     <div class="faq-list">
       <div class="faq-item" data-faq="kostnad">
         <button type="button" class="faq-question" aria-expanded="false">Vad kostar Min Stjärndag?<span class="faq-icon">+</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Basic ingår utan kostnad i den nuvarande versionen. Ingen betalning krävs.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Nya familjer från 3 oktober får 14 dagar gratis, utan kort. Sedan väljer ni abonnemang i appen: 59 kr/månad eller 590 kr/år via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande.</div></div>
       </div>
       <div class="faq-item" data-faq="adhd-autism">
         <button type="button" class="faq-question" aria-expanded="false">Är det här rätt för barn med ADHD eller autism?<span class="faq-icon">+</span></button>
@@ -737,7 +719,7 @@
 <!-- 12. FINAL CTA -->
 <section class="final-cta landing-section--dark" id="kom-igang">
   <h2>Redo för en lugnare vardag?</h2>
-  <p>Skapa ett konto gratis och bygg barnets första schema på några minuter.</p>
+  <p>Hämta appen och prova i 14 dagar. Därefter väljer ni abonnemang i appen.</p>
   <a href="#app-store" class="btn-primary" data-track="final_signup_click">Hämta appen</a>
   <div class="final-cta__login-row">
     <a href="/login" class="final-cta__login" data-track="nav_login_click">Logga in som förälder</a>
@@ -750,7 +732,7 @@
 <footer class="landing-footer">
   <div class="landing-footer__cta">
     <h3>Hämta appen</h3>
-    <p>Basic ingår utan kostnad just nu.</p>
+    <p>14 dagar gratis för nya familjer från 3 oktober. Därefter abonnemang i appen.</p>
     <a href="#app-store" class="btn-primary" data-track="footer_signup_click">Hämta appen</a>
   </div>
   <div class="landing-footer__grid">
