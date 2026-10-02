@@ -31,10 +31,19 @@ const DEFAULT_TRIAL_DAYS = 14;
 /**
  * New Swedish families created at or after this instant get a 14-day product
  * trial. Earlier Swedish families keep grandfather or intro year.
- * 2026-10-03 00:00 Europe/Stockholm (CEST, UTC+2).
+ * The cutoff is midnight in Europe/Stockholm, not UTC midnight and not the
+ * server's local zone. On this date Stockholm is still CEST (UTC+2).
  */
-const SWEDEN_TRIAL_FROM_ISO = '2026-10-03T00:00:00+02:00';
-const SWEDEN_TRIAL_FROM_MS = new Date(SWEDEN_TRIAL_FROM_ISO).getTime();
+const SWEDEN_TRIAL_FROM_ZONE = 'Europe/Stockholm';
+const SWEDEN_TRIAL_FROM = DateTime.fromObject(
+  { year: 2026, month: 10, day: 3, hour: 0, minute: 0, second: 0, millisecond: 0 },
+  { zone: SWEDEN_TRIAL_FROM_ZONE }
+);
+if (!SWEDEN_TRIAL_FROM.isValid) {
+  throw new Error('Sweden trial cutoff is not a valid Europe/Stockholm instant');
+}
+const SWEDEN_TRIAL_FROM_MS = SWEDEN_TRIAL_FROM.toMillis();
+const SWEDEN_TRIAL_FROM_ISO = SWEDEN_TRIAL_FROM.toISO({ suppressMilliseconds: true });
 
 /** Sweden is the only intro-year market. New markets inherit trial policy. */
 const INTRO_YEAR_COUNTRY_CODES = Object.freeze(new Set(['SE']));
@@ -139,6 +148,7 @@ function isComputedTrialActive({
 module.exports = {
   ENTITLEMENT,
   DEFAULT_TRIAL_DAYS,
+  SWEDEN_TRIAL_FROM_ZONE,
   SWEDEN_TRIAL_FROM_ISO,
   INTRO_YEAR_COUNTRY_CODES,
   COMPLIMENTARY_UNTIL_COUNTRY_CODES,

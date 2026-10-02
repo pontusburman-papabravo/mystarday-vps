@@ -4,9 +4,12 @@ const { describe, it, test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { DateTime } = require('luxon');
 const {
   ENTITLEMENT,
   DEFAULT_TRIAL_DAYS,
+  SWEDEN_TRIAL_FROM_ZONE,
+  SWEDEN_TRIAL_FROM_ISO,
   getMarketCommercialPolicy,
   trialEndsAt,
   isComputedTrialActive,
@@ -24,6 +27,49 @@ describe('market commercial policy table (ADR-023)', () => {
     assert.equal(se.entitlement, ENTITLEMENT.INTRO_YEAR);
     assert.equal(se.trialDays, 0);
     assert.equal(se.requiresBillingReady, false);
+  });
+
+  it('Sweden trial starts at midnight Europe/Stockholm, not UTC midnight', () => {
+    assert.equal(SWEDEN_TRIAL_FROM_ZONE, 'Europe/Stockholm');
+    const midnight = DateTime.fromObject(
+      { year: 2026, month: 10, day: 3, hour: 0, minute: 0, second: 0, millisecond: 0 },
+      { zone: 'Europe/Stockholm' }
+    );
+    assert.equal(midnight.isValid, true);
+    assert.equal(midnight.toFormat('ZZ'), '+02:00');
+    assert.equal(new Date(SWEDEN_TRIAL_FROM_ISO).getTime(), midnight.toMillis());
+    assert.equal(midnight.toUTC().toISO(), '2026-10-02T22:00:00.000Z');
+    assert.notEqual(midnight.toUTC().toISO(), '2026-10-03T00:00:00.000Z');
+
+    const before = getMarketCommercialPolicy('SE', { createdAt: new Date(midnight.toMillis() - 1) });
+    assert.equal(before.entitlement, ENTITLEMENT.INTRO_YEAR);
+
+    const atMidnight = getMarketCommercialPolicy('SE', { createdAt: midnight.toJSDate() });
+    assert.equal(atMidnight.entitlement, ENTITLEMENT.TRIAL);
+    assert.equal(atMidnight.trialDays, DEFAULT_TRIAL_DAYS);
+
+    const utcMidnight = getMarketCommercialPolicy('SE', { createdAt: '2026-10-03T00:00:00.000Z' });
+    assert.equal(utcMidnight.entitlement, ENTITLEMENT.TRIAL);
+
+    const ends = trialEndsAt(midnight.toJSDate(), {
+      countryCode: 'SE',
+      timeZone: 'Europe/Stockholm',
+      trialDays: 14,
+    });
+    const endsStockholm = DateTime.fromJSDate(ends, { zone: 'Europe/Stockholm' });
+    assert.equal(endsStockholm.toFormat('yyyy-LL-dd HH:mm:ss'), '2026-10-17 00:00:00');
+    assert.equal(isComputedTrialActive({
+      countryCode: 'SE',
+      createdAt: midnight.toJSDate(),
+      now: new Date(ends.getTime() - 1000),
+      timeZone: 'Europe/Stockholm',
+    }), true);
+    assert.equal(isComputedTrialActive({
+      countryCode: 'SE',
+      createdAt: midnight.toJSDate(),
+      now: ends,
+      timeZone: 'Europe/Stockholm',
+    }), false);
   });
 
   it('Sweden stays intro year through 2 Oct 2026 and switches to a 14-day trial on 3 Oct', () => {
