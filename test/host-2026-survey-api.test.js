@@ -20,6 +20,17 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
 
     const { seedBuiltInSurveys } = require('../src/routes/surveys');
     await seedBuiltInSurveys();
+    // The campaign closed 30 Sep 2026. Keep that configured instant, and
+    // reopen only this seeded row so the public API contract stays testable.
+    const openUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    await db.query(
+      `UPDATE surveys
+          SET closes_at = $1::timestamptz,
+              contest_closes_at = $1::timestamptz,
+              status = 'active'
+        WHERE slug = 'host-2026'`,
+      [openUntil]
+    );
 
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
