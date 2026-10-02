@@ -85,6 +85,7 @@
     "english\\s+(is\\s+)?coming\\s+soon",
     "android\\s+coming\\s+soon",
     "android\\s+is\\s+coming\\s+soon",
+    "google play\\s*[—–-]\\s*coming soon",
     "packages are coming soon"
   ],
 

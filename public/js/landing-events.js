@@ -117,13 +117,18 @@
   }
 
   function buildStoreMeta(el) {
+    const platform = storePlatform(el);
     const meta = Object.assign({
       page: 'landing',
-      platform: storePlatform(el),
+      platform: platform,
       placement: storePlacement(el),
+      store: platform === 'android' ? 'play' : 'app_store',
     }, utmMetadata());
     const market = irelandMarket();
-    if (market) meta.market = market;
+    if (market) {
+      meta.market = market;
+      meta.country = market;
+    }
     return meta;
   }
 
