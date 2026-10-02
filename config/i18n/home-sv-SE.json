@@ -501,7 +501,11 @@
     "retroactiveFull": "📝 Fyll i i efterhand",
     "extraStarsFull": "⭐ Ge extra stjärnor",
     "onceTaskFull": "📋 Engångsaktivitet",
-    "dayOffFull": "🏠 Ledig dag"
+    "dayOffFull": "🏠 Ledig dag",
+    "trialEndingTitle": "En dag kvar av provperioden",
+    "trialEndingBody": "Provperioden tar slut inom ett dygn. Välj abonnemang i appen om ni vill behålla full tillgång. All er data finns kvar.",
+    "trialEndingChoose": "Välj i appen",
+    "trialEndingClose": "Stäng"
   },
   "helpPanel": {
     "title": "❓ Hur funkar det?",

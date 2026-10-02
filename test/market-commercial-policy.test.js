@@ -26,6 +26,18 @@ describe('market commercial policy table (ADR-023)', () => {
     assert.equal(se.requiresBillingReady, false);
   });
 
+  it('Sweden stays intro year through 2 Oct 2026 and switches to a 14-day trial on 3 Oct', () => {
+    const before = getMarketCommercialPolicy('SE', { createdAt: '2026-10-02T23:59:59+02:00' });
+    assert.equal(before.entitlement, ENTITLEMENT.INTRO_YEAR);
+    assert.equal(before.trialDays, 0);
+    assert.equal(before.requiresBillingReady, false);
+
+    const onStart = getMarketCommercialPolicy('SE', { createdAt: '2026-10-03T00:00:00+02:00' });
+    assert.equal(onStart.entitlement, ENTITLEMENT.TRIAL);
+    assert.equal(onStart.trialDays, DEFAULT_TRIAL_DAYS);
+    assert.equal(onStart.requiresBillingReady, true);
+  });
+
   it('Ireland is complimentary until a fixed instant, not a converting trial', () => {
     const ie = getMarketCommercialPolicy('IE');
     assert.equal(ie.entitlement, ENTITLEMENT.COMPLIMENTARY_UNTIL);
@@ -99,11 +111,35 @@ describe('computed 14-day trial clock (A4/A5)', () => {
     }), false);
   });
 
-  it('Sweden never uses the computed trial clock', () => {
+  it('Sweden registered on 1 Oct does not use the computed trial clock', () => {
     assert.equal(isComputedTrialActive({
       countryCode: 'SE',
       createdAt: created,
       now: created,
+      timeZone: 'Europe/Stockholm',
+    }), false);
+  });
+
+  it('Sweden from 3 Oct has a 14-day trial that ends on the 14th calendar day', () => {
+    const seCreated = new Date('2026-10-03T00:00:00+02:00');
+    const ends = trialEndsAt(seCreated, { countryCode: 'SE', timeZone: 'Europe/Stockholm', trialDays: 14 });
+    assert.equal(ends.toISOString(), new Date('2026-10-17T00:00:00+02:00').toISOString());
+    assert.equal(isComputedTrialActive({
+      countryCode: 'SE',
+      createdAt: seCreated,
+      now: new Date(ends.getTime() - 1000),
+      timeZone: 'Europe/Stockholm',
+    }), true);
+    assert.equal(isComputedTrialActive({
+      countryCode: 'SE',
+      createdAt: seCreated,
+      now: ends,
+      timeZone: 'Europe/Stockholm',
+    }), false);
+    assert.equal(isComputedTrialActive({
+      countryCode: 'SE',
+      createdAt: '2026-10-02T12:00:00+02:00',
+      now: new Date('2026-10-10T12:00:00+02:00'),
       timeZone: 'Europe/Stockholm',
     }), false);
   });

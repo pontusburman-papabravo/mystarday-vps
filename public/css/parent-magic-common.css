@@ -1042,6 +1042,23 @@ body.parent-magic-view.parent-theme-light .magic-hub-section-label {
   color: rgba(27, 35, 64, 0.5);
 }
 
+/* Last-day trial notice stays on Hem, including the dark magic shell */
+body.parent-magic-view #trialEndingBanner {
+  background: rgba(255, 204, 51, 0.16) !important;
+  border: 2px solid rgba(255, 204, 51, 0.6) !important;
+}
+body.parent-magic-view #trialEndingBanner .text-navy,
+body.parent-magic-view #trialEndingBanner .font-heading {
+  color: #f4f4ff !important;
+}
+body.parent-magic-view #trialEndingBanner .text-text-soft {
+  color: rgba(244, 244, 255, 0.78) !important;
+}
+body.parent-magic-view #trialEndingBanner a {
+  background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
+  color: #1b2340 !important;
+}
+
 /* Dashboard invite/share CTAs — readable on dark magic shell */
 body.parent-magic-view #medforalderCtaBanner,
 body.parent-magic-view #delaAppenCtaBanner {

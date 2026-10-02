@@ -28,15 +28,37 @@ function read(rel) {
 
 async function expireIntroYearForEmail(email) {
   const runtimeDb = require('../src/lib/db');
-  await runtimeDb.query(
-    `UPDATE family_entitlements fe
-     SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
-     FROM parent p
-     WHERE p.email = $1
-       AND fe.family_id = p.family_id
-       AND fe.source = 'intro_year'
-       AND fe.revoked_at IS NULL`,
+  const parent = await runtimeDb.query(
+    'SELECT family_id FROM parent WHERE lower(email) = $1 LIMIT 1',
     [email.toLowerCase()]
+  );
+  const familyId = parent.rows[0] && parent.rows[0].family_id;
+  if (!familyId) return;
+  await runtimeDb.query(
+    `UPDATE family
+        SET created_at = '2026-10-02T12:00:00+02:00'
+      WHERE id = $1
+        AND created_at >= '2026-10-03T00:00:00+02:00'`,
+    [familyId]
+  );
+  await runtimeDb.query(
+    `INSERT INTO family_entitlements (
+       family_id, entitlement_key, source, source_reference, status,
+       starts_at, expires_at, metadata
+     )
+     SELECT $1, 'basic', 'intro_year', 'intro_year_grant', 'active',
+            '2026-10-02T12:00:00+02:00', NOW() - INTERVAL '1 hour', '{}'::jsonb
+      WHERE NOT EXISTS (
+        SELECT 1 FROM family_entitlements
+         WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL
+      )`,
+    [familyId]
+  );
+  await runtimeDb.query(
+    `UPDATE family_entitlements
+        SET expires_at = NOW() - INTERVAL '1 hour', updated_at = NOW()
+      WHERE family_id = $1 AND source = 'intro_year' AND revoked_at IS NULL`,
+    [familyId]
   );
 }
 

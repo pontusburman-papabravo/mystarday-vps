@@ -172,7 +172,7 @@ function isFamilyEligibleForIntroYear({
   paymentStartAt,
   lifetimeFreeUntil,
 }) {
-  if (getMarketCommercialPolicy(countryCode).entitlement !== 'intro_year') {
+  if (getMarketCommercialPolicy(countryCode, { createdAt }).entitlement !== 'intro_year') {
     return false;
   }
   const created = parseInstant(createdAt);
@@ -364,7 +364,7 @@ async function isMarketPurchaseAllowed(countryCode, now = new Date()) {
 
 /** Trial-market signup gate: market commercial billing configured and open. */
 async function isMarketBillingReady(countryCode, now = new Date()) {
-  const policy = getMarketCommercialPolicy(countryCode);
+  const policy = getMarketCommercialPolicy(countryCode, { createdAt: now });
   if (!policy.requiresBillingReady) {
     return true;
   }

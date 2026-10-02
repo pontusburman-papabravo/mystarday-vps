@@ -71,6 +71,24 @@ describe('intro year', () => {
     }), false);
   });
 
+  it('SE registered 1–2 Oct keeps intro year; 3 Oct does not', () => {
+    assert.equal(isFamilyEligibleForIntroYear({
+      countryCode: 'SE',
+      createdAt: '2026-10-01T00:00:00+02:00',
+      lifetimeFreeUntil: cutoff,
+    }), true);
+    assert.equal(isFamilyEligibleForIntroYear({
+      countryCode: 'SE',
+      createdAt: '2026-10-02T23:59:59+02:00',
+      lifetimeFreeUntil: cutoff,
+    }), true);
+    assert.equal(isFamilyEligibleForIntroYear({
+      countryCode: 'SE',
+      createdAt: '2026-10-03T00:00:00+02:00',
+      lifetimeFreeUntil: cutoff,
+    }), false);
+  });
+
   it('IE/NL/DE after cutoff are trial markets, not intro year', () => {
     for (const countryCode of ['IE', 'NL', 'DE', 'FI']) {
       assert.equal(isFamilyEligibleForIntroYear({

@@ -86,21 +86,13 @@ test('Google Ads bots are allowed to crawl /kampanj', () => {
   }
 });
 
-test('homepage has isolated removable campaign CTA', () => {
-  assert.match(indexHtml, /CAMPAIGN host-2026: remove after 2026-09-30/);
-  assert.match(indexHtml, /Premium i ett år om du registrerar dig senast 30 september/);
-  assert.doesNotMatch(indexHtml, /Premium ingår om du registrerar/);
-  assert.match(indexHtml, />Se erbjudandet</);
-  assert.match(indexHtml, /href="\/kampanj\/host-2026"/);
-  assert.match(indexHtml, /utm_source/);
+test('homepage states the 3 Oct trial instead of the expired September year offer', () => {
+  assert.match(indexHtml, /14 dagar gratis från 3 oktober/);
+  assert.match(indexHtml, /Därefter väljer ni abonnemang i appen/);
+  assert.doesNotMatch(indexHtml, /Premium i ett år om du registrerar dig senast 30 september/);
+  assert.doesNotMatch(indexHtml, /CAMPAIGN host-2026/);
   assert.doesNotMatch(indexHtml, /countdown/i);
-  for (const re of FORBIDDEN) {
-    const offerBlock = indexHtml.slice(
-      indexHtml.indexOf('CAMPAIGN host-2026'),
-      indexHtml.indexOf('/CAMPAIGN host-2026')
-    );
-    assert.doesNotMatch(offerBlock, re);
-  }
+  assert.doesNotMatch(indexHtml, /Basic ingår utan kostnad/);
 });
 
 test('GET /kampanj/host-2026 serves campaign HTML with store links', async () => {

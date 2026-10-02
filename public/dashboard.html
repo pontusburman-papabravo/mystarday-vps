@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="/css/dashboard-magic.css?v=7">
   <link rel="stylesheet" href="/css/for-dig-goal-badge.css?v=1">
   <link rel="stylesheet" href="/css/parent-magic-3d.css?v=1">
-  <link rel="stylesheet" href="/css/parent-magic-common.css?v=13">
+  <link rel="stylesheet" href="/css/parent-magic-common.css?v=14">
   <link rel="stylesheet" href="/css/parent-bottom-nav.css?v=2">
   <link rel="stylesheet" href="/css/app-view-toggle.css?v=10">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.12.0">
@@ -568,6 +568,7 @@
   <script src="/js/dashboard-special-days.js?v=2"></script>
   <script src="/js/referral-share.js?v=1.1.0"></script>
   <script src="/js/dashboard-cta.js?v=1"></script>
+  <script src="/js/trial-ending-banner.js?v=2"></script>
   <script src="/js/growth-feedback.js?v=1.0.0"></script>
   <script src="/js/growth-referral-cta.js?v=1.0.0"></script>
   <script src="/js/custody-a11y.js?v=1"></script>
@@ -631,6 +632,17 @@
       </div>
 
       <div id="toast" class="hidden fixed top-4 right-4 z-[300] bg-navy text-white px-6 py-3 rounded-xl shadow-lg font-semibold text-sm max-w-xs"></div>
+
+      <!-- Product trial: one day left. Shown by trial-ending-banner.js. Hidden for intro year. -->
+      <div id="trialEndingBanner" class="hidden mx-4 mt-3 rounded-xl border-2 border-gold bg-gold-light px-4 py-3 flex items-center gap-3" role="status">
+        <span class="text-2xl flex-shrink-0" aria-hidden="true">⭐</span>
+        <div class="flex-1 min-w-0">
+          <p class="font-heading font-bold text-navy text-sm leading-snug" data-i18n="home.dash.trialEndingTitle">En dag kvar av provperioden</p>
+          <p class="text-xs text-text-soft leading-snug mt-0.5" data-i18n="home.dash.trialEndingBody">Provperioden tar slut inom ett dygn. Välj abonnemang i appen om ni vill behålla full tillgång. All er data finns kvar.</p>
+          <a href="/paywall" class="inline-flex items-center mt-2 min-h-[44px] px-4 rounded-xl bg-gold text-navy font-heading font-bold text-sm" data-i18n="home.dash.trialEndingChoose">Välj i appen</a>
+        </div>
+        <button type="button" data-trial-ending-close class="flex-shrink-0 text-text-soft hover:text-navy text-lg leading-none w-11 h-11 flex items-center justify-center" data-i18n-aria-label="home.dash.trialEndingClose" aria-label="Stäng">✕</button>
+      </div>
 
       <!-- Dagens nyhet in-app banner (dismissable, parent-only) -->
       <div id="dagensNyhetAppBanner" class="hidden mx-4 mt-4 rounded-xl border-2 border-gold bg-gold-light px-4 py-3 flex items-start gap-3">
