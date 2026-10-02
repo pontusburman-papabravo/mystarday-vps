@@ -501,7 +501,11 @@
     "retroactiveFull": "📝 Log later",
     "extraStarsFull": "⭐ Give bonus stars",
     "onceTaskFull": "📋 One-off activity",
-    "dayOffFull": "🏠 Day off"
+    "dayOffFull": "🏠 Day off",
+    "trialEndingTitle": "One day left of the trial",
+    "trialEndingBody": "The trial ends within a day. Choose a subscription in the app if you want to keep full access. All your data stays.",
+    "trialEndingChoose": "Choose in the app",
+    "trialEndingClose": "Close"
   },
   "helpPanel": {
     "title": "❓ How does it work?",

@@ -30,12 +30,6 @@
     const premium = status.premium || {};
     if (isDismissed(premium.expires_at)) return;
 
-    const title = el.querySelector('[data-trial-ending-title]');
-    const body = el.querySelector('[data-trial-ending-body]');
-    if (title) title.textContent = 'En dag kvar av provperioden';
-    if (body) {
-      body.textContent = 'Provperioden tar slut inom ett dygn. Välj abonnemang i appen om ni vill behålla full tillgång. All er data finns kvar.';
-    }
     el.classList.remove('hidden');
 
     const closeBtn = el.querySelector('[data-trial-ending-close]');

@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { shouldShowTrialEndingNotice } = require('../src/lib/trial-ending-notice');
@@ -34,5 +36,19 @@ describe('trial ending notice', () => {
       trial_days_remaining: null,
       premium: { active: true, source: 'grandfathered', trial: false },
     })), false);
+  });
+
+  it('keeps the Hem copy in locale files so English is not overwritten', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../public/dashboard.html'), 'utf8');
+    const banner = fs.readFileSync(path.join(__dirname, '../public/js/trial-ending-banner.js'), 'utf8');
+    const sv = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-sv-SE.json'), 'utf8'));
+    const en = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/i18n/home-en-GB.json'), 'utf8'));
+    assert.match(html, /data-i18n="home\.dash\.trialEndingTitle"/);
+    assert.match(html, /data-i18n="home\.dash\.trialEndingBody"/);
+    assert.match(html, /data-i18n="home\.dash\.trialEndingChoose"/);
+    assert.match(html, /data-i18n-aria-label="home\.dash\.trialEndingClose"/);
+    assert.equal(sv.dash.trialEndingChoose, 'Välj i appen');
+    assert.equal(en.dash.trialEndingChoose, 'Choose in the app');
+    assert.doesNotMatch(banner, /textContent\s*=/);
   });
 });
