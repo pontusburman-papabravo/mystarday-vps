@@ -8,8 +8,10 @@
  * Europe/Stockholm (ADR-023). From that instant, new Swedish families get a
  * 14-day product trial and then the paywall (ADR-025). Existing intro-year
  * and grandfather rows are not rewritten.
- * Ireland and Canada share complimentary access until one fixed instant (see
- * ireland-launch-offer.js), not a converting 14-day trial.
+ * Ireland and Canada share one English free period that ends at
+ * 2027-01-01T00:00:00Z for every IE/CA account, regardless of household
+ * timezone (ADR-024). America/Toronto is the family schedule zone only.
+ * Not a converting 14-day trial.
  * Every other country defaults to a 14-day product trial that requires
  * public billing before signup (ADR-023). Admin `basic_trial_days` does not
  * own this number.

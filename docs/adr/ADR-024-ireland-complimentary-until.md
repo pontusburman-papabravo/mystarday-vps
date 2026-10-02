@@ -15,6 +15,10 @@ Families with `family.country_code = 'IE'` have complimentary full app access un
 - Ordinary IE families are not prompted to purchase during the complimentary window. The existing App Review sandbox allowlist can still open Monthly/Yearly.
 - Sweden’s commercial policy is unchanged. FI, GB, and other closed markets stay closed. No GeoIP.
 
+## Canada
+
+Canada uses the same absolute instant. English free period ends at `2027-01-01T00:00:00Z` for all IE/CA accounts, regardless of household timezone. `America/Toronto` is the family schedule zone. It does not extend complimentary access to local midnight. Founder confirmation 2026-10-02.
+
 ## Setting
 
 `app_settings.market_ie_free_until` — absolute instant. Code default matches the migration seed.
