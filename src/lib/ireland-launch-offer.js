@@ -5,9 +5,11 @@
  * One setting, one instant. Not a 14-day trial and not an auto-renewing subscription.
  * Ireland and Canada share this cutoff. Sweden does not.
  *
- * Cutoff: 2027-01-01 00:00:00 Europe/Dublin.
- * Dublin is on GMT that day, so the instant is 2027-01-01T00:00:00.000Z.
- * Whole of 31 December 2026 is included. Access ends at the cutoff.
+ * English free period ends at 2027-01-01T00:00:00Z for all IE/CA accounts,
+ * regardless of household timezone. Dublin is on GMT that day, so this is
+ * 2027-01-01 00:00 Europe/Dublin. The whole of 31 December is included in
+ * Dublin only. America/Toronto and other household zones affect the family
+ * schedule, not this instant. Do not move Canada to local midnight.
  */
 
 const { DateTime } = require('luxon');

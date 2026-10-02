@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const crypto = require('crypto');
+const { DateTime } = require('luxon');
 const {
   deriveMarketRegion,
   gateKeyForCountry,
@@ -95,6 +96,37 @@ describe('Canada complimentary period', () => {
       now: BEFORE,
       irelandFreeUntil: CUTOFF,
     }), false);
+  });
+
+  it('ends at the shared UTC instant, not at America/Toronto midnight', () => {
+    assert.equal(DEFAULT_IRELAND_FREE_UNTIL, '2027-01-01T00:00:00.000Z');
+    const torontoMidnight = DateTime.fromObject(
+      { year: 2027, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 },
+      { zone: 'America/Toronto' }
+    );
+    assert.equal(torontoMidnight.toUTC().toISO(), '2027-01-01T05:00:00.000Z');
+    assert.notEqual(torontoMidnight.toMillis(), CUTOFF.getTime());
+    assert.equal(getMarketConfig({ countryCode: 'CA' }).timezone, 'America/Toronto');
+
+    const torontoEvening = DateTime.fromObject(
+      { year: 2026, month: 12, day: 31, hour: 19, minute: 0, second: 0 },
+      { zone: 'America/Toronto' }
+    );
+    assert.equal(torontoEvening.toUTC().toISO(), '2027-01-01T00:00:00.000Z');
+    for (const code of ['IE', 'CA']) {
+      assert.equal(isIrelandComplimentaryActive({
+        countryCode: code,
+        now: new Date(CUTOFF.getTime() - 1000),
+      }), true, code);
+      assert.equal(isIrelandComplimentaryActive({
+        countryCode: code,
+        now: torontoEvening.toJSDate(),
+      }), false, code);
+      assert.equal(isIrelandComplimentaryActive({
+        countryCode: code,
+        now: torontoMidnight.toJSDate(),
+      }), false, code);
+    }
   });
 
   it('is not blocked when the Ireland registration gate is closed', () => {
