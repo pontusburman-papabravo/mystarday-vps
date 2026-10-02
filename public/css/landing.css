@@ -481,6 +481,28 @@ body.landing-menu-open {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.store-badges[data-store-platform="ios"] .store-android-soon {
+  order: 2;
+}
+
+.store-badges[data-store-platform="android"] .store-badge-link {
+  order: 2;
+}
+
+.store-badges[data-store-platform="android"] .store-android-soon {
+  order: 0;
+}
+
+.landing-canada-web a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .store-locale-note {
   margin: 0 0 0.55rem;
   font-size: 0.82rem;
@@ -960,8 +982,30 @@ body.landing-menu-open {
 
 .hero-launch-card__stores {
   display: inline-flex;
+  flex-wrap: wrap;
   flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  max-width: 300px;
   line-height: 0;
+}
+
+.hero-launch-card__stores .store-android-soon {
+  max-width: 148px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+
+html[data-canada-ios-launch="1"] .hero-launch-card__stores {
+  grid-column: 1 / -1;
+  max-width: none;
+  justify-content: flex-start;
+}
+
+html[data-canada-ios-launch="1"] .hero-launch-card__stores .store-android-soon {
+  max-width: none;
+  white-space: nowrap;
 }
 
 .app-store-badge {

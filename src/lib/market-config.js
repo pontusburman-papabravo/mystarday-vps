@@ -28,6 +28,12 @@ const COUNTRY_DEFAULTS = Object.freeze({
     defaultLocale: 'en-GB',
     localeSupported: true,
   }),
+  CA: Object.freeze({
+    timezone: 'America/Toronto',
+    currency: 'CAD',
+    defaultLocale: 'en-GB',
+    localeSupported: true,
+  }),
   FI: Object.freeze({
     timezone: 'Europe/Helsinki',
     currency: 'EUR',

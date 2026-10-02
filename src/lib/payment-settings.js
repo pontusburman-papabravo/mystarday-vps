@@ -8,7 +8,7 @@ const appConfig = require('../../db/app-config');
 const { normalizeCountryCode } = require('./market-region');
 const { parseMarketPaymentStartInstant } = require('./zoned-civil-time');
 const { COUNTRY_DEFAULTS } = require('./market-config');
-const { getMarketCommercialPolicy } = require('./market-commercial-policy');
+const { getMarketCommercialPolicy, ENTITLEMENT } = require('./market-commercial-policy');
 const {
   getIrelandFreeUntil,
   parseIrelandFreeUntil,
@@ -314,7 +314,7 @@ function evaluateMarketPurchaseAllowed(input = {}) {
     return now.getTime() >= instant.getTime();
   }
 
-  if (cc === 'IE') {
+  if (getMarketCommercialPolicy(cc).entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     const ends = parseIrelandFreeUntil(
       input.irelandFreeUntil == null ? DEFAULT_IRELAND_FREE_UNTIL : input.irelandFreeUntil
     );
@@ -347,7 +347,7 @@ async function isMarketPurchaseAllowed(countryCode, now = new Date()) {
     const paymentStartAt = await getPaymentStartAt();
     return evaluateMarketPurchaseAllowed({ countryCode: cc, now, paymentStartAt });
   }
-  if (cc === 'IE') {
+  if (getMarketCommercialPolicy(cc).entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     const irelandFreeUntil = await getIrelandFreeUntil();
     return evaluateMarketPurchaseAllowed({ countryCode: cc, now, irelandFreeUntil });
   }

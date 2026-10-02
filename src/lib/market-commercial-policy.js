@@ -8,7 +8,7 @@
  * Europe/Stockholm (ADR-023). From that instant, new Swedish families get a
  * 14-day product trial and then the paywall (ADR-025). Existing intro-year
  * and grandfather rows are not rewritten.
- * Ireland uses complimentary access until a fixed instant (see
+ * Ireland and Canada share complimentary access until one fixed instant (see
  * ireland-launch-offer.js), not a converting 14-day trial.
  * Every other country defaults to a 14-day product trial that requires
  * public billing before signup (ADR-023). Admin `basic_trial_days` does not

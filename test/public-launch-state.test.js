@@ -37,7 +37,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.match(js, /subscription is not required yet/);
     assert.doesNotMatch(js, /index > 2/);
     assert.match(js, /\/api\/market\/registration-gates/);
-    assert.match(js, /anyOpen\(state, \['SE', 'IE', 'FI'\]\)/);
+    assert.match(js, /anyOpen\(state, \['SE', 'IE', 'CA', 'FI'\]\)/);
     assert.match(js, /#app-store/);
     assert.match(js, /Get My Starday/);
     assert.doesNotMatch(js, /english_available === true\s*\n\s*\|\| anyOpen/);

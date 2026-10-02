@@ -158,7 +158,7 @@ function buildComplimentaryPremium(familyCreatedAt, expiresAt) {
     trial: false,
     limited_account: false,
     auto_converts: false,
-    label: 'Premium – Ireland launch access',
+    label: 'Premium – complimentary launch access',
   };
 }
 

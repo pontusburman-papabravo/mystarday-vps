@@ -70,7 +70,23 @@
     return p === '/en' || p === '/en/';
   }
 
+  function explicitLandingCountry() {
+    try {
+      const search = (global.location && global.location.search) || '';
+      const query = typeof URLSearchParams === 'function'
+        ? new URLSearchParams(search)
+        : null;
+      const fromQuery = query && (query.get('country') || query.get('market'));
+      if (fromQuery && /^[A-Za-z]{2}$/.test(fromQuery)) return fromQuery.toUpperCase();
+      const stored = global.sessionStorage && global.sessionStorage.getItem('sd_country_code');
+      if (stored && /^[A-Z]{2}$/.test(stored)) return stored;
+    } catch (_) { /* anonymous /en stays on the Ireland default */ }
+    return null;
+  }
+
   function irelandMarket(path) {
+    const explicit = explicitLandingCountry();
+    if (explicit) return explicit;
     const p = path || pathname();
     if (p === '/en' || p === '/en/' || p.indexOf('/en/') === 0) return 'IE';
     return undefined;
@@ -101,13 +117,18 @@
   }
 
   function buildStoreMeta(el) {
+    const platform = storePlatform(el);
     const meta = Object.assign({
       page: 'landing',
-      platform: storePlatform(el),
+      platform: platform,
       placement: storePlacement(el),
+      store: platform === 'android' ? 'play' : 'app_store',
     }, utmMetadata());
     const market = irelandMarket();
-    if (market) meta.market = market;
+    if (market) {
+      meta.market = market;
+      meta.country = market;
+    }
     return meta;
   }
 
@@ -154,9 +175,11 @@
 
   function trackLandingView() {
     if (!isIrelandLanding()) return;
+    const market = irelandMarket();
+    if (!market) return;
     const meta = Object.assign({
       page: 'landing',
-      market: 'IE',
+      market: market,
     }, utmMetadata());
     track('landing_view', meta);
   }

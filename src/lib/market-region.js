@@ -19,6 +19,7 @@ const MARKET_REGIONS = Object.freeze({
 const GATE_KEYS = Object.freeze({
   SE: 'market_se_open',
   IE: 'market_ie_open',
+  CA: 'market_ca_open',
   FI: 'market_fi_open',
   NO: 'market_no_open',
   DK: 'market_dk_open',
@@ -28,10 +29,11 @@ const GATE_KEYS = Object.freeze({
   OTHER: 'market_other_open',
 });
 
-/** Default when feature_flag row is missing (fail-safe: only Sweden open). */
+/** Default when feature_flag row is missing (Sweden and Canada open; other markets fail closed). */
 const GATE_DEFAULTS = Object.freeze({
   market_se_open: true,
   market_ie_open: false,
+  market_ca_open: true,
   market_fi_open: false,
   market_no_open: false,
   market_dk_open: false,
@@ -45,6 +47,7 @@ const KNOWN_COUNTRY_CODES = new Set([
   ...EU_EEA_ISO_CODES,
   'GB',
   'US',
+  'CA',
   'ZZ',
 ]);
 
@@ -52,6 +55,7 @@ const KNOWN_COUNTRY_CODES = new Set([
 const COUNTRY_SPECIFIC_GATE_KEYS = Object.freeze({
   SE: GATE_KEYS.SE,
   IE: GATE_KEYS.IE,
+  CA: GATE_KEYS.CA,
   FI: GATE_KEYS.FI,
   NO: GATE_KEYS.NO,
   DK: GATE_KEYS.DK,
@@ -121,6 +125,7 @@ function marketClosedCode(countryCode) {
   const code = normalizeCountryCode(countryCode);
   if (!code) return 'MARKET_COUNTRY_REQUIRED';
   if (code === 'IE') return 'MARKET_IE_CLOSED';
+  if (code === 'CA') return 'MARKET_CA_CLOSED';
   if (code === 'FI') return 'MARKET_FI_CLOSED';
   if (code === 'NO') return 'MARKET_NO_CLOSED';
   if (code === 'DK') return 'MARKET_DK_CLOSED';
@@ -135,6 +140,7 @@ function marketClosedCode(countryCode) {
 const MARKET_CLOSED_MESSAGES = Object.freeze({
   MARKET_SE_CLOSED: 'Registrering från Sverige är tillfälligt stängd.',
   MARKET_IE_CLOSED: 'My Starday is not available in Ireland yet.',
+  MARKET_CA_CLOSED: 'My Starday is not available in Canada yet.',
   MARKET_FI_CLOSED: 'My Starday är inte tillgängligt i Finland ännu.',
   MARKET_NO_CLOSED: 'My Starday is not available in Norway yet.',
   MARKET_DK_CLOSED: 'My Starday is not available in Denmark yet.',
@@ -174,6 +180,7 @@ function resolveRegistrationCountry({
 const MARKET_STATUS_COUNTRIES = Object.freeze([
   { code: 'SE', label: 'Sweden' },
   { code: 'IE', label: 'Ireland' },
+  { code: 'CA', label: 'Canada' },
   { code: 'FI', label: 'Finland' },
   { code: 'NO', label: 'Norway' },
   { code: 'DK', label: 'Denmark' },
