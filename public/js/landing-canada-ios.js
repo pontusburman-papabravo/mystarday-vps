@@ -7,11 +7,11 @@
 (function (global) {
   'use strict';
 
-  var STORAGE_KEY = 'sd_country_code';
-  var APP_STORE_URL = 'https://apps.apple.com/app/id6774493098';
-  var SOON_LABEL = 'Google Play — coming soon';
-  var AVAILABILITY = 'Available now on the App Store. Android coming soon.';
-  var PHRASES = [
+  const STORAGE_KEY = 'sd_country_code';
+  const APP_STORE_URL = 'https://apps.apple.com/app/id6774493098';
+  const SOON_LABEL = 'Google Play — coming soon';
+  const AVAILABILITY = 'Available now on the App Store. Android coming soon.';
+  const PHRASES = [
     ['Free in Ireland until 31 December 2026', 'Free until 31 December 2026'],
     ['free for families in Ireland until 31 December 2026', 'free until 31 December 2026'],
     ['The Ireland offer does not', 'The offer does not'],
@@ -27,9 +27,9 @@
 
   function queryCountry() {
     try {
-      var search = (global.location && global.location.search) || '';
-      var query = typeof URLSearchParams === 'function' ? new URLSearchParams(search) : null;
-      var raw = query && (query.get('country') || query.get('market'));
+      const search = (global.location && global.location.search) || '';
+      const query = typeof URLSearchParams === 'function' ? new URLSearchParams(search) : null;
+      const raw = query && (query.get('country') || query.get('market'));
       if (raw && /^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
     } catch (_) { /* no query */ }
     return null;
@@ -37,7 +37,7 @@
 
   function storedCountry() {
     try {
-      var stored = global.sessionStorage && global.sessionStorage.getItem(STORAGE_KEY);
+      const stored = global.sessionStorage && global.sessionStorage.getItem(STORAGE_KEY);
       if (stored && /^[A-Z]{2}$/.test(stored)) return stored;
     } catch (_) { /* private mode */ }
     return null;
@@ -54,7 +54,7 @@
   }
 
   function platform() {
-    var ua = (global.navigator && global.navigator.userAgent) || '';
+    const ua = (global.navigator && global.navigator.userAgent) || '';
     if (/iPad|iPhone|iPod/.test(ua) && !global.MSStream) return 'ios';
     if (/Android/.test(ua)) return 'android';
     return 'other';
@@ -65,7 +65,7 @@
   }
 
   function applyPhrases(value) {
-    var next = String(value || '');
+    let next = String(value || '');
     PHRASES.forEach(function (pair) {
       next = next.split(pair[0]).join(pair[1]);
     });
@@ -77,8 +77,8 @@
   }
 
   function replacePlayLink(anchor) {
-    var doc = anchor.ownerDocument || document;
-    var note = doc.createElement('span');
+    const doc = anchor.ownerDocument || document;
+    const note = doc.createElement('span');
     note.className = 'store-android-soon';
     note.setAttribute('role', 'status');
     note.textContent = SOON_LABEL;
@@ -86,7 +86,7 @@
   }
 
   function rewriteLeaves(doc) {
-    var selector = [
+    const selector = [
       '.hero-launch-card__tag',
       '.hero-launch-card__title',
       '.hero-launch-card__hook',
@@ -103,23 +103,23 @@
     ].join(', ');
     doc.querySelectorAll(selector).forEach(function (el) {
       if (!isLeaf(el)) return;
-      var next = applyPhrases(el.textContent);
+      const next = applyPhrases(el.textContent);
       if (next !== el.textContent) el.textContent = next;
     });
   }
 
   function rewriteMetadata(doc) {
-    var title = doc.querySelector('title');
+    const title = doc.querySelector('title');
     if (title) title.textContent = applyPhrases(title.textContent);
     ['meta[name="description"]', 'meta[property="og:description"]'].forEach(function (selector) {
-      var el = doc.querySelector(selector);
+      const el = doc.querySelector(selector);
       if (!el) return;
       el.setAttribute('content', applyPhrases(el.getAttribute('content')));
     });
     doc.querySelectorAll('script[type="application/ld+json"]').forEach(function (el) {
-      var raw = applyPhrases(el.textContent);
+      const raw = applyPhrases(el.textContent);
       try {
-        var data = JSON.parse(raw);
+        const data = JSON.parse(raw);
         if (data && data['@type'] === 'SoftwareApplication') {
           data.operatingSystem = 'iOS';
         }
@@ -132,10 +132,10 @@
 
   function addAvailabilityLine(doc) {
     if (doc.querySelector('[data-canada-store-line]')) return;
-    var ctas = doc.querySelector('.landing-hero__ctas');
-    var badges = doc.querySelector('.landing-hero__store-badges');
+    const ctas = doc.querySelector('.landing-hero__ctas');
+    const badges = doc.querySelector('.landing-hero__store-badges');
     if (!ctas || !badges) return;
-    var line = doc.createElement('p');
+    const line = doc.createElement('p');
     line.className = 'landing-hero__offer landing-canada-availability';
     line.setAttribute('data-canada-store-line', '');
     line.textContent = AVAILABILITY;
@@ -144,28 +144,28 @@
 
   function addWebAccountLink(doc) {
     if (doc.querySelector('[data-canada-web-account]')) return;
-    var ctas = doc.querySelector('.landing-hero__ctas');
+    const ctas = doc.querySelector('.landing-hero__ctas');
     if (!ctas) return;
-    var wrap = doc.createElement('p');
+    const wrap = doc.createElement('p');
     wrap.className = 'landing-canada-web';
     wrap.setAttribute('data-canada-web-account', '');
-    var link = doc.createElement('a');
+    const link = doc.createElement('a');
     link.setAttribute('href', '/register');
     link.textContent = 'Create a free account in the browser';
     wrap.appendChild(link);
-    var how = doc.querySelector('[data-track="hero_how_it_works_click"]');
+    const how = doc.querySelector('[data-track="hero_how_it_works_click"]');
     if (how && how.parentNode === ctas) ctas.insertBefore(wrap, how);
     else ctas.appendChild(wrap);
   }
 
   function applyCanada(doc) {
-    var root = doc.documentElement;
-    var device = platform();
+    const root = doc.documentElement;
+    const device = platform();
     root.setAttribute('data-canada-ios-launch', '1');
     root.setAttribute('data-store-platform', device);
 
     Array.prototype.slice.call(doc.querySelectorAll('a[href]')).forEach(function (el) {
-      var href = el.getAttribute('href') || '';
+      const href = el.getAttribute('href') || '';
       if (href.indexOf('apps.apple.com') !== -1 && href.indexOf('6774493098') !== -1) {
         el.setAttribute('href', APP_STORE_URL);
       }
@@ -178,7 +178,7 @@
 
     // Keep data-hero-launch="ireland" so landing-market-state does not
     // replace the hero with a Google Play availability sentence.
-    var card = doc.querySelector('.hero-launch-card');
+    const card = doc.querySelector('.hero-launch-card');
     if (card) card.setAttribute('aria-label', 'Welcome Canada');
 
     rewriteLeaves(doc);
@@ -188,7 +188,7 @@
   }
 
   function init() {
-    var fromQuery = queryCountry();
+    const fromQuery = queryCountry();
     if (fromQuery) rememberCountry(fromQuery);
     if (landingCountry() !== 'CA') return;
     applyCanada(document);
