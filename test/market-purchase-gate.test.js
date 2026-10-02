@@ -13,6 +13,11 @@ const {
 } = require('./helpers/public-billing');
 
 const SE_START = new Date('2026-10-01T00:00:00+02:00');
+
+/** Wall-clock tests must not assume the suite still runs before Sweden's go-live. */
+function paymentStartStillAheadIso() {
+  return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+}
 const IE_START = new Date('2026-09-20T00:00:00+01:00');
 const BEFORE_SE = new Date('2026-09-25T12:00:00+02:00');
 const AFTER_SE = new Date('2026-10-02T00:00:00+02:00');
@@ -140,7 +145,7 @@ function reloadPurchaseGate() {
 }
 
 describe('getNativePurchaseEligibility market gate', () => {
-  test('SE family denied before Oct 1 even when global billing is on', async (t) => {
+  test('SE family denied while payment_start_at is still ahead, even when global billing is on', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real TEST_DATABASE_URL');
@@ -151,7 +156,7 @@ describe('getNativePurchaseEligibility market gate', () => {
     let snap;
     try {
       snap = await enablePublicBillingForTest();
-      await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('payment_start_at', paymentStartStillAheadIso());
       const familyId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
       await db.pool.query(
         `INSERT INTO family (id, name, timezone, country_code, created_at)
@@ -317,7 +322,7 @@ describe('getNativeRestoreEligibility market isolation', () => {
     };
   }
 
-  test('SE family may restore before Oct 1 when global billing is on', async (t) => {
+  test('SE family may restore while payment_start_at is still ahead and global billing is on', async (t) => {
     const db = await setupTestDb();
     if (db.skip) {
       t.skip('No real TEST_DATABASE_URL');
@@ -328,7 +333,7 @@ describe('getNativeRestoreEligibility market isolation', () => {
     let snap;
     try {
       snap = await enablePublicBillingForTest();
-      await appSettings.upsertSetting('payment_start_at', '2026-10-01T00:00:00+02:00');
+      await appSettings.upsertSetting('payment_start_at', paymentStartStillAheadIso());
       const familyId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
       await db.pool.query(
         `INSERT INTO family (id, name, timezone, country_code, created_at)
