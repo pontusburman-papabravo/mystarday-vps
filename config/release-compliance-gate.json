@@ -144,7 +144,7 @@
   "_allowedProductionHosts_comment": "Defaults in check-legal-urls.cjs when empty.",
   "allowedProductionHosts": [],
 
-  "expectedLiveMarketCountryCodes": ["SE"],
+  "expectedLiveMarketCountryCodes": ["SE", "CA"],
   "launchReadyClosedCountryCodes": ["IE", "FI"],
 
   "localeFiles": [

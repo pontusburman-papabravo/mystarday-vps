@@ -30,6 +30,7 @@ const {
 const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 const {
   getIrelandFreeUntil,
+  describeComplimentaryLaunchOffer,
   describeIrelandLaunchOffer,
 } = require('../lib/ireland-launch-offer');
 
@@ -39,12 +40,13 @@ const router = express.Router();
 router.get('/registration-gates', async (req, res) => {
   try {
     const [
-      se, ie, fi, no, dk, eu, uk, us, other,
+      se, ie, ca, fi, no, dk, eu, uk, us, other,
       publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable, lifetimeFreeUntil,
       irelandFreeUntil,
     ] = await Promise.all([
       isMarketOpenForRegistration('SE'),
       isMarketOpenForRegistration('IE'),
+      isMarketOpenForRegistration('CA'),
       isMarketOpenForRegistration('FI'),
       isMarketOpenForRegistration('NO'),
       isMarketOpenForRegistration('DK'),
@@ -67,12 +69,12 @@ router.get('/registration-gates', async (req, res) => {
       FI: fiPaymentStartAt,
     };
     const marketBillingReadyByCountry = {};
-    for (const code of ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ']) {
+    for (const code of ['SE', 'IE', 'CA', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ']) {
       marketBillingReadyByCountry[code] = await isMarketBillingReady(code, now);
     }
     const signupAllowed = {};
     for (const [code, open] of [
-      ['SE', se], ['IE', ie], ['FI', fi], ['NO', no], ['DK', dk],
+      ['SE', se], ['IE', ie], ['CA', ca], ['FI', fi], ['NO', no], ['DK', dk],
       ['DE', eu], ['GB', uk], ['US', us], ['ZZ', other],
     ]) {
       signupAllowed[code] = evaluateSignupCompleteness({
@@ -82,12 +84,14 @@ router.get('/registration-gates', async (req, res) => {
         marketBillingReady: marketBillingReadyByCountry[code],
         paymentStartAt: paymentStartByCountry[code],
         lifetimeFreeUntil,
+        irelandFreeUntil,
         now,
       }).allowed;
     }
     res.json({
       market_se_open: se,
       market_ie_open: ie,
+      market_ca_open: ca,
       market_fi_open: fi,
       market_no_open: no,
       market_dk_open: dk,
@@ -101,7 +105,7 @@ router.get('/registration-gates', async (req, res) => {
       launch_state: resolvePublicLaunchStates({
         signupAllowedByCountry: signupAllowed,
         publicBillingUsable,
-        countryCodes: ['SE', 'IE', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
+        countryCodes: ['SE', 'IE', 'CA', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
       }),
       payment_start_at: {
         SE: sePaymentStartAt ? sePaymentStartAt.toISOString() : null,
@@ -110,6 +114,7 @@ router.get('/registration-gates', async (req, res) => {
       },
       launch_offer: {
         IE: describeIrelandLaunchOffer(irelandFreeUntil, now),
+        CA: describeComplimentaryLaunchOffer('CA', irelandFreeUntil, now),
       },
     });
   } catch (err) {

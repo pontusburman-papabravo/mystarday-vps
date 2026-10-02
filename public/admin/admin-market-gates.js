@@ -11,6 +11,7 @@
 const MARKET_GATE_LABELS_SV = {
   SE: 'Sverige',
   IE: 'Irland',
+  CA: 'Kanada',
   FI: 'Finland',
   NO: 'Norge',
   DK: 'Danmark',
@@ -77,7 +78,7 @@ async function loadMarketRegistrationStatus() {
     container.innerHTML = markets.map(renderMarketGatesRow).join('');
 
     if (countryStats && analytics && Array.isArray(analytics.families_by_country)) {
-      const highlight = new Set(['SE', 'IE', 'FI', 'NO', 'DK', 'GB', 'US']);
+      const highlight = new Set(['SE', 'IE', 'CA', 'FI', 'NO', 'DK', 'GB', 'US']);
       const rows = analytics.families_by_country
         .filter((row) => highlight.has(row.country_code))
         .sort((a, b) => b.count - a.count);

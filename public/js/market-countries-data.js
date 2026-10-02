@@ -10,6 +10,22 @@ window.MarketCountries = {
       "group": "featured"
     },
     {
+      "code": "IE",
+      "labels": {
+        "sv-SE": "Irland",
+        "en-GB": "Ireland"
+      },
+      "group": "featured"
+    },
+    {
+      "code": "CA",
+      "labels": {
+        "sv-SE": "Kanada",
+        "en-GB": "Canada"
+      },
+      "group": "featured"
+    },
+    {
       "code": "FI",
       "labels": {
         "sv-SE": "Finland",
@@ -106,13 +122,6 @@ window.MarketCountries = {
       "labels": {
         "sv-SE": "Island",
         "en-GB": "Iceland"
-      }
-    },
-    {
-      "code": "IE",
-      "labels": {
-        "sv-SE": "Irland",
-        "en-GB": "Ireland"
       }
     },
     {

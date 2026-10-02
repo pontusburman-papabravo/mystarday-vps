@@ -70,14 +70,16 @@
       ? getCountries()
       : [{ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }];
 
-    const featured = countries.filter((c) => c.group === 'featured' || ['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
-    const eu = countries.filter((c) => !['SE', 'IE', 'FI', 'GB', 'US', 'ZZ'].includes(c.code));
+    const featuredCodes = ['SE', 'IE', 'CA', 'FI', 'GB', 'US', 'ZZ'];
+    const featured = countries.filter((c) => c.group === 'featured' || featuredCodes.includes(c.code));
+    const eu = countries.filter((c) => !featuredCodes.includes(c.code));
     const suggest = suggestedCountry();
 
     const placeholderSelected = confirmedCode ? '' : ' selected';
     let options = `<option value=""${placeholderSelected}>${labelFor({ labels: { 'sv-SE': 'Välj land', 'en-GB': 'Choose country' } }, locale)}</option>`;
     options += `<option value="SE"${selectedAttr('SE', confirmedCode)}>${labelFor({ code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' } }, locale)}</option>`;
     options += `<option value="IE"${selectedAttr('IE', confirmedCode)}>${labelFor({ code: 'IE', labels: { 'sv-SE': 'Irland', 'en-GB': 'Ireland' } }, locale)}</option>`;
+    options += `<option value="CA"${selectedAttr('CA', confirmedCode)}>${labelFor({ code: 'CA', labels: { 'sv-SE': 'Kanada', 'en-GB': 'Canada' } }, locale)}</option>`;
     options += `<option value="FI"${selectedAttr('FI', confirmedCode)}>${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
     if (eu.length) {
       options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
@@ -137,6 +139,7 @@
   let gateMap = {
     SE: true,
     IE: false,
+    CA: true,
     FI: false,
     NO: false,
     DK: false,
@@ -161,6 +164,7 @@
       gateMap = {
         SE: canSignup('SE', data.market_se_open, true),
         IE: canSignup('IE', data.market_ie_open, false),
+        CA: canSignup('CA', data.market_ca_open, true),
         FI: canSignup('FI', data.market_fi_open, false),
         NO: canSignup('NO', data.market_no_open, false),
         DK: canSignup('DK', data.market_dk_open, false),
@@ -175,6 +179,7 @@
   function isCountryOpen(code) {
     if (code === 'SE') return gateMap.SE;
     if (code === 'IE') return gateMap.IE;
+    if (code === 'CA') return gateMap.CA;
     if (code === 'FI') return gateMap.FI;
     if (code === 'NO') return gateMap.NO;
     if (code === 'DK') return gateMap.DK;
@@ -190,6 +195,7 @@
     try {
       if (window.I18n && typeof window.I18n.t === 'function') {
         if (code === 'IE') return window.I18n.t('market.choice.closedIe');
+        if (code === 'CA') return window.I18n.t('market.choice.closedCa');
         if (code === 'FI') return window.I18n.t('market.choice.closedFi');
         if (code === 'NO') return window.I18n.t('market.choice.closedNo');
         if (code === 'DK') return window.I18n.t('market.choice.closedDk');
