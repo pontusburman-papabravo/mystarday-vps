@@ -1,8 +1,9 @@
 'use strict';
 
 /**
- * Ireland complimentary launch access.
+ * Complimentary launch access for the English free period.
  * One setting, one instant. Not a 14-day trial and not an auto-renewing subscription.
+ * Ireland and Canada share this cutoff. Sweden does not.
  *
  * Cutoff: 2027-01-01 00:00:00 Europe/Dublin.
  * Dublin is on GMT that day, so the instant is 2027-01-01T00:00:00.000Z.
@@ -16,7 +17,7 @@ const { normalizeCountryCode } = require('./market-region');
 const IRELAND_FREE_UNTIL_KEY = 'market_ie_free_until';
 const IRELAND_FREE_UNTIL_ZONE = 'Europe/Dublin';
 const DEFAULT_IRELAND_FREE_UNTIL = '2027-01-01T00:00:00.000Z';
-const COMPLIMENTARY_UNTIL_COUNTRY_CODES = Object.freeze(new Set(['IE']));
+const COMPLIMENTARY_UNTIL_COUNTRY_CODES = Object.freeze(new Set(['IE', 'CA']));
 const LAUNCH_OFFER_KIND = 'complimentary_until';
 
 function parseIrelandFreeUntil(raw) {
@@ -72,15 +73,20 @@ function isIrelandComplimentaryActive({ countryCode, now, freeUntil } = {}) {
   return clock.getTime() < ends.getTime();
 }
 
-function describeIrelandLaunchOffer(freeUntil, now = new Date()) {
+function describeComplimentaryLaunchOffer(countryCode, freeUntil, now = new Date()) {
+  const cc = normalizeCountryCode(countryCode);
   const ends = parseIrelandFreeUntil(freeUntil == null ? DEFAULT_IRELAND_FREE_UNTIL : freeUntil);
   return {
     kind: LAUNCH_OFFER_KIND,
     ends_at: ends.toISOString(),
     payment_method_required: false,
     auto_converts: false,
-    active: isIrelandComplimentaryActive({ countryCode: 'IE', now, freeUntil: ends }),
+    active: isIrelandComplimentaryActive({ countryCode: cc, now, freeUntil: ends }),
   };
+}
+
+function describeIrelandLaunchOffer(freeUntil, now = new Date()) {
+  return describeComplimentaryLaunchOffer('IE', freeUntil, now);
 }
 
 module.exports = {
@@ -94,5 +100,6 @@ module.exports = {
   setIrelandFreeUntil,
   isComplimentaryUntilCountry,
   isIrelandComplimentaryActive,
+  describeComplimentaryLaunchOffer,
   describeIrelandLaunchOffer,
 };

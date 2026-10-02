@@ -7,6 +7,7 @@
 
 const SWEDEN = { code: 'SE', labels: { 'sv-SE': 'Sverige', 'en-GB': 'Sweden' }, group: 'featured' };
 const IRELAND = { code: 'IE', labels: { 'sv-SE': 'Irland', 'en-GB': 'Ireland' }, group: 'featured' };
+const CANADA = { code: 'CA', labels: { 'sv-SE': 'Kanada', 'en-GB': 'Canada' }, group: 'featured' };
 const FINLAND = { code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' }, group: 'featured' };
 const UNITED_KINGDOM = { code: 'GB', labels: { 'sv-SE': 'Storbritannien', 'en-GB': 'United Kingdom' }, group: 'featured' };
 const UNITED_STATES = { code: 'US', labels: { 'sv-SE': 'USA', 'en-GB': 'United States' }, group: 'featured' };
@@ -58,6 +59,7 @@ const EU_EEA_ISO_CODES = new Set([
 const REGISTRATION_COUNTRIES = [
   SWEDEN,
   IRELAND,
+  CANADA,
   FINLAND,
   ...EU_EEA_COUNTRIES.filter((c) => c.code !== 'SE' && c.code !== 'FI' && c.code !== 'IE'),
   UNITED_KINGDOM,
@@ -78,6 +80,7 @@ const WAITLIST_COUNTRY_CODES = new Set(WAITLIST_COUNTRIES.map((c) => c.code));
 module.exports = {
   SWEDEN,
   IRELAND,
+  CANADA,
   FINLAND,
   UNITED_KINGDOM,
   UNITED_STATES,

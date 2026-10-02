@@ -162,7 +162,7 @@
     if (state.english_available === true) {
       hideStaleEnglishComingSoon(state);
     }
-    const canRegister = anyOpen(state, ['SE', 'IE', 'FI']);
+    const canRegister = anyOpen(state, ['SE', 'IE', 'CA', 'FI']);
     retargetPrimaryCtas(canRegister);
     retuneWaitlistCopy(state);
     hideSubscribeNowIfPrebilling(state);

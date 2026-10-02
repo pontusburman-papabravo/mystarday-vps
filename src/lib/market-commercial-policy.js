@@ -4,8 +4,9 @@
  * Market commercial policy — entitlement model per country.
  * Not a live flag. Does not open markets.
  *
- * Sweden keeps intro year. Ireland uses complimentary access until a fixed
- * instant (see ireland-launch-offer.js), not a converting 14-day trial.
+ * Sweden keeps intro year. Ireland and Canada share complimentary access
+ * until one fixed instant (see ireland-launch-offer.js), not a converting
+ * 14-day trial.
  * Every other country defaults to a 14-day product trial that requires
  * public billing before signup (ADR-023). Admin `basic_trial_days` does not
  * own this number.
