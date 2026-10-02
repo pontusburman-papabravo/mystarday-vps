@@ -11,6 +11,7 @@ module.exports = {
   snapshotContract: {
     backwardCompatible: true,
     allowedBusinessTableFingerprintChanges: [],
+    featureFlagInserts: [{ key: 'market_ca_open', enabled: true }],
   },
 
   up: async (client) => {
