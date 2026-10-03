@@ -260,6 +260,13 @@
     "deleteCategoryActivities": "⚠️ Alla {{count}} aktiviteter i denna kategori tas också bort.",
     "deleteCategoryScheduleWarn": "⚠️ Obs! Aktiviteter från den här kategorin används i ett barns schema. Schemat påverkas om du tar bort kategorin.",
     "deleteActivity": "Ta bort aktiviteten \"{{name}}\"?",
+    "deleteActivityInUseTitle": "Ta bort aktiviteten?",
+    "deleteActivityInUse": "Aktiviteten används i ett eller flera veckoscheman. Om du tar bort den här tas den också bort från dessa scheman.",
+    "deleteAnyway": "Ta bort ändå",
+    "usedInSchedules": {
+      "one": "Används i {{count}} veckoschema.",
+      "other": "Används i {{count}} veckoscheman."
+    },
     "deleteReward": "Ta bort belöningen \"{{name}}\"?",
     "deleteSchedule": "Vill du ta bort schemat \"{{name}}\"? Detta kan inte ångras.",
     "deleteSubstep": "Ta bort delsteget \"{{name}}\"?"

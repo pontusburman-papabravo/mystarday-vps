@@ -905,9 +905,9 @@
   </div>
 
   <!-- ── Confirm Delete Modal ──────────────────────────────── -->
-  <div id="confirmModal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+  <div id="confirmModal" data-overlay="modal" class="hidden library-modal-overlay fixed inset-0 bg-black/50 flex items-center justify-center p-4">
     <div class="magic-modal-panel bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-      <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="library.chrome.confirmTitle">Bekräfta borttagning</h3>
+      <h3 id="confirmTitle" class="text-lg font-heading font-bold text-navy mb-3" data-i18n="library.chrome.confirmTitle">Bekräfta borttagning</h3>
       <p id="confirmMsg" class="text-text-soft mb-6" data-i18n="library.confirm.areYouSure">Är du säker?</p>
       <div class="flex gap-3">
         <button onclick="closeConfirmModal()" class="flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold" data-i18n="library.actions.cancel">Avbryt</button>

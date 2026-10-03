@@ -260,6 +260,13 @@
     "deleteCategoryActivities": "⚠️ All {{count}} activities in this category will also be deleted.",
     "deleteCategoryScheduleWarn": "⚠️ Note: activities from this category are used in a child's schedule. The schedule will be affected if you delete the category.",
     "deleteActivity": "Delete the activity \"{{name}}\"?",
+    "deleteActivityInUseTitle": "Delete the activity?",
+    "deleteActivityInUse": "This activity is used in one or more weekly schedules. Deleting it also removes it from those schedules.",
+    "deleteAnyway": "Delete anyway",
+    "usedInSchedules": {
+      "one": "Used in {{count}} weekly schedule.",
+      "other": "Used in {{count}} weekly schedules."
+    },
     "deleteReward": "Delete the reward \"{{name}}\"?",
     "deleteSchedule": "Delete the schedule \"{{name}}\"? This cannot be undone.",
     "deleteSubstep": "Delete the step \"{{name}}\"?"
