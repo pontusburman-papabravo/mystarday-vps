@@ -499,13 +499,35 @@ router.delete('/:id', async (req, res) => {
     }
 
     const used = await client.query(
-      'SELECT COUNT(*) FROM weekly_schedule_item WHERE activity_template_id = $1',
+      `SELECT COUNT(*)::int AS refs,
+              COUNT(DISTINCT weekly_schedule_id)::int AS schedules
+       FROM weekly_schedule_item
+       WHERE activity_template_id = $1`,
       [req.params.id]
     );
-    if (parseInt(used.rows[0].count, 10) > 0) {
+    const scheduleReferenceCount = Number(used.rows[0].refs) || 0;
+    const scheduleCount = Number(used.rows[0].schedules) || 0;
+    const force = req.query.force === '1' || req.query.force === 'true';
+    if (scheduleReferenceCount > 0 && !force) {
       await client.query('ROLLBACK');
-      return sendApiError(res, 409, 'ACTIVITY_IN_USE');
+      return sendApiError(res, 409, 'ACTIVITY_IN_USE', {
+        schedule_count: scheduleCount,
+        schedule_reference_count: scheduleReferenceCount,
+      });
     }
+
+    let removed = 0;
+    if (scheduleReferenceCount > 0) {
+      const deletedItems = await client.query(
+        'DELETE FROM weekly_schedule_item WHERE activity_template_id = $1 RETURNING id',
+        [req.params.id]
+      );
+      removed = deletedItems.rowCount;
+    }
+    await client.query(
+      'DELETE FROM schedule_date_exclusion WHERE activity_template_id = $1',
+      [req.params.id]
+    );
 
     const snap = existing.rows[0];
     await scrubWhatNextReferences(client, req.user.familyId, req.params.id, {
@@ -514,9 +536,20 @@ router.delete('/:id', async (req, res) => {
       icon_key: snap.icon_key || null,
     });
 
-    await client.query('DELETE FROM activity_template WHERE id = $1', [req.params.id]);
+    const deletedActivity = await client.query(
+      'DELETE FROM activity_template WHERE id = $1 RETURNING id',
+      [req.params.id]
+    );
+    if (deletedActivity.rowCount !== 1) {
+      throw new Error('ACTIVITY_DELETE_FAILED');
+    }
     await client.query('COMMIT');
-    res.json({ message: 'Aktiviteten har tagits bort' });
+    res.json({
+      message: 'Aktiviteten har tagits bort',
+      activity_deleted: true,
+      number_of_schedule_references_removed: removed,
+      schedule_count: scheduleCount,
+    });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[ACTIVITIES] Delete error:', err);
