@@ -351,6 +351,27 @@ describe('overlay policy behavior', () => {
     sandbox.innerHeight = 800;
     assert.equal(sandbox.OverlayPolicy.syncKeyboardInset(), 300);
     assert.equal(doc.documentElement.style['--overlay-keyboard-inset'], '300px');
+    assert.equal(doc.documentElement.classList.contains('keyboard-open'), true);
+  });
+
+  it('hides bottom nav and FABs while the keyboard inset is open, including at 390px', () => {
+    const css = read('public/css/app-layers.css');
+    for (const sel of ['.parent-bottom-nav', '.native-tab-bar', '#helpBtn', '#globalFeedbackBtn', '.global-feedback-fab']) {
+      const escaped = sel.replace(/[.#]/g, '\\$&');
+      assert.match(css, new RegExp('html\\.keyboard-open ' + escaped));
+    }
+    assert.doesNotMatch(css, /html\.keyboard-open[\s\S]*z-index/);
+    const doc = createDocument();
+    const sandbox = bootPolicy(doc);
+    sandbox.innerWidth = 390;
+    sandbox.visualViewport.height = 780;
+    sandbox.innerHeight = 800;
+    assert.equal(sandbox.OverlayPolicy.syncKeyboardInset(), 20);
+    assert.equal(doc.documentElement.classList.contains('keyboard-open'), false);
+    sandbox.visualViewport.height = 360;
+    sandbox.innerHeight = 844;
+    assert.equal(sandbox.OverlayPolicy.syncKeyboardInset(), 484);
+    assert.equal(doc.documentElement.classList.contains('keyboard-open'), true);
   });
 
   it('ignores hidden, aria-hidden, and display:none overlays', () => {

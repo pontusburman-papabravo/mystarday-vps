@@ -155,12 +155,8 @@ test('verified child login does not set child_access_completed_at', async (t) =>
     const state = await getActivationState(db, familyId);
     assert.equal(state && state.child_access_completed_at, null);
 
-    const analytics = await db.query(
-      `SELECT COUNT(*)::int AS n FROM analytics_events
-       WHERE family_id = $1 AND event_type = 'child_session_started'`,
-      [familyId]
-    );
-    assert.ok(analytics.rows[0].n >= 1);
+    const analytics = await waitForAnalyticsEvents(db, familyId, 'child_session_started');
+    assert.ok(analytics.rows.length >= 1);
   } finally {
     await http.close();
     await db.cleanup();

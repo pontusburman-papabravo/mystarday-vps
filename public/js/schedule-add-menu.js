@@ -565,6 +565,10 @@
     if (activityState.days && activityState.days.size === 1) day = [...activityState.days][0];
     else if (typeof currentDay === 'number') day = currentDay;
     if (day != null && back.get('day') == null) back.set('day', String(day));
+    const returnSections = { morgon: true, dag: true, kvall: true, natt: true };
+    if (activityState.section && returnSections[activityState.section] && back.get('section') == null) {
+      back.set('section', activityState.section);
+    }
     const path = (window.location.pathname || '/schedule') + (back.toString() ? '?' + back.toString() : '');
     if (!path.startsWith('/schedule') || path.indexOf('://') !== -1 || path.indexOf('\\') !== -1 || path.indexOf('#') !== -1) return '';
     return path;

@@ -251,6 +251,7 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     const ret = src.slice(src.indexOf('function scheduleReturnPath'), src.indexOf('function selectPendingCreate'));
     assert.match(ret, /back\.set\('child', currentChildId\)/);
     assert.match(ret, /back\.set\('day', String\(day\)\)/);
+    assert.match(ret, /back\.set\('section', activityState\.section\)/);
     assert.match(ret, /path\.indexOf\('#'\)/);
     assert.doesNotMatch(src, /function createFamilyActivity/);
     assert.doesNotMatch(src, /apiFetch\('\/api\/activities'/);
@@ -468,7 +469,7 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(timeCss, /color:\s*transparent/);
     assert.match(timeCss, /-webkit-text-fill-color:\s*transparent/);
     assert.match(timeCss, /min-height:\s*44px/);
-    assert.match(html, /schedule-add-menu\.js\?v=11/);
+    assert.match(html, /schedule-add-menu\.js\?v=12/);
   });
 });
 
@@ -766,7 +767,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.match(harness.assigned[0], /name=L%C3%A4kemedel/);
     assert.match(harness.assigned[0], /#activities$/);
     const ret = new URL(harness.assigned[0], 'https://app.local').searchParams.get('return');
-    assert.equal(ret, '/schedule?child=child-a&day=5');
+    assert.equal(ret, '/schedule?child=child-a&day=5&section=kvall');
     assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.sandbox.scheduleReloads, 1);
@@ -783,7 +784,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.equal(harness.applyCalls.length, 0);
     assert.equal(harness.assigned.length, 1);
     const ret = new URL(harness.assigned[0], 'https://app.local').searchParams.get('return');
-    assert.equal(ret, '/schedule?child=child-a&day=5');
+    assert.equal(ret, '/schedule?child=child-a&day=5&section=kvall');
     assert.equal(harness.toasts.length, 0);
   });
 
@@ -972,7 +973,7 @@ describe('Rapid Entry — overlapping Save contract', () => {
       assert.match(url, /new=1/);
       assert.match(url, /#activities$/);
       const ret = new URL(url, 'https://app.local').searchParams.get('return');
-      assert.equal(ret, '/schedule?child=child-a&day=1');
+      assert.equal(ret, '/schedule?child=child-a&day=1&section=morgon');
     });
   });
 

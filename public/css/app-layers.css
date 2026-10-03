@@ -61,7 +61,13 @@ body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .native-tab-bar,
 body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #hbBtn,
 body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #helpBtn,
 body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #globalFeedbackBtn,
-body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .global-feedback-fab {
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .global-feedback-fab,
+html.keyboard-open .parent-bottom-nav,
+html.keyboard-open .native-tab-bar,
+html.keyboard-open #hbBtn,
+html.keyboard-open #helpBtn,
+html.keyboard-open #globalFeedbackBtn,
+html.keyboard-open .global-feedback-fab {
   visibility: hidden !important;
   pointer-events: none !important;
 }
