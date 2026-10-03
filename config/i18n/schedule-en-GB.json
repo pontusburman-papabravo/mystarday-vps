@@ -693,7 +693,7 @@
       "pickTime": "Time (optional)",
       "selectActivityFirst": "Choose an activity or create a new one",
       "createFromSearch": "+ Create \"{{name}}\"",
-      "libraryAutoSaveNote": "New activities are saved automatically so you can use them again.",
+      "libraryAutoSaveNote": "The name opens in the Library. After you save, you come back here.",
       "noneFound": "No activity matches. Create a new one.",
       "noneYet": "Search or type a name to create one.",
       "createFailed": "Couldn't create the activity. Please try again.",

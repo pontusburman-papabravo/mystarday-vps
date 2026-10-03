@@ -227,7 +227,7 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(src, /function activityNameKey/);
     assert.match(src, /function findExactActivityMatch/);
     assert.match(src, /function shouldShowCreateRow/);
-    const showBody = src.slice(src.indexOf('function shouldShowCreateRow'), src.indexOf('function timeGroupFromSection'));
+    const showBody = src.slice(src.indexOf('function shouldShowCreateRow'), src.indexOf('function openAddMenu'));
     assert.match(showBody, /normalizeActivityName\(query\)/);
     assert.match(showBody, /if \(!name\) return false/);
     assert.match(showBody, /findExactActivityMatch/);
@@ -240,37 +240,45 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(picker, /activity\.noneYet/);
   });
 
-  it('inline create: new activity creates once at Save then applies', () => {
+  it('create row opens the library editor and Save does not mint templates', () => {
     const src = read(MODULE);
-    const createFn = src.slice(src.indexOf('async function createFamilyActivity'), src.indexOf('function stagedNameFromSnapshot'));
-    assert.match(createFn, /apiFetch\('\/api\/activities'/);
-    assert.match(createFn, /method:\s*'POST'/);
+    const select = src.slice(src.indexOf('function selectPendingCreate'), src.indexOf('function selectActivitySection'));
+    assert.match(select, /shouldShowCreateRow\(name, allTemplates\)/);
+    assert.match(select, /params\.set\('new', '1'\)/);
+    assert.match(select, /params\.set\('name', name\)/);
+    assert.match(select, /params\.set\('return', ret\)/);
+    assert.match(select, /window\.location\.assign\('\/library\?' \+ params\.toString\(\) \+ '#activities'\)/);
+    const ret = src.slice(src.indexOf('function scheduleReturnPath'), src.indexOf('function selectPendingCreate'));
+    assert.match(ret, /back\.set\('child', currentChildId\)/);
+    assert.match(ret, /back\.set\('day', String\(day\)\)/);
+    assert.match(ret, /path\.indexOf\('#'\)/);
+    assert.doesNotMatch(src, /function createFamilyActivity/);
+    assert.doesNotMatch(src, /apiFetch\('\/api\/activities'/);
     const submit = persistSlice(src);
-    const createIdx = submit.indexOf('createFamilyActivity(');
-    const applyIdx = submit.indexOf('ScheduleApplyClient.applyActivity');
-    assert.ok(createIdx > -1 && applyIdx > createIdx, 'create runs before apply');
-    assert.match(submit, /snapshot\.createdUnappliedId \|\| snapshot\.templateId/);
-    assert.match(submit, /createFamilyActivity\(stagedName, snapshot\.section\)/);
-    assert.match(submit, /if \(!created\.ok \|\| !created\.data\.id\)/);
-    assert.match(submit, /createdUnappliedId = templateId/);
-    assert.match(submit, /loadTemplates/);
+    assert.doesNotMatch(submit, /createFamilyActivity/);
+    assert.doesNotMatch(submit, /\/api\/activities/);
+    assert.match(submit, /findExactActivityMatch\(allTemplates, stagedName\)/);
+    assert.match(submit, /await loadTemplates\(\)/);
+    assert.match(submit, /ScheduleApplyClient\.applyActivity/);
+    assert.match(submit, /activity\.selectActivityFirst/);
+    assert.match(submit, /activity\.added/);
+    assert.doesNotMatch(submit, /createdAndAdded/);
     assert.match(submit, /loadScheduleForDay|afterSuccessfulMutation/);
-    assert.doesNotMatch(submit, /\/api\/activities\/\$\{/);
   });
 
   it('inline create: existing exact match is reused with zero create requests', () => {
     const src = read(MODULE);
     const filterBody = src.slice(src.indexOf('function filterActivity'), src.indexOf('function selectActivity'));
     assert.match(filterBody, /findExactActivityMatch\(allTemplates, q\)/);
-    assert.match(filterBody, /activityState\.templateId = match\.id/);
+    assert.match(filterBody, /activityState\.templateId = match \? match\.id : null/);
     const helpers = src.slice(src.indexOf('function findExactActivityMatch'), src.indexOf('function shouldShowCreateRow'));
     assert.match(helpers, /activityNameKey\(tpl\.name\) === key/);
     const submit = persistSlice(src);
-    const createGuard = submit.slice(0, submit.indexOf('createFamilyActivity'));
-    assert.match(createGuard, /snapshot\.createdUnappliedId \|\| snapshot\.templateId/);
-    assert.match(createGuard, /findExactActivityMatch\(allTemplates, stagedName\)/);
-    assert.match(createGuard, /await loadTemplates\(\)/);
-    assert.match(createGuard, /if \(!templateId && shouldShowCreateRow\(stagedName/);
+    assert.match(submit, /let templateId = snapshot\.templateId/);
+    assert.match(submit, /findExactActivityMatch\(allTemplates, stagedName\)/);
+    assert.match(submit, /await loadTemplates\(\)/);
+    assert.doesNotMatch(submit, /createFamilyActivity/);
+    assert.doesNotMatch(submit, /apiFetch\('\/api\/activities'/);
   });
 
   it('inline create: match is trim + case-insensitive; whitespace-only never creates', () => {
@@ -279,27 +287,26 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(normalize, /\.trim\(\)/);
     const keyFn = src.slice(src.indexOf('function activityNameKey'), src.indexOf('function findExactActivityMatch'));
     assert.match(keyFn, /\.toLowerCase\(\)/);
-    const showBody = src.slice(src.indexOf('function shouldShowCreateRow'), src.indexOf('function timeGroupFromSection'));
+    const showBody = src.slice(src.indexOf('function shouldShowCreateRow'), src.indexOf('function openAddMenu'));
     assert.match(showBody, /if \(!name\) return false/);
     const submit = persistSlice(src);
-    assert.match(submit, /shouldShowCreateRow\(stagedName, allTemplates\)/);
+    assert.doesNotMatch(submit, /createFamilyActivity/);
+    assert.match(submit, /findExactActivityMatch\(allTemplates, stagedName\)/);
   });
 
-  it('inline create: create failure does not apply; apply failure keeps id for retry', () => {
+  it('a new name is not applied from the schedule; apply failure stays on the dialog', () => {
     const src = read(MODULE);
     const submit = persistSlice(src);
     const beforeApply = submit.slice(0, submit.indexOf('ScheduleApplyClient.applyActivity'));
-    assert.match(beforeApply, /if \(!created\.ok \|\| !created\.data\.id\)/);
+    assert.match(beforeApply, /activity\.selectActivityFirst/);
     assert.match(beforeApply, /return \{ ok: false \}/);
-    assert.match(submit, /snapshot\.createdUnappliedId = templateId/);
+    assert.doesNotMatch(beforeApply, /createFamilyActivity/);
     assert.match(submit, /activity\.applyFailed/);
     const afterFail = submit.slice(submit.indexOf('if (!ok)'), submit.indexOf('resetActivityForNextEntry()'));
     assert.match(afterFail, /return \{ ok: false \}/);
     assert.doesNotMatch(afterFail, /resetActivityForNextEntry\(\)/);
-    assert.doesNotMatch(afterFail, /createdUnappliedId = null/);
-    const createGuard = submit.slice(0, submit.indexOf('createFamilyActivity'));
-    assert.match(createGuard, /createdUnappliedId/);
     assert.doesNotMatch(src, /DELETE \/api\/activities/);
+    assert.doesNotMatch(src, /function createFamilyActivity/);
   });
 
   it('inline create: existing add-activity path still applies selected templates', () => {
@@ -308,7 +315,8 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(src, /ScheduleApplyClient\.applyActivity\(currentChildId/);
     assert.match(src, /activity\.added/);
     const submit = persistSlice(src);
-    assert.match(submit, /createdThisSave \? 'schedule\.addMenu\.activity\.createdAndAdded' : 'schedule\.addMenu\.activity\.added'/);
+    assert.match(submit, /const toastKey = 'schedule\.addMenu\.activity\.added'/);
+    assert.doesNotMatch(submit, /createdAndAdded/);
   });
 
   it('inline create: Copy Day path is unchanged and does not create activities', () => {
@@ -485,6 +493,7 @@ function createRapidEntrySandbox(opts = {}) {
   const byId = new Map();
   const toasts = [];
   const activityPosts = [];
+  const assigned = [];
   const applyCalls = [];
   const copyDayCalls = [];
   const templateCalls = [];
@@ -603,7 +612,13 @@ function createRapidEntrySandbox(opts = {}) {
         return `op-${uuidSeq}`;
       },
     },
+    URLSearchParams,
     window: null,
+    location: {
+      pathname: '/schedule',
+      search: '',
+      assign(url) { assigned.push(String(url)); },
+    },
     document,
     ScheduleCore: {
       SECTIONS: [
@@ -676,6 +691,7 @@ function createRapidEntrySandbox(opts = {}) {
     sandbox,
     toasts,
     activityPosts,
+    assigned,
     applyCalls,
     copyDayCalls,
     templateCalls,
@@ -744,26 +760,31 @@ describe('Rapid Entry — executable Activity submit', () => {
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.filterActivity('Läkemedel');
     ScheduleAddMenu.selectPendingCreate();
-    await ScheduleAddMenu.submitActivity();
-    assert.equal(harness.applyCalls.length, 2);
-    assert.equal(harness.modalHidden(), true);
-    assert.equal(harness.sandbox.scheduleReloads, 2);
+    assert.equal(harness.assigned.length, 1);
+    assert.match(harness.assigned[0], /\/library\?/);
+    assert.match(harness.assigned[0], /new=1/);
+    assert.match(harness.assigned[0], /name=L%C3%A4kemedel/);
+    assert.match(harness.assigned[0], /#activities$/);
+    const ret = new URL(harness.assigned[0], 'https://app.local').searchParams.get('return');
+    assert.equal(ret, '/schedule?child=child-a&day=5');
+    assert.equal(harness.activityPosts.length, 0);
+    assert.equal(harness.applyCalls.length, 1);
+    assert.equal(harness.sandbox.scheduleReloads, 1);
   });
 
-  it('creates a new activity once, applies once, and starts the next entry empty', async () => {
+  it('opens the library editor for a new name and does not post a template', async () => {
     const harness = createRapidEntrySandbox({ templates: [] });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.filterActivity('Läkemedel');
     ScheduleAddMenu.selectPendingCreate();
-    await ScheduleAddMenu.submitActivity();
 
-    assert.equal(harness.activityPosts.length, 1);
-    assert.equal(harness.activityPosts[0].name, 'Läkemedel');
-    assert.equal(harness.applyCalls.length, 1);
-    assert.equal(harness.applyCalls[0].payload.activityTemplateId, 'created-1');
-    assert.equal(harness.modalHidden(), true);
-    assert.match(harness.toasts[0].msg, /createdAndAdded/);
+    assert.equal(harness.activityPosts.length, 0);
+    assert.equal(harness.applyCalls.length, 0);
+    assert.equal(harness.assigned.length, 1);
+    const ret = new URL(harness.assigned[0], 'https://app.local').searchParams.get('return');
+    assert.equal(ret, '/schedule?child=child-a&day=5');
+    assert.equal(harness.toasts.length, 0);
   });
 
   it('resets opTracker so a second save of the same activity is a new apply, not a silent no-op', async () => {
@@ -783,19 +804,18 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.notEqual(secondOp, firstOp);
   });
 
-  it('coalesces a rapid double tap on Save — one create and one apply', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], holdApply: true });
+  it('coalesces a rapid double tap on Save — one apply and no create', async () => {
+    const harness = createRapidEntrySandbox({ holdApply: true });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
-    ScheduleAddMenu.filterActivity('Pyjamas');
-    ScheduleAddMenu.selectPendingCreate();
+    ScheduleAddMenu.selectActivity('tpl-middag');
 
     const first = ScheduleAddMenu.submitActivity();
     for (let i = 0; i < 20 && harness.applyCalls.length === 0; i += 1) {
       await new Promise((resolve) => { setImmediate(resolve); });
     }
     const second = ScheduleAddMenu.submitActivity();
-    assert.equal(harness.activityPosts.length, 1);
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, true);
     assert.match(harness.sandbox.document.getElementById('samActivitySaveBtn').textContent, /saving/i);
@@ -803,45 +823,43 @@ describe('Rapid Entry — executable Activity submit', () => {
     harness.pendingApplies.forEach((release) => release());
     await first;
     await second;
-    assert.equal(harness.activityPosts.length, 1);
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, false);
   });
 
-  it('preserves typed state and skips apply when create fails', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], createError: true });
+  it('preserves typed state and skips apply when the name is not a saved activity', async () => {
+    const harness = createRapidEntrySandbox({ templates: [] });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.filterActivity('Kroppssmörjning');
-    ScheduleAddMenu.selectPendingCreate();
     await ScheduleAddMenu.submitActivity();
 
-    assert.equal(harness.activityPosts.length, 1);
+    assert.equal(harness.activityPosts.length, 0);
+    assert.equal(harness.assigned.length, 0);
     assert.equal(harness.applyCalls.length, 0);
     assert.equal(harness.modalHidden(), false);
     assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, 'Kroppssmörjning');
-    assert.match(harness.sandbox.document.getElementById('samActivityError').textContent, /create-failed|createFailed/);
+    assert.match(harness.sandbox.document.getElementById('samActivityError').textContent, /selectActivityFirst/);
     assert.equal(harness.toasts.length, 0);
   });
 
-  it('keeps the created id after apply failure and reuses it on retry', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], applyError: true, applyErrorUntil: 1 });
+  it('retries the same existing activity after apply failure', async () => {
+    const harness = createRapidEntrySandbox({ applyError: true, applyErrorUntil: 1 });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
-    ScheduleAddMenu.filterActivity('Borsta tänderna');
-    ScheduleAddMenu.selectPendingCreate();
+    ScheduleAddMenu.selectActivity('tpl-middag');
     await ScheduleAddMenu.submitActivity();
 
-    assert.equal(harness.activityPosts.length, 1);
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.modalHidden(), false);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, 'Borsta tänderna');
     assert.equal(harness.toasts.length, 0);
 
     await ScheduleAddMenu.submitActivity();
-    assert.equal(harness.activityPosts.length, 1, 'retry must not create a second template');
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 2);
-    assert.equal(harness.applyCalls[1].payload.activityTemplateId, 'created-1');
+    assert.equal(harness.applyCalls[1].payload.activityTemplateId, 'tpl-middag');
     assert.equal(harness.applyCalls[0].payload.operationId, harness.applyCalls[1].payload.operationId,
       'failed apply keeps the same operation id for idempotent retry');
     assert.equal(harness.modalHidden(), true);
@@ -902,25 +920,27 @@ async function pumpHeldApplies(harness) {
   }
 }
 
-async function submitNamedCreate(ScheduleAddMenu, name) {
-  ScheduleAddMenu.filterActivity(name);
-  ScheduleAddMenu.selectPendingCreate();
-  return ScheduleAddMenu.submitActivity();
-}
-
 describe('Rapid Entry — overlapping Save contract', () => {
-  it('queues a second distinct Save before the first response returns', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], holdApply: true });
+  it('queues a second distinct existing activity before the first response returns', async () => {
+    const harness = createRapidEntrySandbox({
+      templates: [
+        { id: 'tpl-middag', name: 'Middag' },
+        { id: 'tpl-frukost', name: 'Frukost' },
+      ],
+      holdApply: true,
+    });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    const first = submitNamedCreate(ScheduleAddMenu, 'Vakna');
+    ScheduleAddMenu.selectActivity('tpl-middag');
+    const first = ScheduleAddMenu.submitActivity();
     for (let i = 0; i < 20 && harness.applyCalls.length === 0; i += 1) {
       await new Promise((resolve) => { setImmediate(resolve); });
     }
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, true);
 
-    const second = submitNamedCreate(ScheduleAddMenu, 'Äta frukost');
-    assert.equal(harness.activityPosts.length, 1, 'second Save is queued, not dropped');
+    ScheduleAddMenu.selectActivity('tpl-frukost');
+    const second = ScheduleAddMenu.submitActivity();
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     const note = harness.sandbox.document.getElementById('samActivityQueueNote');
     assert.equal(note.classList.contains('hidden'), false);
@@ -928,42 +948,32 @@ describe('Rapid Entry — overlapping Save contract', () => {
 
     const pump = pumpHeldApplies(harness);
     await Promise.all([first, second, pump]);
-    assert.equal(harness.activityPosts.length, 2);
+    assert.equal(harness.activityPosts.length, 0);
     assert.equal(harness.applyCalls.length, 2);
-    assert.deepEqual(harness.activityPosts.map((row) => row.name), ['Vakna', 'Äta frukost']);
     assert.notEqual(harness.applyCalls[0].payload.activityTemplateId, harness.applyCalls[1].payload.activityTemplateId);
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, false);
     assert.equal(harness.modalHidden(), true);
   });
 
-  it('lands six sequential overlapping activities exactly once', async () => {
-    const names = ['Vakna', 'Gå på toaletten', 'Klä på sig', 'Äta frukost', 'Borsta tänderna', 'Packa väskan'];
+  it('opening create for several new names never posts a template', async () => {
+    const names = ['Vakna', 'Gå på toaletten', 'Klä på sig', 'Äta frukost', 'Borsta tänderna', 'Packa väskan', 'Ta medicin', 'Gå hemifrån'];
     const harness = createRapidEntrySandbox({ templates: [] });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    const pending = names.map((name) => submitNamedCreate(ScheduleAddMenu, name));
-    await Promise.all(pending);
-    assert.equal(harness.activityPosts.length, 6);
-    assert.equal(harness.applyCalls.length, 6);
-    assert.deepEqual(harness.activityPosts.map((row) => row.name), names);
-    assert.equal(new Set(harness.applyCalls.map((c) => c.payload.activityTemplateId)).size, 6);
-  });
-
-  it('lands eight sequential overlapping morning activities exactly once', async () => {
-    const names = [
-      'Vakna', 'Gå på toaletten', 'Klä på sig', 'Äta frukost',
-      'Borsta tänderna', 'Packa väskan', 'Ta medicin', 'Gå hemifrån',
-    ];
-    const harness = createRapidEntrySandbox({ templates: [] });
-    const { ScheduleAddMenu } = harness.sandbox;
-    await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    const pending = names.map((name) => submitNamedCreate(ScheduleAddMenu, name));
-    await Promise.all(pending);
-    assert.equal(harness.activityPosts.length, 8, 'zero duplicate activity_templates');
-    assert.equal(harness.applyCalls.length, 8, 'zero duplicate schedule rows');
-    assert.deepEqual(harness.activityPosts.map((row) => row.name), names);
-    assert.equal(new Set(harness.applyCalls.map((c) => c.payload.activityTemplateId)).size, 8);
-    assert.equal(harness.modalHidden(), true);
+    names.forEach((name) => {
+      ScheduleAddMenu.filterActivity(name);
+      ScheduleAddMenu.selectPendingCreate();
+    });
+    assert.equal(harness.activityPosts.length, 0);
+    assert.equal(harness.applyCalls.length, 0);
+    assert.equal(harness.assigned.length, names.length);
+    harness.assigned.forEach((url) => {
+      assert.match(url, /\/library\?/);
+      assert.match(url, /new=1/);
+      assert.match(url, /#activities$/);
+      const ret = new URL(url, 'https://app.local').searchParams.get('return');
+      assert.equal(ret, '/schedule?child=child-a&day=1');
+    });
   });
 
   it('reuses a seed-name template after refreshing an empty catalog — no duplicate create', async () => {
@@ -978,9 +988,11 @@ describe('Rapid Entry — overlapping Save contract', () => {
     harness.sandbox.window.loadTemplates = harness.sandbox.loadTemplates;
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    await submitNamedCreate(ScheduleAddMenu, 'Borsta tänderna');
+    ScheduleAddMenu.filterActivity('Borsta tänderna');
+    await ScheduleAddMenu.submitActivity();
     assert.equal(loads >= 2, true);
     assert.equal(harness.activityPosts.length, 0, 'zero duplicate activity_templates');
+    assert.equal(harness.assigned.length, 0);
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.applyCalls[0].payload.activityTemplateId, 'tpl-brush');
   });
@@ -996,29 +1008,17 @@ describe('Rapid Entry — overlapping Save contract', () => {
     assert.equal(harness.applyCalls[0].payload.activityTemplateId, 'tpl-middag');
   });
 
-  it('retries attach after create succeeded and apply failed — no duplicate template', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], applyError: true, applyErrorUntil: 1 });
+  it('Save of an unmatched name does not apply and is not a silent drop', async () => {
+    const harness = createRapidEntrySandbox({ templates: [] });
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    await submitNamedCreate(ScheduleAddMenu, 'Packa väskan');
-    assert.equal(harness.activityPosts.length, 1);
-    assert.equal(harness.applyCalls.length, 1);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, 'Packa väskan');
+    ScheduleAddMenu.filterActivity('Ta medicin');
     await ScheduleAddMenu.submitActivity();
-    assert.equal(harness.activityPosts.length, 1);
-    assert.equal(harness.applyCalls.length, 2);
-    assert.equal(harness.applyCalls[1].payload.activityTemplateId, 'created-1');
-  });
-
-  it('API failure before template creation does not apply and is not a silent drop', async () => {
-    const harness = createRapidEntrySandbox({ templates: [], createThrow: true });
-    const { ScheduleAddMenu } = harness.sandbox;
-    await ScheduleAddMenu.openActivityForDay(1, 'morgon');
-    await submitNamedCreate(ScheduleAddMenu, 'Ta medicin');
-    assert.equal(harness.activityPosts.length, 1);
+    assert.equal(harness.activityPosts.length, 0);
+    assert.equal(harness.assigned.length, 0);
     assert.equal(harness.applyCalls.length, 0);
     assert.equal(harness.modalHidden(), false);
-    assert.match(harness.sandbox.document.getElementById('samActivityError').textContent, /createFailed/);
+    assert.match(harness.sandbox.document.getElementById('samActivityError').textContent, /selectActivityFirst/);
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, false);
   });
 

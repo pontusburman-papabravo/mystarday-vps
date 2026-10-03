@@ -693,7 +693,7 @@
       "pickTime": "Tid (valfritt)",
       "selectActivityFirst": "Välj en aktivitet eller skapa en ny",
       "createFromSearch": "+ Skapa \"{{name}}\"",
-      "libraryAutoSaveNote": "Nya aktiviteter sparas automatiskt så att du kan använda dem igen.",
+      "libraryAutoSaveNote": "Namnet öppnas i Biblioteket. När du sparar kommer du tillbaka hit.",
       "noneFound": "Ingen aktivitet matchar. Skapa en ny.",
       "noneYet": "Sök eller skriv ett namn för att skapa.",
       "createFailed": "Kunde inte skapa aktiviteten. Försök igen.",

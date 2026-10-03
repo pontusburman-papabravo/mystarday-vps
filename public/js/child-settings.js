@@ -447,7 +447,7 @@ async function loadRewards() {
       return r && r.is_active !== false;
     });
     if (rewardsData.length === 0) {
-      container.innerHTML = '<p class="text-sm text-text-soft italic">' + cst('family.childSettings.emptyRewards') + ' <a href="/library" class="text-gold underline">' + cst('family.childSettings.createInLibrary') + '</a></p>';
+      container.innerHTML = '<p class="text-sm text-text-soft italic">' + cst('family.childSettings.emptyRewards') + ' <a href="/rewards?child=' + encodeURIComponent(childId) + '" class="text-gold underline">' + cst('family.childSettings.createInLibrary') + '</a></p>';
       return;
     }
     container.innerHTML = rewardsData.map(r => {
@@ -705,7 +705,7 @@ function renderPage(child) {
     <div id="rewardsList">
       <p class="text-sm text-text-soft italic">${cst('family.childProfile.setup.moodRewards.loadingRewards')}</p>
     </div>
-    <a href="/library" class="block mt-4 text-center text-xs text-gold hover:underline">
+    <a href="/rewards?child=${encodeURIComponent(childId)}" class="block mt-4 text-center text-xs text-gold hover:underline">
       ${cst('family.childSettings.createMoreRewards')}
     </a>
   </div>

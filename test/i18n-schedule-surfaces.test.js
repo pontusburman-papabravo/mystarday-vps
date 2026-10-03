@@ -70,11 +70,11 @@ describe('schedule/planning i18n surfaces', () => {
   it('planner inline create keys exist in sv-SE and en-GB', () => {
     assert.equal(
       t('sv-SE', 'schedule.addMenu.activity.libraryAutoSaveNote'),
-      'Nya aktiviteter sparas automatiskt så att du kan använda dem igen.'
+      'Namnet öppnas i Biblioteket. När du sparar kommer du tillbaka hit.'
     );
     assert.equal(
       t('en-GB', 'schedule.addMenu.activity.libraryAutoSaveNote'),
-      'New activities are saved automatically so you can use them again.'
+      'The name opens in the Library. After you save, you come back here.'
     );
     assert.equal(t('sv-SE', 'schedule.addMenu.activity.createFromSearch', { name: 'Läkemedel' }), '+ Skapa "Läkemedel"');
     assert.equal(t('en-GB', 'schedule.addMenu.activity.createFromSearch', { name: 'Medicine' }), '+ Create "Medicine"');

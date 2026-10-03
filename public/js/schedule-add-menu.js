@@ -2,15 +2,14 @@
  * "+ Lägg till" — Phase 1B primary Weekly Schedule action (Aktivitet / Från mall / Kopiera dag)
  * plus the "Spara dagen som mall" day action.
  *
- * Planner inline create v1 + Rapid Entry: Aktivitet can select an existing family activity
- * or stage a new name (`+ Skapa "<namn>"`). Creation is delayed until final Save
- * (`POST /api/activities`), then the existing apply-activity path runs. Retry after
- * apply-failure reuses the created id. Overlapping Save taps never silently drop: a
- * duplicate tap coalesces, a distinct next name is queued and persisted, Save stays
+ * "+ Skapa" opens the library activity editor and returns to this day. The schedule
+ * does not mint activity templates. Picking an existing activity and Save still applies
+ * it here, including an exact name match. Rapid Entry of existing activities stays:
+ * overlapping Save taps coalesce, a distinct next activity can queue, Save stays
  * visibly disabled while in flight, and failures stay explicit. A normal Save closes the
- * dialog and refreshes the day list. The dialog stays open for another name only when the
- * parent chooses "Lägg till en till" (days/section/time preserved). Template and Copy Day
- * still close on success — do not change closeAddMenu() globally.
+ * dialog and refreshes the day list. The dialog stays open for another existing activity
+ * only when the parent chooses "Lägg till en till" (days/section/time preserved).
+ * Template and Copy Day still close on success — do not change closeAddMenu() globally.
  *
  * Reads globals from schedule.js (currentChildId, currentDay, allTemplates, loadTemplates,
  * loadScheduleForDay) the same way schedule-special-days.js / schedule-activity-modals.js do —
@@ -170,12 +169,6 @@
     return !findExactActivityMatch(templates, name);
   }
 
-  function timeGroupFromSection(section) {
-    if (section === 'kvall' || section === 'natt') return 'kvall';
-    if (section === 'morgon') return 'morgon';
-    return 'formiddag';
-  }
-
   // ── Entry menu ───────────────────────────────────────────────────────────
 
   function openAddMenu() {
@@ -311,9 +304,6 @@
     startTime: '',
     endTime: '',
     query: '',
-    pendingNewName: '',
-    createdUnappliedId: null,
-    createdUnappliedName: '',
     dayKnown: false,
     sectionKnown: false,
     editContext: false,
@@ -321,9 +311,6 @@
 
   function resetActivityCreateState() {
     activityState.templateId = null;
-    activityState.pendingNewName = '';
-    activityState.createdUnappliedId = null;
-    activityState.createdUnappliedName = '';
   }
 
   function resetActivityForNextEntry() {
@@ -422,8 +409,6 @@
   function renderActivityPicker(templates, filtered) {
     const showCreate = shouldShowCreateRow(activityState.query, templates);
     const createName = normalizeActivityName(activityState.query);
-    const pendingSelected = Boolean(activityState.pendingNewName)
-      && activityNameKey(activityState.pendingNewName) === activityNameKey(createName);
     const emptyCopy = createName
       ? t('schedule.addMenu.activity.noneFound')
       : t('schedule.addMenu.activity.noneYet');
@@ -434,7 +419,7 @@
         class="${TOUCH_BTN} w-full px-3 py-2 border-2 border-lavender rounded-xl text-sm mb-2" oninput="ScheduleAddMenu.filterActivity(this.value)" />
       ${showCreate ? `
         <button type="button" onclick="ScheduleAddMenu.selectPendingCreate()"
-          class="${TOUCH_BTN} w-full mb-2 px-4 py-3 rounded-2xl border-2 text-left font-semibold text-sm ${pendingSelected ? 'border-gold bg-gold text-navy' : 'border-gold bg-white text-navy'}">
+          class="${TOUCH_BTN} w-full mb-2 px-4 py-3 rounded-2xl border-2 border-gold bg-white text-left font-semibold text-sm text-navy">
           ${t('schedule.addMenu.activity.createFromSearch', { name: escHtml(createName) })}
         </button>
         <p class="text-xs text-text-soft mb-3">${t('schedule.addMenu.activity.libraryAutoSaveNote')}</p>` : ''}
@@ -561,50 +546,39 @@
   function filterActivity(q) {
     activityState.query = q;
     const match = findExactActivityMatch(allTemplates, q);
-    if (match) {
-      activityState.templateId = match.id;
-      activityState.pendingNewName = '';
-      if (activityState.createdUnappliedId && activityState.createdUnappliedId !== match.id) {
-        activityState.createdUnappliedId = null;
-        activityState.createdUnappliedName = '';
-      }
-    } else {
-      activityState.templateId = null;
-      if (activityState.pendingNewName
-        && activityNameKey(activityState.pendingNewName) !== activityNameKey(q)) {
-        activityState.pendingNewName = '';
-      }
-      if (activityState.createdUnappliedName
-        && activityNameKey(activityState.createdUnappliedName) !== activityNameKey(q)) {
-        activityState.createdUnappliedId = null;
-        activityState.createdUnappliedName = '';
-      }
-    }
+    activityState.templateId = match ? match.id : null;
     renderActivityStep();
     restoreSearchFocus();
   }
 
   function selectActivity(id) {
     activityState.templateId = id;
-    activityState.pendingNewName = '';
-    if (activityState.createdUnappliedId && activityState.createdUnappliedId !== id) {
-      activityState.createdUnappliedId = null;
-      activityState.createdUnappliedName = '';
-    }
     renderActivityStep();
+  }
+
+  function scheduleReturnPath() {
+    const back = new URLSearchParams(window.location.search || '');
+    if (typeof currentChildId === 'string' && currentChildId && !back.get('child')) {
+      back.set('child', currentChildId);
+    }
+    let day = null;
+    if (activityState.days && activityState.days.size === 1) day = [...activityState.days][0];
+    else if (typeof currentDay === 'number') day = currentDay;
+    if (day != null && back.get('day') == null) back.set('day', String(day));
+    const path = (window.location.pathname || '/schedule') + (back.toString() ? '?' + back.toString() : '');
+    if (!path.startsWith('/schedule') || path.indexOf('://') !== -1 || path.indexOf('\\') !== -1 || path.indexOf('#') !== -1) return '';
+    return path;
   }
 
   function selectPendingCreate() {
     const name = normalizeActivityName(activityState.query);
     if (!shouldShowCreateRow(name, allTemplates)) return;
-    activityState.pendingNewName = name;
-    activityState.templateId = null;
-    if (activityState.createdUnappliedName
-      && activityNameKey(activityState.createdUnappliedName) !== activityNameKey(name)) {
-      activityState.createdUnappliedId = null;
-      activityState.createdUnappliedName = '';
-    }
-    renderActivityStep();
+    const params = new URLSearchParams();
+    params.set('new', '1');
+    params.set('name', name);
+    const ret = scheduleReturnPath();
+    if (ret) params.set('return', ret);
+    window.location.assign('/library?' + params.toString() + '#activities');
   }
 
   function selectActivitySection(key) { activityState.section = key; renderActivityStep(); }
@@ -622,34 +596,15 @@
     renderActivityStep();
   }
 
-  async function createFamilyActivity(name, section) {
-    const res = await window.apiFetch('/api/activities', {
-      method: 'POST',
-      body: JSON.stringify({
-        name,
-        icon: '📌',
-        star_value: 1,
-        is_favorite: false,
-        feedback_for: 'both',
-        time_group: timeGroupFromSection(section != null ? section : activityState.section),
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    return { ok: res.ok, data };
-  }
-
   function stagedNameFromSnapshot(snapshot) {
     if (!snapshot) return '';
-    return snapshot.pendingNewName || normalizeActivityName(snapshot.query);
+    return normalizeActivityName(snapshot.query);
   }
 
   function captureActivitySnapshot() {
     return {
       query: activityState.query,
       templateId: activityState.templateId,
-      pendingNewName: activityState.pendingNewName,
-      createdUnappliedId: activityState.createdUnappliedId,
-      createdUnappliedName: activityState.createdUnappliedName,
       days: new Set(activityState.days),
       section: activityState.section,
       startTime: activityState.startTime,
@@ -660,6 +615,7 @@
   function activityIntentKey(snapshot) {
     const days = [...(snapshot.days || [])].map(Number).sort((a, b) => a - b).join(',');
     return [
+      snapshot.templateId || '',
       activityNameKey(stagedNameFromSnapshot(snapshot)),
       days,
       snapshot.section || '',
@@ -675,9 +631,6 @@
   function restoreSnapshotToForm(snapshot) {
     activityState.query = snapshot.query;
     activityState.templateId = snapshot.templateId;
-    activityState.pendingNewName = snapshot.pendingNewName;
-    activityState.createdUnappliedId = snapshot.createdUnappliedId;
-    activityState.createdUnappliedName = snapshot.createdUnappliedName;
     activityState.days = new Set(snapshot.days);
     activityState.section = snapshot.section;
     activityState.startTime = snapshot.startTime;
@@ -709,9 +662,8 @@
 
   /**
    * Persist one captured Save. Uses the snapshot, not live form fields, so a queued
-   * next name cannot mutate an in-flight create/apply. Create-then-apply is retryable:
-   * a successful create stores createdUnappliedId on the snapshot so attach retry
-   * never duplicates the template.
+   * next activity cannot mutate an in-flight apply. New names are not created here;
+   * "+ Skapa" opens the library editor instead.
    */
   async function persistActivitySnapshot(snapshot) {
     const errEl = document.getElementById('samActivityError');
@@ -729,9 +681,7 @@
       return { ok: false };
     }
 
-    let templateId = snapshot.createdUnappliedId || snapshot.templateId;
-    let displayName = snapshot.createdUnappliedName || '';
-    let createdThisSave = false;
+    let templateId = snapshot.templateId;
     const stagedName = stagedNameFromSnapshot(snapshot);
 
     if (!templateId) {
@@ -743,37 +693,6 @@
       if (exact) {
         templateId = exact.id;
         snapshot.templateId = exact.id;
-        snapshot.pendingNewName = '';
-      }
-    }
-
-    if (!templateId && shouldShowCreateRow(stagedName, allTemplates)) {
-      let created;
-      try {
-        created = await createFamilyActivity(stagedName, snapshot.section);
-      } catch (_err) {
-        if (errEl) {
-          errEl.textContent = t('schedule.addMenu.activity.createFailed');
-          errEl.classList.remove('hidden');
-        }
-        return { ok: false };
-      }
-      if (!created.ok || !created.data.id) {
-        if (errEl) {
-          errEl.textContent = (created.data && created.data.error) || t('schedule.addMenu.activity.createFailed');
-          errEl.classList.remove('hidden');
-        }
-        return { ok: false };
-      }
-      templateId = created.data.id;
-      displayName = created.data.name || stagedName;
-      createdThisSave = true;
-      snapshot.createdUnappliedId = templateId;
-      snapshot.createdUnappliedName = displayName;
-      snapshot.templateId = templateId;
-      snapshot.pendingNewName = '';
-      if (typeof window.loadTemplates === 'function') {
-        try { await loadTemplates(); } catch (_refreshErr) { /* apply still uses created id */ }
       }
     }
 
@@ -813,8 +732,8 @@
     }
 
     const tpl = (allTemplates || []).find((x) => x.id === templateId);
-    const name = displayName || (tpl ? tpl.name : '');
-    const toastKey = createdThisSave ? 'schedule.addMenu.activity.createdAndAdded' : 'schedule.addMenu.activity.added';
+    const name = tpl ? tpl.name : stagedName;
+    const toastKey = 'schedule.addMenu.activity.added';
     const successMsg = t(toastKey, { name, count: days.length });
     showToast(successMsg);
     const statusEl = document.getElementById('samActivityStatus');
