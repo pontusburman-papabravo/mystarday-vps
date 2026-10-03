@@ -65,9 +65,11 @@ describe('A4+D1 rewards hub + library editor', () => {
     assert.match(hub, /data-reward-child/);
     const magic = read('public/js/library-magic-hub.js');
     assert.match(magic, /hash === 'rewards' \|\| hash === 'magic-rewards'/);
-    assert.match(magic, /location\.replace\('\/rewards'\)/);
+    assert.match(magic, /function rewardsCanonicalHref/);
+    assert.match(magic, /encodeURIComponent\(child\)/);
+    assert.match(magic, /location\.replace\(rewardsCanonicalHref\(\)\)/);
     assert.match(magic, /key === 'rewards'/);
-    assert.match(magic, /location\.assign\('\/rewards'\)/);
+    assert.match(magic, /location\.assign\(rewardsCanonicalHref\(\)\)/);
   });
 
   it('assignment UIs drop inactive rewards so delete is not stale', () => {

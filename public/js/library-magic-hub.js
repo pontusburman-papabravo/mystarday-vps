@@ -352,9 +352,14 @@
     }
   }
 
+  function rewardsCanonicalHref() {
+    const child = new URLSearchParams(window.location.search).get('child');
+    return '/rewards' + (child ? '?child=' + encodeURIComponent(child) : '');
+  }
+
   function openSection(key, fromSearch) {
     if (key === 'rewards') {
-      window.location.assign('/rewards');
+      window.location.assign(rewardsCanonicalHref());
       return;
     }
     closeLibraryModals();
@@ -450,7 +455,7 @@
       return;
     }
     if (hash === 'rewards' || hash === 'magic-rewards') {
-      window.location.replace('/rewards');
+      window.location.replace(rewardsCanonicalHref());
       return;
     }
     if (hash.indexOf('magic-') === 0) {
