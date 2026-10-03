@@ -51,14 +51,20 @@
     return n;
   }
 
+  const KEYBOARD_CHROME_INSET_PX = 120;
+
   function syncKeyboardInset() {
     let inset = 0;
     const vv = window.visualViewport;
     if (vv && typeof window.innerHeight === 'number') {
       inset = Math.max(0, Math.round(window.innerHeight - vv.height - (vv.offsetTop || 0)));
     }
-    if (document.documentElement && document.documentElement.style) {
-      document.documentElement.style.setProperty('--overlay-keyboard-inset', inset + 'px');
+    const root = document.documentElement;
+    if (root && root.style && typeof root.style.setProperty === 'function') {
+      root.style.setProperty('--overlay-keyboard-inset', inset + 'px');
+    }
+    if (root && root.classList) {
+      root.classList.toggle('keyboard-open', inset >= KEYBOARD_CHROME_INSET_PX);
     }
     return inset;
   }

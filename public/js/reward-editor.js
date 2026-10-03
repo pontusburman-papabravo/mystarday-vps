@@ -69,13 +69,20 @@
   let _rewardsReady = false;
   let _rewardSortable = null;
   let _rewardSearchStandardLoaded = false;
+  let _searchGen = 0;
   let _standardRewardsFlat = [];
   let _confirmCallback = null;
 
   function showLoadError(message) {
     const el = document.getElementById('rewardsContainer');
     if (!el) return;
-    el.innerHTML = '<div class="text-center py-8 text-text-soft"><p class="text-sm">' + escHtml(message) + '</p></div>';
+    if (el.dataset) el.dataset.rewardsState = 'error';
+    el.innerHTML =
+      '<div class="text-center py-8 text-text-soft" role="alert">' +
+      '<p class="text-sm mb-4">' + escHtml(message) + '</p>' +
+      '<button type="button" onclick="RewardEditor.reload()" class="px-5 py-2.5 min-h-[44px] bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold">' +
+      lpt('library.rewardsHub.retry') +
+      '</button></div>';
   }
 
   function activeChildFilter() {
@@ -248,6 +255,7 @@
     const childId = activeChildFilter();
     const visible = rewards.filter(function (reward) { return rewardMatchesChild(reward, childId); });
     if (visible.length === 0) {
+      if (container.dataset) container.dataset.rewardsState = 'empty';
       container.innerHTML =
         '<div class="text-center py-12 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">' +
         '<p class="text-4xl mb-3">🏆</p>' +
@@ -258,26 +266,38 @@
         '</button></div>';
       return;
     }
+    if (container.dataset) container.dataset.rewardsState = 'ready';
     container.innerHTML = '<div class="space-y-2" id="rewardsSortableList">' + visible.map(renderRewardItem).join('') + '</div>';
     initRewardsDnD();
   }
 
+  let _loadPromise = null;
+
   async function loadRewards() {
-    try {
-      const res = await window.apiFetch('/api/rewards');
-      if (res.ok) {
+    if (_loadPromise) return _loadPromise;
+    const run = (async function () {
+      try {
+        const res = await window.apiFetch('/api/rewards');
+        if (!res.ok) {
+          _rewardsReady = false;
+          showLoadError(lpt('library.errors.loadRewards'));
+          return;
+        }
         const data = await res.json();
-        rewards = data.rewards || [];
-        rewardChildren = data.children || [];
+        rewards = data && Array.isArray(data.rewards) ? data.rewards : [];
+        rewardChildren = data && Array.isArray(data.children) ? data.children : [];
         _rewardsReady = true;
         renderRewards();
-        return;
+      } catch (err) {
+        _rewardsReady = false;
+        console.error('[REWARDS] loadRewards failed:', err);
+        showLoadError(lpt('library.errors.loadRewards'));
       }
-      showLoadError(lpt('library.errors.loadRewards'));
-    } catch (err) {
-      console.error('[REWARDS] loadRewards failed:', err);
-      showLoadError(lpt('library.errors.loadRewards'));
-    }
+    })();
+    _loadPromise = run.finally(function () {
+      _loadPromise = null;
+    });
+    return _loadPromise;
   }
 
   function openRewardModalById(id) {
@@ -435,19 +455,23 @@
   }
 
   async function onRewardSearch(query) {
+    const gen = ++_searchGen;
     const resultsEl = document.getElementById('rewardSearchResults');
     const containerEl = document.getElementById('rewardsContainer');
     if (!resultsEl || !containerEl) return;
-    if (!query.trim()) {
+    if (!String(query || '').trim()) {
       resultsEl.classList.add('hidden');
       resultsEl.innerHTML = '';
+      if (resultsEl.dataset) resultsEl.dataset.searchState = 'idle';
       containerEl.classList.remove('hidden');
       return;
     }
     containerEl.classList.add('hidden');
     resultsEl.classList.remove('hidden');
+    if (resultsEl.dataset) resultsEl.dataset.searchState = 'searching';
     resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">' + lpt('library.searching') + '</div>';
     await ensureStandardRewardsLoaded();
+    if (gen !== _searchGen) return;
     const q = query.toLowerCase();
     const childId = activeChildFilter();
     const ownMatches = rewards.filter(function (r) {
@@ -458,6 +482,7 @@
       return r.name && r.name.toLowerCase().includes(q) && !ownNames.has(r.name.toLowerCase());
     });
     if (ownMatches.length === 0 && standardMatches.length === 0) {
+      if (resultsEl.dataset) resultsEl.dataset.searchState = 'empty';
       resultsEl.innerHTML =
         '<div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">' +
         '<p class="text-3xl mb-2">🔍</p>' +
@@ -489,6 +514,7 @@
           '<button type="button" onclick="copyStandardRewardToLibrary(' + JSON.stringify(r).replace(/'/g, "\\'") + ')" class="px-3 py-1.5 min-h-[44px] bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 ' + lpt('library.actions.copy') + '</button></div>';
       }).join('');
     }
+    if (resultsEl.dataset) resultsEl.dataset.searchState = 'results';
     resultsEl.innerHTML = html;
   }
 
@@ -518,7 +544,7 @@
   }
 
   function refresh() {
-    if (!_rewardsReady) return;
+    if (!_rewardsReady) return loadRewards();
     renderRewards();
   }
 
@@ -544,7 +570,14 @@
   window.closeRewardConfirmModal = closeConfirmModal;
   window.confirmRewardAction = confirmRewardAction;
 
+  let _booted = false;
+
   function boot() {
+    if (_booted) {
+      if (_rewardsReady) renderRewards();
+      return;
+    }
+    _booted = true;
     buildRewardIconPicker();
     setApproval(true);
     const modal = document.getElementById('rewardModal');
@@ -563,8 +596,6 @@
   }
 
   document.addEventListener('parent-i18n-ready', boot);
-  if (!(document.body && document.body.dataset.i18nManualInit === 'true')) {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-    else boot();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();

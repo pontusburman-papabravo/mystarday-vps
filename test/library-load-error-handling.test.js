@@ -178,7 +178,7 @@ describe('name-only activity draft', () => {
     assert.equal(harness.fetches[0].url, '/api/activities');
     assert.equal(JSON.parse(harness.fetches[0].body).star_value, 1);
     assert.equal(JSON.parse(harness.fetches[0].body).name, 'X');
-    assert.deepEqual(harness.assigned, [RETURN_URL]);
+    assert.deepEqual(harness.assigned, [RETURN_URL + '&place=created-1']);
   });
 
   it('an activity with an id still saves with PUT', async () => {
