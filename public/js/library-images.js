@@ -198,7 +198,7 @@
     }
     grid.innerHTML = images.map(function (img) {
       return (
-        '<button type="button" class="activity-image-pick" data-pick-url="' + esc(img.image_url) + '" title="' + esc(img.label || lpt('library.images.pickTitle')) + '">' +
+        '<button type="button" class="activity-image-pick" data-pick-url="' + esc(img.image_url) + '" title="' + esc(img.label || lpt('library.images.pickTitle')) + '" aria-label="' + esc(img.label || lpt('library.images.pickTitle')) + '">' +
           '<img src="' + esc(img.image_url) + '" alt="" loading="lazy">' +
         '</button>'
       );
@@ -215,26 +215,78 @@
     const wrap = document.getElementById('activityImagePreviewWrap');
     const preview = document.getElementById('activityImageBarnvyPreview');
     const recropBtn = document.getElementById('activityImageRecropBtn');
+    const nameEl = document.getElementById('activityName');
+    const name = nameEl && nameEl.value ? nameEl.value.trim() : '';
     if (wrap) wrap.classList.toggle('hidden', !url);
     if (preview) {
       if (url) {
         preview.src = url;
+        preview.alt = name || lpt('library.activityModal.previewAlt');
       } else {
         preview.removeAttribute('src');
+        preview.alt = '';
       }
     }
     if (recropBtn) recropBtn.classList.toggle('hidden', !url);
   }
 
+  function showImageError(message) {
+    const el = document.getElementById('activityImageError');
+    if (!el) {
+      if (message) showToast(message, true);
+      return;
+    }
+    el.textContent = message || '';
+    el.classList.toggle('hidden', !message);
+  }
+
+  function syncPreview() {
+    const iconEl = document.getElementById('activityVisualPreviewIcon');
+    const imgEl = document.getElementById('activityVisualPreviewImg');
+    const textEl = document.getElementById('activityVisualPreviewText');
+    const nameEl = document.getElementById('activityName');
+    const iconField = document.getElementById('activityIcon');
+    const name = nameEl && nameEl.value ? nameEl.value.trim() : '';
+    const icon = (iconField && iconField.value) || '❓';
+    const url = (function () {
+      const hidden = document.getElementById('activityImageUrl');
+      return hidden && hidden.value ? hidden.value : '';
+    })();
+    const showPhoto = isPhotoMode() && !!url;
+    if (iconEl) {
+      iconEl.textContent = icon;
+      iconEl.classList.toggle('hidden', showPhoto);
+      iconEl.setAttribute('aria-hidden', showPhoto ? 'true' : 'false');
+      if (showPhoto) iconEl.removeAttribute('aria-label');
+      else iconEl.setAttribute('aria-label', lpt('library.activityModal.previewIconLabel'));
+    }
+    if (imgEl) {
+      imgEl.classList.toggle('hidden', !showPhoto);
+      if (showPhoto) {
+        imgEl.src = url;
+        imgEl.alt = name || lpt('library.activityModal.previewAlt');
+      } else {
+        imgEl.removeAttribute('src');
+        imgEl.alt = '';
+      }
+    }
+    if (textEl) {
+      textEl.textContent = showPhoto
+        ? (name || lpt('library.activityModal.previewAlt'))
+        : lpt('library.activityModal.previewIconLabel');
+    }
+    updateBarnvyPreview(showPhoto ? url : '');
+  }
+
   function selectActivityImage(url) {
     const hidden = document.getElementById('activityImageUrl');
     if (hidden) hidden.value = url || '';
-    updateBarnvyPreview(url);
     document.querySelectorAll('.activity-image-pick').forEach(function (btn) {
       btn.classList.toggle('ring-2', btn.getAttribute('data-pick-url') === url);
       btn.classList.toggle('ring-gold', btn.getAttribute('data-pick-url') === url);
     });
     if (typeof pickerCallback === 'function') pickerCallback(url);
+    syncPreview();
   }
 
   function clearActivityImage() {
@@ -289,6 +341,7 @@
 
   function setVisualMode(mode) {
     _visualMode = mode === 'photo' ? 'photo' : 'emoji';
+    if (_visualMode !== 'photo') selectActivityImage('');
     const emojiBlock = document.getElementById('activityEmojiBlock');
     const photoBlock = document.getElementById('activityPhotoBlock');
     const btnEmoji = document.getElementById('activityVisualEmojiBtn');
@@ -296,25 +349,100 @@
     const isPhoto = _visualMode === 'photo';
     if (emojiBlock) emojiBlock.classList.toggle('hidden', isPhoto);
     if (photoBlock) photoBlock.classList.toggle('hidden', !isPhoto);
-    if (btnEmoji) btnEmoji.classList.toggle('activity-visual-tab--active', !isPhoto);
-    if (btnPhoto) btnPhoto.classList.toggle('activity-visual-tab--active', isPhoto);
+    if (btnEmoji) {
+      btnEmoji.classList.toggle('activity-visual-choice--active', !isPhoto);
+      btnEmoji.setAttribute('aria-pressed', !isPhoto ? 'true' : 'false');
+    }
+    if (btnPhoto) {
+      btnPhoto.classList.toggle('activity-visual-choice--active', isPhoto);
+      btnPhoto.setAttribute('aria-pressed', isPhoto ? 'true' : 'false');
+    }
+    syncPreview();
   }
 
   function initActivityImagePicker(act) {
     return loadImages().then(function () {
       const imageUrl = act && act.image_url ? act.image_url : '';
-      const isNew = !act || !act.id;
       if (imageUrl) {
         setVisualMode('photo');
-      } else if (isNew && images.length > 0) {
-        setVisualMode('photo');
-        if (images.length === 1) selectActivityImage(images[0].image_url);
+        selectActivityImage(imageUrl);
       } else {
         setVisualMode('emoji');
       }
-      selectActivityImage(imageUrl);
       renderPickerGrid();
     });
+  }
+
+  function directCameraCaptureAvailable() {
+    if (window.Platform && typeof Platform.isNative === 'function' && Platform.isNative()) return true;
+    try {
+      return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function ingestFile(file) {
+    showImageError('');
+    const cropped = await cropBeforeUpload(file);
+    if (!cropped) return null;
+    const row = await addImage(cropped, '');
+    selectActivityImage(row.image_url);
+    setVisualMode('photo');
+    showToast(lpt('library.images.uploaded'));
+    return row;
+  }
+
+  async function ingestPick(picked) {
+    if (!picked) return null;
+    if (picked.error) {
+      showImageError(typeof picked.error === 'string' ? picked.error : lpt('library.images.uploadFailed'));
+      return null;
+    }
+    let file = picked.file || null;
+    if (!(file instanceof File) && window.Platform && Platform.camera && typeof Platform.camera.toAvatarFile === 'function') {
+      file = await Platform.camera.toAvatarFile(picked);
+    }
+    if (file instanceof Blob && !(file instanceof File)) {
+      file = new File([file], 'photo.jpg', { type: file.type || 'image/jpeg' });
+    }
+    if (!file) {
+      showImageError(lpt('library.images.uploadFailed'));
+      return null;
+    }
+    return ingestFile(file);
+  }
+
+  async function takePhoto() {
+    showImageError('');
+    try {
+      if (window.Platform && Platform.camera && typeof Platform.isNative === 'function' && Platform.isNative()) {
+        const picked = await Platform.camera.pick({ source: 'camera', quality: 'medium' });
+        return await ingestPick(picked);
+      }
+      const input = document.getElementById(directCameraCaptureAvailable() ? 'activityImageCamera' : 'activityImageFile');
+      if (input) input.click();
+      return null;
+    } catch (err) {
+      showImageError((err && err.message) || lpt('library.images.cameraFailed'));
+      return null;
+    }
+  }
+
+  async function pickFromDevice() {
+    showImageError('');
+    try {
+      if (window.Platform && Platform.camera && typeof Platform.isNative === 'function' && Platform.isNative()) {
+        const picked = await Platform.camera.pick({ source: 'library', quality: 'medium' });
+        return await ingestPick(picked);
+      }
+      const input = document.getElementById('activityImageFile');
+      if (input) input.click();
+      return null;
+    } catch (err) {
+      showImageError((err && err.message) || lpt('library.images.uploadFailed'));
+      return null;
+    }
   }
 
   async function handleArchiveUpload(input) {
@@ -339,17 +467,12 @@
   }
 
   async function handlePickerUpload(input) {
-    let file = input.files && input.files[0];
+    const file = input.files && input.files[0];
     if (!file) return;
     try {
-      file = await cropBeforeUpload(file);
-      if (!file) return;
-      const row = await addImage(file, '');
-      selectActivityImage(row.image_url);
-      setVisualMode('photo');
-      showToast(lpt('library.images.uploaded'));
+      await ingestFile(file);
     } catch (err) {
-      showToast(err.message || lpt('library.images.uploadFailed'), true);
+      showImageError((err && err.message) || lpt('library.images.uploadFailed'));
     } finally {
       input.value = '';
     }
@@ -370,8 +493,21 @@
     if (pickerInput) {
       pickerInput.addEventListener('change', function () { handlePickerUpload(pickerInput); });
     }
+    const cameraInput = document.getElementById('activityImageCamera');
+    if (cameraInput) {
+      cameraInput.addEventListener('change', function () { handlePickerUpload(cameraInput); });
+    }
     const clearBtn = document.getElementById('activityImageClearBtn');
-    if (clearBtn) clearBtn.addEventListener('click', clearActivityImage);
+    if (clearBtn) clearBtn.addEventListener('click', function () { setVisualMode('emoji'); });
+    const takeBtn = document.getElementById('activityTakePhotoBtn');
+    if (takeBtn) takeBtn.addEventListener('click', function () { takePhoto(); });
+    const deviceBtn = document.getElementById('activityPickDeviceBtn');
+    if (deviceBtn) deviceBtn.addEventListener('click', function () { pickFromDevice(); });
+    const nameInput = document.getElementById('activityName');
+    if (nameInput && !nameInput.dataset.visualPreview) {
+      nameInput.dataset.visualPreview = '1';
+      nameInput.addEventListener('input', syncPreview);
+    }
     const recropBtn = document.getElementById('activityImageRecropBtn');
     if (recropBtn) {
       recropBtn.addEventListener('click', function (e) {
@@ -382,7 +518,7 @@
     }
     const emojiBtn = document.getElementById('activityVisualEmojiBtn');
     const photoBtn = document.getElementById('activityVisualPhotoBtn');
-    if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); clearActivityImage(); });
+    if (emojiBtn) emojiBtn.addEventListener('click', function () { setVisualMode('emoji'); });
     if (photoBtn) photoBtn.addEventListener('click', function () { setVisualMode('photo'); });
   }
 
@@ -398,5 +534,10 @@
     },
     clearActivityImage: clearActivityImage,
     setVisualMode: setVisualMode,
+    syncPreview: syncPreview,
+    takePhoto: takePhoto,
+    pickFromDevice: pickFromDevice,
+    directCameraCaptureAvailable: directCameraCaptureAvailable,
+    handlePickerUpload: handlePickerUpload,
   };
 })();

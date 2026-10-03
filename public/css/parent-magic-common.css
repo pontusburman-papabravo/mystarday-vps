@@ -2157,3 +2157,13 @@ body.parent-magic-view:not(.parent-theme-light) .schedule-sheet-danger,
 body.parent-magic-view:not(.parent-theme-light) .overflow-menu-popup button.danger {
   color: #fecaca !important;
 }
+
+.schedule-activity-visual {
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
