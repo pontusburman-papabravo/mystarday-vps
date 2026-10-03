@@ -8,6 +8,7 @@ const { seedFamilyStarterActivitiesFromCanonicalDb } = require('./standard-libra
 const { loadDefaultContent } = require('./default-content');
 const { enableEnglishAppForFamily } = require('./i18n-enable-english');
 const { buildAutoFamilyName } = require('./registration-market-context');
+const { signupCohortAt } = require('./signup-clock');
 
 const DEFAULT_ACTIVITIES = [
   { name: 'Vakna', icon: '🛏️', category: 'Morgon', star_value: 1, sort_order: 0, schema_type: 'forskola' },
@@ -131,13 +132,17 @@ async function createParentFromOAuth(opts) {
     const finalFamilyName = familyName || buildAutoFamilyName(displayName, familyLocale);
     const { syncCreatedFamilyAccessMirrors } = require('./family-entitlements');
 
+    // created_at stays SQL NOW() outside the test runner. Tests may pin the cohort
+    // so entitlement does not flip when CI crosses the Sweden trial boundary.
+    const cohortAt = signupCohortAt();
     const familyResult = await client.query(
       `INSERT INTO family (
          name, timezone, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
          locale_selected_at, locale_selection_source, english_beta_offer_state,
-         country_code, market_region, country_selected_at, country_selection_source
+         country_code, market_region, country_selected_at, country_selection_source,
+         created_at
        )
-       VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
+       VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8, COALESCE($9::timestamptz, NOW()))
        RETURNING id, created_at`,
       [
         finalFamilyName,
@@ -148,6 +153,7 @@ async function createParentFromOAuth(opts) {
         countryCode,
         marketRegion,
         countrySelectionSource,
+        cohortAt,
       ]
     );
     const familyId = familyResult.rows[0].id;
