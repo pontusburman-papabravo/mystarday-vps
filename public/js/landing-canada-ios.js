@@ -1,8 +1,9 @@
 /**
- * Canada iOS launch on the shared English pages.
- * Play is already public in Ireland, so Android "coming soon" is CA-only.
- * Signal: ?country=CA or ?market=CA, then sessionStorage sd_country_code.
- * Does not set sd_country_confirmed — registration still asks for the country.
+ * English /en serves Ireland and Canada on the same page.
+ * No country signal: both are visible (App Store for both, Play for Ireland,
+ * Google Play — coming soon for Canada). ?country=CA or ?country=IE focuses one.
+ * A Canadian or Irish time zone can preselect that focus. The switch stores
+ * sd_country_code only — never sd_country_confirmed — so registration still asks.
  */
 (function (global) {
   'use strict';
@@ -10,7 +11,34 @@
   const STORAGE_KEY = 'sd_country_code';
   const APP_STORE_URL = 'https://apps.apple.com/app/id6774493098';
   const SOON_LABEL = 'Google Play — coming soon';
+  const SHARED_SOON_LABEL = 'Canada · Google Play — coming soon';
   const AVAILABILITY = 'Available now on the App Store. Android coming soon.';
+  const CANADA_TIME_ZONES = {
+    'America/St_Johns': true,
+    'America/Halifax': true,
+    'America/Glace_Bay': true,
+    'America/Moncton': true,
+    'America/Goose_Bay': true,
+    'America/Blanc-Sablon': true,
+    'America/Toronto': true,
+    'America/Iqaluit': true,
+    'America/Atikokan': true,
+    'America/Winnipeg': true,
+    'America/Resolute': true,
+    'America/Rankin_Inlet': true,
+    'America/Regina': true,
+    'America/Swift_Current': true,
+    'America/Edmonton': true,
+    'America/Cambridge_Bay': true,
+    'America/Yellowknife': true,
+    'America/Inuvik': true,
+    'America/Creston': true,
+    'America/Dawson_Creek': true,
+    'America/Fort_Nelson': true,
+    'America/Whitehorse': true,
+    'America/Dawson': true,
+    'America/Vancouver': true,
+  };
   const PHRASES = [
     ['Free in Ireland until 31 December 2026', 'Free until 31 December 2026'],
     ['free for families in Ireland until 31 December 2026', 'free until 31 December 2026'],
@@ -23,6 +51,15 @@
     ['App Store or Google Play', 'the App Store. Android coming soon'],
     ['and on Google Play for Android', 'and Android is coming soon'],
     ['Available on iPhone, iPad, and Android — in Swedish and English.', 'On iPhone now. Google Play — coming soon.'],
+  ];
+  const SHARED_PHRASES = [
+    ['Free in Ireland until 31 December 2026', 'Free in Ireland and Canada until 31 December 2026'],
+    ['free for families in Ireland until 31 December 2026', 'free in Ireland and Canada until 31 December 2026'],
+    ['My Starday is now available in Ireland.', 'On the App Store in Ireland and Canada.'],
+    ['Now in Ireland', 'Now in Ireland and Canada'],
+    ['Welcome Ireland', 'Ireland and Canada'],
+    ['App Store & Google Play', 'Ireland and Canada'],
+    ['Available on iPhone, iPad, and Android — in Swedish and English.', 'On the App Store in Ireland and Canada. Google Play in Ireland.'],
   ];
 
   function queryCountry() {
@@ -47,6 +84,27 @@
     return queryCountry() || storedCountry();
   }
 
+  function timeZoneCountry() {
+    try {
+      const tz = global.Intl
+        && global.Intl.DateTimeFormat
+        && global.Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz === 'Europe/Dublin') return 'IE';
+      if (tz && CANADA_TIME_ZONES[tz]) return 'CA';
+    } catch (_) { /* no timezone */ }
+    return null;
+  }
+
+  function resolvedMarket() {
+    const fromQuery = queryCountry();
+    if (fromQuery === 'CA' || fromQuery === 'IE') return fromQuery;
+    if (fromQuery) return 'other';
+    const stored = storedCountry();
+    if (stored === 'CA' || stored === 'IE') return stored;
+    if (stored) return 'other';
+    return timeZoneCountry() || 'both';
+  }
+
   function rememberCountry(code) {
     try {
       if (global.sessionStorage) global.sessionStorage.setItem(STORAGE_KEY, code);
@@ -64,9 +122,9 @@
     return !!(href && (href.indexOf('play.google.com') !== -1 || href.indexOf('__PLAY_STORE_URL__') !== -1));
   }
 
-  function applyPhrases(value) {
+  function applyPhrases(value, pairs) {
     let next = String(value || '');
-    PHRASES.forEach(function (pair) {
+    (pairs || PHRASES).forEach(function (pair) {
       next = next.split(pair[0]).join(pair[1]);
     });
     return next;
@@ -85,7 +143,17 @@
     if (anchor.parentNode) anchor.parentNode.replaceChild(note, anchor);
   }
 
-  function rewriteLeaves(doc) {
+  function siblingAfter(node) {
+    const parent = node && node.parentNode;
+    const kids = parent && parent.children;
+    if (!kids) return null;
+    for (let i = 0; i < kids.length; i += 1) {
+      if (kids[i] === node) return kids[i + 1] || null;
+    }
+    return null;
+  }
+
+  function rewriteLeaves(doc, pairs) {
     const selector = [
       '.hero-launch-card__tag',
       '.hero-launch-card__title',
@@ -103,25 +171,25 @@
     ].join(', ');
     doc.querySelectorAll(selector).forEach(function (el) {
       if (!isLeaf(el)) return;
-      const next = applyPhrases(el.textContent);
+      const next = applyPhrases(el.textContent, pairs);
       if (next !== el.textContent) el.textContent = next;
     });
   }
 
-  function rewriteMetadata(doc) {
+  function rewriteMetadata(doc, pairs, operatingSystem) {
     const title = doc.querySelector('title');
-    if (title) title.textContent = applyPhrases(title.textContent);
+    if (title) title.textContent = applyPhrases(title.textContent, pairs);
     ['meta[name="description"]', 'meta[property="og:description"]'].forEach(function (selector) {
       const el = doc.querySelector(selector);
       if (!el) return;
-      el.setAttribute('content', applyPhrases(el.getAttribute('content')));
+      el.setAttribute('content', applyPhrases(el.getAttribute('content'), pairs));
     });
     doc.querySelectorAll('script[type="application/ld+json"]').forEach(function (el) {
-      const raw = applyPhrases(el.textContent);
+      const raw = applyPhrases(el.textContent, pairs);
       try {
         const data = JSON.parse(raw);
-        if (data && data['@type'] === 'SoftwareApplication') {
-          data.operatingSystem = 'iOS';
+        if (operatingSystem && data && data['@type'] === 'SoftwareApplication') {
+          data.operatingSystem = operatingSystem;
         }
         el.textContent = JSON.stringify(data);
       } catch (_) {
@@ -158,18 +226,121 @@
     else ctas.appendChild(wrap);
   }
 
+  function pointAppStore(el) {
+    const href = el.getAttribute('href') || '';
+    if (href.indexOf('apps.apple.com') !== -1 && href.indexOf('6774493098') !== -1) {
+      el.setAttribute('href', APP_STORE_URL);
+    }
+  }
+
+  function addSharedCanadaStatus(anchor) {
+    const next = siblingAfter(anchor);
+    if (next && String(next.className || '').indexOf('store-android-soon') !== -1) return;
+    const doc = anchor.ownerDocument || document;
+    const note = doc.createElement('span');
+    note.className = 'store-android-soon';
+    note.setAttribute('role', 'status');
+    note.textContent = SHARED_SOON_LABEL;
+    if (!anchor.parentNode) return;
+    anchor.parentNode.insertBefore(note, siblingAfter(anchor));
+  }
+
+  function markIrelandPlay(anchor) {
+    anchor.setAttribute('data-market', 'IE');
+    const label = anchor.getAttribute('aria-label') || '';
+    if (label.indexOf('Ireland') === -1) {
+      anchor.setAttribute('aria-label', label ? label + ' in Ireland' : 'Get it on Google Play in Ireland');
+    }
+    const parent = anchor.parentNode;
+    if (!parent || parent.getAttribute && parent.getAttribute('data-ireland-play') === '1') return;
+    const doc = anchor.ownerDocument || document;
+    const wrap = doc.createElement('span');
+    wrap.className = 'store-market-play';
+    wrap.setAttribute('data-ireland-play', '1');
+    const caption = doc.createElement('span');
+    caption.className = 'store-market-caption';
+    caption.textContent = 'Ireland';
+    parent.insertBefore(wrap, anchor);
+    wrap.appendChild(caption);
+    wrap.appendChild(anchor);
+  }
+
+  function chooseMarket(code) {
+    if (code !== 'IE' && code !== 'CA') return;
+    if (queryCountry() === code) return;
+    rememberCountry(code);
+    let params = null;
+    try {
+      params = new URLSearchParams((global.location && global.location.search) || '');
+    } catch (_) { /* keep the current page */ }
+    if (!params || !global.location || typeof global.location.assign !== 'function') return;
+    params.delete('market');
+    params.set('country', code);
+    const path = global.location.pathname || '/en';
+    global.location.assign(path + '?' + params.toString());
+  }
+
+  function mountSwitch(doc, pressed) {
+    let bar = doc.querySelector('[data-en-market-switch]');
+    if (!bar) {
+      bar = doc.createElement('div');
+      bar.className = 'landing-market-switch';
+      bar.setAttribute('data-en-market-switch', '');
+      bar.setAttribute('role', 'group');
+      bar.setAttribute('aria-label', 'Ireland or Canada');
+      [{ code: 'IE', label: 'Ireland' }, { code: 'CA', label: 'Canada' }].forEach(function (item) {
+        const button = doc.createElement('button');
+        button.setAttribute('type', 'button');
+        button.setAttribute('data-market-switch', item.code);
+        button.textContent = item.label;
+        button.addEventListener('click', function () { chooseMarket(item.code); });
+        bar.appendChild(button);
+      });
+      const card = doc.querySelector('.hero-launch-card');
+      if (card) card.insertBefore(bar, card.children[0] || null);
+      else {
+        const badges = doc.querySelector('.store-badges');
+        if (badges && badges.parentNode) badges.parentNode.insertBefore(bar, badges);
+      }
+    }
+    doc.querySelectorAll('[data-market-switch]').forEach(function (button) {
+      button.setAttribute('aria-pressed', button.getAttribute('data-market-switch') === pressed ? 'true' : 'false');
+    });
+  }
+
+  function applyBoth(doc) {
+    const root = doc.documentElement;
+    root.setAttribute('data-en-market', 'both');
+    root.removeAttribute('data-canada-ios-launch');
+    const card = doc.querySelector('.hero-launch-card');
+    if (card) card.setAttribute('aria-label', 'Ireland and Canada');
+    Array.prototype.slice.call(doc.querySelectorAll('a[href]')).forEach(function (el) {
+      pointAppStore(el);
+      if (!isPlayHref(el.getAttribute('href') || '')) return;
+      addSharedCanadaStatus(el);
+      markIrelandPlay(el);
+    });
+    rewriteLeaves(doc, SHARED_PHRASES);
+    rewriteMetadata(doc, SHARED_PHRASES, null);
+    addWebAccountLink(doc);
+  }
+
+  function applyIreland(doc) {
+    const root = doc.documentElement;
+    root.setAttribute('data-en-market', 'IE');
+    root.removeAttribute('data-canada-ios-launch');
+  }
+
   function applyCanada(doc) {
     const root = doc.documentElement;
     const device = platform();
+    root.setAttribute('data-en-market', 'CA');
     root.setAttribute('data-canada-ios-launch', '1');
     root.setAttribute('data-store-platform', device);
 
     Array.prototype.slice.call(doc.querySelectorAll('a[href]')).forEach(function (el) {
-      const href = el.getAttribute('href') || '';
-      if (href.indexOf('apps.apple.com') !== -1 && href.indexOf('6774493098') !== -1) {
-        el.setAttribute('href', APP_STORE_URL);
-      }
-      if (isPlayHref(href)) replacePlayLink(el);
+      pointAppStore(el);
+      if (isPlayHref(el.getAttribute('href') || '')) replacePlayLink(el);
     });
 
     doc.querySelectorAll('.store-badges').forEach(function (group) {
@@ -181,8 +352,8 @@
     const card = doc.querySelector('.hero-launch-card');
     if (card) card.setAttribute('aria-label', 'Welcome Canada');
 
-    rewriteLeaves(doc);
-    rewriteMetadata(doc);
+    rewriteLeaves(doc, PHRASES);
+    rewriteMetadata(doc, PHRASES, 'iOS');
     addAvailabilityLine(doc);
     addWebAccountLink(doc);
   }
@@ -190,8 +361,12 @@
   function init() {
     const fromQuery = queryCountry();
     if (fromQuery) rememberCountry(fromQuery);
-    if (landingCountry() !== 'CA') return;
-    applyCanada(document);
+    const market = resolvedMarket();
+    if (!fromQuery && !storedCountry() && (market === 'CA' || market === 'IE')) rememberCountry(market);
+    if (market === 'CA') applyCanada(document);
+    else if (market === 'both') applyBoth(document);
+    else applyIreland(document);
+    mountSwitch(document, market === 'CA' || market === 'IE' ? market : '');
   }
 
   if (document.readyState === 'loading') {
@@ -202,9 +377,11 @@
 
   global.LandingCanadaIos = {
     landingCountry: landingCountry,
+    resolvedMarket: resolvedMarket,
     platform: platform,
     applyCanada: applyCanada,
     APP_STORE_URL: APP_STORE_URL,
     SOON_LABEL: SOON_LABEL,
+    SHARED_SOON_LABEL: SHARED_SOON_LABEL,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
