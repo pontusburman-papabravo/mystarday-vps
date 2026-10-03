@@ -34,6 +34,7 @@ const {
   normalizeCountryCode,
 } = require('./market-region');
 const { getMarketCommercialPolicy, ENTITLEMENT } = require('./market-commercial-policy');
+const { signupNow } = require('./signup-clock');
 const {
   DEFAULT_IRELAND_FREE_UNTIL,
   getIrelandFreeUntil,
@@ -137,7 +138,7 @@ function evaluateSignupCompleteness(input) {
  * @param {{ now?: Date }} [opts]
  */
 async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
-  const now = opts.now || new Date();
+  const now = opts.now || signupNow();
   const marketOpen = await isMarketOpenForRegistration(countryCode);
   let lifetimeFreeUntil = DEFAULT_LIFETIME_FREE_UNTIL;
   try {

@@ -32,6 +32,7 @@ const {
 } = require('../../lib/market-region');
 const { getMarketConfig } = require('../../lib/market-config');
 const { assertRegistrationMarketOpen } = require('../../lib/registration-market-context');
+const { signupCohortAt } = require('../../lib/signup-clock');
 
 const router = express.Router();
 
@@ -147,13 +148,17 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
         locale: familyLocale,
       });
 
+      // created_at stays SQL NOW() outside the test runner. Tests may pin the cohort
+      // so entitlement does not flip when CI crosses the Sweden trial boundary.
+      const cohortAt = signupCohortAt();
       const familyResult = await client.query(
         `INSERT INTO family (
            name, timezone, subscription_status, trial_ends_at, is_lifetime_free, preferred_locale,
            locale_selected_at, locale_selection_source, english_beta_offer_state,
-           country_code, market_region, country_selected_at, country_selection_source
+           country_code, market_region, country_selected_at, country_selection_source,
+           created_at
          )
-         VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8)
+         VALUES ($1, $2, 'none', NULL, false, $3, NOW(), $4, $5, $6, $7, NOW(), $8, COALESCE($9::timestamptz, NOW()))
          RETURNING id, created_at`,
         [
           finalFamilyName,
@@ -164,6 +169,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
           countryResolved.country_code,
           countryResolved.market_region,
           countryResolved.country_selection_source,
+          cohortAt,
         ]
       );
       const familyId = familyResult.rows[0].id;
