@@ -2,7 +2,7 @@
   "pageTitle": "Planning — {{brand}}",
   "shell": {
     "title": "Planning",
-    "lead": "Build content or plan your children's week — choose below.",
+    "lead": "Choose the week, activities, or more.",
     "logout": "Log out"
   },
   "sections": {
@@ -10,9 +10,19 @@
     "buildContent": "Build content",
     "other": "Other"
   },
+  "primary": {
+    "week": { "title": "The week", "sub": "The day list for your children's week" },
+    "activities": { "title": "Activities", "sub": "The library — create and edit" },
+    "more": { "title": "More", "sub": "Print, templates, and other tools" }
+  },
+  "more": {
+    "title": "More",
+    "close": "Close"
+  },
   "links": {
     "library": { "title": "Library", "sub": "Create activities and rewards" },
     "imageArchive": { "title": "Image archive", "sub": "Your photos — toothbrush, bed, school" },
+    "templates": { "title": "Templates", "sub": "Saved schedules you can use again" },
     "weekSchedule": { "title": "Weekly schedule", "sub": "Edit your child's week" },
     "calendar": { "title": "Calendar", "sub": "See the month and special days" },
     "custody": { "title": "Custody schedule", "sub": "Shared care between households" },

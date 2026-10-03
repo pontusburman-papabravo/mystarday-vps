@@ -30,6 +30,8 @@
     const familyView = document.getElementById('familyGridView');
     const childrenList = document.getElementById('childrenListView');
     const editorView = document.getElementById('scheduleEditorView');
+    const calendarView = document.getElementById('scheduleCalendarView');
+    if (calendarView) calendarView.classList.add('hidden');
     const calNav = document.getElementById('calNavBar');
     const backBtn = document.getElementById('backToChildrenBtn');
     const rewardsBtn = document.getElementById('editorRewardsBtn');
@@ -58,6 +60,7 @@
     if (mode === 'family') url.searchParams.set('view', 'family');
     else url.searchParams.delete('view');
     history.replaceState(null, '', url);
+    if (window.ScheduleCalendarView && ScheduleCalendarView.syncToggle) ScheduleCalendarView.syncToggle();
   }
 
   function fwGetWeekStart(offset) {

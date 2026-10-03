@@ -25,10 +25,9 @@ async function loadTemplates() {
     console.error('[DASHBOARD] loadTemplates failed:', e);
   }
 }
-async function openDashboardAddForChild(childId) {
-  await selectChild(childId);
-  addSectionOverride = 'dag';
-  openAddModal('dag');
+function openDashboardAddForChild(childId) {
+  const href = childId ? '/schedule?child=' + encodeURIComponent(childId) : '/schedule';
+  window.location.assign(href);
 }
 
 // Open addActivityModal in once-mode (replaces onceTaskModal)

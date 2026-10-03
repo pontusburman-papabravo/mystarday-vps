@@ -93,67 +93,40 @@ describe('Phase 4 — Library CTA hierarchy (schedule-mutation actions stay visu
   });
 });
 
-describe('Phase 4 — Planering hub IA matches the locked model', () => {
-  it('10/11: Veckoschema and Kalender are grouped under the "Planera vardagen" (plan) section', () => {
+describe('Phase 4 — Planering hub IA matches the locked three-choice model', () => {
+  it('primary choices are Veckan and Aktiviteter; calendar is not a peer card', () => {
     const src = read('public/js/planning-hub.js');
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    assert.ok(planLinksMatch);
-    assert.match(planLinksMatch[0], /weekSchedule/);
-    assert.match(planLinksMatch[0], /calendar/);
+    const primary = src.slice(src.indexOf('const PRIMARY_CHOICES'), src.indexOf('const MER_LINKS'));
+    assert.match(primary, /\/schedule/);
+    assert.match(primary, /\/library/);
+    assert.doesNotMatch(primary, /\/calendar/);
   });
 
-  it('12: Bibliotek (content) is grouped under a distinct "Bygg innehåll" (content) section, not mixed with plan links', () => {
+  it('Boendeschema is conditional — only added to Mer when custody is active', () => {
     const src = read('public/js/planning-hub.js');
-    const contentLinksMatch = src.match(/const CONTENT_LINKS = \[[\s\S]*?\];/);
-    assert.ok(contentLinksMatch);
-    assert.match(contentLinksMatch[0], /library/);
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    assert.doesNotMatch(planLinksMatch[0], /library/, 'Bibliotek must not appear in the plan section');
+    assert.match(src, /if \(custodyActive\) more\.push\(CUSTODY_LINK\)/);
+    const primary = src.slice(src.indexOf('const PRIMARY_CHOICES'), src.indexOf('const MER_LINKS'));
+    assert.doesNotMatch(primary, /custody/i);
   });
 
-  it('13: Boendeschema is conditional — only added to the plan section when custody is active for the family', () => {
-    const src = read('public/js/planning-hub.js');
-    assert.match(src, /if \(custodyActive\) planLinks\.push\(CUSTODY_LINK\)/);
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    assert.doesNotMatch(planLinksMatch[0], /custody/i, 'Boendeschema must not be unconditionally in PLAN_LINKS — it is appended only when custodyActive');
-  });
-
-  it('14: no "Fyll vecka" entry point on the Planering hub', () => {
+  it('no "Fyll vecka" entry point on the Planering hub', () => {
     const src = read('public/js/planning-hub.js');
     assert.doesNotMatch(src, /fillWeek|fyll.?vecka/i);
   });
 
-  it('15: "Tilldela schema" (assign-schedule) is demoted into "Övrigt" (other), not the primary plan section', () => {
+  it('Tilldela schema and PDF live in Mer, not in the primary choices', () => {
     const src = read('public/js/planning-hub.js');
-    const otherLinksMatch = src.match(/const OTHER_LINKS = \[[\s\S]*?\];/);
-    assert.ok(otherLinksMatch);
-    assert.match(otherLinksMatch[0], /assignSchedule/);
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    assert.doesNotMatch(planLinksMatch[0], /assignSchedule/, '"Tilldela schema" must not be in the primary plan section');
+    const mer = src.slice(src.indexOf('const MER_LINKS'), src.indexOf('const CUSTODY_LINK'));
+    assert.match(mer, /assignSchedule/);
+    assert.match(mer, /printSchema/);
+    const primary = src.slice(src.indexOf('const PRIMARY_CHOICES'), src.indexOf('const MER_LINKS'));
+    assert.doesNotMatch(primary, /assignSchedule/);
+    assert.doesNotMatch(primary, /printSchema/);
   });
 
-  it('16: Daglig logg (Daily Log) is not a primary Planering entry — it lives in "Övrigt"', () => {
+  it('Daglig logg is not a Planering card', () => {
     const src = read('public/js/planning-hub.js');
-    const otherLinksMatch = src.match(/const OTHER_LINKS = \[[\s\S]*?\];/);
-    assert.match(otherLinksMatch[0], /dailyLog/);
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    const contentLinksMatch = src.match(/const CONTENT_LINKS = \[[\s\S]*?\];/);
-    assert.doesNotMatch(planLinksMatch[0], /dailyLog/);
-    assert.doesNotMatch(contentLinksMatch[0], /dailyLog/);
-  });
-
-  it('17: PDF export ("Skapa PDF — schema") is not a primary Planering entry — it lives in "Övrigt"', () => {
-    const src = read('public/js/planning-hub.js');
-    const otherLinksMatch = src.match(/const OTHER_LINKS = \[[\s\S]*?\];/);
-    assert.match(otherLinksMatch[0], /printSchema/);
-    const planLinksMatch = src.match(/const PLAN_LINKS = \[[\s\S]*?\];/);
-    assert.doesNotMatch(planLinksMatch[0], /printSchema/);
-  });
-
-  it('the hub never exposes more than the two locked top-level sections plus the conditional custody/other groups (no new top-level choices)', () => {
-    const src = read('public/js/planning-hub.js');
-    const sectionCalls = src.match(/sectionHtml\(pt\('planning\.sections\.\w+'\)/g) || [];
-    const sectionKeys = sectionCalls.map((s) => s.match(/planning\.sections\.(\w+)/)[1]);
-    assert.deepEqual(sectionKeys.sort(), ['buildContent', 'other', 'planWeek'].sort(), 'exactly the three expected sections — no new top-level IA groups introduced');
+    assert.doesNotMatch(src, /dailyLog/);
+    assert.doesNotMatch(src, /\/daily-log/);
   });
 });

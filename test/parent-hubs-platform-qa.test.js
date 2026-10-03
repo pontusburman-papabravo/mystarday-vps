@@ -28,8 +28,9 @@ describe('Parent hubs platform QA — hub boundaries (static)', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/planning-hub.js'), 'utf8');
     assert.doesNotMatch(hub, /pending-requests/);
     assert.doesNotMatch(hub, /homeReadiness/);
-    assert.match(hub, /planning\.sections\.planWeek/);
-    assert.match(hub, /planning\.sections\.buildContent/);
+    assert.match(hub, /planning\.primary\.week/);
+    assert.match(hub, /planning\.primary\.activities/);
+    assert.doesNotMatch(hub, /\/daily-log/);
   });
 
   it('Familj child cards link to barnprofil — no settings on card', () => {

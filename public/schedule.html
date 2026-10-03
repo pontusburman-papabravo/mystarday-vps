@@ -19,6 +19,7 @@
   <script src="/js/dnd-touch-bridge.js?v=1"></script>
   <script src="/js/platform.js?v=2026-05-28-ios"></script>
     <link rel="stylesheet" href="/css/tailwind.build.css?v=1">
+    <link rel="stylesheet" href="/css/calendar-week.css?v=1">
     <script src="/js/schedule-core.js?v=2"></script>
   <script src="/js/schedule-day-sheet.js?v=1"></script>
   <script src="/js/schedule-i18n.js?v=2"></script>
@@ -28,6 +29,8 @@
   <script src="/js/schedule-activity-modals.js?v=4"></script>
   <script src="/js/schedule-custody.js?v=4"></script>
   <script src="/js/schedule.js?v=2.27.3"></script>
+  <script src="/js/schedule-calendar-view.js?v=1"></script>
+  <script src="/js/calendar-page.js?v=1"></script>
   <script src="/js/schedule-direct-edit.js?v=3"></script>
   <script src="/js/schedule-section-edit.js?v=1"></script>
   <script src="/js/schedule-dnd.js?v=2"></script>
@@ -469,6 +472,7 @@
         <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
           <div class="flex items-center gap-3 flex-wrap">
             <h2 id="schedulePageTitle" class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.weeklyPlanningTitle">📅 Veckoplanering</h2>
+            <a id="scheduleWeekViewToggle" href="/schedule?view=calendar" class="min-h-[44px] inline-flex items-center px-3 py-2 text-sm font-semibold text-navy border-2 border-lavender hover:border-gold rounded-xl no-underline">Kalender</a>
             <div class="schedule-mode-toggle" data-i18n-aria-label="schedule.mode.aria">
               <button id="btnModeSingle" onclick="setScheduleMode('single')" class="schedule-mode-btn active" data-i18n="schedule.chrome.modeSingle">👤 Mitt barn</button>
               <button id="btnModeFamily" onclick="setScheduleMode('family')" class="schedule-mode-btn" data-i18n="schedule.chrome.modeFamily">👨‍👩‍👧 Alla barn</button>
@@ -553,6 +557,45 @@
             </ul>
             </div>
           </details>
+        </div>
+
+        <!-- Week calendar (same week as the day list; not a separate Planering destination) -->
+        <div id="scheduleCalendarView" class="hidden">
+          <div id="loadingState" class="text-center py-12">
+            <div class="text-4xl mb-4 animate-pulse">📅</div>
+            <p class="text-text-soft" data-i18n="schedule.calendar.loading">Laddar kalender…</p>
+          </div>
+          <div id="errorState" class="hidden text-center py-12">
+            <div class="text-4xl mb-4">😕</div>
+            <p class="text-text-soft" id="errorMsg" data-i18n="schedule.calendar.errorGeneric">Något gick fel. Försök igen.</p>
+            <button type="button" onclick="loadCalendar()" class="mt-4 min-h-[44px] px-4 py-2 bg-gold text-navy font-semibold rounded-lg text-sm" data-i18n="schedule.calendar.retry">Försök igen</button>
+          </div>
+          <div id="calendarUI" class="hidden">
+            <div data-cal-id="childTabs" class="flex flex-wrap gap-2 mb-5"></div>
+            <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
+              <div class="flex items-center gap-2">
+                <button type="button" class="nav-btn" onclick="changeWeek(-1)" data-i18n-title="schedule.calendar.prevWeek" title="Föregående vecka" aria-label="Föregående vecka">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div class="text-center">
+                  <div id="weekLabel" class="font-semibold text-navy text-sm md:text-base whitespace-nowrap"></div>
+                  <div id="weekSubLabel" class="text-xs text-text-soft"></div>
+                </div>
+                <button type="button" class="nav-btn" onclick="changeWeek(1)" data-i18n-title="schedule.calendar.nextWeekNav" title="Nästa vecka" aria-label="Nästa vecka">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap justify-end">
+                <a id="calendarManageSpecialDaysLink" href="/schedule?view=special-days" class="min-h-[44px] px-3 py-2 text-sm font-semibold text-navy border-2 border-lavender hover:border-gold rounded-xl transition-colors flex items-center gap-1.5 no-underline whitespace-nowrap" data-i18n="schedule.calendar.manageSpecialDays">🌟 Hantera specialdagar &amp; lov</a>
+                <button type="button" id="calendarTodayBtn" onclick="goToToday()" class="min-h-[44px] px-4 py-2 text-sm font-semibold rounded-lg border border-gold text-gold hover:bg-gold-light transition-colors whitespace-nowrap" data-i18n="schedule.calendar.today">Idag</button>
+              </div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
         </div>
 
         <!-- Schedule editor -->

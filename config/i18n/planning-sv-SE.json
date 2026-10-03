@@ -2,7 +2,7 @@
   "pageTitle": "Planering — {{brand}}",
   "shell": {
     "title": "Planering",
-    "lead": "Bygg innehåll eller planera barnens vecka — välj nedan.",
+    "lead": "Välj veckan, aktiviteterna eller mer.",
     "logout": "Logga ut"
   },
   "sections": {
@@ -10,9 +10,19 @@
     "buildContent": "Bygg innehåll",
     "other": "Övrigt"
   },
+  "primary": {
+    "week": { "title": "Veckan", "sub": "Dagens lista för barnens vecka" },
+    "activities": { "title": "Aktiviteter", "sub": "Biblioteket — skapa och ändra" },
+    "more": { "title": "Mer", "sub": "Utskrift, mallar och andra verktyg" }
+  },
+  "more": {
+    "title": "Mer",
+    "close": "Stäng"
+  },
   "links": {
     "library": { "title": "Bibliotek", "sub": "Skapa aktiviteter och belöningar" },
     "imageArchive": { "title": "Bildarkiv", "sub": "Egna foton — tandborste, säng, skola" },
+    "templates": { "title": "Mallar", "sub": "Sparade scheman att använda igen" },
     "weekSchedule": { "title": "Veckoschema", "sub": "Redigera barnets vecka" },
     "calendar": { "title": "Kalender", "sub": "Se månad och specialdagar" },
     "custody": { "title": "Boendeschema", "sub": "Växelvis boende mellan hushåll" },

@@ -11,38 +11,33 @@ const HUB = path.join(ROOT, 'public/js/planning-hub.js');
 describe('Planering hub 10/10', () => {
   it('uses vision copy-regel underrader via locale keys', () => {
     const src = fs.readFileSync(HUB, 'utf8');
-    assert.match(src, /planning\.links\.library\.title/);
-    assert.match(src, /planning\.links\.calendar\.sub/);
-    assert.match(src, /planning\.links\.weekSchedule\.sub/);
+    assert.match(src, /planning\.primary\.week\.title/);
+    assert.match(src, /planning\.primary\.activities\.title/);
+    assert.match(src, /planning\.primary\.more\.title/);
     assert.match(src, /planning\.links\.custody\.title/);
     assert.match(src, /planning\.links\.custody\.sub/);
-    assert.match(src, /planning\.links\.dailyLog\.sub/);
     assert.match(src, /planning\.links\.assignSchedule\.sub/);
+    assert.match(src, /planning\.links\.printSchema\.title/);
   });
 
-  it('prioritizes Veckoschema and Kalender before Övrigt', () => {
+  it('keeps Veckan and Aktiviteter as the only primary hrefs, with Mer as the third choice', () => {
     const src = fs.readFileSync(HUB, 'utf8');
-    const planIdx = src.indexOf('const PLAN_LINKS');
-    const otherIdx = src.indexOf('const OTHER_LINKS');
-    assert.ok(planIdx >= 0 && otherIdx > planIdx);
-    assert.match(src, /planning\.sections\.planWeek/);
-    assert.match(src, /planning\.sections\.buildContent/);
-    const planSectionIdx = src.indexOf("planning.sections.planWeek");
-    const buildSectionIdx = src.indexOf("planning.sections.buildContent");
-    assert.ok(planSectionIdx > 0 && buildSectionIdx > planSectionIdx);
-    assert.match(src, /planning\.sections\.other/);
-    const veckoIdx = src.indexOf("planning.links.weekSchedule.title");
-    const boendeIdx = src.indexOf('CUSTODY_LINK');
-    const dagligIdx = src.indexOf("planning.links.dailyLog.title");
-    assert.ok(veckoIdx < dagligIdx);
-    assert.ok(boendeIdx < dagligIdx || boendeIdx > otherIdx);
+    const primaryIdx = src.indexOf('const PRIMARY_CHOICES');
+    const merIdx = src.indexOf('const MER_LINKS');
+    assert.ok(primaryIdx >= 0 && merIdx > primaryIdx);
+    const primaryBlock = src.slice(primaryIdx, merIdx);
+    assert.match(primaryBlock, /'\/schedule'/);
+    assert.match(primaryBlock, /'\/library'/);
+    assert.doesNotMatch(primaryBlock, /\/calendar/);
+    assert.doesNotMatch(primaryBlock, /\/daily-log/);
+    assert.match(src, /data-planning-primary="more"/);
   });
 
   it('hides boendeschema unless custody is active', () => {
     const src = fs.readFileSync(HUB, 'utf8');
     assert.match(src, /fetchCustodyActive/);
     assert.match(src, /homes\.length > 1 \|\| patterns\.length > 0/);
-    assert.match(src, /if \(custodyActive\) planLinks\.push\(CUSTODY_LINK\)/);
+    assert.match(src, /if \(custodyActive\) more\.push\(CUSTODY_LINK\)/);
   });
 
   it('shows Kom igång tom-state for families without schedule today', () => {

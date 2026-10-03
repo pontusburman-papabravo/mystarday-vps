@@ -918,15 +918,18 @@ body.parent-magic-view.parent-magic-page-calendar .parent-magic-hide-header {
   display: none !important;
 }
 
-body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekLabel {
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekLabel,
+body.parent-magic-view.parent-magic-page-schedule:not(.parent-theme-light) #scheduleCalendarView #weekLabel {
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekSubLabel {
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) #weekSubLabel,
+body.parent-magic-view.parent-magic-page-schedule:not(.parent-theme-light) #scheduleCalendarView #weekSubLabel {
   color: rgba(244, 244, 255, 0.65) !important;
 }
 
-body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .nav-btn {
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .nav-btn,
+body.parent-magic-view.parent-magic-page-schedule:not(.parent-theme-light) #scheduleCalendarView .nav-btn {
   background: rgba(255, 255, 255, 0.1) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   color: #f4f4ff !important;
@@ -937,13 +940,15 @@ body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .nav-
   border-color: rgba(255, 204, 51, 0.45) !important;
 }
 
-body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab:not(.active) {
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab:not(.active),
+body.parent-magic-view.parent-magic-page-schedule:not(.parent-theme-light) #scheduleCalendarView .child-tab:not(.active) {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   color: #f4f4ff !important;
 }
 
-body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab.active {
+body.parent-magic-view.parent-magic-page-calendar:not(.parent-theme-light) .child-tab.active,
+body.parent-magic-view.parent-magic-page-schedule:not(.parent-theme-light) #scheduleCalendarView .child-tab.active {
   background: linear-gradient(135deg, #ffcc33, #f5a623) !important;
   border-color: transparent !important;
   color: #1b2340 !important;

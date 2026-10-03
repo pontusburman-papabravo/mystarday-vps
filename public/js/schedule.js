@@ -271,6 +271,8 @@ async function bootSchedulePage() {
       await loadTemplate(preSelectTemplate);
     } else if (preSelectView === 'family') {
       setScheduleMode('family');
+    } else if (preSelectView === 'calendar') {
+      if (window.ScheduleCalendarView) ScheduleCalendarView.show();
     } else if (preSelectChild && children.some(c => c.id === preSelectChild)) {
       await selectChild(preSelectChild);
       if (preSelectDay !== null) {
@@ -281,7 +283,7 @@ async function bootSchedulePage() {
           await loadScheduleForDay();
         }
       }
-    } else if (children.length === 1 && preSelectView !== 'family') {
+    } else if (children.length === 1 && preSelectView !== 'family' && preSelectView !== 'calendar') {
       await selectChild(children[0].id);
     }
   } catch (err) {
@@ -311,6 +313,7 @@ document.addEventListener('parent-i18n-ready', () => {
     }
   }
   if (window.ScheduleCalNav && typeof ScheduleCalNav.updateCalNavLabel === 'function') ScheduleCalNav.updateCalNavLabel();
+  if (window.ScheduleCalendarView) ScheduleCalendarView.syncToggle();
 });
 
 // showToast is now in /js/toast.js
@@ -458,6 +461,7 @@ function renderChildTabs() {
 
 async function selectChild(id) {
   try {
+    if (window.ScheduleCalendarView) ScheduleCalendarView.hide();
     document.getElementById('childrenListView').classList.add('hidden');
     document.getElementById('scheduleEditorView').classList.remove('hidden');
     document.getElementById('backToChildrenBtn').classList.remove('hidden');
@@ -477,6 +481,7 @@ async function selectChild(id) {
       singleBtn.textContent = `${child.emoji || '👤'} ${child.name}`;
     }
     currentChildId = id; currentDay = new Date().getDay() || 1; // start on today's day
+    if (window.ScheduleCalendarView) ScheduleCalendarView.syncToggle();
     if (currentDay === 0) currentDay = 1; // if sunday, default to monday
     document.getElementById('daySelectorWrap').classList.remove('hidden');
     calView = 'week'; weekOffset = 0; dayOffset = 0;
@@ -495,6 +500,7 @@ async function selectChild(id) {
 
 function backToChildrenList() {
   currentChildId = null; currentScheduleId = null;
+  if (window.ScheduleCalendarView) ScheduleCalendarView.syncToggle();
   document.getElementById('childrenListView').classList.remove('hidden');
   document.getElementById('scheduleEditorView').classList.add('hidden');
   document.getElementById('backToChildrenBtn').classList.add('hidden');

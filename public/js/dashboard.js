@@ -444,14 +444,7 @@ window.bootDashboardMagicPage = async function bootDashboardMagicPage() {
   currentChildId = null;
   currentScheduleId = null;
   const list = document.getElementById('childrenListView');
-  const editor = document.getElementById('scheduleEditorView');
   if (list) list.classList.remove('hidden');
-  if (editor) editor.classList.add('hidden');
-  document.getElementById('backToChildrenBtn')?.classList.add('hidden');
-  document.getElementById('daySelectorWrap')?.classList.add('hidden');
-  document.getElementById('viewModeBar')?.classList.add('hidden');
-  document.getElementById('calNavBar')?.classList.add('hidden');
-  document.getElementById('sbsChildSelector')?.classList.add('hidden');
 
   await Promise.all([
     typeof loadChildren === 'function' ? loadChildren() : Promise.resolve(),
@@ -552,47 +545,32 @@ function trackEvent(eventType, metadata) {
 // closeRequestPanel, approve/deny goal-change + redemption handlers.
 
 // ── Child tabs ────────────────────────────────────────────
+function canonicalScheduleHref(childId) {
+  if (!childId) return '/schedule';
+  return '/schedule?child=' + encodeURIComponent(childId);
+}
+
 function renderChildTabs() {
-  document.getElementById('childTabs').innerHTML = children.map(c => `
+  const tabs = document.getElementById('childTabs');
+  if (!tabs) return;
+  tabs.innerHTML = children.map(c => `
     <button onclick="selectChild('${c.id}')" class="child-tab px-5 py-2 rounded-full border-2 font-semibold text-sm transition-colors day-btn ${currentChildId===c.id?'bg-navy text-white border-navy':'border-lavender text-navy hover:border-navy'}" data-id="${c.id}">
       ${c.emoji||'👤'} ${escHtml(c.name)}
     </button>`).join('');
 }
 
-async function selectChild(id) {
-  document.getElementById('childrenListView').classList.add('hidden');
-  document.getElementById('scheduleEditorView').classList.remove('hidden');
-  document.getElementById('backToChildrenBtn').classList.remove('hidden');
-  document.getElementById('viewModeBar').classList.remove('hidden');
-  document.getElementById('calNavBar').classList.remove('hidden');
-  currentChildId = id; currentDay = new Date().getDay();
-  if (window.WidgetBridgeBootstrap && typeof WidgetBridgeBootstrap.onChildChanged === 'function') {
-    WidgetBridgeBootstrap.onChildChanged(id);
-  }
-  document.getElementById('daySelectorWrap').classList.remove('hidden');
-  calView = 'week'; weekOffset = 0; dayOffset = 0;
-  setCalView('week');
-  renderChildTabs(); renderDayTabs();
-  await loadScheduleForDay();
-  renderSbsChildSelector();
+function selectChild(id) {
+  window.location.assign(canonicalScheduleHref(id));
 }
 
 function backToChildrenList() {
-  currentChildId = null; currentScheduleId = null;
-  document.getElementById('childrenListView').classList.remove('hidden');
-  document.getElementById('scheduleEditorView').classList.add('hidden');
-  document.getElementById('backToChildrenBtn').classList.add('hidden');
-  document.getElementById('daySelectorWrap').classList.add('hidden');
-  document.getElementById('viewModeBar').classList.add('hidden');
-  document.getElementById('calNavBar').classList.add('hidden');
-  document.getElementById('sbsChildSelector').classList.add('hidden');
-  // Refresh dashboard cards (progress may have changed)
-  loadDashboardCards();
+  window.location.assign('/dashboard');
 }
 
 // ── Day tabs with DnD ────────────────────────────────────
 function renderDayTabs() {
   const container = document.getElementById('dayTabs');
+  if (!container) return;
   // Get dates for the current week offset (Mon=1..Sun=0)
   const weekStart = getWeekStart(weekOffset); // Monday
   const dayToDate = {};
@@ -674,6 +652,7 @@ async function selectDay(d) {
 
 // ── View mode ─────────────────────────────────────────────
 async function setViewMode(mode) {
+  if (!document.getElementById('scheduleContent')) return;
   currentViewMode = mode;
   document.getElementById('btnNormalView').classList.toggle('active', mode==='normal');
   document.getElementById('btnTimelineView').classList.toggle('active', mode==='timeline');
@@ -698,6 +677,7 @@ async function loadScheduleForDay() {
   if (!currentChildId) return;
 
   const container = document.getElementById('scheduleContent');
+  if (!container) return;
   let skeletonTimer;
   if (window.Skeleton && window.Skeleton.isNative()) {
     skeletonTimer = window.Skeleton.createTimer(function () {
@@ -744,6 +724,8 @@ async function refreshAfterOnceTaskChange() {
 }
 
 function renderEmptyDay() {
+  const host = document.getElementById('scheduleContent');
+  if (!host) return;
   const child = children.find(c => c.id === currentChildId);
   const dl = getDayDateLabel();
   document.getElementById('scheduleContent').innerHTML = `
@@ -786,6 +768,7 @@ function getCurrentDateStr() {
 }
 
 function renderSchedule() {
+  if (!document.getElementById('scheduleContent')) return;
   const child = children.find(c => c.id === currentChildId);
   const sHtml = buildSectionCardsHtml(scheduleItems, renderItem);
 

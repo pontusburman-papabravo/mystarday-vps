@@ -76,10 +76,10 @@ describe('Phase 1C — A. Fyll vecka retirement', () => {
 });
 
 describe('Phase 1C — B. Assign schedule demotion', () => {
-  it('B5: Planering hub does NOT list "Tilldela schema" in the primary "Planera vardagen" grid', () => {
+  it('B5: Planering hub does NOT list "Tilldela schema" among the primary choices', () => {
     const src = read(PLANNING_HUB_JS);
-    const planLinksBlock = src.slice(src.indexOf('const PLAN_LINKS'), src.indexOf('const CUSTODY_LINK'));
-    assert.doesNotMatch(planLinksBlock, /assignSchedule/);
+    const primaryBlock = src.slice(src.indexOf('const PRIMARY_CHOICES'), src.indexOf('const MER_LINKS'));
+    assert.doesNotMatch(primaryBlock, /assignSchedule/);
   });
 
   it('B6: /assign-schedule remains reachable (page + route retained, not deleted)', () => {
@@ -88,10 +88,12 @@ describe('Phase 1C — B. Assign schedule demotion', () => {
     assert.match(src, /'\/assign-schedule'/, 'still linked somewhere (secondary "Övrigt" section) for deep-link/QA reachability');
   });
 
-  it('B7: assign-schedule link only appears in the secondary OTHER_LINKS section, not duplicated in PLAN_LINKS', () => {
+  it('B7: assign-schedule link only appears in Mer, not duplicated in the primary choices', () => {
     const src = read(PLANNING_HUB_JS);
-    const otherLinksBlock = src.slice(src.indexOf('const OTHER_LINKS'), src.indexOf('const CAPABILITY_LINKS'));
-    assert.match(otherLinksBlock, /assignSchedule/, 'retained as a secondary/legacy entry for deep-link + manual access');
+    const merBlock = src.slice(src.indexOf('const MER_LINKS'), src.indexOf('const CUSTODY_LINK'));
+    assert.match(merBlock, /assignSchedule/, 'retained under Mer for deep-link + manual access');
+    const primaryBlock = src.slice(src.indexOf('const PRIMARY_CHOICES'), src.indexOf('const MER_LINKS'));
+    assert.doesNotMatch(primaryBlock, /assign-schedule/);
   });
 });
 

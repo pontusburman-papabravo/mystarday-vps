@@ -114,31 +114,6 @@
         padding-top: 0.75rem;
         border-top: 1px solid #EDE7F6;
       }
-      /* Child name tabs: horizontal scroll instead of wrap, compact sizing */
-      #childTabs {
-        flex-wrap: nowrap !important;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        gap: 6px !important;
-      }
-      #childTabs::-webkit-scrollbar { display: none; }
-      #childTabs .child-tab {
-        padding: 6px 12px !important;
-        font-size: 12px !important;
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
-      /* Back button: compact */
-      #backToChildrenBtn {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-      }
-      /* View mode bar: compact on mobile */
-      #viewModeBar .view-btn {
-        padding: 4px 8px !important;
-        font-size: 11px !important;
-      }
     }
     .section-card { transition: background 0.2s; }
     .activity-item { touch-action: pan-y; user-select: none; }
@@ -608,25 +583,6 @@
       <div class="bg-sky border-b border-lavender p-4 md:p-6 parent-magic-hide-header">
         <div class="flex justify-between items-center mb-3">
           <h2 id="dashboardPageTitle" class="text-xl font-heading font-bold text-navy" data-i18n="home.dash.heading">🌟 Familjens framsteg idag</h2>
-          <div class="flex items-center gap-3">
-            <button id="backToChildrenBtn" onclick="backToChildrenList()" class="hidden px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-lg font-semibold text-sm transition-colors" data-i18n="home.dash.allChildren">← Alla barn</button>
-          </div>
-        </div>
-        <!-- Dag / Vecka / Månad toggle + week navigation -->
-        <div id="calNavBar" class="hidden flex flex-wrap items-center gap-2">
-          <!-- View type toggle -->
-          <div class="flex rounded-xl border-2 border-lavender overflow-hidden">
-            <button id="btnViewDay" onclick="setCalView('day')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="home.dash.calViewDay">Dag</button>
-            <button id="btnViewWeek" onclick="setCalView('week')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-navy text-white" data-i18n="home.dash.calViewWeek">Vecka</button>
-            <button id="btnViewMonth" onclick="setCalView('month')" class="cal-view-btn px-3 py-1.5 text-sm font-semibold transition-colors bg-white text-navy hover:bg-lavender" data-i18n="home.dash.calViewMonth">Månad</button>
-          </div>
-          <!-- Week/day navigation -->
-          <div class="flex items-center gap-1 ml-1">
-            <button id="calNavPrev" onclick="calNavPrev()" class="w-8 h-8 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors text-sm">‹</button>
-            <span id="calNavLabel" class="font-heading font-bold text-navy text-sm min-w-[130px] text-center px-1"></span>
-            <button id="calNavNext" onclick="calNavNext()" class="w-8 h-8 rounded-full border-2 border-lavender hover:border-gold flex items-center justify-center font-bold text-navy transition-colors text-sm">›</button>
-          </div>
-          <button onclick="calNavToday()" class="px-3 py-1.5 text-xs border-2 border-lavender hover:border-navy rounded-lg font-semibold text-navy transition-colors" data-i18n="time.today">Idag</button>
         </div>
       </div>
 
@@ -772,43 +728,11 @@
               <li data-i18n="home.dash.starTipsCollect">• Barnet samlar stjärnor när aktiviteter bockas av i barnvyn</li>
               <li data-i18n="home.dash.starTipsExtra">• Ge extra stjärnor direkt från barnkortet för insatser utanför schemat</li>
               <li data-i18n="home.dash.starTipsRewards">• Stjärnorna räknas mot sparade belöningar — sätt upp mål i Bibliotek</li>
-              <li data-i18n="home.dash.starTipsEdit">• Klicka på ett barnkort för att se och redigera dess veckoschema</li>
+              <li data-i18n="home.dash.starTipsEdit">• Veckoschemat ändrar du under Planering</li>
             </ul>
           </div>
 
 
-        </div>
-
-        <!-- Schedule editor -->
-        <div id="scheduleEditorView" class="hidden">
-          <!-- Child tabs -->
-          <div id="childTabs" class="flex gap-2 flex-wrap mb-4"></div>
-
-          <!-- View mode bar (schema/tidsvy/jämför/specialdagar — secondary views) -->
-          <div id="viewModeBar" class="hidden flex flex-wrap items-center gap-2 mb-3">
-            <button id="btnNormalView" onclick="setViewMode('normal')" class="view-btn active">📋 <span data-i18n="schedule.views.normal">Schema</span></button>
-            <button id="btnTimelineView" onclick="setViewMode('timeline')" class="view-btn">⏱ <span data-i18n="schedule.views.timelineMode">Tidsvy</span></button>
-            <button id="btnSbsView" onclick="setViewMode('sbs')" class="view-btn">👥 <span data-i18n="schedule.views.sbsTitle">Jämför barn</span></button>
-            <button id="btnSpecialDaysView" onclick="setViewMode('special-days')" class="view-btn" data-i18n="schedule.views.specialDays">🌟 Specialdagar</button>
-            <span class="drag-copy-hint" data-i18n="schedule.actions.dragCopyHint">← Dra aktivitet till dag-flik för att kopiera</span>
-          </div>
-
-          <!-- Day selector -->
-          <div id="daySelectorWrap" class="hidden">
-            <p class="text-xs text-text-soft mb-2" data-i18n-html="schedule.chrome.daySelectorHint">Välj dag — <em data-i18n="home.dash.dayDragInner">dra dag-flik till annan dag för att kopiera/byta</em></p>
-            <div class="flex gap-1 overflow-x-auto pb-1" id="dayTabs"></div>
-          </div>
-
-          <!-- SBS child picker -->
-          <div id="sbsChildSelector" class="hidden mb-4 p-4 bg-lavender rounded-2xl">
-            <p class="text-sm font-semibold text-navy mb-2" data-i18n="schedule.chrome.sbsPickerHint">Välj barn att jämföra med:</p>
-            <div id="sbsChildOptions" class="flex gap-2 flex-wrap"></div>
-          </div>
-
-          <!-- Content -->
-          <div id="scheduleContent">
-            <div class="text-center py-16 text-text-soft"><p class="text-4xl mb-3">📅</p><p class="font-semibold" data-i18n="schedule.chrome.pickChildAbove">Välj ett barn ovan</p></div>
-          </div>
         </div>
 
       </div>
