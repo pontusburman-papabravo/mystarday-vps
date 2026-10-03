@@ -2120,3 +2120,35 @@ body.parent-magic-view.parent-theme-light .parent-coparent-cta-copy span {
 body.parent-magic-view.parent-theme-light .parent-schedule-link {
   color: #b8860b !important;
 }
+
+/* Schedule menus and sheets stay solid. The dark-shell .bg-white glass rule
+   must not apply to action sheets, popovers, or the activity Save footer. */
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface,
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface.bg-white,
+body.parent-magic-view:not(.parent-theme-light) .overflow-menu-popup {
+  background: #1b2340 !important;
+  color: #f4f4ff !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface .text-navy,
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface .font-heading,
+body.parent-magic-view:not(.parent-theme-light) .overflow-menu-popup button {
+  color: #f4f4ff !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface .bg-gold,
+body.parent-magic-view:not(.parent-theme-light) .schedule-menu-surface .bg-gold.text-navy {
+  color: #1b2340 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .schedule-choice-selected {
+  background: #fff3d6 !important;
+  color: #1b2340 !important;
+  border-color: #f5a623 !important;
+}
+
+body.parent-magic-view:not(.parent-theme-light) .schedule-sheet-danger,
+body.parent-magic-view:not(.parent-theme-light) .overflow-menu-popup button.danger {
+  color: #fecaca !important;
+}

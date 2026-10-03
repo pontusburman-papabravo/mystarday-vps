@@ -699,7 +699,10 @@
       "added": "\"{{name}}\" added on {{count}} day(s)",
       "createdAndAdded": "\"{{name}}\" created and added on {{count}} day(s)",
       "queued": "Saving… then \"{{name}}\" ({{count}} waiting)",
-      "childChanged": "The child changed. Open Add again for the child you want to edit."
+      "childChanged": "The child changed. Open Add again for the child you want to edit.",
+      "contextSummary": "{{day}} · {{section}}",
+      "changeDaySection": "Change day/part",
+      "addAnother": "Add another"
     },
     "template": {
       "title": "From a template",
