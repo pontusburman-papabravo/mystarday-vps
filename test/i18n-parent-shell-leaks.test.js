@@ -26,11 +26,13 @@ describe('Parent shell i18n leaks (Prompt 6)', () => {
     assert.doesNotMatch(src, /Målbytebegäran/);
   });
 
-  it('family.html wires give-star and drawer rewards copy', () => {
+  it('family.html keeps dark mode; give-star copy lives on the child profile', () => {
     const html = read('public/family.html');
-    assert.match(html, /data-i18n="family\.drawer\.giveStarBtn"/);
-    assert.match(html, /data-i18n="family\.giveStars\.title"/);
     assert.match(html, /data-i18n="nav\.darkMode"/);
+    assert.doesNotMatch(html, /data-i18n="family\.drawer\.giveStarBtn"/);
+    const profile = read('public/js/child-profile.js');
+    assert.match(profile, /childProfile\.manualStarsTitle/);
+    assert.match(profile, /childProfile\.manualStarsSubmit/);
   });
 
   it('mobile-nav.js uses nav.* for legacy dark mode labels', () => {

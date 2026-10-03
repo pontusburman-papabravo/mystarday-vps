@@ -157,7 +157,6 @@ describe('API error contracts i18n', () => {
 
   it('frontend consumers prefer code mapping over Swedish error', () => {
     const files = {
-      'public/js/family.js': /apiErrorMessage\(data, 'family\.errors\.upload'\)/,
       'public/js/library.js': /libApiError\(/,
       'public/js/library-images.js': /apiErrorMessage\(data, 'library\.images\.uploadFailed'\)/,
       'public/js/push-manager.js': /apiErrorMessage\(err, 'settings\.push\.errors\.subscriptionFailed'\)/,
