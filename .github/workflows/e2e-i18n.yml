@@ -53,6 +53,9 @@ jobs:
       NODE_ENV: test # pragma: allowlist secret
       TEST_SKIP_MIGRATE: '1'
       E2E_VIEWPORTS: desktop,mobile
+      # Same cohort instant as src/lib/signup-clock.js TEST_SIGNUP_COHORT_ISO.
+      # Intro year, before 2026-10-03 00:00 Europe/Stockholm. Ignored outside NODE_ENV=test.
+      TEST_SIGNUP_NOW: '2026-10-02T21:00:00.000Z'
 
     steps:
       - uses: actions/checkout@v4
