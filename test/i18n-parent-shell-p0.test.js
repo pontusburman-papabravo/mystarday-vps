@@ -75,12 +75,14 @@ describe('Parent shell P0 i18n (#1208 remainder)', () => {
     }
   });
 
-  it('family drawer schema/tips copy wired (#1206 keeps rewards/give-star)', () => {
+  it('family tips stay on Familj; schema and stars live on the child profile', () => {
     const html = read('public/family.html');
-    assert.match(html, /data-i18n="family\.drawer\.tabSchema"/);
     assert.match(html, /data-i18n="family\.tips\.summary"/);
-    assert.match(html, /data-i18n="family\.drawer\.schemaIntro"/);
-    assert.match(html, /data-i18n="family\.drawer\.giveStarBtn"/);
+    assert.doesNotMatch(html, /id="childDrawer"/);
+    assert.doesNotMatch(html, /data-i18n="family\.drawer\.tabSchema"/);
+    const profile = read('public/js/child-profile.js');
+    assert.match(profile, /\/schedule\?child=/);
+    assert.match(profile, /childProfile\.manualStarsTitle/);
   });
 
   it('family.js uses translated child-added toast', () => {

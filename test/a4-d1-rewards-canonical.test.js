@@ -69,7 +69,7 @@ describe('A4+D1 rewards hub + library editor', () => {
 
   it('assignment UIs drop inactive rewards so delete is not stale', () => {
     const family = read('public/js/family.js');
-    assert.match(family, /is_active !== false/);
+    assert.doesNotMatch(family, /function loadRewards\b/);
     const settings = read('public/js/child-settings.js');
     assert.match(settings, /is_active !== false/);
     const setup = read('public/js/child-profile-setup.js');

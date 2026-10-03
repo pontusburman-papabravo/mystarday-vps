@@ -196,9 +196,11 @@ describe('user-authored data unchanged', () => {
     assert.match(js, /escHtml\([^)]*\.name\)/);
   });
 
-  it('family schedule apply keeps schedule name in toast params', () => {
-    const js = fs.readFileSync(path.join(__dirname, '../public/js/family.js'), 'utf8');
-    assert.match(js, /scheduleApplied.*name: scheduleName/);
+  it('family no longer applies a schedule in the drawer; canonical insert keeps the name as a param', () => {
+    const family = fs.readFileSync(path.join(__dirname, '../public/js/family.js'), 'utf8');
+    assert.doesNotMatch(family, /scheduleApplied/);
+    const insert = fs.readFileSync(path.join(__dirname, '../public/js/schedule-insert-fill.js'), 'utf8');
+    assert.match(insert, /insertedNamed',\s*\{\s*name:\s*scheduleName/);
   });
 });
 

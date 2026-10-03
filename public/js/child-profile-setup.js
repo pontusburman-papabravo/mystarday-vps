@@ -601,12 +601,10 @@
 
   async function schemaSummaryHtml(childId, childName) {
     const labels = dayLabels();
-    const openScheduleLink = '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' +
-      esc(fpt('childProfile.setup.schema.openSchedule')) + '</a>';
     try {
       const res = await window.apiFetch('/api/children/' + encodeURIComponent(childId) + '/schedules');
       if (!res.ok) {
-        return '<p class="text-text-soft mb-4">' + esc(fpt('childProfile.setup.schema.loadFailed')) + '</p>' + openScheduleLink;
+        return '<p class="text-text-soft mb-4">' + esc(fpt('childProfile.setup.schema.loadFailed')) + '</p>';
       }
       const schedules = await res.json();
       const byDay = {};
@@ -619,16 +617,14 @@
         const count = byDay[i] || 0;
         const cls = count > 0 ? 'bg-gold' : 'bg-lavender';
         return '<div class="flex flex-col items-center gap-1 flex-1"><span class="w-3 h-3 rounded-full ' + cls + '"></span>' +
-          '<span class="text-[10px] text-text-soft">' + esc(label) + '</span>' +
-          (count > 0 ? '<span class="text-[10px] font-bold text-navy">' + count + '</span>' : '') + '</div>';
+          '<span class="text-xs text-text-soft">' + esc(label) + '</span>' +
+          (count > 0 ? '<span class="text-xs font-bold text-navy">' + count + '</span>' : '') + '</div>';
       }).join('');
       return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
         '<p class="text-sm text-text-soft mb-3">' + esc(fpt('childProfile.setup.schema.weekOverview', { name: childName })) + '</p>' +
-        '<div class="flex gap-1">' + dots + '</div></div>' +
-        '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' +
-        esc(fpt('childProfile.setup.schema.editSchedule')) + '</a>';
+        '<div class="flex gap-1">' + dots + '</div></div>';
     } catch (_) {
-      return openScheduleLink;
+      return '<p class="text-text-soft mb-4">' + esc(fpt('childProfile.setup.schema.loadFailed')) + '</p>';
     }
   }
 

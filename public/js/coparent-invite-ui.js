@@ -220,11 +220,6 @@
 
     loadInviteChildChoices();
 
-    const drawer = global.document.getElementById('childDrawer');
-    if (drawer && !drawer.classList.contains('hidden') && typeof global.closeChildDrawer === 'function') {
-      global.closeChildDrawer();
-    }
-
     const msg = global.document.getElementById('coParentInviteModalMsg');
     if (msg) {
       msg.textContent = '';

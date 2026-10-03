@@ -32,8 +32,8 @@ describe('family remainder i18n', () => {
     assert.match(src, /data-i18n="nav\.primary\.forYou"/);
     assert.match(src, /data-i18n="nav\.familySettings"/);
     assert.match(src, /data-i18n="family\.shell\.familyName"/);
-    assert.match(src, /data-i18n="family\.form\.saveChanges"/);
-    assert.match(src, /data-i18n="family\.giveStars\.submit"/);
+    assert.match(src, /data-i18n="family\.shell\.addChildSubmit"/);
+    assert.doesNotMatch(src, /id="childDrawer"/);
     assert.match(src, /data-i18n="family\.shell\.addAdultTitle"/);
     assert.doesNotMatch(src, /<title>Familj -/);
   });

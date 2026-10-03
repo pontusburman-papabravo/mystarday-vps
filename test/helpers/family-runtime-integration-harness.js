@@ -13,9 +13,8 @@ const ROOT = path.join(__dirname, '../..');
 const FAMILY_ELEMENT_IDS = [
   'userEmail', 'logoutBtn', 'inviteBtn', 'familyLoadingSkeleton', 'familyDataSections',
   'familyHubSummary', 'familyLoadError', 'familyChestSection', 'familyNameSection',
-  'familyNameInput', 'todayLabel', 'drawerEditBirthdayYear', 'drawerEditBirthdayMonth',
-  'drawerEditBirthdayDay', 'drawerEditBirthday', 'noChildrenState', 'childrenGrid',
-  'noAdultsState', 'adultsGrid', 'pendingInvitesSection', 'pendingInvitesList', 'childDrawer',
+  'familyNameInput', 'todayLabel', 'noChildrenState', 'childrenGrid',
+  'noAdultsState', 'adultsGrid', 'pendingInvitesSection', 'pendingInvitesList',
   'familyPedagogPeople',
 ];
 

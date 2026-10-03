@@ -38,13 +38,15 @@ describe('magic appearance fixes', () => {
   it('family modals use high z-index', () => {
     const html = fs.readFileSync(path.join(ROOT, 'public/family.html'), 'utf8');
     assert.match(html, /id="addAdultModal"[^>]*z-\[9100\]/);
-    assert.match(html, /id="childDrawer"[^>]*z-\[9050\]/);
+    assert.doesNotMatch(html, /id="childDrawer"/);
+    assert.doesNotMatch(html, /z-\[9050\]/);
   });
 
-  it('family openFamilyModal closes drawer first', () => {
+  it('family openFamilyModal does not open a child drawer', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
     assert.match(src, /function openFamilyModal/);
-    assert.match(src, /closeChildDrawer\(\)/);
+    assert.doesNotMatch(src, /closeChildDrawer/);
+    assert.doesNotMatch(src, /childDrawer/);
   });
 
   it('parent-magic-auto wraps toggle + header in top chrome row', () => {

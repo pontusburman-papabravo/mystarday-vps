@@ -16,12 +16,12 @@ function read(rel) {
 describe('Parent shell P0 final cleanup', () => {
   loadLocales();
 
-  it('family drawer settings tab wires i18n keys', () => {
+  it('child profile setup wires the nnl toggle; the family drawer is gone', () => {
     const html = read('public/family.html');
-    assert.match(html, /data-i18n="family\.childProfile\.setup\.toggles\.nnl\.label"/);
-    assert.match(html, /data-i18n="family\.drawer\.settings\.nnl\.tooltip"/);
-    assert.match(html, /data-i18n="family\.drawer\.settings\.rewardsShortcutTitle"/);
-    assert.match(html, /data-i18n="family\.drawer\.settings\.hideClock\.tooltip"/);
+    assert.doesNotMatch(html, /id="childDrawer"/);
+    assert.doesNotMatch(html, /data-i18n="family\.drawer\.settings\.nnl\.tooltip"/);
+    const setup = read('public/js/child-profile-setup.js');
+    assert.match(setup, /childProfile\.setup\.toggles\.nnl\.label/);
   });
 
   it('assign-schedule save flow uses schedule.assign keys', () => {

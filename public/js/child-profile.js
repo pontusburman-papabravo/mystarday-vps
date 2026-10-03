@@ -11,13 +11,24 @@
 
   const TABS = [
     { id: 'overview', labelKey: 'childProfile.tabs.overview' },
-    { id: 'log', labelKey: 'childProfile.tabs.log' },
     { id: 'schema', labelKey: 'childProfile.tabs.schema' },
     { id: 'rewards', labelKey: 'childProfile.tabs.rewards' },
-    { id: 'progress', labelKey: 'childProfile.tabs.progress' },
     { id: 'setup', labelKey: 'childProfile.tabs.setup' },
+  ];
+
+  const SECONDARY_LINKS = [
+    { id: 'log', labelKey: 'childProfile.tabs.log' },
+    { id: 'progress', labelKey: 'childProfile.tabs.progress' },
     { id: 'child-view', labelKey: 'childProfile.tabs.childView' },
   ];
+
+  /** Old ?tab= values. They stay on the profile; they are not tab buttons. */
+  const LEGACY_PROFILE_TABS = {
+    settings: { tab: 'setup', secondary: null },
+    log: { tab: 'overview', secondary: 'log' },
+    progress: { tab: 'overview', secondary: 'progress' },
+    'child-view': { tab: 'overview', secondary: 'child-view' },
+  };
 
   let childId = null;
   let child = null;
@@ -43,12 +54,22 @@
     return null;
   }
 
-  function currentTab() {
+  function rawTabParam() {
     const p = new URLSearchParams(window.location.search);
     return p.get('tab') || 'overview';
   }
 
-  function setTab(tab) {
+  function mapLegacyTab(raw) {
+    if (TABS.some(function (t) { return t.id === raw; })) {
+      return { tab: raw, secondary: null };
+    }
+    if (Object.prototype.hasOwnProperty.call(LEGACY_PROFILE_TABS, raw)) {
+      return LEGACY_PROFILE_TABS[raw];
+    }
+    return { tab: 'overview', secondary: null };
+  }
+
+  function setQueryTab(tab) {
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
     window.history.replaceState({}, '', url.pathname + url.search);
@@ -58,6 +79,10 @@
       if (mount) mount.scrollIntoView({ block: 'start', behavior: 'smooth' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  }
+
+  function setTab(tab) {
+    setQueryTab(tab);
   }
 
   async function loadData() {
@@ -179,7 +204,7 @@
     } else {
       html += '<p class="text-text-soft text-sm mb-3">' + esc(pt('childProfile.noActiveGoal')) + '</p>';
     }
-    html += '<a href="/library#rewards" class="block p-4 bg-white border border-lavender rounded-xl font-semibold text-center">' + esc(pt('childProfile.manageRewards')) + '</a>';
+    html += '<a href="/rewards?child=' + encodeURIComponent(childId) + '" class="child-profile-rewards-link block p-4 bg-white border border-lavender rounded-xl font-semibold text-center min-h-[44px]">' + esc(pt('childProfile.manageRewards')) + '</a>';
     return html;
   }
 
@@ -234,10 +259,10 @@
       const val = totals[i] || 0;
       const h = Math.max(val > 0 ? 8 : 0, Math.round((val / max) * 100));
       return '<div class="flex-1 flex flex-col items-center gap-1 min-w-[36px]">' +
-        '<span class="text-[10px] font-bold text-gold">' + val + '⭐</span>' +
+        '<span class="text-xs font-bold text-gold">' + val + '⭐</span>' +
         '<div class="w-full bg-lavender rounded-t-lg relative" style="height:80px">' +
         '<div class="absolute bottom-0 left-0 right-0 bg-gold rounded-t-lg" style="height:' + h + '%"></div></div>' +
-        '<span class="text-[10px] text-text-soft">' + esc(w.week_label || '') + '</span></div>';
+        '<span class="text-xs text-text-soft">' + esc(w.week_label || '') + '</span></div>';
     }).join('');
     return '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4 overflow-hidden">' +
       '<p class="text-sm text-text-soft mb-3">' + esc(pt('childProfile.starsPerWeek')) + '</p>' +
@@ -245,47 +270,75 @@
       (await reportsLinkHtml());
   }
 
-  function tabContent(tab) {
-    if (tab === 'overview') {
-      const stars = dashRow ? (dashRow.stars_today || 0) : '—';
-      const paused = dashRow && dashRow.today_is_paused;
-      return quickActionsHtml() +
-        overviewAlertsHtml() +
-        '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
-        '<p class="text-sm text-text-soft">' + esc(pt('childProfile.todayLabel')) + '</p>' +
-        '<p class="text-2xl font-heading font-bold text-navy">' + stars + ' ⭐</p>' +
-        (paused ? '<p class="text-sm text-coral font-semibold mt-1">' + esc(pt('childProfile.pausedToday')) + '</p>' : '') +
-        '</div>';
+  function secondaryLinksHtml(activeSecondary) {
+    const links = SECONDARY_LINKS.map(function (item) {
+      const current = activeSecondary === item.id ? ' text-gold underline' : '';
+      const label = esc(pt(item.labelKey));
+      if (item.id === 'log') {
+        const href = '/daily-log?childId=' + encodeURIComponent(childId);
+        return '<a href="' + href + '" data-secondary="' + item.id + '" class="child-profile-secondary flex items-center min-h-[44px] text-base font-semibold text-navy' + current + '">' + label + '</a>';
+      }
+      return '<button type="button" data-secondary="' + item.id + '" class="child-profile-secondary block w-full text-left min-h-[44px] text-base font-semibold text-navy' + current + '">' + label + '</button>';
+    }).join('');
+    return '<nav class="mt-2 mb-4 border-t border-lavender/60 pt-3 flex flex-col">' + links + '</nav>';
+  }
+
+  function secondaryPanelHtml(secondary) {
+    if (secondary === 'progress') {
+      return '<div id="profileProgressBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
-    if (tab === 'log') {
-      return '<a href="/daily-log?childId=' + encodeURIComponent(childId) + '" class="block p-4 bg-gold text-white rounded-xl font-bold text-center">' + esc(pt('childProfile.openDailyLog')) + '</a>';
+    if (secondary === 'child-view') {
+      return '<p class="text-base text-text-soft mb-4">' + esc(pt('childProfile.childHandoffLead')) + '</p>' +
+        '<button type="button" id="childHandoffBtn" class="w-full p-4 bg-white border border-lavender text-navy rounded-xl font-bold min-h-[44px]">' + esc(pt('childProfile.childHandoffBtn')) + '</button>';
     }
+    return '';
+  }
+
+  function overviewHtml(secondary) {
+    const stars = dashRow ? (dashRow.stars_today || 0) : '—';
+    const paused = dashRow && dashRow.today_is_paused;
+    return quickActionsHtml() +
+      overviewAlertsHtml() +
+      '<div class="bg-white rounded-2xl border border-lavender p-4 mb-4">' +
+      '<p class="text-sm text-text-soft">' + esc(pt('childProfile.todayLabel')) + '</p>' +
+      '<p class="text-2xl font-heading font-bold text-navy">' + stars + ' ⭐</p>' +
+      (paused ? '<p class="text-sm text-coral font-semibold mt-1">' + esc(pt('childProfile.pausedToday')) + '</p>' : '') +
+      '</div>' +
+      secondaryLinksHtml(secondary) +
+      secondaryPanelHtml(secondary);
+  }
+
+  function tabContent(tab, secondary) {
+    if (tab === 'overview') return overviewHtml(secondary);
     if (tab === 'schema') {
-      return '<div id="profileSchemaBody">' + esc(pt('childProfile.loadingSchema')) + '</div>';
+      return '<div id="profileSchemaBody">' + esc(pt('childProfile.loadingSchema')) + '</div>' +
+        '<a href="/schedule?child=' + encodeURIComponent(childId) + '" class="child-profile-schema-link block p-4 mt-4 bg-white border border-lavender rounded-xl font-semibold text-center min-h-[44px]">' +
+        esc(pt('childProfile.setup.schema.editSchedule')) + '</a>';
     }
     if (tab === 'rewards') {
       return '<div id="profileRewardsBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
-    if (tab === 'progress') {
-      return '<div id="profileProgressBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
-    }
     if (tab === 'setup') {
       return '<div id="childProfileSetupBody">' + esc(pt('childProfile.loadingSetup')) + '</div>';
     }
-    if (tab === 'child-view') {
-      return '<p class="text-text-soft mb-4">' + esc(pt('childProfile.childHandoffLead')) + '</p>' +
-        '<button type="button" id="childHandoffBtn" class="w-full p-4 bg-gold text-white rounded-xl font-bold">' + esc(pt('childProfile.childHandoffBtn')) + '</button>';
-    }
-    return '';
+    return overviewHtml(secondary);
   }
 
   function render() {
     const mount = document.getElementById('childProfileMount');
     if (!mount || !child) return;
-    const tab = currentTab();
+    const rawTab = rawTabParam();
+    const mapped = mapLegacyTab(rawTab);
+    if (rawTab === 'settings') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', 'setup');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+    const tab = mapped.tab;
+    const secondary = mapped.secondary;
     const tabsHtml = TABS.map(function (t) {
       const active = t.id === tab;
-      return '<button type="button" data-tab="' + t.id + '" class="child-profile-tab px-2 py-2 rounded-xl text-xs sm:text-sm font-semibold text-center min-h-[44px]' + (active ? ' is-active' : '') + '">' + esc(pt(t.labelKey)) + '</button>';
+      return '<button type="button" data-tab="' + t.id + '" class="child-profile-tab px-3 py-3 rounded-xl text-base font-semibold text-center min-h-[44px]' + (active ? ' is-active' : '') + '">' + esc(pt(t.labelKey)) + '</button>';
     }).join('');
 
     mount.innerHTML =
@@ -294,14 +347,21 @@
       '<span class="text-4xl">' + esc(child.emoji || '⭐') + '</span>' +
       '<div><h1 class="text-2xl font-heading font-bold text-navy">' + esc(child.name) + '</h1>' +
       '<p class="text-sm text-text-soft child-profile-subtitle">' + esc(profileSubtitle(child)) + '</p></div></div>' +
-      '<div id="childProfileTabBar" class="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6 sticky top-0 z-20 -mx-4 px-4 py-2 bg-sky/95 backdrop-blur-sm border-b border-lavender/40">' + tabsHtml + '</div>' +
-      '<div id="childProfileTabBody">' + tabContent(tab) + '</div>';
+      '<div id="childProfileTabBar" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 sticky top-0 z-20 -mx-4 px-4 py-2 bg-sky/95 backdrop-blur-sm border-b border-lavender/40">' + tabsHtml + '</div>' +
+      '<div id="childProfileTabBody">' + tabContent(tab, secondary) + '</div>';
 
     mount.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const t = btn.getAttribute('data-tab');
         trackTab(t);
         setTab(t);
+      });
+    });
+    mount.querySelectorAll('button[data-secondary]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const id = btn.getAttribute('data-secondary');
+        trackTab(id);
+        setQueryTab(id);
       });
     });
 
@@ -319,7 +379,7 @@
       });
     }
 
-    if (tab === 'progress') {
+    if (secondary === 'progress') {
       progressTabHtml().then(function (html) {
         const el = document.getElementById('profileProgressBody');
         if (el) el.innerHTML = html;
