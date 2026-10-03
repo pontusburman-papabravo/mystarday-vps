@@ -16,12 +16,14 @@ describe('Parent hubs platform QA — hub boundaries (static)', () => {
     assert.match(hem, /\/daily-log/);
   });
 
-  it('Belöningar links manage to library#rewards not skattkammaren', () => {
+  it('Belöningar keeps manage on /rewards, not library#rewards or skattkammaren', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/rewards-hub.js'), 'utf8');
-    assert.match(hub, /\/library#rewards/);
+    const html = fs.readFileSync(path.join(ROOT, 'public/rewards.html'), 'utf8');
+    assert.doesNotMatch(hub, /\/library#rewards/);
     assert.doesNotMatch(hub, /\/skattkammaren/);
     assert.match(hub, /PendingApprovals\.mountHub/);
     assert.match(hub, /\/family\/child\/.*tab=rewards/);
+    assert.match(html, /id="rewardsManage"/);
   });
 
   it('Planering does not embed daily readiness or pending UI', () => {

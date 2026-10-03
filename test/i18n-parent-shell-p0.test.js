@@ -60,7 +60,6 @@ describe('Parent shell P0 i18n (#1208 remainder)', () => {
     for (const file of [
       'public/library.html',
       'public/dashboard.html',
-      'public/activities.html',
       'public/settings.html',
       'public/skattkammaren-parent.html',
       'public/family-week.html',

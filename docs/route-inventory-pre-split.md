@@ -50,7 +50,7 @@
 | GET | `/.well-known/assetlinks.json` | app.js (inline) | — |
 | GET | `/.well-known/assetlinks.json` | app.js (inline) | — |
 | GET | `/accept-invite` | — | — |
-| GET | `/activities` | — | — |
+| GET | `/activities` | src/routes/index.js (inline) | — |
 | GET | `/admin` | src/routes/index.js (inline) | — |
 | GET | `/admin/development` | src/routes/index.js (inline) | — |
 | GET | `/admin/development/:slug` | src/routes/index.js (inline) | — |

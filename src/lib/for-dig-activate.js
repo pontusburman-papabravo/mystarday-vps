@@ -348,8 +348,8 @@ function buildActivationNextStep(result, childId) {
 
   if (result.rewards) {
     return {
-      label: 'Öppna Skattkammaren',
-      href: '/skattkammaren',
+      label: 'Öppna belöningar',
+      href: `/rewards?child=${childId}`,
       hint: 'Belöningarna är redo att användas.',
     };
   }

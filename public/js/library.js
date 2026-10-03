@@ -1,8 +1,9 @@
 // library.js — Mitt bibliotek core module
 // Owns: shared state, icon constants, auth/init, main tab switching,
 //       categories, activities (list + DnD + modal + search),
-//       rewards (list + DnD + modal + search), icon pickers, star picker,
-//       favorite/approval toggles, confirm modal, modal backdrop listeners, utilities.
+//       icon pickers, star picker,
+//       favorite toggles, confirm modal, modal backdrop listeners, utilities.
+// Reward create/edit lives in reward-editor.js on /rewards.
 // Does NOT own: schema tab logic (library-schema.js), standard library tab
 //               (library-standard.js), sub-steps (library-substeps.js),
 //               treasury view (library-treasury.js).
@@ -76,14 +77,10 @@ document.addEventListener('touchstart', e => {
 // ─── Shared state ─────────────────────────────────────────
 let categories = [];
 let activities = [];
-let rewards = [];
-let rewardChildren = [];
-let _rewardsLoaded = false;
 let _activitiesLoaded = false;
 let _categoriesLoaded = false;
 let _libIsAdmin = false;
 let favValue = false;
-let approvalValue = true;
 let activeSchemaTab = null; // category id of active schema tab
 const subStepsCache = {};
 const openSubStepPanels = new Set();
@@ -103,13 +100,55 @@ const ICONS = [
   '👕','🌅','📺','💧',
 ];
 
-const REWARD_ICONS = [
-  '🏆','🎁','🎉','🎊','🍦','🎬','🎠','🏅','🥇','💝','⭐','🌟',
-  '🎯','🎮','🛝','🎨','🎵','🧩','⚽','🏀','🚴','🏊','🌸',
-  '🍕','🍔','🍟','🍩','🍪','🍫','🧁','🎂','🥤','🍓',
-  '📱','🎒','👟','👗','🕹️','🔮','🦄','🐉',
-  '✈️','🏖️','🎡','🎢','🎪','🎭','🎵',
-];
+let _activityEditorReturn = '';
+
+function safeScheduleReturn(raw) {
+  if (typeof raw !== 'string' || !raw.startsWith('/schedule')) return '';
+  if (raw.startsWith('//') || raw.indexOf('://') !== -1 || raw.indexOf('\\') !== -1) return '';
+  if (raw.indexOf('#') !== -1) return '';
+  return raw;
+}
+
+function redirectLegacyRewardsHash() {
+  const hash = (window.location.hash || '').replace('#', '');
+  if (hash !== 'rewards' && hash !== 'magic-rewards') return false;
+  const child = new URLSearchParams(window.location.search).get('child');
+  const query = child ? '?child=' + encodeURIComponent(child) : '';
+  window.location.replace('/rewards' + query);
+  return true;
+}
+
+function openActivityEditorFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('edit');
+  const isNew = params.get('new') === '1';
+  if (!editId && !isNew) return;
+  const ret = safeScheduleReturn(params.get('return') || '');
+  if (!(window.LibraryMagicHub && LibraryMagicHub.isMagic())) {
+    switchTab('activities');
+  }
+  if (editId) {
+    const act = activities.find(function (item) { return String(item.id) === String(editId); });
+    if (!act) {
+      showToast(lpt('library.errors.generic'), true);
+      return;
+    }
+    _activityEditorReturn = ret;
+    openActivityModal(act);
+    return;
+  }
+  _activityEditorReturn = ret;
+  const name = params.get('name') || '';
+  openActivityModal(name ? { name: name } : null);
+}
+
+function leaveActivityEditorIfReturning() {
+  if (!_activityEditorReturn) return false;
+  const dest = _activityEditorReturn;
+  _activityEditorReturn = '';
+  window.location.assign(dest);
+  return true;
+}
 
 // ─── Auth & Init ──────────────────────────────────────────
 function showLibraryLoadError(containerId, message) {
@@ -131,15 +170,16 @@ function routeLibraryHash() {
     window.location.href = '/skattkammaren';
     return;
   }
+  if (redirectLegacyRewardsHash()) return;
   if (window.LibraryMagicHub && LibraryMagicHub.isMagic()) return;
   if (hash === 'schema') switchTab('schema');
-  else if (hash === 'rewards') switchTab('rewards');
   else if (hash === 'standard') switchTab('standard');
   else if (hash === 'activities') switchTab('activities');
   else switchTab('schema');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (redirectLegacyRewardsHash()) return;
   const initHash = window.location.hash.replace('#', '');
   if (initHash === 'treasury') {
     window.location.href = '/skattkammaren';
@@ -167,16 +207,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       buildIconPicker();
-      buildRewardIconPicker();
       selectStar(1);
-      setApproval(true);
     } catch (err) {
       console.warn('[LIBRARY] Picker init skipped:', err.message);
     }
 
     const dataLoadPromise = (async () => {
       try {
-        await Promise.all([loadCategories(), loadActivities(), loadRewards()]);
+        await Promise.all([loadCategories(), loadActivities()]);
         if (window.LibraryImages) await LibraryImages.init();
       } catch (err) {
         console.error('[LIBRARY] Data load error:', err);
@@ -193,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!magicReady) {
       routeLibraryHash();
     }
+    openActivityEditorFromQuery();
 
     if (window.ParentMagicShell) await ParentMagicShell.init('library');
   } catch (err) {
@@ -207,10 +246,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// ─── Main tab switching (4 tabs: schema, activities, rewards, standard) ──
+// ─── Main tab switching (schema, activities, standard). Rewards live on /rewards. ──
 // Skattkammaren (treasury) removed from tabs — accessible only via sidebar /skattkammaren
 function switchTab(tab) {
-  ['schema', 'activities', 'standard', 'rewards'].forEach(t => {
+  if (tab === 'rewards') {
+    redirectLegacyRewardsHash() || window.location.replace('/rewards');
+    return;
+  }
+  ['schema', 'activities', 'standard'].forEach(t => {
     const pane = document.getElementById(`tab-${t}`);
     const btn = document.getElementById(`tab-${t}-btn`);
     if (pane) pane.classList.toggle('active', t === tab);
@@ -223,9 +266,6 @@ function switchTab(tab) {
   }
   if (tab === 'standard' && !_standardLoaded) loadStandardLibrary();
   if (tab === 'schema' && !_schemaLoaded) loadSchemaTab();
-  if (tab === 'rewards' && (!_rewardsLoaded || isContainerLoading('rewardsContainer'))) {
-    loadRewards().catch(() => {});
-  }
   if (tab === 'activities' && (!_activitiesLoaded || isContainerLoading('activitiesContainer'))) {
     loadActivities().catch(() => {});
   }
@@ -544,14 +584,6 @@ function buildIconPicker() {
   `).join('');
 }
 
-function buildRewardIconPicker() {
-  const container = document.getElementById('rewardIconPicker');
-  if (!container) return;
-  container.innerHTML = REWARD_ICONS.map(icon => `
-    <button type="button" class="icon-opt text-2xl rounded-xl hover:bg-white border-2 border-transparent hover:border-gold transition-all flex items-center justify-center" onclick="selectRewardIcon('${icon}')">${icon}</button>
-  `).join('');
-}
-
 function selectIcon(icon) {
   document.getElementById('activityIcon').value = icon;
   document.getElementById('selectedIconDisplay').textContent = icon;
@@ -570,28 +602,6 @@ function onEmojiTextInput(val) {
     document.getElementById('selectedIconDisplay').textContent = trimmed;
     // Deselect all picker buttons
     document.querySelectorAll('#iconPicker button').forEach(btn => {
-      btn.classList.remove('border-gold', 'bg-white');
-    });
-  }
-}
-
-function selectRewardIcon(icon) {
-  document.getElementById('rewardIcon').value = icon;
-  document.getElementById('rewardIconDisplay').textContent = icon;
-  const emojiInput = document.getElementById('rewardEmojiTextInput');
-  if (emojiInput) emojiInput.value = icon;
-  document.querySelectorAll('#rewardIconPicker button').forEach(btn => {
-    btn.classList.toggle('border-gold', btn.textContent === icon);
-    btn.classList.toggle('bg-white', btn.textContent === icon);
-  });
-}
-
-function onRewardEmojiTextInput(val) {
-  const trimmed = val.trim();
-  if (trimmed) {
-    document.getElementById('rewardIcon').value = trimmed;
-    document.getElementById('rewardIconDisplay').textContent = trimmed;
-    document.querySelectorAll('#rewardIconPicker button').forEach(btn => {
       btn.classList.remove('border-gold', 'bg-white');
     });
   }
@@ -656,21 +666,6 @@ function setFavorite(val) {
   document.getElementById('activityFavorite').value = val ? 'true' : 'false';
   const toggle = document.getElementById('favToggle');
   const dot = document.getElementById('favDot');
-  if (val) { toggle.classList.remove('bg-lavender'); toggle.classList.add('bg-gold'); dot.style.transform = 'translateX(16px)'; }
-  else { toggle.classList.remove('bg-gold'); toggle.classList.add('bg-lavender'); dot.style.transform = ''; }
-}
-
-// ─── Approval toggle ──────────────────────────────────────
-function toggleApproval() {
-  approvalValue = !approvalValue;
-  setApproval(approvalValue);
-}
-
-function setApproval(val) {
-  approvalValue = val;
-  document.getElementById('rewardRequiresApproval').value = val ? 'true' : 'false';
-  const toggle = document.getElementById('approvalToggle');
-  const dot = document.getElementById('approvalDot');
   if (val) { toggle.classList.remove('bg-lavender'); toggle.classList.add('bg-gold'); dot.style.transform = 'translateX(16px)'; }
   else { toggle.classList.remove('bg-gold'); toggle.classList.add('bg-lavender'); dot.style.transform = ''; }
 }
@@ -1019,11 +1014,6 @@ function openActivityModalById(id) {
   if (act) openActivityModal(act);
 }
 
-function openRewardModalById(id) {
-  const reward = rewards.find((r) => String(r.id) === String(id));
-  if (reward) openRewardModal(reward);
-}
-
 async function openActivityModal(act) {
   document.getElementById('activityId').value = act ? act.id : '';
   document.getElementById('activityName').value = act ? act.name : '';
@@ -1093,6 +1083,7 @@ function closeActivityModal() {
   document.getElementById('activityModal').classList.add('hidden');
   if (window.LibraryActivityTimerBridge) LibraryActivityTimerBridge.clearChildrenCache();
   if (window.LibrarySevenQuestions) LibrarySevenQuestions.reset();
+  leaveActivityEditorIfReturning();
 }
 
 async function submitActivity(e) {
@@ -1144,7 +1135,9 @@ async function submitActivity(e) {
   if (res.ok) {
     const activityId = id || data.id;
     const failedSteps = await syncLibActSubsteps(activityId);
+    const returning = !!_activityEditorReturn;
     closeActivityModal();
+    if (returning) return;
     if (failedSteps > 0)
       showToast(lpt('library.saved.activityPartial', { count: failedSteps }), true);
     else
@@ -1300,373 +1293,6 @@ async function copyStandardActivityToLibrary(stdActivity) {
   }
 }
 
-// ─── Reward Search (egna + standardbibliotek) ─────────────
-let _rewardSearchStandardLoaded = false;
-let _standardRewardsFlat = []; // flat list for search
-
-async function ensureStandardRewardsLoaded() {
-  if (_rewardSearchStandardLoaded) return;
-  try {
-    const res = await window.apiFetch('/api/standard-library/rewards');
-    if (res.ok) {
-      _standardRewardsFlat = await res.json();
-      _rewardSearchStandardLoaded = true;
-    }
-  } catch {}
-}
-
-async function onRewardSearch(query) {
-  const resultsEl = document.getElementById('rewardSearchResults');
-  const containerEl = document.getElementById('rewardsContainer');
-
-  if (!query.trim()) {
-    resultsEl.classList.add('hidden');
-    resultsEl.innerHTML = '';
-    containerEl.classList.remove('hidden');
-    return;
-  }
-
-  containerEl.classList.add('hidden');
-  resultsEl.classList.remove('hidden');
-  resultsEl.innerHTML = '<div class="text-center text-text-soft text-sm py-4">' + lpt('library.searching') + '</div>';
-
-  await ensureStandardRewardsLoaded();
-
-  const q = query.toLowerCase();
-  const ownMatches = rewards.filter(r => r.name && r.name.toLowerCase().includes(q));
-
-  // Standard matches — exclude those already in own library by name
-  const ownNames = new Set(rewards.map(r => r.name.toLowerCase()));
-  const standardMatches = _standardRewardsFlat.filter(r =>
-    r.name && r.name.toLowerCase().includes(q) && !ownNames.has(r.name.toLowerCase())
-  );
-
-  if (ownMatches.length === 0 && standardMatches.length === 0) {
-    resultsEl.innerHTML = `
-      <div class="text-center py-8 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
-        <p class="text-3xl mb-2">🔍</p>
-        <p class="font-semibold text-navy mb-1">${lpt('library.empty.noSearchReward', { query })}</p>
-        <p class="text-sm text-text-soft mb-4">${lpt('library.empty.createRewardHint')}</p>
-        <button onclick="openRewardModalWithName(${JSON.stringify(query)})"
-          class="px-5 py-2.5 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold text-sm transition-colors">
-          + Skapa "${escHtml(query)}"
-        </button>
-      </div>
-    `;
-    return;
-  }
-
-  let html = '';
-
-  if (ownMatches.length > 0) {
-    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 px-1">🏆 ${lpt('library.empty.yourRewards')}</div>`;
-    html += ownMatches.map(r => `
-      <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2.5 border border-lavender hover:border-gold transition-colors gap-2">
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-          <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
-          <div class="min-w-0 flex-1">
-            <div class="font-semibold text-sm text-navy">${escHtml(r.name)}</div>
-            <div class="text-xs text-text-soft">${r.star_cost} ⭐</div>
-          </div>
-        </div>
-        <button onclick="openRewardModalById('${r.id}')"
-          class="px-3 py-1.5 bg-lavender hover:bg-purple-100 text-navy rounded-lg text-xs font-semibold transition-colors flex-shrink-0">✏️ ${lpt('library.actions.edit')}</button>
-      </div>
-    `).join('');
-  }
-
-  if (standardMatches.length > 0) {
-    html += `<div class="text-xs font-semibold text-text-soft uppercase tracking-wide mb-1 mt-3 px-1">📚 ${lpt('library.hub.sections.standard.title')}</div>`;
-    html += standardMatches.slice(0, 10).map(r => `
-      <div class="flex items-center justify-between bg-sky/40 rounded-xl px-3 py-2.5 border border-blue-100 hover:border-gold transition-colors gap-2">
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-          <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
-          <div class="min-w-0 flex-1">
-            <div class="font-semibold text-sm text-navy">${escHtml(r.name)}</div>
-            <div class="text-xs text-text-soft">${r.star_cost} ⭐ · ${lpt('library.hub.sections.standard.title')}</div>
-          </div>
-        </div>
-        <button onclick="copyStandardRewardToLibrary(${JSON.stringify(r).replace(/'/g, "\\'")})"
-          class="px-3 py-1.5 bg-gold hover:bg-yellow-500 text-white rounded-lg text-xs font-semibold transition-colors flex-shrink-0 whitespace-nowrap">📥 ${lpt('library.actions.copy')}</button>
-      </div>
-    `).join('');
-  }
-
-  resultsEl.innerHTML = html;
-}
-
-function openRewardModalWithName(name) {
-  openRewardModal();
-  document.getElementById('rewardName').value = name;
-}
-
-async function copyStandardRewardToLibrary(stdReward) {
-  const body = {
-    name: stdReward.name,
-    icon: stdReward.icon || '🏆',
-    star_cost: stdReward.star_cost || 10,
-    requires_approval: true,
-    visible_to_children: null,
-  };
-  const res = await window.apiFetch('/api/rewards', { method: 'POST', body: JSON.stringify(body) });
-  const data = await res.json();
-  if (res.ok) {
-    showToast(lpt('library.saved.rewardCopied', { name: stdReward.name }));
-    await loadRewards();
-    // Update standard flat cache state to reflect new own reward
-    _rewardSearchStandardLoaded = false;
-    // Clear search to show updated list
-    const searchInput = document.getElementById('rewardSearchInput');
-    if (searchInput) { searchInput.value = ''; onRewardSearch(''); }
-  } else {
-    showToast(libApiError(data, 'library.errors.copyReward'), true);
-  }
-}
-
-// ─── Rewards ──────────────────────────────────────────────
-async function loadRewards() {
-  try {
-    const res = await window.apiFetch('/api/rewards');
-    if (res.ok) {
-      const data = await res.json();
-      rewards = data.rewards || [];
-      rewardChildren = data.children || [];
-      _rewardsLoaded = true;
-      renderRewards();
-      return;
-    }
-    showLibraryLoadError('rewardsContainer', lpt('library.errors.loadRewards'));
-  } catch (err) {
-    console.error('[LIBRARY] loadRewards failed:', err);
-    showLibraryLoadError('rewardsContainer', lpt('library.errors.loadRewards'));
-  }
-}
-
-function renderRewards() {
-  const container = document.getElementById('rewardsContainer');
-  if (!container) return;
-  if (rewards.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12 bg-sky/40 rounded-2xl border-2 border-dashed border-lavender">
-        <p class="text-4xl mb-3">🏆</p>
-        <p class="font-heading font-bold text-navy text-lg mb-1">${lpt('library.empty.rewardsTitle')}</p>
-        <p class="text-sm text-text-soft max-w-sm mx-auto mb-4">${lpt('library.empty.rewardsBody')}</p>
-        <button onclick="openRewardModal()" class="px-6 py-3 bg-gold hover:bg-yellow-500 text-white rounded-xl font-semibold transition-colors">
-          ${lpt('library.empty.addReward')}
-        </button>
-      </div>
-    `;
-    return;
-  }
-  container.innerHTML = `
-    <div class="space-y-2" id="rewardsSortableList">
-      ${rewards.map(r => renderRewardItem(r)).join('')}
-    </div>
-  `;
-  initRewardsDnD();
-}
-
-function renderRewardItem(r) {
-  const isActive = r.is_active !== false;
-  const isFavorite = r.is_favorite === true;
-  const vtc = r.visible_to_children;
-  let visLabel = lpt('library.rewards.allChildren');
-  if (Array.isArray(vtc) && vtc.length === 0) {
-    visLabel = lpt('library.rewards.hiddenFromAll');
-  } else if (Array.isArray(vtc) && vtc.length > 0) {
-    visLabel = lpt('library.rewards.childrenCount', { count: vtc.length });
-  }
-  return `
-    <div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ${!isActive ? 'opacity-50' : ''}" data-id="${r.id}">
-      <div class="flex items-center gap-3 min-w-0 flex-1">
-        <span class="drag-handle text-text-soft text-sm select-none px-1">☰</span>
-        <button type="button" onclick="toggleRewardFavorite('${r.id}', ${isFavorite})" class="text-lg flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center ${isFavorite ? 'text-gold' : 'text-gray-300'}" aria-label="${isFavorite ? lpt('library.favorite.remove') : lpt('library.favorite.add')}">${isFavorite ? '★' : '☆'}</button>
-        <span class="text-2xl flex-shrink-0">${r.icon || '🏆'}</span>
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-semibold text-sm text-navy">${escHtml(r.display_name || r.name)}</span>
-            <span class="text-xs bg-gold-light text-navy px-2 py-0.5 rounded-full font-semibold">${r.star_cost} ⭐</span>
-            ${r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">' + lpt('library.modal.approvalBadge') + '</span>' : ''}
-            ${!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">' + lpt('library.rewards.inactive') + '</span>' : ''}
-          </div>
-          <div class="text-xs text-text-soft mt-0.5">${visLabel}</div>
-        </div>
-      </div>
-      <!-- Desktop: inline buttons (hidden on mobile via CSS) -->
-      <div class="icon-btns-desktop flex items-center gap-1 flex-shrink-0">
-        <button onclick="toggleRewardActive('${r.id}', ${isActive})"
-          title="${isActive ? lpt('library.chrome.deactivate') : lpt('library.chrome.activate')}"
-          class="reward-toggle px-2 py-1 ${isActive ? 'bg-mint text-green-700' : 'bg-gray-100 text-text-soft'} hover:opacity-80 rounded-lg text-sm transition-colors">
-          ${isActive ? '✓' : '○'}
-        </button>
-        <button onclick="openRewardModalById('${r.id}')"
-          class="icon-btn px-2 py-1 bg-lavender hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors text-text-soft">✏️</button>
-        <button onclick="deleteReward('${r.id}', '${escHtml(r.name)}')"
-          class="icon-btn px-2 py-1 border border-coral/40 hover:border-red-400 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors text-red-400">✕</button>
-      </div>
-      <!-- Mobile: ⋯ overflow menu (hidden on desktop via CSS) -->
-      <div class="overflow-menu-wrap flex-shrink-0">
-        <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-r-${r.id}')" aria-label="${lpt('library.chrome.moreOptions')}">⋯</button>
-        <div id="omenu-r-${r.id}" class="overflow-menu-popup">
-          <button onclick="closeOverflowMenus();toggleRewardActive('${r.id}', ${isActive})">${isActive ? '○ ' + lpt('library.chrome.deactivate') : '✓ ' + lpt('library.chrome.activate')}</button>
-          <button onclick="closeOverflowMenus();openRewardModalById('${r.id}')">✏️ ${lpt('library.actions.edit')}</button>
-          <button class="danger" onclick="closeOverflowMenus();deleteReward('${r.id}', '${escHtml(r.name)}')">✕ ${lpt('library.actions.delete')}</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-let _rewardSortable = null;
-function initRewardsDnD() {
-  if (_rewardSortable) _rewardSortable.destroy();
-  const el = document.getElementById('rewardsSortableList');
-  if (!el || typeof Sortable === 'undefined') return;
-  _rewardSortable = new Sortable(el, {
-    animation: 200, handle: '.drag-handle', draggable: '[data-id]',
-    ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', forceFallback: true,
-    onEnd: async function(_evt) {
-      const items = Array.from(el.querySelectorAll('[data-id]'));
-      const order = items.map((item, i) => ({ id: item.dataset.id, sort_order: i }));
-      try {
-        const res = await window.apiFetch('/api/rewards/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
-        if (!res.ok) showToast(lpt('library.errors.saveOrder'), true);
-      } catch { showToast(lpt('library.errors.saveOrder'), true); }
-    },
-  });
-}
-
-async function toggleRewardFavorite(id, currentlyFavorite) {
-  const reward = rewards.find(r => r.id === id);
-  if (!reward) return;
-  const res = await window.apiFetch(`/api/rewards/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_favorite: !currentlyFavorite }),
-  });
-  if (res.ok) {
-    reward.is_favorite = !currentlyFavorite;
-    renderRewards();
-    fetch('/api/analytics/event', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_type: 'for_dig_favorite_toggle',
-        metadata: { entity_type: 'reward', entity_id: id, is_favorite: !currentlyFavorite },
-      }),
-    }).catch(() => {});
-  } else {
-    showToast(lpt('library.errors.updateFavorite'), true);
-  }
-}
-
-async function toggleRewardActive(id, currentlyActive) {
-  const reward = rewards.find(r => r.id === id);
-  if (!reward) return;
-  const res = await window.apiFetch(`/api/rewards/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({ ...reward, is_active: !currentlyActive }),
-  });
-  if (res.ok) { await loadRewards(); }
-  else showToast(lpt('library.errors.updateReward'), true);
-}
-
-// ─── Reward modal ─────────────────────────────────────────
-function openRewardModal(r) {
-  document.getElementById('rewardId').value = r ? r.id : '';
-  document.getElementById('rewardName').value = r ? r.name : '';
-  const icon = r && r.icon ? r.icon : '🏆';
-  document.getElementById('rewardIcon').value = icon;
-  document.getElementById('rewardIconDisplay').textContent = icon;
-  document.getElementById('rewardStarCost').value = r ? r.star_cost : 10;
-  setApproval(r ? (r.requires_approval !== false) : true);
-  document.getElementById('rewardModalTitle').textContent = r ? lpt('library.modal.editReward') : lpt('library.modal.newReward');
-  document.getElementById('rewardError').classList.add('hidden');
-  document.querySelectorAll('#rewardIconPicker button').forEach(btn => {
-    btn.classList.toggle('border-gold', btn.textContent === icon);
-    btn.classList.toggle('bg-white', btn.textContent === icon);
-  });
-  const visContainer = document.getElementById('rewardVisibilityContainer');
-  const vtc = r ? r.visible_to_children : null;
-  const childIds = rewardChildren.map(function (child) { return String(child.id); });
-  let checkedIds;
-  if (vtc == null) {
-    checkedIds = childIds.slice();
-  } else if (Array.isArray(vtc)) {
-    const allow = new Set(vtc.map(String));
-    checkedIds = childIds.filter(function (id) { return allow.has(id); });
-  } else {
-    checkedIds = childIds.slice();
-  }
-  if (rewardChildren.length === 0) {
-    visContainer.innerHTML = '<p class="text-sm text-text-soft">' + lpt('library.empty.noChildren') + '</p>';
-  } else {
-    visContainer.innerHTML = rewardChildren.map(child => `
-      <label class="flex items-center gap-3 cursor-pointer">
-        <input type="checkbox" class="reward-child-checkbox w-5 h-5 accent-gold" value="${child.id}">
-        <span class="text-sm font-semibold text-navy">${child.emoji || '🧒'} ${escHtml(child.name)}</span>
-      </label>
-    `).join('');
-  visContainer.querySelectorAll('.reward-child-checkbox').forEach(cb => {
-    cb.checked = checkedIds.indexOf(cb.value) >= 0;
-  });
-  }
-  document.getElementById('rewardModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('rewardName').focus(), 100);
-}
-
-function closeRewardModal() {
-  document.getElementById('rewardModal').classList.add('hidden');
-}
-
-async function submitReward(e) {
-  e.preventDefault();
-  const id = document.getElementById('rewardId').value;
-  const name = document.getElementById('rewardName').value.trim();
-  const icon = document.getElementById('rewardIcon').value || '🏆';
-  const star_cost = parseInt(document.getElementById('rewardStarCost').value, 10);
-  const requires_approval = document.getElementById('rewardRequiresApproval').value === 'true';
-  const checked = Array.from(document.querySelectorAll('.reward-child-checkbox:checked')).map(cb => cb.value);
-  const childCount = rewardChildren.length;
-  let visible_to_children = null;
-  if (childCount > 0) {
-    if (checked.length === 0) {
-      visible_to_children = id ? [] : null;
-    } else if (checked.length >= childCount) {
-      visible_to_children = null;
-    } else {
-      visible_to_children = checked;
-    }
-  }
-  const btn = document.getElementById('rewardSubmitBtn');
-  const errEl = document.getElementById('rewardError');
-  errEl.classList.add('hidden');
-  btn.disabled = true; btn.textContent = lpt('library.actions.saving');
-  const url = id ? `/api/rewards/${id}` : '/api/rewards';
-  const method = id ? 'PUT' : 'POST';
-  const res = await window.apiFetch(url, {
-    method,
-    body: JSON.stringify({ name, icon, star_cost, requires_approval, visible_to_children }),
-  });
-  const data = await res.json();
-  if (res.ok) {
-    closeRewardModal(); showToast(lpt('library.saved.reward'));
-    await loadRewards();
-  } else {
-    errEl.textContent = libApiError(data, 'library.errors.generic'); errEl.classList.remove('hidden');
-  }
-  btn.disabled = false; btn.textContent = lpt('library.actions.save');
-}
-
-function deleteReward(id, name) {
-  openConfirmModal(lpt('library.confirm.deleteReward', { name }), async () => {
-    const res = await window.apiFetch(`/api/rewards/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (res.ok) { showToast(lpt('library.saved.rewardDeleted')); await loadRewards(); }
-    else showToast(libApiError(data, 'library.errors.deleteReward'), true);
-  });
-}
 
 // ─── Confirm modal ────────────────────────────────────────
 function openConfirmModal(msg, callback) {
@@ -1703,7 +1329,6 @@ function escHtml(str) { return escapeHtml(str); }
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('categoryModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCategoryModal(); });
   document.getElementById('activityModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeActivityModal(); });
-  document.getElementById('rewardModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeRewardModal(); });
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirmModal(); });
   document.getElementById('subStepModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubStepModal(); });
   wireActivityTimerControls();
@@ -1712,19 +1337,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // Magic hub modules resolve these on window (Capacitor WebView-safe).
 window.openActivityModal = openActivityModal;
 window.openActivityModalById = openActivityModalById;
-window.openRewardModalById = openRewardModalById;
-window.openRewardModal = openRewardModal;
 window.selectSchemaTab = selectSchemaTab;
 window.loadActivities = loadActivities;
 window.toggleOverflowMenu = toggleOverflowMenu;
 window.openActivityModalInCategory = openActivityModalInCategory;
 window.selectIcon = selectIcon;
 window.onEmojiTextInput = onEmojiTextInput;
-window.selectRewardIcon = selectRewardIcon;
-window.onRewardEmojiTextInput = onRewardEmojiTextInput;
 window.toggleActivityFavoriteInline = toggleActivityFavoriteInline;
 window.toggleFavorite = toggleFavorite;
-window.toggleApproval = toggleApproval;
 window.openCategoryModal = openCategoryModal;
 window.submitCategory = submitCategory;
 window.deleteCategory = deleteCategory;
@@ -1738,15 +1358,8 @@ window.submitActivity = submitActivity;
 window.deleteActivity = deleteActivity;
 window.openActivityModalWithName = openActivityModalWithName;
 window.copyStandardActivityToLibrary = copyStandardActivityToLibrary;
-window.openRewardModalWithName = openRewardModalWithName;
-window.copyStandardRewardToLibrary = copyStandardRewardToLibrary;
-window.toggleRewardFavorite = toggleRewardFavorite;
-window.toggleRewardActive = toggleRewardActive;
-window.submitReward = submitReward;
-window.deleteReward = deleteReward;
 window.selectStar = selectStar;
 window.closeCategoryModal = closeCategoryModal;
 window.closeActivityModal = closeActivityModal;
-window.closeRewardModal = closeRewardModal;
 window.closeConfirmModal = closeConfirmModal;
 window.closeLibActSubstepEdit = closeLibActSubstepEdit;

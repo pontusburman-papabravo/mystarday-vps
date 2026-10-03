@@ -625,41 +625,10 @@ function removeNewActSubstep(idx) {
 }
 
 function openCreateActivityModal(prefill) {
-  _newActSubsteps = [];
-  resetNewActIconKey();
-  document.getElementById('newActName').value = prefill || '';
-  document.getElementById('newActEmojiInput').value = '';
-  document.getElementById('newActEmojiPreview').textContent = '📌';
-  document.getElementById('newActStarValue').value = '1';
-  const subInput = document.getElementById('newActSubstepInput');
-  if (subInput) subInput.value = '';
-  renderNewActSubsteps();
-  document.getElementById('createActivityError').classList.add('hidden');
-  // Reset star buttons
-  document.querySelectorAll('.star-val-btn').forEach(b => {
-    const active = b.dataset.val === '1';
-    b.classList.toggle('bg-gold', active); b.classList.toggle('text-white', active); b.classList.toggle('border-gold', active);
-  });
-  // Fill emoji grid
-  document.getElementById('newActEmojiGrid').innerHTML = EMOJI_QUICK_PICKS.map(e =>
-    `<button type="button" onclick="document.getElementById('newActEmojiInput').value='${e}';previewNewActEmoji()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-sky transition-colors text-lg">${e}</button>`
-  ).join('');
-  // Snapshot once-flow context so submitCreateActivity() knows which child/date/times to use
-  if (_onceMode) {
-    _onceCreateContext = {
-      date: document.getElementById('addActivityOnceDate').value,
-      childIds: [...document.querySelectorAll('#addActivityOnceChildList .once-child-check:checked')].map(el => el.value),
-      startTime: document.getElementById('addStartTime').value || null,
-      endTime: document.getElementById('addEndTime').value || null,
-      section: addSectionOverride || 'dag',
-    };
-    _pendingTargetChildIds = _onceCreateContext.childIds;
-  } else {
-    _pendingTargetChildIds = [currentChildId];
-  }
-  renderActivityChildPick('createActivityChildrenWrap');
-  document.getElementById('createActivityModal').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('newActName').focus(),100);
+  const params = new URLSearchParams();
+  params.set('new', '1');
+  if (prefill) params.set('name', String(prefill));
+  window.location.assign('/library?' + params.toString() + '#activities');
 }
 
 function closeCreateActivityModal() {

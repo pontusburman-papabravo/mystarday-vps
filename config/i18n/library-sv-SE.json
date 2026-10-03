@@ -114,6 +114,7 @@
     "saving": "Sparar…",
     "activitiesTab": "Aktiviteter",
     "cancel": "Avbryt",
+    "closeAria": "Stäng",
     "copy": "Kopiera",
     "edit": "Redigera",
     "delete": "Ta bort",
@@ -320,6 +321,7 @@
     "starCostLabel": "Stjärnkostnad *",
     "starCostHint": "Antal stjärnor som krävs för att lösa in belöningen",
     "requiresApproval": "Kräver föräldragodkännande",
+    "iconLabel": "Ikon",
     "visibleFor": "Synlig för",
     "visibleHint": "Lämna alla avbockade = synlig för alla barn"
   },
@@ -331,8 +333,10 @@
     },
     "manageLink": {
       "title": "Hantera belöningar",
-      "sub": "Skapa och redigera i biblioteket"
+      "sub": "Skapa och redigera belöningar"
     },
+    "filterAll": "Alla",
+    "filterLabel": "Visa för",
     "starsSub": "Överblick per barn",
     "proximity": {
       "readyFor": "Redo för {{reward}}",

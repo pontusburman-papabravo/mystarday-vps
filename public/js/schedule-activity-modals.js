@@ -640,20 +640,21 @@ function pickStarVal(val) {
 // ── Create Activity Inline ────────────────────────────────
 let _newActSubsteps = []; // { name, icon }
 
+function canonicalActivityEditorUrl(opts) {
+  const params = new URLSearchParams();
+  if (opts && opts.id) params.set('edit', String(opts.id));
+  else params.set('new', '1');
+  if (opts && opts.name) params.set('name', String(opts.name));
+  const back = window.location.pathname + window.location.search;
+  if (back.indexOf('/schedule') === 0 && back.indexOf('://') === -1 && back.indexOf('#') === -1) {
+    params.set('return', back);
+  }
+  return '/library?' + params.toString() + '#activities';
+}
+
 function openCreateActivityModal(prefillName) {
-  _newActSubsteps = [];
-  resetNewActIconKey();
-  document.getElementById('newActName').value = prefillName || '';
-  document.getElementById('newActEmojiInput').value = '';
-  document.getElementById('newActEmojiPreview').textContent = '📌';
-  document.getElementById('newActStarValue').value = '1';
-  document.getElementById('newActSubstepInput').value = '';
-  document.getElementById('createActivityError').classList.add('hidden');
-  renderEmojiGrid('newActEmojiGrid', 'newActEmojiInput', 'newActEmojiPreview');
-  pickStarVal(1);
-  renderNewActSubsteps();
-  document.getElementById('createActivityModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('newActName').focus(), 100);
+  const name = typeof prefillName === 'string' ? prefillName : '';
+  window.location.assign(canonicalActivityEditorUrl({ name: name }));
 }
 function closeCreateActivityModal() {
   document.getElementById('createActivityModal').classList.add('hidden');
@@ -758,42 +759,7 @@ let _editTplSubsteps = []; // { id, name, icon, _deleted }
 // BUG-17/BUG-19/BUG-24: redigera-koppling — rör inte
 async function openEditTemplateModal(templateId) {
   if (!templateId) return;
-  // Find template in allTemplates
-  const tpl = allTemplates.find(t => t.id === templateId);
-  if (!tpl) { showToast(spt('schedule.toasts.activityNotFound'), true); return; }
-
-  try {
-    document.getElementById('editTplId').value = templateId;
-    document.getElementById('editTplName').value = tpl.name || '';
-    const icon = tpl.icon || '📌';
-    document.getElementById('editTplEmojiInput').value = icon !== '📌' ? icon : '';
-    document.getElementById('editTplEmojiPreview').textContent = icon;
-    document.getElementById('editTemplateError').classList.add('hidden');
-
-    if (typeof renderEmojiGrid === 'function') renderEmojiGrid('editTplEmojiGrid', 'editTplEmojiInput', 'editTplEmojiPreview');
-
-    // Load substeps
-    _editTplSubsteps = [];
-    try {
-      const res = await window.apiFetch(`/api/activities/${templateId}/sub-steps`);
-      if (res.ok) {
-        const raw = await res.json();
-        const steps = Array.isArray(raw) ? raw : (raw.sub_steps || []);
-        _editTplSubsteps = steps.map(s => ({ id: s.id, name: s.name, icon: s.icon, _deleted: false }));
-      }
-    } catch (_) {}
-
-    document.getElementById('editTplSubstepInput').value = '';
-    if (typeof renderEditTplSubsteps === 'function') renderEditTplSubsteps();
-
-    const modal = document.getElementById('editTemplateModal');
-    if (!modal) { showToast(spt('schedule.toasts.editOpenFailedReload'), true); return; }
-    modal.classList.remove('hidden');
-  } catch (e) {
-    showToast(spt('schedule.toasts.editOpenFailed'), true);
-    console.error('openEditTemplateModal:', e);
-  }
-  setTimeout(() => document.getElementById('editTplName').focus(), 100);
+  window.location.assign(canonicalActivityEditorUrl({ id: templateId }));
 }
 
 function closeEditTemplateModal() {

@@ -1,5 +1,5 @@
 /**
- * library-magic-mine.js — Mina bibliotek segmented view (Scheman / Aktiviteter / Belöningar).
+ * library-magic-mine.js — Mina bibliotek segmented view (Scheman / Aktiviteter).
  * Preserves all classic functionality including activity delsteg panels.
  */
 (function () {
@@ -8,7 +8,6 @@
   const SEGMENTS = [
     { id: 'scheman', labelKey: 'library.standard.segments.schedules', tab: 'schema' },
     { id: 'aktiviteter', labelKey: 'library.standard.segments.activities', tab: 'activities' },
-    { id: 'beloningar', labelKey: 'library.standard.segments.rewards', tab: 'rewards' },
   ];
 
   function pt(key, params) {
@@ -45,8 +44,7 @@
   function applySegmentVisibility() {
     document.body.classList.remove(
       'library-magic-mine-scheman',
-      'library-magic-mine-aktiviteter',
-      'library-magic-mine-beloningar'
+      'library-magic-mine-aktiviteter'
     );
     document.body.classList.add('library-magic-mine-' + _segment);
 
@@ -96,8 +94,7 @@
       if (mount) mount.innerHTML = '';
       document.body.classList.remove(
         'library-magic-mine-scheman',
-        'library-magic-mine-aktiviteter',
-        'library-magic-mine-beloningar'
+        'library-magic-mine-aktiviteter'
       );
       return;
     }

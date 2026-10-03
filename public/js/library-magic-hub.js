@@ -190,7 +190,6 @@
       menuCard('standard') +
       menuCard('activities') +
       menuCard('bilder') +
-      menuCard('rewards') +
       menuCard('mine') +
       '</div></div>';
 
@@ -354,6 +353,10 @@
   }
 
   function openSection(key, fromSearch) {
+    if (key === 'rewards') {
+      window.location.assign('/rewards');
+      return;
+    }
     closeLibraryModals();
     const s = SECTIONS[key];
     if (!s || typeof window.switchTab !== 'function') {
@@ -444,6 +447,10 @@
     const hash = (window.location.hash || '').replace('#', '');
     if (hash === 'treasury') {
       window.location.href = '/skattkammaren';
+      return;
+    }
+    if (hash === 'rewards' || hash === 'magic-rewards') {
+      window.location.replace('/rewards');
       return;
     }
     if (hash.indexOf('magic-') === 0) {

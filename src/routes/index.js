@@ -180,7 +180,7 @@ function registerRoutes(app) {
     'verify-email', 'forgot-password', 'reset-password', 'verify-email-change',
     'dashboard', 'child-dashboard',
     'settings', 'accept-invite', 'pedagog-invite',
-    'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
+    'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
     'family', 'onboarding', 'child-wizard', 'notifications',
     'planning', 'rewards', 'family-child', 'print-schema',
   ];
@@ -249,6 +249,18 @@ function registerRoutes(app) {
 
   app.get('/onboarding/handoff-film.mp4', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'onboarding', 'handoff-film.mp4'));
+  });
+
+  app.get('/activities', (req, res) => {
+    const params = new URLSearchParams();
+    Object.entries(req.query || {}).forEach(([key, value]) => {
+      const values = Array.isArray(value) ? value : [value];
+      values.forEach((item) => {
+        if (item != null) params.append(key, String(item));
+      });
+    });
+    const qs = params.toString();
+    res.redirect(302, '/library' + (qs ? '?' + qs : '') + '#activities');
   });
 
   app.get('/calendar', (req, res) => {

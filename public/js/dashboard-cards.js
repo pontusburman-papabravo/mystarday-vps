@@ -349,7 +349,7 @@ function renderDashboardCards() {
       expandedRewardHtml = `
         <div class="mb-3 p-3 bg-purple-50 rounded-xl border border-purple-200 text-center">
           <span class="text-sm">${hpt('home.cards.noRewards')}</span>
-          <a href="/library#rewards" class="block text-xs text-purple-600 font-semibold mt-1 hover:underline">${hpt('home.cards.addReward')}</a>
+          <a href="/rewards?child=${c.id}" class="block text-xs text-purple-600 font-semibold mt-1 hover:underline">${hpt('home.cards.addReward')}</a>
         </div>`;
     }
 

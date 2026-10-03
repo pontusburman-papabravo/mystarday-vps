@@ -331,7 +331,6 @@ async function copySelectedRewards() {
       const rewardsRes = await window.apiFetch('/api/standard-library/rewards');
       if (rewardsRes.ok) standardDefaultRewards = await rewardsRes.json();
       renderStandardRewards();
-      await loadRewards();
     } else {
       showToast(data.error || libPt('library.standard.copyFailedRewards'), true);
     }
@@ -357,7 +356,6 @@ async function copyDefaultReward(rewardId) {
       const rewardsRes = await window.apiFetch('/api/standard-library/rewards');
       if (rewardsRes.ok) standardDefaultRewards = await rewardsRes.json();
       renderStandardRewards();
-      await loadRewards();
     } else {
       showToast(data.error || libPt('library.standard.copyFailed'), true);
       btn.disabled = false;

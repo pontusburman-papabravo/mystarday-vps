@@ -52,10 +52,11 @@ describe('library bottom nav isolation', () => {
     assert.match(src, /function updateActiveTabs\(\) \{\s*remount\(\);/);
   });
 
-  it('library magic hub uses beloningar icon for rewards section chrome', () => {
+  it('library magic hub sends the rewards section to /rewards', () => {
     const hub = fs.readFileSync(path.join(ROOT, 'public/js/library-magic-hub.js'), 'utf8');
-    assert.match(hub, /icon: 'beloningar'/);
-    assert.match(hub, /chromeSectionIcon/);
+    assert.match(hub, /key === 'rewards'/);
+    assert.match(hub, /location\.assign\('\/rewards'\)/);
+    assert.doesNotMatch(hub, /menuCard\('rewards'\)/);
     assert.match(hub, /notifyParentNavRefresh/);
   });
 

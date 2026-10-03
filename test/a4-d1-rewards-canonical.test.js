@@ -59,12 +59,15 @@ describe('A4+D1 rewards hub + library editor', () => {
     assert.match(core, /c\.family_id/);
   });
 
-  it('hub manage CTA stays on canonical library editor', () => {
+  it('hub manage stays on /rewards and library rewards hash leaves the library', () => {
     const hub = read('public/js/rewards-hub.js');
-    assert.match(hub, /href: '\/library#rewards'/);
+    assert.doesNotMatch(hub, /\/library#rewards/);
+    assert.match(hub, /data-reward-child/);
     const magic = read('public/js/library-magic-hub.js');
-    assert.match(magic, /hash === 'standard' \|\| hash === 'activities' \|\| hash === 'rewards'/);
-    assert.match(magic, /rewards: 'rewards'/);
+    assert.match(magic, /hash === 'rewards' \|\| hash === 'magic-rewards'/);
+    assert.match(magic, /location\.replace\('\/rewards'\)/);
+    assert.match(magic, /key === 'rewards'/);
+    assert.match(magic, /location\.assign\('\/rewards'\)/);
   });
 
   it('assignment UIs drop inactive rewards so delete is not stale', () => {
@@ -77,7 +80,7 @@ describe('A4+D1 rewards hub + library editor', () => {
   });
 
   it('library editor does not label hidden rewards as all children', () => {
-    const lib = read('public/js/library.js');
+    const lib = read('public/js/reward-editor.js');
     assert.match(lib, /library\.rewards\.hiddenFromAll/);
     assert.match(lib, /vtc == null/);
     assert.match(lib, /visible_to_children = id \? \[\] : null/);

@@ -22,11 +22,16 @@ describe('Belöningar hub 10/10', () => {
     assert.match(hub, /PendingApprovals\.mountHub\(pendingMount, \{ hub: true \}\)/);
   });
 
-  it('links manage to library#rewards not skattkammaren', () => {
+  it('keeps Hantera and a child filter on /rewards, not library#rewards', () => {
     const src = fs.readFileSync(HUB, 'utf8');
-    assert.match(src, /href: '\/library#rewards'/);
-    assert.match(src, /library\.rewardsHub\.manageLink\.title/);
+    const html = fs.readFileSync(path.join(ROOT, 'public/rewards.html'), 'utf8');
+    assert.doesNotMatch(src, /\/library#rewards/);
     assert.doesNotMatch(src, /\/skattkammaren/);
+    assert.match(src, /data-reward-child/);
+    assert.match(src, /library\.rewardsHub\.filterAll/);
+    assert.match(html, /id="rewardsManage"/);
+    assert.match(html, /reward-editor\.js/);
+    assert.match(html, /data-i18n="library\.rewardsHub\.sections\.manage"/);
   });
 
   it('shows inline star overview per child via dashboard-stats', () => {
