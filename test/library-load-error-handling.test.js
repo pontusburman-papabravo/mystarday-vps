@@ -39,6 +39,17 @@ describe('library load error handling', () => {
     assert.match(src, /LibraryMagicHub\.isMagic\(\)\) return/);
   });
 
+  it('a name-only draft stays a create, not PUT /api/activities/undefined', () => {
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
+    const start = src.indexOf('async function openActivityModal');
+    const end = src.indexOf('function closeActivityModal');
+    const fn = src.slice(start, end);
+    assert.match(fn, /const editing = !!\(act && act\.id\)/);
+    assert.match(fn, /activityId'\)\.value = editing \? act\.id : ''/);
+    assert.match(fn, /activityModalTitle'\)\.textContent = editing \?/);
+    assert.doesNotMatch(fn, /activityId'\)\.value = act \? act\.id : ''/);
+  });
+
   it('switchTab retries activities load and sends rewards hash to /rewards', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
     assert.match(src, /isContainerLoading\('activitiesContainer'\)/);

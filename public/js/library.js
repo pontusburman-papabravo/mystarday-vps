@@ -1015,15 +1015,18 @@ function openActivityModalById(id) {
 }
 
 async function openActivityModal(act) {
-  document.getElementById('activityId').value = act ? act.id : '';
-  document.getElementById('activityName').value = act ? act.name : '';
+  // A name-only draft from ?new=1 is a create. Setting .value to a missing id
+  // becomes the string "undefined" and save PUTs /api/activities/undefined.
+  const editing = !!(act && act.id);
+  document.getElementById('activityId').value = editing ? act.id : '';
+  document.getElementById('activityName').value = act && act.name ? act.name : '';
   document.getElementById('activityIcon').value = act && act.icon ? act.icon : '';
   document.getElementById('selectedIconDisplay').textContent = act && act.icon ? act.icon : '❓';
   document.getElementById('activityCategory').value = act && act.category_id ? act.category_id : (activeSchemaTab || '');
   selectStar(act ? act.star_value : 1);
   setFavorite(act ? act.is_favorite : false);
   document.getElementById('activityFeedbackFor').value = (act && act.feedback_for) ? act.feedback_for : 'both';
-  document.getElementById('activityModalTitle').textContent = act ? lpt('library.modal.editActivity') : lpt('library.modal.newActivity');
+  document.getElementById('activityModalTitle').textContent = editing ? lpt('library.modal.editActivity') : lpt('library.modal.newActivity');
   document.getElementById('activityError').classList.add('hidden');
   const currentIcon = act && act.icon ? act.icon : null;
   document.querySelectorAll('#iconPicker button').forEach(btn => {
