@@ -101,6 +101,19 @@ const ICONS = [
 ];
 
 let _activityEditorReturn = '';
+let _activityIconTouched = false;
+
+function withPlaceOnReturn(activityId) {
+  if (!_activityEditorReturn || !activityId) return;
+  const qIndex = _activityEditorReturn.indexOf('?');
+  const path = qIndex === -1 ? _activityEditorReturn : _activityEditorReturn.slice(0, qIndex);
+  const query = qIndex === -1 ? '' : _activityEditorReturn.slice(qIndex + 1);
+  if (!path.startsWith('/schedule') || path.indexOf('://') !== -1) return;
+  const params = new URLSearchParams(query);
+  params.set('place', String(activityId));
+  const next = params.toString();
+  _activityEditorReturn = path + (next ? '?' + next : '');
+}
 
 function safeScheduleReturn(raw) {
   if (typeof raw !== 'string' || !raw.startsWith('/schedule')) return '';
@@ -134,12 +147,11 @@ function openActivityEditorFromQuery() {
       return;
     }
     _activityEditorReturn = ret;
-    openActivityModal(act);
-    return;
+    return openActivityModal(act);
   }
   _activityEditorReturn = ret;
   const name = params.get('name') || '';
-  openActivityModal(name ? { name: name } : null);
+  return openActivityModal(name ? { name: name } : null);
 }
 
 function leaveActivityEditorIfReturning() {
@@ -585,6 +597,7 @@ function buildIconPicker() {
 }
 
 function selectIcon(icon) {
+  _activityIconTouched = true;
   document.getElementById('activityIcon').value = icon;
   document.getElementById('selectedIconDisplay').textContent = icon;
   const emojiInput = document.getElementById('emojiTextInput');
@@ -593,13 +606,16 @@ function selectIcon(icon) {
     btn.classList.toggle('border-gold', btn.textContent === icon);
     btn.classList.toggle('bg-white', btn.textContent === icon);
   });
+  if (window.LibraryImages && typeof LibraryImages.syncPreview === 'function') LibraryImages.syncPreview();
 }
 
 function onEmojiTextInput(val) {
   const trimmed = val.trim();
   if (trimmed) {
+    _activityIconTouched = true;
     document.getElementById('activityIcon').value = trimmed;
     document.getElementById('selectedIconDisplay').textContent = trimmed;
+    if (window.LibraryImages && typeof LibraryImages.syncPreview === 'function') LibraryImages.syncPreview();
     // Deselect all picker buttons
     document.querySelectorAll('#iconPicker button').forEach(btn => {
       btn.classList.remove('border-gold', 'bg-white');
@@ -1018,6 +1034,7 @@ async function openActivityModal(act) {
   // A name-only draft from ?new=1 is a create. Setting .value to a missing id
   // becomes the string "undefined" and save PUTs /api/activities/undefined.
   const editing = !!(act && act.id);
+  _activityIconTouched = false;
   document.getElementById('activityId').value = editing ? act.id : '';
   document.getElementById('activityName').value = act && act.name ? act.name : '';
   document.getElementById('activityIcon').value = act && act.icon ? act.icon : '';
@@ -1124,13 +1141,14 @@ async function submitActivity(e) {
   const method = id ? 'PUT' : 'POST';
   const body = {
     name,
-    icon: isPhoto ? null : icon,
+    icon: icon,
     image_url: isPhoto ? image_url : null,
     category_id,
     star_value,
     is_favorite,
     feedback_for,
   };
+  if (_activityIconTouched) body.icon_key = null;
   if (seven_questions !== undefined) body.seven_questions = seven_questions;
   body.duration_seconds = duration_seconds;
   const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
@@ -1138,6 +1156,7 @@ async function submitActivity(e) {
   if (res.ok) {
     const activityId = id || data.id;
     const failedSteps = await syncLibActSubsteps(activityId);
+    if (!id) withPlaceOnReturn(activityId);
     const returning = !!_activityEditorReturn;
     closeActivityModal();
     if (returning) return;

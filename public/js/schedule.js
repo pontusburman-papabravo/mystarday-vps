@@ -167,6 +167,61 @@ if (window.ScheduleCalNav) {
 // ── Init ─────────────────────────────────────────────────
 let _schedulePageBound = false;
 
+function scheduleActivityVisual(item) {
+  if (window.ActivityVisual && typeof ActivityVisual.inline === 'function') {
+    return ActivityVisual.inline({
+      image_url: item.activity_image_url || null,
+      icon: item.activity_icon || null,
+      icon_key: item.activity_icon_key || null,
+    }, 'schedule-activity-visual');
+  }
+  return item.activity_icon || '📌';
+}
+
+function schedulePlaceFromSearch(search) {
+  const params = new URLSearchParams(String(search || '').replace(/^\?/, ''));
+  const place = params.get('place') || '';
+  if (!place) return null;
+  const section = params.get('section') || 'dag';
+  const sections = { morgon: true, dag: true, kvall: true, natt: true };
+  const dayRaw = params.get('day');
+  const day = dayRaw == null || dayRaw === '' ? null : parseInt(dayRaw, 10);
+  return {
+    activityTemplateId: place,
+    section: sections[section] ? section : 'dag',
+    day: Number.isInteger(day) && day >= 0 && day <= 6 ? day : null,
+  };
+}
+
+async function placeCreatedActivityIfRequested(urlParams) {
+  const spec = schedulePlaceFromSearch(urlParams.toString());
+  if (!spec || !currentChildId || !window.ScheduleApplyClient) return;
+  const day = spec.day != null ? spec.day : currentDay;
+  let ok = false;
+  try {
+    const result = await ScheduleApplyClient.applyActivity(currentChildId, {
+      activityTemplateId: spec.activityTemplateId,
+      days: [day],
+      section: spec.section,
+      mode: 'merge',
+    });
+    ok = !!(result && result.ok);
+  } catch (_err) {
+    ok = false;
+  }
+  try {
+    const next = new URL(window.location.href);
+    next.searchParams.delete('place');
+    const clean = next.pathname + next.search + next.hash;
+    if (window.history && typeof history.replaceState === 'function') history.replaceState({}, '', clean);
+  } catch (_err) { /* keep the page if the URL cannot be rewritten */ }
+  if (!ok) showToast(spt('schedule.validation.addFailed'), true);
+  else {
+    showToast(spt('schedule.toasts.added'));
+    await loadScheduleForDay();
+  }
+}
+
 async function bootSchedulePage() {
   try {
     const user = await window.authGuard();
@@ -283,6 +338,7 @@ async function bootSchedulePage() {
           await loadScheduleForDay();
         }
       }
+      await placeCreatedActivityIfRequested(urlParams);
     } else if (children.length === 1 && preSelectView !== 'family' && preSelectView !== 'calendar') {
       await selectChild(children[0].id);
     }
@@ -406,7 +462,7 @@ async function renderChildrenOverview() {
       if (items.length === 0) return '';
       const actList = items.slice(0, 6).map(i =>
         `<div class="flex items-center gap-1.5 py-0.5">
-          <span class="text-sm flex-shrink-0">${i.activity_icon || '📌'}</span>
+          <span class="text-sm flex-shrink-0">${scheduleActivityVisual(i)}</span>
           <span class="text-xs text-navy truncate">${escHtml(i.activity_name_display || i.activity_name)}</span>
         </div>`
       ).join('');
@@ -852,8 +908,8 @@ function renderItem(item) {
   const oncePin = isOnce ? '<span title="' + spt('schedule.actions.oneOff') + '" class="text-[10px] flex-shrink-0">📌</span>' : '';
   const editBtn = isOnce ? '' : `<button onclick="openEditItem('${item.id}')" class="action-btn p-2 rounded-lg hover:bg-lavender transition-colors text-text-soft" title="${spt('schedule.editor.editTime')}">🕐</button>`;
   const tplIcon = canEditTpl
-    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="${spt('schedule.editor.editActivity')}">${item.activity_icon || '📌'}</button>`
-    : `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>`;
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="${spt('schedule.editor.editActivity')}">${scheduleActivityVisual(item)}</button>`
+    : `<span class="text-xl flex-shrink-0">${scheduleActivityVisual(item)}</span>`;
   const nameBtn = canEditTpl
     ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="schedule-activity-name font-semibold text-sm text-navy hover:text-gold transition-colors block w-full text-left" title="${spt('schedule.actions.editActivity')}">${escHtml(item.activity_name_display || item.activity_name)}</button>`
     : `<span class="schedule-activity-name font-semibold text-sm text-navy">${escHtml(item.activity_name_display || item.activity_name)}</span>`;

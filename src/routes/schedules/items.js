@@ -157,7 +157,8 @@ router.get('/', async (req, res) => {
 
     const items = await db.query(
       `SELECT wsi.id, wsi.activity_template_id, wsi.start_time, wsi.end_time, wsi.sort_order, wsi.section,
-              at.name AS activity_name, at.icon AS activity_icon, at.star_value,
+              at.name AS activity_name, at.icon AS activity_icon, at.icon_key AS activity_icon_key,
+              at.image_url AS activity_image_url, at.star_value,
               COALESCE(sub.cnt, 0) AS sub_step_count,
               COALESCE(sub.steps, '[]'::json) AS sub_steps
        FROM weekly_schedule_item wsi
