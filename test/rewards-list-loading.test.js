@@ -170,6 +170,7 @@ async function bootRewards(options) {
   };
   sandbox.window = sandbox;
   vm.createContext(sandbox);
+  vm.runInContext(read('public/js/reward-row-actions.js'), sandbox, { filename: 'reward-row-actions.js' });
   vm.runInContext(read('public/js/reward-editor.js'), sandbox, { filename: 'reward-editor.js' });
   if (doc.readyState !== 'loading') {
     for (let i = 0; i < 20; i++) await Promise.resolve();

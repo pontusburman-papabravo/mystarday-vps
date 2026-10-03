@@ -116,12 +116,19 @@
       </form>
     </div>
   </div>
+  <div id="rewardActionSheet" data-overlay="modal" class="hidden fixed inset-0 bg-black/50 flex items-end justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="rewardActionSheetTitle">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <h2 id="rewardActionSheetTitle" class="px-2 pt-1 pb-2 text-base font-semibold text-navy truncate"></h2>
+      <div id="rewardActionSheetActions" class="flex flex-col gap-1"></div>
+    </div>
+  </div>
   <div id="rewardConfirmModal" data-overlay="modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" role="dialog">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" role="dialog" aria-modal="true" aria-labelledby="rewardConfirmTitle">
+      <h2 id="rewardConfirmTitle" class="font-heading font-bold text-navy text-lg mb-2"></h2>
       <div id="rewardConfirmMsg" class="text-sm text-navy mb-4"></div>
       <div class="flex gap-3">
         <button type="button" onclick="closeRewardConfirmModal()" class="flex-1 px-4 py-3 min-h-[44px] border-2 border-lavender rounded-xl font-semibold" data-i18n="library.actions.cancel">Avbryt</button>
-        <button type="button" onclick="confirmRewardAction()" class="flex-1 px-4 py-3 min-h-[44px] bg-coral text-navy rounded-xl font-semibold" data-i18n="library.actions.delete">Ta bort</button>
+        <button type="button" id="rewardConfirmOk" onclick="confirmRewardAction()" class="flex-1 px-4 py-3 min-h-[44px] bg-coral text-navy rounded-xl font-semibold" data-i18n="library.rewards.deleteAction">Radera</button>
       </div>
     </div>
   </div>
@@ -132,6 +139,7 @@
   <script src="/js/toast.js?v=2.12.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <script src="/js/pending-approvals.js?v=2"></script>
+  <script src="/js/reward-row-actions.js?v=1"></script>
   <script src="/js/reward-editor.js?v=2"></script>
   <script src="/js/rewards-hub.js?v=2.1.0"></script>
   <script src="/js/app-view-mode.js?v=4"></script>

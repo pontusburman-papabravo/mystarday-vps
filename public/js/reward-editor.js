@@ -152,12 +152,14 @@
     setApproval(approvalValue);
   }
 
-  function openConfirmModal(msg, callback) {
+  function openConfirmModal(title, msg, callback) {
+    const titleEl = document.getElementById('rewardConfirmTitle');
     const msgEl = document.getElementById('rewardConfirmMsg');
+    const okBtn = document.getElementById('rewardConfirmOk');
     if (!msgEl) return;
-    msgEl.innerHTML = String(msg || '').split('\n').map(function (line) {
-      return line.trim() ? '<span class="block mb-2">' + escHtml(line) + '</span>' : '';
-    }).join('');
+    if (titleEl) titleEl.textContent = title || '';
+    msgEl.textContent = msg || '';
+    if (okBtn) okBtn.textContent = lpt('library.rewards.deleteAction');
     _confirmCallback = callback;
     document.getElementById('rewardConfirmModal').classList.remove('hidden');
   }
@@ -186,7 +188,8 @@
   }
 
   function renderRewardItem(r) {
-    const isActive = r.is_active !== false;
+    const isActive = window.RewardRowActions.isRewardActive(r);
+    const toggleKey = window.RewardRowActions.toggleActionKey(r);
     const isFavorite = r.is_favorite === true;
     const vtc = r.visible_to_children;
     let visLabel = lpt('library.rewards.allChildren');
@@ -196,7 +199,7 @@
       visLabel = lpt('library.rewards.childrenCount', { count: vtc.length });
     }
     return (
-      '<div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in ' + (!isActive ? 'opacity-50' : '') + '" data-id="' + r.id + '">' +
+      '<div class="flex items-center justify-between bg-white rounded-xl px-3 py-3 gap-2 fade-in' + (isActive ? '' : ' reward-row-inactive') + '" data-id="' + r.id + '" data-reward-status="' + (isActive ? 'active' : 'inactive') + '">' +
       '<div class="flex items-center gap-3 min-w-0 flex-1">' +
       '<span class="drag-handle text-text-soft text-sm select-none px-1">☰</span>' +
       '<button type="button" onclick="toggleRewardFavorite(\'' + r.id + '\', ' + isFavorite + ')" class="text-lg flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center ' + (isFavorite ? 'text-gold' : 'text-gray-300') + '" aria-label="' + (isFavorite ? lpt('library.favorite.remove') : lpt('library.favorite.add')) + '">' + (isFavorite ? '★' : '☆') + '</button>' +
@@ -206,22 +209,18 @@
       '<span class="font-semibold text-sm text-navy">' + escHtml(r.display_name || r.name) + '</span>' +
       '<span class="text-xs bg-gold-light text-navy px-2 py-0.5 rounded-full font-semibold">' + r.star_cost + ' ⭐</span>' +
       (r.requires_approval ? '<span class="text-xs bg-lavender text-navy px-2 py-0.5 rounded-full">' + lpt('library.modal.approvalBadge') + '</span>' : '') +
-      (!isActive ? '<span class="text-xs bg-gray-100 text-text-soft px-2 py-0.5 rounded-full">' + lpt('library.rewards.inactive') + '</span>' : '') +
+      (!isActive ? '<span class="reward-inactive-label text-xs px-2 py-0.5 rounded-full">' + lpt(window.RewardRowActions.inactiveLabelKey()) + '</span>' : '') +
       '</div>' +
       '<div class="text-xs text-text-soft mt-0.5">' + visLabel + '</div>' +
       '</div></div>' +
       '<div class="icon-btns-desktop flex items-center gap-1 flex-shrink-0">' +
-      '<button onclick="toggleRewardActive(\'' + r.id + '\', ' + isActive + ')" title="' + (isActive ? lpt('library.chrome.deactivate') : lpt('library.chrome.activate')) + '" class="reward-toggle px-2 py-1 min-w-[44px] min-h-[44px] ' + (isActive ? 'bg-mint text-green-700' : 'bg-gray-100 text-text-soft') + ' hover:opacity-80 rounded-lg text-sm transition-colors">' + (isActive ? '✓' : '○') + '</button>' +
+      '<button onclick="toggleRewardActive(\'' + r.id + '\', ' + isActive + ')" title="' + lpt(toggleKey) + '" class="reward-toggle px-2 py-1 min-w-[44px] min-h-[44px] ' + (isActive ? 'bg-mint text-green-700' : 'bg-gray-100 text-text-soft') + ' hover:opacity-80 rounded-lg text-sm transition-colors">' + (isActive ? '✓' : '○') + '</button>' +
       '<button onclick="openRewardModalById(\'' + r.id + '\')" class="icon-btn px-2 py-1 bg-lavender hover:bg-purple-100 rounded-lg text-xs font-semibold transition-colors text-text-soft">✏️</button>' +
       '<button onclick="deleteReward(\'' + r.id + '\', \'' + escHtml(r.name) + '\')" class="icon-btn px-2 py-1 border border-coral/40 hover:border-red-400 hover:bg-red-50 rounded-lg text-xs font-semibold transition-colors text-red-400">✕</button>' +
       '</div>' +
       '<div class="overflow-menu-wrap flex-shrink-0">' +
-      '<button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,\'omenu-r-' + r.id + '\')" aria-label="' + lpt('library.chrome.moreOptions') + '">⋯</button>' +
-      '<div id="omenu-r-' + r.id + '" class="overflow-menu-popup">' +
-      '<button onclick="closeOverflowMenus();toggleRewardActive(\'' + r.id + '\', ' + isActive + ')">' + (isActive ? '○ ' + lpt('library.chrome.deactivate') : '✓ ' + lpt('library.chrome.activate')) + '</button>' +
-      '<button onclick="closeOverflowMenus();openRewardModalById(\'' + r.id + '\')">✏️ ' + lpt('library.actions.edit') + '</button>' +
-      '<button class="danger" onclick="closeOverflowMenus();deleteReward(\'' + r.id + '\', \'' + escHtml(r.name) + '\')">✕ ' + lpt('library.actions.delete') + '</button>' +
-      '</div></div></div>'
+      '<button type="button" class="overflow-menu-btn" onclick="openRewardActions(\'' + r.id + '\')" aria-label="' + lpt('library.chrome.moreOptions') + '">⋯</button>' +
+      '</div></div>'
     );
   }
 
@@ -404,13 +403,67 @@
     btn.textContent = lpt('library.actions.save');
   }
 
-  function deleteReward(id, name) {
-    openConfirmModal(lpt('library.confirm.deleteReward', { name: name }), async function () {
+  function closeRewardActions() {
+    const sheet = document.getElementById('rewardActionSheet');
+    if (!sheet) return;
+    sheet.classList.add('hidden');
+    delete sheet.dataset.rewardId;
+  }
+
+  function openRewardActions(id) {
+    const reward = rewards.find(function (r) { return String(r.id) === String(id); });
+    const sheet = document.getElementById('rewardActionSheet');
+    const title = document.getElementById('rewardActionSheetTitle');
+    const actions = document.getElementById('rewardActionSheetActions');
+    if (!reward || !sheet || !actions) return;
+    if (title) title.textContent = reward.display_name || reward.name || '';
+    actions.innerHTML =
+      '<button type="button" data-reward-action="toggle" class="w-full min-h-[44px] px-4 py-3 rounded-xl text-left font-semibold text-navy hover:bg-sky">' +
+      lpt(window.RewardRowActions.toggleActionKey(reward)) + '</button>' +
+      '<button type="button" data-reward-action="edit" class="w-full min-h-[44px] px-4 py-3 rounded-xl text-left font-semibold text-navy hover:bg-sky">' +
+      lpt('library.actions.edit') + '</button>' +
+      '<button type="button" data-reward-action="delete" class="w-full min-h-[44px] px-4 py-3 rounded-xl text-left font-semibold text-red-600 hover:bg-red-50">' +
+      lpt('library.rewards.deleteAction') + '</button>' +
+      '<button type="button" data-reward-action="cancel" class="w-full min-h-[44px] px-4 py-3 mt-1 rounded-xl font-semibold text-navy border-2 border-lavender">' +
+      lpt('library.actions.cancel') + '</button>';
+    sheet.dataset.rewardId = String(reward.id);
+    sheet.classList.remove('hidden');
+  }
+
+  function onRewardActionSheetClick(e) {
+    const sheet = document.getElementById('rewardActionSheet');
+    if (!sheet || sheet.classList.contains('hidden')) return;
+    if (e.target === sheet) {
+      closeRewardActions();
+      return;
+    }
+    const btn = e.target.closest ? e.target.closest('[data-reward-action]') : null;
+    if (!btn) return;
+    const id = sheet.dataset.rewardId;
+    const action = btn.getAttribute('data-reward-action');
+    const reward = rewards.find(function (r) { return String(r.id) === String(id); });
+    closeRewardActions();
+    if (action === 'toggle' && reward) {
+      toggleRewardActive(reward.id, window.RewardRowActions.isRewardActive(reward));
+    } else if (action === 'edit') {
+      openRewardModalById(id);
+    } else if (action === 'delete') {
+      deleteReward(id);
+    }
+  }
+
+  function deleteReward(id) {
+    const reward = rewards.find(function (r) { return String(r.id) === String(id); }) || { id: id };
+    const copy = window.RewardRowActions.deleteConfirm(reward);
+    openConfirmModal(lpt(copy.titleKey), lpt(copy.bodyKey, copy.params), async function () {
       const res = await window.apiFetch('/api/rewards/' + id, { method: 'DELETE' });
       const data = await res.json();
       if (res.ok) {
-        showToast(lpt('library.saved.rewardDeleted'));
-        await loadRewards();
+        rewards = window.RewardRowActions.listAfterDelete(rewards, id, data);
+        renderRewards();
+        showToast(data.reward_deleted
+          ? lpt('library.saved.rewardDeleted')
+          : lpt('library.saved.rewardDeactivatedHistory'));
         if (window.RewardsHub && typeof RewardsHub.render === 'function') RewardsHub.render();
       } else {
         showToast(libApiError(data, 'library.errors.deleteReward'), true);
@@ -444,14 +497,22 @@
   }
 
   async function toggleRewardActive(id, currentlyActive) {
-    const reward = rewards.find(function (r) { return r.id === id; });
+    const reward = rewards.find(function (r) { return String(r.id) === String(id); });
     if (!reward) return;
+    const nextActive = !currentlyActive;
     const res = await window.apiFetch('/api/rewards/' + id, {
       method: 'PUT',
-      body: JSON.stringify(Object.assign({}, reward, { is_active: !currentlyActive })),
+      body: JSON.stringify({ is_active: nextActive }),
     });
-    if (res.ok) await loadRewards();
-    else showToast(lpt('library.errors.updateReward'), true);
+    const data = await res.json().catch(function () { return {}; });
+    if (!res.ok) {
+      showToast(libApiError(data, 'library.errors.updateReward'), true);
+      return;
+    }
+    const saved = typeof data.is_active === 'boolean' ? data.is_active : nextActive;
+    rewards = window.RewardRowActions.listAfterToggle(rewards, id, saved);
+    renderRewards();
+    showToast(saved ? lpt('library.saved.rewardActivated') : lpt('library.saved.rewardDeactivated'));
   }
 
   async function onRewardSearch(query) {
@@ -563,6 +624,8 @@
   window.closeRewardModal = closeRewardModal;
   window.submitReward = submitReward;
   window.deleteReward = deleteReward;
+  window.openRewardActions = openRewardActions;
+  window.closeRewardActions = closeRewardActions;
   window.toggleRewardFavorite = toggleRewardFavorite;
   window.toggleRewardActive = toggleRewardActive;
   window.onRewardSearch = onRewardSearch;
@@ -592,6 +655,8 @@
         if (e.target === e.currentTarget) closeConfirmModal();
       });
     }
+    const sheet = document.getElementById('rewardActionSheet');
+    if (sheet) sheet.addEventListener('click', onRewardActionSheetClick);
     loadRewards();
   }
 

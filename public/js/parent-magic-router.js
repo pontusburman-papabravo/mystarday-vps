@@ -65,6 +65,7 @@
     calendar: ['/js/calendar-page.js?v=1'],
     rewards: [
       '/js/pending-approvals.js?v=2',
+      '/js/reward-row-actions.js?v=1',
       '/js/reward-editor.js?v=2',
       '/js/rewards-hub.js?v=1.2.1',
     ],

@@ -13,8 +13,9 @@ describe('library reward edit mobile overflow menu', () => {
     assert.match(src, /function openRewardModalById\(id\)/);
     assert.match(src, /rewards\.find\(function \(r\) \{ return String\(r\.id\) === String\(id\); \}\)/);
     assert.match(src, /window\.openRewardModalById = openRewardModalById/);
-    assert.match(src, /closeOverflowMenus\(\);openRewardModalById\(\\'/ );
+    assert.match(src, /openRewardModalById\(id\)/);
     assert.match(src, /onclick="openRewardModalById\(\\'/);
+    assert.match(src, /data-reward-action="edit"/);
     assert.doesNotMatch(src, /openRewardModal\(\$\{JSON\.stringify\(r\)/);
     assert.doesNotMatch(src, /openRewardModal\(JSON\.stringify\(r\)/);
   });

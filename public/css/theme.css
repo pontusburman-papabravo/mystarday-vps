@@ -89,6 +89,13 @@ input[type="time"] {
   .icon-btns-desktop { display: none !important; }
 }
 
+.reward-row-inactive { opacity: 0.72; }
+.reward-inactive-label {
+  color: #1B2559;
+  background: #EDE7F6;
+  font-weight: 700;
+}
+
 .overflow-menu-wrap { position: relative; }
 .overflow-menu-btn {
   min-width: 44px;

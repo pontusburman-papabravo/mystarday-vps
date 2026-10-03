@@ -108,7 +108,9 @@ parentRouter.get('/', async (req, res) => {
     );
     const result = await db.query(
       `SELECT id, name, icon, star_cost, requires_approval, is_active, is_favorite, sort_order, visible_to_children,
-              source_default_id, COALESCE(modified_by_family, false) AS modified_by_family
+              source_default_id, COALESCE(modified_by_family, false) AS modified_by_family,
+              (SELECT COUNT(*)::int FROM reward_redemption rr WHERE rr.reward_id = reward.id) AS redemption_count,
+              (SELECT COUNT(*)::int FROM child_reward_goal g WHERE g.reward_id = reward.id) AS goal_count
        FROM reward WHERE family_id = $1 ORDER BY sort_order ASC, star_cost ASC`,
       [req.user.familyId]
     );
@@ -244,25 +246,68 @@ parentRouter.put('/:id', validateParams(UUIDParam), validate(UpdateRewardSchema)
 });
 
 parentRouter.delete('/:id', async (req, res) => {
+  const client = await db.getClient();
   try {
-    const existing = await db.query(
-      'SELECT id, is_active FROM reward WHERE id = $1 AND family_id = $2',
+    await client.query('BEGIN');
+    const existing = await client.query(
+      'SELECT id, is_active FROM reward WHERE id = $1 AND family_id = $2 FOR UPDATE',
       [req.params.id, req.user.familyId]
     );
     if (existing.rows.length === 0) {
+      await client.query('ROLLBACK');
       return sendApiError(res, 404, 'REWARD_NOT_FOUND');
     }
-    if (!existing.rows[0].is_active) {
-      return res.json({ code: 'REWARD_DELETED' });
-    }
-    await db.query(
-      `UPDATE reward SET is_active = false, modified_by_family = true WHERE id = $1 AND family_id = $2`,
-      [req.params.id, req.user.familyId]
+    const reward = existing.rows[0];
+    const redemptions = await client.query(
+      'SELECT id FROM reward_redemption WHERE reward_id = $1 FOR UPDATE',
+      [reward.id]
     );
-    res.json({ code: 'REWARD_DELETED' });
+    const goals = await client.query(
+      'SELECT COUNT(*)::int AS n FROM child_reward_goal WHERE reward_id = $1',
+      [reward.id]
+    );
+    const redemptionCount = redemptions.rows.length;
+    const goalCount = goals.rows[0].n;
+
+    // Redemptions hold spent stars. Deleting the reward would cascade those rows
+    // and refund the child. Keep the history and hide the reward via is_active.
+    if (redemptionCount > 0) {
+      if (reward.is_active) {
+        await client.query(
+          'UPDATE reward SET is_active = false, modified_by_family = true WHERE id = $1 AND family_id = $2',
+          [reward.id, req.user.familyId]
+        );
+      }
+      await client.query('COMMIT');
+      return res.json({
+        code: 'REWARD_DELETED',
+        reward_deleted: false,
+        is_active: false,
+        redemption_count: redemptionCount,
+        goal_count: goalCount,
+      });
+    }
+
+    const deleted = await client.query(
+      'DELETE FROM reward WHERE id = $1 AND family_id = $2 RETURNING id',
+      [reward.id, req.user.familyId]
+    );
+    if (deleted.rowCount !== 1) {
+      await client.query('ROLLBACK');
+      throw new Error('reward delete did not remove one row');
+    }
+    await client.query('COMMIT');
+    return res.json({
+      code: 'REWARD_DELETED',
+      reward_deleted: true,
+      goals_removed: goalCount,
+    });
   } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) { /* already closed */ }
     console.error('[REWARDS] Delete error:', err);
-    sendApiError(res, 500, 'REWARD_SERVER_ERROR');
+    return sendApiError(res, 500, 'REWARD_SERVER_ERROR');
+  } finally {
+    client.release();
   }
 });
 
