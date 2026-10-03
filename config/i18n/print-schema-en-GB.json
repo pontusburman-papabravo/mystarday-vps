@@ -86,7 +86,8 @@
     "mobileSavedHint": "PDF ready — save it to Files",
     "desktopSavedHint": "PDF saved to Downloads",
     "pdfLibsMissing": "PDF tools missing — reload the page and try again",
-    "createPdfError": "Could not create the PDF"
+    "createPdfError": "Could not create the PDF",
+    "shareAgain": "The PDF is ready. Tap Create PDF again to choose where to save it."
   },
   "empty": {
     "noChildren": "No children added yet.",

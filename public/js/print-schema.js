@@ -10,6 +10,9 @@
   let scope = 'all';
   let weekOffset = 0;
   let custodyEnabled = false;
+  const pdfDelivery = (window.PrintSchemaCore && typeof window.PrintSchemaCore.createPdfDelivery === 'function')
+    ? window.PrintSchemaCore.createPdfDelivery()
+    : null;
 
   function t(key, params) {
     if (typeof window.pt === 'function') return window.pt(key, params);
@@ -202,11 +205,54 @@
     }
   }
 
+  function exportContextKey() {
+    return [currentChildId, periodKey, scope, String(weekOffset)].join('|');
+  }
+
+  function finishExport(result) {
+    if (!result || result.method === 'busy') return;
+    if (result.method === 'cancelled') {
+      showToast(t('printSchema.toasts.pdfCancelled'));
+      return;
+    }
+    const delivery = result.method ? result.method : 'pdf_download';
+    trackExport({
+      format: periodKey,
+      scope: scope,
+      child_id: currentChildId,
+      week_offset: weekOffset,
+      delivery: delivery,
+    });
+    if (scope === 'my' && window.analytics) {
+      window.analytics.track('custody_view_filtered', { source: 'print_schema', period: periodKey });
+    }
+    if (delivery === 'share') {
+      if (typeof window.showSuccessToast === 'function') {
+        window.showSuccessToast(t('printSchema.toasts.shareHint'), 8000);
+      }
+    } else if (isMobileDevice()) {
+      if (typeof window.showSuccessToast === 'function') {
+        window.showSuccessToast(t('printSchema.toasts.mobileSavedHint'), 5000);
+      }
+      openPdfHelpModal('preview', result && result.filename);
+    } else {
+      if (typeof window.showSuccessToast === 'function') {
+        window.showSuccessToast(t('printSchema.toasts.desktopSavedHint'));
+      }
+      openPdfHelpModal('desktop', result && result.filename);
+    }
+  }
+
   async function runCreatePdf() {
     if (!currentChildId) { showToast(t('printSchema.toasts.selectChild'), 'error'); return; }
     const btn = document.getElementById('printBtn');
     if (btn) btn.disabled = true;
+    const key = exportContextKey();
     try {
+      if (pdfDelivery && pdfDelivery.canSharePending(key)) {
+        finishExport(await pdfDelivery.sharePending());
+        return;
+      }
       showToast(t('printSchema.toasts.creatingPdf'));
       const child = children.find(function (c) { return c.id === currentChildId; });
       const doc = await buildDoc('print');
@@ -214,36 +260,13 @@
         childName: child ? child.name : t('printSchema.filename.fallbackSlug'),
         myDaysOnly: scope === 'my',
       });
-      if (result && result.method === 'cancelled') {
-        showToast(t('printSchema.toasts.pdfCancelled'));
+      if (result && result.method === 'needs_gesture') {
+        if (pdfDelivery) pdfDelivery.remember(key, result);
+        showToast(t('printSchema.toasts.shareAgain'));
         return;
       }
-      const delivery = result && result.method ? result.method : 'pdf_download';
-      trackExport({
-        format: periodKey,
-        scope: scope,
-        child_id: currentChildId,
-        week_offset: weekOffset,
-        delivery: delivery,
-      });
-      if (scope === 'my' && window.analytics) {
-        window.analytics.track('custody_view_filtered', { source: 'print_schema', period: periodKey });
-      }
-      if (delivery === 'share') {
-        if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast(t('printSchema.toasts.shareHint'), 8000);
-        }
-      } else if (isMobileDevice()) {
-        if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast(t('printSchema.toasts.mobileSavedHint'), 5000);
-        }
-        openPdfHelpModal('preview', result && result.filename);
-      } else {
-        if (typeof window.showSuccessToast === 'function') {
-          window.showSuccessToast(t('printSchema.toasts.desktopSavedHint'));
-        }
-        openPdfHelpModal('desktop', result && result.filename);
-      }
+      if (pdfDelivery) pdfDelivery.remember(key, null);
+      finishExport(result);
     } catch (err) {
       if (err && err.message === 'no_my_days') {
         showToast(t('printSchema.toasts.noMyDays'), 'error');
@@ -335,5 +358,9 @@
     });
 
     await bootAfterI18n();
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && pdfDelivery) pdfDelivery.onResume();
   });
 })();

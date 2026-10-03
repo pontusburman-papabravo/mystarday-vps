@@ -346,6 +346,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
+// stjarndag-v1032: PDF export on iOS stays on the page and opens a share sheet
 // stjarndag-v1032: Rewards list loads without waiting for parent-i18n-ready
 // stjarndag-v1032: Activity editor can choose an icon or a photo, including a new camera photo
 // stjarndag-v1032: Force-delete an activity together with its weekly schedule rows

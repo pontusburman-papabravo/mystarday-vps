@@ -92,7 +92,7 @@ describe('FEAT-1B boendeschema', () => {
     assert.match(core, /getPeriods/);
     assert.match(core, /A4 landscape/);
     assert.match(core, /downloadPdf/);
-    assert.match(core, /navigator\.canShare/);
+    assert.match(core, /navigator\.canShare|nav\.canShare/);
     assert.match(core, /openPrintPlaceholder/);
   });
 });
