@@ -979,6 +979,6 @@ describe('P0.2 static contracts', () => {
     assert.match(profileSetup, /child\.role === 'primary'/);
     assert.match(profile, /childRow\.role !== 'primary'/);
     assert.match(settings, /child\.role !== 'primary'/);
-    assert.match(family, /child\.role !== 'primary'/);
+    assert.doesNotMatch(family, /onclick="confirmDeleteChild/);
   });
 });
