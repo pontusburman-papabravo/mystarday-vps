@@ -181,7 +181,7 @@ function registerRoutes(app) {
     'dashboard', 'child-dashboard',
     'settings', 'accept-invite', 'pedagog-invite',
     'activities', 'library', 'for-dig', 'schedule', 'assign-schedule', 'daily-log',
-    'family', 'calendar', 'onboarding', 'child-wizard', 'notifications',
+    'family', 'onboarding', 'child-wizard', 'notifications',
     'planning', 'rewards', 'family-child', 'print-schema',
   ];
   app.get('/upgrade', async (req, res) => {
@@ -249,6 +249,19 @@ function registerRoutes(app) {
 
   app.get('/onboarding/handoff-film.mp4', (req, res) => {
     res.sendFile(join(__dirname, '../../public', 'onboarding', 'handoff-film.mp4'));
+  });
+
+  app.get('/calendar', (req, res) => {
+    const params = new URLSearchParams();
+    Object.entries(req.query || {}).forEach(([key, value]) => {
+      if (key === 'view') return;
+      const values = Array.isArray(value) ? value : [value];
+      values.forEach((item) => {
+        if (item != null) params.append(key, String(item));
+      });
+    });
+    params.set('view', 'calendar');
+    res.redirect(302, '/schedule?' + params.toString());
   });
 
   for (const page of appPages) {

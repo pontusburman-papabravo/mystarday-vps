@@ -318,7 +318,7 @@
     "steps": {
       "welcome": {
         "title": "Welcome to the dashboard!",
-        "body": "Here you can see each child's daily progress. Tap a child card to view and edit their schedule."
+        "body": "Here you can see each child's day. Edit the weekly schedule in Planning."
       },
       "stars": {
         "title": "Stars & treasure chest",
@@ -493,7 +493,7 @@
     "starTipsCollect": "• Your child earns stars when activities are checked off in child view",
     "starTipsExtra": "• Give bonus stars from the child card for effort outside the schedule",
     "starTipsRewards": "• Stars count towards saved rewards — set goals in Library",
-    "starTipsEdit": "• Tap a child card to view and edit their weekly schedule",
+    "starTipsEdit": "• Edit the weekly schedule in Planning",
     "dayDragInner": "drag a day tab onto another day to copy/swap",
     "calViewDay": "Day",
     "calViewWeek": "Week",

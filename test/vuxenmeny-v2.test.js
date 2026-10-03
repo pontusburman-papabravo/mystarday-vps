@@ -136,7 +136,7 @@ describe('vuxenmeny v2 — Sprint 6 capabilities', () => {
     assert.match(src, /NavConfig\.capabilitiesForPlacement/);
     assert.match(src, /planning_hub/);
     assert.match(src, /magic-bilder/);
-    assert.match(src, /planning\.links\.library/);
+    assert.match(src, /planning\.primary\.activities/);
   });
 
   it('rewards-hub uses capabilitiesForPlacement', () => {

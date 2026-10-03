@@ -318,7 +318,7 @@
     "steps": {
       "welcome": {
         "title": "Välkommen till dashboarden!",
-        "body": "Här ser du alla dina barns dagliga progress. Klicka på ett barnkort för att se och redigera dess schema."
+        "body": "Här ser du barnens dag. Veckoschemat ändrar du under Planering."
       },
       "stars": {
         "title": "Stjärnor & Skattkammaren",
@@ -493,7 +493,7 @@
     "starTipsCollect": "• Barnet samlar stjärnor när aktiviteter bockas av i barnvyn",
     "starTipsExtra": "• Ge extra stjärnor direkt från barnkortet för insatser utanför schemat",
     "starTipsRewards": "• Stjärnorna räknas mot sparade belöningar — sätt upp mål i Bibliotek",
-    "starTipsEdit": "• Klicka på ett barnkort för att se och redigera dess veckoschema",
+    "starTipsEdit": "• Veckoschemat ändrar du under Planering",
     "dayDragInner": "dra dag-flik till annan dag för att kopiera/byta",
     "calViewDay": "Dag",
     "calViewWeek": "Vecka",

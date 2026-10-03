@@ -31,9 +31,7 @@
   }
 
   function isOverviewVisible() {
-    const editor = document.getElementById('scheduleEditorView');
     const list = document.getElementById('childrenListView');
-    if (editor && !editor.classList.contains('hidden')) return false;
     if (list && list.classList.contains('hidden')) return false;
     return true;
   }

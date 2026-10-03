@@ -190,7 +190,9 @@
     "pausedDay": "😴 Day off / sick",
     "emptyDay": "No schedule",
     "prevWeek": "Previous week",
-    "nextWeekNav": "Next week"
+    "nextWeekNav": "Next week",
+    "showCalendar": "Calendar",
+    "showDays": "Days"
   },
   "days": {
     "0": "Sunday",

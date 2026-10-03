@@ -8,6 +8,29 @@ function pt(key, params) {
   return (typeof window.pt === 'function') ? window.pt(key, params) : key;
 }
 
+/** Prefer the /schedule?view=calendar host so child tabs do not collide with the day list. */
+function calById(id) {
+  const host = document.getElementById('scheduleCalendarView');
+  if (host) {
+    if (id === 'childTabs') return host.querySelector('[data-cal-id="childTabs"]');
+    const scoped = host.querySelector('#' + id);
+    if (scoped) return scoped;
+  }
+  return document.getElementById(id);
+}
+
+function embeddedCalendarView() {
+  return !!document.getElementById('scheduleCalendarView');
+}
+
+function wantsCalendarView() {
+  try {
+    return new URLSearchParams(window.location.search).get('view') === 'calendar';
+  } catch (_) {
+    return false;
+  }
+}
+
 // ─── State ────────────────────────────────────────────────
 let children = [];
 let selectedChildId = null;
@@ -43,7 +66,7 @@ async function init() {
 }
 
 function revealCalendarUi() {
-  const ui = document.getElementById('calendarUI');
+  const ui = calById('calendarUI');
   if (!ui) return;
   ui.classList.remove('hidden');
   ui.style.opacity = '1';
@@ -67,9 +90,11 @@ async function loadChildren() {
       return;
     }
 
-    // Restore last selected child or pick first
+    const urlChild = new URLSearchParams(window.location.search).get('child');
     const saved = localStorage.getItem('calendar_selectedChild');
-    if (saved && children.find(c => c.id === saved)) {
+    if (urlChild && children.find(c => c.id === urlChild)) {
+      selectedChildId = urlChild;
+    } else if (saved && children.find(c => c.id === saved)) {
       selectedChildId = saved;
     } else {
       selectedChildId = children[0].id;
@@ -84,7 +109,8 @@ async function loadChildren() {
 }
 
 function renderChildTabs() {
-  const container = document.getElementById('childTabs');
+  const container = calById('childTabs');
+  if (!container) return;
   container.innerHTML = '';
   for (const child of children) {
     const btn = document.createElement('button');
@@ -99,7 +125,7 @@ function renderChildTabs() {
 /** Phase 4 — keep the "Hantera specialdagar & lov" bridge link deep-linked to the currently
  * selected child, so it opens Weekly Schedule's Specialdagar tab for the right child directly. */
 function updateManageSpecialDaysLink() {
-  const link = document.getElementById('calendarManageSpecialDaysLink');
+  const link = calById('calendarManageSpecialDaysLink');
   if (!link) return;
   link.href = selectedChildId
     ? `/schedule?child=${encodeURIComponent(selectedChildId)}&view=special-days`
@@ -109,6 +135,18 @@ function updateManageSpecialDaysLink() {
 async function selectChild(childId) {
   selectedChildId = childId;
   localStorage.setItem('calendar_selectedChild', childId);
+  try {
+    if (embeddedCalendarView()) {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('view') === 'calendar') {
+        url.searchParams.set('child', childId);
+        history.replaceState(null, '', url);
+        if (window.ScheduleCalendarView && ScheduleCalendarView.syncToggle) {
+          ScheduleCalendarView.syncToggle();
+        }
+      }
+    }
+  } catch (_) {}
   renderChildTabs();
   await loadCalendar();
 }
@@ -116,9 +154,9 @@ async function selectChild(childId) {
 async function loadCalendar() {
   if (!selectedChildId) return;
 
-  document.getElementById('loadingState').classList.remove('hidden');
-  document.getElementById('errorState').classList.add('hidden');
-  document.getElementById('calendarUI').classList.add('hidden');
+  calById('loadingState').classList.remove('hidden');
+  calById('errorState').classList.add('hidden');
+  calById('calendarUI').classList.add('hidden');
 
   try {
     const res = await window.apiFetch(`/api/children/${selectedChildId}/calendar-week?weekOffset=${weekOffset}`);
@@ -134,20 +172,20 @@ async function loadCalendar() {
     }
     renderCalendar(currentData);
 
-    document.getElementById('loadingState').classList.add('hidden');
+    calById('loadingState').classList.add('hidden');
     revealCalendarUi();
   } catch (err) {
     console.error('[CALENDAR] load error:', err);
-    document.getElementById('loadingState').classList.add('hidden');
+    calById('loadingState').classList.add('hidden');
     showError(pt('schedule.calendar.loadError'));
   }
 }
 
 function showError(msg) {
-  document.getElementById('errorMsg').textContent = msg;
-  document.getElementById('errorState').classList.remove('hidden');
-  document.getElementById('loadingState').classList.add('hidden');
-  const ui = document.getElementById('calendarUI');
+  calById('errorMsg').textContent = msg;
+  calById('errorState').classList.remove('hidden');
+  calById('loadingState').classList.add('hidden');
+  const ui = calById('calendarUI');
   if (ui) ui.classList.add('hidden');
 }
 
@@ -193,8 +231,8 @@ function renderCalendar(data) {
 }
 
 function renderWeekHeader(data) {
-  const weekLabel = document.getElementById('weekLabel');
-  const weekSubLabel = document.getElementById('weekSubLabel');
+  const weekLabel = calById('weekLabel');
+  const weekSubLabel = calById('weekSubLabel');
   if (!data.weekStart || !data.weekEnd) {
     if (weekLabel) weekLabel.textContent = '';
     if (weekSubLabel) weekSubLabel.textContent = '';
@@ -223,7 +261,7 @@ function renderWeekHeader(data) {
 }
 
 function renderGrid(data) {
-  const grid = document.getElementById('calGrid');
+  const grid = calById('calGrid');
   if (!grid) return;
   grid.innerHTML = '';
 
@@ -393,13 +431,13 @@ function logout() {
   else window.location.href = '/login';
 }
 
-document.getElementById('logoutBtn')?.addEventListener('click', logout);
+calById('logoutBtn')?.addEventListener('click', logout);
 
 // ─── Dark mode label sync ─────────────────────────────────
 function updateDarkModeLabel() {
   const isDark = document.documentElement.classList.contains('dark');
-  const icon = document.getElementById('darkModeIcon');
-  const label = document.getElementById('darkModeLabel');
+  const icon = calById('darkModeIcon');
+  const label = calById('darkModeLabel');
   if (icon) icon.textContent = isDark ? '☀️' : '🌙';
   if (label) label.textContent = isDark ? pt('nav.lightMode') : pt('nav.darkMode');
 }
@@ -451,24 +489,42 @@ window.__bootCalendarPage = function (opts) {
 
 window.changeWeek = changeWeek;
 window.goToToday = goToToday;
+window.loadCalendar = loadCalendar;
 
-function setupCalendarPageBoot() {
+function bootEmbeddedCalendar() {
+  if (!wantsCalendarView()) return;
+  if (window.ScheduleCalendarView && ScheduleCalendarView.show) ScheduleCalendarView.show();
+  bootCalendar();
+}
+
+function setupStandaloneCalendarBoot() {
   if (!registerCalendarBootHandler()) {
     document.addEventListener('DOMContentLoaded', function () {
       registerCalendarBootHandler();
     }, { once: true });
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootCalendar, { once: true });
-  } else {
-    bootCalendar();
-  }
+  bootCalendar();
   document.addEventListener('parent-i18n-ready', bootCalendar, { once: true });
   document.addEventListener('stjarndag-magic-navigated', function (e) {
     if (!e.detail || e.detail.pageId !== 'calendar') return;
     resetCalendarBootState();
     bootCalendar();
   });
+}
+
+function setupCalendarPageBoot() {
+  const start = function () {
+    if (embeddedCalendarView()) {
+      bootEmbeddedCalendar();
+      return;
+    }
+    setupStandaloneCalendarBoot();
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 }
 
 setupCalendarPageBoot();

@@ -190,7 +190,9 @@
     "pausedDay": "😴 Ledig / sjuk",
     "emptyDay": "Inget schema",
     "prevWeek": "Föregående vecka",
-    "nextWeekNav": "Nästa vecka"
+    "nextWeekNav": "Nästa vecka",
+    "showCalendar": "Kalender",
+    "showDays": "Dagar"
   },
   "days": {
     "0": "Söndag",
