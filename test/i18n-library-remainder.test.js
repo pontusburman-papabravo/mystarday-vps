@@ -16,7 +16,7 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
-const FILES = ['public/library.html', 'public/activities.html'];
+const FILES = ['public/library.html'];
 
 const KEYS = [
   'library.page.heading',
@@ -59,27 +59,24 @@ describe('library remainder runtime i18n', () => {
     assert.match(html, /data-i18n="library\.page\.tabSchedule"/);
     assert.match(html, /data-i18n="library\.page\.childrenSchedulesTitle"/);
     assert.match(html, /data-i18n="library\.page\.treasuryLead"/);
-    assert.match(html, /data-i18n="library\.page\.goalsTitle"/);
-    assert.match(html, /data-i18n="library\.rewards\.nameLabel"/);
+    assert.doesNotMatch(html, /id="tab-rewards"/);
+    const rewards = read('public/rewards.html');
+    assert.match(rewards, /data-i18n="library\.rewardsHub\.sections\.manage"/);
+    assert.match(rewards, /data-i18n="library\.rewards\.nameLabel"/);
     assert.match(html, /data-i18n="library\.images\.cropTitle"/);
     assert.match(html, /data-i18n="library\.sevenQuestions\.title"/);
     assert.match(html, /data-i18n="library\.substeps\.addTitle"/);
     assert.doesNotMatch(html, /<summary class="warm-tips-summary">💡 Tips för biblioteket/);
   });
 
-  it('activities.html leftover chrome and JS use locale keys', () => {
-    const html = read('public/activities.html');
-    assert.match(html, /data-i18n-title="library\.page\.activitiesTitle"/);
-    assert.match(html, /data-i18n="library\.page\.addActivity"/);
-    assert.match(html, /data-i18n="library\.page\.addCategory"/);
-    assert.match(html, /data-i18n="nav\.primary\.family"/);
+  it('reward editor on /rewards keeps locale keys', () => {
+    const html = read('public/rewards.html');
+    const js = read('public/js/reward-editor.js');
+    assert.match(html, /data-i18n="library\.rewards\.nameLabel"/);
     assert.match(html, /data-i18n="library\.actions\.save"/);
-    assert.match(html, /lpt\('library\.errors\.saveOrder'\)/);
-    assert.match(html, /lpt\('library\.actions\.saving'\)/);
-    assert.match(html, /actError\(data, 'library\.errors\.deleteActivity'\)/);
-    assert.doesNotMatch(html, /showToast\('Kunde inte spara ordningen'/);
-    assert.doesNotMatch(html, /btn\.textContent = 'Sparar…'/);
-    assert.doesNotMatch(html, /data\.error \|\| 'Kunde inte ta bort aktiviteten'/);
+    assert.match(js, /library\.errors\.loadRewards/);
+    assert.match(js, /library\.actions\.saving/);
+    assert.doesNotMatch(js, /btn\.textContent = 'Sparar…'/);
   });
 
   it('new library remainder keys exist in sv-SE and en-GB', () => {

@@ -9,8 +9,8 @@ const ROOT = path.join(__dirname, '..');
 
 describe('library load error handling', () => {
   it('loadRewards shows error when API fails instead of staying on Laddar…', () => {
-    const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
-    assert.match(src, /showLibraryLoadError\('rewardsContainer'/);
+    const src = fs.readFileSync(path.join(ROOT, 'public/js/reward-editor.js'), 'utf8');
+    assert.match(src, /showLoadError\(lpt\('library\.errors\.loadRewards'\)\)/);
     assert.match(src, /library\.errors\.loadRewards/);
   });
 
@@ -39,10 +39,11 @@ describe('library load error handling', () => {
     assert.match(src, /LibraryMagicHub\.isMagic\(\)\) return/);
   });
 
-  it('switchTab retries rewards/activities load if still on Laddar', () => {
+  it('switchTab retries activities load and sends rewards hash to /rewards', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/library.js'), 'utf8');
-    assert.match(src, /isContainerLoading\('rewardsContainer'\)/);
     assert.match(src, /isContainerLoading\('activitiesContainer'\)/);
+    assert.match(src, /redirectLegacyRewardsHash/);
+    assert.match(src, /location\.replace\('\/rewards'/);
   });
 });
 

@@ -243,7 +243,8 @@ describe('library parent chrome en-GB leaks', () => {
   it('library-magic-mine segments use i18n keys (not hardcoded Swedish)', () => {
     const mine = fs.readFileSync(path.join(__dirname, '../public/js/library-magic-mine.js'), 'utf8');
     assert.match(mine, /library\.standard\.segments\.schedules/);
-    assert.match(mine, /library\.standard\.segments\.rewards/);
+    assert.match(mine, /library\.standard\.segments\.activities/);
+    assert.doesNotMatch(mine, /segments\.rewards/);
     assert.doesNotMatch(mine, /label: '🏆 Belöningar'/);
     assert.doesNotMatch(mine, /label: '📅 Scheman'/);
   });
@@ -263,8 +264,10 @@ describe('library parent chrome en-GB leaks', () => {
 
   it('library.html wires data-i18n on loading, favourite and confirm chrome', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/library.html'), 'utf8');
+    const rewards = fs.readFileSync(path.join(__dirname, '../public/rewards.html'), 'utf8');
     assert.match(html, /data-i18n="library\.favorite\.label"/);
-    assert.match(html, /data-i18n="library\.loading\.rewards"/);
+    assert.match(rewards, /data-i18n="library\.loading\.rewards"/);
+    assert.doesNotMatch(html, /data-i18n="library\.loading\.rewards"/);
     assert.match(html, /data-i18n="library\.chrome\.confirmTitle"/);
   });
 

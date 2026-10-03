@@ -170,9 +170,9 @@ test('GET /robots.txt and /activities SEO headers', async () => {
     const robotsBody = await robots.text();
     assert.match(robotsBody, /Disallow: \/activities/);
 
-    const activities = await fetch(`${http.baseUrl}/activities`);
-    assert.equal(activities.status, 200);
-    assert.equal(activities.headers.get('x-robots-tag'), 'noindex');
+    const activities = await fetch(`${http.baseUrl}/activities`, { redirect: 'manual' });
+    assert.equal(activities.status, 302);
+    assert.match(activities.headers.get('location') || '', /\/library#activities/);
   } finally {
     await http.close();
   }

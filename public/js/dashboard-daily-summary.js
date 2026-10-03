@@ -78,7 +78,7 @@
         emoji: '🌟',
         headline: pt('home.summary.closeToReward', { name: crName, gap: starGapLabel(closeReward.gap) }),
         sub: (closeReward.child.nearest_reward.icon || '🎁') + ' ' + (closeReward.child.nearest_reward.display_name || closeReward.child.nearest_reward.name),
-        action: { label: pt('home.summary.seeRewards'), href: '/library#rewards' },
+        action: { label: pt('home.summary.seeRewards'), href: '/rewards' },
         tone: 'gold',
       };
     }

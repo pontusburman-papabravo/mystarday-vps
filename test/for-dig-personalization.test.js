@@ -35,10 +35,12 @@ describe('För dig Sprint 3–5 personalization contracts', () => {
     assert.match(src, /intentRecorded/);
   });
 
-  it('post-activation uses single localized child view CTA', () => {
+  it('post-activation primary step is canonical and child view stays secondary', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/for-dig.js'), 'utf8');
     assert.match(src, /forDig\.cta\.openChildView/);
     assert.match(src, /href="\/child-login"/);
+    assert.match(src, /data-next-step="canonical"/);
+    assert.match(src, /safeCanonicalNextHref/);
   });
 
   it('favorites section precedes goals in HTML', () => {

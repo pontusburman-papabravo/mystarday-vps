@@ -9,15 +9,6 @@
     return (typeof window.pt === 'function') ? window.pt(key, params) : key;
   }
 
-  function manageLink() {
-    return {
-      href: '/library#rewards',
-      icon: 'beloning',
-      title: pt('library.rewardsHub.manageLink.title'),
-      sub: pt('library.rewardsHub.manageLink.sub'),
-    };
-  }
-
   function escHtml(str) {
     if (typeof window.escHtml === 'function') return window.escHtml(str);
     return String(str || '')
@@ -82,6 +73,46 @@
     }
     const gapLabel = gap === 1 ? '1 ⭐' : gap + ' ⭐';
     return stars + ' ⭐ · ' + pt('library.rewardsHub.proximity.leftUntil', { gap: gapLabel, reward: rewardLabel });
+  }
+
+  function selectedChildId(children) {
+    const id = new URLSearchParams(window.location.search).get('child') || '';
+    if (!id) return '';
+    return children.some(function (child) { return String(child.id) === id; }) ? id : '';
+  }
+
+  function childFilterHtml(children, selectedId) {
+    if (!children.length) return '';
+    const allLabel = pt('library.rewardsHub.filterAll');
+    let html = '<div class="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="' + escHtml(pt('library.rewardsHub.filterLabel')) + '">';
+    html += filterChip('', allLabel, !selectedId);
+    children.forEach(function (child) {
+      const name = child.name || pt('library.rewardsHub.childDefault');
+      const label = (child.emoji || '⭐') + ' ' + name;
+      html += filterChip(String(child.id), label, selectedId === String(child.id));
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function filterChip(id, label, active) {
+    const cls = active
+      ? 'bg-gold text-navy border-gold'
+      : 'bg-white text-navy border-lavender';
+    return '<button type="button" class="min-h-[44px] px-4 rounded-full border-2 text-sm font-semibold whitespace-nowrap ' + cls + '" data-reward-child="' + escHtml(id) + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '">' + escHtml(label) + '</button>';
+  }
+
+  function bindChildFilter(mount) {
+    mount.querySelectorAll('[data-reward-child]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const id = btn.getAttribute('data-reward-child') || '';
+        const url = new URL(window.location.href);
+        if (id) url.searchParams.set('child', id);
+        else url.searchParams.delete('child');
+        window.history.replaceState(null, '', url.pathname + url.search);
+        render();
+      });
+    });
   }
 
   function childRowHtml(child) {
@@ -187,16 +218,19 @@
 
     const stars = await fetchChildStars();
     const children = stars.children || [];
+    const selectedId = selectedChildId(children);
+    const visibleChildren = selectedId
+      ? children.filter(function (child) { return String(child.id) === selectedId; })
+      : children;
     const starsError = stars.ok === false;
     const reports = await reportsLinkHtml();
-    const manage = manageLink();
 
     let html = '<div class="magic-hub-sections max-w-lg space-y-5">';
-    html += sectionHtml(pt('library.rewardsHub.sections.manage'), '<div class="magic-hub-links grid gap-3">' + linkHtml(manage) + '</div>');
+    html += childFilterHtml(children, selectedId);
     html +=
       sectionHtml(
         pt('library.rewardsHub.sections.starsChest'),
-        '<p class="text-sm text-text-soft mb-2 px-0.5">' + escHtml(pt('library.rewardsHub.starsSub')) + '</p>' + starsSectionInner(children, starsError)
+        '<p class="text-sm text-text-soft mb-2 px-0.5">' + escHtml(pt('library.rewardsHub.starsSub')) + '</p>' + starsSectionInner(visibleChildren, starsError)
       );
     if (reports) {
       html += sectionHtml(pt('library.rewardsHub.sections.other'), '<div class="magic-hub-links grid gap-3">' + reports + '</div>');
@@ -207,6 +241,8 @@
 
     mount.innerHTML = html;
     bindHubClicks(mount);
+    bindChildFilter(mount);
+    if (window.RewardEditor && typeof RewardEditor.refresh === 'function') RewardEditor.refresh();
   }
 
   async function bootRewardsPage() {

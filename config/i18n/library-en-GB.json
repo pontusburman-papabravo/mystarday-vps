@@ -114,6 +114,7 @@
     "saving": "Saving…",
     "activitiesTab": "Activities",
     "cancel": "Cancel",
+    "closeAria": "Close",
     "copy": "Copy",
     "edit": "Edit",
     "delete": "Delete",
@@ -320,6 +321,7 @@
     "starCostLabel": "Star cost *",
     "starCostHint": "Number of stars needed to redeem the reward",
     "requiresApproval": "Requires parent approval",
+    "iconLabel": "Icon",
     "visibleFor": "Visible to",
     "visibleHint": "Leave all unchecked = visible to every child"
   },
@@ -331,8 +333,10 @@
     },
     "manageLink": {
       "title": "Manage rewards",
-      "sub": "Create and edit in the library"
+      "sub": "Create and edit rewards"
     },
+    "filterAll": "All",
+    "filterLabel": "Show for",
     "starsSub": "Overview per child",
     "proximity": {
       "readyFor": "Ready for {{reward}}",

@@ -51,7 +51,7 @@ describe('B1 error ≠ empty', () => {
   it('rewards hub does not show add-child empty copy after a failed fetch', () => {
     const hub = read('public/js/rewards-hub.js');
     assert.match(hub, /ok: false/);
-    assert.match(hub, /starsSectionInner\(children, starsError\)/);
+    assert.match(hub, /starsSectionInner\(visibleChildren, starsError\)/);
     assert.match(hub, /library\.rewardsHub\.loadError/);
     assert.doesNotMatch(hub, /if \(!res\.ok\) return \[\];/);
   });

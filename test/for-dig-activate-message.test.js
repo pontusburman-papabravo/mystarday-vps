@@ -83,6 +83,18 @@ test('buildActivationNextStep points library-only activity goals to schedule', (
   });
 });
 
+test('buildActivationNextStep points reward goals to rewards for that child', () => {
+  const step = buildActivationNextStep(
+    { rewards: { copied: 1, matched: 1, skipped: 0 } },
+    'child-uuid-3'
+  );
+  assert.deepEqual(step, {
+    label: 'Öppna belöningar',
+    href: '/rewards?child=child-uuid-3',
+    hint: 'Belöningarna är redo att användas.',
+  });
+});
+
 test('buildActivationNextStep points schedule goals to schedule', () => {
   const step = buildActivationNextStep(
     { schedule: { scheduleName: 'Kvällsrutin' } },

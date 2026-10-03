@@ -14,7 +14,7 @@ const htmlFiles = [
   'assign-schedule.html', 'beta.html', 'calendar.html', 'child-dashboard.html',
   'child-login.html', 'child-settings.html', 'child-wizard.html', 'daily-log.html',
   'dashboard.html', 'family-week.html', 'family.html', 'forgot-password.html',
-  'accept-invite.html', 'activities.html',
+  'accept-invite.html',
 ];
 
 let totalChanges = 0;

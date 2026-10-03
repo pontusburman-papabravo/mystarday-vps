@@ -845,17 +845,30 @@
     }
   }
 
+  function safeCanonicalNextHref(href) {
+    if (typeof href !== 'string') return '';
+    if (!href.startsWith('/schedule') && !href.startsWith('/rewards')) return '';
+    if (href.startsWith('//') || href.indexOf('://') !== -1 || href.indexOf('\\') !== -1) return '';
+    return href;
+  }
+
   function showPostActivationModal(data, goalSlug, selectedChildren, goalTitle) {
     const step = data && data.next_step;
     const firstChild = selectedChildren[0];
     const childId = firstChild ? firstChild.id : null;
     const hint = (step && step.hint) || pt('forDig.postActivation.defaultHint');
 
+    const nextHref = safeCanonicalNextHref(step && step.href);
+    const nextLabel = (step && step.label) ? step.label : '';
+    const primary = nextHref
+      ? `<a href="${esc(nextHref)}" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-3" data-next-step="canonical">${esc(nextLabel)}</a>`
+      : '';
     const html = `
       <h3 class="font-heading font-bold text-navy text-lg mb-2">${esc(pt('forDig.postActivation.title'))}</h3>
       <p class="text-sm text-text-soft mb-3">${esc(data.message || '')}</p>
       <p class="text-sm text-text-soft mb-4">${esc(hint)}</p>
-      <a href="/child-login" class="for-dig-cta for-dig-cta-primary block text-center no-underline mb-4">${esc(pt('forDig.cta.openChildView'))}</a>
+      ${primary}
+      <a href="/child-login" class="block text-center text-sm text-text-soft underline mb-4">${esc(pt('forDig.cta.openChildView'))}</a>
       <div class="border-t border-lavender pt-4 mt-2">
         <p class="text-sm text-text-soft mb-3">${esc(pt('forDig.postActivation.intentQuestion', { goal: goalTitle }))}</p>
         <div id="forDigIntentOptions">
