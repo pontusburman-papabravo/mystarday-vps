@@ -48,7 +48,7 @@ describe('dashboard remainder runtime i18n', () => {
     assert.match(html, /data-i18n="schedule\.modals\.createActivity\.title"/);
     assert.match(html, /data-i18n="schedule\.modals\.recurrence\.title"/);
     assert.match(html, /data-i18n="nav\.overview"/);
-    assert.match(html, /data-i18n="schedule\.views\.specialDays"/);
+    assert.doesNotMatch(html, /data-i18n="schedule\.views\.specialDays"/);
   });
 
   it('remainder keys resolve in sv-SE and en-GB', () => {

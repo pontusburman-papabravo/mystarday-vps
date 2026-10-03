@@ -105,17 +105,16 @@ describe('Fas 8 PR-S2 schedule-cal-nav.js', () => {
     assert.ok(navIdx < dashIdx, 'schedule-cal-nav must load before dashboard.js');
   });
 
-  it('both pages preserve cal-nav DOM contract', () => {
-    for (const page of ['public/schedule.html', 'public/dashboard.html']) {
-      const html = read(page);
-      assert.match(html, /id="calNavLabel"/);
-      assert.match(html, /id="btnViewDay"/);
-      assert.match(html, /id="btnViewWeek"/);
-      assert.match(html, /id="btnViewMonth"/);
-      assert.match(html, /onclick="calNavPrev\(\)"/);
-      assert.match(html, /onclick="calNavNext\(\)"/);
-      assert.match(html, /onclick="calNavToday\(\)"/);
-      assert.match(html, /onclick="setCalView\('week'\)"/);
-    }
+  it('schedule.html preserves the cal-nav DOM contract', () => {
+    const html = read('public/schedule.html');
+    assert.match(html, /id="calNavLabel"/);
+    assert.match(html, /id="btnViewDay"/);
+    assert.match(html, /id="btnViewWeek"/);
+    assert.match(html, /id="btnViewMonth"/);
+    assert.match(html, /onclick="calNavPrev\(\)"/);
+    assert.match(html, /onclick="calNavNext\(\)"/);
+    assert.match(html, /onclick="calNavToday\(\)"/);
+    assert.match(html, /onclick="setCalView\('week'\)"/);
+    assert.doesNotMatch(read('public/dashboard.html'), /id="btnViewWeek"/);
   });
 });

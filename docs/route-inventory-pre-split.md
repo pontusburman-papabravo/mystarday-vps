@@ -793,7 +793,7 @@
 | GET | `/barn-stod` | — | — |
 | GET | `/beloningssystem-barn` | — | — |
 | GET | `/bildschema-app` | — | — |
-| GET | `/calendar` | — | — |
+| GET | `/calendar` | src/routes/index.js (inline) | — |
 | GET | `/child-dashboard` | src/routes/index.js (inline) | — |
 | GET | `/child-dashboard` | src/routes/index.js (inline) | — |
 | GET | `/child-login` | — | — |
