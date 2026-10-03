@@ -1023,8 +1023,8 @@ async function openActivityModal(act) {
   document.getElementById('activityIcon').value = act && act.icon ? act.icon : '';
   document.getElementById('selectedIconDisplay').textContent = act && act.icon ? act.icon : '❓';
   document.getElementById('activityCategory').value = act && act.category_id ? act.category_id : (activeSchemaTab || '');
-  selectStar(act ? act.star_value : 1);
-  setFavorite(act ? act.is_favorite : false);
+  selectStar(act && act.star_value ? act.star_value : 1);
+  setFavorite(!!(act && act.is_favorite));
   document.getElementById('activityFeedbackFor').value = (act && act.feedback_for) ? act.feedback_for : 'both';
   document.getElementById('activityModalTitle').textContent = editing ? lpt('library.modal.editActivity') : lpt('library.modal.newActivity');
   document.getElementById('activityError').classList.add('hidden');

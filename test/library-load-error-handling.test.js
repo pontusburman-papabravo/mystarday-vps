@@ -47,7 +47,9 @@ describe('library load error handling', () => {
     assert.match(fn, /const editing = !!\(act && act\.id\)/);
     assert.match(fn, /activityId'\)\.value = editing \? act\.id : ''/);
     assert.match(fn, /activityModalTitle'\)\.textContent = editing \?/);
+    assert.match(fn, /selectStar\(act && act\.star_value \? act\.star_value : 1\)/);
     assert.doesNotMatch(fn, /activityId'\)\.value = act \? act\.id : ''/);
+    assert.doesNotMatch(fn, /selectStar\(act \? act\.star_value : 1\)/);
   });
 
   it('switchTab retries activities load and sends rewards hash to /rewards', () => {
