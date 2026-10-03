@@ -580,7 +580,7 @@
   </div>
 
   <!-- Add Activity Modal -->
-  <div id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+  <div data-overlay="modal" id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</h3>
@@ -632,7 +632,7 @@
   </div>
 
   <!-- Create New Activity Inline Modal (shown from add-modal when "Skapa ny" clicked) -->
-  <div id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[55] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[55] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.createActivity.title">Skapa ny aktivitet</h3>
@@ -691,7 +691,7 @@
   </div>
 
   <!-- Edit Template Modal (name + emoji + substeps from schedule view) -->
-  <div id="editTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+  <div data-overlay="modal" id="editTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editActivity">Redigera aktivitet</h3>
@@ -731,7 +731,7 @@
   </div>
 
   <!-- Recurrence Choice Modal — shown after adding an activity to choose once vs weekly/multi-day -->
-  <div id="recurrenceModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="recurrenceModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl max-h-[calc(100vh-2rem)] flex flex-col my-auto">
       <div class="text-center mb-5 flex-shrink-0">
         <div class="text-3xl mb-2">🗓️</div>
@@ -780,7 +780,7 @@
   </div>
 
   <!-- Edit Item Modal -->
-  <div id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+  <div data-overlay="modal" id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editTime">Redigera tid</h3>
@@ -823,7 +823,7 @@
   </div>
 
   <!-- Copy Day Modal -->
-  <div id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyDayTitle">Kopiera dag</h3>
@@ -839,7 +839,7 @@
   </div>
 
   <!-- Copy to Child Modal -->
-  <div id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyChildTitle">Kopiera till annat barn</h3>
@@ -855,7 +855,7 @@
   </div>
 
   <!-- Copy to Weeks Modal -->
-  <div id="copyWeeksModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="copyWeeksModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyWeeksTitle">Kopiera till veckor</h3>
@@ -872,7 +872,7 @@
   </div>
 
   <!-- Choose Template Modal -->
-  <div id="chooseTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="chooseTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.fillWeekTitle">Välj aktivitetsgrupp</h3>
@@ -892,7 +892,7 @@
   </div>
 
   <!-- Day DnD Modal -->
-  <div id="dayDndModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="dayDndModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-3">
         <h3 class="text-xl font-heading font-bold text-navy" id="dayDndTitle">Dag-operation</h3>
@@ -914,7 +914,7 @@
   </div>
 
   <!-- Confirm modal -->
-  <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="schedule.chrome.confirmTitle">Bekräfta</h3>
       <p id="confirmMsg" class="text-text-soft mb-6"></p>
@@ -926,7 +926,7 @@
   </div>
 
   <!-- Add Child Modal -->
-  <div id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.addChildTitle">Lägg till barn</h3>
@@ -975,7 +975,7 @@
   </div>
 
   <!-- Insert Day Modal (+ button per day column) -->
-  <div id="insertDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="insertDayModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-2">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.insert.title">Infoga schema</h3>
@@ -996,7 +996,7 @@
   </div>
 
   <!-- New Schedule Template Modal -->
-  <div id="newScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+  <div data-overlay="modal" id="newScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.insert.newTemplateTitle">Nytt schema</h3>
@@ -1015,7 +1015,7 @@
   </div>
 
   <!-- Delete Schedule Template Confirmation Modal -->
-  <div id="deleteScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+  <div data-overlay="modal" id="deleteScheduleTemplateModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">🗑️</div>
       <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.insert.deleteTemplateTitle">Ta bort schemat?</h3>
@@ -1028,7 +1028,7 @@
   </div>
 
   <!-- Overwrite Confirmation Modal (insert day) -->
-  <div id="insertDayConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="insertDayConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">⚠️</div>
       <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.insert.replaceTitle">Ersätt befintligt schema?</h3>
@@ -1041,7 +1041,7 @@
   </div>
 
   <!-- Fill Week Modal -->
-  <div id="fillWeekModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="fillWeekModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="flex justify-between items-center mb-2">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.fillWeek.title">Fyll vecka</h3>
@@ -1079,7 +1079,7 @@
   </div>
 
   <!-- Fill Week Overwrite Confirmation -->
-  <div id="fillWeekConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div data-overlay="modal" id="fillWeekConfirmModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
       <div class="text-3xl mb-3">⚠️</div>
       <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.fillWeek.replaceTitle">Ersätt befintliga scheman?</h3>
@@ -1092,7 +1092,7 @@
   </div>
 
   <!-- Special Day Modal -->
-  <div id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+  <div data-overlay="modal" id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
         <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle" data-i18n="schedule.specialDays.modalFallbackTitle">Specialdag</h3>
@@ -1144,7 +1144,7 @@
   </div>
 
   <!-- Specialperiod (Lovperiod) — create/edit by period id, Phase 2 canonical -->
-  <div id="schedulePeriodModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+  <div data-overlay="modal" id="schedulePeriodModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
         <h3 id="schedulePeriodModalTitle" class="text-xl font-heading font-bold text-navy" data-i18n="schedule.period.modalTitle">Ny specialperiod</h3>

@@ -9,7 +9,7 @@ const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '41'; // Bump when parent-magic CSS, profile-switch, or app-entry-orchestrator changes (native WebView cache bust)
+const MAGIC_VERSION = '42'; // Bump when parent-magic CSS, profile-switch, or app-entry-orchestrator changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',
@@ -559,7 +559,8 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script src="/js/widget-bridge-client.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-provision.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/widget-bridge-bootstrap.js?v=' + RELEASE_TAG + '"><\/script>',
-    '<script src="/js/widget-install-prompt.js?v=' + RELEASE_TAG + '"><\/script>',
+    '<script src="/js/modal-open-observer.js?v=' + MAGIC_VERSION + '"><\/script>',
+    '<script src="/js/widget-install-prompt.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/settings-native-nav.js?v=' + MAGIC_VERSION + '"><\/script>',
     '<script src="/js/session-gate.js?v=' + RELEASE_TAG + '"><\/script>',
     '<script src="/js/analytics-shim.js?v=' + RELEASE_TAG + '"><\/script>',
@@ -576,9 +577,10 @@ function injectPlatformHtml(body, reqPath, req) {
     '<link rel="stylesheet" href="/css/profile-switch-chrome.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/icon-system.css?v=' + RELEASE_TAG + '">',
     '<link rel="stylesheet" href="/css/stjarnadag-icons-v4.css?v=' + RELEASE_TAG + '">',
-    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.10">',
+    '<link rel="stylesheet" href="/css/platform-native.css?v=1.0.11">',
     '<link rel="stylesheet" href="/css/platform-tablet.css?v=1.0.0">',
     '<link rel="stylesheet" href="/css/platform-gating.css?v=' + RELEASE_TAG + '">',
+    '<link rel="stylesheet" href="/css/app-layers.css?v=' + MAGIC_VERSION + '">',
     '<link rel="stylesheet" href="/css/parent-tab-bar.css?v=' + RELEASE_TAG + '">'
   );
   const headInject = headParts.join('\n') + '\n';

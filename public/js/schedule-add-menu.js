@@ -107,7 +107,8 @@
     if (modal) return modal;
     modal = document.createElement('div');
     modal.id = 'scheduleAddMenuModal';
-    modal.className = 'sam-add-modal hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
+    modal.className = 'sam-add-modal hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4';
+    modal.setAttribute('data-overlay', 'modal');
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'scheduleAddMenuTitle');

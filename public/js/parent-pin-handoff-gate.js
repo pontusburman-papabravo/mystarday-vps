@@ -96,7 +96,8 @@
 
       const overlay = document.createElement('div');
       overlay.id = 'parentPinHandoffGateModal';
-      overlay.className = 'fixed inset-0 z-[90] flex items-end sm:items-center justify-center bg-navy/60 p-4';
+      overlay.className = 'fixed inset-0 flex items-end sm:items-center justify-center bg-navy/60 p-4';
+      overlay.setAttribute('data-overlay', 'modal');
       overlay.setAttribute('role', 'dialog');
       overlay.setAttribute('aria-modal', 'true');
       overlay.setAttribute('aria-labelledby', 'parentPinHandoffGateTitle');

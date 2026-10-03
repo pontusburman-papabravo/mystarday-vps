@@ -96,7 +96,7 @@
     .confirm-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
-      z-index: 10050; padding: 16px;
+      z-index: var(--layer-modal, 510); padding: 16px;
     }
     /* Page-local display:flex beats Tailwind .hidden — must hide explicitly */
     .confirm-overlay.hidden {
@@ -282,7 +282,7 @@
   </div>
 
   <!-- Replacement confirmation dialog -->
-  <div id="confirmOverlay" class="confirm-overlay hidden">
+  <div id="confirmOverlay" class="confirm-overlay hidden" data-overlay="modal">
     <div class="confirm-box">
       <div class="text-3xl mb-3">⚠️</div>
       <h3 class="text-lg font-heading font-bold text-navy mb-2" data-i18n="schedule.assign.replaceTitle">Ersätt befintligt schema?</h3>

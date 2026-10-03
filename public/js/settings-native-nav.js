@@ -42,7 +42,9 @@
     if (!global.document || !global.document.body) return;
     const overlay = global.document.getElementById(OVERLAY_ID);
     if (overlay) overlay.remove();
-    global.document.body.classList.remove('modal-open');
+    if (global.OverlayPolicy && typeof global.OverlayPolicy.sync === 'function') {
+      global.OverlayPolicy.sync();
+    }
   }
 
   function settingsScrollRoot() {

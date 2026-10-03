@@ -65,8 +65,7 @@
     input[type="date"], input[type="time"] { max-width: 100%; box-sizing: border-box; -webkit-appearance: none; }
     /* Mobile modal scroll fix — iOS safe area + touch scroll */
     .fixed.inset-0.overflow-y-auto { -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom, 16px); }
-    /* Modals use Tailwind z-[9100]/z-[9200] classes — sit above topbar (z-200),
-       dropdown (z-199) AND survey popup (z-9000). Do NOT add z-index override here. */
+    /* Stacking lives in app-layers.css (data-overlay="modal"). */
 
     /* ── Mobile responsive fixes (393px / iPhone 16) ── */
     @media (max-width: 640px) {
@@ -817,7 +816,7 @@
   </div>
 
   <!-- Add Activity Modal -->
-  <div id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="addActivityModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.addActivity.title">Lägg till aktivitet</h3>
@@ -873,7 +872,7 @@
   </div>
 
   <!-- Create New Activity Inline Modal -->
-  <div id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[9200] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="createActivityModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-[9200] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.createActivity.title">Skapa ny aktivitet</h3>
@@ -934,7 +933,7 @@
   </div>
 
   <!-- Recurrence Choice Modal -->
-  <div id="recurrenceModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">
+  <div data-overlay="modal" id="recurrenceModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">
     <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl">
       <div class="text-center mb-5">
         <div class="text-3xl mb-2">🗓️</div>
@@ -970,7 +969,7 @@
   </div>
 
   <!-- Edit Item Modal -->
-  <div id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="editItemModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.editor.editTime">Redigera tid</h3>
@@ -999,7 +998,7 @@
   </div>
 
   <!-- Copy Day Modal -->
-  <div id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="copyDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyDayTitle">Kopiera dag</h3>
@@ -1015,7 +1014,7 @@
   </div>
 
   <!-- Copy to Child Modal -->
-  <div id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="copyChildModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.copy.copyChildTitle">Kopiera till annat barn</h3>
@@ -1031,7 +1030,7 @@
   </div>
 
   <!-- Day DnD Modal -->
-  <div id="dayDndModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="dayDndModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-3">
         <h3 class="text-xl font-heading font-bold text-navy" id="dayDndTitle">Dag-operation</h3>
@@ -1053,7 +1052,7 @@
   </div>
 
   <!-- Confirm modal -->
-  <div id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="confirmModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <h3 class="text-lg font-heading font-bold text-navy mb-3" data-i18n="schedule.chrome.confirmTitle">Bekräfta</h3>
       <p id="confirmMsg" class="text-text-soft mb-6"></p>
@@ -1066,7 +1065,7 @@
 
   <!-- Add Child Modal -->
   <!-- Give Stars Modal -->
-  <div id="giveStarsModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="giveStarsModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-5">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.giveStars.title">⭐ Ge extra stjärnor</h3>
@@ -1109,7 +1108,7 @@
   </div>
 
   <!-- Ge Extra Stjärnor — Child Picker (quick access from header) -->
-  <div id="giveStarsPickerModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="giveStarsPickerModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.modals.giveStars.pickerTitle">⭐ Ge extra stjärnor</h3>
@@ -1121,7 +1120,7 @@
   </div>
 
   <!-- Ledig dag — Child Picker + Toggle -->
-  <div id="ledigDagModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="ledigDagModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
       <div class="flex justify-between items-center mb-4">
         <div>
@@ -1137,7 +1136,7 @@
 
   
   <!-- Pending Requests Panel -->
-  <div id="requestPanelModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="requestPanelModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl max-h-[85vh] flex flex-col my-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-heading font-bold text-navy" data-i18n="home.approvals.title">📨 Väntande förfrågningar</h3>
@@ -1150,7 +1149,7 @@
     </div>
   </div>
 
-  <div id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="addChildModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-xl my-auto">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-heading font-bold text-navy" data-i18n="schedule.chrome.addChildTitle">Lägg till barn</h3>
@@ -1199,7 +1198,7 @@
   </div>
 
   <!-- Special Day Modal -->
-  <div id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
+  <div data-overlay="modal" id="specialDayModal" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center z-[9100] p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl my-4">
       <div class="flex justify-between items-center mb-1">
         <h3 class="text-xl font-heading font-bold text-navy" id="specialDayModalTitle" data-i18n="schedule.specialDays.modalFallbackTitle">Specialdag</h3>
@@ -1257,7 +1256,7 @@
   <!-- ══════════════════════════════════════════════════════════
        DASHBOARD TOUR OVERLAY (shows once after onboarding)
   ═══════════════════════════════════════════════════════════ -->
-  <div id="dashTourOverlay" class="hidden fixed inset-0 z-[9990] bg-black/50 backdrop-blur-sm flex items-end justify-center p-4"
+  <div data-overlay="modal" id="dashTourOverlay" class="hidden fixed inset-0 z-[9990] bg-black/50 backdrop-blur-sm flex items-end justify-center p-4"
     style="font-family: 'Plus Jakarta Sans', sans-serif;">
     <!-- Tour card -->
     <div id="dashTourCard" class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl mb-4 animate-[slideUp_0.3s_ease]">
@@ -1297,7 +1296,7 @@
   </button>
 
   <!-- Help / FAQ Panel -->
-  <div id="helpPanel" class="hidden fixed inset-0 z-[9980] bg-black/50 flex items-end justify-center p-4"
+  <div data-overlay="modal" id="helpPanel" class="hidden fixed inset-0 z-[9980] bg-black/50 flex items-end justify-center p-4"
     style="font-family: 'Plus Jakarta Sans', sans-serif;">
     <div class="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl mb-2">
       <!-- Header -->
@@ -1557,7 +1556,7 @@
   </style>
 
   <!-- ─── JOURNEY PARENT ACK MODAL (Fas 2) ───────────────────────────────── -->
-  <div id="journeyParentAckModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9320] p-4">
+  <div data-overlay="modal" id="journeyParentAckModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9320] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🌱</div>
       <h2 id="journeyParentAckHeadline" class="text-xl font-heading font-bold text-navy mb-3 leading-snug" data-i18n="home.journeyAck.headline">
@@ -1576,7 +1575,7 @@
   </div>
 
   <!-- ─── JOURNEY CELEBRATION MODAL (Fas 1) ──────────────────────────────── -->
-  <div id="journeyCelebrationModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9350] p-4">
+  <div data-overlay="modal" id="journeyCelebrationModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9350] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🌱</div>
       <h2 id="journeyCelebrationHeadline" class="text-xl font-heading font-bold text-navy mb-2 leading-snug" data-i18n="home.journeyCelebration.headline">
@@ -1594,7 +1593,7 @@
   </div>
 
   <!-- ─── ACTIVATION PROGRAM AHA MODAL (Fas 2) ─────────────────────────────── -->
-  <div id="activationAhaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9300] p-4">
+  <div data-overlay="modal" id="activationAhaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9300] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
       <div class="text-5xl mb-4" aria-hidden="true">🎉</div>
       <h2 class="text-xl font-heading font-bold text-navy mb-2 leading-snug">
@@ -1612,7 +1611,7 @@
   </div>
 
   <!-- ─── MEDFÖRÄLDER CTA INVITE MODAL ─────────────────────────────────────── -->
-  <div id="medforalderCtaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">
+  <div data-overlay="modal" id="medforalderCtaModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[9200] p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center magic-modal-panel">
       <div class="w-14 h-14 bg-gradient-to-br from-gold-light to-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
         <span class="text-2xl">👨‍👩‍👧</span>

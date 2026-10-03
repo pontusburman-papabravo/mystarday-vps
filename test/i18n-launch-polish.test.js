@@ -173,10 +173,9 @@ describe('mobile overlay polish', () => {
     assert.equal(t('sv-SE', 'auth.supportBubble.submit'), 'Skicka meddelande');
   });
 
-  it('help + support bubble triggers sit below modal overlays (z-50)', () => {
+  it('help + support bubble triggers sit on the FAB layer, under modals', () => {
     const help = read('public/js/help-bubble.js');
-    const hbBtnZ = help.match(/#hbBtn[^}]*z-index:\s*(\d+)/s);
-    assert.ok(hbBtnZ && Number(hbBtnZ[1]) < 50, '#hbBtn z-index must be < 50');
+    assert.match(help, /z-index:\s*var\(--layer-fab,\s*300\)/);
     assert.doesNotMatch(help, /z-index:\s*(900|10001);\s*\n\s*width: 44px/);
     assert.match(help, /function ht\(key, params\)/);
     assert.doesNotMatch(help, /title: '❓ Hjälp/);

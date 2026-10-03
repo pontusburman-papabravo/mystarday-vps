@@ -63,7 +63,7 @@
     btn.setAttribute('aria-label', fbOr('fabAria', 'Give feedback'));
     btn.title = fbOr('fabTitle', 'Give feedback');
     btn.innerHTML = '💬';
-    btn.className = 'global-feedback-fab fixed z-40 flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
+    btn.className = 'global-feedback-fab fixed flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95';
     Object.assign(btn.style, {
       width: '48px',
       height: '48px',
@@ -83,7 +83,9 @@
     const modal = document.createElement('div');
     modal.id = 'globalFeedbackModal';
     modal.className = 'hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4';
-    modal.style.zIndex = '10000';
+    modal.setAttribute('data-overlay', 'modal');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = `
       <div class="bg-white dark:bg-navy-soft rounded-2xl p-6 w-full max-w-md shadow-2xl" style="max-width:28rem;">
         <div class="flex items-center justify-between mb-4">

@@ -1,0 +1,67 @@
+/**
+ * Canonical stacking scale for parent chrome, overlays, and toasts.
+ * Blocking overlays set data-overlay="modal". modal-open-observer.js
+ * toggles body.modal-open. Open chrome is taken out of hit-testing.
+ */
+:root {
+  --layer-content: 0;
+  --layer-sticky: 100;
+  --layer-popover: 200;
+  --layer-fab: 300;
+  --layer-bottom-nav: 400;
+  --layer-modal-backdrop: 500;
+  --layer-modal: 510;
+  --layer-toast: 600;
+  --layer-emergency: 700;
+  --overlay-keyboard-inset: 0px;
+}
+
+#hbBtn,
+#helpBtn,
+#globalFeedbackBtn,
+.global-feedback-fab {
+  z-index: var(--layer-fab) !important;
+}
+
+.parent-bottom-nav,
+.native-tab-bar {
+  z-index: var(--layer-bottom-nav) !important;
+}
+
+[data-overlay="modal"] {
+  z-index: var(--layer-modal) !important;
+  bottom: var(--overlay-keyboard-inset) !important;
+  overflow-y: auto;
+}
+
+[data-overlay="toast"],
+#toast {
+  z-index: var(--layer-toast) !important;
+}
+
+/* Tour ring sits under the tour card, which is a blocking overlay. */
+#tourHighlight {
+  z-index: var(--layer-modal-backdrop) !important;
+}
+
+body.modal-open .parent-bottom-nav,
+body.modal-open .native-tab-bar,
+body.modal-open #hbBtn,
+body.modal-open #helpBtn,
+body.modal-open #globalFeedbackBtn,
+body.modal-open .global-feedback-fab,
+body:has(> .fixed.inset-0:not(.hidden)) .parent-bottom-nav,
+body:has(> .fixed.inset-0:not(.hidden)) .native-tab-bar,
+body:has(> .fixed.inset-0:not(.hidden)) #hbBtn,
+body:has(> .fixed.inset-0:not(.hidden)) #helpBtn,
+body:has(> .fixed.inset-0:not(.hidden)) #globalFeedbackBtn,
+body:has(> .fixed.inset-0:not(.hidden)) .global-feedback-fab,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .parent-bottom-nav,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .native-tab-bar,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #hbBtn,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #helpBtn,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) #globalFeedbackBtn,
+body:has([data-overlay="modal"]:not(.hidden):not([hidden])) .global-feedback-fab {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

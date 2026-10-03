@@ -8,7 +8,7 @@
   let _timer = null;
 
   function applyToastLayout(el, isError) {
-    const base = 'fixed z-[9999] px-5 py-4 rounded-2xl shadow-xl font-semibold leading-snug break-words ';
+    const base = 'fixed px-5 py-4 rounded-2xl shadow-xl font-semibold leading-snug break-words ';
     if (isError) {
       el.className = base + 'bg-red-600 text-white text-base text-center max-w-[min(92vw,24rem)] left-1/2 -translate-x-1/2';
       el.style.top = '';
@@ -57,6 +57,7 @@
     }
 
     el.textContent = msg;
+    el.setAttribute('data-overlay', 'toast');
     applyToastLayout(el, isError);
 
     if (_timer) clearTimeout(_timer);
@@ -78,6 +79,7 @@
     }
 
     el.textContent = msg;
+    el.setAttribute('data-overlay', 'toast');
     applyToastLayout(el, false);
     el.className = el.className.replace('bg-navy', 'bg-green-600');
 

@@ -98,7 +98,7 @@ html.is-native body.has-native-tab-bar .mobile-topbar {
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-top: 0.5px solid rgba(0, 0, 0, 0.12);
-  z-index: 9999;
+  z-index: var(--layer-bottom-nav, 400);
 }
 .platform-native .tab-item {
   display: flex;
@@ -131,19 +131,19 @@ html.is-native body.has-native-tab-bar .mobile-topbar {
   padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }
 
-/* Floating help + feedback above native tab bar (z-index 9999) */
+/* Floating help + feedback sit on the FAB layer, under modals. */
 html.platform-native #helpBtn,
 html.platform-native #hbBtn,
 html.is-native #helpBtn,
 html.is-native #hbBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px) !important;
-  z-index: 10001 !important;
+  z-index: var(--layer-fab, 300) !important;
 }
 
 html.platform-native #globalFeedbackBtn,
 html.is-native #globalFeedbackBtn {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px) !important;
-  z-index: 10001 !important;
+  z-index: var(--layer-fab, 300) !important;
 }
 
 /* ── Android WebView GPU stability ───────────────────────────────────────

@@ -58,7 +58,7 @@
     // Inject popup HTML into document body
     const div = document.createElement('div');
     div.id = 'surveyPopupOverlay';
-    div.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end;justify-content:center;padding:0 0 24px;pointer-events:none;';
+    div.style.cssText = 'position:fixed;inset:0;z-index:var(--layer-modal-backdrop, 500);display:flex;align-items:flex-end;justify-content:center;padding:0 0 24px;pointer-events:none;';
     div.innerHTML = `
       <div id="surveyPopupCard" style="pointer-events:all;width:100%;max-width:420px;margin:0 12px;
         background:#fff;border-radius:24px 24px 24px 24px;box-shadow:0 8px 40px rgba(27,35,64,0.18);

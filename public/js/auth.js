@@ -1431,8 +1431,9 @@ const Auth = {
 
     const overlay = document.createElement('div');
     overlay.id = 'ppin-gate-overlay';
+    overlay.setAttribute('data-overlay', 'modal');
     overlay.style.cssText = [
-      'position:fixed;inset:0;z-index:9999;background:rgba(27,35,64,0.85);',
+      'position:fixed;inset:0;z-index:var(--layer-modal, 510);background:rgba(27,35,64,0.85);',
       'display:flex;align-items:center;justify-content:center;',
       'backdrop-filter:blur(4px);',
     ].join('');
