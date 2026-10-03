@@ -70,6 +70,17 @@
     return p === '/en' || p === '/en/';
   }
 
+  function pageMarket() {
+    try {
+      const root = global.document && global.document.documentElement;
+      if (!root || typeof root.getAttribute !== 'function') return null;
+      const mode = root.getAttribute('data-en-market');
+      if (mode === 'CA' || mode === 'IE') return mode;
+      if (mode === 'both') return 'BOTH';
+    } catch (_) { /* bare /en stays on the Ireland default */ }
+    return null;
+  }
+
   function explicitLandingCountry() {
     try {
       const search = (global.location && global.location.search) || '';
@@ -85,6 +96,8 @@
   }
 
   function irelandMarket(path) {
+    const page = pageMarket();
+    if (page) return page;
     const explicit = explicitLandingCountry();
     if (explicit) return explicit;
     const p = path || pathname();
@@ -124,8 +137,13 @@
       placement: storePlacement(el),
       store: platform === 'android' ? 'play' : 'app_store',
     }, utmMetadata());
-    const market = irelandMarket();
-    if (market) {
+    const marked = el && el.getAttribute && el.getAttribute('data-market');
+    const market = (marked && /^[A-Za-z]{2}$/.test(marked))
+      ? marked.toUpperCase()
+      : irelandMarket();
+    if (market === 'BOTH') {
+      meta.market = 'BOTH';
+    } else if (market) {
       meta.market = market;
       meta.country = market;
     }
