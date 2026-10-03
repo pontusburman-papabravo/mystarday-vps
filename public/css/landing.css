@@ -503,6 +503,66 @@ body.landing-menu-open {
   text-underline-offset: 3px;
 }
 
+.store-market-play {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.store-market-caption {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.landing-hero .store-market-caption,
+.landing-mobile-menu .store-market-caption,
+.landing-footer .store-market-caption {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.landing-market-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  grid-column: 1 / -1;
+}
+
+.landing-market-switch button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(27, 35, 64, 0.18);
+  background: #fff;
+  color: #1b2340;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.landing-market-switch button[aria-pressed="true"] {
+  background: #1b2340;
+  color: #fff;
+  border-color: #1b2340;
+}
+
+.hero-launch-card .landing-market-switch button {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: transparent;
+}
+
+.hero-launch-card .landing-market-switch button[aria-pressed="true"] {
+  background: #fff;
+  color: #1b2340;
+  border-color: #fff;
+}
+
 .store-locale-note {
   margin: 0 0 0.55rem;
   font-size: 0.82rem;
@@ -997,13 +1057,15 @@ body.landing-menu-open {
   white-space: normal;
 }
 
-html[data-canada-ios-launch="1"] .hero-launch-card__stores {
+html[data-canada-ios-launch="1"] .hero-launch-card__stores,
+html[data-en-market="both"] .hero-launch-card__stores {
   grid-column: 1 / -1;
   max-width: none;
   justify-content: flex-start;
 }
 
-html[data-canada-ios-launch="1"] .hero-launch-card__stores .store-android-soon {
+html[data-canada-ios-launch="1"] .hero-launch-card__stores .store-android-soon,
+html[data-en-market="both"] .hero-launch-card__stores .store-android-soon {
   max-width: none;
   white-space: nowrap;
 }
