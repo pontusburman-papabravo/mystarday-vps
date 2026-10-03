@@ -86,7 +86,8 @@
     "mobileSavedHint": "PDF klar — spara den i Filer",
     "desktopSavedHint": "PDF sparad i Nedladdningar",
     "pdfLibsMissing": "PDF-verktyg saknas — ladda om sidan och försök igen",
-    "createPdfError": "Kunde inte skapa PDF:en"
+    "createPdfError": "Kunde inte skapa PDF:en",
+    "shareAgain": "PDF:en är klar. Tryck Skapa PDF igen för att välja var den ska sparas."
   },
   "empty": {
     "noChildren": "Inga barn tillagda ännu.",

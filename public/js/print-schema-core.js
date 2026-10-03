@@ -340,6 +340,190 @@
     return prefix + '-' + safePdfFilename(childName) + '-' + stockholmTodayIso() + '.pdf';
   }
 
+  function isNativeApp() {
+    const platform = root.Platform;
+    if (!platform) return false;
+    try {
+      if (typeof platform.isNative === 'function' && platform.isNative()) return true;
+      if (typeof platform.isIOS === 'function' && platform.isIOS()) return true;
+      if (typeof platform.isAndroid === 'function' && platform.isAndroid()) return true;
+    } catch (_) {}
+    return false;
+  }
+
+  function isShareCancel(err) {
+    if (!err) return false;
+    if (err.name === 'AbortError') return true;
+    const msg = String(err.message || err.errorMessage || '');
+    return /cancel/i.test(msg);
+  }
+
+  function needsFreshGesture(err) {
+    if (!err) return false;
+    return err.name === 'NotAllowedError' || err.name === 'InvalidStateError';
+  }
+
+  function nativeFilePlugins() {
+    const cap = root.Capacitor;
+    const plugins = cap && cap.Plugins;
+    if (!plugins) return null;
+    const Filesystem = plugins.Filesystem;
+    const Share = plugins.Share;
+    if (!Filesystem || !Share) return null;
+    if (typeof Filesystem.writeFile !== 'function' || typeof Share.share !== 'function') return null;
+    return { Filesystem: Filesystem, Share: Share };
+  }
+
+  function blobToBase64(blob) {
+    return new Promise(function (resolve, reject) {
+      const Reader = root.FileReader || FileReader;
+      const reader = new Reader();
+      reader.onload = function () {
+        const value = String(reader.result || '');
+        const comma = value.indexOf(',');
+        resolve(comma >= 0 ? value.slice(comma + 1) : value);
+      };
+      reader.onerror = function () {
+        reject(reader.error || new Error('pdf_read_failed'));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function pdfFile(blob, filename) {
+    const FileCtor = root.File || File;
+    return new FileCtor([blob], filename, { type: 'application/pdf' });
+  }
+
+  async function shareWithPlugins(blob, filename) {
+    const plugins = nativeFilePlugins();
+    if (!plugins) return null;
+    const data = await blobToBase64(blob);
+    const path = 'pdf-export/' + filename;
+    const written = await plugins.Filesystem.writeFile({
+      path: path,
+      data: data,
+      directory: 'CACHE',
+      recursive: true,
+    });
+    const uri = written && written.uri;
+    if (!uri) throw new Error('pdf_share_unavailable');
+    try {
+      await plugins.Share.share({
+        title: filename,
+        files: [uri],
+        dialogTitle: filename,
+      });
+      return { method: 'share', filename: filename };
+    } finally {
+      if (typeof plugins.Filesystem.deleteFile === 'function') {
+        try {
+          await plugins.Filesystem.deleteFile({ path: path, directory: 'CACHE' });
+        } catch (_) {}
+      }
+    }
+  }
+
+  async function shareWithWebApi(file, filename, force) {
+    const nav = root.navigator;
+    if (!nav || typeof nav.share !== 'function') return null;
+    if (!force && typeof nav.canShare === 'function' && !nav.canShare({ files: [file] })) return null;
+    if (!force && typeof nav.canShare !== 'function') return null;
+    await nav.share({ files: [file], title: filename });
+    return { method: 'share', filename: filename };
+  }
+
+  function downloadWithAnchor(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    return { method: 'download', filename: filename };
+  }
+
+  function gestureResult(file, filename) {
+    return { method: 'needs_gesture', filename: filename, file: file };
+  }
+
+  /**
+   * Hand the PDF to the user without navigating the current document.
+   * Native iOS/Android uses a file share sheet. Web keeps the anchor download.
+   */
+  async function deliverPdfBlob(blob, filename) {
+    const native = isNativeApp();
+    const file = pdfFile(blob, filename);
+
+    try {
+      const pluginResult = await shareWithPlugins(blob, filename);
+      if (pluginResult) return pluginResult;
+    } catch (err) {
+      if (isShareCancel(err)) return { method: 'cancelled', filename: filename };
+      if (native && needsFreshGesture(err)) return gestureResult(file, filename);
+      if (native) throw err;
+    }
+
+    try {
+      const webResult = await shareWithWebApi(file, filename, native);
+      if (webResult) return webResult;
+    } catch (err) {
+      if (isShareCancel(err)) return { method: 'cancelled', filename: filename };
+      if (native && needsFreshGesture(err)) return gestureResult(file, filename);
+      if (native) throw err;
+    }
+
+    if (native) {
+      const nav = root.navigator;
+      if (!nav || typeof nav.share !== 'function') throw new Error('pdf_share_unavailable');
+      return gestureResult(file, filename);
+    }
+
+    return downloadWithAnchor(blob, filename);
+  }
+
+  function createPdfDelivery() {
+    let pending = null;
+    let inFlight = false;
+    return {
+      canSharePending: function (key) {
+        return !!(pending && pending.key === key && pending.file);
+      },
+      remember: function (key, result) {
+        if (!result || result.method !== 'needs_gesture' || !result.file) {
+          pending = null;
+          return;
+        }
+        pending = { key: key, file: result.file, filename: result.filename };
+      },
+      sharePending: async function () {
+        if (!pending || !pending.file) return null;
+        if (inFlight) return { method: 'busy', filename: pending.filename };
+        inFlight = true;
+        const current = pending;
+        try {
+          const nav = root.navigator;
+          if (!nav || typeof nav.share !== 'function') throw new Error('pdf_share_unavailable');
+          await nav.share({ files: [current.file], title: current.filename });
+          pending = null;
+          return { method: 'share', filename: current.filename };
+        } catch (err) {
+          if (isShareCancel(err)) return { method: 'cancelled', filename: current.filename };
+          throw err;
+        } finally {
+          inFlight = false;
+        }
+      },
+      onResume: function () {
+        return pending ? pending.key : '';
+      },
+    };
+  }
+
   async function downloadPdf(doc, opts) {
     opts = opts || {};
     if (typeof html2canvas === 'undefined' || typeof jspdf === 'undefined') {
@@ -397,35 +581,14 @@
 
     const filename = buildPdfFilename(opts.childName || doc.title, Boolean(opts.myDaysOnly || doc.myDaysOnly));
     const blob = pdf.output('blob');
-
-    if (typeof navigator !== 'undefined' && typeof navigator.canShare === 'function') {
-      try {
-        const shareFile = new File([blob], filename, { type: 'application/pdf' });
-        if (navigator.canShare({ files: [shareFile] })) {
-          await navigator.share({ files: [shareFile], title: filename });
-          return { method: 'share', filename: filename };
-        }
-      } catch (err) {
-        if (err && err.name === 'AbortError') {
-          return { method: 'cancelled', filename: filename };
-        }
-      }
-    }
-
     try {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-      return { method: 'download', filename: filename };
-    } catch (_) {
-      pdf.save(filename);
-      return { method: 'save', filename: filename };
+      return await deliverPdfBlob(blob, filename);
+    } catch (err) {
+      if (!isNativeApp() && typeof pdf.save === 'function') {
+        pdf.save(filename);
+        return { method: 'save', filename: filename };
+      }
+      throw err;
     }
   }
 
@@ -549,6 +712,8 @@
     closePrintPlaceholder: closePrintPlaceholder,
     openPrintWindow: openPrintWindow,
     downloadPdf: downloadPdf,
+    deliverPdfBlob: deliverPdfBlob,
+    createPdfDelivery: createPdfDelivery,
     loadAndBuild: loadAndBuild,
   };
 })(window);
