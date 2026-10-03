@@ -32,11 +32,13 @@ describe('Familj hub 10/10', () => {
     assert.doesNotMatch(src, /Inställningar[\s\S]*?family-child-card/);
   });
 
-  it('openChildDrawer redirects to barnprofil', () => {
+  it('child cards open the profile; the drawer is not a panel', () => {
     const src = fs.readFileSync(FAMILY_JS, 'utf8');
-    assert.match(src, /function openChildDrawer/);
-    assert.match(src, /window\.location\.href = url/);
+    const html = fs.readFileSync(FAMILY_HTML, 'utf8');
     assert.match(src, /\/family\/child\//);
+    assert.doesNotMatch(src, /function openChildDrawer/);
+    assert.doesNotMatch(src, /function closeChildDrawer/);
+    assert.doesNotMatch(html, /id="childDrawer"/);
   });
 
   it('legacy ?child= URL redirects to barnprofil', () => {

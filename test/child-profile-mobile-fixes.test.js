@@ -23,11 +23,13 @@ describe('child profile mobile fixes', () => {
     assert.doesNotMatch(src, /source: 'library'/);
   });
 
-  it('child profile tabs use grid not horizontal scroll', () => {
+  it('child profile tabs use a readable two-column grid not horizontal scroll', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/child-profile.js'), 'utf8');
-    assert.match(src, /grid grid-cols-3/);
-    assert.match(src, /childProfileTabBar/);
+    assert.match(src, /id="childProfileTabBar" class="grid grid-cols-2/);
+    assert.match(src, /child-profile-tab px-3 py-3 rounded-xl text-base font-semibold/);
+    assert.match(src, /min-h-\[44px\]/);
     assert.doesNotMatch(src, /overflow-x-auto pb-2 mb-6/);
+    assert.doesNotMatch(src, /childProfileTabBar" class="[^"]*grid-cols-3/);
   });
 
   it('family-child page clips horizontal overflow', () => {
@@ -53,9 +55,10 @@ describe('child profile mobile fixes', () => {
     assert.match(src, /formatAge/);
   });
 
-  it('family.js guards birthday picker init', () => {
+  it('family.js does not init the removed child drawer birthday picker', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/family.js'), 'utf8');
-    assert.match(src, /typeof initBirthdayPicker === 'function'/);
+    assert.doesNotMatch(src, /drawerEditBirthday/);
+    assert.doesNotMatch(src, /initBirthdayPicker/);
   });
 
   it('onboarding loads age-band helper before starter plan', () => {
