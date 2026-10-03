@@ -101,6 +101,19 @@ const ICONS = [
 ];
 
 let _activityEditorReturn = '';
+let _activityIconTouched = false;
+
+function withPlaceOnReturn(activityId) {
+  if (!_activityEditorReturn || !activityId) return;
+  const qIndex = _activityEditorReturn.indexOf('?');
+  const path = qIndex === -1 ? _activityEditorReturn : _activityEditorReturn.slice(0, qIndex);
+  const query = qIndex === -1 ? '' : _activityEditorReturn.slice(qIndex + 1);
+  if (!path.startsWith('/schedule') || path.indexOf('://') !== -1) return;
+  const params = new URLSearchParams(query);
+  params.set('place', String(activityId));
+  const next = params.toString();
+  _activityEditorReturn = path + (next ? '?' + next : '');
+}
 
 function safeScheduleReturn(raw) {
   if (typeof raw !== 'string' || !raw.startsWith('/schedule')) return '';
@@ -134,12 +147,11 @@ function openActivityEditorFromQuery() {
       return;
     }
     _activityEditorReturn = ret;
-    openActivityModal(act);
-    return;
+    return openActivityModal(act);
   }
   _activityEditorReturn = ret;
   const name = params.get('name') || '';
-  openActivityModal(name ? { name: name } : null);
+  return openActivityModal(name ? { name: name } : null);
 }
 
 function leaveActivityEditorIfReturning() {
@@ -585,6 +597,7 @@ function buildIconPicker() {
 }
 
 function selectIcon(icon) {
+  _activityIconTouched = true;
   document.getElementById('activityIcon').value = icon;
   document.getElementById('selectedIconDisplay').textContent = icon;
   const emojiInput = document.getElementById('emojiTextInput');
@@ -593,13 +606,16 @@ function selectIcon(icon) {
     btn.classList.toggle('border-gold', btn.textContent === icon);
     btn.classList.toggle('bg-white', btn.textContent === icon);
   });
+  if (window.LibraryImages && typeof LibraryImages.syncPreview === 'function') LibraryImages.syncPreview();
 }
 
 function onEmojiTextInput(val) {
   const trimmed = val.trim();
   if (trimmed) {
+    _activityIconTouched = true;
     document.getElementById('activityIcon').value = trimmed;
     document.getElementById('selectedIconDisplay').textContent = trimmed;
+    if (window.LibraryImages && typeof LibraryImages.syncPreview === 'function') LibraryImages.syncPreview();
     // Deselect all picker buttons
     document.querySelectorAll('#iconPicker button').forEach(btn => {
       btn.classList.remove('border-gold', 'bg-white');
@@ -1018,6 +1034,7 @@ async function openActivityModal(act) {
   // A name-only draft from ?new=1 is a create. Setting .value to a missing id
   // becomes the string "undefined" and save PUTs /api/activities/undefined.
   const editing = !!(act && act.id);
+  _activityIconTouched = false;
   document.getElementById('activityId').value = editing ? act.id : '';
   document.getElementById('activityName').value = act && act.name ? act.name : '';
   document.getElementById('activityIcon').value = act && act.icon ? act.icon : '';
@@ -1124,13 +1141,14 @@ async function submitActivity(e) {
   const method = id ? 'PUT' : 'POST';
   const body = {
     name,
-    icon: isPhoto ? null : icon,
+    icon: icon,
     image_url: isPhoto ? image_url : null,
     category_id,
     star_value,
     is_favorite,
     feedback_for,
   };
+  if (_activityIconTouched) body.icon_key = null;
   if (seven_questions !== undefined) body.seven_questions = seven_questions;
   body.duration_seconds = duration_seconds;
   const res = await window.apiFetch(url, { method, body: JSON.stringify(body) });
@@ -1138,6 +1156,7 @@ async function submitActivity(e) {
   if (res.ok) {
     const activityId = id || data.id;
     const failedSteps = await syncLibActSubsteps(activityId);
+    if (!id) withPlaceOnReturn(activityId);
     const returning = !!_activityEditorReturn;
     closeActivityModal();
     if (returning) return;
@@ -1155,12 +1174,57 @@ async function submitActivity(e) {
 }
 
 function deleteActivity(id, name) {
-  openConfirmModal(lpt('library.confirm.deleteActivity', { name }), async () => {
-    const res = await window.apiFetch(`/api/activities/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (res.ok) { showToast(lpt('library.saved.activityDeleted')); await loadActivities(); }
-    else showToast(libApiError(data, 'library.errors.deleteActivity'), true);
+  openConfirmModal(lpt('library.confirm.deleteActivity', { name }), function () {
+    return removeActivity(id, false);
   });
+}
+
+function scheduleUsageLine(data) {
+  const count = Number(data && data.schedule_count);
+  if (!count) return '';
+  if (window.I18n && typeof I18n.plural === 'function') {
+    return I18n.plural('library.confirm.usedInSchedules', count);
+  }
+  const key = count === 1
+    ? 'library.confirm.usedInSchedules.one'
+    : 'library.confirm.usedInSchedules.other';
+  return lpt(key, { count: count });
+}
+
+function openForceDeleteModal(id, data) {
+  const usage = scheduleUsageLine(data);
+  const body = lpt('library.confirm.deleteActivityInUse') + (usage ? '\n' + usage : '');
+  openConfirmModal(body, function () {
+    return removeActivity(id, true);
+  }, {
+    title: lpt('library.confirm.deleteActivityInUseTitle'),
+    confirmLabel: lpt('library.confirm.deleteAnyway'),
+  });
+}
+
+async function removeActivity(id, force) {
+  const url = force ? '/api/activities/' + id + '?force=1' : '/api/activities/' + id;
+  let data = {};
+  let res;
+  try {
+    res = await window.apiFetch(url, { method: 'DELETE' });
+    data = await res.json();
+  } catch {
+    showToast(lpt('library.errors.deleteActivity'), true);
+    if (force) await loadActivities();
+    return;
+  }
+  if (res.ok) {
+    showToast(lpt('library.saved.activityDeleted'));
+    await loadActivities();
+    return;
+  }
+  if (!force && res.status === 409 && data && (data.code === 'ACTIVITY_IN_USE' || data.error === 'ACTIVITY_IN_USE')) {
+    openForceDeleteModal(id, data);
+    return;
+  }
+  showToast(libApiError(data, 'library.errors.deleteActivity'), true);
+  if (force) await loadActivities();
 }
 
 // ─── Activity Search (Mina aktiviteter tab) ──────────────
@@ -1298,7 +1362,12 @@ async function copyStandardActivityToLibrary(stdActivity) {
 
 
 // ─── Confirm modal ────────────────────────────────────────
-function openConfirmModal(msg, callback) {
+function openConfirmModal(msg, callback, options) {
+  options = options || {};
+  const titleEl = document.getElementById('confirmTitle');
+  const okBtn = document.getElementById('confirmOkBtn');
+  if (titleEl) titleEl.textContent = options.title || lpt('library.chrome.confirmTitle');
+  if (okBtn) okBtn.textContent = options.confirmLabel || lpt('library.actions.delete');
   const msgEl = document.getElementById('confirmMsg');
   // Support newlines in message by splitting into paragraphs
   msgEl.innerHTML = msg.split('\n').map(line => line.trim() ? `<span class="block mb-2">${escHtml(line)}</span>` : '').join('');
@@ -1308,6 +1377,10 @@ function openConfirmModal(msg, callback) {
 
 function closeConfirmModal() {
   document.getElementById('confirmModal').classList.add('hidden');
+  const titleEl = document.getElementById('confirmTitle');
+  const okBtn = document.getElementById('confirmOkBtn');
+  if (titleEl) titleEl.textContent = lpt('library.chrome.confirmTitle');
+  if (okBtn) okBtn.textContent = lpt('library.actions.delete');
 }
 
 function closeAllLibraryModals() {
