@@ -70,8 +70,11 @@ var allTemplates = [];
 /* eslint-enable no-unused-vars, no-var */
 
 // ── Calendar navigation state ─────────────────────────────
+// schedule-cal-nav.js assigns these shared bindings. prefer-const cannot see that.
+/* eslint-disable prefer-const */
 let calView = 'week'; // 'day' | 'week' | 'month'
 let weekOffset = 0;   // 0 = current week, -1 = last week, +1 = next week
+/* eslint-enable prefer-const */
 let dayOffset = 0;    // offset in days from today (for day view)
 
 if (window.ScheduleCalNav) {
@@ -548,15 +551,6 @@ function trackEvent(eventType, metadata) {
 function canonicalScheduleHref(childId) {
   if (!childId) return '/schedule';
   return '/schedule?child=' + encodeURIComponent(childId);
-}
-
-function renderChildTabs() {
-  const tabs = document.getElementById('childTabs');
-  if (!tabs) return;
-  tabs.innerHTML = children.map(c => `
-    <button onclick="selectChild('${c.id}')" class="child-tab px-5 py-2 rounded-full border-2 font-semibold text-sm transition-colors day-btn ${currentChildId===c.id?'bg-navy text-white border-navy':'border-lavender text-navy hover:border-navy'}" data-id="${c.id}">
-      ${c.emoji||'👤'} ${escHtml(c.name)}
-    </button>`).join('');
 }
 
 function selectChild(id) {
