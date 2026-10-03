@@ -7,10 +7,10 @@
  * (`POST /api/activities`), then the existing apply-activity path runs. Retry after
  * apply-failure reuses the created id. Overlapping Save taps never silently drop: a
  * duplicate tap coalesces, a distinct next name is queued and persisted, Save stays
- * visibly disabled while in flight, and failures stay explicit. After a successful apply
- * the Activity modal stays open so the next name can be typed immediately (days/section/time
- * preserved). Template and Copy Day still close on success — do not change closeAddMenu()
- * globally.
+ * visibly disabled while in flight, and failures stay explicit. A normal Save closes the
+ * dialog and refreshes the day list. The dialog stays open for another name only when the
+ * parent chooses "Lägg till en till" (days/section/time preserved). Template and Copy Day
+ * still close on success — do not change closeAddMenu() globally.
  *
  * Reads globals from schedule.js (currentChildId, currentDay, allTemplates, loadTemplates,
  * loadScheduleForDay) the same way schedule-special-days.js / schedule-activity-modals.js do —
@@ -113,7 +113,7 @@
     modal.setAttribute('aria-modal', 'true');
     modal.setAttribute('aria-labelledby', 'scheduleAddMenuTitle');
     modal.innerHTML = `
-      <div class="bg-white rounded-2xl max-w-md w-full shadow-xl" id="scheduleAddMenuPanel">
+      <div class="schedule-menu-surface rounded-2xl max-w-md w-full shadow-xl" id="scheduleAddMenuPanel">
         <div class="p-6" id="scheduleAddMenuBody"></div>
       </div>`;
     modal.addEventListener('mousedown', (ev) => {
@@ -204,18 +204,41 @@
 
   // ── Shared UI fragments ──────────────────────────────────────────────────
 
+  function setsEqual(selected, preset) {
+    if (!selected || !preset || selected.size !== preset.size) return false;
+    for (const day of preset) if (!selected.has(day)) return false;
+    return true;
+  }
+
+  function choiceClass(active) {
+    return active ? 'schedule-choice-selected' : 'border-lavender text-navy';
+  }
+
+  function presetButtons(selected, toggleFn) {
+    const presets = [
+      { key: 'all', label: t('schedule.addMenu.weekdaysAll'), set: WEEKDAY_SET_ALL },
+      { key: 'weekday', label: t('schedule.addMenu.weekdaysWeekday'), set: WEEKDAY_SET_WEEKDAY },
+      { key: 'weekend', label: t('schedule.addMenu.weekdaysWeekend'), set: WEEKDAY_SET_WEEKEND },
+    ];
+    return presets.map((preset) => {
+      const active = setsEqual(selected, preset.set);
+      return `<button type="button" onclick="${toggleFn}(null,'${preset.key}')" aria-pressed="${active}"
+        class="${TOUCH_BTN} px-3 py-2 rounded-xl text-xs font-semibold border-2 ${choiceClass(active)}">
+        ${active ? '✓ ' : ''}${preset.label}
+      </button>`;
+    }).join('');
+  }
+
   function renderWeekdayChips(selected, toggleFn) {
     return `
-      <div class="flex gap-2 mb-2 flex-wrap">
-        <button type="button" onclick="${toggleFn}(null,'all')" class="${TOUCH_BTN} px-3 py-2 rounded-xl text-xs font-semibold border-2 border-lavender hover:border-gold">${t('schedule.addMenu.weekdaysAll')}</button>
-        <button type="button" onclick="${toggleFn}(null,'weekday')" class="${TOUCH_BTN} px-3 py-2 rounded-xl text-xs font-semibold border-2 border-lavender hover:border-gold">${t('schedule.addMenu.weekdaysWeekday')}</button>
-        <button type="button" onclick="${toggleFn}(null,'weekend')" class="${TOUCH_BTN} px-3 py-2 rounded-xl text-xs font-semibold border-2 border-lavender hover:border-gold">${t('schedule.addMenu.weekdaysWeekend')}</button>
+      <div class="flex gap-2 mb-2 flex-wrap" role="group" aria-label="${t('schedule.addMenu.weekdayPickerTitle')}">
+        ${presetButtons(selected, toggleFn)}
       </div>
       <div class="flex gap-2 flex-wrap" role="group" aria-label="${t('schedule.addMenu.weekdayPickerTitle')}">
         ${WEEKDAYS.map((dow) => {
           const active = selected.has(dow);
           return `<button type="button" onclick="${toggleFn}(${dow})" aria-pressed="${active}"
-            class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${active ? 'bg-navy text-white border-navy' : 'bg-white text-navy border-lavender'}">
+            class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${choiceClass(active)}">
             ${active ? '✓ ' : ''}${dayLabel(dow)}
           </button>`;
         }).join('')}
@@ -291,6 +314,9 @@
     pendingNewName: '',
     createdUnappliedId: null,
     createdUnappliedName: '',
+    dayKnown: false,
+    sectionKnown: false,
+    editContext: false,
   };
 
   function resetActivityCreateState() {
@@ -305,12 +331,18 @@
     const section = activityState.section;
     const startTime = activityState.startTime;
     const endTime = activityState.endTime;
+    const dayKnown = activityState.dayKnown;
+    const sectionKnown = activityState.sectionKnown;
+    const editContext = activityState.editContext;
     resetActivityCreateState();
     activityState.query = '';
     activityState.days = days;
     activityState.section = section;
     activityState.startTime = startTime;
     activityState.endTime = endTime;
+    activityState.dayKnown = dayKnown;
+    activityState.sectionKnown = sectionKnown;
+    activityState.editContext = editContext;
     if (opTracker) opTracker.reset();
   }
 
@@ -324,6 +356,9 @@
     activityState.startTime = '';
     activityState.endTime = '';
     activityState.query = '';
+    activityState.dayKnown = false;
+    activityState.sectionKnown = false;
+    activityState.editContext = false;
     if (!allTemplates || allTemplates.length === 0) {
       if (typeof window.loadTemplates === 'function') await loadTemplates();
     }
@@ -352,7 +387,34 @@
   async function openActivityForDay(dayOfWeek, section) {
     await openActivity();
     if (typeof dayOfWeek === 'number') activityState.days = new Set([dayOfWeek]);
+    activityState.dayKnown = typeof dayOfWeek === 'number';
+    activityState.sectionKnown = Boolean(section);
+    activityState.editContext = false;
     if (section) activityState.section = section;
+    renderActivityStep();
+    restoreSearchFocus();
+  }
+
+  function contextDayLabel(dow) {
+    if (window.ScheduleCore && typeof ScheduleCore.dayName === 'function') return ScheduleCore.dayName(dow);
+    return dayLabel(dow);
+  }
+
+  function contextSectionLabel(section) {
+    if (window.ScheduleCore && typeof ScheduleCore.sectionName === 'function') return ScheduleCore.sectionName(section);
+    return section;
+  }
+
+  function showDayPicker() {
+    return !activityState.dayKnown || activityState.editContext;
+  }
+
+  function showSectionPicker() {
+    return !activityState.sectionKnown || activityState.editContext;
+  }
+
+  function editActivityContext() {
+    activityState.editContext = true;
     renderActivityStep();
     restoreSearchFocus();
   }
@@ -393,6 +455,31 @@
       { key: 'morgon', emoji: '🌅' }, { key: 'dag', emoji: '☀️' }, { key: 'kvall', emoji: '🌆' }, { key: 'natt', emoji: '🌙' },
     ];
 
+    const dayLocked = activityState.dayKnown && !activityState.editContext;
+    const sectionLocked = activityState.sectionKnown && !activityState.editContext;
+    const knownDay = activityState.days.size === 1 ? contextDayLabel([...activityState.days][0]) : '';
+    const knownSection = contextSectionLabel(activityState.section);
+    const contextText = dayLocked && sectionLocked
+      ? t('schedule.addMenu.activity.contextSummary', { day: knownDay, section: knownSection })
+      : [dayLocked ? knownDay : '', sectionLocked ? knownSection : ''].filter(Boolean).join(' · ');
+    const contextHtml = (dayLocked || sectionLocked) ? `
+          <p id="samActivityContext" class="text-sm font-semibold text-navy mb-2">${escHtml(contextText)}</p>
+          <button type="button" id="samActivityChangeContext" onclick="ScheduleAddMenu.editActivityContext()" class="${TOUCH_BTN} mb-4 px-3 py-2 rounded-xl border-2 border-lavender text-sm font-semibold text-navy">${t('schedule.addMenu.activity.changeDaySection')}</button>` : '';
+    const dayPickerHtml = showDayPicker() ? `
+          <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.activity.pickDays')}</p>
+          <div class="mb-4" id="samActivityDayPicker">${renderWeekdayChips(activityState.days, 'ScheduleAddMenu.toggleActivityDay')}</div>` : '';
+    const sectionPickerHtml = showSectionPicker() ? `
+          <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.activity.pickSection')}</p>
+          <div class="flex gap-2 flex-wrap mb-4" id="samActivitySectionPicker">
+            ${sections.map((s) => {
+              const active = activityState.section === s.key;
+              return `<button type="button" onclick="ScheduleAddMenu.selectActivitySection('${s.key}')"
+              aria-pressed="${active}"
+              class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 ${choiceClass(active)}">
+              ${active ? '✓ ' : ''}${s.emoji || ''} ${window.ScheduleCore ? ScheduleCore.sectionName(s.key) : s.key}</button>`;
+            }).join('')}
+          </div>` : '';
+
     bodyEl().innerHTML = `
       <div class="sam-activity-shell">
         <div class="sam-activity-scroll">
@@ -401,20 +488,12 @@
             <button type="button" onclick="ScheduleAddMenu.close()" class="${TOUCH_BTN} flex items-center justify-center text-text-soft hover:text-navy" aria-label="${t('schedule.addMenu.close')}">✕</button>
           </div>
           <h3 id="scheduleAddMenuTitle" class="text-lg font-heading font-bold text-navy mb-3">${t('schedule.addMenu.activity.title')}</h3>
+          ${contextHtml}
 
           <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.activity.pickActivity')}</p>
           ${renderActivityPicker(templates, filtered)}
-
-          <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.activity.pickDays')}</p>
-          <div class="mb-4">${renderWeekdayChips(activityState.days, 'ScheduleAddMenu.toggleActivityDay')}</div>
-
-          <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.activity.pickSection')}</p>
-          <div class="flex gap-2 flex-wrap mb-4">
-            ${sections.map((s) => `<button type="button" onclick="ScheduleAddMenu.selectActivitySection('${s.key}')"
-              aria-pressed="${activityState.section === s.key}"
-              class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 ${activityState.section === s.key ? 'bg-navy text-white border-navy' : 'border-lavender text-navy'}">
-              ${s.emoji || ''} ${window.ScheduleCore ? ScheduleCore.sectionName(s.key) : s.key}</button>`).join('')}
-          </div>
+          ${dayPickerHtml}
+          ${sectionPickerHtml}
 
           <details class="mb-4">
             <summary class="text-xs font-semibold text-navy uppercase tracking-wide cursor-pointer">${t('schedule.addMenu.activity.pickTime')}</summary>
@@ -423,15 +502,16 @@
               ${renderTimeField('end', activityState.endTime)}
             </div>
           </details>
-        </div>
-        <div class="sam-activity-footer border-t border-lavender" id="samActivityFooter">
+        <div class="sam-activity-footer border-t border-lavender schedule-menu-surface" id="samActivityFooter">
           <p id="samActivityStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
           <p id="samActivityQueueNote" class="text-sm text-navy font-semibold mb-2 hidden" role="status"></p>
           <p id="samActivityError" class="text-sm text-red-600 mb-2 hidden"></p>
+          <button type="button" id="samActivityAddAnotherBtn" onclick="ScheduleAddMenu.addAnother()" class="${TOUCH_BTN} w-full mb-2 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm text-navy">${t('schedule.addMenu.activity.addAnother')}</button>
           <div class="flex gap-3">
             <button type="button" onclick="ScheduleAddMenu.close()" class="${TOUCH_BTN} flex-1 px-4 py-3 border-2 border-lavender rounded-xl font-semibold text-sm text-navy">${t('schedule.addMenu.cancel')}</button>
             <button type="button" id="samActivitySaveBtn" onclick="ScheduleAddMenu.submitActivity()" class="${TOUCH_BTN} flex-1 px-4 py-3 bg-gold hover:bg-yellow-500 text-navy rounded-xl font-semibold text-sm">${t('schedule.addMenu.save')}</button>
           </div>
+        </div>
         </div>
       </div>`;
     paintTimeField('start', activityState.startTime);
@@ -748,6 +828,7 @@
     syncActivitySavePending();
     let restoreNextEntryFocus = false;
     let lastOk = false;
+    let endStayOpen = false;
     try {
       while (activitySubmitQueue.length) {
         const snapshot = activitySubmitQueue.shift();
@@ -768,16 +849,26 @@
           break;
         }
         lastOk = true;
-        restoreNextEntryFocus = true;
+        endStayOpen = snapshot.stayOpen === true;
       }
       if (lastOk && activitySubmitQueue.length === 0) {
-        resetActivityForNextEntry();
-        renderActivityStep();
-        startNextEntryFocusGuard();
-        try {
-          await afterSuccessfulMutation();
-        } catch (_refreshErr) {
-          /* schedule refresh must not block the next name */
+        if (endStayOpen) {
+          resetActivityForNextEntry();
+          renderActivityStep();
+          startNextEntryFocusGuard();
+          restoreNextEntryFocus = true;
+          try {
+            await afterSuccessfulMutation();
+          } catch (_refreshErr) {
+            /* schedule refresh must not block the next name */
+          }
+        } else {
+          try {
+            await afterSuccessfulMutation();
+          } catch (_refreshErr) {
+            /* the list refresh must not block closing the dialog */
+          }
+          closeAddMenu();
         }
       }
     } finally {
@@ -789,7 +880,11 @@
     }
   }
 
-  async function submitActivity() {
+  function addAnother() {
+    return submitActivity(true);
+  }
+
+  async function submitActivity(stayOpen) {
     const errEl = document.getElementById('samActivityError');
     if (errEl) errEl.classList.add('hidden');
     if (!currentChildId || currentChildId !== activityContextChildId) {
@@ -806,6 +901,7 @@
     }
 
     const snapshot = captureActivitySnapshot();
+    snapshot.stayOpen = stayOpen === true;
 
     if (activitySubmitInFlight) {
       if (isDuplicateSubmit(snapshot)) {
@@ -877,9 +973,9 @@
 
       <div class="flex gap-2 mb-3" role="tablist">
         <button type="button" role="tab" aria-selected="${templateState.tab === 'mine'}" onclick="ScheduleAddMenu.switchTemplateTab('mine')"
-          class="${TOUCH_BTN} flex-1 px-3 py-2 rounded-xl text-sm font-semibold border-2 ${templateState.tab === 'mine' ? 'bg-navy text-white border-navy' : 'border-lavender text-navy'}">${t('schedule.addMenu.template.tabMine')}</button>
+          class="${TOUCH_BTN} flex-1 px-3 py-2 rounded-xl text-sm font-semibold border-2 ${choiceClass(templateState.tab === 'mine')}">${t('schedule.addMenu.template.tabMine')}</button>
         <button type="button" role="tab" aria-selected="${templateState.tab === 'standard'}" onclick="ScheduleAddMenu.switchTemplateTab('standard')"
-          class="${TOUCH_BTN} flex-1 px-3 py-2 rounded-xl text-sm font-semibold border-2 ${templateState.tab === 'standard' ? 'bg-navy text-white border-navy' : 'border-lavender text-navy'}">${t('schedule.addMenu.template.tabStandard')}</button>
+          class="${TOUCH_BTN} flex-1 px-3 py-2 rounded-xl text-sm font-semibold border-2 ${choiceClass(templateState.tab === 'standard')}">${t('schedule.addMenu.template.tabStandard')}</button>
       </div>
 
       <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.template.pickTemplate')}</p>
@@ -1016,7 +1112,7 @@
       <div class="flex gap-2 flex-wrap mb-4">
         ${WEEKDAYS.map((dow) => `<button type="button" onclick="ScheduleAddMenu.setCopyDaySource(${dow})"
           aria-pressed="${copyDayState.sourceDay === dow}"
-          class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 ${copyDayState.sourceDay === dow ? 'bg-navy text-white border-navy' : 'border-lavender text-navy'}">${dayLabel(dow)}</button>`).join('')}
+          class="${TOUCH_BTN} px-3 py-2 rounded-xl text-sm font-semibold border-2 ${choiceClass(copyDayState.sourceDay === dow)}">${copyDayState.sourceDay === dow ? '✓ ' : ''}${dayLabel(dow)}</button>`).join('')}
       </div>
 
       <p class="text-xs font-semibold text-navy uppercase tracking-wide mb-2">${t('schedule.addMenu.copyDay.pickTargetDays')}</p>
@@ -1154,6 +1250,8 @@
     selectActivitySection,
     setActivityTime,
     toggleActivityDay,
+    editActivityContext,
+    addAnother,
     submitActivity,
     openTemplate,
     switchTemplateTab,
@@ -1180,7 +1278,8 @@
     const fwBtn = document.getElementById('fillWeekBtn');
     const addBtn = document.getElementById('scheduleAddMenuBtn');
     if (!fwBtn || !addBtn) return;
-    addBtn.classList.toggle('hidden', fwBtn.classList.contains('hidden'));
+    const mobile = window.ScheduleDaySheet && ScheduleDaySheet.isMobile();
+    addBtn.classList.toggle('hidden', fwBtn.classList.contains('hidden') || Boolean(mobile));
   }
 
   function closeIfChildContextChanged(nextChildId) {

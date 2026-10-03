@@ -35,13 +35,12 @@ describe('Parent shell P0 i18n (#1208 remainder)', () => {
     const pushMarker = '// ── Passiv push-prompt';
     const branchBlock = src.slice(src.indexOf(pushMarker));
     const mainBlock = mainSrc.slice(mainSrc.indexOf(pushMarker));
-    const toastLayer = 'z-index:var(--layer-toast, 600)';
 
     assert.match(src, /home\.pinWarning\.title/);
     assert.doesNotMatch(src, /försöker logga in/);
-    // Push-prompt copy stays owned by #1205. The overlay scale may move its z-index onto the toast layer.
+    // Push-prompt copy stays owned by #1205. Toast z-index is the shared layer token on main (PR #1285).
     assert.match(branchBlock, /z-index:var\(--layer-toast, 600\)/);
-    assert.equal(branchBlock.replaceAll(toastLayer, 'z-index:9990'), mainBlock);
+    assert.equal(branchBlock, mainBlock);
   });
 
   it('sw-register.js wires update banner via pt', () => {

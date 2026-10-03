@@ -322,9 +322,10 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(src, /function submitCopyDay/);
   });
 
-  it('rapid entry: successful Activity save stays open and resets for the next name', () => {
+  it('normal Save closes the Activity dialog; Lägg till en till keeps the next entry open', () => {
     const src = read(MODULE);
     assert.match(src, /function resetActivityForNextEntry/);
+    assert.match(src, /function addAnother/);
     const helper = src.slice(src.indexOf('function resetActivityForNextEntry'), src.indexOf('async function openActivity'));
     assert.match(helper, /resetActivityCreateState\(\)/);
     assert.match(helper, /activityState\.query = ''/);
@@ -332,19 +333,27 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(helper, /activityState\.section = section/);
     assert.match(helper, /activityState\.startTime = startTime/);
     assert.match(helper, /activityState\.endTime = endTime/);
+    assert.match(helper, /activityState\.dayKnown = dayKnown/);
+    assert.match(helper, /activityState\.sectionKnown = sectionKnown/);
     assert.match(helper, /opTracker\.reset\(\)/);
-    const drain = src.slice(src.indexOf('async function drainActivitySubmitQueue'), src.indexOf('async function submitActivity'));
+    const drain = src.slice(src.indexOf('async function drainActivitySubmitQueue'), src.indexOf('function addAnother'));
+    const stay = drain.slice(drain.indexOf('if (endStayOpen)'));
+    const stayBranch = stay.slice(0, stay.indexOf('} else {'));
+    assert.match(stayBranch, /resetActivityForNextEntry\(\)/);
+    assert.match(stayBranch, /renderActivityStep\(\)/);
+    assert.match(stayBranch, /await afterSuccessfulMutation\(\)/);
+    assert.match(stayBranch, /startNextEntryFocusGuard\(\)/);
+    assert.doesNotMatch(stayBranch, /closeAddMenu\(\)/);
+    const closeBranch = stay.slice(stay.indexOf('} else {'), stay.indexOf('} finally'));
+    assert.match(closeBranch, /closeAddMenu\(\)/);
+    assert.match(closeBranch, /await afterSuccessfulMutation\(\)/);
+    assert.doesNotMatch(closeBranch, /resetActivityForNextEntry\(\)/);
     const success = drain.slice(drain.indexOf('resetActivityForNextEntry()'));
-    assert.match(success, /resetActivityForNextEntry\(\)/);
-    assert.match(success, /renderActivityStep\(\)/);
-    assert.match(success, /await afterSuccessfulMutation\(\)/);
-    assert.match(success, /startNextEntryFocusGuard\(\)/);
     assert.match(success, /restoreSearchFocus\(\)/);
     assert.ok(
       success.lastIndexOf('setPending(\'samActivitySaveBtn\', false)') < success.lastIndexOf('restoreSearchFocus()'),
       'search focus must be restored after Save is re-enabled, not before the mutation path'
     );
-    assert.doesNotMatch(success, /closeAddMenu\(\)/);
     const persist = persistSlice(src);
     const createFail = persist.slice(0, persist.indexOf('ScheduleApplyClient.applyActivity'));
     assert.doesNotMatch(createFail, /resetActivityForNextEntry\(\)/);
@@ -416,9 +425,12 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(src, /aria-labelledby',\s*'scheduleAddMenuTitle'/);
     assert.match(src, /aria-live="polite"/);
     assert.match(html, /#scheduleAddMenuModal \.sam-activity-footer/);
-    const footerCss = html.slice(html.indexOf('#scheduleAddMenuModal .sam-activity-footer'), html.indexOf('#scheduleAddMenuModal .sr-only'));
-    assert.match(footerCss, /background:\s*transparent/);
-    assert.doesNotMatch(footerCss, /background:\s*#fff/);
+    const footerCss = html.slice(html.indexOf('#scheduleAddMenuModal .sam-activity-footer'), html.indexOf('#scheduleAddMenuModal #samActivityError'));
+    assert.match(footerCss, /position:\s*sticky/);
+    assert.match(footerCss, /bottom:\s*0/);
+    assert.doesNotMatch(footerCss, /background:\s*transparent/);
+    assert.match(html, /#scheduleAddMenuModal #scheduleAddMenuPanel[\s\S]*max-height:\s*100%/);
+    assert.match(read('public/css/app-layers.css'), /bottom:\s*var\(--overlay-keyboard-inset\)/);
     assert.match(html, /#scheduleAddMenuModal #samActivityError/);
     assert.match(html, /100dvh/);
     assert.match(src, /'Escape'/);
@@ -448,7 +460,7 @@ describe('Phase 1B — "+ Lägg till" primary menu', () => {
     assert.match(timeCss, /color:\s*transparent/);
     assert.match(timeCss, /-webkit-text-fill-color:\s*transparent/);
     assert.match(timeCss, /min-height:\s*44px/);
-    assert.match(html, /schedule-add-menu\.js\?v=10/);
+    assert.match(html, /schedule-add-menu\.js\?v=11/);
   });
 });
 
@@ -698,7 +710,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.equal(document.getElementById('samActivitySearch').id, 'samActivitySearch');
   });
 
-  it('keeps the modal open, preserves day/section/time, and refocuses search after an existing save', async () => {
+  it('normal Save closes the modal and refreshes the day list', async () => {
     const harness = createRapidEntrySandbox();
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
@@ -713,32 +725,28 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.deepEqual([...harness.applyCalls[0].payload.days], [5]);
     assert.equal(harness.applyCalls[0].payload.startTime, '18:00');
     assert.equal(harness.applyCalls[0].payload.endTime, '18:30');
-    assert.equal(harness.sandbox.document.getElementById('samActivityStartTimeValue').textContent, '18:00');
-    assert.equal(harness.sandbox.document.getElementById('samActivityEndTimeValue').textContent, '18:30');
-    assert.equal(harness.modalHidden(), false);
-    assert.equal(harness.sandbox.document.activeElement.id, 'samActivitySearch');
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
+    assert.equal(harness.modalHidden(), true);
     assert.equal(harness.sandbox.scheduleReloads, 1);
     assert.match(harness.toasts[0].msg, /activity\.added/);
     assert.equal(harness.toasts[0].isError, false);
   });
 
-  it('keeps document.activeElement on #samActivitySearch after the mutation refresh completes', async () => {
+  it('a later add reopens from the day context instead of writing through a closed dialog', async () => {
     const harness = createRapidEntrySandbox();
-    const { ScheduleAddMenu, document } = harness.sandbox;
+    const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.selectActivity('tpl-middag');
     await ScheduleAddMenu.submitActivity();
 
     assert.equal(harness.sandbox.scheduleReloads, 1, 'background schedule refresh must run');
-    assert.equal(document.activeElement && document.activeElement.id, 'samActivitySearch');
-    assert.equal(document.getElementById('samActivitySearch').value, '');
+    assert.equal(harness.modalHidden(), true);
 
+    await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.filterActivity('Läkemedel');
     ScheduleAddMenu.selectPendingCreate();
     await ScheduleAddMenu.submitActivity();
     assert.equal(harness.applyCalls.length, 2);
-    assert.equal(document.activeElement && document.activeElement.id, 'samActivitySearch');
+    assert.equal(harness.modalHidden(), true);
     assert.equal(harness.sandbox.scheduleReloads, 2);
   });
 
@@ -754,8 +762,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.equal(harness.activityPosts[0].name, 'Läkemedel');
     assert.equal(harness.applyCalls.length, 1);
     assert.equal(harness.applyCalls[0].payload.activityTemplateId, 'created-1');
-    assert.equal(harness.modalHidden(), false);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
+    assert.equal(harness.modalHidden(), true);
     assert.match(harness.toasts[0].msg, /createdAndAdded/);
   });
 
@@ -764,7 +771,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     const { ScheduleAddMenu } = harness.sandbox;
     await ScheduleAddMenu.openActivityForDay(5, 'kvall');
     ScheduleAddMenu.selectActivity('tpl-middag');
-    await ScheduleAddMenu.submitActivity();
+    await ScheduleAddMenu.addAnother();
     ScheduleAddMenu.selectActivity('tpl-middag');
     await ScheduleAddMenu.submitActivity();
 
@@ -837,8 +844,7 @@ describe('Rapid Entry — executable Activity submit', () => {
     assert.equal(harness.applyCalls[1].payload.activityTemplateId, 'created-1');
     assert.equal(harness.applyCalls[0].payload.operationId, harness.applyCalls[1].payload.operationId,
       'failed apply keeps the same operation id for idempotent retry');
-    assert.equal(harness.modalHidden(), false);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
+    assert.equal(harness.modalHidden(), true);
     assert.match(harness.toasts[0].msg, /activity\.added/);
   });
 
@@ -927,7 +933,7 @@ describe('Rapid Entry — overlapping Save contract', () => {
     assert.deepEqual(harness.activityPosts.map((row) => row.name), ['Vakna', 'Äta frukost']);
     assert.notEqual(harness.applyCalls[0].payload.activityTemplateId, harness.applyCalls[1].payload.activityTemplateId);
     assert.equal(harness.sandbox.document.getElementById('samActivitySaveBtn').disabled, false);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
+    assert.equal(harness.modalHidden(), true);
   });
 
   it('lands six sequential overlapping activities exactly once', async () => {
@@ -957,9 +963,7 @@ describe('Rapid Entry — overlapping Save contract', () => {
     assert.equal(harness.applyCalls.length, 8, 'zero duplicate schedule rows');
     assert.deepEqual(harness.activityPosts.map((row) => row.name), names);
     assert.equal(new Set(harness.applyCalls.map((c) => c.payload.activityTemplateId)).size, 8);
-    assert.equal(harness.modalHidden(), false);
-    assert.equal(harness.sandbox.document.getElementById('samActivitySearch').value, '');
-    assert.equal(harness.sandbox.document.activeElement.id, 'samActivitySearch');
+    assert.equal(harness.modalHidden(), true);
   });
 
   it('reuses a seed-name template after refreshing an empty catalog — no duplicate create', async () => {
@@ -1034,6 +1038,73 @@ describe('Rapid Entry — overlapping Save contract', () => {
     harness.pendingApplies.forEach((release) => release());
     await pending;
     assert.equal(btn.disabled, false);
-    assert.equal(harness.sandbox.document.activeElement.id, 'samActivitySearch');
+    assert.equal(harness.modalHidden(), true);
+  });
+});
+
+describe('Mobile day list — context-aware Activity add', () => {
+  function withDayNames(harness) {
+    harness.sandbox.ScheduleCore.dayName = (dow) => ({ 5: 'Fredag', 1: 'Måndag' }[dow] || String(dow));
+    harness.sandbox.ScheduleCore.sectionName = (key) => ({ morgon: 'Morgon', kvall: 'Kväll', dag: 'Dag' }[key] || key);
+    return harness;
+  }
+
+  it('openActivityForDay Friday/morning already knows the day and section', async () => {
+    const harness = withDayNames(createRapidEntrySandbox());
+    await harness.sandbox.ScheduleAddMenu.openActivityForDay(5, 'morgon');
+    const html = harness.sandbox.document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /Fredag/);
+    assert.match(html, /Morgon/);
+    assert.match(html, /id="samActivityContext"/);
+    assert.match(html, /id="samActivityChangeContext"/);
+    assert.match(html, /changeDaySection/);
+    assert.doesNotMatch(html, /weekdaysAll/);
+    assert.doesNotMatch(html, /id="samActivityDayPicker"/);
+    assert.doesNotMatch(html, /id="samActivitySectionPicker"/);
+    assert.match(html, /<details/);
+    assert.match(html, /sam-time-field/);
+    const scrollAt = html.indexOf('sam-activity-scroll');
+    const footerAt = html.indexOf('id="samActivityFooter"');
+    assert.ok(scrollAt > -1 && footerAt > scrollAt, 'Save footer lives in the activity scroll');
+  });
+
+  it('Ändra dag/del shows Alla dagar, Vardagar, Helg and sections with one selected state', async () => {
+    const harness = withDayNames(createRapidEntrySandbox());
+    const { ScheduleAddMenu, document } = harness.sandbox;
+    await ScheduleAddMenu.openActivityForDay(5, 'morgon');
+    ScheduleAddMenu.editActivityContext();
+    let html = document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /weekdaysAll/);
+    assert.match(html, /weekdaysWeekday/);
+    assert.match(html, /weekdaysWeekend/);
+    assert.match(html, /aria-pressed="false"/);
+    ScheduleAddMenu.toggleActivityDay(null, 'all');
+    html = document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /aria-pressed="true"[^>]*schedule-choice-selected/);
+    assert.match(html, /weekdaysAll/);
+    assert.doesNotMatch(html, /bg-navy text-white border-navy/);
+    ScheduleAddMenu.selectActivitySection('kvall');
+    html = document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /aria-pressed="true"/);
+    assert.match(html, /schedule-choice-selected/);
+    assert.match(html, /Kväll/);
+  });
+
+  it('Lägg till en till keeps Friday morning and leaves the dialog open', async () => {
+    const harness = withDayNames(createRapidEntrySandbox());
+    const { ScheduleAddMenu, document } = harness.sandbox;
+    await ScheduleAddMenu.openActivityForDay(5, 'morgon');
+    ScheduleAddMenu.selectActivity('tpl-middag');
+    await ScheduleAddMenu.addAnother();
+    assert.equal(harness.applyCalls.length, 1);
+    assert.equal(harness.applyCalls[0].payload.section, 'morgon');
+    assert.deepEqual([...harness.applyCalls[0].payload.days], [5]);
+    assert.equal(harness.modalHidden(), false);
+    assert.equal(harness.sandbox.scheduleReloads, 1);
+    const html = document.getElementById('scheduleAddMenuBody').innerHTML;
+    assert.match(html, /Fredag/);
+    assert.match(html, /Morgon/);
+    assert.doesNotMatch(html, /weekdaysAll/);
+    assert.equal(document.getElementById('samActivitySearch').value, '');
   });
 });

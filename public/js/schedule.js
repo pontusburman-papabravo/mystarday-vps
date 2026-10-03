@@ -541,13 +541,22 @@ function renderDayTabs() {
   const fwBtn = document.getElementById('fillWeekBtn');
   if (fwBtn) fwBtn.classList.toggle('hidden', calView !== 'week');
 
+  const dayChrome = window.ScheduleDaySheet
+    ? ScheduleDaySheet.mobileDayChrome()
+    : { draggable: 'draggable="true"', showDayAdd: true };
+
   container.innerHTML = [1,2,3,4,5,6,0].map(d => {
     const dateObj = dayToDate[d];
     const dateLabel = dateObj ? dateObj.getDate() + '/' + (dateObj.getMonth()+1) : '';
     const isToday = d === todayDow && weekOffset === 0;
     const todayDot = isToday ? `<span class="block w-1.5 h-1.5 rounded-full bg-blue-400 mx-auto mt-0.5"></span>` : '';
+    const addBtn = dayChrome.showDayAdd
+      ? `<button onclick="${window.ScheduleAddMenu ? `ScheduleAddMenu.openActivityForDay(${d})` : `openInsertDayModal(${d})`}" title="${spt('schedule.actions.addSchedule')}"
+        class="w-6 h-6 rounded-full bg-white border border-lavender hover:border-gold hover:bg-gold-light text-text-soft hover:text-gold flex items-center justify-center transition-colors insert-day-btn text-sm font-bold leading-none"
+        aria-label="${spt('schedule.actions.addScheduleFor', { day: dayShort(d) })}">+</button>`
+      : '';
     return `<div class="flex-shrink-0 flex flex-col items-center gap-0.5">
-      <button draggable="true" onclick="selectDay(${d})"
+      <button ${dayChrome.draggable} onclick="selectDay(${d})"
         class="day-tab px-2 md:px-4 py-1.5 rounded-xl border-2 font-semibold text-xs md:text-sm day-btn flex flex-col items-center leading-tight
         ${currentDay===d?ScheduleCore.PLANNER_PRIMARY_DAY_TAB:'border-lavender text-navy hover:border-navy'}"
         data-day="${d}">
@@ -555,11 +564,14 @@ function renderDayTabs() {
         <span class="day-tab-date font-normal text-[10px]">${dateLabel}</span>
         ${todayDot}
       </button>
-      <button onclick="${window.ScheduleAddMenu ? `ScheduleAddMenu.openActivityForDay(${d})` : `openInsertDayModal(${d})`}" title="${spt('schedule.actions.addSchedule')}"
-        class="w-6 h-6 rounded-full bg-white border border-lavender hover:border-gold hover:bg-gold-light text-text-soft hover:text-gold flex items-center justify-center transition-colors insert-day-btn text-sm font-bold leading-none"
-        aria-label="${spt('schedule.actions.addScheduleFor', { day: dayShort(d) })}">+</button>
+      ${addBtn}
     </div>`;
   }).join('');
+
+  if (!dayChrome.draggable) {
+    if (window.ScheduleCustody) ScheduleCustody.styleDayTabs();
+    return;
+  }
 
   container.querySelectorAll('.day-tab').forEach(btn => {
     const day = parseInt(btn.dataset.day);
@@ -793,6 +805,7 @@ function renderSchedule() {
   const copyDayLabel = spt('schedule.editor.copyDay');
 
   const dateLabel = getDayDateLabel();
+  const mobileDay = window.ScheduleDaySheet && ScheduleDaySheet.isMobile();
   document.getElementById('scheduleContent').innerHTML = `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
@@ -800,16 +813,17 @@ function renderSchedule() {
         <p class="text-sm text-text-soft">${window.ScheduleI18n ? ScheduleI18n.activityCount(scheduleItems.length) : spt('schedule.activityCount.other', { count: scheduleItems.length })}</p>
       </div>
       <div class="flex gap-2 flex-wrap items-start">
+        ${mobileDay && window.ScheduleDaySheet ? ScheduleDaySheet.triggerHtml() : `
         <button type="button" onclick="${window.ScheduleAddMenu ? 'ScheduleAddMenu.openCopyDay()' : 'openCopyDayModal()'}" class="min-h-[44px] px-4 py-2 bg-white border-2 border-gold hover:bg-gold-light text-navy rounded-xl text-sm font-semibold" aria-label="${escHtml(copyDayLabel)}">📋 ${escHtml(copyDayLabel)}</button>
         ${window.ScheduleAddMenu ? `<button onclick="ScheduleAddMenu.openSaveAsTemplate()" class="min-h-[44px] px-4 py-2 bg-white border-2 border-lavender hover:border-gold text-navy rounded-xl text-sm font-semibold">${spt('schedule.addMenu.saveAsTemplate.menuLabel')}</button>` : ''}
         <button onclick="confirmDeleteSchedule()" class="min-h-[44px] px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${spt('schedule.editor.deleteDay')}</button>
         <details class="relative">
           <summary class="min-h-[44px] px-4 py-2 bg-white border-2 border-lavender text-navy rounded-xl text-sm font-semibold cursor-pointer list-none flex items-center gap-1">⋯ ${spt('schedule.editor.moreOptions')}</summary>
-          <div class="absolute right-0 mt-2 z-10 flex flex-col gap-2 bg-white border-2 border-lavender rounded-xl p-2 shadow-lg min-w-[220px]">
+          <div class="schedule-menu-surface schedule-popover absolute right-0 mt-2 flex flex-col gap-2 border-2 border-lavender rounded-xl p-2 shadow-lg min-w-[220px]">
             <button onclick="openCopyWeeksModal()" class="min-h-[44px] px-4 py-2 bg-sky hover:bg-blue-100 text-navy rounded-xl text-sm font-semibold text-left">📆 ${spt('schedule.editor.copyToWeeks')}</button>
             <button onclick="openCopyChildModal()" class="min-h-[44px] px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold text-left">👶 ${spt('schedule.editor.copyToChild')}</button>
           </div>
-        </details>
+        </details>`}
       </div>
     </div>${sHtml}`;
   initDragDrop();
@@ -835,8 +849,8 @@ function renderItem(item) {
     ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="text-xl flex-shrink-0 hover:scale-110 transition-transform" title="${spt('schedule.editor.editActivity')}">${item.activity_icon || '📌'}</button>`
     : `<span class="text-xl flex-shrink-0">${item.activity_icon || '📌'}</span>`;
   const nameBtn = canEditTpl
-    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="font-semibold text-sm text-navy truncate hover:text-gold transition-colors block w-full text-left" title="${spt('schedule.actions.editActivity')}">${escHtml(item.activity_name_display || item.activity_name)}</button>`
-    : `<span class="font-semibold text-sm text-navy truncate">${escHtml(item.activity_name_display || item.activity_name)}</span>`;
+    ? `<button onclick="openEditTemplateModal('${onceTplId || item.activity_template_id}')" class="schedule-activity-name font-semibold text-sm text-navy hover:text-gold transition-colors block w-full text-left" title="${spt('schedule.actions.editActivity')}">${escHtml(item.activity_name_display || item.activity_name)}</button>`
+    : `<span class="schedule-activity-name font-semibold text-sm text-navy">${escHtml(item.activity_name_display || item.activity_name)}</span>`;
   const timeStr = item.start_time ? fmtTime(item.start_time) + (item.end_time ? '–' + fmtTime(item.end_time) : '') : '';
   const timeChip = window.ScheduleDirectEdit
     ? ScheduleDirectEdit.timeChipHtml(item)
@@ -845,7 +859,7 @@ function renderItem(item) {
   const sectionChip = window.ScheduleSectionEdit ? ScheduleSectionEdit.sectionChipHtml(item) : '';
   const sectionEditor = window.ScheduleSectionEdit ? ScheduleSectionEdit.sectionEditorHtml(item) : '';
   const removeBtn = `<button type="button" data-id="${item.id}" onclick="event.stopPropagation(); removeItem('${item.id}')"
-            class="action-btn action-btn-remove p-2 rounded-lg transition-colors text-text-soft" title="${spt('schedule.actions.removeFromSchedule')}" aria-label="${spt('schedule.actions.removeFromSchedule')}">✕</button>`;
+            class="action-btn action-btn-remove schedule-row-inline-remove p-2 rounded-lg transition-colors text-text-soft" title="${spt('schedule.actions.removeFromSchedule')}" aria-label="${spt('schedule.actions.removeFromSchedule')}">✕</button>`;
   const steps = Array.isArray(item.sub_steps) ? item.sub_steps : [];
   const subCount = steps.length;
   const hasSubSteps = subCount > 0;
@@ -872,7 +886,7 @@ function renderItem(item) {
         ${oncePin}
         <div class="flex-1 min-w-0">
           ${nameBtn}
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="schedule-activity-meta flex items-center gap-2 flex-wrap">
             ${sectionChip}
             ${timeChip}
           </div>
@@ -885,7 +899,7 @@ function renderItem(item) {
         <!-- Mobile: ⋯ overflow menu — outside .icon-btns-desktop so it doesn't wrap to new line on narrow screens -->
         <div class="overflow-menu-wrap flex-shrink-0" style="margin-left:4px">
           <button class="overflow-menu-btn" onclick="toggleOverflowMenu(event,'omenu-s-${item.id}')" aria-label="${spt('schedule.editor.moreOptions')}">⋯</button>
-          <div id="omenu-s-${item.id}" class="overflow-menu-popup">
+          <div id="omenu-s-${item.id}" class="overflow-menu-popup schedule-menu-surface">
             ${canEditTpl ? `<button onclick="closeOverflowMenus();openEditTemplateModal('${onceTplId || item.activity_template_id}')">✏️ ${spt('schedule.editor.edit')}</button>` : ''}
             ${!isOnce ? `<button onclick="closeOverflowMenus();openEditItem('${item.id}')">🕐 ${spt('schedule.editor.editTime')}</button>` : ''}
             <button class="danger" onclick="closeOverflowMenus();removeItem('${item.id}')">✕ ${spt('schedule.editor.remove')}</button>
