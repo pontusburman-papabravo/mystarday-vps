@@ -287,7 +287,7 @@
       '<p class="font-semibold text-navy mb-2">' + esc(fpt('childProfile.setup.moodRewards.title')) + '</p>' +
       toggleRow('profileSetupMood', fpt('childProfile.setup.moodRewards.moodLabel'), fpt('childProfile.setup.moodRewards.moodHint'), child.show_mood_rating !== false) +
       '<div id="profileSetupRewards" class="mt-3"><p class="text-sm text-text-soft">' + esc(fpt('childProfile.setup.moodRewards.loadingRewards')) + '</p></div>' +
-      '<a href="/library" class="block mt-3 text-center text-xs text-gold font-semibold">' + esc(fpt('childProfile.setup.moodRewards.createMore')) + '</a>' +
+      '<a href="/rewards?child=' + encodeURIComponent(child.id) + '" class="block mt-3 text-center text-xs text-gold font-semibold">' + esc(fpt('childProfile.setup.moodRewards.createMore')) + '</a>' +
       '</div>' +
       transitionBlock +
       advancedSettingsHtml(child) +
