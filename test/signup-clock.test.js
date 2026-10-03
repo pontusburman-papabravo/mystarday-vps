@@ -2,6 +2,8 @@
 
 const { describe, it, afterEach } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const {
   TEST_SIGNUP_COHORT_ISO,
   signupCohortAt,
@@ -37,6 +39,19 @@ describe('signup clock', () => {
   it('still treats the Sweden trial boundary as trial when now is that instant', () => {
     assert.equal(swedenUsesProductTrial(new Date(SWEDEN_TRIAL_FROM_ISO)), true);
     assert.equal(swedenUsesProductTrial(new Date('2026-10-02T21:59:59.999Z')), false);
+  });
+
+  it('an explicit later pin still wins over the cohort instant', () => {
+    process.env.NODE_ENV = 'test';
+    process.env.TEST_SIGNUP_NOW = SWEDEN_TRIAL_FROM_ISO;
+    assert.equal(signupNow().toISOString(), new Date(SWEDEN_TRIAL_FROM_ISO).toISOString());
+    assert.equal(swedenUsesProductTrial(signupNow()), true);
+  });
+
+  it('e2e-i18n workflow pins the same cohort instant', () => {
+    const yaml = fs.readFileSync(path.join(__dirname, '../.github/workflows/e2e-i18n.yml'), 'utf8');
+    const escaped = TEST_SIGNUP_COHORT_ISO.replace(/[.]/g, '\\.');
+    assert.match(yaml, new RegExp(`TEST_SIGNUP_NOW:\\s*'${escaped}'`));
   });
 
   it('ignores TEST_SIGNUP_NOW outside the test environment', () => {

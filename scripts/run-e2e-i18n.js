@@ -19,6 +19,7 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 
 const { i18nAuthStackPresent, REQUIRED_PATHS } = require('../test/e2e/helpers/prerequisites');
+const { TEST_SIGNUP_COHORT_ISO } = require('../src/lib/signup-clock');
 
 const ROOT = path.join(__dirname, '..');
 const EXPECTED_PASS = 23;
@@ -49,6 +50,10 @@ const env = {
   EMAIL_ENABLED: 'false', // pragma: allowlist secret
   RATE_LIMIT_ENABLED: 'false',
 };
+// CI sets the same instant. Local runs without it still stay on the intro-year cohort.
+if (!env.TEST_SIGNUP_NOW) {
+  env.TEST_SIGNUP_NOW = TEST_SIGNUP_COHORT_ISO;
+}
 
 if (!env.JWT_SECRET || env.JWT_SECRET.length < 32) {
   env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';
