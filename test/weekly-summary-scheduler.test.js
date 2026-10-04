@@ -6,8 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const {
   msUntilNextSunday2100Stockholm,
+  delayUntilWeeklySummaryRun,
   buildEncouragementMessage,
+  stopWeeklySummaryScheduler,
+  runWeeklySummaryNow,
   WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS,
+  WEEKLY_SUMMARY_CATCHUP_DELAY_MS,
+  WEEKLY_SUMMARY_RETRY_DELAY_MS,
 } = require('../src/lib/weekly-summary-scheduler');
 const { buildNotificationEmailFooterHtml } = require('../src/lib/email-notification-footer');
 const { buildOptOutUrl } = require('../src/lib/notification-email-opt-out');
@@ -75,6 +80,35 @@ describe('weekly summary scheduler', () => {
     const sunday2100 = new Date('2026-06-21T19:00:00.000Z'); // 21:00 Stockholm (CEST)
     const ms = msUntilNextSunday2100Stockholm({ afterRun: false, now: sunday2100 });
     assert.equal(ms, 0);
+  });
+
+  it('delays a due Sunday slot so startup cannot tight-loop on a pool timeout', () => {
+    const sunday2130 = new Date('2026-06-21T19:30:00.000Z'); // 21:30 Stockholm (CEST)
+    const ms = delayUntilWeeklySummaryRun({ afterRun: false, now: sunday2130 });
+    assert.equal(ms, WEEKLY_SUMMARY_CATCHUP_DELAY_MS);
+    assert.ok(ms >= 60 * 1000);
+    assert.equal(WEEKLY_SUMMARY_RETRY_DELAY_MS, WEEKLY_SUMMARY_CATCHUP_DELAY_MS);
+  });
+
+  it('keeps the following Sunday when the slot was already handled', () => {
+    const sunday2130 = new Date('2026-06-21T19:30:00.000Z');
+    const ms = delayUntilWeeklySummaryRun({ afterRun: true, now: sunday2130 });
+    assert.ok(ms >= 6 * 24 * 60 * 60 * 1000);
+  });
+
+  it('retries when the pool times out instead of rejecting', async () => {
+    const db = require('../src/lib/db');
+    const original = db.getClient;
+    db.getClient = async () => {
+      const err = new Error('timeout exceeded when trying to connect');
+      throw err;
+    };
+    try {
+      await runWeeklySummaryNow();
+    } finally {
+      db.getClient = original;
+      stopWeeklySummaryScheduler();
+    }
   });
 });
 

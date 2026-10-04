@@ -32,6 +32,16 @@ const { recordInactiveParentsForWeek } = require('../../db/weekly-summary-inacti
 /** Minimum recent activity window — no Sunday mail if inactive longer than this. */
 const WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS = 28;
 
+/**
+ * Sunday catch-up (server start at or after 21:00) must not run in the same
+ * instant as every other startup scheduler. Pool max is 5; a 0ms catch-up
+ * loses the race, and an unhandled connection timeout exits the process.
+ */
+const WEEKLY_SUMMARY_CATCHUP_DELAY_MS = 60 * 1000;
+
+/** Retry when the pool cannot hand out a connection. Never exit the process. */
+const WEEKLY_SUMMARY_RETRY_DELAY_MS = 60 * 1000;
+
 function msUntilNextSunday2100Stockholm({ afterRun = false, now = new Date() } = {}) {
   const parts = getStockholmDateParts(now);
 
@@ -55,6 +65,17 @@ function msUntilNextSunday2100Stockholm({ afterRun = false, now = new Date() } =
   }
 
   return Math.max(0, ms);
+}
+
+/**
+ * Delay until the next weekly-summary attempt.
+ * A due slot (ms === 0) waits CATCHUP_DELAY_MS so startup work can release
+ * pool connections before this job takes one.
+ */
+function delayUntilWeeklySummaryRun({ afterRun = false, now = new Date() } = {}) {
+  const ms = msUntilNextSunday2100Stockholm({ afterRun, now });
+  if (ms === 0) return WEEKLY_SUMMARY_CATCHUP_DELAY_MS;
+  return ms;
 }
 
 function getStockholmWeekKey(date = new Date()) {
@@ -271,10 +292,19 @@ async function claimWeeklySummarySend(parentId, weekEndDate) {
  * Send weekly summary emails to all opted-in parents.
  */
 async function runWeeklySummaryJob() {
-  const client = await db.getClient();
+  let client;
+  try {
+    client = await db.getClient();
+  } catch (err) {
+    console.error('[WEEKLY-SUMMARY] Could not get a database connection:', err.message);
+    scheduleRetry();
+    return;
+  }
+
   let lockAcquired = false;
   let sentCount = 0;
   let errorCount = 0;
+  let retry = false;
 
   try {
     try {
@@ -392,24 +422,47 @@ async function runWeeklySummaryJob() {
     console.log(`[WEEKLY-SUMMARY] Done. Sent=${sentCount} Errors=${errorCount}`);
   } catch (err) {
     console.error('[WEEKLY-SUMMARY] Job failed:', err.message);
+    retry = true;
   } finally {
     if (lockAcquired) {
       await client.query('SELECT pg_advisory_unlock($1)', [WEEKLY_SUMMARY_SCHEDULER_LOCK_ID]).catch(() => {});
     }
     client.release();
-    scheduleNextRun(true);
+    if (retry) scheduleRetry();
+    else scheduleNextRun(true);
   }
 }
 
 let _timer = null;
 let _lastRunWeekKey = null;
 
-function scheduleNextRun(afterRun = false) {
-  const ms = msUntilNextSunday2100Stockholm({ afterRun });
+function clearWeeklySummaryTimer() {
+  if (_timer) {
+    clearTimeout(_timer);
+    _timer = null;
+  }
+}
+
+function scheduleWeeklySummaryAttempt(ms, label) {
+  clearWeeklySummaryTimer();
   const minutes = Math.round(ms / 60000);
-  console.log(`[WEEKLY-SUMMARY] Next run in ${minutes} minutes (next Sunday 21:00 Stockholm)`);
-  _timer = setTimeout(() => runWeeklySummaryJob(), ms);
+  console.log(`[WEEKLY-SUMMARY] ${label} in ${minutes} minutes`);
+  _timer = setTimeout(() => {
+    runWeeklySummaryJob().catch((err) => {
+      console.error('[WEEKLY-SUMMARY] Job error:', err.message);
+      scheduleRetry();
+    });
+  }, ms);
   if (_timer.unref) _timer.unref();
+}
+
+function scheduleNextRun(afterRun = false) {
+  const ms = delayUntilWeeklySummaryRun({ afterRun });
+  scheduleWeeklySummaryAttempt(ms, 'Next run');
+}
+
+function scheduleRetry() {
+  scheduleWeeklySummaryAttempt(WEEKLY_SUMMARY_RETRY_DELAY_MS, 'Retrying');
 }
 
 /**
@@ -424,10 +477,7 @@ function startWeeklySummaryScheduler() {
  * Stop the scheduler (for tests / graceful shutdown).
  */
 function stopWeeklySummaryScheduler() {
-  if (_timer) {
-    clearTimeout(_timer);
-    _timer = null;
-  }
+  clearWeeklySummaryTimer();
 }
 
 /**
@@ -442,7 +492,10 @@ module.exports = {
   stopWeeklySummaryScheduler,
   runWeeklySummaryNow,
   msUntilNextSunday2100Stockholm,
+  delayUntilWeeklySummaryRun,
   getStockholmWeekKey,
   buildEncouragementMessage,
   WEEKLY_SUMMARY_ACTIVE_WINDOW_DAYS,
+  WEEKLY_SUMMARY_CATCHUP_DELAY_MS,
+  WEEKLY_SUMMARY_RETRY_DELAY_MS,
 };
