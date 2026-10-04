@@ -130,6 +130,16 @@ describe('resurser R3 — page registry', () => {
     assert.match(en, /picture-cards-emotions\.pdf/);
   });
 
+  it('Swedish long-tail pages include public language switcher', () => {
+    const sv = fs.readFileSync(
+      path.join(ROOT, 'public/resurser/kanslokort-barn-gratis.html'),
+      'utf8'
+    );
+    assert.match(sv, /public-lang-switcher\.js/);
+    assert.match(sv, /hreflang="en"/);
+    assert.match(sv, /emotion-cards-children-free/);
+  });
+
   it('emotion-cards long-tail pages keep article links in the same locale', () => {
     const enPath = path.join(ROOT, 'public/en/resources/emotion-cards-children-free.html');
     const svPath = path.join(ROOT, 'public/resurser/kanslokort-barn-gratis.html');

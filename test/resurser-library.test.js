@@ -184,6 +184,7 @@ describe('resurser core HTML IA', () => {
     assert.match(sv, /hreflang="sv"/);
     assert.match(sv, /hreflang="en"/);
     assert.match(sv, /rel="canonical" href="(?:__SITE_URL__|https:\/\/[^"]+)\/resurser\/morgon"/);
+    assert.match(sv, /public-lang-switcher\.js/);
   });
 });
 

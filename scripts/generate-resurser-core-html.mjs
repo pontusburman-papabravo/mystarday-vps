@@ -61,9 +61,7 @@ function head({ locale, t, title, description, pathSv, pathEn, extraCss }) {
   const lang = t.meta.htmlLang;
   const canonicalPath = locale === 'en-GB' ? pathEn : pathSv;
   const brand = t.meta.brand;
-  const langSwitcher = locale === 'en-GB'
-    ? '\n  <script src="/js/public-lang-switcher.js?v=2"></script>'
-    : '';
+  const langSwitcher = '\n  <script src="/js/public-lang-switcher.js?v=2"></script>';
   const css = extraCss || '';
   return `<!DOCTYPE html>
 <html lang="${lang}">

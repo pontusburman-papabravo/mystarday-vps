@@ -18,6 +18,7 @@ const {
   R3_DOWNLOAD_META,
   R3_RELATED_LABELS,
 } = require('../config/resurser-r3');
+const { svToEn } = require('../config/en-public-mirror');
 
 const HEAD_COMMON = `  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +27,8 @@ const HEAD_COMMON = `  <link rel="preconnect" href="https://fonts.googleapis.com
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="stylesheet" href="/css/resurser-print.css?v=1">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <script src="/js/cookie-banner.js?v=2.13.2"></script>`;
+  <script src="/js/cookie-banner.js?v=2.13.2"></script>
+  <script src="/js/public-lang-switcher.js?v=2"></script>`;
 
 const TAIL = `  <script src="/js/article-events.js?v=1"></script>
   <script src="/js/sw-register.js?v=2.13.0"></script>
@@ -77,12 +79,25 @@ function renderDownloadBlock(downloadSlug) {
     </ul>`;
 }
 
+function injectHreflangSv(pagePath, html) {
+  const enPath = svToEn(pagePath);
+  if (!enPath || html.includes('hreflang=')) return html;
+  const site = '__SITE_URL__';
+  const block = `  <link rel="alternate" hreflang="sv" href="${site}${pagePath}">
+  <link rel="alternate" hreflang="en" href="${site}${enPath}">
+  <link rel="alternate" hreflang="x-default" href="${site}${pagePath}">`;
+  const canonicalIdx = html.indexOf('<link rel="canonical"');
+  if (canonicalIdx === -1) return html;
+  const lineEnd = html.indexOf('\n', canonicalIdx);
+  return html.slice(0, lineEnd + 1) + block + '\n' + html.slice(lineEnd + 1);
+}
+
 function writeLongtailPage(page) {
   const bodySections = renderSections(page.sections);
   const downloadBlock = renderDownloadBlock(page.downloadSlug);
   const relatedBlock = renderRelatedLinks(page.relatedSlugs);
 
-  const html = `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
@@ -117,6 +132,7 @@ ${relatedBlock}
   </article>
 ${TAIL}`;
 
+  html = injectHreflangSv(page.path, html);
   fs.writeFileSync(path.join(ROOT, 'public', page.file), html);
   console.log(`✓ ${page.file}`);
 }
