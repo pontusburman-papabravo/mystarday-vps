@@ -171,6 +171,8 @@ function sanitizeSiteUrls(html) {
     .replace(/\[REDACTED\](\/[^"'\s<]*)/g, '__SITE_URL__$1')
     .replace(/content="\[REDACTED\]/g, 'content="__SITE_URL__');
 }
+
+function injectHreflang(html, enPath, svPath) {
   if (html.includes('hreflang=')) return html;
   const site = '__SITE_URL__';
   const block = `  <link rel="alternate" hreflang="sv" href="${site}${svPath === '/' ? '/' : svPath}">
