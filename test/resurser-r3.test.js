@@ -94,6 +94,19 @@ describe('resurser R3 — page registry', () => {
       assert.ok(fs.existsSync(full), page.file);
     }
   });
+
+  it('English emotion-cards long-tail page is fully translated', () => {
+    const en = fs.readFileSync(
+      path.join(ROOT, 'public/en/resources/emotion-cards-children-free.html'),
+      'utf8'
+    );
+    assert.match(en, /lang="en"/);
+    assert.match(en, /Feeling cards for children — free/);
+    assert.match(en, /property="og:url" content="__SITE_URL__\/en\/resources\/emotion-cards-children-free"/);
+    assert.doesNotMatch(en, /Känslokort/);
+    assert.doesNotMatch(en, /[åäöÅÄÖ]/);
+    assert.match(en, /picture-cards-emotions\.pdf/);
+  });
 });
 
 describe('resurser R3 — PDF assets', () => {
