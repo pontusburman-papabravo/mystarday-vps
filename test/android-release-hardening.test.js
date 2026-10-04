@@ -10,11 +10,34 @@ const ROOT = path.join(__dirname, '..');
 describe('R4.5 Android release hardening', () => {
   it('MainActivity patch enables WebView debugging only in DEBUG builds', () => {
     const patch = fs.readFileSync(path.join(ROOT, 'scripts/patch-android-main-activity.mjs'), 'utf8');
+    assert.match(patch, /EdgeToEdge\.enable\(this\)/);
     assert.match(patch, /ApplicationInfo\.FLAG_DEBUGGABLE/);
     assert.match(
       patch,
       /getApplicationInfo\(\)\.flags & ApplicationInfo\.FLAG_DEBUGGABLE[\s\S]*setWebContentsDebuggingEnabled\(true\)/
     );
+  });
+
+  it('release optimization patch enables R8 minify and ProGuard template', () => {
+    const patch = fs.readFileSync(
+      path.join(ROOT, 'scripts/patch-android-release-optimization.mjs'),
+      'utf8'
+    );
+    assert.match(patch, /minifyEnabled\s+true/);
+    assert.match(patch, /shrinkResources\s+true/);
+    assert.match(patch, /proguard-android-optimize\.txt/);
+    const rules = fs.readFileSync(
+      path.join(ROOT, 'scripts/android/proguard-capacitor-release.pro'),
+      'utf8'
+    );
+    assert.match(rules, /com\.getcapacitor/);
+    assert.match(rules, /com\.revenuecat/);
+  });
+
+  it('cap:sync:android runs release optimization and edge-to-edge patches', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    assert.match(pkg.scripts['cap:sync:android'], /patch-android-release-optimization\.mjs/);
+    assert.match(pkg.scripts['cap:sync:android'], /patch-android-edge-to-edge\.mjs/);
   });
 
   it('MainActivity patch must not reference BuildConfig (compile blocker in release AAB)', () => {
@@ -46,6 +69,6 @@ describe('R4.5 Android release hardening', () => {
   it('canonical Android versionCode is monotonic for R4.5 release', () => {
     const v = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/play-store/android-version.json'), 'utf8'));
     assert.ok(v.versionCode >= 15, 'versionCode must be > prior Play upload 14');
-    assert.equal(v.versionName, '1.4.6');
+    assert.equal(v.versionName, '1.4.7');
   });
 });

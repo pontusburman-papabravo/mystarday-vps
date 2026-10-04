@@ -59,6 +59,8 @@ const config: CapacitorConfig = {
     ],
   },
   android: {
+    // Web UI handles safe-area via CSS; native only enables edge-to-edge drawing (MainActivity).
+    adjustMarginsForEdgeToEdge: 'disable',
     // Apple Sign In is iOS-only. Excluding it keeps the Android APK lean and avoids
     // shipping an unused auth plugin in Play review builds.
     //
