@@ -49,6 +49,28 @@ function extractInternalHrefs(html) {
   return hrefs;
 }
 
+/** Hrefs inside <article> — user-facing nav, not hreflang/canonical. */
+function extractArticleHrefs(html) {
+  const start = html.indexOf('<article');
+  const end = html.indexOf('</article>');
+  if (start === -1 || end === -1) return extractInternalHrefs(html);
+  return extractInternalHrefs(html.slice(start, end + '</article>'.length));
+}
+
+/** Paths shared across locales (auth, legal shells, static assets). */
+const LOCALE_NEUTRAL_PATH_PREFIXES = [
+  '/register',
+  '/login',
+  '/forgot-password',
+  '/child-login',
+  '/privacy',
+  '/terms',
+  '/css/',
+  '/js/',
+  '/images/',
+  '/favicon',
+];
+
 describe('resurser R3 — page registry', () => {
   it('ships one hundred long-tail pages', () => {
     assert.equal(R3_LONGTAIL_PAGES.length, 100);
@@ -92,6 +114,74 @@ describe('resurser R3 — page registry', () => {
     for (const page of R3_LONGTAIL_PAGES) {
       const full = path.join(ROOT, 'public', page.file);
       assert.ok(fs.existsSync(full), page.file);
+    }
+  });
+
+  it('English emotion-cards long-tail page is fully translated', () => {
+    const en = fs.readFileSync(
+      path.join(ROOT, 'public/en/resources/emotion-cards-children-free.html'),
+      'utf8'
+    );
+    assert.match(en, /lang="en"/);
+    assert.match(en, /Feeling cards for children — free/);
+    assert.match(en, /property="og:url" content="__SITE_URL__\/en\/resources\/emotion-cards-children-free"/);
+    assert.doesNotMatch(en, /Känslokort/);
+    assert.doesNotMatch(en, /[åäöÅÄÖ]/);
+    assert.match(en, /picture-cards-emotions\.pdf/);
+  });
+
+  it('emotion-cards long-tail pages keep article links in the same locale', () => {
+    const enPath = path.join(ROOT, 'public/en/resources/emotion-cards-children-free.html');
+    const svPath = path.join(ROOT, 'public/resurser/kanslokort-barn-gratis.html');
+    const en = fs.readFileSync(enPath, 'utf8');
+    const sv = fs.readFileSync(svPath, 'utf8');
+
+    const enHrefs = extractArticleHrefs(en);
+    const svHrefs = extractArticleHrefs(sv);
+
+    const enCross = enHrefs.filter((href) => {
+      if (LOCALE_NEUTRAL_PATH_PREFIXES.some((p) => href === p || href.startsWith(p))) return false;
+      if (href.startsWith('/en/')) return false;
+      return true;
+    });
+    assert.deepEqual(
+      enCross,
+      [],
+      `EN page links to Swedish paths: ${enCross.join(', ')}`
+    );
+
+    const svCross = svHrefs.filter((href) => href.startsWith('/en/'));
+    assert.deepEqual(
+      svCross,
+      [],
+      `SV page links to English paths: ${svCross.join(', ')}`
+    );
+
+    const expectedEnTargets = new Set([
+      '/en/resources',
+      '/en/resources/evening',
+      '/en/resources/pdf/emotions',
+      '/en/resources/pdf/picture-cards-emotions.pdf',
+      '/en/resources/emotions',
+      '/en/resources/picture-cards/emotions',
+      '/en/routines-neurodiverse-children',
+      '/register',
+    ]);
+    for (const href of enHrefs) {
+      assert.ok(expectedEnTargets.has(href), `unexpected EN article href: ${href}`);
+    }
+
+    const expectedSvTargets = new Set([
+      '/resurser',
+      '/resurser/pdf/kanslor',
+      '/resurser/pdf/bildkort-kanslor.pdf',
+      '/resurser/kanslor',
+      '/resurser/bildkort/kanslor',
+      '/rutiner-npf-barn',
+      '/register',
+    ]);
+    for (const href of svHrefs) {
+      assert.ok(expectedSvTargets.has(href), `unexpected SV article href: ${href}`);
     }
   });
 });

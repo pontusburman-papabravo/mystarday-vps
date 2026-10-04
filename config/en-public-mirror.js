@@ -87,6 +87,7 @@ const HAND_TRANSLATED_EN_FILES = new Set([
   'en-terms.html',
   'en.html',
   'en/thank-you.html',
+  'en/resources/emotion-cards-children-free.html',
 ]);
 
 const MIRROR_ENTRIES = buildMirrorEntries();
