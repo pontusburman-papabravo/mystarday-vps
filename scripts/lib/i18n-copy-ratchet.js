@@ -100,8 +100,6 @@ const EXCLUDED_FILES = new Set([
   'public/rutiner-npf-barn.html',
   'public/resurser.html',
   'public/veckoschema-bildstod.html',
-  'public/kampanj-host-2026.html',
-  'public/kampanj-host-2026-utlottning.html',
   'public/samarbete.html',
   'public/tyck.html',
   'public/sv-tack.html',

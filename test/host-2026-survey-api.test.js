@@ -144,11 +144,9 @@ test('host-2026 survey is public, separates lottery email, and caps max-3', asyn
     );
     assert.equal(linked.rows[0].respondent_email, null);
 
-    const legalPage = await fetch(`${http.baseUrl}/kampanj/host-2026/utlottning`);
-    assert.equal(legalPage.status, 200);
-    const legalHtml = await legalPage.text();
-    assert.match(legalHtml, /Papa Bravo AB/);
-    assert.match(legalHtml, /Zalando är inte sponsor/);
+    const legalPage = await fetch(`${http.baseUrl}/kampanj/host-2026/utlottning`, { redirect: 'manual' });
+    assert.equal(legalPage.status, 301);
+    assert.equal(legalPage.headers.get('location'), '/privacy');
   } finally {
     await http.close();
     await db.cleanup();
