@@ -19,6 +19,20 @@
     return p;
   }
 
+  function origins() {
+    return window.__PUBLIC_SEO_ORIGINS || null;
+  }
+
+  function absoluteHref(path) {
+    const target = path || '/';
+    const o = origins();
+    if (!o || !o.sv || !o.en) return target;
+    const english = target === '/en' || target.startsWith('/en/');
+    const origin = english ? o.en : o.sv;
+    if (target === '/') return origin + '/';
+    return origin + target;
+  }
+
   function alternatePath() {
     const p = currentPath();
     const map = routes();
@@ -48,11 +62,11 @@
     wrap.style.cssText = 'display:flex;gap:0.5rem;align-items:center;font-size:0.8125rem;font-weight:600;';
     const map = routes();
     const sv = document.createElement('a');
-    sv.href = isEnglish() ? (map[currentPath()] || '/') : currentPath();
+    sv.href = absoluteHref(isEnglish() ? (map[currentPath()] || '/') : currentPath());
     sv.textContent = 'Svenska';
     sv.style.cssText = isEnglish() ? 'color:#8A92AA;text-decoration:none;' : 'color:#1C2340;text-decoration:none;';
     const en = document.createElement('a');
-    en.href = isEnglish() ? currentPath() : (map[currentPath()] || '/en');
+    en.href = absoluteHref(isEnglish() ? currentPath() : (map[currentPath()] || '/en'));
     en.textContent = 'English';
     en.style.cssText = isEnglish() ? 'color:#1C2340;text-decoration:none;' : 'color:#8A92AA;text-decoration:none;';
     wrap.appendChild(sv);

@@ -43,7 +43,8 @@ describe('Ireland /en conversion funnel', () => {
 
   it('uses complimentary Ireland copy and never a converting trial', () => {
     const visible = visibleLandingCopy(EN_HTML);
-    assert.match(visible, /Free in Ireland until 31 December 2026\. No card required\./);
+    assert.match(visible, /Free until 31 December 2026\. No payment required during the free period\./);
+    assert.doesNotMatch(visible, /No card required/);
     assert.match(visible, /does not turn into a subscription by itself|does not automatically convert into a paid subscription/);
     assert.doesNotMatch(visible, /14 days free/i);
     assert.doesNotMatch(visible, /14-day trial/i);
@@ -86,9 +87,9 @@ describe('Ireland /en conversion funnel', () => {
   });
 
   it('metadata says Ireland is free until 31 December 2026', () => {
-    assert.match(EN_HTML, /<title>My Starday — Visual routines for families \| Free in Ireland until 31 December 2026<\/title>/);
-    assert.match(EN_HTML, /name="description" content="Not just another family calendar\./);
-    assert.match(EN_HTML, /og:description" content="Visual routines that help children see what is happening now/);
+    assert.match(EN_HTML, /<title>Visual schedule app for kids – routines, rewards and picture support \| My Starday<\/title>/);
+    assert.match(EN_HTML, /name="description" content="A visual schedule app for kids\./);
+    assert.match(EN_HTML, /og:description" content="Visual schedules and picture support that help children follow routines/);
     assert.match(EN_HTML, /https:\/\/mys(?:tar)day\.app\/en/);
     assert.doesNotMatch(EN_HTML, /Sweden only/i);
     assert.doesNotMatch(EN_HTML, /coming soon/i);
@@ -228,8 +229,10 @@ describe('related English public pages stay aligned', () => {
     assert.doesNotMatch(pricing, /Create account/);
     assert.doesNotMatch(faq, /href="\/en\/register"/);
     assert.doesNotMatch(pricing, /href="\/en\/register"/);
-    assert.match(faq, /Free in Ireland until 31 December 2026/);
-    assert.match(pricing, /Free in Ireland until 31 December 2026/);
+    assert.match(faq, /Free until 31 December 2026/);
+    assert.match(pricing, /Free until 31 December 2026/);
+    assert.match(faq, /Ireland and Canada/);
+    assert.match(pricing, /Ireland and Canada/);
     assert.doesNotMatch(faq, /14 days free/i);
     assert.doesNotMatch(pricing, /14 days free/i);
     assert.match(faq, /https:\/\/apps\.apple\.com\/app\/id6774493098/);

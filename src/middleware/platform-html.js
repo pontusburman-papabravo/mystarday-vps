@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/seo-pages');
+const { applyPublicSeoHead } = require('../lib/public-seo');
 
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
@@ -500,6 +501,8 @@ function isSupportBearerHtmlPath(reqPath) {
 function injectPlatformHtml(body, reqPath, req) {
   if (typeof body !== 'string') return body;
   const injectDebug = shouldInjectNativeDebug(req);
+  const seoPath = normalizeSeoPath(reqPath);
+  body = applyPublicSeoHead(body, seoPath, { indexable: isSeoIndexable(seoPath) });
   body = injectNoindexMeta(body, reqPath);
   // Bearer token lives in the URL — do not inject analytics, Meta, or platform chrome.
   if (isSupportBearerHtmlPath(reqPath)) {

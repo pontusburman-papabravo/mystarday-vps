@@ -68,7 +68,7 @@ test('SEO indexable paths include English resource mirrors', () => {
   assert.ok(SEO_INDEXABLE_PATHS.has('/en/resources'));
   assert.ok(SEO_INDEXABLE_PATHS.has('/en/resources/morning'));
   assert.ok(SEO_INDEXABLE_PATHS.has('/en/morning-routine-children'));
-  assert.ok(SEO_INDEXABLE_PATHS.has('/en/educators-and-therapists'));
+  assert.equal(SEO_INDEXABLE_PATHS.has('/en/educators-and-therapists'), false);
 });
 
 test('translatePublicPath handles PDF paths', () => {
