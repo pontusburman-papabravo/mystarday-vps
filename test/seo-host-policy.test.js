@@ -19,6 +19,7 @@ const {
   englishOrigin,
   swedishOrigin,
 } = require('../src/lib/public-seo');
+const { injectSiteUrl } = require('../src/lib/public-html-placeholders');
 
 function runRedirect(host, url = '/', method = 'GET') {
   const middleware = createDomainRedirect();
@@ -196,6 +197,19 @@ describe('sitemap and robots hosts', () => {
     const html = read('public/pedagoger-och-terapeuter.html');
     assert.match(html, /href="__EN_SITE_URL__\/en"/);
     assert.doesNotMatch(html, /href="\/en"/);
+    const served = injectSiteUrl(html);
+    const englishHome = `${englishOrigin()}/en`;
+    const href = `href="${englishHome}"`;
+    assert.equal(served.split(href).length - 1, 2);
+    assert.doesNotMatch(served, /__EN_SITE_URL__/);
+    const route = read('src/routes/public-pages.js');
+    const start = route.indexOf("router.get('/pedagoger-och-terapeuter'");
+    assert.ok(start > -1);
+    const block = route.slice(start, route.indexOf('router.get', start + 10));
+    assert.match(block, /sendPublicHtml\('pedagoger-och-terapeuter\.html'\)/);
+    assert.doesNotMatch(block, /sendFile\(/);
+    const helper = route.slice(route.indexOf('function sendPublicHtml'));
+    assert.match(helper, /injectSiteUrl/);
   });
 });
 
