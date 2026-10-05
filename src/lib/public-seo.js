@@ -54,7 +54,6 @@ const ENGLISH_CONTENT_INDEXABLE = new Set([
   '/en/resources/pdf/hygiene',
   '/en/resources/pdf/school',
   '/en/resources/pdf/teacch-inspired',
-  '/en/news/archive',
 ]);
 
 const HREFLANG_LINK_RE = /<link\b[^>]*\brel=["']alternate["'][^>]*\bhreflang=["'][^"']+["'][^>]*>\s*/gi;
@@ -120,13 +119,20 @@ function absolutePublicUrl(pathname) {
   return `${swedishOrigin()}${p}`;
 }
 
+function isIndexableSwedishPath(pathname) {
+  // Lazy require: seo-pages loads this module while it is still initialising.
+  const { isSeoIndexable } = require('./seo-pages');
+  return isSeoIndexable(pathname);
+}
+
 function hreflangAlternates(pathname) {
   const p = normalizePublicPath(pathname);
   const english = isEnglishPublicPath(p);
   const en = english ? p : svToEn(p);
   const sv = english ? enToSv(p) : p;
   if (!en || !isEnglishContentIndexable(en)) return [];
-  if (!sv || isEnglishPublicPath(sv)) {
+  // No hreflang to a Swedish URL that is noindex, redirected, or missing.
+  if (!sv || isEnglishPublicPath(sv) || !isIndexableSwedishPath(sv)) {
     const self = absolutePublicUrl(en);
     return [
       ['en-IE', self],
