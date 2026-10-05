@@ -58,7 +58,7 @@
     const irelandWelcome = document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
     const heroBody = document.querySelector('.hero-launch-card__body');
     if (heroBody && !irelandWelcome) {
-      heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android. Free in Ireland until 31 December 2026. No card required. It does not automatically become a subscription.';
+      heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android. Free until 31 December 2026. No payment required during the free period. It does not automatically become a subscription.';
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
       if (!/Swedish only|English is coming soon|English coming soon/i.test(el.textContent || '')) return;

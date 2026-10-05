@@ -30,6 +30,20 @@ function englishMarketingPathname(pathname) {
   return raw || '/';
 }
 
+function splitSafeUrl(safePath) {
+  const u = new URL(safePath || '/', 'https://local.invalid');
+  return {
+    pathname: u.pathname || '/',
+    search: u.search || '',
+    hash: u.hash || '',
+  };
+}
+
+function swedishIndexablePaths() {
+  const { SEO_INDEXABLE_PATHS } = require('./seo-pages');
+  return SEO_INDEXABLE_PATHS;
+}
+
 function isEnglishPublicMarketingPath(pathname) {
   const path = englishMarketingPathname(pathname);
   if (path === '/en') return true;
@@ -39,19 +53,35 @@ function isEnglishPublicMarketingPath(pathname) {
   return true;
 }
 
+/** Swedish documents that should rank on .se. Never includes /en (that would loop). */
+function isSwedishCanonicalPath(pathname) {
+  const path = englishMarketingPathname(pathname);
+  if (!path || path === '/' || path === '/en' || path.startsWith('/en/')) return false;
+  return swedishIndexablePaths().has(path);
+}
+
 function createDomainRedirect() {
   return function domainRedirect(req, res, next) {
     const host = (req.headers.host || '').split(':')[0].toLowerCase();
     const safePath = sanitizeReturnUrl(req.originalUrl || '/');
     const method = String(req.method || 'GET').toUpperCase();
-    const pathname = englishMarketingPathname(safePath);
+    const parts = splitSafeUrl(safePath);
+    const pathname = englishMarketingPathname(parts.pathname);
+    const trailingSlash = parts.pathname.length > 1 && parts.pathname.endsWith('/');
     const onSwedishHost = host === MAIN_DOMAIN || host === `www.${MAIN_DOMAIN}`;
-    if (
-      onSwedishHost
-      && (method === 'GET' || method === 'HEAD')
-      && isEnglishPublicMarketingPath(pathname)
-    ) {
-      return res.redirect(301, `https://${APP_DOMAIN}${safePath}`);
+    const onAppHost = host === APP_DOMAIN || host === `www.${APP_DOMAIN}`;
+    const safeRead = method === 'GET' || method === 'HEAD';
+    if (onSwedishHost && safeRead && isEnglishPublicMarketingPath(pathname)) {
+      return res.redirect(301, `https://${APP_DOMAIN}${pathname}${parts.search}${parts.hash}`);
+    }
+    if (onAppHost && safeRead && (pathname === '/' || pathname === '')) {
+      return res.redirect(301, `https://${APP_DOMAIN}/en${parts.search}${parts.hash}`);
+    }
+    if (onAppHost && safeRead && isSwedishCanonicalPath(pathname)) {
+      return res.redirect(301, `https://${MAIN_DOMAIN}${pathname}${parts.search}${parts.hash}`);
+    }
+    if (onAppHost && safeRead && isEnglishPublicMarketingPath(pathname) && trailingSlash) {
+      return res.redirect(301, `https://${APP_DOMAIN}${pathname}${parts.search}${parts.hash}`);
     }
     if (host === `www.${MAIN_DOMAIN}`) {
       return res.redirect(301, `https://${MAIN_DOMAIN}${safePath}`);
@@ -77,4 +107,5 @@ module.exports = {
   EU_REDIRECT_DOMAINS,
   ENGLISH_AUTH_PATHS,
   isEnglishPublicMarketingPath,
+  isSwedishCanonicalPath,
 };

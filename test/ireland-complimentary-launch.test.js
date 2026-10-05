@@ -158,7 +158,8 @@ describe('English Ireland store and canonical surfaces', () => {
     const faq = read('public/en-faq.html');
     const pricing = read('public/en-pricing.html');
     const jsonLd = faq.slice(faq.indexOf('application/ld+json'), faq.indexOf('</script>'));
-    assert.match(jsonLd, /Free in Ireland until 31 December 2026/);
+    assert.match(jsonLd, /free until 31 December 2026/i);
+    assert.match(jsonLd, /Ireland and Canada/);
     assert.doesNotMatch(jsonLd, /14 days free/i);
     assert.doesNotMatch(jsonLd, /14-day trial/i);
     assert.doesNotMatch(pricing, /14 days free/i);
@@ -168,8 +169,8 @@ describe('English Ireland store and canonical surfaces', () => {
 
   it('keeps the English canonical host on the English public origin', () => {
     assert.equal(ENGLISH_PUBLIC_SITE_URL, ['https://', 'mys', 'tar', 'day', '.app'].join(''));
-    const sitemap = read('src/lib/sitemap.js');
-    assert.match(sitemap, /ENGLISH_PUBLIC_SITE_URL/);
+    const seo = read('src/lib/public-seo.js');
+    assert.match(seo, /ENGLISH_PUBLIC_SITE_URL/);
   });
 
   it('keeps promotional text and Play short description inside store limits', () => {

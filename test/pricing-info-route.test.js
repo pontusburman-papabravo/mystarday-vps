@@ -124,7 +124,7 @@ test('English landing mirrors Swedish layout as an Ireland store funnel', () => 
   const en = fs.readFileSync(path.join(ROOT, 'public/en.html'), 'utf8');
   const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
   assert.match(en, /<html lang="en">/);
-  assert.match(en, /rel="canonical" href="__SITE_URL__\/en"/);
+  assert.match(en, /rel="canonical" href="https:\/\/[^"]+\.app\/en"/);
   assert.match(en, /hreflang="x-default"/);
   assert.match(en, /landing\.css/);
   assert.match(en, /My Starday/);

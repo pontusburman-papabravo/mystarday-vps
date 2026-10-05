@@ -60,15 +60,17 @@ test('www.mystarday.eu redirects 301 to mystarday.app', () => { // pragma: allow
 });
 
 test('www.mystarday.app redirects 301 to mystarday.app apex', () => { // pragma: allowlist secret
-  const { status, location, nextCalled } = runRedirect('www.mystarday.app', '/register?ref=1'); // pragma: allowlist secret
+  const { status, location, nextCalled } = runRedirect('www.mystarday.app', '/login?ref=1'); // pragma: allowlist secret
   assert.equal(nextCalled, false);
   assert.equal(status, 301);
-  assert.equal(location, `https://${APP_DOMAIN}/register?ref=1`);
+  assert.equal(location, `https://${APP_DOMAIN}/login?ref=1`);
 });
 
 test('bare mystarday.app apex is not redirected', () => { // pragma: allowlist secret
-  const { nextCalled } = runRedirect(APP_DOMAIN, '/');
-  assert.equal(nextCalled, true);
+  const { status, location, nextCalled } = runRedirect(APP_DOMAIN, '/');
+  assert.equal(nextCalled, false);
+  assert.equal(status, 301);
+  assert.equal(location, `https://${APP_DOMAIN}/en`);
 });
 
 test('mystarday.eu is not in legacy .se redirect set', () => { // pragma: allowlist secret

@@ -164,8 +164,8 @@ const PAGE_COPY = {
     'My Starday byggs i moduler. Basic ger familjen vardagsrutiner och motivation. ' +
     'Tilläggen Rapportering, Extra stöd och Pedagog kan väljas var för sig — eller som paketet Total (allt utom pedagog).',
   founder_note:
-    'Under grundarprogrammet får nya familjer Basic kostnadsfritt med livstids tillgång som grundarmedlem. ' +
-    'Ingen betalning krävs i den nuvarande versionen.',
+    'Nya svenska familjer provar Basic i 14 dagar. Därefter väljer ni abonnemang i appen, 59 kr per månad eller 590 kr per år. ' +
+    'Familjer som redan har konto behåller sitt erbjudande.',
   addon_note:
     'Tilläggspaketen är under utveckling. Anmäl intresse med din e-post så meddelar vi när de släpps.',
   includes_heading: 'Det här ingår',

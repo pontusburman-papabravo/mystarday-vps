@@ -73,7 +73,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /https:\/\/apple\.co\/4v2ESuH/);
     assert.match(html, /data-hero-launch="ireland"/);
     assert.match(html, /Welcome Ireland/);
-    assert.match(html, /Free in Ireland until 31 December 2026\. No card required\./);
+    assert.match(html, /Free until 31 December 2026\. No payment required during the free period\./);
+    assert.doesNotMatch(html, /No card required/);
     assert.match(html, /Is My Starday free\?/);
     assert.match(html, /does not automatically convert into a paid subscription/);
     assert.doesNotMatch(html, /14 days free/i);
@@ -81,7 +82,7 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /We are finally live/);
     assert.doesNotMatch(html, /glad-sommar-2026/);
     assert.doesNotMatch(html, /id="summer-greeting"/);
-    assert.doesNotMatch(html, /No payment required/);
+    assert.match(html, /No payment required during the free period/);
     assert.doesNotMatch(html, /Basic is included/);
     assert.doesNotMatch(html, /at no cost/);
     assert.match(html, /\/img\/en-landing\/01-parent-home\.webp/);
@@ -97,7 +98,8 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
   it('English FAQ page does not claim a free Basic tier', () => {
     const html = fs.readFileSync(path.join(__dirname, '../public/en-faq.html'), 'utf8');
     assert.match(html, /Is My Starday free\?/);
-    assert.match(html, /Free in Ireland until 31 December 2026/);
+    assert.match(html, /Free until 31 December 2026/);
+    assert.match(html, /Ireland and Canada/);
     assert.match(html, /does not automatically convert into a paid subscription/);
     assert.doesNotMatch(html, /14 days free/i);
     assert.doesNotMatch(html, /14-day trial/i);

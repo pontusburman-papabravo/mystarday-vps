@@ -7,8 +7,9 @@ const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
 const { R2_INDEXABLE_PATHS } = require('../../config/resurser-r2');
 const { R3_INDEXABLE_PATHS } = require('../../config/resurser-r3');
 const { allEnglishIndexablePaths } = require('../../config/en-public-mirror');
+const { isEnglishContentIndexable, sitemapAudienceForHost, englishOrigin, swedishOrigin } = require('./public-seo');
 
-const SITE_URL = (process.env.PUBLIC_SITE_URL || '[REDACTED]').replace(/\/$/, '');
+const SITE_URL = swedishOrigin();
 
 const SEO_INDEXABLE_PATHS = new Set([
   '/',
@@ -23,7 +24,7 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/terms',
   '/en',
   '/en/how-it-works',
-  ...allEnglishIndexablePaths(),
+  ...allEnglishIndexablePaths().filter((p) => isEnglishContentIndexable(p)),
   '/morgonrutin-barn',
   '/beloningssystem-barn',
   '/rutiner-npf-barn',
@@ -69,6 +70,11 @@ const SEO_CRAWL_DISALLOW_PATHS = [
   '/upgrade',
   '/payment-success',
   '/child-settings',
+  '/home',
+  '/paywall',
+  '/en/login',
+  '/en/register',
+  '/en/forgot-password',
 ];
 
 function normalizeSeoPath(path) {
@@ -84,13 +90,15 @@ function isSeoIndexable(path) {
 
 const NOINDEX_META = '<meta name="robots" content="noindex">';
 
-function buildRobotsTxt() {
+function buildRobotsTxt(opts = {}) {
+  const audience = sitemapAudienceForHost(opts.host);
+  const origin = audience === 'en' ? englishOrigin() : SITE_URL;
   const lines = [
     'User-agent: *',
     'Allow: /',
     ...SEO_CRAWL_DISALLOW_PATHS.map((p) => `Disallow: ${p}`),
     '',
-    `Sitemap: ${SITE_URL}/sitemap.xml`,
+    `Sitemap: ${origin}/sitemap.xml`,
   ];
   return `${lines.join('\n')}\n`;
 }

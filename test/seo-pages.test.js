@@ -181,7 +181,7 @@ test('pricing-info is public access information page', () => {
   const route = fs.readFileSync(path.join(ROOT, 'src/routes/public-pages.js'), 'utf8');
   assert.doesNotMatch(route, /isBillingUiEnabled/);
   const html = fs.readFileSync(path.join(ROOT, 'public/pricing-info.html'), 'utf8');
-  assert.match(html, /Så fungerar tillgången till/); // pragma: allowlist secret
+  assert.match(html, /14 dagar gratis, sedan abonnemang i appen/);
   assert.match(html, /Apple App Store/);
   assert.match(html, /href="\/skattkammaren"/);
 });

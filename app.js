@@ -169,12 +169,12 @@ function createApp() {
   app.get('/sitemap.xml', (req, res) => {
     res.type('application/xml');
     res.set('Cache-Control', 'public, max-age=3600');
-    res.send(buildSitemapXml());
+    res.send(buildSitemapXml({ host: req.headers.host }));
   });
   app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.set('Cache-Control', 'public, max-age=3600');
-    res.send(buildRobotsTxt());
+    res.send(buildRobotsTxt({ host: req.headers.host }));
   });
 
   const { registerAabDownloadRoute } = require('./src/routes/aab-download');
