@@ -174,6 +174,29 @@ describe('sitemap and robots hosts', () => {
     assert.doesNotMatch(se, new RegExp(englishOrigin().replace(/[.]/g, '\\.')));
     assert.doesNotMatch(app, new RegExp(swedishOrigin().replace(/[.]/g, '\\.')));
   });
+
+  test('empty news archive is noindex and is not a hreflang target', () => {
+    assert.equal(isEnglishContentIndexable('/en/news/archive'), false);
+    assert.equal(SEO_INDEXABLE_PATHS.has('/en/news/archive'), false);
+    assert.equal(SEO_INDEXABLE_PATHS.has('/nyheter/arkiv'), false);
+    assert.deepEqual(hreflangAlternates('/en/news/archive'), []);
+    assert.deepEqual(hreflangAlternates('/nyheter/arkiv'), []);
+    const app = buildSitemapXml({ host: APP_DOMAIN });
+    const se = buildSitemapXml({ host: MAIN_DOMAIN });
+    assert.doesNotMatch(app, /news\/archive/);
+    assert.doesNotMatch(se, /nyheter\/arkiv/);
+    const html = applyPublicSeoHead('<html><head><title>x</title></head></html>', '/en/news/archive', { indexable: false });
+    assert.match(html, /noindex, follow/);
+    assert.doesNotMatch(html, /hreflang=/);
+    assert.doesNotMatch(read('public/nyheter-arkiv.html'), /hreflang=/);
+    assert.doesNotMatch(read('public/en/news-archive.html'), /hreflang=/);
+  });
+
+  test('Swedish educator page links to the English host directly', () => {
+    const html = read('public/pedagoger-och-terapeuter.html');
+    assert.match(html, /href="__EN_SITE_URL__\/en"/);
+    assert.doesNotMatch(html, /href="\/en"/);
+  });
 });
 
 describe('public commercial copy', () => {
