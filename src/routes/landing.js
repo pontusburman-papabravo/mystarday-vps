@@ -174,21 +174,6 @@ async function serveLandingHtml(res, filename) {
   return true;
 }
 
-/** Campaign HTML only — no news, incident banner, or registration app-mode. */
-function serveCampaignHtml(res, filename) {
-  const htmlPath = path.join(__dirname, '..', '..', 'public', filename);
-  if (!fs.existsSync(htmlPath)) {
-    return false;
-  }
-  let html = fs.readFileSync(htmlPath, 'utf8');
-  html = injectBrandPlaceholders(html);
-  html = injectSiteUrl(html);
-  html = injectStoreLinks(html);
-  html = injectStoreBadgeSvgs(html);
-  res.type('html').send(html);
-  return true;
-}
-
 // ─── GET / — Swedish landing page ──────────────────────────
 router.get('/', async (req, res) => {
   const served = await serveLandingHtml(res, 'index.html');
@@ -205,19 +190,13 @@ router.get('/en', async (req, res) => {
   }
 });
 
-// ─── GET /kampanj/host-2026 — paid landing (Meta + Google Ads; remove after 2026-09-30)
+// Expired höst 2026 campaign. Old ads and bookmarks leave the campaign pages.
 router.get('/kampanj/host-2026', (req, res) => {
-  const served = serveCampaignHtml(res, 'kampanj-host-2026.html');
-  if (!served) {
-    res.status(404).send('Not found');
-  }
+  res.redirect(301, '/');
 });
 
 router.get('/kampanj/host-2026/utlottning', (req, res) => {
-  const served = serveCampaignHtml(res, 'kampanj-host-2026-utlottning.html');
-  if (!served) {
-    res.status(404).send('Not found');
-  }
+  res.redirect(301, '/privacy');
 });
 
 // ─── GET /sv/tack — Swedish professional interest thank-you page ──

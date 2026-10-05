@@ -31,12 +31,12 @@ const HOST_2026_SURVEY = {
     'Frivilligt. Kostar inget. Köp eller appinstallation krävs inte. Utlottningen är separat från Premium.',
   target_tag: 'Kampanj host-2026',
   thank_you_message: 'Tack för att du hjälper oss 💜',
-  thank_you_cta_text: 'Tillbaka till kampanjen',
-  thank_you_cta_url: '/kampanj/host-2026',
+  thank_you_cta_text: 'Till startsidan',
+  thank_you_cta_url: '/',
   contest_prize_description: 'ett Zalando-presentkort värt 500 kr',
   contest_winner_count: 1,
   contest_collect_after_submit: true,
-  contest_terms_url: '/kampanj/host-2026/utlottning',
+  contest_terms_url: '/privacy',
   questions: [
     {
       question_text: 'Hur gammalt är barnet du främst tänker på när du svarar?',

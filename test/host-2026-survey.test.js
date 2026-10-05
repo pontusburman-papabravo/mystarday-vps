@@ -6,8 +6,6 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'public/kampanj-host-2026.html'), 'utf8');
-const legal = fs.readFileSync(path.join(ROOT, 'public/kampanj-host-2026-utlottning.html'), 'utf8');
 const tyck = fs.readFileSync(path.join(ROOT, 'public/tyck.html'), 'utf8');
 const privacy = fs.readFileSync(path.join(ROOT, 'public/privacy.html'), 'utf8');
 const landingJs = fs.readFileSync(path.join(ROOT, 'src/routes/landing.js'), 'utf8');
@@ -53,34 +51,25 @@ test('allowlist is only host-2026', () => {
   assert.equal(isAllowlistedPublicSurveySlug('aktiva-anvandare'), false);
 });
 
-test('campaign page leads with download, survey sits later, no dark patterns', () => {
-  assert.match(html, /<h1>Mindre tjat\. Mer koll på dagen\.<\/h1>/);
-  assert.match(html, /Premium i ett år om du registrerar dig senast 30 september\./);
-  assert.match(html, /Svara på enkäten/);
-  assert.match(html, /\/tyck\/host-2026/);
-  assert.match(html, /\/kampanj\/host-2026\/utlottning/);
-  const firstStore = html.indexOf('data-track="app_store_click"');
-  const survey = html.indexOf('kampanj-survey');
-  const secondStore = html.lastIndexOf('data-track="app_store_click"');
-  assert.ok(firstStore > -1 && survey > firstStore, 'survey must come after first store CTA');
-  assert.ok(secondStore > survey, 'store CTAs must repeat after survey');
-  assert.doesNotMatch(html, /landing-login-choice/);
-  assert.doesNotMatch(html, /survey-popup/);
-  for (const re of FORBIDDEN_CLAIMS) assert.doesNotMatch(html, re);
+test('campaign pages are retired and survey CTAs no longer point at them', () => {
+  assert.equal(fs.existsSync(path.join(ROOT, 'public/kampanj-host-2026.html')), false);
+  assert.equal(fs.existsSync(path.join(ROOT, 'public/kampanj-host-2026-utlottning.html')), false);
+  assert.doesNotMatch(landingJs, /kampanj-host-2026/);
+  assert.equal(seed.HOST_2026_SURVEY.thank_you_cta_url, '/');
+  assert.equal(seed.HOST_2026_SURVEY.thank_you_cta_text, 'Till startsidan');
+  assert.equal(seed.HOST_2026_SURVEY.contest_terms_url, '/privacy');
+  assert.doesNotMatch(tyck, /\/kampanj\/host-2026/);
+  const landingCss = fs.readFileSync(path.join(ROOT, 'public/css/landing.css'), 'utf8');
+  assert.doesNotMatch(landingCss, /body\.kampanj-host-2026/);
+  for (const re of FORBIDDEN_CLAIMS) assert.doesNotMatch(JSON.stringify(seed.HOST_2026_SURVEY), re);
 });
 
-test('lottery terms and privacy describe separated contact data', () => {
-  assert.match(landingJs, /kampanj-host-2026-utlottning\.html/);
-  assert.match(legal, /Papa Bravo AB/);
-  assert.match(legal, /18 år/);
-  assert.match(legal, /Inget köp|inget köp/i);
-  assert.match(legal, /Zalando är inte sponsor eller administratör/);
-  assert.match(legal, /31 oktober 2026/);
+test('privacy still describes separated lottery contact data', () => {
   assert.match(privacy, /utlottning/);
   assert.match(privacy, /nyhetsbrev/);
   assert.match(privacy, /31 oktober 2026/);
-  const landingCss = fs.readFileSync(path.join(ROOT, 'public/css/landing.css'), 'utf8');
-  assert.match(landingCss, /body\.kampanj-host-2026 \{/);
+  assert.match(tyck, /Zalando är inte sponsor eller administratör/);
+  assert.match(tyck, /id="lotteryTermsLink" href="\/privacy"/);
 });
 
 test('tyck UI collects contest email after submit and caps checkbox choices', () => {
