@@ -265,6 +265,7 @@
 
   function init() {
     const path = currentPath();
+    if (path === '/nl' || path.indexOf('/nl/') === 0) return;
     if (path === '/en/ie' || path === '/en/ca') {
       const code = path === '/en/ca' ? 'CA' : 'IE';
       rememberCountry(code);

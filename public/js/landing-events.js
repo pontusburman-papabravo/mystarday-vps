@@ -67,8 +67,14 @@
 
   function englishLandingPath(path) {
     const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
-    if (p === '/en' || p === '/en/ie' || p === '/en/ca') return p;
+    if (p === '/en' || p === '/en/ie' || p === '/en/ca' || p === '/nl' || p === '/nl/nl') return p;
     return null;
+  }
+
+  function landingLocale(path) {
+    const p = englishLandingPath(path);
+    if (!p) return null;
+    return p === '/nl' || p.indexOf('/nl/') === 0 ? 'nl' : 'en';
   }
 
   function isIrelandLanding(path) {
@@ -79,8 +85,8 @@
     try {
       const root = global.document && global.document.documentElement;
       if (!root || typeof root.getAttribute !== 'function') return null;
-      const mode = root.getAttribute('data-en-market');
-      if (mode === 'CA' || mode === 'IE') return mode;
+      const mode = root.getAttribute('data-en-market') || root.getAttribute('data-web-market');
+      if (mode === 'CA' || mode === 'IE' || mode === 'NL') return mode;
       if (mode === 'both') return 'BOTH';
     } catch (_) { /* neutral /en has no market */ }
     return null;
@@ -102,11 +108,17 @@
     const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
     if (p === '/en/ie') return 'IE';
     if (p === '/en/ca') return 'CA';
+    if (p === '/nl/nl') return 'NL';
     const page = pageMarket();
-    if (page === 'IE' || page === 'CA' || page === 'BOTH') return page;
+    if (page === 'IE' || page === 'CA' || page === 'NL' || page === 'BOTH') return page;
     if (p === '/en') {
       const fromQuery = queryCountry();
       if (fromQuery === 'IE' || fromQuery === 'CA') return fromQuery;
+      return null;
+    }
+    if (p === '/nl') {
+      const fromQuery = queryCountry();
+      if (fromQuery === 'NL') return fromQuery;
       return null;
     }
     return undefined;
@@ -144,6 +156,8 @@
       placement: storePlacement(el),
       store: platform === 'android' ? 'play' : 'app_store',
     }, utmMetadata());
+    const locale = landingLocale();
+    if (locale) meta.locale = locale;
     const marked = el && el.getAttribute && el.getAttribute('data-market');
     const market = (marked && /^[A-Za-z]{2}$/.test(marked))
       ? marked.toUpperCase()
@@ -183,6 +197,13 @@
       el.addEventListener('click', function () {
         if (ALLOWED[eventName] || eventName.indexOf('faq_expand_') === 0) {
           const meta = { page: 'landing' };
+          const locale = landingLocale();
+          if (locale) meta.locale = locale;
+          const pathMarket = irelandMarket();
+          if (pathMarket === 'IE' || pathMarket === 'CA' || pathMarket === 'NL') {
+            meta.market = pathMarket;
+            meta.country = pathMarket;
+          }
           if (eventName === 'landing_guide_card_click') {
             meta.guide_slug = el.getAttribute('data-guide-slug') || undefined;
           }
@@ -205,10 +226,11 @@
     const meta = Object.assign({
       page: 'landing',
       landing_path: landingPath,
+      locale: landingLocale(),
     }, utmMetadata());
     if (market === 'BOTH') {
       meta.market = 'BOTH';
-    } else if (market === 'IE' || market === 'CA') {
+    } else if (market === 'IE' || market === 'CA' || market === 'NL') {
       meta.market = market;
       meta.country = market;
     }

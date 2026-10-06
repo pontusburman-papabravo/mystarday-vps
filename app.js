@@ -245,6 +245,11 @@ function createApp() {
         + '<p><a href="/en/resources">Back to the resource library</a></p></body></html>',
       );
     }
+    const { publicNotFoundKind, publicNotFoundHtml } = require('./src/lib/web-routing');
+    const missingLocale = publicNotFoundKind(req.path);
+    if (missingLocale) {
+      return res.status(404).type('html').send(publicNotFoundHtml(missingLocale, req.path));
+    }
     res.redirect('/');
   });
 

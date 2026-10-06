@@ -522,7 +522,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script>(function(){try{var c=typeof Capacitor!=="undefined"?Capacitor:null;' +
       'if(c&&c.isNativePlatform&&c.isNativePlatform()){' +
       'var np=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
-      'if(np==="/"||np==="/index.html"||np==="/en"||np==="/en.html"){' +
+      'if(np==="/"||np==="/index.html"||np==="/en"||np==="/en.html"||np==="/nl"||np==="/nl.html"){' +
       'location.replace("/home"+location.search+location.hash);return;}' +
       'window.WEBVIEW_SERVER_URL=location.origin;' +
       'var el=document.documentElement;el.classList.add("is-native");' +
@@ -571,6 +571,10 @@ function injectPlatformHtml(body, reqPath, req) {
   );
   if (!/\/js\/utm-capture\.js/i.test(body)) {
     headParts.push('<script src="/js/utm-capture.js?v=' + RELEASE_TAG + '"><\/script>');
+  }
+  if (body.includes('public-lang-switcher.js') && !body.includes('public-locale-alternates.js')) {
+    headParts.push('<script src="/js/public-locale-alternates.js?v=1"><\/script>');
+    headParts.push('<script src="/js/public-lang-switcher.js?v=4"><\/script>');
   }
   headParts.push('<script src="/js/platform-theme.js?v=2026-09-28-adr022"><\/script>');
   if (injectDebug) {
