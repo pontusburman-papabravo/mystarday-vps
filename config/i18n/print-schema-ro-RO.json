@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Creează PDF — program — {{brand}}",
+  "backLink": "← Înapoi la Planificare",
+  "heading": "📄 Creează PDF — program",
+  "intro": "Alege un copil și o perioadă. Previzualizarea arată tot programul — PDF-ul se scalează automat ca să încapă pe o coală A4 peisaj.",
+  "pdfSave": {
+    "title": "Unde se salvează PDF-ul?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> După <em>Creează PDF</em>, se deschide o foaie de partajare — alege <strong>Salvează în Fișiere</strong> și un folder (de ex. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Calculator:</strong> PDF-ul ajunge în folderul <strong>Descărcări</strong> (adesea jos în stânga, în browser)."
+  },
+  "sections": {
+    "child": "Copil",
+    "period": "Perioadă",
+    "scope": "Ce să includă PDF-ul?",
+    "startWeek": "Săptămâna de start"
+  },
+  "period": {
+    "1w": "1 săptămână",
+    "2w": "2 săptămâni",
+    "1m": "1 lună"
+  },
+  "scope": {
+    "all": "Program complet",
+    "my": "Doar zilele mele"
+  },
+  "weekNav": {
+    "prevAria": "Săptămâna anterioară",
+    "nextAria": "Săptămâna viitoare",
+    "today": "Săptămâna asta"
+  },
+  "actions": {
+    "preview": "Previzualizare",
+    "createPdf": "Creează PDF"
+  },
+  "preview": {
+    "heading": "Previzualizare",
+    "hint": "Derulează în jos dacă o zi are multe activități."
+  },
+  "pdfHelp": {
+    "title": "Cum salvezi PDF-ul",
+    "closeAria": "Închide",
+    "ok": "OK, am înțeles",
+    "introShare": "Foaia de partajare e deschisă. Alege Salvează în Fișiere ca să salvezi PDF-ul.",
+    "introPreview": "PDF-ul s-a deschis în browser{{filename}}.",
+    "introDesktop": "PDF-ul a fost descărcat{{filename}}.",
+    "filenameSuffix": " ca {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "În foaia de partajare: derulează și apasă <strong>Salvează în Fișiere</strong>.",
+      "Alege un folder (de ex. <strong>iCloud Drive</strong> sau <strong>On My iPhone</strong>).",
+      "Atinge <strong>Salvează</strong> sus în dreapta.",
+      "Găsești fișierul mai târziu în aplicația <strong>Fișiere</strong>."
+    ],
+    "previewSteps": [
+      "PDF-ul s-a deschis într-o vedere nouă — apasă <strong>Distribuie</strong> (↑) sus în dreapta.",
+      "Alege <strong>Salvează în Fișiere</strong>.",
+      "Alege un dosar și atinge <strong>Salvează</strong>."
+    ],
+    "desktopSteps": [
+      "Deschide folderul <strong>Descărcări</strong> de pe calculator.",
+      "Caută un fișier care începe cu <strong>{{prefix}}</strong> și data de azi."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Program",
+    "titleMyDays": "Zilele mele",
+    "emptyCell": "–",
+    "childFallback": "Copil",
+    "loadingPrint": "Se pregătește tipărirea…",
+    "iframeTitle": "Tipărește"
+  },
+  "filename": {
+    "prefixSchedule": "program-saptamanal",
+    "prefixMyDays": "zilele-mele",
+    "fallbackSlug": "copil"
+  },
+  "toasts": {
+    "loadChildrenError": "Nu s-au putut încărca copiii",
+    "selectChild": "Alege mai întâi un copil",
+    "loadingPreview": "Se încarcă previzualizarea…",
+    "noMyDays": "Nicio zi pentru tine în perioada aleasă",
+    "loadScheduleError": "Nu s-a putut încărca programul",
+    "creatingPdf": "Se creează PDF…",
+    "pdfCancelled": "Salvarea PDF a fost anulată",
+    "shareHint": "Alege Salvează în Fișiere în foaia de partajare",
+    "mobileSavedHint": "PDF gata — salvează-l în Fișiere",
+    "desktopSavedHint": "PDF salvat în Descărcări",
+    "pdfLibsMissing": "Lipsesc uneltele PDF — reîncarcă pagina și încearcă din nou",
+    "createPdfError": "Nu s-a putut crea PDF-ul",
+    "shareAgain": "PDF-ul e gata. Apasă Creează PDF din nou ca să alegi unde îl salvezi."
+  },
+  "empty": {
+    "noChildren": "Încă niciun copil adăugat.",
+    "goDashboard": "Mergi acasă"
+  }
+}

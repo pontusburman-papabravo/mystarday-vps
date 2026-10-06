@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Súgó",
+    "openAria": "Súgó megnyitása",
+    "closeAria": "Súgó bezárása"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Súgó – Áttekintés",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Áttekintés",
+          "faqs": [
+            {
+              "q": "Mire valók a 3 gyorsgomb felül?",
+              "a": "<strong>⭐ Bónuszcsillag</strong> — kézzel adhatsz a gyereknek bónuszcsillagot. <strong>📋 Egyszeri tevékenység</strong> — ideiglenes tevékenységet teszel a mai naphoz. <strong>🏠 Szabadnap</strong> — egy napra szünetelteti a gyerek napirendjét (például betegség vagy szünet)."
+            },
+            {
+              "q": "Hogyan pipálok ki egy tevékenységet?",
+              "a": "Koppints a tevékenységre a gyerek kártyáján — azonnal kipipálódik. A gyerek a <strong>gyerek nézetben</strong> is kipipálhatja."
+            },
+            {
+              "q": "Mi az a kompakt gyerekkártya?",
+              "a": "A gyerek kártyája kompakt módban az avatárt, a nevet, a csillagegyenleget és a szakaszokat mutatja. Nyisd ki a kártyát a részletekhez, a napirend linkjéhez és a szünet gombhoz."
+            },
+            {
+              "q": "Mi a szabadnap?",
+              "a": "A <strong>🏠 Szabadnap</strong> a kiválasztott napra szünetelteti a gyerek napirendjét — jól jön, ha beteg, vagy szünet van. A gyerek a napirendet inaktívnak látja. Ugyanazzal a gombbal kapcsold vissza a napot."
+            },
+            {
+              "q": "Mi a szüneteltetett mód?",
+              "a": "Koppints a szünet ikonra (⏸) a gyerek kártyáján, ha szüneteltetni szeretnéd. A tevékenységek inaktívak lesznek, és a gyerek nem kap csillagot, amíg folytatod."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Csillagok",
+          "faqs": [
+            {
+              "q": "Hogyan szerez a gyerekem csillagot?",
+              "a": "Minden befejezett tevékenység <strong>1 csillagot</strong> ér. A gyerek a gyerek nézetben pipálja ki — vagy te is kipipálhatod a Napi naplóban, amíg kipróbáljátok. Bónuszcsillagot a gyerekkártyák feletti ⭐ gombbal adhatsz."
+            },
+            {
+              "q": "Hogyan működik a Kincsesláda?",
+              "a": "A gyerek a gyerek nézet 💎 fülén nyitja meg a Kincsesládát, és látja a jutalmakat a csillagárukkal. Ha elég csillagot gyűjtött, kérhet jutalmat — te hagyod jóvá."
+            },
+            {
+              "q": "Hogyan adok hozzá jutalmat?",
+              "a": "Menj a menü <strong>Könyvtár</strong> pontjára → a „Jutalmak” fülre. Adj hozzá saját jutalmat, állítsd be a csillagárat, és válaszd ki, melyik gyerekek látják."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Napirend",
+          "faqs": [
+            {
+              "q": "Hogyan adok hozzá tevékenységet?",
+              "a": "Menj a <strong>Heti napirend</strong>hez → válassz gyereket → válassz napot → koppints a „+” jelre, és válassz tevékenységet a könyvtárból. 63 alaptevékenység között kereshetsz."
+            },
+            {
+              "q": "Hogyan másolom a napirendet minden napra?",
+              "a": "A Heti napirendben → „Másolás innen…” → válassz forrást (a saját napirended vagy az alapkönyvtár) → pipáld ki a napokat, ahová másolni szeretnél."
+            },
+            {
+              "q": "Mi a Mai nap nézet?",
+              "a": "Az Áttekintés „Ma” nézete magától frissül, ha módosítod a napirendet. A Heti napirend változásai azonnal megjelennek az Áttekintésben és a gyerek nézetében."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Család",
+          "faqs": [
+            {
+              "q": "Hogyan hívok meg egy másik felnőttet?",
+              "a": "Menj a <strong>Család és beállítások → Családtagok</strong> részre → koppints a „Meghívás” gombra. A meghívott e-mailt kap egy belépési linkkel."
+            },
+            {
+              "q": "Hogyan látom a gyerekem napját?",
+              "a": "Nyisd meg a menü <strong>Napi napló</strong> pontját — ott látod a mai tevékenységeket úgy, ahogy a gyerek fogja. Jól jön az első estén, mielőtt a gyerek maga belép."
+            },
+            {
+              "q": "Hogyan lép be a gyerekem?",
+              "a": "Ha készen álltok: a gyerek a <strong>/child-login</strong> oldalon lép be felhasználónévvel és PIN-kóddal. Az adatokat a <strong>Család és beállítások → Gyerekek</strong> alatt találod."
+            },
+            {
+              "q": "Kapcsolat az ügyfélszolgálattal",
+              "a": "Írj nekünk ide: <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — 24 órán belül válaszolunk."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Súgó – Jutalmak",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Jutalmak",
+          "faqs": [
+            {
+              "q": "Hogyan működik a jutalmazás?",
+              "a": "A gyerek tevékenységek teljesítésével gyűjt csillagot. Ha az egyenlege elég egy jutalomhoz, kérheti a beváltást — te jóváhagyod vagy elutasítod."
+            },
+            {
+              "q": "Hogyan adok hozzá új jutalmat?",
+              "a": "Menj a menü <strong>Könyvtár</strong> pontjára → a „Jutalmak” fülre → keress, vagy koppints a „+ Jutalom hozzáadása” gombra. Közvetlenül az alapkönyvtárból is másolhatsz."
+            },
+            {
+              "q": "Hogyan állítom be, melyik gyerek látja?",
+              "a": "Amikor létrehozol vagy szerkesztesz egy jutalmat, kiválasztod, melyik gyerekek lássák. Így minden gyereknek saját jutalmai lehetnek."
+            },
+            {
+              "q": "Hogyan hagyok jóvá egy beváltási kérést?",
+              "a": "A gyerek kérése jelvénnyel jelenik meg az Áttekintésben. Koppints a jóváhagyáshoz. A csillagok automatikusan levonódnak, és a gyerek azonnal látja a változást."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Csillagok",
+          "faqs": [
+            {
+              "q": "Hogyan szerez a gyerekem csillagot?",
+              "a": "Minden befejezett tevékenység csillagot ér (alapból 1 csillag tevékenységenként). Bónuszcsillagot az Áttekintés ⭐ gombjával is adhatsz."
+            },
+            {
+              "q": "Mi a különbség a csillagegyenleg és a napi haladás között?",
+              "a": "A <strong>csillagegyenleg</strong> a teljes megtakarított egyenleg. A <strong>napi haladás</strong> (a gyűrű az emoji körül) azt mutatja, hány tevékenységet fejezett be ma a gyerek. A kettő külön van."
+            },
+            {
+              "q": "Mi történik, ha egy jutalmat beváltanak?",
+              "a": "A csillagok automatikusan levonódnak a gyerek fiókjából. A gyerek azonnal látja a változást a Kincsesládában. A történetet a Jutalmak oldalon látod."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Súgó – Heti napirend",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Napirend szerkesztése",
+          "faqs": [
+            {
+              "q": "Hogyan adok hozzá tevékenységet?",
+              "a": "Válassz napot → koppints a „+” jelre → keress, és válassz tevékenységet. <strong>Több idősávot is választhatsz egyszerre</strong> (Reggel + Este), és a tevékenység mindegyikhez bekerül."
+            },
+            {
+              "q": "Hogyan hozok létre új tevékenységet közvetlenül a napirendben?",
+              "a": "Koppints a „+” jelre → keress → ha nincs találat, a keresőablakban megjelenik az „Új létrehozása” űrlap. Töltsd ki a nevet, az emojit, a csillagértéket és a részlépéseket."
+            },
+            {
+              "q": "Hogyan szerkesztem egy tevékenység nevét vagy emojiját?",
+              "a": "Koppints a tevékenység nevére vagy emojijára a napirendben → megnyílik a szerkesztő. A változás minden gyereknél és napon automatikusan érvényes."
+            },
+            {
+              "q": "Hogyan másolok napirendet egy másik gyerektől?",
+              "a": "Koppints a „Másolás innen…” gombra → válassz forrást → pipáld ki a hét napjait, ahová másolni szeretnél. Döntsd el, felülírja-e a meglévő tartalmat."
+            },
+            {
+              "q": "A napirend automatikusan szinkronizál a gyerek nézettel?",
+              "a": "Igen. A Heti napirend változásai azonnal megjelennek az Áttekintés „Ma” nézetében és a gyerek nézetében — nem kell kézzel frissíteni."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Könyvtár",
+          "faqs": [
+            {
+              "q": "Mi az alapkönyvtár?",
+              "a": "Az alapkönyvtárban 63 kész tevékenység van 6 kategóriában, és 5 napirend-sablon. A „Gyors beszúrás a könyvtárból” gombbal teheted őket a napirendbe."
+            },
+            {
+              "q": "Hogyan másolok egy alap napirendet?",
+              "a": "A Napirend fülön → „Másolás innen…” → válaszd az „Alapkönyvtár” lehetőséget → válassz napirendet → válassz napokat → másolás."
+            },
+            {
+              "q": "Miért nem lát a gyerekem tevékenységeket?",
+              "a": "Ellenőrizd, hogy a napirend a megfelelő gyerekhez tartozik, és hogy a mai napra vannak tevékenységek. Üres a napirend? Másolj az alapkönyvtárból, hogy gyorsan elinduljatok."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tippek",
+          "faqs": [
+            {
+              "q": "Hogyan építek jó rutin-napirendet?",
+              "a": "Kezdd 3–5 állandó tevékenységgel (reggeli, fogmosás, házi feladat). Tedd őket a megfelelő sorrendbe. A gyerek gyorsan megtanulja a rutint, ha az következetes marad."
+            },
+            {
+              "q": "Mik a részlépések a tevékenységeknél?",
+              "a": "A tevékenységekhez részlépéseket adhatsz (például „Kézmosás”, „Pizsama felvétele” az „Esti rutin” alatt). A gyerek vizuális útmutatóként látja őket, de az egész tevékenységet egyben pipálja ki."
+            },
+            {
+              "q": "Hány tevékenység legyen egy nap?",
+              "a": "Ajánlott: 4–8 tevékenység. Ha túl kevés, nincs folyamat; ha túl sok, nyomasztó. Kezdd kicsiben, és építsd tovább."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Súgó – Család és beállítások",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Gyerekek",
+          "faqs": [
+            {
+              "q": "Hogyan adok hozzá gyereket?",
+              "a": "Menj az Áttekintésre → koppints a „+ Gyerek hozzáadása” gombra. Töltsd ki a nevet, az emojit és a születésnapot. A gyerek életkor alapján automatikusan kap napirendet."
+            },
+            {
+              "q": "Hogyan változtatom meg a gyerekem PIN-kódját?",
+              "a": "Koppints a gyerek kártyájára → a „Beállítások” fül → „PIN módosítása”. Válassz új, 4 számjegyű PIN-kódot."
+            },
+            {
+              "q": "A gyerekemnek sorrendben kell végeznie a tevékenységeket — módosíthatom?",
+              "a": "Alapból szabadon lehet pipálni. Irányított sorrendhez menj a gyerek profiljára → a <strong>Beállítások</strong> fülre → kapcsold be a <strong>MOST / KÖVETKEZŐ / KÉSŐBB</strong> módot."
+            },
+            {
+              "q": "Hogyan látja a gyerekem a belépési adatait?",
+              "a": "Koppints a gyerek kártyájára → a „Beállítások” fül → „Belépési adatok megjelenítése”. Látod a gyerek felhasználónevét és PIN-kódját."
+            },
+            {
+              "q": "Hogyan távolítok el egy gyereket?",
+              "a": "Család → válassz gyereket → Beállítások fül → „Gyerek végleges törlése”. Fontos: a napirend, a csillagok és a jutalomtörténet törlődik, és ezt nem lehet visszavonni."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Felnőttek",
+          "faqs": [
+            {
+              "q": "Hogyan hívok meg egy másik felnőttet?",
+              "a": "Menj a <strong>Családtagok</strong> fülre → „Meghívás”. A meghívott e-mailt kap egy linkkel, amivel fiókot hozhat létre."
+            },
+            {
+              "q": "Kiválaszthatom, melyik gyerekeket látja egy felnőtt?",
+              "a": "Igen. A meghívó küldésekor kiválasztod, melyik gyerekekhez férhet hozzá. Később a Családtagok → a személy → Gyerekhozzáférés alatt módosíthatod."
+            },
+            {
+              "q": "Hogyan távolítok el egy családtagot?",
+              "a": "Koppints a személyre a Családtagok listájában → „Eltávolítás”. Azonnal elveszíti a hozzáférést a családhoz."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Beállítások",
+          "faqs": [
+            {
+              "q": "Hogyan változtatom meg a jelszavam?",
+              "a": "Menj a menü <strong>Beállítások</strong> (⚙️) pontjára → „Jelszó módosítása”. Szükséged lesz a jelenlegi jelszavadra."
+            },
+            {
+              "q": "Hogyan kapcsolom be az értesítéseket?",
+              "a": "Menj a Beállításokba → „Emlékeztetők” → kapcsold be az értesítéseket, és válassz időpontokat. Az értesítésekhez a böngésző engedélye kell."
+            },
+            {
+              "q": "Kapcsolat az ügyfélszolgálattal",
+              "a": "Írj nekünk ide: <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — 24 órán belül válaszolunk."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Súgó – Tevékenységek",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Kezelés",
+          "faqs": [
+            {
+              "q": "Mi az a tevékenység?",
+              "a": "A <strong>tevékenység</strong> egy feladat, amit a gyerek elvégez (például „Fogmosás”). A tevékenységek 1–5 csillagot érnek, és lehetnek részlépéseik. Gyűjtsd őket a könyvtárban, és tedd a gyerekek napirendjébe."
+            },
+            {
+              "q": "Hogyan hozok létre új tevékenységet?",
+              "a": "Koppints a „+ Új tevékenység” gombra → töltsd ki a nevet, a kategóriát (Higiénia, Étel, Játék stb.), az időtartamot és a csillagértéket. Mentés után a tevékenység bekerül a könyvtáradba."
+            },
+            {
+              "q": "Hogyan teszek egy tevékenységet a napirendbe?",
+              "a": "A tevékenységek a könyvtárban vannak. Menj a Heti napirendre → válassz napot → „+” → válaszd ki a hozzáadni kívánt tevékenységet."
+            },
+            {
+              "q": "Hogyan veszek ki egy tevékenységet minden napról?",
+              "a": "Koppints a ✕ jelre a tevékenységnél → válaszd a <strong>A hét minden napja</strong> lehetőséget. Ha csak a mai napot vagy egy hétköznapot (például minden csütörtököt) szeretnéd kivenni, arra külön lehetőség van."
+            },
+            {
+              "q": "Hogyan szerkesztek egy tevékenységet?",
+              "a": "Koppints a tevékenységre a listában → „Szerkesztés”. A változás azonnal érvényes minden napirendben, ahol a tevékenység szerepel."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategóriák",
+          "faqs": [
+            {
+              "q": "Mire valók a kategóriák?",
+              "a": "A kategóriák színkóddal jelölik a tevékenységeket a gyerek nézetben. <strong>Higiénia</strong>=kék, <strong>Étel</strong>=sárga, <strong>Játék</strong>=zöld, <strong>Iskola</strong>=lila, <strong>Mozgás</strong>=piros, <strong>Pihenés</strong>=szürke, <strong>Közösség</strong>=narancs."
+            },
+            {
+              "q": "Hogyan választok kategóriát?",
+              "a": "Amikor létrehozol vagy szerkesztesz egy tevékenységet, válassz kategóriát a legördülő listából. Válaszd azt, amelyik a legjobban leírja a tevékenységet."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Súgó – Könyvtár",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Fülek",
+          "faqs": [
+            {
+              "q": "Milyen fülek vannak a könyvtárban?",
+              "a": "<strong>Napirendek</strong> — a saját napirend-sablonjaid. <strong>Tevékenységek</strong> — tevékenységkönyvtár részlépésekkel. <strong>Jutalmak</strong> — a saját jutalmaid. <strong>Alapkönyvtár</strong> — 63 tevékenység, 15 jutalom és 5 napirend, amiből másolhatsz."
+            },
+            {
+              "q": "Hogyan másolok az alapkönyvtárból?",
+              "a": "Menj az „Alapkönyvtár” fülre → válassz tevékenységet vagy jutalmat → koppints a 📥 gombra, hogy a családi könyvtárba másold. A napirendeket a Heti napirend → „Másolás innen…” úton másolod."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Tevékenységek",
+          "faqs": [
+            {
+              "q": "Hogyan hozok létre új tevékenységet?",
+              "a": "Koppints a „+ Új tevékenység” gombra → töltsd ki a nevet, az emojit (válassz, vagy írj sajátot), a csillagértéket és a részlépéseket → mentsd. A tevékenység az egész család könyvtárába kerül."
+            },
+            {
+              "q": "Mik a részlépések?",
+              "a": "A részlépések lépésről lépésre szóló útmutatók egy tevékenység alatt (például „Kézmosás” a „Higiénia” alatt). A gyerek útmutatóként látja őket, de az egész tevékenységet egy koppintással pipálja ki."
+            },
+            {
+              "q": "Hogyan szerkesztek egy tevékenységet?",
+              "a": "Koppints a tevékenység nevére a napirendben — megnyílik a szerkesztő. A változások (név, emoji, részlépések) automatikusan minden gyereknél és napon érvényesek."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Jutalmak",
+          "faqs": [
+            {
+              "q": "Hogyan adok hozzá jutalmat?",
+              "a": "A „Jutalmak” fül → keress egy jutalmat → koppints a „+ Új létrehozása” gombra, ha még nincs → töltsd ki a nevet, az emojit, a csillagárat → válaszd ki, melyik gyerekek látják → mentsd."
+            },
+            {
+              "q": "Hogyan keresek jutalmakat?",
+              "a": "A kereső egyszerre nézi a saját jutalmaidat és az alapkönyvtárat. Nincs találat? A „Létrehozás: [név]” gomb egy előre kitöltött űrlapot nyit."
+            },
+            {
+              "q": "Lehetnek egy gyereknek privát jutalmai?",
+              "a": "Igen. Amikor létrehozod a jutalmat, kiválasztod, melyik gyerekek lássák. Így minden gyereknek saját jutalmai lehetnek."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Súgó – Beállítások",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Fiók",
+          "faqs": [
+            {
+              "q": "Hogyan változtatom meg a jelszavam?",
+              "a": "Írd be a jelenlegi jelszavadat és az új jelszavadat → koppints a „Mentés” gombra. A jelszó legalább 6 karakter legyen."
+            },
+            {
+              "q": "Hogyan változtatom meg az e-mail-címem?",
+              "a": "Írd be az új e-mail-címed → koppints a „Mentés” gombra. Előfordulhat, hogy e-mailben kell megerősítened az új címet."
+            },
+            {
+              "q": "Hogyan törlöm a fiókom?",
+              "a": "A fiók törléséhez írj ide: <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>. 48 órán belül intézzük."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Értesítések",
+          "faqs": [
+            {
+              "q": "Hogyan kapcsolom be az emlékeztetőket?",
+              "a": "Kapcsold be a kapcsolót az „Emlékeztetők” alatt → válassz időpontot és napokat. A böngésződnek engedélyeznie kell az értesítéseket."
+            },
+            {
+              "q": "Nem kapok értesítést, pedig be vannak kapcsolva",
+              "a": "Ellenőrizd, hogy a böngésző engedélyezte-e az értesítéseket az oldalnak. Menj a böngésző beállításaiba → Értesítések → keresd meg ezt: [REDACTED].se → Engedélyezés."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Súgó – Naptár",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Naptár",
+          "faqs": [
+            {
+              "q": "Mit mutat a naptár?",
+              "a": "A naptár havi áttekintést ad a gyerek tevékenységeiről, a beváltott jutalmakról és a fontos eseményekről."
+            },
+            {
+              "q": "Hogyan lépek hónapról hónapra?",
+              "a": "Koppints a nyilakra (< >) a hónap neve mellett a hónap váltásához."
+            },
+            {
+              "q": "Hogyan látok több részletet egy napról?",
+              "a": "Koppints egy dátumra, és meglátod az aznapi tevékenységek és csillagok részletes listáját."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Súgó – Napi napló",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Napló",
+          "faqs": [
+            {
+              "q": "Mi a napi napló?",
+              "a": "A napló a gyerek napját mutatja — tevékenységeket, kipipálásokat és csillagokat. Használd <strong>előnézetnek</strong>, hogy lásd, mit lát a gyerek, vagy töltsd ki utólag."
+            },
+            {
+              "q": "Hogyan szűröm a naplót?",
+              "a": "Válassz gyereket a felül lévő szűrőben, ha csak egy gyerek naplóját szeretnéd látni. Dátum szerint is szűrhetsz."
+            },
+            {
+              "q": "Meddig nézhetek vissza?",
+              "a": "A napló attól a naptól őrzi az adatokat, amikor elkezdted használni a {{brand}} alkalmazást. Görgess, vagy válassz dátumot a régebbi adatokhoz. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Súgó – Napirend választása naponként",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Napirend hozzárendelése",
+          "faqs": [
+            {
+              "q": "Mi az a „Napirend választása naponként”?",
+              "a": "Itt választod ki, melyik heti napirend aktív az egyes gyerekeknél és napokon. Jól jön, ha hétköznap és hétvégén más a rutin."
+            },
+            {
+              "q": "Lehet egy gyereknek más napirendje hétköznap és hétvégén?",
+              "a": "Igen. Válassz egy napirendet hétfőtől péntekig, és egy másikat szombatra és vasárnapra. Koppints a napra, és válaszd ki a kívánt napirendet."
+            },
+            {
+              "q": "Mi történik, ha egy naphoz nincs napirend rendelve?",
+              "a": "Ha egy naphoz nincs napirend rendelve, a gyerek aznap nem lát tevékenységeket. Ellenőrizd, hogy minden használni kívánt naphoz van napirend."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Adminfelület",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Áttekintés",
+          "faqs": [
+            {
+              "q": "Mit tehetek az adminfelületen?",
+              "a": "Az adminfelület hozzáférést ad minden családhoz, felhasználóhoz és rendszeradathoz. Statisztikát nézhetsz, fiókokat kezelhetsz, és tartalmat moderálhatsz."
+            },
+            {
+              "q": "Hogyan találok meg egy adott felhasználót?",
+              "a": "Használd a felül lévő keresőt e-mail vagy név alapján. Koppints egy családra a részletekhez."
+            },
+            {
+              "q": "Hogyan archiválok egy családot?",
+              "a": "Koppints a család kártyájára → „Archiválás”. Az archivált családok visszaállíthatók, de addig inaktívak maradnak."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Támogatás",
+          "faqs": [
+            {
+              "q": "Hogyan látom a beérkező támogatási üzeneteket?",
+              "a": "A „Támogatási postafiók” fülön látod a kapcsolatfelvételi űrlapon küldött üzeneteket. Koppints az olvasáshoz és a válaszhoz."
+            },
+            {
+              "q": "Hogyan jelölök egy ügyet megoldottnak?",
+              "a": "Koppints az ügyre → „Megoldottnak jelölés”. A megoldott ügyek kikerülnek az alapnézetből, de a „Megoldottak megjelenítése” kapcsolóval előhívhatók."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Gyerektámogatás — {{brand}}",
+    "loadError": "Nem sikerült betölteni az oldalt."
+  },
+  "supportSvar": {
+    "pageTitle": "Az ügyed",
+    "title": "Az ügyed",
+    "intro": "Itt a teljes beszélgetés. Írj alább, ha folytatni szeretnéd. A szokásos e-mail-válasz itt nem jelenik meg.",
+    "sent": "Elküldve. Ugyanazon az ügyön látjuk.",
+    "escalate": "Személyes segítségre van szükségem",
+    "placeholder": "Írd le, mi történik…"
+  }
+}

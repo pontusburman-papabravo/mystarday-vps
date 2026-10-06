@@ -85,4 +85,27 @@ describe('app locale readiness', () => {
       assert.equal(row.activation, 'planned', marketId);
     }
   });
+
+  it('the Central European packs are ready while their markets stay closed', () => {
+    const markets = {
+      'cs-CZ': 'CZ',
+      'sk-SK': 'SK',
+      'sl-SI': 'SI',
+      'hr-HR': 'HR',
+      'hu-HU': 'HU',
+      'ro-RO': 'RO',
+    };
+    const catalog = loadStoreCatalog();
+    for (const [id, marketId] of Object.entries(markets)) {
+      const result = assessAppLocale(id);
+      assert.equal(result.ready, true, `${id}: ${result.errors.join('; ')}`);
+      const market = assessMarket(marketId);
+      assert.equal(market.APP_READY, true, id);
+      assert.equal(market.APPLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.GOOGLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.MARKET_READY, false, id);
+      const row = catalog.markets.markets.find((item) => item.id === marketId);
+      assert.equal(row.activation, 'planned', marketId);
+    }
+  });
 });

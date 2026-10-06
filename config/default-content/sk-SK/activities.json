@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Vstávanie",
+    "icon": "🛏️",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Obleč sa",
+    "icon": "🌟",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vyčisti si zuby",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Raňajkuj",
+    "icon": "🍳",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Škôlka/Škola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Hraj sa vonku",
+    "icon": "🛝",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Tvorenie",
+    "icon": "🎨",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Desiata",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Hraj sa",
+    "icon": "🧩",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pohyb",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Večera",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vyčisti si zuby (večer)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pyžamo",
+    "icon": "🧸",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Rozprávka na dobrú noc",
+    "icon": "📕",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Spánok",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 4,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vstaň a obleč sa",
+    "icon": "🌅",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Raňajky",
+    "icon": "🥣",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Vyčisti si zuby",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Zbaľ si tašku",
+    "icon": "🎒",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Škola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 2,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Prestávka a hra",
+    "icon": "⚽",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Desiata",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Úlohy",
+    "icon": "📚",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Krúžok",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Večera",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Vyčisti si zuby (večer)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Čítanie",
+    "icon": "📖",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Spánok",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  }
+]

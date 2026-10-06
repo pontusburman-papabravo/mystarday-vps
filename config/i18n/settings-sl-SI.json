@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Nastavitve — {{brand}}",
+  "title": "Nastavitve",
+  "shellLead": "Profil, družina in aplikacija",
+  "familySettings": "Nastavitve družine",
+  "groups": {
+    "profile": {
+      "title": "Profil in račun",
+      "sub": "Prijava, PIN in račun"
+    },
+    "family": {
+      "title": "Družina",
+      "sub": "Ime in jezik. Osebe urejaš pod Družina."
+    },
+    "device": {
+      "title": "Ta naprava",
+      "sub": "Otrokov telefon, telefon odraslega ali skupni telefon"
+    },
+    "appearance": {
+      "title": "Videz",
+      "sub": "Temna ali svetla tema"
+    },
+    "app": {
+      "title": "Aplikacija",
+      "sub": "Obvestila, potisna sporočila in zasebnost"
+    },
+    "premium": {
+      "title": "Naročnina",
+      "sub": "Premium, nakupi in plačila"
+    }
+  },
+  "appearance": {
+    "dark": "Temno",
+    "light": "Svetlo",
+    "backToSettings": "← Nazaj na nastavitve"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Načrtovanje",
+      "sub": "Sestavi vsebino ali načrtuj teden otrok."
+    },
+    "rewards": {
+      "title": "Nagrade",
+      "sub": "Zvezdice, nagrade in družinska zakladnica."
+    },
+    "calendar": {
+      "title": "Koledar",
+      "sub": "Mesečni pogled za vse otroke"
+    },
+    "activities": {
+      "title": "Dejavnosti",
+      "sub": "Urejaj dejavnosti svojih otrok"
+    },
+    "assignSchedule": {
+      "title": "Dodeli urnik",
+      "sub": "Kopiraj urnik k otroku"
+    },
+    "dailyLog": {
+      "title": "Danes",
+      "sub": "Spremljaj otrokov dan — zvezdice vpiši za nazaj"
+    },
+    "treasureChest": {
+      "title": "Zakladnica",
+      "sub": "Nagrade in zvezdice"
+    },
+    "childSettings": {
+      "title": "Nastavitve otroka",
+      "sub": "Pogled, PIN in prilagoditev"
+    },
+    "familyChild": {
+      "title": "Nastavitve otroka",
+      "sub": "Urnik, pogled, PIN in prilagoditev"
+    },
+    "notifications": {
+      "title": "Obvestila",
+      "sub": "Opomniki in sporočila"
+    },
+    "schedule": {
+      "title": "Tedenski urnik",
+      "sub": "Načrtuj in prilagodi dneve svojih otrok"
+    },
+    "library": {
+      "title": "Knjižnica",
+      "sub": "Urniki, dejavnosti in nagrade za tvojo družino"
+    },
+    "family": {
+      "title": "Družina",
+      "sub": "Otroci, odrasli in pedagogi"
+    }
+  },
+  "backToPlanning": "← Nazaj na načrtovanje",
+  "avatar": {
+    "title": "Profilna slika",
+    "description": "Tvojo sliko otrok vidi pod Moji ljudje in na strani Družina.",
+    "changePhoto": "Zamenjaj sliko",
+    "addPhoto": "Dodaj fotografijo",
+    "removePhoto": "Odstrani sliko",
+    "saved": "Profilna slika je shranjena!",
+    "removed": "Profilna slika je odstranjena",
+    "saveFailed": "Ni bilo mogoče shraniti",
+    "removeFailed": "Ni bilo mogoče odstraniti"
+  },
+  "nativeAccount": {
+    "title": "Račun",
+    "sub": "Preklopi na otrokovo prijavo ali se iz aplikacije popolnoma odjavi."
+  },
+  "account": {
+    "title": "Račun in prijava",
+    "appleLinked": "Račun Apple je povezan",
+    "googleLinked": "Račun Google je povezan",
+    "appleLinkedOnIosHint": "Račun Apple si povezal na iPhonu. Za prijavo tukaj spodaj dodaj geslo.",
+    "googleLinkedElsewhereHint": "Račun Google si povezal na drugi napravi. Za prijavo tukaj spodaj dodaj geslo.",
+    "newPassword": "Novo geslo",
+    "confirmPassword": "Potrdi geslo",
+    "minCharsPlaceholder": "Vsaj 8 znakov",
+    "repeatPasswordPlaceholder": "Geslo vpiši še enkrat",
+    "savePassword": "Shrani geslo",
+    "passwordForNonApple": "Za prijavo brez Appla",
+    "changePasswordHint": "Spremeni geslo, da ohraniš dostop do računa.",
+    "currentPassword": "Trenutno geslo",
+    "confirmNewPassword": "Potrdi novo geslo",
+    "changePassword": "Spremeni geslo",
+    "linkApple": "Poveži račun Apple",
+    "unlinkApple": "Odveži račun Apple",
+    "linkGoogle": "Poveži račun Google",
+    "unlinkGoogle": "Odveži račun Google",
+    "changeEmail": "Spremeni e-poštni naslov",
+    "newEmail": "Nov e-poštni naslov",
+    "yourPassword": "Tvoje geslo",
+    "confirmWithPassword": "Potrdi z geslom",
+    "sendConfirmLink": "Pošlji povezavo za potrditev",
+    "passwordsMismatch": "Gesli se ne ujemata",
+    "passwordMinLength": "Geslo mora imeti vsaj 8 znakov",
+    "saving": "Shranjujem…",
+    "passwordNowActive": "✓ Geslo je zdaj aktivno",
+    "somethingWrong": "Nekaj je šlo narobe. Poskusi znova.",
+    "somethingWrongShort": "Nekaj je šlo narobe",
+    "appleSignInUnavailable": "Prijava z Applom na tej napravi ni na voljo.",
+    "googleSignInUnavailable": "Prijava z Googlom na tej napravi ni na voljo.",
+    "linking": "Povezujem…",
+    "appleAlreadyLinked": "Ta račun Apple je že povezan z drugim računom.",
+    "googleAlreadyLinked": "Ta račun Google je že povezan z drugim računom.",
+    "couldNotLinkApple": "Računa Apple ni bilo mogoče povezati:",
+    "couldNotLinkGoogle": "Googla ni bilo mogoče povezati:",
+    "tryAgain": "Poskusi znova.",
+    "unlinkApplePrompt": "Vpiši geslo, da odvežeš Apple:",
+    "unlinkGooglePrompt": "Vpiši geslo, da odvežeš Google:",
+    "removing": "Odstranjujem…",
+    "couldNotUnlink": "Ni bilo mogoče odvezati",
+    "invalidEmail": "Vpiši veljaven e-poštni naslov",
+    "sending": "Pošiljam…",
+    "linkSentTo": "Povezava je poslana na {{email}}",
+    "passwordChanged": "Geslo je spremenjeno!",
+    "linkAppleBtn": "🍎 Poveži račun Apple",
+    "linkGoogleBtn": "G Poveži račun Google",
+    "emailUpdated": "E-pošta je posodobljena! Zdaj se lahko prijaviš z novim naslovom.",
+    "passwordSet": "Geslo je nastavljeno. Zdaj se lahko prijaviš z e-pošto in geslom.",
+    "errors": {
+      "invalidAppleToken": "Neveljaven žeton identitete Apple",
+      "invalidGoogleToken": "Neveljaven žeton identitete Google",
+      "appleAlreadyLinkedThis": "S tem računom je že povezan račun Apple",
+      "googleAlreadyLinkedThis": "S tem računom je že povezan račun Google",
+      "passwordRequiredUnlink": "Za odvezavo računa je potrebno geslo",
+      "setPasswordBeforeUnlink": "Pred odvezavo računa nastavi geslo",
+      "emailPasswordRequired": "Potrebna sta nov e-poštni naslov in geslo",
+      "setPasswordBeforeEmail": "Pred spremembo e-pošte nastavi geslo",
+      "emailAlreadyRegistered": "Ta e-pošta je že registrirana na drugem računu",
+      "emailChangeLinkInvalid": "Povezava je neveljavna ali je potekla. V Nastavitvah zahtevaj novo spremembo.",
+      "emailChangeLinkUsed": "Ta povezava je že uporabljena. V Nastavitvah zahtevaj novo spremembo.",
+      "emailChangeLinkExpired": "Povezava je potekla. V Nastavitvah zahtevaj novo spremembo.",
+      "passwordAlreadySet": "Geslo že obstaja. Za spremembo uporabi »Spremeni geslo«.",
+      "emailAllOff": "Vsa e-poštna obvestila so izklopljena. Znova jih vklopiš pod Nastavitve → Obvestila.",
+      "weeklyEmailOff": "Tedenskih povzetkov ne bomo več pošiljali na tvojo e-pošto. Znova jih vklopiš pod Nastavitve → Obvestila.",
+      "redeemEmailOff": "Ne bomo več pošiljali e-pošte, ko otrok želi unovčiti nagrado. Znova jih vklopiš pod Nastavitve → Obvestila.",
+      "passwordCurrentAndNew": "Potrebni sta trenutno in novo geslo",
+      "appleLinkLoginRequired": "Za povezavo računa Apple moraš biti prijavljen",
+      "googleLinkLoginRequired": "Za povezavo računa Google moraš biti prijavljen"
+    }
+  },
+  "toast": {
+    "saved": "Shranjeno!",
+    "savedCheck": "✅ Shranjeno!",
+    "saveFailedRetry": "Ni bilo mogoče shraniti. Poskusi znova.",
+    "networkError": "Napaka omrežja"
+  },
+  "parentPin": {
+    "title": "Koda PIN",
+    "security": "Varnost",
+    "hasPinDescription": "Tvoj osebni PIN ščiti starševski način — otroci ne morejo zapustiti otroškega načina brez tvojega PIN-a.",
+    "noPinDescription": "Nastavi svoj 4-mestni PIN — otroci ne morejo zapustiti otroškega načina brez tvojega PIN-a.",
+    "choosePin": "Izberi 4-mestni PIN",
+    "confirmPin": "Potrdi PIN",
+    "changePinBack": "← Spremeni PIN",
+    "enterCurrentPin": "Vpiši trenutni PIN",
+    "forgotPin": "Ne najdeš PIN-a?",
+    "chooseNewPin": "Izberi nov PIN",
+    "confirmNewPin": "Potrdi nov PIN",
+    "forgotIntro": "Vpiši geslo, da nastaviš nov PIN.",
+    "yourPassword": "Tvoje geslo",
+    "verify": "Preveri",
+    "keypadAria": "Številčnica",
+    "confirmKeypadAria": "Številčnica za potrditev PIN-a",
+    "pinKeypadAria": "Številčnica PIN",
+    "newPinKeypadAria": "Številčnica za nov PIN",
+    "confirmNewPinKeypadAria": "Številčnica za potrditev novega PIN-a",
+    "pinsMismatch": "PIN-a se ne ujemata — poskusi znova",
+    "pinNowActive": "✓ PIN je zdaj aktiven",
+    "wrongPin": "Napačen PIN — poskusi znova",
+    "pinChanged": "✓ PIN je spremenjen!",
+    "couldNotChangePin": "PIN-a ni bilo mogoče spremeniti",
+    "sessionExpired": "Seja je potekla — znova vpiši trenutni PIN",
+    "enterPassword": "Vpiši geslo",
+    "wrongPassword": "Napačno geslo"
+  },
+  "push": {
+    "title": "Potisna obvestila",
+    "lead": "Prejemaj obvestila na telefon — tudi ko je aplikacija zaprta.",
+    "unsupported": "Tvoj brskalnik ne podpira potisnih obvestil.",
+    "toggleLabel": "Potisna obvestila",
+    "toggleDescription": "Vklopi, da prejemaš obvestila o dejavnostih svojih otrok",
+    "toggleAria": "Preklopi potisna obvestila",
+    "perChildHeading": "Obvestila po otroku",
+    "typesHeading": "Katera obvestila?",
+    "typeScheduleTitle": "Opomnik za urnik",
+    "typeScheduleHint": "10 min pred dejavnostjo",
+    "typeScheduleAria": "Preklopi opomnik za urnik",
+    "typeInactivityTitle": "Opomnik ob nedejavnosti",
+    "typeInactivityHint": "ob 18.00, če se otrok ni prijavil",
+    "typeInactivityAria": "Preklopi opomnik ob nedejavnosti",
+    "typeMilestoneTitle": "Mejnik zvezdic",
+    "typeMilestoneHint": "Pri 10/25/50/100 zvezdicah",
+    "typeMilestoneAria": "Preklopi mejnik zvezdic",
+    "typeBackfillTitle": "Opomnik za dopolnitev",
+    "typeBackfillHint": "ob 9.00, če manjka včeraj",
+    "typeBackfillAria": "Preklopi opomnik za dopolnitev",
+    "leadTimeLabel": "Opomnik prej",
+    "quietHoursLabel": "Tihe ure",
+    "quietHoursTo": "do",
+    "archiveTitle": "Arhiv obvestil",
+    "archiveHint": "Uspešna potisna obvestila zadnjih 7 dni",
+    "noChildren": "Ni povezanih otrok.",
+    "childToggleAria": "Potisna obvestila za {{name}}",
+    "saved": "✅ Shranjeno!",
+    "saveFailed": "Ni bilo mogoče shraniti.",
+    "saveFailedRetry": "Ni bilo mogoče shraniti. Poskusi znova.",
+    "requestingPermission": "⏳ Prosim za dovoljenje…",
+    "enabled": "✅ Potisna obvestila so vklopljena!",
+    "permissionDenied": "🚫 Dovoljenje je zavrnjeno. Vklopi ga v nastavitvah brskalnika ali aplikacije.",
+    "iosNotInstalled": "Dodaj {{brand}} na začetni zaslon za potisna obvestila v Safariju.",
+    "genericError": "Nekaj je šlo narobe. Poskusi znova.",
+    "disabled": "✅ Potisna obvestila so izklopljena.",
+    "errors": {
+      "unsupportedBrowser": "Potisna obvestila v tem brskalniku niso podprta",
+      "permissionDeniedApp": "Dovoljenje za obvestila je zavrnjeno v nastavitvah aplikacije.",
+      "pushPluginMissing": "V aplikaciji manjka vtičnik za potisna obvestila. Zaženi npx cap sync ios in znova zgradi.",
+      "platformMissing": "Manjka podpora za potisna obvestila platforme",
+      "permissionDeniedBrowser": "Dovoljenje za obvestila je zavrnjeno. Vklopi ga v nastavitvah brskalnika.",
+      "permissionDenied": "Dovoljenje za obvestila je zavrnjeno",
+      "subscriptionFailed": "Naročnina ni uspela",
+      "enableFailed": "Potisnih obvestil ni bilo mogoče vklopiti",
+      "disableFailed": "Potisnih obvestil ni bilo mogoče izklopiti",
+      "iosNotInstalled": "Dodaj aplikacijo na začetni zaslon za potisna obvestila v Safariju.",
+      "notConfigured": "Potisna obvestila niso nastavljena",
+      "invalidSubscription": "Neveljavna naročnina na potisna obvestila",
+      "endpointRequired": "Končna točka je obvezna",
+      "invalidToken": "Neveljaven žeton",
+      "invalidPlatform": "Platforma mora biti iOS ali Android",
+      "tokenRequired": "Potrebna sta žeton in platforma",
+      "parentNotFound": "Starša ni bilo mogoče najti"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Dodam pripomoček na začetni zaslon?",
+      "lead": "Naslednjo dejavnost vidiš na začetnem zaslonu — brez odpiranja aplikacije.",
+      "step1": "Tukaj v aplikaciji tapni <strong class=\"text-navy\">Poveži pripomoček</strong>.",
+      "step2": "Na začetnem zaslonu: dolgo pritisni ozadje → tapni <strong class=\"text-navy\">+</strong> → poišči <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Ne sprašuj več",
+      "connect": "Poveži pripomoček",
+      "later": "Ne zdaj",
+      "openSettings": "Odpri nastavitve"
+    },
+    "settings": {
+      "title": "Pripomočki in hiter dostop",
+      "description": "Osebni pripomoček = en otrok. Družinski pripomoček = več otrok. Če jih imaš več, tukaj izberi otroka.",
+      "childPickerLabel": "Katerega otroka naj pripomoček pokaže?",
+      "childFallbackName": "Otrok",
+      "statusLabel": "Stanje:",
+      "statusConnected": "Povezano",
+      "statusReconnect": "Potrebna je ponovna povezava",
+      "privacyLabel": "Zasebnost:",
+      "privacyFull": "Polna",
+      "privacyLimited": "Omejena",
+      "reconnectBtn": "Znova poveži pripomoček",
+      "guideBtn": "Pokaži navodila za pripomoček na začetnem zaslonu",
+      "connecting": "Povezujem…",
+      "supportMissing": "V tej različici manjka podpora za pripomoček. Posodobi aplikacijo.",
+      "addChildFirst": "Najprej v družino dodaj otroka, nato lahko povežeš pripomoček.",
+      "loginRequired": "Za povezavo pripomočka moraš biti prijavljen.",
+      "success": "Končano! Pripomoček dodaj na začetni zaslon (+ → {{brand}}), če ga še nisi.",
+      "pickChild": "Zgoraj na seznamu izberi otroka in poskusi znova.",
+      "retryLater": "Zdaj ni bilo mogoče povezati. Poskusi čez trenutek.",
+      "networkError": "Zdaj ni bilo mogoče povezati. Preveri omrežje in poskusi znova.",
+      "errors": {
+        "offlineUnavailable": "Pripomoček za tvojo družino še ni vklopljen. Če bi moral biti, piši podpori.",
+        "reauthRequired": "Sejo je treba obnoviti. Odjavi se in znova prijavi, nato poskusi povezati.",
+        "nativeConfigureFailed": "Aplikacija ni mogla shraniti povezave pripomočka. Aplikacijo popolnoma zapri in jo znova odpri.",
+        "notEnabled": "Pripomoček ni vklopljen ali pa je treba obnoviti sejo. Odjavi se in znova prijavi."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Nastavitve obvestil",
+    "weeklySummary": "Tedenski povzetek (nedelja ob 21.00)",
+    "rewardRedemption": "Unovčenja nagrad",
+    "newsletter": "E-poštne novice",
+    "emailGlobal": "Vsa e-pošta naenkrat",
+    "save": "Shrani nastavitve obvestil"
+  },
+  "reminders": {
+    "title": "Opomniki",
+    "lead": "Nastavi dnevni opomnik, da se spomniš preveriti urnik.",
+    "daily": "Dnevni opomnik",
+    "hint": "Opomnik dobiš ob izbranem času na izbranih dnevih",
+    "toggleAria": "Preklopi opomnik",
+    "time": "Čas",
+    "days": "Dnevi"
+  },
+  "familyName": {
+    "label": "Ime družine",
+    "placeholder": "npr. Družina Novak",
+    "autoFromParent": "Družina: {{name}}"
+  },
+  "sound": {
+    "label": "Zvok vklopljen",
+    "hint": "Predvaja zvok, ko otrok v svojem dnevu označi dejavnost."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Odrasli in dostop",
+    "adultsBody": "Povabi drugega starša in pod Družina poglej, kdo ima dostop.",
+    "openFamily": "Odpri Družino",
+    "pedagogsTitle": "👩‍🏫 Pedagogi",
+    "pedagogsBody": "Povabila in dostop pedagoga urejaš pod Družina."
+  },
+  "dataExport": {
+    "title": "Moji podatki",
+    "body": "Prenesi kopijo vseh svojih podatkov kot CSV (datoteka ZIP). Vključuje profil, otroke, urnike, nagrade in zgodovino dejavnosti.",
+    "download": "Prenesi moje podatke",
+    "preparing": "Pripravljam prenos…",
+    "started": "✅ Prenos se je začel!",
+    "rateLimited": "Izvoz je mogoč le enkrat na 24 ur.",
+    "failed": "Nekaj je šlo narobe. Poskusi znova.",
+    "networkError": "Napaka omrežja. Poskusi znova."
+  },
+  "deleteAccount": {
+    "title": "Izbriši račun",
+    "permanent": "⚠️ Trajno dejanje",
+    "loading": "Nalagam, kaj se bo zgodilo…",
+    "storeBillingNote": "Če imaš naročnino prek App Store ali Google Play, se ob izbrisu računa ne prekliče sama. Naročnino uredi ali prekliči v trgovini.",
+    "button": "Izbriši moj račun",
+    "summarySelf": "Odstraniš svoj račun in svoj dostop. Družina, otroci, urniki in podatki drugih odraslih ostanejo. Tega ni mogoče razveljaviti.",
+    "summaryLastAdmin": "V družini ni več drugega odraslega s skrbniškim dostopom. Celotna družina in vsi povezani podatki — otroci, urniki, dejavnosti, zvezdice in nagrade — se takoj in trajno izbrišejo. Tega ni mogoče razveljaviti.",
+    "modalTitleSelf": "Zapusti družino",
+    "modalTitleFamily": "Izbriši družino in račun",
+    "modalTitleFallback": "Trajno izbriši račun",
+    "leadSelf": "Odstraniš samo svoj račun in svoj dostop.",
+    "leadFamily": "Izbrišeš celotno družino in vse povezane podatke.",
+    "sure": "Je to res?",
+    "cannotUndo": "Tega ni mogoče razveljaviti.",
+    "storeBillingModal": "Naročnina prek App Store ali Google Play se ne prekliče sama — uredi jo v trgovini.",
+    "typeConfirmLabel": "Vpiši {{token}} za potrditev",
+    "typeConfirmLabelHtml": "Vpiši <strong>RADERA</strong> za potrditev",
+    "typeConfirmError": "Vpiši {{token}} za potrditev.",
+    "confirmToken": "RADERA",
+    "cancel": "Prekliči",
+    "confirmSelf": "Zapusti družino",
+    "confirmFamily": "Trajno izbriši vse",
+    "deleting": "Brišem...",
+    "deleted": "✅ Račun je izbrisan.",
+    "deleteFailed": "Pri brisanju je šlo nekaj narobe.",
+    "networkError": "Napaka omrežja. Poskusi znova.",
+    "bulletSelfAccount": "Tvoj starševski račun in tvoj dostop",
+    "bulletSelfOthersRemain": "Družina, otroci in drugi odrasli ostanejo",
+    "bulletParentAccount": "Starševski račun",
+    "bulletAllChildren": "Vsi otroci v družini",
+    "bulletAllSchedules": "Vsi urniki, dejavnosti in nagrade",
+    "bulletAllHistory": "Vsa dnevna zgodovina in zvezdice"
+  },
+  "support": {
+    "title": "Tehnični podatki za podporo",
+    "hint": "Kopiraj različico aplikacije, predpomnilnik in ID za odpravljanje napak. Osebni podatki in gesla niso vključeni.",
+    "copy": "Kopiraj tehnične podatke",
+    "copied": "Kopirano — prilepi v e-pošto podpori.",
+    "copyFailed": "Ni bilo mogoče kopirati. Poskusi znova."
+  },
+  "legal": {
+    "privacy": "Pravilnik o zasebnosti",
+    "terms": "Pogoji uporabe"
+  },
+  "consent": {
+    "title": "Soglasje in zasebnost",
+    "lead": "Urejaj nastavitve zasebnosti in piškotke.",
+    "change": "Spremeni nastavitve soglasja",
+    "empty": "Nastavitve soglasja še niso shranjene.",
+    "modalTitle": "Soglasje in zasebnost",
+    "aria": "Nastavitve soglasja",
+    "intro": "Pomagaj nam, da {{brand}} postane še boljši. Piškotke uporabljamo, da razumemo uporabo aplikacije in dosežemo več družin. Tapni kategorijo, da preklopiš ✓ Da / ✗ Ne / — Nevtralno.",
+    "save": "Shrani izbire",
+    "saving": "Shranjujem…",
+    "skip": "Preskoči",
+    "closing": "Zapiram…",
+    "analytics": "Analitika in izboljšave",
+    "analyticsDesc": "Pomaga nam razumeti, kako se aplikacija uporablja, da jo lahko izboljšamo.",
+    "ads": "Trženje",
+    "adsDesc": "Prikaže oglase, prilagojene tebi, na Meti (Facebook/Instagram) in Googlu.",
+    "adUserData": "Podatki platformam",
+    "adUserDataDesc": "Tvoje podatke deli z oglaševalskimi platformami za boljše ujemanje.",
+    "adPersonalization": "Prilagajanje",
+    "adPersonalizationDesc": "Oglase prilagodi tvojim zanimanjem in vedenju.",
+    "email": "E-pošta in namigi",
+    "emailDesc": "E-pošta z namigi, novicami in ponudbami od {{brand}}."
+  },
+  "subscription": {
+    "title": "Naročnina",
+    "loading": "Nalagam naročnino…",
+    "loadFailed": "Stanja naročnine ni bilo mogoče naložiti.",
+    "restore": "Obnovi nakupe",
+    "manage": "Uredi naročnino",
+    "activate": "Vklopi Premium",
+    "viewPlans": "Poglej naročnine",
+    "howToActivate": "Kako vklopiš Premium",
+    "webActivateHint": "Premium vklopiš v aplikaciji za iPhone ali Android.",
+    "restoreSuccess": "Nakupi so obnovljeni. Premium je aktiven.",
+    "restoreNone": "Ni nakupov za obnovitev.",
+    "restoreFailed": "Nakupov ni bilo mogoče obnoviti.",
+    "launchHoldTitle": "Dostop ob zagonu — obračunavanje še ni vklopljeno",
+    "launchHoldBody": "Aplikacijo lahko uporabljaš naprej. Dokler je obračunavanje izklopljeno, naročnina ni potrebna.",
+    "complimentaryTitle": "Brezplačno do 31. decembra 2026",
+    "complimentaryBody": "{{brand}} je brezplačen do 31. decembra 2026. Naročnina ali način plačila nista potrebna. Ta ponudba se sama ne spremeni v plačljivo naročnino.",
+    "complimentaryBodyUntil": "Brezplačno do {{date}}. Naročnina ali način plačila nista potrebna in ta ponudba se sama ne spremeni v plačljivo naročnino. Od 1. januarja 2027 se lahko odločiš, ali se naročiš.",
+    "launchTitle": "Dostop ob zagonu",
+    "launchBody": "Aplikacijo lahko uporabljaš zdaj. Naročnina še ni potrebna.",
+    "launchBodyUntil": "Aplikacijo lahko uporabljaš zdaj. Naročnina še ni potrebna. Plačljivi začetek: {{date}}.",
+    "noPremium": "Ni aktivnega Premium",
+    "choosePlan": "Izberi Premium mesečno ali Premium letno za poln dostop.",
+    "billingNotLive": "Naročnina še ni potrebna. Obračunavanje ni vklopljeno.",
+    "activateBody": "Vklopi Premium za poln dostop do aplikacije.",
+    "grandfatheredTitle": "Premium je vključen trajno",
+    "grandfatheredBody": "Tvoja družina ima poln dostop brezplačno.",
+    "trialTitle": "Premium – brezplačni preizkus",
+    "ends": "Poteče {{date}}",
+    "giftTitle": "Premium – darilna kartica",
+    "validUntil": "Velja do {{date}}",
+    "graceTitle": "Premium – plačilo je treba posodobiti",
+    "graceBody": "Dostop še deluje, a plačilo je treba urediti v {{store}}.",
+    "activeTitle": "Premium – {{plan}} prek {{store}}",
+    "planYearly": "letni paket",
+    "planMonthly": "mesečni paket"
+  },
+  "theme": {
+    "title": "Videz",
+    "darkMode": "Temni način",
+    "darkHint": "Vklopi temno temo za prijetnejšo uporabo v temi",
+    "toggleAria": "Preklopi temni način",
+    "colorBlind": "Tema za barvno slepoto",
+    "colorBlindHint": "Prilagodi barve različnim vrstam barvne slepote",
+    "colorNone": "Brez (privzeto)",
+    "protanopia": "Protanopija (slepi za rdečo)",
+    "deuteranopia": "Devteranopija (slepi za zeleno)",
+    "tritanopia": "Tritanopija (slepi za modro)"
+  },
+  "viewMode": {
+    "dualAccess": "Imaš dostop do pogleda starša in pedagoga.",
+    "switchPedagog": "🌟 Preklopi na pogled pedagoga",
+    "switchParent": "👨‍👩‍👧 Preklopi na pogled starša"
+  },
+  "loadError": {
+    "title": "Nastavitev družine ni bilo mogoče naložiti",
+    "fallback": "Nastavitev družine zdaj ni bilo mogoče naložiti.",
+    "retry": "Poskusi znova",
+    "retryIn": "Poskusi znova čez {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Tedenskih povzetkov ne bomo več pošiljali na tvojo e-pošto. Znova jih vklopiš pod Nastavitve → Obvestila.",
+    "reward": "Ne bomo več pošiljali e-pošte, ko otrok želi unovčiti nagrado. Znova jih vklopiš pod Nastavitve → Obvestila.",
+    "all": "Vsa e-poštna obvestila so izklopljena. Znova jih vklopiš pod Nastavitve → Obvestila.",
+    "invalidTitle": "Neveljavna povezava",
+    "invalidBody": "Povezava je neveljavna ali je potekla.",
+    "errorTitle": "Nekaj je šlo narobe",
+    "errorBody": "Poskusi pozneje ali pojdi v Nastavitve v aplikaciji."
+  },
+  "notifArchive": {
+    "retry": "Poskusi znova",
+    "failedHidden": "Neuspešna ali izklopljena pošiljanja tukaj niso prikazana.",
+    "loading": "Nalagam arhiv potisnih obvestil…",
+    "loadError": "Arhiva potisnih obvestil ni bilo mogoče naložiti. To ne pomeni, da nimaš obvestil.",
+    "markAll": "Označi vse kot prebrano"
+  }
+}

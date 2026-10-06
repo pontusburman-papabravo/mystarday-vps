@@ -246,6 +246,84 @@
       "showOnFirstRun": true,
       "contentSource": "locale-files",
       "contentMap": "pl-PL.json"
+    },
+    {
+      "id": "cs-CZ",
+      "nativeName": "Čeština",
+      "base": "cs",
+      "aliases": ["cs", "cs-cz"],
+      "inputAliases": ["cs"],
+      "legacyJourneyTags": ["cs"],
+      "experiencePack": "child_cs",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "cs-CZ.json"
+    },
+    {
+      "id": "sk-SK",
+      "nativeName": "Slovenčina",
+      "base": "sk",
+      "aliases": ["sk", "sk-sk"],
+      "inputAliases": ["sk"],
+      "legacyJourneyTags": ["sk"],
+      "experiencePack": "child_sk",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "sk-SK.json"
+    },
+    {
+      "id": "sl-SI",
+      "nativeName": "Slovenščina",
+      "base": "sl",
+      "aliases": ["sl", "sl-si"],
+      "inputAliases": ["sl"],
+      "legacyJourneyTags": ["sl"],
+      "experiencePack": "child_sl",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "sl-SI.json"
+    },
+    {
+      "id": "hr-HR",
+      "nativeName": "Hrvatski",
+      "base": "hr",
+      "aliases": ["hr", "hr-hr"],
+      "inputAliases": ["hr"],
+      "legacyJourneyTags": ["hr"],
+      "experiencePack": "child_hr",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "hr-HR.json"
+    },
+    {
+      "id": "hu-HU",
+      "nativeName": "Magyar",
+      "base": "hu",
+      "aliases": ["hu", "hu-hu"],
+      "inputAliases": ["hu"],
+      "legacyJourneyTags": ["hu"],
+      "experiencePack": "child_hu",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "hu-HU.json"
+    },
+    {
+      "id": "ro-RO",
+      "nativeName": "Română",
+      "base": "ro",
+      "aliases": ["ro", "ro-ro"],
+      "inputAliases": ["ro"],
+      "legacyJourneyTags": ["ro"],
+      "experiencePack": "child_ro",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "ro-RO.json"
     }
   ]
 }

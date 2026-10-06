@@ -80,18 +80,30 @@
     return !!(access.preview && access.preview[component]);
   }
 
+  function chromeLabel(key, swedish, english) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t(key);
+      if (value && value !== key) return value;
+    }
+    const lang = window.I18n && typeof I18n.getCurrentLang === 'function' ? I18n.getCurrentLang() : '';
+    const base = String(lang || '').split('-')[0];
+    const configured = String((window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE').split('-')[0];
+    if (!base || base === configured) return swedish;
+    return english;
+  }
+
   function getCtaConfig(access) {
     if (access.rollout_mode === 'interest') {
       return {
         action: 'interest',
-        label: 'Jag är intresserad',
-        sublabel: 'Anmäl intresse för kommande beta',
+        label: chromeLabel('packageInterest.interested', 'Jag är intresserad', 'I am interested'),
+        sublabel: chromeLabel('packageInterest.interestedSub', 'Anmäl intresse för kommande beta', 'Register interest for the upcoming beta'),
       };
     }
     if (access.rollout_mode === 'purchase' && access.purchase_enabled) {
       return {
         action: 'purchase',
-        label: 'Köp nu',
+        label: chromeLabel('packageInterest.buyNow', 'Köp nu', 'Buy now'),
         sublabel: null,
       };
     }

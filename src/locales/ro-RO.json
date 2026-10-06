@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "O zi liniștită, stea cu stea"
+  },
+  "language": {
+    "label": "Limbă",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Schimbă limba",
+    "choice": {
+      "title": "Limbă",
+      "titleEn": "Limbă",
+      "description": "Poți schimba limba mai târziu în Setări.",
+      "descriptionEn": "Poți schimba limba mai târziu în Setări.",
+      "confirm": "Continuă",
+      "required": "Alege o limbă ca să continui",
+      "childNote": "Experiența părintelui e disponibilă în engleză. Experiența copilului e încă în suedeză până terminăm traducerea.",
+      "childNoteEn": "Experiența părintelui e disponibilă în engleză. Experiența copilului e încă în suedeză până terminăm traducerea."
+    },
+    "offer": {
+      "title": "{{brand}} e disponibil acum în română",
+      "body": "{{brand}} e disponibil acum și în engleză. Unele texte pot apărea încă în suedeză până terminăm traducerea.",
+      "question": "Vrei să rămâi la suedeză sau să încerci româna?",
+      "staySwedish": "Rămâi la suedeză",
+      "tryEnglish": "Încearcă româna",
+      "remindLater": "Amintește-mi mai târziu"
+    },
+    "legacyNotice": {
+      "body": "Activitățile existente rămân în limba lor. Activitățile noi folosesc engleza.",
+      "dismiss": "Am înțeles",
+      "dismissAria": "Închide informația despre limbă"
+    },
+    "reportIssue": "Raportează o problemă de limbă",
+    "feedback": {
+      "typeLabel": "Problemă de limbă sau de traducere",
+      "typeLabelEn": "Problemă de limbă sau de traducere",
+      "titlePlaceholder": "Ce arată greșit?",
+      "visibleText": "Ce text ai văzut?",
+      "suggestion": "Cum ar trebui să sune? (opțional)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Unde locuiește familia ta?",
+      "description": "Folosim asta pentru termenii și informațiile de confidențialitate potrivite. E separat de alegerea limbii.",
+      "label": "Țară",
+      "hint": "",
+      "required": "Alege o țară ca să continui",
+      "closedEu": "{{brand}} nu e disponibil încă în țara ta. Te anunțăm când deschidem mai multe piețe din UE.",
+      "closedIe": "{{brand}} nu e disponibil încă în Irlanda.",
+      "closedCa": "{{brand}} nu e disponibil încă în Canada.",
+      "closedFi": "{{brand}} nu e disponibil încă în Finlanda.",
+      "closedNo": "{{brand}} nu e disponibil încă în Norvegia.",
+      "closedDk": "{{brand}} nu e disponibil încă în Danemarca.",
+      "closedUk": "{{brand}} nu e disponibil încă în Regatul Unit.",
+      "closedUs": "{{brand}} nu e disponibil încă în Statele Unite.",
+      "closedOther": "{{brand}} nu e disponibil încă în țara ta.",
+      "euGroup": "Altă țară UE/SEE"
+    }
+  },
+  "nav": {
+    "login": "Conectează-te",
+    "register": "Creează cont",
+    "childLogin": "Intrare copil",
+    "dashboard": "Prezentare",
+    "logout": "Ieși din cont",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Simplifică viața de zi cu zi pentru toată familia",
+      "ogDescription": "Creează și urmează programe zilnice, activități și recompense"
+    },
+    "login": {
+      "title": "Conectează-te",
+      "pageTitle": "Conectare — {{brand}}",
+      "tagline": "Strălucim împreună",
+      "subtitle": "Bun venit înapoi la {{brand}}",
+      "email": "Adresă de e-mail",
+      "emailPlaceholder": "you@email.com",
+      "password": "Parolă",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Intră în cont",
+      "submitting": "Se intră în cont…",
+      "forgotPassword": "Ai uitat parola?",
+      "noAccount": "Nu ai cont?",
+      "createAccount": "Creează cont",
+      "childLogin": "Ești copil?",
+      "childLoginLink": "Ești copil? Intră aici",
+      "loginAsAdult": "Intră ca părinte",
+      "orDivider": "sau",
+      "continueWithApple": "Continuă cu Apple",
+      "continueWithGoogle": "Continuă cu Google",
+      "apple_caption": "Disponibil doar pe iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Te rugăm să introduci și e-mailul, și parola",
+      "genericError": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+      "mascotAlt": "Mascota stea",
+      "addChildBannerTitle": "👶 Intră ca părinte ca să adaugi un copil",
+      "addChildBannerBody": "„Sunt copil” nu e de ajuns aici — e nevoie de un părinte sau educator.",
+      "resetSuccessBannerTitle": "Parolă salvată",
+      "resetSuccessBannerBody": "Intră cu parola nouă.",
+      "backToChildPicker": "← Înapoi la alegerea copilului",
+      "linking": {
+        "emailExists": "Există deja un cont cu această adresă de e-mail.",
+        "promptApple": "Vrei să legi contul Apple de contul existent?",
+        "promptGoogle": "Vrei să legi contul Google de contul existent?",
+        "yes": "Da, leagă",
+        "cancel": "Anulează",
+        "modalTitleApple": "Leagă contul Apple",
+        "modalTitleGoogle": "Leagă contul Google",
+        "modalIntroApple": "Introdu parola ca să te autentifici și apoi leagă contul Apple.",
+        "modalIntroGoogle": "Introdu parola ca să te autentifici și apoi leagă contul Google.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Parolă",
+        "passwordPlaceholder": "Parola ta",
+        "submit": "Link",
+        "submitting": "Se leagă…",
+        "enterPassword": "Introdu parola.",
+        "wrongPassword": "Parolă incorectă.",
+        "failed": "Legarea a eșuat."
+      },
+      "apple": {
+        "unavailable": "Autentificarea cu Apple nu e disponibilă acum. Încearcă din nou sau autentifică-te cu e-mail.",
+        "notEnabled": "Autentificarea cu Apple nu e activată. Actualizează aplicația la ultima versiune.",
+        "cancelled": "Conectarea cu Apple a fost anulată.",
+        "incomplete": "Autentificarea cu Apple nu s-a încheiat. Încearcă din nou sau autentifică-te cu e-mail și parolă.",
+        "rateLimited": "Prea multe încercări. Așteaptă puțin și încearcă din nou.",
+        "genericError": "Ceva nu a mers bine la autentificarea cu Apple. Încearcă din nou sau autentifică-te cu e-mail și parolă.",
+        "failed": "Autentificarea cu Apple a eșuat. Încearcă din nou sau autentifică-te cu e-mail și parolă.",
+        "signInFailed": "Conectarea cu Apple a eșuat.",
+        "completionTitle": "Termină crearea contului",
+        "completionBody": "Alege țara și acceptă termenii. Apple a furnizat deja numele și e-mailul — nu le mai cerem.",
+        "completionSubmit": "Continuă cu același cont Apple"
+      },
+      "google": {
+        "emailConflictSettings": "Există deja un cont cu adresa asta de e-mail. Autentifică-te și leagă Google în Setări sau folosește autentificarea cu parolă.",
+        "loginFailed": "Conectarea cu Google a eșuat.",
+        "signInFailed": "Conectarea cu Google a eșuat."
+      },
+      "verify": {
+        "title": "Verifică-ți adresa de e-mail",
+        "body": "Trebuie să îți verifici adresa de e-mail ca să continui să folosești {{brand}}. Verifică inboxul (și spamul) pentru un e-mail de la noi.",
+        "emailLabel": "Adresă de e-mail:",
+        "resendBtn": "Trimite un link nou de verificare",
+        "resendSending": "Se trimite…",
+        "resendSuccess": "✅ Link nou de verificare trimis! Verifică inboxul și folderul de spam.",
+        "resendError": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+        "spamHint": "Verifică și folderul de spam. Linkul e valabil 24 de ore."
+      }
+    },
+    "entry": {
+      "back": "Înapoi",
+      "backWithArrow": "← Înapoi",
+      "welcome": {
+        "ariaLabel": "Bun venit",
+        "headline": "O viață de zi cu zi mai calmă, cu pași clari, programe și stele",
+        "lead": "{{brand}} îi ajută pe copii și pe familii cu rutinele zilnice, prin programe vizuale, pași clari și recompense care fac ziua mai ușor de parcurs, cu mai multă independență.",
+        "chipVisualSchedules": "Programe vizuale",
+        "chipStarsRewards": "Stele și recompense",
+        "chipMultipleUsers": "Mai mulți copii și adulți",
+        "startBtn": "Începe",
+        "existingBtn": "Am deja un cont",
+        "howItWorksBtn": "Cum funcționează aplicația",
+        "firstRunHeadline": "Bun venit la {{brand}}",
+        "firstRunCreateAccount": "Creează cont",
+        "firstRunLogIn": "Conectează-te",
+        "firstRunChildLink": "Sunt copil"
+      },
+      "role": {
+        "title": "Cine folosește aplicația acum?",
+        "kidAria": "Sunt copil",
+        "kidLabel": "Sunt copil",
+        "kidSub": "Vreau să îmi văd programul",
+        "kidAlt": "Copil",
+        "parentAria": "Sunt adult",
+        "parentLabel": "Sunt adult",
+        "parentSub": "Vreau să intru sau să încep",
+        "parentAlt": "Familie"
+      },
+      "adultStart": {
+        "ariaLabel": "Start pentru adult",
+        "title": "Bun venit! Cum vrei să continui?",
+        "existingLabel": "Am deja un cont",
+        "existingSub": "Intră cu Apple, Google sau e-mail",
+        "newLabel": "Sunt nou aici",
+        "newSub": "Vezi cum funcționează aplicația și creează un cont gratuit"
+      },
+      "signupIntro": {
+        "ariaLabel": "Începe",
+        "title": "Începe cu {{brand}}",
+        "sub": "Creează un cont gratuit și construiește primul program al copilului, cu pași clari, stele și obiective.",
+        "point1": "Programe vizuale pe care copilul le înțelege",
+        "point2": "Stele și recompense care motivează",
+        "point3": "Mai mulți copii și adulți în aceeași familie",
+        "createBtn": "Creează un cont gratuit",
+        "existingBtn": "Am deja un cont",
+        "founderNote": "De bază e inclus gratuit acum."
+      },
+      "howItWorks": {
+        "title": "Cum funcționează aplicația",
+        "step1Title": "1. Copilul își vede programul pas cu pas",
+        "step1Body": "Rutinele vizuale fac viața de zi cu zi clară și previzibilă.",
+        "step2Title": "2. Copilul primește stele când activitățile sunt gata",
+        "step2Body": "Micile reușite cresc motivația și independența.",
+        "step3Title": "3. Adulții urmăresc progresul și construiesc rutine împreună",
+        "step3Body": "Mai mulți copii și adulți pot împărți aceeași familie în aplicație.",
+        "close": "Închide"
+      },
+      "noscript": "JavaScript e necesar — activează JavaScript ca să te poți autentifica."
+    },
+    "register": {
+      "title": "Creează cont",
+      "pageTitle": "Creează cont | {{brand}}",
+      "pageHeading": "Creează un cont de părinte",
+      "pageLead": "Încearcă {{brand}} gratuit. Un program vizual cu suport prin imagini și recompense cu stele, care îl ajută pe copil să înțeleagă ziua, să urmeze rutinele și să devină mai independent.",
+      "pageLeadSecondary": "Pentru familiile care vor rutine mai clare, tranziții mai calme și mai puțină insistență în viața de zi cu zi.",
+      "subtitle": "Începe cu {{brand}}",
+      "nameLabel": "Numele tău",
+      "namePlaceholder": "ex. Anna",
+      "familyNameLabel": "Numele familiei",
+      "familyNamePlaceholder": "ex. Familia Popescu",
+      "familyNameAuto": "Generat automat din numele tău",
+      "familyNameGenerated": "Generat automat — schimbă dacă vrei",
+      "familyNameEdited": "Editat",
+      "email": "Adresă de e-mail",
+      "emailPlaceholder": "you@email.com",
+      "emailHelp": "Îți trimitem un link de verificare aici",
+      "password": "Parolă",
+      "passwordPlaceholder": "Cel puțin 8 caractere",
+      "passwordHelp": "Trebuie să aibă cel puțin 8 caractere",
+      "confirmPassword": "Confirmă parola",
+      "confirmPasswordPlaceholder": "Repetă parola",
+      "submit": "Creează cont",
+      "hasAccount": "Ai deja un cont?",
+      "loginLink": "Intră aici",
+      "childLoginLink": "Ești copil? Intră aici",
+      "gateHintLanguage": "Alege o limbă de mai sus ca să continui înregistrarea.",
+      "gateHintCountry": "Alege țara de mai sus ca să continui înregistrarea.",
+      "appleFromLoginHint": "Niciun cont nu e legat încă de acest ID Apple. Alege țara și acceptă termenii — numele și e-mailul vin de la Apple. Nu mai e nevoie de o autentificare Apple.",
+      "appleOnlyPath": "Creează-ți contul cu Apple. Numele și e-mailul vin de la Apple — nu completa formularul.",
+      "tagline": "O zi liniștită, stea cu stea",
+      "orDivider": "sau",
+      "continueWithApple": "Înscrie-te cu Apple",
+      "continueWithGoogle": "Înscrie-te cu Google",
+      "validatingInvite": "Se verifică invitația...",
+      "inviteInvalid": "Link de invitație nevalid sau expirat. Contactează persoana care te-a invitat.",
+      "inviteValidateFailed": "Nu s-a putut valida linkul de invitație. Încearcă din nou.",
+      "familyNameSuffix": "Familia lui {{name}}",
+      "termsRequired": "Trebuie să accepți termenii de utilizare și politica de confidențialitate",
+      "success": "Cont creat! Verifică e-mailul ca să îți confirmi contul.",
+      "termsPrefix": "Am citit și accept",
+      "termsLink": "Termeni de utilizare",
+      "termsAnd": "și",
+      "privacyLink": "Politica de confidențialitate",
+      "termsSuffix": ".",
+      "successTitle": "Cont creat! 🎉",
+      "successVerifyLine1": "Am trimis un link de verificare pe adresa ta de e-mail.",
+      "successVerifyLine2": "Verifică inboxul (și spamul).",
+      "successGracePeriod": "Te poți autentifica imediat și ai 24 de ore să îți verifici e-mailul.",
+      "successLoginBtn": "Intră în cont",
+      "inviteErrorDefault": "Link de invitație nevalid.",
+      "appleEmailExists": "Există deja un cont cu adresa asta de e-mail. Autentifică-te cu Apple sau folosește e-mail și parolă.",
+      "webDownload": {
+        "title": "Descarcă aplicația",
+        "lead": "Familiile noi își creează un cont în aplicație. Descarc-o din App Store sau Google Play.",
+        "appStoreAria": "Descarcă din App Store",
+        "playStoreAria": "Ia-o de pe Google Play",
+        "hasAccount": "Ai deja un cont?",
+        "loginLink": "Conectează-te"
+      }
+    },
+    "parentGate": {
+      "title": "Lacăt pentru părinte",
+      "hint": "Introdu PIN-ul ca să continui",
+      "keypadAria": "Tastatură PIN",
+      "cancel": "Anulează",
+      "forgotPinBackup": "Ai uitat PIN-ul? Autentifică-te cu e-mail sau Apple/Google",
+      "digitsEntered": "{{count}} din 4 cifre",
+      "backspace": "Șterge",
+      "confirm": "Confirmă",
+      "needFourDigits": "PIN-ul trebuie să aibă 4 cifre"
+    },
+    "childLogin": {
+      "title": "Bună! 👋",
+      "pageTitle": "Explorator de stele — {{brand}}",
+      "whoAreYou": "Cine ești?",
+      "selectProfile": "Alege-ți profilul și introdu PIN-ul.",
+      "back": "Înapoi",
+      "addChild": "Adaugă un copil",
+      "notMe": "Nu mă pot găsi",
+      "subtitle": "Scrie numele de utilizator și PIN-ul",
+      "username": "Nume de utilizator",
+      "usernamePlaceholder": "Numele tău de utilizator",
+      "pin": "PIN",
+      "pinPlaceholder": "4 cifre",
+      "submit": "Conectează-te",
+      "parentLogin": "Ești părinte?",
+      "parentLoginLink": "Intră aici",
+      "adultLogin": "Intră ca adult",
+      "adultLoginShort": "Adult",
+      "forgotPassword": "Ai uitat parola?",
+      "emptyNoChildren": "Încă niciun copil înregistrat.",
+      "nameHint": "Scrie-ți numele ca să intri",
+      "namePlaceholder": "Numele tău",
+      "continue": "Continuă →",
+      "switchChild": "Schimbă copilul",
+      "pinSub": "Introdu codul tău",
+      "attemptsLeft": "Încercări rămase",
+      "pinDotsAria": "Cod PIN",
+      "lockoutWait": "Așteaptă o clipă",
+      "lockoutSoon": "Poți încerca din nou curând",
+      "welcome": "Bun venit!",
+      "redirecting": "Te ducem la prezentare…",
+      "keypadAria": "Tastatură numerică",
+      "forgotPin": "Întreabă un părinte dacă ai uitat codul",
+      "needHelp": "Ai nevoie de ajutor?",
+      "contactParent": "Contactează un părinte"
+    },
+    "verify": {
+      "title": "Verifică-ți e-mailul",
+      "pageTitle": "Verifică e-mailul — {{brand}}",
+      "checkingTitle": "Se verifică e-mailul",
+      "checkingBody": "Așteaptă cât îți confirmăm adresa de e-mail...",
+      "checking": "Se verifică...",
+      "success": "E-mailul tău a fost verificat! Acum te poți autentifica.",
+      "successTitle": "E-mail verificat!",
+      "welcomeMessage": "Adresa ta de e-mail a fost verificată. Bun venit la {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Redirecționare în",
+      "redirectCountdownSuffix": "secunde...",
+      "error": "Linkul de verificare e nevalid sau a expirat.",
+      "errorTitle": "Verificarea a eșuat",
+      "verifyFailed": "Verificarea a eșuat. Linkul poate fi expirat.",
+      "noToken": "Nu s-a găsit niciun token de verificare în link.",
+      "genericError": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+      "resendPrompt": "Introdu adresa de e-mail ca să primești un link nou de verificare:",
+      "resendBtn": "Trimite link nou",
+      "resendSending": "Se trimite...",
+      "resendRateLimit": "Ai cerut deja mai multe linkuri. Încearcă din nou peste o oră.",
+      "resendSuccess": "✅ Dacă contul există, am trimis un link nou de verificare. Verifică inboxul și folderul de spam!",
+      "resendEmailInvalid": "Introdu o adresă de e-mail validă.",
+      "needHelpPrefix": "Ai nevoie de ajutor? Verifică spamul sau",
+      "contactUs": "scrie-ne",
+      "loginLink": "Mergi la intrare"
+    },
+    "forgotPassword": {
+      "title": "Parolă uitată",
+      "pageTitle": "Parolă uitată — {{brand}}",
+      "heading": "Ai uitat parola?",
+      "lead": "Nicio problemă! Îți trimitem un link ca să resetezi parola.",
+      "subtitle": "Introdu adresa de e-mail și îți trimitem un link de resetare",
+      "email": "Adresă de e-mail",
+      "emailPlaceholder": "you@email.com",
+      "emailHint": "Îți trimitem un link sigur ca să resetezi parola",
+      "submit": "Trimite linkul de resetare",
+      "sent": "Dacă adresa aia de e-mail e în sistem, am trimis un link de resetare.",
+      "successTitle": "Verifică e-mailul!",
+      "successBody": "Am trimis un link ca să resetezi parola. Verifică inboxul și folderul de spam.",
+      "orDivider": "sau",
+      "rememberPassword": "Îți amintești parola?",
+      "backToLogin": "Înapoi la intrare",
+      "helpTitle": "Nu ai primit e-mailul?",
+      "helpItem1": "Verifică spamul",
+      "helpItem2": "Verifică că ai introdus adresa de e-mail corectă",
+      "helpItem3": "Încearcă din nou peste câteva minute",
+      "helpItem4Suffix": "dacă ai nevoie de ajutor",
+      "contactSupport": "Contactează suportul"
+    },
+    "resetPassword": {
+      "title": "Resetează parola",
+      "pageTitle": "Resetează parola — {{brand}}",
+      "subtitle": "Alege o parolă nouă",
+      "password": "Parolă nouă",
+      "passwordPlaceholder": "Cel puțin 8 caractere",
+      "passwordHelp": "Trebuie să aibă cel puțin 8 caractere",
+      "confirmPassword": "Confirmă parola",
+      "confirmPasswordPlaceholder": "Repetă parola",
+      "submit": "Resetează parola",
+      "submitting": "Se salvează…",
+      "success": "Parola a fost schimbată! Acum te poți autentifica.",
+      "successRedirect": "Gata! Parola nouă e salvată.",
+      "alreadyUsed": "Parola a fost deja schimbată. Autentifică-te cu parola nouă.",
+      "error": "Linkul de resetare e nevalid sau a expirat.",
+      "invalidLink": "Link de resetare nevalid.",
+      "requestNewLink": "Cere un link nou de resetare",
+      "requestNewLinkShort": "Cere un link nou",
+      "resetFailed": "Parola nu a putut fi resetată",
+      "rememberPassword": "Îți amintești parola?",
+      "goToLoginInline": "Mergi la intrare",
+      "loginLink": "Mergi la intrare"
+    },
+    "supportBubble": {
+      "closeAria": "Închide",
+      "triggerAria": "Contactează suportul",
+      "title": "Ai nevoie de ajutor? 💬",
+      "subtitle": "Răspundem cât putem de repede",
+      "oooSubtitle": "Suntem plecați 1–10 septembrie",
+      "success": "Mulțumim! Am primit mesajul și revenim curând.",
+      "oooSuccess": "Mulțumim! Am primit mesajul. Suntem plecați între 1 și 10 septembrie și revenim cât putem de curând, cel târziu pe 11 septembrie.",
+      "openThread": "Deschide conversația",
+      "nameLabel": "Nume",
+      "namePlaceholder": "Numele tău",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Ca să îți putem răspunde",
+      "messageLabel": "Mesaj",
+      "messagePlaceholder": "Descrie problema...",
+      "submit": "Trimite mesajul",
+      "fillAllFields": "Completează toate câmpurile",
+      "messageMinLength": "Mesajul trebuie să aibă cel puțin 10 caractere",
+      "submitting": "Se trimite...",
+      "sendFailed": "Nu s-a putut trimite mesajul. Încearcă din nou.",
+      "genericError": "Ceva nu a mers bine"
+    },
+    "contactForm": {
+      "fillRequired": "Toate câmpurile sunt obligatorii.",
+      "emailInvalid": "Introdu o adresă de e-mail validă.",
+      "messageTooShort": "Mesajul e prea scurt (cel puțin 5 caractere).",
+      "submitting": "Se trimite…",
+      "submit": "Trimite",
+      "genericError": "Ceva nu a mers bine. Încearcă din nou.",
+      "openThread": "Deschide conversația"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "E-mailul și parola sunt obligatorii",
+        "emailRequired": "Adresa de e-mail e obligatorie",
+        "accountBlocked": "Contul tău a fost blocat. Contactează administratorul.",
+        "emailVerificationRequired": "Trebuie să îți verifici adresa de e-mail ca să continui",
+        "verificationTokenRequired": "Tokenul de verificare e obligatoriu",
+        "invalidVerificationLink": "Link de verificare nevalid sau expirat",
+        "resendVerificationRateLimit": "Ai cerut deja mai multe linkuri de verificare. Încearcă din nou peste o oră.",
+        "tokenAndPasswordRequired": "Tokenul și parola sunt obligatorii",
+        "invalidResetLink": "Link de resetare nevalid sau expirat. Cere un link nou.",
+        "parentOnlyViewMode": "Doar părinții pot actualiza modul de vedere",
+        "parentOnlyUiViewMode": "Doar părinții pot actualiza modul de vedere",
+        "parentOnlyTheme": "Doar părinții pot actualiza tema",
+        "preferencesSaveFailed": "Nu s-au putut salva setările",
+        "uiViewModeSaveFailed": "Nu s-a putut salva modul de vedere",
+        "themeSaveFailed": "Nu s-a putut salva tema",
+        "userNotFound": "Utilizatorul nu a fost găsit",
+        "unknownUserType": "Tip de utilizator necunoscut",
+        "registrationClosed": "Înregistrarea e închisă momentan",
+        "invalidCountry": "Țară nevalidă",
+        "countryRequired": "Alege țara înainte să creezi un cont",
+        "registrationRequired": "ÎNLOCUIT — folosește appleAccountCompletionRequired. Nu redirecționa către înregistrarea cu e-mail și parolă.",
+        "appleAccountCompletionRequired": "Alege țara și acceptă termenii ca să termini crearea contului. Numele și e-mailul vin de la Apple.",
+        "familyNameRequired": "Numele e obligatoriu ca să creezi un cont de familie",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Înregistrarea din Suedia e temporar închisă.",
+          "MARKET_IE_CLOSED": "{{brand}} nu e disponibil încă în Irlanda.",
+          "MARKET_CA_CLOSED": "{{brand}} nu e disponibil încă în Canada.",
+          "MARKET_FI_CLOSED": "{{brand}} nu e disponibil încă în Finlanda.",
+          "MARKET_NO_CLOSED": "{{brand}} nu e disponibil încă în Norvegia.",
+          "MARKET_DK_CLOSED": "{{brand}} nu e disponibil încă în Danemarca.",
+          "MARKET_EU_CLOSED": "{{brand}} nu e disponibil încă în țara ta. Te anunțăm când deschidem mai multe țări din UE.",
+          "MARKET_UK_CLOSED": "{{brand}} nu e disponibil încă în Regatul Unit.",
+          "MARKET_US_CLOSED": "{{brand}} nu e disponibil încă în Statele Unite.",
+          "MARKET_OTHER_CLOSED": "{{brand}} nu e disponibil încă în țara ta.",
+          "MARKET_BILLING_NOT_READY": "Cumpărăturile nu sunt disponibile încă în țara asta, așa că nu putem crea un cont pe care nu l-ai putea folosi."
+        }
+      },
+      "success": {
+        "emailVerified": "Adresa ta de e-mail a fost verificată! Acum te poți autentifica.",
+        "resendVerification": "Dacă contul există, se trimite un link nou de verificare",
+        "forgotPassword": "Dacă adresa de e-mail există, trimitem un link"
+      }
+    },
+    "errors": {
+      "nameRequired": "Te rugăm să îți scrii numele",
+      "emailRequired": "Adresa de e-mail e obligatorie",
+      "emailInvalid": "Adresă de e-mail nevalidă",
+      "passwordRequired": "Parola e obligatorie",
+      "passwordTooShort": "Parola trebuie să aibă cel puțin 8 caractere",
+      "passwordMismatch": "Parolele nu se potrivesc",
+      "usernameRequired": "Numele de utilizator e obligatoriu",
+      "pinRequired": "PIN-ul e obligatoriu",
+      "pinInvalid": "PIN-ul trebuie să aibă 4 cifre",
+      "invalidCredentials": "E-mail sau parolă incorectă",
+      "accountLocked": "Contul tău e blocat temporar. Încearcă din nou în 15 minute.",
+      "emailNotVerified": "Trebuie să îți verifici mai întâi adresa de e-mail",
+      "emailExists": "Există deja un cont cu acea adresă de e-mail",
+      "tooManyAttempts": "Prea multe încercări. Așteaptă puțin și încearcă din nou.",
+      "serverError": "Ceva nu a mers bine. Încearcă din nou mai târziu.",
+      "invalidValues": "Valori nevalide",
+      "invalidParams": "Parametri de adresă nevalizi",
+      "invalidQuery": "Parametri de căutare nevalizi",
+      "parentPinInvalid": "PIN greșit — încearcă din nou",
+      "logoutFailed": "Ieșirea din cont a eșuat. Te rugăm să încerci din nou.",
+      "logoutRateLimited": "Prea multe încercări. Așteaptă puțin și încearcă din nou.",
+      "handoffInvalid": "Nu s-a putut restabili sesiunea de adult. Autentifică-te ca părinte.",
+      "userNotFound": "Utilizatorul nu a fost găsit",
+      "invalidPassword": "Parolă incorectă",
+      "tokenRequired": "Tokenul e obligatoriu",
+      "idTokenRequired": "idToken e obligatoriu",
+      "allFieldsRequired": "Toate câmpurile sunt obligatorii",
+      "messageTooShort": "Mesajul trebuie să aibă cel puțin 10 caractere",
+      "serviceUnavailable": "Serviciul e temporar indisponibil",
+      "nameTooShort": "Numele e obligatoriu (cel puțin 2 caractere)",
+      "roleRequired": "Rolul e obligatoriu",
+      "consentRequired": "Trebuie să fii de acord să îți păstrăm datele",
+      "refreshInvalid": "Tokenul de reîmprospătare e nevalid sau expirat",
+      "authRequired": "Autentificare necesară",
+      "passwordTooShort6": "Parola trebuie să aibă cel puțin 6 caractere"
+    }
+  },
+  "surveys": {
+    "thankYou": "Mulțumim pentru răspuns!",
+    "errors": {
+      "unavailable": "Sondajul nu e disponibil chiar acum",
+      "notFound": "Sondajul nu a fost găsit",
+      "closed": "Sondajul e închis",
+      "paused": "Sondajul e pauzat",
+      "alreadyAnswered": "Ai răspuns deja la sondajul ăsta",
+      "alreadySubmitted": "Sondajul a fost deja trimis",
+      "questionIdRequired": "Întrebarea e obligatorie",
+      "invalidQuestion": "Întrebare nevalidă",
+      "maxSelections": "Poți alege cel mult {{max}}",
+      "invalidOption": "Opțiune de răspuns nevalidă",
+      "sessionNotFound": "Sesiunea nu a fost găsită",
+      "answerFirst": "Răspunde mai întâi la sondaj",
+      "contestNotOpen": "Tragerea la sorți nu e deschisă",
+      "contestClosed": "Tragerea la sorți e închisă",
+      "ageRequired": "Trebuie să ai 18 ani sau mai mult ca să intri",
+      "contestConsent": "Consimțământul e obligatoriu ca să intri la tragerea la sorți",
+      "contestAlready": "Ești deja înscris la tragerea la sorți",
+      "emailAlready": "Adresa asta e deja introdusă",
+      "idActionRequired": "Sondajul și acțiunea sunt obligatorii"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bun venit, {{name}}!",
+    "todaySchedule": "Programul de azi",
+    "children": "Copii",
+    "addChild": "Adaugă copil",
+    "settings": "Setări",
+    "noChildren": "Nu ai adăugat încă niciun copil. Începe cu primul copil!",
+    "stars": "Stele",
+    "streak": "Serie"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Prima mea stea"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Bună {{name}}! ⭐",
+    "today": "Azi",
+    "now": "Acum",
+    "next": "Următorul",
+    "later": "Mai târziu",
+    "done": "Gata!",
+    "stars": "Stelele mele",
+    "rewards": "Recompense"
+  },
+  "sections": {
+    "morgon": "Dimineață",
+    "dag": "Zi",
+    "kvall": "Seară",
+    "natt": "Noapte"
+  },
+  "settings": {
+    "title": "Setări",
+    "family": {
+      "title": "Setări familie",
+      "timeDisplayMode": "Modul de afișare a orei",
+      "morningStart": "Început de dimineață",
+      "morningEnd": "Sfârșit de dimineață",
+      "dayStart": "Început de zi",
+      "dayEnd": "Sfârșit de zi",
+      "eveningStart": "Început de seară",
+      "eveningEnd": "Sfârșit de seară",
+      "nightStart": "Început de noapte",
+      "nightEnd": "Sfârșit de noapte",
+      "streakStartDay": "Ziua de start a seriei",
+      "soundEnabled": "Sunet pornit",
+      "save": "Salvează setările familiei"
+    },
+    "language": {
+      "description": "Alege limba aplicației. Unele traduceri în engleză pot fi încă incomplete.",
+      "switchBack": "Înapoi la suedeză"
+    },
+    "invite": {
+      "title": "Invită un părinte",
+      "description": "Invită un alt părinte să vadă și să gestioneze programele copiilor. Invitația e valabilă 7 zile.",
+      "email": "Adresă de e-mail",
+      "emailPlaceholder": "parent@email.com",
+      "selectChildren": "Alege la ce copii are acces părintele invitat:",
+      "submit": "Trimite invitația",
+      "pending": "Invitații în așteptare:"
+    },
+    "password": {
+      "title": "Schimbă parola",
+      "current": "Parola actuală",
+      "new": "Parolă nouă",
+      "confirm": "Confirmă parola nouă",
+      "submit": "Schimbă parola",
+      "mismatch": "Parolele nu se potrivesc"
+    },
+    "notifications": {
+      "title": "Setări notificări",
+      "weeklySummary": "Rezumat săptămânal (duminică 21:00)",
+      "rewardRedemption": "Folosire recompensă",
+      "emailEnabled": "Toate e-mailurile, global",
+      "save": "Salvează setările de notificări"
+    },
+    "theme": {
+      "title": "Aspect",
+      "darkMode": "Mod întunecat",
+      "darkModeDescription": "Activează tema întunecată pentru un plus de confort pe lumină slabă",
+      "colorBlind": "Temă pentru daltonism",
+      "colorBlindDescription": "Ajustează culorile pentru diferite tipuri de daltonism",
+      "colorBlindNone": "Niciunul (implicit)",
+      "colorBlindProtanopia": "Protanopie (roșu)",
+      "colorBlindDeuteranopia": "Deuteranopie (verde)",
+      "colorBlindTritanopia": "Tritanopie (albastru)"
+    },
+    "trustedDevices": {
+      "title": "Dispozitive de încredere",
+      "description": "Dispozitivele de copil pot deschide vederea copilului fără PIN după ce aprobi dispozitivul aici.",
+      "disabled": "Modul dispozitiv de copil nu e activat încă pentru familia ta.",
+      "enrollHint": "Pe tableta sau telefonul copilului: alege copilul și fă dispozitivul ăsta dispozitivul lui de copil.",
+      "enrollThisDevice": "Fă dispozitiv de copil",
+      "enrollSharedDevice": "Fă dispozitiv de familie partajat",
+      "enrollFailed": "Nu s-a putut înregistra dispozitivul. Încearcă din nou.",
+      "empty": "Niciun dispozitiv de încredere înregistrat.",
+      "revoke": "Retrage",
+      "revokeAll": "Retrage toate dispozitivele",
+      "revokeAllConfirm": "Toate dispozitivele de încredere vor fi deconectate. Continui?",
+      "modeChild": "Dispozitivul copilului",
+      "modeShared": "Dispozitiv partajat",
+      "modeParent": "Dispozitivul părintelui",
+      "unknownChild": "Copil"
+    },
+    "thisDevice": {
+      "title": "Acest dispozitiv",
+      "description": "Cum ar trebui telefonul sau tableta asta să deschidă aplicația pentru familie.",
+      "setupTitle": "Cum va fi folosit dispozitivul ăsta?",
+      "setupLead": "Poți schimba asta mai târziu în Setări.",
+      "setupLater": "Nu acum",
+      "openSettings": "Deschide setările",
+      "usageHeading": "Utilizare",
+      "usageParent": "Telefonul părintelui meu",
+      "usageShared": "Partajat cu copiii",
+      "usageChild": "Dispozitivul copilului",
+      "startHeading": "Începe ca",
+      "startParent": "Părinte",
+      "startChoose": "Alege copilul",
+      "startParentFixed": "Dispozitivul ăsta deschide mereu vederea de părinte.",
+      "startChildFixed": "Dispozitivul ăsta e legat de un copil.",
+      "childrenHeading": "Copii pe acest dispozitiv",
+      "adultAccessHeading": "Acces adult",
+      "adultPinSet": "PIN-ul e setat",
+      "adultPinMissing": "Setează un PIN în Setări",
+      "biometricIos": "Face ID sau Touch ID când sunt disponibile",
+      "biometricAndroid": "Biometrie sau blocare de dispozitiv când sunt disponibile",
+      "biometricWeb": "PIN pentru modul adult",
+      "widgetsHeading": "Widgeturi",
+      "widgetsLinked": "Widgeturile de pe ecranul principal sunt legate de programul copilului.",
+      "widgetsNone": "Niciun widget legat pe dispozitivul ăsta.",
+      "changeStartHeading": "Schimbă modul de start",
+      "revokeThis": "Elimină accesul pentru dispozitivul ăsta",
+      "revokeConfirm": "Dispozitivul trebuie aprobat din nou ca să poată copiii deschide aplicația fără PIN. Continui?",
+      "otherDevices": "Alte dispozitive ale familiei",
+      "openForChild": "Deschide direct pentru {{name}}",
+      "saveFailed": "Nu s-a putut salva. Încearcă din nou."
+    }
+  },
+  "common": {
+    "loading": "Se încarcă...",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "back": "Înapoi",
+    "confirm": "Confirmă",
+    "yes": "Da",
+    "no": "Nu",
+    "networkError": "Eroare de rețea"
+  },
+  "categories": {
+    "title": "Categorii",
+    "subtitle": "Organizează activitățile în categorii",
+    "addCategory": "Adaugă categorie",
+    "editCategory": "Editează categoria",
+    "categoryName": "Numele categoriei",
+    "categoryNamePlaceholder": "ex. Igienă",
+    "noCategories": "Încă nicio categorie",
+    "defaultBadge": "Implicit",
+    "deleteConfirm": "Sigur vrei să ștergi această categorie?",
+    "hasActivities": "Categoria are activități legate. Elimină întâi activitățile.",
+    "saved": "Categorie salvată",
+    "deleted": "Categorie ștearsă"
+  },
+  "activities": {
+    "title": "Activități",
+    "subtitle": "Creează și gestionează șabloane de activități pentru familie",
+    "addActivity": "Adaugă activitate",
+    "editActivity": "Editează activitatea",
+    "activityName": "Numele activității",
+    "activityNamePlaceholder": "ex. Spală dinții",
+    "icon": "Pictogramă",
+    "category": "Categorie",
+    "noCategory": "Fără categorie",
+    "starValue": "Valoare în stele",
+    "starValueHelp": "Câte stele câștigă copilul",
+    "favorite": "Marchează ca favorit",
+    "favoriteHelp": "Favoritele apar primele în program",
+    "noActivities": "Încă nicio activitate. Creează prima!",
+    "filterAll": "Toate",
+    "favoritesFirst": "Favoritele apar primele",
+    "saved": "Activitate salvată",
+    "deleted": "Activitate ștearsă",
+    "deleteConfirm": "Sigur vrei să ștergi această activitate?",
+    "usedInSchedule": "Activitatea e folosită într-un program. Elimin-o de acolo întâi."
+  },
+  "schedule": {
+    "title": "Program săptămânal",
+    "subtitle": "Construiește programe pentru fiecare copil și fiecare zi",
+    "selectChild": "Alege copilul",
+    "selectDay": "Alege ziua",
+    "noChild": "Alege un copil mai sus ca să vezi programul",
+    "noScheduleForDay": "Niciun program pentru ziua asta",
+    "createSchedule": "Creează program pentru ziua asta",
+    "addActivity": "Adaugă activitate",
+    "startTime": "Oră de început",
+    "endTime": "Oră de sfârșit",
+    "section": "Secțiune",
+    "copyDay": "Copiază ziua",
+    "copyDayTitle": "Copiază programul în alte zile",
+    "copyFromDay": "Copiază din",
+    "copyToDays": "Copiază în (alege una sau mai multe)",
+    "copyToChild": "Copiază la alt copil",
+    "copyToChildTitle": "Copiază tot programul săptămânal în",
+    "copyConfirm": "Copiază",
+    "copied": "Program copiat!",
+    "deleteSchedule": "Șterge ziua",
+    "deleteConfirm": "Sigur? Toate activitățile din ziua asta vor fi eliminate.",
+    "deleted": "Program șters",
+    "activityAdded": "Activitate adăugată",
+    "activityRemoved": "Activitate eliminată",
+    "reordered": "Ordinea e actualizată",
+    "days": {
+      "0": "Duminică",
+      "1": "Luni",
+      "2": "Marți",
+      "3": "Miercuri",
+      "4": "Joi",
+      "5": "Vineri",
+      "6": "Sâmbătă"
+    },
+    "daysShort": {
+      "0": "Dum",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mie",
+      "4": "Joi",
+      "5": "Vin",
+      "6": "Sâm"
+    },
+    "sections": {
+      "morgon": "Dimineață",
+      "dag": "Zi",
+      "kvall": "Seară",
+      "natt": "Noapte"
+    }
+  },
+  "dailyLog": {
+    "title": "Jurnalul zilei",
+    "subtitle": "Activități pentru zi",
+    "today": "Azi",
+    "prevDay": "Ziua anterioară",
+    "nextDay": "Ziua următoare",
+    "selectDate": "Alege data",
+    "selectChild": "Alege copilul",
+    "noChild": "Alege un copil mai sus ca să vezi jurnalul",
+    "noSchedule": "Niciun program pentru ziua asta",
+    "noScheduleHint": "Adaugă un program săptămânal ca să se creeze jurnale zilnice automat.",
+    "loading": "Se încarcă jurnalul...",
+    "paused": "Zi pauzată",
+    "pausedHint": "Ziua asta e pe pauză (de ex. zi de boală sau liber).",
+    "pauseDay": "Pauză pentru zi",
+    "unpauseDay": "Repornește ziua",
+    "pauseConfirm": "Pui ziua pe pauză? Activitățile nu se pun în minus.",
+    "dayPaused": "Zi pauzată",
+    "dayUnpaused": "Zi reluată",
+    "markDone": "Marchează gata",
+    "markUndone": "Desfă",
+    "completed": "Gata",
+    "notCompleted": "Nefăcut",
+    "completedAt": "Marcat gata la",
+    "stars": "stele",
+    "star": "stea",
+    "progress": "{{completed}} din {{total}} activități gata",
+    "allDone": "Toate activitățile sunt gata! 🎉",
+    "emptySection": "Nicio activitate în secțiunea asta",
+    "history": "Istoric",
+    "historyRange": "Alege intervalul",
+    "historyFrom": "De la",
+    "historyTo": "Până la",
+    "historyFetch": "Ia istoricul",
+    "historyEmpty": "Niciun jurnal pentru intervalul ales",
+    "sections": {
+      "morgon": "Dimineață",
+      "dag": "Zi",
+      "kvall": "Seară",
+      "natt": "Noapte"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Verifică-ți e-mailul — {{brand}}",
+      "title": "Bun venit la {{brand}}! ⭐",
+      "body": "Apasă butonul de mai jos ca să îți verifici adresa de e-mail:",
+      "button": "Verifică e-mailul",
+      "expiry": "Linkul ăsta e valabil {{hours}} ore."
+    },
+    "resetPassword": {
+      "subject": "Resetează parola — {{brand}}",
+      "title": "Resetează parola",
+      "greeting": "Bună {{name}}",
+      "greetingGeneric": "Bună",
+      "body": "atinge aici ca să setezi o parolă nouă:",
+      "button": "Resetează parola",
+      "expiry": "Linkul e valabil {{hours}} oră. Ignoră e-mailul dacă nu ai cerut o resetare."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} încearcă să intre",
+      "title": "Încercare de conectare pe {{brand}}",
+      "body": "{{childName}} a introdus PIN-ul greșit de 3 ori pe {{brand}}.",
+      "inApp": "{{childName}} a încercat să se autentifice cu PIN-ul greșit de 3 ori ({{time}})",
+      "help": "Poți ajuta cu codul corect sau reseta PIN-ul în aplicație.",
+      "button": "Deschide {{brand}}",
+      "footer": "Dacă nu a fost copilul tău, autentifică-te și schimbă PIN-ul în setările copilului."
+    },
+    "accountDeletionRequested": {
+      "subject": "Contul tău {{brand}} a fost marcat pentru ștergere",
+      "greeting": "Bună {{name}}!",
+      "intro": "Am primit o cerere de ștergere a contului tău și a tuturor datelor asociate.",
+      "graceTitle": "⏳ Datele tale vor fi șterse definitiv în 30 de zile.",
+      "undo": "În perioada asta te poți autentifica și <strong>anula ștergerea</strong> dacă te răzgândești.",
+      "loginHint": "Dacă te răzgândești — autentifică-te la {{brand}} și vei vedea o opțiune de anulare.",
+      "footer": "Dacă a fost o greșeală, poți ignora e-mailul. Datele vor fi șterse în 30 de zile dacă nu anulezi.",
+      "contact": "Dacă ai întrebări, scrie-ne la {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Contul tău {{brand}} a fost șters",
+      "greeting": "Bună {{name}}",
+      "intro": "Contul tău și toate datele asociate au fost șterse definitiv din {{brand}}.",
+      "dataRemoved": "Toate familiile, copiii, programele, activitățile și stelele au fost eliminate.",
+      "thanks": "Sperăm că {{brand}} ți-a fost de folos cât l-ai folosit.",
+      "return": "Dacă vrei să creezi un cont nou, ești binevenit oricând la {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Lasă copilul să încerce primul pas ⭐",
+      "greeting": "Bună {{name}}!",
+      "body": "Programul e gata. Apoi lasă copilul să se autentifice cu PIN-ul — durează sub un minut.",
+      "button": "Continuă la intrarea copilului"
+    },
+    "welcomeShell": {
+      "headerTitle": "Bun venit! 🌟",
+      "cta": "Deschide {{brand}} ⭐",
+      "footerIntro": "Primești e-mailul ăsta pentru că te-ai înscris recent la {{brand}}.",
+      "unsubscribe": "Dezabonare"
+    },
+    "common": {
+      "genericParent": "Părinte",
+      "genericInviter": "Cineva",
+      "genericPedagogInviter": "Un părinte",
+      "genericChild": "copilul tău",
+      "genericReward": "recompensa",
+      "genericYou": "tu",
+      "greetingNamed": "Bună {{name}}",
+      "greeting": "Bună",
+      "familyNamed": "familia „{{familyName}}”",
+      "aFamily": "o familie",
+      "settingsNotifications": "Setări → Notificări",
+      "settingsNotificationsHtml": "Setări → <strong>Notificări</strong>"
+    },
+    "invite": {
+      "subject": "Ești invitat la {{familyLabel}} pe {{brand}} ⭐",
+      "title": "Ai fost invitat! ⭐",
+      "body": "{{greeting}}, {{inviterName}} te-a invitat la {{familyLabel}} pe {{brand}}.",
+      "intro": "{{brand}} e un program vizual zilnic care îi ajută pe copii să își înțeleagă ziua, să bifeze activități și să strângă stele.",
+      "ctaIntro": "Apasă aici ca să îți creezi parola și să activezi contul:",
+      "button": "Activează contul",
+      "footer": "Invitația e valabilă 7 zile. Ignoră e-mailul dacă nu așteptai o invitație."
+    },
+    "pedagogInvite": {
+      "subject": "Ești invitat ca educator în {{familyName}} ⭐",
+      "title": "Bun venit ca educator! ⭐",
+      "greetingNamed": "Bună {{name}},",
+      "greeting": "Bună,",
+      "body": "{{inviterName}} te-a invitat ca educator în {{familyName}} pe {{brand}}.",
+      "intro": "Ca educator poți nota observații și urmări programul copilului.",
+      "button": "Acceptă invitația →",
+      "footer": "Invitația e valabilă 7 zile. Dacă nu așteptai e-mailul ăsta, îl poți ignora."
+    },
+    "winBack": {
+      "subject": "Revino pe drum într-un minut ⭐",
+      "greeting": "Bună {{name}}! 👋",
+      "body1": "Programul lui {{childName}} e tot acolo — deschide activitățile de azi și bifați-le împreună.",
+      "body2": "Durează doar un minut ca să reîncepi.",
+      "button": "Deschide programul →",
+      "settingsHint": "Poți opri e-mailurile astea la {{settingsLink}} în aplicație.",
+      "settingsLinkText": "Setări → Notificări"
+    },
+    "activationProgramInvite": {
+      "subject": "Un început blând pentru rutinele lui {{childName}}?",
+      "greeting": "Bună {{name}}!",
+      "body1": "Ai creat un cont și ai pregătit programul lui {{childName}} — bravo.",
+      "body2": "Multe familii spun că partea grea nu e să începi, ci <strong>să ții rutina</strong> când viața de zi cu zi preia controlul.",
+      "body3": "Poți încerca acum <strong>programul de 7 zile pentru început</strong>: pași scurți, zilnici, care te ajută ca părinte să ții ritmul. Programul copilului rămâne același.",
+      "button": "Da, ajută-ne în prima săptămână",
+      "footer": "Dacă nu vrei ghidul, aplicația merge ca de obicei — tot ce ai pregătit e tot acolo."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutina te așteaptă — încercați-o împreună diseară ⭐",
+        "greeting": "Bună {{name}}!",
+        "body1": "Ai deja un program. Mai rămâne să <strong>încercați rutina împreună</strong> — lasă copilul să se autentifice și să strângă prima stea.",
+        "body2": "Durează cam două minute. Fără presiune.",
+        "button": "Deschide Acasă →"
+      },
+      "noSchema": {
+        "subject": "Începe rutina — durează doar câteva minute ⭐",
+        "greeting": "Bună {{name}}!",
+        "body1": "Te-ai înscris — început bun! Următorul pas e să <strong>pregătești programul</strong> ca să știe copilul la ce să se aștepte în fiecare zi.",
+        "body2": "Durează cam cinci minute. Tot ce ai făcut deja e tot acolo dacă vrei să continui mai târziu.",
+        "button": "Continuă primii pași →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Ești abonat la buletinele de la {{brand}}",
+      "title": "Mulțumim pentru abonare! ⭐",
+      "greetingNamed": "Bună {{name}},",
+      "greeting": "Bună,",
+      "body": "Ești abonat acum la buletinele de la {{brand}}, cu sfaturi, noutăți și actualizări.",
+      "settings": "Te poți dezabona oricând la <a href=\"{{settingsUrl}}\">Setări</a> în aplicație sau prin linkul din josul fiecărui buletin.",
+      "signoff": "Cu drag,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} vrea să folosească „{{rewardName}}” ⭐",
+      "title": "Recompensă care așteaptă aprobarea! 🎁",
+      "greeting": "Bună {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> vrea să folosească:",
+      "cost": "Cost: {{starCost}} stele",
+      "approveHint": "Autentifică-te în aplicație ca să aprobi sau să refuzi folosirea.",
+      "settingsHint": "Poți opri notificările astea la {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "lună",
+      "howTitle": "Cum funcționează:",
+      "how1": "Creează programe și activități pentru copilul tău",
+      "how2": "Lasă copilul să adune stele în fiecare zi",
+      "how3": "Pune recompense în cufărul cu comori",
+      "footerIntro": "Primești e-mailul ăsta pentru că te-ai înscris recent la {{brand}}.",
+      "openApp": "Deschide aplicația",
+      "trial": {
+        "subject": "Bun venit la {{brand}} – perioada gratuită a început!",
+        "headerTitle": "Perioada ta gratuită a început! ⭐",
+        "intro": "Bun venit! Ai acum <strong>{{trialDays}} zile gratuite</strong> ca să încerci fiecare funcție din {{brand}} — fără card.",
+        "pricing": "După {{trialDays}} zile costă <strong>{{monthlyPrice}}</strong> — poți trece la un plan superior oricând vrei.",
+        "pricingOpen": "După {{trialDays}} zile alegi dacă continui cu un abonament.",
+        "cta": "Încearcă Premium ⭐",
+        "ctaHint": "Fără angajament — anulează când vrei"
+      },
+      "complimentary": {
+        "subject": "Bun venit la {{brand}} – gratuit până la {{freeUntil}}",
+        "headerTitle": "Gratuit până la {{freeUntil}}",
+        "intro": "Bun venit! <strong>{{brand}} e gratuit până la {{freeUntil}}.</strong> Nu e nevoie de abonament sau metodă de plată. Oferta asta nu devine automat un abonament plătit.",
+        "pricing": "Din {{paidFrom}} poți alege dacă continui cu un abonament. Nu se percepe nimic automat din cauza ofertei ăsteia.",
+        "cta": "Deschide aplicația",
+        "ctaHint": "Nu e nevoie de card. Oferta asta nu devine automat un abonament."
+      },
+      "introYear": {
+        "subject": "Bun venit la {{brand}}",
+        "headerTitle": "Bun venit! ⭐",
+        "intro": "Bun venit! Poți folosi funcțiile din {{brand}}.",
+        "pricing": "Nu e nevoie de plată pentru perioada asta.",
+        "cta": "Deschide aplicația",
+        "ctaHint": "Poți privi Premium oricând vrei"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Rezumat săptămânal ⭐ — {{weekLabel}}",
+      "greeting": "Bună {{name}}! 👋",
+      "intro": "Aici e rezumatul săptămânii pentru <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} a strâns {{stars}} stele săptămâna asta!",
+      "sharePrompt": "Cunoști un părinte căruia i-ar plăcea?",
+      "shareWhatsApp": "Distribuie pe WhatsApp",
+      "shareFriend": "Spune unui prieten",
+      "shareTextWithHighlight": "{{highlight}} Folosim {{brand}} pentru rutinele copiilor noștri – aruncă o privire:",
+      "shareTextGeneric": "Folosim {{brand}} pentru rutinele zilnice ale copiilor noștri – aruncă o privire:",
+      "starsEarned": "Stele câștigate",
+      "routinesCompleted": "Rutine finalizate",
+      "routinesOf": "{{completed}} din {{total}} ({{pct}}%)",
+      "moodAverage": "Stare (medie)",
+      "moodVeryHappy": "Foarte fericit 😄 ({{score}}/10)",
+      "moodHappy": "Fericit 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutru 😐 ({{score}}/10)",
+      "moodSad": "Trist 😔 ({{score}}/10)",
+      "encourageNoActivity": "Vine o săptămână nouă — încercați să bifați o rutină împreună, durează doar o clipă.",
+      "encourageProgress": "🌟 Continuați tot așa! Fiecare rutină terminată construiește obiceiuri pentru viață.",
+      "encourageSmallSteps": "🌟 Pașii mici contează — încercați să bifați o rutină împreună săptămâna asta.",
+      "genericChildName": "Copilul tău"
+    },
+    "notificationFooter": {
+      "settingsLink": "Setări → Notificări",
+      "optOutDefault": "Oprește notificarea asta",
+      "optOutWeeklySummary": "Oprește rezumatul săptămânal"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Ziua 1 — priviți împreună",
+        "body": "Așa vede {{childName}} programul — uitați-vă împreună.",
+        "ctaLabel": "Arată experiența copilului"
+      },
+      "2": {
+        "title": "Ziua 2 — verificare de dimineață",
+        "body": "Deschide prezentarea la un moment dat azi — durează doar 30 de secunde.",
+        "ctaLabel": "Deschide programul"
+      },
+      "3": {
+        "title": "Ziua 3 — sărbătorește o stea",
+        "body": "{{childName}} a câștigat o stea? Sărbătoriți împreună!",
+        "ctaLabel": "Vezi programul de azi",
+        "supportiveFallback": "Prima săptămână e despre început — e de ajuns să arunci o privire și să vezi că programul e gata."
+      },
+      "4": {
+        "title": "Ziua 4 — aplicația ta",
+        "body": "Ceva nu se potrivește? Schimbă o activitate dacă e nevoie.",
+        "ctaLabel": "Editează programul"
+      },
+      "5": {
+        "title": "Ziua 5 — recompensă",
+        "body": "Uită-te în cufărul cu comori — la ce visează {{childName}} ?",
+        "ctaLabel": "Deschide cufărul cu comori"
+      },
+      "6": {
+        "title": "Ziua 6 — împarte responsabilitatea",
+        "body": "Vrei să împărtășești responsabilitatea cu cineva?",
+        "ctaLabel": "Invită pe cineva",
+        "soloLabel": "Fac asta singur!"
+      },
+      "7": {
+        "title": "O săptămână! 🎉",
+        "body": "Felicitări! Cum a fost săptămâna?",
+        "ctaLabel": "Răspunde la întrebare"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "E timpul pentru „{{activityName}}” în {{minutes}} minute! ⭐",
+      "body": "Memento pentru {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Ține rutina mai departe 💫",
+      "day3Body": "Au trecut câteva zile — deschide programul și dă stelele de azi.",
+      "day7Title": "O săptămână de când ai fost aici",
+      "day7Body": "Programul copilului te așteaptă. Un control scurt e de ajuns.",
+      "day14Title": "Ne e dor de tine în aplicație",
+      "day14Body": "Două săptămâni fără activitate — intră și ține rutina vie."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} nu a intrat azi",
+      "body": "Verifică programul și ajută la completarea zilei!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} a strâns {{milestone}} stele! 🌟",
+      "bodyCongrats": "{{emoji}} Felicitări pentru {{childName}}!",
+      "body100": "Absolut uimitor! Te așteaptă provocări noi!"
+    },
+    "backfillReminder": {
+      "title": "Programul de ieri pentru {{childName}} lipsește",
+      "body": "Completează ziua de ieri ca totul să fie la zi!"
+    },
+    "custodyMorning": {
+      "title": "Azi: {{childName}} e cu tine",
+      "body": "Programul zilei te așteaptă în aplicație."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Predare mâine — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} la {{homeLabel}}",
+      "bodyPack": "🎒 Fă ghiozdanul e în programul de mâine.",
+      "bodyPrepare": "Nu uita să pregătești predarea săptămânală."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "a finalizat {{activityName}}!",
+      "bodyBatch": "a finalizat {{count}} activități!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} stele pentru {{childName}}!",
+      "body": "{{parentName}} i-a dat lui {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "stea",
+    "starLabelMany": "stele",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} vrea să folosească o recompensă!",
+      "body": "{{childName}} cere: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Bună dimineața! Verifică programul lui {{childName}} — durează 30 sec 🌅",
+      "day3Body": "{{childName}} a câștigat o stea azi? Sărbătoriți împreună ⭐",
+      "day4Body": "Ceva pare în neregulă? Schimbă o activitate ✏️",
+      "day5Body": "Uită-te în cufărul cu comori — la ce visează {{childName}} ? 🎁",
+      "day6Body": "Vrei să împărți responsabilitatea cu cineva? 👥",
+      "day7Body": "Felicitări! Cum a fost săptămâna?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Ceva nu a mers bine.",
+          "rewardIdRequired": "reward_id e obligatoriu",
+          "childNotFound": "Copilul nu a fost găsit",
+          "rewardNotFound": "Recompensa nu a fost găsită",
+          "requestNotFound": "Cererea nu a fost găsită",
+          "pendingOnlyApprove": "Poți aproba doar o cerere în așteptare",
+          "pendingOnlyDeny": "Poți refuza doar o cerere în așteptare",
+          "childIdRequired": "child_id e obligatoriu",
+          "reasonRequired": "Motivul e obligatoriu",
+          "starCountRange": "Numărul de stele trebuie să fie între 1 și 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id și goal_slug sunt obligatorii",
+          "childAccessDenied": "Nu ai acces la unul dintre copiii aleși.",
+          "dismissFailed": "Nu s-a putut închide întrebarea"
+        }
+      },
+      "success": {
+        "goalSet": "Obiectiv setat!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Mulțumim pentru feedback! Citim tot ce ajunge la noi.",
+    "contactAck": "Mulțumim! Am primit mesajul tău.",
+    "export": {
+      "noData": "Nicio dată",
+      "rateLimit": "Poți exporta datele doar o dată la 24 de ore. Încearcă din nou în {{hours}} ore.",
+      "notFound": "Utilizatorul nu a fost găsit"
+    },
+    "account": {
+      "deletionPending": "Contul tău a fost marcat pentru ștergere. Ai 30 de zile să te răzgândești.",
+      "alreadyPending": "Contul tău e deja marcat pentru ștergere."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Acces complet pentru toată familia",
+    "benefit1": "Toate rutinele și programele",
+    "benefit2": "Stele și funcțiile familiei tale",
+    "benefit3": "Toate datele tale rămân la tine",
+    "webNoticeTitle": "Activează Premium în aplicație",
+    "webNoticeBody": "Premium se cumpără prin App Store sau Google Play — nu pe web.",
+    "webNoticeBodyAppleOnly": "Premium se cumpără prin App Store — nu pe web. Android vine în curând.",
+    "downloadIphone": "Descarcă pentru iPhone",
+    "downloadAndroid": "Descarcă pentru Android",
+    "androidComingSoon": "Android vine curând",
+    "loadingPrices": "Se încarcă prețurile…",
+    "continue": "Continuă",
+    "restore": "Restaurează cumpărăturile",
+    "yearlyBadge": "Recomandat",
+    "yearlyPrice": "{{price}}/an",
+    "yearlySavings": "Economisești față de plata lunară",
+    "yearlyTermsKnownTrial": "{{trialDays}} zile gratuite · apoi {{price}}/an · se reînnoiește automat",
+    "yearlyTermsConditionalTrial": "14 zile de încercare gratuită pentru abonații noi eligibili · apoi {{price}}/an · se reînnoiește automat",
+    "yearlyTermsNoTrial": "{{price}}/an · se reînnoiește automat",
+    "monthlyPrice": "{{price}}/lună",
+    "monthlyBlurb": "Abonament lunar flexibil pentru familia ta.",
+    "monthlyTermsKnownTrial": "{{trialDays}} zile gratuite · apoi {{price}}/lună · se reînnoiește automat",
+    "monthlyTermsConditionalTrial": "14 zile de încercare gratuită pentru abonații noi eligibili · apoi {{price}}/lună · se reînnoiește automat",
+    "monthlyTermsNoTrial": "{{price}}/lună · se reînnoiește automat",
+    "autoRenewApple": "Abonamentul se reînnoiește automat dacă nu îl anulezi. Plata e gestionată de App Store. Poți gestiona sau anula abonamentul în contul Apple.",
+    "autoRenewGoogle": "Abonamentul se reînnoiește automat dacă nu îl anulezi. Plata e gestionată de Google Play. Poți gestiona sau anula abonamentul în contul Google.",
+    "termsLink": "Termeni",
+    "privacyLink": "Confidențialitate",
+    "legal": "Poți anula o perioadă de încercare gratuită înainte de facturare, după regulile App Store sau Google Play. Gestionează sau anulează în setările de abonament ale magazinului.",
+    "legalAppleOnly": "Poți anula o perioadă de încercare gratuită înainte de facturare. Gestionează sau anulează în setările de abonament din App Store.",
+    "legalGoogleOnly": "Poți anula o perioadă de încercare gratuită înainte de facturare. Gestionează sau anulează în setările de abonament din Google Play.",
+    "giftCard": "Am un card cadou",
+    "giftCodeLabel": "Cod cadou",
+    "giftRedeem": "Folosește cardul cadou",
+    "limitedAccount": "Continuă cu cont limitat",
+    "statusOpening": "Se deschide plata…",
+    "statusRestoring": "Se restaurează cumpărăturile…",
+    "statusSuccess": "Premium e activ! Bun venit înapoi.",
+    "statusCancelled": "Cumpărare anulată.",
+    "statusFailed": "Cumpărarea a eșuat. Te rugăm să încerci din nou.",
+    "statusUnavailable": "Abonamentele nu se pot încărca acum. Încearcă din nou.",
+    "statusAndroidComingSoon": "Premium pe Android vine curând.",
+    "statusNotNative": "Cumpărăturile nu sunt disponibile aici. Folosește aplicația.",
+    "restoreSuccess": "Cumpărături restaurate! Bun venit înapoi.",
+    "restoreNone": "Nicio cumpărare activă de restaurat.",
+    "giftSuccess": "Card cadou folosit!",
+    "giftFailed": "Nu s-a putut folosi codul.",
+    "launchEnded": "Accesul de lansare s-a încheiat. Abonează-te în aplicație ca să păstrezi accesul complet."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "dragă",
+      "subject": "Conversația ta de suport",
+      "text": "Bună, {{name}}!\n\nAm primit mesajul tău. Urmărește conversația și răspunde aici (un răspuns normal pe e-mail nu e vizibil pentru noi):\n{{url}}\n\nCu drag,\n{{fromName}}",
+      "htmlHi": "Bună {{name}}!",
+      "htmlReceived": "Am primit mesajul tău.",
+      "openLink": "Deschide conversația",
+      "htmlHint": "ca să urmărești conversația și să răspunzi. Un răspuns normal pe e-mail nu e vizibil pentru noi.",
+      "htmlBye": "Cu drag"
+    },
+    "reply": {
+      "subjectBug": "Re: Raportul tău de problemă",
+      "subjectFeedback": "Re: Feedbackul tău",
+      "subjectLanguage": "Re: Raportul tău de limbă",
+      "subjectContact": "Re: Mesajul tău",
+      "text": "Bună, {{name}}!\n\n{{reply}}\n\nCitește toată conversația și răspunde aici (un răspuns normal pe e-mail nu e vizibil pentru noi):\n{{url}}\n\n---\nMesajul tău inițial:\n{{original}}\n\nCu drag,\n{{fromName}}",
+      "htmlHi": "Bună {{name}}!",
+      "openLink": "Deschide conversația",
+      "htmlHint": "ca să citești toată conversația și să răspunzi. Un răspuns normal pe e-mail nu e vizibil pentru noi.",
+      "originalLabel": "Mesajul tău original:",
+      "htmlBye": "Cu drag"
+    },
+    "page": {
+      "title": "Conversația ta",
+      "intro": "Asta e toată conversația. Scrie mai jos dacă vrei să continui. Un răspuns normal pe e-mail nu e vizibil aici.",
+      "you": "Tu",
+      "us": "Noi",
+      "empty": "Încă niciun mesaj.",
+      "label": "Scrie-ne",
+      "placeholder": "Spune-ne ce se întâmplă…",
+      "submit": "Trimite",
+      "submitting": "Se trimite…",
+      "needHuman": "Am nevoie de mai mult ajutor de la o persoană",
+      "escalating": "Se trimite…",
+      "caseRef": "Caz {{ref}}",
+      "status": {
+        "new": "Primit",
+        "read": "Citit",
+        "in_progress": "În lucru",
+        "answered": "Răspuns",
+        "archived": "Închis"
+      }
+    },
+    "errors": {
+      "invalid": "Linkul e nevalid. Cere-ne să trimitem un răspuns nou.",
+      "expired": "Linkul a expirat. Cere-ne să trimitem unul nou.",
+      "revoked": "Linkul nu mai funcționează. Cere-ne să trimitem unul nou.",
+      "archived": "Cazul ăsta e închis. Contactează-ne din nou dacă mai ai nevoie de ajutor.",
+      "legacySunset": "Linkul e prea vechi. Contactează-ne și trimitem unul nou.",
+      "tooShort": "Scrie cel puțin 10 caractere ca să înțelegem ce se întâmplă.",
+      "tooLong": "Răspunsul poate avea cel mult 5000 de caractere.",
+      "notFound": "Cazul nu a fost găsit.",
+      "rateLimit": "Prea multe încercări. Încearcă din nou într-o oră.",
+      "generic": "Nu s-a putut deschide cazul.",
+      "sendFailed": "Nu s-a putut trimite. Încearcă din nou."
+    },
+    "success": {
+      "submitted": "Mulțumim! Am primit răspunsul tău.",
+      "escalated": "Mulțumim. O persoană se va uita la cazul ăsta."
+    }
+  },
+  "story": {
+    "someone": "Cineva",
+    "anActivity": "o activitate",
+    "activityWithStars": "{{name}} a terminat {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} a finalizat {{activity}}",
+    "goalFallback": "obiectiv",
+    "goal": "Familia a atins obiectivul: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Setări cookie",
+    "intro": "Folosim cookie-uri pentru analiză, marketing și personalizare pe site.",
+    "manage": "Gestionează setările",
+    "manageHide": "Ascunde setările",
+    "deny": "Respinge tot",
+    "accept": "Acceptă tot",
+    "save": "Salvează alegerile mele",
+    "necessaryLabel": "Necesare",
+    "necessaryDesc": "Necesar ca site-ul să funcționeze.",
+    "analyticsLabel": "Analiză",
+    "analyticsDesc": "Ne ajută să înțelegem cum e folosit site-ul (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Arată reclame relevante și măsoară campaniile.",
+    "personalizationLabel": "Personalizare",
+    "personalizationDesc": "Adaptează conținutul și recomandările."
+  },
+  "growthHelp": {
+    "reportProblem": "Raportează o problemă",
+    "suggestedHelp": "Ajutor sugerat",
+    "reportThanks": "Mulțumim — am primit raportul tău cu detalii tehnice.",
+    "howChildStarts": "Cum începe copilul?",
+    "needHelpLogin": "Ai nevoie de ajutor la intrare?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Comentariu scurt opțional (trimis cu răspunsul)",
+    "notNow": "Nu acum",
+    "thanks": "Mulțumim pentru feedback."
+  },
+  "growthReferral": {
+    "title": "Cunoști o familie care vrea dimineți mai calme?",
+    "subtitle": "Trimite linkul tău personal — fără spam de recompense, doar un sfat.",
+    "copyLink": "Copiază linkul",
+    "copied": "Copiat",
+    "copyPrompt": "Copiază linkul ăsta:",
+    "share": "Distribuie",
+    "shareText": "Folosim {{brand}} pentru rutinele copiilor. Creează un cont gratuit: ",
+    "notNow": "Nu acum"
+  },
+  "legalReturn": {
+    "backToPremium": "Înapoi la Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pachet",
+    "dismiss": "Nu acum",
+    "interested": "Mă interesează",
+    "interestedSub": "Înregistrează interesul pentru beta",
+    "buyNow": "Cumpără acum",
+    "reporting": {
+      "title": "Rapoarte",
+      "body": "Ai notat activități timp de două săptămâni — vrei o vedere mai clară a felului în care se schimbă lucrurile în timp?"
+    },
+    "pedagog": {
+      "title": "Educator",
+      "body": "Vrei să lucrezi cu un educator sau terapeut la viața de zi cu zi a copilului?"
+    },
+    "teacch": {
+      "title": "Suport suplimentar",
+      "body": "Adaugă suport vizual cu Cele șapte întrebări — îl ajută pe copil să înțeleagă ce se întâmplă."
+    }
+  }
+}

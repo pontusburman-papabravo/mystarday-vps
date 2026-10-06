@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Danes {{child_name}} naredi prvi korak.",
+      "body_template": "Majhna vsakdanja stvar — a veliko pomeni. Zdaj veš, da rutina deluje.",
+      "cta": "Vidim"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Uspelo vama je skupaj",
+      "body_template": "{{child_name}} je začel. Videl si. Tako rastejo navade.",
+      "cta": "Kako lepo"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "V Jutranji hiši nekaj zasije…"
+    }
+  }
+}

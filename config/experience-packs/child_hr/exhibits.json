@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Ponosni trenutak — korak po korak, bez zida s trofejima"
+    },
+    "remembered_gift": {
+      "description": "Nagrada kao toplo sjećanje — ne trgovina"
+    },
+    "warm_echo": {
+      "description": "Blagi napredak, bez pritiska i nizova"
+    }
+  }
+}

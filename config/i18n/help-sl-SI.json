@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Pomoč",
+    "openAria": "Odpri pomoč",
+    "closeAria": "Zapri pomoč"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Pomoč – Pregled",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Pregled",
+          "faqs": [
+            {
+              "q": "Kaj počnejo 3 hitri gumbi na vrhu?",
+              "a": "<strong>⭐ Daj dodatne zvezdice</strong> — otroku ročno daš dodatne zvezdice. <strong>📋 Enkratna dejavnost</strong> — dodaš začasno dejavnost za danes. <strong>🏠 Prosti dan</strong> — ustavi otrokov urnik za en dan (npr. bolniški dan, počitnice)."
+            },
+            {
+              "q": "Kako označim dejavnost?",
+              "a": "Tapni dejavnost na kartici otroka — takoj se označi. Otrok lahko označi tudi v svojem <strong>otroškem pogledu</strong>."
+            },
+            {
+              "q": "Kaj je strnjena kartica otroka?",
+              "a": "Kartica otroka v strnjenem načinu pokaže avatar, ime, stanje zvezdic in oznake razdelkov. Kartico razširi za več podrobnosti, povezavo do urnika in gumb za premor."
+            },
+            {
+              "q": "Kaj je prosti dan?",
+              "a": "<strong>🏠 Prosti dan</strong> ustavi otrokov urnik za izbrani dan — prav, ko je bolan ali na počitnicah. Otrok vidi urnik kot nedejaven. Dan znova vklopiš z istim gumbom."
+            },
+            {
+              "q": "Kaj je način premora?",
+              "a": "Tapni ikono premora (⏸) na kartici otroka, da otroka ustaviš. Dejavnosti so videti nedejavne in otrok ne dobi zvezdic, dokler ne nadaljuješ."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvezdice",
+          "faqs": [
+            {
+              "q": "Kako otrok dobi zvezdice?",
+              "a": "Vsaka končana dejavnost prinese <strong>1 zvezdico</strong>. Otrok označi v otroškem pogledu — ali pa ti označiš v Dnevniku, dokler preizkušaš. Dodatne zvezdice daš z gumbom ⭐ nad karticami otrok."
+            },
+            {
+              "q": "Kako deluje zakladnica?",
+              "a": "Otrok odpre zakladnico prek zavihka 💎 v otroškem pogledu in vidi nagrade s cenami v zvezdicah. Ko jih nabere dovolj, lahko zaprosi za nagrado — ti jo odobriš."
+            },
+            {
+              "q": "Kako dodam nagrade?",
+              "a": "V meniju pojdi v <strong>Knjižnico</strong> → zavihek »Nagrade«. Dodaj svoje nagrade, uredi ceno v zvezdicah in izberi, kateri otroci jih vidijo."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Urnik",
+          "faqs": [
+            {
+              "q": "Kako dodam dejavnost?",
+              "a": "Pojdi na <strong>Tedenski urnik</strong> → izberi otroka → izberi dan → tapni »+«, da dodaš dejavnost iz knjižnice. Iskati lahko med 63 standardnimi dejavnostmi."
+            },
+            {
+              "q": "Kako kopiram urnik na vsak dan?",
+              "a": "V tedenskem urniku → »Kopiraj iz…« → izberi vir (svoj urnik ali standardno knjižnico) → označi dneve, na katere želiš kopirati."
+            },
+            {
+              "q": "Kaj je pogled Danes?",
+              "a": "Pogled »Danes« na Pregledu se sam posodobi, ko spremeniš urnik. Spremembe v tedenskem urniku se takoj pokažejo na Pregledu in v otrokovem pogledu."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Družina",
+          "faqs": [
+            {
+              "q": "Kako povabim še enega odraslega?",
+              "a": "Pojdi na <strong>Družina in nastavitve → Člani družine</strong> → tapni »Povabi«. Povabljena oseba dobi e-pošto s povezavo za prijavo."
+            },
+            {
+              "q": "Kako vidim otrokov dan?",
+              "a": "V meniju odpri <strong>Dnevnik</strong> — tam vidiš današnje dejavnosti tako, kot jih bo videl otrok. Prav za prvi večer, preden se otrok prijavi sam."
+            },
+            {
+              "q": "Kako se otrok prijavi?",
+              "a": "Ko si pripravljen: otrok se prijavi na <strong>/child-login</strong> z uporabniškim imenom in PIN-om. Podatke najdeš pod <strong>Družina in nastavitve → Otroci</strong>."
+            },
+            {
+              "q": "Stik s podporo",
+              "a": "Piši nam na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odgovorimo v 24 urah."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Pomoč – Nagrade",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrade",
+          "faqs": [
+            {
+              "q": "Kako deluje sistem nagrad?",
+              "a": "Otrok zbira zvezdice z dokončanimi dejavnostmi. Ko je stanje zvezdic dovolj za nagrado, lahko zaprosi za unovčenje — ti odobriš ali zavrneš."
+            },
+            {
+              "q": "Kako dodam nove nagrade?",
+              "a": "V meniju pojdi v <strong>Knjižnico</strong> → zavihek »Nagrade« → išči ali tapni »+ Dodaj nagrado«. Lahko tudi kopiraš naravnost iz standardne knjižnice."
+            },
+            {
+              "q": "Kako urejam vidnost po otroku?",
+              "a": "Ko ustvariš ali urediš nagrado, izbereš, kateri otroci jo vidijo. Priročno za nagrade, prilagojene vsakemu otroku."
+            },
+            {
+              "q": "Kako odobrim prošnjo za unovčenje?",
+              "a": "Otrokova prošnja se na Pregledu pokaže z značko. Tapni, da odobriš. Zvezdice se odštejejo same in otrok spremembo vidi takoj."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvezdice",
+          "faqs": [
+            {
+              "q": "Kako otrok dobi zvezdice?",
+              "a": "Vsaka končana dejavnost prinese zvezdice (privzeto 1 zvezdico na dejavnost). Dodatne zvezdice lahko daš tudi z gumbom ⭐ na Pregledu."
+            },
+            {
+              "q": "Kaj je razlika med stanjem zvezdic in dnevnim napredkom?",
+              "a": "<strong>Stanje zvezdic</strong> = skupno shranjeno stanje. <strong>Dnevni napredek</strong> (obroč okoli emojija) = koliko dejavnosti je otrok danes končal. To sta dve ločeni stvari."
+            },
+            {
+              "q": "Kaj se zgodi, ko je nagrada unovčena?",
+              "a": "Zvezdice se same odštejejo z otrokovega računa. Otrok spremembo takoj vidi v zakladnici. Ti zgodovino vidiš na strani Nagrade."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Pomoč – Tedenski urnik",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Uredi urnik",
+          "faqs": [
+            {
+              "q": "Kako dodam dejavnost?",
+              "a": "Izberi dan → tapni »+« → poišči in izberi dejavnost. Naenkrat lahko izbereš <strong>več časovnih oken</strong> (jutro + večer) in dejavnost se doda v vsa."
+            },
+            {
+              "q": "Kako ustvarim novo dejavnost kar v urniku?",
+              "a": "Tapni »+« → išči → če ni zadetka, se v oknu iskanja pokaže obrazec »Ustvari novo«. Izpolni ime, emoji, vrednost zvezdic in morebitne podkorake."
+            },
+            {
+              "q": "Kako uredim ime ali emoji dejavnosti?",
+              "a": "V urniku tapni ime ali emoji dejavnosti → odpre se okno za urejanje. Spremembe samodejno veljajo za vse otroke in dneve."
+            },
+            {
+              "q": "Kako kopiram urnik od drugega otroka?",
+              "a": "Tapni »Kopiraj iz…« → izberi vir → označi dneve v tednu, na katere želiš kopirati. Izberi, ali naj se obstoječa vsebina prepiše."
+            },
+            {
+              "q": "Ali se urnik sam uskladi z otroškim pogledom?",
+              "a": "Da! Spremembe v tedenskem urniku se takoj uskladijo s pogledom »Danes« na Pregledu in z otrokovim pogledom — ročne posodobitve niso potrebne."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Knjižnica",
+          "faqs": [
+            {
+              "q": "Kaj je standardna knjižnica?",
+              "a": "Standardna knjižnica ima 63 pripravljenih dejavnosti v 6 kategorijah in 5 predlog urnikov. Tapni »Hitro vstavi iz knjižnice«, da jih dodaš v urnik."
+            },
+            {
+              "q": "Kako kopiram standardni urnik?",
+              "a": "Pod zavihkom Urnik → »Kopiraj iz…« → izberi »Standardna knjižnica« → izberi urnik → izberi dneve → kopiraj."
+            },
+            {
+              "q": "Zakaj otrok ne vidi nobene dejavnosti?",
+              "a": "Preveri, da je urnik nastavljen za pravega otroka in da so dejavnosti za današnji dan. Prazen urnik? Kopiraj iz standardne knjižnice, da hitro začneš."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Namigi",
+          "faqs": [
+            {
+              "q": "Kako sestavim dober urnik rutine?",
+              "a": "Začni s 3–5 stalnimi dejavnostmi (zajtrk, umivanje zob, domača naloga). Postavi jih v pravi vrstni red. Otroci rutino hitro usvojijo, ko ostane enaka."
+            },
+            {
+              "q": "Kaj so podkoraki pri dejavnostih?",
+              "a": "Dejavnostim lahko dodaš podkorake (npr. »Umij roke«, »Obleci pižamo« pod »Večerna rutina«). Otrok jih vidi kot vizualni vodnik, a celotno dejavnost označi naenkrat."
+            },
+            {
+              "q": "Koliko dejavnosti na dan?",
+              "a": "Priporočeno: 4–8 dejavnosti. Premalo in ni toka; preveč in postane prenaporno. Začni z malo in postopoma dodajaj."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Pomoč – Družina in nastavitve",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Otroci",
+          "faqs": [
+            {
+              "q": "Kako dodam otroka?",
+              "a": "Pojdi na Pregled → tapni »+ Dodaj otroka«. Izpolni ime, emoji in rojstni dan. Otrok samodejno dobi urnik glede na starost."
+            },
+            {
+              "q": "Kako spremenim otrokov PIN?",
+              "a": "Tapni kartico otroka → zavihek »Nastavitve« → »Spremeni PIN«. Izberi nov 4-mestni PIN."
+            },
+            {
+              "q": "Otrok mora dejavnosti delati po vrsti — ali to lahko spremenim?",
+              "a": "Privzeto je prosto označevanje. Za voden vrstni red pojdi v profil otroka → zavihek <strong>Nastavitve</strong> → vklopi <strong>ZDAJ / NASLEDNJE / POZNEJE</strong>."
+            },
+            {
+              "q": "Kako otrok vidi svoje podatke za prijavo?",
+              "a": "Tapni kartico otroka → zavihek »Nastavitve« → »Pokaži podatke za prijavo«. Vidiš otrokovo uporabniško ime in PIN."
+            },
+            {
+              "q": "Kako odstranim otroka?",
+              "a": "Družina → izberi otroka → zavihek Nastavitve → »Trajno izbriši otroka«. Pozor: vsa zgodovina urnika, zvezdic in nagrad se izbriše in je ni mogoče vrniti."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Odrasli",
+          "faqs": [
+            {
+              "q": "Kako povabim še enega odraslega?",
+              "a": "Pojdi na zavihek <strong>Člani družine</strong> → »Povabi«. Povabljena oseba dobi e-pošto s povezavo za ustvarjanje računa."
+            },
+            {
+              "q": "Ali lahko izberem, katere otroke odrasli vidi?",
+              "a": "Da! Ob pošiljanju povabila izbereš, do katerih otrok ima dostop. Pozneje to spremeniš pod Člani družine → oseba → Dostop do otrok."
+            },
+            {
+              "q": "Kako odstranim člana družine?",
+              "a": "Tapni osebo na seznamu članov družine → »Odstrani«. Dostop do družine izgubi takoj."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Nastavitve",
+          "faqs": [
+            {
+              "q": "Kako spremenim geslo?",
+              "a": "V meniju pojdi v <strong>Nastavitve</strong> (⚙️) → »Spremeni geslo«. Potrebuješ trenutno geslo."
+            },
+            {
+              "q": "Kako vklopim obvestila?",
+              "a": "Pojdi v Nastavitve → »Opomniki« → vklopi obvestila in izberi čase. Obvestila potrebujejo dovoljenje brskalnika."
+            },
+            {
+              "q": "Stik s podporo",
+              "a": "Piši nam na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odgovorimo v 24 urah."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Pomoč – Dejavnosti",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Upravljanje",
+          "faqs": [
+            {
+              "q": "Kaj je dejavnost?",
+              "a": "<strong>Dejavnost</strong> je naloga, ki jo otrok naredi (npr. »Umij zobe«). Dejavnosti prinesejo 1–5 zvezdic in imajo lahko podkorake. Zberi jih v knjižnici in jih dodaj v urnike otrok."
+            },
+            {
+              "q": "Kako ustvarim novo dejavnost?",
+              "a": "Tapni »+ Nova dejavnost« → izpolni ime, kategorijo (higiena, hrana, igra itd.), trajanje in vrednost zvezdic. Shrani in dejavnost se doda v knjižnico."
+            },
+            {
+              "q": "Kako dodam dejavnost v urnik?",
+              "a": "Dejavnosti so v knjižnici. Pojdi na tedenski urnik → izberi dan → »+« → izberi dejavnost, ki jo želiš dodati."
+            },
+            {
+              "q": "Kako odstranim dejavnost z vseh dni?",
+              "a": "Tapni ✕ pri dejavnosti → izberi <strong>Vsak dan v tednu</strong>. Za odstranitev samo danes ali enega dneva v tednu (npr. vsak četrtek) so ločene možnosti."
+            },
+            {
+              "q": "Kako uredim dejavnost?",
+              "a": "Tapni dejavnost na seznamu → »Uredi«. Spremembe takoj veljajo v vsakem urniku, kjer je dejavnost uporabljena."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorije",
+          "faqs": [
+            {
+              "q": "Čemu so kategorije?",
+              "a": "Kategorije v otroškem pogledu obarvajo dejavnosti. <strong>Higiena</strong>=modra, <strong>Hrana</strong>=rumena, <strong>Igra</strong>=zelena, <strong>Šola</strong>=vijolična, <strong>Gibanje</strong>=rdeča, <strong>Počitek</strong>=siva, <strong>Druženje</strong>=oranžna."
+            },
+            {
+              "q": "Kako izberem kategorijo?",
+              "a": "Ko ustvariš ali urediš dejavnost, izberi kategorijo s spustnega seznama. Izberi tisto, ki dejavnost najbolje opiše."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Pomoč – Knjižnica",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Zavihki",
+          "faqs": [
+            {
+              "q": "Kateri zavihki so v knjižnici?",
+              "a": "<strong>Urniki</strong> — tvoje predloge urnikov. <strong>Dejavnosti</strong> — knjižnica dejavnosti s podkoraki. <strong>Nagrade</strong> — tvoje nagrade. <strong>Standardna knjižnica</strong> — 63 dejavnosti, 15 nagrad in 5 urnikov za kopiranje."
+            },
+            {
+              "q": "Kako kopiram iz standardne knjižnice?",
+              "a": "Pojdi na zavihek »Standardna knjižnica« → izberi dejavnost ali nagrado → tapni gumb 📥, da kopiraš v družinsko knjižnico. Urnike kopiraš prek tedenskega urnika → »Kopiraj iz…«."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Dejavnosti",
+          "faqs": [
+            {
+              "q": "Kako ustvarim novo dejavnost?",
+              "a": "Tapni »+ Nova dejavnost« → izpolni ime, emoji (izberi ali vpiši svojega), vrednost zvezdic in morebitne podkorake → shrani. Dejavnost se shrani v knjižnico za vso družino."
+            },
+            {
+              "q": "Kaj so podkoraki?",
+              "a": "Podkoraki so navodila korak za korakom pod dejavnostjo (npr. »Umij roke« pod »Higiena«). Otrok jih vidi kot vodnik, a celotno dejavnost označi z enim tapom."
+            },
+            {
+              "q": "Kako uredim dejavnost?",
+              "a": "V urniku tapni ime dejavnosti — odpre se okno za urejanje. Spremembe (ime, emoji, podkoraki) samodejno veljajo za vse otroke in dneve."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrade",
+          "faqs": [
+            {
+              "q": "Kako dodam nagrado?",
+              "a": "Zavihek »Nagrade« → poišči nagrado → tapni »+ Ustvari novo«, če je še ni → izpolni ime, emoji, ceno v zvezdicah → izberi, kateri otroci jo vidijo → shrani."
+            },
+            {
+              "q": "Kako iščem nagrade?",
+              "a": "Iskalno polje hkrati gleda tvoje nagrade IN standardno knjižnico. Ni zadetkov? Gumb »Ustvari [ime]« odpre vnaprej izpolnjen obrazec."
+            },
+            {
+              "q": "Ali ima lahko otrok zasebne nagrade?",
+              "a": "Da! Ko ustvariš nagrado, izbereš, kateri otroci jo vidijo. Priročno za nagrade, prilagojene vsakemu otroku."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Pomoč – Nastavitve",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Račun",
+          "faqs": [
+            {
+              "q": "Kako spremenim geslo?",
+              "a": "Vpiši trenutno geslo in novo geslo → tapni »Shrani«. Geslo mora imeti vsaj 6 znakov."
+            },
+            {
+              "q": "Kako spremenim e-poštni naslov?",
+              "a": "Vpiši nov e-poštni naslov → tapni »Shrani«. Nov naslov bo morda treba potrditi po e-pošti."
+            },
+            {
+              "q": "Kako izbrišem račun?",
+              "a": "Za izbris računa nam piši na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>. Uredimo v 48 urah."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Obvestila",
+          "faqs": [
+            {
+              "q": "Kako vklopim opomnike?",
+              "a": "Vklopi stikalo pod »Opomniki« → izberi čas in dneve. Brskalnik mora dovoliti obvestila."
+            },
+            {
+              "q": "Obvestil ne dobivam, čeprav so vklopljena",
+              "a": "Preveri, da je brskalnik dovolil obvestila za spletno mesto. Pojdi v nastavitve brskalnika → Obvestila → poišči [REDACTED].se → Dovoli."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Pomoč – Koledar",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Koledar",
+          "faqs": [
+            {
+              "q": "Kaj pokaže koledar?",
+              "a": "Koledar da mesečni pregled otrokovih dejavnosti, unovčenih nagrad in pomembnih dogodkov."
+            },
+            {
+              "q": "Kako se premikam med meseci?",
+              "a": "Tapni puščici (< >) ob imenu meseca, da zamenjaš mesec."
+            },
+            {
+              "q": "Kako vidim več podrobnosti za dan?",
+              "a": "Tapni datum, da vidiš podroben seznam dejavnosti in zvezdic za ta dan."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Pomoč – Dnevnik",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Dnevnik",
+          "faqs": [
+            {
+              "q": "Kaj je dnevnik?",
+              "a": "Dnevnik pokaže otrokov dan — dejavnosti, oznake in zvezdice. Uporabi ga za <strong>predogled</strong> tega, kar vidi otrok, ali za vpis za nazaj."
+            },
+            {
+              "q": "Kako filtriram dnevnik?",
+              "a": "Zgoraj v filtru izberi otroka, da vidiš dnevnik samo zanj. Filtriraš lahko tudi po datumu."
+            },
+            {
+              "q": "Kako daleč nazaj lahko gledam?",
+              "a": "Dnevnik hrani podatke od dne, ko si začel uporabljati [REDACTED]. Pomakni se ali izberi datum za starejše podatke. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Pomoč – Izberi urnik po dnevu",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Dodeli urnik",
+          "faqs": [
+            {
+              "q": "Kaj je »Izberi urnik po dnevu«?",
+              "a": "Tukaj izbereš, kateri tedenski urnik je aktiven za vsakega otroka in dan. Priročno, če imaš med tednom in ob koncu tedna različne rutine."
+            },
+            {
+              "q": "Ali ima lahko otrok ob delavnikih drugačen urnik kot ob koncu tedna?",
+              "a": "Da! Izberi en urnik za pon–pet in drugega za sob–ned. Tapni dan in izberi urnik, ki ga želiš."
+            },
+            {
+              "q": "Kaj se zgodi, če dan nima dodeljenega urnika?",
+              "a": "Če dan nima dodeljenega urnika, otrok ta dan ne vidi dejavnosti. Poskrbi, da ima vsak dan, ki ga želiš uporabljati, dodeljen urnik."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Skrbniška plošča",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Pregled",
+          "faqs": [
+            {
+              "q": "Kaj lahko počnem na skrbniški plošči?",
+              "a": "Skrbniška plošča da dostop do vseh družin, uporabnikov in sistemskih podatkov. Lahko gledaš statistiko, urejaš račune in moderiraš vsebino."
+            },
+            {
+              "q": "Kako najdem določenega uporabnika?",
+              "a": "Uporabi iskalno polje na vrhu in išči po e-pošti ali imenu. Tapni družino za podrobnosti."
+            },
+            {
+              "q": "Kako arhiviram družino?",
+              "a": "Tapni kartico družine → »Arhiviraj«. Arhivirane družine lahko obnoviš, a do takrat ostanejo nedejavne."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Podpora",
+          "faqs": [
+            {
+              "q": "Kako vidim dohodna sporočila podpore?",
+              "a": "Pod zavihkom »Predal podpore« vidiš vsako sporočilo, poslano prek obrazca za stik. Tapni, da prebereš celotno besedilo in odgovoriš."
+            },
+            {
+              "q": "Kako označim primer kot rešen?",
+              "a": "Tapni primer → »Označi kot rešeno«. Rešeni primeri izginejo iz privzetega pogleda, a jih lahko pokažeš z »Pokaži rešene«."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Podpora otroku — {{brand}}",
+    "loadError": "Strani ni bilo mogoče naložiti."
+  },
+  "supportSvar": {
+    "pageTitle": "Tvoj primer",
+    "title": "Tvoj primer",
+    "intro": "Tukaj je celoten pogovor. Spodaj piši, če želiš nadaljevati. Navaden odgovor po e-pošti se tukaj ne pokaže.",
+    "sent": "Poslano. Videli ga bomo na istem primeru.",
+    "escalate": "Potrebujem več pomoči od osebe",
+    "placeholder": "Napiši, kaj se dogaja…"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Izradi PDF — raspored — {{brand}}",
+  "backLink": "← Natrag na Planiranje",
+  "heading": "📄 Izradi PDF — raspored",
+  "intro": "Odaberi dijete i razdoblje. Pregled pokazuje cijeli raspored — PDF se sam skalira da stane na jedan A4 list položen.",
+  "pdfSave": {
+    "title": "Gdje se PDF sprema?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Nakon <em>Izradi PDF</em> otvara se dijeljenje — odaberi <strong>Spremi u Datoteke</strong> i mapu (npr. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Računalo:</strong> PDF ide u mapu <strong>Preuzimanja</strong> (često dolje lijevo u pregledniku)."
+  },
+  "sections": {
+    "child": "Dijete",
+    "period": "Razdoblje",
+    "scope": "Što PDF treba uključiti?",
+    "startWeek": "Početni tjedan"
+  },
+  "period": {
+    "1w": "1 tjedan",
+    "2w": "2 tjedna",
+    "1m": "1 mjesec"
+  },
+  "scope": {
+    "all": "Cijeli raspored",
+    "my": "Samo moji dani"
+  },
+  "weekNav": {
+    "prevAria": "Prethodni tjedan",
+    "nextAria": "Sljedeći tjedan",
+    "today": "Ovaj tjedan"
+  },
+  "actions": {
+    "preview": "Pregled",
+    "createPdf": "Izradi PDF"
+  },
+  "preview": {
+    "heading": "Pregled",
+    "hint": "Pomakni se dolje ako dan ima puno aktivnosti."
+  },
+  "pdfHelp": {
+    "title": "Kako spremiti PDF",
+    "closeAria": "Zatvori",
+    "ok": "U redu, jasno",
+    "introShare": "Dijeljenje je otvoreno. Odaberi Spremi u Datoteke da spremiš PDF.",
+    "introPreview": "PDF se otvorio u pregledniku{{filename}}.",
+    "introDesktop": "PDF je preuzet{{filename}}.",
+    "filenameSuffix": " kao {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "U dijeljenju: pomakni se i dodirni <strong>Spremi u Datoteke</strong>.",
+      "Odaberi mapu (npr. <strong>iCloud Drive</strong> ili <strong>Na mom iPhoneu</strong>).",
+      "Dodirni <strong>Spremi</strong> gore desno.",
+      "Datoteku kasnije nađi u aplikaciji <strong>Datoteke</strong>."
+    ],
+    "previewSteps": [
+      "PDF se otvorio u novom prikazu — dodirni <strong>Dijeli</strong> (↑) gore desno.",
+      "Odaberi <strong>Spremi u Datoteke</strong>.",
+      "Odaberi mapu i dodirni <strong>Spremi</strong>."
+    ],
+    "desktopSteps": [
+      "Otvori mapu <strong>Preuzimanja</strong> na računalu.",
+      "Traži datoteku koja počinje s <strong>{{prefix}}</strong> i današnjim datumom."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Raspored",
+    "titleMyDays": "Moji dani",
+    "emptyCell": "–",
+    "childFallback": "Dijete",
+    "loadingPrint": "Pripremam ispis…",
+    "iframeTitle": "Ispis"
+  },
+  "filename": {
+    "prefixSchedule": "tjedni-raspored",
+    "prefixMyDays": "moji-dani",
+    "fallbackSlug": "dijete"
+  },
+  "toasts": {
+    "loadChildrenError": "Djecu nije moguće učitati",
+    "selectChild": "Najprije odaberi dijete",
+    "loadingPreview": "Učitavam pregled…",
+    "noMyDays": "Nema tvojih dana u odabranom razdoblju",
+    "loadScheduleError": "Raspored nije moguće učitati",
+    "creatingPdf": "Izrađujem PDF…",
+    "pdfCancelled": "Spremanje PDF-a je prekinuto",
+    "shareHint": "U dijeljenju odaberi Spremi u Datoteke",
+    "mobileSavedHint": "PDF je spreman — spremi ga u Datoteke",
+    "desktopSavedHint": "PDF je spremljen u Preuzimanja",
+    "pdfLibsMissing": "Nedostaju alati za PDF — osvježi stranicu i pokušaj ponovno",
+    "createPdfError": "PDF nije moguće izraditi",
+    "shareAgain": "PDF je spreman. Dodirni Izradi PDF ponovno da odabereš gdje ga spremiti."
+  },
+  "empty": {
+    "noChildren": "Još nema dodane djece.",
+    "goDashboard": "Idi na Početnu"
+  }
+}

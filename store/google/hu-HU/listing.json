@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Vizuális rutinok, csillagok és jutalmak a keretet kereső gyerekeknek",
+  "fullDescription": "Ez nem egy újabb naptár.\n\nA {{brand}} segít a gyerekeknek érteni a napot: mi van most, mi jön utána, és mi sikerült már.\n\nAz app azoknak a családoknak készült, akiknek a mindennapokban több támasz, több kiszámíthatóság és több vizuális segítség kell.\n\nHa a gyereknek ADHD-ja vagy autizmusa van, vagy egyszerűen a tisztább lépések segítenek, a {{brand}} kis, vállalható lépésekre bontja a napot.\n\nKülönösen hasznos, ha a gyereknek ADHD-ja, autizmusa vagy más neurodivergens szükséglete van. Diagnózis nem kell. A {{brand}} nem gyógyítja az ADHD-t és az autizmust.\n\nA gyerek vizuális rutinokat lát, lépésről lépésre, és csillagokat azért, ami már megvan. A szülők állítják össze a napirendet és a jutalmakat, és megoszthatnak egy kiválasztott jelentést.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "A magyar már elérhető az appban. A rutinok, a jelentések és a gyerek nézet a család nyelvét követik."
+}

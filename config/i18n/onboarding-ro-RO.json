@@ -1,0 +1,605 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Pasul {{current}} din {{total}}",
+    "back": "← Înapoi",
+    "next": "Pasul următor →",
+    "continue": "Continuă →",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "loading": "Se încarcă…",
+    "genericError": "Ceva nu a mers bine. Te rugăm să încerci din nou.",
+    "networkError": "Eroare de rețea. Te rugăm să încerci din nou.",
+    "closeAria": "Închide",
+    "childFallback": "Copilul tău",
+    "addChildDone": "Gata! →",
+    "goForward": "Continuă →",
+    "finishing": "Se încheie…",
+    "recommended": "Recomandat",
+    "optional": "Opțional"
+  },
+  "pageTitle": {
+    "welcome": "Bun venit — {{brand}}",
+    "ogTitle": "{{brand}} — Începe în 2 minute",
+    "ogDescription": "Pregătește imediat programul și recompensele copilului"
+  },
+  "verifyEmail": {
+    "title": "Verifică-ți adresa de e-mail",
+    "body": "Am trimis un e-mail la {{email}}. Apasă linkul din e-mail ca să activezi contul.",
+    "resend": "Trimite din nou",
+    "resendSending": "Se trimite…",
+    "resendSuccess": "✓ Trimis!",
+    "resendSent": "Trimis",
+    "resendError": "Ceva nu a mers bine. Te rugăm să încerci din nou."
+  },
+  "child": {
+    "title": "Spune-ne despre copilul tău",
+    "lead": "Alege un nume, un emoji, ziua de naștere și un program potrivit rutinei voastre.",
+    "nameLabel": "Numele copilului",
+    "namePlaceholder": "ex. Ella",
+    "birthdayLabel": "Zi de naștere",
+    "birthdayOptionalHint": "(opțional — ne ajută să sugerăm programul potrivit)",
+    "yearPlaceholder": "An",
+    "monthPlaceholder": "Lună",
+    "dayPlaceholder": "Zi",
+    "birthYearAria": "Anul nașterii",
+    "birthMonthAria": "Luna nașterii",
+    "birthDayAria": "Ziua nașterii",
+    "months": [
+      "Ianuarie",
+      "Februarie",
+      "Martie",
+      "Aprilie",
+      "Mai",
+      "Iunie",
+      "Iulie",
+      "August",
+      "Septembrie",
+      "Octombrie",
+      "Noiembrie",
+      "Decembrie"
+    ],
+    "emojiLabel": "Alege un emoji",
+    "customEmojiPlaceholder": "Sau scrie propriul emoji…",
+    "emojiAriaLabel": "Alege emoji {{emoji}}",
+    "avatarLabel": "Opțional: poză de profil",
+    "avatarHint": "Alege o fotografie din bibliotecă sau fă una nouă.",
+    "avatarDefaultBtn": "✨ Imagine implicită",
+    "avatarPickBtn": "📷 Alege poza",
+    "avatarLoading": "Se încarcă…",
+    "avatarPreparing": "Se pregătește…",
+    "avatarUploadFailed": "Nu s-a putut încărca poza. Te rugăm să încerci din nou.",
+    "avatarReadFailed": "Nu s-a putut citi imaginea",
+    "avatarAlt": "Poză de profil a copilului",
+    "scheduleLabel": "Alege un program",
+    "templatesLoading": "Se încarcă programele…",
+    "templatesLoadFailed": "Șabloanele de program nu s-au putut încărca acum.",
+    "templatesRetryBtn": "Încearcă din nou",
+    "nextBtn": "Pasul următor →",
+    "creatingChild": "Se creează copilul…",
+    "creatingSchedule": "Se creează programul…",
+    "nameRequired": "Introdu numele copilului",
+    "emojiRequired": "Alege un emoji pentru copil",
+    "scheduleRequired": "Alege un program",
+    "childResumedToast": "Am găsit copilul de data trecută — continuăm cu programul.",
+    "avatarSaveFailedToast": "Copil creat, dar fotografia nu s-a putut salva. O poți adăuga la Familie.",
+    "scheduleCreateFailed": "Programul nu a putut fi creat"
+  },
+  "activityGuide": {
+    "title": "Cum să ajute aplicația pe {{childName}} cu activitățile de azi?",
+    "lead": "Poți schimba asta oricând în setările copilului.",
+    "stepLabel": "Pasul {{current}} din {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Ordine liberă",
+        "description": "Copilul tău poate bifa în orice ordine."
+      },
+      "one_at_a_time": {
+        "title": "Un lucru pe rând",
+        "description": "Aplicația îl ajută pe copil să se concentreze pe pasul următor."
+      },
+      "time_and_order": {
+        "title": "Șterge ora și ordinea",
+        "description": "Aplicația ajută cu pasul următor și cu un cronometru pe care îl setezi pentru fiecare activitate."
+      }
+    },
+    "continueBtn": "Continuă →",
+    "saving": "Se salvează…",
+    "selectError": "Alege o opțiune",
+    "saveError": "Nu s-a putut salva alegerea"
+  },
+  "viewType": {
+    "title": "Ce vedere să vadă {{childName}} acum?",
+    "lead": "Alege cum apare programul când copilul se autentifică. Poți schimba asta oricând în setări.",
+    "dayViewTitle": "Vedere pe zi",
+    "dayViewSubtitle": "Dimineață · Spre prânz · După-amiază · Seară",
+    "timelineViewTitle": "Vedere Acum/Următorul/Mai târziu",
+    "timelineViewSubtitle": "Arată doar ce se întâmplă chiar acum",
+    "timelineNow": "ACUM",
+    "timelineNext": "URMĂTORUL",
+    "timelineThen": "MAI TÂRZIU",
+    "mock": {
+      "wakeStretch": "Trezește-te și întinde-te",
+      "brushTeeth": "Spală dinții",
+      "packBag": "Fă ghiozdanul",
+      "preschool": "Mergi la grădiniță",
+      "freePlay": "Joacă liberă",
+      "dinner": "Cină",
+      "bedtimeStory": "Poveste de noapte",
+      "preschoolShort": "Grădiniță",
+      "play": "Joacă"
+    },
+    "dayViewHint": "Poți alege și Vedere pe zi dacă copilul preferă părți ale zilei cu culori.",
+    "skipHint": "Sari peste? Vederea pe zi se alege automat.",
+    "saving": "Se salvează alegerea de vedere…"
+  },
+  "scheduleReady": {
+    "title": "Program gata!",
+    "subtitle": "Am pregătit un program de start pentru {{childName}}.",
+    "subtitleWithTemplate": "Am pregătit programul {{templateName}} pentru {{childName}}. Include pașii-cheie ca să reușească singur.",
+    "templateFallback": "Program",
+    "daysWeek": "7 zile / săptămână",
+    "daysMonFri": "Lun–Vin",
+    "daysMonFriWeekend": "Lun–Vin + weekend",
+    "socialProofTitle": "Știai?",
+    "socialProofBody": "Suportul vizual reduce adesea stresul de zi cu zi cu până la 30% — iar copiii cu rutine clare adorm mai repede și se trezesc mai veseli.",
+    "continueBtn": "Perfect, hai! →"
+  },
+  "rewards": {
+    "title": "Cum merg stelele",
+    "checkOff": "Bifează",
+    "star": "Stea",
+    "treasureChest": "Cufărul cu comori",
+    "intro": "Am completat recompense amuzante. Alege-le pe cele spre care poate lucra {{childName}} acum!",
+    "introWithCount": "Am completat {{count}} recompense amuzante. Alege-le pe cele spre care poate lucra {{childName}} acum!",
+    "selectCount": {
+      "zero": "Alege cel puțin 1 recompensă (0 alese)",
+      "one": "{{count}} recompensă aleasă ✓",
+      "other": "{{count}} de recompense alese ✓",
+      "few": "{{count}} recompense alese ✓"
+    },
+    "minOneError": "Alege cel puțin o recompensă ca să continui",
+    "saveBtn": "Salvează recompensele →",
+    "saving": "Se salvează recompensele…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Încă o poveste",
+      "chooseDessert": "Alege desertul",
+      "movieNight": "Seară de film",
+      "chooseDinner": "Alege cina",
+      "outing": "Ieșire",
+      "bakeTogether": "Coacem împreună",
+      "familyGameNight": "Seară de jocuri în familie",
+      "lateBedtime": "Stai treaz mai târziu",
+      "cinemaTrip": "Ieșire la cinema"
+    }
+  },
+  "handoff": {
+    "title": "Cum intri în cont",
+    "lead": "{{childName}} se autentifică cu nume și PIN — fără parole.",
+    "childLoginLabel": "Intrare copil",
+    "usernameFallback": "username",
+    "pinLabel": "PIN",
+    "pinNote": "Notează PIN-ul — îl poți schimba în setări.",
+    "pinResumeHint": "Folosește PIN-ul copilului. Dacă l-ai uitat, poți seta unul nou cu butonul de mai jos.",
+    "chooseCustomPin": "✏️ Alege-ți PIN-ul",
+    "savePin": "Salvează PIN-ul",
+    "savingPin": "Se salvează…",
+    "pinMustBe4": "PIN-ul trebuie să aibă 4 cifre",
+    "pinTooWeak": "Alege un PIN mai puternic (nu 1111, 2222 etc.)",
+    "pinSaveFailed": "Nu s-a putut salva PIN-ul",
+    "copyInfo": "📋 Copiază detaliile",
+    "copied": "✓ Copiat!",
+    "copyManual": "Copiază manual:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nUtilizator: {{username}}\nPIN: {{pin}}\nAplicație: {{appUrl}}/child-login",
+    "emailLogin": "📧 Trimite pe e-mail",
+    "emailSubject": "{{brand}} — Intrare pentru {{childName}}",
+    "emailBody": "Bună!\n\nAici sunt datele de autentificare la {{brand}} pentru {{childName}}:\n\nUtilizator: {{username}}\nPIN: {{pin}}\n\nDeschide aplicația: {{appUrl}}/child-login\n\nCu drag,\n{{brand}}",
+    "emailFallbackAlert": "Autentificare pentru {{childName}}:\nUtilizator: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Instalează ca aplicație",
+    "installBody": "Adaugă {{brand}} pe ecranul principal — merge ca o aplicație adevărată, merge offline, fără magazine de aplicații.",
+    "installInstructions": "iPhone: Partajare → Adaugă pe ecranul principal · Android: ⋮ → Instalează aplicația",
+    "parentTipTitle": "Un sfat pentru tine, ca părinte",
+    "parentTipLead": "Stați împreună diseară. Arată-i Cufărul cu comori",
+    "parentTipEmphasis": "primul",
+    "parentTipTail": "ca să stârnești curiozitatea — apoi explică faptul că aplicația e harta zilei pentru {{childName}}!",
+    "testChildLogin": "👶 Încearcă intrarea copilului acum",
+    "continueAsParent": "Continuă ca părinte →",
+    "skipConfirmTitle": "Sari peste intrarea copilului?",
+    "skipConfirmBody": "Copilul are nevoie de PIN ca să se autentifice singur. Fără o încercare acum, rutina de dimineață poate părea mai grea — trimitem un memento în 24 de ore dacă copilul nu a încercat încă.",
+    "skipConfirmPrimary": "👶 Încearcă intrarea copilului",
+    "skipConfirmSecondary": "Omite oricum"
+  },
+  "parentPin": {
+    "setLater": "Setează PIN-ul de părinte mai târziu",
+    "title": "Setează PIN-ul de părinte",
+    "description": "Un PIN de 4 cifre, pe care doar tu îl știi, protejează zona părintelui — de exemplu când copiii adaugă un frate sau te autentifici ca părinte pe dispozitivul copilului.",
+    "choosePin": "Alege PIN-ul",
+    "confirmPin": "Confirmă PIN-ul",
+    "changeLater": "Poți schimba PIN-ul mai târziu la Familie și setări.",
+    "pinRequiredOrEmpty": "Introdu un PIN de 4 cifre sau lasă câmpurile goale",
+    "pinRequiredForHandoff": "Setează un PIN de 4 cifre înainte ca copilul să preia dispozitivul.",
+    "pinMismatch": "PIN-urile nu se potrivesc",
+    "saveFailed": "Nu s-a putut salva PIN-ul",
+    "handoffRequired": "Pe un dispozitiv comun ai nevoie de un PIN de adult înainte ca copilul să se autentifice.",
+    "saveAndContinue": "Salvează și continuă"
+  },
+  "invite": {
+    "inviteLater": "Invită celălalt părinte mai târziu",
+    "title": "Invită încă un adult",
+    "namePlaceholder": "Nume (ex. Erik)",
+    "emailPlaceholder": "Adresă de e-mail",
+    "whichChildren": "Ce copii să vadă persoana asta?",
+    "sendBtn": "📧 Trimite invitația",
+    "sending": "Se trimite…",
+    "sent": "✓ Trimis",
+    "skip": "Omite →",
+    "emailRequired": "Introdu o adresă de e-mail",
+    "invalidEmail": "Adresă de e-mail nevalidă",
+    "success": "Invitație trimisă la {{email}}! ✓",
+    "sendFailed": "Ceva nu a mers bine"
+  },
+  "complete": {
+    "title": "Aproape gata!",
+    "lead": "Lasă copilul să încerce aplicația — poți invita alți adulți și seta un PIN de părinte după prima bifă.",
+    "tips": {
+      "editScheduleTitle": "Editează programul",
+      "editScheduleBody": "Mergi la Acasă → apasă cardul copilului → ajustează activitățile după rutina voastră.",
+      "checkRewardsTitle": "Verifică recompensele",
+      "checkRewardsBody": "În vederea copilului — apasă steaua — copilul vede de câte stele are nevoie fiecare recompensă.",
+      "addChildrenTitle": "Adaugă mai mulți copii",
+      "addChildrenBody": "Fiecare copil are programul și stelele lui. Adaugă încă unul cu + pe Acasă."
+    },
+    "letChildStart": "👶 Lasă copilul să înceapă",
+    "letChildStartPlain": "Lasă copilul să înceapă",
+    "completeFailed": "Nu s-au putut termina primii pași",
+    "completeFailedShort": "Nu s-a putut finaliza",
+    "welcomeFooter": "Bun venit la {{brand}} — ne bucurăm că ești aici! 🌟"
+  },
+  "weekend": {
+    "title": "Adaugi un program de weekend?",
+    "body": "Programul zilelor de lucru e gata pentru lun–vin. Vrei un program relaxat de weekend pentru sâmbătă și duminică?",
+    "scheduleLabel": "Program de weekend",
+    "satSun": "Sâm + Dum",
+    "preview": {
+      "sleepIn": "Te trezești mai târziu",
+      "breakfast": "Mic dejun în liniște",
+      "freePlay": "Joacă liberă",
+      "outing": "Ieșire / parc",
+      "familyActivity": "Activitate în familie",
+      "dinner": "Cină"
+    },
+    "yesBtn": "✅ Da, adaugă program de weekend",
+    "yesLoading": "Se adaugă…",
+    "noBtn": "Nu, mulțumesc, completez mai târziu",
+    "addFailed": "Nu s-a putut adăuga programul de weekend"
+  },
+  "starter": {
+    "stepLabel": "Creează programul {{current}} din {{total}}",
+    "slimTitle": "Rutina ta e aproape gata",
+    "fullTitle": "Creează primul tău program",
+    "slimIntro": "Trei întrebări scurte — apoi rutina e gata.",
+    "birthdayHint": "Alege data de naștere a copilului — ne ajută să sugerăm programul potrivit.",
+    "fullIntro": "Răspunde la câteva întrebări — durează sub un minut.",
+    "powerPathLead": "Vrei să alegi sau să construiești singur?",
+    "chooseTemplate": "📋 Alege un program gata făcut",
+    "fullWizard": "✏️ Construiește și personalizează singur (7 întrebări)",
+    "answerRequired": "Alege sau completează un răspuns",
+    "showSchedule": "Arată programul →",
+    "buttons": {
+      "next": "Înainte →"
+    },
+    "createRoutine": "Creează rutină →",
+    "creatingRoutine": "Se creează rutina…",
+    "personalizing": "Se personalizează programul…",
+    "loading": "Se încarcă…",
+    "useSchedule": "Folosește programul →",
+    "saving": "Se salvează…",
+    "changeAnswers": "← Schimbă răspunsurile",
+    "removeStep": "Elimină",
+    "previewHint": "Poți elimina pași — adaugi mai mulți în setări mai târziu.",
+    "previewForChild": "Pentru {{childName}} · {{count}} activități",
+    "previewAiTail": " · ✨ Personalizat cu AI",
+    "defaultPlanTitle": "Programul tău",
+    "slimSuccessTitle": "Rutina ta e gata",
+    "slimSuccessTonight": "Programul e gata. Arată-i lui {{childName}} Azi pe dispozitivul ăsta.",
+    "showChildToday": "Arată Azi al copilului",
+    "openingChildToday": "Se deschide Azi al copilului…",
+    "hourglassOfferTitle": "Clepsidră vizuală",
+    "hourglassOfferBody": "Ajută-ți copilul să vadă cât timp a mai rămas dintr-o activitate.",
+    "hourglassEnableBtn": "Activează clepsidra",
+    "hourglassEnabling": "Se activează…",
+    "hourglassEnabledMsg": "Clepsidra e activată pentru copilul tău.",
+    "hourglassEnableFailed": "Nu s-a putut activa clepsidra",
+    "goHome": "Mergi acasă →",
+    "openingHome": "Se deschide Acasă…",
+    "customizeFirst": "Personalizează mai întâi programul",
+    "openingSchedule": "Se deschide programul…",
+    "nameRequired": "Introdu numele copilului",
+    "templateFailed": "Nu s-a putut alege șablonul",
+    "previewFailed": "Nu s-a putut încărca programul",
+    "childCreateFailed": "Nu s-a putut crea copilul",
+    "scheduleSaveFailed": "Nu s-a putut salva programul",
+    "personalizeFailed": "Nu s-a putut personaliza programul",
+    "completeFailed": "Nu s-a putut finaliza",
+    "packages": {
+      "morning-short": {
+        "name": "Dimineață scurtă"
+      },
+      "evening-routine": {
+        "name": "Rutină de seară"
+      },
+      "preschool-day": {
+        "name": "Zi de grădiniță"
+      },
+      "school-day": {
+        "name": "Zi de școală"
+      },
+      "weekend": {
+        "name": "Weekend"
+      },
+      "getting-ready": {
+        "name": "Dimineață scurtă"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Numele copilului",
+        "placeholder": "ex. Ella"
+      },
+      "age_band": {
+        "label": "Câți ani are copilul?",
+        "options": {
+          "3-5": "3–5 ani",
+          "6-8": "6–8 ani",
+          "9-12": "9–12 ani",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Cu ce rutină vrei să începi?",
+        "options": {
+          "morgon": "☀️ Dimineață",
+          "kvall": "🌙 Seară",
+          "efter-skola": "🏫 După școală",
+          "laxor": "📚 Teme",
+          "gora-sig-klar": "🎒 Se pregătește"
+        }
+      },
+      "main_challenge": {
+        "label": "Ce e cel mai greu chiar acum?",
+        "options": {
+          "getting_started": "Primii pași",
+          "focus": "Rămâi concentrat",
+          "conflicts": "Conflicte",
+          "forgetting": "Uiți pașii",
+          "transitions": "Tranziții"
+        }
+      },
+      "support_ui": {
+        "label": "Are copilul nevoie de sprijin extra clar?",
+        "options": {
+          "ja": "Da",
+          "lite": "Puțin",
+          "nej": "Nu"
+        }
+      },
+      "length_ui": {
+        "label": "Cu câți pași vrei să începi?",
+        "options": {
+          "kort": "Scurt (3–4)",
+          "normal": "Normal (5)",
+          "detaljerad": "Detaliat (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "E ceva important de știut? (opțional)",
+        "placeholder": "ex. spălatul dinților e partea cea mai grea"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutină gata",
+      "handoff": "Deschideți modul copil împreună",
+      "child": "Copilul tău vede ce se întâmplă acum",
+      "done": "Gata!",
+      "star": "Prima stea ⭐"
+    },
+    "mock": {
+      "parentView": "Vedere părinte",
+      "dailyRoutine": "Rutina de azi",
+      "dress": "Îmbracă-te",
+      "brushTeeth": "Spală dinții",
+      "packBag": "Fă ghiozdanul",
+      "tryChildMode": "👶 Încearcă modul copil",
+      "now": "Acum",
+      "markDone": "Marchează gata ✓",
+      "wellDone": "Bravo!"
+    },
+    "ctaReady": "Gata să încerci?",
+    "ctaTryNow": "Încearcă modul copil acum",
+    "ctaLater": "Fă mai târziu",
+    "loginTitle": "Deschide vederea copilului",
+    "loginLead": "Programul e gata. Dă-i lui {{childName}} dispozitivul ăsta ca să își vadă rutina.",
+    "usernameLabel": "Nume de utilizator",
+    "pinLabel": "PIN",
+    "loginHint": "Stați împreună — merge pe același dispozitiv sau pe altul.",
+    "copyLogin": "📋 Copiază datele de intrare",
+    "copied": "✓ Copiat!",
+    "openChildMode": "Deschide vederea copilului",
+    "copyText": "{{childName}}\nDeschide vederea copilului în aplicație.",
+    "previewTitle": "Previzualizare — filmul de start"
+  },
+  "firstStar": {
+    "title": "Dă prima stea",
+    "lead": "Trei pași scurți — apoi chiar porniți.",
+    "steps": {
+      "login": "Lasă copilul să intre cu PIN-ul lui",
+      "complete": "Marchează o activitate ca gata în vederea copilului",
+      "celebrate": "Sărbătoriți steaua împreună!"
+    },
+    "openChildLogin": "👶 Deschide intrarea copilului",
+    "continueAsParent": "Continuă ca părinte"
+  },
+  "activation": {
+    "finalStepLabel": "Ultimul pas",
+    "introTitle": "Cum vrei să începi?",
+    "introBody": "Ai pregătit programul copilului — un început bun. Multe familii descoperă că provocarea mare nu e să pornească, ci să țină rutina în primele zile, când viața de zi cu zi preia controlul. Alege ce ți se potrivește:",
+    "guidedBadge": "Recomandat",
+    "guidedTitle": "Ține rutina în prima săptămână",
+    "guidedBody": "Multe familii apreciază un pic de sprijin după ce programul e gata. Nu pentru că ceva e greșit, ci pentru că obiceiurile noi au nevoie de timp să se așeze.",
+    "guidedBenefits": [
+      "Mementouri zilnice scurte ca să continui",
+      "Vezi când copilul termină sarcinile, fără să tot insiști",
+      "Programul copilului e deja setat — ajutăm rutina să meargă",
+      "Oprește când vrei"
+    ],
+    "guidedCta": "Da, ajută-ne în prima săptămână",
+    "directTitle": "Pornește imediat",
+    "directBody": "Te simți gata să mergi singur. Totul e la locul lui și poți începe imediat.",
+    "directBenefits": [
+      "Direct acasă",
+      "Același program, aceleași stele și recompense",
+      "Folosește aplicația în ritmul tău"
+    ],
+    "directCta": "Ne descurcăm singuri",
+    "footnote": "Orice alegi, poți folosi aplicația complet. Startul ghidat îți dă doar un pic de sprijin în plus în prima săptămână.",
+    "saveFailed": "Nu s-a putut salva alegerea"
+  },
+  "loading": {
+    "buildingSchedule": "Se construiește programul…",
+    "takesSeconds": "Durează doar câteva secunde!"
+  },
+  "templateGroups": {
+    "showActivities": "Arată activitățile",
+    "loadingActivities": "Se încarcă...",
+    "activityCount": {
+      "one": "{{count}} activitate",
+      "other": "{{count}} de activități",
+      "few": "{{count}} activități"
+    },
+    "forskola": {
+      "name": "Grădiniță",
+      "description": "Zi întreagă — copii de 2–5 ani"
+    },
+    "skola": {
+      "name": "Școală",
+      "description": "Zi întreagă — copii de 6 ani+"
+    },
+    "morgon": {
+      "name": "Dimineață",
+      "description": "Rutină de dimineață"
+    },
+    "dag": {
+      "name": "Zi",
+      "description": "Activități de zi"
+    },
+    "kvall": {
+      "name": "Seară",
+      "description": "Rutină de seară"
+    },
+    "helg": {
+      "name": "Weekend",
+      "description": "Rutină de weekend"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Trezește-te",
+        "Îmbracă-te",
+        "Mic dejun",
+        "Grădiniță",
+        "Joacă",
+        "Cină",
+        "Poveste de noapte"
+      ],
+      "skola": [
+        "Trezește-te",
+        "Mic dejun",
+        "Fă ghiozdanul",
+        "Școală",
+        "Teme",
+        "Cină",
+        "Poveste de noapte"
+      ],
+      "morgon": [
+        "Trezește-te",
+        "Îmbracă-te",
+        "Spală dinții",
+        "Mic dejun",
+        "Fă ghiozdanul"
+      ],
+      "dag": [
+        "Grădiniță",
+        "Joacă afară",
+        "Gustare",
+        "Prânz",
+        "Lucru manual"
+      ],
+      "kvall": [
+        "Cină",
+        "Spală dinții",
+        "Pijama",
+        "Poveste de noapte",
+        "Somn"
+      ],
+      "helg": [
+        "Trezește-te",
+        "Mic dejun",
+        "Joacă liberă",
+        "Ieșire",
+        "Activitate în familie",
+        "Cină"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Dimineață",
+    "lateMorning": "Spre prânz",
+    "afternoon": "După-amiază",
+    "evening": "Seară"
+  },
+  "errors": {
+    "avatarUploadPath": "Fotografia de profil se încarcă prin PUT /api/children/:id/avatar după ce copilul e creat",
+    "childNameRequired": "Numele copilului e obligatoriu",
+    "emojiRequired": "Alege un emoji pentru copil",
+    "invalidBirthday": "Dată de naștere nevalidă",
+    "birthdayFuture": "Ziua de naștere nu poate fi în viitor",
+    "invalidTemplate": "Alegere nevalidă. Alege un program valid.",
+    "noActivities": "Nicio activitate găsită pentru programul ales.",
+    "childIdRequired": "child_id e obligatoriu",
+    "noChildAccess": "Nu ai acces la copilul ăsta",
+    "weekendNotFound": "Programul de weekend nu a fost găsit în bibliotecă.",
+    "weekendEmpty": "Programul de weekend nu are activități.",
+    "rewardNameRequired": "Numele recompensei e obligatoriu",
+    "rewardCostMin": "Costul în stele trebuie să fie cel puțin 1",
+    "rewardsFetchFailed": "Nu s-au putut aduce recompensele.",
+    "childCreateFailed": "Ceva nu a mers bine la crearea copilului.",
+    "scheduleCreateFailed": "Ceva nu a mers bine la crearea programului.",
+    "weekendCreateFailed": "Ceva nu a mers bine la crearea programului de weekend.",
+    "rewardCreateFailed": "Ceva nu a mers bine la crearea recompensei.",
+    "generic": "Ceva nu a mers bine.",
+    "invalidViewType": "view_type nevalid. Alege zi sau cronologie.",
+    "notAllowed": "Nepermis",
+    "invalidChoice": "Alegere nevalidă.",
+    "activityGuideSaveFailed": "Nu s-a putut salva alegerea de activitate.",
+    "pinMustBe4": "PIN-ul trebuie să aibă exact 4 cifre",
+    "pinTooWeak": "Alege un PIN mai puternic",
+    "pinTaken": "PIN-ul ăsta e deja folosit pentru un copil cu același nume",
+    "pinUpdateFailed": "Nu s-a putut actualiza PIN-ul.",
+    "handoffContextFailed": "Nu s-a putut aduce contextul de predare",
+    "templateGroupsFailed": "Nu s-au putut aduce grupurile de program.",
+    "schedulePreviewFailed": "Nu s-a putut aduce programul.",
+    "viewSaveFailed": "Nu s-a putut salva alegerea de vedere.",
+    "activationNotEnabled": "Fluxul de activare nu e activat pentru familia ta",
+    "starterSuggestFailed": "Nu s-a putut alege șablonul",
+    "starterPreviewFailed": "Nu s-a putut aduce previzualizarea",
+    "starterPersonalizeFailed": "Nu s-a putut personaliza programul",
+    "scheduleNameRequired": "scheduleName e obligatoriu",
+    "templateNotFound": "Șablonul nu a fost găsit",
+    "enrollChoiceUnavailable": "Ecranul de alegere nu e disponibil"
+  },
+  "starterPlan": {
+    "firstSchedule": "Primul tău program"
+  }
+}

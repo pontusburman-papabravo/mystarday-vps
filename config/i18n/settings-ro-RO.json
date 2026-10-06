@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Setări — {{brand}}",
+  "title": "Setări",
+  "shellLead": "Profil, familie și aplicație",
+  "familySettings": "Setări familie",
+  "groups": {
+    "profile": {
+      "title": "Profil și cont",
+      "sub": "Intrare, PIN și cont"
+    },
+    "family": {
+      "title": "Familie",
+      "sub": "Nume și limbă. Persoanele se gestionează la Familie."
+    },
+    "device": {
+      "title": "Acest dispozitiv",
+      "sub": "Telefon de copil, telefon de adult sau telefon partajat"
+    },
+    "appearance": {
+      "title": "Aspect",
+      "sub": "Temă întunecată sau luminoasă"
+    },
+    "app": {
+      "title": "Aplicație",
+      "sub": "Notificări, push și confidențialitate"
+    },
+    "premium": {
+      "title": "Abonament",
+      "sub": "Premium, cumpărături și plăți"
+    }
+  },
+  "appearance": {
+    "dark": "Întunecat",
+    "light": "Luminos",
+    "backToSettings": "← Înapoi la setări"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planificare",
+      "sub": "Construiește conținut sau planifică săptămâna copiilor."
+    },
+    "rewards": {
+      "title": "Recompense",
+      "sub": "Stele, recompense și cufărul familiei."
+    },
+    "calendar": {
+      "title": "Calendar",
+      "sub": "Vedere lunară pentru toți copiii"
+    },
+    "activities": {
+      "title": "Activități",
+      "sub": "Gestionează activitățile copiilor"
+    },
+    "assignSchedule": {
+      "title": "Atribuie programul",
+      "sub": "Copiază programul la copil"
+    },
+    "dailyLog": {
+      "title": "Azi",
+      "sub": "Urmărește ziua copilului — completează stelele după aceea"
+    },
+    "treasureChest": {
+      "title": "Cufărul cu comori",
+      "sub": "Recompense și stele"
+    },
+    "childSettings": {
+      "title": "Setări copil",
+      "sub": "Vedere, PIN și personalizare"
+    },
+    "familyChild": {
+      "title": "Setări copil",
+      "sub": "Program, vedere, PIN și personalizare"
+    },
+    "notifications": {
+      "title": "Notificări",
+      "sub": "Mementouri și mesaje"
+    },
+    "schedule": {
+      "title": "Program săptămânal",
+      "sub": "Planifică și adaptează zilele copiilor"
+    },
+    "library": {
+      "title": "Bibliotecă",
+      "sub": "Programe, activități și recompense pentru familia ta"
+    },
+    "family": {
+      "title": "Familie",
+      "sub": "Copii, adulți și educatori"
+    }
+  },
+  "backToPlanning": "← Înapoi la Planificare",
+  "avatar": {
+    "title": "Poză de profil",
+    "description": "Fotografia ta apare copilului la Oamenii mei și pe pagina Familie.",
+    "changePhoto": "Schimbă poza",
+    "addPhoto": "Adaugă poză",
+    "removePhoto": "Elimină poza",
+    "saved": "Poză de profil salvată!",
+    "removed": "Poză de profil eliminată",
+    "saveFailed": "Nu s-a putut salva",
+    "removeFailed": "Nu s-a putut elimina"
+  },
+  "nativeAccount": {
+    "title": "Cont",
+    "sub": "Treci la autentificarea copilului sau deconectează-te complet din aplicație."
+  },
+  "account": {
+    "title": "Cont și intrare",
+    "appleLinked": "Cont Apple legat",
+    "googleLinked": "Cont Google legat",
+    "appleLinkedOnIosHint": "Ai legat contul Apple pe un iPhone. Ca să te autentifici aici, adaugă o parolă mai jos.",
+    "googleLinkedElsewhereHint": "Ai legat contul Google pe un alt dispozitiv. Ca să te autentifici aici, adaugă o parolă mai jos.",
+    "newPassword": "Parolă nouă",
+    "confirmPassword": "Confirmă parola",
+    "minCharsPlaceholder": "Cel puțin 8 caractere",
+    "repeatPasswordPlaceholder": "Introdu parola din nou",
+    "savePassword": "Salvează parola",
+    "passwordForNonApple": "Pentru intrare fără Apple",
+    "changePasswordHint": "Schimbă parola ca să păstrezi accesul la cont.",
+    "currentPassword": "Parola actuală",
+    "confirmNewPassword": "Confirmă parola nouă",
+    "changePassword": "Schimbă parola",
+    "linkApple": "Leagă contul Apple",
+    "unlinkApple": "Dezleagă contul Apple",
+    "linkGoogle": "Leagă contul Google",
+    "unlinkGoogle": "Dezleagă contul Google",
+    "changeEmail": "Schimbă adresa de e-mail",
+    "newEmail": "Adresă de e-mail nouă",
+    "yourPassword": "Parola ta",
+    "confirmWithPassword": "Confirmă cu parola",
+    "sendConfirmLink": "Trimite linkul de confirmare",
+    "passwordsMismatch": "Parolele nu se potrivesc",
+    "passwordMinLength": "Parola trebuie să aibă cel puțin 8 caractere",
+    "saving": "Se salvează…",
+    "passwordNowActive": "✓ Parola e acum activă",
+    "somethingWrong": "Ceva nu a mers bine. Încearcă din nou.",
+    "somethingWrongShort": "Ceva nu a mers bine",
+    "appleSignInUnavailable": "Autentificarea cu Apple nu e disponibilă pe acest dispozitiv.",
+    "googleSignInUnavailable": "Autentificarea Google nu e disponibilă pe acest dispozitiv.",
+    "linking": "Se leagă…",
+    "appleAlreadyLinked": "Contul Apple ăsta e deja legat de un alt cont.",
+    "googleAlreadyLinked": "Contul Google ăsta e deja legat de un alt cont.",
+    "couldNotLinkApple": "Nu s-a putut lega Apple:",
+    "couldNotLinkGoogle": "Nu s-a putut lega Google:",
+    "tryAgain": "Încearcă din nou.",
+    "unlinkApplePrompt": "Introdu parola ca să dezlegi Apple:",
+    "unlinkGooglePrompt": "Introdu parola ca să dezlegi Google:",
+    "removing": "Se elimină…",
+    "couldNotUnlink": "Nu s-a putut dezlega",
+    "invalidEmail": "Introdu o adresă de e-mail validă",
+    "sending": "Se trimite…",
+    "linkSentTo": "Link trimis la {{email}}",
+    "passwordChanged": "Parola a fost schimbată!",
+    "linkAppleBtn": "🍎 Leagă contul Apple",
+    "linkGoogleBtn": "Leagă contul Google",
+    "emailUpdated": "E-mailul a fost actualizat! Acum te poți autentifica cu adresa nouă.",
+    "passwordSet": "Parola e setată. Acum te poți autentifica cu e-mail și parolă.",
+    "errors": {
+      "invalidAppleToken": "Token de identitate Apple nevalid",
+      "invalidGoogleToken": "Token de identitate Google nevalid",
+      "appleAlreadyLinkedThis": "Un cont Apple e deja legat de acest cont",
+      "googleAlreadyLinkedThis": "Un cont Google e deja legat de acest cont",
+      "passwordRequiredUnlink": "Parola e obligatorie ca să dezlegi contul",
+      "setPasswordBeforeUnlink": "Setează o parolă înainte să dezlegi contul",
+      "emailPasswordRequired": "Noua adresă de e-mail și parola sunt obligatorii",
+      "setPasswordBeforeEmail": "Setează o parolă înainte să poți schimba adresa de e-mail",
+      "emailAlreadyRegistered": "Acest e-mail e deja înregistrat pe un alt cont",
+      "emailChangeLinkInvalid": "Link nevalid sau expirat. Cere o schimbare nouă în Setări.",
+      "emailChangeLinkUsed": "Linkul a fost deja folosit. Cere o schimbare nouă în Setări.",
+      "emailChangeLinkExpired": "Linkul a expirat. Cere o schimbare nouă în Setări.",
+      "passwordAlreadySet": "Există deja o parolă. Folosește „Schimbă parola” ca să o actualizezi.",
+      "emailAllOff": "Toate notificările pe e-mail sunt oprite. Le poți porni din nou la Setări → Notificări.",
+      "weeklyEmailOff": "Nu mai trimitem rezumate săptămânale pe e-mail. Le poți porni din nou la Setări → Notificări.",
+      "redeemEmailOff": "Nu mai trimitem e-mailuri când copilul vrea să folosească recompense. Le poți porni din nou la Setări → Notificări.",
+      "passwordCurrentAndNew": "Parola actuală și cea nouă sunt obligatorii",
+      "appleLinkLoginRequired": "Trebuie să fii autentificat ca să legi un cont Apple",
+      "googleLinkLoginRequired": "Trebuie să fii autentificat ca să legi un cont Google"
+    }
+  },
+  "toast": {
+    "saved": "Salvat!",
+    "savedCheck": "✅ Salvat!",
+    "saveFailedRetry": "Nu s-a putut salva. Încearcă din nou.",
+    "networkError": "Eroare de rețea"
+  },
+  "parentPin": {
+    "title": "Cod PIN",
+    "security": "Securitate",
+    "hasPinDescription": "PIN-ul tău personal protejează modul părinte — copiii nu pot ieși din modul copil fără PIN-ul tău.",
+    "noPinDescription": "Setează-ți un PIN de 4 cifre — copiii nu pot ieși din modul copil fără PIN-ul tău.",
+    "choosePin": "Alege un PIN de 4 cifre",
+    "confirmPin": "Confirmă PIN-ul",
+    "changePinBack": "← Schimbă PIN-ul",
+    "enterCurrentPin": "Introdu PIN-ul actual",
+    "forgotPin": "Ai uitat PIN-ul?",
+    "chooseNewPin": "Alege PIN nou",
+    "confirmNewPin": "Confirmă PIN-ul nou",
+    "forgotIntro": "Introdu parola ca să setezi un PIN nou.",
+    "yourPassword": "Parola ta",
+    "verify": "Verifică",
+    "keypadAria": "Tastatură numerică",
+    "confirmKeypadAria": "Confirmă tastatura PIN",
+    "pinKeypadAria": "Tastatură PIN",
+    "newPinKeypadAria": "Tastatură PIN nouă",
+    "confirmNewPinKeypadAria": "Confirmă tastatura PIN nouă",
+    "pinsMismatch": "PIN-urile nu se potrivesc — încearcă din nou",
+    "pinNowActive": "✓ PIN-ul e activ",
+    "wrongPin": "PIN incorect — încearcă din nou",
+    "pinChanged": "✓ PIN-ul a fost schimbat!",
+    "couldNotChangePin": "Nu s-a putut schimba PIN-ul",
+    "sessionExpired": "Sesiune expirată — introdu din nou PIN-ul actual",
+    "enterPassword": "Introdu parola",
+    "wrongPassword": "Parolă incorectă"
+  },
+  "push": {
+    "title": "Notificări push",
+    "lead": "Primești notificări pe telefon — chiar și când aplicația e închisă.",
+    "unsupported": "Browserul tău nu acceptă notificări push.",
+    "toggleLabel": "Notificări push",
+    "toggleDescription": "Activează ca să primești notificări despre activitățile copiilor",
+    "toggleAria": "Comută notificările push",
+    "perChildHeading": "Notificări pe copil",
+    "typesHeading": "Care notificări?",
+    "typeScheduleTitle": "Memento de program",
+    "typeScheduleHint": "10 min înainte de activitate",
+    "typeScheduleAria": "Comută mementoul de program",
+    "typeInactivityTitle": "Memento de inactivitate",
+    "typeInactivityHint": "18:00 dacă copilul nu a intrat",
+    "typeInactivityAria": "Comută mementoul de inactivitate",
+    "typeMilestoneTitle": "Etapă de stele",
+    "typeMilestoneHint": "La 10/25/50/100 de stele",
+    "typeMilestoneAria": "Comută etapa de stele",
+    "typeBackfillTitle": "Memento de completare",
+    "typeBackfillHint": "09:00 dacă lipsește ziua de ieri",
+    "typeBackfillAria": "Comută mementoul de completare",
+    "leadTimeLabel": "Memento înainte",
+    "quietHoursLabel": "Ore de liniște",
+    "quietHoursTo": "până la",
+    "archiveTitle": "Arhivă de notificări",
+    "archiveHint": "Notificări push reușite din ultimele 7 zile",
+    "noChildren": "Niciun copil legat.",
+    "childToggleAria": "Notificări pentru {{name}}",
+    "saved": "✅ Salvat!",
+    "saveFailed": "Nu s-a putut salva.",
+    "saveFailedRetry": "Nu s-a putut salva. Încearcă din nou.",
+    "requestingPermission": "⏳ Se cere permisiunea…",
+    "enabled": "✅ Notificări push activate!",
+    "permissionDenied": "🚫 Permisiune refuzată. Activează în browser sau în setările aplicației.",
+    "iosNotInstalled": "Adaugă {{brand}} pe ecranul principal pentru push în Safari.",
+    "genericError": "Ceva nu a mers bine. Încearcă din nou.",
+    "disabled": "✅ Notificări push oprite.",
+    "errors": {
+      "unsupportedBrowser": "Push nu e suportat în browserul ăsta",
+      "permissionDeniedApp": "Permisiunea pentru notificări a fost refuzată în setările aplicației.",
+      "pushPluginMissing": "Pluginul de push lipsește din aplicație. Rulează npx cap sync ios și reconstruiește.",
+      "platformMissing": "Lipsește suportul push al platformei",
+      "permissionDeniedBrowser": "Permisiunea pentru notificări a fost refuzată. Activeaz-o în setările browserului.",
+      "permissionDenied": "Permisiunea pentru notificări a fost refuzată",
+      "subscriptionFailed": "Abonamentul a eșuat",
+      "enableFailed": "Nu s-au putut activa notificările push",
+      "disableFailed": "Nu s-au putut opri notificările push",
+      "iosNotInstalled": "Adaugă aplicația pe ecranul principal pentru push în Safari.",
+      "notConfigured": "Notificările push nu sunt configurate",
+      "invalidSubscription": "Abonare push nevalidă",
+      "endpointRequired": "Un endpoint e obligatoriu",
+      "invalidToken": "Token nevalid",
+      "invalidPlatform": "Platforma trebuie să fie iOS sau Android",
+      "tokenRequired": "Tokenul și platforma sunt obligatorii",
+      "parentNotFound": "Părintele nu a fost găsit"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Adaugi un widget pe ecranul principal?",
+      "lead": "Vezi următoarea activitate pe ecranul principal — fără să deschizi aplicația.",
+      "step1": "Apasă <strong class=\"text-navy\">Conectează widgetul</strong> aici, în aplicație.",
+      "step2": "Pe ecranul principal: apasă lung fundalul → apasă <strong class=\"text-navy\">+</strong> → caută <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Nu mai întreba",
+      "connect": "Conectează widgetul",
+      "later": "Nu acum",
+      "openSettings": "Deschide setările"
+    },
+    "settings": {
+      "title": "Widgeturi și acces rapid",
+      "description": "Widget personal = un copil. Widget de familie = mai mulți copii. Alege un copil aici dacă ai mai mult de unul.",
+      "childPickerLabel": "Ce copil să arate widgetul?",
+      "childFallbackName": "Copil",
+      "statusLabel": "Stare:",
+      "statusConnected": "Conectat",
+      "statusReconnect": "Trebuie reconectat",
+      "privacyLabel": "Confidențialitate:",
+      "privacyFull": "Complet",
+      "privacyLimited": "Limitat",
+      "reconnectBtn": "Reconectează widgetul",
+      "guideBtn": "Arată ghidul pentru widgetul de pe ecran",
+      "connecting": "Se conectează…",
+      "supportMissing": "Suportul pentru widget lipsește în versiunea asta. Actualizează aplicația.",
+      "addChildFirst": "Adaugă întâi un copil în familie, apoi poți conecta widgetul.",
+      "loginRequired": "Trebuie să fii conectat ca să legi widgetul.",
+      "success": "Gata! Adaugă widgetul pe ecranul principal (+ → {{brand}}) dacă nu ai făcut-o deja.",
+      "pickChild": "Alege un copil din lista de mai sus și încearcă din nou.",
+      "retryLater": "Nu s-a putut conecta acum. Încearcă din nou peste o clipă.",
+      "networkError": "Nu s-a putut conecta acum. Verifică rețeaua și încearcă din nou.",
+      "errors": {
+        "offlineUnavailable": "Widgetul nu e activat încă pentru familia ta. Contactează asistența dacă ar trebui să fie pornit.",
+        "reauthRequired": "Sesiunea trebuie reînnoită. Deconectează-te și intră din nou, apoi încearcă să reconectezi.",
+        "nativeConfigureFailed": "Aplicația nu a putut salva legătura widgetului. Închide aplicația complet și deschide-o din nou.",
+        "notEnabled": "Widgetul nu e activat sau sesiunea trebuie reînnoită. Deconectează-te și intră din nou."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Setări notificări",
+    "weeklySummary": "Rezumat săptămânal (duminică 21:00)",
+    "rewardRedemption": "Folosiri de recompense",
+    "newsletter": "Buletin pe e-mail",
+    "emailGlobal": "Toate e-mailurile, global",
+    "save": "Salvează setările de notificări"
+  },
+  "reminders": {
+    "title": "Mementouri",
+    "lead": "Setează un memento zilnic ca să îți amintești să verifici programul.",
+    "daily": "Memento zilnic",
+    "hint": "Primești un memento la ora aleasă, în zilele alese",
+    "toggleAria": "Comută mementoul",
+    "time": "Oră",
+    "days": "Zile"
+  },
+  "familyName": {
+    "label": "Numele familiei",
+    "placeholder": "ex. Familia Ionescu",
+    "autoFromParent": "Familia lui {{name}}"
+  },
+  "sound": {
+    "label": "Sunet pornit",
+    "hint": "Redă un sunet când copilul bifează o activitate în vederea lui pe zi."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Adulți și acces",
+    "adultsBody": "Invită un părinte și vezi cine are acces la Familie.",
+    "openFamily": "Deschide Familia",
+    "pedagogsTitle": "👩‍🏫 Educatori",
+    "pedagogsBody": "Invitațiile și accesul educatorilor se gestionează la Familie."
+  },
+  "dataExport": {
+    "title": "Datele mele",
+    "body": "Descarcă o copie a tuturor datelor tale ca CSV (fișier ZIP). Include profilul, copiii, programele, recompensele și istoricul de activități.",
+    "download": "Descarcă datele mele",
+    "preparing": "Se pregătește descărcarea…",
+    "started": "✅ Descărcarea a început!",
+    "rateLimited": "Poți exporta doar o dată la 24 de ore.",
+    "failed": "Ceva nu a mers bine. Încearcă din nou.",
+    "networkError": "Eroare de rețea. Încearcă din nou."
+  },
+  "deleteAccount": {
+    "title": "Șterge contul",
+    "permanent": "⚠️ Acțiune permanentă",
+    "loading": "Se încarcă ce se va întâmpla…",
+    "storeBillingNote": "Dacă ai un abonament prin App Store sau Google Play, nu se anulează automat când contul e șters. Gestionează sau anulează abonamentul în magazin.",
+    "button": "Șterge contul meu",
+    "summarySelf": "Îți elimini contul și accesul. Familia, copiii, programele și datele celorlalți adulți rămân. Nu se poate anula.",
+    "summaryLastAdmin": "Ești ultimul adult cu acces de administrare. Toată familia și toate datele legate — copii, programe, activități, stele și recompense — vor fi șterse imediat și definitiv. Nu se poate anula.",
+    "modalTitleSelf": "Părăsește familia",
+    "modalTitleFamily": "Șterge familia și contul",
+    "modalTitleFallback": "Șterge contul definitiv",
+    "leadSelf": "Elimini doar contul tău și accesul tău.",
+    "leadFamily": "Ștergi toată familia și toate datele legate.",
+    "sure": "Sigur?",
+    "cannotUndo": "Asta nu se poate anula.",
+    "storeBillingModal": "Un abonament prin App Store sau Google Play nu se anulează automat — gestionează-l în magazin.",
+    "typeConfirmLabel": "Scrie {{token}} ca să confirmi",
+    "typeConfirmLabelHtml": "Scrie <strong>RADERA</strong> ca să confirmi",
+    "typeConfirmError": "Scrie {{token}} ca să confirmi.",
+    "confirmToken": "RADERA",
+    "cancel": "Anulează",
+    "confirmSelf": "Părăsește familia",
+    "confirmFamily": "Șterge totul definitiv",
+    "deleting": "Se șterge...",
+    "deleted": "✅ Contul a fost șters.",
+    "deleteFailed": "Ceva nu a mers bine la ștergere.",
+    "networkError": "Eroare de rețea. Încearcă din nou.",
+    "bulletSelfAccount": "Contul tău de părinte și accesul tău",
+    "bulletSelfOthersRemain": "Familia, copiii și ceilalți adulți rămân",
+    "bulletParentAccount": "Contul părintelui",
+    "bulletAllChildren": "Toți copiii din familie",
+    "bulletAllSchedules": "Toate programele, activitățile și recompensele",
+    "bulletAllHistory": "Tot istoricul zilnic și stelele"
+  },
+  "support": {
+    "title": "Info tehnică pentru suport",
+    "hint": "Copiază versiunea aplicației, cache-ul și un ID de depanare. Nu sunt incluse date personale sau parole.",
+    "copy": "Copiază info tehnică",
+    "copied": "Copiat — lipește-l într-un e-mail către suport.",
+    "copyFailed": "Nu s-a putut copia. Încearcă din nou."
+  },
+  "legal": {
+    "privacy": "Politica de confidențialitate",
+    "terms": "Termeni de utilizare"
+  },
+  "consent": {
+    "title": "Consimțământ și confidențialitate",
+    "lead": "Gestionează setările de confidențialitate și alegerile de cookie-uri.",
+    "change": "Schimbă setările de consimțământ",
+    "empty": "Încă nicio setare de consimțământ salvată.",
+    "modalTitle": "Consimțământ și confidențialitate",
+    "aria": "Setări de consimțământ",
+    "intro": "Ajută-ne să facem {{brand}} și mai bun. Folosim cookie-uri ca să înțelegem cum e folosită aplicația și ca să ajungem la mai multe familii. Apasă fiecare categorie ca să comuți ✓ Da / ✗ Nu / — Neutru.",
+    "save": "Salvează alegerile",
+    "saving": "Se salvează…",
+    "skip": "Omite",
+    "closing": "Se închide…",
+    "analytics": "Analiză și îmbunătățire",
+    "analyticsDesc": "Ne ajută să înțelegem cum e folosită aplicația, ca să o facem mai bună.",
+    "ads": "Marketing",
+    "adsDesc": "Arată reclame potrivite pentru tine pe Meta (Facebook/Instagram) și Google.",
+    "adUserData": "Date către platforme",
+    "adUserDataDesc": "Împărtășește datele tale cu platformele de reclame, pentru o potrivire mai bună.",
+    "adPersonalization": "Personalizare",
+    "adPersonalizationDesc": "Personalizează reclamele după interesele și comportamentul tău.",
+    "email": "E-mail și sfaturi",
+    "emailDesc": "E-mailuri cu sfaturi, noutăți și oferte de la {{brand}}."
+  },
+  "subscription": {
+    "title": "Abonament",
+    "loading": "Se încarcă abonamentul…",
+    "loadFailed": "Nu s-a putut încărca starea abonamentului.",
+    "restore": "Restaurează cumpărăturile",
+    "manage": "Gestionează abonamentul",
+    "activate": "Activează Premium",
+    "viewPlans": "Vezi abonamentele",
+    "howToActivate": "Cum activezi Premium",
+    "webActivateHint": "Premium se activează în aplicația de pe iPhone sau Android.",
+    "restoreSuccess": "Cumpărături restaurate. Premium e activ.",
+    "restoreNone": "Nicio cumpărare de restaurat.",
+    "restoreFailed": "Nu s-au putut restaura cumpărăturile.",
+    "launchHoldTitle": "Acces de lansare — facturarea nu e încă activă",
+    "launchHoldBody": "Poți folosi aplicația în continuare. Un abonament nu e necesar cât facturarea e oprită.",
+    "complimentaryTitle": "Gratuit până la 31 decembrie 2026",
+    "complimentaryBody": "{{brand}} e gratuit până la 31 decembrie 2026. Nu e nevoie de abonament sau metodă de plată. Oferta asta nu se transformă automat într-un abonament plătit.",
+    "complimentaryBodyUntil": "Gratuit până la {{date}}. Nu e nevoie de abonament sau metodă de plată, iar oferta asta nu devine automat un abonament plătit. De la 1 ianuarie 2027 poți alege dacă te abonezi.",
+    "launchTitle": "Acces de lansare",
+    "launchBody": "Poți folosi aplicația acum. Un abonament nu e necesar încă.",
+    "launchBodyUntil": "Poți folosi aplicația acum. Un abonament nu e necesar încă. Start plătit: {{date}}.",
+    "noPremium": "Niciun Premium activ",
+    "choosePlan": "Alege Premium lunar sau Premium anual ca să deblochezi accesul complet.",
+    "billingNotLive": "Un abonament nu e necesar încă. Facturarea nu e activă.",
+    "activateBody": "Activează Premium pentru acces complet la aplicație.",
+    "grandfatheredTitle": "Premium inclus pentru totdeauna",
+    "grandfatheredBody": "Familia ta are acces complet, fără cost.",
+    "trialTitle": "Premium – perioadă gratuită",
+    "ends": "Se termină {{date}}",
+    "giftTitle": "Premium – card cadou",
+    "validUntil": "Valabil până la {{date}}",
+    "graceTitle": "Premium – plata trebuie actualizată",
+    "graceBody": "Accesul încă merge, dar plata trebuie rezolvată în {{store}}.",
+    "activeTitle": "Premium – {{plan}} prin {{store}}",
+    "planYearly": "plan anual",
+    "planMonthly": "plan lunar"
+  },
+  "theme": {
+    "title": "Aspect",
+    "darkMode": "Mod întunecat",
+    "darkHint": "Activează o temă întunecată pentru un plus de confort pe întuneric",
+    "toggleAria": "Comută modul întunecat",
+    "colorBlind": "Temă pentru daltonism",
+    "colorBlindHint": "Ajustează culorile pentru diferite tipuri de daltonism",
+    "colorNone": "Niciunul (implicit)",
+    "protanopia": "Protanopie (roșu)",
+    "deuteranopia": "Deuteranopie (verde)",
+    "tritanopia": "Tritanopie (albastru)"
+  },
+  "viewMode": {
+    "dualAccess": "Ai acces și la vederea de părinte, și la cea de educator.",
+    "switchPedagog": "🌟 Treci la vederea de educator",
+    "switchParent": "👨‍👩‍👧 Treci la vederea de părinte"
+  },
+  "loadError": {
+    "title": "Setările familiei nu au putut fi încărcate",
+    "fallback": "Nu s-au putut încărca setările familiei chiar acum.",
+    "retry": "Încearcă din nou",
+    "retryIn": "Încearcă din nou peste {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Nu mai trimitem rezumate săptămânale pe e-mail. Le poți porni din nou la Setări → Notificări.",
+    "reward": "Nu mai trimitem e-mailuri când copilul vrea să folosească recompense. Le poți porni din nou la Setări → Notificări.",
+    "all": "Toate notificările pe e-mail sunt oprite. Le poți porni din nou la Setări → Notificări.",
+    "invalidTitle": "Link nevalid",
+    "invalidBody": "Linkul e nevalid sau a expirat.",
+    "errorTitle": "Ceva nu a mers bine",
+    "errorBody": "Încearcă din nou mai târziu sau mergi la Setări în aplicație."
+  },
+  "notifArchive": {
+    "retry": "Încearcă din nou",
+    "failedHidden": "Trimiterile eșuate sau oprite nu apar aici.",
+    "loading": "Se încarcă arhiva push…",
+    "loadError": "Nu s-a putut încărca arhiva de push. Asta nu înseamnă că nu ai notificări.",
+    "markAll": "Marchează tot ca citit"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Dnes {{child_name}} urobilo prvý krok.",
+      "body_template": "Malá vec z bežného dňa — a veľa znamená. Teraz vieš, že rutina funguje.",
+      "cta": "Vidím to"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Zvládli ste to spolu",
+      "body_template": "{{child_name}} začalo. Si pri tom. Tak rastú návyky.",
+      "cta": "Aké milé"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "V Rannom dome niečo bliká…"
+    }
+  }
+}

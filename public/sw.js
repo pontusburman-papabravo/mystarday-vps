@@ -377,7 +377,8 @@
 // stjarndag-v1015: native cold start resumes via app-entry (ADR-022); role picker is not the start screen
 // stjarndag-v1014: anchor Switch profile in the parent header on phones
 // stjarndag-v1013: keep Hem child-login CTA when schema is saved
-const CACHE_NAME = 'stjarndag-v1044';
+// stjarndag-v1045: support follow-up and package interest follow the locale bundle
+const CACHE_NAME = 'stjarndag-v1045';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host

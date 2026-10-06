@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Arată sfaturi",
+    "close": "Închide",
+    "milestone": "Etapă",
+    "nextStep": "Pasul următor",
+    "tip": "Sfat",
+    "weekReflection": "Reflecție de săptămână",
+    "weekTogether": "O săptămână împreună",
+    "weekLabel": "O săptămână",
+    "sjDay3Headline": "E timpul ca {{name}} să încerce",
+    "tips": {
+      "coach_consistency": [
+        "Ține rutina scurtă și clară — copilul își construiește obiceiul pas cu pas.",
+        "Sărbătorește fiecare bifă, chiar și pe cele mici.",
+        "Lasă copilul să se autentifice singur în fiecare dimineață."
+      ],
+      "coach_evening": [
+        "Adaugă 2–3 activități liniștite înainte de culcare.",
+        "Aceeași ordine în fiecare seară face adormitul mai ușor."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nou",
+    "dismissAria": "Închide explicația",
+    "continueFallback": "Continuă",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Acum arătăm o sugestie clară pentru pasul următor, aici pe Acasă.",
+        "whatChanged": "Un card „Pasul următor” a fost adăugat sus.",
+        "whyItMatters": "Nu trebuie să cauți prin mementouri — câte o sugestie o dată."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lasă copilul să încerce rutina",
+      "body": "Deschideți modul copil împreună — văd imediat ce au de făcut.",
+      "cta": "Deschide vederea copilului"
+    },
+    "ADD_EVENING": {
+      "headline": "Adaugă rutina de seară",
+      "body": "Fă culcarea la fel de clară ca dimineața.",
+      "cta": "Adaugă seara"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Invită celălalt părinte",
+      "body": "Împărtășește rutina ca să puteți urmări împreună.",
+      "cta": "Invită"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Începe cu un pas mic",
+      "body": "Rutina e încă acolo — ia câte o activitate azi.",
+      "cta": "Deschide programul"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Personalizează-ți rutina",
+      "body": "Acum poți face programul al tău.",
+      "cta": "Personalizează"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Sărbătorește progresul",
+      "body": "Ai făcut un pas important — luați o clipă împreună.",
+      "cta": "Arată copilului"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Copilul tău a finalizat o activitate!",
+    "defaultChild": "Copilul tău",
+    "defaultActivity": "o activitate",
+    "defaultCta": "Am înțeles"
+  }
+}

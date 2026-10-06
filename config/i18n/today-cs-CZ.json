@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Dnes — {{brand}}",
+  "shell": {
+    "headerTitle": "Dnes",
+    "backToHome": "← Zpět na Domů",
+    "pdfHint": "Vytvoř PDF pro den, týden nebo moje dny",
+    "printBtn": "📄 Vytvořit PDF ▾",
+    "printDay": "📄 Vytvořit PDF — den",
+    "printWeek": "📅 Vytvořit PDF — týden",
+    "printMyDays": "🏠 Vytvořit PDF — moje dny",
+    "selectChildHeading": "Vyber dítě",
+    "selectChildEmpty": "Vyber nahoře dítě, ať uvidíš záznam",
+    "loadingChildren": "Načítání…",
+    "tipsTitle": "Tip: Sleduj aktivity v Dnes",
+    "tips1": "Označ aktivity jako hotové — dítě je uvidí hned",
+    "tips2": "V dětském pohledu se aktivita odškrtne jedním klepnutím a hvězda přibude rovnou",
+    "tips3": "Posuň se v kalendáři zpátky a uvidíš, jak se dítěti dařilo",
+    "tips4": "Pozastav den, když je rutina jiná — o hvězdy nepřijdeš",
+    "rateActivity": "Ohodnotit aktivitu",
+    "commentPlaceholder": "Komentář (volitelný)…",
+    "cancel": "Zrušit",
+    "save": "Uložit",
+    "moveUp": "Posunout nahoru",
+    "moveDown": "Posunout dolů",
+    "printWeekDocTitle": "Týdenní plán — {{name}}",
+    "printMyDaysDocTitle": "Moje dny"
+  },
+  "childFallback": "Dítě",
+  "noChildren": "Zatím tu není žádné dítě.",
+  "loading": "Načítání…",
+  "retry": "Zkusit znovu",
+  "errors": {
+    "signInRequired": "Pro Dnes se přihlas",
+    "loadChildren": "Děti se nepodařilo načíst",
+    "loadLog": "Záznam se nepodařilo načíst. Zkus to znovu.",
+    "saveOrder": "Pořadí se nepodařilo uložit",
+    "updateActivity": "Aktivitu se nepodařilo upravit",
+    "undo": "Vrácení se nepovedlo",
+    "changeStatus": "Stav se nepodařilo změnit",
+    "adjustTime": "Časy se nepodařilo upravit",
+    "selectChild": "Nejdřív vyber dítě",
+    "custodyDisabled": "Plán péče není zapnutý",
+    "loadWeek": "Týden se nepodařilo načíst",
+    "saveRating": "Hodnocení se nepodařilo uložit",
+    "ratingScoreOrEmotion": "Vyber hodnocení nebo kartu nálady",
+    "ratingScoreRange": "Hodnocení musí být od 1 do 10",
+    "ratingInvalidEmotion": "Neplatná karta nálady",
+    "ratingActivityNotFound": "Aktivita se nenašla",
+    "ratingNotAllowed": "U této aktivity a tohoto dítěte hodnocení nejde",
+    "ratingParentScoreRange": "Hodnocení musí být od 1 do 5",
+    "ratingParentDisabled": "Hodnocení rodičem u této aktivity není zapnuté",
+    "dayPaused": "Den je pozastavený",
+    "dailyLogItemRequired": "daily_log_item_id je povinné",
+    "invalidTimerMinutes": "Neplatné minuty. Povolené hodnoty: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Dnes žádné aktivity!",
+    "noScheduleDay": "Tenhle den nemá rutinu",
+    "addToWeekSchedule": "Přidej aktivity do týdenního plánu, ať se záznamy tvoří samy.",
+    "noScheduleSelected": "Vybraný den nemá rutinu.",
+    "thisDay": "tento den",
+    "today": "dnes",
+    "noChildrenTitle": "Žádné dítě",
+    "addFirstChild": "Přidej na Domů první dítě a můžeš začít!",
+    "goToDashboard": "Přejít na Domů",
+    "goToWeekSchedule": "📅 Přejít na týdenní plán"
+  },
+  "nav": {
+    "prevWeek": "Předchozí týden",
+    "prevDay": "Předchozí den",
+    "nextDay": "Další den",
+    "nextWeek": "Další týden",
+    "pickDate": "Vybrat datum",
+    "todayBtn": "Dnes",
+    "undoBump": "Vrátit poslední posun času"
+  },
+  "activity": {
+    "markDone": "Označit jako hotové",
+    "undoMark": "Vrátit označení",
+    "rate": "⭐ Ohodnotit",
+    "setRating": "Nastavit hodnocení",
+    "changeRating": "Změnit hodnocení",
+    "dragReorder": "Přetáhni a změň pořadí",
+    "completeAllInSection": "Dokončit vše v {{section}}",
+    "completeAllBtn": "✅ Označit vše hotové",
+    "defaultName": "Aktivita",
+    "undoneToast": "↩️ Označení zrušeno"
+  },
+  "pause": {
+    "confirmPause": "Pozastavit tento den? Aktivity se nepočítají negativně.",
+    "confirmUnpause": "Znovu zapnout tento den?",
+    "pausedToast": "😴 Den je pozastavený",
+    "unpausedToast": "✅ Den je znovu zapnutý",
+    "dayTitle": "Volný den",
+    "banner": "Tenhle den je pozastavený (třeba nemoc nebo volno). Aktivity se nepočítají negativně.",
+    "reactivate": "✅ Znovu zapnout den",
+    "pauseBtn": "😴 Pozastavit tento den (nemoc / volno)"
+  },
+  "bump": {
+    "noItems": "Nejsou tu neodškrtnuté aktivity s časem, který jde posunout",
+    "moved": "⏩ Posunuto {{count}} aktivit{{suffix}} o {{minutes}} min",
+    "movedOne": "u",
+    "movedMany": "y",
+    "undoToast": "↩️ Posun času je vrácený",
+    "title": "Posunout vše nadcházející dopředu",
+    "adjustHint": "Upraví časy u neodškrtnutých aktivit",
+    "minutesTitle": "Posunout o {{minutes}} min",
+    "undoBtn": "↩ Vrátit"
+  },
+  "retrofill": {
+    "title": "Doplňování rutiny zpětně",
+    "description": "Doplňuješ rutinu dodatečně. Označ aktivity jako hotové — uloží se se správným datem."
+  },
+  "rating": {
+    "childMood": "Nálada dítěte",
+    "parentScore": "Hodnocení rodiče",
+    "noMoodCards": "Zatím žádné karty nálad",
+    "saved": "⭐ Hodnocení je uložené!",
+    "labels": [
+      "",
+      "Těžké 😓",
+      "Ujde to 😐",
+      "Dobré 😊",
+      "Skvělé 😄",
+      "Úžasné! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiena",
+    "mat": "Jídlo",
+    "skola": "Škola",
+    "lek": "Hra",
+    "rorelse": "Pohyb",
+    "vila": "Odpočinek",
+    "social": "Společnost"
+  },
+  "legend": {
+    "colorCoding": "Barvy:"
+  },
+  "progress": {
+    "percent": "{{pct}} %",
+    "allDone": "🎉 Všechny aktivity jsou hotové!",
+    "completedOf": "Hotovo {{completed}} z {{total}} aktivit"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Odškrtnuto: {{name}}",
+    "undo": "Vrátit"
+  },
+  "emotions": {
+    "title": "💛 Nálady dnes",
+    "noCards": "Zatím žádné karty nálad",
+    "sliderResponses": "Posuvník: {{count}} odpově{{suffix}}",
+    "sliderSuffixOne": "ď",
+    "sliderSuffixMany": "di",
+    "sliderAvg": " (prům. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Připravuji přehled týdne...",
+    "preparingCustody": "Připravuji moje dny…",
+    "noMyDays": "Tenhle týden nemáš žádný svůj den",
+    "weekScheduleTitle": "{{name}} — Týdenní plán",
+    "myDaysTitle": "{{name}} — Moje dny"
+  }
+}

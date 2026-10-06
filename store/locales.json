@@ -163,7 +163,7 @@
       }
     },
     "hr-HR": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "hr",
         "fallback": null,
@@ -175,12 +175,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "hr",
+        "androidResources": [
+          "scripts/android/l10n/res/values-hr/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-hr/strings.xml"
+        ]
       }
     },
     "cs-CZ": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "cs",
         "fallback": null,
@@ -192,8 +195,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "cs",
+        "androidResources": [
+          "scripts/android/l10n/res/values-cs/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-cs/strings.xml"
+        ]
       }
     },
     "da-DK": {
@@ -351,7 +357,7 @@
       }
     },
     "hu-HU": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "hu",
         "fallback": null,
@@ -363,8 +369,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "hu",
+        "androidResources": [
+          "scripts/android/l10n/res/values-hu/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-hu/strings.xml"
+        ]
       }
     },
     "ga-IE": {
@@ -496,7 +505,7 @@
       }
     },
     "ro-RO": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "ro",
         "fallback": null,
@@ -508,12 +517,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "ro",
+        "androidResources": [
+          "scripts/android/l10n/res/values-ro/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-ro/strings.xml"
+        ]
       }
     },
     "sk-SK": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "sk",
         "fallback": null,
@@ -525,12 +537,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "sk",
+        "androidResources": [
+          "scripts/android/l10n/res/values-sk/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-sk/strings.xml"
+        ]
       }
     },
     "sl-SI": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "sl-SI",
         "fallback": null,
@@ -542,8 +557,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "sl-SI",
+        "androidResources": [
+          "scripts/android/l10n/res/values-sl/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-sl/strings.xml"
+        ]
       }
     },
     "es-ES": {

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Čas navyše pri obrazovke",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Vyber večeru",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Malý darček",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

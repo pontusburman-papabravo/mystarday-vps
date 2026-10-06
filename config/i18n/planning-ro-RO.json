@@ -1,0 +1,89 @@
+{
+  "pageTitle": "Planificare — {{brand}}",
+  "shell": {
+    "title": "Planificare",
+    "lead": "Alege săptămâna, activitățile sau mai mult.",
+    "logout": "Ieși din cont"
+  },
+  "sections": {
+    "planWeek": "Planifică săptămâna",
+    "buildContent": "Construiește conținut",
+    "other": "Altele"
+  },
+  "primary": {
+    "week": {
+      "title": "Săptămâna",
+      "sub": "Lista zilelor pentru săptămâna copiilor tăi"
+    },
+    "activities": {
+      "title": "Activități",
+      "sub": "Biblioteca — creează și editează"
+    },
+    "more": {
+      "title": "Mai mult",
+      "sub": "Tipărește, șabloane și alte unelte"
+    }
+  },
+  "more": {
+    "title": "Mai mult",
+    "close": "Închide"
+  },
+  "links": {
+    "library": {
+      "title": "Bibliotecă",
+      "sub": "Creează activități și recompense"
+    },
+    "imageArchive": {
+      "title": "Arhivă de imagini",
+      "sub": "Pozele tale — periuță, pat, școală"
+    },
+    "templates": {
+      "title": "Șabloane",
+      "sub": "Programe salvate pe care le poți folosi din nou"
+    },
+    "weekSchedule": {
+      "title": "Program săptămânal",
+      "sub": "Editează săptămâna copilului"
+    },
+    "calendar": {
+      "title": "Calendar",
+      "sub": "Vezi luna și zilele speciale"
+    },
+    "custody": {
+      "title": "Program de custodie",
+      "sub": "Îngrijire împărțită între case"
+    },
+    "dailyLog": {
+      "title": "Azi",
+      "sub": "Vezi și ajustează zilele anterioare"
+    },
+    "printSchema": {
+      "title": "Creează PDF — program",
+      "sub": "Tipărește un program"
+    },
+    "assignSchedule": {
+      "title": "Atribuie programul",
+      "sub": "Copiază un program la un copil"
+    },
+    "reports": {
+      "title": "Rapoarte",
+      "sub": "Progres și partajare"
+    },
+    "samarbete": {
+      "title": "Colaborare cu educatorul",
+      "sub": "Lucrează cu un educator"
+    },
+    "barnStod": {
+      "title": "Suport suplimentar",
+      "sub": "Sprijin vizual și TEACCH"
+    }
+  },
+  "gettingStarted": {
+    "title": "Începe",
+    "bodyBeforeLibrary": "Începe în ",
+    "libraryLink": "Bibliotecă",
+    "bodyMiddle": " dacă vrei să creezi activități. Mergi la ",
+    "forYouLink": "Pentru tine",
+    "bodyAfter": " dacă vrei o recomandare gata făcută."
+  }
+}

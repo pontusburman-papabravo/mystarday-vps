@@ -52,6 +52,30 @@
         "pl": {
           "name": "Premium miesięcznie",
           "description": "Miesięczny Premium w aplikacji."
+        },
+        "cs": {
+          "name": "Premium měsíčně",
+          "description": "Měsíční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium mesačne",
+          "description": "Mesačný Premium v aplikácii."
+        },
+        "sl-SI": {
+          "name": "Premium mesečno",
+          "description": "Mesečni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium mjesečno",
+          "description": "Mjesečni Premium u aplikaciji."
+        },
+        "hu": {
+          "name": "Premium havonta",
+          "description": "Havi Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium lunar",
+          "description": "Premium lunar în aplicație."
         }
       },
       "google": {
@@ -102,6 +126,30 @@
         "pl-PL": {
           "name": "Premium miesięcznie",
           "description": "Miesięczny Premium w aplikacji."
+        },
+        "cs-CZ": {
+          "name": "Premium měsíčně",
+          "description": "Měsíční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium mesačne",
+          "description": "Mesačný Premium v aplikácii."
+        },
+        "sl": {
+          "name": "Premium mesečno",
+          "description": "Mesečni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium mjesečno",
+          "description": "Mjesečni Premium u aplikaciji."
+        },
+        "hu-HU": {
+          "name": "Premium havonta",
+          "description": "Havi Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium lunar",
+          "description": "Premium lunar în aplicație."
         }
       }
     },
@@ -155,6 +203,30 @@
         "pl": {
           "name": "Premium rocznie",
           "description": "Roczny Premium w aplikacji."
+        },
+        "cs": {
+          "name": "Premium ročně",
+          "description": "Roční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium ročne",
+          "description": "Ročný Premium v aplikácii."
+        },
+        "sl-SI": {
+          "name": "Premium letno",
+          "description": "Letni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium godišnje",
+          "description": "Godišnji Premium u aplikaciji."
+        },
+        "hu": {
+          "name": "Premium évente",
+          "description": "Éves Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium anual",
+          "description": "Premium anual în aplicație."
         }
       },
       "google": {
@@ -205,6 +277,30 @@
         "pl-PL": {
           "name": "Premium rocznie",
           "description": "Roczny Premium w aplikacji."
+        },
+        "cs-CZ": {
+          "name": "Premium ročně",
+          "description": "Roční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium ročne",
+          "description": "Ročný Premium v aplikácii."
+        },
+        "sl": {
+          "name": "Premium letno",
+          "description": "Letni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium godišnje",
+          "description": "Godišnji Premium u aplikaciji."
+        },
+        "hu-HU": {
+          "name": "Premium évente",
+          "description": "Éves Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium anual",
+          "description": "Premium anual în aplicație."
         }
       }
     }

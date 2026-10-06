@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Acasă",
+    "planning": "Planificare",
+    "rewards": "Recompense",
+    "forYou": "Pentru tine",
+    "family": "Familie"
+  },
+  "settings": "Setări",
+  "mainAria": "Navigare principală",
+  "notifications": "Notificări",
+  "share": "Distribuie",
+  "logout": "Ieși din cont",
+  "switchUser": "Schimbă profilul",
+  "returnToChild": "Înapoi la copil",
+  "darkMode": "Mod întunecat",
+  "lightMode": "Mod luminos",
+  "overview": "Prezentare",
+  "dailyLog": "Azi",
+  "weekSchedule": "Program",
+  "reports": "Rapoarte",
+  "library": "Bibliotecă",
+  "libraryAdvanced": "📚 Bibliotecă (avansat)",
+  "pedagogNotes": "📝 Notițe de educator",
+  "treasureChest": "Cufărul cu comori",
+  "familySettings": "Familie și setări",
+  "capability": {
+    "subscription": "Abonament",
+    "reports": "Rapoarte",
+    "samarbete": "Colaborare cu educatorul",
+    "barnStod": "Suport suplimentar"
+  },
+  "header": {
+    "notifications": "Notificări",
+    "settings": "Setări",
+    "share": "Distribuie",
+    "shareTitle": "Spune unei familii despre aplicație!",
+    "shareAria": "Distribuie"
+  },
+  "avatar": {
+    "switchPedagog": "Treci la vederea de educator",
+    "subscription": "Abonament",
+    "settings": "Setări",
+    "logout": "Ieși din cont"
+  },
+  "mobile": {
+    "openMenu": "Deschide meniul",
+    "darkModeTitle": "Mod întunecat",
+    "darkModeAria": "Comută modul întunecat"
+  }
+}

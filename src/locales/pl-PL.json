@@ -1266,7 +1266,8 @@
       "tooLong": "Odpowiedź może mieć najwyżej 5000 znaków.",
       "notFound": "Nie znaleziono sprawy.",
       "rateLimit": "Zbyt wiele prób. Spróbuj za godzinę.",
-      "generic": "Nie udało się otworzyć sprawy."
+      "generic": "Nie udało się otworzyć sprawy.",
+      "sendFailed": "Nie udało się wysłać. Spróbuj ponownie."
     },
     "success": {
       "submitted": "Dziękujemy! Dostaliśmy twoją odpowiedź.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Wróć do Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakiet",
+    "dismiss": "Nie teraz",
+    "interested": "Jestem zainteresowany",
+    "interestedSub": "Zgłoś zainteresowanie nadchodzącą betą",
+    "buyNow": "Kup teraz",
+    "reporting": {
+      "title": "Raporty",
+      "body": "Od dwóch tygodni zapisujesz aktywności — chcesz zobaczyć, jak zmienia się codzienność?"
+    },
+    "pedagog": {
+      "title": "Specjalista",
+      "body": "Chcesz współpracować ze specjalistą lub terapeutą przy codzienności dziecka?"
+    },
+    "teacch": {
+      "title": "Dodatkowe wsparcie",
+      "body": "Dodaj wsparcie wizualne z siedmioma pytaniami — pomaga dziecku zrozumieć, co się dzieje."
+    }
   }
 }

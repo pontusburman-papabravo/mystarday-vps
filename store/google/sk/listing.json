@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Vizuálne rutiny, hviezdy a odmeny pre deti, ktoré potrebujú rámec",
+  "fullDescription": "Toto nie je ďalší kalendár.\n\n{{brand}} pomáha deťom rozumieť dňu: čo je teraz, čo príde potom a čo sa už podarilo.\n\nAplikácia je pre rodiny, ktoré potrebujú viac opory, viac istoty a viac vizuálnej podpory v bežný deň.\n\nKeď dieťaťu pomáhajú jasnejšie kroky, pri ADHD, autizme alebo aj bez diagnózy, {{brand}} rozdelí deň na malé zvládnuteľné kroky.\n\nHodí sa, keď dieťa má ADHD, autizmus alebo iné neurodiverzné potreby. Diagnóza nie je potrebná. {{brand}} nelieči ADHD ani autizmus.\n\nDieťa vidí vizuálne rutiny, krok za krokom, a hviezdy za to, čo je hotové. Rodič pripraví plán, odmeny a môže zdieľať vybranú správu.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Slovenčina je už v aplikácii. Rutiny, správy a detský pohľad idú podľa jazyka rodiny."
+}

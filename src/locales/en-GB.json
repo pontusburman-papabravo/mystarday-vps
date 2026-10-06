@@ -1266,7 +1266,8 @@
       "tooLong": "The reply can be at most 5000 characters.",
       "notFound": "The case was not found.",
       "rateLimit": "Too many attempts. Try again in an hour.",
-      "generic": "Could not open the case."
+      "generic": "Could not open the case.",
+      "sendFailed": "Could not send. Try again."
     },
     "success": {
       "submitted": "Thanks! We have received your reply.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Back to Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Package",
+    "dismiss": "Not now",
+    "interested": "I am interested",
+    "interestedSub": "Register interest for the upcoming beta",
+    "buyNow": "Buy now",
+    "reporting": {
+      "title": "Reports",
+      "body": "You have logged activities for two weeks — do you want a clearer view of how things change over time?"
+    },
+    "pedagog": {
+      "title": "Educator",
+      "body": "Do you want to work with an educator or therapist on the child's everyday life?"
+    },
+    "teacch": {
+      "title": "Extra support",
+      "body": "Add visual support with The seven questions — it helps the child understand what is happening."
+    }
   }
 }

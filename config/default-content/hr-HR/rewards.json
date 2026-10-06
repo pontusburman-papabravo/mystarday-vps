@@ -1,0 +1,5 @@
+[
+  { "name": "Dodatno vrijeme pred ekranom", "icon": "📱", "star_cost": 5 },
+  { "name": "Odaberi večeru", "icon": "🍕", "star_cost": 10 },
+  { "name": "Mali poklon", "icon": "🎁", "star_cost": 20 }
+]

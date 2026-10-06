@@ -1266,7 +1266,8 @@
       "tooLong": "Die Antwort darf höchstens 5000 Zeichen haben.",
       "notFound": "Der Fall wurde nicht gefunden.",
       "rateLimit": "Zu viele Versuche. Versuche es in einer Stunde erneut.",
-      "generic": "Fall konnte nicht geöffnet werden."
+      "generic": "Fall konnte nicht geöffnet werden.",
+      "sendFailed": "Senden fehlgeschlagen. Versuch es noch einmal."
     },
     "success": {
       "submitted": "Danke! Wir haben deine Antwort erhalten.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Zurück zu Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paket",
+    "dismiss": "Nicht jetzt",
+    "interested": "Ich habe Interesse",
+    "interestedSub": "Interesse für die kommende Beta anmelden",
+    "buyNow": "Jetzt kaufen",
+    "reporting": {
+      "title": "Berichte",
+      "body": "Du hast zwei Wochen lang Aktivitäten eingetragen — möchtest du sehen, wie sich der Alltag entwickelt?"
+    },
+    "pedagog": {
+      "title": "Fachperson",
+      "body": "Möchtest du mit einer Fachperson oder einem Therapeuten am Alltag des Kindes zusammenarbeiten?"
+    },
+    "teacch": {
+      "title": "Extra Unterstützung",
+      "body": "Füge visuelle Unterstützung mit den sieben Fragen hinzu — sie hilft dem Kind zu verstehen, was passiert."
+    }
   }
 }

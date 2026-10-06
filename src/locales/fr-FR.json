@@ -1266,7 +1266,8 @@
       "tooLong": "La réponse peut contenir 5000 caractères au maximum.",
       "notFound": "Le dossier est introuvable.",
       "rateLimit": "Trop de tentatives. Réessayez dans une heure.",
-      "generic": "Impossible d'ouvrir le dossier."
+      "generic": "Impossible d'ouvrir le dossier.",
+      "sendFailed": "L'envoi a échoué. Réessaie."
     },
     "success": {
       "submitted": "Merci ! Nous avons reçu votre réponse.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Retour à Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Offre",
+    "dismiss": "Pas maintenant",
+    "interested": "Ça m'intéresse",
+    "interestedSub": "Dire que la bêta à venir m'intéresse",
+    "buyNow": "Acheter",
+    "reporting": {
+      "title": "Rapports",
+      "body": "Tu as enregistré des activités pendant deux semaines — veux-tu voir comment les choses évoluent ?"
+    },
+    "pedagog": {
+      "title": "Professionnel",
+      "body": "Veux-tu collaborer avec un professionnel ou un thérapeute autour du quotidien de l'enfant ?"
+    },
+    "teacch": {
+      "title": "Soutien en plus",
+      "body": "Ajoute un soutien visuel avec les sept questions — cela aide l'enfant à comprendre ce qui se passe."
+    }
   }
 }

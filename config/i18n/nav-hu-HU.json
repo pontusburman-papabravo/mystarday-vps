@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Kezdőlap",
+    "planning": "Tervezés",
+    "rewards": "Jutalmak",
+    "forYou": "Neked",
+    "family": "Család"
+  },
+  "settings": "Beállítások",
+  "mainAria": "Fő navigáció",
+  "notifications": "Értesítések",
+  "share": "Megosztás",
+  "logout": "Kijelentkezés",
+  "switchUser": "Profilváltás",
+  "returnToChild": "Vissza a gyerekhez",
+  "darkMode": "Sötét mód",
+  "lightMode": "Világos mód",
+  "overview": "Áttekintés",
+  "dailyLog": "Ma",
+  "weekSchedule": "Napirend",
+  "reports": "Jelentések",
+  "library": "Könyvtár",
+  "libraryAdvanced": "📚 Könyvtár (haladó)",
+  "pedagogNotes": "📝 Pedagógusi jegyzetek",
+  "treasureChest": "Kincsesláda",
+  "familySettings": "Család és beállítások",
+  "capability": {
+    "subscription": "Előfizetés",
+    "reports": "Jelentések",
+    "samarbete": "Együttműködés pedagógussal",
+    "barnStod": "Extra támogatás"
+  },
+  "header": {
+    "notifications": "Értesítések",
+    "settings": "Beállítások",
+    "share": "Megosztás",
+    "shareTitle": "Mesélj egy családnak az appról!",
+    "shareAria": "Megosztás"
+  },
+  "avatar": {
+    "switchPedagog": "Váltás pedagógusi nézetre",
+    "subscription": "Előfizetés",
+    "settings": "Beállítások",
+    "logout": "Kijelentkezés"
+  },
+  "mobile": {
+    "openMenu": "Menü megnyitása",
+    "darkModeTitle": "Sötét mód",
+    "darkModeAria": "Sötét mód kapcsolása"
+  }
+}
