@@ -137,6 +137,14 @@
           "screenshots/apple/ro/02-hem.png",
           "screenshots/apple/ro/03-beloning.png"
         ]
+      },
+      "el": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/el/01-idag.png",
+          "screenshots/apple/el/02-hem.png",
+          "screenshots/apple/el/03-beloning.png"
+        ]
       }
     },
     "google": {
@@ -272,6 +280,46 @@
         "files": [
           "screenshots/google/ro/01-hem.png",
           "screenshots/google/ro/02-familj.png"
+        ]
+      },
+      "bg": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/bg/feature.png",
+        "files": [
+          "screenshots/google/bg/01-hem.png",
+          "screenshots/google/bg/02-familj.png"
+        ]
+      },
+      "el-GR": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/el-GR/feature.png",
+        "files": [
+          "screenshots/google/el-GR/01-hem.png",
+          "screenshots/google/el-GR/02-familj.png"
+        ]
+      },
+      "et": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/et/feature.png",
+        "files": [
+          "screenshots/google/et/01-hem.png",
+          "screenshots/google/et/02-familj.png"
+        ]
+      },
+      "lt": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/lt/feature.png",
+        "files": [
+          "screenshots/google/lt/01-hem.png",
+          "screenshots/google/lt/02-familj.png"
+        ]
+      },
+      "lv": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/lv/feature.png",
+        "files": [
+          "screenshots/google/lv/01-hem.png",
+          "screenshots/google/lv/02-familj.png"
         ]
       }
     }
