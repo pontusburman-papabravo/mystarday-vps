@@ -243,6 +243,7 @@ const {
 } = require('../../config/resurser-r2');
 const { R3_LONGTAIL_PAGES, R3_PDF_PAGES } = require('../../config/resurser-r3');
 const { R3_ALIAS_REDIRECTS } = require('../../config/resurser-r3-aliases');
+const { RESURSER_DECISION_ROWS, resurserRedirectTarget } = require('../../config/resurser-consolidation');
 
 function sendPublicHtml(relativeFile) {
   return (req, res) => {
@@ -255,6 +256,11 @@ function sendPublicHtml(relativeFile) {
 }
 
 router.get('/resurser', sendPublicHtml('resurser.html'));
+
+for (const row of RESURSER_DECISION_ROWS) {
+  if (row.decision !== 'redirect') continue;
+  router.get(row.path, (req, res) => res.redirect(301, row.owner));
+}
 
 for (const { from, to } of R3_ALIAS_REDIRECTS) {
   router.get(from, (req, res) => res.redirect(301, to));
@@ -270,6 +276,7 @@ for (const page of [
   ...R3_LONGTAIL_PAGES,
   ...R3_PDF_PAGES,
 ]) {
+  if (resurserRedirectTarget(page.path)) continue;
   router.get(page.path, sendPublicHtml(page.file));
 }
 

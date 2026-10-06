@@ -38,7 +38,7 @@ test('login and dashboard paths are not SEO indexable', () => {
 test('injectNoindexMeta adds robots noindex on login', () => {
   const html = '<!DOCTYPE html><html><head><title>Logga in</title></head><body></body></html>';
   const out = injectNoindexMeta(html, '/login');
-  assert.match(out, /name="robots" content="noindex"/);
+  assert.match(out, /name="robots" content="noindex, follow"/);
 });
 
 test('injectNoindexMeta skips indexable register page', () => {
@@ -50,7 +50,7 @@ test('injectNoindexMeta skips indexable register page', () => {
 test('injectPlatformHtml applies noindex on dashboard', () => {
   const html = '<!DOCTYPE html><html><head></head><body></body></html>';
   const out = injectPlatformHtml(html, '/dashboard');
-  assert.match(out, /name="robots" content="noindex"/);
+  assert.match(out, /name="robots" content="noindex, follow"/);
 });
 
 test('index.html has absolute canonical and no hidden SEO text', () => {
@@ -153,7 +153,7 @@ test('injectPlatformHtml sets noindex on app pages', () => {
   assert.equal(isSeoIndexable('/activities'), false);
   assert.equal(isSeoIndexable('/notifications'), false);
   const out = injectPlatformHtml(html, '/activities');
-  assert.match(out, /name="robots" content="noindex"/);
+  assert.match(out, /name="robots" content="noindex, follow"/);
 });
 
 test('GET /robots.txt and /activities SEO headers', async () => {
@@ -206,7 +206,8 @@ test('landing homepage has skolstart 2026 module and guide link', () => {
   assert.match(html, /id="skolstart"/);
   assert.match(html, /Skolstart 2026/);
   assert.match(html, /Bildschema-app för barn/);
-  assert.match(html, /href="\/resurser\/bildschema-skolstart-hosten"/);
+  assert.match(html, /href="\/resurser\/skola"/);
+  assert.doesNotMatch(html, /href="\/resurser\/bildschema-skolstart-hosten"/);
   assert.doesNotMatch(html, /id="sommarhalsning"/);
   assert.match(html, /id="nytt-i-appen"/);
   assert.match(html, /Nytt i .*Stjärndag/);
@@ -266,7 +267,7 @@ test('resurser hub is indexable with route, sitemap and CTA UTM', () => {
   const xml = buildSitemapXml();
   assert.match(xml, /\/resurser<\/loc>/);
   assert.match(xml, /\/resurser\/morgon<\/loc>/);
-  assert.match(xml, /\/resurser\/pdf\/morgonschema<\/loc>/);
+  assert.doesNotMatch(xml, /\/resurser\/pdf\/morgonschema<\/loc>/);
   assert.match(xml, /\/resurser\/kanslor<\/loc>/);
   assert.match(xml, /\/resurser\/pdf\/veckoschema<\/loc>/);
 });
@@ -285,10 +286,13 @@ test('R1 resurser pages return 200 and PDF files are served', async () => {
   const { createApp } = require('../app');
   const http = await listenApp(createApp);
   try {
-    for (const p of ['/resurser/morgon', '/resurser/pdf/morgonschema', '/resurser/bildkort/morgon']) {
-      const res = await fetch(`${http.baseUrl}${p}`);
-      assert.equal(res.status, 200, p);
-    }
+    const morgon = await fetch(`${http.baseUrl}/resurser/morgon`);
+    assert.equal(morgon.status, 200);
+    const pdfLanding = await fetch(`${http.baseUrl}/resurser/pdf/morgonschema`, { redirect: 'manual' });
+    assert.equal(pdfLanding.status, 301);
+    assert.equal(pdfLanding.headers.get('location'), '/resurser/morgon');
+    const cards = await fetch(`${http.baseUrl}/resurser/bildkort/morgon`);
+    assert.equal(cards.status, 200);
     const pdf = await fetch(`${http.baseUrl}/resurser/pdf/morgonschema.pdf`);
     assert.equal(pdf.status, 200);
     assert.match(pdf.headers.get('content-type') || '', /pdf/i);
@@ -299,7 +303,8 @@ test('R1 resurser pages return 200 and PDF files are served', async () => {
 
 test('morgonrutin guide links to morgonschema PDF', () => {
   const html = fs.readFileSync(path.join(ROOT, 'public/morgonrutin-barn.html'), 'utf8');
-  assert.match(html, /href="\/resurser\/pdf\/morgonschema"/);
+  assert.match(html, /href="\/resurser\/morgon"/);
+  assert.doesNotMatch(html, /href="\/resurser\/pdf\/morgonschema"/);
 });
 
 test('beloning guide links to beloningsschema PDF', () => {
@@ -317,10 +322,10 @@ test('veckoschema guide links to veckoschema PDF', () => {
   assert.match(html, /href="\/resurser\/pdf\/veckoschema"/);
 });
 
-test('R2 resurser pages are indexable and return 200', async () => {
+test('R2 resurser pages follow the consolidation decision', async () => {
+  const { resurserDecision } = require('../config/resurser-consolidation');
   for (const p of R2_INDEXABLE_PATHS) {
-    assert.equal(isSeoIndexable(p), true, p);
-    assert.ok(SEO_INDEXABLE_PATHS.has(p), p);
+    assert.equal(isSeoIndexable(p), resurserDecision(p) === 'keep', p);
   }
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
     process.env.JWT_SECRET = 'test-secret-at-least-32-chars-long-xx';

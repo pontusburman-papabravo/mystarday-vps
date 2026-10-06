@@ -44,6 +44,24 @@ function swedishIndexablePaths() {
   return SEO_INDEXABLE_PATHS;
 }
 
+function isHostedSwedishResurserDocument(pathname) {
+  const { isHostedSwedishResurserDocument: hosted } = require('../../config/resurser-consolidation');
+  return hosted(pathname);
+}
+
+/**
+ * One hop from the app host to the final Swedish owner.
+ * Covers consolidation redirects and legacy aliases that would otherwise
+ * land on a URL which itself redirects.
+ */
+function appHostResurserTarget(pathname) {
+  const { resurserRedirectTarget } = require('../../config/resurser-consolidation');
+  const direct = resurserRedirectTarget(pathname);
+  if (direct) return direct;
+  const { resurserAliasFinalTarget } = require('../../config/resurser-r3-aliases');
+  return resurserAliasFinalTarget(pathname);
+}
+
 function isEnglishPublicMarketingPath(pathname) {
   const path = englishMarketingPathname(pathname);
   if (path === '/en') return true;
@@ -77,7 +95,13 @@ function createDomainRedirect() {
     if (onAppHost && safeRead && (pathname === '/' || pathname === '')) {
       return res.redirect(301, `https://${APP_DOMAIN}/en${parts.search}${parts.hash}`);
     }
-    if (onAppHost && safeRead && isSwedishCanonicalPath(pathname)) {
+    if (onAppHost && safeRead) {
+      const consolidated = appHostResurserTarget(pathname);
+      if (consolidated && consolidated !== pathname) {
+        return res.redirect(301, `https://${MAIN_DOMAIN}${consolidated}${parts.search}${parts.hash}`);
+      }
+    }
+    if (onAppHost && safeRead && (isSwedishCanonicalPath(pathname) || isHostedSwedishResurserDocument(pathname))) {
       return res.redirect(301, `https://${MAIN_DOMAIN}${pathname}${parts.search}${parts.hash}`);
     }
     if (onAppHost && safeRead && isEnglishPublicMarketingPath(pathname) && trailingSlash) {
