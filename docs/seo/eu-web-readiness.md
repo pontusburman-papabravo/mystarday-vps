@@ -10,27 +10,27 @@ Paths below are pathnames. A path with no language prefix belongs on the Swedish
 | --- | --- | --- | --- | --- | --- |
 | AT | de en | de | true | false | /de/at /en/at |
 | BE | nl fr de en | nl | true | false | /nl/be /fr/be /de/be /en/be |
-| BG | bg en | bg | true | false | /en/bg |
+| BG | bg en | bg | true | false | /bg/bg /en/bg |
 | HR | hr en | hr | true | false | /hr/hr /en/hr |
-| CY | el en | el | true | false | /en/cy |
+| CY | el en | el | true | false | /el/cy /en/cy |
 | CZ | cs en | cs | true | false | /cs/cz /en/cz |
 | DK | da en | da | true | false | /da/dk /en/dk |
-| EE | et en | et | true | false | /en/ee |
+| EE | et en | et | true | false | /et/ee /en/ee |
 | FI | fi sv en | fi | true | false | /fi/fi /en/fi |
 | FR | fr en | fr | true | false | /fr/fr /en/fr |
 | DE | de en | de | true | false | /de/de /en/de |
-| GR | el en | el | true | false | /en/gr |
+| GR | el en | el | true | false | /el/gr /en/gr |
 | HU | hu en | hu | true | false | /hu/hu /en/hu |
 | IE | en ga | en | true | true | /en/ie |
 | IT | it en | it | true | false | /it/it /en/it |
-| LV | lv en | lv | true | false | /en/lv |
-| LT | lt en | lt | true | false | /en/lt |
+| LV | lv en | lv | true | false | /lv/lv /en/lv |
+| LT | lt en | lt | true | false | /lt/lt /en/lt |
 | LU | fr de en | fr | true | false | /fr/lu /de/lu /en/lu |
 | MT | mt en | mt | true | false | /en/mt |
 | NL | nl en | nl | true | false | /nl/nl /en/nl |
 | PL | pl en | pl | true | false | /pl/pl /en/pl |
 | PT | pt en | pt | true | false | /pt/pt /en/pt |
-| RO | ro en | ro | true | false | /en/ro |
+| RO | ro en | ro | true | false | /ro/ro /en/ro |
 | SK | sk en | sk | true | false | /sk/sk /en/sk |
 | SI | sl en | sl | true | false | /sl/si /en/si |
 | ES | es en | es | true | false | /es/es /en/es |
@@ -42,26 +42,26 @@ Paths below are pathnames. A path with no language prefix belongs on the Swedish
 
 | locale | complete | seoEnabled | URL count | blocking issue |
 | --- | --- | --- | --- | --- |
-| bg | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
+| bg | true | true | 11 |  |
 | hr | true | true | 11 |  |
 | cs | true | true | 11 |  |
 | da | true | true | 11 |  |
 | nl | true | true | 11 |  |
 | en | true | true | 41 |  |
-| et | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
+| et | true | true | 11 |  |
 | fi | true | true | 11 |  |
 | fr | true | true | 11 |  |
 | de | true | true | 11 |  |
-| el | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
+| el | true | true | 11 |  |
 | hu | true | true | 11 |  |
 | ga | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
 | it | true | true | 11 |  |
-| lv | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
-| lt | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
+| lv | true | true | 11 |  |
+| lt | true | true | 11 |  |
 | mt | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
 | pl | true | true | 11 |  |
 | pt | true | true | 11 |  |
-| ro | false | false | 0 | LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms |
+| ro | true | true | 11 |  |
 | sk | true | true | 11 |  |
 | sl | true | true | 11 |  |
 | es | true | true | 11 |  |
@@ -73,8 +73,8 @@ Paths below are pathnames. A path with no language prefix belongs on the Swedish
 
 - App host sitemap: /sitemap.xml
 - Swedish host sitemap: /sitemap.xml
-- Indexable URLs in this plan: 250
-- Per locale: cs=11, da=11, de=11, en=41, es=11, fi=11, fr=11, hr=11, hu=11, is=11, it=11, nb=11, nl=11, pl=11, pt=11, sk=11, sl=11, sv=33
+- Indexable URLs in this plan: 316
+- Per locale: bg=11, cs=11, da=11, de=11, el=11, en=41, es=11, et=11, fi=11, fr=11, hr=11, hu=11, is=11, it=11, lt=11, lv=11, nb=11, nl=11, pl=11, pt=11, ro=11, sk=11, sl=11, sv=33
 - Market rows are noindex and absent from the sitemap.
 - One sitemap per host. A sitemap index is not needed at this size.
 
@@ -102,6 +102,12 @@ Language tags come from contentKey. x-default is the English URL of that content
 - sl home /sl
 - hr home /hr
 - hu home /hu
+- ro home /ro
+- bg home /bg
+- el home /el
+- et home /et
+- lv home /lv
+- lt home /lt
 - sv visualSchedule /bildschema-app
 - en visualSchedule /en/visual-schedule-app
 - nl visualSchedule /nl/visueel-schema
@@ -120,6 +126,12 @@ Language tags come from contentKey. x-default is the English URL of that content
 - sl visualSchedule /sl/vizualni-dnevni-nacrt
 - hr visualSchedule /hr/vizualni-dnevni-plan
 - hu visualSchedule /hu/kepi-napirend
+- ro visualSchedule /ro/plan-vizual-de-zi
+- bg visualSchedule /bg/vizualen-dneven-plan
+- el visualSchedule /el/optiko-imerisio-programma
+- et visualSchedule /et/visuaalne-paevakava
+- lv visualSchedule /lv/vizuala-dienas-karte
+- lt visualSchedule /lt/vaizdinis-dienos-planas
 - sv morningRoutine /morgonrutin-barn
 - en morningRoutine /en/morning-routine-children
 - nl morningRoutine /nl/ochtendroutine-kinderen
@@ -138,6 +150,12 @@ Language tags come from contentKey. x-default is the English URL of that content
 - sl morningRoutine /sl/jutranja-rutina
 - hr morningRoutine /hr/jutarnja-rutina
 - hu morningRoutine /hu/reggeli-rutin
+- ro morningRoutine /ro/rutina-de-dimineata
+- bg morningRoutine /bg/sutreshna-rutina
+- el morningRoutine /el/proini-routina
+- et morningRoutine /et/hommikurutiin
+- lv morningRoutine /lv/ritas-rutina
+- lt morningRoutine /lt/ryto-rutina
 - sv weeklySchedule /veckoschema-bildstod
 - en weeklySchedule /en/weekly-schedule-visual-support
 - nl weeklySchedule /nl/weekplanning-met-pictogrammen
@@ -156,6 +174,12 @@ Language tags come from contentKey. x-default is the English URL of that content
 - sl weeklySchedule /sl/tedenski-nacrt
 - hr weeklySchedule /hr/tjedni-plan
 - hu weeklySchedule /hu/heti-terv
+- ro weeklySchedule /ro/plan-saptamanal
+- bg weeklySchedule /bg/sedmichen-plan
+- el weeklySchedule /el/evdomadiaio-programma
+- et weeklySchedule /et/nadalakava
+- lv weeklySchedule /lv/nedelas-plans
+- lt weeklySchedule /lt/savaites-planas
 - sv neurodiverseRoutines /rutiner-npf-barn
 - en neurodiverseRoutines /en/routines-neurodiverse-children
 - nl neurodiverseRoutines /nl/routines-neurodiverse-kinderen
@@ -174,25 +198,25 @@ Language tags come from contentKey. x-default is the English URL of that content
 - sl neurodiverseRoutines /sl/rutine-nevroraznoliki-otroci
 - hr neurodiverseRoutines /hr/rutine-neurodivergentna-djeca
 - hu neurodiverseRoutines /hu/rutinok-neurodivergens-gyerekek
+- ro neurodiverseRoutines /ro/rutine-copii-neurodivergenti
+- bg neurodiverseRoutines /bg/rutini-za-neurodivergentni-detsa
+- el neurodiverseRoutines /el/rutines-nevrodiaphoretika-paidia
+- et neurodiverseRoutines /et/rutiinid-neurodivergentsed-lapsed
+- lv neurodiverseRoutines /lv/rutinas-neirodiversiem-berniem
+- lt neurodiverseRoutines /lt/rutinos-neuroivairiems-vaikams
 
 ## LOCALE_BLOCKED
 
 These locales are registered and routed as not available. They are not in the sitemap.
 
-- bg: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
-- et: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
-- el: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
 - ga: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
-- lv: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
-- lt: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
 - mt: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
-- ro: LOCALE_BLOCKED chrome path.home path.howItWorks path.visualSchedule path.morningRoutine path.weeklySchedule path.neurodiverseRoutines path.rewardSystem path.resources path.faq path.privacy path.terms
 
 ## LEGAL_CONTENT_GAP
 
 No new country-specific legal rules were written. Privacy and terms for a published locale are a translation of the existing English and Dutch baseline. Unpublished locales stay out of the index until that translation exists.
 
-Published so far: hr, cs, da, nl, en, fi, fr, de, hu, it, pl, pt, sk, sl, es, sv, nb, is. Their legal pages name Papa Bravo AB, the Swedish authority Integritetsskyddsmyndigheten (IMY), and the verified price facts. They do not add a local statute.
+Published so far: bg, hr, cs, da, nl, en, et, fi, fr, de, el, hu, it, lv, lt, pl, pt, ro, sk, sl, es, sv, nb, is. Their legal pages name Papa Bravo AB, the Swedish authority Integritetsskyddsmyndigheten (IMY), and the verified price facts. They do not add a local statute.
 
 ## APP_INTEGRATION_GAP
 
