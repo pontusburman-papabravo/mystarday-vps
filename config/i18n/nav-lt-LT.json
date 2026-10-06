@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Pradžia",
+    "planning": "Planavimas",
+    "rewards": "Apdovanojimai",
+    "forYou": "Tau",
+    "family": "Šeima"
+  },
+  "settings": "Nustatymai",
+  "mainAria": "Pagrindinė navigacija",
+  "notifications": "Pranešimai",
+  "share": "Dalintis",
+  "logout": "Atsijungti",
+  "switchUser": "Keisti profilį",
+  "returnToChild": "Atgal pas vaiką",
+  "darkMode": "Tamsus režimas",
+  "lightMode": "Šviesus režimas",
+  "overview": "Apžvalga",
+  "dailyLog": "Šiandien",
+  "weekSchedule": "Planas",
+  "reports": "Ataskaitos",
+  "library": "Biblioteka",
+  "libraryAdvanced": "📚 Biblioteka (išplėstinė)",
+  "pedagogNotes": "📝 Pedagogo užrašai",
+  "treasureChest": "Lobių skrynia",
+  "familySettings": "Šeima ir nustatymai",
+  "capability": {
+    "subscription": "Prenumerata",
+    "reports": "Ataskaitos",
+    "samarbete": "Darbas su pedagogu",
+    "barnStod": "Papildoma pagalba"
+  },
+  "header": {
+    "notifications": "Pranešimai",
+    "settings": "Nustatymai",
+    "share": "Dalintis",
+    "shareTitle": "Papasakok šeimai apie programėlę!",
+    "shareAria": "Dalintis"
+  },
+  "avatar": {
+    "switchPedagog": "Perjungti į pedagogo vaizdą",
+    "subscription": "Prenumerata",
+    "settings": "Nustatymai",
+    "logout": "Atsijungti"
+  },
+  "mobile": {
+    "openMenu": "Atidaryti meniu",
+    "darkModeTitle": "Tamsus režimas",
+    "darkModeAria": "Perjungti tamsų režimą"
+  }
+}

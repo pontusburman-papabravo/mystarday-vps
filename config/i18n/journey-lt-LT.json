@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Rodyti patarimus",
+    "close": "Uždaryti",
+    "milestone": "Etapas",
+    "nextStep": "Kitas žingsnis",
+    "tip": "Patarimas",
+    "weekReflection": "Savaitės apmąstymas",
+    "weekTogether": "Savaitė kartu",
+    "weekLabel": "Viena savaitė",
+    "sjDay3Headline": "Laikas {{name}} pabandyti",
+    "tips": {
+      "coach_consistency": [
+        "Laikyk rutiną trumpą ir aiškią — vaikas įprotį kuria žingsnis po žingsnio.",
+        "Pasidžiauk kiekvienu pažymėjimu, net ir mažu.",
+        "Leisk vaikui kiekvieną rytą prisijungti savarankiškai."
+      ],
+      "coach_evening": [
+        "Pridėk 2–3 ramias veiklas prieš miegą.",
+        "Ta pati tvarka kiekvieną vakarą padeda lengviau užmigti."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nauja",
+    "dismissAria": "Uždaryti paaiškinimą",
+    "continueFallback": "Tęsti",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Dabar čia, Pradžioje, rodome aiškų pasiūlymą kitam žingsniui.",
+        "whatChanged": "Viršuje pridėta kortelė „Kitas žingsnis“.",
+        "whyItMatters": "Nereikia ieškoti priminimų — vienas pasiūlymas vienu metu."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Leisk vaikui išbandyti savo rutiną",
+      "body": "Atidaryk vaiko vaizdą kartu — vaikas iškart mato, ką daryti.",
+      "cta": "Atidaryti vaiko vaizdą"
+    },
+    "ADD_EVENING": {
+      "headline": "Pridėk vakaro rutiną",
+      "body": "Padaryk miegą tokį pat aiškų kaip rytą.",
+      "cta": "Pridėti vakarą"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Pakviesk kitą tėvą",
+      "body": "Pasidalyk rutina, kad galėtumėte sekti kartu.",
+      "cta": "Pakviesti"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Pradėk nuo vieno mažo žingsnio",
+      "body": "Rutina vis dar čia — šiandien imk po vieną veiklą.",
+      "cta": "Atidaryti planą"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Pritaikyk rutiną",
+      "body": "Dabar planą gali padaryti savu.",
+      "cta": "Pritaikyti"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Pasidžiauk pažanga",
+      "body": "Žengėte svarbų žingsnį — stabtelėkite kartu.",
+      "cta": "Parodyk vaikui"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Vaikas atliko veiklą!",
+    "defaultChild": "Tavo vaikas",
+    "defaultActivity": "veiklą",
+    "defaultCta": "Supratau"
+  }
+}

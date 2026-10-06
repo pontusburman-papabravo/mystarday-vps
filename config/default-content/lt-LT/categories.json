@@ -1,0 +1,32 @@
+[
+  {
+    "key": "forskola",
+    "name": "Darželis",
+    "sort_order": 0
+  },
+  {
+    "key": "skola",
+    "name": "Mokykla",
+    "sort_order": 1
+  },
+  {
+    "key": "morgon",
+    "name": "Rytas",
+    "sort_order": 2
+  },
+  {
+    "key": "dag",
+    "name": "Diena",
+    "sort_order": 3
+  },
+  {
+    "key": "kvall",
+    "name": "Vakaras",
+    "sort_order": 4
+  },
+  {
+    "key": "helg",
+    "name": "Savaitgalis",
+    "sort_order": 5
+  }
+]

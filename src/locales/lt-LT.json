@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Rami diena, po vieną žvaigždę"
+  },
+  "language": {
+    "label": "Kalba",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Keisti kalbą",
+    "choice": {
+      "title": "Kalba",
+      "titleEn": "Kalba",
+      "description": "Kalbą vėliau galėsi pakeisti Nustatymuose.",
+      "descriptionEn": "Kalbą vėliau galėsi pakeisti Nustatymuose.",
+      "confirm": "Tęsti",
+      "required": "Pasirink kalbą, kad tęstum",
+      "childNote": "Vaiko vaizdas rodomas šeimos kalba.",
+      "childNoteEn": "Vaiko vaizdas rodomas šeimos kalba."
+    },
+    "offer": {
+      "title": "{{brand}} jau yra lietuviškai",
+      "body": "{{brand}} jau yra ir lietuviškai. Tėvo ir vaiko vaizdai rodomi šeimos kalba.",
+      "question": "Nori likti prie švedų kalbos ar išbandyti lietuvių?",
+      "staySwedish": "Lik prie švedų kalbos",
+      "tryEnglish": "Išbandyk lietuvių",
+      "remindLater": "Primink vėliau"
+    },
+    "legacyNotice": {
+      "body": "Jau sukurtos veiklos lieka savo kalba. Naujos veiklos bus lietuviškai.",
+      "dismiss": "Supratau",
+      "dismissAria": "Uždaryti pranešimą apie kalbą"
+    },
+    "reportIssue": "Pranešti apie kalbos klaidą",
+    "feedback": {
+      "typeLabel": "Kalbos ar vertimo problema",
+      "typeLabelEn": "Kalbos ar vertimo problema",
+      "titlePlaceholder": "Kas atrodo ne taip?",
+      "visibleText": "Kokį tekstą matei?",
+      "suggestion": "Kaip turėtų skambėti? (nebūtina)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Kur gyvena tavo šeima?",
+      "description": "Tai naudojame tinkamoms sąlygoms ir privatumo informacijai. Tai atskira nuo kalbos pasirinkimo.",
+      "label": "Šalis",
+      "hint": "",
+      "required": "Pasirink šalį, kad tęstum",
+      "closedEu": "{{brand}} tavo šalyje dar nepasiekiama. Pranešime, kai atidarysime daugiau ES rinkų.",
+      "closedIe": "{{brand}} Airijoje dar nepasiekiama.",
+      "closedCa": "{{brand}} Kanadoje dar nepasiekiama.",
+      "closedFi": "{{brand}} Suomijoje dar nepasiekiama.",
+      "closedNo": "{{brand}} Norvegijoje dar nepasiekiama.",
+      "closedDk": "{{brand}} Danijoje dar nepasiekiama.",
+      "closedUk": "{{brand}} Jungtinėje Karalystėje dar nepasiekiama.",
+      "closedUs": "{{brand}} Jungtinėse Amerikos Valstijose dar nepasiekiama.",
+      "closedOther": "{{brand}} tavo šalyje dar nepasiekiama.",
+      "euGroup": "Kita ES/EEE šalis"
+    }
+  },
+  "nav": {
+    "login": "Prisijungti",
+    "register": "Sukurti paskyrą",
+    "childLogin": "Vaiko prisijungimas",
+    "dashboard": "Apžvalga",
+    "logout": "Atsijungti",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Ramesnė kasdienybė visai šeimai",
+      "ogDescription": "Kurk ir sek dienos planus, veiklas ir apdovanojimus"
+    },
+    "login": {
+      "title": "Prisijungti",
+      "pageTitle": "Prisijungti — {{brand}}",
+      "tagline": "Šviečiame kartu",
+      "subtitle": "Smagu, kad grįžai į {{brand}}",
+      "email": "El. pašto adresas",
+      "emailPlaceholder": "tu@pastas.lt",
+      "password": "Slaptažodis",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Prisijungti",
+      "submitting": "Jungiamasi…",
+      "forgotPassword": "Pamiršai slaptažodį?",
+      "noAccount": "Neturi paskyros?",
+      "createAccount": "Sukurti paskyrą",
+      "childLogin": "Esi vaikas?",
+      "childLoginLink": "Esi vaikas? Prisijunk čia",
+      "loginAsAdult": "Prisijungti kaip tėvas",
+      "orDivider": "arba",
+      "continueWithApple": "Tęsti su Apple",
+      "continueWithGoogle": "Tęsti su Google",
+      "apple_caption": "Galima tik iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Įvesk ir el. paštą, ir slaptažodį",
+      "genericError": "Kažkas nutiko. Bandyk dar kartą.",
+      "mascotAlt": "Žvaigždės talismanas",
+      "addChildBannerTitle": "👶 Prisijunk kaip tėvas, kad pridėtum vaiką",
+      "addChildBannerBody": "„Aš vaikas“ čia neužtenka — reikia tėvo arba pedagogo.",
+      "resetSuccessBannerTitle": "Slaptažodis išsaugotas",
+      "resetSuccessBannerBody": "Prisijunk nauju slaptažodžiu.",
+      "backToChildPicker": "← Atgal prie vaikų",
+      "linking": {
+        "emailExists": "Paskyra su šiuo el. paštu jau yra.",
+        "promptApple": "Nori susieti Apple paskyrą su esama paskyra?",
+        "promptGoogle": "Nori susieti Google paskyrą su esama paskyra?",
+        "yes": "Taip, susieti",
+        "cancel": "Atšaukti",
+        "modalTitleApple": "Susieti Apple paskyrą",
+        "modalTitleGoogle": "Susieti Google paskyrą",
+        "modalIntroApple": "Įvesk slaptažodį, prisijunk ir tada susiek Apple paskyrą.",
+        "modalIntroGoogle": "Įvesk slaptažodį, prisijunk ir tada susiek Google paskyrą.",
+        "emailLabel": "El. paštas",
+        "passwordLabel": "Slaptažodis",
+        "passwordPlaceholder": "Tavo slaptažodis",
+        "submit": "Susieti",
+        "submitting": "Sieja…",
+        "enterPassword": "Įvesk slaptažodį.",
+        "wrongPassword": "Neteisingas slaptažodis.",
+        "failed": "Susieti nepavyko."
+      },
+      "apple": {
+        "unavailable": "Prisijungimas per Apple dabar nepasiekiamas. Bandyk dar kartą arba prisijunk el. paštu.",
+        "notEnabled": "Prisijungimas per Apple neįjungtas. Atnaujink programėlę iki naujausios versijos.",
+        "cancelled": "Prisijungimas per Apple atšauktas.",
+        "incomplete": "Prisijungimas per Apple nebaigtas. Bandyk dar kartą arba prisijunk el. paštu ir slaptažodžiu.",
+        "rateLimited": "Per daug bandymų. Palauk ir bandyk dar kartą.",
+        "genericError": "Kažkas nutiko su Apple prisijungimu. Bandyk dar kartą arba prisijunk el. paštu ir slaptažodžiu.",
+        "failed": "Prisijungimas per Apple nepavyko. Bandyk dar kartą arba prisijunk el. paštu ir slaptažodžiu.",
+        "signInFailed": "Apple prisijungimas nepavyko.",
+        "completionTitle": "Užbaik paskyros kūrimą",
+        "completionBody": "Pasirink šalį ir sutik su sąlygomis. Apple jau pateikė vardą ir el. paštą — jų neklausime dar kartą.",
+        "completionSubmit": "Tęsti su ta pačia Apple paskyra"
+      },
+      "google": {
+        "emailConflictSettings": "Paskyra su šiuo el. paštu jau yra. Prisijunk ir susiek Google Nustatymuose arba naudok slaptažodį.",
+        "loginFailed": "Google prisijungimas nepavyko.",
+        "signInFailed": "Google prisijungimas nepavyko."
+      },
+      "verify": {
+        "title": "Patvirtink el. paštą",
+        "body": "Kad toliau naudotum {{brand}}, turi patvirtinti el. paštą. Patikrink pašto dėžutę (ir šlamštą) — ten laiškas nuo mūsų.",
+        "emailLabel": "El. pašto adresas:",
+        "resendBtn": "Siųsti naują patvirtinimo nuorodą",
+        "resendSending": "Siunčiama…",
+        "resendSuccess": "✅ Nauja patvirtinimo nuoroda išsiųsta! Patikrink pašto dėžutę ir šlamštą.",
+        "resendError": "Kažkas nutiko. Bandyk dar kartą.",
+        "spamHint": "Patikrink ir šlamšto aplanką. Nuoroda galioja 24 valandas."
+      }
+    },
+    "entry": {
+      "back": "Atgal",
+      "backWithArrow": "← Atgal",
+      "welcome": {
+        "ariaLabel": "Labas",
+        "headline": "Ramesnė kasdienybė su aiškiais žingsniais, planu ir žvaigždėmis",
+        "lead": "{{brand}} padeda vaikams ir šeimoms su dienos rutinomis: vaizdiniai planai, aiškūs žingsniai ir apdovanojimai, kad dieną būtų lengviau praeiti savarankiškiau.",
+        "chipVisualSchedules": "Vaizdiniai planai",
+        "chipStarsRewards": "Žvaigždės ir apdovanojimai",
+        "chipMultipleUsers": "Keli vaikai ir suaugusieji",
+        "startBtn": "Pradėti",
+        "existingBtn": "Jau turiu paskyrą",
+        "howItWorksBtn": "Kaip veikia programėlė",
+        "firstRunHeadline": "Smagu, kad esi {{brand}}",
+        "firstRunCreateAccount": "Sukurti paskyrą",
+        "firstRunLogIn": "Prisijungti",
+        "firstRunChildLink": "Aš vaikas"
+      },
+      "role": {
+        "title": "Kas dabar naudos programėlę?",
+        "kidAria": "Aš vaikas",
+        "kidLabel": "Aš vaikas",
+        "kidSub": "Noriu matyti savo planą",
+        "kidAlt": "Vaikas",
+        "parentAria": "Aš suaugęs",
+        "parentLabel": "Aš suaugęs",
+        "parentSub": "Noriu prisijungti arba pradėti",
+        "parentAlt": "Šeima"
+      },
+      "adultStart": {
+        "ariaLabel": "Suaugusiojo pradžia",
+        "title": "Labas! Kaip nori tęsti?",
+        "existingLabel": "Jau turiu paskyrą",
+        "existingSub": "Prisijunk su Apple, Google arba el. paštu",
+        "newLabel": "Esu čia naujas",
+        "newSub": "Pamatyk, kaip veikia programėlė, ir sukurk nemokamą paskyrą"
+      },
+      "signupIntro": {
+        "ariaLabel": "Pradėti",
+        "title": "Pradėk su {{brand}}",
+        "sub": "Sukurk nemokamą paskyrą ir sudėk pirmą vaiko planą su aiškiais žingsniais, žvaigždėmis ir tikslais.",
+        "point1": "Vaizdiniai planai, kuriuos vaikas supranta",
+        "point2": "Žvaigždės ir apdovanojimai, kurie palaiko",
+        "point3": "Keli vaikai ir suaugusieji vienoje šeimoje",
+        "createBtn": "Sukurti nemokamą paskyrą",
+        "existingBtn": "Jau turiu paskyrą",
+        "founderNote": "Pagrindinės funkcijos šiuo metu įskaičiuotos nemokamai."
+      },
+      "howItWorks": {
+        "title": "Kaip veikia programėlė",
+        "step1Title": "1. Vaikas mato planą žingsnis po žingsnio",
+        "step1Body": "Vaizdinės rutinos padaro dieną aiškią ir nuspėjamą.",
+        "step2Title": "2. Vaikas gauna žvaigždes, kai veiklos atliktos",
+        "step2Body": "Mažos pergalės stiprina motyvaciją ir savarankiškumą.",
+        "step3Title": "3. Suaugusieji seka eigą ir rutinas kuria kartu",
+        "step3Body": "Keli vaikai ir suaugusieji gali dalytis ta pačia šeima programėlėje.",
+        "close": "Uždaryti"
+      },
+      "noscript": "Reikia JavaScript — įjunk JavaScript, kad galėtum prisijungti."
+    },
+    "register": {
+      "title": "Sukurti paskyrą",
+      "pageTitle": "Sukurti paskyrą | {{brand}}",
+      "pageHeading": "Sukurti tėvo paskyrą",
+      "pageLead": "Išbandyk {{brand}} nemokamai. Vaizdinis planas su paveikslėliais ir žvaigždžių apdovanojimais padeda vaikui suprasti dieną, sekti rutinas ir tapti savarankiškesniam.",
+      "pageLeadSecondary": "Šeimoms, kurios nori aiškesnių rutinų, ramesnių perėjimų ir mažiau raginimo kasdienybėje.",
+      "subtitle": "Pradėk su {{brand}}",
+      "nameLabel": "Tavo vardas",
+      "namePlaceholder": "pvz. Ona",
+      "familyNameLabel": "Šeimos vardas",
+      "familyNamePlaceholder": "pvz. Petrauskų šeima",
+      "familyNameAuto": "Sukuriama iš tavo vardo",
+      "familyNameGenerated": "Sukurta automatiškai — pakeisk, jei nori",
+      "familyNameEdited": "Pakeista",
+      "email": "El. pašto adresas",
+      "emailPlaceholder": "tu@pastas.lt",
+      "emailHelp": "Čia atsiųsime patvirtinimo nuorodą",
+      "password": "Slaptažodis",
+      "passwordPlaceholder": "Bent 8 simboliai",
+      "passwordHelp": "Turi būti bent 8 simboliai",
+      "confirmPassword": "Pakartok slaptažodį",
+      "confirmPasswordPlaceholder": "Pakartok slaptažodį",
+      "submit": "Sukurti paskyrą",
+      "hasAccount": "Jau turi paskyrą?",
+      "loginLink": "Prisijunk čia",
+      "childLoginLink": "Esi vaikas? Prisijunk čia",
+      "gateHintLanguage": "Kad tęstum registraciją, viršuje pasirink kalbą.",
+      "gateHintCountry": "Kad tęstum registraciją, viršuje pasirink šalį.",
+      "appleFromLoginHint": "Su šiuo Apple ID dar nesusieta jokia paskyra. Pasirink šalį ir sutik su sąlygomis — vardą ir el. paštą pateikia Apple. Dar kartą jungtis per Apple nereikia.",
+      "appleOnlyPath": "Sukurk paskyrą su Apple. Vardą ir el. paštą pateikia Apple — formos pildyti nereikia.",
+      "tagline": "Rami diena, po vieną žvaigždę",
+      "orDivider": "arba",
+      "continueWithApple": "Registruotis su Apple",
+      "continueWithGoogle": "Registruotis su Google",
+      "validatingInvite": "Tikrinamas kvietimas...",
+      "inviteInvalid": "Kvietimo nuoroda neteisinga arba nebegalioja. Susisiek su žmogumi, kuris tave pakvietė.",
+      "inviteValidateFailed": "Nepavyko patikrinti kvietimo nuorodos. Bandyk dar kartą.",
+      "familyNameSuffix": "{{name}} šeima",
+      "termsRequired": "Turi sutikti su naudojimo sąlygomis ir privatumo politika",
+      "success": "Paskyra sukurta! Patikrink el. paštą ir patvirtink paskyrą.",
+      "termsPrefix": "Perskaičiau ir sutinku su",
+      "termsLink": "Naudojimo sąlygomis",
+      "termsAnd": "ir",
+      "privacyLink": "Privatumo politika",
+      "termsSuffix": ".",
+      "successTitle": "Paskyra sukurta! 🎉",
+      "successVerifyLine1": "Patvirtinimo nuorodą išsiuntėme į tavo el. paštą.",
+      "successVerifyLine2": "Patikrink pašto dėžutę (ir šlamštą).",
+      "successGracePeriod": "Gali prisijungti iš karto ir turi 24 valandas el. paštui patvirtinti.",
+      "successLoginBtn": "Prisijungti",
+      "inviteErrorDefault": "Neteisinga kvietimo nuoroda.",
+      "appleEmailExists": "Paskyra su šiuo el. paštu jau yra. Prisijunk per Apple arba naudok el. paštą ir slaptažodį.",
+      "webDownload": {
+        "title": "Gauk programėlę",
+        "lead": "Naujos šeimos paskyrą kuria programėlėje. Atsisiųsk ją iš App Store arba Google Play.",
+        "appStoreAria": "Atsisiųsti iš App Store",
+        "playStoreAria": "Gauti iš Google Play",
+        "hasAccount": "Jau turi paskyrą?",
+        "loginLink": "Prisijungti"
+      }
+    },
+    "parentGate": {
+      "title": "Tėvo užraktas",
+      "hint": "Įvesk PIN, kad tęstum",
+      "keypadAria": "PIN klaviatūra",
+      "cancel": "Atšaukti",
+      "forgotPinBackup": "Pamiršai PIN? Prisijunk el. paštu arba per Apple/Google",
+      "digitsEntered": "{{count}} iš 4 skaitmenų",
+      "backspace": "Trinti",
+      "confirm": "Patvirtinti",
+      "needFourDigits": "PIN turi būti 4 skaitmenys"
+    },
+    "childLogin": {
+      "title": "Labas! 👋",
+      "pageTitle": "Žvaigždžių tyrinėtojas — {{brand}}",
+      "whoAreYou": "Kas tu?",
+      "selectProfile": "Pasirink save ir įvesk PIN.",
+      "back": "Atgal",
+      "addChild": "Pridėti vaiką",
+      "notMe": "Savęs nerandu",
+      "subtitle": "Įrašyk vardą ir PIN",
+      "username": "Vartotojo vardas",
+      "usernamePlaceholder": "Tavo vardas",
+      "pin": "PIN",
+      "pinPlaceholder": "4 skaitmenys",
+      "submit": "Prisijungti",
+      "parentLogin": "Esi tėvas?",
+      "parentLoginLink": "Prisijunk čia",
+      "adultLogin": "Prisijungti kaip suaugęs",
+      "adultLoginShort": "Suaugęs",
+      "forgotPassword": "Pamiršai slaptažodį?",
+      "emptyNoChildren": "Vaikų dar nėra.",
+      "nameHint": "Įrašyk vardą, kad prisijungtum",
+      "namePlaceholder": "Tavo vardas",
+      "continue": "Tęsti →",
+      "switchChild": "Keisti vaiką",
+      "pinSub": "Įvesk kodą",
+      "attemptsLeft": "Liko bandymų",
+      "pinDotsAria": "PIN kodas",
+      "lockoutWait": "Palauk truputį",
+      "lockoutSoon": "Netrukus galėsi bandyti vėl",
+      "welcome": "Labas!",
+      "redirecting": "Keliauji į savo dieną…",
+      "keypadAria": "Skaičių klaviatūra",
+      "forgotPin": "Jei pamiršai kodą, paklausk tėvo",
+      "needHelp": "Reikia pagalbos?",
+      "contactParent": "Susisiekti su tėvu"
+    },
+    "verify": {
+      "title": "Patvirtink el. paštą",
+      "pageTitle": "Patvirtinti el. paštą — {{brand}}",
+      "checkingTitle": "Tikrinamas el. paštas",
+      "checkingBody": "Palauk, kol patvirtinsime tavo el. paštą...",
+      "checking": "Tikrinama...",
+      "success": "El. paštas patvirtintas! Dabar gali prisijungti.",
+      "successTitle": "El. paštas patvirtintas!",
+      "welcomeMessage": "El. paštas patvirtintas. Smagu, kad esi {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Nukreipiame po",
+      "redirectCountdownSuffix": "sekundžių...",
+      "error": "Patvirtinimo nuoroda neteisinga arba nebegalioja.",
+      "errorTitle": "Patvirtinti nepavyko",
+      "verifyFailed": "Patvirtinti nepavyko. Nuoroda galėjo nebegalioti.",
+      "noToken": "Nuorodoje nėra patvirtinimo kodo.",
+      "genericError": "Kažkas nutiko. Bandyk dar kartą.",
+      "resendPrompt": "Įvesk el. paštą, kad gautum naują patvirtinimo nuorodą:",
+      "resendBtn": "Siųsti naują nuorodą",
+      "resendSending": "Siunčiama...",
+      "resendRateLimit": "Jau prašei kelių nuorodų. Bandyk dar kartą po valandos.",
+      "resendSuccess": "✅ Jei paskyra yra, išsiuntėme naują patvirtinimo nuorodą. Patikrink pašto dėžutę ir šlamštą!",
+      "resendEmailInvalid": "Įvesk teisingą el. pašto adresą.",
+      "needHelpPrefix": "Reikia pagalbos? Patikrink šlamštą arba",
+      "contactUs": "susisiek su mumis",
+      "loginLink": "Eiti prisijungti"
+    },
+    "forgotPassword": {
+      "title": "Pamirštas slaptažodis",
+      "pageTitle": "Pamirštas slaptažodis — {{brand}}",
+      "heading": "Pamiršai slaptažodį?",
+      "lead": "Nieko tokio! Atsiųsime nuorodą slaptažodžiui atstatyti.",
+      "subtitle": "Įvesk el. paštą ir atsiųsime atstatymo nuorodą",
+      "email": "El. pašto adresas",
+      "emailPlaceholder": "tu@pastas.lt",
+      "emailHint": "Atsiųsime saugią nuorodą slaptažodžiui atstatyti",
+      "submit": "Siųsti atstatymo nuorodą",
+      "sent": "Jei šis el. paštas yra mūsų sistemoje, išsiuntėme atstatymo nuorodą.",
+      "successTitle": "Patikrink el. paštą!",
+      "successBody": "Išsiuntėme nuorodą slaptažodžiui atstatyti. Patikrink pašto dėžutę ir šlamštą.",
+      "orDivider": "arba",
+      "rememberPassword": "Prisimeni slaptažodį?",
+      "backToLogin": "Atgal prie prisijungimo",
+      "helpTitle": "Negavai laiško?",
+      "helpItem1": "Patikrink šlamšto aplanką",
+      "helpItem2": "Įsitikink, kad įvedei teisingą el. paštą",
+      "helpItem3": "Bandyk dar kartą po kelių minučių",
+      "helpItem4Suffix": "jei reikia pagalbos",
+      "contactSupport": "Susisiekti su pagalba"
+    },
+    "resetPassword": {
+      "title": "Atstatyti slaptažodį",
+      "pageTitle": "Atstatyti slaptažodį — {{brand}}",
+      "subtitle": "Pasirink naują slaptažodį",
+      "password": "Naujas slaptažodis",
+      "passwordPlaceholder": "Bent 8 simboliai",
+      "passwordHelp": "Turi būti bent 8 simboliai",
+      "confirmPassword": "Pakartok slaptažodį",
+      "confirmPasswordPlaceholder": "Pakartok slaptažodį",
+      "submit": "Atstatyti slaptažodį",
+      "submitting": "Saugoma…",
+      "success": "Slaptažodis pakeistas! Dabar gali prisijungti.",
+      "successRedirect": "Atlikta! Naujas slaptažodis išsaugotas.",
+      "alreadyUsed": "Slaptažodis jau pakeistas. Prisijunk nauju slaptažodžiu.",
+      "error": "Atstatymo nuoroda neteisinga arba nebegalioja.",
+      "invalidLink": "Neteisinga atstatymo nuoroda.",
+      "requestNewLink": "Prašyti naujos atstatymo nuorodos",
+      "requestNewLinkShort": "Prašyti naujos nuorodos",
+      "resetFailed": "Slaptažodžio atstatyti nepavyko",
+      "rememberPassword": "Prisimeni slaptažodį?",
+      "goToLoginInline": "Eiti prisijungti",
+      "loginLink": "Eiti prisijungti"
+    },
+    "supportBubble": {
+      "closeAria": "Uždaryti",
+      "triggerAria": "Susisiekti su pagalba",
+      "title": "Reikia pagalbos? 💬",
+      "subtitle": "Atsakysime, kai tik galėsime",
+      "oooSubtitle": "Esame išvykę rugsėjo 1–10 d.",
+      "success": "Ačiū! Gavome žinutę ir netrukus atsakysime.",
+      "oooSuccess": "Ačiū! Gavome žinutę. Esame išvykę rugsėjo 1–10 d. ir atsakysime, kai tik galėsime, vėliausiai iki rugsėjo 11 d.",
+      "openThread": "Atidaryti pokalbį",
+      "nameLabel": "Vardas",
+      "namePlaceholder": "Tavo vardas",
+      "emailLabel": "El. paštas",
+      "emailPlaceholder": "tu@pavyzdys.lt",
+      "emailHint": "Kad galėtume atsakyti",
+      "messageLabel": "Žinutė",
+      "messagePlaceholder": "Aprašyk, kas nutiko...",
+      "submit": "Siųsti žinutę",
+      "fillAllFields": "Užpildyk visus laukus",
+      "messageMinLength": "Žinutė turi būti bent 10 simbolių",
+      "submitting": "Siunčiama...",
+      "sendFailed": "Žinutės išsiųsti nepavyko. Bandyk dar kartą.",
+      "genericError": "Kažkas nutiko"
+    },
+    "contactForm": {
+      "fillRequired": "Visi laukai būtini.",
+      "emailInvalid": "Įvesk teisingą el. pašto adresą.",
+      "messageTooShort": "Žinutė per trumpa (bent 5 simboliai).",
+      "submitting": "Siunčiama…",
+      "submit": "Siųsti",
+      "genericError": "Kažkas nutiko. Bandyk dar kartą.",
+      "openThread": "Atidaryti pokalbį"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "El. paštas ir slaptažodis būtini",
+        "emailRequired": "El. pašto adresas būtinas",
+        "accountBlocked": "Tavo paskyra užblokuota. Susisiek su administratoriumi.",
+        "emailVerificationRequired": "Kad tęstum, turi patvirtinti el. paštą",
+        "verificationTokenRequired": "Patvirtinimo kodas būtinas",
+        "invalidVerificationLink": "Patvirtinimo nuoroda neteisinga arba nebegalioja",
+        "resendVerificationRateLimit": "Jau prašei kelių patvirtinimo nuorodų. Bandyk dar kartą po valandos.",
+        "tokenAndPasswordRequired": "Kodas ir slaptažodis būtini",
+        "invalidResetLink": "Atstatymo nuoroda neteisinga arba nebegalioja. Prašyk naujos.",
+        "parentOnlyViewMode": "Rodymo režimą gali keisti tik tėvai",
+        "parentOnlyUiViewMode": "Sąsajos rodymo režimą gali keisti tik tėvai",
+        "parentOnlyTheme": "Temą gali keisti tik tėvai",
+        "preferencesSaveFailed": "Nustatymų išsaugoti nepavyko",
+        "uiViewModeSaveFailed": "Rodymo režimo išsaugoti nepavyko",
+        "themeSaveFailed": "Temos išsaugoti nepavyko",
+        "userNotFound": "Naudotojas nerastas",
+        "unknownUserType": "Nežinomas naudotojo tipas",
+        "registrationClosed": "Registracija šiuo metu uždaryta",
+        "invalidCountry": "Neteisinga šalis",
+        "countryRequired": "Prieš kurdamas paskyrą pasirink šalį",
+        "registrationRequired": "NEBENAUDOJAMA — naudok appleAccountCompletionRequired. Nenukreipk į registraciją el. paštu ir slaptažodžiu.",
+        "appleAccountCompletionRequired": "Pasirink šalį ir sutik su sąlygomis, kad užbaigtum paskyrą. Vardą ir el. paštą pateikia Apple.",
+        "familyNameRequired": "Šeimos paskyrai sukurti reikia vardo",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registracija iš Švedijos laikinai uždaryta.",
+          "MARKET_IE_CLOSED": "{{brand}} Airijoje dar nepasiekiama.",
+          "MARKET_CA_CLOSED": "{{brand}} Kanadoje dar nepasiekiama.",
+          "MARKET_FI_CLOSED": "{{brand}} Suomijoje dar nepasiekiama.",
+          "MARKET_NO_CLOSED": "{{brand}} Norvegijoje dar nepasiekiama.",
+          "MARKET_DK_CLOSED": "{{brand}} Danijoje dar nepasiekiama.",
+          "MARKET_EU_CLOSED": "{{brand}} tavo šalyje dar nepasiekiama. Pranešime, kai atidarysime daugiau ES šalių.",
+          "MARKET_UK_CLOSED": "{{brand}} Jungtinėje Karalystėje dar nepasiekiama.",
+          "MARKET_US_CLOSED": "{{brand}} Jungtinėse Amerikos Valstijose dar nepasiekiama.",
+          "MARKET_OTHER_CLOSED": "{{brand}} tavo šalyje dar nepasiekiama.",
+          "MARKET_BILLING_NOT_READY": "Pirkimai šioje šalyje dar nepasiekiami, todėl negalime sukurti paskyros, kurios negalėtum naudoti."
+        }
+      },
+      "success": {
+        "emailVerified": "El. paštas patvirtintas! Dabar gali prisijungti.",
+        "resendVerification": "Jei paskyra yra, bus išsiųsta nauja patvirtinimo nuoroda",
+        "forgotPassword": "Jei el. paštas yra, atsiųsime nuorodą"
+      }
+    },
+    "errors": {
+      "nameRequired": "Įvesk savo vardą",
+      "emailRequired": "El. pašto adresas būtinas",
+      "emailInvalid": "Neteisingas el. pašto adresas",
+      "passwordRequired": "Slaptažodis būtinas",
+      "passwordTooShort": "Slaptažodis turi būti bent 8 simboliai",
+      "passwordMismatch": "Slaptažodžiai nesutampa",
+      "usernameRequired": "Vartotojo vardas būtinas",
+      "pinRequired": "PIN būtinas",
+      "pinInvalid": "PIN turi būti 4 skaitmenys",
+      "invalidCredentials": "Neteisingas el. paštas arba slaptažodis",
+      "accountLocked": "Paskyra laikinai užrakinta. Bandyk dar kartą po 15 minučių.",
+      "emailNotVerified": "Pirmiausia turi patvirtinti el. paštą",
+      "emailExists": "Paskyra su šiuo el. paštu jau yra",
+      "tooManyAttempts": "Per daug bandymų. Palauk ir bandyk dar kartą.",
+      "serverError": "Kažkas nutiko. Bandyk vėliau.",
+      "invalidValues": "Neteisingos reikšmės",
+      "invalidParams": "Neteisingi URL parametrai",
+      "invalidQuery": "Neteisingi užklausos parametrai",
+      "parentPinInvalid": "Neteisingas PIN — bandyk dar kartą",
+      "logoutFailed": "Atsijungti nepavyko. Bandyk dar kartą.",
+      "logoutRateLimited": "Per daug bandymų. Palauk ir bandyk dar kartą.",
+      "handoffInvalid": "Suaugusiojo seanso atkurti nepavyko. Prisijunk kaip tėvas.",
+      "userNotFound": "Naudotojas nerastas",
+      "invalidPassword": "Neteisingas slaptažodis",
+      "tokenRequired": "Kodas būtinas",
+      "idTokenRequired": "idToken būtinas",
+      "allFieldsRequired": "Visi laukai būtini",
+      "messageTooShort": "Žinutė turi būti bent 10 simbolių",
+      "serviceUnavailable": "Paslauga laikinai nepasiekiama",
+      "nameTooShort": "Vardas būtinas (bent 2 simboliai)",
+      "roleRequired": "Vaidmuo būtinas",
+      "consentRequired": "Turi sutikti, kad saugotume tavo duomenis",
+      "refreshInvalid": "Atnaujinimo kodas neteisingas arba nebegalioja",
+      "authRequired": "Reikia prisijungti",
+      "passwordTooShort6": "Slaptažodis turi būti bent 6 simboliai"
+    }
+  },
+  "surveys": {
+    "thankYou": "Ačiū už atsakymą!",
+    "errors": {
+      "unavailable": "Apklausa šiuo metu nepasiekiama",
+      "notFound": "Apklausa nerasta",
+      "closed": "Apklausa uždaryta",
+      "paused": "Apklausa pristabdyta",
+      "alreadyAnswered": "Šią apklausą jau atsakei",
+      "alreadySubmitted": "Apklausa jau pateikta",
+      "questionIdRequired": "Klausimas būtinas",
+      "invalidQuestion": "Neteisingas klausimas",
+      "maxSelections": "Gali pasirinkti daugiausia {{max}}",
+      "invalidOption": "Neteisingas atsakymo variantas",
+      "sessionNotFound": "Seansas nerastas",
+      "answerFirst": "Pirmiausia atsakyk į apklausą",
+      "contestNotOpen": "Loterija dar neatidaryta",
+      "contestClosed": "Loterija uždaryta",
+      "ageRequired": "Dalyvauti gali tik nuo 18 metų",
+      "contestConsent": "Norint dalyvauti loterijoje, reikia sutikimo",
+      "contestAlready": "Jau dalyvauji loterijoje",
+      "emailAlready": "Šis adresas jau užregistruotas",
+      "idActionRequired": "Apklausa ir veiksmas būtini"
+    }
+  },
+  "dashboard": {
+    "welcome": "Labas, {{name}}!",
+    "todaySchedule": "Šiandienos planas",
+    "children": "Vaikai",
+    "addChild": "Pridėti vaiką",
+    "settings": "Nustatymai",
+    "noChildren": "Dar nepridėjai vaikų. Pradėk nuo pirmo vaiko!",
+    "stars": "Žvaigždės",
+    "streak": "Serija"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Mano pirma žvaigždė"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Labas, {{name}}! ⭐",
+    "today": "Šiandien",
+    "now": "Dabar",
+    "next": "Paskui",
+    "later": "Vėliau",
+    "done": "Atlikta!",
+    "stars": "Mano žvaigždės",
+    "rewards": "Apdovanojimai"
+  },
+  "sections": {
+    "morgon": "Rytas",
+    "dag": "Diena",
+    "kvall": "Vakaras",
+    "natt": "Naktis"
+  },
+  "settings": {
+    "title": "Nustatymai",
+    "family": {
+      "title": "Šeimos nustatymai",
+      "timeDisplayMode": "Laiko rodymo būdas",
+      "morningStart": "Ryto pradžia",
+      "morningEnd": "Ryto pabaiga",
+      "dayStart": "Dienos pradžia",
+      "dayEnd": "Dienos pabaiga",
+      "eveningStart": "Vakaro pradžia",
+      "eveningEnd": "Vakaro pabaiga",
+      "nightStart": "Nakties pradžia",
+      "nightEnd": "Nakties pabaiga",
+      "streakStartDay": "Serijos pradžios diena",
+      "soundEnabled": "Garsas įjungtas",
+      "save": "Išsaugoti šeimos nustatymus"
+    },
+    "language": {
+      "description": "Pasirink programėlės kalbą. Kai kurie tekstai dar gali būti nebaigti.",
+      "switchBack": "Grįžti į švedų kalbą"
+    },
+    "invite": {
+      "title": "Pakviesti tėvą",
+      "description": "Pakviesk kitą tėvą matyti ir tvarkyti vaikų planus. Kvietimas galioja 7 dienas.",
+      "email": "El. pašto adresas",
+      "emailPlaceholder": "tevas@pastas.lt",
+      "selectChildren": "Pasirink, kurių vaikų planus pakviestas tėvas galės matyti:",
+      "submit": "Siųsti kvietimą",
+      "pending": "Laukiantys kvietimai:"
+    },
+    "password": {
+      "title": "Keisti slaptažodį",
+      "current": "Dabartinis slaptažodis",
+      "new": "Naujas slaptažodis",
+      "confirm": "Pakartok naują slaptažodį",
+      "submit": "Keisti slaptažodį",
+      "mismatch": "Slaptažodžiai nesutampa"
+    },
+    "notifications": {
+      "title": "Pranešimų nustatymai",
+      "weeklySummary": "Savaitės santrauka (sekmadienį 21:00)",
+      "rewardRedemption": "Apdovanojimo iškeitimas",
+      "emailEnabled": "Visi el. laiškai",
+      "save": "Išsaugoti pranešimų nustatymus"
+    },
+    "theme": {
+      "title": "Išvaizda",
+      "darkMode": "Tamsus režimas",
+      "darkModeDescription": "Įjunk tamsią temą, kad būtų patogiau prieblandoje",
+      "colorBlind": "Spalvinio aklumo tema",
+      "colorBlindDescription": "Derina spalvas skirtingiems spalvinio aklumo tipams",
+      "colorBlindNone": "Nėra (numatyta)",
+      "colorBlindProtanopia": "Protanopija (silpna raudona)",
+      "colorBlindDeuteranopia": "Deuteranopija (silpna žalia)",
+      "colorBlindTritanopia": "Tritanopija (silpna mėlyna)"
+    },
+    "trustedDevices": {
+      "title": "Patikimi įrenginiai",
+      "description": "Vaiko įrenginiai gali atidaryti vaiko vaizdą be PIN, kai čia patvirtini įrenginį.",
+      "disabled": "Vaiko įrenginio režimas tavo šeimai dar neįjungtas.",
+      "enrollHint": "Vaiko planšetėje ar telefone: pasirink vaiką ir padaryk šį įrenginį jo įrenginiu.",
+      "enrollThisDevice": "Padaryti vaiko įrenginiu",
+      "enrollSharedDevice": "Padaryti bendru šeimos įrenginiu",
+      "enrollFailed": "Įrenginio užregistruoti nepavyko. Bandyk dar kartą.",
+      "empty": "Patikimų įrenginių nėra.",
+      "revoke": "Atšaukti",
+      "revokeAll": "Atšaukti visus įrenginius",
+      "revokeAllConfirm": "Visi patikimi įrenginiai bus atjungti. Tęsti?",
+      "modeChild": "Vaiko įrenginys",
+      "modeShared": "Bendras įrenginys",
+      "modeParent": "Tėvo įrenginys",
+      "unknownChild": "Vaikas"
+    },
+    "thisDevice": {
+      "title": "Šis įrenginys",
+      "description": "Kaip šis telefonas ar planšetė turi atidaryti programėlę tavo šeimai.",
+      "setupTitle": "Kaip naudosite šį įrenginį?",
+      "setupLead": "Vėliau galėsi pakeisti Nustatymuose.",
+      "setupLater": "Ne dabar",
+      "openSettings": "Atidaryti nustatymus",
+      "usageHeading": "Naudojimas",
+      "usageParent": "Mano tėvo telefonas",
+      "usageShared": "Bendras su vaikais",
+      "usageChild": "Vaiko įrenginys",
+      "startHeading": "Atidaroma kaip",
+      "startParent": "Tėvas",
+      "startChoose": "Pasirinkti vaiką",
+      "startParentFixed": "Šis įrenginys visada atidaro tėvo vaizdą.",
+      "startChildFixed": "Šis įrenginys susietas su vienu vaiku.",
+      "childrenHeading": "Vaikai šiame įrenginyje",
+      "adultAccessHeading": "Suaugusiojo prieiga",
+      "adultPinSet": "PIN nustatytas",
+      "adultPinMissing": "Nustatyk PIN Nustatymuose",
+      "biometricIos": "Face ID arba Touch ID, kai yra",
+      "biometricAndroid": "Biometrija arba įrenginio užraktas, kai yra",
+      "biometricWeb": "PIN suaugusiojo režimui",
+      "widgetsHeading": "Valdikliai",
+      "widgetsLinked": "Pradžios ekrano valdikliai susieti su vaiko planu.",
+      "widgetsNone": "Šiame įrenginyje valdiklių nėra.",
+      "changeStartHeading": "Keisti pradžios režimą",
+      "revokeThis": "Pašalinti šio įrenginio prieigą",
+      "revokeConfirm": "Šį įrenginį reikės patvirtinti iš naujo, kad vaikai galėtų atidaryti programėlę be PIN. Tęsti?",
+      "otherDevices": "Kiti šeimos įrenginiai",
+      "openForChild": "Atidaryti tiesiai {{name}}",
+      "saveFailed": "Išsaugoti nepavyko. Bandyk dar kartą."
+    }
+  },
+  "common": {
+    "loading": "Kraunama...",
+    "save": "Išsaugoti",
+    "cancel": "Atšaukti",
+    "delete": "Ištrinti",
+    "edit": "Redaguoti",
+    "back": "Atgal",
+    "confirm": "Patvirtinti",
+    "yes": "Taip",
+    "no": "Ne",
+    "networkError": "Tinklo klaida"
+  },
+  "categories": {
+    "title": "Kategorijos",
+    "subtitle": "Suskirstyk veiklas į kategorijas",
+    "addCategory": "Pridėti kategoriją",
+    "editCategory": "Redaguoti kategoriją",
+    "categoryName": "Kategorijos pavadinimas",
+    "categoryNamePlaceholder": "pvz. Higiena",
+    "noCategories": "Kategorijų dar nėra",
+    "defaultBadge": "Numatyta",
+    "deleteConfirm": "Tikrai nori ištrinti šią kategoriją?",
+    "hasActivities": "Su šia kategorija susietos veiklos. Pirmiausia jas pašalink.",
+    "saved": "Kategorija išsaugota",
+    "deleted": "Kategorija ištrinta"
+  },
+  "activities": {
+    "title": "Veiklos",
+    "subtitle": "Kurk ir tvarkyk šeimos veiklų šablonus",
+    "addActivity": "Pridėti veiklą",
+    "editActivity": "Redaguoti veiklą",
+    "activityName": "Veiklos pavadinimas",
+    "activityNamePlaceholder": "pvz. Išsivalyti dantis",
+    "icon": "Piktograma",
+    "category": "Kategorija",
+    "noCategory": "Be kategorijos",
+    "starValue": "Žvaigždžių vertė",
+    "starValueHelp": "Kiek žvaigždžių vaikas gauna",
+    "favorite": "Pažymėti kaip mėgstamą",
+    "favoriteHelp": "Mėgstamos veiklos plane rodomos pirmos",
+    "noActivities": "Veiklų dar nėra. Sukurk pirmą!",
+    "filterAll": "Visos",
+    "favoritesFirst": "Mėgstamos rodomos pirmos",
+    "saved": "Veikla išsaugota",
+    "deleted": "Veikla ištrinta",
+    "deleteConfirm": "Tikrai nori ištrinti šią veiklą?",
+    "usedInSchedule": "Ši veikla naudojama plane. Pirmiausia ją iš ten pašalink."
+  },
+  "schedule": {
+    "title": "Savaitės planas",
+    "subtitle": "Sudėk planą kiekvienam vaikui ir kiekvienai dienai",
+    "selectChild": "Pasirink vaiką",
+    "selectDay": "Pasirink dieną",
+    "noChild": "Viršuje pasirink vaiką, kad matytum planą",
+    "noScheduleForDay": "Šiai dienai plano nėra",
+    "createSchedule": "Sukurti planą šiai dienai",
+    "addActivity": "Pridėti veiklą",
+    "startTime": "Pradžia",
+    "endTime": "Pabaiga",
+    "section": "Dalis",
+    "copyDay": "Kopijuoti dieną",
+    "copyDayTitle": "Kopijuoti planą į kitas dienas",
+    "copyFromDay": "Kopijuoti iš",
+    "copyToDays": "Kopijuoti į (pasirink vieną ar kelias)",
+    "copyToChild": "Kopijuoti kitam vaikui",
+    "copyToChildTitle": "Kopijuoti visą savaitės planą į",
+    "copyConfirm": "Kopijuoti",
+    "copied": "Planas nukopijuotas!",
+    "deleteSchedule": "Ištrinti dieną",
+    "deleteConfirm": "Tikrai? Visos šios dienos veiklos bus pašalintos.",
+    "deleted": "Planas ištrintas",
+    "activityAdded": "Veikla pridėta",
+    "activityRemoved": "Veikla pašalinta",
+    "reordered": "Tvarka atnaujinta",
+    "days": {
+      "0": "Sekmadienis",
+      "1": "Pirmadienis",
+      "2": "Antradienis",
+      "3": "Trečiadienis",
+      "4": "Ketvirtadienis",
+      "5": "Penktadienis",
+      "6": "Šeštadienis"
+    },
+    "daysShort": {
+      "0": "Sk",
+      "1": "Pr",
+      "2": "An",
+      "3": "Tr",
+      "4": "Kt",
+      "5": "Pn",
+      "6": "Št"
+    },
+    "sections": {
+      "morgon": "Rytas",
+      "dag": "Diena",
+      "kvall": "Vakaras",
+      "natt": "Naktis"
+    }
+  },
+  "dailyLog": {
+    "title": "Dienos žurnalas",
+    "subtitle": "Dienos veiklos",
+    "today": "Šiandien",
+    "prevDay": "Ankstesnė diena",
+    "nextDay": "Kita diena",
+    "selectDate": "Pasirink datą",
+    "selectChild": "Pasirink vaiką",
+    "noChild": "Viršuje pasirink vaiką, kad matytum žurnalą",
+    "noSchedule": "Šiai dienai plano nėra",
+    "noScheduleHint": "Pridėk savaitės planą, kad dienos žurnalai kurtųsi patys.",
+    "loading": "Kraunamas žurnalas...",
+    "paused": "Pristabdyta diena",
+    "pausedHint": "Ši diena pristabdyta (pvz. liga ar laisvadienis).",
+    "pauseDay": "Pristabdyti dieną",
+    "unpauseDay": "Atnaujinti dieną",
+    "pauseConfirm": "Pristabdyti šią dieną? Veiklos nebus skaičiuojamos prieš tave.",
+    "dayPaused": "Diena pristabdyta",
+    "dayUnpaused": "Diena atnaujinta",
+    "markDone": "Pažymėti atlikta",
+    "markUndone": "Atšaukti",
+    "completed": "Atlikta",
+    "notCompleted": "Neatlikta",
+    "completedAt": "Pažymėta atlikta",
+    "stars": "žvaigždės",
+    "star": "žvaigždė",
+    "progress": "{{completed}} iš {{total}} veiklų atlikta",
+    "allDone": "Visos veiklos atliktos! 🎉",
+    "emptySection": "Šioje dalyje veiklų nėra",
+    "history": "Istorija",
+    "historyRange": "Pasirink datų intervalą",
+    "historyFrom": "Nuo",
+    "historyTo": "Iki",
+    "historyFetch": "Rodyti istoriją",
+    "historyEmpty": "Pasirinktame intervale žurnalų nėra",
+    "sections": {
+      "morgon": "Rytas",
+      "dag": "Diena",
+      "kvall": "Vakaras",
+      "natt": "Naktis"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Patvirtink el. paštą — {{brand}}",
+      "title": "Smagu, kad esi {{brand}}! ⭐",
+      "body": "Paspausk mygtuką apačioje ir patvirtink el. paštą:",
+      "button": "Patvirtinti el. paštą",
+      "expiry": "Nuoroda galioja {{hours}} val."
+    },
+    "resetPassword": {
+      "subject": "Atstatyti slaptažodį — {{brand}}",
+      "title": "Atstatyk slaptažodį",
+      "greeting": "Labas, {{name}}",
+      "greetingGeneric": "Labas",
+      "body": "spausk čia ir nustatyk naują slaptažodį:",
+      "button": "Atstatyti slaptažodį",
+      "expiry": "Nuoroda galioja {{hours}} valandą. Jei neprašei atstatymo, šio laiško nepaisyk."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} bando prisijungti",
+      "title": "Prisijungimo bandymas {{brand}}",
+      "body": "{{childName}} 3 kartus įvedė neteisingą PIN {{brand}}.",
+      "inApp": "{{childName}} 3 kartus bandė prisijungti neteisingu PIN ({{time}})",
+      "help": "Gali padėti su teisingu kodu arba atstatyti PIN programėlėje.",
+      "button": "Atidaryti {{brand}}",
+      "footer": "Jei tai ne tavo vaikas, prisijunk ir pakeisk PIN vaiko nustatymuose."
+    },
+    "accountDeletionRequested": {
+      "subject": "Tavo {{brand}} paskyra pažymėta ištrynimui",
+      "greeting": "Labas, {{name}}!",
+      "intro": "Gavome prašymą ištrinti tavo paskyrą ir visus susijusius duomenis.",
+      "graceTitle": "⏳ Duomenys bus visam laikui ištrinti po 30 dienų.",
+      "undo": "Per šį laiką gali prisijungti ir <strong>atšaukti ištrynimą</strong>, jei persigalvosi.",
+      "loginHint": "Jei persigalvosi — prisijunk prie {{brand}} ir pamatysi galimybę atšaukti.",
+      "footer": "Jei tai klaida, šio laiško gali nepaisyti. Duomenys bus ištrinti po 30 dienų, jei neatšauksi.",
+      "contact": "Jei turi klausimų, rašyk mums {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Tavo {{brand}} paskyra ištrinta",
+      "greeting": "Labas, {{name}}",
+      "intro": "Tavo paskyra ir visi susiję duomenys visam laikui ištrinti iš {{brand}}.",
+      "dataRemoved": "Visos šeimos, vaikai, planai, veiklos ir žvaigždės pašalinti.",
+      "thanks": "Tikimės, kad {{brand}} buvo naudinga, kol ja naudojaisi.",
+      "return": "Jei norėsi sukurti naują paskyrą, visada gali grįžti adresu {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Leisk vaikui išbandyti pirmą žingsnį ⭐",
+      "greeting": "Labas, {{name}}!",
+      "body": "Planas paruoštas. Toliau leisk vaikui prisijungti su PIN — tai trunka mažiau nei minutę.",
+      "button": "Tęsti prie vaiko prisijungimo"
+    },
+    "welcomeShell": {
+      "headerTitle": "Labas! 🌟",
+      "cta": "Atidaryti {{brand}} ⭐",
+      "footerIntro": "Šį laišką gauni, nes neseniai užsiregistravai {{brand}}.",
+      "unsubscribe": "Atsisakyti"
+    },
+    "common": {
+      "genericParent": "Tėvas",
+      "genericInviter": "Kažkas",
+      "genericPedagogInviter": "Tėvas",
+      "genericChild": "tavo vaikas",
+      "genericReward": "apdovanojimas",
+      "genericYou": "tu",
+      "greetingNamed": "Labas, {{name}}",
+      "greeting": "Labas",
+      "familyNamed": "šeima „{{familyName}}“",
+      "aFamily": "šeima",
+      "settingsNotifications": "Nustatymai → Pranešimai",
+      "settingsNotificationsHtml": "Nustatymai → <strong>Pranešimai</strong>"
+    },
+    "invite": {
+      "subject": "Tave kviečia į {{familyLabel}} programėlėje {{brand}} ⭐",
+      "title": "Tave pakvietė! ⭐",
+      "body": "{{greeting}}, {{inviterName}} kviečia tave į {{familyLabel}} programėlėje {{brand}}.",
+      "intro": "{{brand}} yra vaizdinis dienos planas, kuris padeda vaikams suprasti dieną, pažymėti veiklas ir rinkti žvaigždes.",
+      "ctaIntro": "Spausk čia, sukurk slaptažodį ir aktyvuok paskyrą:",
+      "button": "Aktyvuoti paskyrą",
+      "footer": "Kvietimas galioja 7 dienas. Jei kvietimo nelaukei, šio laiško nepaisyk."
+    },
+    "pedagogInvite": {
+      "subject": "Tave kviečia kaip pedagogą į {{familyName}} ⭐",
+      "title": "Labas! Kvietimas pedagogui ⭐",
+      "greetingNamed": "Labas, {{name}},",
+      "greeting": "Labas,",
+      "body": "{{inviterName}} kviečia tave kaip pedagogą į {{familyName}} programėlėje {{brand}}.",
+      "intro": "Kaip pedagogas gali rašyti stebėjimus ir sekti vaiko planą.",
+      "button": "Priimti kvietimą →",
+      "footer": "Kvietimas galioja 7 dienas. Jei šio laiško nelaukei, gali jo nepaisyti."
+    },
+    "winBack": {
+      "subject": "Grįžk į ritmą per minutę ⭐",
+      "greeting": "Labas, {{name}}! 👋",
+      "body1": "{{childName}} planas vis dar čia — atidaryk šiandienos veiklas ir pažymėkite jas kartu.",
+      "body2": "Vėl pradėti užtenka minutės.",
+      "button": "Atidaryti planą →",
+      "settingsHint": "Šiuos laiškus gali išjungti skiltyje {{settingsLink}} programėlėje.",
+      "settingsLinkText": "Nustatymai → Pranešimai"
+    },
+    "activationProgramInvite": {
+      "subject": "Švelni pradžia {{childName}} rutinoms?",
+      "greeting": "Labas, {{name}}!",
+      "body1": "Sukurti paskyrą ir sudėjai {{childName}} planą — šaunu.",
+      "body2": "Daugelis šeimų sako, kad sunkiausia ne pradėti, o <strong>išlaikyti rutiną</strong>, kai kasdienybė užplūsta.",
+      "body3": "Dabar gali išbandyti <strong>7 dienų pradžios programą</strong>: trumpi kasdieniai žingsniai, kurie padeda tau, tėvui, išlaikyti ritmą. Vaiko planas lieka toks pat.",
+      "button": "Taip, padėkite mums pirmą savaitę",
+      "footer": "Jei gido nenori, programėlė veikia kaip įprasta — viskas, ką sudėjai, lieka."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutina laukia — išbandykite ją kartu šįvakar ⭐",
+        "greeting": "Labas, {{name}}!",
+        "body1": "Planas jau yra. Liko <strong>išbandyti rutiną kartu</strong> — leisk vaikui prisijungti ir surinkti pirmą žvaigždę.",
+        "body2": "Užtrunka apie dvi minutes. Be spaudimo.",
+        "button": "Atidaryti Pradžią →"
+      },
+      "noSchema": {
+        "subject": "Pradėk rutiną — užtenka kelių minučių ⭐",
+        "greeting": "Labas, {{name}}!",
+        "body1": "Užsiregistravai — puiki pradžia! Kitas žingsnis — <strong>sudėti planą</strong>, kad vaikas žinotų, ko tikėtis kiekvieną dieną.",
+        "body2": "Užtrunka apie penkias minutes. Viskas, ką jau padarei, lieka, jei norėsi tęsti vėliau.",
+        "button": "Tęsti pradžią →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Prenumeruoji {{brand}} naujienlaiškius",
+      "title": "Ačiū, kad prenumeruoji! ⭐",
+      "greetingNamed": "Labas, {{name}},",
+      "greeting": "Labas,",
+      "body": "Dabar prenumeruoji {{brand}} naujienlaiškius su patarimais, naujienomis ir programėlės atnaujinimais.",
+      "settings": "Atsisakyti gali bet kada skiltyje <a href=\"{{settingsUrl}}\">Nustatymai</a> programėlėje arba nuoroda kiekvieno naujienlaiškio apačioje.",
+      "signoff": "Linkėjimai,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} nori išsikeisti „{{rewardName}}“ ⭐",
+      "title": "Apdovanojimas laukia patvirtinimo! 🎁",
+      "greeting": "Labas, {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> nori išsikeisti:",
+      "cost": "Kaina: {{starCost}} žvaigždės",
+      "approveHint": "Prisijunk prie programėlės ir patvirtink arba atmink iškeitimą.",
+      "settingsHint": "Šiuos pranešimus gali išjungti skiltyje {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mėnuo",
+      "howTitle": "Kaip tai veikia:",
+      "how1": "Kurk vaikui planus ir veiklas",
+      "how2": "Leisk vaikui kasdien rinkti žvaigždes",
+      "how3": "Sudėk apdovanojimus Lobių skrynioje",
+      "footerIntro": "Šį laišką gauni, nes neseniai užsiregistravai {{brand}}.",
+      "openApp": "Atidaryti programėlę",
+      "trial": {
+        "subject": "Smagu, kad esi {{brand}} – nemokamas laikotarpis prasidėjo!",
+        "headerTitle": "Nemokamas laikotarpis prasidėjo! ⭐",
+        "intro": "Labas! Dabar turi <strong>{{trialDays}} d. nemokamai</strong> išbandyti visas {{brand}} funkcijas — kortelės nereikia.",
+        "pricing": "Po {{trialDays}} d. kainuoja <strong>{{monthlyPrice}}</strong> — gali pereiti, kada nori.",
+        "pricingOpen": "Po {{trialDays}} d. renkiesi, ar tęsti su prenumerata.",
+        "cta": "Išbandyti Premium ⭐",
+        "ctaHint": "Be įsipareigojimo — atšauki, kada nori"
+      },
+      "complimentary": {
+        "subject": "Smagu, kad esi {{brand}} – nemokamai iki {{freeUntil}}",
+        "headerTitle": "Nemokamai iki {{freeUntil}}",
+        "intro": "Labas! <strong>{{brand}} nemokama iki {{freeUntil}}.</strong> Prenumeratos ar mokėjimo būdo nereikia. Šis pasiūlymas savaime nevirsta mokama prenumerata.",
+        "pricing": "Nuo {{paidFrom}} gali rinktis, ar tęsti su prenumerata. Dėl šio pasiūlymo niekas neapmokestinama automatiškai.",
+        "cta": "Atidaryti programėlę",
+        "ctaHint": "Kortelės nereikia. Šis pasiūlymas savaime nevirsta prenumerata."
+      },
+      "introYear": {
+        "subject": "Smagu, kad esi {{brand}}",
+        "headerTitle": "Labas! ⭐",
+        "intro": "Labas! Gali naudoti {{brand}} funkcijas.",
+        "pricing": "Šiam laikotarpiui mokėti nereikia.",
+        "cta": "Atidaryti programėlę",
+        "ctaHint": "Į Premium gali pažiūrėti, kada nori"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Savaitės santrauka ⭐ — {{weekLabel}}",
+      "greeting": "Labas, {{name}}! 👋",
+      "intro": "Štai savaitės santrauka: <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} šią savaitę surinko {{stars}} žvaigždžių!",
+      "sharePrompt": "Pažįsti kitą tėvą, kuriam tai patiktų?",
+      "shareWhatsApp": "Dalintis per WhatsApp",
+      "shareFriend": "Papasakoti draugui",
+      "shareTextWithHighlight": "{{highlight}} Naudojame {{brand}} vaikų rutinoms – pažiūrėk:",
+      "shareTextGeneric": "Naudojame {{brand}} vaikų dienos rutinoms – pažiūrėk:",
+      "starsEarned": "Surinktos žvaigždės",
+      "routinesCompleted": "Atliktos rutinos",
+      "routinesOf": "{{completed}} iš {{total}} ({{pct}}%)",
+      "moodAverage": "Nuotaika (vidurkis)",
+      "moodVeryHappy": "Labai linksma 😄 ({{score}}/10)",
+      "moodHappy": "Linksma 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutralu 😐 ({{score}}/10)",
+      "moodSad": "Liūdna 😔 ({{score}}/10)",
+      "encourageNoActivity": "Artėja nauja savaitė — pabandykite kartu pažymėti vieną rutiną, tai trunka akimirką.",
+      "encourageProgress": "🌟 Taip ir toliau! Kiekviena atlikta rutina kuria įpročius visam gyvenimui.",
+      "encourageSmallSteps": "🌟 Maži žingsniai svarbūs — šią savaitę pabandykite kartu pažymėti vieną rutiną.",
+      "genericChildName": "Tavo vaikas"
+    },
+    "notificationFooter": {
+      "settingsLink": "Nustatymai → Pranešimai",
+      "optOutDefault": "Išjungti šį pranešimą",
+      "optOutWeeklySummary": "Išjungti savaitės santrauką"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "1 diena — pažiūrėkite kartu",
+        "body": "Taip {{childName}} mato savo planą — pažiūrėkite kartu.",
+        "ctaLabel": "Rodyti vaiko vaizdą"
+      },
+      "2": {
+        "title": "2 diena — ryto patikra",
+        "body": "Šiandien kada nors atidaryk apžvalgą — užtenka 30 sekundžių.",
+        "ctaLabel": "Atidaryti planą"
+      },
+      "3": {
+        "title": "3 diena — pasidžiaukite žvaigžde",
+        "body": "Ar {{childName}} gavo žvaigždę? Pasidžiaukite kartu!",
+        "ctaLabel": "Žiūrėti šiandienos planą",
+        "supportiveFallback": "Pirmoji savaitė yra apie pradžią — užtenka žvilgtelėti ir pamatyti, kad planas paruoštas."
+      },
+      "4": {
+        "title": "4 diena — tavo programėlė",
+        "body": "Kažkas nejauku? Jei reikia, pakeisk veiklą.",
+        "ctaLabel": "Redaguoti planą"
+      },
+      "5": {
+        "title": "5 diena — apdovanojimas",
+        "body": "Pažiūrėk į Lobių skrynią — ko svajoja {{childName}} gauti?",
+        "ctaLabel": "Atidaryti Lobių skrynią"
+      },
+      "6": {
+        "title": "6 diena — pasidalyk atsakomybe",
+        "body": "Nori atsakomybe pasidalyti su kuo nors?",
+        "ctaLabel": "Pakviesti",
+        "soloLabel": "Darau tai savarankiškai!"
+      },
+      "7": {
+        "title": "Viena savaitė! 🎉",
+        "body": "Sveikinu! Kaip praėjo savaitė?",
+        "ctaLabel": "Atsakyti į klausimą"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Laikas „{{activityName}}“ po {{minutes}} min.! ⭐",
+      "body": "Priminimas {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Laikykis rutinos 💫",
+      "day3Body": "Praėjo kelios dienos — atidaryk planą ir pažymėk šiandienos žvaigždes.",
+      "day7Title": "Savaitė nuo paskutinio apsilankymo",
+      "day7Body": "Vaiko planas laukia. Užtenka trumpo žvilgsnio.",
+      "day14Title": "Pasiilgome tavęs programėlėje",
+      "day14Body": "Dvi savaitės be veiklos — užsuk ir palaikyk rutiną gyvą."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} šiandien neprisijungė",
+      "body": "Pažiūrėk planą ir padėk užpildyti dieną!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} surinko {{milestone}} žvaigždžių! 🌟",
+      "bodyCongrats": "{{emoji}} Sveikinimai {{childName}}!",
+      "body100": "Nuostabu! Laukia nauji iššūkiai!"
+    },
+    "backfillReminder": {
+      "title": "Trūksta vakarykščio {{childName}} plano",
+      "body": "Užpildyk vakar, kad viskas būtų tvarkoje!"
+    },
+    "custodyMorning": {
+      "title": "Šiandien: {{childName}} pas tave",
+      "body": "Dienos planas laukia programėlėje."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Perdavimas rytoj — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} pas {{homeLabel}}",
+      "bodyPack": "🎒 Kuprinės susidėjimas yra rytojaus plane.",
+      "bodyPrepare": "Nepamiršk pasiruošti savaitės perdavimui."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "atliko {{activityName}}!",
+      "bodyBatch": "atliko {{count}} veiklas!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} žvaigždės vaikui {{childName}}!",
+      "body": "{{parentName}} davė {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "žvaigždę",
+    "starLabelMany": "žvaigždes",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} nori išsikeisti apdovanojimą!",
+      "body": "{{childName}} prašo: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Labas rytas! Pažiūrėk {{childName}} planą — užtenka 30 sek. 🌅",
+      "day3Body": "Ar {{childName}} šiandien gavo žvaigždę? Pasidžiauk kartu ⭐",
+      "day4Body": "Kažkas nejauku? Pakeisk veiklą ✏️",
+      "day5Body": "Pažiūrėk į Lobių skrynią — ko svajoja {{childName}} gauti? 🎁",
+      "day6Body": "Nori atsakomybe pasidalyti su kuo nors? 👥",
+      "day7Body": "Sveikinu! Kaip praėjo savaitė?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Kažkas nutiko.",
+          "rewardIdRequired": "reward_id būtinas",
+          "childNotFound": "Vaikas nerastas",
+          "rewardNotFound": "Apdovanojimas nerastas",
+          "requestNotFound": "Prašymas nerastas",
+          "pendingOnlyApprove": "Patvirtinti galima tik laukiantį prašymą",
+          "pendingOnlyDeny": "Atmesti galima tik laukiantį prašymą",
+          "childIdRequired": "child_id būtinas",
+          "reasonRequired": "Priežastis būtina",
+          "starCountRange": "Žvaigždžių skaičius turi būti nuo 1 iki 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id ir goal_slug būtini",
+          "childAccessDenied": "Neturi prieigos prie vieno iš pasirinktų vaikų.",
+          "dismissFailed": "Klausimo uždaryti nepavyko"
+        }
+      },
+      "success": {
+        "goalSet": "Tikslas nustatytas!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Ačiū už atsiliepimą! Skaitome viską, kas ateina.",
+    "contactAck": "Ačiū! Gavome tavo žinutę.",
+    "export": {
+      "noData": "Duomenų nėra",
+      "rateLimit": "Duomenis eksportuoti gali tik kartą per 24 valandas. Bandyk dar kartą po {{hours}} val.",
+      "notFound": "Naudotojas nerastas"
+    },
+    "account": {
+      "deletionPending": "Paskyra pažymėta ištrynimui. Turi 30 dienų persigalvoti.",
+      "alreadyPending": "Paskyra jau pažymėta ištrynimui."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Visos galimybės visai šeimai",
+    "benefit1": "Visos rutinos ir planai",
+    "benefit2": "Žvaigždės ir šeimos funkcijos",
+    "benefit3": "Visi tavo duomenys lieka pas tave",
+    "webNoticeTitle": "Įjunk Premium programėlėje",
+    "webNoticeBody": "Premium perkama per App Store arba Google Play — ne žiniatinklyje.",
+    "webNoticeBodyAppleOnly": "Premium perkama per App Store — ne žiniatinklyje. Android netrukus.",
+    "downloadIphone": "Atsisiųsti iPhone",
+    "downloadAndroid": "Atsisiųsti Android",
+    "androidComingSoon": "Android netrukus",
+    "loadingPrices": "Kraunamos kainos…",
+    "continue": "Tęsti",
+    "restore": "Atkurti pirkinius",
+    "yearlyBadge": "Rekomenduojame",
+    "yearlyPrice": "{{price}} per metus",
+    "yearlySavings": "Sutaupai, palyginti su mokėjimu kas mėnesį",
+    "yearlyTermsKnownTrial": "{{trialDays}} d. nemokamai · tada {{price}} per metus · pratęsiama automatiškai",
+    "yearlyTermsConditionalTrial": "14 dienų nemokamas bandymas naujiems tinkamiems prenumeratoriams · tada {{price}} per metus · pratęsiama automatiškai",
+    "yearlyTermsNoTrial": "{{price}} per metus · pratęsiama automatiškai",
+    "monthlyPrice": "{{price}} per mėnesį",
+    "monthlyBlurb": "Lanksti mėnesio prenumerata šeimai.",
+    "monthlyTermsKnownTrial": "{{trialDays}} d. nemokamai · tada {{price}} per mėnesį · pratęsiama automatiškai",
+    "monthlyTermsConditionalTrial": "14 dienų nemokamas bandymas naujiems tinkamiems prenumeratoriams · tada {{price}} per mėnesį · pratęsiama automatiškai",
+    "monthlyTermsNoTrial": "{{price}} per mėnesį · pratęsiama automatiškai",
+    "autoRenewApple": "Prenumerata pratęsiama automatiškai, kol jos neatšauki. Mokėjimą tvarko App Store. Prenumeratą gali tvarkyti arba atšaukti savo Apple paskyroje.",
+    "autoRenewGoogle": "Prenumerata pratęsiama automatiškai, kol jos neatšauki. Mokėjimą tvarko Google Play. Prenumeratą gali tvarkyti arba atšaukti savo Google paskyroje.",
+    "termsLink": "Sąlygos",
+    "privacyLink": "Privatumas",
+    "legal": "Nemokamą bandymą gali atšaukti prieš apmokestinimą pagal App Store arba Google Play taisykles. Tvarkyk arba atšauk parduotuvės prenumeratos nustatymuose.",
+    "legalAppleOnly": "Nemokamą bandymą gali atšaukti prieš apmokestinimą. Tvarkyk arba atšauk App Store prenumeratos nustatymuose.",
+    "legalGoogleOnly": "Nemokamą bandymą gali atšaukti prieš apmokestinimą. Tvarkyk arba atšauk Google Play prenumeratos nustatymuose.",
+    "giftCard": "Turiu dovanų kortelę",
+    "giftCodeLabel": "Dovanų kodas",
+    "giftRedeem": "Panaudoti dovanų kortelę",
+    "limitedAccount": "Tęsti su ribota paskyra",
+    "statusOpening": "Atidaroma kasa…",
+    "statusRestoring": "Atkuriami pirkiniai…",
+    "statusSuccess": "Premium aktyvi! Smagu, kad grįžai.",
+    "statusCancelled": "Pirkimas atšauktas.",
+    "statusFailed": "Pirkimas nepavyko. Bandyk dar kartą.",
+    "statusUnavailable": "Prenumeratų dabar įkelti nepavyksta. Bandyk dar kartą.",
+    "statusAndroidComingSoon": "Premium Android sistemoje netrukus.",
+    "statusNotNative": "Pirkimai čia nepasiekiami. Naudok programėlę.",
+    "restoreSuccess": "Pirkiniai atkurti! Smagu, kad grįžai.",
+    "restoreNone": "Aktyvių pirkinių atkurti nerasta.",
+    "giftSuccess": "Dovanų kortelė panaudota!",
+    "giftFailed": "Kodo panaudoti nepavyko.",
+    "launchEnded": "Paleidimo prieiga baigėsi. Prenumeruok programėlėje, kad išlaikytum visą prieigą."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "drauge",
+      "subject": "Tavo pokalbis su pagalba",
+      "text": "Labas, {{name}}!\n\nGavome tavo žinutę. Sek pokalbį ir atsakyk čia (paprastas el. pašto atsakymas mums nematomas):\n{{url}}\n\nLinkėjimai,\n{{fromName}}",
+      "htmlHi": "Labas, {{name}}!",
+      "htmlReceived": "Gavome tavo žinutę.",
+      "openLink": "Atidaryti pokalbį",
+      "htmlHint": "kad sektum pokalbį ir atsakytum. Paprastas el. pašto atsakymas mums nematomas.",
+      "htmlBye": "Linkėjimai"
+    },
+    "reply": {
+      "subjectBug": "Re: Tavo pranešimas apie klaidą",
+      "subjectFeedback": "Re: Tavo atsiliepimas",
+      "subjectLanguage": "Re: Tavo pranešimas apie kalbą",
+      "subjectContact": "Re: Tavo žinutė",
+      "text": "Labas, {{name}}!\n\n{{reply}}\n\nPerskaityk visą pokalbį ir atsakyk čia (paprastas el. pašto atsakymas mums nematomas):\n{{url}}\n\n---\nTavo pirminė žinutė:\n{{original}}\n\nLinkėjimai,\n{{fromName}}",
+      "htmlHi": "Labas, {{name}}!",
+      "openLink": "Atidaryti pokalbį",
+      "htmlHint": "kad perskaitytum visą pokalbį ir atsakytum. Paprastas el. pašto atsakymas mums nematomas.",
+      "originalLabel": "Tavo pirminė žinutė:",
+      "htmlBye": "Linkėjimai"
+    },
+    "page": {
+      "title": "Tavo pokalbis",
+      "intro": "Čia visas pokalbis. Rašyk apačioje, jei nori tęsti. Paprastas el. pašto atsakymas čia nematomas.",
+      "you": "Tu",
+      "us": "Mes",
+      "empty": "Žinučių dar nėra.",
+      "label": "Rašyk mums",
+      "placeholder": "Papasakok, kas vyksta…",
+      "submit": "Siųsti",
+      "submitting": "Siunčiama…",
+      "needHuman": "Man reikia daugiau pagalbos iš žmogaus",
+      "escalating": "Siunčiama…",
+      "caseRef": "Byla {{ref}}",
+      "status": {
+        "new": "Gauta",
+        "read": "Perskaityta",
+        "in_progress": "Vykdoma",
+        "answered": "Atsakyta",
+        "archived": "Uždaryta"
+      }
+    },
+    "errors": {
+      "invalid": "Ši nuoroda neteisinga. Paprašyk mūsų atsiųsti naują atsakymą.",
+      "expired": "Ši nuoroda nebegalioja. Paprašyk mūsų atsiųsti naują.",
+      "revoked": "Ši nuoroda nebeveikia. Paprašyk mūsų atsiųsti naują.",
+      "archived": "Ši byla uždaryta. Susisiek dar kartą, jei reikia daugiau pagalbos.",
+      "legacySunset": "Ši nuoroda per sena. Susisiek su mumis ir atsiųsime naują.",
+      "tooShort": "Parašyk bent 10 simbolių, kad suprastume, kas vyksta.",
+      "tooLong": "Atsakymas gali būti daugiausia 5000 simbolių.",
+      "notFound": "Byla nerasta.",
+      "rateLimit": "Per daug bandymų. Bandyk dar kartą po valandos.",
+      "generic": "Bylos atidaryti nepavyko.",
+      "sendFailed": "Išsiųsti nepavyko. Bandyk dar kartą."
+    },
+    "success": {
+      "submitted": "Ačiū! Gavome tavo atsakymą.",
+      "escalated": "Ačiū. Žmogus peržiūrės šią bylą."
+    }
+  },
+  "story": {
+    "someone": "Kažkas",
+    "anActivity": "veiklą",
+    "activityWithStars": "{{name}} atliko {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} atliko {{activity}}",
+    "goalFallback": "tikslas",
+    "goal": "Šeima pasiekė tikslą: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Slapukų nustatymai",
+    "intro": "Svetainėje naudojame slapukus analizei, rinkodarai ir pritaikymui.",
+    "manage": "Tvarkyti nustatymus",
+    "manageHide": "Slėpti nustatymus",
+    "deny": "Atmesti visus",
+    "accept": "Priimti visus",
+    "save": "Išsaugoti mano pasirinkimus",
+    "necessaryLabel": "Būtini",
+    "necessaryDesc": "Reikalingi, kad svetainė veiktų.",
+    "analyticsLabel": "Analitika",
+    "analyticsDesc": "Padeda suprasti, kaip naudojama svetainė (GA4).",
+    "marketingLabel": "Rinkodara",
+    "marketingDesc": "Rodo aktualias reklamas ir matuoja kampanijas.",
+    "personalizationLabel": "Pritaikymas",
+    "personalizationDesc": "Derina turinį ir rekomendacijas."
+  },
+  "growthHelp": {
+    "reportProblem": "Pranešti apie problemą",
+    "suggestedHelp": "Siūloma pagalba",
+    "reportThanks": "Ačiū — gavome pranešimą su techninėmis detalėmis.",
+    "howChildStarts": "Kaip vaikas pradeda?",
+    "needHelpLogin": "Reikia pagalbos prisijungiant?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Trumpas komentaras (nebūtina, siunčiamas su atsakymu)",
+    "notNow": "Ne dabar",
+    "thanks": "Ačiū už atsiliepimą."
+  },
+  "growthReferral": {
+    "title": "Pažįsti kitą šeimą, kuriai reikia ramesnių rytų?",
+    "subtitle": "Pasidalyk savo nuoroda — be apdovanojimų šlamšto, tik patarimas.",
+    "copyLink": "Kopijuoti nuorodą",
+    "copied": "Nukopijuota",
+    "copyPrompt": "Nukopijuok šią nuorodą:",
+    "share": "Dalintis",
+    "shareText": "Naudojame {{brand}} vaikų rutinoms. Sukurk nemokamą paskyrą: ",
+    "notNow": "Ne dabar"
+  },
+  "legalReturn": {
+    "backToPremium": "Atgal į Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paketas",
+    "dismiss": "Ne dabar",
+    "interested": "Man įdomu",
+    "interestedSub": "Palik susidomėjimą tuo, kas bus toliau",
+    "buyNow": "Pirkti dabar",
+    "reporting": {
+      "title": "Ataskaitos",
+      "body": "Veiklas žymėjai dvi savaites — nori aiškiau matyti, kaip viskas keičiasi laikui bėgant?"
+    },
+    "pedagog": {
+      "title": "Pedagogas",
+      "body": "Nori su pedagogu ar terapeutu dirbti prie vaiko kasdienybės?"
+    },
+    "teacch": {
+      "title": "Papildoma pagalba",
+      "body": "Pridėk vaizdinę pagalbą su Septyniais klausimais — tai padeda vaikui suprasti, kas vyksta."
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Kurti PDF — planas — {{brand}}",
+  "backLink": "← Atgal į Planavimą",
+  "heading": "📄 Kurti PDF — planas",
+  "intro": "Pasirink vaiką ir laikotarpį. Peržiūra rodo visą planą — PDF pats susitraukia, kad tilptų į vieną A4 lapą gulsčiai.",
+  "pdfSave": {
+    "title": "Kur išsaugomas PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Po <em>Kurti PDF</em> atsidaro dalijimosi lapas — pasirink <strong>Išsaugoti į Failus</strong> ir aplanką (pvz. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Kompiuteris:</strong> PDF keliauja į aplanką <strong>Atsisiuntimai</strong> (dažnai naršyklės apačioje kairėje)."
+  },
+  "sections": {
+    "child": "Vaikas",
+    "period": "Laikotarpis",
+    "scope": "Ką PDF turi apimti?",
+    "startWeek": "Pradžios savaitė"
+  },
+  "period": {
+    "1w": "1 savaitė",
+    "2w": "2 savaitės",
+    "1m": "1 mėnuo"
+  },
+  "scope": {
+    "all": "Visas planas",
+    "my": "Tik mano dienos"
+  },
+  "weekNav": {
+    "prevAria": "Ankstesnė savaitė",
+    "nextAria": "Kita savaitė",
+    "today": "Ši savaitė"
+  },
+  "actions": {
+    "preview": "Peržiūra",
+    "createPdf": "Kurti PDF"
+  },
+  "preview": {
+    "heading": "Peržiūra",
+    "hint": "Slink žemyn, jei dieną daug veiklų."
+  },
+  "pdfHelp": {
+    "title": "Kaip išsaugoti PDF",
+    "closeAria": "Uždaryti",
+    "ok": "Gerai, supratau",
+    "introShare": "Dalijimosi lapas atidarytas. Pasirink Išsaugoti į Failus, kad išsaugotum PDF.",
+    "introPreview": "PDF atsidarė naršyklėje{{filename}}.",
+    "introDesktop": "PDF atsisiųstas{{filename}}.",
+    "filenameSuffix": " kaip {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Dalijimosi lape: slink ir bakstelėk <strong>Išsaugoti į Failus</strong>.",
+      "Pasirink aplanką (pvz. <strong>iCloud Drive</strong> arba <strong>Mano iPhone</strong>).",
+      "Viršuje dešinėje bakstelėk <strong>Išsaugoti</strong>.",
+      "Failą vėliau rasi programėlėje <strong>Failai</strong>."
+    ],
+    "previewSteps": [
+      "PDF atsidarė naujame vaizde — viršuje dešinėje bakstelėk <strong>Bendrinti</strong> (↑).",
+      "Pasirink <strong>Išsaugoti į Failus</strong>.",
+      "Pasirink aplanką ir bakstelėk <strong>Išsaugoti</strong>."
+    ],
+    "desktopSteps": [
+      "Kompiuteryje atidaryk aplanką <strong>Atsisiuntimai</strong>.",
+      "Ieškok failo, kuris prasideda <strong>{{prefix}}</strong> ir šiandienos data."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Planas",
+    "titleMyDays": "Mano dienos",
+    "emptyCell": "–",
+    "childFallback": "Vaikas",
+    "loadingPrint": "Ruošiamas spausdinimas…",
+    "iframeTitle": "Spausdinimas"
+  },
+  "filename": {
+    "prefixSchedule": "savaites-planas",
+    "prefixMyDays": "mano-dienos",
+    "fallbackSlug": "vaikas"
+  },
+  "toasts": {
+    "loadChildrenError": "Nepavyko įkelti vaikų",
+    "selectChild": "Pirmiausia pasirink vaiką",
+    "loadingPreview": "Kraunama peržiūra…",
+    "noMyDays": "Pasirinktame laikotarpyje tavo dienų nėra",
+    "loadScheduleError": "Nepavyko įkelti plano",
+    "creatingPdf": "Kuriamas PDF…",
+    "pdfCancelled": "PDF išsaugojimas atšauktas",
+    "shareHint": "Dalijimosi lape pasirink Išsaugoti į Failus",
+    "mobileSavedHint": "PDF paruoštas — išsaugok jį į Failus",
+    "desktopSavedHint": "PDF išsaugotas į Atsisiuntimus",
+    "pdfLibsMissing": "Trūksta PDF įrankių — perkrauk puslapį ir bandyk dar kartą",
+    "createPdfError": "Nepavyko sukurti PDF",
+    "shareAgain": "PDF paruoštas. Bakstelėk Kurti PDF dar kartą ir pasirink, kur jį išsaugoti."
+  },
+  "empty": {
+    "noChildren": "Vaikų dar nepridėta.",
+    "goDashboard": "Eiti į Pradžią"
+  }
+}

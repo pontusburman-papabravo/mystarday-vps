@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Šiandien — {{brand}}",
+  "shell": {
+    "headerTitle": "Šiandien",
+    "backToHome": "← Atgal į Pradžią",
+    "pdfHint": "Kurti PDF dienai, savaitei ar mano dienoms",
+    "printBtn": "📄 Kurti PDF ▾",
+    "printDay": "📄 Kurti PDF — diena",
+    "printWeek": "📅 Kurti PDF — savaitė",
+    "printMyDays": "🏠 Kurti PDF — mano dienos",
+    "selectChildHeading": "Pasirink vaiką",
+    "selectChildEmpty": "Viršuje pasirink vaiką, kad matytum žurnalą",
+    "loadingChildren": "Kraunama…",
+    "tipsTitle": "Patarimas: sek veiklas skiltyje Šiandien",
+    "tips1": "Pažymėk veiklas atliktomis — vaikas jas mato iš karto",
+    "tips2": "Veiklos vaiko vaizde pažymimos vienu bakstelėjimu ir žvaigždės ateina iškart",
+    "tips3": "Slink atgal datos pasirinkimu ir pažiūrėk, kaip vaikui sekėsi",
+    "tips4": "Pristabdyk dieną, kai rutinos kitokios — žvaigždės nedingsta",
+    "rateActivity": "Įvertinti veiklą",
+    "commentPlaceholder": "Komentaras (nebūtina)…",
+    "cancel": "Atšaukti",
+    "save": "Išsaugoti",
+    "moveUp": "Aukštyn",
+    "moveDown": "Žemyn",
+    "printWeekDocTitle": "Savaitės planas — {{name}}",
+    "printMyDaysDocTitle": "Mano dienos"
+  },
+  "childFallback": "Vaikas",
+  "noChildren": "Vaikų dar nepridėta.",
+  "loading": "Kraunama…",
+  "retry": "Bandyti dar kartą",
+  "errors": {
+    "signInRequired": "Prisijunk, kad matytum Šiandien",
+    "loadChildren": "Nepavyko įkelti vaikų",
+    "loadLog": "Nepavyko įkelti žurnalo. Bandyk dar kartą.",
+    "saveOrder": "Nepavyko išsaugoti tvarkos",
+    "updateActivity": "Nepavyko atnaujinti veiklos",
+    "undo": "Nepavyko atšaukti",
+    "changeStatus": "Nepavyko pakeisti būsenos",
+    "adjustTime": "Nepavyko pakeisti laikų",
+    "selectChild": "Pirmiausia pasirink vaiką",
+    "custodyDisabled": "Globos planas neįjungtas",
+    "loadWeek": "Nepavyko įkelti savaitės",
+    "saveRating": "Nepavyko išsaugoti įvertinimo",
+    "ratingScoreOrEmotion": "Pasirink įvertinimą arba nuotaikos kortelę",
+    "ratingScoreRange": "Įvertinimas turi būti nuo 1 iki 10",
+    "ratingInvalidEmotion": "Neteisinga nuotaikos kortelė",
+    "ratingActivityNotFound": "Veikla nerasta",
+    "ratingNotAllowed": "Šiam vaikui šios veiklos vertinti negalima",
+    "ratingParentScoreRange": "Įvertinimas turi būti nuo 1 iki 5",
+    "ratingParentDisabled": "Tėvo įvertinimas šiai veiklai neįjungtas",
+    "dayPaused": "Diena pristabdyta",
+    "dailyLogItemRequired": "daily_log_item_id būtinas",
+    "invalidTimerMinutes": "Neteisingos minutės. Leistinos reikšmės: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Šiandien veiklų nėra!",
+    "noScheduleDay": "Šią dieną rutinos nėra",
+    "addToWeekSchedule": "Pridėk veiklų į savaitės planą, kad žurnalai kurtųsi patys.",
+    "noScheduleSelected": "Pasirinktai dienai rutinos nėra.",
+    "thisDay": "šią dieną",
+    "today": "šiandien",
+    "noChildrenTitle": "Vaikų nepridėta",
+    "addFirstChild": "Pridėk pirmą vaiką Pradžioje, kad pradėtum!",
+    "goToDashboard": "Eiti į Pradžią",
+    "goToWeekSchedule": "📅 Eiti į savaitės planą"
+  },
+  "nav": {
+    "prevWeek": "Ankstesnė savaitė",
+    "prevDay": "Ankstesnė diena",
+    "nextDay": "Kita diena",
+    "nextWeek": "Kita savaitė",
+    "pickDate": "Pasirink datą",
+    "todayBtn": "Šiandien",
+    "undoBump": "Atšaukti paskutinį laiko pakeitimą"
+  },
+  "activity": {
+    "markDone": "Pažymėti atlikta",
+    "undoMark": "Atšaukti pažymėjimą",
+    "rate": "⭐ Vertinti",
+    "setRating": "Nustatyti įvertinimą",
+    "changeRating": "Keisti įvertinimą",
+    "dragReorder": "Tempk, kad pakeistum tvarką",
+    "completeAllInSection": "Atlikti viską dalyje {{section}}",
+    "completeAllBtn": "✅ Pažymėti viską atlikta",
+    "defaultName": "Veikla",
+    "undoneToast": "↩️ Pažymėta neatlikta"
+  },
+  "pause": {
+    "confirmPause": "Pristabdyti šią dieną? Veiklos nebus skaičiuojamos neigiamai.",
+    "confirmUnpause": "Vėl įjungti šią dieną?",
+    "pausedToast": "😴 Diena pristabdyta",
+    "unpausedToast": "✅ Diena vėl įjungta",
+    "dayTitle": "Laisva diena",
+    "banner": "Ši diena pristabdyta (pvz. liga ar šventė). Veiklos neskaičiuojamos neigiamai.",
+    "reactivate": "✅ Vėl įjungti dieną",
+    "pauseBtn": "😴 Pristabdyti šią dieną (liga / laisvadienis)"
+  },
+  "bump": {
+    "noItems": "Nėra nepažymėtų veiklų su laiku, kurį būtų galima pastumti",
+    "moved": "⏩ {{count}} veikl{{suffix}} pastūmėta į priekį per {{minutes}} min",
+    "movedOne": "a",
+    "movedMany": "os",
+    "undoToast": "↩️ Laiko pakeitimas atšauktas",
+    "title": "Pastumti visa, kas dar laukia",
+    "adjustHint": "Keičia nepažymėtų veiklų laikus",
+    "minutesTitle": "Pastumti į priekį {{minutes}} min",
+    "undoBtn": "↩ Atšaukti"
+  },
+  "retrofill": {
+    "title": "Rutina pildoma atgal",
+    "description": "Pildai rutiną vėliau. Pažymėk veiklas atliktomis — jos išsaugomos su teisinga data."
+  },
+  "rating": {
+    "childMood": "Vaiko nuotaika",
+    "parentScore": "Tėvo įvertinimas",
+    "noMoodCards": "Nuotaikos kortelių dar nėra",
+    "saved": "⭐ Įvertinimas išsaugotas!",
+    "labels": [
+      "",
+      "Sunku 😓",
+      "Normalu 😐",
+      "Gerai 😊",
+      "Puiku 😄",
+      "Nuostabu! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiena",
+    "mat": "Maistas",
+    "skola": "Mokykla",
+    "lek": "Žaidimas",
+    "rorelse": "Judėjimas",
+    "vila": "Poilsis",
+    "social": "Buvimas kartu"
+  },
+  "legend": {
+    "colorCoding": "Spalvų reikšmės:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Visos veiklos atliktos!",
+    "completedOf": "{{completed}} iš {{total}} veiklų atlikta"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Pažymėta: {{name}}",
+    "undo": "Atšaukti"
+  },
+  "emotions": {
+    "title": "💛 Šiandienos nuotaikos",
+    "noCards": "Nuotaikos kortelių dar nėra",
+    "sliderResponses": "Slankiklis: {{count}} atsakym{{suffix}}",
+    "sliderSuffixOne": "as",
+    "sliderSuffixMany": "ai",
+    "sliderAvg": " (vid. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Ruošiama savaitės apžvalga...",
+    "preparingCustody": "Ruošiamos mano dienos…",
+    "noMyDays": "Šią savaitę tavo dienų nėra",
+    "weekScheduleTitle": "{{name}} — Savaitės planas",
+    "myDaysTitle": "{{name}} — Mano dienos"
+  }
+}
