@@ -735,7 +735,15 @@
     "ariaMinutes": "Ajastin. {{count}} minuuttia jäljellä.",
     "ariaOneSecond": "Ajastin. 1 sekunti jäljellä.",
     "ariaSeconds": "Ajastin. {{count}} sekuntia jäljellä.",
-    "ariaMinutesAndSeconds": "Ajastin. {{minutes}} minuutti{{minutePlural}} ja {{seconds}} sekunti{{secondPlural}} jäljellä."
+    "ariaMinutesAndSeconds": "Ajastin. {{minutes}} {{minuteWord}} ja {{seconds}} {{secondWord}} jäljellä.",
+    "minuteUnit": {
+      "one": "minuutti",
+      "other": "minuuttia"
+    },
+    "secondUnit": {
+      "one": "sekunti",
+      "other": "sekuntia"
+    }
   },
   "helpBubble": {
     "title": "❓ Ohje – lapsen näkymä",

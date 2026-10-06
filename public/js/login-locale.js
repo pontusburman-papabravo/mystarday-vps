@@ -9,17 +9,61 @@
   const STORAGE_KEY = (window.I18n && I18n.STORAGE_KEY) || 'sd_preferred_locale';
   /** Set to '1' only when user clicks locale switcher (or registration language gate). */
   const EXPLICIT_KEY = 'sd_locale_explicit_choice';
+  let fetchedLocales = null;
+
+  function catalogLocales() {
+    const embedded = window.I18n && I18n.CATALOG && I18n.CATALOG.locales;
+    if (Array.isArray(embedded) && embedded.length) return embedded;
+    return fetchedLocales || [];
+  }
+
+  /**
+   * Same resolution as I18n._normalize: exact id, alias, then a unique base.
+   * An unknown tag stays null. It is never rewritten to the default locale.
+   */
+  function normalizeAgainstCatalog(raw, locales) {
+    if (!raw || !locales || !locales.length) return null;
+    const s = String(raw).trim();
+    if (!s) return null;
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].id === s) return locales[i].id;
+    }
+    const lower = s.toLowerCase();
+    for (let i = 0; i < locales.length; i++) {
+      const aliases = locales[i].aliases || [];
+      for (let a = 0; a < aliases.length; a++) {
+        if (String(aliases[a]).toLowerCase() === lower) return locales[i].id;
+      }
+    }
+    const base = lower.split(/[-_]/)[0];
+    const baseHits = [];
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].base === base) baseHits.push(locales[i].id);
+    }
+    if (baseHits.length === 1) return baseHits[0];
+    return null;
+  }
 
   function normalizeLocale(raw) {
     if (!raw) return null;
     if (window.I18n && typeof I18n._normalize === 'function') {
       return I18n._normalize(raw);
     }
-    const s = String(raw).trim();
-    if (s === 'sv-SE' || s === 'sv') return 'sv-SE';
-    if (s === 'en-GB' || s === 'en') return 'en-GB';
-    return null;
+    return normalizeAgainstCatalog(raw, catalogLocales());
   }
+
+  function primeCatalog() {
+    if (catalogLocales().length || typeof fetch !== 'function') return;
+    fetch('/api/i18n', { credentials: 'same-origin' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.locales) && data.locales.length) {
+          fetchedLocales = data.locales;
+        }
+      })
+      .catch(() => {});
+  }
+  primeCatalog();
 
   function hasExplicitChoice() {
     try {
@@ -52,5 +96,6 @@
     hasExplicitChoice,
     getPreAuthLocaleChoice,
     withLoginLocale,
+    normalizeLocale,
   };
 })();

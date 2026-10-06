@@ -735,7 +735,15 @@
     "ariaMinutes": "Tidtaker. {{count}} minutter igjen.",
     "ariaOneSecond": "Tidtaker. 1 sekund igjen.",
     "ariaSeconds": "Tidtaker. {{count}} sekunder igjen.",
-    "ariaMinutesAndSeconds": "Tidtaker. {{minutes}} minutt{{minutePlural}} og {{seconds}} sekund{{secondPlural}} igjen."
+    "ariaMinutesAndSeconds": "Tidtaker. {{minutes}} {{minuteWord}} og {{seconds}} {{secondWord}} igjen.",
+    "minuteUnit": {
+      "one": "minutt",
+      "other": "minutter"
+    },
+    "secondUnit": {
+      "one": "sekund",
+      "other": "sekunder"
+    }
   },
   "helpBubble": {
     "title": "❓ Hjelp – barnevisning",

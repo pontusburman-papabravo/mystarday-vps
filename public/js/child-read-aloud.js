@@ -10,10 +10,13 @@
 
   /** SpeechSynthesisUtterance.lang — follows child UI locale, not hardcoded sv-SE. */
   function resolveReadAloudLang() {
-    if (typeof global.getChildUiLocale === 'function' && global.getChildUiLocale() === 'en-GB') {
-      return 'en-GB';
+    if (typeof global.getChildUiLocale === 'function' && global.getChildUiLocale()) {
+      return global.getChildUiLocale();
     }
-    return 'sv-SE';
+    if (global.I18n && typeof global.I18n.getCurrentLang === 'function' && global.I18n.getCurrentLang()) {
+      return global.I18n.getCurrentLang();
+    }
+    return (global.I18n && global.I18n.DEFAULT_LOCALE) || 'sv-SE';
   }
 
   function speakNow(itemId) {

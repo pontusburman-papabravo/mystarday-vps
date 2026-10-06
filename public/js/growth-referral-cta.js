@@ -8,16 +8,31 @@
   const ROOT_ID = 'growthReferralCtaMount';
   const DISMISS_KEY = 'msd_growth_referral_dismissed';
 
-  function isEn() {
-    try {
-      const loc =
-        (window.I18n && I18n.getLocale && I18n.getLocale()) ||
-        (document.documentElement && document.documentElement.lang) ||
-        '';
-      return String(loc).indexOf('en') === 0;
-    } catch (_) {
-      return false;
+  function chrome(key, fallbackSv, fallbackEn) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t('growthReferral.' + key);
+      if (value && value !== 'growthReferral.' + key) return value;
     }
+    let tag = '';
+    try {
+      tag = String(
+        (window.I18n && I18n.getLocale && I18n.getLocale())
+        || (document.documentElement && document.documentElement.lang)
+        || ''
+      );
+    } catch (_) {
+      tag = '';
+    }
+    const configured = (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
+    const base = tag.split(/[-_]/)[0].toLowerCase();
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    const text = !tag || base === configuredBase ? fallbackSv : fallbackEn;
+    if (text.indexOf('{{brand}}') === -1) return text;
+    const name = window.I18n && I18n.locale && I18n.locale.app && I18n.locale.app.name;
+    if (typeof name === 'string' && name && name.indexOf('{{') === -1) {
+      return text.replace(/\{\{brand\}\}/g, name);
+    }
+    return text;
   }
 
   function ensureRoot() {
@@ -53,16 +68,20 @@
 
     const title = document.createElement('p');
     title.className = 'text-base font-semibold text-slate-800 mb-1';
-    title.textContent = isEn()
-      ? 'Know another family who needs calmer mornings?'
-      : 'Känner ni en annan familj som behöver lugnare morgnar?';
+    title.textContent = chrome(
+      'title',
+      'Känner ni en annan familj som behöver lugnare morgnar?',
+      'Know another family who needs calmer mornings?'
+    );
     box.appendChild(title);
 
     const sub = document.createElement('p');
     sub.className = 'text-sm text-slate-600 mb-3';
-    sub.textContent = isEn()
-      ? 'Share your personal link — no reward spam, just a tip.'
-      : 'Dela er personliga länk — ingen belönings-spam, bara ett tips.';
+    sub.textContent = chrome(
+      'subtitle',
+      'Dela er personliga länk — ingen belönings-spam, bara ett tips.',
+      'Share your personal link — no reward spam, just a tip.'
+    );
     box.appendChild(sub);
 
     const row = document.createElement('div');
@@ -72,14 +91,14 @@
     copyBtn.type = 'button';
     copyBtn.className =
       'min-h-[44px] px-4 py-2 rounded-xl bg-sky-600 text-white font-medium';
-    copyBtn.textContent = isEn() ? 'Copy link' : 'Kopiera länk';
+    copyBtn.textContent = chrome('copyLink', 'Kopiera länk', 'Copy link');
     copyBtn.addEventListener('click', async function () {
       try {
         await navigator.clipboard.writeText(payload.registerUrl);
         trackClient('referral_copied', { code: payload.code });
-        copyBtn.textContent = isEn() ? 'Copied' : 'Kopierad';
+        copyBtn.textContent = chrome('copied', 'Kopierad', 'Copied');
       } catch (_) {
-        window.prompt(isEn() ? 'Copy this link:' : 'Kopiera länken:', payload.registerUrl);
+        window.prompt(chrome('copyPrompt', 'Kopiera länken:', 'Copy this link:'), payload.registerUrl);
       }
     });
     row.appendChild(copyBtn);
@@ -88,15 +107,13 @@
     shareBtn.type = 'button';
     shareBtn.className =
       'min-h-[44px] px-4 py-2 rounded-xl bg-white border border-slate-200 font-medium';
-    shareBtn.textContent = isEn() ? 'Share' : 'Dela';
-        shareBtn.addEventListener('click', async function () {
-      const brandEn = 'My ' + 'Starday'; // pragma: allowlist secret
-      const brandSv = 'Min ' + 'Stj\u00e4rndag';
-      const text =
-        (isEn()
-          ? 'We use ' + brandEn + ' for kids routines. Create a free account: '
-          : 'Vi använder ' + brandSv + ' för barnens rutiner. Skapa konto gratis: ') +
-        payload.registerUrl;
+    shareBtn.textContent = chrome('share', 'Dela', 'Share');
+    shareBtn.addEventListener('click', async function () {
+      const text = chrome(
+        'shareText',
+        'Vi använder {{brand}} för barnens rutiner. Skapa konto gratis: ',
+        'We use {{brand}} for kids routines. Create a free account: '
+      ) + payload.registerUrl;
 
       try {
         if (navigator.share) {
@@ -114,7 +131,7 @@
     const dismiss = document.createElement('button');
     dismiss.type = 'button';
     dismiss.className = 'min-h-[44px] px-3 text-xs text-slate-500';
-    dismiss.textContent = isEn() ? 'Not now' : 'Inte nu';
+    dismiss.textContent = chrome('notNow', 'Inte nu', 'Not now');
     dismiss.addEventListener('click', function () {
       try {
         sessionStorage.setItem(DISMISS_KEY, '1');

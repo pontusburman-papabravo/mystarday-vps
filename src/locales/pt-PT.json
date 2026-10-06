@@ -1280,5 +1280,47 @@
     "activity": "{{name}} concluiu {{activity}}",
     "goalFallback": "objetivo",
     "goal": "A família chegou ao objetivo: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Definições de cookies",
+    "intro": "Usamos cookies para estatísticas, marketing e personalização no nosso site.",
+    "manage": "Gerir definições",
+    "manageHide": "Ocultar definições",
+    "deny": "Rejeitar tudo",
+    "accept": "Aceitar tudo",
+    "save": "Guardar as minhas escolhas",
+    "necessaryLabel": "Necessários",
+    "necessaryDesc": "São precisos para o site funcionar.",
+    "analyticsLabel": "Estatísticas",
+    "analyticsDesc": "Ajudam-nos a perceber como o site é usado (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Mostra anúncios relevantes e mede campanhas.",
+    "personalizationLabel": "Personalização",
+    "personalizationDesc": "Adapta conteúdos e recomendações."
+  },
+  "growthHelp": {
+    "reportProblem": "Comunicar um problema",
+    "suggestedHelp": "Ajuda sugerida",
+    "reportThanks": "Obrigado — recebemos o teu relatório com os detalhes técnicos.",
+    "howChildStarts": "Como é que a criança começa?",
+    "needHelpLogin": "Precisas de ajuda para iniciar sessão?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Comentário curto opcional (enviado com a tua resposta)",
+    "notNow": "Agora não",
+    "thanks": "Obrigado pelo feedback."
+  },
+  "growthReferral": {
+    "title": "Conhecem outra família que precise de manhãs mais calmas?",
+    "subtitle": "Partilhem a vossa ligação pessoal — sem spam de prémios, só uma dica.",
+    "copyLink": "Copiar ligação",
+    "copied": "Copiado",
+    "copyPrompt": "Copia esta ligação:",
+    "share": "Partilhar",
+    "shareText": "Usamos {{brand}} para as rotinas das crianças. Cria uma conta grátis: ",
+    "notNow": "Agora não"
+  },
+  "legalReturn": {
+    "backToPremium": "Voltar ao Premium"
   }
 }

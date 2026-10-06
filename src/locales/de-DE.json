@@ -1280,5 +1280,47 @@
     "activity": "{{name}} hat {{activity}} erledigt",
     "goalFallback": "Ziel",
     "goal": "Die Familie hat das Ziel erreicht: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie-Einstellungen",
+    "intro": "Wir verwenden Cookies für Statistik, Marketing und Personalisierung auf unserer Website.",
+    "manage": "Einstellungen verwalten",
+    "manageHide": "Einstellungen ausblenden",
+    "deny": "Alle ablehnen",
+    "accept": "Alle akzeptieren",
+    "save": "Meine Auswahl speichern",
+    "necessaryLabel": "Notwendig",
+    "necessaryDesc": "Erforderlich, damit die Seite funktioniert.",
+    "analyticsLabel": "Statistik",
+    "analyticsDesc": "Hilft uns zu verstehen, wie die Seite genutzt wird (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Zeigt passende Werbung und misst Kampagnen.",
+    "personalizationLabel": "Personalisierung",
+    "personalizationDesc": "Passt Inhalte und Empfehlungen an."
+  },
+  "growthHelp": {
+    "reportProblem": "Problem melden",
+    "suggestedHelp": "Vorgeschlagene Hilfe",
+    "reportThanks": "Danke — wir haben deine Meldung mit technischen Details erhalten.",
+    "howChildStarts": "Wie startet das Kind?",
+    "needHelpLogin": "Hilfe beim Anmelden?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Kurzer Kommentar (wird mit deiner Antwort gesendet)",
+    "notNow": "Nicht jetzt",
+    "thanks": "Danke für die Rückmeldung."
+  },
+  "growthReferral": {
+    "title": "Kennt ihr eine andere Familie, die ruhigere Morgen braucht?",
+    "subtitle": "Teilt euren persönlichen Link — kein Belohnungs-Spam, nur ein Tipp.",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert",
+    "copyPrompt": "Diesen Link kopieren:",
+    "share": "Teilen",
+    "shareText": "Wir nutzen {{brand}} für Kinderroutinen. Konto kostenlos erstellen: ",
+    "notNow": "Nicht jetzt"
+  },
+  "legalReturn": {
+    "backToPremium": "Zurück zu Premium"
   }
 }

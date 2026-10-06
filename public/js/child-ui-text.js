@@ -15,17 +15,11 @@
     return childT(key, Object.assign({ count: count }, params || {}));
   }
 
-  /** Read label_sv / label_en (or *\_sv fields) from experience-pack objects. */
+  /** Pack copy lives on the historical field name. Each pack is already one language. */
   function childPackField(obj, baseKey) {
     if (!obj) return '';
-    const isEn = typeof window.getChildUiLocale === 'function' && getChildUiLocale() === 'en-GB';
-    let enKey = baseKey.replace(/_sv$/, '_en');
-    if (!/_sv$/.test(baseKey)) {
-      enKey = baseKey + '_en';
-    }
-    if (isEn && obj[enKey]) return obj[enKey];
     if (obj[baseKey]) return obj[baseKey];
-    if (isEn && obj[baseKey]) return obj[baseKey];
+    const enKey = /_sv$/.test(baseKey) ? baseKey.replace(/_sv$/, '_en') : baseKey + '_en';
     return obj[enKey] || '';
   }
 
@@ -49,8 +43,13 @@
   }
 
   function getChildDateLocale() {
-    return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
-      ? 'en-GB' : 'sv-SE';
+    if (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale()) {
+      return window.getChildUiLocale();
+    }
+    if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang()) {
+      return I18n.getCurrentLang();
+    }
+    return (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
   }
 
   function formatChildShortDate(isoOrDate) {

@@ -23,8 +23,17 @@
     return 'sv-SE';
   }
 
-  function isEnglish() {
-    return locale().indexOf('en') === 0;
+  function chromeText(key, fallbackSv, fallbackEn) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t('growthHelp.' + key);
+      if (value && value !== 'growthHelp.' + key) return value;
+    }
+    const tag = String(locale() || '');
+    const configured = (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
+    const base = tag.split(/[-_]/)[0].toLowerCase();
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    if (!tag || base === configuredBase) return fallbackSv;
+    return fallbackEn;
   }
 
   function esc(s) {
@@ -145,11 +154,11 @@
 
   function buildCardHtml(help, surface) {
     if (!help) return '';
-    const reportLabel = isEnglish() ? 'Report a problem' : 'Rapportera problem';
+    const reportLabel = chromeText('reportProblem', 'Rapportera problem', 'Report a problem');
     return (
       '<div class="help-journey-tip help-journey-tip--coach growth-system-help-card" ' +
       'data-blocking-step="' + esc(help.blockingStep || '') + '" data-surface="' + esc(surface) + '">' +
-      '<p class="help-journey-tip-label">' + esc(isEnglish() ? 'Suggested help' : 'Föreslagen hjälp') + '</p>' +
+      '<p class="help-journey-tip-label">' + esc(chromeText('suggestedHelp', 'Föreslagen hjälp', 'Suggested help')) + '</p>' +
       '<p class="help-journey-tip-headline">' + esc(help.headline) + '</p>' +
       '<p class="help-journey-tip-body">' + esc(help.body) + '</p>' +
       (help.reassure
@@ -185,9 +194,11 @@
           surface: surface,
           context: context,
         });
-        report.textContent = isEnglish()
-          ? 'Thanks — we received your report with technical details.'
-          : 'Tack — vi har tagit emot rapporten med teknisk kontext.';
+        report.textContent = chromeText(
+          'reportThanks',
+          'Tack — vi har tagit emot rapporten med teknisk kontext.',
+          'Thanks — we received your report with technical details.'
+        );
         report.disabled = true;
       });
     }
@@ -314,9 +325,7 @@
     helpLink.type = 'button';
     helpLink.className =
       'growth-system-help-handoff-secondary mt-2 text-sm text-slate-500 underline text-left w-full';
-    helpLink.textContent = isEnglish()
-      ? 'How does the child start?'
-      : 'Hur gör barnet?';
+    helpLink.textContent = chromeText('howChildStarts', 'Hur gör barnet?', 'How does the child start?');
     helpLink.addEventListener('click', function () {
       if (typeof window.__hbToggle === 'function') window.__hbToggle();
     });
@@ -390,7 +399,7 @@
     const hint = document.createElement('button');
     hint.type = 'button';
     hint.className = 'growth-system-help-inline mt-2 text-sm text-indigo-700 underline text-left';
-    hint.textContent = isEnglish() ? 'Need help with login?' : 'Behöver du hjälp med inloggning?';
+    hint.textContent = chromeText('needHelpLogin', 'Behöver du hjälp med inloggning?', 'Need help with login?');
     hint.addEventListener('click', function () {
       if (typeof window.__hbToggle === 'function') {
         window.__hbToggle();

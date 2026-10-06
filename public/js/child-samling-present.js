@@ -135,8 +135,10 @@
 
   function childDateLocale() {
     if (typeof window.getChildDateLocale === 'function') return getChildDateLocale();
-    return (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale() === 'en-GB')
-      ? 'en-GB' : 'sv-SE';
+    if (typeof window.getChildUiLocale === 'function' && window.getChildUiLocale()) {
+      return window.getChildUiLocale();
+    }
+    return (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
   }
 
   function formatMemoryDate(iso) {

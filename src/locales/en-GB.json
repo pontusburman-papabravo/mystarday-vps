@@ -1280,5 +1280,47 @@
     "activity": "{{name}} completed {{activity}}",
     "goalFallback": "goal",
     "goal": "The family reached the goal: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie settings",
+    "intro": "We use cookies for analytics, marketing and personalisation on our website.",
+    "manage": "Manage settings",
+    "manageHide": "Hide settings",
+    "deny": "Reject all",
+    "accept": "Accept all",
+    "save": "Save my choices",
+    "necessaryLabel": "Necessary",
+    "necessaryDesc": "Required for the site to work.",
+    "analyticsLabel": "Analytics",
+    "analyticsDesc": "Helps us understand how the site is used (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Shows relevant ads and measures campaigns.",
+    "personalizationLabel": "Personalisation",
+    "personalizationDesc": "Adapts content and recommendations."
+  },
+  "growthHelp": {
+    "reportProblem": "Report a problem",
+    "suggestedHelp": "Suggested help",
+    "reportThanks": "Thanks — we received your report with technical details.",
+    "howChildStarts": "How does the child start?",
+    "needHelpLogin": "Need help with login?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Optional short comment (sent with your answer)",
+    "notNow": "Not now",
+    "thanks": "Thank you for the feedback."
+  },
+  "growthReferral": {
+    "title": "Know another family who needs calmer mornings?",
+    "subtitle": "Share your personal link — no reward spam, just a tip.",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "copyPrompt": "Copy this link:",
+    "share": "Share",
+    "shareText": "We use {{brand}} for kids routines. Create a free account: ",
+    "notNow": "Not now"
+  },
+  "legalReturn": {
+    "backToPremium": "Back to Premium"
   }
 }

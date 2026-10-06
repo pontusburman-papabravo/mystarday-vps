@@ -735,7 +735,15 @@
     "ariaMinutes": "Minuteur. Plus que {{count}} minutes.",
     "ariaOneSecond": "Minuteur. Plus qu'une seconde.",
     "ariaSeconds": "Minuteur. Plus que {{count}} secondes.",
-    "ariaMinutesAndSeconds": "Minuteur. Plus que {{minutes}} minute{{minutePlural}} et {{seconds}} seconde{{secondPlural}} restantes."
+    "ariaMinutesAndSeconds": "Minuteur. Plus que {{minutes}} {{minuteWord}} et {{seconds}} {{secondWord}} restantes.",
+    "minuteUnit": {
+      "one": "minute",
+      "other": "minutes"
+    },
+    "secondUnit": {
+      "one": "seconde",
+      "other": "secondes"
+    }
   },
   "helpBubble": {
     "title": "❓ Aide – Vue enfant",

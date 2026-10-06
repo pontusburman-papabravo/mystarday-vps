@@ -735,7 +735,15 @@
     "ariaMinutes": "Timer. Noch {{count}} Minuten.",
     "ariaOneSecond": "Timer. Noch 1 Sekunde.",
     "ariaSeconds": "Timer. Noch {{count}} Sekunden.",
-    "ariaMinutesAndSeconds": "Timer. Noch {{minutes}} Minute{{minutePlural}} und {{seconds}} Sekunde{{secondPlural}} ."
+    "ariaMinutesAndSeconds": "Timer. Noch {{minutes}} {{minuteWord}} und {{seconds}} {{secondWord}} übrig.",
+    "minuteUnit": {
+      "one": "Minute",
+      "other": "Minuten"
+    },
+    "secondUnit": {
+      "one": "Sekunde",
+      "other": "Sekunden"
+    }
   },
   "helpBubble": {
     "title": "❓ Hilfe – Kinderansicht",

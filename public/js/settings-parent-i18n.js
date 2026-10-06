@@ -7,8 +7,9 @@
   const READY_ATTR = 'parentI18nReady';
 
   function normalizeLang(locale) {
-    if (!locale || typeof locale !== 'string') return 'sv';
-    return locale.toLowerCase().startsWith('en') ? 'en' : 'sv';
+    const tag = String(locale || '').trim().toLowerCase();
+    if (!tag) return 'sv-se';
+    return tag;
   }
 
   function textOf(selector) {
@@ -35,12 +36,11 @@
     const reasons = [];
     const probe = collectSettingsI18nProbe();
     const htmlLang = (probe.html_lang || '').toLowerCase();
-    const isEn = String(lang || '').toLowerCase().startsWith('en');
+    const expected = String(lang || '').trim().toLowerCase();
+    const base = expected.split('-')[0];
 
-    if (isEn) {
-      if (!htmlLang.startsWith('en')) reasons.push('html_lang_not_en');
-    } else if (!htmlLang.startsWith('sv')) {
-      reasons.push('html_lang_not_sv');
+    if (expected && htmlLang !== expected && !htmlLang.startsWith(base)) {
+      reasons.push('html_lang_mismatch');
     }
 
     if (!window.I18n || typeof I18n.t !== 'function') {
@@ -63,7 +63,7 @@
     }
 
     const bodyLower = (document.body && document.body.innerText ? document.body.innerText : '').toLowerCase();
-    if (isEn) {
+    if (base && base !== 'sv') {
       if (bodyLower.indexOf('familjeinställningar') !== -1) reasons.push('swedish_familjeinställningar_leak');
       if (bodyLower.indexOf('spara familjeinställningar') !== -1) {
         reasons.push('swedish_spara_familjeinställningar_leak');

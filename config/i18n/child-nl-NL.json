@@ -735,7 +735,15 @@
     "ariaMinutes": "Timer. Nog {{count}} minuten.",
     "ariaOneSecond": "Timer. Nog 1 seconde.",
     "ariaSeconds": "Timer. Nog {{count}} seconden.",
-    "ariaMinutesAndSeconds": "Timer. Nog {{minutes}} minuut{{minutePlural}} en {{seconds}} seconde{{secondPlural}} over."
+    "ariaMinutesAndSeconds": "Timer. Nog {{minutes}} {{minuteWord}} en {{seconds}} {{secondWord}} over.",
+    "minuteUnit": {
+      "one": "minuut",
+      "other": "minuten"
+    },
+    "secondUnit": {
+      "one": "seconde",
+      "other": "seconden"
+    }
   },
   "helpBubble": {
     "title": "❓ Hulp – Kindweergave",

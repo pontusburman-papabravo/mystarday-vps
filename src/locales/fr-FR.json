@@ -1280,5 +1280,47 @@
     "activity": "{{name}} a terminé {{activity}}",
     "goalFallback": "objectif",
     "goal": "La famille a atteint l'objectif : {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Paramètres des cookies",
+    "intro": "Nous utilisons des cookies pour les statistiques, le marketing et la personnalisation sur notre site.",
+    "manage": "Gérer les paramètres",
+    "manageHide": "Masquer les paramètres",
+    "deny": "Tout refuser",
+    "accept": "Tout accepter",
+    "save": "Enregistrer mes choix",
+    "necessaryLabel": "Nécessaires",
+    "necessaryDesc": "Indispensables pour que le site fonctionne.",
+    "analyticsLabel": "Statistiques",
+    "analyticsDesc": "Nous aident à comprendre comment le site est utilisé (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Affiche des annonces pertinentes et mesure les campagnes.",
+    "personalizationLabel": "Personnalisation",
+    "personalizationDesc": "Adapte le contenu et les recommandations."
+  },
+  "growthHelp": {
+    "reportProblem": "Signaler un problème",
+    "suggestedHelp": "Aide suggérée",
+    "reportThanks": "Merci — nous avons reçu ton signalement avec les détails techniques.",
+    "howChildStarts": "Comment l'enfant commence ?",
+    "needHelpLogin": "Besoin d'aide pour te connecter ?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Court commentaire facultatif (envoyé avec votre réponse)",
+    "notNow": "Pas maintenant",
+    "thanks": "Merci pour votre retour."
+  },
+  "growthReferral": {
+    "title": "Vous connaissez une autre famille qui veut des matins plus calmes ?",
+    "subtitle": "Partagez votre lien personnel — pas de spam de récompenses, juste un conseil.",
+    "copyLink": "Copier le lien",
+    "copied": "Copié",
+    "copyPrompt": "Copiez ce lien :",
+    "share": "Partager",
+    "shareText": "Nous utilisons {{brand}} pour les routines des enfants. Créez un compte gratuit : ",
+    "notNow": "Pas maintenant"
+  },
+  "legalReturn": {
+    "backToPremium": "Retour à Premium"
   }
 }

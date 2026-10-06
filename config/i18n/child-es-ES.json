@@ -735,7 +735,15 @@
     "ariaMinutes": "Temporizador. Quedan {{count}} minutos.",
     "ariaOneSecond": "Temporizador. Queda 1 segundo.",
     "ariaSeconds": "Temporizador. Quedan {{count}} segundos.",
-    "ariaMinutesAndSeconds": "Temporizador. Quedan {{minutes}} minuto{{minutePlural}} y {{seconds}} segundo{{secondPlural}} restantes."
+    "ariaMinutesAndSeconds": "Temporizador. Quedan {{minutes}} {{minuteWord}} y {{seconds}} {{secondWord}} restantes.",
+    "minuteUnit": {
+      "one": "minuto",
+      "other": "minutos"
+    },
+    "secondUnit": {
+      "one": "segundo",
+      "other": "segundos"
+    }
   },
   "helpBubble": {
     "title": "❓ Ayuda – Vista del niño",

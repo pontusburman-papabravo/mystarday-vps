@@ -1280,5 +1280,47 @@
     "activity": "{{name}} ha completato {{activity}}",
     "goalFallback": "obiettivo",
     "goal": "La famiglia ha raggiunto l'obiettivo: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Impostazioni cookie",
+    "intro": "Usiamo i cookie per statistiche, marketing e personalizzazione sul nostro sito.",
+    "manage": "Gestisci impostazioni",
+    "manageHide": "Nascondi impostazioni",
+    "deny": "Rifiuta tutto",
+    "accept": "Accetta tutto",
+    "save": "Salva le mie scelte",
+    "necessaryLabel": "Necessari",
+    "necessaryDesc": "Servono perché il sito funzioni.",
+    "analyticsLabel": "Statistiche",
+    "analyticsDesc": "Ci aiutano a capire come viene usato il sito (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Mostra annunci pertinenti e misura le campagne.",
+    "personalizationLabel": "Personalizzazione",
+    "personalizationDesc": "Adatta contenuti e consigli."
+  },
+  "growthHelp": {
+    "reportProblem": "Segnala un problema",
+    "suggestedHelp": "Aiuto suggerito",
+    "reportThanks": "Grazie — abbiamo ricevuto la segnalazione con i dettagli tecnici.",
+    "howChildStarts": "Come inizia il bambino?",
+    "needHelpLogin": "Ti serve aiuto per entrare?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Breve commento facoltativo (inviato con la risposta)",
+    "notNow": "Non ora",
+    "thanks": "Grazie per il feedback."
+  },
+  "growthReferral": {
+    "title": "Conoscete un'altra famiglia che vuole mattine più tranquille?",
+    "subtitle": "Condividete il vostro link personale — niente spam di premi, solo un consiglio.",
+    "copyLink": "Copia link",
+    "copied": "Copiato",
+    "copyPrompt": "Copia questo link:",
+    "share": "Condividi",
+    "shareText": "Usiamo {{brand}} per le routine dei bambini. Crea un account gratuito: ",
+    "notNow": "Non ora"
+  },
+  "legalReturn": {
+    "backToPremium": "Torna a Premium"
   }
 }

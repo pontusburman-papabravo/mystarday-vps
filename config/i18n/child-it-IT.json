@@ -735,7 +735,15 @@
     "ariaMinutes": "Timer. Mancano {{count}} minuti.",
     "ariaOneSecond": "Timer. Manca 1 secondo.",
     "ariaSeconds": "Timer. Mancano {{count}} secondi.",
-    "ariaMinutesAndSeconds": "Timer. {{minutes}} minuto{{minutePlural}} e {{seconds}} secondo{{secondPlural}} rimasti."
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} {{minuteWord}} e {{seconds}} {{secondWord}} rimasti.",
+    "minuteUnit": {
+      "one": "minuto",
+      "other": "minuti"
+    },
+    "secondUnit": {
+      "one": "secondo",
+      "other": "secondi"
+    }
   },
   "helpBubble": {
     "title": "❓ Aiuto – Vista bambino",

@@ -1280,5 +1280,47 @@
     "activity": "{{name}} teki aktiviteetin {{activity}}",
     "goalFallback": "tavoite",
     "goal": "Perhe saavutti tavoitteen: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Evästeasetukset",
+    "intro": "Käytämme evästeitä tilastointiin, markkinointiin ja personointiin sivustollamme.",
+    "manage": "Hallitse asetuksia",
+    "manageHide": "Piilota asetukset",
+    "deny": "Hylkää kaikki",
+    "accept": "Hyväksy kaikki",
+    "save": "Tallenna valintani",
+    "necessaryLabel": "Välttämättömät",
+    "necessaryDesc": "Tarvitaan, jotta sivusto toimii.",
+    "analyticsLabel": "Tilastot",
+    "analyticsDesc": "Auttavat meitä ymmärtämään, miten sivustoa käytetään (GA4).",
+    "marketingLabel": "Markkinointi",
+    "marketingDesc": "Näyttää osuvia mainoksia ja mittaa kampanjoita.",
+    "personalizationLabel": "Personointi",
+    "personalizationDesc": "Mukauttaa sisältöä ja suosituksia."
+  },
+  "growthHelp": {
+    "reportProblem": "Ilmoita ongelmasta",
+    "suggestedHelp": "Ehdotettu apu",
+    "reportThanks": "Kiitos — saimme ilmoituksesi teknisine tietoineen.",
+    "howChildStarts": "Miten lapsi aloittaa?",
+    "needHelpLogin": "Tarvitsetko apua kirjautumiseen?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Lyhyt kommentti (lähetetään vastauksesi mukana)",
+    "notNow": "Ei nyt",
+    "thanks": "Kiitos palautteesta."
+  },
+  "growthReferral": {
+    "title": "Tunnetteko toisen perheen, joka tarvitsee rauhallisempia aamuja?",
+    "subtitle": "Jakakaa oma linkkinne — ei palkintospämmiä, vain vinkki.",
+    "copyLink": "Kopioi linkki",
+    "copied": "Kopioitu",
+    "copyPrompt": "Kopioi tämä linkki:",
+    "share": "Jaa",
+    "shareText": "Käytämme {{brand}} lasten rutiineihin. Luo ilmainen tili: ",
+    "notNow": "Ei nyt"
+  },
+  "legalReturn": {
+    "backToPremium": "Takaisin Premiumiin"
   }
 }
