@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Πρωινό σπίτι",
+      "first_unlock_message": "Το Πρωινό σπίτι σε περιμένει",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Το Πρωινό σπίτι ξέρει ότι είσαι εδώ.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Ανάβει ένα απαλό φως.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Η πόρτα",
+          "always_active": true,
+          "ambient_message_sv": "Η πόρτα κουνιέται λιγάκι — σαν να περιμένει κάποιος έξω.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Έξω, ο κήπος περιμένει…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Ο κήπος",
+      "first_unlock_message": "Ο κήπος σε περιμένει",
+      "ambient_message_sv": "Το γρασίδι κινείται αργά στο αεράκι.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Το μονοπάτι",
+          "emoji": "🌿",
+          "ambient_message_sv": "Το μονοπάτι πάει πιο βαθιά στον κήπο.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Το μονοπάτι οδηγεί σε ένα ζεστό δωμάτιο γεμάτο αναμνήσεις…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Παρτέρι",
+          "emoji": "🪴",
+          "ambient_message_sv": "Το χώμα είναι μαλακό και ζεστό.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Ο ουρανός",
+          "emoji": "☁️",
+          "ambient_message_sv": "Τα σύννεφα κινούνται αργά.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Δωμάτιο αναμνήσεων",
+      "first_unlock_message": "Εδώ είναι ό,τι σε έκανε περήφανο.",
+      "ambient_message_sv": "Εδώ είναι ζεστά και ασφαλή.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Το παράθυρο",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Το φως μπαίνει απαλά."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Τοίχος αναμνήσεων",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Εδώ κρέμεται ό,τι σου μετράει."
+        }
+      ]
+    }
+  ]
+}
