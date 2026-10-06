@@ -14,8 +14,14 @@ const { pageFor } = require('../../content/nl/pages');
 
 const EN_FILES = Object.freeze({
   home: 'public/en.html',
-  faq: 'public/en-faq.html',
+  howItWorks: 'public/en-how-it-works.html',
   visualSchedule: 'public/en/visual-schedule-app.html',
+  morningRoutine: 'public/en/morning-routine-children.html',
+  weeklySchedule: 'public/en/weekly-schedule-visual-support.html',
+  neurodiverseRoutines: 'public/en/routines-neurodiverse-children.html',
+  rewardSystem: 'public/en/reward-system-children.html',
+  resources: 'public/en/resources.html',
+  faq: 'public/en-faq.html',
   privacy: 'public/en-privacy.html',
   terms: 'public/en-terms.html',
 });

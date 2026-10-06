@@ -9,7 +9,15 @@ const { localeFromPublicPath, normalizeWebPath, localeByCode } = require('../../
  */
 function publicNotFoundKind(pathname) {
   const path = normalizeWebPath(pathname);
-  if (/^\/[a-z]{2}$/.test(path) && !localeByCode(path.slice(1))) return 'unknown-locale';
+  const first = path.split('/').filter(Boolean)[0] || '';
+  if (/^[a-z]{2}$/.test(first)) {
+    const locale = localeByCode(first);
+    // Registered languages that are not published, and /sv, stay 404.
+    // They must not fall through to the English homepage.
+    if (!locale || !locale.publicWeb || !locale.pathPrefix) return 'unknown-locale';
+    if (path !== locale.pathPrefix) return 'unknown-locale-path';
+    return null;
+  }
   const locale = localeFromPublicPath(path);
   if (locale && path !== locale.pathPrefix) return 'unknown-locale-path';
   return null;

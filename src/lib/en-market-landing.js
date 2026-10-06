@@ -81,23 +81,8 @@ function renderEnMarketPage(code) {
 }
 
 function legacyCountryCampaignPath(query) {
-  const source = query || {};
-  const raw = String(source.country || source.market || '').trim();
-  if (!/^[A-Za-z]{2}$/.test(raw)) return null;
-  const market = MARKETS[raw.toUpperCase()];
-  if (!market) return null;
-  const params = new URLSearchParams();
-  Object.keys(source).forEach((key) => {
-    if (key === 'country' || key === 'market') return;
-    const value = source[key];
-    const values = Array.isArray(value) ? value : [value];
-    values.forEach((item) => {
-      if (item == null) return;
-      params.append(key, String(item));
-    });
-  });
-  const q = params.toString();
-  return market.path + (q ? `?${q}` : '');
+  const { localeMarketQueryPath } = require('../../config/web-markets');
+  return localeMarketQueryPath('/en', query);
 }
 
 module.exports = {

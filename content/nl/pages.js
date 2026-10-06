@@ -315,6 +315,8 @@ function nlMarketPage() {
         <a href="${market.appleUrl}" data-track="app_store_click" data-market="NL" data-store-placement="hero">App Store</a>
         ${playHtml}
       </p>
+      <p><a href="/en/register" data-market="NL">Account aanmaken</a></p>
+      <p>Het formulier vraagt waar het gezin woont. Deze link zet zelf geen land en geen prijs.</p>
       <p><a href="${href('howItWorks')}">Zo werkt het</a></p>
       <h2>Beschikbaarheid</h2>
       <p>Taal en land zijn twee dingen. Deze URL zet de markt op Nederland. Hij legt geen account vast en hij verandert de betalingsregels niet.</p>
@@ -468,9 +470,52 @@ function legalPages() {
   };
 }
 
+function nlOpenMarketPage(code) {
+  if (code === 'NL') return nlMarketPage();
+  const facts = marketCommercialFacts(code);
+  const market = marketByCode(code);
+  const label = (market.labels && market.labels.nl) || market.nativeName;
+  const play = playUrlForMarket(market);
+  const gateDefault = facts.registrationOpenByDefault;
+  const registration = gateDefault
+    ? `Nieuwe registratie in ${label} volgt de bestaande marktpoort.`
+    : `Nieuwe accounts in ${label} staan standaard niet open. Dat volgt de bestaande EU-marktpoort, niet deze pagina.`;
+  const commercial = facts.complimentary
+    ? 'Voor dit land geldt de bestaande gratisperiode.'
+    : `Als een account hier later mogelijk wordt, geldt de bestaande regel voor landen buiten Zweden, Ierland en Canada: een proefperiode van ${facts.trialDays} dagen. Betalen moet beschikbaar zijn voordat een account kan worden aangemaakt. Er is geen gratisperiode tot en met 31 december 2026, en er wordt niets automatisch een abonnement.`;
+  const playHtml = play
+    ? `<a href="${String(play).replace(/&/g, '&amp;')}" data-track="play_store_click" data-store-cta="play" data-market="${market.code}" data-store-placement="hero">Google Play</a>`
+    : '<span role="status">Google Play is hier niet als aparte landingspagina geopend.</span>';
+  return Object.freeze({
+    title: `My Starday in ${label} — visuele schema’s voor kinderen`,
+    description: `De pagina voor ${label}. Visuele schema’s in het Nederlands. Dit is een marktpagina, niet een aparte taalsite.`,
+    h1: `Visuele schema’s voor gezinnen in ${label}`,
+    ogTitle: `My Starday in ${label}`,
+    marketCode: market.code,
+    body: `
+      <p class="lead">Dit is de pagina voor ${label}. De Nederlandstalige site zelf blijft een taalsite.</p>
+      <p>${registration} De standaard is ${gateDefault ? 'open' : 'dicht'}.</p>
+      <p>${commercial}</p>
+      <p>De App Store-knop opent de algemene vermelding, niet een verzonnen productpagina voor ${label}. My Starday is een visueel schema voor de dag. Het is geen behandeling en het belooft geen medisch resultaat.</p>
+      <p>
+        <a href="${market.appleUrl}" data-track="app_store_click" data-market="${market.code}" data-store-placement="hero">App Store</a>
+        ${playHtml}
+      </p>
+      <p><a href="/en/register" data-market="${market.code}">Account aanmaken</a></p>
+      <p>Het formulier vraagt waar het gezin woont. Deze link zet zelf geen land en geen prijs.</p>
+      <p><a href="${href('howItWorks')}">Zo werkt het</a></p>
+    `,
+  });
+}
+
 function pageFor(key) {
   if (key === 'privacy' || key === 'terms') return legalPages()[key];
   if (key === 'market-nl') return nlMarketPage();
+  if (key && key.startsWith('market-')) {
+    const segment = key.slice('market-'.length);
+    const market = marketByCode(segment);
+    if (market && market.campaignLocales.includes('nl')) return nlOpenMarketPage(market.code);
+  }
   return PAGES[key] || null;
 }
 
@@ -478,5 +523,6 @@ module.exports = {
   PAGES,
   pageFor,
   nlMarketPage,
+  nlOpenMarketPage,
   legalPages,
 };
