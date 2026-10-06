@@ -3,7 +3,7 @@
 /**
  * Shared country/locale/market resolution for new account creation (email + OAuth).
  */
-const { resolvePreAuthLocale } = require('./locale');
+const { resolveAccountLocale } = require('./locale');
 const { t } = require('./i18n');
 const { resolveAuthApiLocale, authApiMessage } = require('./auth-api-messages');
 const { SELECTION_SOURCES, OFFER_STATES } = require('./locale-selection');
@@ -12,7 +12,7 @@ const {
   isKnownRegistrationCountryCode,
   normalizeCountryCode,
 } = require('./market-region');
-const { getMarketConfig } = require('./market-config');
+const { getMarketConfig, resolveMarketDefaults } = require('./market-config');
 const { evaluatePublicSignupReadiness } = require('./market-launch-invariants');
 
 /**
@@ -27,12 +27,20 @@ function resolveNewAccountRegistrationContext(req, body = {}, opts = {}) {
   const preferredLocaleRaw = body.preferred_locale || body.landing_locale || body.language;
   const localeExplicitlyChosen = Boolean(preferredLocaleRaw);
 
-  const familyLocale = localeExplicitlyChosen
-    ? resolvePreAuthLocale({
-      explicit: preferredLocaleRaw,
-      acceptLanguage: req.headers['accept-language'],
-    })
-    : resolvePreAuthLocale({ explicit: 'sv-SE' });
+  const countryResolved = resolveRegistrationCountry({
+    countryCodeRaw,
+    localeExplicitlyChosen: localeExplicitlyChosen || Boolean(countryCodeRaw),
+  });
+  const marketDefaults = resolveMarketDefaults(
+    countryResolved.country_code,
+    countryResolved.market_region
+  );
+  const accountLocale = resolveAccountLocale({
+    explicit: preferredLocaleRaw,
+    acceptLanguage: req.headers['accept-language'],
+    marketDefaultLocale: marketDefaults.defaultLocale,
+  });
+  const familyLocale = accountLocale.locale;
 
   if (requireExplicitCountry && (!countryCodeRaw || !String(countryCodeRaw).trim())) {
     return {
@@ -44,11 +52,6 @@ function resolveNewAccountRegistrationContext(req, body = {}, opts = {}) {
       },
     };
   }
-
-  const countryResolved = resolveRegistrationCountry({
-    countryCodeRaw,
-    localeExplicitlyChosen: localeExplicitlyChosen || Boolean(countryCodeRaw),
-  });
 
   if (countryCodeRaw && !isKnownRegistrationCountryCode(normalizeCountryCode(countryCodeRaw))) {
     return {
@@ -70,12 +73,13 @@ function resolveNewAccountRegistrationContext(req, body = {}, opts = {}) {
     familyLocale,
     countryResolved,
     marketConfig,
-    localeSelectionSource: localeExplicitlyChosen
-      ? SELECTION_SOURCES.REGISTRATION
-      : SELECTION_SOURCES.LEGACY_DEFAULT,
-    englishBetaOfferState: localeExplicitlyChosen
-      ? OFFER_STATES.REGISTRATION_DECIDED
-      : OFFER_STATES.NOT_SHOWN,
+    localeResolutionSource: accountLocale.source,
+    localeSelectionSource: accountLocale.source === 'fallback'
+      ? SELECTION_SOURCES.LEGACY_DEFAULT
+      : SELECTION_SOURCES.REGISTRATION,
+    englishBetaOfferState: accountLocale.source === 'fallback'
+      ? OFFER_STATES.NOT_SHOWN
+      : OFFER_STATES.REGISTRATION_DECIDED,
   };
 }
 

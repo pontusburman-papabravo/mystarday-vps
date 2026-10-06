@@ -10,7 +10,8 @@
       "inputAliases": ["sv"],
       "legacyJourneyTags": ["sv"],
       "experiencePack": "child_se",
-      "availability": "always",
+      "availability": "public",
+      "showOnFirstRun": true,
       "contentSource": "canonical-db"
     },
     {
@@ -22,8 +23,10 @@
       "legacyJourneyTags": ["en"],
       "experiencePack": "child_en",
       "experiencePackRequiresFlag": "english_child_experience",
-      "availability": "english_app",
-      "enableEnglishAppOnRegister": true,
+      "availability": "public",
+      "showOnFirstRun": true,
+      "selectRequiresFeature": "english_app",
+      "grantFeatureOnRegister": "english_app",
       "contentSource": "locale-files"
     }
   ]

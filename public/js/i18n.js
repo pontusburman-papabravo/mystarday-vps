@@ -29,7 +29,8 @@ const I18n = {
           "sv"
         ],
         "experiencePack": "child_se",
-        "availability": "always",
+        "availability": "public",
+        "showOnFirstRun": true,
         "contentSource": "canonical-db"
       },
       {
@@ -49,8 +50,10 @@ const I18n = {
         ],
         "experiencePack": "child_en",
         "experiencePackRequiresFlag": "english_child_experience",
-        "availability": "english_app",
-        "enableEnglishAppOnRegister": true,
+        "availability": "public",
+        "showOnFirstRun": true,
+        "selectRequiresFeature": "english_app",
+        "grantFeatureOnRegister": "english_app",
         "contentSource": "locale-files"
       }
     ]
@@ -122,12 +125,50 @@ const I18n = {
     return (this.CATALOG && this.CATALOG.locales) || [];
   },
 
-  selectorLocales() {
-    return this._catalogLocales().map((locale) => ({
+  _listedAvailability(locale) {
+    const value = locale && locale.availability;
+    if (value === 'public' || value === 'always' || value === 'english_app') return 'public';
+    if (value === 'enabled') return 'enabled';
+    return 'registered';
+  },
+
+  _selectFeature(locale) {
+    if (!locale) return null;
+    if (locale.selectRequiresFeature) return locale.selectRequiresFeature;
+    if (locale.availability === 'english_app') return 'english_app';
+    return null;
+  },
+
+  _shownOnFirstRun(locale) {
+    if (!locale) return false;
+    const availability = this._listedAvailability(locale);
+    if (availability === 'registered') return false;
+    if (locale.showOnFirstRun === false) return false;
+    if (locale.showOnFirstRun === true) return true;
+    return availability === 'public';
+  },
+
+  _localeRow(locale) {
+    return {
       id: locale.id,
       nativeName: locale.nativeName,
-      availability: locale.availability || 'always',
-    }));
+      base: locale.base,
+      availability: this._listedAvailability(locale),
+      showOnFirstRun: this._shownOnFirstRun(locale),
+      selectRequiresFeature: this._selectFeature(locale),
+      experiencePackRequiresFlag: locale.experiencePackRequiresFlag || null,
+    };
+  },
+
+  selectorLocales() {
+    return this._catalogLocales()
+      .filter((locale) => this._listedAvailability(locale) !== 'registered')
+      .filter((locale) => this._listedAvailability(locale) === 'public' || locale.showOnFirstRun === true)
+      .map((locale) => this._localeRow(locale));
+  },
+
+  firstRunLocales() {
+    return this.selectorLocales().filter((locale) => locale.showOnFirstRun);
   },
 
   _normalize(raw) {

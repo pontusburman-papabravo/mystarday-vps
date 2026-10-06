@@ -36,15 +36,17 @@
       if (list && list.length) return list;
     }
     return [
-      { id: 'sv-SE', nativeName: 'Svenska', availability: 'always' },
-      { id: 'en-GB', nativeName: 'English', availability: 'english_app' },
+      { id: 'sv-SE', nativeName: 'Svenska', availability: 'public', showOnFirstRun: true, selectRequiresFeature: null },
+      { id: 'en-GB', nativeName: 'English', availability: 'public', showOnFirstRun: true, selectRequiresFeature: 'english_app' },
     ];
   }
 
   function buildSwitcherHtml() {
     const locales = selectorLocales();
     const buttons = locales.map((locale) => {
-      const gated = locale.availability === 'english_app' ? ' data-locale-gated="english_app"' : '';
+      const gated = locale.selectRequiresFeature
+        ? ` data-locale-gated="${escapeAttr(locale.selectRequiresFeature)}"`
+        : '';
       return `
           <button type="button" class="locale-switcher__option" data-locale-value="${escapeAttr(locale.id)}"${gated} aria-pressed="false">
             <span data-i18n="language.${escapeAttr(locale.id)}">${escapeHtml(locale.nativeName)}</span>
@@ -142,7 +144,7 @@
   async function applyLocaleChange(container, next, previous, englishOk) {
     if (_localeChangeInflight) return;
     const nextEntry = selectorLocales().find((locale) => locale.id === next);
-    if (nextEntry && nextEntry.availability === 'english_app' && !englishOk) {
+    if (nextEntry && nextEntry.selectRequiresFeature === 'english_app' && !englishOk) {
       setSelected(container, I18n.DEFAULT_LOCALE || 'sv-SE');
       return;
     }
@@ -233,7 +235,7 @@
 
     let locale = I18n.getCurrentLang();
     const activeEntry = selectorLocales().find((item) => item.id === locale);
-    if (activeEntry && activeEntry.availability === 'english_app' && !englishOk) {
+    if (activeEntry && activeEntry.selectRequiresFeature === 'english_app' && !englishOk) {
       locale = I18n.DEFAULT_LOCALE || 'sv-SE';
     }
     setSelected(container, locale);

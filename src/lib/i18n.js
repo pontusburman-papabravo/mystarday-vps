@@ -8,6 +8,7 @@ const {
   SUPPORTED_LOCALES,
   normalizeLocale,
   validateLocale,
+  intlLocaleTag,
 } = require('./locale');
 
 const locales = {};
@@ -187,7 +188,7 @@ function t(lang, key, params = {}) {
  */
 function pluralCategory(lang, count) {
   const n = Number(count);
-  const canonical = validateLocale(lang);
+  const canonical = intlLocaleTag(lang);
   try {
     return new Intl.PluralRules(canonical).select(Number.isFinite(n) ? n : 0);
   } catch {
@@ -305,9 +306,7 @@ const ALLOW_EMPTY_TRANSLATIONS = new Set([
  * Same key, different commercial sentence. Language must not own this copy.
  * Kept visible so a new mismatch cannot hide next to it.
  */
-const ALLOW_PLACEHOLDER_MISMATCH = new Set([
-  'email.trialWelcome.intro',
-]);
+const ALLOW_PLACEHOLDER_MISMATCH = new Set([]);
 
 function flattenLeaves(obj, prefix = '') {
   const leaves = [];

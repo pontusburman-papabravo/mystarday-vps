@@ -31,7 +31,7 @@ describe('translation contract', () => {
       'today.emotions.sliderSuffixOne',
       'today.rating.labels[0]',
     ]);
-    assert.deepEqual([...ALLOW_PLACEHOLDER_MISMATCH], ['email.trialWelcome.intro']);
+    assert.deepEqual([...ALLOW_PLACEHOLDER_MISMATCH], []);
   });
 
   it('rejects empty strings and placeholder drift', () => {

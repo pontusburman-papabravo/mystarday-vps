@@ -4,20 +4,21 @@
  * Does NOT own: DB queries, PDF rendering, HTML rendering.
  */
 
-const MONTHS_SV = ['januari','februari','mars','april','maj','juni',
-                   'juli','augusti','september','oktober','november','december'];
-const MONTHS_SV_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+const { formatDayMonth, formatLocaleDate } = require('./locale-format');
+const { DEFAULT_LOCALE } = require('./locale');
 
-function fmtDate(str) {
+function fmtDate(str, locale) {
   if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return d.getDate() + ' ' + MONTHS_SV_SHORT[d.getMonth()];
+  return formatDayMonth(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE);
 }
 
-function fmtDateUpper(str) {
+function fmtDateUpper(str, locale) {
   if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return (d.getDate() + ' ' + MONTHS_SV[d.getMonth()]).toUpperCase();
+  const label = formatLocaleDate(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE, {
+    day: 'numeric',
+    month: 'long',
+  });
+  return label.toLocaleUpperCase(locale || DEFAULT_LOCALE);
 }
 
 function getISOWeek(date) {
@@ -31,7 +32,8 @@ function getISOWeek(date) {
  * @param {{ link, blocks, fields, dateFrom, dateTo }} opts
  * @returns {{ viewModel }} — ready for renderPlayfulReport()
  */
-function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
+function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo, locale }) {
+  const reportLocale = locale || DEFAULT_LOCALE;
   const vm = {};
 
   // Title
@@ -43,7 +45,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     : 'SAMMANFATTNING';
 
   // Period band
-  vm.period = fmtDateUpper(dateFrom) + ' – ' + fmtDateUpper(dateTo);
+  vm.period = fmtDateUpper(dateFrom, reportLocale) + ' – ' + fmtDateUpper(dateTo, reportLocale);
 
   // Stars medal
   vm.showStars = fields.includes('stars') && blocks.stars && blocks.stars.total != null;
@@ -68,9 +70,9 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
       if (pct <= worstPct) { worstPct = pct; worstDay = r.date; }
     });
     vm.avgPct = Math.round(sumPct / withData.length);
-    vm.bestDay = fmtDate(bestDay);
+    vm.bestDay = fmtDate(bestDay, reportLocale);
     vm.bestPct = bestPct;
-    vm.worstDay = fmtDate(worstDay);
+    vm.worstDay = fmtDate(worstDay, reportLocale);
     vm.worstPct = worstPct;
   }
 
@@ -146,7 +148,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
         const sorted = [...data.dates].sort();
         const startD = new Date(sorted[0] + 'T00:00:00');
         const endD = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-        const label = startD.getDate() + '–' + endD.getDate() + ' ' + MONTHS_SV_SHORT[endD.getMonth()];
+        const label = formatDayMonth(startD, reportLocale) + '–' + formatDayMonth(endD, reportLocale);
         const pct = Math.round((data.done / data.total) * 100);
         vm.weeks.push({ label, done: data.done, total: data.total, pct });
       });
@@ -158,10 +160,10 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     Object.entries(blocks.activities).forEach(([date, items]) => {
       items.forEach(item => {
         if (item.parent_note) {
-          vm.notes.push({ date: fmtDate(date), text: item.parent_note, type: 'parent' });
+          vm.notes.push({ date: fmtDate(date, reportLocale), text: item.parent_note, type: 'parent' });
         }
         if (item.child_note) {
-          vm.notes.push({ date: fmtDate(date), text: item.child_note, type: 'child' });
+          vm.notes.push({ date: fmtDate(date, reportLocale), text: item.child_note, type: 'child' });
         }
       });
     });
@@ -176,7 +178,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
   vm.pedagogNotes = [];
   if (vm.showPedagog) {
     vm.pedagogNotes = blocks.pedagog_notes.slice(0, 3).map(n => ({
-      date: fmtDate(String(n.date)),
+      date: fmtDate(String(n.date), reportLocale),
       pedagog: n.pedagog_name || null,
       mood: n.mood ? n.mood + '/5' : null,
       notes: n.notes ? (n.notes.length > 80 ? n.notes.slice(0, 77) + '...' : n.notes) : null,

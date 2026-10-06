@@ -58,6 +58,47 @@ test('registers with en-GB and stores family.preferred_locale', async (t) => {
   }
 });
 
+test('stores Accept-Language when registration omits preferred_locale', async (t) => {
+  const db = await setupTestDb();
+  if (db.skip) {
+    t.skip('No real DATABASE_URL');
+    return;
+  }
+
+  const { createApp } = require('../app');
+  const http = await listenApp(createApp);
+
+  try {
+    const email = uniqueEmail();
+    const res = await fetch(`${http.baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept-Language': 'en-IE,en;q=0.8',
+      },
+      body: JSON.stringify({
+        name: 'Erin Parent',
+        email,
+        password: 'testpass123',
+        country_code: 'SE',
+      }),
+    });
+    assert.equal(res.status, 201, await res.text());
+
+    const pg = require('../src/lib/db');
+    const fam = await pg.query(
+      `SELECT f.preferred_locale, f.country_code FROM family f
+       JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
+      [email.toLowerCase()]
+    );
+    assert.equal(fam.rows[0].country_code, 'SE');
+    assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+  } finally {
+    await http.close();
+    await db.cleanup();
+  }
+});
+
 test('defaults to sv-SE when locale omitted at registration', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {

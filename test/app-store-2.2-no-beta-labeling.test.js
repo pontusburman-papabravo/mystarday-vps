@@ -40,7 +40,8 @@ describe('App Store 2.2 — English must never be labelled beta/preview/test/tri
     assert.doesNotMatch(src, /language-choice__beta/, 'no beta badge/note CSS class or element must remain');
     assert.doesNotMatch(src, /language\.choice\.betaNote/, 'must not bind the removed beta-note translation key');
     assert.doesNotMatch(src, />\s*Beta\s*</i, 'must not render a literal "Beta" text node');
-    assert.match(src, /data-locale-choice="en-GB">[\s\S]{0,80}<span class="language-choice__label">English<\/span>\s*<\/button>/);
+    assert.match(src, /firstRunLocales/);
+    assert.doesNotMatch(src, /data-locale-choice="en-GB"/);
   });
 
   it('first profile/role-choice screen (login.html ENTRY_ROLE_PICK) mounts the fixed locale switcher', () => {

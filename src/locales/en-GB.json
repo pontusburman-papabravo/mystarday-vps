@@ -955,19 +955,39 @@
       "settingsHint": "You can turn off these notifications under {{settingsLink}}."
     },
     "trialWelcome": {
-      "subject": "Welcome to {{brand}} – free in Ireland until 31 December 2026",
       "headerBrand": "{{brand}}",
-      "headerTitle": "Free in Ireland until 31 December 2026",
-      "intro": "Welcome! <strong>My Starday is free for families in Ireland until 31 December 2026.</strong> No subscription or payment method is required. This offer does not automatically convert into a paid subscription.",
+      "perMonth": "month",
       "howTitle": "How it works:",
       "how1": "Create schedules and activities for your child",
       "how2": "Let your child collect stars every day",
       "how3": "Set up rewards in the treasure chamber",
-      "pricing": "From 1 January 2027 you can choose whether to continue with a subscription. Nothing is charged automatically because of this launch offer.",
-      "cta": "Open My Starday",
-      "ctaHint": "No card required. This offer does not automatically become a subscription.",
       "footerIntro": "You are receiving this email because you recently signed up for {{brand}}.",
-      "openApp": "Open the app"
+      "openApp": "Open the app",
+      "trial": {
+        "subject": "Welcome to {{brand}} – your free period has started!",
+        "headerTitle": "Your free period has started! ⭐",
+        "intro": "Welcome! You now have <strong>{{trialDays}} days free</strong> to try every feature in {{brand}} — no card required.",
+        "pricing": "After {{trialDays}} days it costs <strong>{{monthlyPrice}}</strong> — you can upgrade whenever you want.",
+        "pricingOpen": "After {{trialDays}} days you choose whether to continue with a subscription.",
+        "cta": "Try Premium ⭐",
+        "ctaHint": "No commitment — cancel whenever you want"
+      },
+      "complimentary": {
+        "subject": "Welcome to {{brand}} – free until {{freeUntil}}",
+        "headerTitle": "Free until {{freeUntil}}",
+        "intro": "Welcome! <strong>{{brand}} is free until {{freeUntil}}.</strong> No subscription or payment method is required. This offer does not automatically become a paid subscription.",
+        "pricing": "From {{paidFrom}} you can choose whether to continue with a subscription. Nothing is charged automatically because of this offer.",
+        "cta": "Open the app",
+        "ctaHint": "No card required. This offer does not automatically become a subscription."
+      },
+      "introYear": {
+        "subject": "Welcome to {{brand}}",
+        "headerTitle": "Welcome! ⭐",
+        "intro": "Welcome! You can use the features in {{brand}}.",
+        "pricing": "No payment is required for this period.",
+        "cta": "Open the app",
+        "ctaHint": "You can look at Premium whenever you want"
+      }
     },
     "weeklySummary": {
       "subject": "Weekly summary ⭐ — {{weekLabel}}",
@@ -1250,5 +1270,13 @@
       "submitted": "Thanks! We have received your reply.",
       "escalated": "Thanks. A person will look at this case."
     }
+  },
+  "story": {
+    "someone": "Someone",
+    "anActivity": "an activity",
+    "activityWithStars": "{{name}} completed {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} completed {{activity}}",
+    "goalFallback": "goal",
+    "goal": "The family reached the goal: {{title}} 🎉"
   }
 }

@@ -8,7 +8,8 @@
  * near the page bottom; widthOfString avoids the issue.
  */
 
-const MONTHS_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+const { formatDayMonth, formatDayMonthRange, formatDayMonthLong } = require('./locale-format');
+const { DEFAULT_LOCALE } = require('./locale');
 
 const NAVY  = '#1C2340';
 const AMBER = '#F5A623';
@@ -19,10 +20,9 @@ const RED   = '#EF4444';
 const GREEN = '#22C55E';
 
 const pad = (n) => String(n < 10 ? '0' + n : n);
-const fmtDate = (str) => {
+const fmtDate = (str, locale) => {
   if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return d.getDate() + ' ' + MONTHS_SV[d.getMonth()];
+  return formatDayMonth(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE);
 };
 const sectionLabel = (sec) => {
   const map = { morgon: 'Morgon', fm: 'Morgon', dag: 'Dag', em: 'Dag', kvall: 'Kväll', evening: 'Kväll', natt: 'Natt', other: 'Övrigt' };
@@ -37,12 +37,12 @@ function getISOWeek(date) {
   return { year: d.getUTCFullYear(), week: weekNo };
 }
 
-function fmtWeek(dates) {
+function fmtWeek(dates, locale) {
   if (!dates || dates.length === 0) return 'v.?';
   const sorted = [...dates].sort();
   const startD = new Date(sorted[0] + 'T00:00:00');
   const endD   = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-  return startD.getDate() + ' ' + MONTHS_SV[startD.getMonth()] + '–' + endD.getDate() + ' ' + MONTHS_SV[endD.getMonth()];
+  return formatDayMonthRange(startD, endD, locale || DEFAULT_LOCALE);
 }
 
 /**
@@ -50,7 +50,7 @@ function fmtWeek(dates) {
  * @param {import('stream').Writable} stream - typically Express res
  * @param {{ link, fields, blocks, dateFrom, dateTo }} opts
  */
-function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
+function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, locale }) {
   const PDFDocument = require('pdfkit');
   const doc = new PDFDocument({
     bufferPages: true,
@@ -71,6 +71,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
 
   const PAGE_W = doc.page.width - 80;
   const now = new Date();
+  const reportLocale = locale || DEFAULT_LOCALE;
 
   // ── Helpers ─────────────────────────────────────────
   function pill(title, y) {
@@ -97,7 +98,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
     ? link.label || 'Rapport'
     : (link.child_name ? link.child_name : (link.label || 'Rapport'));
   doc.fillColor('#C9D0D8').fontSize(9).font('Helvetica')
-     .text(childLabelHeader + ' · ' + fmtDate(dateFrom) + '–' + fmtDate(dateTo) + ' · Genererad ' + now.getDate() + ' ' + MONTHS_SV[now.getMonth()] + ' ' + now.getFullYear(), 40, 27, { lineBreak: false });
+     .text(childLabelHeader + ' · ' + fmtDate(dateFrom, reportLocale) + '–' + fmtDate(dateTo, reportLocale) + ' · Genererad ' + formatDayMonthLong(now, reportLocale), 40, 27, { lineBreak: false });
 
   doc.y = 52;
 
@@ -246,7 +247,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
       const pctW = doc.widthOfString(pctStr);
       doc.text(pctStr, x0 + Math.round(barGap / 2) + Math.round(barW / 2) - pctW / 2, barTop - 5, { lineBreak: false });
 
-      const weekLabel = fmtWeek(data.dates);
+      const weekLabel = fmtWeek(data.dates, reportLocale);
       doc.fontSize(7).font('Helvetica').fillColor('#888888');
       const weekLabelW = doc.widthOfString(weekLabel);
       doc.text(weekLabel, x0 + (barSlotW - weekLabelW) / 2, chartY + chartH + 3, { lineBreak: false });
@@ -286,8 +287,8 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
   if (completion.length > 0 && daysWithData > 0) {
     const stats = [
       { label: 'Genomsnitt', value: avgPct + '%' },
-      { label: 'Bästa dagen', value: fmtDate(bestDay) + ' (' + bestPct + '%)' },
-      { label: 'Sämsta dagen', value: fmtDate(worstDay) + ' (' + worstPct + '%)' },
+      { label: 'Bästa dagen', value: fmtDate(bestDay, reportLocale) + ' (' + bestPct + '%)' },
+      { label: 'Sämsta dagen', value: fmtDate(worstDay, reportLocale) + ' (' + worstPct + '%)' },
       { label: 'Dagar m. data', value: String(daysWithData) },
     ];
     stats.forEach((s, i) => {
@@ -330,7 +331,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
       needPage(14);
       const pct = Math.round((data.done / data.total) * 100);
       doc.fillColor(NAVY).fontSize(8).font('Helvetica')
-         .text(fmtWeek(data.dates), tCol[0], doc.y, { lineBreak: false })
+         .text(fmtWeek(data.dates, reportLocale), tCol[0], doc.y, { lineBreak: false })
          .text(String(data.done), tCol[1], doc.y, { lineBreak: false })
          .text(String(data.total), tCol[2], doc.y, { lineBreak: false })
          .text(pct + '%', tCol[3], doc.y, { lineBreak: false });
@@ -403,7 +404,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
     noteLines.slice(0, 5).forEach((n) => {
       needPage(20);
       doc.fillColor(GRAY).fontSize(8).font('Helvetica-Bold')
-         .text(n.date ? fmtDate(n.date) + ' —' : '—', 40, doc.y, { lineBreak: false });
+         .text(n.date ? fmtDate(n.date, reportLocale) + ' —' : '—', 40, doc.y, { lineBreak: false });
       doc.fillColor(NAVY).fontSize(9).font('Helvetica')
          .text(n.text, 90, doc.y, { width: PAGE_W - 50 });
       doc.y += 18;
@@ -425,7 +426,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo }) {
       needPage(30);
       const pedagName = n.pedagog_name ? ' (' + n.pedagog_name + ')' : '';
       doc.fillColor(GRAY).fontSize(8).font('Helvetica-Bold')
-         .text(fmtDate(String(n.date)) + pedagName, 40, doc.y, { lineBreak: false });
+         .text(fmtDate(String(n.date), reportLocale) + pedagName, 40, doc.y, { lineBreak: false });
       doc.y += 12;
 
       if (n.mood) {

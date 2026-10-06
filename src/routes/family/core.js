@@ -18,11 +18,17 @@ const { getChildrenForParent } = require('../../../db/parent-access');
 const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
-const { isSupportedLocale, validateLocale, resolveFamilyLocale } = require('../../lib/locale');
+const {
+  isSupportedLocale,
+  validateLocale,
+  resolveFamilyLocale,
+  featureGrantedOnRegister,
+} = require('../../lib/locale');
 const {
   isEnglishAppEnabled,
   canSelectEnglishLocale,
   isEnglishChildExperienceEnabled,
+  ENGLISH_APP_SLUG,
 } = require('../../lib/i18n-flags');
 const { SELECTION_SOURCES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
@@ -204,7 +210,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       );
       const currentLocale = validateLocale(currentRow.rows[0]?.preferred_locale);
 
-      if (canonicalNext === 'en-GB' && canonicalNext !== currentLocale) {
+      if (featureGrantedOnRegister(canonicalNext) === ENGLISH_APP_SLUG && canonicalNext !== currentLocale) {
         const maySelectEnglish = await canSelectEnglishLocale(req.user.familyId);
         if (!maySelectEnglish) {
           return res.status(403).json({

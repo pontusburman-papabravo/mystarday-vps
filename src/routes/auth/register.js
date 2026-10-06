@@ -17,25 +17,17 @@ const { sendWelcomeEmail } = require('../../lib/welcome-mailer');
 const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
 const { validate } = require('../../middleware/validate');
 const { RegisterSchema } = require('../../lib/schemas');
-const {
-  resolvePreAuthLocale,
-  usesCanonicalLibrary,
-  shouldEnableEnglishAppOnRegister,
-} = require('../../lib/locale');
+const { usesCanonicalLibrary, shouldEnableEnglishAppOnRegister } = require('../../lib/locale');
 const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 const { loadDefaultContent } = require('../../lib/default-content');
 const { seedFamilyStarterActivitiesFromCanonicalDb } = require('../../lib/standard-library-family-seed');
 const { lookupDefaultRewardIdForSeed } = require('../../lib/reward-provenance');
 const { t } = require('../../lib/i18n');
-const { SELECTION_SOURCES, OFFER_STATES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
 const {
-  resolveRegistrationCountry,
-  isKnownRegistrationCountryCode,
-  normalizeCountryCode,
-} = require('../../lib/market-region');
-const { getMarketConfig } = require('../../lib/market-config');
-const { assertRegistrationMarketOpen } = require('../../lib/registration-market-context');
+  resolveNewAccountRegistrationContext,
+  assertRegistrationMarketOpen,
+} = require('../../lib/registration-market-context');
 const { signupCohortAt } = require('../../lib/signup-clock');
 
 const router = express.Router();
@@ -71,28 +63,19 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       country_code: countryCodeRaw,
     } = req.body;
 
-    const localeExplicitlyChosen = Boolean(preferredLocaleRaw || language);
-    const familyLocale = localeExplicitlyChosen
-      ? resolvePreAuthLocale({
-          explicit: preferredLocaleRaw || language,
-          acceptLanguage: req.headers['accept-language'],
-        })
-      : resolvePreAuthLocale({ explicit: 'sv-SE' });
-    const localeSelectionSource = localeExplicitlyChosen
-      ? SELECTION_SOURCES.REGISTRATION
-      : SELECTION_SOURCES.LEGACY_DEFAULT;
-    const englishBetaOfferState = localeExplicitlyChosen
-      ? OFFER_STATES.REGISTRATION_DECIDED
-      : OFFER_STATES.NOT_SHOWN;
-
-    const countryResolved = resolveRegistrationCountry({
-      countryCodeRaw,
-      localeExplicitlyChosen: localeExplicitlyChosen || Boolean(countryCodeRaw),
+    const registrationCtx = resolveNewAccountRegistrationContext(req, {
+      ...req.body,
+      preferred_locale: preferredLocaleRaw || language,
+      country_code: countryCodeRaw,
     });
-
-    if (countryCodeRaw && !isKnownRegistrationCountryCode(normalizeCountryCode(countryCodeRaw))) {
-      return res.status(400).json({ error: authApiMessage(familyLocale, 'errors.invalidCountry') });
+    if (!registrationCtx.ok) {
+      return res.status(registrationCtx.status).json(registrationCtx.body);
     }
+    const familyLocale = registrationCtx.familyLocale;
+    const localeSelectionSource = registrationCtx.localeSelectionSource;
+    const englishBetaOfferState = registrationCtx.englishBetaOfferState;
+    const countryResolved = registrationCtx.countryResolved;
+    const marketConfig = registrationCtx.marketConfig;
 
     const marketGate = await assertRegistrationMarketOpen(
       countryResolved.country_code,
@@ -144,13 +127,6 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // PAYMENTS V1 — SE grandfather/intro-year, computed trial for other markets, or limited.
       const { syncCreatedFamilyAccessMirrors } = require('../../lib/family-entitlements');
-
-      // Create family — no DB trial for post-cutoff cohort (store trial via RevenueCat only).
-      const marketConfig = getMarketConfig({
-        countryCode: countryResolved.country_code,
-        marketRegion: countryResolved.market_region,
-        locale: familyLocale,
-      });
 
       // created_at stays SQL NOW() outside the test runner. Tests may pin the cohort
       // so entitlement does not flip when CI crosses the Sweden trial boundary.

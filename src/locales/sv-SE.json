@@ -955,19 +955,39 @@
       "settingsHint": "Du kan stänga av dessa aviseringar under {{settingsLink}}."
     },
     "trialWelcome": {
-      "subject": "Välkommen till {{brand}} – din gratis period har börjat!",
       "headerBrand": "{{brand}}",
-      "headerTitle": "Din gratis period har börjat! ⭐",
-      "intro": "Välkommen! Du har nu <strong>14 dagar gratis</strong> att prova alla funktioner i {{brand}} — inget kreditkort behövs.",
+      "perMonth": "månad",
       "howTitle": "Så här fungerar det:",
       "how1": "Skapa scheman och aktiviteter för ditt barn",
       "how2": "Låt barnet samla stjärnor varje dag",
       "how3": "Sätt upp belöningar i Skattkammaren",
-      "pricing": "Efter 14 dagar kostar det <strong>59 kr/månad</strong> — du kan uppgradera när som helst.",
-      "cta": "Prova Premium ⭐",
-      "ctaHint": "Ingen bindningstid — avbryt när som helst",
       "footerIntro": "Du får detta mail för att du nyligen registrerade dig på {{brand}}.",
-      "openApp": "Öppna appen"
+      "openApp": "Öppna appen",
+      "trial": {
+        "subject": "Välkommen till {{brand}} – din gratis period har börjat!",
+        "headerTitle": "Din gratis period har börjat! ⭐",
+        "intro": "Välkommen! Du har nu <strong>{{trialDays}} dagar gratis</strong> att prova alla funktioner i {{brand}} — inget kreditkort behövs.",
+        "pricing": "Efter {{trialDays}} dagar kostar det <strong>{{monthlyPrice}}</strong> — du kan uppgradera när som helst.",
+        "pricingOpen": "Efter {{trialDays}} dagar väljer du om du vill fortsätta med ett abonnemang.",
+        "cta": "Prova Premium ⭐",
+        "ctaHint": "Ingen bindningstid — avbryt när som helst"
+      },
+      "complimentary": {
+        "subject": "Välkommen till {{brand}} – gratis till {{freeUntil}}",
+        "headerTitle": "Gratis till {{freeUntil}}",
+        "intro": "Välkommen! <strong>{{brand}} är gratis till {{freeUntil}}.</strong> Inget abonnemang eller betalmedel behövs. Erbjudandet blir inte automatiskt ett betalt abonnemang.",
+        "pricing": "Från {{paidFrom}} kan du välja om du vill fortsätta med ett abonnemang. Ingenting dras automatiskt på grund av det här erbjudandet.",
+        "cta": "Öppna appen",
+        "ctaHint": "Inget kort krävs. Erbjudandet blir inte automatiskt ett abonnemang."
+      },
+      "introYear": {
+        "subject": "Välkommen till {{brand}}",
+        "headerTitle": "Välkommen! ⭐",
+        "intro": "Välkommen! Du kan använda funktionerna i {{brand}}.",
+        "pricing": "Ingen betalning krävs för den här perioden.",
+        "cta": "Öppna appen",
+        "ctaHint": "Du kan titta på Premium när du vill"
+      }
     },
     "weeklySummary": {
       "subject": "Veckans sammanfattning ⭐ — {{weekLabel}}",
@@ -1250,5 +1270,13 @@
       "submitted": "Tack! Vi har tagit emot svaret.",
       "escalated": "Tack. En person tittar på ärendet."
     }
+  },
+  "story": {
+    "someone": "Någon",
+    "anActivity": "en aktivitet",
+    "activityWithStars": "{{name}} klarade {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} klarade {{activity}}",
+    "goalFallback": "projekt",
+    "goal": "Familjen nådde målet: {{title}} 🎉"
   }
 }

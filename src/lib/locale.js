@@ -46,9 +46,43 @@ function compileCatalog(catalog) {
     publicLocales: locales.map((locale) => ({
       id: locale.id,
       nativeName: locale.nativeName,
-      availability: locale.availability || 'always',
+      base: locale.base,
+      availability: listedAvailability(locale),
+      showOnFirstRun: shownOnFirstRun(locale),
+      selectRequiresFeature: selectFeatureOf(locale),
+      experiencePackRequiresFlag: locale.experiencePackRequiresFlag || null,
     })),
   };
+}
+
+function listedAvailability(locale) {
+  const value = locale && locale.availability;
+  if (value === 'public' || value === 'always' || value === 'english_app') return 'public';
+  if (value === 'enabled') return 'enabled';
+  return 'registered';
+}
+
+function selectFeatureOf(locale) {
+  if (!locale) return null;
+  if (locale.selectRequiresFeature) return locale.selectRequiresFeature;
+  if (locale.availability === 'english_app') return 'english_app';
+  return null;
+}
+
+function grantFeatureOf(locale) {
+  if (!locale) return null;
+  if (locale.grantFeatureOnRegister) return locale.grantFeatureOnRegister;
+  if (locale.enableEnglishAppOnRegister) return 'english_app';
+  return null;
+}
+
+function shownOnFirstRun(locale) {
+  if (!locale) return false;
+  const availability = listedAvailability(locale);
+  if (availability === 'registered') return false;
+  if (locale.showOnFirstRun === false) return false;
+  if (locale.showOnFirstRun === true) return availability !== 'registered';
+  return availability === 'public';
 }
 
 const shippedCatalog = readCatalogFile();
@@ -97,7 +131,7 @@ function normalizeLocale(raw) {
 
   const base = trimmed.split(/[-_]/)[0].toLowerCase();
   const matches = derived.baseToIds.get(base) || [];
-  // One locale per base language (sv, en). Two English regions must be explicit aliases.
+  // One registered bundle per base language (fr-BE → fr-FR). Two bundles need an alias.
   if (matches.length === 1) return matches[0];
   return null;
 }
@@ -121,6 +155,27 @@ function validateLocale(raw, opts = {}) {
   if (normalized) return normalized;
   const fallback = normalizeLocale(opts.fallback) || derived.defaultLocale;
   return fallback;
+}
+
+/**
+ * Tag for Intl formatters. A syntactically valid BCP 47 tag is kept even
+ * when it is not in the shipped catalog. Catalog matches still win.
+ * @param {string|null|undefined} raw
+ * @returns {string}
+ */
+function intlLocaleTag(raw) {
+  const normalized = normalizeLocale(raw);
+  if (normalized) return normalized;
+  const text = raw == null ? '' : String(raw).trim().replace(/_/g, '-');
+  if (text) {
+    try {
+      const [canonical] = Intl.getCanonicalLocales(text);
+      if (canonical) return canonical;
+    } catch (_) {
+      /* not a BCP 47 tag */
+    }
+  }
+  return validateLocale(derived.defaultLocale);
 }
 
 /**
@@ -198,13 +253,68 @@ function usesCanonicalLibrary(locale) {
 }
 
 /**
+ * Non-default locales use locale files, then English. Not an English-only flag.
+ * @param {string|null|undefined} locale
+ * @returns {boolean}
+ */
+function usesLocaleFileContent(locale) {
+  return !usesCanonicalLibrary(locale);
+}
+
+/**
  * English rollout flag is a property of the en-GB catalog row, not a locale branch in routes.
  * @param {string|null|undefined} locale
  * @returns {boolean}
  */
+function catalogMeta(locale) {
+  return derived.byId.get(normalizeLocale(locale)) || null;
+}
+
+function isPublicLocale(locale) {
+  const entry = catalogMeta(locale);
+  return Boolean(entry && listedAvailability(entry) === 'public');
+}
+
+/**
+ * Feature slug to grant when a family is created in this locale.
+ * Empty for languages that do not need a rollout flag.
+ * @param {string|null|undefined} locale
+ * @returns {string|null}
+ */
+function featureGrantedOnRegister(locale) {
+  return grantFeatureOf(catalogMeta(locale));
+}
+
 function shouldEnableEnglishAppOnRegister(locale) {
-  const entry = catalogEntry(locale);
-  return Boolean(entry && entry.enableEnglishAppOnRegister);
+  return featureGrantedOnRegister(locale) === 'english_app';
+}
+
+/**
+ * Locale saved on a new family.
+ * explicit choice → stored/header language → market default → catalog default.
+ * Only public locales are chosen automatically. An explicit tag may be any registered locale.
+ * @param {{ explicit?: string|null, acceptLanguage?: string|null, marketDefaultLocale?: string|null }} [input]
+ * @returns {{ locale: string, source: 'explicit'|'accept_language'|'market_default'|'fallback' }}
+ */
+function resolveAccountLocale(input = {}) {
+  const explicit = normalizeLocale(input.explicit);
+  if (explicit) return { locale: explicit, source: 'explicit' };
+
+  const fromHeader = parseAcceptLanguage(input.acceptLanguage);
+  if (fromHeader && isPublicLocale(fromHeader)) {
+    return { locale: fromHeader, source: 'accept_language' };
+  }
+
+  const marketDefault = normalizeLocale(input.marketDefaultLocale);
+  if (marketDefault && isPublicLocale(marketDefault)) {
+    return { locale: marketDefault, source: 'market_default' };
+  }
+
+  return { locale: derived.defaultLocale, source: 'fallback' };
+}
+
+function firstRunLocales() {
+  return derived.publicLocales.filter((locale) => locale.showOnFirstRun).map((locale) => ({ ...locale }));
 }
 
 /**
@@ -289,7 +399,13 @@ module.exports = {
   resolvePreAuthLocale,
   resolveFamilyLocale,
   usesCanonicalLibrary,
+  usesLocaleFileContent,
+  intlLocaleTag,
+  isPublicLocale,
+  featureGrantedOnRegister,
   shouldEnableEnglishAppOnRegister,
+  resolveAccountLocale,
+  firstRunLocales,
   journeyLocaleCandidates,
   childUiLocaleForFamily,
   experiencePackIdForLocale,

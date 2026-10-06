@@ -571,7 +571,8 @@ const { verifyToken } = require('../middleware/auth');
 
 // WHY module-scope: fmtWeek() is module-level and needs this; previously was
 // inside route handler only, causing ReferenceError when fmtWeek was called.
-const MONTHS_SV = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+const { formatDayMonthRange } = require('../lib/locale-format');
+const { DEFAULT_LOCALE } = require('../lib/locale');
 
 const reportPinLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -800,12 +801,12 @@ function getISOWeek(date) {
 }
 
 // Format week date range as "28 apr–4 maj"
-function fmtWeek(dates) {
+function fmtWeek(dates, locale) {
   if (!dates || dates.length === 0) return 'v.?';
   const sorted = [...dates].sort();
   const startD = new Date(sorted[0] + 'T00:00:00');
   const endD   = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-  return startD.getDate() + ' ' + MONTHS_SV[startD.getMonth()] + '–' + endD.getDate() + ' ' + MONTHS_SV[endD.getMonth()];
+  return formatDayMonthRange(startD, endD, locale || DEFAULT_LOCALE);
 }
 
 // POST /api/public/report/:publicId/session
