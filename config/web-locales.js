@@ -17,6 +17,11 @@ const PUBLISHED = Object.freeze({
   es: true,
   it: true,
   pl: true,
+  da: true,
+  fi: true,
+  nb: true,
+  is: true,
+  pt: true,
 });
 
 const LOCALE_META = Object.freeze({
