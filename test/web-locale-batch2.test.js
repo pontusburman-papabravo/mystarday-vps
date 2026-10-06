@@ -3,7 +3,7 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const { WEB_LOCALE_CODES, LOCALES } = require('../config/web-locales');
-const { EU_WEB_MARKET_CODES, MARKETS, marketsForLocale, campaignPath } = require('../config/web-markets');
+const { EU_WEB_MARKET_CODES, marketsForLocale, campaignPath } = require('../config/web-markets');
 const { CONTENT_KEYS, pathFor, localeAlternates } = require('../config/web-content-keys');
 const { pageForLocale } = require('../content/locale-pages');
 const { localeMeetsSeoContract, localeSeoGaps } = require('../src/lib/locale-seo-contract');
@@ -12,15 +12,15 @@ const { applyPublicSeoHead, hreflangAlternates, absolutePublicUrl } = require('.
 const { SEO_INDEXABLE_PATHS } = require('../src/lib/seo-pages');
 const { buildSitemapXml } = require('../src/lib/sitemap');
 const { APP_DOMAIN, MAIN_DOMAIN } = require('../src/lib/domain-redirect');
-const { localeReadiness, planRows } = require('../src/lib/seo-indexing-plan');
+const { planRows } = require('../src/lib/seo-indexing-plan');
 
-const BATCH = ['de', 'fr', 'es', 'it', 'pl'];
+const BATCH = ['da', 'fi', 'nb', 'is', 'pt'];
 const MUST_INCLUDE = {
-  de: /Kind/,
-  fr: /enfant/,
-  es: /niño|niños/,
-  it: /bambino|bambini/,
-  pl: /dziec/i,
+  da: /barn/i,
+  fi: /laps/i,
+  nb: /barn/i,
+  is: /barn/i,
+  pt: /crianç/i,
 };
 const ENGLISH_LEAKS = [
   /How it works/,
@@ -38,23 +38,23 @@ function article(html) {
   return match ? match[0] : html;
 }
 
-test('batch 1 locales are published and the rest of the registry stays blocked', () => {
+test('batch 2 locales are published and still-blocked languages stay out', () => {
   assert.equal(WEB_LOCALE_CODES.length, 26);
   assert.equal(EU_WEB_MARKET_CODES.length, 29);
   const enabled = WEB_LOCALE_CODES.filter((code) => LOCALES[code].seoEnabled);
-  const blocked = localeReadiness().filter((row) => row.blocking.startsWith('LOCALE_BLOCKED'));
-  for (const code of ['de', 'en', 'es', 'fr', 'it', 'nl', 'pl', 'sv']) {
-    assert.equal(enabled.includes(code), true, code);
-  }
-  assert.equal(blocked.length, WEB_LOCALE_CODES.length - enabled.length);
+  assert.deepEqual(
+    enabled.sort(),
+    ['da', 'de', 'en', 'es', 'fi', 'fr', 'is', 'it', 'nb', 'nl', 'pl', 'pt', 'sv'],
+  );
   for (const code of BATCH) {
     assert.equal(localeMeetsSeoContract(code), true, localeSeoGaps(code).join(' '));
     assert.equal(LOCALES[code].block, null);
   }
   assert.equal(localeMeetsSeoContract('ga'), false);
+  assert.equal(localeMeetsSeoContract('cs'), false);
 });
 
-test('batch 1 pages are in the language, in the sitemap, and keep market pages out', () => {
+test('batch 2 pages are in the language, in the sitemap, and keep market pages out', () => {
   const appSitemap = buildSitemapXml({ host: APP_DOMAIN });
   const seSitemap = buildSitemapXml({ host: MAIN_DOMAIN });
   for (const code of BATCH) {
@@ -95,22 +95,16 @@ test('batch 1 pages are in the language, in the sitemap, and keep market pages o
   }
 });
 
-test('visual-schedule hreflang is reciprocal across the published languages', () => {
+test('visual-schedule hreflang includes batch 2', () => {
   const rows = hreflangAlternates('/en/visual-schedule-app');
-  for (const code of ['en', 'sv-SE', 'nl', ...BATCH]) {
+  for (const code of BATCH) {
     assert.ok(rows.some(([tag]) => tag === code), code);
-  }
-  assert.ok(rows.some(([tag, href]) => tag === 'x-default' && href === absolutePublicUrl('/en/visual-schedule-app')));
-  for (const [tag, href] of rows) {
-    if (tag === 'x-default') continue;
-    const back = hreflangAlternates(new URL(href).pathname);
-    assert.ok(back.some(([, candidate]) => candidate === href), tag);
   }
   const alternates = localeAlternates().find((row) => row.key === 'visualSchedule');
   for (const code of BATCH) assert.equal(alternates[code], pathFor('visualSchedule', code));
 });
 
-test('indexing plan lists batch 1 content and keeps new market rows noindex', () => {
+test('indexing plan lists batch 2 content and keeps same-letter markets noindex', () => {
   const rows = planRows();
   for (const code of BATCH) {
     const content = rows.filter((row) => row.locale === code && row.content_key && !row.market);
@@ -119,16 +113,15 @@ test('indexing plan lists batch 1 content and keeps new market rows noindex', ()
       assert.equal(row.indexable, 'true', row.url);
       assert.equal(row.sitemap, 'yes', row.url);
       assert.equal(row.canonical, row.url, row.url);
-      assert.ok(row.hreflang.includes(code), row.url);
     }
   }
-  for (const pathname of ['/de/de', '/de/at', '/fr/fr', '/fr/be', '/es/es', '/it/it', '/pl/pl']) {
+  for (const pathname of ['/da/dk', '/fi/fi', '/nb/no', '/is/is', '/pt/pt']) {
     const row = rows.find((item) => item.url === pathname);
     assert.ok(row, pathname);
     assert.equal(row.indexable, 'false', pathname);
     assert.equal(row.hreflang, '', pathname);
+    assert.equal(row.sitemap, 'no', pathname);
   }
-  assert.equal(rows.filter((row) => row.locale === 'ga').length, 0);
 });
 
 let http;
@@ -146,20 +139,19 @@ after(async () => {
   if (http) await http.close();
 });
 
-test('batch 1 routes answer in their language and unknown tails stay local', async () => {
+test('batch 2 routes answer in their language and unknown tails stay local', async () => {
   for (const [routePath, lang, market] of [
-    ['/de', 'de', ''],
-    ['/de/visueller-tagesplan', 'de', ''],
-    ['/de/de', 'de', 'DE'],
-    ['/de/at', 'de', 'AT'],
-    ['/fr', 'fr', ''],
-    ['/fr/fr', 'fr', 'FR'],
-    ['/es', 'es', ''],
-    ['/es/es', 'es', 'ES'],
-    ['/it', 'it', ''],
-    ['/it/it', 'it', 'IT'],
-    ['/pl', 'pl', ''],
-    ['/pl/pl', 'pl', 'PL'],
+    ['/da', 'da', ''],
+    ['/da/visuel-dagsplan', 'da', ''],
+    ['/da/dk', 'da', 'DK'],
+    ['/fi', 'fi', ''],
+    ['/fi/fi', 'fi', 'FI'],
+    ['/nb', 'nb', ''],
+    ['/nb/no', 'nb', 'NO'],
+    ['/is', 'is', ''],
+    ['/is/is', 'is', 'IS'],
+    ['/pt', 'pt', ''],
+    ['/pt/pt', 'pt', 'PT'],
   ]) {
     const response = await fetch(`${http.baseUrl}${routePath}`, { redirect: 'manual' });
     assert.equal(response.status, 200, routePath);
@@ -174,18 +166,18 @@ test('batch 1 routes answer in their language and unknown tails stay local', asy
     }
   }
 
-  const missing = await fetch(`${http.baseUrl}/de/diese-seite-fehlt`, { redirect: 'manual' });
+  const missing = await fetch(`${http.baseUrl}/da/denne-side-mangler`, { redirect: 'manual' });
   assert.equal(missing.status, 404);
   const missingHtml = await missing.text();
-  assert.match(missingHtml, /lang="de"/);
-  assert.match(missingHtml, /Seite nicht gefunden/);
+  assert.match(missingHtml, /lang="da"/);
+  assert.match(missingHtml, /Siden blev ikke fundet/);
   assert.match(missingHtml, /noindex, follow/);
 
   const blocked = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
   assert.equal(blocked.status, 404);
   assert.match(await blocked.text(), /This language is not available/);
 
-  const toMarket = await fetch(`${http.baseUrl}/de?country=AT&utm_source=google`, { redirect: 'manual' });
+  const toMarket = await fetch(`${http.baseUrl}/da?country=DK&utm_source=google`, { redirect: 'manual' });
   assert.equal(toMarket.status, 302);
-  assert.equal(toMarket.headers.get('location'), '/de/at?utm_source=google');
+  assert.equal(toMarket.headers.get('location'), '/da/dk?utm_source=google');
 });

@@ -2,11 +2,16 @@ window.PUBLIC_LOCALE_LABELS = {
   "sv": "Svenska",
   "en": "English",
   "nl": "Nederlands",
+  "da": "Dansk",
   "de": "Deutsch",
   "es": "Español",
+  "fi": "Suomi",
   "fr": "Français",
+  "is": "Íslenska",
   "it": "Italiano",
-  "pl": "Polski"
+  "nb": "Norsk bokmål",
+  "pl": "Polski",
+  "pt": "Português"
 };
 window.PUBLIC_LOCALE_ALTERNATES = [
   {
@@ -14,120 +19,175 @@ window.PUBLIC_LOCALE_ALTERNATES = [
     "sv": "/",
     "en": "/en",
     "nl": "/nl",
+    "da": "/da",
     "de": "/de",
     "es": "/es",
+    "fi": "/fi",
     "fr": "/fr",
+    "is": "/is",
     "it": "/it",
-    "pl": "/pl"
+    "nb": "/nb",
+    "pl": "/pl",
+    "pt": "/pt"
   },
   {
     "key": "howItWorks",
     "sv": null,
     "en": "/en/how-it-works",
     "nl": "/nl/hoe-het-werkt",
+    "da": "/da/saadan-virker-det",
     "de": "/de/so-funktionierts",
     "es": "/es/como-funciona",
+    "fi": "/fi/nain-se-toimii",
     "fr": "/fr/comment-ca-marche",
+    "is": "/is/svona-virkar-tad",
     "it": "/it/come-funziona",
-    "pl": "/pl/jak-to-dziala"
+    "nb": "/nb/slik-virker-det",
+    "pl": "/pl/jak-to-dziala",
+    "pt": "/pt/como-funciona"
   },
   {
     "key": "visualSchedule",
     "sv": "/bildschema-app",
     "en": "/en/visual-schedule-app",
     "nl": "/nl/visueel-schema",
+    "da": "/da/visuel-dagsplan",
     "de": "/de/visueller-tagesplan",
     "es": "/es/horario-visual",
+    "fi": "/fi/kuvallinen-paivasuunnitelma",
     "fr": "/fr/emploi-du-temps-visuel",
+    "is": "/is/sjonraen-dagskra",
     "it": "/it/schema-visivo",
-    "pl": "/pl/plan-dnia-obrazkowy"
+    "nb": "/nb/visuell-dagsplan",
+    "pl": "/pl/plan-dnia-obrazkowy",
+    "pt": "/pt/horario-visual"
   },
   {
     "key": "morningRoutine",
     "sv": "/morgonrutin-barn",
     "en": "/en/morning-routine-children",
     "nl": "/nl/ochtendroutine-kinderen",
+    "da": "/da/morgenrutine",
     "de": "/de/morgenroutine-kinder",
     "es": "/es/rutina-matinal",
+    "fi": "/fi/aamurutiini",
     "fr": "/fr/routine-du-matin",
+    "is": "/is/morgunvenja",
     "it": "/it/routine-del-mattino",
-    "pl": "/pl/poranna-rutyna"
+    "nb": "/nb/morgenrutine",
+    "pl": "/pl/poranna-rutyna",
+    "pt": "/pt/rotina-da-manha"
   },
   {
     "key": "weeklySchedule",
     "sv": "/veckoschema-bildstod",
     "en": "/en/weekly-schedule-visual-support",
     "nl": "/nl/weekplanning-met-pictogrammen",
+    "da": "/da/ugeplan-piktogrammer",
     "de": "/de/wochenplan-piktogramme",
     "es": "/es/plan-semanal",
+    "fi": "/fi/viikkosuunnitelma",
     "fr": "/fr/planning-hebdomadaire",
+    "is": "/is/vikuaaetlun",
     "it": "/it/piano-settimanale",
-    "pl": "/pl/plan-tygodnia"
+    "nb": "/nb/ukeplan",
+    "pl": "/pl/plan-tygodnia",
+    "pt": "/pt/plano-semanal"
   },
   {
     "key": "neurodiverseRoutines",
     "sv": "/rutiner-npf-barn",
     "en": "/en/routines-neurodiverse-children",
     "nl": "/nl/routines-neurodiverse-kinderen",
+    "da": "/da/rutiner-neurodiverse-boern",
     "de": "/de/routinen-neurodiverse-kinder",
     "es": "/es/rutinas-ninos-neurodivergentes",
+    "fi": "/fi/rutiinit-neurokirjo",
     "fr": "/fr/routines-enfants-neurodivergents",
+    "is": "/is/venjur-taugafraedileg-born",
     "it": "/it/routine-bambini-neurodivergenti",
-    "pl": "/pl/rutyny-dzieci-neuroroznorodnych"
+    "nb": "/nb/rutiner-nevromangfoldige-barn",
+    "pl": "/pl/rutyny-dzieci-neuroroznorodnych",
+    "pt": "/pt/rotinas-criancas-neurodivergentes"
   },
   {
     "key": "rewardSystem",
     "sv": "/beloningssystem-barn",
     "en": "/en/reward-system-children",
     "nl": "/nl/beloningssysteem-kinderen",
+    "da": "/da/belonningssystem",
     "de": "/de/belohnungssystem-kinder",
     "es": "/es/sistema-de-recompensas",
+    "fi": "/fi/palkitsemisjarjestelma",
     "fr": "/fr/systeme-de-recompenses",
+    "is": "/is/umbunarkerfi",
     "it": "/it/sistema-di-ricompense",
-    "pl": "/pl/system-nagrod"
+    "nb": "/nb/belonningssystem",
+    "pl": "/pl/system-nagrod",
+    "pt": "/pt/sistema-de-recompensas"
   },
   {
     "key": "resources",
     "sv": "/resurser",
     "en": "/en/resources",
     "nl": "/nl/bronnen",
+    "da": "/da/materialer",
     "de": "/de/materialien",
     "es": "/es/recursos",
+    "fi": "/fi/materiaalit",
     "fr": "/fr/ressources",
+    "is": "/is/efni",
     "it": "/it/risorse",
-    "pl": "/pl/materialy"
+    "nb": "/nb/materiell",
+    "pl": "/pl/materialy",
+    "pt": "/pt/materiais"
   },
   {
     "key": "faq",
     "sv": "/faq",
     "en": "/en/faq",
     "nl": "/nl/faq",
+    "da": "/da/spoergsmaal",
     "de": "/de/fragen",
     "es": "/es/preguntas-frecuentes",
+    "fi": "/fi/kysymykset",
     "fr": "/fr/questions-frequentes",
+    "is": "/is/spurningar",
     "it": "/it/domande-frequenti",
-    "pl": "/pl/pytania"
+    "nb": "/nb/sporsmal",
+    "pl": "/pl/pytania",
+    "pt": "/pt/perguntas"
   },
   {
     "key": "privacy",
     "sv": "/privacy",
     "en": "/en/privacy",
     "nl": "/nl/privacy",
+    "da": "/da/privatliv",
     "de": "/de/datenschutz",
     "es": "/es/privacidad",
+    "fi": "/fi/tietosuoja",
     "fr": "/fr/confidentialite",
+    "is": "/is/personuvernd",
     "it": "/it/privacy",
-    "pl": "/pl/prywatnosc"
+    "nb": "/nb/personvern",
+    "pl": "/pl/prywatnosc",
+    "pt": "/pt/privacidade"
   },
   {
     "key": "terms",
     "sv": "/terms",
     "en": "/en/terms",
     "nl": "/nl/voorwaarden",
+    "da": "/da/vilkaar",
     "de": "/de/nutzungsbedingungen",
     "es": "/es/condiciones",
+    "fi": "/fi/kayttoehdot",
     "fr": "/fr/conditions-d-utilisation",
+    "is": "/is/skilmalar",
     "it": "/it/condizioni",
-    "pl": "/pl/regulamin"
+    "nb": "/nb/vilkar",
+    "pl": "/pl/regulamin",
+    "pt": "/pt/termos"
   }
 ];
