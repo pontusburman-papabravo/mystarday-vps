@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Hommikumaja",
+      "first_unlock_message": "Hommikumaja ootab sind",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Hommikumaja teab, et oled siin.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Pehme valgus süttib.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Uks",
+          "always_active": true,
+          "ambient_message_sv": "Uks võpatab natuke — nagu keegi ootaks väljas.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Väljas ootab aed…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Aed",
+      "first_unlock_message": "Aed ootab sind",
+      "ambient_message_sv": "Rohi liigub tuules aeglaselt.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Rada",
+          "emoji": "🌿",
+          "ambient_message_sv": "Rada viib aeda sügavamale.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Rada viib sooja tuppa, mis on mälestusi täis…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Lillepeenar",
+          "emoji": "🪴",
+          "ambient_message_sv": "Muld on pehme ja soe.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Taevas",
+          "emoji": "☁️",
+          "ambient_message_sv": "Pilved liiguvad aeglaselt.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Mälutuba",
+      "first_unlock_message": "Siin on see, mille üle oled uhke.",
+      "ambient_message_sv": "Siin on soe ja turvaline.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Aken",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Valgus langeb pehmelt sisse."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Mälusein",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Siin ripub see, mis sulle korda läheb."
+        }
+      ]
+    }
+  ]
+}

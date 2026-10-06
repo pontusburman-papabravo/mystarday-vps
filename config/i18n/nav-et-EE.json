@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Kodu",
+    "planning": "Planeerimine",
+    "rewards": "Auhinnad",
+    "forYou": "Sulle",
+    "family": "Pere"
+  },
+  "settings": "Seaded",
+  "mainAria": "Põhinavigatsioon",
+  "notifications": "Teavitused",
+  "share": "Jaga",
+  "logout": "Logi välja",
+  "switchUser": "Vaheta profiili",
+  "returnToChild": "Tagasi lapse juurde",
+  "darkMode": "Tume režiim",
+  "lightMode": "Hele režiim",
+  "overview": "Ülevaade",
+  "dailyLog": "Täna",
+  "weekSchedule": "Plaan",
+  "reports": "Aruanded",
+  "library": "Kogu",
+  "libraryAdvanced": "📚 Kogu (täpsem)",
+  "pedagogNotes": "📝 Pedagoogi märkmed",
+  "treasureChest": "Aardekirst",
+  "familySettings": "Pere ja seaded",
+  "capability": {
+    "subscription": "Tellimus",
+    "reports": "Aruanded",
+    "samarbete": "Koostöö pedagoogiga",
+    "barnStod": "Lisatugi"
+  },
+  "header": {
+    "notifications": "Teavitused",
+    "settings": "Seaded",
+    "share": "Jaga",
+    "shareTitle": "Räägi ühele perele rakendusest!",
+    "shareAria": "Jaga"
+  },
+  "avatar": {
+    "switchPedagog": "Lülitu pedagoogi vaatesse",
+    "subscription": "Tellimus",
+    "settings": "Seaded",
+    "logout": "Logi välja"
+  },
+  "mobile": {
+    "openMenu": "Ava menüü",
+    "darkModeTitle": "Tume režiim",
+    "darkModeAria": "Lülita tume režiim"
+  }
+}

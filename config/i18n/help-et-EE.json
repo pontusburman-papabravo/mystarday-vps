@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Abi",
+    "openAria": "Ava abi",
+    "closeAria": "Sulge abi"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Abi – ülevaade",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Ülevaade",
+          "faqs": [
+            {
+              "q": "Mida teevad 3 kiirnuppu üleval?",
+              "a": "<strong>⭐ Anna lisatähti</strong> — anna lapsele lisatähti käsitsi. <strong>📋 Ühekordne tegevus</strong> — lisa tänaseks ajutine tegevus. <strong>🏠 Vaba päev</strong> — peatab lapse plaani üheks päevaks (nt haiguspäev, puhkus)."
+            },
+            {
+              "q": "Kuidas ma tegevuse ära märgin?",
+              "a": "Puuduta tegevust lapse kaardil — see märgitakse kohe. Laps saab märkida ka oma <strong>lapse vaates</strong>."
+            },
+            {
+              "q": "Mis on kompaktne lapse kaart?",
+              "a": "Lapse kaart näitab kompaktses režiimis avatari, nime, tähtede saldot ja lõikude nuppe. Ava kaart, et näha rohkem, plaani linki ja peatamise nuppu."
+            },
+            {
+              "q": "Mis on vaba päev?",
+              "a": "<strong>🏠 Vaba päev</strong> peatab lapse plaani valitud päevaks — sobib, kui laps on haige või puhkusel. Laps näeb plaani mitteaktiivsena. Lülita päev sama nupuga tagasi."
+            },
+            {
+              "q": "Mis on peatatud režiim?",
+              "a": "Puuduta lapse kaardil pausiikooni (⏸), et laps peatada. Tegevused paistavad mitteaktiivsetena ja laps ei teeni tähti, kuni jätkad."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Tähed",
+          "faqs": [
+            {
+              "q": "Kuidas laps tähti teenib?",
+              "a": "Iga tehtud tegevus annab <strong>1 tähe</strong>. Laps märgib lapse vaates — või saad märkida vaates Täna, kuni sa asju proovid. Anna lisatähti nupuga ⭐ lapse kaartide kohal."
+            },
+            {
+              "q": "Kuidas Aardekirst töötab?",
+              "a": "Laps avab Aardekirstu lapse vaates vahelehelt 💎 ja näeb auhindu tähehindadega. Kui tähti on piisavalt, saab ta auhinda küsida — sina kinnitad."
+            },
+            {
+              "q": "Kuidas ma auhindu lisan?",
+              "a": "Mine menüüs <strong>Kogusse</strong> → vaheleht «Auhinnad». Lisa oma auhinnad, muuda tähehinda ja vali, millised lapsed neid näevad."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plaan",
+          "faqs": [
+            {
+              "q": "Kuidas ma tegevuse lisan?",
+              "a": "Mine <strong>Nädalaplaani</strong> → vali laps → vali päev → puuduta «+», et lisada tegevus kogust. Saad otsida 63 valmistegevuse seast."
+            },
+            {
+              "q": "Kuidas ma plaani igale päevale kopeerin?",
+              "a": "Nädalaplaanis → «Kopeeri päevast…» → vali allikas (oma plaan või standardkogu) → märgi päevad, kuhu kopeerida."
+            },
+            {
+              "q": "Mis on vaade Täna?",
+              "a": "Ülevaate vaade «Täna» uueneb automaatselt, kui plaani muudad. Nädalaplaani muudatused paistavad kohe Ülevaates ja lapse vaates."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Pere",
+          "faqs": [
+            {
+              "q": "Kuidas ma teist täiskasvanut kutsun?",
+              "a": "Mine <strong>Pere ja seaded → Pereliikmed</strong> → puuduta «Kutsu». Kutsutu saab e-kirja sisselogimislingiga."
+            },
+            {
+              "q": "Kuidas ma lapse päeva näen?",
+              "a": "Ava menüüs <strong>Täna</strong> — seal näed tänaseid tegevusi nii, nagu laps neid näeb. Sobib esimesel õhtul, enne kui laps ise sisse logib."
+            },
+            {
+              "q": "Kuidas laps sisse logib?",
+              "a": "Kui oled valmis: laps logib sisse aadressil <strong>/child-login</strong> kasutajanime ja PIN-iga. Andmed leiad jaotisest <strong>Pere ja seaded → Lapsed</strong>."
+            },
+            {
+              "q": "Võta toega ühendust",
+              "a": "Kirjuta meile aadressil <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vastame 24 tunni jooksul."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Abi – auhinnad",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Auhinnad",
+          "faqs": [
+            {
+              "q": "Kuidas auhinnasüsteem töötab?",
+              "a": "Laps kogub tähti, kui tegevused saavad tehtud. Kui tähti on auhinna jaoks piisavalt, saab ta lunastamist küsida — sina kinnitad või lükkad tagasi."
+            },
+            {
+              "q": "Kuidas ma uusi auhindu lisan?",
+              "a": "Mine menüüs <strong>Kogusse</strong> → vaheleht «Auhinnad» → otsi või puuduta «+ Lisa auhind». Saad kopeerida ka otse standardkogust."
+            },
+            {
+              "q": "Kuidas ma reguleerin, mida iga laps näeb?",
+              "a": "Kui lood või muudad auhinda, valid, millised lapsed seda näevad. Sobib, kui auhinnad on lapsele kohandatud."
+            },
+            {
+              "q": "Kuidas ma lunastustaotluse kinnitan?",
+              "a": "Lapse taotlus paistab Ülevaates märgisega. Puuduta, et kinnitada. Tähed arvatakse automaatselt maha ja laps näeb muutust kohe."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Tähed",
+          "faqs": [
+            {
+              "q": "Kuidas laps tähti teenib?",
+              "a": "Iga tehtud tegevus annab tähti (vaikimisi 1 täht tegevuse kohta). Lisatähti saad anda Ülevaates nupuga ⭐."
+            },
+            {
+              "q": "Mis vahe on tähtede saldol ja päeva edenemisel?",
+              "a": "<strong>Tähtede saldo</strong> = kogutud saldo. <strong>Päeva edenemine</strong> (rõngas emoji ümber) = mitu tegevust laps täna ära tegi. Need on eraldi."
+            },
+            {
+              "q": "Mis juhtub, kui auhind lunastatakse?",
+              "a": "Tähed arvatakse lapse kontolt automaatselt maha. Laps näeb muutust kohe Aardekirstus. Ajalugu näed auhindade lehel."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Abi – nädalaplaan",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Muuda plaani",
+          "faqs": [
+            {
+              "q": "Kuidas ma tegevuse lisan?",
+              "a": "Vali päev → puuduta «+» → otsi ja vali tegevus. Saad valida <strong>mitu ajavahemikku korraga</strong> (hommik + õhtu) ja tegevus lisatakse kõigisse."
+            },
+            {
+              "q": "Kuidas ma loon uue tegevuse otse plaanis?",
+              "a": "Puuduta «+» → otsi → kui midagi ei sobi, ilmub otsinguaknas vorm «Loo uus». Täida nimi, emoji, tähe väärtus ja sammud."
+            },
+            {
+              "q": "Kuidas ma muudan tegevuse nime või emojit?",
+              "a": "Puuduta plaanis tegevuse nime või emojit → avaneb muutmise aken. Muudatused kehtivad automaatselt kõigile lastele ja päevadele."
+            },
+            {
+              "q": "Kuidas ma kopeerin plaani teiselt lapselt?",
+              "a": "Puuduta «Kopeeri päevast…» → vali allikas → märgi nädalapäevad, kuhu kopeerida. Vali, kas olemasolev sisu kirjutatakse üle."
+            },
+            {
+              "q": "Kas plaan jõuab automaatselt lapse vaatesse?",
+              "a": "Jah! Nädalaplaani muudatused jõuavad kohe Ülevaate vaatesse «Täna» ja lapse vaatesse — käsitsi uuendada pole vaja."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Kogu",
+          "faqs": [
+            {
+              "q": "Mis on standardkogu?",
+              "a": "Standardkogus on 63 valmistegevust 6 kategoorias ja 5 plaanimalli. Puuduta «Kiire lisamine kogust», et need plaani lisada."
+            },
+            {
+              "q": "Kuidas ma standardplaani kopeerin?",
+              "a": "Vahelehel Plaan → «Kopeeri päevast…» → vali «Standardkogu» → vali plaan → vali päevad → kopeeri."
+            },
+            {
+              "q": "Miks laps ühtegi tegevust ei näe?",
+              "a": "Kontrolli, et plaan on õige lapse jaoks ja tänasel päeval on tegevusi. Tühi plaan? Kopeeri standardkogust, et kiiresti alustada."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Nipid",
+          "faqs": [
+            {
+              "q": "Kuidas ma ehitan hea rutiiniplaani?",
+              "a": "Alusta 3–5 kindla tegevusega (hommikusöök, hammaste pesemine, kodutöö). Pane need õigesse järjekorda. Lapsed õpivad rutiini kiiresti, kui see püsib."
+            },
+            {
+              "q": "Mis on tegevuste sammud?",
+              "a": "Tegevusele saab lisada samme (nt «Pese käed», «Pane pidžaama selga» tegevuse «Õhturutiin» alla). Laps näeb neid visuaalse juhina, aga märgib kogu tegevuse korraga."
+            },
+            {
+              "q": "Mitu tegevust päevas?",
+              "a": "Soovitus: 4–8 tegevust. Liiga vähe ja voolu pole; liiga palju ja see väsitab. Alusta väikselt ja kasvata."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Abi – pere ja seaded",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Lapsed",
+          "faqs": [
+            {
+              "q": "Kuidas ma lapse lisan?",
+              "a": "Mine Ülevaatesse → puuduta «+ Lisa laps». Täida nimi, emoji ja sünnipäev. Laps saab vanuse järgi automaatselt plaani."
+            },
+            {
+              "q": "Kuidas ma lapse PIN-i muudan?",
+              "a": "Puuduta lapse kaarti → vaheleht «Seaded» → «Muuda PIN-i». Vali uus 4-numbriline PIN."
+            },
+            {
+              "q": "Laps peab tegevused järjekorras tegema — kas saan seda muuta?",
+              "a": "Vaikimisi on vaba märkimine. Juhitud järjekorra jaoks mine lapse profiili → vaheleht <strong>Seaded</strong> → lülita sisse <strong>PRAEGU / JÄRGMINE / HILJEM</strong>."
+            },
+            {
+              "q": "Kuidas laps oma sisselogimisandmeid näeb?",
+              "a": "Puuduta lapse kaarti → vaheleht «Seaded» → «Näita sisselogimisandmeid». Näed lapse kasutajanime ja PIN-i."
+            },
+            {
+              "q": "Kuidas ma lapse eemaldan?",
+              "a": "Pere → vali laps → vaheleht Seaded → «Kustuta laps jäädavalt». Pane tähele: kogu plaani, tähtede ja auhindade ajalugu kustutatakse ja seda ei saa tagasi võtta."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Täiskasvanud",
+          "faqs": [
+            {
+              "q": "Kuidas ma teist täiskasvanut kutsun?",
+              "a": "Mine vahelehele <strong>Pereliikmed</strong> → «Kutsu». Kutsutu saab e-kirja lingiga, millega konto luua."
+            },
+            {
+              "q": "Kas saan valida, milliseid lapsi täiskasvanu näeb?",
+              "a": "Jah! Kutset saates valid, millistele lastele ta ligi pääseb. Hiljem saad seda muuta: Pereliikmed → inimene → Laste ligipääs."
+            },
+            {
+              "q": "Kuidas ma pereliikme eemaldan?",
+              "a": "Puuduta inimest pereliikmete nimekirjas → «Eemalda». Ta kaotab perele ligipääsu kohe."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Seaded",
+          "faqs": [
+            {
+              "q": "Kuidas ma parooli muudan?",
+              "a": "Mine menüüs <strong>Seadetesse</strong> (⚙️) → «Muuda parooli». Vaja on praegust parooli."
+            },
+            {
+              "q": "Kuidas ma teavitused sisse lülitan?",
+              "a": "Mine Seadetesse → «Meeldetuletused» → lülita teavitused sisse ja vali kellaajad. Teavitused vajavad brauseri luba."
+            },
+            {
+              "q": "Võta toega ühendust",
+              "a": "Kirjuta meile aadressil <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vastame 24 tunni jooksul."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Abi – tegevused",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Halda",
+          "faqs": [
+            {
+              "q": "Mis on tegevus?",
+              "a": "<strong>Tegevus</strong> on ülesanne, mida laps teeb (nt «Pese hambaid»). Tegevused annavad 1–5 tähte ja neil võivad olla sammud. Kogu need kogusse ja lisa laste plaanidesse."
+            },
+            {
+              "q": "Kuidas ma uue tegevuse loon?",
+              "a": "Puuduta «+ Uus tegevus» → täida nimi, kategooria (hügieen, toit, mäng jne), kestus ja tähe väärtus. Salvesta ja tegevus lisatakse kogusse."
+            },
+            {
+              "q": "Kuidas ma tegevuse plaani lisan?",
+              "a": "Tegevused elavad kogus. Mine nädalaplaani → vali päev → «+» → vali tegevus, mida lisada."
+            },
+            {
+              "q": "Kuidas ma tegevuse igalt päevalt eemaldan?",
+              "a": "Puuduta tegevusel ✕ → vali <strong>Iga nädalapäev</strong>. Ainult tänase või ühe nädalapäeva (nt iga neljapäev) eemaldamiseks on eraldi valikud."
+            },
+            {
+              "q": "Kuidas ma tegevust muudan?",
+              "a": "Puuduta tegevust nimekirjas → «Muuda». Muudatused kehtivad kohe igas plaanis, kus tegevus on kasutusel."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategooriad",
+          "faqs": [
+            {
+              "q": "Milleks kategooriad on?",
+              "a": "Kategooriad värvivad tegevused lapse vaates. <strong>Hügieen</strong>=sinine, <strong>Toit</strong>=kollane, <strong>Mäng</strong>=roheline, <strong>Kool</strong>=lilla, <strong>Liikumine</strong>=punane, <strong>Puhkus</strong>=hall, <strong>Suhtlus</strong>=oranž."
+            },
+            {
+              "q": "Kuidas ma kategooria valin?",
+              "a": "Kui lood või muudad tegevust, vali rippmenüüst kategooria. Vali see, mis tegevust kõige paremini kirjeldab."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Abi – kogu",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Vahelehed",
+          "faqs": [
+            {
+              "q": "Millised vahelehed kogus on?",
+              "a": "<strong>Plaanid</strong> — sinu enda plaanimallid. <strong>Tegevused</strong> — tegevuste kogu sammudega. <strong>Auhinnad</strong> — sinu enda auhinnad. <strong>Standardkogu</strong> — 63 tegevust, 15 auhinda ja 5 plaani, millest kopeerida."
+            },
+            {
+              "q": "Kuidas ma standardkogust kopeerin?",
+              "a": "Mine vahelehele «Standardkogu» → vali tegevus või auhind → puuduta nuppu 📥, et kopeerida pere kogusse. Plaanid kopeeritakse nädalaplaani kaudu → «Kopeeri päevast…»."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Tegevused",
+          "faqs": [
+            {
+              "q": "Kuidas ma uue tegevuse loon?",
+              "a": "Puuduta «+ Uus tegevus» → täida nimi, emoji (vali või kirjuta oma), tähe väärtus ja sammud → salvesta. Tegevus salvestatakse kogu pere kogusse."
+            },
+            {
+              "q": "Mis on sammud?",
+              "a": "Sammud on juhised tegevuse all (nt «Pese käed» tegevuse «Hügieen» all). Laps näeb neid juhina, aga märgib kogu tegevuse ühe puudutusega."
+            },
+            {
+              "q": "Kuidas ma tegevust muudan?",
+              "a": "Puuduta plaanis tegevuse nime — avaneb muutmise aken. Muudatused (nimi, emoji, sammud) kehtivad automaatselt kõigile lastele ja päevadele."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Auhinnad",
+          "faqs": [
+            {
+              "q": "Kuidas ma auhinna lisan?",
+              "a": "Vaheleht «Auhinnad» → otsi auhinda → puuduta «+ Loo uus», kui seda pole → täida nimi, emoji, tähehind → vali, millised lapsed seda näevad → salvesta."
+            },
+            {
+              "q": "Kuidas ma auhindu otsin?",
+              "a": "Otsinguväli vaatab korraga sinu auhindu JA standardkogu. Vasteid pole? Nupp «Loo [nimi]» avab eeltäidetud vormi."
+            },
+            {
+              "q": "Kas lapsel võivad olla privaatsed auhinnad?",
+              "a": "Jah! Auhinda luues valid, millised lapsed seda näevad. Sobib lapsele kohandatud auhindade jaoks."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Abi – seaded",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Konto",
+          "faqs": [
+            {
+              "q": "Kuidas ma parooli muudan?",
+              "a": "Sisesta praegune parool ja uus parool → puuduta «Salvesta». Parool peab olema vähemalt 6 tähemärki."
+            },
+            {
+              "q": "Kuidas ma e-posti aadressi muudan?",
+              "a": "Sisesta uus e-posti aadress → puuduta «Salvesta». Uut aadressi võib olla vaja e-kirjaga kinnitada."
+            },
+            {
+              "q": "Kuidas ma konto kustutan?",
+              "a": "Konto kustutamiseks kirjuta meile aadressil <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>. Teeme selle 48 tunni jooksul."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Teavitused",
+          "faqs": [
+            {
+              "q": "Kuidas ma meeldetuletused sisse lülitan?",
+              "a": "Lülita lüliti «Meeldetuletused» all sisse → vali kellaaeg ja päevad. Brauser peab teavitusi lubama."
+            },
+            {
+              "q": "Ma ei saa teavitusi, kuigi need on sees",
+              "a": "Kontrolli, et brauser on lehele teavitused lubanud. Mine brauseri seadetesse → Teavitused → leia [REDACTED].se → Luba."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Abi – kalender",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalender",
+          "faqs": [
+            {
+              "q": "Mida kalender näitab?",
+              "a": "Kalender annab kuuülevaate lapse tegevustest, lunastatud auhindadest ja olulistest sündmustest."
+            },
+            {
+              "q": "Kuidas ma kuude vahel liigun?",
+              "a": "Puuduta nooli (< >) kuu nime kõrval, et kuud vahetada."
+            },
+            {
+              "q": "Kuidas ma päeva üksikasju näen?",
+              "a": "Puuduta kuupäeva, et näha selle päeva tegevuste ja tähtede loendit."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Abi – päevik",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Päevik",
+          "faqs": [
+            {
+              "q": "Mis on päevik?",
+              "a": "Päevik näitab lapse päeva — tegevusi, märgitud samme ja tähti. Kasuta seda, et <strong>ette vaadata</strong>, mida laps näeb, või et hiljem täita."
+            },
+            {
+              "q": "Kuidas ma päevikut filtreerin?",
+              "a": "Vali üleval filtris laps, et näha ainult ühe lapse päevikut. Saad filtreerida ka kuupäeva järgi."
+            },
+            {
+              "q": "Kui kaugele tagasi ma näen?",
+              "a": "Päevik hoiab andmeid päevast, mil hakkasid kasutama [REDACTED]. Keri või vali kuupäev, et vanemaid andmeid näha. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Abi – vali plaan päeva kaupa",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Määra plaan",
+          "faqs": [
+            {
+              "q": "Mis on «Vali plaan päeva kaupa»?",
+              "a": "Siin valid, milline nädalaplaan on iga lapse ja päeva jaoks aktiivne. Sobib, kui argipäevadel ja nädalavahetusel on eri rutiinid."
+            },
+            {
+              "q": "Kas lapsel võib argipäevadel ja nädalavahetusel olla eri plaan?",
+              "a": "Jah! Vali üks plaan E–R ja teine L–P. Puuduta päeva ja vali soovitud plaan."
+            },
+            {
+              "q": "Mis juhtub, kui päevale plaani pole määratud?",
+              "a": "Kui päevale pole plaani määratud, ei näe laps sel päeval tegevusi. Veendu, et igal päeval, mida soovid kasutada, on plaan."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Halduspaneel",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Ülevaade",
+          "faqs": [
+            {
+              "q": "Mida ma halduspaneelis teha saan?",
+              "a": "Halduspaneel annab ligipääsu kõigile peredele, kasutajatele ja süsteemiandmetele. Saad vaadata statistikat, hallata kontosid ja sisu modereerida."
+            },
+            {
+              "q": "Kuidas ma konkreetse kasutaja leian?",
+              "a": "Kasuta üleval otsinguvälja, et otsida e-posti või nime järgi. Puuduta peret, et üksikasju näha."
+            },
+            {
+              "q": "Kuidas ma pere arhiveerin?",
+              "a": "Puuduta pere kaarti → «Arhiveeri». Arhiveeritud peresid saab taastada, aga seni on need mitteaktiivsed."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Tugi",
+          "faqs": [
+            {
+              "q": "Kuidas ma saabunud toesõnumeid näen?",
+              "a": "Vahelehel «Toe postkast» näed kõiki kontaktvormi kaudu saadetud sõnumeid. Puuduta, et kogu teksti lugeda ja vastata."
+            },
+            {
+              "q": "Kuidas ma märgin juhtumi lahendatuks?",
+              "a": "Puuduta juhtumit → «Märgi lahendatuks». Lahendatud juhtumid filtreeritakse vaikevaatest välja, aga neid saab näidata valikuga «Näita lahendatuid»."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Lapse tugi — {{brand}}",
+    "loadError": "Lehte ei saanud laadida."
+  },
+  "supportSvar": {
+    "pageTitle": "Sinu juhtum",
+    "title": "Sinu juhtum",
+    "intro": "Siin on kogu vestlus. Kirjuta alla, kui soovid jätkata. Tavaline e-kirja vastus siin ei paista.",
+    "sent": "Saadetud. Näeme seda samal juhtumil.",
+    "escalate": "Vajan rohkem abi inimeselt",
+    "placeholder": "Kirjuta, mis toimub…"
+  }
+}

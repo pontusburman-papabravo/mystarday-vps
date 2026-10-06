@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Rahulik päev, üks täht korraga"
+  },
+  "language": {
+    "label": "Keel",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Vaheta keelt",
+    "choice": {
+      "title": "Keel",
+      "titleEn": "Keel",
+      "description": "Keelt saad hiljem seadetes muuta.",
+      "descriptionEn": "Keelt saad hiljem seadetes muuta.",
+      "confirm": "Jätka",
+      "required": "Vali jätkamiseks keel",
+      "childNote": "Lapse vaade järgib pere keelt.",
+      "childNoteEn": "Lapse vaade järgib pere keelt."
+    },
+    "offer": {
+      "title": "{{brand}} on nüüd eesti keeles",
+      "body": "{{brand}} on nüüd saadaval ka eesti keeles.",
+      "question": "Kas jääd rootsi keele juurde või proovid eesti keelt?",
+      "staySwedish": "Jää rootsi keele juurde",
+      "tryEnglish": "Proovi eesti keelt",
+      "remindLater": "Tuleta hiljem meelde"
+    },
+    "legacyNotice": {
+      "body": "Olemasolevad tegevused jäävad algsesse keelde. Uued tegevused tulevad eesti keeles.",
+      "dismiss": "Selge",
+      "dismissAria": "Sulge keeleteade"
+    },
+    "reportIssue": "Teata keeleprobleemist",
+    "feedback": {
+      "typeLabel": "Keele- või tõlkeprobleem",
+      "typeLabelEn": "Keele- või tõlkeprobleem",
+      "titlePlaceholder": "Mis paistab valesti?",
+      "visibleText": "Millist teksti sa nägid?",
+      "suggestion": "Kuidas see peaks kõlama? (valikuline)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Kus su pere elab?",
+      "description": "Seda kasutame õigete tingimuste ja privaatsusteabe jaoks. See on keelevalikust eraldi.",
+      "label": "Riik",
+      "hint": "",
+      "required": "Vali jätkamiseks riik",
+      "closedEu": "{{brand}} ei ole sinu riigis veel saadaval. Anname teada, kui avame rohkem ELi turge.",
+      "closedIe": "{{brand}} ei ole Iirimaal veel saadaval.",
+      "closedCa": "{{brand}} ei ole Kanadas veel saadaval.",
+      "closedFi": "{{brand}} ei ole Soomes veel saadaval.",
+      "closedNo": "{{brand}} ei ole Norras veel saadaval.",
+      "closedDk": "{{brand}} ei ole Taanis veel saadaval.",
+      "closedUk": "{{brand}} ei ole Ühendkuningriigis veel saadaval.",
+      "closedUs": "{{brand}} ei ole Ameerika Ühendriikides veel saadaval.",
+      "closedOther": "{{brand}} ei ole sinu riigis veel saadaval.",
+      "euGroup": "Muu ELi/EMP riik"
+    }
+  },
+  "nav": {
+    "login": "Logi sisse",
+    "register": "Loo konto",
+    "childLogin": "Lapse sisselogimine",
+    "dashboard": "Ülevaade",
+    "logout": "Logi välja",
+    "admin": "Haldus"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — lihtsam argipäev kogu perele",
+      "ogDescription": "Loo ja jälgi päevaplaane, tegevusi ja auhindu"
+    },
+    "login": {
+      "title": "Logi sisse",
+      "pageTitle": "Logi sisse — {{brand}}",
+      "tagline": "Särame koos",
+      "subtitle": "Tere tulemast tagasi, {{brand}}",
+      "email": "E-posti aadress",
+      "emailPlaceholder": "sina@epost.ee",
+      "password": "Parool",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Logi sisse",
+      "submitting": "Login sisse…",
+      "forgotPassword": "Unustasid parooli?",
+      "noAccount": "Pole veel kontot?",
+      "createAccount": "Loo konto",
+      "childLogin": "Oled laps?",
+      "childLoginLink": "Oled laps? Logi sisse siin",
+      "loginAsAdult": "Logi sisse vanemana",
+      "orDivider": "või",
+      "continueWithApple": "Jätka Apple’iga",
+      "continueWithGoogle": "Jätka Google’iga",
+      "apple_caption": "Saadaval ainult iOS-is",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Sisesta nii e-post kui ka parool",
+      "genericError": "Midagi läks valesti. Proovi uuesti.",
+      "mascotAlt": "Tähemaskott",
+      "addChildBannerTitle": "👶 Logi vanemana sisse, et last lisada",
+      "addChildBannerBody": "«Olen laps» ei piisa siin — vaja on vanemat või pedagoogi.",
+      "resetSuccessBannerTitle": "Parool salvestatud",
+      "resetSuccessBannerBody": "Logi sisse uue parooliga.",
+      "backToChildPicker": "← Tagasi lapse valikusse",
+      "linking": {
+        "emailExists": "Selle e-posti aadressiga konto on juba olemas.",
+        "promptApple": "Kas soovid siduda Apple’i konto olemasoleva kontoga?",
+        "promptGoogle": "Kas soovid siduda Google’i konto olemasoleva kontoga?",
+        "yes": "Jah, seo",
+        "cancel": "Tühista",
+        "modalTitleApple": "Seo Apple’i konto",
+        "modalTitleGoogle": "Seo Google’i konto",
+        "modalIntroApple": "Sisesta parool, et sisse logida ja seejärel Apple’i konto siduda.",
+        "modalIntroGoogle": "Sisesta parool, et sisse logida ja seejärel Google’i konto siduda.",
+        "emailLabel": "E-post",
+        "passwordLabel": "Parool",
+        "passwordPlaceholder": "Sinu parool",
+        "submit": "Seo",
+        "submitting": "Seon…",
+        "enterPassword": "Sisesta parool.",
+        "wrongPassword": "Vale parool.",
+        "failed": "Sidumine ebaõnnestus."
+      },
+      "apple": {
+        "unavailable": "Apple’iga sisselogimine ei ole praegu saadaval. Proovi uuesti või logi sisse e-postiga.",
+        "notEnabled": "Apple’iga sisselogimine ei ole sisse lülitatud. Uuenda rakendus uusimale versioonile.",
+        "cancelled": "Apple’iga sisselogimine tühistati.",
+        "incomplete": "Apple’iga sisselogimine ei lõppenud. Proovi uuesti või logi sisse e-posti ja parooliga.",
+        "rateLimited": "Liiga palju katseid. Oota hetk ja proovi uuesti.",
+        "genericError": "Apple’iga sisselogimisel läks midagi valesti. Proovi uuesti või logi sisse e-posti ja parooliga.",
+        "failed": "Apple’iga sisselogimine ebaõnnestus. Proovi uuesti või logi sisse e-posti ja parooliga.",
+        "signInFailed": "Apple’iga sisselogimine ebaõnnestus.",
+        "completionTitle": "Lõpeta konto loomine",
+        "completionBody": "Vali riik ja nõustu tingimustega. Apple andis juba nime ja e-posti — me ei küsi neid uuesti.",
+        "completionSubmit": "Jätka sama Apple’i kontoga"
+      },
+      "google": {
+        "emailConflictSettings": "Selle e-posti aadressiga konto on juba olemas. Logi sisse ja seo Google seadetes või kasuta parooliga sisselogimist.",
+        "loginFailed": "Google’iga sisselogimine ebaõnnestus.",
+        "signInFailed": "Google’iga sisselogimine ebaõnnestus."
+      },
+      "verify": {
+        "title": "Kinnita e-posti aadress",
+        "body": "Pead e-posti aadressi kinnitama, et rakenduses {{brand}} jätkata. Vaata postkasti (ja rämpsposti).",
+        "emailLabel": "E-posti aadress:",
+        "resendBtn": "Saada uus kinnituslink",
+        "resendSending": "Saadan…",
+        "resendSuccess": "✅ Uus kinnituslink saadetud! Vaata postkasti ja rämpsposti.",
+        "resendError": "Midagi läks valesti. Proovi uuesti.",
+        "spamHint": "Vaata ka rämpsposti. Link kehtib 24 tundi."
+      }
+    },
+    "entry": {
+      "back": "Tagasi",
+      "backWithArrow": "← Tagasi",
+      "welcome": {
+        "ariaLabel": "Tere tulemast",
+        "headline": "Rahulikum argipäev selgete sammude, plaanide ja tähtedega",
+        "lead": "{{brand}} aitab lapsi ja peresid igapäevaste rutiinidega visuaalsete plaanide, selgete sammude ja auhindade kaudu, et päevast iseseisvamalt läbi tulla.",
+        "chipVisualSchedules": "Visuaalsed plaanid",
+        "chipStarsRewards": "Tähed ja auhinnad",
+        "chipMultipleUsers": "Mitu last ja täiskasvanut",
+        "startBtn": "Alusta",
+        "existingBtn": "Mul on juba konto",
+        "howItWorksBtn": "Kuidas rakendus töötab",
+        "firstRunHeadline": "Tere tulemast, {{brand}}",
+        "firstRunCreateAccount": "Loo konto",
+        "firstRunLogIn": "Logi sisse",
+        "firstRunChildLink": "Olen laps"
+      },
+      "role": {
+        "title": "Kes rakendust praegu kasutab?",
+        "kidAria": "Olen laps",
+        "kidLabel": "Olen laps",
+        "kidSub": "Tahan oma plaani näha",
+        "kidAlt": "Laps",
+        "parentAria": "Olen täiskasvanu",
+        "parentLabel": "Olen täiskasvanu",
+        "parentSub": "Tahan sisse logida või alustada",
+        "parentAlt": "Pere"
+      },
+      "adultStart": {
+        "ariaLabel": "Täiskasvanu algus",
+        "title": "Tere! Kuidas soovid jätkata?",
+        "existingLabel": "Mul on juba konto",
+        "existingSub": "Logi sisse Apple’i, Google’i või e-postiga",
+        "newLabel": "Olen siin uus",
+        "newSub": "Vaata, kuidas rakendus töötab, ja loo tasuta konto"
+      },
+      "signupIntro": {
+        "ariaLabel": "Alusta",
+        "title": "Alusta rakendusega {{brand}}",
+        "sub": "Loo tasuta konto ja koosta lapse esimene plaan selgete sammude, tähtede ja eesmärkidega.",
+        "point1": "Visuaalsed plaanid, millest laps aru saab",
+        "point2": "Tähed ja auhinnad, mis motiveerivad",
+        "point3": "Mitu last ja täiskasvanut samas peres",
+        "createBtn": "Loo tasuta konto",
+        "existingBtn": "Mul on juba konto",
+        "founderNote": "Basic on praegu tasuta kaasas."
+      },
+      "howItWorks": {
+        "title": "Kuidas rakendus töötab",
+        "step1Title": "1. Laps näeb oma plaani samm-sammult",
+        "step1Body": "Visuaalsed rutiinid teevad argipäeva selgeks ja etteaimatavaks.",
+        "step2Title": "2. Laps teenib tähti, kui tegevused on tehtud",
+        "step2Body": "Väikesed õnnestumised kasvatavad motivatsiooni ja iseseisvust.",
+        "step3Title": "3. Täiskasvanud jälgivad edenemist ja ehitavad rutiine koos",
+        "step3Body": "Mitu last ja täiskasvanut saavad rakenduses sama peret jagada.",
+        "close": "Sulge"
+      },
+      "noscript": "JavaScript on vajalik — luba JavaScript, et sisse logida."
+    },
+    "register": {
+      "title": "Loo konto",
+      "pageTitle": "Loo konto | {{brand}}",
+      "pageHeading": "Loo vanema konto",
+      "pageLead": "Proovi {{brand}} tasuta. Visuaalne plaan pilditoe ja tähtedega aitab lapsel päevast aru saada, rutiine järgida ja iseseisvamaks kasvada.",
+      "pageLeadSecondary": "Peredele, kes tahavad selgemaid rutiine, rahulikumaid üleminekuid ja vähem käskimist argipäevas.",
+      "subtitle": "Alusta rakendusega {{brand}}",
+      "nameLabel": "Sinu nimi",
+      "namePlaceholder": "nt Mari",
+      "familyNameLabel": "Pere nimi",
+      "familyNamePlaceholder": "nt Tamme pere",
+      "familyNameAuto": "Luudakse automaatselt sinu nimest",
+      "familyNameGenerated": "Automaatselt loodud — muuda, kui soovid",
+      "familyNameEdited": "Muudetud",
+      "email": "E-posti aadress",
+      "emailPlaceholder": "sina@epost.ee",
+      "emailHelp": "Saadame kinnituslingi siia",
+      "password": "Parool",
+      "passwordPlaceholder": "Vähemalt 8 tähemärki",
+      "passwordHelp": "Peab olema vähemalt 8 tähemärki",
+      "confirmPassword": "Kinnita parool",
+      "confirmPasswordPlaceholder": "Korda parooli",
+      "submit": "Loo konto",
+      "hasAccount": "On juba konto?",
+      "loginLink": "Logi sisse siin",
+      "childLoginLink": "Oled laps? Logi sisse siin",
+      "gateHintLanguage": "Vali ülalt keel, et registreerimist jätkata.",
+      "gateHintCountry": "Vali ülalt riik, et registreerimist jätkata.",
+      "appleFromLoginHint": "Selle Apple ID-ga pole veel kontot seotud. Vali riik ja nõustu tingimustega — nimi ja e-post tulevad Apple’ilt. Uut Apple’i sisselogimist pole vaja.",
+      "appleOnlyPath": "Loo konto Apple’iga. Nimi ja e-post tulevad Apple’ilt — ära täida vormi.",
+      "tagline": "Rahulik päev, üks täht korraga",
+      "orDivider": "või",
+      "continueWithApple": "Registreeru Apple’iga",
+      "continueWithGoogle": "Registreeru Google’iga",
+      "validatingInvite": "Kontrollin kutset...",
+      "inviteInvalid": "Vigane või aegunud kutselink. Võta ühendust inimesega, kes sind kutsus.",
+      "inviteValidateFailed": "Kutselinki ei saanud kontrollida. Proovi uuesti.",
+      "familyNameSuffix": "Pere {{name}}",
+      "termsRequired": "Pead nõustuma kasutustingimuste ja privaatsuspoliitikaga",
+      "success": "Konto loodud! Vaata e-posti, et konto kinnitada.",
+      "termsPrefix": "Olen lugenud ja nõustun",
+      "termsLink": "Kasutustingimused",
+      "termsAnd": "ja",
+      "privacyLink": "Privaatsuspoliitika",
+      "termsSuffix": ".",
+      "successTitle": "Konto loodud! 🎉",
+      "successVerifyLine1": "Saatsime kinnituslingi sinu e-posti aadressile.",
+      "successVerifyLine2": "Vaata postkasti (ja rämpsposti).",
+      "successGracePeriod": "Saad kohe sisse logida ja sul on e-posti kinnitamiseks 24 tundi.",
+      "successLoginBtn": "Logi sisse",
+      "inviteErrorDefault": "Vigane kutselink.",
+      "appleEmailExists": "Selle e-posti aadressiga konto on juba olemas. Logi sisse Apple’iga või kasuta e-posti ja parooli.",
+      "webDownload": {
+        "title": "Hangi rakendus",
+        "lead": "Uued pered loovad konto rakenduses. Laadi see alla App Store’ist või Google Playst.",
+        "appStoreAria": "Laadi alla App Store’ist",
+        "playStoreAria": "Hangi Google Playst",
+        "hasAccount": "On juba konto?",
+        "loginLink": "Logi sisse"
+      }
+    },
+    "parentGate": {
+      "title": "Vanema lukk",
+      "hint": "Sisesta jätkamiseks PIN",
+      "keypadAria": "PIN-klaviatuur",
+      "cancel": "Tühista",
+      "forgotPinBackup": "Unustasid PIN-i? Logi sisse e-posti või Apple’i/Google’iga",
+      "digitsEntered": "{{count}} numbrit 4-st",
+      "backspace": "Kustuta",
+      "confirm": "Kinnita",
+      "needFourDigits": "PIN peab olema 4 numbrit"
+    },
+    "childLogin": {
+      "title": "Tere! 👋",
+      "pageTitle": "Täheuurija — {{brand}}",
+      "whoAreYou": "Kes sa oled?",
+      "selectProfile": "Vali oma profiil ja sisesta PIN.",
+      "back": "Tagasi",
+      "addChild": "Lisa laps",
+      "notMe": "Ma ei leia ennast",
+      "subtitle": "Kirjuta kasutajanimi ja PIN",
+      "username": "Kasutajanimi",
+      "usernamePlaceholder": "Sinu kasutajanimi",
+      "pin": "PIN",
+      "pinPlaceholder": "4 numbrit",
+      "submit": "Logi sisse",
+      "parentLogin": "Oled vanem?",
+      "parentLoginLink": "Logi sisse siin",
+      "adultLogin": "Logi sisse täiskasvanuna",
+      "adultLoginShort": "Täiskasvanu",
+      "forgotPassword": "Unustasid parooli?",
+      "emptyNoChildren": "Lapsi pole veel registreeritud.",
+      "nameHint": "Kirjuta sisselogimiseks oma nimi",
+      "namePlaceholder": "Sinu nimi",
+      "continue": "Jätka →",
+      "switchChild": "Vaheta last",
+      "pinSub": "Sisesta oma kood",
+      "attemptsLeft": "Katseid jäänud",
+      "pinDotsAria": "PIN-kood",
+      "lockoutWait": "Oota hetk",
+      "lockoutSoon": "Saad varsti uuesti proovida",
+      "welcome": "Tere tulemast!",
+      "redirecting": "Viin sind su vaatesse…",
+      "keypadAria": "Numbriklahvistik",
+      "forgotPin": "Küsi vanemalt, kui kood ununes",
+      "needHelp": "Vajad abi?",
+      "contactParent": "Võta vanemaga ühendust"
+    },
+    "verify": {
+      "title": "Kinnita e-post",
+      "pageTitle": "Kinnita e-post — {{brand}}",
+      "checkingTitle": "Kinnitan e-posti",
+      "checkingBody": "Oota, kuni kinnitame sinu e-posti aadressi...",
+      "checking": "Kontrollin...",
+      "success": "E-post on kinnitatud! Nüüd saad sisse logida.",
+      "successTitle": "E-post kinnitatud!",
+      "welcomeMessage": "Sinu e-posti aadress on kinnitatud. Tere tulemast, {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Suunan edasi",
+      "redirectCountdownSuffix": "sekundi pärast...",
+      "error": "Kinnituslink on vigane või aegunud.",
+      "errorTitle": "Kinnitamine ebaõnnestus",
+      "verifyFailed": "Kinnitamine ebaõnnestus. Link võib olla aegunud.",
+      "noToken": "Lingist ei leitud kinnituskoodi.",
+      "genericError": "Midagi läks valesti. Proovi uuesti.",
+      "resendPrompt": "Sisesta e-posti aadress, et saada uus kinnituslink:",
+      "resendBtn": "Saada uus link",
+      "resendSending": "Saadan...",
+      "resendRateLimit": "Oled juba mitu linki küsinud. Proovi tunni pärast uuesti.",
+      "resendSuccess": "✅ Kui konto on olemas, saatsime uue kinnituslingi. Vaata postkasti ja rämpsposti!",
+      "resendEmailInvalid": "Sisesta kehtiv e-posti aadress.",
+      "needHelpPrefix": "Vajad abi? Vaata rämpsposti või",
+      "contactUs": "võta meiega ühendust",
+      "loginLink": "Mine sisselogimisele"
+    },
+    "forgotPassword": {
+      "title": "Unustatud parool",
+      "pageTitle": "Unustatud parool — {{brand}}",
+      "heading": "Unustasid parooli?",
+      "lead": "Pole hullu! Saadame lingi, millega parooli lähtestada.",
+      "subtitle": "Sisesta e-posti aadress ja saadame lähtestuslingi",
+      "email": "E-posti aadress",
+      "emailPlaceholder": "sina@epost.ee",
+      "emailHint": "Saadame turvalise lingi parooli lähtestamiseks",
+      "submit": "Saada lähtestuslink",
+      "sent": "Kui see e-posti aadress on meie süsteemis, saatsime lähtestuslingi.",
+      "successTitle": "Vaata e-posti!",
+      "successBody": "Saatsime lingi parooli lähtestamiseks. Vaata postkasti ja rämpsposti.",
+      "orDivider": "või",
+      "rememberPassword": "Mäletad parooli?",
+      "backToLogin": "Tagasi sisselogimisele",
+      "helpTitle": "E-kiri ei tulnud?",
+      "helpItem1": "Vaata rämpsposti kausta",
+      "helpItem2": "Kontrolli, et sisestasid õige e-posti aadressi",
+      "helpItem3": "Proovi mõne minuti pärast uuesti",
+      "helpItem4Suffix": "kui vajad abi",
+      "contactSupport": "Võta toega ühendust"
+    },
+    "resetPassword": {
+      "title": "Lähtesta parool",
+      "pageTitle": "Lähtesta parool — {{brand}}",
+      "subtitle": "Vali uus parool",
+      "password": "Uus parool",
+      "passwordPlaceholder": "Vähemalt 8 tähemärki",
+      "passwordHelp": "Peab olema vähemalt 8 tähemärki",
+      "confirmPassword": "Kinnita parool",
+      "confirmPasswordPlaceholder": "Korda parooli",
+      "submit": "Lähtesta parool",
+      "submitting": "Salvestan…",
+      "success": "Parool on muudetud! Nüüd saad sisse logida.",
+      "successRedirect": "Valmis! Uus parool on salvestatud.",
+      "alreadyUsed": "Parool on juba muudetud. Logi sisse uue parooliga.",
+      "error": "Lähtestuslink on vigane või aegunud.",
+      "invalidLink": "Vigane lähtestuslink.",
+      "requestNewLink": "Küsi uus lähtestuslink",
+      "requestNewLinkShort": "Küsi uus link",
+      "resetFailed": "Parooli ei saanud lähtestada",
+      "rememberPassword": "Mäletad parooli?",
+      "goToLoginInline": "Mine sisselogimisele",
+      "loginLink": "Mine sisselogimisele"
+    },
+    "supportBubble": {
+      "closeAria": "Sulge",
+      "triggerAria": "Võta toega ühendust",
+      "title": "Vajad abi? 💬",
+      "subtitle": "Vastame niipea, kui saame",
+      "oooSubtitle": "Oleme ära 1.–10. septembril",
+      "success": "Aitäh! Saime su sõnumi kätte ja vastame peagi.",
+      "oooSuccess": "Aitäh! Saime su sõnumi kätte. Oleme ära 1.–10. septembril ja vastame niipea kui saame, hiljemalt 11. septembril.",
+      "openThread": "Ava vestlus",
+      "nameLabel": "Nimi",
+      "namePlaceholder": "Sinu nimi",
+      "emailLabel": "E-post",
+      "emailPlaceholder": "sina@epost.ee",
+      "emailHint": "Et saaksime sulle vastata",
+      "messageLabel": "Sõnum",
+      "messagePlaceholder": "Kirjelda, mis toimub...",
+      "submit": "Saada sõnum",
+      "fillAllFields": "Täida kõik väljad",
+      "messageMinLength": "Sõnum peab olema vähemalt 10 tähemärki",
+      "submitting": "Saadan...",
+      "sendFailed": "Sõnumit ei saanud saata. Proovi uuesti.",
+      "genericError": "Midagi läks valesti"
+    },
+    "contactForm": {
+      "fillRequired": "Kõik väljad on kohustuslikud.",
+      "emailInvalid": "Sisesta kehtiv e-posti aadress.",
+      "messageTooShort": "Sõnum on liiga lühike (vähemalt 5 tähemärki).",
+      "submitting": "Saadan…",
+      "submit": "Saada",
+      "genericError": "Midagi läks valesti. Proovi uuesti.",
+      "openThread": "Ava vestlus"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "E-post ja parool on vajalikud",
+        "emailRequired": "E-posti aadress on vajalik",
+        "accountBlocked": "Sinu konto on blokeeritud. Võta ühendust halduriga.",
+        "emailVerificationRequired": "Pead e-posti aadressi kinnitama, et jätkata",
+        "verificationTokenRequired": "Kinnituskood on vajalik",
+        "invalidVerificationLink": "Vigane või aegunud kinnituslink",
+        "resendVerificationRateLimit": "Oled juba mitu kinnituslinki küsinud. Proovi tunni pärast uuesti.",
+        "tokenAndPasswordRequired": "Kood ja parool on vajalikud",
+        "invalidResetLink": "Vigane või aegunud lähtestuslink. Küsi uus lähtestuslink.",
+        "parentOnlyViewMode": "Ainult vanemad saavad vaaterežiimi muuta",
+        "parentOnlyUiViewMode": "Ainult vanemad saavad kasutajaliidese vaadet muuta",
+        "parentOnlyTheme": "Ainult vanemad saavad kujundust muuta",
+        "preferencesSaveFailed": "Seadeid ei saanud salvestada",
+        "uiViewModeSaveFailed": "Vaaterežiimi ei saanud salvestada",
+        "themeSaveFailed": "Kujundust ei saanud salvestada",
+        "userNotFound": "Kasutajat ei leitud",
+        "unknownUserType": "Tundmatu kasutajatüüp",
+        "registrationClosed": "Registreerimine on praegu suletud",
+        "invalidCountry": "Vigane riik",
+        "countryRequired": "Vali riik enne konto loomist",
+        "registrationRequired": "ASENDATUD — kasuta appleAccountCompletionRequired. Ära suuna e-posti ja parooliga registreerimisele.",
+        "appleAccountCompletionRequired": "Vali riik ja nõustu tingimustega, et konto loomine lõpetada. Nimi ja e-post tulevad Apple’ilt.",
+        "familyNameRequired": "Perekonto loomiseks on nimi vajalik",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registreerimine Rootsist on ajutiselt suletud.",
+          "MARKET_IE_CLOSED": "{{brand}} ei ole Iirimaal veel saadaval.",
+          "MARKET_CA_CLOSED": "{{brand}} ei ole Kanadas veel saadaval.",
+          "MARKET_FI_CLOSED": "{{brand}} ei ole Soomes veel saadaval.",
+          "MARKET_NO_CLOSED": "{{brand}} ei ole Norras veel saadaval.",
+          "MARKET_DK_CLOSED": "{{brand}} ei ole Taanis veel saadaval.",
+          "MARKET_EU_CLOSED": "{{brand}} ei ole sinu riigis veel saadaval. Anname teada, kui avame rohkem ELi riike.",
+          "MARKET_UK_CLOSED": "{{brand}} ei ole Ühendkuningriigis veel saadaval.",
+          "MARKET_US_CLOSED": "{{brand}} ei ole Ameerika Ühendriikides veel saadaval.",
+          "MARKET_OTHER_CLOSED": "{{brand}} ei ole sinu riigis veel saadaval.",
+          "MARKET_BILLING_NOT_READY": "Ostud ei ole selles riigis veel saadaval, seega ei saa luua kontot, mida sa kasutada ei saaks."
+        }
+      },
+      "success": {
+        "emailVerified": "Sinu e-posti aadress on kinnitatud! Nüüd saad sisse logida.",
+        "resendVerification": "Kui konto on olemas, saadetakse uus kinnituslink",
+        "forgotPassword": "Kui e-posti aadress on olemas, saadame lingi"
+      }
+    },
+    "errors": {
+      "nameRequired": "Sisesta oma nimi",
+      "emailRequired": "E-posti aadress on vajalik",
+      "emailInvalid": "Vigane e-posti aadress",
+      "passwordRequired": "Parool on vajalik",
+      "passwordTooShort": "Parool peab olema vähemalt 8 tähemärki",
+      "passwordMismatch": "Paroolid ei kattu",
+      "usernameRequired": "Kasutajanimi on vajalik",
+      "pinRequired": "PIN on vajalik",
+      "pinInvalid": "PIN peab olema 4 numbrit",
+      "invalidCredentials": "Vale e-post või parool",
+      "accountLocked": "Sinu konto on ajutiselt lukus. Proovi 15 minuti pärast uuesti.",
+      "emailNotVerified": "Pead esmalt e-posti aadressi kinnitama",
+      "emailExists": "Selle e-posti aadressiga konto on juba olemas",
+      "tooManyAttempts": "Liiga palju katseid. Oota hetk ja proovi uuesti.",
+      "serverError": "Midagi läks valesti. Proovi hiljem uuesti.",
+      "invalidValues": "Vigased väärtused",
+      "invalidParams": "Vigased URL-i parameetrid",
+      "invalidQuery": "Vigased päringuparameetrid",
+      "parentPinInvalid": "Vale PIN — proovi uuesti",
+      "logoutFailed": "Väljalogimine ebaõnnestus. Proovi uuesti.",
+      "logoutRateLimited": "Liiga palju katseid. Oota hetk ja proovi uuesti.",
+      "handoffInvalid": "Täiskasvanu seanssi ei saanud taastada. Logi sisse vanemana.",
+      "userNotFound": "Kasutajat ei leitud",
+      "invalidPassword": "Vale parool",
+      "tokenRequired": "Kood on vajalik",
+      "idTokenRequired": "idToken on vajalik",
+      "allFieldsRequired": "Kõik väljad on vajalikud",
+      "messageTooShort": "Sõnum peab olema vähemalt 10 tähemärki",
+      "serviceUnavailable": "Teenus ei ole ajutiselt saadaval",
+      "nameTooShort": "Nimi on vajalik (vähemalt 2 tähemärki)",
+      "roleRequired": "Roll on vajalik",
+      "consentRequired": "Pead nõustuma, et salvestame sinu andmed",
+      "refreshInvalid": "Värskenduskood on vigane või aegunud",
+      "authRequired": "Vajalik on sisselogimine",
+      "passwordTooShort6": "Parool peab olema vähemalt 6 tähemärki"
+    }
+  },
+  "surveys": {
+    "thankYou": "Aitäh vastuse eest!",
+    "errors": {
+      "unavailable": "Küsitlus ei ole praegu saadaval",
+      "notFound": "Küsitlust ei leitud",
+      "closed": "Küsitlus on suletud",
+      "paused": "Küsitlus on peatatud",
+      "alreadyAnswered": "Oled sellele küsitlusele juba vastanud",
+      "alreadySubmitted": "Küsitlus on juba esitatud",
+      "questionIdRequired": "Küsimus on vajalik",
+      "invalidQuestion": "Vigane küsimus",
+      "maxSelections": "Saad valida kõige rohkem {{max}}",
+      "invalidOption": "Vigane vastusevariant",
+      "sessionNotFound": "Seanssi ei leitud",
+      "answerFirst": "Vasta esmalt küsitlusele",
+      "contestNotOpen": "Loosimine ei ole avatud",
+      "contestClosed": "Loosimine on suletud",
+      "ageRequired": "Osalemiseks pead olema vähemalt 18-aastane",
+      "contestConsent": "Loosimises osalemiseks on nõusolek vajalik",
+      "contestAlready": "Oled juba loosimises osalemas",
+      "emailAlready": "See aadress on juba registreeritud",
+      "idActionRequired": "Küsitlus ja toiming on vajalikud"
+    }
+  },
+  "dashboard": {
+    "welcome": "Tere, {{name}}!",
+    "todaySchedule": "Tänane plaan",
+    "children": "Lapsed",
+    "addChild": "Lisa laps",
+    "settings": "Seaded",
+    "noChildren": "Sa pole veel ühtegi last lisanud. Alusta esimese lapse lisamisest!",
+    "stars": "Tähed",
+    "streak": "Seeria"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Minu esimene täht"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Tere, {{name}}! ⭐",
+    "today": "Täna",
+    "now": "Praegu",
+    "next": "Järgmine",
+    "later": "Hiljem",
+    "done": "Tehtud!",
+    "stars": "Minu tähed",
+    "rewards": "Auhinnad"
+  },
+  "sections": {
+    "morgon": "Hommik",
+    "dag": "Päev",
+    "kvall": "Õhtu",
+    "natt": "Öö"
+  },
+  "settings": {
+    "title": "Seaded",
+    "family": {
+      "title": "Pere seaded",
+      "timeDisplayMode": "Aja kuvamise viis",
+      "morningStart": "Hommiku algus",
+      "morningEnd": "Hommiku lõpp",
+      "dayStart": "Päeva algus",
+      "dayEnd": "Päeva lõpp",
+      "eveningStart": "Õhtu algus",
+      "eveningEnd": "Õhtu lõpp",
+      "nightStart": "Öö algus",
+      "nightEnd": "Öö lõpp",
+      "streakStartDay": "Seeria alguspäev",
+      "soundEnabled": "Heli sees",
+      "save": "Salvesta pere seaded"
+    },
+    "language": {
+      "description": "Vali rakenduse keel. Mõni tõlge võib veel olla pooleli.",
+      "switchBack": "Lülitu tagasi rootsi keelele"
+    },
+    "invite": {
+      "title": "Kutsu vanem",
+      "description": "Kutsu teine vanem laste plaane vaatama ja haldama. Kutse kehtib 7 päeva.",
+      "email": "E-posti aadress",
+      "emailPlaceholder": "vanem@epost.ee",
+      "selectChildren": "Vali, millistele lastele kutsutud vanem ligi pääseb:",
+      "submit": "Saada kutse",
+      "pending": "Ootel kutsed:"
+    },
+    "password": {
+      "title": "Muuda parooli",
+      "current": "Praegune parool",
+      "new": "Uus parool",
+      "confirm": "Kinnita uus parool",
+      "submit": "Muuda parooli",
+      "mismatch": "Paroolid ei kattu"
+    },
+    "notifications": {
+      "title": "Teavituste seaded",
+      "weeklySummary": "Nädala kokkuvõte (pühapäev 21:00)",
+      "rewardRedemption": "Auhinna lunastamine",
+      "emailEnabled": "Kõik e-kirjad",
+      "save": "Salvesta teavituste seaded"
+    },
+    "theme": {
+      "title": "Välimus",
+      "darkMode": "Tume režiim",
+      "darkModeDescription": "Lülita sisse tume kujundus, et hämaras oleks mugavam",
+      "colorBlind": "Värvipimeduse kujundus",
+      "colorBlindDescription": "Kohandab värve eri tüüpi värvipimeduse jaoks",
+      "colorBlindNone": "Puudub (vaikimisi)",
+      "colorBlindProtanopia": "Protanopia (punapimedus)",
+      "colorBlindDeuteranopia": "Deuteranopia (rohepimedus)",
+      "colorBlindTritanopia": "Tritanopia (sinipimedus)"
+    },
+    "trustedDevices": {
+      "title": "Usaldusväärsed seadmed",
+      "description": "Lapse seadmed saavad avada lapse vaate ilma PIN-ita, kui kinnitad seadme siin.",
+      "disabled": "Lapse seadme režiim ei ole sinu peres veel sisse lülitatud.",
+      "enrollHint": "Lapse tahvelarvutis või telefonis: vali laps ja tee sellest seadmest tema lapse seade.",
+      "enrollThisDevice": "Tee lapse seadmeks",
+      "enrollSharedDevice": "Tee pere jagatud seadmeks",
+      "enrollFailed": "Seda seadet ei saanud registreerida. Proovi uuesti.",
+      "empty": "Usaldusväärseid seadmeid pole registreeritud.",
+      "revoke": "Tühista",
+      "revokeAll": "Tühista kõik seadmed",
+      "revokeAllConfirm": "Kõik usaldusväärsed seadmed logitakse välja. Kas jätkad?",
+      "modeChild": "Lapse seade",
+      "modeShared": "Jagatud seade",
+      "modeParent": "Vanema seade",
+      "unknownChild": "Laps"
+    },
+    "thisDevice": {
+      "title": "See seade",
+      "description": "Kuidas see telefon või tahvel peaks rakenduse sinu pere jaoks avama.",
+      "setupTitle": "Kuidas seda seadet kasutatakse?",
+      "setupLead": "Saad seda hiljem seadetes muuta.",
+      "setupLater": "Mitte praegu",
+      "openSettings": "Ava seaded",
+      "usageHeading": "Kasutus",
+      "usageParent": "Minu vanema telefon",
+      "usageShared": "Jagatud lastega",
+      "usageChild": "Lapse seade",
+      "startHeading": "Avab kui",
+      "startParent": "Vanem",
+      "startChoose": "Vali laps",
+      "startParentFixed": "See seade avab alati vanema vaate.",
+      "startChildFixed": "See seade on seotud ühe lapsega.",
+      "childrenHeading": "Lapsed sellel seadmel",
+      "adultAccessHeading": "Täiskasvanu ligipääs",
+      "adultPinSet": "PIN on määratud",
+      "adultPinMissing": "Määra seadetes PIN",
+      "biometricIos": "Face ID või Touch ID, kui saadaval",
+      "biometricAndroid": "Biomeetria või seadme lukk, kui saadaval",
+      "biometricWeb": "PIN täiskasvanu režiimi jaoks",
+      "widgetsHeading": "Vidinad",
+      "widgetsLinked": "Avakuva vidinad on seotud lapse plaaniga.",
+      "widgetsNone": "Sellel seadmel pole vidinaid seotud.",
+      "changeStartHeading": "Muuda avamisviisi",
+      "revokeThis": "Eemalda selle seadme ligipääs",
+      "revokeConfirm": "See seade tuleb uuesti kinnitada, et lapsed saaksid rakenduse ilma PIN-ita avada. Kas jätkad?",
+      "otherDevices": "Teised pere seadmed",
+      "openForChild": "Ava otse lapsele {{name}}",
+      "saveFailed": "Ei saanud salvestada. Proovi uuesti."
+    }
+  },
+  "common": {
+    "loading": "Laadin...",
+    "save": "Salvesta",
+    "cancel": "Tühista",
+    "delete": "Kustuta",
+    "edit": "Muuda",
+    "back": "Tagasi",
+    "confirm": "Kinnita",
+    "yes": "Jah",
+    "no": "Ei",
+    "networkError": "Võrguviga"
+  },
+  "categories": {
+    "title": "Kategooriad",
+    "subtitle": "Järjesta tegevused kategooriatesse",
+    "addCategory": "Lisa kategooria",
+    "editCategory": "Muuda kategooriat",
+    "categoryName": "Kategooria nimi",
+    "categoryNamePlaceholder": "nt Hügieen",
+    "noCategories": "Kategooriaid pole veel",
+    "defaultBadge": "Vaikimisi",
+    "deleteConfirm": "Kas soovid selle kategooria kustutada?",
+    "hasActivities": "Selle kategooriaga on seotud tegevused. Eemalda esmalt tegevused.",
+    "saved": "Kategooria salvestatud",
+    "deleted": "Kategooria kustutatud"
+  },
+  "activities": {
+    "title": "Tegevused",
+    "subtitle": "Loo ja halda oma pere tegevusmalle",
+    "addActivity": "Lisa tegevus",
+    "editActivity": "Muuda tegevust",
+    "activityName": "Tegevuse nimi",
+    "activityNamePlaceholder": "nt Pese hambaid",
+    "icon": "Ikoon",
+    "category": "Kategooria",
+    "noCategory": "Kategooriata",
+    "starValue": "Tähe väärtus",
+    "starValueHelp": "Mitu tähte laps teenib",
+    "favorite": "Märgi lemmikuks",
+    "favoriteHelp": "Lemmikud ilmuvad plaanis eespool",
+    "noActivities": "Tegevusi pole veel. Loo esimene tegevus!",
+    "filterAll": "Kõik",
+    "favoritesFirst": "Lemmikud on eespool",
+    "saved": "Tegevus salvestatud",
+    "deleted": "Tegevus kustutatud",
+    "deleteConfirm": "Kas soovid selle tegevuse kustutada?",
+    "usedInSchedule": "See tegevus on plaanis kasutusel. Eemalda see sealt esmalt."
+  },
+  "schedule": {
+    "title": "Nädalaplaan",
+    "subtitle": "Koosta igale lapsele ja igale päevale plaan",
+    "selectChild": "Vali laps",
+    "selectDay": "Vali päev",
+    "noChild": "Vali ülalt laps, et plaani näha",
+    "noScheduleForDay": "Sellel päeval plaani pole",
+    "createSchedule": "Loo selle päeva plaan",
+    "addActivity": "Lisa tegevus",
+    "startTime": "Algusaeg",
+    "endTime": "Lõppaeg",
+    "section": "Lõik",
+    "copyDay": "Kopeeri päev",
+    "copyDayTitle": "Kopeeri plaan teistele päevadele",
+    "copyFromDay": "Kopeeri päevast",
+    "copyToDays": "Kopeeri päevadele (vali üks või mitu)",
+    "copyToChild": "Kopeeri teisele lapsele",
+    "copyToChildTitle": "Kopeeri kogu nädalaplaan lapsele",
+    "copyConfirm": "Kopeeri",
+    "copied": "Plaan kopeeritud!",
+    "deleteSchedule": "Kustuta päev",
+    "deleteConfirm": "Kas oled kindel? Kõik selle päeva tegevused eemaldatakse.",
+    "deleted": "Plaan kustutatud",
+    "activityAdded": "Tegevus lisatud",
+    "activityRemoved": "Tegevus eemaldatud",
+    "reordered": "Järjekord uuendatud",
+    "days": {
+      "0": "Pühapäev",
+      "1": "Esmaspäev",
+      "2": "Teisipäev",
+      "3": "Kolmapäev",
+      "4": "Neljapäev",
+      "5": "Reede",
+      "6": "Laupäev"
+    },
+    "daysShort": {
+      "0": "Püh",
+      "1": "Esm",
+      "2": "Tei",
+      "3": "Kol",
+      "4": "Nel",
+      "5": "Ree",
+      "6": "Lau"
+    },
+    "sections": {
+      "morgon": "Hommik",
+      "dag": "Päev",
+      "kvall": "Õhtu",
+      "natt": "Öö"
+    }
+  },
+  "dailyLog": {
+    "title": "Päevik",
+    "subtitle": "Päeva tegevused",
+    "today": "Täna",
+    "prevDay": "Eelmine päev",
+    "nextDay": "Järgmine päev",
+    "selectDate": "Vali kuupäev",
+    "selectChild": "Vali laps",
+    "noChild": "Vali ülalt laps, et päevikut näha",
+    "noSchedule": "Sellel päeval plaani pole",
+    "noScheduleHint": "Lisa nädalaplaan, et päevikud tekiksid automaatselt.",
+    "loading": "Laadin päevikut...",
+    "paused": "Peatatud päev",
+    "pausedHint": "See päev on peatatud (nt haiguspäev või vaba päev).",
+    "pauseDay": "Peata päev",
+    "unpauseDay": "Ava päev uuesti",
+    "pauseConfirm": "Kas peatad selle päeva? Tegevused ei loe sinu vastu.",
+    "dayPaused": "Päev peatatud",
+    "dayUnpaused": "Päev taas avatud",
+    "markDone": "Märgi tehtuks",
+    "markUndone": "Võta tagasi",
+    "completed": "Tehtud",
+    "notCompleted": "Tegemata",
+    "completedAt": "Märgitud tehtuks kell",
+    "stars": "tähte",
+    "star": "täht",
+    "progress": "{{completed}} / {{total}} tegevust tehtud",
+    "allDone": "Kõik tegevused tehtud! 🎉",
+    "emptySection": "Selles lõigus tegevusi pole",
+    "history": "Ajalugu",
+    "historyRange": "Vali kuupäevavahemik",
+    "historyFrom": "Alates",
+    "historyTo": "Kuni",
+    "historyFetch": "Too ajalugu",
+    "historyEmpty": "Valitud vahemikus päevikuid ei leitud",
+    "sections": {
+      "morgon": "Hommik",
+      "dag": "Päev",
+      "kvall": "Õhtu",
+      "natt": "Öö"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Kinnita e-post — {{brand}}",
+      "title": "Tere tulemast, {{brand}}! ⭐",
+      "body": "Puuduta allolevat nuppu, et e-posti aadress kinnitada:",
+      "button": "Kinnita e-post",
+      "expiry": "See link kehtib {{hours}} tundi."
+    },
+    "resetPassword": {
+      "subject": "Lähtesta parool — {{brand}}",
+      "title": "Lähtesta parool",
+      "greeting": "Tere, {{name}}",
+      "greetingGeneric": "Tere",
+      "body": "puuduta siin, et uus parool määrata:",
+      "button": "Lähtesta parool",
+      "expiry": "See link kehtib {{hours}} tund. Ignoreeri kirja, kui sa lähtestust ei küsinud."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} proovib sisse logida",
+      "title": "Sisselogimiskatse rakenduses {{brand}}",
+      "body": "{{childName}} sisestas rakenduses {{brand}} 3 korda vale PIN-i.",
+      "inApp": "{{childName}} proovis 3 korda vale PIN-iga sisse logida ({{time}})",
+      "help": "Saad aidata õige koodiga või lähtestada PIN-i rakenduses.",
+      "button": "Ava {{brand}}",
+      "footer": "Kui see ei olnud sinu laps, logi sisse ja muuda PIN-i lapse seadetes."
+    },
+    "accountDeletionRequested": {
+      "subject": "Sinu {{brand}} konto on märgitud kustutamiseks",
+      "greeting": "Tere, {{name}}!",
+      "intro": "Saime taotluse sinu konto ja kõigi seotud andmete kustutamiseks.",
+      "graceTitle": "⏳ Sinu andmed kustutatakse jäädavalt 30 päeva pärast.",
+      "undo": "Selle aja jooksul saad sisse logida ja <strong>kustutamise tühistada</strong>, kui mõtled ümber.",
+      "loginHint": "Kui mõtled ümber — logi sisse rakendusse {{brand}} ja näed võimalust tühistada.",
+      "footer": "Kui see oli eksitus, võid kirja ignoreerida. Sinu andmed kustutatakse 30 päeva pärast, kui sa ei tühista.",
+      "contact": "Kui sul on küsimusi, kirjuta aadressil {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Sinu {{brand}} konto on kustutatud",
+      "greeting": "Tere, {{name}}",
+      "intro": "Sinu konto ja kõik seotud andmed on nüüd rakendusest {{brand}} jäädavalt kustutatud.",
+      "dataRemoved": "Kõik pered, lapsed, plaanid, tegevused ja tähed on eemaldatud.",
+      "thanks": "Loodame, et {{brand}} oli sulle kasulik.",
+      "return": "Kui soovid uue konto luua, oled alati oodatud aadressil {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Lase lapsel esimest sammu proovida ⭐",
+      "greeting": "Tere, {{name}}!",
+      "body": "Plaan on valmis. Järgmiseks lase lapsel PIN-iga sisse logida — see võtab alla minuti.",
+      "button": "Jätka lapse sisselogimisele"
+    },
+    "welcomeShell": {
+      "headerTitle": "Tere tulemast! 🌟",
+      "cta": "Ava {{brand}} ⭐",
+      "footerIntro": "Saad selle kirja, sest registreerusid hiljuti rakendusse {{brand}}.",
+      "unsubscribe": "Loobu"
+    },
+    "common": {
+      "genericParent": "Vanem",
+      "genericInviter": "Keegi",
+      "genericPedagogInviter": "Üks vanem",
+      "genericChild": "sinu laps",
+      "genericReward": "auhind",
+      "genericYou": "sina",
+      "greetingNamed": "Tere, {{name}}",
+      "greeting": "Tere",
+      "familyNamed": "pere «{{familyName}}»",
+      "aFamily": "üks pere",
+      "settingsNotifications": "Seaded → Teavitused",
+      "settingsNotificationsHtml": "Seaded → <strong>Teavitused</strong>"
+    },
+    "invite": {
+      "subject": "Sind on kutsutud perre {{familyLabel}} rakenduses {{brand}} ⭐",
+      "title": "Sind on kutsutud! ⭐",
+      "body": "{{greeting}}, {{inviterName}} kutsus sind perre {{familyLabel}} rakenduses {{brand}}.",
+      "intro": "{{brand}} on visuaalne päevaplaan, mis aitab lapsel päevast aru saada, tegevusi märkida ja tähti koguda.",
+      "ctaIntro": "Puuduta siin, et parool luua ja konto aktiveerida:",
+      "button": "Aktiveeri konto",
+      "footer": "Kutse kehtib 7 päeva. Ignoreeri kirja, kui sa kutset ei oodanud."
+    },
+    "pedagogInvite": {
+      "subject": "Sind on kutsutud pedagoogiks perre {{familyName}} ⭐",
+      "title": "Tere tulemast pedagoogina! ⭐",
+      "greetingNamed": "Tere, {{name}},",
+      "greeting": "Tere,",
+      "body": "{{inviterName}} kutsus sind pedagoogiks perre {{familyName}} rakenduses {{brand}}.",
+      "intro": "Pedagoogina saad märkmeid teha ja lapse plaani jälgida.",
+      "button": "Võta kutse vastu →",
+      "footer": "Kutse kehtib 7 päeva. Kui sa seda kirja ei oodanud, võid selle ignoreerida."
+    },
+    "winBack": {
+      "subject": "Tule rutiini juurde tagasi ühe minutiga ⭐",
+      "greeting": "Tere, {{name}}! 👋",
+      "body1": "Lapse {{childName}} plaan on endiselt alles — ava tänased tegevused ja märgi need koos tehtuks.",
+      "body2": "Uuesti alustamiseks kulub vaid minut.",
+      "button": "Ava plaan →",
+      "settingsHint": "Need kirjad saad välja lülitada jaotises {{settingsLink}} rakenduses.",
+      "settingsLinkText": "Seaded → Teavitused"
+    },
+    "activationProgramInvite": {
+      "subject": "Rahulik algus lapse {{childName}} rutiinidele?",
+      "greeting": "Tere, {{name}}!",
+      "body1": "Oled konto loonud ja lapse {{childName}} plaani paika pannud — tubli.",
+      "body2": "Paljud pered ütlevad, et raskeim ei ole alustamine, vaid <strong>rutiini hoidmine</strong>, kui argipäev võimust võtab.",
+      "body3": "Saad nüüd proovida meie <strong>7-päevast alustamise programmi</strong>: lühikesed igapäevased sammud, mis aitavad sul vanemana hoogu hoida. Lapse plaan jääb samaks.",
+      "button": "Jah, aita meid esimesel nädalal",
+      "footer": "Kui sa juhendit ei soovi, töötab rakendus nagu tavaliselt — kõik, mille oled seadistanud, on alles."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutiin ootab — proovi seda täna õhtul koos ⭐",
+        "greeting": "Tere, {{name}}!",
+        "body1": "Sul on plaan juba olemas. Jäänud on <strong>rutiini koos proovida</strong> — lase lapsel sisse logida ja esimene täht koguda.",
+        "body2": "See võtab umbes kaks minutit. Survet pole.",
+        "button": "Ava Kodu →"
+      },
+      "noSchema": {
+        "subject": "Alusta rutiiniga — vaid mõni minut ⭐",
+        "greeting": "Tere, {{name}}!",
+        "body1": "Oled registreerunud — hea algus! Järgmine samm on <strong>plaan paika panna</strong>, et laps teaks, mida iga päev oodata.",
+        "body2": "See võtab umbes viis minutit. Kõik, mis juba tehtud, on alles, kui soovid hiljem jätkata.",
+        "button": "Jätka alustamist →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Oled tellinud uudiskirjad rakenduselt {{brand}}",
+      "title": "Aitäh tellimuse eest! ⭐",
+      "greetingNamed": "Tere, {{name}},",
+      "greeting": "Tere,",
+      "body": "Oled nüüd tellinud uudiskirjad rakenduselt {{brand}}: nipid, uudised ja rakenduse uuendused.",
+      "settings": "Saad igal ajal loobuda rakenduse <a href=\"{{settingsUrl}}\">seadetes</a> või iga uudiskirja lõpus oleva lingi kaudu.",
+      "signoff": "Soojalt,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} tahab lunastada «{{rewardName}}» ⭐",
+      "title": "Auhind ootab kinnitust! 🎁",
+      "greeting": "Tere, {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> tahab lunastada:",
+      "cost": "Hind: {{starCost}} tähte",
+      "approveHint": "Logi rakendusse sisse, et lunastus kinnitada või tagasi lükata.",
+      "settingsHint": "Need teavitused saad välja lülitada jaotises {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "kuu",
+      "howTitle": "Kuidas see käib:",
+      "how1": "Loo lapsele plaanid ja tegevused",
+      "how2": "Lase lapsel iga päev tähti koguda",
+      "how3": "Sea auhinnad Aardekirstus",
+      "footerIntro": "Saad selle kirja, sest registreerusid hiljuti rakendusse {{brand}}.",
+      "openApp": "Ava rakendus",
+      "trial": {
+        "subject": "Tere tulemast, {{brand}} – sinu tasuta periood on alanud!",
+        "headerTitle": "Sinu tasuta periood on alanud! ⭐",
+        "intro": "Tere tulemast! Sul on nüüd <strong>{{trialDays}} päeva tasuta</strong>, et proovida kõiki funktsioone rakenduses {{brand}} — kaarti pole vaja.",
+        "pricing": "{{trialDays}} päeva pärast maksab see <strong>{{monthlyPrice}}</strong> — saad üle minna siis, kui soovid.",
+        "pricingOpen": "{{trialDays}} päeva pärast valid ise, kas jätkad tellimusega.",
+        "cta": "Proovi Premiumit ⭐",
+        "ctaHint": "Kohustust pole — tühista millal tahad"
+      },
+      "complimentary": {
+        "subject": "Tere tulemast, {{brand}} – tasuta kuni {{freeUntil}}",
+        "headerTitle": "Tasuta kuni {{freeUntil}}",
+        "intro": "Tere tulemast! <strong>{{brand}} on tasuta kuni {{freeUntil}}.</strong> Tellimust ega makseviisi pole vaja. See pakkumine ei muutu automaatselt tasuliseks tellimuseks.",
+        "pricing": "Alates {{paidFrom}} saad valida, kas jätkad tellimusega. Selle pakkumise tõttu ei võeta midagi automaatselt.",
+        "cta": "Ava rakendus",
+        "ctaHint": "Kaarti pole vaja. See pakkumine ei muutu automaatselt tellimuseks."
+      },
+      "introYear": {
+        "subject": "Tere tulemast, {{brand}}",
+        "headerTitle": "Tere tulemast! ⭐",
+        "intro": "Tere tulemast! Saad kasutada funktsioone rakenduses {{brand}}.",
+        "pricing": "Selle perioodi eest maksta ei ole vaja.",
+        "cta": "Ava rakendus",
+        "ctaHint": "Premiumit saad vaadata millal tahad"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Nädala kokkuvõte ⭐ — {{weekLabel}}",
+      "greeting": "Tere, {{name}}! 👋",
+      "intro": "Siin on nädala kokkuvõte perioodi <strong>{{weekLabel}}</strong> kohta.",
+      "highlight": "{{childEmoji}} {{childName}} kogus sel nädalal {{stars}} tähte!",
+      "sharePrompt": "Tead teist vanemat, kellele see meeldiks?",
+      "shareWhatsApp": "Jaga WhatsAppis",
+      "shareFriend": "Räägi sõbrale",
+      "shareTextWithHighlight": "{{highlight}} Kasutame laste rutiinideks rakendust {{brand}} – vaata:",
+      "shareTextGeneric": "Kasutame laste igapäevasteks rutiinideks rakendust {{brand}} – vaata:",
+      "starsEarned": "Teenitud tähed",
+      "routinesCompleted": "Tehtud rutiinid",
+      "routinesOf": "{{completed}} / {{total}} ({{pct}}%)",
+      "moodAverage": "Tuju (keskmine)",
+      "moodVeryHappy": "Väga rõõmus 😄 ({{score}}/10)",
+      "moodHappy": "Rõõmus 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutraalne 😐 ({{score}}/10)",
+      "moodSad": "Kurb 😔 ({{score}}/10)",
+      "encourageNoActivity": "Uus nädal tuleb — proovi üks rutiin koos ära märkida, see võtab vaid hetke.",
+      "encourageProgress": "🌟 Jätka samas vaimus! Iga tehtud rutiin kasvatab harjumust.",
+      "encourageSmallSteps": "🌟 Väikesed sammud loevad — proovi sel nädalal üks rutiin koos ära märkida.",
+      "genericChildName": "Sinu laps"
+    },
+    "notificationFooter": {
+      "settingsLink": "Seaded → Teavitused",
+      "optOutDefault": "Lülita see teavitus välja",
+      "optOutWeeklySummary": "Lülita nädala kokkuvõte välja"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "1. päev — vaata koos",
+        "body": "Nii näeb {{childName}} oma plaani — vaata koos.",
+        "ctaLabel": "Näita lapse vaadet"
+      },
+      "2": {
+        "title": "2. päev — hommikune pilk",
+        "body": "Ava täna ülevaade — see võtab 30 sekundit.",
+        "ctaLabel": "Ava plaan"
+      },
+      "3": {
+        "title": "3. päev — tähista tähte",
+        "body": "Kas {{childName}} on tähe ära teeninud? Tähista koos!",
+        "ctaLabel": "Vaata tänast plaani",
+        "supportiveFallback": "Esimene nädal on alustamiseks — piisab, kui piilud sisse ja näed, et plaan on valmis."
+      },
+      "4": {
+        "title": "4. päev — sinu rakendus",
+        "body": "Miski ei tundu õige? Vaheta vajadusel tegevus.",
+        "ctaLabel": "Muuda plaani"
+      },
+      "5": {
+        "title": "5. päev — auhind",
+        "body": "Vaata Aardekirstu — millest {{childName}} unistab?",
+        "ctaLabel": "Ava Aardekirst"
+      },
+      "6": {
+        "title": "6. päev — jaga vastutust",
+        "body": "Tahad vastutust kellegagi jagada?",
+        "ctaLabel": "Kutsu keegi",
+        "soloLabel": "Teen seda üksi!"
+      },
+      "7": {
+        "title": "Üks nädal! 🎉",
+        "body": "Palju õnne! Kuidas nädal läks?",
+        "ctaLabel": "Vasta küsimusele"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Aeg tegevuseks «{{activityName}}» {{minutes}} minuti pärast! ⭐",
+      "body": "Meeldetuletus lapsele {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Hoia rutiini käimas 💫",
+      "day3Body": "Mõni päev on möödas — ava plaan ja anna tänased tähed.",
+      "day7Title": "Nädal on möödas",
+      "day7Body": "Lapse plaan ootab. Piisab kiirest pilgust.",
+      "day14Title": "Igatseme sind rakenduses",
+      "day14Body": "Kaks nädalat ilma tegevuseta — tule sisse ja hoia rutiin elus."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} ei ole täna sisse loginud",
+      "body": "Vaata plaani ja aita päev täita!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} on kogunud {{milestone}} tähte! 🌟",
+      "bodyCongrats": "{{emoji}} Palju õnne, {{childName}}!",
+      "body100": "Täiesti vahva! Uued väljakutsed ootavad!"
+    },
+    "backfillReminder": {
+      "title": "Eilne plaan lapsele {{childName}} on puudu",
+      "body": "Täida eile, et kõik oleks ajakohane!"
+    },
+    "custodyMorning": {
+      "title": "Täna: {{childName}} on sinu juures",
+      "body": "Päeva plaan ootab rakenduses."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Üleandmine homme — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} kohas {{homeLabel}}",
+      "bodyPack": "🎒 Koti pakkimine on homse plaanis.",
+      "bodyPrepare": "Pea meeles nädala üleandmiseks valmistuda."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "tegi ära {{activityName}}!",
+      "bodyBatch": "tegi ära {{count}} tegevust!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} tähte lapsele {{childName}}!",
+      "body": "{{parentName}} andis lapsele {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "tähe",
+    "starLabelMany": "tähte",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} tahab auhinda lunastada!",
+      "body": "{{childName}} küsib: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Tere hommikust! Vaata lapse {{childName}} plaani — võtab 30 sekundit 🌅",
+      "day3Body": "Kas {{childName}} on täna tähe teeninud? Tähista koos ⭐",
+      "day4Body": "Miski ei tundu õige? Vaheta tegevus ✏️",
+      "day5Body": "Vaata Aardekirstu — millest {{childName}} unistab? 🎁",
+      "day6Body": "Tahad vastutust kellegagi jagada? 👥",
+      "day7Body": "Palju õnne! Kuidas nädal läks?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Midagi läks valesti.",
+          "rewardIdRequired": "reward_id on vajalik",
+          "childNotFound": "Last ei leitud",
+          "rewardNotFound": "Auhinda ei leitud",
+          "requestNotFound": "Taotlust ei leitud",
+          "pendingOnlyApprove": "Kinnitada saab ainult ootel taotlust",
+          "pendingOnlyDeny": "Tagasi lükata saab ainult ootel taotlust",
+          "childIdRequired": "child_id on vajalik",
+          "reasonRequired": "Põhjus on vajalik",
+          "starCountRange": "Tähti peab olema 1–100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id ja goal_slug on vajalikud",
+          "childAccessDenied": "Sul ei ole ligipääsu ühele valitud lastest.",
+          "dismissFailed": "Küsimust ei saanud sulgeda"
+        }
+      },
+      "success": {
+        "goalSet": "Eesmärk seatud!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Aitäh tagasiside eest! Loeme kõike, mis tuleb.",
+    "contactAck": "Aitäh! Saime su sõnumi kätte.",
+    "export": {
+      "noData": "Andmeid pole",
+      "rateLimit": "Andmeid saad eksportida vaid korra 24 tunni jooksul. Proovi uuesti {{hours}} tunni pärast.",
+      "notFound": "Kasutajat ei leitud"
+    },
+    "account": {
+      "deletionPending": "Sinu konto on märgitud kustutamiseks. Sul on 30 päeva, et meelt muuta.",
+      "alreadyPending": "Sinu konto on juba märgitud kustutamiseks."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Täielik ligipääs kogu perele",
+    "benefit1": "Kõik rutiinid ja plaanid",
+    "benefit2": "Tähed ja sinu pere funktsioonid",
+    "benefit3": "Kõik su andmed jäävad sinu kätte",
+    "webNoticeTitle": "Aktiveeri Premium rakenduses",
+    "webNoticeBody": "Premium ostetakse App Store’ist või Google Playst — mitte veebis.",
+    "webNoticeBodyAppleOnly": "Premium ostetakse App Store’ist — mitte veebis. Android tuleb peagi.",
+    "downloadIphone": "Laadi alla iPhone’ile",
+    "downloadAndroid": "Laadi alla Androidile",
+    "androidComingSoon": "Android tuleb peagi",
+    "loadingPrices": "Laadin hindu…",
+    "continue": "Jätka",
+    "restore": "Taasta ostud",
+    "yearlyBadge": "Soovitatud",
+    "yearlyPrice": "{{price}}/aasta",
+    "yearlySavings": "Säästad võrreldes kuumaksega",
+    "yearlyTermsKnownTrial": "{{trialDays}}-päevane tasuta proov · seejärel {{price}}/aasta · uueneb automaatselt",
+    "yearlyTermsConditionalTrial": "14-päevane tasuta proov sobivatele uutele tellijatele · seejärel {{price}}/aasta · uueneb automaatselt",
+    "yearlyTermsNoTrial": "{{price}}/aasta · uueneb automaatselt",
+    "monthlyPrice": "{{price}}/kuu",
+    "monthlyBlurb": "Paindlik kuutellimus sinu perele.",
+    "monthlyTermsKnownTrial": "{{trialDays}}-päevane tasuta proov · seejärel {{price}}/kuu · uueneb automaatselt",
+    "monthlyTermsConditionalTrial": "14-päevane tasuta proov sobivatele uutele tellijatele · seejärel {{price}}/kuu · uueneb automaatselt",
+    "monthlyTermsNoTrial": "{{price}}/kuu · uueneb automaatselt",
+    "autoRenewApple": "Tellimus uueneb automaatselt, kuni selle tühistad. Makse käib App Store’i kaudu. Tellimust saad hallata või tühistada oma Apple’i kontol.",
+    "autoRenewGoogle": "Tellimus uueneb automaatselt, kuni selle tühistad. Makse käib Google Play kaudu. Tellimust saad hallata või tühistada oma Google’i kontol.",
+    "termsLink": "Tingimused",
+    "privacyLink": "Privaatsus",
+    "legal": "Tasuta proovi saad enne arveldust tühistada App Store’i või Google Play reeglite järgi. Halda või tühista poe tellimuse seadetes.",
+    "legalAppleOnly": "Tasuta proovi saad enne arveldust tühistada. Halda või tühista App Store’i tellimuse seadetes.",
+    "legalGoogleOnly": "Tasuta proovi saad enne arveldust tühistada. Halda või tühista Google Play tellimuse seadetes.",
+    "giftCard": "Mul on kinkekaart",
+    "giftCodeLabel": "Kinkekood",
+    "giftRedeem": "Lunasta kinkekaart",
+    "limitedAccount": "Jätka piiratud kontoga",
+    "statusOpening": "Avan kassat…",
+    "statusRestoring": "Taastan oste…",
+    "statusSuccess": "Premium on aktiivne! Tere tulemast tagasi.",
+    "statusCancelled": "Ost tühistati.",
+    "statusFailed": "Ost ebaõnnestus. Proovi uuesti.",
+    "statusUnavailable": "Tellimusi ei saa praegu laadida. Proovi uuesti.",
+    "statusAndroidComingSoon": "Premium Androidis tuleb peagi.",
+    "statusNotNative": "Ostud ei ole siin saadaval. Kasuta rakendust.",
+    "restoreSuccess": "Ostud taastatud! Tere tulemast tagasi.",
+    "restoreNone": "Taastamiseks ei leitud ühtegi aktiivset ostu.",
+    "giftSuccess": "Kinkekaart lunastatud!",
+    "giftFailed": "Koodi ei saanud lunastada.",
+    "launchEnded": "Avamisligipääs on lõppenud. Telli rakenduses, et täielik ligipääs alles jääks."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "sõber",
+      "subject": "Sinu toevestlus",
+      "text": "Tere, {{name}}!\n\nSaime su sõnumi kätte. Jälgi vestlust ja kirjuta siin tagasi (tavaline e-kirja vastus ei jõua meieni):\n{{url}}\n\nSoojalt,\n{{fromName}}",
+      "htmlHi": "Tere, {{name}}!",
+      "htmlReceived": "Saime su sõnumi kätte.",
+      "openLink": "Ava vestlus",
+      "htmlHint": "et vestlust jälgida ja tagasi kirjutada. Tavaline e-kirja vastus ei jõua meieni.",
+      "htmlBye": "Soojalt"
+    },
+    "reply": {
+      "subjectBug": "Vastus: sinu veateade",
+      "subjectFeedback": "Vastus: sinu tagasiside",
+      "subjectLanguage": "Vastus: sinu keelest teatamine",
+      "subjectContact": "Vastus: sinu sõnum",
+      "text": "Tere, {{name}}!\n\n{{reply}}\n\nLoe kogu vestlust ja kirjuta siin tagasi (tavaline e-kirja vastus ei jõua meieni):\n{{url}}\n\n---\nSinu algne sõnum:\n{{original}}\n\nSoojalt,\n{{fromName}}",
+      "htmlHi": "Tere, {{name}}!",
+      "openLink": "Ava vestlus",
+      "htmlHint": "et kogu vestlust lugeda ja tagasi kirjutada. Tavaline e-kirja vastus ei jõua meieni.",
+      "originalLabel": "Sinu algne sõnum:",
+      "htmlBye": "Soojalt"
+    },
+    "page": {
+      "title": "Sinu vestlus",
+      "intro": "See on kogu vestlus. Kirjuta alla, kui soovid jätkata. Tavaline e-kirja vastus ei paista siin.",
+      "you": "Sina",
+      "us": "Meie",
+      "empty": "Sõnumeid pole veel.",
+      "label": "Kirjuta meile",
+      "placeholder": "Räägi, mis toimub…",
+      "submit": "Saada",
+      "submitting": "Saadan…",
+      "needHuman": "Vajan rohkem abi inimeselt",
+      "escalating": "Saadan…",
+      "caseRef": "Juhtum {{ref}}",
+      "status": {
+        "new": "Saadud",
+        "read": "Loetud",
+        "in_progress": "Töös",
+        "answered": "Vastatud",
+        "archived": "Suletud"
+      }
+    },
+    "errors": {
+      "invalid": "See link on vigane. Palu meil uus vastus saata.",
+      "expired": "See link on aegunud. Palu meil uus saata.",
+      "revoked": "See link enam ei tööta. Palu meil uus saata.",
+      "archived": "See juhtum on suletud. Võta uuesti ühendust, kui vajad rohkem abi.",
+      "legacySunset": "See link on liiga vana. Võta ühendust ja saadame uue.",
+      "tooShort": "Kirjuta vähemalt 10 tähemärki, et saaksime aru, mis toimub.",
+      "tooLong": "Vastus võib olla kõige rohkem 5000 tähemärki.",
+      "notFound": "Juhtumit ei leitud.",
+      "rateLimit": "Liiga palju katseid. Proovi tunni pärast uuesti.",
+      "generic": "Juhtumit ei saanud avada.",
+      "sendFailed": "Ei saanud saata. Proovi uuesti."
+    },
+    "success": {
+      "submitted": "Aitäh! Saime su vastuse kätte.",
+      "escalated": "Aitäh. Inimene vaatab selle juhtumi üle."
+    }
+  },
+  "story": {
+    "someone": "Keegi",
+    "anActivity": "üks tegevus",
+    "activityWithStars": "{{name}} tegi ära {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} tegi ära {{activity}}",
+    "goalFallback": "eesmärk",
+    "goal": "Pere jõudis eesmärgini: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Küpsiste seaded",
+    "intro": "Kasutame veebilehel küpsiseid analüütikaks, turunduseks ja isikupärastamiseks.",
+    "manage": "Halda seadeid",
+    "manageHide": "Peida seaded",
+    "deny": "Keeldu kõigist",
+    "accept": "Nõustu kõigiga",
+    "save": "Salvesta minu valikud",
+    "necessaryLabel": "Vajalikud",
+    "necessaryDesc": "Vajalikud, et leht töötaks.",
+    "analyticsLabel": "Analüütika",
+    "analyticsDesc": "Aitab mõista, kuidas lehte kasutatakse (GA4).",
+    "marketingLabel": "Turundus",
+    "marketingDesc": "Näitab asjakohaseid reklaame ja mõõdab kampaaniaid.",
+    "personalizationLabel": "Isikupärastamine",
+    "personalizationDesc": "Kohandab sisu ja soovitusi."
+  },
+  "growthHelp": {
+    "reportProblem": "Teata probleemist",
+    "suggestedHelp": "Soovitatud abi",
+    "reportThanks": "Aitäh — saime su teate koos tehniliste detailidega.",
+    "howChildStarts": "Kuidas laps alustab?",
+    "needHelpLogin": "Vajad abi sisselogimisega?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Valikuline lühike kommentaar (saadetakse koos vastusega)",
+    "notNow": "Mitte praegu",
+    "thanks": "Aitäh tagasiside eest."
+  },
+  "growthReferral": {
+    "title": "Tead teist peret, kes vajab rahulikumaid hommikuid?",
+    "subtitle": "Jaga oma isiklikku linki — ei mingit auhinnarämpsu, lihtsalt vihje.",
+    "copyLink": "Kopeeri link",
+    "copied": "Kopeeritud",
+    "copyPrompt": "Kopeeri see link:",
+    "share": "Jaga",
+    "shareText": "Kasutame laste rutiinideks rakendust {{brand}}. Loo tasuta konto: ",
+    "notNow": "Mitte praegu"
+  },
+  "legalReturn": {
+    "backToPremium": "Tagasi Premiumi juurde"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakett",
+    "dismiss": "Mitte praegu",
+    "interested": "Olen huvitatud",
+    "interestedSub": "Registreeri huvi selle vastu, mis tuleb järgmisena",
+    "buyNow": "Osta kohe",
+    "reporting": {
+      "title": "Aruanded",
+      "body": "Oled tegevusi märkinud kaks nädalat — kas soovid selgemat pilti, kuidas asjad ajas muutuvad?"
+    },
+    "pedagog": {
+      "title": "Pedagoog",
+      "body": "Kas soovid pedagoogi või terapeudiga lapse argipäeva kallal koos töötada?"
+    },
+    "teacch": {
+      "title": "Lisatugi",
+      "body": "Lisa visuaalne tugi seitsme küsimusega — see aitab lapsel mõista, mis toimub."
+    }
+  }
+}

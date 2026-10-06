@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Kodu — {{brand}}",
+  "greeting": {
+    "morning": "Tere hommikust!",
+    "afternoon": "Tere!",
+    "evening": "Tere õhtust!",
+    "default": "Tere!"
+  },
+  "sub": "Nii näeb päev välja.",
+  "status": {
+    "paused": "Täna vaba päev",
+    "allDone": "Kõik tehtud!",
+    "noSchedule": "Rutiini pole",
+    "progressDone": "{{done}}/{{total}} tehtud",
+    "emptyChildren": "Lisa laps jaotises Pere, et staatust siin näha.",
+    "loadError": "Laste staatust ei saanud laadida. See ei tähenda, et sul lapsi pole.",
+    "retry": "Proovi uuesti",
+    "viewActivitiesAria": "{{name}} — vaata tänaseid tegevusi"
+  },
+  "ready": {
+    "title": "Valmis järgmiseks tegevuseks",
+    "childrenCount": "({{count}} last)"
+  },
+  "quickActions": {
+    "aria": "Kiirtoimingud",
+    "retroactive": "Märgi hiljem",
+    "onceTask": "Ühekordne tegevus",
+    "extraStars": "Boonustähed",
+    "dayOff": "Vaba päev"
+  },
+  "dayOffModal": {
+    "title": "🏠 Vaba päev",
+    "subtitle": "Peatab lapse rutiini terveks päevaks",
+    "footer": "Vabal päeval ei pea laps tegevusi märkima",
+    "noChildren": "Lapsi ei leitud",
+    "stateActive": "🟢 Rutiin aktiivne",
+    "statePaused": "⏸ Täna vaba päev",
+    "markDayOff": "🏠 Märgi vabaks päevaks",
+    "resumeSchedule": "▶ Jätka rutiini",
+    "noScheduleTitle": "Tänaseks rutiini ei loodud",
+    "resumedToast": "Rutiin jätkub!",
+    "pausedToast": "🏠 Märgitud vabaks päevaks!",
+    "genericError": "Midagi läks valesti",
+    "networkError": "Võrguviga"
+  },
+  "handoff": {
+    "title": "Kas on aeg, et laps sisse logiks?",
+    "sub": "Vaheta lapse vaatele PIN-iga.",
+    "childLogin": "👶 Laps logib sisse",
+    "changePin": "Muuda lapse PIN-i",
+    "changePinAria": "Ava Pere ja muuda lapse PIN-i",
+    "parentLogout": "Logi välja",
+    "regionAria": "Vaheta lapse sisselogimisele",
+    "dismissTitle": "Sulge",
+    "trusted": {
+      "title": "Kas on aeg lapse vaade avada?",
+      "sub": "Ava sellel seadmel lapse vaade.",
+      "childLogin": "Ava lapse vaade",
+      "regionAria": "Ava lapse vaade"
+    },
+    "pin": {
+      "title": "Kas on aeg, et laps sisse logiks?",
+      "sub": "Vaheta lapse vaatele PIN-iga.",
+      "childLogin": "Logi sisse lapse PIN-iga",
+      "regionAria": "Logi sisse lapse PIN-iga"
+    },
+    "postSchema": {
+      "title": "Järgmine samm: lase lapsel oma rutiini proovida",
+      "sub": "Ava lapse vaade koos — see võtab umbes minuti.",
+      "childLogin": "Proovi lapse vaadet kohe",
+      "regionAria": "Järgmine samm: lase lapsel oma rutiini proovida",
+      "trusted": {
+        "title": "Järgmine samm: ava lapse vaade",
+        "sub": "Ava lapse vaade koos — see võtab umbes minuti.",
+        "childLogin": "Ava lapse vaade",
+        "regionAria": "Järgmine samm: ava lapse vaade"
+      },
+      "pin": {
+        "title": "Järgmine samm: lase lapsel oma rutiini proovida",
+        "sub": "Ava lapse vaade koos — see võtab umbes minuti.",
+        "childLogin": "Logi sisse lapse PIN-iga",
+        "regionAria": "Järgmine samm: logi sisse lapse PIN-iga"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Järgmine samm sinu esimese õnnestunud rutiini poole",
+    "pinHint": "Laps kasutab oma PIN-i. Kui ta on valmis, saad vanema vaate tagasi.",
+    "recovery": {
+      "fetchErrorHeadline": "Järgmist sammu ei saanud laadida",
+      "fetchErrorBody": "See tundub ajutine. Proovi uuesti või jätka praegu ilma juhita.",
+      "retry": "Proovi uuesti",
+      "continueWithoutGuide": "Jätka ilma juhita",
+      "defer": "Teen hiljem",
+      "deferError": "Valikut ei saanud praegu salvestada. Proovi uuesti.",
+      "retrying": "Proovin uuesti…",
+      "deferring": "Salvestan…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Loo lapse profiil",
+        "body": "Alustamiseks piisab nimest ja lihtsast PIN-ist.",
+        "cta": "Jätka lapsega"
+      },
+      "save_schedule": {
+        "headline": "Salvesta lihtne esimene rutiin",
+        "body": "Vali algusplaan — seda saad igal ajal muuta.",
+        "cta": "Vali algusplaan"
+      },
+      "child_access": {
+        "headline": "Ava lapse vaade",
+        "body": "Lase lapsel proovida tänast esimest tegevust lapse vaates.",
+        "cta": "Ava lapse vaade"
+      },
+      "child_access_named": {
+        "headline": "Lapse {{name}} rutiin on valmis",
+        "body": "Laps saab alustada siis, kui sulle sobib.",
+        "cta": "Ava lapse vaade"
+      },
+      "await_first_completion": {
+        "headline": "Ootan esimest tegevust",
+        "body": "Laps näeb oma rutiini lapse vaates. Aita tal alustada, kui vaja.",
+        "cta": "Ava lapse vaade"
+      },
+      "parent_ack": {
+        "headline": "Laps tegi ühe tegevuse ära!",
+        "body": "Kinnita, et täht läheks arvesse ja saaksid koos tähistada.",
+        "cta": "Vaata tegevust"
+      },
+      "celebrate_first_success": {
+        "headline": "Esimene täht on käes!",
+        "body": "Tubli — rutiin töötab päriselt.",
+        "cta": "Jätka"
+      },
+      "journey_coach": {
+        "headline": "Järgmine samm",
+        "body": "Ehita rutiini edasi omas tempos.",
+        "cta": "Jätka"
+      },
+      "engine_legacy": {
+        "headline": "Järgmine samm",
+        "body": "Järgi soovitatud järgmist sammu.",
+        "cta": "Jätka"
+      },
+      "continue_today": {
+        "headline": "Lapsel {{name}} on täna rutiini veel jäänud",
+        "body": "Kas tahad jätkata sealt, kus pooleli jäi?",
+        "cta": "Jätka rutiini"
+      },
+      "welcome_back": {
+        "headline": "Tere tulemast tagasi",
+        "body": "Sinu järgmine samm on siin, kui seda vajad — kas avad lapse rutiini?",
+        "cta": "Ava lapse vaade"
+      },
+      "invite_adult": {
+        "headline": "Kas teine täiskasvanu tahaks ka aidata?",
+        "body": "Kutsu siis, kui sulle sobib — sina jääd kontrolli juurde.",
+        "cta": "Kutsu täiskasvanu"
+      },
+      "share_week": {
+        "headline": "Väike hetk sellest nädalast",
+        "body": "Jaga ainult siis, kui tahad — midagi ei postitata automaatselt.",
+        "cta": "Jaga hetke"
+      },
+      "refer_family": {
+        "headline": "Kas tead peret, kellele rutiinid võiksid sobida?",
+        "body": "Jaga isiklikku linki — auhinda ei ole, ainult vihje.",
+        "cta": "Jaga rakendust"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Mitte praegu",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Tegid sel nädalal oma rutiinides samme",
+        "body": "Rahulik kokkuvõte — ainult sinule.",
+        "shareText": "Kasutame kodus laste rutiinideks rakendust {{brand}}. Kui tahad lihtsat pererakendust proovida."
+      },
+      "morning": {
+        "headline": "Mitu hommikut läks sel nädalal veidi kergemalt",
+        "body": "Tubli — jaga ainult siis, kui tahad.",
+        "shareText": "Meil on olnud rahulikumad hommikud lihtsa rutiinirakendusega. See võib sinu perelegi sobida."
+      },
+      "evening": {
+        "headline": "Õhtune rutiin töötas sel nädalal mitu korda",
+        "body": "Isiklik hetk — ilma edetabelita.",
+        "shareText": "Õhtused rutiinid läksid meil veidi kergemaks. Kui otsid rahulikku tööriista."
+      },
+      "multi_child": {
+        "headline": "Sinu lapsed tegid sel nädalal oma rutiinides mitu sammu",
+        "body": "Kokkuvõte ilma nimede ja fotodeta.",
+        "shareText": "Kasutame laste rutiinideks rakendust {{brand}}. Proovimiseks:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Sa oled asutajaliige",
+    "body": "Ühe esimeste peredena on sul eluaegne ligipääs tasuta. Aitäh, et oled algusest peale kaasas!"
+  },
+  "weekStory": {
+    "title": "Selle nädala lugu"
+  },
+  "starHistory": {
+    "title": "Nädala edenemine",
+    "subtitle": "Viimased 8 nädalat",
+    "thisWeek": "{{count}} ⭐ sel nädalal",
+    "weekTooltip": "N{{week}}: {{count}} tähte",
+    "diffUp": "+{{diff}} võrreldes eelmise nädalaga",
+    "diffSame": "Sama mis eelmisel nädalal",
+    "bestWeek": "🎉 Lapse {{name}} seni parim nädal!"
+  },
+  "nav": {
+    "today": "Täna",
+    "dailyLog": "Päevik",
+    "fillRetroactive": "📝 Märgi hiljem"
+  },
+  "readiness": {
+    "heading": "Vajab tähelepanu",
+    "warningsOnly": "Ainult hoiatused",
+    "loadError": "Ei saanud kontrollida, mis tähelepanu vajab.",
+    "retry": "Proovi uuesti",
+    "items": {
+      "pendingInviteTitleOne": "1 ootel teise vanema kutse",
+      "pendingInviteTitleMany": "{{count}} ootel teise vanema kutset",
+      "pendingInviteSub": "Halda jaotises Pere",
+      "pendingApprovalTitle": "{{name}} — {{count}} ootel soov",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} ootel soovi",
+      "pendingApprovalSub": "Kinnita jaotises Auhinnad",
+      "incompleteDaysTitleOne": "{{name}} — 1 lõpetamata päev",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} lõpetamata päeva",
+      "incompleteDaysSub": "Täida tagantjärele",
+      "missingPinTitle": "Lapsel {{name}} ei ole PIN-i",
+      "missingPinSub": "Sea PIN lapse profiilis",
+      "pausedDayTitle": "{{name}} — täna vaba päev",
+      "pausedDaySub": "Ava Täna",
+      "noScheduleTitle": "{{name}} — täna rutiini pole",
+      "noScheduleSub": "Ava nädalaplaan"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} tahab auhinda lunastada",
+    "pendingRewardSubOne": "Üks soov ootab sind",
+    "pendingRewardSubMany": "Sind ootab {{count}} soovi",
+    "showRequest": "Vaata soovi",
+    "closeToReward": "{{name}} on järgmisest auhinnast vaid {{gap}} kaugusel",
+    "starOne": "1 täht",
+    "starMany": "{{count}} tähte",
+    "seeRewards": "Vaata auhindu",
+    "starsTodayHeadline": "Lapsed teenisid täna {{count}}",
+    "starsTodaySubOne": "{{name}} teenis need täna",
+    "starsTodaySubMany": "Lapsed teenisid need täna",
+    "tasksDoneHeadline": "{{name}} on täna juba teinud {{count}}",
+    "taskOne": "1 ülesanne",
+    "taskMany": "{{count}} ülesannet",
+    "tasksRemaining": "Tänases rutiinis on jäänud {{count}}",
+    "allActivitiesDone": "Kõik tegevused tehtud — tubli töö!",
+    "seeSchedule": "Vaata plaani",
+    "nextActivityHeadline": "{{name}} on valmis tegevuseks {{activity}}",
+    "nextActivitySub": "Järgmine tegevus rutiinis",
+    "openToday": "Ava Täna",
+    "calmDayHeadline": "Rahulik päev — praegu rutiini pole",
+    "calmDaySub": "Hea hetk tegevusi lisada või boonustähti anda",
+    "defaultChild": "Sinu laps",
+    "pageTitleStars": "🌟 Tänased tähed",
+    "pageTitleWelcome": "👋 Tere tulemast tagasi",
+    "pageTitleProgress": "🌟 Pere edenemine täna",
+    "greetingFallback": "{{greeting}} Täna näeb välja nii",
+    "followChild": "Jälgi siin lapse {{name}} edenemist",
+    "followChildren": "Jälgi siin oma laste edenemist"
+  },
+  "childStats": {
+    "paused": "⏸ Täna vaba päev",
+    "allDone": "🌟 Täna on kõik tehtud!",
+    "tasksDoneOne": "🔥 Täna on 1 ülesanne tehtud",
+    "tasksDoneMany": "🔥 Täna on tehtud {{count}} ülesannet",
+    "noSchedule": "Täna rutiini pole",
+    "todayProgress": "Täna <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> kokku",
+    "starsTodayOne": "+1 täht täna",
+    "starsTodayMany": "+{{count}} tähte täna",
+    "remaining": "Jäänud {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Ainult 1 täht järgmise auhinnani",
+    "rewardGapMany": "🎁 Ainult {{count}} tähte järgmise auhinnani"
+  },
+  "offline": {
+    "banner": "Võrguühenduseta — sinu muudatused on salvestatud",
+    "lastUpdated": "· Viimati uuendatud {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Päevik",
+    "dailyLogSub": "Jälgi laste päeva — märgi tähed hiljem"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Kuidas on {{goal}} läinud?",
+      "sub": "Lapsele {{name}}",
+      "great": "Suur paranemine",
+      "better": "Natuke parem",
+      "same": "Vahet pole",
+      "worse": "Ei tööta",
+      "followUpBetter": "Mis läks paremaks?",
+      "followUpWorse": "Mis on puudu?",
+      "optional": "(valikuline)",
+      "send": "Saada",
+      "skip": "Jäta vahele",
+      "dismissAria": "Sulge",
+      "thanks": "Aitäh! Sinu vastus on salvestatud.",
+      "alreadyAnswered": "Aitäh! Paistab, et oled juba vastanud.",
+      "next": "Vasta järgmisele",
+      "done": "Valmis"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Jäta vahele",
+    "next": "Edasi →",
+    "start": "🎉 Hakkame pihta!",
+    "steps": {
+      "welcome": {
+        "title": "Tere tulemast ülevaatesse!",
+        "body": "Siin näed iga lapse päeva. Nädalaplaani muudad jaotises Planeerimine."
+      },
+      "stars": {
+        "title": "Tähed ja aardekirst",
+        "body": "Iga tehtud tegevus annab 1 tähe. Laps kogub tähti ja lunastab need auhindadeks aardekirstus."
+      },
+      "schedule": {
+        "title": "Nädalaplaan ja tegevused",
+        "body": "Menüüs Planeerimine leiad tegevuste kogu ja saad lisada oma auhindu."
+      },
+      "family": {
+        "title": "Lisa veel lapsi või täiskasvanuid",
+        "body": "Puuduta „+ Lisa laps“, et õde või vend lisada. Jaotises Pere saad kutsuda teise täiskasvanu."
+      },
+      "help": {
+        "title": "Vajad abi?",
+        "body": "Puuduta igal ajal paremal all nuppu ❓, et näha korduma kippuvaid küsimusi ja nippe. Edu rakendusega {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} proovib sisse logida",
+    "body": "3 vale PIN-i katset — laps võib abi vajada"
+  },
+  "shareSchedule": {
+    "notAvailable": "Sellel seadmel jagamine ei ole saadaval",
+    "notSupported": "Sellel seadmel jagamine ei ole saadaval",
+    "shared": "Jagatud!",
+    "childNotFound": "Last ei leitud",
+    "couldNotShare": "Ei saanud jagada: {{message}}",
+    "routineToday": "Lapse {{name}} tänane rutiin:",
+    "title": "Rutiin: {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Rakenduse uus versioon on valmis!",
+    "reloadNow": "Laadi kohe uuesti",
+    "later": "Hiljem",
+    "dismissAria": "Sulge uuenduse riba"
+  },
+  "pwa": {
+    "title": "Paigalda rakendus tõuketeavituste jaoks",
+    "iosLead": "iPhone'is ja iPadis peab rakendus tõuketeavituste jaoks avakuval olema.",
+    "iosStep1": "Puuduta Safari allosas nuppu Jaga",
+    "iosStep2": "Vali „Lisa avakuvale“",
+    "iosStep3": "Ava rakendus avakuvalt ja luba teavitused",
+    "iosArrowHint": "Animeeritud nool osutab brauseris nupule Jaga",
+    "androidTitle": "Paigalda rakendus parimaks kogemuseks",
+    "androidLead": "Paigalda rakendus, et saada telefoni meeldetuletusi.",
+    "androidHomeLead": "Paigalda {{brand}} avakuvale, et kiiresti ligi pääseda ja tõuketeavitusi saada.",
+    "androidInstall": "Paigalda rakendus",
+    "androidInstallBtn": "📲 Paigalda rakendus",
+    "androidChromeFallback": "Puuduta Chrome'is ⋮ (menüü) → <strong>„Lisa avakuvale“</strong>",
+    "desktopTitle": "Paigalda rakendus",
+    "desktopLead": "Puuduta aadressiribal paigaldusikooni (⊕) või kasuta brauseri menüüd.",
+    "dismissAria": "Sulge"
+  },
+  "pushPrompt": {
+    "title": "Saa tõuketeavitusi oma laste kohta",
+    "body": "Saa kohe teada, kui laps märgib tegevuse tehtuks või tahab auhinda lunastada.",
+    "later": "Hiljem",
+    "enable": "Lülita sisse",
+    "enabledToast": "✅ Tõuketeavitused on sees!"
+  },
+  "globalFeedback": {
+    "fabAria": "Anna tagasisidet",
+    "fabTitle": "Anna tagasisidet",
+    "modalTitle": "Anna tagasisidet",
+    "typeBug": "Teata probleemist",
+    "typeSuggestion": "Ettepanek",
+    "typeLanguage": "Keel",
+    "titlePlaceholder": "Pealkiri",
+    "messagePlaceholder": "Mis juhtus?",
+    "cancel": "Tühista",
+    "submit": "Saada teade",
+    "submitting": "Saadan...",
+    "validationRequired": "Täida kõik väljad.",
+    "success": "Sinu teade on saadetud.",
+    "errorGeneric": "Midagi läks valesti. Proovi uuesti."
+  },
+  "cards": {
+    "loadError": "Laste kaarte ei saanud laadida. Tõmba alla, et värskendada.",
+    "last": "Viimane:",
+    "next": "Järgmine:",
+    "noActivitiesToday": "Täna pole tegevusi planeeritud",
+    "noRoutineToday": "Tänaseks rutiini pole",
+    "createActivity": "✨ Loo plaanis tegevus →",
+    "childNoActivities": "Lapsel {{name}} pole veel tegevusi — loo esimene →",
+    "noRewards": "🎁 Auhindu veel pole",
+    "addReward": "→ Lisa auhind",
+    "pendingRequest": "{{count}} ootel soov",
+    "pendingRequestMany": "{{count}} ootel soovi",
+    "pausedBadge": "PEATATUD",
+    "allDoneTitle": "Kõik tehtud!",
+    "statusNow": "PRAEGU",
+    "statusNext": "JÄRGMINE",
+    "onceTask": "Ühekordne tegevus",
+    "markDone": "Märgi tehtuks",
+    "unmark": "Võta märge maha",
+    "activityMarked": "✅ Tehtud!",
+    "activityUnmarked": "Märge maha võetud",
+    "fillDay": "Täida {{day}}",
+    "allActivitiesDone": "Kõik tänased tegevused on tehtud!",
+    "last7Days": "Viimased 7 päeva"
+  },
+  "approvals": {
+    "title": "Ootel soovid",
+    "loading": "Laen soove...",
+    "empty": "Ootel soove pole! 🎉",
+    "loadError": "Soove ei saanud laadida.",
+    "wantsGoalChange": "Tahab eesmärki vahetada",
+    "goalChangeTo": "Siht: {{name}}",
+    "wantsRedeem": "Tahab lunastada",
+    "approve": "Kinnita",
+    "deny": "Keeldu",
+    "requiresApproval": "Vajab kinnitust",
+    "requiresApprovalCount": "Vajab kinnitust ({{count}})",
+    "goalApproved": "🎯 Eesmärgi vahetus kinnitatud!",
+    "redemptionApproved": "🎉 Lunastus kinnitatud!",
+    "goalDenied": "Eesmärgi vahetusest keelduti.",
+    "redemptionDenied": "Lunastusest keelduti.",
+    "updateFailed": "Ei saanud uuendada",
+    "genericError": "Viga",
+    "wantsGoalNamed": "{{name}} tahab muuta eesmärgiks {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Tahab muuta eesmärgiks {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} tahab „{{reward}}“ ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Kohanda tänast aega",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Aega ei saanud kohandada",
+    "undone": "Võetud tagasi",
+    "undoFailed": "Ei saanud tagasi võtta"
+  },
+  "loading": {
+    "initFailed": "Laadimisel läks midagi valesti. Laadi leht uuesti.",
+    "couldNotLoad": "Ei saanud laadida.",
+    "checkConnection": "Kontrolli internetiühendust",
+    "reloadPage": "Laadi leht uuesti"
+  },
+  "activationProgram": {
+    "exitConfirm": "Kas tahad 7-päevase programmi lõpetada?",
+    "reflectionPlaceholder": "Valikuline: räägi veel…",
+    "send": "Saada",
+    "reflectionQuestion": "Kas rakendus on argipäeva kergemaks teinud?",
+    "previewEmpty": "Plaani nägemiseks ava lapse sisselogimine.",
+    "optOutTitle": "Lõpeta programm",
+    "skipToday": "Jäta täna vahele",
+    "orOpenChildLogin": "Või ava lapse sisselogimine",
+    "dayOf": "Päev {{day}} / {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Pere edenemine täna",
+    "allChildren": "← Kõik lapsed",
+    "systemMsgFrom": "Sõnum rakenduselt",
+    "systemMsgClose": "Sulge ✕",
+    "sharingManage": "Puuduta, et jagatud aruandeid hallata",
+    "inviteTitle": "Kutsu teine vanem",
+    "inviteSub": "Et te ei peaks üksteiselt plaani kohta küsima",
+    "inviteBtn": "Kutsu",
+    "shareTitle": "Räägi sõbrale!",
+    "shareSub": "Aita teisel perel argipäeva selgemaks teha",
+    "shareBtn": "Jaga",
+    "inviteModalTitle": "Kutsu teine vanem",
+    "inviteModalBody": "Sinu partner saab e-kirja otseviitega — lisarakendusi pole, midagi keerulist pole.",
+    "inviteSentBody": "Sinu partner saab nüüd sisse logida ja plaani näha.",
+    "inviteDone": "Valmis",
+    "supportPrefix": "🔒 Oled tugirežiimis: näitan andmeid perele",
+    "supportSuffix": ". Andmeid ei saa muuta. Seanss aegub",
+    "tourSkip": "Jäta vahele",
+    "tourNext": "Edasi →",
+    "starTipsTitle": "Nipid: kuidas tähed töötavad",
+    "starTipsCollect": "• Laps teenib tähti, kui tegevused märgitakse lapse vaates tehtuks",
+    "starTipsExtra": "• Anna boonustähti lapse kaardilt pingutuse eest väljaspool plaani",
+    "starTipsRewards": "• Tähed lähevad salvestatud auhindade arvele — sea eesmärgid jaotises Auhinnad",
+    "starTipsEdit": "• Muuda nädalaplaani jaotises Planeerimine",
+    "dayDragInner": "lohista päeva sakki teisele päevale, et kopeerida või vahetada",
+    "calViewDay": "Päev",
+    "calViewWeek": "Nädal",
+    "calViewMonth": "Kuu",
+    "retroactiveFull": "📝 Märgi hiljem",
+    "extraStarsFull": "⭐ Anna boonustähti",
+    "onceTaskFull": "📋 Ühekordne tegevus",
+    "dayOffFull": "🏠 Vaba päev",
+    "trialEndingTitle": "Prooviperioodist on jäänud üks päev",
+    "trialEndingBody": "Prooviperiood lõpeb päeva jooksul. Vali rakenduses tellimus, kui tahad täisligipääsu hoida. Kõik sinu andmed jäävad alles.",
+    "trialEndingChoose": "Vali rakenduses",
+    "trialEndingClose": "Sulge"
+  },
+  "helpPanel": {
+    "title": "❓ Kuidas see töötab?",
+    "tabSchema": "📅 Plaan",
+    "tabStars": "⭐ Tähed",
+    "tabFamily": "👨‍👩‍👧 Pere",
+    "tabAdults": "🔑 Rohkem täiskasvanuid",
+    "tabTrouble": "🔧 Abi",
+    "addActivityQ": "Kuidas ma tegevuse lisan?",
+    "addActivityA": "Puuduta Kodus lapse kaarti → vali päev → puuduta „+“, et lisada tegevus oma kogust. Oma tegevusi saad luua ka jaotises <strong>Kogu</strong>.",
+    "dragQ": "Kas ma saan tegevusi lohistada ja liigutada?",
+    "dragA": "Jah! Lapse plaani vaates (puuduta Kodus kaarti) saad tegevusi vajutada ja lohistada, et järjekorda muuta. Tegevuse võid lohistada ka teise päeva sakile, et seda kopeerida.",
+    "copyQ": "Kuidas ma plaani igale päevale kopeerin?",
+    "copyA": "Plaani muutjas (nupp 📋) → vali „Kopeeri teistele päevadele“, et kopeerida ühe päeva plaan ülejäänud nädalale.",
+    "earnStarsQ": "Kuidas mu laps tähti teenib?",
+    "earnStarsA": "Iga tehtud tegevus annab <strong>1 tähe</strong>. Laps märgib lapse vaates. Võid anda ka <strong>boonustähti</strong> Kodus lapse kaardilt.",
+    "treasureQ": "Kuidas Aardekirst töötab?",
+    "treasureA": "Lapse vaates puuduta ikooni ⭐, et näha Aardekirstu — auhindade nimekirja ja seda, mitu tähte need maksavad. Laps saab auhinda küsida, kui on piisavalt kogunud.",
+    "retroQ": "Kuidas ma märgin tähti päevadele, mis ununesid?",
+    "retroA": "Mine vaatesse <strong>Täna</strong> (menüü ☰ → Täna või Kodus nupp <strong>Märgi hiljem</strong>). Vali laps, liigu noolte või kuupäevavalijaga õigele päevale ja märgi tegevused. Tähed salvestatakse õige kuupäevaga.",
+    "rewardsQ": "Kuidas ma auhindu lisan või muudan?",
+    "rewardsA": "Mine menüüs jaotisse Auhinnad. Seal saad lisada oma auhindu, muuta tähe hinda ja valida, millised lapsed neid näevad.",
+    "siblingQ": "Kuidas ma õe või venna lisan?",
+    "siblingA": "Kodus → puuduta <strong>„+ Lisa laps“</strong>. Igal lapsel on oma plaan, tegevused ja tähed.",
+    "childLoginQ": "Kuidas mu laps sisse logib?",
+    "childLoginA": "Esimestel päevadel saad <strong>lapse päeva eelvaadata</strong> vaates Täna. Kui oled valmis, logib laps sisse aadressil <strong>/child-login</strong> kasutajanime ja PIN-iga — paroole pole. Andmed leiad jaotisest <strong>Pere ja seaded → Lapsed</strong>.",
+    "inviteAdultQ": "Kuidas ma teist täiskasvanut kutsun?",
+    "inviteAdultA": "Mine jaotisse <strong>Pere ja seaded → Pereliikmed</strong> → puuduta „Kutsu“. Ta saab e-kirja lingiga, et luua oma konto ja perega liituda.",
+    "inviteSeeQ": "Kas kutsutud täiskasvanu näeb kõiki lapsi?",
+    "inviteSeeA": "Kutset saates valid, milliseid lapsi ta näeb. Hiljem saad seda muuta jaotises <strong>Pereliikmed</strong> → puuduta inimest → kohanda laste ligipääsu.",
+    "noActivitiesQ": "Mu laps ei näe täna tegevusi",
+    "noActivitiesA": "Kontrolli, et plaan oleks õige päeva jaoks seatud. Ava lapse plaan (puuduta lapse kaarti) → vali täna → vaata, kas tegevusi on. Kui plaan on tühi, kasuta „Kopeeri teistele päevadele“, et see täita.",
+    "forgotPinQ": "Ma unustasin lapse PIN-i",
+    "forgotPinA": "Mine jaotisse <strong>Pere ja seaded → Lapsed</strong> → vali laps → puuduta „Muuda PIN-i“, et uus PIN seada.",
+    "innerOneStar": "1 täht",
+    "innerBonusStars": "boonustähed",
+    "innerAddChild": "„+ Lisa laps“",
+    "innerPreview": "lapse päeva eelvaadata",
+    "innerFamilyMembersPath": "Pere ja seaded → Pereliikmed",
+    "innerMembers": "Pereliikmed",
+    "innerFamilyChildren": "Pere ja seaded → Lapsed",
+    "supportQ": "Võta toega ühendust",
+    "supportLead": "Kirjuta meile aadressil",
+    "supportTail": " — vastame 24 tunni jooksul."
+  },
+  "journeyAck": {
+    "headline": "Laps tegi ühe tegevuse ära!",
+    "childFallback": "Sinu laps",
+    "activityFallback": "üks tegevus",
+    "dismiss": "Nägin seda"
+  },
+  "journeyCelebration": {
+    "headline": "Tegite selle koos ära",
+    "body": "Laps alustas — ja sina nägid seda.",
+    "dismiss": "Tubli!"
+  },
+  "activationAha": {
+    "body": "Ilma et oleksid pidanud meelde tuletama.",
+    "dismiss": "Tubli!"
+  }
+}

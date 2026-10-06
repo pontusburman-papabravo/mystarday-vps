@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Täna — {{brand}}",
+  "shell": {
+    "headerTitle": "Täna",
+    "backToHome": "← Tagasi Kodu",
+    "pdfHint": "Loo PDF päeva, nädala või minu päevade kohta",
+    "printBtn": "📄 Loo PDF ▾",
+    "printDay": "📄 Loo PDF — päev",
+    "printWeek": "📅 Loo PDF — nädal",
+    "printMyDays": "🏠 Loo PDF — minu päevad",
+    "selectChildHeading": "Vali laps",
+    "selectChildEmpty": "Vali ülalt laps, et päevikut näha",
+    "loadingChildren": "Laadin…",
+    "tipsTitle": "Nipid: jälgi tegevusi vaates Täna",
+    "tips1": "Märgi tegevused tehtuks — laps näeb neid kohe",
+    "tips2": "Tegevused märgitakse lapse vaates ühe puudutusega ja täht tuleb kohe",
+    "tips3": "Keri kuupäevavalijaga tagasi, et näha, kuidas lapsel on läinud",
+    "tips4": "Peata päev, kui rutiinid on teistsugused — tähti ei kao",
+    "rateActivity": "Hinda tegevust",
+    "commentPlaceholder": "Kommentaar (valikuline)…",
+    "cancel": "Tühista",
+    "save": "Salvesta",
+    "moveUp": "Liiguta üles",
+    "moveDown": "Liiguta alla",
+    "printWeekDocTitle": "Nädalaplaan — {{name}}",
+    "printMyDaysDocTitle": "Minu päevad"
+  },
+  "childFallback": "Laps",
+  "noChildren": "Lapsi pole veel lisatud.",
+  "loading": "Laadin…",
+  "retry": "Proovi uuesti",
+  "errors": {
+    "signInRequired": "Logi sisse, et Täna näha",
+    "loadChildren": "Lapsi ei saanud laadida",
+    "loadLog": "Päevikut ei saanud laadida. Proovi uuesti.",
+    "saveOrder": "Järjekorda ei saanud salvestada",
+    "updateActivity": "Tegevust ei saanud uuendada",
+    "undo": "Ei saanud tagasi võtta",
+    "changeStatus": "Olekut ei saanud muuta",
+    "adjustTime": "Aegu ei saanud kohandada",
+    "selectChild": "Vali esmalt laps",
+    "custodyDisabled": "Hooldusplaan ei ole sisse lülitatud",
+    "loadWeek": "Nädalat ei saanud laadida",
+    "saveRating": "Hinnangut ei saanud salvestada",
+    "ratingScoreOrEmotion": "Vali hinnang või tujukkaart",
+    "ratingScoreRange": "Hinnang peab olema 1–10",
+    "ratingInvalidEmotion": "Vigane tujukkaart",
+    "ratingActivityNotFound": "Tegevust ei leitud",
+    "ratingNotAllowed": "Sellele lapsele ei ole selle tegevuse hindamine lubatud",
+    "ratingParentScoreRange": "Hinnang peab olema 1–5",
+    "ratingParentDisabled": "Vanema hinnang ei ole selle tegevuse jaoks sisse lülitatud",
+    "dayPaused": "Päev on peatatud",
+    "dailyLogItemRequired": "daily_log_item_id on vajalik",
+    "invalidTimerMinutes": "Vigased minutid. Lubatud väärtused: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Täna tegevusi pole!",
+    "noScheduleDay": "Sel päeval rutiini pole",
+    "addToWeekSchedule": "Lisa tegevused nädalaplaani, et päevikud tekiksid automaatselt.",
+    "noScheduleSelected": "Valitud päeval rutiini pole.",
+    "thisDay": "see päev",
+    "today": "täna",
+    "noChildrenTitle": "Lapsi pole lisatud",
+    "addFirstChild": "Lisa esimene laps Kodul, et alustada!",
+    "goToDashboard": "Mine Kodu",
+    "goToWeekSchedule": "📅 Mine nädalaplaani"
+  },
+  "nav": {
+    "prevWeek": "Eelmine nädal",
+    "prevDay": "Eelmine päev",
+    "nextDay": "Järgmine päev",
+    "nextWeek": "Järgmine nädal",
+    "pickDate": "Vali kuupäev",
+    "todayBtn": "Täna",
+    "undoBump": "Võta viimane ajanihe tagasi"
+  },
+  "activity": {
+    "markDone": "Märgi tehtuks",
+    "undoMark": "Võta märge tagasi",
+    "rate": "⭐ Hinda",
+    "setRating": "Määra hinnang",
+    "changeRating": "Muuda hinnangut",
+    "dragReorder": "Lohista järjekorra muutmiseks",
+    "completeAllInSection": "Märgi kõik lõigus {{section}} tehtuks",
+    "completeAllBtn": "✅ Märgi kõik tehtuks",
+    "defaultName": "Tegevus",
+    "undoneToast": "↩️ Märge võetud tagasi"
+  },
+  "pause": {
+    "confirmPause": "Kas peatad selle päeva? Tegevused ei loe negatiivselt.",
+    "confirmUnpause": "Kas avad selle päeva uuesti?",
+    "pausedToast": "😴 Päev peatatud",
+    "unpausedToast": "✅ Päev taas avatud",
+    "dayTitle": "Vaba päev",
+    "banner": "See päev on peatatud (nt haiguspäev või puhkus). Tegevused ei loe negatiivselt.",
+    "reactivate": "✅ Ava päev uuesti",
+    "pauseBtn": "😴 Peata see päev (haiguspäev / vaba päev)"
+  },
+  "bump": {
+    "noItems": "Märkimata ajaga tegevusi, mida nihutada, pole",
+    "moved": "⏩ {{count}} tegevus{{suffix}} nihutati {{minutes}} min edasi",
+    "movedOne": "",
+    "movedMany": "t",
+    "undoToast": "↩️ Ajanihe võetud tagasi",
+    "title": "Nihuta kõik eesootavad edasi",
+    "adjustHint": "Kohandab märkimata tegevuste aegu",
+    "minutesTitle": "Nihuta {{minutes}} min edasi",
+    "undoBtn": "↩ Võta tagasi"
+  },
+  "retrofill": {
+    "title": "Täidan rutiini tagantjärele",
+    "description": "Täidad rutiini hiljem. Märgi tegevused tehtuks — need salvestatakse õige kuupäevaga."
+  },
+  "rating": {
+    "childMood": "Lapse tuju",
+    "parentScore": "Vanema hinnang",
+    "noMoodCards": "Tujukkaarte pole veel",
+    "saved": "⭐ Hinnang salvestatud!",
+    "labels": [
+      "",
+      "Raske 😓",
+      "Okei 😐",
+      "Hea 😊",
+      "Väga hea 😄",
+      "Suurepärane! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hügieen",
+    "mat": "Toit",
+    "skola": "Kool",
+    "lek": "Mäng",
+    "rorelse": "Liikumine",
+    "vila": "Puhkus",
+    "social": "Suhtlus"
+  },
+  "legend": {
+    "colorCoding": "Värvikood:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Kõik tegevused tehtud!",
+    "completedOf": "{{completed}} / {{total}} tegevust tehtud"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Märgitud: {{name}}",
+    "undo": "Võta tagasi"
+  },
+  "emotions": {
+    "title": "💛 Tänased tujud",
+    "noCards": "Tujukkaarte pole veel",
+    "sliderResponses": "Liugur: {{count}} vastus{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "t",
+    "sliderAvg": " (keskm. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Valmistan nädala ülevaadet...",
+    "preparingCustody": "Valmistan minu päevi…",
+    "noMyDays": "Sel nädalal pole ühtegi sinu päeva",
+    "weekScheduleTitle": "{{name}} — nädalaplaan",
+    "myDaysTitle": "{{name}} — minu päevad"
+  }
+}
