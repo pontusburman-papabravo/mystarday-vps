@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Danes — {{brand}}",
+  "shell": {
+    "headerTitle": "Danes",
+    "backToHome": "← Nazaj na Domov",
+    "pdfHint": "Ustvari PDF za dan, teden ali moje dneve",
+    "printBtn": "📄 Ustvari PDF ▾",
+    "printDay": "📄 Ustvari PDF — dan",
+    "printWeek": "📅 Ustvari PDF — teden",
+    "printMyDays": "🏠 Ustvari PDF — moji dnevi",
+    "selectChildHeading": "Izberi otroka",
+    "selectChildEmpty": "Zgoraj izberi otroka, da vidiš dnevnik",
+    "loadingChildren": "Nalagam…",
+    "tipsTitle": "Namig: spremljaj dejavnosti v Danes",
+    "tips1": "Označi dejavnosti kot končane — otrok jih vidi sproti",
+    "tips2": "V otroškem pogledu se dejavnost označi z enim tapom in zvezdica pride takoj",
+    "tips3": "Z izbirnikom datuma se pomakni nazaj in poglej, kako je otroku šlo",
+    "tips4": "Dan ustavi, ko je rutina drugačna — zvezdice se ne izgubijo",
+    "rateActivity": "Oceni dejavnost",
+    "commentPlaceholder": "Komentar (neobvezno)…",
+    "cancel": "Prekliči",
+    "save": "Shrani",
+    "moveUp": "Premakni gor",
+    "moveDown": "Premakni dol",
+    "printWeekDocTitle": "Tedenski urnik — {{name}}",
+    "printMyDaysDocTitle": "Moji dnevi"
+  },
+  "childFallback": "Otrok",
+  "noChildren": "Še ni dodanega otroka.",
+  "loading": "Nalagam…",
+  "retry": "Poskusi znova",
+  "errors": {
+    "signInRequired": "Prijavi se, da vidiš Danes",
+    "loadChildren": "Otrok ni bilo mogoče naložiti",
+    "loadLog": "Dnevnika ni bilo mogoče naložiti. Poskusi znova.",
+    "saveOrder": "Vrstnega reda ni bilo mogoče shraniti",
+    "updateActivity": "Dejavnosti ni bilo mogoče posodobiti",
+    "undo": "Ni bilo mogoče razveljaviti",
+    "changeStatus": "Stanja ni bilo mogoče spremeniti",
+    "adjustTime": "Časov ni bilo mogoče prilagoditi",
+    "selectChild": "Najprej izberi otroka",
+    "custodyDisabled": "Urnik skrbništva ni vklopljen",
+    "loadWeek": "Tedna ni bilo mogoče naložiti",
+    "saveRating": "Ocene ni bilo mogoče shraniti",
+    "ratingScoreOrEmotion": "Izberi oceno ali kartico razpoloženja",
+    "ratingScoreRange": "Ocena mora biti med 1 in 10",
+    "ratingInvalidEmotion": "Neveljavna kartica razpoloženja",
+    "ratingActivityNotFound": "Dejavnosti ni bilo mogoče najti",
+    "ratingNotAllowed": "Ocena za tega otroka pri tej dejavnosti ni dovoljena",
+    "ratingParentScoreRange": "Ocena mora biti med 1 in 5",
+    "ratingParentDisabled": "Ocena starša za to dejavnost ni vklopljena",
+    "dayPaused": "Dan je ustavljen",
+    "dailyLogItemRequired": "daily_log_item_id je obvezen",
+    "invalidTimerMinutes": "Neveljavne minute. Dovoljene vrednosti: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Danes ni dejavnosti!",
+    "noScheduleDay": "Ta dan nima rutine",
+    "addToWeekSchedule": "Dodaj dejavnosti v tedenski urnik, da se dnevniki ustvarijo sami.",
+    "noScheduleSelected": "Za izbrani dan ni rutine.",
+    "thisDay": "ta dan",
+    "today": "danes",
+    "noChildrenTitle": "Ni dodanega otroka",
+    "addFirstChild": "Na Domov dodaj prvega otroka, da začneš!",
+    "goToDashboard": "Pojdi na Domov",
+    "goToWeekSchedule": "📅 Pojdi na tedenski urnik"
+  },
+  "nav": {
+    "prevWeek": "Prejšnji teden",
+    "prevDay": "Prejšnji dan",
+    "nextDay": "Naslednji dan",
+    "nextWeek": "Naslednji teden",
+    "pickDate": "Izberi datum",
+    "todayBtn": "Danes",
+    "undoBump": "Razveljavi zadnjo prilagoditev časa"
+  },
+  "activity": {
+    "markDone": "Označi kot končano",
+    "undoMark": "Razveljavi oznako",
+    "rate": "⭐ Oceni",
+    "setRating": "Nastavi oceno",
+    "changeRating": "Spremeni oceno",
+    "dragReorder": "Povleci za novo razvrstitev",
+    "completeAllInSection": "Končaj vse v {{section}}",
+    "completeAllBtn": "✅ Označi vse kot končano",
+    "defaultName": "Dejavnost",
+    "undoneToast": "↩️ Oznaka razveljavljena"
+  },
+  "pause": {
+    "confirmPause": "Ustavim ta dan? Dejavnosti ne štejejo negativno.",
+    "confirmUnpause": "Znova vključim ta dan?",
+    "pausedToast": "😴 Dan je ustavljen",
+    "unpausedToast": "✅ Dan je znova vključen",
+    "dayTitle": "Prosti dan",
+    "banner": "Ta dan je ustavljen (npr. bolniški dan ali počitnice). Dejavnosti ne štejejo negativno.",
+    "reactivate": "✅ Znova vključi dan",
+    "pauseBtn": "😴 Ustavi ta dan (bolniški dan / prosti dan)"
+  },
+  "bump": {
+    "noItems": "Ni neoznačenih dejavnosti s časom, ki bi jih premaknil",
+    "moved": "⏩ Premaknjeno {{count}} dejavnost{{suffix}} za {{minutes}} min",
+    "movedOne": "",
+    "movedMany": "i",
+    "undoToast": "↩️ Prilagoditev časa je razveljavljena",
+    "title": "Premakni vse prihajajoče naprej",
+    "adjustHint": "Prilagodi čase neoznačenih dejavnosti",
+    "minutesTitle": "Premakni naprej za {{minutes}} min",
+    "undoBtn": "↩ Razveljavi"
+  },
+  "retrofill": {
+    "title": "Dopolnjevanje rutine",
+    "description": "Rutino izpolnjuješ za nazaj. Označi dejavnosti kot končane — shranijo se s pravim datumom."
+  },
+  "rating": {
+    "childMood": "Otrokovo razpoloženje",
+    "parentScore": "Ocena starša",
+    "noMoodCards": "Še ni kartic razpoloženja",
+    "saved": "⭐ Ocena je shranjena!",
+    "labels": [
+      "",
+      "Težko 😓",
+      "V redu 😐",
+      "Dobro 😊",
+      "Odlično 😄",
+      "Čudovito! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiena",
+    "mat": "Hrana",
+    "skola": "Šola",
+    "lek": "Igra",
+    "rorelse": "Gibanje",
+    "vila": "Počitek",
+    "social": "Druženje"
+  },
+  "legend": {
+    "colorCoding": "Barvne oznake:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Vse dejavnosti so končane!",
+    "completedOf": "{{completed}} od {{total}} dejavnosti končanih"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Označeno: {{name}}",
+    "undo": "Razveljavi"
+  },
+  "emotions": {
+    "title": "💛 Razpoloženja danes",
+    "noCards": "Še ni kartic razpoloženja",
+    "sliderResponses": "Drsnik: {{count}} odziv{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "ov",
+    "sliderAvg": " (povpr. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Pripravljam pregled tedna...",
+    "preparingCustody": "Pripravljam moje dneve…",
+    "noMyDays": "Ta teden nimaš svojih dni",
+    "weekScheduleTitle": "{{name}} — tedenski urnik",
+    "myDaysTitle": "{{name}} — moji dnevi"
+  }
+}

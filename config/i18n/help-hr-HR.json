@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Pomoć",
+    "openAria": "Otvori pomoć",
+    "closeAria": "Zatvori pomoć"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Pomoć – Pregled",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Pregled",
+          "faqs": [
+            {
+              "q": "Što rade 3 brza gumba na vrhu?",
+              "a": "<strong>⭐ Daj bonus zvjezdice</strong> — ručno daj djetetu bonus zvjezdice. <strong>📋 Jednokratna aktivnost</strong> — dodaj privremenu aktivnost za danas. <strong>🏠 Slobodan dan</strong> — pauzira raspored djeteta za jedan dan (npr. bolest, praznik)."
+            },
+            {
+              "q": "Kako označim aktivnost?",
+              "a": "Dodirni aktivnost na kartici djeteta — odmah se označi. Dijete je može označiti i u <strong>dječjem prikazu</strong>."
+            },
+            {
+              "q": "Što je sažeta kartica djeteta?",
+              "a": "Kartica djeteta u sažetom načinu pokazuje avatar, ime, stanje zvjezdica i oznake dijelova dana. Proširi karticu za više detalja, poveznicu na raspored i gumb za pauzu."
+            },
+            {
+              "q": "Što je slobodan dan?",
+              "a": "<strong>🏠 Slobodan dan</strong> pauzira raspored djeteta za odabrani dan — zgodno kad je bolesno ili na prazniku. Dijete vidi raspored kao neaktivan. Dan ponovno uključi istim gumbom."
+            },
+            {
+              "q": "Što je pauzirani način?",
+              "a": "Dodirni ikonu pauze (⏸) na kartici djeteta da pauziraš dijete. Aktivnosti se prikazuju kao neaktivne i dijete ne dobiva zvjezdice dok ne nastaviš."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvjezdice",
+          "faqs": [
+            {
+              "q": "Kako dijete dobiva zvjezdice?",
+              "a": "Svaka završena aktivnost donosi <strong>1 zvjezdicu</strong>. Dijete označava u dječjem prikazu — ili ti možeš označiti u Dnevnom zapisu dok isprobavate. Bonus zvjezdice daješ gumbom ⭐ iznad kartica djece."
+            },
+            {
+              "q": "Kako radi Škrinja s blagom?",
+              "a": "Dijete otvara Škrinju s blagom preko kartice 💎 u dječjem prikazu i vidi nagrade s cijenom u zvjezdicama. Kad skupi dovoljno, može zatražiti nagradu — ti je odobravaš."
+            },
+            {
+              "q": "Kako dodajem nagrade?",
+              "a": "Idi na <strong>Biblioteku</strong> u izborniku → karticu \"Nagrade\". Dodaj svoje nagrade, uredi cijenu u zvjezdicama i odaberi koja djeca ih vide."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Raspored",
+          "faqs": [
+            {
+              "q": "Kako dodam aktivnost?",
+              "a": "Idi na <strong>Tjedni raspored</strong> → odaberi dijete → odaberi dan → dodirni \"+\" da dodaš aktivnost iz biblioteke. Možeš tražiti među 63 standardne aktivnosti."
+            },
+            {
+              "q": "Kako kopiram raspored na svaki dan?",
+              "a": "U Tjednom rasporedu → \"Kopiraj iz…\" → odaberi izvor (svoj raspored ili standardnu biblioteku) → označi dane na koje želiš kopirati."
+            },
+            {
+              "q": "Što je prikaz Danas?",
+              "a": "Prikaz \"Danas\" na Pregledu se sam ažurira kad promijeniš raspored. Promjene u Tjednom rasporedu odmah se vide na Pregledu i u prikazu djeteta."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Obitelj",
+          "faqs": [
+            {
+              "q": "Kako pozovem još jednu odraslu osobu?",
+              "a": "Idi na <strong>Obitelj i postavke → Članovi obitelji</strong> → dodirni \"Pozovi\". Osoba koju pozoveš dobiva e-poštu s poveznicom za prijavu."
+            },
+            {
+              "q": "Kako vidim dan djeteta?",
+              "a": "Otvori <strong>Dnevni zapis</strong> u izborniku — tamo vidiš današnje aktivnosti onako kako će ih dijete vidjeti. Zgodno prve večeri prije nego što se dijete samo prijavi."
+            },
+            {
+              "q": "Kako se dijete prijavljuje?",
+              "a": "Kad budeš spreman: dijete se prijavljuje na <strong>/child-login</strong> korisničkim imenom i PIN-om. Podatke nalaziš pod <strong>Obitelj i postavke → Djeca</strong>."
+            },
+            {
+              "q": "Kontaktiraj podršku",
+              "a": "Piši nam na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odgovaramo unutar 24 sata."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Pomoć – Nagrade",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrade",
+          "faqs": [
+            {
+              "q": "Kako radi sustav nagrada?",
+              "a": "Dijete skuplja zvjezdice završavanjem aktivnosti. Kad stanje zvjezdica dovoljno za nagradu, može zatražiti iskorištavanje — ti odobravaš ili odbijaš."
+            },
+            {
+              "q": "Kako dodajem nove nagrade?",
+              "a": "Idi na <strong>Biblioteku</strong> u izborniku → karticu \"Nagrade\" → traži ili dodirni \"+ Dodaj nagradu\". Možeš i izravno kopirati iz standardne biblioteke."
+            },
+            {
+              "q": "Kako upravljam vidljivošću po djetetu?",
+              "a": "Kad stvaraš ili uređuješ nagradu, biraš koja djeca je trebaju vidjeti. Zgodno za nagrade prilagođene svakom djetetu."
+            },
+            {
+              "q": "Kako odobrim zahtjev za iskorištavanje?",
+              "a": "Zahtjev djeteta se vidi na Pregledu s oznakom. Dodirni da odobriš. Zvjezdice se same oduzimaju i dijete odmah vidi promjenu."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvjezdice",
+          "faqs": [
+            {
+              "q": "Kako dijete dobiva zvjezdice?",
+              "a": "Svaka završena aktivnost donosi zvjezdice (zadano 1 zvjezdica po aktivnosti). Bonus zvjezdice možeš dati i gumbom ⭐ na Pregledu."
+            },
+            {
+              "q": "Što je stanje zvjezdica, a što dnevni napredak?",
+              "a": "<strong>Stanje zvjezdica</strong> = ukupno spremljeno stanje. <strong>Dnevni napredak</strong> (prsten oko emojija) = koliko je aktivnosti dijete danas završilo. To su odvojene stvari."
+            },
+            {
+              "q": "Što se događa kad se nagrada iskoristi?",
+              "a": "Zvjezdice se same oduzimaju s računa djeteta. Dijete odmah vidi promjenu u Škrinji s blagom. Povijest vidiš na stranici Nagrade."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Pomoć – Tjedni raspored",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Uredi raspored",
+          "faqs": [
+            {
+              "q": "Kako dodam aktivnost?",
+              "a": "Odaberi dan → dodirni \"+\" → traži i odaberi aktivnost. Možeš odabrati <strong>više vremenskih odsječaka odjednom</strong> (Jutro + Večer) i aktivnost se dodaje u sve."
+            },
+            {
+              "q": "Kako stvorim novu aktivnost izravno u rasporedu?",
+              "a": "Dodirni \"+\" → traži → ako ništa ne odgovara, u prozoru pretrage se pojavi obrazac \"Stvori novo\". Upiši naziv, emoji, vrijednost zvjezdica i eventualne podkorake."
+            },
+            {
+              "q": "Kako uredim naziv ili emoji aktivnosti?",
+              "a": "Dodirni naziv ili emoji aktivnosti u rasporedu → otvara se prozor za uređivanje. Promjene se same primjenjuju na svu djecu i sve dane."
+            },
+            {
+              "q": "Kako kopiram raspored od drugog djeteta?",
+              "a": "Dodirni \"Kopiraj iz…\" → odaberi izvor → označi dane u tjednu na koje želiš kopirati. Odaberi želiš li prebrisati postojeći sadržaj."
+            },
+            {
+              "q": "Usklađuje li se raspored sam s dječjim prikazom?",
+              "a": "Da! Promjene u Tjednom rasporedu se odmah usklađuju s prikazom \"Danas\" na Pregledu i s prikazom djeteta — nije potrebno ručno ažuriranje."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Biblioteka",
+          "faqs": [
+            {
+              "q": "Što je standardna biblioteka?",
+              "a": "Standardna biblioteka ima 63 gotove aktivnosti u 6 kategorija i 5 predložaka rasporeda. Dodirni \"Brzi unos iz biblioteke\" da ih dodaš u raspored."
+            },
+            {
+              "q": "Kako kopiram standardni raspored?",
+              "a": "Pod karticom Raspored → \"Kopiraj iz…\" → odaberi \"Standardna biblioteka\" → odaberi raspored → odaberi dane → kopiraj."
+            },
+            {
+              "q": "Zašto dijete ne vidi nijednu aktivnost?",
+              "a": "Provjeri je li raspored postavljen za pravo dijete i ima li aktivnosti za današnji dan. Prazan raspored? Kopiraj iz standardne biblioteke da brzo kreneš."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Savjeti",
+          "faqs": [
+            {
+              "q": "Kako složim dobar raspored rutine?",
+              "a": "Kreni s 3–5 stalnih aktivnosti (doručak, pranje zubi, zadaća). Stavi ih u pravi redoslijed. Djeca brzo nauče rutinu kad ostane dosljedna."
+            },
+            {
+              "q": "Što su podkoraci na aktivnostima?",
+              "a": "Aktivnostima možeš dodati podkorake (npr. \"Operi ruke\", \"Obuci pidžamu\" pod \"Večernja rutina\"). Dijete ih vidi kao vizualni vodič, ali cijelu aktivnost označi odjednom."
+            },
+            {
+              "q": "Koliko aktivnosti po danu?",
+              "a": "Preporuka: 4–8 aktivnosti. Premalo i nema toka; previše i djeluje preplavljujuće. Kreni malo i nadograđuj."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Pomoć – Obitelj i postavke",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Djeca",
+          "faqs": [
+            {
+              "q": "Kako dodam dijete?",
+              "a": "Idi na Pregled → dodirni \"+ Dodaj dijete\". Upiši ime, emoji i rođendan. Dijete automatski dobiva raspored prema dobi."
+            },
+            {
+              "q": "Kako promijenim PIN djeteta?",
+              "a": "Dodirni karticu djeteta → karticu \"Postavke\" → \"Promijeni PIN\". Odaberi novi PIN od 4 znamenke."
+            },
+            {
+              "q": "Dijete mora raditi aktivnosti redom — mogu li to promijeniti?",
+              "a": "Zadano je slobodno označavanje. Za vođeni redoslijed idi na profil djeteta → karticu <strong>Postavke</strong> → uključi <strong>SAD / SLJEDEĆE / KASNIJE</strong>."
+            },
+            {
+              "q": "Kako dijete vidi svoje podatke za prijavu?",
+              "a": "Dodirni karticu djeteta → karticu \"Postavke\" → \"Prikaži podatke za prijavu\". Vidjet ćeš korisničko ime i PIN djeteta."
+            },
+            {
+              "q": "Kako uklonim dijete?",
+              "a": "Obitelj → odaberi dijete → kartica Postavke → \"Trajno obriši dijete\". Napomena: sva povijest rasporeda, zvjezdica i nagrada se briše i to se ne može poništiti."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Odrasli",
+          "faqs": [
+            {
+              "q": "Kako pozovem još jednu odraslu osobu?",
+              "a": "Idi na karticu <strong>Članovi obitelji</strong> → \"Pozovi\". Osoba koju pozoveš dobiva e-poštu s poveznicom za otvaranje računa."
+            },
+            {
+              "q": "Mogu li odabrati koju djecu odrasla osoba vidi?",
+              "a": "Da! Pri slanju pozivnice biraš kojoj djeci ima pristup. Kasnije to možeš promijeniti pod Članovi obitelji → osoba → Pristup djeci."
+            },
+            {
+              "q": "Kako uklonim člana obitelji?",
+              "a": "Dodirni osobu na popisu članova obitelji → \"Ukloni\". Odmah gubi pristup obitelji."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Postavke",
+          "faqs": [
+            {
+              "q": "Kako promijenim lozinku?",
+              "a": "Idi na <strong>Postavke</strong> (⚙️) u izborniku → \"Promijeni lozinku\". Trebat će ti trenutačna lozinka."
+            },
+            {
+              "q": "Kako uključim obavijesti?",
+              "a": "Idi na Postavke → \"Podsjetnici\" → uključi obavijesti i odaberi vremena. Obavijesti trebaju dopuštenje preglednika."
+            },
+            {
+              "q": "Kontaktiraj podršku",
+              "a": "Piši nam na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odgovaramo unutar 24 sata."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Pomoć – Aktivnosti",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Vodi",
+          "faqs": [
+            {
+              "q": "Što je aktivnost?",
+              "a": "<strong>Aktivnost</strong> je zadatak koji dijete radi (npr. \"Operi zube\"). Aktivnosti donose 1–5 zvjezdica i mogu imati podkorake. Skupi ih u biblioteku i dodaj u rasporede djece."
+            },
+            {
+              "q": "Kako stvorim novu aktivnost?",
+              "a": "Dodirni \"+ Nova aktivnost\" → upiši naziv, kategoriju (Higijena, Hrana, Igra itd.), trajanje i vrijednost zvjezdica. Spremi i aktivnost je u tvojoj biblioteci."
+            },
+            {
+              "q": "Kako dodam aktivnost u raspored?",
+              "a": "Aktivnosti žive u tvojoj biblioteci. Idi na Tjedni raspored → odaberi dan → \"+\" → odaberi aktivnost koju želiš dodati."
+            },
+            {
+              "q": "Kako uklonim aktivnost sa svakog dana?",
+              "a": "Dodirni ✕ na aktivnosti → odaberi <strong>Svaki dan u tjednu</strong>. Za uklanjanje samo danas ili jednog dana u tjednu (npr. svaki četvrtak) postoje zasebne opcije."
+            },
+            {
+              "q": "Kako uredim aktivnost?",
+              "a": "Dodirni aktivnost na popisu → \"Uredi\". Promjene se odmah primjenjuju u svakom rasporedu gdje se aktivnost koristi."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorije",
+          "faqs": [
+            {
+              "q": "Čemu služe kategorije?",
+              "a": "Kategorije bojama označavaju aktivnosti u dječjem prikazu. <strong>Higijena</strong>=plavo, <strong>Hrana</strong>=žuto, <strong>Igra</strong>=zeleno, <strong>Škola</strong>=ljubičasto, <strong>Kretanje</strong>=crveno, <strong>Odmor</strong>=sivo, <strong>Druženje</strong>=narančasto."
+            },
+            {
+              "q": "Kako odaberem kategoriju?",
+              "a": "Kad stvaraš ili uređuješ aktivnost, odaberi kategoriju s padajućeg izbornika. Odaberi onu koja najbolje opisuje aktivnost."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Pomoć – Biblioteka",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Kartice",
+          "faqs": [
+            {
+              "q": "Koje kartice ima biblioteka?",
+              "a": "<strong>Rasporedi</strong> — tvoji predlošci rasporeda. <strong>Aktivnosti</strong> — biblioteka aktivnosti s podkoracima. <strong>Nagrade</strong> — tvoje nagrade. <strong>Standardna biblioteka</strong> — 63 aktivnosti, 15 nagrada i 5 rasporeda za kopiranje."
+            },
+            {
+              "q": "Kako kopiram iz standardne biblioteke?",
+              "a": "Idi na karticu \"Standardna biblioteka\" → odaberi aktivnost ili nagradu → dodirni gumb 📥 da kopiraš u obiteljsku biblioteku. Rasporedi se kopiraju preko Tjednog rasporeda → \"Kopiraj iz…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Aktivnosti",
+          "faqs": [
+            {
+              "q": "Kako stvorim novu aktivnost?",
+              "a": "Dodirni \"+ Nova aktivnost\" → upiši naziv, emoji (odaberi ili upiši svoj), vrijednost zvjezdica i eventualne podkorake → spremi. Aktivnost se sprema u biblioteku za cijelu obitelj."
+            },
+            {
+              "q": "Što su podkoraci?",
+              "a": "Podkoraci su upute korak po korak pod aktivnošću (npr. \"Operi ruke\" pod \"Higijena\"). Dijete ih vidi kao vodič, ali cijelu aktivnost označi jednim dodirom."
+            },
+            {
+              "q": "Kako uredim aktivnost?",
+              "a": "Dodirni naziv aktivnosti u rasporedu — otvara se prozor za uređivanje. Promjene (naziv, emoji, podkoraci) se same primjenjuju na svu djecu i sve dane."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrade",
+          "faqs": [
+            {
+              "q": "Kako dodam nagradu?",
+              "a": "Kartica \"Nagrade\" → traži nagradu → dodirni \"+ Stvori novo\" ako ne postoji → upiši naziv, emoji, cijenu u zvjezdicama → odaberi koja djeca je vide → spremi."
+            },
+            {
+              "q": "Kako tražim nagrade?",
+              "a": "Okvir za pretragu gleda tvoje nagrade I standardnu biblioteku istovremeno. Nema pogodaka? Gumb \"Stvori [naziv]\" otvara unaprijed ispunjen obrazac."
+            },
+            {
+              "q": "Može li dijete imati privatne nagrade?",
+              "a": "Da! Kad stvaraš nagradu, biraš koja djeca je trebaju vidjeti. Zgodno za nagrade prilagođene svakom djetetu."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Pomoć – Postavke",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Račun",
+          "faqs": [
+            {
+              "q": "Kako promijenim lozinku?",
+              "a": "Upiši trenutačnu lozinku i novu lozinku → dodirni \"Spremi\". Lozinka mora imati najmanje 6 znakova."
+            },
+            {
+              "q": "Kako promijenim e-poštu?",
+              "a": "Upiši novu e-poštu → dodirni \"Spremi\". Novu adresu možda trebaš potvrditi e-poštom."
+            },
+            {
+              "q": "Kako obrišem račun?",
+              "a": "Javi nam se na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> za brisanje računa. Rješavamo to unutar 48 sati."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Obavijesti",
+          "faqs": [
+            {
+              "q": "Kako uključim podsjetnike?",
+              "a": "Uključi prekidač pod \"Podsjetnici\" → odaberi vrijeme i dane. Preglednik mora dopustiti obavijesti."
+            },
+            {
+              "q": "Ne dobivam obavijesti iako su uključene",
+              "a": "Provjeri je li preglednik dopustio obavijesti za stranicu. Idi na postavke preglednika → Obavijesti → pronađi [REDACTED].se → Dopusti."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Pomoć – Kalendar",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendar",
+          "faqs": [
+            {
+              "q": "Što kalendar pokazuje?",
+              "a": "Kalendar daje mjesečni pregled aktivnosti djeteta, iskorištenih nagrada i važnih događaja."
+            },
+            {
+              "q": "Kako se krećem između mjeseci?",
+              "a": "Dodirni strelice (< >) pokraj naziva mjeseca da promijeniš mjesec."
+            },
+            {
+              "q": "Kako vidim više detalja za dan?",
+              "a": "Dodirni datum da vidiš detaljan popis aktivnosti i zvjezdica za taj dan."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Pomoć – Dnevni zapis",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Zapis",
+          "faqs": [
+            {
+              "q": "Što je dnevni zapis?",
+              "a": "Zapis pokazuje dan djeteta — aktivnosti, oznake i zvjezdice. Koristi ga da <strong>unaprijed vidiš</strong> što dijete vidi ili da naknadno popuniš."
+            },
+            {
+              "q": "Kako filtriram zapis?",
+              "a": "Odaberi dijete u filtru na vrhu da vidiš zapis samo za jedno dijete. Možeš filtrirati i po datumu."
+            },
+            {
+              "q": "Koliko daleko unatrag mogu gledati?",
+              "a": "Zapis čuva podatke od dana kad si počeo koristiti [REDACTED]. Pomakni se ili odaberi datum da vidiš starije podatke. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Pomoć – Odaberi raspored po danu",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Dodijeli raspored",
+          "faqs": [
+            {
+              "q": "Što je \"Odaberi raspored po danu\"?",
+              "a": "Ovdje biraš koji je tjedni raspored aktivan za svako dijete i dan. Zgodno ako imaš različite rutine radnim danom i vikendom."
+            },
+            {
+              "q": "Može li dijete imati različite rasporede radnim danom i vikendom?",
+              "a": "Da! Odaberi jedan raspored za pon–pet i drugi za sub–ned. Dodirni dan i odaberi raspored koji želiš."
+            },
+            {
+              "q": "Što ako dan nije dodijeljen?",
+              "a": "Ako dan nema dodijeljen raspored, dijete taj dan ne vidi aktivnosti. Provjeri da svaki dan koji želiš koristiti ima dodijeljen raspored."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Administracija",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Pregled",
+          "faqs": [
+            {
+              "q": "Što mogu u administraciji?",
+              "a": "Administracija ti daje pristup svim obiteljima, korisnicima i podacima sustava. Možeš vidjeti statistiku, voditi račune i moderirati sadržaj."
+            },
+            {
+              "q": "Kako pronađem određenog korisnika?",
+              "a": "Koristi polje za pretragu na vrhu da tražiš po e-pošti ili imenu. Dodirni obitelj da vidiš detalje."
+            },
+            {
+              "q": "Kako arhiviram obitelj?",
+              "a": "Dodirni karticu obitelji → \"Arhiviraj\". Arhivirane obitelji se mogu vratiti, ali ostaju neaktivne do tada."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Podrška",
+          "faqs": [
+            {
+              "q": "Kako vidim dolazne poruke podrške?",
+              "a": "Pod karticom \"Sandučić podrške\" vidiš svaku poruku poslanu putem obrasca za kontakt. Dodirni da pročitaš cijeli tekst i odgovoriš."
+            },
+            {
+              "q": "Kako označim slučaj kao riješen?",
+              "a": "Dodirni slučaj → \"Označi kao riješeno\". Riješeni slučajevi se ne prikazuju u zadanom prikazu, ali ih možeš vidjeti preko \"Prikaži riješene\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Podrška djetetu — {{brand}}",
+    "loadError": "Stranicu nije moguće učitati."
+  },
+  "supportSvar": {
+    "pageTitle": "Tvoj slučaj",
+    "title": "Tvoj slučaj",
+    "intro": "Ovdje je cijeli razgovor. Piši ispod ako želiš nastaviti. Običan odgovor e-poštom se ovdje ne vidi.",
+    "sent": "Poslano. Vidjet ćemo to na istom slučaju.",
+    "escalate": "Trebam više pomoći od osobe",
+    "placeholder": "Napiši što se događa…"
+  }
+}

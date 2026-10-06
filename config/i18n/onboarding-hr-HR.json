@@ -1,0 +1,605 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Korak {{current}} od {{total}}",
+    "back": "← Natrag",
+    "next": "Sljedeći korak →",
+    "continue": "Nastavi →",
+    "save": "Spremi",
+    "cancel": "Odustani",
+    "loading": "Učitavanje…",
+    "genericError": "Nešto je pošlo po krivu. Pokušaj ponovno.",
+    "networkError": "Greška mreže. Pokušaj ponovno.",
+    "closeAria": "Zatvori",
+    "childFallback": "Tvoje dijete",
+    "addChildDone": "Gotovo! →",
+    "goForward": "Nastavi →",
+    "finishing": "Završavam…",
+    "recommended": "Preporučeno",
+    "optional": "Neobavezno"
+  },
+  "pageTitle": {
+    "welcome": "Dobrodošli — {{brand}}",
+    "ogTitle": "{{brand}} — Kreni za 2 minute",
+    "ogDescription": "Odmah postavi djetetov raspored i nagrade"
+  },
+  "verifyEmail": {
+    "title": "Potvrdi adresu e-pošte",
+    "body": "Poslali smo poruku na {{email}}. Otvori poveznicu u poruci da aktiviraš račun.",
+    "resend": "Pošalji ponovno",
+    "resendSending": "Šaljem…",
+    "resendSuccess": "✓ Poslano!",
+    "resendSent": "Poslano",
+    "resendError": "Nešto je pošlo po krivu. Pokušaj ponovno."
+  },
+  "child": {
+    "title": "Reci nam nešto o djetetu",
+    "lead": "Odaberi ime, emoji, rođendan i raspored koji odgovara tvojoj svakodnevici.",
+    "nameLabel": "Ime djeteta",
+    "namePlaceholder": "npr. Ela",
+    "birthdayLabel": "Rođendan",
+    "birthdayOptionalHint": "(neobavezno — pomaže nam predložiti pravi raspored)",
+    "yearPlaceholder": "Godina",
+    "monthPlaceholder": "Mjesec",
+    "dayPlaceholder": "Dan",
+    "birthYearAria": "Godina rođenja",
+    "birthMonthAria": "Mjesec rođenja",
+    "birthDayAria": "Dan rođenja",
+    "months": [
+      "Siječanj",
+      "Veljača",
+      "Ožujak",
+      "Travanj",
+      "Svibanj",
+      "Lipanj",
+      "Srpanj",
+      "Kolovoz",
+      "Rujan",
+      "Listopad",
+      "Studeni",
+      "Prosinac"
+    ],
+    "emojiLabel": "Odaberi emoji",
+    "customEmojiPlaceholder": "Ili upiši vlastiti emoji…",
+    "emojiAriaLabel": "Odaberi emoji {{emoji}}",
+    "avatarLabel": "Neobavezno: profilna fotografija",
+    "avatarHint": "Odaberi fotografiju iz knjižnice ili snimi novu.",
+    "avatarDefaultBtn": "✨ Zadana slika",
+    "avatarPickBtn": "📷 Odaberi fotografiju",
+    "avatarLoading": "Učitavanje…",
+    "avatarPreparing": "Pripremam…",
+    "avatarUploadFailed": "Fotografiju nije bilo moguće prenijeti. Pokušaj ponovno.",
+    "avatarReadFailed": "Sliku nije bilo moguće pročitati",
+    "avatarAlt": "Profilna fotografija djeteta",
+    "scheduleLabel": "Odaberi raspored",
+    "templatesLoading": "Učitavanje rasporeda…",
+    "templatesLoadFailed": "Predloške rasporeda trenutačno nije moguće učitati.",
+    "templatesRetryBtn": "Pokušaj ponovno",
+    "nextBtn": "Sljedeći korak →",
+    "creatingChild": "Stvaram dijete…",
+    "creatingSchedule": "Stvaram raspored…",
+    "nameRequired": "Upiši ime djeteta",
+    "emojiRequired": "Odaberi emoji za dijete",
+    "scheduleRequired": "Odaberi raspored",
+    "childResumedToast": "Pronašli smo dijete od prošlog puta — nastavljamo s rasporedom.",
+    "avatarSaveFailedToast": "Dijete je stvoreno, ali fotografiju nije bilo moguće spremiti. Možeš je dodati u Obitelji.",
+    "scheduleCreateFailed": "Raspored nije bilo moguće stvoriti"
+  },
+  "activityGuide": {
+    "title": "Kako aplikacija treba pomoći {{childName}} s današnjim aktivnostima?",
+    "lead": "Ovo možeš promijeniti bilo kada u postavkama djeteta.",
+    "stepLabel": "Korak {{current}} od {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Slobodan redoslijed",
+        "description": "Dijete može označavati stvari bilo kojim redom."
+      },
+      "one_at_a_time": {
+        "title": "Jedna stvar odjednom",
+        "description": "Aplikacija pomaže djetetu da se usredotoči na sljedeći korak."
+      },
+      "time_and_order": {
+        "title": "Jasno vrijeme i redoslijed",
+        "description": "Aplikacija pomaže sa sljedećim korakom i timerom koji postaviš za svaku aktivnost."
+      }
+    },
+    "continueBtn": "Nastavi →",
+    "saving": "Spremam…",
+    "selectError": "Odaberi opciju",
+    "saveError": "Odabir nije bilo moguće spremiti"
+  },
+  "viewType": {
+    "title": "Koji prikaz {{childName}} treba vidjeti?",
+    "lead": "Odaberi kako raspored izgleda kad se dijete prijavi. Možeš to promijeniti bilo kada u postavkama.",
+    "dayViewTitle": "Prikaz dana",
+    "dayViewSubtitle": "Jutro · Kasno jutro · Poslijepodne · Večer",
+    "timelineViewTitle": "Prikaz Sada/Sljedeće/Kasnije",
+    "timelineViewSubtitle": "Prikazuje samo ono što se događa upravo sada",
+    "timelineNow": "SADA",
+    "timelineNext": "SLJEDEĆE",
+    "timelineThen": "KASNIJE",
+    "mock": {
+      "wakeStretch": "Probudi se i protegni",
+      "brushTeeth": "Operi zube",
+      "packBag": "Spakiraj torbu",
+      "preschool": "Idi u vrtić",
+      "freePlay": "Slobodna igra",
+      "dinner": "Večera",
+      "bedtimeStory": "Priča za laku noć",
+      "preschoolShort": "Vrtić",
+      "play": "Igra"
+    },
+    "dayViewHint": "Možeš odabrati i prikaz dana ako dijete voli dijelove dana u bojama.",
+    "skipHint": "Preskačeš? Prikaz dana odabire se automatski.",
+    "saving": "Spremam odabir prikaza…"
+  },
+  "scheduleReady": {
+    "title": "Raspored je spreman!",
+    "subtitle": "Pripremili smo početni raspored za {{childName}}.",
+    "subtitleWithTemplate": "Pripremili smo raspored {{templateName}} za {{childName}}. Sadrži ključne korake da uspije samostalno.",
+    "templateFallback": "Raspored",
+    "daysWeek": "7 dana / tjedan",
+    "daysMonFri": "Pon–Pet",
+    "daysMonFriWeekend": "Pon–Pet + vikend",
+    "socialProofTitle": "Znaš li?",
+    "socialProofBody": "Slikovna podrška često smanjuje svakodnevni stres i do 30 % — a djeca s jasnim rutinama brže zaspu i bude se sretnija.",
+    "continueBtn": "Super, idemo! →"
+  },
+  "rewards": {
+    "title": "Kako rade zvjezdice",
+    "checkOff": "Označi",
+    "star": "Zvjezdica",
+    "treasureChest": "Škrinja s blagom",
+    "intro": "Unaprijed smo unijeli zabavne nagrade. Odaberi one koje {{childName}} može zaslužiti!",
+    "introWithCount": "Unaprijed smo unijeli {{count}} zabavnih nagrada. Odaberi one koje {{childName}} može zaslužiti!",
+    "selectCount": {
+      "zero": "Odaberi barem 1 nagradu (0 odabrano)",
+      "one": "{{count}} nagrada odabrana ✓",
+      "few": "{{count}} nagrade odabrane ✓",
+      "other": "{{count}} nagrada odabrano ✓"
+    },
+    "minOneError": "Odaberi barem jednu nagradu da nastaviš",
+    "saveBtn": "Spremi nagrade →",
+    "saving": "Spremam nagrade…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Dodatna priča",
+      "chooseDessert": "Odaberi desert",
+      "movieNight": "Filmska večer",
+      "chooseDinner": "Odaberi večeru",
+      "outing": "Izlet",
+      "bakeTogether": "Pečemo zajedno",
+      "familyGameNight": "Obiteljska igra",
+      "lateBedtime": "Kasni odlazak na spavanje",
+      "cinemaTrip": "Odlazak u kino"
+    }
+  },
+  "handoff": {
+    "title": "Kako se prijaviti",
+    "lead": "{{childName}} se prijavljuje imenom i PIN-om — bez lozinki.",
+    "childLoginLabel": "Prijava djeteta",
+    "usernameFallback": "korisničko ime",
+    "pinLabel": "PIN",
+    "pinNote": "Zapiši PIN — možeš ga promijeniti u postavkama.",
+    "pinResumeHint": "Upiši PIN djeteta. Ako ga ne znaš, novi možeš postaviti gumbom ispod.",
+    "chooseCustomPin": "✏️ Odaberi vlastiti PIN",
+    "savePin": "Spremi PIN",
+    "savingPin": "Spremam…",
+    "pinMustBe4": "PIN mora imati 4 znamenke",
+    "pinTooWeak": "Odaberi jači PIN (ne 1111, 2222 i slično)",
+    "pinSaveFailed": "PIN nije bilo moguće spremiti",
+    "copyInfo": "📋 Kopiraj podatke",
+    "copied": "✓ Kopirano!",
+    "copyManual": "Kopiraj ručno:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nKorisničko ime: {{username}}\nPIN: {{pin}}\nAplikacija: {{appUrl}}/child-login",
+    "emailLogin": "📧 Pošalji na e-poštu",
+    "emailSubject": "{{brand}} — Prijava za {{childName}}",
+    "emailBody": "Bok!\n\nOvo su podaci za prijavu u {{brand}} za {{childName}}:\n\nKorisničko ime: {{username}}\nPIN: {{pin}}\n\nOtvori aplikaciju: {{appUrl}}/child-login\n\nLijep pozdrav,\n{{brand}}",
+    "emailFallbackAlert": "Prijava za {{childName}}:\nKorisničko ime: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Instaliraj kao aplikaciju",
+    "installBody": "Dodaj {{brand}} na početni zaslon — radi kao prava aplikacija, radi i bez mreže, bez trgovina aplikacija.",
+    "installInstructions": "iPhone: Dijeli → Dodaj na početni zaslon · Android: ⋮ → Instaliraj aplikaciju",
+    "parentTipTitle": "Savjet za tebe kao roditelja",
+    "parentTipLead": "Sjedni s djetetom večeras. Pokaži Škrinju s blagom",
+    "parentTipEmphasis": "prvo",
+    "parentTipTail": "da probudiš znatiželju — zatim objasni da je aplikacija vlastita karta dana za {{childName}}!",
+    "testChildLogin": "👶 Isprobaj prijavu djeteta",
+    "continueAsParent": "Nastavi kao roditelj →",
+    "skipConfirmTitle": "Preskočiti prijavu djeteta?",
+    "skipConfirmBody": "Djetetu treba PIN da se prijavi samo. Ako to sada ne isprobaš, jutarnja rutina može biti teža — poslat ćemo podsjetnik za 24 sata ako dijete još nije pokušalo.",
+    "skipConfirmPrimary": "👶 Isprobaj prijavu djeteta",
+    "skipConfirmSecondary": "Ipak preskoči"
+  },
+  "parentPin": {
+    "setLater": "Postavi PIN roditelja kasnije",
+    "title": "Postavi PIN roditelja",
+    "description": "PIN od 4 znamenke koji znaš samo ti štiti područje roditelja — na primjer kad djeca dodaju brata ili sestru ili se prijaviš kao roditelj na djetetovom uređaju.",
+    "choosePin": "Odaberi PIN",
+    "confirmPin": "Potvrdi PIN",
+    "changeLater": "PIN možeš kasnije promijeniti u Obitelji i postavkama.",
+    "pinRequiredOrEmpty": "Upiši PIN od 4 znamenke ili ostavi polja prazna",
+    "pinRequiredForHandoff": "Postavi PIN od 4 znamenke prije nego dijete preuzme uređaj.",
+    "pinMismatch": "PIN-ovi se ne podudaraju",
+    "saveFailed": "PIN nije bilo moguće spremiti",
+    "handoffRequired": "Na dijeljenom uređaju treba PIN odrasle osobe prije nego se dijete prijavi.",
+    "saveAndContinue": "Spremi i nastavi"
+  },
+  "invite": {
+    "inviteLater": "Pozovi drugog roditelja kasnije",
+    "title": "Pozovi još jednu odraslu osobu",
+    "namePlaceholder": "Ime (npr. Erik)",
+    "emailPlaceholder": "Adresa e-pošte",
+    "whichChildren": "Koju djecu ova osoba treba vidjeti?",
+    "sendBtn": "📧 Pošalji pozivnicu",
+    "sending": "Šaljem…",
+    "sent": "✓ Poslano",
+    "skip": "Preskoči →",
+    "emailRequired": "Upiši adresu e-pošte",
+    "invalidEmail": "Neispravna adresa e-pošte",
+    "success": "Pozivnica je poslana na {{email}}! ✓",
+    "sendFailed": "Nešto je pošlo po krivu"
+  },
+  "complete": {
+    "title": "Još malo!",
+    "lead": "Neka dijete isproba aplikaciju — druge odrasle osobe i PIN roditelja možeš dodati nakon prve označene aktivnosti.",
+    "tips": {
+      "editScheduleTitle": "Uredi raspored",
+      "editScheduleBody": "Idi na Početnu → dodirni karticu djeteta → prilagodi aktivnosti svojoj svakodnevici.",
+      "checkRewardsTitle": "Provjeri nagrade",
+      "checkRewardsBody": "U dječjem prikazu — dodirni zvjezdicu — dijete vidi koliko zvjezdica treba svaka nagrada.",
+      "addChildrenTitle": "Dodaj još djece",
+      "addChildrenBody": "Svako dijete dobiva vlastiti raspored i zvjezdice. Dodaj još jedno preko + na Početnoj."
+    },
+    "letChildStart": "👶 Neka dijete krene",
+    "letChildStartPlain": "Neka dijete krene",
+    "completeFailed": "Uvod nije bilo moguće dovršiti",
+    "completeFailedShort": "Nije bilo moguće dovršiti",
+    "welcomeFooter": "Dobrodošli u {{brand}} — drago nam je što si ovdje! 🌟"
+  },
+  "weekend": {
+    "title": "Dodati vikend raspored?",
+    "body": "Raspored za radne dane spreman je za pon–pet. Želiš li opušteniji raspored za subotu i nedjelju?",
+    "scheduleLabel": "Vikend raspored",
+    "satSun": "Sub + Ned",
+    "preview": {
+      "sleepIn": "Dulje spavanje",
+      "breakfast": "Doručak u miru",
+      "freePlay": "Slobodna igra",
+      "outing": "Izlet / park",
+      "familyActivity": "Obiteljska aktivnost",
+      "dinner": "Večera"
+    },
+    "yesBtn": "✅ Da, dodaj vikend raspored",
+    "yesLoading": "Dodajem…",
+    "noBtn": "Ne, hvala, unijet ću kasnije",
+    "addFailed": "Vikend raspored nije bilo moguće dodati"
+  },
+  "starter": {
+    "stepLabel": "Stvori raspored {{current}} od {{total}}",
+    "slimTitle": "Rutina je skoro spremna",
+    "fullTitle": "Stvori prvi raspored",
+    "slimIntro": "Tri brza pitanja — zatim je rutina spremna.",
+    "birthdayHint": "Odaberi datum rođenja djeteta — pomaže nam predložiti pravi raspored.",
+    "fullIntro": "Odgovori na nekoliko pitanja — traje manje od minute.",
+    "powerPathLead": "Želiš odabrati gotov ili sastaviti vlastiti?",
+    "chooseTemplate": "📋 Odaberi gotov raspored",
+    "fullWizard": "✏️ Sastavi i prilagodi sam (7 pitanja)",
+    "answerRequired": "Odaberi ili upiši odgovor",
+    "showSchedule": "Prikaži raspored →",
+    "buttons": {
+      "next": "Dalje →"
+    },
+    "createRoutine": "Stvori rutinu →",
+    "creatingRoutine": "Stvaram rutinu…",
+    "personalizing": "Prilagođavam raspored…",
+    "loading": "Učitavanje…",
+    "useSchedule": "Upotrijebi ovaj raspored →",
+    "saving": "Spremam…",
+    "changeAnswers": "← Promijeni odgovore",
+    "removeStep": "Ukloni",
+    "previewHint": "Korake možeš ukloniti — više ih dodaš kasnije u postavkama.",
+    "previewForChild": "Za {{childName}} · {{count}} aktivnosti",
+    "previewAiTail": " · ✨ Prilagođeno uz AI",
+    "defaultPlanTitle": "Tvoj raspored",
+    "slimSuccessTitle": "Rutina je spremna",
+    "slimSuccessTonight": "Raspored je spreman. Pokaži {{childName}} Danas na ovom uređaju.",
+    "showChildToday": "Prikaži Danas djeteta",
+    "openingChildToday": "Otvaram Danas djeteta…",
+    "hourglassOfferTitle": "Vizualni pješčani sat",
+    "hourglassOfferBody": "Pomozi djetetu da vidi koliko je vremena ostalo u aktivnosti.",
+    "hourglassEnableBtn": "Uključi pješčani sat",
+    "hourglassEnabling": "Uključujem…",
+    "hourglassEnabledMsg": "Pješčani sat je uključen za dijete.",
+    "hourglassEnableFailed": "Pješčani sat nije bilo moguće uključiti",
+    "goHome": "Idi na Početnu →",
+    "openingHome": "Otvaram Početnu…",
+    "customizeFirst": "Prvo prilagodi raspored",
+    "openingSchedule": "Otvaram raspored…",
+    "nameRequired": "Upiši ime djeteta",
+    "templateFailed": "Predložak nije bilo moguće odabrati",
+    "previewFailed": "Raspored nije bilo moguće učitati",
+    "childCreateFailed": "Dijete nije bilo moguće stvoriti",
+    "scheduleSaveFailed": "Raspored nije bilo moguće spremiti",
+    "personalizeFailed": "Raspored nije bilo moguće prilagoditi",
+    "completeFailed": "Nije bilo moguće dovršiti",
+    "packages": {
+      "morning-short": {
+        "name": "Kratko jutro"
+      },
+      "evening-routine": {
+        "name": "Večernja rutina"
+      },
+      "preschool-day": {
+        "name": "Dan u vrtiću"
+      },
+      "school-day": {
+        "name": "Školski dan"
+      },
+      "weekend": {
+        "name": "Vikend"
+      },
+      "getting-ready": {
+        "name": "Kratko jutro"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Ime djeteta",
+        "placeholder": "npr. Ela"
+      },
+      "age_band": {
+        "label": "Koliko godina ima dijete?",
+        "options": {
+          "3-5": "3–5 godina",
+          "6-8": "6–8 godina",
+          "9-12": "9–12 godina",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Kojom rutinom želiš početi?",
+        "options": {
+          "morgon": "☀️ Jutro",
+          "kvall": "🌙 Večer",
+          "efter-skola": "🏫 Nakon škole",
+          "laxor": "📚 Zadaća",
+          "gora-sig-klar": "🎒 Priprema za izlazak"
+        }
+      },
+      "main_challenge": {
+        "label": "Što je sada najteže?",
+        "options": {
+          "getting_started": "Krenuti",
+          "focus": "Ostati usredotočen",
+          "conflicts": "Svađe",
+          "forgetting": "Zaboravljanje koraka",
+          "transitions": "Prijelazi"
+        }
+      },
+      "support_ui": {
+        "label": "Treba li djetetu dodatno jasna podrška?",
+        "options": {
+          "ja": "Da",
+          "lite": "Malo",
+          "nej": "Ne"
+        }
+      },
+      "length_ui": {
+        "label": "S koliko koraka želiš početi?",
+        "options": {
+          "kort": "Kratko (3–4)",
+          "normal": "Normalno (5)",
+          "detaljerad": "Detaljno (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Ima li nešto važno što trebamo znati? (neobavezno)",
+        "placeholder": "npr. pranje zubi je najteže"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutina je spremna",
+      "handoff": "Zajedno otvorite dječji način",
+      "child": "Dijete vidi što se događa sada",
+      "done": "Gotovo!",
+      "star": "Prva zvjezdica ⭐"
+    },
+    "mock": {
+      "parentView": "Prikaz roditelja",
+      "dailyRoutine": "Današnja rutina",
+      "dress": "Obuci se",
+      "brushTeeth": "Operi zube",
+      "packBag": "Spakiraj torbu",
+      "tryChildMode": "👶 Isprobaj dječji način",
+      "now": "Sada",
+      "markDone": "Označi gotovo ✓",
+      "wellDone": "Bravo!"
+    },
+    "ctaReady": "Spreman za probu?",
+    "ctaTryNow": "Isprobaj dječji način sada",
+    "ctaLater": "Kasnije",
+    "loginTitle": "Otvori prikaz djeteta",
+    "loginLead": "Raspored je spreman. Daj {{childName}} ovaj uređaj da vidi svoju rutinu.",
+    "usernameLabel": "Korisničko ime",
+    "pinLabel": "PIN",
+    "loginHint": "Sjednite zajedno — isti ili drugi uređaj, oboje ide.",
+    "copyLogin": "📋 Kopiraj podatke za prijavu",
+    "copied": "✓ Kopirano!",
+    "openChildMode": "Otvori prikaz djeteta",
+    "copyText": "{{childName}}\nOtvori prikaz djeteta u aplikaciji.",
+    "previewTitle": "Pregled — film uvoda"
+  },
+  "firstStar": {
+    "title": "Daj prvu zvjezdicu",
+    "lead": "Tri brza koraka — zatim ste stvarno krenuli.",
+    "steps": {
+      "login": "Neka se dijete prijavi svojim PIN-om",
+      "complete": "Označi aktivnost kao gotovu u dječjem prikazu",
+      "celebrate": "Proslavite zvjezdicu zajedno!"
+    },
+    "openChildLogin": "👶 Otvori prijavu djeteta",
+    "continueAsParent": "Nastavi kao roditelj"
+  },
+  "activation": {
+    "finalStepLabel": "Zadnji korak",
+    "introTitle": "Kako želiš početi?",
+    "introBody": "Raspored djeteta je postavljen — dobar početak. Mnogim obiteljima najteže nije krenuti, nego zadržati rutinu prvih dana kad svakodnevica preuzme. Odaberi što ti odgovara:",
+    "guidedBadge": "Preporučeno",
+    "guidedTitle": "Zadrži rutinu prvi tjedan",
+    "guidedBody": "Mnoge obitelji cijene malu podršku nakon što je raspored spreman. Ne zato što nešto ne valja, nego jer novim navikama treba vrijeme.",
+    "guidedBenefits": [
+      "Kratki dnevni podsjetnici da nastaviš",
+      "Vidi kad dijete dovrši zadatke bez dodatnog nagovaranja",
+      "Raspored djeteta je već postavljen — mi pomažemo da rutina radi",
+      "Stani kad god poželiš"
+    ],
+    "guidedCta": "Da, pomozite nam prvi tjedan",
+    "directTitle": "Kreni odmah",
+    "directBody": "Osjećaš se spremno nastaviti samostalno. Sve je na mjestu i možeš krenuti odmah.",
+    "directBenefits": [
+      "Ravno na Početnu",
+      "Isti raspored, zvjezdice i nagrade",
+      "Koristi aplikaciju svojim tempom"
+    ],
+    "directCta": "Snalazit ćemo se sami",
+    "footnote": "Što god odabereš, aplikaciju možeš koristiti u cijelosti. Vođeni početak samo daje malo dodatne podrške prvi tjedan.",
+    "saveFailed": "Odabir nije bilo moguće spremiti"
+  },
+  "loading": {
+    "buildingSchedule": "Sastavljam raspored…",
+    "takesSeconds": "Traje samo nekoliko sekundi!"
+  },
+  "templateGroups": {
+    "showActivities": "Prikaži aktivnosti",
+    "loadingActivities": "Učitavanje...",
+    "activityCount": {
+      "one": "{{count}} aktivnost",
+      "few": "{{count}} aktivnosti",
+      "other": "{{count}} aktivnosti"
+    },
+    "forskola": {
+      "name": "Vrtić",
+      "description": "Cijeli dan — djeca od 2 do 5 godina"
+    },
+    "skola": {
+      "name": "Škola",
+      "description": "Cijeli dan — djeca od 6 godina"
+    },
+    "morgon": {
+      "name": "Jutro",
+      "description": "Jutarnja rutina"
+    },
+    "dag": {
+      "name": "Dan",
+      "description": "Dnevne aktivnosti"
+    },
+    "kvall": {
+      "name": "Večer",
+      "description": "Večernja rutina"
+    },
+    "helg": {
+      "name": "Vikend",
+      "description": "Vikend rutina"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Probudi se",
+        "Obuci se",
+        "Doručak",
+        "Vrtić",
+        "Igra",
+        "Večera",
+        "Priča za laku noć"
+      ],
+      "skola": [
+        "Probudi se",
+        "Doručak",
+        "Spakiraj torbu",
+        "Škola",
+        "Zadaća",
+        "Večera",
+        "Priča za laku noć"
+      ],
+      "morgon": [
+        "Probudi se",
+        "Obuci se",
+        "Operi zube",
+        "Doručak",
+        "Spakiraj torbu"
+      ],
+      "dag": [
+        "Vrtić",
+        "Igraj se vani",
+        "Užina",
+        "Ručak",
+        "Ručni rad"
+      ],
+      "kvall": [
+        "Večera",
+        "Operi zube",
+        "Pidžama",
+        "Priča za laku noć",
+        "Spavaj"
+      ],
+      "helg": [
+        "Probudi se",
+        "Doručak",
+        "Slobodna igra",
+        "Izlet",
+        "Obiteljska aktivnost",
+        "Večera"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Jutro",
+    "lateMorning": "Kasno jutro",
+    "afternoon": "Poslijepodne",
+    "evening": "Večer"
+  },
+  "errors": {
+    "avatarUploadPath": "Profilna fotografija prenosi se preko PUT /api/children/:id/avatar nakon što je dijete stvoreno",
+    "childNameRequired": "Ime djeteta je obavezno",
+    "emojiRequired": "Odaberi emoji za dijete",
+    "invalidBirthday": "Neispravan datum rođenja",
+    "birthdayFuture": "Rođendan ne može biti u budućnosti",
+    "invalidTemplate": "Neispravan odabir. Odaberi valjani raspored.",
+    "noActivities": "Za odabrani raspored nisu pronađene aktivnosti.",
+    "childIdRequired": "Potreban je identifikator djeteta",
+    "noChildAccess": "Nemaš pristup ovom djetetu",
+    "weekendNotFound": "Vikend raspored nije pronađen u biblioteci.",
+    "weekendEmpty": "Vikend raspored nema aktivnosti.",
+    "rewardNameRequired": "Naziv nagrade je obavezan",
+    "rewardCostMin": "Cijena u zvjezdicama mora biti barem 1",
+    "rewardsFetchFailed": "Nagrade nije bilo moguće dohvatiti.",
+    "childCreateFailed": "Nešto je pošlo po krivu pri stvaranju djeteta.",
+    "scheduleCreateFailed": "Nešto je pošlo po krivu pri stvaranju rasporeda.",
+    "weekendCreateFailed": "Nešto je pošlo po krivu pri stvaranju vikend rasporeda.",
+    "rewardCreateFailed": "Nešto je pošlo po krivu pri stvaranju nagrade.",
+    "generic": "Nešto je pošlo po krivu.",
+    "invalidViewType": "Neispravan view_type. Odaberi dan ili vremensku crtu.",
+    "notAllowed": "Nije dopušteno",
+    "invalidChoice": "Neispravan odabir.",
+    "activityGuideSaveFailed": "Odabir aktivnosti nije bilo moguće spremiti.",
+    "pinMustBe4": "PIN mora imati točno 4 znamenke",
+    "pinTooWeak": "Odaberi jači PIN",
+    "pinTaken": "Ovaj PIN je već zauzet za dijete s istim imenom",
+    "pinUpdateFailed": "PIN nije bilo moguće ažurirati.",
+    "handoffContextFailed": "Kontekst predaje nije bilo moguće dohvatiti",
+    "templateGroupsFailed": "Skupine rasporeda nije bilo moguće dohvatiti.",
+    "schedulePreviewFailed": "Raspored nije bilo moguće dohvatiti.",
+    "viewSaveFailed": "Odabir prikaza nije bilo moguće spremiti.",
+    "activationNotEnabled": "Tok aktivacije nije uključen za tvoju obitelj",
+    "starterSuggestFailed": "Predložak nije bilo moguće odabrati",
+    "starterPreviewFailed": "Pregled nije bilo moguće dohvatiti",
+    "starterPersonalizeFailed": "Raspored nije bilo moguće prilagoditi",
+    "scheduleNameRequired": "Naziv rasporeda je obavezan",
+    "templateNotFound": "Predložak nije pronađen",
+    "enrollChoiceUnavailable": "Zaslon odabira nije dostupan"
+  },
+  "starterPlan": {
+    "firstSchedule": "Tvoj prvi raspored"
+  }
+}

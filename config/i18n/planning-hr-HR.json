@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planiranje — {{brand}}",
+  "shell": {
+    "title": "Planiranje",
+    "lead": "Odaberi tjedan, aktivnosti ili još nešto.",
+    "logout": "Odjavi se"
+  },
+  "sections": {
+    "planWeek": "Planiraj tjedan",
+    "buildContent": "Složi sadržaj",
+    "other": "Ostalo"
+  },
+  "primary": {
+    "week": { "title": "Tjedan", "sub": "Popis dana za tjedan tvoje djece" },
+    "activities": { "title": "Aktivnosti", "sub": "Biblioteka — stvori i uredi" },
+    "more": { "title": "Još", "sub": "Ispis, predlošci i drugi alati" }
+  },
+  "more": {
+    "title": "Još",
+    "close": "Zatvori"
+  },
+  "links": {
+    "library": { "title": "Biblioteka", "sub": "Stvori aktivnosti i nagrade" },
+    "imageArchive": { "title": "Arhiva slika", "sub": "Tvoje fotografije — četkica, krevet, škola" },
+    "templates": { "title": "Predlošci", "sub": "Spremljeni rasporedi koje možeš opet koristiti" },
+    "weekSchedule": { "title": "Tjedni raspored", "sub": "Uredi tjedan djeteta" },
+    "calendar": { "title": "Kalendar", "sub": "Vidi mjesec i posebne dane" },
+    "custody": { "title": "Raspored skrbi", "sub": "Podijeljena skrb između kućanstava" },
+    "dailyLog": { "title": "Danas", "sub": "Pogledaj i prilagodi prijašnje dane" },
+    "printSchema": { "title": "Izradi PDF — raspored", "sub": "Ispiši raspored" },
+    "assignSchedule": { "title": "Dodijeli raspored", "sub": "Kopiraj raspored djetetu" },
+    "reports": { "title": "Izvješća", "sub": "Napredak i dijeljenje" },
+    "samarbete": { "title": "Suradnja s pedagogom", "sub": "Radi s pedagogom" },
+    "barnStod": { "title": "Dodatna podrška", "sub": "Slikovna podrška i TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Kreni",
+    "bodyBeforeLibrary": "Kreni u ",
+    "libraryLink": "Biblioteku",
+    "bodyMiddle": " ako želiš stvoriti aktivnosti. Idi na ",
+    "forYouLink": "Za tebe",
+    "bodyAfter": " ako želiš gotovu preporuku."
+  }
+}

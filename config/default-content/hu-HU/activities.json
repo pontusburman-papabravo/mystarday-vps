@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Ébredés",
+    "icon": "🛏️",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Öltözés",
+    "icon": "🌟",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Fogmosás",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Reggeli",
+    "icon": "🍳",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Óvoda/iskola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Játék a szabadban",
+    "icon": "🛝",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Kézműveskedés",
+    "icon": "🎨",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Uzsonna",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Játék",
+    "icon": "🧩",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Edzés/tevékenység",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vacsora",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Fogmosás (este)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pizsama",
+    "icon": "🧸",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Esti mese",
+    "icon": "📕",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Alvás",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 4,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Ébredés és öltözés",
+    "icon": "🌅",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Reggeli",
+    "icon": "🥣",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Fogmosás",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Iskolatáska bepakolása",
+    "icon": "🎒",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Iskola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 2,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Szünet és játék",
+    "icon": "⚽",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Uzsonna",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Házi feladat",
+    "icon": "📚",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Délutáni foglalkozás",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Vacsora",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Fogmosás (este)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Olvasás",
+    "icon": "📖",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Alvás",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  }
+]

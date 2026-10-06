@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Următoarea activitate</string>
+    <string name="widget_routine_description">Termină pasul următor din rutină fără să deschizi toată aplicația.</string>
+    <string name="widget_cd_pictogram">Simbolul activității</string>
+    <string name="widget_cd_complete">Marchează activitatea ca făcută</string>
+    <string name="widget_cd_open_app">Deschide în aplicație</string>
+    <string name="widget_action_complete">Gata</string>
+    <string name="widget_action_open_timer">Deschide clepsidra</string>
+    <string name="widget_action_show_steps">Arată pașii</string>
+    <string name="widget_action_open_app">Deschide aplicația</string>
+    <string name="widget_loading">Se încarcă…</string>
+    <string name="widget_all_done">Totul e gata pentru azi!</string>
+    <string name="widget_nothing_now">Nimic acum</string>
+    <string name="widget_offline">Fără conexiune</string>
+    <string name="widget_reauth">Intră în cont în aplicație</string>
+    <string name="widget_revoked">Accesul dispozitivului a fost retras</string>
+    <string name="widget_switching">Se schimbă copilul…</string>
+    <string name="widget_feedback_done">✓ Gata!</string>
+    <string name="widget_feedback_done_for">✓ Gata pentru %1$s</string>
+    <string name="widget_cd_child_prev">Copilul anterior</string>
+    <string name="widget_cd_child_next">Copilul următor</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d din %2$d gata</string>
+    <string name="widget_private_activity">Pasul următor</string>
+    <string name="widget_configure_title">Alege widgetul</string>
+    <string name="widget_configure_personal">Personal (un copil)</string>
+    <string name="widget_configure_family">Familie (schimbă copilul)</string>
+    <string name="widget_configure_save">Salvează</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

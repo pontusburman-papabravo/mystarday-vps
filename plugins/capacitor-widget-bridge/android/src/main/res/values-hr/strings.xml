@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Sljedeća aktivnost</string>
+    <string name="widget_routine_description">Dovrši sljedeći korak rutine bez otvaranja cijele aplikacije.</string>
+    <string name="widget_cd_pictogram">Simbol aktivnosti</string>
+    <string name="widget_cd_complete">Označi aktivnost kao gotovu</string>
+    <string name="widget_cd_open_app">Otvori u aplikaciji</string>
+    <string name="widget_action_complete">Gotovo</string>
+    <string name="widget_action_open_timer">Otvori pješčani sat</string>
+    <string name="widget_action_show_steps">Pokaži korake</string>
+    <string name="widget_action_open_app">Otvori aplikaciju</string>
+    <string name="widget_loading">Učitavanje…</string>
+    <string name="widget_all_done">Sve je gotovo za danas!</string>
+    <string name="widget_nothing_now">Trenutačno ništa</string>
+    <string name="widget_offline">Nema mreže</string>
+    <string name="widget_reauth">Prijavi se u aplikaciji</string>
+    <string name="widget_revoked">Pristup uređaja je povučen</string>
+    <string name="widget_switching">Mijenjam dijete…</string>
+    <string name="widget_feedback_done">✓ Gotovo!</string>
+    <string name="widget_feedback_done_for">✓ Gotovo za %1$s</string>
+    <string name="widget_cd_child_prev">Prethodno dijete</string>
+    <string name="widget_cd_child_next">Sljedeće dijete</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d od %2$d gotovo</string>
+    <string name="widget_private_activity">Sljedeći korak</string>
+    <string name="widget_configure_title">Odaberi widget</string>
+    <string name="widget_configure_personal">Vlastiti (jedno dijete)</string>
+    <string name="widget_configure_family">Obitelj (promjena djeteta)</string>
+    <string name="widget_configure_save">Spremi</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

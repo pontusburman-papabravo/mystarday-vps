@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Nápověda",
+    "openAria": "Otevřít nápovědu",
+    "closeAria": "Zavřít nápovědu"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Nápověda – Přehled",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Přehled",
+          "faqs": [
+            {
+              "q": "K čemu jsou 3 rychlá tlačítka nahoře?",
+              "a": "<strong>⭐ Dát hvězdy navíc</strong> — dej dítěti hvězdy navíc ručně. <strong>📋 Jednorázová aktivita</strong> — přidej dočasnou aktivitu na dnešek. <strong>🏠 Volný den</strong> — pozastaví plán dítěte na den (třeba nemoc, nebo volno)."
+            },
+            {
+              "q": "Jak odškrtnu aktivitu?",
+              "a": "Klepni na aktivitu na kartě dítěte — odškrtne se hned. Dítě může odškrtávat i ve <strong>svém pohledu</strong>."
+            },
+            {
+              "q": "Co je kompaktní karta dítěte?",
+              "a": "Karta dítěte v kompaktním režimu ukazuje avatar, jméno, zůstatek hvězd a části dne. Rozbal ji a uvidíš víc detailů, odkaz na plán a tlačítko pauzy."
+            },
+            {
+              "q": "Co je volný den?",
+              "a": "<strong>🏠 Volný den</strong> pozastaví plán dítěte na vybraný den — hodí se, když je nemocné, nebo má volno. Dítě vidí plán jako neaktivní. Stejným tlačítkem den zase zapneš."
+            },
+            {
+              "q": "Co je režim pauzy?",
+              "a": "Klepni na ikonu pauzy (⏸) na kartě dítěte a dítě pozastavíš. Aktivity se ukážou jako neaktivní a dítě nedostane hvězdy, dokud pauzu nezrušíš."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Hvězdy",
+          "faqs": [
+            {
+              "q": "Jak dítě získá hvězdy?",
+              "a": "Každá dokončená aktivita dá <strong>1 hvězdu</strong>. Dítě odškrtává ve svém pohledu — nebo můžeš odškrtávat v Denním záznamu, dokud to zkoušíte. Hvězdy navíc dáš tlačítkem ⭐ nad kartami dětí."
+            },
+            {
+              "q": "Jak funguje Pokladnice?",
+              "a": "Dítě otevře Pokladnici přes záložku 💎 ve svém pohledu a uvidí odměny s cenou ve hvězdách. Až jich bude dost, může o odměnu požádat — ty ji schválíš."
+            },
+            {
+              "q": "Jak přidám odměny?",
+              "a": "V menu jdi do <strong>Knihovny</strong> → záložka „Odměny“. Přidej vlastní odměny, uprav cenu ve hvězdách a vyber, které děti je uvidí."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plán",
+          "faqs": [
+            {
+              "q": "Jak přidám aktivitu?",
+              "a": "Jdi na <strong>Týdenní plán</strong> → vyber dítě → vyber den → klepni na „+“ a přidej aktivitu z knihovny. Můžeš hledat mezi 63 standardními aktivitami."
+            },
+            {
+              "q": "Jak zkopíruju plán na každý den?",
+              "a": "V týdenním plánu → „Kopírovat z…“ → vyber zdroj (vlastní plán, nebo standardní knihovnu) → zaškrtni dny, na které chceš kopírovat."
+            },
+            {
+              "q": "Co je pohled Dnes?",
+              "a": "Pohled „Dnes“ v Přehledu se aktualizuje sám, když změníš plán. Změny v týdenním plánu se hned ukážou v Přehledu i v pohledu dítěte."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Rodina",
+          "faqs": [
+            {
+              "q": "Jak pozvu dalšího dospělého?",
+              "a": "Jdi na <strong>Rodina a nastavení → Členové rodiny</strong> → klepni na „Pozvat“. Pozvaná osoba dostane e-mail s odkazem k přihlášení."
+            },
+            {
+              "q": "Jak uvidím den dítěte?",
+              "a": "Otevři v menu <strong>Denní záznam</strong> — uvidíš dnešní aktivity tak, jak je uvidí dítě. Hodí se první večer, než se dítě přihlásí samo."
+            },
+            {
+              "q": "Jak se dítě přihlásí?",
+              "a": "Až budeš chtít: dítě se přihlásí na <strong>/child-login</strong> uživatelským jménem a PINem. Údaje najdeš v <strong>Rodina a nastavení → Děti</strong>."
+            },
+            {
+              "q": "Kontaktovat podporu",
+              "a": "Napiš nám na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odpovíme do 24 hodin."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Nápověda – Odměny",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Odměny",
+          "faqs": [
+            {
+              "q": "Jak systém odměn funguje?",
+              "a": "Dítě sbírá hvězdy dokončováním aktivit. Až zůstatek hvězd na odměnu stačí, může požádat o výměnu — ty ji schválíš, nebo odmítneš."
+            },
+            {
+              "q": "Jak přidám nové odměny?",
+              "a": "V menu jdi do <strong>Knihovny</strong> → záložka „Odměny“ → hledej, nebo klepni na „+ Přidat odměnu“. Můžeš taky kopírovat rovnou ze standardní knihovny."
+            },
+            {
+              "q": "Jak nastavím viditelnost pro jednotlivé děti?",
+              "a": "Když odměnu vytváříš nebo upravuješ, vybereš, které děti ji mají vidět. Hodí se pro odměny šité na míru."
+            },
+            {
+              "q": "Jak schválím žádost o výměnu?",
+              "a": "Žádost dítěte se ukáže v Přehledu s odznakem. Klepni a schval. Hvězdy se odečtou samy a dítě změnu uvidí hned."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Hvězdy",
+          "faqs": [
+            {
+              "q": "Jak dítě získá hvězdy?",
+              "a": "Každá dokončená aktivita dá hvězdy (výchozí je 1 hvězda za aktivitu). Hvězdy navíc dáš tlačítkem ⭐ v Přehledu."
+            },
+            {
+              "q": "Jaký je rozdíl mezi zůstatkem hvězd a denním pokrokem?",
+              "a": "<strong>Zůstatek hvězd</strong> = celkem naspořené hvězdy. <strong>Denní pokrok</strong> (kroužek kolem emoji) = kolik aktivit dítě dnes dokončilo. Jsou to dvě různé věci."
+            },
+            {
+              "q": "Co se stane, když se odměna vymění?",
+              "a": "Hvězdy se z účtu dítěte odečtou samy. Dítě změnu hned uvidí v Pokladnici. Historii uvidíš na stránce Odměny."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Nápověda – Týdenní plán",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Upravit plán",
+          "faqs": [
+            {
+              "q": "Jak přidám aktivitu?",
+              "a": "Vyber den → klepni na „+“ → vyhledej a vyber aktivitu. Můžeš zvolit <strong>víc časových slotů najednou</strong> (Ráno + Večer) a aktivita se přidá do všech."
+            },
+            {
+              "q": "Jak vytvořím novou aktivitu přímo v plánu?",
+              "a": "Klepni na „+“ → hledej → když nic nesedí, ve vyhledávacím okně se objeví formulář „Vytvořit nové“. Vyplň název, emoji, hodnotu hvězd a případné kroky."
+            },
+            {
+              "q": "Jak upravím název nebo emoji aktivity?",
+              "a": "Klepni v plánu na název nebo emoji aktivity → otevře se okno úprav. Změny se samy projeví u všech dětí a dní."
+            },
+            {
+              "q": "Jak zkopíruju plán od jiného dítěte?",
+              "a": "Klepni na „Kopírovat z…“ → vyber zdroj → zaškrtni dny, na které chceš kopírovat. Zvol, jestli se má stávající obsah přepsat."
+            },
+            {
+              "q": "Synchronizuje se plán sám do pohledu dítěte?",
+              "a": "Ano. Změny v týdenním plánu se hned promítnou do pohledu „Dnes“ v Přehledu i do pohledu dítěte — nic nemusíš ručně aktualizovat."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Knihovna",
+          "faqs": [
+            {
+              "q": "Co je standardní knihovna?",
+              "a": "Standardní knihovna má 63 hotových aktivit v 6 kategoriích a 5 šablon plánů. Klepni na „Rychle vložit z knihovny“ a přidej je do plánu."
+            },
+            {
+              "q": "Jak zkopíruju standardní plán?",
+              "a": "Na záložce Plán → „Kopírovat z…“ → zvol „Standardní knihovna“ → vyber plán → vyber dny → kopíruj."
+            },
+            {
+              "q": "Proč dítě nevidí žádné aktivity?",
+              "a": "Zkontroluj, že plán patří správnému dítěti a že na dnešek aktivity jsou. Prázdný plán? Zkopíruj ze standardní knihovny a rychle začneš."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tipy",
+          "faqs": [
+            {
+              "q": "Jak sestavím dobrý plán rutiny?",
+              "a": "Začni 3–5 pevnými aktivitami (snídaně, čištění zubů, úkoly). Dej je do správného pořadí. Děti se rutinu rychle naučí, když zůstane stejná."
+            },
+            {
+              "q": "Co jsou kroky u aktivit?",
+              "a": "K aktivitám můžeš přidat kroky (třeba „Umýt ruce“, „Obléct pyžamo“ pod „Večerní rutina“). Dítě je vidí jako vizuálního průvodce, ale odškrtne celou aktivitu najednou."
+            },
+            {
+              "q": "Kolik aktivit na den?",
+              "a": "Doporučeno: 4–8 aktivit. Málo a chybí rytmus, moc a je to zahlcující. Začni málem a přidávej."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Nápověda – Rodina a nastavení",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Děti",
+          "faqs": [
+            {
+              "q": "Jak přidám dítě?",
+              "a": "Jdi na Přehled → klepni na „+ Přidat dítě“. Vyplň jméno, emoji a narozeniny. Dítě dostane plán automaticky podle věku."
+            },
+            {
+              "q": "Jak změním PIN dítěte?",
+              "a": "Klepni na kartu dítěte → záložka „Nastavení“ → „Změnit PIN“. Zvol nový čtyřmístný PIN."
+            },
+            {
+              "q": "Dítě musí dělat aktivity po pořadí — jde to změnit?",
+              "a": "Výchozí je volné odškrtávání. Pro vedené pořadí jdi do profilu dítěte → záložka <strong>Nastavení</strong> → zapni <strong>TEĎ / POTOM / POZDĚJI</strong>."
+            },
+            {
+              "q": "Jak dítě uvidí své přihlašovací údaje?",
+              "a": "Klepni na kartu dítěte → záložka „Nastavení“ → „Zobrazit přihlašovací údaje“. Uvidíš uživatelské jméno a PIN dítěte."
+            },
+            {
+              "q": "Jak dítě odeberu?",
+              "a": "Rodina → vyber dítě → záložka Nastavení → „Smazat dítě natrvalo“. Pozor: celá historie plánu, hvězd a odměn se smaže a nejde vrátit."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Dospělí",
+          "faqs": [
+            {
+              "q": "Jak pozvu dalšího dospělého?",
+              "a": "Jdi na záložku <strong>Členové rodiny</strong> → „Pozvat“. Pozvaná osoba dostane e-mail s odkazem k vytvoření účtu."
+            },
+            {
+              "q": "Můžu zvolit, které děti dospělý uvidí?",
+              "a": "Ano. Při odeslání pozvánky zvolíš, ke kterým dětem bude mít přístup. Později to změníš v Členech rodiny → osoba → Přístup k dětem."
+            },
+            {
+              "q": "Jak odeberu člena rodiny?",
+              "a": "Klepni na osobu v seznamu členů rodiny → „Odebrat“. Přístup k rodině ztratí hned."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Nastavení",
+          "faqs": [
+            {
+              "q": "Jak změním heslo?",
+              "a": "V menu jdi na <strong>Nastavení</strong> (⚙️) → „Změnit heslo“. Budeš potřebovat současné heslo."
+            },
+            {
+              "q": "Jak zapnu oznámení?",
+              "a": "Jdi do Nastavení → „Připomínky“ → zapni oznámení a zvol časy. Oznámení potřebují povolení prohlížeče."
+            },
+            {
+              "q": "Kontaktovat podporu",
+              "a": "Napiš nám na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — odpovíme do 24 hodin."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Nápověda – Aktivity",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Správa",
+          "faqs": [
+            {
+              "q": "Co je aktivita?",
+              "a": "<strong>Aktivita</strong> je úkol, který dítě dělá (třeba „Vyčistit zuby“). Aktivity dávají 1–5 hvězd a můžou mít kroky. Sbírej je v knihovně a přidávej do plánů dětí."
+            },
+            {
+              "q": "Jak vytvořím novou aktivitu?",
+              "a": "Klepni na „+ Nová aktivita“ → vyplň název, kategorii (Hygiena, Jídlo, Hraní a podobně), délku a hodnotu hvězd. Ulož a aktivita je v knihovně."
+            },
+            {
+              "q": "Jak přidám aktivitu do plánu?",
+              "a": "Aktivity žijí v knihovně. Jdi na Týdenní plán → vyber den → „+“ → vyber aktivitu, kterou chceš přidat."
+            },
+            {
+              "q": "Jak odeberu aktivitu ze všech dní?",
+              "a": "Klepni na ✕ u aktivity → zvol <strong>Každý den v týdnu</strong>. Když chceš odebrat jen dnešek, nebo jeden den (třeba každé úterý), jsou na to samostatné možnosti."
+            },
+            {
+              "q": "Jak aktivitu upravím?",
+              "a": "Klepni na aktivitu v seznamu → „Upravit“. Změny se hned projeví v každém plánu, kde se aktivita používá."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorie",
+          "faqs": [
+            {
+              "q": "K čemu jsou kategorie?",
+              "a": "Kategorie barevně označují aktivity v dětském pohledu. <strong>Hygiena</strong>=modrá, <strong>Jídlo</strong>=žlutá, <strong>Hraní</strong>=zelená, <strong>Škola</strong>=fialová, <strong>Pohyb</strong>=červená, <strong>Odpočinek</strong>=šedá, <strong>Společnost</strong>=oranžová."
+            },
+            {
+              "q": "Jak kategorii zvolím?",
+              "a": "Když aktivitu vytváříš nebo upravuješ, vyber kategorii z nabídky. Zvol tu, která aktivitu nejlépe popisuje."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Nápověda – Knihovna",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Záložky",
+          "faqs": [
+            {
+              "q": "Jaké záložky jsou v knihovně?",
+              "a": "<strong>Plány</strong> — tvoje vlastní šablony plánů. <strong>Aktivity</strong> — knihovna aktivit s kroky. <strong>Odměny</strong> — tvoje vlastní odměny. <strong>Standardní knihovna</strong> — 63 aktivit, 15 odměn a 5 plánů ke zkopírování."
+            },
+            {
+              "q": "Jak kopíruju ze standardní knihovny?",
+              "a": "Jdi na záložku „Standardní knihovna“ → vyber aktivitu nebo odměnu → klepni na tlačítko 📥 a zkopíruj do rodinné knihovny. Plány se kopírují přes Týdenní plán → „Kopírovat z…“."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Aktivity",
+          "faqs": [
+            {
+              "q": "Jak vytvořím novou aktivitu?",
+              "a": "Klepni na „+ Nová aktivita“ → vyplň název, emoji (vyber, nebo napiš vlastní), hodnotu hvězd a případné kroky → ulož. Aktivita se uloží do knihovny pro celou rodinu."
+            },
+            {
+              "q": "Co jsou kroky?",
+              "a": "Kroky jsou postup pod aktivitou (třeba „Umýt ruce“ pod „Hygiena“). Dítě je vidí jako průvodce, ale celou aktivitu odškrtne jedním klepnutím."
+            },
+            {
+              "q": "Jak aktivitu upravím?",
+              "a": "Klepni na název aktivity v plánu — otevře se okno úprav. Změny (název, emoji, kroky) se samy projeví u všech dětí a dní."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Odměny",
+          "faqs": [
+            {
+              "q": "Jak přidám odměnu?",
+              "a": "Záložka „Odměny“ → vyhledej odměnu → klepni na „+ Vytvořit nové“, když ještě není → vyplň název, emoji, cenu ve hvězdách → vyber, které děti ji uvidí → ulož."
+            },
+            {
+              "q": "Jak odměny hledám?",
+              "a": "Vyhledávání se dívá do tvých odměn I do standardní knihovny najednou. Nic nesedí? Tlačítko „Vytvořit [název]“ otevře předvyplněný formulář."
+            },
+            {
+              "q": "Může mít dítě soukromé odměny?",
+              "a": "Ano. Při vytváření odměny zvolíš, které děti ji mají vidět. Hodí se pro odměny šité na míru."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Nápověda – Nastavení",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Účet",
+          "faqs": [
+            {
+              "q": "Jak změním heslo?",
+              "a": "Zadej současné heslo a nové heslo → klepni na „Uložit“. Heslo musí mít aspoň 6 znaků."
+            },
+            {
+              "q": "Jak změním e-mailovou adresu?",
+              "a": "Zadej novou e-mailovou adresu → klepni na „Uložit“. Novou adresu možná budeš muset ověřit e-mailem."
+            },
+            {
+              "q": "Jak smažu účet?",
+              "a": "Kvůli smazání účtu nám napiš na <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>. Vyřídíme to do 48 hodin."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Oznámení",
+          "faqs": [
+            {
+              "q": "Jak zapnu připomínky?",
+              "a": "Zapni přepínač u „Připomínky“ → zvol čas a dny. Prohlížeč musí oznámení povolit."
+            },
+            {
+              "q": "Oznámení nepřicházejí, i když jsou zapnutá",
+              "a": "Zkontroluj, že prohlížeč povolil oznámení pro tenhle web. Jdi do nastavení prohlížeče → Oznámení → najdi [REDACTED].se → Povolit."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Nápověda – Kalendář",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendář",
+          "faqs": [
+            {
+              "q": "Co kalendář ukazuje?",
+              "a": "Kalendář dává měsíční přehled aktivit dítěte, vyměněných odměn a důležitých událostí."
+            },
+            {
+              "q": "Jak se pohybuju mezi měsíci?",
+              "a": "Klepni na šipky (< >) vedle názvu měsíce a změň měsíc."
+            },
+            {
+              "q": "Jak uvidím víc detailů k jednomu dni?",
+              "a": "Klepni na datum a uvidíš podrobný seznam aktivit a hvězd za ten den."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Nápověda – Denní záznam",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Záznam",
+          "faqs": [
+            {
+              "q": "Co je denní záznam?",
+              "a": "Záznam ukazuje den dítěte — aktivity, odškrtnutí a hvězdy. Použij ho jako <strong>náhled</strong> toho, co dítě vidí, nebo k doplnění zpětně."
+            },
+            {
+              "q": "Jak záznam filtruju?",
+              "a": "Vyber dítě ve filtru nahoře a uvidíš záznam jen pro něj. Filtrovat jde i podle data."
+            },
+            {
+              "q": "Jak daleko zpátky se můžu podívat?",
+              "a": "Záznam drží data ode dne, kdy jsi začal používat {{brand}}. Posuň se, nebo vyber datum a uvidíš starší data. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Nápověda – Výběr plánu na den",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Přiřadit plán",
+          "faqs": [
+            {
+              "q": "Co je „Vybrat plán na každý den“?",
+              "a": "Tady zvolíš, který týdenní plán je aktivní pro každé dítě a den. Hodí se, když máš jiné rutiny ve všední dny a o víkendu."
+            },
+            {
+              "q": "Může mít dítě jiné plány ve všední dny a o víkendu?",
+              "a": "Ano. Zvol jeden plán na Po–Pá a jiný na So–Ne. Klepni na den a vyber plán, který chceš."
+            },
+            {
+              "q": "Co se stane, když den nemá přiřazený plán?",
+              "a": "Když den nemá přiřazený plán, dítě ten den neuvidí žádné aktivity. U každého dne, který chceš používat, měj plán přiřazený."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Panel správce",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Přehled",
+          "faqs": [
+            {
+              "q": "Co můžu v panelu správce dělat?",
+              "a": "Panel správce ti dá přístup ke všem rodinám, uživatelům a systémovým datům. Můžeš se dívat na statistiky, spravovat účty a moderovat obsah."
+            },
+            {
+              "q": "Jak najdu konkrétního uživatele?",
+              "a": "Použij vyhledávání nahoře a hledej podle e-mailu nebo jména. Klepni na rodinu a uvidíš detaily."
+            },
+            {
+              "q": "Jak rodinu archivuju?",
+              "a": "Klepni na kartu rodiny → „Archivovat“. Archivované rodiny jde obnovit, do té doby zůstanou neaktivní."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Podpora",
+          "faqs": [
+            {
+              "q": "Jak uvidím příchozí zprávy podpory?",
+              "a": "Na záložce „Schránka podpory“ uvidíš každou zprávu z kontaktního formuláře. Klepni a přečti celý text a odpověz."
+            },
+            {
+              "q": "Jak označím případ jako vyřešený?",
+              "a": "Klepni na případ → „Označit jako vyřešené“. Vyřešené případy zmizí z výchozího pohledu, ale ukážeš je přes „Zobrazit vyřešené“."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Podpora dítěte — {{brand}}",
+    "loadError": "Stránku se nepodařilo načíst."
+  },
+  "supportSvar": {
+    "pageTitle": "Tvůj případ",
+    "title": "Tvůj případ",
+    "intro": "Tady je celá konverzace. Napiš níž, když chceš pokračovat. Běžná e-mailová odpověď se tady neukáže.",
+    "sent": "Odesláno. Uvidíme to u stejného případu.",
+    "escalate": "Potřebuju víc pomoci od člověka",
+    "placeholder": "Napiš, co se děje…"
+  }
+}

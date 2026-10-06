@@ -1266,7 +1266,8 @@
       "tooLong": "Het antwoord mag hoogstens 5000 tekens zijn.",
       "notFound": "De zaak is niet gevonden.",
       "rateLimit": "Te veel pogingen. Probeer het over een uur opnieuw.",
-      "generic": "Kon de zaak niet openen."
+      "generic": "Kon de zaak niet openen.",
+      "sendFailed": "Verzenden lukte niet. Probeer het opnieuw."
     },
     "success": {
       "submitted": "Bedankt! We hebben je antwoord ontvangen.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Terug naar Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakket",
+    "dismiss": "Niet nu",
+    "interested": "Ik heb interesse",
+    "interestedSub": "Interesse tonen voor wat eraan komt",
+    "buyNow": "Nu kopen",
+    "reporting": {
+      "title": "Rapporten",
+      "body": "Je hebt twee weken activiteiten bijgehouden — wil je zien hoe het zich ontwikkelt?"
+    },
+    "pedagog": {
+      "title": "Begeleider",
+      "body": "Wil je samenwerken met een begeleider of therapeut rond de dag van het kind?"
+    },
+    "teacch": {
+      "title": "Extra steun",
+      "body": "Voeg visuele steun toe met de zeven vragen — dat helpt het kind te begrijpen wat er gebeurt."
+    }
   }
 }

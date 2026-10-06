@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Timp în plus la ecran",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Alege cina",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Cadou mic",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

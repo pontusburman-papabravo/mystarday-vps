@@ -1266,7 +1266,8 @@
       "tooLong": "A resposta pode ter no máximo 5000 caracteres.",
       "notFound": "O caso não foi encontrado.",
       "rateLimit": "Demasiadas tentativas. Tenta outra vez daqui a uma hora.",
-      "generic": "Não foi possível abrir o caso."
+      "generic": "Não foi possível abrir o caso.",
+      "sendFailed": "Não foi possível enviar. Tenta novamente."
     },
     "success": {
       "submitted": "Obrigado! Recebemos a tua resposta.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Voltar ao Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pacote",
+    "dismiss": "Agora não",
+    "interested": "Tenho interesse",
+    "interestedSub": "Registar interesse no que vem a seguir",
+    "buyNow": "Comprar agora",
+    "reporting": {
+      "title": "Relatórios",
+      "body": "Registaste atividades durante duas semanas — queres ver como o dia a dia evolui?"
+    },
+    "pedagog": {
+      "title": "Profissional",
+      "body": "Queres colaborar com um profissional ou terapeuta no dia a dia da criança?"
+    },
+    "teacch": {
+      "title": "Apoio extra",
+      "body": "Adiciona apoio visual com as sete perguntas — ajuda a criança a perceber o que está a acontecer."
+    }
   }
 }

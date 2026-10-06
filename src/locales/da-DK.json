@@ -1266,7 +1266,8 @@
       "tooLong": "Svaret må højst være 5000 tegn.",
       "notFound": "Sagen blev ikke fundet.",
       "rateLimit": "For mange forsøg. Prøv igen om en time.",
-      "generic": "Kunne ikke åbne sagen."
+      "generic": "Kunne ikke åbne sagen.",
+      "sendFailed": "Kunne ikke sende. Prøv igen."
     },
     "success": {
       "submitted": "Tak! Vi har modtaget dit svar.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Tilbage til Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakke",
+    "dismiss": "Ikke nu",
+    "interested": "Jeg er interesseret",
+    "interestedSub": "Tilmeld interesse for det, der kommer",
+    "buyNow": "Køb nu",
+    "reporting": {
+      "title": "Rapporter",
+      "body": "Du har registreret aktiviteter i to uger — vil du se, hvordan det udvikler sig?"
+    },
+    "pedagog": {
+      "title": "Pædagog",
+      "body": "Vil du samarbejde med en pædagog eller terapeut om hverdagen?"
+    },
+    "teacch": {
+      "title": "Ekstra støtte",
+      "body": "Tilføj visuel støtte med de syv spørgsmål — det hjælper med at forstå, hvad der sker."
+    }
   }
 }

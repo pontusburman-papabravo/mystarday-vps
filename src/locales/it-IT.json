@@ -1266,7 +1266,8 @@
       "tooLong": "La risposta può avere al massimo 5000 caratteri.",
       "notFound": "Il caso non è stato trovato.",
       "rateLimit": "Troppi tentativi. Riprova tra un'ora.",
-      "generic": "Impossibile aprire il caso."
+      "generic": "Impossibile aprire il caso.",
+      "sendFailed": "Invio non riuscito. Riprova."
     },
     "success": {
       "submitted": "Grazie! Abbiamo ricevuto la tua risposta.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Torna a Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pacchetto",
+    "dismiss": "Non ora",
+    "interested": "Mi interessa",
+    "interestedSub": "Segnala interesse per ciò che arriva",
+    "buyNow": "Acquista ora",
+    "reporting": {
+      "title": "Report",
+      "body": "Hai registrato attività per due settimane — vuoi vedere come evolve la giornata?"
+    },
+    "pedagog": {
+      "title": "Professionista",
+      "body": "Vuoi collaborare con un professionista o un terapista sulla giornata del bambino?"
+    },
+    "teacch": {
+      "title": "Supporto extra",
+      "body": "Aggiungi un supporto visivo con le sette domande — aiuta il bambino a capire cosa succede."
+    }
   }
 }

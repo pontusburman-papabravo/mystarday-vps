@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Azi — {{brand}}",
+  "shell": {
+    "headerTitle": "Azi",
+    "backToHome": "← Înapoi acasă",
+    "pdfHint": "Creează PDF pentru zi, săptămână sau zilele mele",
+    "printBtn": "📄 Creează PDF ▾",
+    "printDay": "📄 Creează PDF — zi",
+    "printWeek": "📅 Creează PDF — săptămână",
+    "printMyDays": "🏠 Creează PDF — zilele mele",
+    "selectChildHeading": "Alege copilul",
+    "selectChildEmpty": "Alege un copil mai sus ca să vezi jurnalul",
+    "loadingChildren": "Se încarcă…",
+    "tipsTitle": "Sfaturi: urmărește activitățile în Azi",
+    "tips1": "Marchează activitățile ca gata — copilul le vede pe loc",
+    "tips2": "Activitățile se bifează în vederea copilului dintr-o atingere și aduc stele imediat",
+    "tips3": "Derulează înapoi cu selectorul de dată ca să vezi cum s-a descurcat copilul",
+    "tips4": "Pune o zi pe pauză când rutinele sunt diferite — nu se pierd stele",
+    "rateActivity": "Notează activitatea",
+    "commentPlaceholder": "Comentariu (opțional)…",
+    "cancel": "Anulează",
+    "save": "Salvează",
+    "moveUp": "Mută în sus",
+    "moveDown": "Mută în jos",
+    "printWeekDocTitle": "Program săptămânal — {{name}}",
+    "printMyDaysDocTitle": "Zilele mele"
+  },
+  "childFallback": "Copil",
+  "noChildren": "Încă niciun copil adăugat.",
+  "loading": "Se încarcă…",
+  "retry": "Încearcă din nou",
+  "errors": {
+    "signInRequired": "Intră ca să vezi Azi",
+    "loadChildren": "Nu s-au putut încărca copiii",
+    "loadLog": "Nu s-a putut încărca jurnalul. Încearcă din nou.",
+    "saveOrder": "Nu s-a putut salva ordinea",
+    "updateActivity": "Nu s-a putut actualiza activitatea",
+    "undo": "Nu s-a putut desface",
+    "changeStatus": "Nu s-a putut schimba starea",
+    "adjustTime": "Nu s-au putut ajusta orele",
+    "selectChild": "Alege mai întâi un copil",
+    "custodyDisabled": "Programul de custodie nu e activat",
+    "loadWeek": "Nu s-a putut încărca săptămâna",
+    "saveRating": "Nu s-a putut salva nota",
+    "ratingScoreOrEmotion": "Alege o notă sau un card de emoție",
+    "ratingScoreRange": "Nota trebuie să fie între 1 și 10",
+    "ratingInvalidEmotion": "Card de emoție nevalid",
+    "ratingActivityNotFound": "Activitatea nu a fost găsită",
+    "ratingNotAllowed": "Evaluarea nu e permisă pentru acest copil la această activitate",
+    "ratingParentScoreRange": "Nota trebuie să fie între 1 și 5",
+    "ratingParentDisabled": "Evaluarea părintelui nu e activată pentru această activitate",
+    "dayPaused": "Ziua e pauzată",
+    "dailyLogItemRequired": "daily_log_item_id e obligatoriu",
+    "invalidTimerMinutes": "Minute nevalide. Valori permise: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Nicio activitate azi!",
+    "noScheduleDay": "Nicio rutină în ziua asta",
+    "addToWeekSchedule": "Adaugă activități în programul săptămânal ca să se creeze jurnale automat.",
+    "noScheduleSelected": "Nicio rutină pentru ziua aleasă.",
+    "thisDay": "ziua asta",
+    "today": "azi",
+    "noChildrenTitle": "Niciun copil adăugat",
+    "addFirstChild": "Adaugă primul copil în Acasă ca să începi!",
+    "goToDashboard": "Mergi acasă",
+    "goToWeekSchedule": "📅 Mergi la programul săptămânal"
+  },
+  "nav": {
+    "prevWeek": "Săptămâna anterioară",
+    "prevDay": "Ziua anterioară",
+    "nextDay": "Ziua următoare",
+    "nextWeek": "Săptămâna viitoare",
+    "pickDate": "Alege data",
+    "todayBtn": "Azi",
+    "undoBump": "Desfă ultima ajustare de timp"
+  },
+  "activity": {
+    "markDone": "Marchează gata",
+    "undoMark": "Desfă bifarea",
+    "rate": "⭐ Notează",
+    "setRating": "Pune notă",
+    "changeRating": "Schimbă nota",
+    "dragReorder": "Trage ca să reordonezi",
+    "completeAllInSection": "Finalizează tot în {{section}}",
+    "completeAllBtn": "✅ Marchează tot gata",
+    "defaultName": "Activitate",
+    "undoneToast": "↩️ Marchează nefăcut"
+  },
+  "pause": {
+    "confirmPause": "Pui ziua pe pauză? Activitățile nu contează negativ.",
+    "confirmUnpause": "Reactivezi ziua?",
+    "pausedToast": "😴 Zi pauzată",
+    "unpausedToast": "✅ Zi reactivată",
+    "dayTitle": "Zi liberă",
+    "banner": "Ziua asta e pe pauză (de ex. zi de boală sau vacanță). Activitățile nu contează negativ.",
+    "reactivate": "✅ Reactivează ziua",
+    "pauseBtn": "😴 Pune ziua pe pauză (zi de boală / zi liberă)"
+  },
+  "bump": {
+    "noItems": "Nicio activitate nebifată cu ore de ajustat",
+    "moved": "⏩ Am mutat {{count}} {{suffix}} cu {{minutes}} min înainte",
+    "movedOne": "activitate",
+    "movedMany": "activități",
+    "undoToast": "↩️ Ajustarea de timp a fost desfăcută",
+    "title": "Mută tot ce urmează mai în față",
+    "adjustHint": "Ajustează orele activităților nebifate",
+    "minutesTitle": "Mută înainte cu {{minutes}} min",
+    "undoBtn": "↩ Desfă"
+  },
+  "retrofill": {
+    "title": "Completezi rutina după",
+    "description": "Completezi o rutină după aceea. Marchează activitățile ca gata — se salvează cu data corectă."
+  },
+  "rating": {
+    "childMood": "Starea copilului",
+    "parentScore": "Nota părintelui",
+    "noMoodCards": "Încă niciun card de stare",
+    "saved": "⭐ Notă salvată!",
+    "labels": [
+      "",
+      "Greu 😓",
+      "Bine 😐",
+      "Bine 😊",
+      "Grozav 😄",
+      "Fantastic! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Igienă",
+    "mat": "Mâncare",
+    "skola": "Școală",
+    "lek": "Joacă",
+    "rorelse": "Mișcare",
+    "vila": "Odihnă",
+    "social": "Social"
+  },
+  "legend": {
+    "colorCoding": "Cod de culori:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Toate activitățile sunt gata!",
+    "completedOf": "{{completed}} din {{total}} activități gata"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Bifat: {{name}}",
+    "undo": "Desfă"
+  },
+  "emotions": {
+    "title": "💛 Stări azi",
+    "noCards": "Încă niciun card de stare",
+    "sliderResponses": "Glisor: {{count}} {{suffix}}",
+    "sliderSuffixOne": "răspuns",
+    "sliderSuffixMany": "răspunsuri",
+    "sliderAvg": " (medie {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Se pregătește prezentarea săptămânii...",
+    "preparingCustody": "Se pregătesc zilele mele…",
+    "noMyDays": "Niciuna dintre zilele tale săptămâna asta",
+    "weekScheduleTitle": "{{name}} — Program săptămânal",
+    "myDaysTitle": "{{name}} — Zilele mele"
+  }
+}

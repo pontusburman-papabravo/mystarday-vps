@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Načrtovanje — {{brand}}",
+  "shell": {
+    "title": "Načrtovanje",
+    "lead": "Izberi teden, dejavnosti ali več.",
+    "logout": "Odjava"
+  },
+  "sections": {
+    "planWeek": "Načrtuj teden",
+    "buildContent": "Sestavi vsebino",
+    "other": "Drugo"
+  },
+  "primary": {
+    "week": { "title": "Teden", "sub": "Seznam dni za teden tvojih otrok" },
+    "activities": { "title": "Dejavnosti", "sub": "Knjižnica — ustvari in uredi" },
+    "more": { "title": "Več", "sub": "Tisk, predloge in druga orodja" }
+  },
+  "more": {
+    "title": "Več",
+    "close": "Zapri"
+  },
+  "links": {
+    "library": { "title": "Knjižnica", "sub": "Ustvari dejavnosti in nagrade" },
+    "imageArchive": { "title": "Arhiv slik", "sub": "Tvoje fotografije — zobna ščetka, postelja, šola" },
+    "templates": { "title": "Predloge", "sub": "Shranjeni urniki, ki jih lahko uporabiš znova" },
+    "weekSchedule": { "title": "Tedenski urnik", "sub": "Uredi otrokov teden" },
+    "calendar": { "title": "Koledar", "sub": "Poglej mesec in posebne dneve" },
+    "custody": { "title": "Urnik skrbništva", "sub": "Skupna skrb med gospodinjstvoma" },
+    "dailyLog": { "title": "Danes", "sub": "Poglej in prilagodi pretekle dneve" },
+    "printSchema": { "title": "Ustvari PDF — urnik", "sub": "Natisni urnik" },
+    "assignSchedule": { "title": "Dodeli urnik", "sub": "Kopiraj urnik k otroku" },
+    "reports": { "title": "Poročila", "sub": "Napredek in deljenje" },
+    "samarbete": { "title": "Sodelovanje s pedagogom", "sub": "Delo s pedagogom" },
+    "barnStod": { "title": "Dodatna podpora", "sub": "Vizualna podpora in TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Začni",
+    "bodyBeforeLibrary": "Začni v razdelku ",
+    "libraryLink": "Knjižnica",
+    "bodyMiddle": ", če želiš ustvariti dejavnosti. Pojdi na ",
+    "forYouLink": "Zate",
+    "bodyAfter": ", če želiš pripravljen predlog."
+  }
+}

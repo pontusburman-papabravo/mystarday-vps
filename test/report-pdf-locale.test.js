@@ -117,18 +117,18 @@ describe('family report locale', () => {
       locales: [
         { id: 'sv-SE', nativeName: 'Svenska', base: 'sv', aliases: ['sv'], availability: 'public', experiencePack: 'child_se', contentSource: 'canonical-db' },
         { id: 'en-GB', nativeName: 'English', base: 'en', aliases: ['en'], availability: 'public', experiencePack: 'child_en', contentSource: 'locale-files' },
-        { id: 'cs-CZ', nativeName: 'Čeština', base: 'cs', aliases: ['cs'], availability: 'registered', experiencePack: 'child_cs', contentSource: 'locale-files' },
+        { id: 'xx-XX', nativeName: 'Future', base: 'xx', aliases: ['xx'], availability: 'registered', experiencePack: 'child_xx', contentSource: 'locale-files' },
       ],
     };
     withLocaleCatalog(futureCatalog, () => {
-      assert.equal(t('cs-CZ', 'reports.professional.sectionMorning'), 'Morning');
+      assert.equal(t('xx-XX', 'reports.professional.sectionMorning'), 'Morning');
       const future = mapReportToPlayful({
         link: {},
         blocks,
         fields: ['section_summary'],
         dateFrom: '2026-10-01',
         dateTo: '2026-10-06',
-        locale: 'cs-CZ',
+        locale: 'xx-XX',
       });
       assert.equal(future.sections[0].label, 'Morning');
       assert.notEqual(future.sections[0].label, 'Morgon');

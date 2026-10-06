@@ -1,0 +1,20 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Vizuálne rutiny pre rodiny",
+  "keywords": "rutina,plán,ADHD,autizmus,hviezda,odmena,rodina,dieťa",
+  "promotionalText": "Vizuálne rutiny pre deti, ktoré potrebujú viac opory, najmä pri ADHD alebo autizme.",
+  "description": "Toto nie je ďalší kalendár.\n\n{{brand}} pomáha deťom rozumieť dňu: čo je teraz, čo príde potom a čo sa už podarilo.\n\nAplikácia je pre rodiny, ktoré potrebujú viac opory, viac istoty a viac vizuálnej podpory v bežný deň.\n\nKeď dieťaťu pomáhajú jasnejšie kroky, pri ADHD, autizme alebo aj bez diagnózy, {{brand}} rozdelí deň na malé zvládnuteľné kroky.\n\nHodí sa, keď dieťa má ADHD, autizmus alebo iné neurodiverzné potreby. Diagnóza nie je potrebná. {{brand}} nelieči ADHD ani autizmus.\n\nDieťa vidí vizuálne rutiny, krok za krokom, a hviezdy za to, čo je hotové. Rodič pripraví plán, odmeny a môže zdieľať vybranú správu.\n\nPodmienky používania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Slovenčina je už v aplikácii. Rutiny, správy a detský pohľad idú podľa jazyka rodiny."
+}

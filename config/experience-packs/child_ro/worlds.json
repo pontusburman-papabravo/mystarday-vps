@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Casa dimineții",
+      "first_unlock_message": "Casa dimineții te așteaptă",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Casa dimineții știe că ești aici.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "O lumină blândă se aprinde.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Ușa",
+          "always_active": true,
+          "ambient_message_sv": "Ușa tremură puțin — ca și cum cineva așteaptă afară.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Afară, grădina așteaptă…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Grădina",
+      "first_unlock_message": "Grădina te așteaptă",
+      "ambient_message_sv": "Iarba se mișcă încet în adiere.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Cărarea",
+          "emoji": "🌿",
+          "ambient_message_sv": "Cărarea intră mai adânc în grădină.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Cărarea duce spre o cameră caldă, plină de amintiri…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Strat de flori",
+          "emoji": "🪴",
+          "ambient_message_sv": "Pământul e moale și cald.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Cerul",
+          "emoji": "☁️",
+          "ambient_message_sv": "Norii se mișcă încet.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Camera amintirilor",
+      "first_unlock_message": "Aici e ce te-a făcut mândru.",
+      "ambient_message_sv": "Aici e cald și sigur.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Fereastra",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Lumina cade blând."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Peretele amintirilor",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Aici stă ce contează pentru tine."
+        }
+      ]
+    }
+  ]
+}

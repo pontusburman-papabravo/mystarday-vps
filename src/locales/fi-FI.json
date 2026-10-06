@@ -1266,7 +1266,8 @@
       "tooLong": "Vastaus saa olla enintään 5000 merkkiä.",
       "notFound": "Tapausta ei löytynyt.",
       "rateLimit": "Liian monta yritystä. Yritä tunnin kuluttua uudelleen.",
-      "generic": "Tapausta ei voitu avata."
+      "generic": "Tapausta ei voitu avata.",
+      "sendFailed": "Lähetys ei onnistunut. Yritä uudelleen."
     },
     "success": {
       "submitted": "Kiitos! Olemme vastaanottaneet vastauksesi.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Takaisin Premiumiin"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paketti",
+    "dismiss": "Ei nyt",
+    "interested": "Olen kiinnostunut",
+    "interestedSub": "Ilmoita kiinnostus siihen, mitä on tulossa",
+    "buyNow": "Osta nyt",
+    "reporting": {
+      "title": "Raportit",
+      "body": "Olet kirjannut tekemisiä kahden viikon ajan — haluatko nähdä, miten arki kehittyy?"
+    },
+    "pedagog": {
+      "title": "Ohjaaja",
+      "body": "Haluatko tehdä yhteistyötä ohjaajan tai terapeutin kanssa lapsen arjessa?"
+    },
+    "teacch": {
+      "title": "Lisätuki",
+      "body": "Lisää visuaalista tukea seitsemällä kysymyksellä — se auttaa lasta ymmärtämään, mitä tapahtuu."
+    }
   }
 }

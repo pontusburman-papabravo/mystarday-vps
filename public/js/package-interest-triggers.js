@@ -6,18 +6,61 @@
 
   const MESSAGES = {
     reporting: {
+      titleKey: 'packageInterest.reporting.title',
+      bodyKey: 'packageInterest.reporting.body',
       title: 'Rapportering',
+      titleEn: 'Reports',
       body: 'Du har registrerat aktiviteter i två veckor — vill du få koll på utvecklingen över tid?',
+      bodyEn: 'You have logged activities for two weeks — do you want a clearer view of how things change over time?',
     },
     pedagog: {
+      titleKey: 'packageInterest.pedagog.title',
+      bodyKey: 'packageInterest.pedagog.body',
       title: 'Pedagog',
+      titleEn: 'Educator',
       body: 'Vill du samarbeta med pedagog eller terapeut kring barnets vardag?',
+      bodyEn: 'Do you want to work with an educator or therapist on the child\'s everyday life?',
     },
     teacch: {
+      titleKey: 'packageInterest.teacch.title',
+      bodyKey: 'packageInterest.teacch.body',
       title: 'Extra stöd',
+      titleEn: 'Extra support',
       body: 'Lägg till visuellt stöd med De sju frågorna — hjälper barnet förstå vad som händer.',
+      bodyEn: 'Add visual support with The seven questions — it helps the child understand what is happening.',
     },
   };
+
+  function localeBase() {
+    const lang = global.I18n && typeof I18n.getCurrentLang === 'function' ? I18n.getCurrentLang() : '';
+    return String(lang || '').split('-')[0];
+  }
+
+  function defaultBase() {
+    const id = (global.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
+    return String(id).split('-')[0];
+  }
+
+  function chromeText(key, swedish, english) {
+    if (global.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t(key);
+      if (value && value !== key) return value;
+    }
+    const base = localeBase();
+    if (!base || base === defaultBase()) return swedish;
+    return english;
+  }
+
+  function messageFor(component) {
+    const spec = MESSAGES[component];
+    if (!spec) {
+      return { title: chromeText('packageInterest.fallbackTitle', 'Paket', 'Package'), body: '' };
+    }
+    return {
+      title: chromeText(spec.titleKey, spec.title, spec.titleEn),
+      body: chromeText(spec.bodyKey, spec.body, spec.bodyEn),
+    };
+  }
 
   let modalEl = null;
 
@@ -64,9 +107,11 @@
   async function showModal({ component, source }) {
     if (!global.PreviewShell) return;
     ensureModal();
-    const msg = MESSAGES[component] || { title: 'Paket', body: '' };
+    const msg = messageFor(component);
     document.getElementById('pkgInterestTitle').textContent = msg.title;
     document.getElementById('pkgInterestBody').textContent = msg.body;
+    const dismiss = document.getElementById('pkgInterestDismiss');
+    if (dismiss) dismiss.textContent = chromeText('packageInterest.dismiss', 'Inte nu', 'Not now');
 
     // The mounted preview-shell renders its own CTA (interest/purchase) and
     // handles the POST + feedback — no duplicate button needed here.

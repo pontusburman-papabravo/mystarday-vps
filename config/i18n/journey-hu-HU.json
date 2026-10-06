@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Tippek mutatása",
+    "close": "Bezárás",
+    "milestone": "Mérföldkő",
+    "nextStep": "Következő lépés",
+    "tip": "Tipp",
+    "weekReflection": "Heti visszatekintés",
+    "weekTogether": "Egy hét együtt",
+    "weekLabel": "Egy hét",
+    "sjDay3Headline": "Itt az idő, hogy {{name}} kipróbálja",
+    "tips": {
+      "coach_consistency": [
+        "Tartsd a rutint röviden és tisztán — a gyereked lépésről lépésre szokja meg.",
+        "Ünnepeld meg minden kipipálást, a kicsiket is.",
+        "Hagyd, hogy a gyereked reggelente egyedül lépjen be."
+      ],
+      "coach_evening": [
+        "Tegyél 2–3 nyugodt tevékenységet a lefekvés elé.",
+        "Ugyanaz a sorrend esténként könnyebbé teszi az elalvást."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Új",
+    "dismissAria": "Magyarázat bezárása",
+    "continueFallback": "Tovább",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Most egyértelmű javaslatot mutatunk a következő lépésedre itt, a kezdőlapon.",
+        "whatChanged": "Felülre került egy „Következő lépés” kártya.",
+        "whyItMatters": "Nem kell emlékeztetők között keresgélned — egyszerre egy javaslat."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Hagyd, hogy a gyereked kipróbálja a rutint",
+      "body": "Nyissátok meg együtt a gyerek módot — rögtön látja, mit kell tennie.",
+      "cta": "Gyerek nézet megnyitása"
+    },
+    "ADD_EVENING": {
+      "headline": "Add hozzá az esti rutint",
+      "body": "Legyen a lefekvés olyan tiszta, mint a reggel.",
+      "cta": "Este hozzáadása"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Hívd meg a másik szülőt",
+      "body": "Oszd meg a rutint, hogy együtt tudjátok követni.",
+      "cta": "Meghívás"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Kezdd egyetlen kis lépéssel",
+      "body": "A rutinod megvan — ma elég egy tevékenységet végigvinni.",
+      "cta": "Napirend megnyitása"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Alakítsd a saját rutinodra",
+      "body": "Most már a sajátotokra szabhatjátok a napirendet.",
+      "cta": "Testreszabás"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Ünnepeljétek meg a haladást",
+      "body": "Fontos lépést tettetek — álljatok meg egy pillanatra együtt.",
+      "cta": "Mutasd meg a gyereknek"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "A gyereked befejezett egy tevékenységet!",
+    "defaultChild": "A gyereked",
+    "defaultActivity": "egy tevékenység",
+    "defaultCta": "Rendben"
+  }
+}

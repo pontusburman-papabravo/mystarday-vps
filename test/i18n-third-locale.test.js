@@ -63,7 +63,7 @@ describe('third locale xx is data, not a code branch', () => {
   });
 
   it('shipped catalog includes the public app languages', () => {
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL']);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL', 'cs-CZ', 'sk-SK', 'sl-SI', 'hr-HR', 'hu-HU', 'ro-RO']);
     assert.equal(normalizeLocale('xx'), null);
     assert.equal(normalizeLocale('xx-XX'), null);
   });
@@ -135,7 +135,7 @@ describe('third locale xx is data, not a code branch', () => {
     assert.equal(sandbox.window.I18n._normalize('pl'), 'pl-PL');
     assert.equal(sandbox.window.I18n._normalize('is'), null);
     const names = sandbox.window.I18n.selectorLocales().map((locale) => locale.nativeName);
-    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch', 'Français', 'Nederlands', 'Dansk', 'Suomi', 'Norsk bokmål', 'Español', 'Italiano', 'Português', 'Polski']);
+    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch', 'Français', 'Nederlands', 'Dansk', 'Suomi', 'Norsk bokmål', 'Español', 'Italiano', 'Português', 'Polski', 'Čeština', 'Slovenčina', 'Slovenščina', 'Hrvatski', 'Magyar', 'Română']);
     assert.equal(sandbox.window.I18n.firstRunLocales().some((locale) => locale.id === 'xx-XX'), false);
 
     sandbox.window.I18n.CATALOG = {

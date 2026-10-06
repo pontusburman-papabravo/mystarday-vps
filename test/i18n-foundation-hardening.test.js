@@ -38,6 +38,13 @@ describe('locale backward compatibility matrix', () => {
     ['it-IT', 'it-IT'],
     ['pt-PT', 'pt-PT'],
     ['pl-PL', 'pl-PL'],
+    ['cs-CZ', 'cs-CZ'],
+    ['cs', 'cs-CZ'],
+    ['sk-SK', 'sk-SK'],
+    ['sl-SI', 'sl-SI'],
+    ['hr-HR', 'hr-HR'],
+    ['hu-HU', 'hu-HU'],
+    ['ro-RO', 'ro-RO'],
     ['is-IS', null],
   ];
 

@@ -89,6 +89,54 @@
           "screenshots/apple/pl/02-hem.png",
           "screenshots/apple/pl/03-beloning.png"
         ]
+      },
+      "cs": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/cs/01-idag.png",
+          "screenshots/apple/cs/02-hem.png",
+          "screenshots/apple/cs/03-beloning.png"
+        ]
+      },
+      "sk": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/sk/01-idag.png",
+          "screenshots/apple/sk/02-hem.png",
+          "screenshots/apple/sk/03-beloning.png"
+        ]
+      },
+      "sl-SI": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/sl-SI/01-idag.png",
+          "screenshots/apple/sl-SI/02-hem.png",
+          "screenshots/apple/sl-SI/03-beloning.png"
+        ]
+      },
+      "hr": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/hr/01-idag.png",
+          "screenshots/apple/hr/02-hem.png",
+          "screenshots/apple/hr/03-beloning.png"
+        ]
+      },
+      "hu": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/hu/01-idag.png",
+          "screenshots/apple/hu/02-hem.png",
+          "screenshots/apple/hu/03-beloning.png"
+        ]
+      },
+      "ro": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/ro/01-idag.png",
+          "screenshots/apple/ro/02-hem.png",
+          "screenshots/apple/ro/03-beloning.png"
+        ]
       }
     },
     "google": {
@@ -176,6 +224,54 @@
         "files": [
           "screenshots/google/pl-PL/01-hem.png",
           "screenshots/google/pl-PL/02-familj.png"
+        ]
+      },
+      "cs-CZ": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/cs-CZ/feature.png",
+        "files": [
+          "screenshots/google/cs-CZ/01-hem.png",
+          "screenshots/google/cs-CZ/02-familj.png"
+        ]
+      },
+      "sk": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/sk/feature.png",
+        "files": [
+          "screenshots/google/sk/01-hem.png",
+          "screenshots/google/sk/02-familj.png"
+        ]
+      },
+      "sl": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/sl/feature.png",
+        "files": [
+          "screenshots/google/sl/01-hem.png",
+          "screenshots/google/sl/02-familj.png"
+        ]
+      },
+      "hr": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/hr/feature.png",
+        "files": [
+          "screenshots/google/hr/01-hem.png",
+          "screenshots/google/hr/02-familj.png"
+        ]
+      },
+      "hu-HU": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/hu-HU/feature.png",
+        "files": [
+          "screenshots/google/hu-HU/01-hem.png",
+          "screenshots/google/hu-HU/02-familj.png"
+        ]
+      },
+      "ro": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/ro/feature.png",
+        "files": [
+          "screenshots/google/ro/01-hem.png",
+          "screenshots/google/ro/02-familj.png"
         ]
       }
     }

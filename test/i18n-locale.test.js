@@ -44,7 +44,7 @@ describe('locale normalization', () => {
     assert.equal(parseAcceptLanguage('fi_FI'), 'fi-FI');
     assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'fi-FI');
     assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), true);
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL']);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL', 'cs-CZ', 'sk-SK', 'sl-SI', 'hr-HR', 'hu-HU', 'ro-RO']);
   });
 
   it('validateLocale falls back to sv-SE', () => {

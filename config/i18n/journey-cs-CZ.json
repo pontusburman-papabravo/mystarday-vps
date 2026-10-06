@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Ukázat tipy",
+    "close": "Zavřít",
+    "milestone": "Milník",
+    "nextStep": "Další krok",
+    "tip": "Tip",
+    "weekReflection": "Ohlédnutí za týdnem",
+    "weekTogether": "Týden spolu",
+    "weekLabel": "Jeden týden",
+    "sjDay3Headline": "Čas, aby {{name}} zkusilo samo",
+    "tips": {
+      "coach_consistency": [
+        "Nech rutinu krátkou a jasnou — dítě si návyk buduje krok za krokem.",
+        "Oslav každé odškrtnutí, i to malé.",
+        "Nech dítě přihlásit se každé ráno samo."
+      ],
+      "coach_evening": [
+        "Přidej 2–3 klidné aktivity před spaním.",
+        "Stejné pořadí každý večer usnadní usínání."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nové",
+    "dismissAria": "Zavřít vysvětlení",
+    "continueFallback": "Pokračovat",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Tady na Domů teď ukážeme jasný návrh dalšího kroku.",
+        "whatChanged": "Nahoru přibyla karta „Další krok“.",
+        "whyItMatters": "Nemusíš hledat v upomínkách — jeden návrh naráz."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Nech dítě zkusit svou rutinu",
+      "body": "Otevři s dítětem dětský režim — hned uvidí, co má dělat.",
+      "cta": "Otevřít dětský pohled"
+    },
+    "ADD_EVENING": {
+      "headline": "Přidej večerní rutinu",
+      "body": "Ať je usínání stejně jasné jako ráno.",
+      "cta": "Přidat večer"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Pozvi druhého rodiče",
+      "body": "Sdílej rutinu, ať na ni můžete navázat spolu.",
+      "cta": "Pozvat"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Začni jedním malým krokem",
+      "body": "Rutina pořád je — dnes ber jednu aktivitu po druhé.",
+      "cta": "Otevřít plán"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Uprav si rutinu",
+      "body": "Teď si můžeš plán udělat po svém.",
+      "cta": "Upravit"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Oslav pokrok",
+      "body": "Udělali jste důležitý krok — dejte si chvilku spolu.",
+      "cta": "Ukázat dítěti"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Dítě dokončilo aktivitu!",
+    "defaultChild": "Tvoje dítě",
+    "defaultActivity": "aktivitu",
+    "defaultCta": "Rozumím"
+  }
+}

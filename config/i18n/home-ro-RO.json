@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Acasă — {{brand}}",
+  "greeting": {
+    "morning": "Bună dimineața!",
+    "afternoon": "Bună!",
+    "evening": "Bună seara!",
+    "default": "Bună!"
+  },
+  "sub": "Așa arată ziua.",
+  "status": {
+    "paused": "Zi liberă azi",
+    "allDone": "Totul e gata!",
+    "noSchedule": "Nicio rutină",
+    "progressDone": "{{done}}/{{total}} gata",
+    "emptyChildren": "Adaugă un copil în Familie ca să vezi starea aici.",
+    "loadError": "Nu s-a putut încărca starea copiilor. Asta nu înseamnă că nu ai copii.",
+    "retry": "Încearcă din nou",
+    "viewActivitiesAria": "{{name}} — vezi activitățile de azi"
+  },
+  "ready": {
+    "title": "Gata pentru activitatea următoare",
+    "childrenCount": "({{count}} copii)"
+  },
+  "quickActions": {
+    "aria": "Acțiuni rapide",
+    "retroactive": "Notează mai târziu",
+    "onceTask": "Activitate o singură dată",
+    "extraStars": "Stele bonus",
+    "dayOff": "Zi liberă"
+  },
+  "dayOffModal": {
+    "title": "🏠 Zi liberă",
+    "subtitle": "Pune rutina copilului pe pauză pentru toată ziua",
+    "footer": "Copilul nu trebuie să bifeze activități într-o zi liberă",
+    "noChildren": "Niciun copil găsit",
+    "stateActive": "🟢 Rutină activă",
+    "statePaused": "⏸ Zi liberă azi",
+    "markDayOff": "🏠 Marchează zi liberă",
+    "resumeSchedule": "▶ Reia rutina",
+    "noScheduleTitle": "Nicio rutină generată pentru azi",
+    "resumedToast": "Rutina a fost reluată!",
+    "pausedToast": "🏠 Marcat ca zi liberă!",
+    "genericError": "Ceva nu a mers bine",
+    "networkError": "Eroare de rețea"
+  },
+  "handoff": {
+    "title": "E timpul ca copilul să intre?",
+    "sub": "Treci la vederea copilului cu PIN.",
+    "childLogin": "👶 Copilul intră",
+    "changePin": "Schimbă PIN-ul copilului",
+    "changePinAria": "Deschide Familia și schimbă PIN-ul copilului",
+    "parentLogout": "Ieși din cont",
+    "regionAria": "Treci la intrarea copilului",
+    "dismissTitle": "Închide",
+    "trusted": {
+      "title": "E timpul să deschizi vederea copilului?",
+      "sub": "Deschide vederea copilului pe dispozitivul ăsta.",
+      "childLogin": "Deschide vederea copilului",
+      "regionAria": "Deschide vederea copilului"
+    },
+    "pin": {
+      "title": "E timpul ca copilul să intre?",
+      "sub": "Treci la vederea copilului cu PIN.",
+      "childLogin": "Intră cu PIN-ul copilului",
+      "regionAria": "Intră cu PIN-ul copilului"
+    },
+    "postSchema": {
+      "title": "Pasul următor: Lasă copilul să încerce rutina",
+      "sub": "Deschideți modul copil împreună — durează cam un minut.",
+      "childLogin": "Încearcă modul copil acum",
+      "regionAria": "Pasul următor: lasă copilul să încerce rutina",
+      "trusted": {
+        "title": "Pasul următor: Deschide vederea copilului",
+        "sub": "Deschideți modul copil împreună — durează cam un minut.",
+        "childLogin": "Deschide vederea copilului",
+        "regionAria": "Pasul următor: deschide vederea copilului"
+      },
+      "pin": {
+        "title": "Pasul următor: Lasă copilul să încerce rutina",
+        "sub": "Deschideți modul copil împreună — durează cam un minut.",
+        "childLogin": "Intră cu PIN-ul copilului",
+        "regionAria": "Pasul următor: intră cu PIN-ul copilului"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Următorul pas către prima rutină reușită",
+    "pinHint": "Copilul folosește PIN-ul lui. Poți reveni la modul părinte când a terminat.",
+    "recovery": {
+      "fetchErrorHeadline": "Nu am putut încărca pasul tău următor",
+      "fetchErrorBody": "Pare temporar. Încearcă din nou sau continuă fără ghid deocamdată.",
+      "retry": "Încearcă din nou",
+      "continueWithoutGuide": "Continuă fără ghid",
+      "defer": "Fă mai târziu",
+      "deferError": "Nu s-a putut salva alegerea acum. Încearcă din nou.",
+      "retrying": "Se încearcă din nou…",
+      "deferring": "Se salvează…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Creează profilul copilului",
+        "body": "Un nume și un PIN simplu sunt de ajuns ca să începi.",
+        "cta": "Continuă cu copilul"
+      },
+      "save_schedule": {
+        "headline": "Salvează o primă rutină simplă",
+        "body": "Alege un program de start — îl poți schimba oricând.",
+        "cta": "Alege programul de start"
+      },
+      "child_access": {
+        "headline": "Deschide vederea copilului",
+        "body": "Lasă copilul să încerce prima activitate de azi în vederea copilului.",
+        "cta": "Deschide vederea copilului"
+      },
+      "child_access_named": {
+        "headline": "Rutina lui {{name}} e gata",
+        "body": "Copilul tău poate începe când îi vine bine.",
+        "cta": "Deschide vederea copilului"
+      },
+      "await_first_completion": {
+        "headline": "Așteaptă prima activitate",
+        "body": "Copilul își vede rutina în vederea copilului. Ajută-l să înceapă, dacă e nevoie.",
+        "cta": "Deschide vederea copilului"
+      },
+      "parent_ack": {
+        "headline": "Copilul tău a finalizat o activitate!",
+        "body": "Confirmă ca steaua să conteze și să puteți sărbători împreună.",
+        "cta": "Vezi activitatea"
+      },
+      "celebrate_first_success": {
+        "headline": "Prima stea e gata!",
+        "body": "Bravo — rutina chiar funcționează.",
+        "cta": "Continuă"
+      },
+      "journey_coach": {
+        "headline": "Pasul următor",
+        "body": "Construiește rutina în ritmul tău.",
+        "cta": "Continuă"
+      },
+      "engine_legacy": {
+        "headline": "Pasul următor",
+        "body": "Urmează pasul sugerat.",
+        "cta": "Continuă"
+      },
+      "continue_today": {
+        "headline": "{{name}} mai are rutină azi",
+        "body": "Vrei să continui de unde au rămas?",
+        "cta": "Continuă rutina"
+      },
+      "welcome_back": {
+        "headline": "Bun venit înapoi",
+        "body": "Pasul următor e tot aici când ai nevoie — deschizi rutina copilului?",
+        "cta": "Deschide vederea copilului"
+      },
+      "invite_adult": {
+        "headline": "Mai vrea un adult să ajute?",
+        "body": "Invită când ți se potrivește — tu rămâi la control.",
+        "cta": "Invită un adult"
+      },
+      "share_week": {
+        "headline": "Un mic moment din săptămână",
+        "body": "Împărtășește doar dacă vrei — nimic nu se publică automat.",
+        "cta": "Distribuie momentul"
+      },
+      "refer_family": {
+        "headline": "Cunoști o familie căreia i-ar plăcea rutinele?",
+        "body": "Trimite un link personal — fără recompensă, doar un sfat.",
+        "cta": "Distribuie aplicația"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Nu acum",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Ai făcut pași în rutine săptămâna asta",
+        "body": "Un rezumat liniștit — doar pentru tine.",
+        "shareText": "Folosim {{brand}} pentru rutinele copiilor acasă. Dacă vrei să încerci o aplicație simplă de familie."
+      },
+      "morning": {
+        "headline": "Câteva dimineți au mers un pic mai lin săptămâna asta",
+        "body": "Bravo — distribuie doar dacă vrei.",
+        "shareText": "Am avut dimineți mai calme cu o aplicație simplă de rutină. Poate ajuta și familia ta."
+      },
+      "evening": {
+        "headline": "Rutina de seară a mers de câteva ori săptămâna asta",
+        "body": "Un moment privat — fără clasament.",
+        "shareText": "Rutinele de seară au devenit un pic mai ușoare la noi. Dacă cauți un instrument calm."
+      },
+      "multi_child": {
+        "headline": "Copiii tăi au făcut câțiva pași în rutine săptămâna asta",
+        "body": "Rezumat fără nume sau poze.",
+        "shareText": "Folosim {{brand}} pentru rutinele copiilor. Ca să încerci:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Ești membru fondator",
+    "body": "Ca una dintre primele familii, ai acces pe viață, fără cost. Mulțumim că ești cu noi de la început!"
+  },
+  "weekStory": {
+    "title": "Povestea săptămânii"
+  },
+  "starHistory": {
+    "title": "Progres săptămânal",
+    "subtitle": "Ultimele 8 săptămâni",
+    "thisWeek": "{{count}} ⭐ săptămâna asta",
+    "weekTooltip": "S{{week}}: {{count}} stele",
+    "diffUp": "+{{diff}} față de săptămâna trecută",
+    "diffSame": "La fel ca săptămâna trecută",
+    "bestWeek": "🎉 Cea mai bună săptămână a lui {{name}}!"
+  },
+  "nav": {
+    "today": "Azi",
+    "dailyLog": "Jurnalul zilei",
+    "fillRetroactive": "📝 Notează mai târziu"
+  },
+  "readiness": {
+    "heading": "Are nevoie de atenție",
+    "warningsOnly": "Doar avertismente",
+    "loadError": "Nu s-a putut verifica ce are nevoie de atenție.",
+    "retry": "Încearcă din nou",
+    "items": {
+      "pendingInviteTitleOne": "1 invitație de părinte în așteptare",
+      "pendingInviteTitleMany": "{{count}} invitații de părinte în așteptare",
+      "pendingInviteSub": "Gestionează în Familie",
+      "pendingApprovalTitle": "{{name}} — {{count}} cerere în așteptare",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} cereri în așteptare",
+      "pendingApprovalSub": "Aprobă în Recompense",
+      "incompleteDaysTitleOne": "{{name}} — 1 zi incompletă",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} zile incomplete",
+      "incompleteDaysSub": "Completează după",
+      "missingPinTitle": "{{name}} nu are PIN",
+      "missingPinSub": "Setează PIN-ul în profilul copilului",
+      "pausedDayTitle": "{{name}} — zi liberă azi",
+      "pausedDaySub": "Deschide Azi",
+      "noScheduleTitle": "{{name}} — nicio rutină azi",
+      "noScheduleSub": "Deschide programul săptămânal"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} vrea să folosească o recompensă",
+    "pendingRewardSubOne": "O cerere te așteaptă",
+    "pendingRewardSubMany": "{{count}} cereri te așteaptă",
+    "showRequest": "Vezi cererea",
+    "closeToReward": "{{name}} mai are doar {{gap}} până la următoarea recompensă",
+    "starOne": "1 stea",
+    "starMany": "{{count}} stele",
+    "seeRewards": "Vezi recompensele",
+    "starsTodayHeadline": "Copiii au câștigat {{count}} azi",
+    "starsTodaySubOne": "{{name}} le-a câștigat azi",
+    "starsTodaySubMany": "Copiii le-au câștigat azi",
+    "tasksDoneHeadline": "{{name}} a finalizat deja {{count}} azi",
+    "taskOne": "1 sarcină",
+    "taskMany": "{{count}} sarcini",
+    "tasksRemaining": "Au mai rămas {{count}} în rutina de azi",
+    "allActivitiesDone": "Toate activitățile sunt gata — bravo!",
+    "seeSchedule": "Vezi programul",
+    "nextActivityHeadline": "{{name}} e gata pentru {{activity}}",
+    "nextActivitySub": "Activitatea următoare din rutină",
+    "openToday": "Deschide Azi",
+    "calmDayHeadline": "Zi liniștită — nicio rutină chiar acum",
+    "calmDaySub": "Un moment bun să adaugi activități sau să dai stele bonus",
+    "defaultChild": "Copilul tău",
+    "pageTitleStars": "🌟 Stelele de azi",
+    "pageTitleWelcome": "👋 Bun venit înapoi",
+    "pageTitleProgress": "🌟 Progresul familiei azi",
+    "greetingFallback": "{{greeting}} Așa arată ziua",
+    "followChild": "Urmărește progresul lui {{name}} aici",
+    "followChildren": "Urmărește progresul copiilor aici"
+  },
+  "childStats": {
+    "paused": "⏸ Zi liberă azi",
+    "allDone": "🌟 Totul e gata azi!",
+    "tasksDoneOne": "🔥 1 sarcină gata azi",
+    "tasksDoneMany": "🔥 {{count}} sarcini gata azi",
+    "noSchedule": "Nicio rutină azi",
+    "todayProgress": "Azi <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> în total",
+    "starsTodayOne": "+1 stea azi",
+    "starsTodayMany": "+{{count}} stele azi",
+    "remaining": "Au mai rămas {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Mai e doar 1 stea până la recompensa următoare",
+    "rewardGapMany": "🎁 Mai sunt doar {{count}} stele până la recompensa următoare"
+  },
+  "offline": {
+    "banner": "Offline — modificările tale sunt salvate",
+    "lastUpdated": "· Actualizat {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Jurnalul zilei",
+    "dailyLogSub": "Urmărește ziua copiilor — notează stelele după aceea"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Cum a mers {{goal}} până acum?",
+      "sub": "Pentru {{name}}",
+      "great": "Îmbunătățire mare",
+      "better": "Un pic mai bine",
+      "same": "Nicio diferență",
+      "worse": "Nu merge",
+      "followUpBetter": "Ce s-a îmbunătățit?",
+      "followUpWorse": "Ce lipsește?",
+      "optional": "(opțional)",
+      "send": "Trimite",
+      "skip": "Omite",
+      "dismissAria": "Închide",
+      "thanks": "Mulțumim! Răspunsul tău e salvat.",
+      "alreadyAnswered": "Mulțumim! Se pare că ai răspuns deja.",
+      "next": "Răspunde la următoarea",
+      "done": "Gata"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Omite",
+    "next": "Înainte →",
+    "start": "🎉 Hai!",
+    "steps": {
+      "welcome": {
+        "title": "Bun venit la prezentare!",
+        "body": "Aici vezi ziua fiecărui copil. Editează programul săptămânal în Planificare."
+      },
+      "stars": {
+        "title": "Stele și cufărul cu comori",
+        "body": "Fiecare activitate terminată aduce 1 stea. Copilul strânge stele și le folosește pentru recompense în cufărul cu comori."
+      },
+      "schedule": {
+        "title": "Program săptămânal și activități",
+        "body": "La Planificare, în meniu, găsești biblioteca de activități și poți adăuga propriile recompense."
+      },
+      "family": {
+        "title": "Adaugă mai mulți copii sau adulți",
+        "body": "Apasă „+ Adaugă copil” ca să adaugi un frate sau o soră. La Familie poți invita un alt adult."
+      },
+      "help": {
+        "title": "Ai nevoie de ajutor?",
+        "body": "Apasă butonul ❓ din dreapta jos oricând, pentru întrebări și sfaturi. Succes cu ziua ta!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} încearcă să intre",
+    "body": "3 încercări greșite de PIN — copilul tău poate avea nevoie de ajutor"
+  },
+  "shareSchedule": {
+    "notAvailable": "Distribuirea nu e disponibilă pe dispozitivul ăsta",
+    "notSupported": "Distribuirea nu e disponibilă pe dispozitivul ăsta",
+    "shared": "Partajat!",
+    "childNotFound": "Nu s-a putut găsi copilul",
+    "couldNotShare": "Nu s-a putut distribui: {{message}}",
+    "routineToday": "Rutina de azi a lui {{name}}:",
+    "title": "Rutina lui {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ O versiune nouă a aplicației e gata!",
+    "reloadNow": "Reîncarcă acum",
+    "later": "Mai târziu",
+    "dismissAria": "Închide bannerul"
+  },
+  "pwa": {
+    "title": "Instalează aplicația pentru notificări push",
+    "iosLead": "Pe iPhone/iPad aplicația trebuie să fie pe ecranul principal pentru notificări push.",
+    "iosStep1": "Atinge butonul Distribuie jos în Safari",
+    "iosStep2": "Alege „Adaugă pe ecranul principal”",
+    "iosStep3": "Deschide aplicația de pe ecranul principal și permite notificările",
+    "iosArrowHint": "O săgeată animată arată butonul Partajare din browser",
+    "androidTitle": "Instalează aplicația pentru cea mai bună experiență",
+    "androidLead": "Instalează aplicația ca să primești mementouri pe telefon.",
+    "androidHomeLead": "Instalează {{brand}} pe ecranul principal pentru acces rapid și notificări push.",
+    "androidInstall": "Instalează aplicația",
+    "androidInstallBtn": "📲 Instalează aplicația",
+    "androidChromeFallback": "Apasă ⋮ (meniu) în Chrome → <strong>„Adaugă pe ecranul principal”</strong>",
+    "desktopTitle": "Instalează aplicația",
+    "desktopLead": "Apasă pictograma de instalare (⊕) din bara de adresă sau folosește meniul browserului.",
+    "dismissAria": "Închide"
+  },
+  "pushPrompt": {
+    "title": "Primește notificări push despre copii",
+    "body": "Afli imediat când un copil bifează o activitate sau vrea să folosească o recompensă.",
+    "later": "Mai târziu",
+    "enable": "Pornește",
+    "enabledToast": "✅ Notificări push activate!"
+  },
+  "globalFeedback": {
+    "fabAria": "Dă feedback",
+    "fabTitle": "Dă feedback",
+    "modalTitle": "Dă feedback",
+    "typeBug": "Raportează o problemă",
+    "typeSuggestion": "Sugestie",
+    "typeLanguage": "Limbă",
+    "titlePlaceholder": "Titlu",
+    "messagePlaceholder": "Ce s-a întâmplat?",
+    "cancel": "Anulează",
+    "submit": "Trimite raportul",
+    "submitting": "Se trimite...",
+    "validationRequired": "Te rugăm să completezi toate câmpurile.",
+    "success": "Raportul tău a fost trimis.",
+    "errorGeneric": "Ceva nu a mers bine. Te rugăm să încerci din nou."
+  },
+  "cards": {
+    "loadError": "Nu s-au putut încărca cardurile copiilor. Trage în jos ca să reîmprospătezi.",
+    "last": "Ultimul:",
+    "next": "Următorul:",
+    "noActivitiesToday": "Nicio activitate planificată azi",
+    "noRoutineToday": "Nicio rutină pentru azi",
+    "createActivity": "✨ Creează o activitate în program →",
+    "childNoActivities": "{{name}} nu are încă activități — creează prima →",
+    "noRewards": "🎁 Încă nicio recompensă",
+    "addReward": "→ Adaugă o recompensă",
+    "pendingRequest": "{{count}} cerere în așteptare",
+    "pendingRequestMany": "{{count}} cereri în așteptare",
+    "pausedBadge": "PAUZAT",
+    "allDoneTitle": "Totul e gata!",
+    "statusNow": "ACUM",
+    "statusNext": "URMĂTORUL",
+    "onceTask": "Activitate o singură dată",
+    "markDone": "Marchează gata",
+    "unmark": "Debifează",
+    "activityMarked": "✅ Gata!",
+    "activityUnmarked": "Nebifat",
+    "fillDay": "Completează {{day}}",
+    "allActivitiesDone": "Toate activitățile sunt gata azi!",
+    "last7Days": "Ultimele 7 zile"
+  },
+  "approvals": {
+    "title": "Cereri în așteptare",
+    "loading": "Se încarcă cererile...",
+    "empty": "Nicio cerere în așteptare! 🎉",
+    "loadError": "Nu s-au putut încărca cererile.",
+    "wantsGoalChange": "Vrea să schimbe obiectivul",
+    "goalChangeTo": "Către: {{name}}",
+    "wantsRedeem": "Vrea să folosească",
+    "approve": "Aprobă",
+    "deny": "Refuză",
+    "requiresApproval": "Are nevoie de aprobare",
+    "requiresApprovalCount": "Are nevoie de aprobare ({{count}})",
+    "goalApproved": "🎯 Schimbare de obiectiv aprobată!",
+    "redemptionApproved": "🎉 Folosire aprobată!",
+    "goalDenied": "Schimbarea obiectivului a fost refuzată.",
+    "redemptionDenied": "Folosire refuzată.",
+    "updateFailed": "Nu s-a putut actualiza",
+    "genericError": "Eroare",
+    "wantsGoalNamed": "{{name}} vrea să schimbe obiectivul în {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Vrea să schimbe obiectivul în {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} vrea „{{reward}}” ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Ajustează ora azi",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Nu s-a putut ajusta ora",
+    "undone": "Nefăcut",
+    "undoFailed": "Nu s-a putut desface"
+  },
+  "loading": {
+    "initFailed": "Ceva nu a mers bine la încărcare. Reîncarcă pagina.",
+    "couldNotLoad": "Nu s-a putut încărca.",
+    "checkConnection": "Verifică conexiunea la internet",
+    "reloadPage": "Reîncarcă pagina"
+  },
+  "activationProgram": {
+    "exitConfirm": "Vrei să închei programul de 7 zile?",
+    "reflectionPlaceholder": "Opțional: spune-ne mai mult…",
+    "send": "Trimite",
+    "reflectionQuestion": "A făcut aplicația viața de zi cu zi mai ușoară?",
+    "previewEmpty": "Deschide intrarea copilului ca să vezi programul.",
+    "optOutTitle": "Încheie programul",
+    "skipToday": "Omite azi",
+    "orOpenChildLogin": "Sau deschide intrarea copilului",
+    "dayOf": "Ziua {{day}} din {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Progresul familiei azi",
+    "allChildren": "← Toți copiii",
+    "systemMsgFrom": "Mesaj din aplicație",
+    "systemMsgClose": "Închide ✕",
+    "sharingManage": "Atinge ca să gestionezi rapoartele partajate",
+    "inviteTitle": "Invită celălalt părinte",
+    "inviteSub": "Ca să nu vă întrebați unul pe altul despre program",
+    "inviteBtn": "Invită",
+    "shareTitle": "Spune unui prieten!",
+    "shareSub": "Ajută o altă familie să aducă structură în viața de zi cu zi",
+    "shareBtn": "Distribuie",
+    "inviteModalTitle": "Invită celălalt părinte",
+    "inviteModalBody": "Partenerul primește un e-mail cu un link direct — fără aplicații în plus, nimic complicat.",
+    "inviteSentBody": "Partenerul tău se poate autentifica acum și vede programul.",
+    "inviteDone": "Gata",
+    "supportPrefix": "🔒 Ești în modul de asistență: se arată datele familiei",
+    "supportSuffix": ". Nu se pot schimba date. Sesiunea expiră în",
+    "tourSkip": "Omite",
+    "tourNext": "Înainte →",
+    "starTipsTitle": "Sfaturi: cum merg stelele",
+    "starTipsCollect": "• Copilul primește stele când activitățile sunt bifate în vederea copilului",
+    "starTipsExtra": "• Dă stele bonus de pe cardul copilului, pentru efort în afara programului",
+    "starTipsRewards": "• Stelele contează pentru recompensele salvate — setează obiective la Recompense",
+    "starTipsEdit": "• Editează programul săptămânal în Planificare",
+    "dayDragInner": "trage o filă de zi pe altă zi ca să copiezi sau să schimbi",
+    "calViewDay": "Zi",
+    "calViewWeek": "Săptămână",
+    "calViewMonth": "Lună",
+    "retroactiveFull": "📝 Notează mai târziu",
+    "extraStarsFull": "⭐ Dă stele bonus",
+    "onceTaskFull": "📋 Activitate o singură dată",
+    "dayOffFull": "🏠 Zi liberă",
+    "trialEndingTitle": "A mai rămas o zi din perioada de probă",
+    "trialEndingBody": "Perioada de încercare se termină în mai puțin de o zi. Alege un abonament în aplicație dacă vrei să păstrezi accesul complet. Toate datele rămân.",
+    "trialEndingChoose": "Alege în aplicație",
+    "trialEndingClose": "Închide"
+  },
+  "helpPanel": {
+    "title": "❓ Cum funcționează?",
+    "tabSchema": "📅 Program",
+    "tabStars": "⭐ Stele",
+    "tabFamily": "👨‍👩‍👧 Familie",
+    "tabAdults": "🔑 Mai mulți adulți",
+    "tabTrouble": "🔧 Depanare",
+    "addActivityQ": "Cum adaug o activitate?",
+    "addActivityA": "Apasă un card de copil pe Acasă → alege o zi → apasă „+” ca să adaugi o activitate din bibliotecă. Poți crea și propriile activități în <strong>Bibliotecă</strong>.",
+    "dragQ": "Pot trage și muta activitățile?",
+    "dragA": "Da! În vederea programului copilului (apasă un card pe Acasă) poți apăsa și trage activitățile ca să schimbi ordinea. Poți trage o activitate și pe fila altei zile ca să o copiezi.",
+    "copyQ": "Cum copiez programul în fiecare zi?",
+    "copyA": "În editorul de program (butonul 📋) → alege „Copiază în alte zile” ca să copiezi programul unei zile în restul săptămânii.",
+    "earnStarsQ": "Cum câștigă copilul meu stele?",
+    "earnStarsA": "Fiecare activitate terminată dă <strong>1 stea</strong>. Copilul bifează în vederea copilului. Poți da și <strong>stele bonus</strong> de pe cardul copilului, pe Acasă.",
+    "treasureQ": "Cum funcționează Cufărul cu comori?",
+    "treasureA": "În vederea copilului, apasă pictograma ⭐ ca să vezi Cufărul cu comori — o listă de recompense și câte stele costă. Copilul poate cere o recompensă când a strâns destul.",
+    "retroQ": "Cum completez stele pentru zilele uitate?",
+    "retroA": "Mergi la <strong>Azi</strong> (meniul ☰ → Azi sau butonul <strong>Notează mai târziu</strong> de pe Acasă). Alege copilul, mergi la ziua potrivită cu săgețile sau cu selectorul de dată și bifează activitățile. Stelele se salvează cu data corectă.",
+    "rewardsQ": "Cum adaug sau editez recompense?",
+    "rewardsA": "Mergi la Recompense în meniu. Acolo poți adăuga propriile recompense, edita costul în stele și alege ce copii le văd.",
+    "siblingQ": "Cum adaug un frate sau o soră?",
+    "siblingA": "Pe Acasă → apasă <strong>„+ Adaugă copil”</strong>. Fiecare copil primește programul, activitățile și stelele lui.",
+    "childLoginQ": "Cum intră copilul meu?",
+    "childLoginA": "În primele zile poți <strong>previzualiza ziua copilului</strong> prin Azi. Când ești gata, copilul se autentifică la <strong>/child-login</strong> cu utilizator și PIN — fără parole. Găsești datele la <strong>Familie și setări → Copii</strong>.",
+    "inviteAdultQ": "Cum invit încă un adult?",
+    "inviteAdultA": "Mergi la <strong>Familie și setări → Membrii familiei</strong> → apasă „Invită”. Primesc un e-mail cu un link ca să își creeze contul și să se alăture familiei.",
+    "inviteSeeQ": "Poate adultul invitat să vadă fiecare copil?",
+    "inviteSeeA": "Alegi ce copii pot vedea când trimiți invitația. Poți schimba asta mai târziu la <strong>Membrii familiei</strong> → apasă persoana → ajustează accesul la copii.",
+    "noActivitiesQ": "Copilul meu nu vede activități azi",
+    "noActivitiesA": "Verifică dacă programul e setat pentru ziua potrivită. Deschide programul copilului (apasă cardul copilului) → alege azi → vezi dacă sunt activități. Dacă programul e gol: folosește „Copiază în alte zile” ca să îl umpli.",
+    "forgotPinQ": "Am uitat PIN-ul copilului",
+    "forgotPinA": "Mergi la <strong>Familie și setări → Copii</strong> → alege copilul → apasă „Schimbă PIN-ul” ca să setezi un PIN nou.",
+    "innerOneStar": "1 stea",
+    "innerBonusStars": "stele bonus",
+    "innerAddChild": "\"+ Adaugă copil\"",
+    "innerPreview": "previzualizează ziua copilului",
+    "innerFamilyMembersPath": "Familie &amp; setări → Membrii familiei",
+    "innerMembers": "Membrii familiei",
+    "innerFamilyChildren": "Familie &amp; setări → Copii",
+    "supportQ": "Contactează suportul",
+    "supportLead": "Scrie-ne la",
+    "supportTail": " — răspundem în 24 de ore."
+  },
+  "journeyAck": {
+    "headline": "Copilul tău a finalizat o activitate!",
+    "childFallback": "Copilul tău",
+    "activityFallback": "o activitate",
+    "dismiss": "Am văzut"
+  },
+  "journeyCelebration": {
+    "headline": "Ați reușit împreună",
+    "body": "Copilul tău a început — și tu ai văzut.",
+    "dismiss": "Grozav!"
+  },
+  "activationAha": {
+    "body": "Fără să fie nevoie să le amintești.",
+    "dismiss": "Grozav!"
+  }
+}

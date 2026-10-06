@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Pokojný deň, hviezda za hviezdou"
+  },
+  "language": {
+    "label": "Jazyk",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Zmeniť jazyk",
+    "choice": {
+      "title": "Jazyk",
+      "titleEn": "Jazyk",
+      "description": "Jazyk môžeš zmeniť neskôr v Nastaveniach.",
+      "descriptionEn": "Jazyk môžeš zmeniť neskôr v Nastaveniach.",
+      "confirm": "Pokračovať",
+      "required": "Vyber jazyk, nech môžeš pokračovať",
+      "childNote": "Detský pohľad je v jazyku rodiny.",
+      "childNoteEn": "Detský pohľad je v jazyku rodiny."
+    },
+    "offer": {
+      "title": "{{brand}} je už dostupné po slovensky",
+      "body": "{{brand}} je dostupné aj po slovensky. Pohľad rodiča aj dieťaťa je v jazyku rodiny.",
+      "question": "Chceš zostať pri švédčine, alebo vyskúšať slovenčinu?",
+      "staySwedish": "Zostať pri švédčine",
+      "tryEnglish": "Vyskúšať slovenčinu",
+      "remindLater": "Pripomenúť neskôr"
+    },
+    "legacyNotice": {
+      "body": "Doterajšie aktivity ostávajú vo svojom jazyku. Nové aktivity sú po slovensky.",
+      "dismiss": "Rozumiem",
+      "dismissAria": "Zavrieť oznam o jazyku"
+    },
+    "reportIssue": "Nahlásiť problém s jazykom",
+    "feedback": {
+      "typeLabel": "Problém s jazykom alebo prekladom",
+      "typeLabelEn": "Problém s jazykom alebo prekladom",
+      "titlePlaceholder": "Čo vyzerá zle?",
+      "visibleText": "Aký text vidíš?",
+      "suggestion": "Ako by to malo znieť? (voliteľné)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Kde býva tvoja rodina?",
+      "description": "Podľa toho vyberieme správne pojmy a informácie o súkromí. Je to oddelené od výberu jazyka.",
+      "label": "Krajina",
+      "hint": "",
+      "required": "Vyber krajinu, nech môžeš pokračovať",
+      "closedEu": "{{brand}} zatiaľ nie je dostupné v tvojej krajine. Dáme vedieť, keď otvoríme ďalšie trhy v EÚ.",
+      "closedIe": "{{brand}} zatiaľ nie je dostupné v Írsku.",
+      "closedCa": "{{brand}} zatiaľ nie je dostupné v Kanade.",
+      "closedFi": "{{brand}} zatiaľ nie je dostupné vo Fínsku.",
+      "closedNo": "{{brand}} zatiaľ nie je dostupné v Nórsku.",
+      "closedDk": "{{brand}} zatiaľ nie je dostupné v Dánsku.",
+      "closedUk": "{{brand}} zatiaľ nie je dostupné v Spojenom kráľovstve.",
+      "closedUs": "{{brand}} zatiaľ nie je dostupné v Spojených štátoch.",
+      "closedOther": "{{brand}} zatiaľ nie je dostupné v tvojej krajine.",
+      "euGroup": "Iná krajina EÚ/EHP"
+    }
+  },
+  "nav": {
+    "login": "Prihlásiť sa",
+    "register": "Vytvoriť účet",
+    "childLogin": "Prihlásenie dieťaťa",
+    "dashboard": "Prehľad",
+    "logout": "Odhlásiť sa",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Pokojnejší bežný deň pre celú rodinu",
+      "ogDescription": "Vytváraj a sleduj denné plány, aktivity a odmeny"
+    },
+    "login": {
+      "title": "Prihlásiť sa",
+      "pageTitle": "Prihlásenie — {{brand}}",
+      "tagline": "Žiariame spolu",
+      "subtitle": "Vitaj späť v {{brand}}",
+      "email": "E-mailová adresa",
+      "emailPlaceholder": "you@email.com",
+      "password": "Heslo",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Prihlásiť sa",
+      "submitting": "Prihlasujem ťa…",
+      "forgotPassword": "Zabudnuté heslo?",
+      "noAccount": "Nemáš účet?",
+      "createAccount": "Vytvoriť účet",
+      "childLogin": "Si dieťa?",
+      "childLoginLink": "Si dieťa? Prihlás sa tu",
+      "loginAsAdult": "Prihlásiť sa ako rodič",
+      "orDivider": "alebo",
+      "continueWithApple": "Pokračovať s Apple",
+      "continueWithGoogle": "Pokračovať s Google",
+      "apple_caption": "Len na iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Zadaj e-mail aj heslo",
+      "genericError": "Niečo sa pokazilo. Skús to znova.",
+      "mascotAlt": "Maskot hviezdy",
+      "addChildBannerTitle": "👶 Prihlás sa ako rodič, ak chceš pridať dieťa",
+      "addChildBannerBody": "«Som dieťa» tu nestačí — treba rodiča alebo pedagóga.",
+      "resetSuccessBannerTitle": "Heslo uložené",
+      "resetSuccessBannerBody": "Prihlás sa novým heslom.",
+      "backToChildPicker": "← Späť na výber dieťaťa",
+      "linking": {
+        "emailExists": "Účet s touto e-mailovou adresou už existuje.",
+        "promptApple": "Chceš prepojiť účet Apple s existujúcim účtom?",
+        "promptGoogle": "Chceš prepojiť účet Google s existujúcim účtom?",
+        "yes": "Áno, prepojiť",
+        "cancel": "Zrušiť",
+        "modalTitleApple": "Prepojiť účet Apple",
+        "modalTitleGoogle": "Prepojiť účet Google",
+        "modalIntroApple": "Zadaj heslo, prihlás sa a potom prepoj účet Apple.",
+        "modalIntroGoogle": "Zadaj heslo, prihlás sa a potom prepoj účet Google.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Heslo",
+        "passwordPlaceholder": "Tvoje heslo",
+        "submit": "Prepojiť",
+        "submitting": "Prepájam…",
+        "enterPassword": "Zadaj heslo.",
+        "wrongPassword": "Nesprávne heslo.",
+        "failed": "Prepojenie zlyhalo."
+      },
+      "apple": {
+        "unavailable": "Prihlásenie cez Apple teraz nie je dostupné. Skús znova alebo sa prihlás e-mailom.",
+        "notEnabled": "Prihlásenie cez Apple nie je zapnuté. Aktualizuj aplikáciu na najnovšiu verziu.",
+        "cancelled": "Prihlásenie cez Apple bolo zrušené.",
+        "incomplete": "Prihlásenie cez Apple sa nedokončilo. Skús znova alebo sa prihlás e-mailom a heslom.",
+        "rateLimited": "Priveľa pokusov. Chvíľu počkaj a skús znova.",
+        "genericError": "Pri prihlásení cez Apple sa niečo pokazilo. Skús znova alebo sa prihlás e-mailom a heslom.",
+        "failed": "Prihlásenie cez Apple zlyhalo. Skús znova alebo sa prihlás e-mailom a heslom.",
+        "signInFailed": "Prihlásenie cez Apple zlyhalo.",
+        "completionTitle": "Dokonči vytvorenie účtu",
+        "completionBody": "Vyber krajinu a prijmi podmienky. Meno a e-mail už prišli z Apple — nebudeme ich pýtať znova.",
+        "completionSubmit": "Pokračovať s tým istým účtom Apple"
+      },
+      "google": {
+        "emailConflictSettings": "Účet s touto e-mailovou adresou už existuje. Prihlás sa a prepoj Google v Nastaveniach, alebo použi heslo.",
+        "loginFailed": "Prihlásenie cez Google zlyhalo.",
+        "signInFailed": "Prihlásenie cez Google zlyhalo."
+      },
+      "verify": {
+        "title": "Over e-mailovú adresu",
+        "body": "Ak chceš ďalej používať {{brand}}, musíš overiť e-mail. Pozri doručenú poštu (aj spam), je tam správa od nás.",
+        "emailLabel": "E-mailová adresa:",
+        "resendBtn": "Poslať nový overovací odkaz",
+        "resendSending": "Odosielam…",
+        "resendSuccess": "✅ Nový overovací odkaz je odoslaný! Pozri doručenú poštu aj spam.",
+        "resendError": "Niečo sa pokazilo. Skús to znova.",
+        "spamHint": "Pozri aj priečinok spam. Odkaz platí 24 hodín."
+      }
+    },
+    "entry": {
+      "back": "Späť",
+      "backWithArrow": "← Späť",
+      "welcome": {
+        "ariaLabel": "Vitaj",
+        "headline": "Pokojnejší bežný deň s jasnými krokmi, plánmi a hviezdami",
+        "lead": "{{brand}} pomáha deťom a rodinám s dennými rutinami: vizuálne plány, jasné kroky a odmeny, vďaka ktorým deň ide samostatnejšie.",
+        "chipVisualSchedules": "Vizuálne plány",
+        "chipStarsRewards": "Hviezdy a odmeny",
+        "chipMultipleUsers": "Viac detí aj dospelých",
+        "startBtn": "Začať",
+        "existingBtn": "Už mám účet",
+        "howItWorksBtn": "Ako aplikácia funguje",
+        "firstRunHeadline": "Vitaj v {{brand}}",
+        "firstRunCreateAccount": "Vytvoriť účet",
+        "firstRunLogIn": "Prihlásiť sa",
+        "firstRunChildLink": "Som dieťa"
+      },
+      "role": {
+        "title": "Kto bude aplikáciu používať teraz?",
+        "kidAria": "Som dieťa",
+        "kidLabel": "Som dieťa",
+        "kidSub": "Chcem vidieť svoj plán",
+        "kidAlt": "Dieťa",
+        "parentAria": "Som dospelý",
+        "parentLabel": "Som dospelý",
+        "parentSub": "Chcem sa prihlásiť alebo začať",
+        "parentAlt": "Rodina"
+      },
+      "adultStart": {
+        "ariaLabel": "Štart dospelého",
+        "title": "Vitaj! Ako chceš pokračovať?",
+        "existingLabel": "Už mám účet",
+        "existingSub": "Prihlásenie cez Apple, Google alebo e-mail",
+        "newLabel": "Som tu po prvý raz",
+        "newSub": "Pozri, ako aplikácia funguje, a vytvor si účet zadarmo"
+      },
+      "signupIntro": {
+        "ariaLabel": "Začať",
+        "title": "Začni s {{brand}}",
+        "sub": "Vytvor si účet zadarmo a zostav prvému dieťaťu plán s jasnými krokmi, hviezdami a cieľmi.",
+        "point1": "Vizuálne plány, ktorým dieťa rozumie",
+        "point2": "Hviezdy a odmeny, ktoré motivujú",
+        "point3": "Viac detí aj dospelých v jednej rodine",
+        "createBtn": "Vytvoriť účet zadarmo",
+        "existingBtn": "Už mám účet",
+        "founderNote": "Základná verzia je teraz zadarmo."
+      },
+      "howItWorks": {
+        "title": "Ako aplikácia funguje",
+        "step1Title": "1. Dieťa vidí plán krok za krokom",
+        "step1Body": "Vizuálne rutiny robia bežný deň jasným a predvídateľným.",
+        "step2Title": "2. Dieťa získava hviezdy, keď sú aktivity hotové",
+        "step2Body": "Malé úspechy budujú motiváciu a samostatnosť.",
+        "step3Title": "3. Dospelí sledujú pokrok a rutiny stavajú spolu",
+        "step3Body": "Viac detí aj dospelých môže v aplikácii zdieľať jednu rodinu.",
+        "close": "Zavrieť"
+      },
+      "noscript": "Potrebuješ JavaScript — zapni ho, aby šlo prihlásenie."
+    },
+    "register": {
+      "title": "Vytvoriť účet",
+      "pageTitle": "Vytvoriť účet | {{brand}}",
+      "pageHeading": "Vytvor rodičovský účet",
+      "pageLead": "Vyskúšaj {{brand}} zadarmo. Vizuálny plán s obrázkovou podporou a hviezdami pomáha dieťaťu rozumieť dňu, držať rutinu a byť samostatnejšie.",
+      "pageLeadSecondary": "Pre rodiny, ktoré chcú jasnejšie rutiny, pokojnejšie prechody a menej dohovárok v bežnom dni.",
+      "subtitle": "Začni s {{brand}}",
+      "nameLabel": "Tvoje meno",
+      "namePlaceholder": "napr. Anna",
+      "familyNameLabel": "Názov rodiny",
+      "familyNamePlaceholder": "napr. rodina Kováčovcov",
+      "familyNameAuto": "Doplnené z tvojho mena",
+      "familyNameGenerated": "Doplnené automaticky — zmeň, ak chceš",
+      "familyNameEdited": "Upravené",
+      "email": "E-mailová adresa",
+      "emailPlaceholder": "you@email.com",
+      "emailHelp": "Sem pošleme overovací odkaz",
+      "password": "Heslo",
+      "passwordPlaceholder": "Aspoň 8 znakov",
+      "passwordHelp": "Musí mať aspoň 8 znakov",
+      "confirmPassword": "Potvrď heslo",
+      "confirmPasswordPlaceholder": "Zopakuj heslo",
+      "submit": "Vytvoriť účet",
+      "hasAccount": "Už máš účet?",
+      "loginLink": "Prihlás sa tu",
+      "childLoginLink": "Si dieťa? Prihlás sa tu",
+      "gateHintLanguage": "Vyber jazyk hore, aby registrácia pokračovala.",
+      "gateHintCountry": "Vyber krajinu hore, aby registrácia pokračovala.",
+      "appleFromLoginHint": "K tomuto Apple ID ešte nie je účet. Vyber krajinu a prijmi podmienky — meno a e-mail prídu z Apple. Ďalšie prihlásenie cez Apple netreba.",
+      "appleOnlyPath": "Účet vytvoríš cez Apple. Meno a e-mail prídu z Apple — formulár nevyplňuj.",
+      "tagline": "Pokojný deň, hviezda za hviezdou",
+      "orDivider": "alebo",
+      "continueWithApple": "Registrovať sa cez Apple",
+      "continueWithGoogle": "Registrovať sa cez Google",
+      "validatingInvite": "Overujem pozvánku...",
+      "inviteInvalid": "Odkaz na pozvánku je neplatný alebo expiroval. Ozvi sa tomu, kto ťa pozval.",
+      "inviteValidateFailed": "Odkaz na pozvánku sa nepodarilo overiť. Skús to znova.",
+      "familyNameSuffix": "rodina {{name}}",
+      "termsRequired": "Musíš prijať podmienky používania a zásady ochrany súkromia",
+      "success": "Účet je vytvorený! Pozri e-mail a účet over.",
+      "termsPrefix": "Mám prečítané a prijímam",
+      "termsLink": "Podmienky používania",
+      "termsAnd": "a",
+      "privacyLink": "Zásady ochrany súkromia",
+      "termsSuffix": ".",
+      "successTitle": "Účet je vytvorený! 🎉",
+      "successVerifyLine1": "Na tvoju e-mailovú adresu sme poslali overovací odkaz.",
+      "successVerifyLine2": "Pozri doručenú poštu (aj spam).",
+      "successGracePeriod": "Môžeš sa hneď prihlásiť a na overenie e-mailu máš 24 hodín.",
+      "successLoginBtn": "Prihlásiť sa",
+      "inviteErrorDefault": "Neplatný odkaz na pozvánku.",
+      "appleEmailExists": "Účet s touto e-mailovou adresou už existuje. Prihlás sa cez Apple, alebo použi e-mail a heslo.",
+      "webDownload": {
+        "title": "Získať aplikáciu",
+        "lead": "Nové rodiny si účet vytvárajú v aplikácii. Stiahni si ju z App Store alebo Google Play.",
+        "appStoreAria": "Stiahnuť v App Store",
+        "playStoreAria": "Získať na Google Play",
+        "hasAccount": "Už máš účet?",
+        "loginLink": "Prihlásiť sa"
+      }
+    },
+    "parentGate": {
+      "title": "Rodičovský zámok",
+      "hint": "Zadaj PIN a pokračuj",
+      "keypadAria": "Klávesnica PIN",
+      "cancel": "Zrušiť",
+      "forgotPinBackup": "Zabudnutý PIN? Prihlás sa e-mailom alebo cez Apple/Google",
+      "digitsEntered": "{{count}} zo 4 číslic",
+      "backspace": "Vymazať",
+      "confirm": "Potvrdiť",
+      "needFourDigits": "PIN musí mať 4 číslice"
+    },
+    "childLogin": {
+      "title": "Ahoj! 👋",
+      "pageTitle": "Objaviteľ hviezd — {{brand}}",
+      "whoAreYou": "Kto si?",
+      "selectProfile": "Vyber si profil a zadaj PIN.",
+      "back": "Späť",
+      "addChild": "Pridať dieťa",
+      "notMe": "Neviem sa nájsť",
+      "subtitle": "Napíš používateľské meno a PIN",
+      "username": "Používateľské meno",
+      "usernamePlaceholder": "Tvoje používateľské meno",
+      "pin": "PIN",
+      "pinPlaceholder": "4 číslice",
+      "submit": "Prihlásiť sa",
+      "parentLogin": "Si rodič?",
+      "parentLoginLink": "Prihlás sa tu",
+      "adultLogin": "Prihlásiť sa ako dospelý",
+      "adultLoginShort": "Dospelý",
+      "forgotPassword": "Zabudnuté heslo?",
+      "emptyNoChildren": "Zatiaľ nie sú zapísané žiadne deti.",
+      "nameHint": "Napíš svoje meno a prihlás sa",
+      "namePlaceholder": "Tvoje meno",
+      "continue": "Pokračovať →",
+      "switchChild": "Zmeniť dieťa",
+      "pinSub": "Zadaj svoj kód",
+      "attemptsLeft": "Zostáva pokusov",
+      "pinDotsAria": "Kód PIN",
+      "lockoutWait": "Chvíľu počkaj",
+      "lockoutSoon": "Čoskoro to môžeš skúsiť znova",
+      "welcome": "Vitaj!",
+      "redirecting": "Beriem ťa na tvoj prehľad…",
+      "keypadAria": "Číselná klávesnica",
+      "forgotPin": "Ak nevieš kód, opýtaj sa rodiča",
+      "needHelp": "Potrebuješ pomoc?",
+      "contactParent": "Ozvi sa rodičovi"
+    },
+    "verify": {
+      "title": "Over e-mail",
+      "pageTitle": "Overenie e-mailu — {{brand}}",
+      "checkingTitle": "Overujem e-mail",
+      "checkingBody": "Počkaj, kým potvrdíme tvoju e-mailovú adresu...",
+      "checking": "Kontrolujem...",
+      "success": "E-mail je overený! Teraz sa môžeš prihlásiť.",
+      "successTitle": "E-mail overený!",
+      "welcomeMessage": "E-mailová adresa je overená. Vitaj v {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Presmerovanie o",
+      "redirectCountdownSuffix": "sekúnd...",
+      "error": "Overovací odkaz je neplatný alebo expiroval.",
+      "errorTitle": "Overenie zlyhalo",
+      "verifyFailed": "Overenie zlyhalo. Odkaz mohol expirovať.",
+      "noToken": "V odkaze sa nenašiel overovací token.",
+      "genericError": "Niečo sa pokazilo. Skús to znova.",
+      "resendPrompt": "Zadaj e-mailovú adresu a pošleme nový overovací odkaz:",
+      "resendBtn": "Poslať nový odkaz",
+      "resendSending": "Odosielam...",
+      "resendRateLimit": "Niekoľko odkazov už odišlo. Skús to znova o hodinu.",
+      "resendSuccess": "✅ Ak účet existuje, poslali sme nový overovací odkaz. Pozri doručenú poštu aj spam!",
+      "resendEmailInvalid": "Zadaj platnú e-mailovú adresu.",
+      "needHelpPrefix": "Potrebuješ pomoc? Pozri spam alebo",
+      "contactUs": "napíš nám",
+      "loginLink": "Prejsť na prihlásenie"
+    },
+    "forgotPassword": {
+      "title": "Zabudnuté heslo",
+      "pageTitle": "Zabudnuté heslo — {{brand}}",
+      "heading": "Zabudnuté heslo?",
+      "lead": "Žiadny problém! Pošleme ti odkaz na nastavenie nového hesla.",
+      "subtitle": "Zadaj e-mailovú adresu a pošleme ti odkaz na obnovenie",
+      "email": "E-mailová adresa",
+      "emailPlaceholder": "you@email.com",
+      "emailHint": "Pošleme bezpečný odkaz na nastavenie nového hesla",
+      "submit": "Poslať odkaz na obnovenie",
+      "sent": "Ak je táto e-mailová adresa u nás, poslali sme odkaz na obnovenie.",
+      "successTitle": "Pozri si e-mail!",
+      "successBody": "Poslali sme odkaz na nastavenie nového hesla. Pozri doručenú poštu aj spam.",
+      "orDivider": "alebo",
+      "rememberPassword": "Pamätáš si heslo?",
+      "backToLogin": "Späť na prihlásenie",
+      "helpTitle": "Neprišiel e-mail?",
+      "helpItem1": "Pozri priečinok spam alebo nevyžiadaná pošta",
+      "helpItem2": "Skontroluj, či je e-mailová adresa správna",
+      "helpItem3": "Skús to znova o pár minút",
+      "helpItem4Suffix": "ak potrebuješ pomoc",
+      "contactSupport": "Kontaktovať podporu"
+    },
+    "resetPassword": {
+      "title": "Obnoviť heslo",
+      "pageTitle": "Obnovenie hesla — {{brand}}",
+      "subtitle": "Vyber nové heslo",
+      "password": "Nové heslo",
+      "passwordPlaceholder": "Aspoň 8 znakov",
+      "passwordHelp": "Musí mať aspoň 8 znakov",
+      "confirmPassword": "Potvrď heslo",
+      "confirmPasswordPlaceholder": "Zopakuj heslo",
+      "submit": "Obnoviť heslo",
+      "submitting": "Ukladám…",
+      "success": "Heslo je zmenené! Teraz sa môžeš prihlásiť.",
+      "successRedirect": "Hotovo! Nové heslo je uložené.",
+      "alreadyUsed": "Heslo už bolo zmenené. Prihlás sa novým heslom.",
+      "error": "Odkaz na obnovenie je neplatný alebo expiroval.",
+      "invalidLink": "Neplatný odkaz na obnovenie.",
+      "requestNewLink": "Požiadať o nový odkaz na obnovenie",
+      "requestNewLinkShort": "Požiadať o nový odkaz",
+      "resetFailed": "Heslo sa nepodarilo obnoviť",
+      "rememberPassword": "Pamätáš si heslo?",
+      "goToLoginInline": "Prejsť na prihlásenie",
+      "loginLink": "Prejsť na prihlásenie"
+    },
+    "supportBubble": {
+      "closeAria": "Zavrieť",
+      "triggerAria": "Kontaktovať podporu",
+      "title": "Potrebuješ pomoc? 💬",
+      "subtitle": "Odpovieme, hneď ako budeme môcť",
+      "oooSubtitle": "Sme preč 1.–10. septembra",
+      "success": "Ďakujeme! Správu máme a čoskoro sa ozveme.",
+      "oooSuccess": "Ďakujeme! Správu máme. Sme preč 1.–10. septembra a ozveme sa, hneď ako budeme môcť, najneskôr 11. septembra.",
+      "openThread": "Otvoriť konverzáciu",
+      "nameLabel": "Meno",
+      "namePlaceholder": "Tvoje meno",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Aby sme ti vedeli odpovedať",
+      "messageLabel": "Správa",
+      "messagePlaceholder": "Opíš, čo sa deje...",
+      "submit": "Odoslať správu",
+      "fillAllFields": "Vyplň všetky polia",
+      "messageMinLength": "Správa musí mať aspoň 10 znakov",
+      "submitting": "Odosielam...",
+      "sendFailed": "Správu sa nepodarilo odoslať. Skús znova.",
+      "genericError": "Niečo sa pokazilo"
+    },
+    "contactForm": {
+      "fillRequired": "Všetky polia sú povinné.",
+      "emailInvalid": "Zadaj platnú e-mailovú adresu.",
+      "messageTooShort": "Správa je príliš krátka (aspoň 5 znakov).",
+      "submitting": "Odosielam…",
+      "submit": "Odoslať",
+      "genericError": "Niečo sa pokazilo. Skús znova.",
+      "openThread": "Otvoriť konverzáciu"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "E-mail a heslo sú povinné",
+        "emailRequired": "E-mailová adresa je povinná",
+        "accountBlocked": "Účet je zablokovaný. Ozvi sa správcovi.",
+        "emailVerificationRequired": "Ak chceš pokračovať, musíš overiť e-mailovú adresu",
+        "verificationTokenRequired": "Overovací token je povinný",
+        "invalidVerificationLink": "Neplatný alebo expirovaný overovací odkaz",
+        "resendVerificationRateLimit": "Niekoľko overovacích odkazov už odišlo. Skús to znova o hodinu.",
+        "tokenAndPasswordRequired": "Token a heslo sú povinné",
+        "invalidResetLink": "Neplatný alebo expirovaný odkaz na obnovenie. Požiadaj o nový.",
+        "parentOnlyViewMode": "Režim zobrazenia môžu meniť len rodičia",
+        "parentOnlyUiViewMode": "Režim zobrazenia rozhrania môžu meniť len rodičia",
+        "parentOnlyTheme": "Vzhľad môžu meniť len rodičia",
+        "preferencesSaveFailed": "Nastavenia sa nepodarilo uložiť",
+        "uiViewModeSaveFailed": "Režim zobrazenia sa nepodarilo uložiť",
+        "themeSaveFailed": "Vzhľad sa nepodarilo uložiť",
+        "userNotFound": "Používateľ sa nenašiel",
+        "unknownUserType": "Neznámy typ používateľa",
+        "registrationClosed": "Registrácia je momentálne zatvorená",
+        "invalidCountry": "Neplatná krajina",
+        "countryRequired": "Pred vytvorením účtu vyber krajinu",
+        "registrationRequired": "ZASTARANÉ — použi appleAccountCompletionRequired. Nepresmerúvaj na registráciu e-mailom a heslom.",
+        "appleAccountCompletionRequired": "Vyber krajinu a prijmi podmienky, aby sa účet dokončil. Meno a e-mail prídu z Apple.",
+        "familyNameRequired": "Na vytvorenie rodinného účtu treba meno",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registrácia zo Švédska je dočasne zatvorená.",
+          "MARKET_IE_CLOSED": "{{brand}} zatiaľ nie je dostupné v Írsku.",
+          "MARKET_CA_CLOSED": "{{brand}} zatiaľ nie je dostupné v Kanade.",
+          "MARKET_FI_CLOSED": "{{brand}} zatiaľ nie je dostupné vo Fínsku.",
+          "MARKET_NO_CLOSED": "{{brand}} zatiaľ nie je dostupné v Nórsku.",
+          "MARKET_DK_CLOSED": "{{brand}} zatiaľ nie je dostupné v Dánsku.",
+          "MARKET_EU_CLOSED": "{{brand}} zatiaľ nie je dostupné v tvojej krajine. Dáme vedieť, keď otvoríme ďalšie krajiny EÚ.",
+          "MARKET_UK_CLOSED": "{{brand}} zatiaľ nie je dostupné v Spojenom kráľovstve.",
+          "MARKET_US_CLOSED": "{{brand}} zatiaľ nie je dostupné v Spojených štátoch.",
+          "MARKET_OTHER_CLOSED": "{{brand}} zatiaľ nie je dostupné v tvojej krajine.",
+          "MARKET_BILLING_NOT_READY": "Nákupy v tejto krajine ešte nie sú dostupné, takže účet, ktorý by sa nedal použiť, teraz nevytvoríme."
+        }
+      },
+      "success": {
+        "emailVerified": "E-mailová adresa je overená! Teraz sa môžeš prihlásiť.",
+        "resendVerification": "Ak účet existuje, pošleme nový overovací odkaz",
+        "forgotPassword": "Ak e-mailová adresa existuje, pošleme odkaz"
+      }
+    },
+    "errors": {
+      "nameRequired": "Zadaj svoje meno",
+      "emailRequired": "E-mailová adresa je povinná",
+      "emailInvalid": "Neplatná e-mailová adresa",
+      "passwordRequired": "Heslo je povinné",
+      "passwordTooShort": "Heslo musí mať aspoň 8 znakov",
+      "passwordMismatch": "Heslá sa nezhodujú",
+      "usernameRequired": "Používateľské meno je povinné",
+      "pinRequired": "PIN je povinný",
+      "pinInvalid": "PIN musí mať 4 číslice",
+      "invalidCredentials": "Nesprávny e-mail alebo heslo",
+      "accountLocked": "Účet je dočasne zamknutý. Skús to znova o 15 minút.",
+      "emailNotVerified": "Najprv musíš overiť e-mailovú adresu",
+      "emailExists": "Účet s touto e-mailovou adresou už existuje",
+      "tooManyAttempts": "Priveľa pokusov. Chvíľu počkaj a skús znova.",
+      "serverError": "Niečo sa pokazilo. Skús to neskôr znova.",
+      "invalidValues": "Neplatné hodnoty",
+      "invalidParams": "Neplatné parametre adresy",
+      "invalidQuery": "Neplatné parametre dopytu",
+      "parentPinInvalid": "Nesprávny PIN — skús znova",
+      "logoutFailed": "Odhlásenie zlyhalo. Skús to znova.",
+      "logoutRateLimited": "Priveľa pokusov. Chvíľu počkaj a skús znova.",
+      "handoffInvalid": "Dospelú reláciu sa nepodarilo obnoviť. Prihlás sa ako rodič.",
+      "userNotFound": "Používateľ sa nenašiel",
+      "invalidPassword": "Nesprávne heslo",
+      "tokenRequired": "Token je povinný",
+      "idTokenRequired": "idToken je povinný",
+      "allFieldsRequired": "Všetky polia sú povinné",
+      "messageTooShort": "Správa musí mať aspoň 10 znakov",
+      "serviceUnavailable": "Služba je dočasne nedostupná",
+      "nameTooShort": "Meno je povinné (aspoň 2 znaky)",
+      "roleRequired": "Rola je povinná",
+      "consentRequired": "Musíš súhlasiť s tým, že údaje uložíme",
+      "refreshInvalid": "Obnovovací token je neplatný alebo expiroval",
+      "authRequired": "Treba prihlásenie",
+      "passwordTooShort6": "Heslo musí mať aspoň 6 znakov"
+    }
+  },
+  "surveys": {
+    "thankYou": "Ďakujeme za odpoveď!",
+    "errors": {
+      "unavailable": "Anketa teraz nie je dostupná",
+      "notFound": "Anketa sa nenašla",
+      "closed": "Anketa je zatvorená",
+      "paused": "Anketa je pozastavená",
+      "alreadyAnswered": "Túto anketu už máš vyplnenú",
+      "alreadySubmitted": "Anketa už bola odoslaná",
+      "questionIdRequired": "Otázka je povinná",
+      "invalidQuestion": "Neplatná otázka",
+      "maxSelections": "Môžeš vybrať najviac {{max}}",
+      "invalidOption": "Neplatná možnosť odpovede",
+      "sessionNotFound": "Relácia sa nenašla",
+      "answerFirst": "Najprv odpovedz na anketu",
+      "contestNotOpen": "Súťaž nie je otvorená",
+      "contestClosed": "Súťaž je zatvorená",
+      "ageRequired": "Do súťaže môžeš vstúpiť od 18 rokov",
+      "contestConsent": "Na vstup do súťaže treba súhlas",
+      "contestAlready": "V súťaži už si",
+      "emailAlready": "Táto adresa už je prihlásená",
+      "idActionRequired": "Anketa a akcia sú povinné"
+    }
+  },
+  "dashboard": {
+    "welcome": "Vitaj, {{name}}!",
+    "todaySchedule": "Dnešný plán",
+    "children": "Deti",
+    "addChild": "Pridať dieťa",
+    "settings": "Nastavenia",
+    "noChildren": "Zatiaľ tu nie sú žiadne deti. Začni prvým dieťaťom!",
+    "stars": "Hviezdy",
+    "streak": "Séria"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Moja prvá hviezda"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Ahoj, {{name}}! ⭐",
+    "today": "Dnes",
+    "now": "Teraz",
+    "next": "Potom",
+    "later": "Neskôr",
+    "done": "Hotovo!",
+    "stars": "Moje hviezdy",
+    "rewards": "Odmeny"
+  },
+  "sections": {
+    "morgon": "Ráno",
+    "dag": "Deň",
+    "kvall": "Večer",
+    "natt": "Noc"
+  },
+  "settings": {
+    "title": "Nastavenia",
+    "family": {
+      "title": "Nastavenia rodiny",
+      "timeDisplayMode": "Spôsob zobrazenia času",
+      "morningStart": "Začiatok rána",
+      "morningEnd": "Koniec rána",
+      "dayStart": "Začiatok dňa",
+      "dayEnd": "Koniec dňa",
+      "eveningStart": "Začiatok večera",
+      "eveningEnd": "Koniec večera",
+      "nightStart": "Začiatok noci",
+      "nightEnd": "Koniec noci",
+      "streakStartDay": "Deň začiatku série",
+      "soundEnabled": "Zvuk zapnutý",
+      "save": "Uložiť nastavenia rodiny"
+    },
+    "language": {
+      "description": "Vyber jazyk aplikácie.",
+      "switchBack": "Späť na švédčinu"
+    },
+    "invite": {
+      "title": "Pozvať rodiča",
+      "description": "Pozvi ďalšieho rodiča, aby videl plány detí a mohol ich viesť. Pozvánka platí 7 dní.",
+      "email": "E-mailová adresa",
+      "emailPlaceholder": "rodic@email.com",
+      "selectChildren": "Vyber, ku ktorým deťom má pozvaný rodič prístup:",
+      "submit": "Poslať pozvánku",
+      "pending": "Čakajúce pozvánky:"
+    },
+    "password": {
+      "title": "Zmeniť heslo",
+      "current": "Súčasné heslo",
+      "new": "Nové heslo",
+      "confirm": "Potvrď nové heslo",
+      "submit": "Zmeniť heslo",
+      "mismatch": "Heslá sa nezhodujú"
+    },
+    "notifications": {
+      "title": "Nastavenia upozornení",
+      "weeklySummary": "Týždenný súhrn (nedeľa 21:00)",
+      "rewardRedemption": "Výmena odmeny",
+      "emailEnabled": "Všetky e-maily naraz",
+      "save": "Uložiť nastavenia upozornení"
+    },
+    "theme": {
+      "title": "Vzhľad",
+      "darkMode": "Tmavý režim",
+      "darkModeDescription": "Zapni tmavý vzhľad, keď je menej svetla",
+      "colorBlind": "Vzhľad pre farbosleposť",
+      "colorBlindDescription": "Upraví farby pre rôzne typy farbosleposti",
+      "colorBlindNone": "Žiadna (predvolené)",
+      "colorBlindProtanopia": "Protanopia (červená)",
+      "colorBlindDeuteranopia": "Deuteranopia (zelená)",
+      "colorBlindTritanopia": "Tritanopia (modrá)"
+    },
+    "trustedDevices": {
+      "title": "Dôveryhodné zariadenia",
+      "description": "Detské zariadenia otvoria detský pohľad bez PIN, keď ich tu schváliš.",
+      "disabled": "Režim detského zariadenia pre tvoju rodinu ešte nie je zapnutý.",
+      "enrollHint": "Na tablete alebo telefóne dieťaťa: vyber dieťa a urob z tohto zariadenia jeho detské zariadenie.",
+      "enrollThisDevice": "Urobiť detské zariadenie",
+      "enrollSharedDevice": "Urobiť spoločné rodinné zariadenie",
+      "enrollFailed": "Toto zariadenie sa nepodarilo zaregistrovať. Skús znova.",
+      "empty": "Nie sú zaregistrované žiadne dôveryhodné zariadenia.",
+      "revoke": "Odvolať",
+      "revokeAll": "Odvolať všetky zariadenia",
+      "revokeAllConfirm": "Všetky dôveryhodné zariadenia sa odhlásia. Pokračovať?",
+      "modeChild": "Detské zariadenie",
+      "modeShared": "Spoločné zariadenie",
+      "modeParent": "Rodičovské zariadenie",
+      "unknownChild": "Dieťa"
+    },
+    "thisDevice": {
+      "title": "Toto zariadenie",
+      "description": "Ako má tento telefón alebo tablet otvárať aplikáciu pre tvoju rodinu.",
+      "setupTitle": "Ako sa toto zariadenie bude používať?",
+      "setupLead": "Neskôr to môžeš zmeniť v Nastaveniach.",
+      "setupLater": "Teraz nie",
+      "openSettings": "Otvoriť nastavenia",
+      "usageHeading": "Použitie",
+      "usageParent": "Môj rodičovský telefón",
+      "usageShared": "Spoločne s deťmi",
+      "usageChild": "Zariadenie dieťaťa",
+      "startHeading": "Spúšťa sa ako",
+      "startParent": "Rodič",
+      "startChoose": "Vybrať dieťa",
+      "startParentFixed": "Toto zariadenie vždy otvorí pohľad rodiča.",
+      "startChildFixed": "Toto zariadenie je prepojené s jedným dieťaťom.",
+      "childrenHeading": "Deti na tomto zariadení",
+      "adultAccessHeading": "Prístup dospelého",
+      "adultPinSet": "PIN je nastavený",
+      "adultPinMissing": "Nastav PIN v Nastaveniach",
+      "biometricIos": "Face ID alebo Touch ID, keď sú dostupné",
+      "biometricAndroid": "Biometria alebo zámok zariadenia, keď sú dostupné",
+      "biometricWeb": "PIN pre režim dospelého",
+      "widgetsHeading": "Widgety",
+      "widgetsLinked": "Widgety na ploche sú prepojené s plánom dieťaťa.",
+      "widgetsNone": "Na tomto zariadení nie sú prepojené žiadne widgety.",
+      "changeStartHeading": "Zmeniť režim štartu",
+      "revokeThis": "Odobrať prístup tomuto zariadeniu",
+      "revokeConfirm": "Toto zariadenie treba znova schváliť, aby deti otvorili aplikáciu bez PIN. Pokračovať?",
+      "otherDevices": "Ďalšie zariadenia rodiny",
+      "openForChild": "Otvoriť priamo pre {{name}}",
+      "saveFailed": "Nepodarilo sa uložiť. Skús znova."
+    }
+  },
+  "common": {
+    "loading": "Načítava sa...",
+    "save": "Uložiť",
+    "cancel": "Zrušiť",
+    "delete": "Vymazať",
+    "edit": "Upraviť",
+    "back": "Späť",
+    "confirm": "Potvrdiť",
+    "yes": "Áno",
+    "no": "Nie",
+    "networkError": "Chyba siete"
+  },
+  "categories": {
+    "title": "Kategórie",
+    "subtitle": "Roztrieď aktivity do kategórií",
+    "addCategory": "Pridať kategóriu",
+    "editCategory": "Upraviť kategóriu",
+    "categoryName": "Názov kategórie",
+    "categoryNamePlaceholder": "napr. Hygiena",
+    "noCategories": "Zatiaľ žiadne kategórie",
+    "defaultBadge": "Predvolená",
+    "deleteConfirm": "Naozaj chceš vymazať túto kategóriu?",
+    "hasActivities": "K tejto kategórii sú pripojené aktivity. Najprv ich odober.",
+    "saved": "Kategória uložená",
+    "deleted": "Kategória vymazaná"
+  },
+  "activities": {
+    "title": "Aktivity",
+    "subtitle": "Vytváraj a spravuj šablóny aktivít pre rodinu",
+    "addActivity": "Pridať aktivitu",
+    "editActivity": "Upraviť aktivitu",
+    "activityName": "Názov aktivity",
+    "activityNamePlaceholder": "napr. Vyčisti si zuby",
+    "icon": "Ikona",
+    "category": "Kategória",
+    "noCategory": "Bez kategórie",
+    "starValue": "Hodnota v hviezdach",
+    "starValueHelp": "Koľko hviezd dieťa získa",
+    "favorite": "Označiť ako obľúbenú",
+    "favoriteHelp": "Obľúbené sa v pláne ukážu prvé",
+    "noActivities": "Zatiaľ žiadne aktivity. Vytvor prvú!",
+    "filterAll": "Všetky",
+    "favoritesFirst": "Obľúbené sú prvé",
+    "saved": "Aktivita uložená",
+    "deleted": "Aktivita vymazaná",
+    "deleteConfirm": "Naozaj chceš vymazať túto aktivitu?",
+    "usedInSchedule": "Táto aktivita je v pláne. Najprv ju odtiaľ odober."
+  },
+  "schedule": {
+    "title": "Týždenný plán",
+    "subtitle": "Zostav plán pre každé dieťa a každý deň",
+    "selectChild": "Vybrať dieťa",
+    "selectDay": "Vybrať deň",
+    "noChild": "Vyber dieťa hore a uvidíš plán",
+    "noScheduleForDay": "Na tento deň nie je plán",
+    "createSchedule": "Vytvoriť plán na tento deň",
+    "addActivity": "Pridať aktivitu",
+    "startTime": "Čas začiatku",
+    "endTime": "Čas konca",
+    "section": "Časť",
+    "copyDay": "Kopírovať deň",
+    "copyDayTitle": "Skopírovať plán na iné dni",
+    "copyFromDay": "Kopírovať z",
+    "copyToDays": "Kopírovať na (vyber jeden alebo viac)",
+    "copyToChild": "Kopírovať inému dieťaťu",
+    "copyToChildTitle": "Skopírovať celý týždenný plán na",
+    "copyConfirm": "Kopírovať",
+    "copied": "Plán skopírovaný!",
+    "deleteSchedule": "Vymazať deň",
+    "deleteConfirm": "Naozaj? Všetky aktivity tohto dňa sa odoberú.",
+    "deleted": "Plán vymazaný",
+    "activityAdded": "Aktivita pridaná",
+    "activityRemoved": "Aktivita odobraná",
+    "reordered": "Poradie upravené",
+    "days": {
+      "0": "Nedeľa",
+      "1": "Pondelok",
+      "2": "Utorok",
+      "3": "Streda",
+      "4": "Štvrtok",
+      "5": "Piatok",
+      "6": "Sobota"
+    },
+    "daysShort": {
+      "0": "Ne",
+      "1": "Po",
+      "2": "Ut",
+      "3": "St",
+      "4": "Št",
+      "5": "Pi",
+      "6": "So"
+    },
+    "sections": {
+      "morgon": "Ráno",
+      "dag": "Deň",
+      "kvall": "Večer",
+      "natt": "Noc"
+    }
+  },
+  "dailyLog": {
+    "title": "Denný záznam",
+    "subtitle": "Aktivity na deň",
+    "today": "Dnes",
+    "prevDay": "Predchádzajúci deň",
+    "nextDay": "Ďalší deň",
+    "selectDate": "Vybrať dátum",
+    "selectChild": "Vybrať dieťa",
+    "noChild": "Vyber dieťa hore a uvidíš záznam",
+    "noSchedule": "Na tento deň nie je plán",
+    "noScheduleHint": "Pridaj týždenný plán, aby sa denné záznamy tvorili samy.",
+    "loading": "Načítava sa záznam...",
+    "paused": "Pozastavený deň",
+    "pausedHint": "Tento deň je pozastavený (napr. choroba alebo voľno).",
+    "pauseDay": "Pozastaviť deň",
+    "unpauseDay": "Znova zapnúť deň",
+    "pauseConfirm": "Pozastaviť tento deň? Aktivity sa nepočítajú proti tebe.",
+    "dayPaused": "Deň pozastavený",
+    "dayUnpaused": "Deň znova zapnutý",
+    "markDone": "Označiť ako hotové",
+    "markUndone": "Späť",
+    "completed": "Hotové",
+    "notCompleted": "Nie je hotové",
+    "completedAt": "Označené ako hotové o",
+    "stars": "hviezdy",
+    "star": "hviezda",
+    "progress": "{{completed}} z {{total}} aktivít hotových",
+    "allDone": "Všetky aktivity hotové! 🎉",
+    "emptySection": "V tejto časti nie sú aktivity",
+    "history": "História",
+    "historyRange": "Vybrať rozsah dátumov",
+    "historyFrom": "Od",
+    "historyTo": "Do",
+    "historyFetch": "Načítať históriu",
+    "historyEmpty": "Vo zvolenom rozsahu nie sú záznamy",
+    "sections": {
+      "morgon": "Ráno",
+      "dag": "Deň",
+      "kvall": "Večer",
+      "natt": "Noc"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Over e-mail — {{brand}}",
+      "title": "Vitaj v {{brand}}! ⭐",
+      "body": "Klepni na tlačidlo nižšie a over e-mailovú adresu:",
+      "button": "Overiť e-mail",
+      "expiry": "Tento odkaz platí {{hours}} hodín."
+    },
+    "resetPassword": {
+      "subject": "Obnovenie hesla — {{brand}}",
+      "title": "Nastav nové heslo",
+      "greeting": "Ahoj {{name}}",
+      "greetingGeneric": "Ahoj",
+      "body": "klepni sem a nastav nové heslo:",
+      "button": "Obnoviť heslo",
+      "expiry": "Tento odkaz platí {{hours}} hodinu. Ak si o obnovenie nežiadal, e-mail ignoruj."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} sa snaží prihlásiť",
+      "title": "Pokus o prihlásenie v {{brand}}",
+      "body": "{{childName}} zadal nesprávny PIN 3-krát v {{brand}}.",
+      "inApp": "{{childName}} skúšal prihlásenie nesprávnym PIN 3-krát ({{time}})",
+      "help": "Môžeš pomôcť správnym kódom alebo PIN obnoviť v aplikácii.",
+      "button": "Otvoriť {{brand}}",
+      "footer": "Ak to nebolo tvoje dieťa, prihlás sa a zmeň PIN v nastaveniach dieťaťa."
+    },
+    "accountDeletionRequested": {
+      "subject": "Účet {{brand}} je označený na vymazanie",
+      "greeting": "Ahoj {{name}}!",
+      "intro": "Dostali sme žiadosť o vymazanie tvojho účtu a všetkých súvisiacich údajov.",
+      "graceTitle": "⏳ Údaje sa natrvalo vymažú o 30 dní.",
+      "undo": "Dovtedy sa môžeš prihlásiť a <strong>zrušiť vymazanie</strong>, ak si to rozmyslíš.",
+      "loginHint": "Ak si to rozmyslíš — prihlás sa do {{brand}} a uvidíš možnosť zrušiť to.",
+      "footer": "Ak to bola chyba, tento e-mail môžeš ignorovať. Údaje sa vymažú o 30 dní, kým to nezrušíš.",
+      "contact": "Ak máš otázky, napíš nám na {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Účet {{brand}} je vymazaný",
+      "greeting": "Ahoj {{name}}",
+      "intro": "Tvoj účet a všetky súvisiace údaje sú z {{brand}} natrvalo vymazané.",
+      "dataRemoved": "Všetky rodiny, deti, plány, aktivity a hviezdy sú odobrané.",
+      "thanks": "Dúfame, že {{brand}} pomáhalo, kým si ho používal.",
+      "return": "Ak chceš nový účet, kedykoľvek sa môžeš vrátiť na {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Nechaj dieťa vyskúšať prvý krok ⭐",
+      "greeting": "Ahoj {{name}}!",
+      "body": "Plán je pripravený. Ďalej nechaj dieťa prihlásiť sa PIN-om — trvá to menej ako minútu.",
+      "button": "Pokračovať na prihlásenie dieťaťa"
+    },
+    "welcomeShell": {
+      "headerTitle": "Vitaj! 🌟",
+      "cta": "Otvoriť {{brand}} ⭐",
+      "footerIntro": "Tento e-mail dostávaš, lebo si sa nedávno zaregistroval do {{brand}}.",
+      "unsubscribe": "Odhlásiť odber"
+    },
+    "common": {
+      "genericParent": "Rodič",
+      "genericInviter": "Niekto",
+      "genericPedagogInviter": "Rodič",
+      "genericChild": "tvoje dieťa",
+      "genericReward": "odmena",
+      "genericYou": "ty",
+      "greetingNamed": "Ahoj {{name}}",
+      "greeting": "Ahoj",
+      "familyNamed": "rodina „{{familyName}}“",
+      "aFamily": "rodina",
+      "settingsNotifications": "Nastavenia → Upozornenia",
+      "settingsNotificationsHtml": "Nastavenia → <strong>Upozornenia</strong>"
+    },
+    "invite": {
+      "subject": "Máš pozvánku do {{familyLabel}} v {{brand}} ⭐",
+      "title": "Máš pozvánku! ⭐",
+      "body": "{{greeting}}, {{inviterName}} ťa pozýva do {{familyLabel}} v {{brand}}.",
+      "intro": "{{brand}} je vizuálny denný plán, ktorý deťom pomáha rozumieť dňu, odškrtávať aktivity a zbierať hviezdy.",
+      "ctaIntro": "Klepni sem, vytvor heslo a aktivuj účet:",
+      "button": "Aktivovať účet",
+      "footer": "Pozvánka platí 7 dní. Ak si ju nečakal, e-mail ignoruj."
+    },
+    "pedagogInvite": {
+      "subject": "Máš pozvánku ako pedagóg v {{familyName}} ⭐",
+      "title": "Vitaj ako pedagóg! ⭐",
+      "greetingNamed": "Ahoj {{name}},",
+      "greeting": "Ahoj,",
+      "body": "{{inviterName}} ťa pozýva ako pedagóga do {{familyName}} v {{brand}}.",
+      "intro": "Ako pedagóg môžeš zapisovať pozorovania a sledovať plán dieťaťa.",
+      "button": "Prijať pozvánku →",
+      "footer": "Pozvánka platí 7 dní. Ak si tento e-mail nečakal, môžeš ho ignorovať."
+    },
+    "winBack": {
+      "subject": "Vráť sa do rytmu za minútu ⭐",
+      "greeting": "Ahoj {{name}}! 👋",
+      "body1": "Plán dieťaťa {{childName}} je stále tu — otvor dnešné aktivity a odškrtni ich spolu.",
+      "body2": "Na rozbeh stačí minúta.",
+      "button": "Otvoriť plán →",
+      "settingsHint": "Tieto e-maily vypneš cez {{settingsLink}} v aplikácii.",
+      "settingsLinkText": "Nastavenia → Upozornenia"
+    },
+    "activationProgramInvite": {
+      "subject": "Jemný štart rutín pre {{childName}}?",
+      "greeting": "Ahoj {{name}}!",
+      "body1": "Účet je vytvorený a plán pre {{childName}} je nastavený — výborne.",
+      "body2": "Mnoho rodín hovorí, že najťažšie nie je začať, ale <strong>udržať rutinu</strong>, keď bežný deň prevezme vedenie.",
+      "body3": "Teraz môžeš vyskúšať náš <strong>7-dňový program na začiatok</strong>: krátke denné kroky, ktoré ti ako rodičovi pomôžu udržať tempo. Plán dieťaťa ostáva rovnaký.",
+      "button": "Áno, pomôžte nám prvý týždeň",
+      "footer": "Ak sprievodcu nechceš, aplikácia funguje ako doteraz — všetko, čo si nastavil, ostáva."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutina čaká — vyskúšajte ju spolu dnes večer ⭐",
+        "greeting": "Ahoj {{name}}!",
+        "body1": "Plán už máš. Zostáva <strong>vyskúšať rutinu spolu</strong> — nechaj dieťa prihlásiť sa a získať prvú hviezdu.",
+        "body2": "Trvá to asi dve minúty. Bez tlaku.",
+        "button": "Otvoriť Domov →"
+      },
+      "noSchema": {
+        "subject": "Začni s rutinou — stačí pár minút ⭐",
+        "greeting": "Ahoj {{name}}!",
+        "body1": "Registrácia je hotová — dobrý začiatok! Ďalší krok je <strong>nastaviť plán</strong>, aby dieťa vedelo, čo ho v dni čaká.",
+        "body2": "Trvá to asi päť minút. Všetko, čo už je hotové, ostáva, ak budeš chcieť pokračovať neskôr.",
+        "button": "Pokračovať v úvode →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Si prihlásený na novinky z {{brand}}",
+      "title": "Ďakujeme za odber! ⭐",
+      "greetingNamed": "Ahoj {{name}},",
+      "greeting": "Ahoj,",
+      "body": "Teraz dostávaš novinky z {{brand}}: tipy, správy a novinky v aplikácii.",
+      "settings": "Odber zrušíš kedykoľvek v časti <a href=\"{{settingsUrl}}\">Nastavenia</a> v aplikácii, alebo odkazom dole v každom newslettri.",
+      "signoff": "S pozdravom,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} chce vymeniť „{{rewardName}}“ ⭐",
+      "title": "Odmena čaká na schválenie! 🎁",
+      "greeting": "Ahoj {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> chce vymeniť:",
+      "cost": "Cena: {{starCost}} hviezd",
+      "approveHint": "Prihlás sa do aplikácie a výmenu schváľ alebo odmietni.",
+      "settingsHint": "Tieto upozornenia vypneš cez {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mesiac",
+      "howTitle": "Ako to funguje:",
+      "how1": "Vytvor plány a aktivity pre dieťa",
+      "how2": "Nechaj dieťa zbierať hviezdy každý deň",
+      "how3": "Nastav odmeny v pokladnici",
+      "footerIntro": "Tento e-mail dostávaš, lebo si sa nedávno zaregistroval do {{brand}}.",
+      "openApp": "Otvoriť aplikáciu",
+      "trial": {
+        "subject": "Vitaj v {{brand}} – bezplatné obdobie sa začalo!",
+        "headerTitle": "Bezplatné obdobie sa začalo! ⭐",
+        "intro": "Vitaj! Máš <strong>{{trialDays}} dní zadarmo</strong> a môžeš vyskúšať všetko v {{brand}} — bez karty.",
+        "pricing": "Po uplynutí {{trialDays}} dní to stojí <strong>{{monthlyPrice}}</strong> — predplatné môžeš zapnúť, kedy chceš.",
+        "pricingOpen": "Po uplynutí {{trialDays}} dní si vyberieš, či pokračuješ predplatným.",
+        "cta": "Vyskúšať Premium ⭐",
+        "ctaHint": "Bez záväzku — zrušíš, kedy chceš"
+      },
+      "complimentary": {
+        "subject": "Vitaj v {{brand}} – zadarmo do {{freeUntil}}",
+        "headerTitle": "Zadarmo do {{freeUntil}}",
+        "intro": "Vitaj! <strong>{{brand}} je zadarmo do {{freeUntil}}.</strong> Predplatné ani platobná metóda netreba. Táto ponuka sa sama nezmení na platené predplatné.",
+        "pricing": "Od {{paidFrom}} si môžeš vybrať, či pokračuješ predplatným. Kvôli tejto ponuke sa nič nestrháva samo.",
+        "cta": "Otvoriť aplikáciu",
+        "ctaHint": "Karta netreba. Táto ponuka sa sama nezmení na predplatné."
+      },
+      "introYear": {
+        "subject": "Vitaj v {{brand}}",
+        "headerTitle": "Vitaj! ⭐",
+        "intro": "Vitaj! Môžeš používať funkcie v {{brand}}.",
+        "pricing": "Za toto obdobie sa neplatí.",
+        "cta": "Otvoriť aplikáciu",
+        "ctaHint": "Na Premium sa môžeš pozrieť, kedy chceš"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Týždenný súhrn ⭐ — {{weekLabel}}",
+      "greeting": "Ahoj {{name}}! 👋",
+      "intro": "Tu je týždenný súhrn za <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} má tento týždeň {{stars}} hviezd!",
+      "sharePrompt": "Poznáš ďalšieho rodiča, ktorému by sa to páčilo?",
+      "shareWhatsApp": "Zdieľať na WhatsApp",
+      "shareFriend": "Povedať kamarátovi",
+      "shareTextWithHighlight": "{{highlight}} Používame {{brand}} na rutiny detí – pozri:",
+      "shareTextGeneric": "Používame {{brand}} na denné rutiny detí – pozri:",
+      "starsEarned": "Získané hviezdy",
+      "routinesCompleted": "Dokončené rutiny",
+      "routinesOf": "{{completed}} z {{total}} ({{pct}}%)",
+      "moodAverage": "Nálada (priemer)",
+      "moodVeryHappy": "Veľká radosť 😄 ({{score}}/10)",
+      "moodHappy": "Radosť 🙂 ({{score}}/10)",
+      "moodNeutral": "Pokoj 😐 ({{score}}/10)",
+      "moodSad": "Smutno 😔 ({{score}}/10)",
+      "encourageNoActivity": "Ide nový týždeň — skús odškrtnúť jednu rutinu spolu, trvá to chvíľu.",
+      "encourageProgress": "🌟 Len tak ďalej! Každá dokončená rutina buduje návyk na dlho.",
+      "encourageSmallSteps": "🌟 Malé kroky sa počítajú — skús tento týždeň odškrtnúť jednu rutinu spolu.",
+      "genericChildName": "Tvoje dieťa"
+    },
+    "notificationFooter": {
+      "settingsLink": "Nastavenia → Upozornenia",
+      "optOutDefault": "Vypnúť toto upozornenie",
+      "optOutWeeklySummary": "Vypnúť týždenný súhrn"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Deň 1 — pozri sa spolu",
+        "body": "Takto {{childName}} vidí svoj plán — pozri sa spolu.",
+        "ctaLabel": "Ukázať detský pohľad"
+      },
+      "2": {
+        "title": "Deň 2 — ranná kontrola",
+        "body": "Otvor dnes prehľad — trvá to 30 sekúnd.",
+        "ctaLabel": "Otvoriť plán"
+      },
+      "3": {
+        "title": "Deň 3 — osláv hviezdu",
+        "body": "Má {{childName}} hviezdu? Osláv to spolu!",
+        "ctaLabel": "Pozrieť dnešný plán",
+        "supportiveFallback": "Prvý týždeň je o rozbehu — stačí nakuknúť a vidieť, že plán je pripravený."
+      },
+      "4": {
+        "title": "Deň 4 — tvoja aplikácia",
+        "body": "Niečo nesedí? Aktivitu môžeš vymeniť.",
+        "ctaLabel": "Upraviť plán"
+      },
+      "5": {
+        "title": "Deň 5 — odmena",
+        "body": "Pozri pokladnicu — o čom {{childName}} sníva?",
+        "ctaLabel": "Otvoriť pokladnicu"
+      },
+      "6": {
+        "title": "Deň 6 — podeliť sa o starosť",
+        "body": "Chceš sa o starosť podeliť s niekým?",
+        "ctaLabel": "Pozvať niekoho",
+        "soloLabel": "Zvládnem to bez pomoci!"
+      },
+      "7": {
+        "title": "Jeden týždeň! 🎉",
+        "body": "Gratulujeme! Aký bol týždeň?",
+        "ctaLabel": "Odpovedať na otázku"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Čas na „{{activityName}}“ o {{minutes}} minút! ⭐",
+      "body": "Pripomienka pre {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Udrž rutinu v chode 💫",
+      "day3Body": "Pár dní ubehlo — otvor plán a rozdaj dnešné hviezdy.",
+      "day7Title": "Týždeň od poslednej návštevy",
+      "day7Body": "Plán dieťaťa čaká. Stačí krátka kontrola.",
+      "day14Title": "V aplikácii nám chýbaš",
+      "day14Body": "Dva týždne bez aktivity — vráť sa a udrž rutinu živú."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} sa dnes neprihlásilo",
+      "body": "Pozri plán a pomôž doplniť deň!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} má nazbieraných {{milestone}} hviezd! 🌟",
+      "bodyCongrats": "{{emoji}} Gratulujeme, {{childName}}!",
+      "body100": "Úplne úžasné! Čakajú nové výzvy!"
+    },
+    "backfillReminder": {
+      "title": "Včerajší plán pre {{childName}} chýba",
+      "body": "Doplň včera, nech je všetko aktuálne!"
+    },
+    "custodyMorning": {
+      "title": "Dnes: {{childName}} je u teba",
+      "body": "Plán na deň čaká v aplikácii."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Odovzdanie zajtra — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} u {{homeLabel}}",
+      "bodyPack": "🎒 Balenie tašky je v zajtrajšom pláne.",
+      "bodyPrepare": "Nezabudni sa pripraviť na týždenné odovzdanie."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "dokončilo {{activityName}}!",
+      "bodyBatch": "dokončilo {{count}} aktivít!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} hviezd pre {{childName}}!",
+      "body": "{{parentName}} dáva {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "hviezdu",
+    "starLabelMany": "hviezd",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} chce vymeniť odmenu!",
+      "body": "{{childName}} prosí o: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Dobré ráno! Pozri plán pre {{childName}} — trvá to 30 s 🌅",
+      "day3Body": "Má {{childName}} dnes hviezdu? Osláv to spolu ⭐",
+      "day4Body": "Niečo nesedí? Vymeň aktivitu ✏️",
+      "day5Body": "Pozri pokladnicu — o čom {{childName}} sníva? 🎁",
+      "day6Body": "Chceš sa o starosť podeliť s niekým? 👥",
+      "day7Body": "Gratulujeme! Aký bol týždeň?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Niečo sa pokazilo.",
+          "rewardIdRequired": "reward_id je povinné",
+          "childNotFound": "Dieťa sa nenašlo",
+          "rewardNotFound": "Odmena sa nenašla",
+          "requestNotFound": "Žiadosť sa nenašla",
+          "pendingOnlyApprove": "Schváliť sa dá len čakajúca žiadosť",
+          "pendingOnlyDeny": "Odmietnuť sa dá len čakajúca žiadosť",
+          "childIdRequired": "child_id je povinné",
+          "reasonRequired": "Dôvod je povinný",
+          "starCountRange": "Počet hviezd musí byť od 1 do 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id a goal_slug sú povinné",
+          "childAccessDenied": "K jednému z vybraných detí nemáš prístup.",
+          "dismissFailed": "Otázku sa nepodarilo zavrieť"
+        }
+      },
+      "success": {
+        "goalSet": "Cieľ je nastavený!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Ďakujeme za spätnú väzbu! Čítame všetko, čo príde.",
+    "contactAck": "Ďakujeme! Správu máme.",
+    "export": {
+      "noData": "Žiadne údaje",
+      "rateLimit": "Údaje môžeš exportovať len raz za 24 hodín. Skús znova o {{hours}} hodín.",
+      "notFound": "Používateľ sa nenašiel"
+    },
+    "account": {
+      "deletionPending": "Účet je označený na vymazanie. Máš 30 dní, ak si to rozmyslíš.",
+      "alreadyPending": "Účet už je označený na vymazanie."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Plný prístup pre celú rodinu",
+    "benefit1": "Všetky rutiny a plány",
+    "benefit2": "Hviezdy a funkcie tvojej rodiny",
+    "benefit3": "Všetky údaje ostávajú u teba",
+    "webNoticeTitle": "Aktivuj Premium v aplikácii",
+    "webNoticeBody": "Premium sa kupuje cez App Store alebo Google Play — nie na webe.",
+    "webNoticeBodyAppleOnly": "Premium sa kupuje cez App Store — nie na webe. Android príde čoskoro.",
+    "downloadIphone": "Stiahnuť pre iPhone",
+    "downloadAndroid": "Stiahnuť pre Android",
+    "androidComingSoon": "Android príde čoskoro",
+    "loadingPrices": "Načítavajú sa ceny…",
+    "continue": "Pokračovať",
+    "restore": "Obnoviť nákupy",
+    "yearlyBadge": "Odporúčané",
+    "yearlyPrice": "{{price}}/rok",
+    "yearlySavings": "Ušetríš oproti mesačnej platbe",
+    "yearlyTermsKnownTrial": "{{trialDays}} dní zadarmo · potom {{price}}/rok · obnovuje sa samo",
+    "yearlyTermsConditionalTrial": "14 dní zadarmo pre nových predplatiteľov, ktorí na to majú nárok · potom {{price}}/rok · obnovuje sa samo",
+    "yearlyTermsNoTrial": "{{price}}/rok · obnovuje sa samo",
+    "monthlyPrice": "{{price}}/mesiac",
+    "monthlyBlurb": "Pružné mesačné predplatné pre tvoju rodinu.",
+    "monthlyTermsKnownTrial": "{{trialDays}} dní zadarmo · potom {{price}}/mesiac · obnovuje sa samo",
+    "monthlyTermsConditionalTrial": "14 dní zadarmo pre nových predplatiteľov, ktorí na to majú nárok · potom {{price}}/mesiac · obnovuje sa samo",
+    "monthlyTermsNoTrial": "{{price}}/mesiac · obnovuje sa samo",
+    "autoRenewApple": "Predplatné sa obnovuje samo, kým ho nezrušíš. Platbu vybaví App Store. Predplatné spravuješ alebo zrušíš v účte Apple.",
+    "autoRenewGoogle": "Predplatné sa obnovuje samo, kým ho nezrušíš. Platbu vybaví Google Play. Predplatné spravuješ alebo zrušíš v účte Google.",
+    "termsLink": "Podmienky",
+    "privacyLink": "Súkromie",
+    "legal": "Bezplatnú skúšobnú dobu môžeš zrušiť pred platbou podľa pravidiel App Store alebo Google Play. Spravuješ alebo zrušíš ju v nastaveniach predplatného v obchode.",
+    "legalAppleOnly": "Bezplatnú skúšobnú dobu môžeš zrušiť pred platbou. Spravuješ alebo zrušíš ju v nastaveniach predplatného v App Store.",
+    "legalGoogleOnly": "Bezplatnú skúšobnú dobu môžeš zrušiť pred platbou. Spravuješ alebo zrušíš ju v nastaveniach predplatného v Google Play.",
+    "giftCard": "Mám darčekovú kartu",
+    "giftCodeLabel": "Darčekový kód",
+    "giftRedeem": "Uplatniť darčekovú kartu",
+    "limitedAccount": "Pokračovať s obmedzeným účtom",
+    "statusOpening": "Otváram pokladňu…",
+    "statusRestoring": "Obnovujem nákupy…",
+    "statusSuccess": "Premium je aktívne! Vitaj späť.",
+    "statusCancelled": "Nákup zrušený.",
+    "statusFailed": "Nákup zlyhal. Skús to znova.",
+    "statusUnavailable": "Predplatné sa teraz nepodarilo načítať. Skús to znova.",
+    "statusAndroidComingSoon": "Premium na Androide príde čoskoro.",
+    "statusNotNative": "Nákupy tu nie sú dostupné. Použi aplikáciu.",
+    "restoreSuccess": "Nákupy obnovené! Vitaj späť.",
+    "restoreNone": "Nenašli sa žiadne aktívne nákupy na obnovenie.",
+    "giftSuccess": "Darčeková karta uplatnená!",
+    "giftFailed": "Kód sa nepodarilo uplatniť.",
+    "launchEnded": "Štartovací prístup skončil. Predplať si aplikáciu, ak chceš plný prístup."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "tu",
+      "subject": "Tvoja konverzácia s podporou",
+      "text": "Ahoj {{name}}!\n\nSprávu máme. Pokračuj v konverzácii a odpíš tu (bežná odpoveď na e-mail u nás nie je vidieť):\n{{url}}\n\nS pozdravom,\n{{fromName}}",
+      "htmlHi": "Ahoj {{name}}!",
+      "htmlReceived": "Správu máme.",
+      "openLink": "Otvoriť konverzáciu",
+      "htmlHint": "a pokračuj v konverzácii a odpíš. Bežná odpoveď na e-mail u nás nie je vidieť.",
+      "htmlBye": "S pozdravom"
+    },
+    "reply": {
+      "subjectBug": "Re: Tvoje hlásenie chyby",
+      "subjectFeedback": "Re: Tvoja spätná väzba",
+      "subjectLanguage": "Re: Tvoje hlásenie o jazyku",
+      "subjectContact": "Re: Tvoja správa",
+      "text": "Ahoj {{name}}!\n\n{{reply}}\n\nPrečítaj celú konverzáciu a odpíš tu (bežná odpoveď na e-mail u nás nie je vidieť):\n{{url}}\n\n---\nTvoja pôvodná správa:\n{{original}}\n\nS pozdravom,\n{{fromName}}",
+      "htmlHi": "Ahoj {{name}}!",
+      "openLink": "Otvoriť konverzáciu",
+      "htmlHint": "a prečítaj celú konverzáciu a odpíš. Bežná odpoveď na e-mail u nás nie je vidieť.",
+      "originalLabel": "Tvoja pôvodná správa:",
+      "htmlBye": "S pozdravom"
+    },
+    "page": {
+      "title": "Tvoja konverzácia",
+      "intro": "Toto je celá konverzácia. Napíš nižšie, ak chceš pokračovať. Bežná odpoveď na e-mail tu nie je vidieť.",
+      "you": "Ty",
+      "us": "My",
+      "empty": "Zatiaľ žiadne správy.",
+      "label": "Napíš nám",
+      "placeholder": "Napíš, čo sa deje…",
+      "submit": "Odoslať",
+      "submitting": "Odosielam…",
+      "needHuman": "Potrebujem viac pomoci od človeka",
+      "escalating": "Odosielam…",
+      "caseRef": "Prípad {{ref}}",
+      "status": {
+        "new": "Prijaté",
+        "read": "Prečítané",
+        "in_progress": "Prebieha",
+        "answered": "Odpovedané",
+        "archived": "Zatvorené"
+      }
+    },
+    "errors": {
+      "invalid": "Tento odkaz je neplatný. Popros nás o novú odpoveď.",
+      "expired": "Tento odkaz expiroval. Popros nás o nový.",
+      "revoked": "Tento odkaz už nefunguje. Popros nás o nový.",
+      "archived": "Tento prípad je zatvorený. Ozvi sa znova, ak potrebuješ viac pomoci.",
+      "legacySunset": "Tento odkaz je príliš starý. Ozvi sa nám a pošleme nový.",
+      "tooShort": "Napíš aspoň 10 znakov, aby sme pochopili, čo sa deje.",
+      "tooLong": "Odpoveď môže mať najviac 5000 znakov.",
+      "notFound": "Prípad sa nenašiel.",
+      "rateLimit": "Priveľa pokusov. Skús to znova o hodinu.",
+      "generic": "Prípad sa nepodarilo otvoriť.",
+      "sendFailed": "Nepodarilo sa odoslať. Skús znova."
+    },
+    "success": {
+      "submitted": "Ďakujeme! Odpoveď máme.",
+      "escalated": "Ďakujeme. Na tento prípad sa pozrie človek."
+    }
+  },
+  "story": {
+    "someone": "Niekto",
+    "anActivity": "aktivitu",
+    "activityWithStars": "{{name}} dokončilo {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} dokončilo {{activity}}",
+    "goalFallback": "cieľ",
+    "goal": "Rodina dosiahla cieľ: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Nastavenia cookies",
+    "intro": "Na webe používame cookies na analytiku, marketing a prispôsobenie.",
+    "manage": "Spravovať nastavenia",
+    "manageHide": "Skryť nastavenia",
+    "deny": "Odmietnuť všetko",
+    "accept": "Prijať všetko",
+    "save": "Uložiť moje voľby",
+    "necessaryLabel": "Nevyhnutné",
+    "necessaryDesc": "Potrebné na to, aby web fungoval.",
+    "analyticsLabel": "Analytika",
+    "analyticsDesc": "Pomáha nám pochopiť, ako sa web používa (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Ukazuje relevantné reklamy a meria kampane.",
+    "personalizationLabel": "Prispôsobenie",
+    "personalizationDesc": "Prispôsobí obsah a odporúčania."
+  },
+  "growthHelp": {
+    "reportProblem": "Nahlásiť problém",
+    "suggestedHelp": "Navrhovaná pomoc",
+    "reportThanks": "Ďakujeme — hlásenie s technickými podrobnosťami máme.",
+    "howChildStarts": "Ako dieťa začína?",
+    "needHelpLogin": "Potrebuješ pomoc s prihlásením?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Krátky komentár (voliteľné, odošle sa s odpoveďou)",
+    "notNow": "Teraz nie",
+    "thanks": "Ďakujeme za spätnú väzbu."
+  },
+  "growthReferral": {
+    "title": "Poznáš ďalšiu rodinu, ktorá potrebuje pokojnejšie rána?",
+    "subtitle": "Zdieľaj svoj osobný odkaz — žiadny spam s odmenami, len tip.",
+    "copyLink": "Kopírovať odkaz",
+    "copied": "Skopírované",
+    "copyPrompt": "Skopíruj tento odkaz:",
+    "share": "Zdieľať",
+    "shareText": "Používame {{brand}} na detské rutiny. Vytvor si účet zadarmo: ",
+    "notNow": "Teraz nie"
+  },
+  "legalReturn": {
+    "backToPremium": "Späť na Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Balík",
+    "dismiss": "Teraz nie",
+    "interested": "Mám záujem",
+    "interestedSub": "Zapísať záujem o to, čo sa pripravuje",
+    "buyNow": "Kúpiť teraz",
+    "reporting": {
+      "title": "Správy",
+      "body": "Aktivity zapisuješ už dva týždne — chceš jasnejší pohľad na to, ako sa veci menia v čase?"
+    },
+    "pedagog": {
+      "title": "Pedagóg",
+      "body": "Chceš spolupracovať s pedagógom alebo terapeutom na bežnom dni dieťaťa?"
+    },
+    "teacch": {
+      "title": "Extra podpora",
+      "body": "Pridaj vizuálnu podporu so Sedem otázok — pomáha dieťaťu rozumieť, čo sa deje."
+    }
+  }
+}

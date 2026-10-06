@@ -1,0 +1,605 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Krok {{current}} z {{total}}",
+    "back": "← Späť",
+    "next": "Ďalší krok →",
+    "continue": "Pokračovať →",
+    "save": "Uložiť",
+    "cancel": "Zrušiť",
+    "loading": "Načítava sa…",
+    "genericError": "Niečo sa pokazilo. Skús to znova.",
+    "networkError": "Chyba siete. Skús to znova.",
+    "closeAria": "Zavrieť",
+    "childFallback": "Tvoje dieťa",
+    "addChildDone": "Hotovo! →",
+    "goForward": "Pokračovať →",
+    "finishing": "Dokončuje sa…",
+    "recommended": "Odporúčané",
+    "optional": "Voliteľné"
+  },
+  "pageTitle": {
+    "welcome": "Vitaj — {{brand}}",
+    "ogTitle": "{{brand}} — začneš za 2 minúty",
+    "ogDescription": "Hneď nastav plán a odmeny dieťaťa"
+  },
+  "verifyEmail": {
+    "title": "Over e-mail",
+    "body": "Poslali sme e-mail na {{email}}. Ťukni na odkaz v e-maili a účet sa aktivuje.",
+    "resend": "Poslať znova",
+    "resendSending": "Odosiela sa…",
+    "resendSuccess": "✓ Odoslané!",
+    "resendSent": "Odoslané",
+    "resendError": "Niečo sa pokazilo. Skús to znova."
+  },
+  "child": {
+    "title": "Povedz nám o dieťati",
+    "lead": "Vyber meno, emoji, narodeniny a plán, ktorý sedí na bežnú rutinu.",
+    "nameLabel": "Meno dieťaťa",
+    "namePlaceholder": "napr. Ella",
+    "birthdayLabel": "Narodeniny",
+    "birthdayOptionalHint": "(voliteľné — pomôže navrhnúť správny plán)",
+    "yearPlaceholder": "Rok",
+    "monthPlaceholder": "Mesiac",
+    "dayPlaceholder": "Deň",
+    "birthYearAria": "Rok narodenia",
+    "birthMonthAria": "Mesiac narodenia",
+    "birthDayAria": "Deň narodenia",
+    "months": [
+      "január",
+      "február",
+      "marec",
+      "apríl",
+      "máj",
+      "jún",
+      "júl",
+      "august",
+      "september",
+      "október",
+      "november",
+      "december"
+    ],
+    "emojiLabel": "Vyber emoji",
+    "customEmojiPlaceholder": "Alebo napíš vlastné emoji…",
+    "emojiAriaLabel": "Vyber emoji {{emoji}}",
+    "avatarLabel": "Voliteľné: profilová fotka",
+    "avatarHint": "Vyber fotku z knižnice alebo odfotí novú.",
+    "avatarDefaultBtn": "✨ Predvolený obrázok",
+    "avatarPickBtn": "📷 Vybrať fotku",
+    "avatarLoading": "Načítava sa…",
+    "avatarPreparing": "Pripravuje sa…",
+    "avatarUploadFailed": "Fotku sa nepodarilo nahrať. Skús to znova.",
+    "avatarReadFailed": "Obrázok sa nepodarilo prečítať",
+    "avatarAlt": "Profilová fotka dieťaťa",
+    "scheduleLabel": "Vyber plán",
+    "templatesLoading": "Načítavajú sa plány…",
+    "templatesLoadFailed": "Šablóny plánov sa teraz nepodarilo načítať.",
+    "templatesRetryBtn": "Skús to znova",
+    "nextBtn": "Ďalší krok →",
+    "creatingChild": "Vytvára sa dieťa…",
+    "creatingSchedule": "Vytvára sa plán…",
+    "nameRequired": "Zadaj meno dieťaťa",
+    "emojiRequired": "Vyber dieťaťu emoji",
+    "scheduleRequired": "Vyber plán",
+    "childResumedToast": "Našli sme dieťa z minula — pokračujeme plánom.",
+    "avatarSaveFailedToast": "Dieťa je vytvorené, no fotka sa neuložila. Pridáš ju v Rodine.",
+    "scheduleCreateFailed": "Plán sa nepodarilo vytvoriť"
+  },
+  "activityGuide": {
+    "title": "Ako má aplikácia pomôcť {{childName}} s dnešnými aktivitami?",
+    "lead": "Kedykoľvek to zmeníš v nastaveniach dieťaťa.",
+    "stepLabel": "Krok {{current}} z {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Voľné poradie",
+        "description": "Dieťa môže odškrtávať v ľubovoľnom poradí."
+      },
+      "one_at_a_time": {
+        "title": "Jedna vec naraz",
+        "description": "Aplikácia pomôže dieťaťu sústrediť sa na ďalší krok."
+      },
+      "time_and_order": {
+        "title": "Jasný čas a poradie",
+        "description": "Aplikácia pomôže s ďalším krokom a s časovačom, ktorý nastavíš pri každej aktivite."
+      }
+    },
+    "continueBtn": "Pokračovať →",
+    "saving": "Ukladá sa…",
+    "selectError": "Vyber možnosť",
+    "saveError": "Voľbu sa nepodarilo uložiť"
+  },
+  "viewType": {
+    "title": "Aký pohľad má {{childName}} vidieť?",
+    "lead": "Vyber, ako vyzerá plán, keď sa dieťa prihlási. Kedykoľvek to zmeníš v nastaveniach.",
+    "dayViewTitle": "Denný pohľad",
+    "dayViewSubtitle": "Ráno · Neskoré ráno · Popoludnie · Večer",
+    "timelineViewTitle": "Pohľad Teraz/Potom/Neskôr",
+    "timelineViewSubtitle": "Ukáže len to, čo sa deje práve teraz",
+    "timelineNow": "TERAZ",
+    "timelineNext": "POTOM",
+    "timelineThen": "NESKÔR",
+    "mock": {
+      "wakeStretch": "Vstaň a ponaťahuj sa",
+      "brushTeeth": "Vyčisti si zuby",
+      "packBag": "Zbaľ tašku",
+      "preschool": "Choď do škôlky",
+      "freePlay": "Voľná hra",
+      "dinner": "Večera",
+      "bedtimeStory": "Rozprávka na dobrú noc",
+      "preschoolShort": "Škôlka",
+      "play": "Hra"
+    },
+    "dayViewHint": "Denný pohľad vyberieš aj vtedy, keď dieťaťu vyhovujú farebné časti dňa.",
+    "skipHint": "Preskočíš? Denný pohľad sa vyberie sám.",
+    "saving": "Ukladá sa voľba pohľadu…"
+  },
+  "scheduleReady": {
+    "title": "Plán je pripravený!",
+    "subtitle": "Pripravili sme štartovací plán pre {{childName}}.",
+    "subtitleWithTemplate": "Pripravili sme plán {{templateName}} pre {{childName}}. Sú v ňom kľúčové kroky, aby to zvládlo samo.",
+    "templateFallback": "Plán",
+    "daysWeek": "7 dní / týždeň",
+    "daysMonFri": "Po–Pi",
+    "daysMonFriWeekend": "Po–Pi + víkend",
+    "socialProofTitle": "Vedeli ste?",
+    "socialProofBody": "Vieš to?",
+    "continueBtn": "Výborne, poďme na to! →"
+  },
+  "rewards": {
+    "title": "Ako fungujú hviezdy",
+    "checkOff": "Odškrtni",
+    "star": "Hviezda",
+    "treasureChest": "Pokladnica",
+    "intro": "Pripravili sme zábavné odmeny. Vyber tie, ku ktorým môže {{childName}} smerovať!",
+    "introWithCount": "Pripravili sme {{count}} zábavných odmien. Vyber tie, ku ktorým môže {{childName}} smerovať!",
+    "selectCount": {
+      "zero": "Vyber aspoň 1 odmenu (0 vybraných)",
+      "one": "{{count}} odmena vybraná ✓",
+      "other": "{{count}} odmien vybraných ✓",
+      "few": "{{count}} odmeny vybrané ✓"
+    },
+    "minOneError": "Na pokračovanie vyber aspoň jednu odmenu",
+    "saveBtn": "Uložiť odmeny →",
+    "saving": "Ukladajú sa odmeny…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Rozprávka navyše",
+      "chooseDessert": "Vyber dezert",
+      "movieNight": "Filmový večer",
+      "chooseDinner": "Vyber večeru",
+      "outing": "Výlet",
+      "bakeTogether": "Pečieme spolu",
+      "familyGameNight": "Rodinný herný večer",
+      "lateBedtime": "Dlhšie hore",
+      "cinemaTrip": "Výlet do kina"
+    }
+  },
+  "handoff": {
+    "title": "Ako prebieha prihlásenie",
+    "lead": "{{childName}} sa prihlási menom a PIN — bez hesla.",
+    "childLoginLabel": "Prihlásenie dieťaťa",
+    "usernameFallback": "používateľské meno",
+    "pinLabel": "PIN",
+    "pinNote": "Poznač si PIN — zmeníš ho v nastaveniach.",
+    "pinResumeHint": "Použi PIN dieťaťa. Ak ho nemáš, nový nastavíš tlačidlom nižšie.",
+    "chooseCustomPin": "✏️ Vybrať vlastný PIN",
+    "savePin": "Uložiť PIN",
+    "savingPin": "Ukladá sa…",
+    "pinMustBe4": "PIN musí mať 4 číslice",
+    "pinTooWeak": "Vyber silnejší PIN (nie 1111, 2222 a podobne)",
+    "pinSaveFailed": "PIN sa nepodarilo uložiť",
+    "copyInfo": "📋 Kopírovať údaje",
+    "copied": "✓ Skopírované!",
+    "copyManual": "Skopíruj ručne:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nPoužívateľské meno: {{username}}\nPIN: {{pin}}\nAplikácia: {{appUrl}}/child-login",
+    "emailLogin": "📧 Poslať na e-mail",
+    "emailSubject": "{{brand}} — prihlásenie pre {{childName}}",
+    "emailBody": "Ahoj!\n\nTu sú prihlasovacie údaje do {{brand}} pre {{childName}}:\n\nPoužívateľské meno: {{username}}\nPIN: {{pin}}\n\nOtvor aplikáciu: {{appUrl}}/child-login\n\nS pozdravom,\n{{brand}}",
+    "emailFallbackAlert": "Prihlásenie pre {{childName}}:\nPoužívateľské meno: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Nainštalovať ako aplikáciu",
+    "installBody": "Pridaj {{brand}} na plochu — správa sa ako ozajstná aplikácia, funguje offline a obíde sa bez obchodov.",
+    "installInstructions": "iPhone: Zdieľať → Pridať na plochu · Android: ⋮ → Nainštalovať aplikáciu",
+    "parentTipTitle": "Tip pre teba ako rodiča",
+    "parentTipLead": "Dnes večer si sadni spolu s dieťaťom. Ukáž pokladnicu",
+    "parentTipEmphasis": "ako prvú",
+    "parentTipTail": "a vzbuď zvedavosť. Potom vysvetli, že aplikácia je vlastná mapa dňa pre {{childName}}!",
+    "testChildLogin": "👶 Vyskúšať prihlásenie dieťaťa",
+    "continueAsParent": "Pokračovať ako rodič →",
+    "skipConfirmTitle": "Preskočiť prihlásenie dieťaťa?",
+    "skipConfirmBody": "Dieťa potrebuje PIN, aby sa prihlásilo samo. Ak to teraz neskúsiš, ranná rutina môže byť ťažšia — do 24 hodín pošleme pripomienku, ak to dieťa ešte neskúsilo.",
+    "skipConfirmPrimary": "👶 Vyskúšať prihlásenie dieťaťa",
+    "skipConfirmSecondary": "Preskočiť aj tak"
+  },
+  "parentPin": {
+    "setLater": "Rodičovský PIN nastaviť neskôr",
+    "title": "Nastaviť rodičovský PIN",
+    "description": "4-miestny PIN, ktorý poznáš len ty, chráni rodičovskú časť — napríklad keď deti pridávajú súrodenca alebo sa ako rodič prihlásiš na zariadení dieťaťa.",
+    "choosePin": "Vyber PIN",
+    "confirmPin": "Potvrď PIN",
+    "changeLater": "PIN neskôr zmeníš v Rodine a nastaveniach.",
+    "pinRequiredOrEmpty": "Zadaj 4-miestny PIN alebo polia nechaj prázdne",
+    "pinRequiredForHandoff": "Nastav 4-miestny PIN, kým dieťa prevezme zariadenie.",
+    "pinMismatch": "PIN kódy sa nezhodujú",
+    "saveFailed": "PIN sa nepodarilo uložiť",
+    "handoffRequired": "Na spoločnom zariadení treba PIN dospelého, kým sa dieťa prihlási.",
+    "saveAndContinue": "Uložiť a pokračovať"
+  },
+  "invite": {
+    "inviteLater": "Druhého rodiča pozvať neskôr",
+    "title": "Pozvať ďalšieho dospelého",
+    "namePlaceholder": "Meno (napr. Adam)",
+    "emailPlaceholder": "E-mail",
+    "whichChildren": "Ktoré deti má táto osoba vidieť?",
+    "sendBtn": "📧 Poslať pozvánku",
+    "sending": "Odosiela sa…",
+    "sent": "✓ Odoslané",
+    "skip": "Preskočiť →",
+    "emailRequired": "Zadaj e-mail",
+    "invalidEmail": "Neplatný e-mail",
+    "success": "Pozvánka je odoslaná na {{email}}! ✓",
+    "sendFailed": "Niečo sa pokazilo"
+  },
+  "complete": {
+    "title": "Takmer hotovo!",
+    "lead": "Nech dieťa vyskúša aplikáciu — ďalších dospelých pozveš a rodičovský PIN nastavíš po prvom odškrtnutí.",
+    "tips": {
+      "editScheduleTitle": "Upraviť plán",
+      "editScheduleBody": "Choď na Domov → ťukni na kartu dieťaťa → uprav aktivity, aby sedeli na bežnú rutinu.",
+      "checkRewardsTitle": "Pozrieť odmeny",
+      "checkRewardsBody": "V detskom pohľade — ťukni na hviezdu — dieťa uvidí, koľko hviezd každá odmena potrebuje.",
+      "addChildrenTitle": "Pridať ďalšie deti",
+      "addChildrenBody": "Každé dieťa má vlastný plán a hviezdy. Ďalšie pridáš cez + na Domove."
+    },
+    "letChildStart": "👶 Nech dieťa začne",
+    "letChildStartPlain": "Nech dieťa začne",
+    "completeFailed": "Úvod sa nepodarilo dokončiť",
+    "completeFailedShort": "Nepodarilo sa dokončiť",
+    "welcomeFooter": "Vitaj v {{brand}} — teší nás, že si tu! 🌟"
+  },
+  "weekend": {
+    "title": "Pridať víkendový plán?",
+    "body": "Plán na pracovné dni je pripravený na Po–Pi. Chceš pokojný víkendový plán na sobotu a nedeľu?",
+    "scheduleLabel": "Víkendový plán",
+    "satSun": "So + Ne",
+    "preview": {
+      "sleepIn": "Vyspať sa",
+      "breakfast": "Pokojné raňajky",
+      "freePlay": "Voľná hra",
+      "outing": "Výlet / park",
+      "familyActivity": "Rodinná aktivita",
+      "dinner": "Večera"
+    },
+    "yesBtn": "✅ Áno, pridať víkendový plán",
+    "yesLoading": "Pridáva sa…",
+    "noBtn": "Nie, doplním to neskôr",
+    "addFailed": "Víkendový plán sa nepodarilo pridať"
+  },
+  "starter": {
+    "stepLabel": "Vytvor plán {{current}} z {{total}}",
+    "slimTitle": "Rutina je takmer pripravená",
+    "fullTitle": "Vytvor prvý plán",
+    "slimIntro": "Tri rýchle otázky — a rutina je pripravená.",
+    "birthdayHint": "Vyber dátum narodenia dieťaťa — pomôže navrhnúť správny plán.",
+    "fullIntro": "Odpovedz na pár otázok — trvá to menej ako minútu.",
+    "powerPathLead": "Chceš vybrať hotové alebo si to poskladať?",
+    "chooseTemplate": "📋 Vybrať hotový plán",
+    "fullWizard": "✏️ Poskladať a prispôsobiť (7 otázok)",
+    "answerRequired": "Vyber alebo doplň odpoveď",
+    "showSchedule": "Ukázať plán →",
+    "buttons": {
+      "next": "Ďalej →"
+    },
+    "createRoutine": "Vytvoriť rutinu →",
+    "creatingRoutine": "Vytvára sa rutina…",
+    "personalizing": "Plán sa prispôsobuje…",
+    "loading": "Načítava sa…",
+    "useSchedule": "Použiť tento plán →",
+    "saving": "Ukladá sa…",
+    "changeAnswers": "← Zmeniť odpovede",
+    "removeStep": "Odstrániť",
+    "previewHint": "Kroky môžeš odstrániť — ďalšie pridáš neskôr v nastaveniach.",
+    "previewForChild": "Pre {{childName}} · {{count}} aktivít",
+    "previewAiTail": " · ✨ prispôsobené s AI",
+    "defaultPlanTitle": "Tvoj plán",
+    "slimSuccessTitle": "Rutina je pripravená",
+    "slimSuccessTonight": "Plán je pripravený. Ukáž {{childName}} Dnes na tomto zariadení.",
+    "showChildToday": "Ukázať Dnes dieťaťa",
+    "openingChildToday": "Otvára sa Dnes dieťaťa…",
+    "hourglassOfferTitle": "Vizuálne presýpacie hodiny",
+    "hourglassOfferBody": "Pomôžu dieťaťu vidieť, koľko času v aktivite ostáva.",
+    "hourglassEnableBtn": "Zapnúť presýpacie hodiny",
+    "hourglassEnabling": "Zapína sa…",
+    "hourglassEnabledMsg": "Presýpacie hodiny sú pre dieťa zapnuté.",
+    "hourglassEnableFailed": "Presýpacie hodiny sa nepodarilo zapnúť",
+    "goHome": "Ísť na Domov →",
+    "openingHome": "Otvára sa Domov…",
+    "customizeFirst": "Najprv prispôsobiť plán",
+    "openingSchedule": "Otvára sa plán…",
+    "nameRequired": "Zadaj meno dieťaťa",
+    "templateFailed": "Šablónu sa nepodarilo vybrať",
+    "previewFailed": "Plán sa nepodarilo načítať",
+    "childCreateFailed": "Dieťa sa nepodarilo vytvoriť",
+    "scheduleSaveFailed": "Plán sa nepodarilo uložiť",
+    "personalizeFailed": "Plán sa nepodarilo prispôsobiť",
+    "completeFailed": "Nepodarilo sa dokončiť",
+    "packages": {
+      "morning-short": {
+        "name": "Krátke ráno"
+      },
+      "evening-routine": {
+        "name": "Večerná rutina"
+      },
+      "preschool-day": {
+        "name": "Škôlka v pracovný deň"
+      },
+      "school-day": {
+        "name": "Škola v pracovný deň"
+      },
+      "weekend": {
+        "name": "Víkend"
+      },
+      "getting-ready": {
+        "name": "Krátke ráno"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Meno dieťaťa",
+        "placeholder": "napr. Ella"
+      },
+      "age_band": {
+        "label": "Koľko má dieťa rokov?",
+        "options": {
+          "3-5": "3–5 rokov",
+          "6-8": "6–8 rokov",
+          "9-12": "9–12 rokov",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Ktorou rutinou chceš začať?",
+        "options": {
+          "morgon": "☀️ Ráno",
+          "kvall": "🌙 Večer",
+          "efter-skola": "🏫 Po škole",
+          "laxor": "📚 Domáce úlohy",
+          "gora-sig-klar": "🎒 Pripraviť sa"
+        }
+      },
+      "main_challenge": {
+        "label": "Čo je teraz najťažšie?",
+        "options": {
+          "getting_started": "Začať",
+          "focus": "Udržať pozornosť",
+          "conflicts": "Konflikty",
+          "forgetting": "Zabúdať kroky",
+          "transitions": "Prechody"
+        }
+      },
+      "support_ui": {
+        "label": "Potrebuje dieťa extra jasnú podporu?",
+        "options": {
+          "ja": "Áno",
+          "lite": "Trochu",
+          "nej": "Nie"
+        }
+      },
+      "length_ui": {
+        "label": "Koľkými krokmi chceš začať?",
+        "options": {
+          "kort": "Krátka (3–4)",
+          "normal": "Normálna (5)",
+          "detaljerad": "Podrobná (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Je niečo dôležité, čo máme vedieť? (voliteľné)",
+        "placeholder": "napr. čistenie zubov je najťažšie"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutina je pripravená",
+      "handoff": "Otvor detský režim spolu",
+      "child": "Dieťa vidí, čo sa deje teraz",
+      "done": "Hotovo!",
+      "star": "Prvá hviezda ⭐"
+    },
+    "mock": {
+      "parentView": "Pohľad rodiča",
+      "dailyRoutine": "Dnešná rutina",
+      "dress": "Obleč sa",
+      "brushTeeth": "Vyčisti si zuby",
+      "packBag": "Zbaľ tašku",
+      "tryChildMode": "👶 Vyskúšať detský režim",
+      "now": "Teraz",
+      "markDone": "Označiť hotové ✓",
+      "wellDone": "Dobrá práca!"
+    },
+    "ctaReady": "Chceš to vyskúšať?",
+    "ctaTryNow": "Vyskúšať detský režim",
+    "ctaLater": "Neskôr",
+    "loginTitle": "Otvoriť pohľad dieťaťa",
+    "loginLead": "Plán je pripravený. Daj zariadenie {{childName}} a uvidí svoju rutinu.",
+    "usernameLabel": "Používateľské meno",
+    "pinLabel": "PIN",
+    "loginHint": "Sadni si spolu s dieťaťom — stačí toto alebo iné zariadenie.",
+    "copyLogin": "📋 Kopírovať prihlasovacie údaje",
+    "copied": "✓ Skopírované!",
+    "openChildMode": "Otvoriť pohľad dieťaťa",
+    "copyText": "{{childName}}\nOtvor detský pohľad v aplikácii.",
+    "previewTitle": "Náhľad — úvodný film"
+  },
+  "firstStar": {
+    "title": "Daj prvú hviezdu",
+    "lead": "Tri rýchle kroky — a už to naozaj beží.",
+    "steps": {
+      "login": "Nech sa dieťa prihlási svojím PIN",
+      "complete": "Označ aktivitu ako hotovú v detskom pohľade",
+      "celebrate": "Oslávte hviezdu spolu!"
+    },
+    "openChildLogin": "👶 Otvoriť prihlásenie dieťaťa",
+    "continueAsParent": "Pokračovať ako rodič"
+  },
+  "activation": {
+    "finalStepLabel": "Posledný krok",
+    "introTitle": "Ako chceš začať?",
+    "introBody": "Plán dieťaťa je nastavený — dobrý začiatok. Mnohé rodiny zistia, že najťažšie nie je začať, ale udržať rutinu prvé dni, keď sa bežný deň preberie. Vyber, čo ti sedí:",
+    "guidedBadge": "Odporúčané",
+    "guidedTitle": "Udržať rutinu prvý týždeň",
+    "guidedBody": "Mnohé rodiny ocenia malú podporu, keď je plán hotový. Nie preto, že niečo nefunguje, ale preto, že nové návyky potrebujú čas.",
+    "guidedBenefits": [
+      "Krátke denné pripomienky, aby rutina pokračovala",
+      "Uvidíš, keď dieťa dokončí úlohy, bez ďalšieho naháňania",
+      "Plán dieťaťa je hotový — pomôžeme, aby rutina fungovala",
+      "Zastavíš, kedy chceš"
+    ],
+    "guidedCta": "Áno, pomôž nám prvý týždeň",
+    "directTitle": "Začať hneď",
+    "directBody": "Ak chceš ísť bez pomoci. Všetko je na mieste a môžeš začať hneď.",
+    "directBenefits": [
+      "Rovno na Domov",
+      "Ten istý plán, hviezdy a odmeny",
+      "Aplikáciu používaš vlastným tempom"
+    ],
+    "directCta": "Zvládneme to bez pomoci",
+    "footnote": "Nech vyberieš čokoľvek, aplikáciu použiješ naplno. Sprievodca na začiatku len pridá malú podporu v prvom týždni.",
+    "saveFailed": "Voľbu sa nepodarilo uložiť"
+  },
+  "loading": {
+    "buildingSchedule": "Skladá sa tvoj plán…",
+    "takesSeconds": "Trvá to len pár sekúnd!"
+  },
+  "templateGroups": {
+    "showActivities": "Ukázať aktivity",
+    "loadingActivities": "Načítava sa...",
+    "activityCount": {
+      "one": "{{count}} aktivita",
+      "other": "{{count}} aktivít",
+      "few": "{{count}} aktivity"
+    },
+    "forskola": {
+      "name": "Škôlka",
+      "description": "Celý deň — deti vo veku 2–5"
+    },
+    "skola": {
+      "name": "Škola",
+      "description": "Celý deň — deti od 6 rokov"
+    },
+    "morgon": {
+      "name": "Ráno",
+      "description": "Ranná rutina"
+    },
+    "dag": {
+      "name": "Deň",
+      "description": "Denné aktivity"
+    },
+    "kvall": {
+      "name": "Večer",
+      "description": "Večerná rutina"
+    },
+    "helg": {
+      "name": "Víkend",
+      "description": "Víkendová rutina"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Vstávanie",
+        "Obleč sa",
+        "Raňajky",
+        "Škôlka",
+        "Hra",
+        "Večera",
+        "Rozprávka na dobrú noc"
+      ],
+      "skola": [
+        "Vstávanie",
+        "Raňajky",
+        "Zbaľ tašku",
+        "Škola",
+        "Úlohy",
+        "Večera",
+        "Rozprávka na dobrú noc"
+      ],
+      "morgon": [
+        "Vstávanie",
+        "Obleč sa",
+        "Vyčisti si zuby",
+        "Raňajky",
+        "Zbaľ tašku"
+      ],
+      "dag": [
+        "Škôlka",
+        "Hraj sa vonku",
+        "Desiata",
+        "Obed",
+        "Tvorenie"
+      ],
+      "kvall": [
+        "Večera",
+        "Vyčisti si zuby",
+        "Pyžamo",
+        "Rozprávka na dobrú noc",
+        "Spánok"
+      ],
+      "helg": [
+        "Vstávanie",
+        "Raňajky",
+        "Voľná hra",
+        "Výlet",
+        "Rodinná aktivita",
+        "Večera"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Ráno",
+    "lateMorning": "Neskoré ráno",
+    "afternoon": "Popoludnie",
+    "evening": "Večer"
+  },
+  "errors": {
+    "avatarUploadPath": "Profilová fotka sa nahráva cez PUT /api/children/:id/avatar až po vytvorení dieťaťa",
+    "childNameRequired": "Treba meno dieťaťa",
+    "emojiRequired": "Vyber dieťaťu emoji",
+    "invalidBirthday": "Neplatný dátum narodenia",
+    "birthdayFuture": "Narodeniny nemôžu byť v budúcnosti",
+    "invalidTemplate": "Neplatná voľba. Vyber platný plán.",
+    "noActivities": "Pre vybraný plán sa nenašli žiadne aktivity.",
+    "childIdRequired": "child_id je povinné",
+    "noChildAccess": "K tomuto dieťaťu nemáš prístup",
+    "weekendNotFound": "Víkendový plán sa v knižnici nenašiel.",
+    "weekendEmpty": "Víkendový plán nemá žiadne aktivity.",
+    "rewardNameRequired": "Treba názov odmeny",
+    "rewardCostMin": "Cena v hviezdach musí byť aspoň 1",
+    "rewardsFetchFailed": "Odmeny sa nepodarilo načítať.",
+    "childCreateFailed": "Pri vytváraní dieťaťa sa niečo pokazilo.",
+    "scheduleCreateFailed": "Pri vytváraní plánu sa niečo pokazilo.",
+    "weekendCreateFailed": "Pri vytváraní víkendového plánu sa niečo pokazilo.",
+    "rewardCreateFailed": "Pri vytváraní odmeny sa niečo pokazilo.",
+    "generic": "Niečo sa pokazilo.",
+    "invalidViewType": "Neplatný view_type. Vyber day alebo timeline.",
+    "notAllowed": "Nie je povolené",
+    "invalidChoice": "Neplatná voľba.",
+    "activityGuideSaveFailed": "Voľbu aktivity sa nepodarilo uložiť.",
+    "pinMustBe4": "PIN musí mať presne 4 číslice",
+    "pinTooWeak": "Vyber silnejší PIN",
+    "pinTaken": "Tento PIN už má dieťa s rovnakým menom",
+    "pinUpdateFailed": "PIN sa nepodarilo aktualizovať.",
+    "handoffContextFailed": "Kontext odovzdania sa nepodarilo načítať",
+    "templateGroupsFailed": "Skupiny plánov sa nepodarilo načítať.",
+    "schedulePreviewFailed": "Plán sa nepodarilo načítať.",
+    "viewSaveFailed": "Voľbu pohľadu sa nepodarilo uložiť.",
+    "activationNotEnabled": "Aktivačný tok pre rodinu nie je zapnutý",
+    "starterSuggestFailed": "Šablónu sa nepodarilo vybrať",
+    "starterPreviewFailed": "Náhľad sa nepodarilo načítať",
+    "starterPersonalizeFailed": "Plán sa nepodarilo prispôsobiť",
+    "scheduleNameRequired": "scheduleName je povinné",
+    "templateNotFound": "Šablóna sa nenašla",
+    "enrollChoiceUnavailable": "Obrazovka s voľbou nie je dostupná"
+  },
+  "starterPlan": {
+    "firstSchedule": "Tvoj prvý plán"
+  }
+}

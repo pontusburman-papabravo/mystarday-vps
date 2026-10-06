@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Pokaži savjete",
+    "close": "Zatvori",
+    "milestone": "Prekretnica",
+    "nextStep": "Sljedeći korak",
+    "tip": "Savjet",
+    "weekReflection": "Osvrt na tjedan",
+    "weekTogether": "Tjedan zajedno",
+    "weekLabel": "Jedan tjedan",
+    "sjDay3Headline": "Vrijeme je da {{name}} pokuša",
+    "tips": {
+      "coach_consistency": [
+        "Neka rutina bude kratka i jasna — dijete gradi naviku korak po korak.",
+        "Proslavi svaku kvačicu, i one male.",
+        "Neka se dijete samo prijavi svako jutro."
+      ],
+      "coach_evening": [
+        "Dodaj 2–3 mirne aktivnosti prije spavanja.",
+        "Isti redoslijed svake večeri olakšava uspavljivanje."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Novo",
+    "dismissAria": "Zatvori objašnjenje",
+    "continueFallback": "Nastavi",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Ovdje na Početnoj sada pokazujemo jasan prijedlog za tvoj sljedeći korak.",
+        "whatChanged": "Na vrh je dodana kartica \"Sljedeći korak\".",
+        "whyItMatters": "Ne moraš tražiti po podsjetnicima — jedan prijedlog odjednom."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Neka dijete isproba svoju rutinu",
+      "body": "Otvorite dječji način zajedno — odmah vidi što treba napraviti.",
+      "cta": "Otvori dječji prikaz"
+    },
+    "ADD_EVENING": {
+      "headline": "Dodaj večernju rutinu",
+      "body": "Neka spavanje bude jasno kao i jutro.",
+      "cta": "Dodaj večer"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Pozovi drugog roditelja",
+      "body": "Podijeli rutinu da možete pratiti zajedno.",
+      "cta": "Pozovi"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Kreni s jednim malim korakom",
+      "body": "Rutina je i dalje tu — danas uzmi jednu aktivnost odjednom.",
+      "cta": "Otvori raspored"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Prilagodi svoju rutinu",
+      "body": "Sad raspored možeš složiti po svome.",
+      "cta": "Prilagodi"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Proslavi napredak",
+      "body": "Napravili ste važan korak — uzmite trenutak zajedno.",
+      "cta": "Pokaži djetetu"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Dijete je završilo aktivnost!",
+    "defaultChild": "Tvoje dijete",
+    "defaultActivity": "aktivnost",
+    "defaultCta": "Razumijem"
+  }
+}

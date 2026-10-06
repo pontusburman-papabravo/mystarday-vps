@@ -1266,7 +1266,8 @@
       "tooLong": "Svaret får vara högst 5000 tecken.",
       "notFound": "Ärendet hittades inte.",
       "rateLimit": "För många försök. Försök igen om en timme.",
-      "generic": "Kunde inte öppna ärendet."
+      "generic": "Kunde inte öppna ärendet.",
+      "sendFailed": "Kunde inte skicka. Försök igen."
     },
     "success": {
       "submitted": "Tack! Vi har tagit emot svaret.",
@@ -1322,5 +1323,24 @@
   },
   "legalReturn": {
     "backToPremium": "Tillbaka till Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paket",
+    "dismiss": "Inte nu",
+    "interested": "Jag är intresserad",
+    "interestedSub": "Anmäl intresse för kommande beta",
+    "buyNow": "Köp nu",
+    "reporting": {
+      "title": "Rapportering",
+      "body": "Du har registrerat aktiviteter i två veckor — vill du få koll på utvecklingen över tid?"
+    },
+    "pedagog": {
+      "title": "Pedagog",
+      "body": "Vill du samarbeta med pedagog eller terapeut kring barnets vardag?"
+    },
+    "teacch": {
+      "title": "Extra stöd",
+      "body": "Lägg till visuellt stöd med De sju frågorna — hjälper barnet förstå vad som händer."
+    }
   }
 }

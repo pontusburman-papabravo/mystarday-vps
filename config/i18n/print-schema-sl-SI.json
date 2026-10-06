@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Ustvari PDF — urnik — {{brand}}",
+  "backLink": "← Nazaj na načrtovanje",
+  "heading": "📄 Ustvari PDF — urnik",
+  "intro": "Izberi otroka in obdobje. Predogled pokaže cel urnik — PDF se sam pomanjša, da gre na en list A4 ležeče.",
+  "pdfSave": {
+    "title": "Kam se PDF shrani?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Po <em>Ustvari PDF</em> se odpre deljenje — izberi <strong>Shrani v Datoteke</strong> in mapo (npr. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Računalnik:</strong> PDF gre v mapo <strong>Prenosi</strong> (pogosto spodaj levo v brskalniku)."
+  },
+  "sections": {
+    "child": "Otrok",
+    "period": "Obdobje",
+    "scope": "Kaj naj PDF vključuje?",
+    "startWeek": "Začetni teden"
+  },
+  "period": {
+    "1w": "1 teden",
+    "2w": "2 tedna",
+    "1m": "1 mesec"
+  },
+  "scope": {
+    "all": "Cel urnik",
+    "my": "Samo moji dnevi"
+  },
+  "weekNav": {
+    "prevAria": "Prejšnji teden",
+    "nextAria": "Naslednji teden",
+    "today": "Ta teden"
+  },
+  "actions": {
+    "preview": "Predogled",
+    "createPdf": "Ustvari PDF"
+  },
+  "preview": {
+    "heading": "Predogled",
+    "hint": "Če ima dan veliko dejavnosti, se pomakni navzdol."
+  },
+  "pdfHelp": {
+    "title": "Kako shraniš PDF",
+    "closeAria": "Zapri",
+    "ok": "V redu, razumem",
+    "introShare": "Deljenje je odprto. Izberi Shrani v Datoteke, da shraniš PDF.",
+    "introPreview": "PDF se je odprl v brskalniku{{filename}}.",
+    "introDesktop": "PDF je prenesen{{filename}}.",
+    "filenameSuffix": " kot {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "V deljenju: pomakni se in tapni <strong>Shrani v Datoteke</strong>.",
+      "Izberi mapo (npr. <strong>iCloud Drive</strong> ali <strong>Na mojem iPhonu</strong>).",
+      "Zgoraj desno tapni <strong>Shrani</strong>.",
+      "Datoteko pozneje najdeš v aplikaciji <strong>Datoteke</strong>."
+    ],
+    "previewSteps": [
+      "PDF se je odprl v novem pogledu — zgoraj desno tapni <strong>Deli</strong> (↑).",
+      "Izberi <strong>Shrani v Datoteke</strong>.",
+      "Izberi mapo in tapni <strong>Shrani</strong>."
+    ],
+    "desktopSteps": [
+      "Na računalniku odpri mapo <strong>Prenosi</strong>.",
+      "Poišči datoteko, ki se začne z <strong>{{prefix}}</strong> in današnjim datumom."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Urnik",
+    "titleMyDays": "Moji dnevi",
+    "emptyCell": "–",
+    "childFallback": "Otrok",
+    "loadingPrint": "Pripravljam tisk…",
+    "iframeTitle": "Tisk"
+  },
+  "filename": {
+    "prefixSchedule": "tedenski-urnik",
+    "prefixMyDays": "moji-dnevi",
+    "fallbackSlug": "otrok"
+  },
+  "toasts": {
+    "loadChildrenError": "Otrok ni bilo mogoče naložiti",
+    "selectChild": "Najprej izberi otroka",
+    "loadingPreview": "Nalagam predogled…",
+    "noMyDays": "V izbranem obdobju ni tvojih dni",
+    "loadScheduleError": "Urnika ni bilo mogoče naložiti",
+    "creatingPdf": "Ustvarjam PDF…",
+    "pdfCancelled": "Shranjevanje PDF je preklicano",
+    "shareHint": "V deljenju izberi Shrani v Datoteke",
+    "mobileSavedHint": "PDF je pripravljen — shrani ga v Datoteke",
+    "desktopSavedHint": "PDF je shranjen v Prenose",
+    "pdfLibsMissing": "Orodja za PDF manjkajo — ponovno naloži stran in poskusi znova",
+    "createPdfError": "PDF-ja ni bilo mogoče ustvariti",
+    "shareAgain": "PDF je pripravljen. Znova tapni Ustvari PDF in izberi, kam ga shraniš."
+  },
+  "empty": {
+    "noChildren": "Še ni dodanega otroka.",
+    "goDashboard": "Pojdi na Domov"
+  }
+}
