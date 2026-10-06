@@ -8,9 +8,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { REQUIRED_SEO_CONTENT } = require('../../config/web-locales');
+const { REQUIRED_SEO_CONTENT, LOCALES } = require('../../config/web-locales');
 const { localeHasSeoChrome, pathFor } = require('../../config/web-content-keys');
-const { pageFor } = require('../../content/nl/pages');
+const { chromeFor } = require('../../config/web-locale-chrome');
+const { hasLocalePages, pageForLocale } = require('../../content/locale-pages');
 
 const EN_FILES = Object.freeze({
   home: 'public/en.html',
@@ -27,6 +28,8 @@ const EN_FILES = Object.freeze({
 });
 
 function localeSeoGaps(localeCode) {
+  // Swedish stays on the existing .se templates. This contract gates path locales.
+  if (localeCode === 'sv') return [];
   const gaps = [];
   if (!localeHasSeoChrome(localeCode)) gaps.push('chrome');
   for (const key of REQUIRED_SEO_CONTENT) {
@@ -38,10 +41,21 @@ function localeSeoGaps(localeCode) {
       if (!rel || !fs.existsSync(path.join(__dirname, '../../', rel))) gaps.push(`file.${key}`);
     }
   }
-  if (localeCode === 'nl') {
-    for (const key of REQUIRED_SEO_CONTENT) {
-      const page = pageFor(key);
-      if (!page || !page.title || !page.description || !page.h1 || !page.body) gaps.push(`page.${key}`);
+  const locale = LOCALES[localeCode];
+  if (locale && locale.publicWeb && locale.pathPrefix && localeCode !== 'en') {
+    if (!hasLocalePages(localeCode)) gaps.push('pages');
+    else {
+      const chrome = chromeFor(localeCode);
+      for (const field of ['faq', 'privacy', 'terms', 'notFoundTitle', 'notFoundH1', 'notFoundLink']) {
+        if (!chrome || !String(chrome[field] || '').trim()) gaps.push(`chrome.${field}`);
+      }
+      for (const key of REQUIRED_SEO_CONTENT) {
+        const page = pageForLocale(localeCode, key);
+        if (!page || !page.title || !page.description || !page.h1 || !page.body) gaps.push(`page.${key}`);
+        else if (/__PLACEHOLDER__|lorem ipsum/i.test(`${page.title}\n${page.body}`) || /\bTODO\b/.test(`${page.title}\n${page.body}`)) {
+          gaps.push(`placeholder.${key}`);
+        }
+      }
     }
   }
   return gaps;

@@ -145,11 +145,13 @@ function localeReadiness() {
       };
     }
     const gaps = localeSeoGaps(code);
-    const urlCount = locale.pathPrefix
-      ? [...SEO_INDEXABLE_PATHS].filter((pathname) => (
-        pathname === locale.pathPrefix || pathname.startsWith(`${locale.pathPrefix}/`)
-      )).length
-      : 0;
+    const urlCount = locale.code === 'sv'
+      ? [...SEO_INDEXABLE_PATHS].filter((pathname) => !/^\/[a-z]{2}(\/|$)/.test(pathname)).length
+      : (locale.pathPrefix
+        ? [...SEO_INDEXABLE_PATHS].filter((pathname) => (
+          pathname === locale.pathPrefix || pathname.startsWith(`${locale.pathPrefix}/`)
+        )).length
+        : 0);
     return {
       locale: code,
       complete: gaps.length === 0,

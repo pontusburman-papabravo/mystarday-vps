@@ -6,17 +6,50 @@
 (function publicLangSwitcherModule() {
   'use strict';
 
-  const HOMES = { sv: '/', en: '/en', nl: '/nl' };
-  const LABELS = { sv: 'Svenska', en: 'English', nl: 'Nederlands' };
+  const FALLBACK_HOMES = { sv: '/', en: '/en', nl: '/nl' };
+  const FALLBACK_LABELS = { sv: 'Svenska', en: 'English', nl: 'Nederlands' };
 
   function currentPath() {
     const p = location.pathname.replace(/\/$/, '') || '/';
     return p;
   }
 
+  function homeGroup() {
+    const list = window.PUBLIC_LOCALE_ALTERNATES || [];
+    for (let i = 0; i < list.length; i += 1) {
+      if (list[i].key === 'home') return list[i];
+    }
+    return null;
+  }
+
+  function homes() {
+    const out = {};
+    const keys = Object.keys(FALLBACK_HOMES);
+    for (let i = 0; i < keys.length; i += 1) out[keys[i]] = FALLBACK_HOMES[keys[i]];
+    const home = homeGroup();
+    if (!home) return out;
+    const codes = Object.keys(home);
+    for (let i = 0; i < codes.length; i += 1) {
+      if (codes[i] !== 'key' && home[codes[i]]) out[codes[i]] = home[codes[i]];
+    }
+    return out;
+  }
+
+  function labels() {
+    return window.PUBLIC_LOCALE_LABELS || FALLBACK_LABELS;
+  }
+
   function localeOf(path) {
-    if (path === '/nl' || path.indexOf('/nl/') === 0) return 'nl';
-    if (path === '/en' || path.indexOf('/en/') === 0) return 'en';
+    const map = homes();
+    const codes = Object.keys(map).filter(function (code) {
+      return map[code] && map[code] !== '/';
+    }).sort(function (a, b) {
+      return map[b].length - map[a].length;
+    });
+    for (let i = 0; i < codes.length; i += 1) {
+      const prefix = map[codes[i]];
+      if (path === prefix || path.indexOf(prefix + '/') === 0) return codes[i];
+    }
     return 'sv';
   }
 
@@ -28,7 +61,10 @@
     const list = window.PUBLIC_LOCALE_ALTERNATES || [];
     for (let i = 0; i < list.length; i += 1) {
       const group = list[i];
-      if (group.sv === path || group.en === path || group.nl === path) return group;
+      const keys = Object.keys(group);
+      for (let k = 0; k < keys.length; k += 1) {
+        if (keys[k] !== 'key' && group[keys[k]] === path) return group;
+      }
     }
     return null;
   }
@@ -37,9 +73,9 @@
     const group = groupFor(currentPath());
     if (group && group[locale]) return group[locale];
     const legacy = window.PUBLIC_LANG_ROUTES || { '/': '/en', '/en': '/' };
-    if (locale === 'en' && localeOf(currentPath()) === 'sv') return legacy[currentPath()] || HOMES.en;
-    if (locale === 'sv' && localeOf(currentPath()) === 'en') return legacy[currentPath()] || HOMES.sv;
-    return HOMES[locale];
+    if (locale === 'en' && localeOf(currentPath()) === 'sv') return legacy[currentPath()] || homes().en;
+    if (locale === 'sv' && localeOf(currentPath()) === 'en') return legacy[currentPath()] || homes().sv;
+    return homes()[locale] || null;
   }
 
   function absoluteHref(target) {
@@ -47,7 +83,7 @@
     const o = origins();
     if (!o || !o.sv || !o.en) return path;
     const locale = localeOf(path);
-    const origin = locale === 'nl' ? (o.nl || o.en) : (locale === 'en' ? o.en : o.sv);
+    const origin = o[locale] || (locale === 'sv' ? o.sv : o.en);
     if (path === '/') return origin + '/';
     return origin + path;
   }
@@ -80,12 +116,13 @@
     wrap.setAttribute('aria-label', 'Language');
     wrap.style.cssText = 'display:flex;gap:0.5rem;align-items:center;font-size:0.8125rem;font-weight:600;';
     const here = localeOf(currentPath());
-    ['sv', 'en', 'nl'].forEach(function (code, index) {
+    const names = labels();
+    Object.keys(homes()).forEach(function (code, index) {
       if (index) wrap.appendChild(document.createTextNode(' · '));
       const href = absoluteHref(targetFor(code));
       if (code === here) {
         const span = document.createElement('span');
-        span.textContent = LABELS[code];
+        span.textContent = names[code] || code;
         span.setAttribute('aria-current', 'page');
         span.style.cssText = 'color:#1C2340;';
         wrap.appendChild(span);
@@ -93,7 +130,7 @@
       }
       const link = document.createElement('a');
       link.href = href;
-      link.textContent = LABELS[code];
+      link.textContent = names[code] || code;
       link.style.cssText = 'color:#8A92AA;text-decoration:none;';
       wrap.appendChild(link);
     });

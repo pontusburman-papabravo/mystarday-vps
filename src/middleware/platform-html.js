@@ -6,6 +6,17 @@ const fs = require('fs');
 const path = require('path');
 const { injectNoindexMeta, isSeoIndexable, normalizeSeoPath } = require('../lib/seo-pages');
 const { applyPublicSeoHead } = require('../lib/public-seo');
+const { publicPathLocales } = require('../../config/web-locales');
+
+function nativeMarketingHomeCheck() {
+  const checks = ['np==="/"', 'np==="/index.html"'];
+  for (const locale of publicPathLocales()) {
+    if (!locale.pathPrefix) continue;
+    checks.push(`np==="${locale.pathPrefix}"`);
+    checks.push(`np==="${locale.pathPrefix}.html"`);
+  }
+  return checks.join('||');
+}
 
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
@@ -522,7 +533,7 @@ function injectPlatformHtml(body, reqPath, req) {
     '<script>(function(){try{var c=typeof Capacitor!=="undefined"?Capacitor:null;' +
       'if(c&&c.isNativePlatform&&c.isNativePlatform()){' +
       'var np=(location.pathname||"/").replace(/\\/$/,"")||"/";' +
-      'if(np==="/"||np==="/index.html"||np==="/en"||np==="/en.html"||np==="/nl"||np==="/nl.html"){' +
+      'if(' + nativeMarketingHomeCheck() + '){' +
       'location.replace("/home"+location.search+location.hash);return;}' +
       'window.WEBVIEW_SERVER_URL=location.origin;' +
       'var el=document.documentElement;el.classList.add("is-native");' +
@@ -574,7 +585,7 @@ function injectPlatformHtml(body, reqPath, req) {
   }
   if (body.includes('public-lang-switcher.js') && !body.includes('public-locale-alternates.js')) {
     headParts.push('<script src="/js/public-locale-alternates.js?v=1"><\/script>');
-    headParts.push('<script src="/js/public-lang-switcher.js?v=4"><\/script>');
+    headParts.push('<script src="/js/public-lang-switcher.js?v=5"><\/script>');
   }
   headParts.push('<script src="/js/platform-theme.js?v=2026-09-28-adr022"><\/script>');
   if (injectDebug) {

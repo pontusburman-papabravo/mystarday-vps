@@ -43,6 +43,35 @@ function absoluteLocaleHome(localeCode) {
 
 const MARKET_LINK_LIMIT = 8;
 
+const OG_LOCALE = Object.freeze({
+  bg: 'bg_BG',
+  hr: 'hr_HR',
+  cs: 'cs_CZ',
+  da: 'da_DK',
+  nl: 'nl_NL',
+  en: 'en_IE',
+  et: 'et_EE',
+  fi: 'fi_FI',
+  fr: 'fr_FR',
+  de: 'de_DE',
+  el: 'el_GR',
+  hu: 'hu_HU',
+  ga: 'ga_IE',
+  it: 'it_IT',
+  lv: 'lv_LV',
+  lt: 'lt_LT',
+  mt: 'mt_MT',
+  pl: 'pl_PL',
+  pt: 'pt_PT',
+  ro: 'ro_RO',
+  sk: 'sk_SK',
+  sl: 'sl_SI',
+  es: 'es_ES',
+  sv: 'sv_SE',
+  nb: 'nb_NO',
+  is: 'is_IS',
+});
+
 function languageNav(localeCode, pathname) {
   const links = publishedLocales().map((locale) => ({
     code: locale.code,
@@ -103,7 +132,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <meta property="og:description" content="${description}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${escapeHtml(canonical)}">
-  <meta property="og:locale" content="${locale.code === 'nl' ? 'nl_NL' : 'en_IE'}">
+  <meta property="og:locale" content="${escapeHtml(OG_LOCALE[locale.code] || 'en_IE')}">
   <link rel="stylesheet" href="/css/landing.css?v=21">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -126,7 +155,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <footer class="locale-footer"><p>${footer}</p></footer>
   <script src="/js/utm-capture.js?v=1.2.0"></script>
   <script src="/js/public-locale-alternates.js?v=1"></script>
-  <script src="/js/public-lang-switcher.js?v=4"></script>
+  <script src="/js/public-lang-switcher.js?v=5"></script>
   <script src="/js/landing-events.js?v=9"></script>
 </body>
 </html>`;

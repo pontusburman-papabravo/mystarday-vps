@@ -9,6 +9,7 @@ const { R3_INDEXABLE_PATHS } = require('../../config/resurser-r3');
 const { isResurserIndexable } = require('../../config/resurser-consolidation');
 const { allEnglishIndexablePaths } = require('../../config/en-public-mirror');
 const { indexablePathsForLocale } = require('../../config/web-content-keys');
+const { publicPathLocales } = require('../../config/web-locales');
 const { localeMeetsSeoContract } = require('./locale-seo-contract');
 const { isEnglishContentIndexable, sitemapAudienceForHost, englishOrigin, swedishOrigin } = require('./public-seo');
 
@@ -30,7 +31,9 @@ const SEO_INDEXABLE_PATHS = new Set([
     '/en/how-it-works',
     ...allEnglishIndexablePaths().filter((p) => isEnglishContentIndexable(p)),
   ] : []),
-  ...(localeMeetsSeoContract('nl') ? indexablePathsForLocale('nl') : []),
+  ...publicPathLocales()
+    .filter((locale) => locale.code !== 'en' && localeMeetsSeoContract(locale.code))
+    .flatMap((locale) => indexablePathsForLocale(locale.code)),
   '/morgonrutin-barn',
   '/beloningssystem-barn',
   '/rutiner-npf-barn',

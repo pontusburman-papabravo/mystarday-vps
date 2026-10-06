@@ -19,6 +19,86 @@
  */
 
 const { LOCALES, REQUIRED_SEO_CONTENT, localeByCode, normalizeWebPath } = require('./web-locales');
+
+/**
+ * Localized slugs for published path locales after Dutch.
+ * A slug must not collide with a market segment (/de/de is Germany, not a guide).
+ */
+const LOCALE_PATHS = Object.freeze({
+  de: Object.freeze({
+    home: '/de',
+    howItWorks: '/de/so-funktionierts',
+    visualSchedule: '/de/visueller-tagesplan',
+    morningRoutine: '/de/morgenroutine-kinder',
+    weeklySchedule: '/de/wochenplan-piktogramme',
+    neurodiverseRoutines: '/de/routinen-neurodiverse-kinder',
+    rewardSystem: '/de/belohnungssystem-kinder',
+    resources: '/de/materialien',
+    faq: '/de/fragen',
+    privacy: '/de/datenschutz',
+    terms: '/de/nutzungsbedingungen',
+  }),
+  fr: Object.freeze({
+    home: '/fr',
+    howItWorks: '/fr/comment-ca-marche',
+    visualSchedule: '/fr/emploi-du-temps-visuel',
+    morningRoutine: '/fr/routine-du-matin',
+    weeklySchedule: '/fr/planning-hebdomadaire',
+    neurodiverseRoutines: '/fr/routines-enfants-neurodivergents',
+    rewardSystem: '/fr/systeme-de-recompenses',
+    resources: '/fr/ressources',
+    faq: '/fr/questions-frequentes',
+    privacy: '/fr/confidentialite',
+    terms: '/fr/conditions-d-utilisation',
+  }),
+  es: Object.freeze({
+    home: '/es',
+    howItWorks: '/es/como-funciona',
+    visualSchedule: '/es/horario-visual',
+    morningRoutine: '/es/rutina-matinal',
+    weeklySchedule: '/es/plan-semanal',
+    neurodiverseRoutines: '/es/rutinas-ninos-neurodivergentes',
+    rewardSystem: '/es/sistema-de-recompensas',
+    resources: '/es/recursos',
+    faq: '/es/preguntas-frecuentes',
+    privacy: '/es/privacidad',
+    terms: '/es/condiciones',
+  }),
+  it: Object.freeze({
+    home: '/it',
+    howItWorks: '/it/come-funziona',
+    visualSchedule: '/it/schema-visivo',
+    morningRoutine: '/it/routine-del-mattino',
+    weeklySchedule: '/it/piano-settimanale',
+    neurodiverseRoutines: '/it/routine-bambini-neurodivergenti',
+    rewardSystem: '/it/sistema-di-ricompense',
+    resources: '/it/risorse',
+    faq: '/it/domande-frequenti',
+    privacy: '/it/privacy',
+    terms: '/it/condizioni',
+  }),
+  pl: Object.freeze({
+    home: '/pl',
+    howItWorks: '/pl/jak-to-dziala',
+    visualSchedule: '/pl/plan-dnia-obrazkowy',
+    morningRoutine: '/pl/poranna-rutyna',
+    weeklySchedule: '/pl/plan-tygodnia',
+    neurodiverseRoutines: '/pl/rutyny-dzieci-neuroroznorodnych',
+    rewardSystem: '/pl/system-nagrod',
+    resources: '/pl/materialy',
+    faq: '/pl/pytania',
+    privacy: '/pl/prywatnosc',
+    terms: '/pl/regulamin',
+  }),
+});
+
+function pathsFor(key, base) {
+  const paths = { ...base };
+  for (const [localeCode, slugs] of Object.entries(LOCALE_PATHS)) {
+    if (slugs[key]) paths[localeCode] = slugs[key];
+  }
+  return Object.freeze(paths);
+}
 const { chromeFor } = require('./web-locale-chrome');
 const { MARKETS, campaignPath } = require('./web-markets');
 
@@ -26,57 +106,57 @@ const CONTENT_KEYS = Object.freeze([
   Object.freeze({
     key: 'home',
     indexable: true,
-    paths: Object.freeze({ sv: '/', en: '/en', nl: '/nl' }),
+    paths: pathsFor('home', { sv: '/', en: '/en', nl: '/nl' }),
   }),
   Object.freeze({
     key: 'howItWorks',
     indexable: true,
-    paths: Object.freeze({ en: '/en/how-it-works', nl: '/nl/hoe-het-werkt' }),
+    paths: pathsFor('howItWorks', { en: '/en/how-it-works', nl: '/nl/hoe-het-werkt' }),
   }),
   Object.freeze({
     key: 'visualSchedule',
     indexable: true,
-    paths: Object.freeze({ sv: '/bildschema-app', en: '/en/visual-schedule-app', nl: '/nl/visueel-schema' }),
+    paths: pathsFor('visualSchedule', { sv: '/bildschema-app', en: '/en/visual-schedule-app', nl: '/nl/visueel-schema' }),
   }),
   Object.freeze({
     key: 'morningRoutine',
     indexable: true,
-    paths: Object.freeze({ sv: '/morgonrutin-barn', en: '/en/morning-routine-children', nl: '/nl/ochtendroutine-kinderen' }),
+    paths: pathsFor('morningRoutine', { sv: '/morgonrutin-barn', en: '/en/morning-routine-children', nl: '/nl/ochtendroutine-kinderen' }),
   }),
   Object.freeze({
     key: 'weeklySchedule',
     indexable: true,
-    paths: Object.freeze({ sv: '/veckoschema-bildstod', en: '/en/weekly-schedule-visual-support', nl: '/nl/weekplanning-met-pictogrammen' }),
+    paths: pathsFor('weeklySchedule', { sv: '/veckoschema-bildstod', en: '/en/weekly-schedule-visual-support', nl: '/nl/weekplanning-met-pictogrammen' }),
   }),
   Object.freeze({
     key: 'neurodiverseRoutines',
     indexable: true,
-    paths: Object.freeze({ sv: '/rutiner-npf-barn', en: '/en/routines-neurodiverse-children', nl: '/nl/routines-neurodiverse-kinderen' }),
+    paths: pathsFor('neurodiverseRoutines', { sv: '/rutiner-npf-barn', en: '/en/routines-neurodiverse-children', nl: '/nl/routines-neurodiverse-kinderen' }),
   }),
   Object.freeze({
     key: 'rewardSystem',
     indexable: true,
-    paths: Object.freeze({ sv: '/beloningssystem-barn', en: '/en/reward-system-children', nl: '/nl/beloningssysteem-kinderen' }),
+    paths: pathsFor('rewardSystem', { sv: '/beloningssystem-barn', en: '/en/reward-system-children', nl: '/nl/beloningssysteem-kinderen' }),
   }),
   Object.freeze({
     key: 'resources',
     indexable: true,
-    paths: Object.freeze({ sv: '/resurser', en: '/en/resources', nl: '/nl/bronnen' }),
+    paths: pathsFor('resources', { sv: '/resurser', en: '/en/resources', nl: '/nl/bronnen' }),
   }),
   Object.freeze({
     key: 'faq',
     indexable: true,
-    paths: Object.freeze({ sv: '/faq', en: '/en/faq', nl: '/nl/faq' }),
+    paths: pathsFor('faq', { sv: '/faq', en: '/en/faq', nl: '/nl/faq' }),
   }),
   Object.freeze({
     key: 'privacy',
     indexable: true,
-    paths: Object.freeze({ sv: '/privacy', en: '/en/privacy', nl: '/nl/privacy' }),
+    paths: pathsFor('privacy', { sv: '/privacy', en: '/en/privacy', nl: '/nl/privacy' }),
   }),
   Object.freeze({
     key: 'terms',
     indexable: true,
-    paths: Object.freeze({ sv: '/terms', en: '/en/terms', nl: '/nl/voorwaarden' }),
+    paths: pathsFor('terms', { sv: '/terms', en: '/en/terms', nl: '/nl/voorwaarden' }),
   }),
 ]);
 
@@ -141,13 +221,23 @@ function indexablePathsForLocale(localeCode) {
     .map((entry) => entry.paths[localeCode]);
 }
 
+function alternateCodes() {
+  const codes = new Set();
+  for (const entry of CONTENT_KEYS) {
+    Object.keys(entry.paths).forEach((code) => codes.add(code));
+  }
+  const head = ['sv', 'en', 'nl'].filter((code) => codes.has(code));
+  const rest = [...codes].filter((code) => !head.includes(code)).sort();
+  return [...head, ...rest];
+}
+
 function localeAlternates() {
-  return CONTENT_KEYS.map((entry) => ({
-    key: entry.key,
-    sv: entry.paths.sv || null,
-    en: entry.paths.en || null,
-    nl: entry.paths.nl || null,
-  }));
+  const codes = alternateCodes();
+  return CONTENT_KEYS.map((entry) => {
+    const row = { key: entry.key };
+    for (const code of codes) row[code] = entry.paths[code] || null;
+    return row;
+  });
 }
 
 module.exports = {
