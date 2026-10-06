@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Сутрешната къща",
+      "first_unlock_message": "Сутрешната къща те чака",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Сутрешната къща знае, че си тук.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Включва се мека светлина.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Вратата",
+          "always_active": true,
+          "ambient_message_sv": "Вратата помръдва — сякаш някой чака отвън.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Отвън градината чака…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Градината",
+      "first_unlock_message": "Градината те чака",
+      "ambient_message_sv": "Тревата се поклаща бавно от вятъра.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Пътеката",
+          "emoji": "🌿",
+          "ambient_message_sv": "Пътеката води по-навътре в градината.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Пътеката води към топла стая, пълна със спомени…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Цветна леха",
+          "emoji": "🪴",
+          "ambient_message_sv": "Пръстта е мека и топла.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Небето",
+          "emoji": "☁️",
+          "ambient_message_sv": "Облаците се движат бавно.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Стая на спомените",
+      "first_unlock_message": "Тук е това, с което се гордееш.",
+      "ambient_message_sv": "Тук е топло и спокойно.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Прозорецът",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Светлината влиза меко."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Стена на спомените",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Тук виси това, което е важно за теб."
+        }
+      ]
+    }
+  ]
+}

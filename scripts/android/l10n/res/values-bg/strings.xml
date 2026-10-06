@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Няма връзка</string>
+    <string name="native_offline_body">Провери връзката с интернет и опитай отново.</string>
+    <string name="camera_permission_rationale">[REDACTED] използва камерата, за да снима профилна снимка на детето.</string>
+    <string name="photos_permission_rationale">[REDACTED] има нужда от достъп до снимките, за да избереш профилна снимка на детето.</string>
+    <string name="notification_channel_routine_name">Напомняния за рутината</string>
+    <string name="notification_channel_routine_desc">Напомняния за плана на семейството</string>
+</resources>

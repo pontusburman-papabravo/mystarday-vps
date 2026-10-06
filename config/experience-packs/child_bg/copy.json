@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Днес {{child_name}} направи първа стъпка.",
+      "body_template": "Малко нещо от делника — но значи много. Вече знаеш, че рутината работи.",
+      "cta": "Виждам"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Успяхте заедно",
+      "body_template": "{{child_name}} започна. Ти го видя. Така растат навиците.",
+      "cta": "Колко хубаво"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Нещо блести в Сутрешната къща…"
+    }
+  }
+}

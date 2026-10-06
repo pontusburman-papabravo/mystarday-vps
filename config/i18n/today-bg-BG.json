@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Днес — {{brand}}",
+  "shell": {
+    "headerTitle": "Днес",
+    "backToHome": "← Обратно към Начало",
+    "pdfHint": "Създай PDF за ден, седмица или моите дни",
+    "printBtn": "📄 Създай PDF ▾",
+    "printDay": "📄 Създай PDF — ден",
+    "printWeek": "📅 Създай PDF — седмица",
+    "printMyDays": "🏠 Създай PDF — моите дни",
+    "selectChildHeading": "Избери дете",
+    "selectChildEmpty": "Избери дете отгоре, за да видиш дневника",
+    "loadingChildren": "Зареждане…",
+    "tipsTitle": "Съвет: следи дейностите в Днес",
+    "tips1": "Отбелязвай дейностите като готови — детето ги вижда веднага",
+    "tips2": "В детския изглед дейностите се отмятат с едно докосване и звездата идва веднага",
+    "tips3": "Върни се с календара и виж как е минал денят на детето",
+    "tips4": "Спри един ден, когато рутината е друга — звездите не се губят",
+    "rateActivity": "Оцени дейността",
+    "commentPlaceholder": "Коментар (по желание)…",
+    "cancel": "Отказ",
+    "save": "Запази",
+    "moveUp": "Нагоре",
+    "moveDown": "Надолу",
+    "printWeekDocTitle": "Седмичен план — {{name}}",
+    "printMyDaysDocTitle": "Моите дни"
+  },
+  "childFallback": "Дете",
+  "noChildren": "Още няма добавени деца.",
+  "loading": "Зареждане…",
+  "retry": "Опитай отново",
+  "errors": {
+    "signInRequired": "Влез, за да видиш Днес",
+    "loadChildren": "Децата не се заредиха",
+    "loadLog": "Дневникът не се зареди. Опитай отново.",
+    "saveOrder": "Редът не се запази",
+    "updateActivity": "Дейността не се обнови",
+    "undo": "Отмяната не мина",
+    "changeStatus": "Статусът не се промени",
+    "adjustTime": "Часовете не се преместиха",
+    "selectChild": "Първо избери дете",
+    "custodyDisabled": "Планът за грижа не е включен",
+    "loadWeek": "Седмицата не се зареди",
+    "saveRating": "Оценката не се запази",
+    "ratingScoreOrEmotion": "Избери оценка или карта за настроение",
+    "ratingScoreRange": "Оценката трябва да е между 1 и 10",
+    "ratingInvalidEmotion": "Невалидна карта за настроение",
+    "ratingActivityNotFound": "Дейността не е намерена",
+    "ratingNotAllowed": "Оценка не е позволена за това дете при тази дейност",
+    "ratingParentScoreRange": "Оценката трябва да е между 1 и 5",
+    "ratingParentDisabled": "Родителската оценка не е включена за тази дейност",
+    "dayPaused": "Денят е на пауза",
+    "dailyLogItemRequired": "daily_log_item_id е задължителен",
+    "invalidTimerMinutes": "Невалидни минути. Позволени стойности: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Днес няма дейности!",
+    "noScheduleDay": "Този ден няма рутина",
+    "addToWeekSchedule": "Добави дейности в седмичния план, за да се създават дневници сами.",
+    "noScheduleSelected": "Няма рутина за избрания ден.",
+    "thisDay": "този ден",
+    "today": "днес",
+    "noChildrenTitle": "Няма добавени деца",
+    "addFirstChild": "Добави първото дете в Начало, за да започнеш!",
+    "goToDashboard": "Към Начало",
+    "goToWeekSchedule": "📅 Към седмичния план"
+  },
+  "nav": {
+    "prevWeek": "Предишна седмица",
+    "prevDay": "Предишен ден",
+    "nextDay": "Следващ ден",
+    "nextWeek": "Следваща седмица",
+    "pickDate": "Избери дата",
+    "todayBtn": "Днес",
+    "undoBump": "Върни последната промяна на часа"
+  },
+  "activity": {
+    "markDone": "Отбележи като готово",
+    "undoMark": "Махни отметката",
+    "rate": "⭐ Оцени",
+    "setRating": "Постави оценка",
+    "changeRating": "Промени оценката",
+    "dragReorder": "Плъзни, за да пренаредиш",
+    "completeAllInSection": "Завърши всичко в {{section}}",
+    "completeAllBtn": "✅ Отбележи всички",
+    "defaultName": "Дейност",
+    "undoneToast": "↩️ Отметката е махната"
+  },
+  "pause": {
+    "confirmPause": "Да спра ли този ден? Дейностите няма да се броят негативно.",
+    "confirmUnpause": "Да пусна ли този ден отново?",
+    "pausedToast": "😴 Денят е на пауза",
+    "unpausedToast": "✅ Денят е пуснат отново",
+    "dayTitle": "Почивен ден",
+    "banner": "Този ден е на пауза (например болест или празник). Дейностите не се броят негативно.",
+    "reactivate": "✅ Пусни деня отново",
+    "pauseBtn": "😴 Спри този ден (болест / почивен ден)"
+  },
+  "bump": {
+    "noItems": "Няма неотметнати дейности с час, които да преместиш",
+    "moved": "⏩ Преместени {{count}} дейност{{suffix}} напред с {{minutes}} мин",
+    "movedOne": "",
+    "movedMany": "и",
+    "undoToast": "↩️ Промяната на часа е върната",
+    "title": "Премести всичко напред",
+    "adjustHint": "Мести часовете на неотметнатите дейности",
+    "minutesTitle": "Премести напред с {{minutes}} мин",
+    "undoBtn": "↩ Върни"
+  },
+  "retrofill": {
+    "title": "Попълване на рутината след това",
+    "description": "Попълваш рутина след като е минала. Отбележи дейностите като готови — записват се с вярна дата."
+  },
+  "rating": {
+    "childMood": "Настроение на детето",
+    "parentScore": "Оценка от родителя",
+    "noMoodCards": "Още няма карти за настроение",
+    "saved": "⭐ Оценката е запазена!",
+    "labels": [
+      "",
+      "Трудно 😓",
+      "Горе-долу 😐",
+      "Добре 😊",
+      "Чудесно 😄",
+      "Страхотно! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Хигиена",
+    "mat": "Храна",
+    "skola": "Училище",
+    "lek": "Игра",
+    "rorelse": "Движение",
+    "vila": "Почивка",
+    "social": "Заедно"
+  },
+  "legend": {
+    "colorCoding": "Цветове:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Всички дейности са готови!",
+    "completedOf": "{{completed}} от {{total}} дейности са готови"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Отметнато: {{name}}",
+    "undo": "Върни"
+  },
+  "emotions": {
+    "title": "💛 Настроения днес",
+    "noCards": "Още няма карти за настроение",
+    "sliderResponses": "Плъзгач: {{count}} отговор{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "а",
+    "sliderAvg": " (ср. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Подготвям прегледа на седмицата...",
+    "preparingCustody": "Подготвям моите дни…",
+    "noMyDays": "Няма твои дни тази седмица",
+    "weekScheduleTitle": "{{name}} — Седмичен план",
+    "myDaysTitle": "{{name}} — Моите дни"
+  }
+}
