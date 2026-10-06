@@ -302,7 +302,7 @@
       }
     },
     "de-DE": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "de-DE",
         "fallback": null,
@@ -314,8 +314,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "de",
+        "androidResources": [
+          "scripts/android/l10n/res/values-de/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-de/strings.xml"
+        ]
       }
     },
     "el-GR": {

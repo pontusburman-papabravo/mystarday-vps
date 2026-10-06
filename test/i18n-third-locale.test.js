@@ -59,15 +59,6 @@ describe('third locale xx is data, not a code branch', () => {
           showOnFirstRun: true,
           contentSource: 'locale-files',
         },
-        {
-          id: 'de-DE',
-          nativeName: 'Deutsch',
-          base: 'de',
-          aliases: ['de'],
-          availability: 'public',
-          showOnFirstRun: true,
-          contentSource: 'locale-files',
-        },
       ],
     };
     withLocaleCatalog(catalog, () => {
@@ -85,8 +76,8 @@ describe('third locale xx is data, not a code branch', () => {
     assert.equal(normalizeLocale('fr-BE'), null);
   });
 
-  it('shipped catalog stays sv-SE and en-GB', () => {
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+  it('shipped catalog is Swedish, English, and German', () => {
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
     assert.equal(normalizeLocale('xx'), null);
     assert.equal(normalizeLocale('xx-XX'), null);
   });
@@ -155,7 +146,7 @@ describe('third locale xx is data, not a code branch', () => {
     assert.equal(sandbox.window.I18n._normalize('xx'), 'xx-XX');
     assert.equal(sandbox.window.I18n._normalize('fr'), null);
     const names = sandbox.window.I18n.selectorLocales().map((locale) => locale.nativeName);
-    assert.deepEqual(names, ['Svenska', 'English']);
+    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch']);
     assert.equal(sandbox.window.I18n.firstRunLocales().some((locale) => locale.id === 'xx-XX'), false);
 
     sandbox.window.I18n.CATALOG = {

@@ -13,7 +13,10 @@ const path = require('path');
 const { loadStoreCatalog } = require('../src/lib/store-locale');
 
 const ROOT = path.join(__dirname, '..');
-const PLIST = path.join(ROOT, 'ios/App/App/Info.plist');
+const PLISTS = [
+  path.join(ROOT, 'ios/App/App/Info.plist'),
+  path.join(ROOT, 'ios/App/WidgetRoutine/Info.plist'),
+];
 
 function publicLocales() {
   const catalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/locale-catalog.json'), 'utf8'));
@@ -59,23 +62,35 @@ function currentLanguages(plist) {
   return [...match[1].matchAll(/<string>([^<]+)<\/string>/g)].map((item) => item[1]);
 }
 
-function syncIos(checkOnly) {
-  const expected = expectedIosLanguages();
-  const plist = fs.readFileSync(PLIST, 'utf8');
-  const current = currentLanguages(plist);
-  const same = current.length === expected.length && current.every((lang, i) => lang === expected[i]);
-  if (same) return { changed: false, languages: expected };
-  if (checkOnly) {
-    throw new Error(
-      `CFBundleLocalizations is ${current.join(', ')}; catalog expects ${expected.join(', ')}. Run node scripts/sync-native-locales.js`
+function withLocalizations(plist, expected) {
+  const block = renderLocalizations(expected);
+  if (/<key>CFBundleLocalizations<\/key>/.test(plist)) {
+    return plist.replace(
+      /<key>CFBundleLocalizations<\/key>\s*<array>[\s\S]*?<\/array>/,
+      block
     );
   }
-  const next = plist.replace(
-    /<key>CFBundleLocalizations<\/key>\s*<array>[\s\S]*?<\/array>/,
-    renderLocalizations(expected)
-  );
-  fs.writeFileSync(PLIST, next);
-  return { changed: true, languages: expected };
+  return plist.replace(/\n<\/dict>\s*<\/plist>\s*$/, `\n${block}\n</dict>\n</plist>\n`);
+}
+
+function syncIos(checkOnly) {
+  const expected = expectedIosLanguages();
+  let changed = false;
+  for (const plistPath of PLISTS) {
+    const plist = fs.readFileSync(plistPath, 'utf8');
+    const current = currentLanguages(plist);
+    const same = current.length === expected.length && current.every((lang, i) => lang === expected[i]);
+    if (same) continue;
+    const label = path.relative(ROOT, plistPath);
+    if (checkOnly) {
+      throw new Error(
+        `${label} CFBundleLocalizations is ${current.join(', ') || '(missing)'}; catalog expects ${expected.join(', ')}. Run node scripts/sync-native-locales.js`
+      );
+    }
+    fs.writeFileSync(plistPath, withLocalizations(plist, expected));
+    changed = true;
+  }
+  return { changed, languages: expected };
 }
 
 function checkAndroidResources() {

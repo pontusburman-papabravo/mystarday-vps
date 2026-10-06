@@ -77,12 +77,12 @@ describe('store locale catalog', () => {
     assert.match(ieListing.description, /stdeula/);
   });
 
-  it('does not mark a planned language store-ready when screenshots are missing', () => {
+  it('keeps Germany language-ready and the market closed', () => {
     const germany = assessMarket('DE', 'de-DE');
-    assert.equal(germany.APP_READY, false);
-    assert.equal(germany.APPLE_READY, false);
-    assert.equal(germany.GOOGLE_READY, false);
+    assert.equal(germany.APP_READY, true);
+    assert.equal(germany.APPLE_READY, true);
+    assert.equal(germany.GOOGLE_READY, true);
     assert.equal(germany.MARKET_READY, false);
-    assert.ok(germany.reasons.some((reason) => /not a public app locale|not activated|screenshot set de-DE missing|listing de-DE missing/.test(reason)));
+    assert.ok(germany.reasons.some((reason) => /not activated/.test(reason)));
   });
 });

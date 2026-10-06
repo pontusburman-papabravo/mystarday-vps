@@ -32,8 +32,8 @@ describe('i18n fragment domain registration', () => {
     assert.match(src, /module\.exports = \{[\s\S]*FRAGMENT_DOMAINS/);
   });
 
-  it('supported locales remain sv-SE and en-GB', () => {
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+  it('supported locales include the shipped app languages', () => {
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
   });
 
   it('every registered fragment domain has sv-SE and en-GB files', () => {

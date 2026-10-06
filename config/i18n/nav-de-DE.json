@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Start",
+    "planning": "Planung",
+    "rewards": "Belohnungen",
+    "forYou": "Für dich",
+    "family": "Familie"
+  },
+  "settings": "Einstellungen",
+  "mainAria": "Hauptnavigation",
+  "notifications": "Benachrichtigungen",
+  "share": "Teilen",
+  "logout": "Abmelden",
+  "switchUser": "Profil wechseln",
+  "returnToChild": "Zurück zum Kind",
+  "darkMode": "Dunkelmodus",
+  "lightMode": "Hellmodus",
+  "overview": "Übersicht",
+  "dailyLog": "Heute",
+  "weekSchedule": "Wochenplan",
+  "reports": "Berichte",
+  "library": "Bibliothek",
+  "libraryAdvanced": "📚 Bibliothek (Erweitert)",
+  "pedagogNotes": "📝 Pädagogen-Notizen",
+  "treasureChest": "Schatztruhe",
+  "familySettings": "Familie & Einstellungen",
+  "capability": {
+    "subscription": "Abo",
+    "reports": "Berichte",
+    "samarbete": "Zusammenarbeit mit Pädagogen",
+    "barnStod": "Extra Unterstützung"
+  },
+  "header": {
+    "notifications": "Benachrichtigungen",
+    "settings": "Einstellungen",
+    "share": "Teilen",
+    "shareTitle": "Erzähle einer Familie von der App!",
+    "shareAria": "Teilen"
+  },
+  "avatar": {
+    "switchPedagog": "Zur Pädagogen-Ansicht wechseln",
+    "subscription": "Abo",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "mobile": {
+    "openMenu": "Menü öffnen",
+    "darkModeTitle": "Dunkelmodus",
+    "darkModeAria": "Dunkelmodus umschalten"
+  }
+}

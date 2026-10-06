@@ -21,9 +21,9 @@ function loadJsonFallback(locale = 'sv-SE') {
 
 function journeyTranslationsFor(locale) {
   const canonical = resolveFamilyLocale(locale);
-  if (canonical === 'en-GB') return EN_TRANSLATIONS;
   const file = path.join(__dirname, `../../../config/journey-${canonical}-translations.js`);
   if (fs.existsSync(file)) return require(file);
+  if (usesCanonicalLibrary(canonical)) return null;
   return EN_TRANSLATIONS;
 }
 

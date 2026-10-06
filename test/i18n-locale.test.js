@@ -44,7 +44,7 @@ describe('locale normalization', () => {
     assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
     assert.equal(SUPPORTED_LOCALES.includes('fi'), false);
     assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), false);
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
   });
 
   it('validateLocale falls back to sv-SE', () => {

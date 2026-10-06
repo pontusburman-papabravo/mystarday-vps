@@ -5,6 +5,8 @@
     {
       "id": "SE",
       "defaultAppLocale": "sv-SE",
+      "appLocales": ["sv-SE"],
+      "requiredAppLocales": ["sv-SE"],
       "activation": "live",
       "screenshots": {
         "apple": "live_external",
@@ -14,6 +16,8 @@
     {
       "id": "IE",
       "defaultAppLocale": "en-GB",
+      "appLocales": ["en-GB", "ga-IE"],
+      "requiredAppLocales": ["en-GB"],
       "activation": "live",
       "screenshots": {
         "apple": "live_external",
@@ -24,6 +28,8 @@
     {
       "id": "CA",
       "defaultAppLocale": "en-GB",
+      "appLocales": ["en-GB"],
+      "requiredAppLocales": ["en-GB"],
       "activation": "live",
       "screenshots": {
         "apple": "live_external",
@@ -33,6 +39,8 @@
     {
       "id": "FI",
       "defaultAppLocale": "sv-SE",
+      "appLocales": ["fi-FI", "sv-SE"],
+      "requiredAppLocales": ["fi-FI", "sv-SE"],
       "activation": "planned"
     },
     {
@@ -48,6 +56,8 @@
     {
       "id": "DE",
       "defaultAppLocale": "de-DE",
+      "appLocales": ["de-DE"],
+      "requiredAppLocales": ["de-DE"],
       "activation": "planned"
     },
     {
@@ -58,6 +68,8 @@
     {
       "id": "BE",
       "defaultAppLocale": "fr-FR",
+      "appLocales": ["nl-NL", "fr-FR", "de-DE"],
+      "requiredAppLocales": ["nl-NL", "fr-FR", "de-DE"],
       "activation": "planned"
     },
     {

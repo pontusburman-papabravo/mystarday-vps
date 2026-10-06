@@ -2,10 +2,13 @@
 
 ## Resource structure
 
-| Platform | Swedish | English (UK) |
-|----------|---------|----------------|
-| iOS | `ios/App/App/sv.lproj/` | `ios/App/App/en-GB.lproj/` |
-| Android (templates) | `scripts/android/l10n/res/values-sv/` | `scripts/android/l10n/res/values-en-rGB/` |
+| Platform | Swedish | English (UK) | German |
+|----------|---------|----------------|--------|
+| iOS app | `ios/App/App/sv.lproj/` | `ios/App/App/en-GB.lproj/` | `ios/App/App/de.lproj/` |
+| iOS widget | `ios/App/WidgetRoutine/sv.lproj/` | `ios/App/WidgetRoutine/en-GB.lproj/` | `ios/App/WidgetRoutine/de.lproj/` |
+| Android (templates) | `scripts/android/l10n/res/values-sv/` | `scripts/android/l10n/res/values-en-rGB/` | `scripts/android/l10n/res/values-de/` |
+
+`CFBundleLocalizations` on the app and the widget extension is written from the public locale catalog by `scripts/sync-native-locales.js`. Widget copy is `NSLocalizedString` keys. A new public language adds a `.lproj`, not a language branch in Swift.
 
 Android generated project (`android/`, gitignored) receives copies via:
 
@@ -55,6 +58,6 @@ node scripts/install-android-l10n.mjs
 - Full Android project not committed (`/android/` gitignored); templates live under `scripts/android/l10n/`.
 - Android widget `values-en-rGB` now has **full key parity** with default `values/strings.xml` (no allowlist).
 
-## Child Core dependency
+## Child locale
 
-Native shell localisation is **PR B**. English child in-app copy requires **Child Core (PR #718)** merged first. Do not enable `english_child_experience` for live families until both are merged and device QA is logged.
+The child experience follows `family.preferred_locale`. `english_child_experience` is not the language switch.

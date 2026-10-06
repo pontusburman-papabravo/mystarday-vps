@@ -75,13 +75,41 @@ describe('i18n native shell', () => {
     assert.ok(fs.existsSync(path.join(ROOT, 'docs/i18n-native-app-localisation.md')));
   });
 
-  it('iOS widget l10n has English and Swedish for child-switch and done-for copy', () => {
+  it('iOS widget copy is a string table per public language', () => {
     const src = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/WidgetL10n.swift'), 'utf8');
-    assert.match(src, /Previous child/);
-    assert.match(src, /Föregående barn/);
-    assert.match(src, /Next child/);
-    assert.match(src, /Nästa barn/);
-    assert.match(src, /Done for/);
-    assert.match(src, /Klart för/);
+    assert.match(src, /NSLocalizedString/);
+    assert.doesNotMatch(src, /isEnglish/);
+    assert.doesNotMatch(src, /hasPrefix\("en"\)/);
+
+    function keysFromStrings(p) {
+      const text = fs.readFileSync(p, 'utf8');
+      const keys = [];
+      const re = /"([^"]+)"\s*=/g;
+      let m;
+      while ((m = re.exec(text)) !== null) keys.push(m[1]);
+      return keys.sort();
+    }
+
+    const locales = ['sv', 'en-GB', 'de'];
+    const tables = locales.map((locale) =>
+      keysFromStrings(path.join(ROOT, 'ios/App/WidgetRoutine', `${locale}.lproj/Localizable.strings`))
+    );
+    assert.ok(tables[0].includes('widget_switch_child_prev'));
+    assert.ok(tables[0].includes('widget_feedback_done_for'));
+    assert.deepEqual(tables[1], tables[0]);
+    assert.deepEqual(tables[2], tables[0]);
+
+    const sv = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/sv.lproj/Localizable.strings'), 'utf8');
+    const en = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/en-GB.lproj/Localizable.strings'), 'utf8');
+    const de = fs.readFileSync(path.join(ROOT, 'ios/App/WidgetRoutine/de.lproj/Localizable.strings'), 'utf8');
+    assert.match(sv, /Föregående barn/);
+    assert.match(en, /Previous child/);
+    assert.match(de, /Vorheriges Kind/);
+    assert.doesNotMatch(en, /Föregående barn/);
+    assert.doesNotMatch(de, /Nästa aktivitet/);
+
+    const project = fs.readFileSync(path.join(ROOT, 'ios/App/App.xcodeproj/project.pbxproj'), 'utf8');
+    assert.match(project, /WidgetRoutine\/sv\.lproj\/Localizable\.strings|path = sv\.lproj\/Localizable\.strings/);
+    assert.match(project, /W1D6E7F401F0A00100000010 \/\* Localizable\.strings in Resources \*\//);
   });
 });

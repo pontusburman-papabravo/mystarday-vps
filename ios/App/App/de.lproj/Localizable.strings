@@ -1,0 +1,3 @@
+/* Native shell copy (de) — OS picks this before login when the device language is German. */
+"native_offline_title" = "Keine Verbindung";
+"native_offline_body" = "Prüfe deine Internetverbindung und versuche es erneut.";

@@ -165,7 +165,41 @@ function tWithBundles(lang, key, params = {}, bundles = locales) {
     return key;
   }
 
-  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+  return applyMessageParams(bundleKey, value, params);
+}
+
+function internationalBrandName() {
+  const en = locales['en-GB'];
+  const name = en && en.app && en.app.name;
+  if (typeof name === 'string' && name && !name.includes('{{')) return name;
+  return require('./public-html-placeholders').brandName();
+}
+
+function brandLabel(lang) {
+  const canonical = resolveBundleKey(lang, locales);
+  if (canonical === DEFAULT_LOCALE) return require('./public-html-placeholders').brandName();
+  return internationalBrandName();
+}
+
+function applyMessageParams(lang, value, params) {
+  const merged = { ...params };
+  if (merged.brand == null || merged.brand === '') merged.brand = brandLabel(lang);
+  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(merged[k] ?? ''));
+}
+
+function substituteBrandTree(lang, node) {
+  if (typeof node === 'string') {
+    if (!node.includes('{{brand}}')) return node;
+    const brand = brandLabel(lang);
+    return node.replace(/\{\{brand\}\}/g, brand);
+  }
+  if (Array.isArray(node)) return node.map((item) => substituteBrandTree(lang, item));
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const [key, value] of Object.entries(node)) out[key] = substituteBrandTree(lang, value);
+    return out;
+  }
+  return node;
 }
 
 /**
@@ -233,9 +267,8 @@ function assembleLocale(lang, bundles = locales) {
 
   const canonicalKey = resolveBundleKey(CANONICAL_FALLBACK_LOCALE, bundles);
   const fallback = bundles[canonicalKey] || {};
-  if (bundleKey === canonicalKey) return { ...primary };
-
-  return deepMergeFallback(fallback, primary);
+  const merged = bundleKey === canonicalKey ? { ...primary } : deepMergeFallback(fallback, primary);
+  return substituteBrandTree(canonical, merged);
 }
 
 /**
@@ -404,4 +437,6 @@ module.exports = {
   pluralCategory,
   FRAGMENT_DOMAINS,
   FRAGMENT_NAMESPACE,
+  flattenLeaves,
+  placeholderNames,
 };

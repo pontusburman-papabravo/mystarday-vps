@@ -8,11 +8,12 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 describe('iOS native shell localization', () => {
-  it('Info.plist keeps Swedish development region and declares sv + en-GB', () => {
+  it('Info.plist keeps Swedish development region and declares catalog languages', () => {
     const plist = fs.readFileSync(path.join(ROOT, 'ios/App/App/Info.plist'), 'utf8');
     assert.match(plist, /<key>CFBundleDevelopmentRegion<\/key>\s*<string>sv<\/string>/);
     assert.match(plist, /<string>sv<\/string>/);
     assert.match(plist, /<string>en-GB<\/string>/);
+    assert.match(plist, /<string>de<\/string>/);
     assert.match(plist, /använder kameran/);
   });
 
@@ -39,6 +40,8 @@ describe('iOS native shell localization', () => {
     assert.match(pbx, /developmentRegion = sv;/);
     assert.match(pbx, /sv\.lproj\/InfoPlist\.strings/);
     assert.match(pbx, /en-GB\.lproj\/InfoPlist\.strings/);
+    assert.match(pbx, /de\.lproj\/InfoPlist\.strings/);
+    assert.match(pbx, /de\.lproj\/Localizable\.strings/);
     assert.doesNotMatch(pbx, /en\.lproj\/InfoPlist\.strings/);
     assert.match(pbx, /InfoPlist\.strings in Resources/);
     assert.match(pbx, /MARKETING_VERSION = \d+\.\d+/);
@@ -51,9 +54,8 @@ describe('iOS native shell localization', () => {
       'utf8'
     );
     assert.match(src, /CFBundleDevelopmentRegion',\s*'sv'/);
-    assert.match(src, /CFBundleLocalizations',\s*\['sv',\s*'en-GB'\]/);
-    assert.match(src, /writeSwedishInfoPlistStrings/);
-    assert.match(src, /writeEnGbInfoPlistStrings/);
+    assert.match(src, /expectedIosLanguages/);
+    assert.match(src, /USAGE_BY_IOS/);
     assert.match(src, /removeEnglishLproj/);
   });
 });

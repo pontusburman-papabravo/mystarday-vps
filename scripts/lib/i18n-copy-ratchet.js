@@ -535,8 +535,10 @@ function findUnregisteredDomains(fragmentDir, registeredDomains, locales = ['sv-
   const unregistered = [];
   const missingPartner = [];
   const byDomain = {};
+  const localeAlt = locales.map((locale) => locale.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const localeFile = new RegExp(`^(.*)-(${localeAlt})\\.json$`);
   for (const file of files) {
-    const m = file.match(/^(.*)-(sv-SE|en-GB)\.json$/);
+    const m = file.match(localeFile);
     if (!m) continue;
     const domain = m[1];
     const locale = m[2];

@@ -189,8 +189,6 @@ enum WidgetEntryBuilder {
     private static func formatDuration(_ seconds: Int?) -> String? {
         guard let s = seconds, s >= 60 else { return nil }
         let mins = max(1, s / 60)
-        let preferred = Locale.preferredLanguages.first ?? "sv"
-        if preferred.hasPrefix("en") { return "\(mins) min" }
         return "\(mins) min"
     }
 
