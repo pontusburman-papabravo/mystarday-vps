@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Accueil",
+    "planning": "Planning",
+    "rewards": "Récompenses",
+    "forYou": "Pour vous",
+    "family": "Famille"
+  },
+  "settings": "Réglages",
+  "mainAria": "Navigation principale",
+  "notifications": "Notifications",
+  "share": "Partager",
+  "logout": "Se déconnecter",
+  "switchUser": "Changer de profil",
+  "returnToChild": "Retour à l'enfant",
+  "darkMode": "Mode sombre",
+  "lightMode": "Mode clair",
+  "overview": "Aperçu",
+  "dailyLog": "Aujourd'hui",
+  "weekSchedule": "Planning",
+  "reports": "Rapports",
+  "library": "Bibliothèque",
+  "libraryAdvanced": "📚 Bibliothèque (avancé)",
+  "pedagogNotes": "📝 Notes de l'éducateur",
+  "treasureChest": "Coffre aux étoiles",
+  "familySettings": "Famille et réglages",
+  "capability": {
+    "subscription": "Abonnement",
+    "reports": "Rapports",
+    "samarbete": "Collaboration éducateur",
+    "barnStod": "Soutien supplémentaire"
+  },
+  "header": {
+    "notifications": "Notifications",
+    "settings": "Réglages",
+    "share": "Partager",
+    "shareTitle": "Parlez de l'appli à une famille !",
+    "shareAria": "Partager"
+  },
+  "avatar": {
+    "switchPedagog": "Passer en vue éducateur",
+    "subscription": "Abonnement",
+    "settings": "Réglages",
+    "logout": "Se déconnecter"
+  },
+  "mobile": {
+    "openMenu": "Ouvrir le menu",
+    "darkModeTitle": "Mode sombre",
+    "darkModeAria": "Activer ou désactiver le mode sombre"
+  }
+}

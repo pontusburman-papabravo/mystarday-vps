@@ -1,0 +1,9 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Visuele routines, sterren en beloningen voor kinderen die houvast nodig hebben",
+  "fullDescription": "Niet nog een gezinskalender.\n\n{{brand}} helpt kinderen hun dag te begrijpen: wat er nu gebeurt, wat daarna komt, en wat ze al hebben gedaan.\n\nDe app is gemaakt voor gezinnen die in het dagelijks leven meer houvast, voorspelbaarheid en visuele steun nodig hebben.\n\nVoor een kind met ADHD, autisme, of gewoon voor iedereen die baat heeft bij duidelijkere stappen, maakt {{brand}} van de dag kleine haalbare stappen.\n\nExtra nuttig voor gezinnen met een kind met ADHD, autisme of andere neurodivergente behoeften. Een diagnose is niet nodig. {{brand}} behandelt ADHD of autisme niet.\n\nHet kind ziet visuele routines, stap voor stap, en sterren voor wat al gelukt is. Ouders maken het schema, de beloningen, en kunnen een gekozen rapport delen.",
+  "privacyPolicyUrl": { "host": "app", "path": "/en/privacy" },
+  "supportUrl": { "host": "app", "path": "/en/contact" },
+  "marketingUrl": { "host": "app", "path": "/en" },
+  "releaseNotes": "Nederlands is nu beschikbaar in de app. Routines, rapporten en de kindweergave volgen de taal van het gezin."
+}

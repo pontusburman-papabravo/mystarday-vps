@@ -909,5 +909,10 @@
   },
   "catalog": {
     "back": "Tillbaka"
+  },
+  "sessionGate": {
+    "title": "Logga in som barn för att se schemat",
+    "body": "Den här vyn kräver barnets PIN-kod.",
+    "cta": "Logga in som barn"
   }
 }

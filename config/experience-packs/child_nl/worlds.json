@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Ochtendhuis",
+      "first_unlock_message": "Het Ochtendhuis wacht op je",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Het Ochtendhuis weet dat je er bent.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Een zacht licht gaat aan.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "De deur",
+          "always_active": true,
+          "ambient_message_sv": "De deur trilt een beetje — alsof er iemand buiten wacht.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Buiten wacht de tuin…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "De tuin",
+      "first_unlock_message": "De tuin wacht op je",
+      "ambient_message_sv": "Het gras beweegt langzaam in de bries.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Het pad",
+          "emoji": "🌿",
+          "ambient_message_sv": "Het pad leidt dieper de tuin in.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Het pad leidt naar een warme kamer vol herinneringen…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Bloembed",
+          "emoji": "🪴",
+          "ambient_message_sv": "De aarde voelt zacht en warm.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "De lucht",
+          "emoji": "☁️",
+          "ambient_message_sv": "Wolken bewegen langzaam.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Herinneringskamer",
+      "first_unlock_message": "Hier is waar je trots op bent geweest.",
+      "ambient_message_sv": "Het voelt hier warm en veilig.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Het raam",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Het licht valt zacht naar binnen."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Herinneringsmuur",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Hier hangt wat voor jou belangrijk is."
+        }
+      ]
+    }
+  ]
+}

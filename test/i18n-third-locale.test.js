@@ -46,38 +46,23 @@ const xxCatalog = {
 
 describe('third locale xx is data, not a code branch', () => {
   it('matches a regional tag to the one registered bundle for that language', () => {
-    const catalog = {
-      ...shippedCatalog,
-      locales: [
-        ...shippedCatalog.locales,
-        {
-          id: 'fr-FR',
-          nativeName: 'Français',
-          base: 'fr',
-          aliases: ['fr'],
-          availability: 'public',
-          showOnFirstRun: true,
-          contentSource: 'locale-files',
-        },
-      ],
-    };
-    withLocaleCatalog(catalog, () => {
-      assert.equal(normalizeLocale('fr-BE'), 'fr-FR');
-      assert.equal(normalizeLocale('de-AT'), 'de-DE');
-      assert.equal(normalizeLocale('fr'), 'fr-FR');
-      const frenchBrowser = resolveAccountLocale({
-        acceptLanguage: 'fr-BE,en;q=0.8',
-        marketDefaultLocale: 'sv-SE',
-      });
-      assert.equal(frenchBrowser.locale, 'fr-FR');
-      assert.equal(frenchBrowser.source, 'accept_language');
-      assert.equal(resolveAccountLocale({ marketDefaultLocale: 'de-DE' }).locale, 'de-DE');
+    assert.equal(normalizeLocale('fr-BE'), 'fr-FR');
+    assert.equal(normalizeLocale('de-AT'), 'de-DE');
+    assert.equal(normalizeLocale('nl-BE'), 'nl-NL');
+    assert.equal(normalizeLocale('nb-NO'), 'nb-NO');
+    assert.equal(normalizeLocale('no'), 'nb-NO');
+    const frenchBrowser = resolveAccountLocale({
+      acceptLanguage: 'fr-BE,en;q=0.8',
+      marketDefaultLocale: 'sv-SE',
     });
-    assert.equal(normalizeLocale('fr-BE'), null);
+    assert.equal(frenchBrowser.locale, 'fr-FR');
+    assert.equal(frenchBrowser.source, 'accept_language');
+    assert.equal(resolveAccountLocale({ marketDefaultLocale: 'de-DE' }).locale, 'de-DE');
+    assert.equal(normalizeLocale('pl-PL'), null);
   });
 
-  it('shipped catalog is Swedish, English, and German', () => {
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
+  it('shipped catalog includes the public app languages', () => {
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO']);
     assert.equal(normalizeLocale('xx'), null);
     assert.equal(normalizeLocale('xx-XX'), null);
   });
@@ -86,7 +71,7 @@ describe('third locale xx is data, not a code branch', () => {
     withLocaleCatalog(xxCatalog, () => {
       assert.equal(normalizeLocale('xx'), 'xx-XX');
       assert.equal(normalizeLocale('xx-XX'), 'xx-XX');
-      assert.equal(normalizeLocale('fr-FR'), null);
+      assert.equal(normalizeLocale('pl-PL'), null);
       assert.equal(experiencePackIdForLocale('xx-XX'), 'child_xx');
       assert.equal(experiencePackIdForLocale('sv-SE'), 'child_se');
       assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
@@ -141,12 +126,13 @@ describe('third locale xx is data, not a code branch', () => {
     vm.runInContext(src, sandbox, { filename: 'public/js/i18n.js' });
     assert.deepEqual(JSON.parse(JSON.stringify(sandbox.window.I18n.CATALOG)), shippedCatalog);
     assert.equal(sandbox.window.I18n._normalize('en-IE'), 'en-GB');
-    assert.equal(sandbox.window.I18n._normalize('fi-FI'), null);
+    assert.equal(sandbox.window.I18n._normalize('fi-FI'), 'fi-FI');
+    assert.notEqual(sandbox.window.I18n._normalize('fi-FI'), 'sv-SE');
     sandbox.window.I18n.CATALOG = xxCatalog;
     assert.equal(sandbox.window.I18n._normalize('xx'), 'xx-XX');
-    assert.equal(sandbox.window.I18n._normalize('fr'), null);
+    assert.equal(sandbox.window.I18n._normalize('pl'), null);
     const names = sandbox.window.I18n.selectorLocales().map((locale) => locale.nativeName);
-    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch']);
+    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch', 'Français', 'Nederlands', 'Dansk', 'Suomi', 'Norsk bokmål']);
     assert.equal(sandbox.window.I18n.firstRunLocales().some((locale) => locale.id === 'xx-XX'), false);
 
     sandbox.window.I18n.CATALOG = {
@@ -184,26 +170,9 @@ describe('third locale xx is data, not a code branch', () => {
 
   it('picks a locale string from data, then English, for a non-canonical language', () => {
     const names = { sv: 'Fritids', 'en-GB': 'After-school club', 'fr-FR': 'Garderie' };
-    const catalog = {
-      ...shippedCatalog,
-      locales: [
-        ...shippedCatalog.locales,
-        {
-          id: 'fr-FR',
-          nativeName: 'Français',
-          base: 'fr',
-          aliases: ['fr'],
-          availability: 'public',
-          showOnFirstRun: true,
-          contentSource: 'locale-files',
-        },
-      ],
-    };
-    withLocaleCatalog(catalog, () => {
-      assert.equal(pickLocaleString(names, 'fr-FR'), 'Garderie');
-      assert.equal(pickLocaleString({ sv: 'Fritids', 'en-GB': 'After-school club' }, 'fr-FR'), 'After-school club');
-      assert.equal(pickLocaleString(names, 'sv-SE'), 'Fritids');
-      assert.equal(pickLocaleString(names, 'en-GB'), 'After-school club');
-    });
+    assert.equal(pickLocaleString(names, 'fr-FR'), 'Garderie');
+    assert.equal(pickLocaleString({ sv: 'Fritids', 'en-GB': 'After-school club' }, 'fr-FR'), 'After-school club');
+    assert.equal(pickLocaleString(names, 'sv-SE'), 'Fritids');
+    assert.equal(pickLocaleString(names, 'en-GB'), 'After-school club');
   });
 });

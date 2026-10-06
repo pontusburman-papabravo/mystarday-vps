@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Tänään — {{brand}}",
+  "shell": {
+    "headerTitle": "Tänään",
+    "backToHome": "← Takaisin kotiin",
+    "pdfHint": "Luo PDF päivälle, viikolle tai omille päiville",
+    "printBtn": "📄 Luo PDF ▾",
+    "printDay": "📄 Luo PDF — päivä",
+    "printWeek": "📅 Luo PDF — viikko",
+    "printMyDays": "🏠 Luo PDF — omat päivät",
+    "selectChildHeading": "Valitse lapsi",
+    "selectChildEmpty": "Valitse lapsi yltä, niin näet lokin",
+    "loadingChildren": "Ladataan…",
+    "tipsTitle": "Vinkki: seuraa aktiviteetteja kohdassa Tänään",
+    "tips1": "Merkitse aktiviteetit tehdyiksi — lapsi näkee ne heti",
+    "tips2": "Aktiviteetit merkitään lapsen näkymässä yhdellä napautuksella, ja tähdet tulevat saman tien",
+    "tips3": "Selaa taaksepäin päivämäärävalitsimella ja katso, miten lapsella on mennyt",
+    "tips4": "Keskeytä päivä, kun rutiinit ovat erilaiset — tähtiä ei menetetä",
+    "rateActivity": "Arvioi aktiviteetti",
+    "commentPlaceholder": "Kommentti (valinnainen)…",
+    "cancel": "Peruuta",
+    "save": "Tallenna",
+    "moveUp": "Siirrä ylös",
+    "moveDown": "Siirrä alas",
+    "printWeekDocTitle": "Viikkoaikataulu — {{name}}",
+    "printMyDaysDocTitle": "Omat päivät"
+  },
+  "childFallback": "Lapsi",
+  "noChildren": "Lapsia ei ole vielä lisätty.",
+  "loading": "Ladataan…",
+  "retry": "Yritä uudelleen",
+  "errors": {
+    "signInRequired": "Kirjaudu, jotta näet päivän Tänään",
+    "loadChildren": "Lapsia ei voitu ladata",
+    "loadLog": "Lokia ei voitu ladata. Yritä uudelleen.",
+    "saveOrder": "Järjestystä ei voitu tallentaa",
+    "updateActivity": "Aktiviteettia ei voitu päivittää",
+    "undo": "Perumista ei voitu tehdä",
+    "changeStatus": "Tilaa ei voitu vaihtaa",
+    "adjustTime": "Aikoja ei voitu siirtää",
+    "selectChild": "Valitse ensin lapsi",
+    "custodyDisabled": "Vuoroasumisen aikataulu ei ole käytössä",
+    "loadWeek": "Viikkoa ei voitu ladata",
+    "saveRating": "Arviota ei voitu tallentaa",
+    "ratingScoreOrEmotion": "Valitse arvio tai tunnekortti",
+    "ratingScoreRange": "Arvion pitää olla välillä 1–10",
+    "ratingInvalidEmotion": "Virheellinen tunnekortti",
+    "ratingActivityNotFound": "Aktiviteettia ei löytynyt",
+    "ratingNotAllowed": "Tätä aktiviteettia ei voi arvioida tälle lapselle",
+    "ratingParentScoreRange": "Arvion pitää olla välillä 1–5",
+    "ratingParentDisabled": "Vanhemman arvio ei ole käytössä tässä aktiviteetissa",
+    "dayPaused": "Päivä on tauolla",
+    "dailyLogItemRequired": "Päivälokin merkintä vaaditaan",
+    "invalidTimerMinutes": "Virheelliset minuutit. Sallitut arvot: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Ei aktiviteetteja tänään!",
+    "noScheduleDay": "Ei rutiinia tänä päivänä",
+    "addToWeekSchedule": "Lisää aktiviteetteja viikkoaikatauluun, niin lokit syntyvät automaattisesti.",
+    "noScheduleSelected": "Valitulle päivälle ei ole rutiinia.",
+    "thisDay": "tänä päivänä",
+    "today": "tänään",
+    "noChildrenTitle": "Lapsia ei ole lisätty",
+    "addFirstChild": "Lisää ensimmäinen lapsi Kodissa, niin pääset alkuun!",
+    "goToDashboard": "Siirry kotiin",
+    "goToWeekSchedule": "📅 Siirry viikkoaikatauluun"
+  },
+  "nav": {
+    "prevWeek": "Edellinen viikko",
+    "prevDay": "Edellinen päivä",
+    "nextDay": "Seuraava päivä",
+    "nextWeek": "Seuraava viikko",
+    "pickDate": "Valitse päivä",
+    "todayBtn": "Tänään",
+    "undoBump": "Kumoa viimeisin ajan siirto"
+  },
+  "activity": {
+    "markDone": "Merkitse tehdyksi",
+    "undoMark": "Kumoa merkintä",
+    "rate": "⭐ Arvioi",
+    "setRating": "Aseta arvio",
+    "changeRating": "Vaihda arviota",
+    "dragReorder": "Vedä järjestääksesi",
+    "completeAllInSection": "Merkitse kaikki tehdyiksi: {{section}}",
+    "completeAllBtn": "✅ Merkitse kaikki tehdyiksi",
+    "defaultName": "Aktiviteetti",
+    "undoneToast": "↩️ Merkintä kumottiin"
+  },
+  "pause": {
+    "confirmPause": "Keskeytetäänkö tämä päivä? Aktiviteetit eivät laske miinusta.",
+    "confirmUnpause": "Aktivoidaanko tämä päivä uudelleen?",
+    "pausedToast": "😴 Päivä tauolla",
+    "unpausedToast": "✅ Päivä aktivoitu",
+    "dayTitle": "Vapaapäivä",
+    "banner": "Tämä päivä on tauolla (esim. sairas- tai vapaapäivä). Aktiviteetit eivät laske miinusta.",
+    "reactivate": "✅ Aktivoi päivä",
+    "pauseBtn": "😴 Keskeytä tämä päivä (sairaspäivä / vapaapäivä)"
+  },
+  "bump": {
+    "noItems": "Ei merkitsemättömiä ajastettuja aktiviteetteja siirrettäväksi",
+    "moved": "⏩ {{count}} aktivitee{{suffix}} siirrettiin {{minutes}} min eteenpäin",
+    "movedOne": "tti",
+    "movedMany": "ttia",
+    "undoToast": "↩️ Ajan siirto kumottiin",
+    "title": "Siirrä tulevat eteenpäin",
+    "adjustHint": "Siirtää merkitsemättömien aktiviteettien aikoja",
+    "minutesTitle": "Siirrä {{minutes}} min eteenpäin",
+    "undoBtn": "↩ Kumoa"
+  },
+  "retrofill": {
+    "title": "Rutiinin täydennys jälkikäteen",
+    "description": "Täytät rutiinia jälkikäteen. Merkitse aktiviteetit tehdyiksi — ne tallennetaan oikealle päivälle."
+  },
+  "rating": {
+    "childMood": "Lapsen mieliala",
+    "parentScore": "Vanhemman arvio",
+    "noMoodCards": "Ei vielä tunnekortteja",
+    "saved": "⭐ Arvio tallennettu!",
+    "labels": [
+      "",
+      "Vaikea 😓",
+      "Ihan ok 😐",
+      "Hyvä 😊",
+      "Hieno 😄",
+      "Mahtava! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygienia",
+    "mat": "Ruoka",
+    "skola": "Koulu",
+    "lek": "Leikki",
+    "rorelse": "Liikunta",
+    "vila": "Lepo",
+    "social": "Sosiaalinen"
+  },
+  "legend": {
+    "colorCoding": "Värikoodit:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Kaikki aktiviteetit tehty!",
+    "completedOf": "{{completed}} / {{total}} aktiviteettia tehty"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Merkitty: {{name}}",
+    "undo": "Kumoa"
+  },
+  "emotions": {
+    "title": "💛 Mielialat tänään",
+    "noCards": "Ei vielä tunnekortteja",
+    "sliderResponses": "Liukusäädin: {{count}} vastaus{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "ta",
+    "sliderAvg": " (ka {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Viikkokatsausta valmistellaan...",
+    "preparingCustody": "Omia päiviä valmistellaan…",
+    "noMyDays": "Ei omia päiviä tällä viikolla",
+    "weekScheduleTitle": "{{name}} — Viikkoaikataulu",
+    "myDaysTitle": "{{name}} — Omat päivät"
+  }
+}

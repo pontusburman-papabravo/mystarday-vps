@@ -909,5 +909,10 @@
   },
   "catalog": {
     "back": "Back"
+  },
+  "sessionGate": {
+    "title": "Log in as the child to see the plan",
+    "body": "This view needs the child's PIN.",
+    "cta": "Log in as the child"
   }
 }

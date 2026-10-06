@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Voir les conseils",
+    "close": "Fermer",
+    "milestone": "Étape",
+    "nextStep": "Prochaine étape",
+    "tip": "Conseil",
+    "weekReflection": "Bilan de la semaine",
+    "weekTogether": "Une semaine ensemble",
+    "weekLabel": "Une semaine",
+    "sjDay3Headline": "C'est le moment pour {{name}} d'essayer",
+    "tips": {
+      "coach_consistency": [
+        "Gardez la routine courte et claire — votre enfant prend l'habitude pas à pas.",
+        "Fêtez chaque coche, même les petites.",
+        "Laissez votre enfant se connecter seul chaque matin."
+      ],
+      "coach_evening": [
+        "Ajoutez 2 ou 3 activités calmes avant le coucher.",
+        "Le même ordre chaque soir aide à s'endormir."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nouveau",
+    "dismissAria": "Fermer l'explication",
+    "continueFallback": "Continuer",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Nous affichons ici, sur l'accueil, une suggestion claire pour la suite.",
+        "whatChanged": "Une carte « Prochaine étape » a été ajoutée en haut.",
+        "whyItMatters": "Inutile de chercher dans les rappels — une suggestion à la fois."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Laissez votre enfant essayer sa routine",
+      "body": "Ouvrez ensemble la vue enfant — votre enfant voit tout de suite quoi faire.",
+      "cta": "Ouvrir la vue enfant"
+    },
+    "ADD_EVENING": {
+      "headline": "Ajouter la routine du soir",
+      "body": "Rendez le coucher aussi clair que le matin.",
+      "cta": "Ajouter le soir"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Inviter l'autre parent",
+      "body": "Partagez la routine pour suivre la journée ensemble.",
+      "cta": "Inviter"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Commencer par un petit pas",
+      "body": "Votre routine est toujours là — une activité à la fois, aujourd'hui.",
+      "cta": "Ouvrir le planning"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Personnaliser votre routine",
+      "body": "Vous pouvez maintenant faire du planning le vôtre.",
+      "cta": "Personnaliser"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Fêter les progrès",
+      "body": "Vous avez franchi une étape importante — prenez un moment ensemble.",
+      "cta": "Montrer à votre enfant"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Votre enfant a terminé une activité !",
+    "defaultChild": "Votre enfant",
+    "defaultActivity": "une activité",
+    "defaultCta": "C'est noté"
+  }
+}

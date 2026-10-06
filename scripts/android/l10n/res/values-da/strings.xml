@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> 
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Ingen forbindelse</string>
+    <string name="native_offline_body">Tjek internetforbindelsen, og prøv igen.</string>
+    <string name="camera_permission_rationale">[REDACTED] bruger kameraet, så du kan tage et profilbillede af dit barn.</string>
+    <string name="photos_permission_rationale">[REDACTED] har brug for adgang til dine billeder, så du kan vælge et profilbillede til dit barn.</string>
+    <string name="notification_channel_routine_name">Rutinepåmindelser</string>
+    <string name="notification_channel_routine_desc">Påmindelser om familiens skema</string>
+</resources>

@@ -197,7 +197,7 @@
       }
     },
     "da-DK": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "da",
         "fallback": null,
@@ -209,12 +209,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "da",
+        "androidResources": [
+          "scripts/android/l10n/res/values-da/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-da/strings.xml"
+        ]
       }
     },
     "nl-NL": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "nl-NL",
         "fallback": null,
@@ -226,8 +229,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "nl",
+        "androidResources": [
+          "scripts/android/l10n/res/values-nl/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-nl/strings.xml"
+        ]
       }
     },
     "en-GB": {
@@ -268,7 +274,7 @@
       }
     },
     "fi-FI": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "fi",
         "fallback": null,
@@ -280,12 +286,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "fi",
+        "androidResources": [
+          "scripts/android/l10n/res/values-fi/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-fi/strings.xml"
+        ]
       }
     },
     "fr-FR": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "fr-FR",
         "fallback": null,
@@ -297,8 +306,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "fr",
+        "androidResources": [
+          "scripts/android/l10n/res/values-fr/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-fr/strings.xml"
+        ]
       }
     },
     "de-DE": {
@@ -563,7 +575,7 @@
       }
     },
     "nb-NO": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "no",
         "fallback": null,
@@ -575,8 +587,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "nb",
+        "androidResources": [
+          "scripts/android/l10n/res/values-nb/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-nb/strings.xml"
+        ]
       }
     },
     "is-IS": {

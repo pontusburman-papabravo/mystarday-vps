@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Neste aktivitet</string>
+    <string name="widget_routine_description">Fullfør neste steg i rutinen uten å åpne hele appen.</string>
+    <string name="widget_cd_pictogram">Aktivitetssymbol</string>
+    <string name="widget_cd_complete">Merk aktiviteten som ferdig</string>
+    <string name="widget_cd_open_app">Åpne i appen</string>
+    <string name="widget_action_complete">Ferdig</string>
+    <string name="widget_action_open_timer">Åpne timeglass</string>
+    <string name="widget_action_show_steps">Vis steg</string>
+    <string name="widget_action_open_app">Åpne appen</string>
+    <string name="widget_loading">Laster…</string>
+    <string name="widget_all_done">Alt er gjort for i dag!</string>
+    <string name="widget_nothing_now">Ingenting akkurat nå</string>
+    <string name="widget_offline">Ingen tilkobling</string>
+    <string name="widget_reauth">Logg inn i appen</string>
+    <string name="widget_revoked">Enhetstilgang er trukket tilbake</string>
+    <string name="widget_switching">Bytter barn…</string>
+    <string name="widget_feedback_done">✓ Ferdig!</string>
+    <string name="widget_feedback_done_for">✓ Ferdig for %1$s</string>
+    <string name="widget_cd_child_prev">Forrige barn</string>
+    <string name="widget_cd_child_next">Neste barn</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d av %2$d ferdige</string>
+    <string name="widget_private_activity">Neste steg</string>
+    <string name="widget_configure_title">Velg widget</string>
+    <string name="widget_configure_personal">Personlig (ett barn)</string>
+    <string name="widget_configure_family">Familie (bytt barn)</string>
+    <string name="widget_configure_save">Lagre</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

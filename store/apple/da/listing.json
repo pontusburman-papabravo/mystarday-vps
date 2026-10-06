@@ -1,0 +1,11 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Visuelle rutiner for familier",
+  "keywords": "rutine,skema,ADHD,autisme,stjerne,belønning,familie,barn",
+  "promotionalText": "Visuelle rutiner til børn, der har brug for mere struktur, især ved ADHD og autisme.",
+  "description": "Ikke bare endnu en familiekalender.\n\n{{brand}} hjælper børn med at forstå deres dag: hvad der sker nu, hvad der kommer bagefter, og hvad de allerede har klaret.\n\nAppen er lavet til familier, der har brug for mere struktur, forudsigelighed og visuel støtte i hverdagen.\n\nTil et barn med ADHD, autisme, eller bare til dem som tydeligere trin hjælper, deler {{brand}} dagen op i små mulige skridt.\n\nSærligt nyttig for familier med et barn med ADHD, autisme eller andre neurodivergente behov. En diagnose er ikke nødvendig. {{brand}} behandler ikke ADHD eller autisme.\n\nBarnet ser visuelle rutiner, skridt for skridt, og stjerner for det, der allerede er gjort. Forældre laver skemaet, belønningerne, og kan dele en valgt rapport.\n\nVilkår (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": { "host": "app", "path": "/en/privacy" },
+  "supportUrl": { "host": "app", "path": "/en/contact" },
+  "marketingUrl": { "host": "app", "path": "/en" },
+  "releaseNotes": "Dansk er nu tilgængeligt i appen. Rutiner, rapporter og børnevisningen følger familiens sprog."
+}

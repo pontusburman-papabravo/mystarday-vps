@@ -1,0 +1,9 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Routines visuelles, étoiles et récompenses pour enfants qui ont besoin de cadre",
+  "fullDescription": "Pas seulement un calendrier de plus.\n\n{{brand}} aide les enfants à comprendre leur journée : ce qui se passe maintenant, ce qui vient ensuite, et ce qu'ils ont déjà réussi.\n\nL'app est faite pour les familles qui ont besoin de plus de repères, de prévisibilité et de soutien visuel au quotidien.\n\nPour un enfant avec un TDAH, un autisme, ou simplement pour celles et ceux que des étapes plus claires aident, {{brand}} découpe la journée en petits pas possibles.\n\nParticulièrement utile quand un enfant a un TDAH, un autisme ou d'autres besoins neurodivergents. Aucun diagnostic n'est nécessaire. {{brand}} ne soigne ni le TDAH ni l'autisme.\n\nL'enfant voit des routines visuelles, étape par étape, et des étoiles pour ce qui est déjà fait. Les parents préparent le planning, les récompenses, et peuvent partager un rapport choisi.",
+  "privacyPolicyUrl": { "host": "app", "path": "/en/privacy" },
+  "supportUrl": { "host": "app", "path": "/en/contact" },
+  "marketingUrl": { "host": "app", "path": "/en" },
+  "releaseNotes": "Le français est disponible dans l'app. Les routines, les rapports et la vue enfant suivent la langue de la famille."
+}

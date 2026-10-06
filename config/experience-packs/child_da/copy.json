@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "I dag tog {{child_name}} det første skridt.",
+      "body_template": "En lille ting i hverdagen — men den betyder meget. Nu ved du, at rutinen virker.",
+      "cta": "Det ser jeg"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "I klarede det sammen",
+      "body_template": "{{child_name}} gik i gang. Du så det. Sådan vokser vaner.",
+      "cta": "Hvor fint"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Noget glimter i Morgenhuset …"
+    }
+  }
+}

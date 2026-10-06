@@ -48,8 +48,25 @@ describe('app locale readiness', () => {
   });
 
   it('does not treat an unknown locale as Swedish', () => {
-    const missing = assessAppLocale('fr-FR');
+    const missing = assessAppLocale('xx-XX');
     assert.equal(missing.ready, false);
     assert.match(missing.errors[0], /unknown locale/);
+  });
+
+  it('the five language packs are ready while their markets stay closed', () => {
+    for (const id of ['fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO']) {
+      const result = assessAppLocale(id);
+      assert.equal(result.ready, true, `${id}: ${result.errors.join('; ')}`);
+    }
+    for (const marketId of ['FR', 'NL', 'DK', 'FI', 'NO']) {
+      const market = assessMarket(marketId);
+      assert.equal(market.MARKET_READY, false, marketId);
+    }
+    const finland = assessMarket('FI');
+    assert.equal(finland.APP_READY, true);
+    assert.deepEqual(
+      loadStoreCatalog().markets.markets.find((market) => market.id === 'FI').requiredAppLocales,
+      ['fi-FI', 'sv-SE']
+    );
   });
 });

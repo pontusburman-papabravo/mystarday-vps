@@ -49,7 +49,7 @@
         : '';
       return `
           <button type="button" class="locale-switcher__option" data-locale-value="${escapeAttr(locale.id)}"${gated} aria-pressed="false">
-            <span data-i18n="language.${escapeAttr(locale.id)}">${escapeHtml(locale.nativeName)}</span>
+            <span>${escapeHtml(locale.nativeName)}</span>
           </button>`;
     }).join('');
     return `
@@ -65,30 +65,35 @@
     const style = document.createElement('style');
     style.id = 'locale-switcher-styles';
     style.textContent = `
-      .locale-switcher { width: 100%; max-width: 20rem; margin: 0 auto; text-align: center; }
+      .locale-switcher { width: 100%; max-width: 22rem; margin: 0 auto; text-align: center; }
       .locale-switcher__track {
-        display: grid;
-        grid-template-columns: repeat(var(--locale-count, 2), minmax(0, 1fr));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 0.25rem;
         padding: 0.25rem;
-        border-radius: 999px;
+        border-radius: 1rem;
         background: rgba(27, 35, 64, 0.06);
         border: 1px solid rgba(27, 35, 64, 0.08);
       }
       .locale-switcher__option {
+        flex: 1 1 6.25rem;
+        min-width: 0;
         min-height: 44px;
-        padding: 0.55rem 0.75rem;
+        padding: 0.4rem 0.55rem;
         border: none;
         border-radius: 999px;
         background: transparent;
         color: #5A6178;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+        line-height: 1.15;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
+        text-align: center;
+        white-space: normal;
         transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
       }
       .locale-switcher__option[aria-pressed="true"] {

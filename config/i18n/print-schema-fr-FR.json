@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Créer un PDF — planning — {{brand}}",
+  "backLink": "← Retour au planning",
+  "heading": "📄 Créer un PDF — planning",
+  "intro": "Choisissez un enfant et une période. L'aperçu montre le planning complet — le PDF s'ajuste tout seul pour tenir sur une feuille A4 en paysage.",
+  "pdfSave": {
+    "title": "Où le PDF est-il enregistré ?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad :</strong> après <em>Créer un PDF</em>, la feuille de partage s'ouvre — choisissez <strong>Enregistrer dans Fichiers</strong> et un dossier (par exemple iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Ordinateur :</strong> le PDF arrive dans votre dossier <strong>Téléchargements</strong> (souvent en bas à gauche du navigateur)."
+  },
+  "sections": {
+    "child": "Enfant",
+    "period": "Période",
+    "scope": "Que doit contenir le PDF ?",
+    "startWeek": "Semaine de départ"
+  },
+  "period": {
+    "1w": "1 semaine",
+    "2w": "2 semaines",
+    "1m": "1 mois"
+  },
+  "scope": {
+    "all": "Planning complet",
+    "my": "Mes jours seulement"
+  },
+  "weekNav": {
+    "prevAria": "Semaine précédente",
+    "nextAria": "Semaine suivante",
+    "today": "Cette semaine"
+  },
+  "actions": {
+    "preview": "Aperçu",
+    "createPdf": "Créer un PDF"
+  },
+  "preview": {
+    "heading": "Aperçu",
+    "hint": "Faites défiler si une journée compte beaucoup d'activités."
+  },
+  "pdfHelp": {
+    "title": "Comment enregistrer le PDF",
+    "closeAria": "Fermer",
+    "ok": "OK, c'est noté",
+    "introShare": "La feuille de partage est ouverte. Choisissez Enregistrer dans Fichiers pour garder le PDF.",
+    "introPreview": "Le PDF s'est ouvert dans le navigateur{{filename}}.",
+    "introDesktop": "Le PDF a été téléchargé{{filename}}.",
+    "filenameSuffix": " sous le nom {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Dans la feuille de partage : faites défiler et touchez <strong>Enregistrer dans Fichiers</strong>.",
+      "Choisissez un dossier (par exemple <strong>iCloud Drive</strong> ou <strong>Sur mon iPhone</strong>).",
+      "Touchez <strong>Enregistrer</strong> en haut à droite.",
+      "Retrouvez le fichier plus tard dans l'app <strong>Fichiers</strong>."
+    ],
+    "previewSteps": [
+      "Le PDF s'est ouvert dans une nouvelle vue — touchez <strong>Partager</strong> (↑) en haut à droite.",
+      "Choisissez <strong>Enregistrer dans Fichiers</strong>.",
+      "Choisissez un dossier et touchez <strong>Enregistrer</strong>."
+    ],
+    "desktopSteps": [
+      "Ouvrez le dossier <strong>Téléchargements</strong> de votre ordinateur.",
+      "Cherchez un fichier qui commence par <strong>{{prefix}}</strong> et la date d'aujourd'hui."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Planning",
+    "titleMyDays": "Mes jours",
+    "emptyCell": "–",
+    "childFallback": "Enfant",
+    "loadingPrint": "Préparation de l'impression…",
+    "iframeTitle": "Impression"
+  },
+  "filename": {
+    "prefixSchedule": "planning-semaine",
+    "prefixMyDays": "mes-jours",
+    "fallbackSlug": "enfant"
+  },
+  "toasts": {
+    "loadChildrenError": "Impossible de charger les enfants",
+    "selectChild": "Choisissez d'abord un enfant",
+    "loadingPreview": "Chargement de l'aperçu…",
+    "noMyDays": "Aucun jour pour vous sur la période choisie",
+    "loadScheduleError": "Impossible de charger le planning",
+    "creatingPdf": "Création du PDF…",
+    "pdfCancelled": "Enregistrement du PDF annulé",
+    "shareHint": "Choisissez Enregistrer dans Fichiers dans la feuille de partage",
+    "mobileSavedHint": "PDF prêt — enregistrez-le dans Fichiers",
+    "desktopSavedHint": "PDF enregistré dans Téléchargements",
+    "pdfLibsMissing": "Outils PDF manquants — rechargez la page et réessayez",
+    "createPdfError": "Impossible de créer le PDF",
+    "shareAgain": "Le PDF est prêt. Touchez Créer un PDF à nouveau pour choisir où l'enregistrer."
+  },
+  "empty": {
+    "noChildren": "Aucun enfant ajouté pour le moment.",
+    "goDashboard": "Aller à l'accueil"
+  }
+}

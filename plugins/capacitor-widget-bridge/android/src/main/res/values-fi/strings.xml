@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Seuraava tehtävä</string>
+    <string name="widget_routine_description">Tee rutiinin seuraava askel ilman koko sovelluksen avaamista.</string>
+    <string name="widget_cd_pictogram">Tehtävän symboli</string>
+    <string name="widget_cd_complete">Merkitse tehtävä tehdyksi</string>
+    <string name="widget_cd_open_app">Avaa sovelluksessa</string>
+    <string name="widget_action_complete">Valmis</string>
+    <string name="widget_action_open_timer">Avaa tiimalasi</string>
+    <string name="widget_action_show_steps">Näytä askeleet</string>
+    <string name="widget_action_open_app">Avaa sovellus</string>
+    <string name="widget_loading">Ladataan…</string>
+    <string name="widget_all_done">Kaikki tehty tältä päivältä!</string>
+    <string name="widget_nothing_now">Ei mitään juuri nyt</string>
+    <string name="widget_offline">Ei yhteyttä</string>
+    <string name="widget_reauth">Kirjaudu sovelluksessa</string>
+    <string name="widget_revoked">Laitteen käyttöoikeus on poistettu</string>
+    <string name="widget_switching">Vaihdetaan lasta…</string>
+    <string name="widget_feedback_done">✓ Valmis!</string>
+    <string name="widget_feedback_done_for">✓ Valmis: %1$s</string>
+    <string name="widget_cd_child_prev">Edellinen lapsi</string>
+    <string name="widget_cd_child_next">Seuraava lapsi</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d / %2$d tehty</string>
+    <string name="widget_private_activity">Seuraava askel</string>
+    <string name="widget_configure_title">Valitse widget</string>
+    <string name="widget_configure_personal">Henkilökohtainen (yksi lapsi)</string>
+    <string name="widget_configure_family">Perhe (vaihda lasta)</string>
+    <string name="widget_configure_save">Tallenna</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

@@ -1,0 +1,5 @@
+[
+  { "name": "Lisää ruutuaikaa", "icon": "📱", "star_cost": 5 },
+  { "name": "Valitse illallinen", "icon": "🍕", "star_cost": 10 },
+  { "name": "Pieni lahja", "icon": "🎁", "star_cost": 20 }
+]

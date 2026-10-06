@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Lag PDF — plan — {{brand}}",
+  "backLink": "← Tilbake til Planlegging",
+  "heading": "📄 Lag PDF — plan",
+  "intro": "Velg et barn og en periode. Forhåndsvisningen viser hele planen — PDF-en skaleres automatisk så den får plass på ett A4-ark i liggende format.",
+  "pdfSave": {
+    "title": "Hvor lagres PDF-en?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Etter <em>Lag PDF</em> åpnes et delingsark — velg <strong>Lagre i Filer</strong> og velg en mappe (for eksempel iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Datamaskin:</strong> PDF-en går til mappen <strong>Nedlastinger</strong> (ofte nede til venstre i nettleseren)."
+  },
+  "sections": {
+    "child": "Barn",
+    "period": "Periode",
+    "scope": "Hva skal PDF-en inneholde?",
+    "startWeek": "Startuke"
+  },
+  "period": {
+    "1w": "1 uke",
+    "2w": "2 uker",
+    "1m": "1 måned"
+  },
+  "scope": {
+    "all": "Hele planen",
+    "my": "Bare mine dager"
+  },
+  "weekNav": {
+    "prevAria": "Forrige uke",
+    "nextAria": "Neste uke",
+    "today": "Denne uken"
+  },
+  "actions": {
+    "preview": "Forhåndsvisning",
+    "createPdf": "Lag PDF"
+  },
+  "preview": {
+    "heading": "Forhåndsvisning",
+    "hint": "Bla nedover hvis en dag har mange aktiviteter."
+  },
+  "pdfHelp": {
+    "title": "Slik lagrer du PDF-en",
+    "closeAria": "Lukk",
+    "ok": "OK, skjønner",
+    "introShare": "Delingsarket er åpent. Velg Lagre i Filer for å lagre PDF-en.",
+    "introPreview": "PDF-en åpnet seg i nettleseren{{filename}}.",
+    "introDesktop": "PDF-en ble lastet ned{{filename}}.",
+    "filenameSuffix": " som {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "I delingsarket: bla og trykk <strong>Lagre i Filer</strong>.",
+      "Velg en mappe (for eksempel <strong>iCloud Drive</strong> eller <strong>På iPhonen min</strong>).",
+      "Trykk <strong>Lagre</strong> øverst til høyre.",
+      "Finn filen senere i appen <strong>Filer</strong>."
+    ],
+    "previewSteps": [
+      "PDF-en åpnet seg i en ny visning — trykk <strong>Del</strong> (↑) øverst til høyre.",
+      "Velg <strong>Lagre i Filer</strong>.",
+      "Velg en mappe og trykk <strong>Lagre</strong>."
+    ],
+    "desktopSteps": [
+      "Åpne mappen <strong>Nedlastinger</strong> på datamaskinen.",
+      "Se etter en fil som starter med <strong>{{prefix}}</strong> og dagens dato."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plan",
+    "titleMyDays": "Mine dager",
+    "emptyCell": "–",
+    "childFallback": "Barn",
+    "loadingPrint": "Forbereder utskrift…",
+    "iframeTitle": "Skriv ut"
+  },
+  "filename": {
+    "prefixSchedule": "ukeplan",
+    "prefixMyDays": "mine-dager",
+    "fallbackSlug": "barn"
+  },
+  "toasts": {
+    "loadChildrenError": "Kunne ikke laste barn",
+    "selectChild": "Velg et barn først",
+    "loadingPreview": "Laster forhåndsvisning…",
+    "noMyDays": "Ingen dager for deg i den valgte perioden",
+    "loadScheduleError": "Kunne ikke laste planen",
+    "creatingPdf": "Lager PDF…",
+    "pdfCancelled": "Lagring av PDF ble avbrutt",
+    "shareHint": "Velg Lagre i Filer i delingsarket",
+    "mobileSavedHint": "PDF-en er klar — lagre den i Filer",
+    "desktopSavedHint": "PDF lagret i Nedlastinger",
+    "pdfLibsMissing": "PDF-verktøy mangler — last siden på nytt og prøv igjen",
+    "createPdfError": "Kunne ikke lage PDF-en",
+    "shareAgain": "PDF-en er klar. Trykk Lag PDF igjen for å velge hvor den skal lagres."
+  },
+  "empty": {
+    "noChildren": "Ingen barn er lagt til ennå.",
+    "goDashboard": "Gå til Hjem"
+  }
+}

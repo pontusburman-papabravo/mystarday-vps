@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Næste aktivitet</string>
+    <string name="widget_routine_description">Gør det næste rutineskridt færdigt uden at åbne hele appen.</string>
+    <string name="widget_cd_pictogram">Aktivitetssymbol</string>
+    <string name="widget_cd_complete">Markér aktiviteten som færdig</string>
+    <string name="widget_cd_open_app">Åbn i appen</string>
+    <string name="widget_action_complete">Færdig</string>
+    <string name="widget_action_open_timer">Åbn timeglas</string>
+    <string name="widget_action_show_steps">Vis trin</string>
+    <string name="widget_action_open_app">Åbn appen</string>
+    <string name="widget_loading">Indlæser…</string>
+    <string name="widget_all_done">Alt er klaret for i dag!</string>
+    <string name="widget_nothing_now">Ikke noget lige nu</string>
+    <string name="widget_offline">Ingen forbindelse</string>
+    <string name="widget_reauth">Log ind i appen</string>
+    <string name="widget_revoked">Enhedsadgang er trukket tilbage</string>
+    <string name="widget_switching">Skifter barn…</string>
+    <string name="widget_feedback_done">✓ Færdig!</string>
+    <string name="widget_feedback_done_for">✓ Færdig for %1$s</string>
+    <string name="widget_cd_child_prev">Forrige barn</string>
+    <string name="widget_cd_child_next">Næste barn</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d af %2$d færdige</string>
+    <string name="widget_private_activity">Næste trin</string>
+    <string name="widget_configure_title">Vælg widget</string>
+    <string name="widget_configure_personal">Personlig (ét barn)</string>
+    <string name="widget_configure_family">Familie (skift barn)</string>
+    <string name="widget_configure_save">Gem</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

@@ -23,6 +23,31 @@
       "mustNotCopy": "en-GB",
       "positive": "[äöüÄÖÜß]|\\b(?:und|nicht|der|die|das|für)\\b",
       "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "fr-FR": {
+      "mustNotCopy": "en-GB",
+      "positive": "[àâæçéèêëîïôùûüœ]|\\b(?:et|pas|les|des|pour|une)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "nl-NL": {
+      "mustNotCopy": "en-GB",
+      "positive": "\\b(?:het|een|niet|voor|van|kind|je)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "da-DK": {
+      "mustNotCopy": "en-GB",
+      "positive": "[æøå]|\\b(?:og|ikke|det|en|for)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman)\\b|\\bför\\b"
+    },
+    "fi-FI": {
+      "mustNotCopy": "en-GB",
+      "positive": "[äö]|\\b(?:ja|ei|on|että|lapsi)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "nb-NO": {
+      "mustNotCopy": "en-GB",
+      "positive": "[æøå]|\\b(?:og|ikke|det|en|for)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman)\\b|\\bför\\b"
     }
   }
 }

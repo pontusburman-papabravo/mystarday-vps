@@ -75,6 +75,109 @@ const I18n = {
         "showOnFirstRun": true,
         "contentSource": "locale-files",
         "contentMap": "de-DE.json"
+      },
+      {
+        "id": "fr-FR",
+        "nativeName": "Français",
+        "base": "fr",
+        "aliases": [
+          "fr",
+          "fr-fr"
+        ],
+        "inputAliases": [
+          "fr"
+        ],
+        "legacyJourneyTags": [
+          "fr"
+        ],
+        "experiencePack": "child_fr",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "fr-FR.json"
+      },
+      {
+        "id": "nl-NL",
+        "nativeName": "Nederlands",
+        "base": "nl",
+        "aliases": [
+          "nl",
+          "nl-nl"
+        ],
+        "inputAliases": [
+          "nl"
+        ],
+        "legacyJourneyTags": [
+          "nl"
+        ],
+        "experiencePack": "child_nl",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "nl-NL.json"
+      },
+      {
+        "id": "da-DK",
+        "nativeName": "Dansk",
+        "base": "da",
+        "aliases": [
+          "da",
+          "da-dk"
+        ],
+        "inputAliases": [
+          "da"
+        ],
+        "legacyJourneyTags": [
+          "da"
+        ],
+        "experiencePack": "child_da",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "da-DK.json"
+      },
+      {
+        "id": "fi-FI",
+        "nativeName": "Suomi",
+        "base": "fi",
+        "aliases": [
+          "fi",
+          "fi-fi"
+        ],
+        "inputAliases": [
+          "fi"
+        ],
+        "legacyJourneyTags": [
+          "fi"
+        ],
+        "experiencePack": "child_fi",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "fi-FI.json"
+      },
+      {
+        "id": "nb-NO",
+        "nativeName": "Norsk bokmål",
+        "base": "nb",
+        "aliases": [
+          "nb",
+          "nb-no",
+          "no"
+        ],
+        "inputAliases": [
+          "nb",
+          "no"
+        ],
+        "legacyJourneyTags": [
+          "nb",
+          "no"
+        ],
+        "experiencePack": "child_nb",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "nb-NO.json"
       }
     ]
   },
@@ -192,7 +295,7 @@ const I18n = {
   },
 
   _normalize(raw) {
-    // Unsupported tags (including fi / fi-FI) stay unsupported — never alias to sv-SE.
+    // A tag resolves only when the catalog has one matching bundle. It never aliases to sv-SE.
     if (!raw) return null;
     const s = String(raw).trim();
     if (!s) return null;

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> 
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Ingen tilkobling</string>
+    <string name="native_offline_body">Sjekk internettforbindelsen og prøv igjen.</string>
+    <string name="camera_permission_rationale">[REDACTED] bruker kameraet så du kan ta et profilbilde av barnet ditt.</string>
+    <string name="photos_permission_rationale">[REDACTED] trenger tilgang til bildene dine så du kan velge et profilbilde til barnet ditt.</string>
+    <string name="notification_channel_routine_name">Rutinepåminnelser</string>
+    <string name="notification_channel_routine_desc">Påminnelser om familiens plan</string>
+</resources>
