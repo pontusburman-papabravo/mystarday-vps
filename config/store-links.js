@@ -13,8 +13,10 @@ const APPLE_APP_STORE_TRACK_ID = '6774493098';
 const APPLE_APP_STORE_ID = process.env.APPLE_APP_STORE_ID || APPLE_APP_STORE_TRACK_ID;
 /** Storefront-neutral listing — Apple routes by the user's Apple ID country. Do not use the SE short link on English pages. */
 const APPLE_APP_STORE_GEO_NEUTRAL_URL = `https://apps.apple.com/app/id${APPLE_APP_STORE_TRACK_ID}`;
-/** Explicit Ireland storefront. English pages use the geo-neutral id instead. */
+/** Explicit Ireland storefront. The neutral /en page keeps the geo-neutral id. */
 const APPLE_APP_STORE_IE_URL = `https://apps.apple.com/ie/app/my-starday-family-routines/id${APPLE_APP_STORE_TRACK_ID}`;
+/** Same verified listing, Canada storefront. No separate Canada track id. */
+const APPLE_APP_STORE_CA_URL = `https://apps.apple.com/ca/app/id${APPLE_APP_STORE_TRACK_ID}`;
 
 function androidPackageName() {
   if (process.env.ANDROID_PACKAGE_NAME) return process.env.ANDROID_PACKAGE_NAME;
@@ -58,5 +60,6 @@ module.exports = {
   APPLE_APP_STORE_SHORT_URL,
   APPLE_APP_STORE_GEO_NEUTRAL_URL,
   APPLE_APP_STORE_IE_URL,
+  APPLE_APP_STORE_CA_URL,
   APPLE_APP_STORE_TRACK_ID,
 };

@@ -38,7 +38,8 @@ describe('Ireland /en conversion funnel', () => {
     assert.doesNotMatch(EN_HTML, /id="waitlist"/);
     assert.doesNotMatch(EN_HTML, /landing-waitlist\.js/);
     assert.match(EN_HTML, /id="get-the-app"/);
-    assert.match(visible, /My Starday is now available in Ireland/);
+    assert.match(visible, /Currently available in selected markets/);
+    assert.doesNotMatch(visible, /Now in Ireland/);
   });
 
   it('uses complimentary Ireland copy and never a converting trial', () => {
@@ -100,8 +101,9 @@ describe('Ireland /en conversion funnel', () => {
   it('hero is about visual routines and store install', () => {
     assert.match(EN_HTML, /<h1>Not just another family calendar\.<\/h1>/);
     assert.match(EN_HTML, /what is happening now, what comes next and what they have already achieved/);
-    assert.match(EN_HTML, /Available now in Ireland/);
-    assert.match(EN_HTML, /data-hero-launch="ireland"/);
+    assert.match(EN_HTML, /Available in selected markets/);
+    assert.match(EN_HTML, /data-hero-launch="markets"/);
+    assert.doesNotMatch(EN_HTML, /Now in Ireland/);
     assert.match(EN_HTML, /data-store-placement="hero"/);
     assert.match(EN_HTML, /data-store-placement="mid_page"/);
     assert.match(EN_HTML, /data-store-placement="footer"/);
@@ -193,7 +195,8 @@ describe('Ireland /en analytics', () => {
     });
     assert.ok(landing, 'landing_view should fire on /en');
     const landingBody = JSON.parse(landing.opts.body);
-    assert.equal(landingBody.metadata.market, 'IE');
+    assert.equal(landingBody.metadata.landing_path, '/en');
+    assert.equal(landingBody.metadata.market, undefined);
     assert.equal(landingBody.metadata.utm_source, 'ads');
     assert.equal(landingBody.metadata.utm_campaign, 'ie-launch');
     assert.match(landingBody.session_id, /^[0-9a-f-]{36}$/i);
@@ -207,8 +210,8 @@ describe('Ireland /en analytics', () => {
     assert.equal(storeEvents.length, 2);
     assert.equal(storeEvents[0].metadata.platform, 'ios');
     assert.equal(storeEvents[0].metadata.placement, 'hero');
-    assert.equal(storeEvents[0].metadata.market, 'IE');
-    assert.equal(storeEvents[0].metadata.country, 'IE');
+    assert.equal(storeEvents[0].metadata.market, undefined);
+    assert.equal(storeEvents[0].metadata.country, undefined);
     assert.equal(storeEvents[0].metadata.store, 'app_store');
     assert.equal(storeEvents[0].metadata.utm_source, 'ads');
     assert.equal(storeEvents[1].metadata.platform, 'android');

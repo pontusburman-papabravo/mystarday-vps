@@ -178,7 +178,7 @@ function runCanada(doc, options) {
     URLSearchParams,
     document: doc,
     location: {
-      pathname: '/en',
+      pathname: opts.pathname || '/en',
       search: opts.search || '',
       assign: opts.assign || function () {},
     },
@@ -214,18 +214,23 @@ describe('Canada iOS launch on the shared English page', () => {
     assert.equal(APPLE_APP_STORE_GEO_NEUTRAL_URL, 'https://apps.apple.com/app/id6774493098');
     assert.match(EN_HTML, /https:\/\/apps\.apple\.com\/app\/id6774493098/);
     assert.doesNotMatch(EN_HTML, /apps\.apple\.com\/ie\/app\//);
+    assert.match(EN_HTML, /href="\/en\/ie"/);
+    assert.match(EN_HTML, /href="\/en\/ca"/);
+    assert.doesNotMatch(EN_HTML, /Now in Ireland/);
+    const urls = [];
     const doc = makeDocument();
-    runCanada(doc, { search: '?country=CA', userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' });
-    const app = doc.querySelector('[data-track="app_store_click"]');
-    assert.ok(app);
-    assert.equal(app.getAttribute('href'), 'https://apps.apple.com/app/id6774493098');
-    assert.equal(doc.documentElement.getAttribute('data-store-platform'), 'ios');
-    assert.equal(doc.documentElement.getAttribute('data-canada-ios-launch'), '1');
+    runCanada(doc, {
+      search: '?country=CA',
+      assign: function (url) { urls.push(url); },
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
+    });
+    assert.deepEqual(urls, ['/en/ca']);
   });
 
   it('shows Android as coming soon and removes the Play link for Canada', () => {
     const doc = makeDocument();
-    runCanada(doc, { search: '?country=CA' });
+    const sandbox = runCanada(doc, { pathname: '/en/ca', search: '' });
+    sandbox.LandingCanadaIos.applyCanada(doc);
     assert.equal(hrefs(doc).some((href) => href.indexOf('play.google.com') !== -1), false);
     const soon = doc.querySelector('.store-android-soon');
     assert.ok(soon);
@@ -245,10 +250,12 @@ describe('Canada iOS launch on the shared English page', () => {
 
   it('prioritizes the coming-soon status on Android without a Play href', () => {
     const doc = makeDocument();
-    runCanada(doc, {
-      search: '?market=CA',
+    const sandbox = runCanada(doc, {
+      pathname: '/en/ca',
+      search: '',
       userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 7)',
     });
+    sandbox.LandingCanadaIos.applyCanada(doc);
     assert.equal(doc.documentElement.getAttribute('data-store-platform'), 'android');
     assert.equal(doc.querySelector('.store-badges').getAttribute('data-store-platform'), 'android');
     assert.equal(hrefs(doc).some((href) => href.indexOf('play.google.com') !== -1), false);
@@ -256,68 +263,50 @@ describe('Canada iOS launch on the shared English page', () => {
     assert.equal(doc.querySelector('[data-canada-web-account] a').getAttribute('href'), '/register');
   });
 
-  it('shows Ireland and Canada together on /en until a country is chosen', () => {
+  it('keeps /en neutral and sends a chosen country to its campaign path', () => {
     const urls = [];
     const doc = makeDocument();
     const sandbox = runCanada(doc, {
       search: '?utm_source=ads',
       assign: function (url) { urls.push(url); },
     });
-    assert.equal(doc.documentElement.getAttribute('data-en-market'), 'both');
-    assert.equal(doc.documentElement.getAttribute('data-canada-ios-launch'), null);
-    assert.ok(hrefs(doc).some((href) => href.indexOf('play.google.com') !== -1));
-    assert.equal(doc.querySelector('[data-track="app_store_click"]').getAttribute('href'), APPLE_APP_STORE_GEO_NEUTRAL_URL);
-    assert.equal(doc.querySelector('.store-android-soon').textContent, 'Canada · Google Play — coming soon');
-    assert.equal(doc.querySelector('[data-track="play_store_click"]').getAttribute('data-market'), 'IE');
-    assert.match(doc.querySelector('.hero-launch-card__tag').textContent, /Ireland and Canada/);
-    assert.match(doc.querySelector('.landing-hero__offer').textContent, /Free in Ireland and Canada until 31 December 2026/);
-    assert.equal(doc.querySelector('[data-canada-web-account] a').getAttribute('href'), '/register');
+    assert.equal(doc.documentElement.getAttribute('data-en-market'), 'neutral');
     assert.equal(sandbox.sessionStorage.getItem('sd_country_confirmed'), null);
-    assert.equal(doc.querySelector('[data-market-switch="IE"]').getAttribute('aria-pressed'), 'false');
-    assert.equal(doc.querySelector('[data-market-switch="CA"]').getAttribute('aria-pressed'), 'false');
-    doc.querySelector('[data-market-switch="CA"]')._click();
-    doc.querySelector('[data-market-switch="IE"]')._click();
-    assert.deepEqual(urls, ['/en?utm_source=ads&country=CA', '/en?utm_source=ads&country=IE']);
-
-    const irish = makeDocument();
-    const session = {
-      store: { sd_country_code: 'CA' },
-      getItem(key) { return this.store[key] || null; },
-      setItem(key, value) { this.store[key] = String(value); },
-    };
-    runCanada(irish, { search: '?country=IE', sessionStorage: session });
-    assert.equal(session.getItem('sd_country_code'), 'IE');
-    assert.equal(session.getItem('sd_country_confirmed'), null);
-    assert.equal(irish.documentElement.getAttribute('data-en-market'), 'IE');
-    assert.equal(irish.documentElement.getAttribute('data-canada-ios-launch'), null);
-    assert.ok(hrefs(irish).some((href) => href.indexOf('play.google.com') !== -1));
-    assert.equal(irish.querySelector('.store-android-soon'), null);
-    assert.equal(irish.querySelector('[data-market-switch="IE"]').getAttribute('aria-pressed'), 'true');
-    assert.equal(irish.querySelector('.hero-launch-card__tag').textContent, 'Now in Ireland');
+    assert.equal(sandbox.sessionStorage.getItem('sd_country_code'), null);
+    const canada = makeDocument();
+    const canadaUrls = [];
+    runCanada(canada, {
+      search: '?utm_source=ads&country=CA',
+      assign: function (url) { canadaUrls.push(url); },
+    });
+    const ireland = makeDocument();
+    const irelandUrls = [];
+    runCanada(ireland, {
+      search: '?utm_source=ads&country=IE',
+      assign: function (url) { irelandUrls.push(url); },
+    });
+    assert.deepEqual(canadaUrls, ['/en/ca?utm_source=ads']);
+    assert.deepEqual(irelandUrls, ['/en/ie?utm_source=ads']);
+    assert.equal(urls.length, 0);
   });
 
-  it('uses the time zone only as a store hint and still lets the switch choose the other country', () => {
+  it('does not let a time zone turn the neutral English page into a country page', () => {
     const toronto = makeDocument();
     const torontoSession = runCanada(toronto, { search: '', timeZone: 'America/Toronto' });
-    assert.equal(toronto.documentElement.getAttribute('data-canada-ios-launch'), '1');
-    assert.equal(hrefs(toronto).some((href) => href.indexOf('play.google.com') !== -1), false);
-    assert.equal(torontoSession.sessionStorage.getItem('sd_country_code'), 'CA');
+    assert.equal(toronto.documentElement.getAttribute('data-en-market'), 'neutral');
+    assert.equal(torontoSession.sessionStorage.getItem('sd_country_code'), null);
     assert.equal(torontoSession.sessionStorage.getItem('sd_country_confirmed'), null);
-    assert.equal(toronto.querySelector('[data-market-switch="CA"]').getAttribute('aria-pressed'), 'true');
 
     const dublin = makeDocument();
     const dublinSession = runCanada(dublin, { search: '', timeZone: 'Europe/Dublin' });
-    assert.equal(dublin.documentElement.getAttribute('data-en-market'), 'IE');
-    assert.equal(dublin.documentElement.getAttribute('data-canada-ios-launch'), null);
-    assert.ok(hrefs(dublin).some((href) => href.indexOf('play.google.com') !== -1));
-    assert.equal(dublin.querySelector('.store-android-soon'), null);
-    assert.equal(dublinSession.sessionStorage.getItem('sd_country_code'), 'IE');
+    assert.equal(dublin.documentElement.getAttribute('data-en-market'), 'neutral');
+    assert.equal(dublinSession.sessionStorage.getItem('sd_country_code'), null);
 
-    const newYork = makeDocument();
-    runCanada(newYork, { search: '', timeZone: 'America/New_York' });
-    assert.equal(newYork.documentElement.getAttribute('data-en-market'), 'both');
-    assert.ok(hrefs(newYork).some((href) => href.indexOf('play.google.com') !== -1));
-    assert.equal(newYork.querySelector('.store-android-soon').textContent, 'Canada · Google Play — coming soon');
+    const canada = makeDocument();
+    const canadaSession = runCanada(canada, { pathname: '/en/ca', search: '', timeZone: 'Europe/Dublin' });
+    assert.equal(canada.documentElement.getAttribute('data-en-market'), 'CA');
+    assert.equal(canadaSession.sessionStorage.getItem('sd_country_code'), 'CA');
+    assert.equal(canadaSession.sessionStorage.getItem('sd_country_confirmed'), null);
   });
 
   it('does not send a Play download event for the coming-soon status, and tags the App Store click as CA', () => {
@@ -342,13 +331,14 @@ describe('Canada iOS launch on the shared English page', () => {
         getItem(key) { return this.store[key] || null; },
         setItem(key, value) { this.store[key] = String(value); },
       },
-      location: { pathname: '/en', search: '?country=CA' },
+      location: { pathname: '/en/ca', search: '', assign: function () {} },
       navigator: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' },
       document: doc,
     };
     sandbox.window = sandbox;
     vm.createContext(sandbox);
     vm.runInContext(SCRIPT, sandbox, { filename: 'landing-canada-ios.js' });
+    sandbox.LandingCanadaIos.applyCanada(doc);
     vm.runInContext(EVENTS, sandbox, { filename: 'landing-events.js' });
 
     const app = doc.querySelector('[data-track="app_store_click"]');
@@ -370,7 +360,7 @@ describe('Canada iOS launch on the shared English page', () => {
     assert.equal(storeClick.metadata.store, 'app_store');
   });
 
-  it('counts a shared /en view as both countries and keeps the Play click on Ireland', () => {
+  it('counts a neutral /en view without a country and keeps the Play click on Ireland', () => {
     const doc = makeDocument();
     const posts = [];
     const sandbox = {
@@ -402,15 +392,17 @@ describe('Canada iOS launch on the shared English page', () => {
     vm.runInContext(EVENTS, sandbox, { filename: 'landing-events.js' });
 
     const view = posts.find((body) => body.event_type === 'landing_view');
-    assert.equal(view.metadata.market, 'BOTH');
+    assert.equal(view.metadata.landing_path, '/en');
+    assert.equal(view.metadata.market, undefined);
     assert.equal(view.metadata.country, undefined);
+    doc.querySelector('[data-track="play_store_click"]').setAttribute('data-market', 'IE');
     doc.querySelector('[data-track="play_store_click"]')._click();
     const play = posts.find((body) => body.event_type === 'play_store_click');
     assert.equal(play.metadata.country, 'IE');
     assert.equal(play.metadata.store, 'play');
     doc.querySelector('[data-track="app_store_click"]')._click();
     const app = posts.find((body) => body.event_type === 'app_store_click');
-    assert.equal(app.metadata.market, 'BOTH');
+    assert.equal(app.metadata.market, undefined);
     assert.equal(app.metadata.country, undefined);
   });
 
@@ -443,7 +435,8 @@ describe('Canada iOS launch on the shared English page', () => {
     assert.match(EN_HTML, /data-store-placement="hero"/);
     assert.match(EN_HTML, /data-store-placement="footer"/);
     const doc = makeDocument();
-    runCanada(doc, { search: '?country=CA', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' });
+    const sandbox = runCanada(doc, { pathname: '/en/ca', search: '', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' });
+    sandbox.LandingCanadaIos.applyCanada(doc);
     assert.equal(doc.documentElement.getAttribute('data-store-platform'), 'other');
     assert.equal(doc.querySelector('[data-track="app_store_click"]').getAttribute('href'), APPLE_APP_STORE_GEO_NEUTRAL_URL);
     assert.equal(doc.querySelector('.store-android-soon').textContent, 'Google Play — coming soon');

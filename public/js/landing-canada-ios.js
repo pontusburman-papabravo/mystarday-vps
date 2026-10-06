@@ -1,9 +1,9 @@
 /**
- * English /en serves Ireland and Canada on the same page.
- * No country signal: both are visible (App Store for both, Play for Ireland,
- * Google Play — coming soon for Canada). ?country=CA or ?country=IE focuses one.
- * A Canadian or Irish time zone can preselect that focus. The switch stores
- * sd_country_code only — never sd_country_confirmed — so registration still asks.
+ * Market signal for the English site.
+ * /en stays neutral. /en/ie and /en/ca are the campaign pages.
+ * ?country=IE|CA on /en moves to that path and keeps other query params.
+ * Stores sd_country_code only — never sd_country_confirmed — so registration still asks.
+ * A time zone does not choose the market.
  */
 (function (global) {
   'use strict';
@@ -51,15 +51,6 @@
     ['App Store or Google Play', 'the App Store. Android coming soon'],
     ['and on Google Play for Android', 'and Android is coming soon'],
     ['Available on iPhone, iPad, and Android — in Swedish and English.', 'On iPhone now. Google Play — coming soon.'],
-  ];
-  const SHARED_PHRASES = [
-    ['Free in Ireland until 31 December 2026', 'Free in Ireland and Canada until 31 December 2026'],
-    ['free for families in Ireland until 31 December 2026', 'free in Ireland and Canada until 31 December 2026'],
-    ['My Starday is now available in Ireland.', 'On the App Store in Ireland and Canada.'],
-    ['Now in Ireland', 'Now in Ireland and Canada'],
-    ['Welcome Ireland', 'Ireland and Canada'],
-    ['App Store & Google Play', 'Ireland and Canada'],
-    ['Available on iPhone, iPad, and Android — in Swedish and English.', 'On the App Store in Ireland and Canada. Google Play in Ireland.'],
   ];
 
   function queryCountry() {
@@ -143,16 +134,6 @@
     if (anchor.parentNode) anchor.parentNode.replaceChild(note, anchor);
   }
 
-  function siblingAfter(node) {
-    const parent = node && node.parentNode;
-    const kids = parent && parent.children;
-    if (!kids) return null;
-    for (let i = 0; i < kids.length; i += 1) {
-      if (kids[i] === node) return kids[i + 1] || null;
-    }
-    return null;
-  }
-
   function rewriteLeaves(doc, pairs) {
     const selector = [
       '.hero-launch-card__tag',
@@ -233,102 +214,22 @@
     }
   }
 
-  function addSharedCanadaStatus(anchor) {
-    const next = siblingAfter(anchor);
-    if (next && String(next.className || '').indexOf('store-android-soon') !== -1) return;
-    const doc = anchor.ownerDocument || document;
-    const note = doc.createElement('span');
-    note.className = 'store-android-soon';
-    note.setAttribute('role', 'status');
-    note.textContent = SHARED_SOON_LABEL;
-    if (!anchor.parentNode) return;
-    anchor.parentNode.insertBefore(note, siblingAfter(anchor));
-  }
-
-  function markIrelandPlay(anchor) {
-    anchor.setAttribute('data-market', 'IE');
-    const label = anchor.getAttribute('aria-label') || '';
-    if (label.indexOf('Ireland') === -1) {
-      anchor.setAttribute('aria-label', label ? label + ' in Ireland' : 'Get it on Google Play in Ireland');
-    }
-    const parent = anchor.parentNode;
-    if (!parent || parent.getAttribute && parent.getAttribute('data-ireland-play') === '1') return;
-    const doc = anchor.ownerDocument || document;
-    const wrap = doc.createElement('span');
-    wrap.className = 'store-market-play';
-    wrap.setAttribute('data-ireland-play', '1');
-    const caption = doc.createElement('span');
-    caption.className = 'store-market-caption';
-    caption.textContent = 'Ireland';
-    parent.insertBefore(wrap, anchor);
-    wrap.appendChild(caption);
-    wrap.appendChild(anchor);
+  function campaignPath(code) {
+    return code === 'CA' ? '/en/ca' : '/en/ie';
   }
 
   function chooseMarket(code) {
     if (code !== 'IE' && code !== 'CA') return;
-    if (queryCountry() === code) return;
     rememberCountry(code);
     let params = null;
     try {
       params = new URLSearchParams((global.location && global.location.search) || '');
     } catch (_) { /* keep the current page */ }
     if (!params || !global.location || typeof global.location.assign !== 'function') return;
+    params.delete('country');
     params.delete('market');
-    params.set('country', code);
-    const path = global.location.pathname || '/en';
-    global.location.assign(path + '?' + params.toString());
-  }
-
-  function mountSwitch(doc, pressed) {
-    let bar = doc.querySelector('[data-en-market-switch]');
-    if (!bar) {
-      bar = doc.createElement('div');
-      bar.className = 'landing-market-switch';
-      bar.setAttribute('data-en-market-switch', '');
-      bar.setAttribute('role', 'group');
-      bar.setAttribute('aria-label', 'Ireland or Canada');
-      [{ code: 'IE', label: 'Ireland' }, { code: 'CA', label: 'Canada' }].forEach(function (item) {
-        const button = doc.createElement('button');
-        button.setAttribute('type', 'button');
-        button.setAttribute('data-market-switch', item.code);
-        button.textContent = item.label;
-        button.addEventListener('click', function () { chooseMarket(item.code); });
-        bar.appendChild(button);
-      });
-      const card = doc.querySelector('.hero-launch-card');
-      if (card) card.insertBefore(bar, card.children[0] || null);
-      else {
-        const badges = doc.querySelector('.store-badges');
-        if (badges && badges.parentNode) badges.parentNode.insertBefore(bar, badges);
-      }
-    }
-    doc.querySelectorAll('[data-market-switch]').forEach(function (button) {
-      button.setAttribute('aria-pressed', button.getAttribute('data-market-switch') === pressed ? 'true' : 'false');
-    });
-  }
-
-  function applyBoth(doc) {
-    const root = doc.documentElement;
-    root.setAttribute('data-en-market', 'both');
-    root.removeAttribute('data-canada-ios-launch');
-    const card = doc.querySelector('.hero-launch-card');
-    if (card) card.setAttribute('aria-label', 'Ireland and Canada');
-    Array.prototype.slice.call(doc.querySelectorAll('a[href]')).forEach(function (el) {
-      pointAppStore(el);
-      if (!isPlayHref(el.getAttribute('href') || '')) return;
-      addSharedCanadaStatus(el);
-      markIrelandPlay(el);
-    });
-    rewriteLeaves(doc, SHARED_PHRASES);
-    rewriteMetadata(doc, SHARED_PHRASES, null);
-    addWebAccountLink(doc);
-  }
-
-  function applyIreland(doc) {
-    const root = doc.documentElement;
-    root.setAttribute('data-en-market', 'IE');
-    root.removeAttribute('data-canada-ios-launch');
+    const q = params.toString();
+    global.location.assign(campaignPath(code) + (q ? '?' + q : ''));
   }
 
   function applyCanada(doc) {
@@ -358,15 +259,27 @@
     addWebAccountLink(doc);
   }
 
+  function currentPath() {
+    return String((global.location && global.location.pathname) || '').replace(/\/$/, '') || '/';
+  }
+
   function init() {
+    const path = currentPath();
+    if (path === '/en/ie' || path === '/en/ca') {
+      const code = path === '/en/ca' ? 'CA' : 'IE';
+      rememberCountry(code);
+      if (document.documentElement) document.documentElement.setAttribute('data-en-market', code);
+      return;
+    }
     const fromQuery = queryCountry();
-    if (fromQuery) rememberCountry(fromQuery);
-    const market = resolvedMarket();
-    if (!fromQuery && !storedCountry() && (market === 'CA' || market === 'IE')) rememberCountry(market);
-    if (market === 'CA') applyCanada(document);
-    else if (market === 'both') applyBoth(document);
-    else applyIreland(document);
-    mountSwitch(document, market === 'CA' || market === 'IE' ? market : '');
+    if (path === '/en' && (fromQuery === 'IE' || fromQuery === 'CA')) {
+      chooseMarket(fromQuery);
+      return;
+    }
+    if (document.documentElement && document.documentElement.getAttribute('data-en-market') !== 'IE'
+      && document.documentElement.getAttribute('data-en-market') !== 'CA') {
+      document.documentElement.setAttribute('data-en-market', 'neutral');
+    }
   }
 
   if (document.readyState === 'loading') {

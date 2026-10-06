@@ -173,7 +173,7 @@ describe('Sweden and Ireland stay on their current commercial policy', () => {
 describe('Canada analytics can be separated from Ireland', () => {
   it('stamps landing market CA when the visitor chose Canada, and leaves anonymous /en as IE', () => {
     const src = fs.readFileSync(path.join(__dirname, '../public/js/landing-events.js'), 'utf8');
-    assert.match(src, /explicitLandingCountry/);
+    assert.match(src, /\/en\/ca/);
     const posts = [];
     const sandbox = {
       console,
