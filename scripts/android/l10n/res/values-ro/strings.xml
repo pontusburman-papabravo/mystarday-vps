@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Fără conexiune</string>
+    <string name="native_offline_body">Verifică conexiunea la internet și încearcă din nou.</string>
+    <string name="camera_permission_rationale">[REDACTED] folosește camera ca să faci o poză de profil pentru copil.</string>
+    <string name="photos_permission_rationale">[REDACTED] are nevoie de acces la poze ca să alegi o poză de profil pentru copil.</string>
+    <string name="notification_channel_routine_name">Mementouri de rutină</string>
+    <string name="notification_channel_routine_desc">Mementouri despre programul familiei</string>
+</resources>

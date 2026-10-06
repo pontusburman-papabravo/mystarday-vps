@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Nincs kapcsolat</string>
+    <string name="native_offline_body">Ellenőrizd az internetkapcsolatot, és próbáld újra.</string>
+    <string name="camera_permission_rationale">[REDACTED] a kamerát használja, hogy profilképet készítsen a gyerekedről.</string>
+    <string name="photos_permission_rationale">[REDACTED] hozzáférést kér a fotókhoz, hogy kiválaszd a gyereked profilképét.</string>
+    <string name="notification_channel_routine_name">Rutin-emlékeztetők</string>
+    <string name="notification_channel_routine_desc">Emlékeztetők a család napirendjéről</string>
+</resources>
