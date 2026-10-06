@@ -17,6 +17,11 @@ const LOADERS = Object.freeze({
   nb: () => require('./nb/pages').pageFor,
   is: () => require('./is/pages').pageFor,
   pt: () => require('./pt/pages').pageFor,
+  cs: () => require('./cs/pages').pageFor,
+  sk: () => require('./sk/pages').pageFor,
+  sl: () => require('./sl/pages').pageFor,
+  hr: () => require('./hr/pages').pageFor,
+  hu: () => require('./hu/pages').pageFor,
 });
 
 function hasLocalePages(localeCode) {
