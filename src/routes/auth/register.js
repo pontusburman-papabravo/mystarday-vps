@@ -17,7 +17,11 @@ const { sendWelcomeEmail } = require('../../lib/welcome-mailer');
 const { createNewsletterSubscription } = require('../../lib/newsletter-subscribe');
 const { validate } = require('../../middleware/validate');
 const { RegisterSchema } = require('../../lib/schemas');
-const { resolvePreAuthLocale } = require('../../lib/locale');
+const {
+  resolvePreAuthLocale,
+  usesCanonicalLibrary,
+  shouldEnableEnglishAppOnRegister,
+} = require('../../lib/locale');
 const { resolveAuthApiLocale, authApiMessage } = require('../../lib/auth-api-messages');
 const { loadDefaultContent } = require('../../lib/default-content');
 const { seedFamilyStarterActivitiesFromCanonicalDb } = require('../../lib/standard-library-family-seed');
@@ -175,7 +179,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       const familyId = familyResult.rows[0].id;
       const familyCreatedAt = familyResult.rows[0].created_at;
 
-      if (familyLocale === 'en-GB') {
+      if (shouldEnableEnglishAppOnRegister(familyLocale)) {
         await enableEnglishAppForFamily(familyId, { client });
       }
 
@@ -199,7 +203,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // sv-SE: prefer admin global library when present (unchanged behaviour).
       let groupedActivities = null;
-      if (familyLocale === 'sv-SE') {
+      if (usesCanonicalLibrary(familyLocale)) {
         try {
           const grpResult = await client.query(
             `SELECT name, icon, category_name, star_value, sort_order, sub_steps,
@@ -228,7 +232,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
       // When canonical rows exist, they are the sole Standard Library authority for sv-SE.
       // en-GB / empty-DB paths use config/default-content/* — explicit LEGACY_BOOTSTRAP only.
       let activitiesSeededFromCanonical = false;
-      if (familyLocale === 'sv-SE') {
+      if (usesCanonicalLibrary(familyLocale)) {
         const canonicalCount = await client.query(
           `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
         );
@@ -278,7 +282,7 @@ router.post('/register', registrationLimiter, validate(RegisterSchema), async (r
 
       // Seed default rewards: admin library for sv-SE, locale file fallback for en-GB.
       let rewardsSeeded = false;
-      if (familyLocale === 'sv-SE') {
+      if (usesCanonicalLibrary(familyLocale)) {
         try {
           const defaultRewards = await client.query(
             'SELECT id, name, icon, star_cost FROM default_reward ORDER BY sort_order ASC, star_cost ASC'

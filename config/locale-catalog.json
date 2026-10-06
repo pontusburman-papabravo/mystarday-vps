@@ -1,0 +1,30 @@
+{
+  "defaultLocale": "sv-SE",
+  "fallbackLocale": "en-GB",
+  "locales": [
+    {
+      "id": "sv-SE",
+      "nativeName": "Svenska",
+      "base": "sv",
+      "aliases": ["sv", "sv-se"],
+      "inputAliases": ["sv"],
+      "legacyJourneyTags": ["sv"],
+      "experiencePack": "child_se",
+      "availability": "always",
+      "contentSource": "canonical-db"
+    },
+    {
+      "id": "en-GB",
+      "nativeName": "English",
+      "base": "en",
+      "aliases": ["en", "en-gb", "en-us"],
+      "inputAliases": ["en"],
+      "legacyJourneyTags": ["en"],
+      "experiencePack": "child_en",
+      "experiencePackRequiresFlag": "english_child_experience",
+      "availability": "english_app",
+      "enableEnglishAppOnRegister": true,
+      "contentSource": "locale-files"
+    }
+  ]
+}

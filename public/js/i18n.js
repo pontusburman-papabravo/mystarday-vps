@@ -9,6 +9,53 @@ const I18n = {
   _englishAppEnabled: false,
   DEFAULT_LOCALE: 'sv-SE',
   CANONICAL_FALLBACK_LOCALE: 'en-GB',
+  // BEGIN LOCALE_CATALOG
+  CATALOG: {
+    "defaultLocale": "sv-SE",
+    "fallbackLocale": "en-GB",
+    "locales": [
+      {
+        "id": "sv-SE",
+        "nativeName": "Svenska",
+        "base": "sv",
+        "aliases": [
+          "sv",
+          "sv-se"
+        ],
+        "inputAliases": [
+          "sv"
+        ],
+        "legacyJourneyTags": [
+          "sv"
+        ],
+        "experiencePack": "child_se",
+        "availability": "always",
+        "contentSource": "canonical-db"
+      },
+      {
+        "id": "en-GB",
+        "nativeName": "English",
+        "base": "en",
+        "aliases": [
+          "en",
+          "en-gb",
+          "en-us"
+        ],
+        "inputAliases": [
+          "en"
+        ],
+        "legacyJourneyTags": [
+          "en"
+        ],
+        "experiencePack": "child_en",
+        "experiencePackRequiresFlag": "english_child_experience",
+        "availability": "english_app",
+        "enableEnglishAppOnRegister": true,
+        "contentSource": "locale-files"
+      }
+    ]
+  },
+    // END LOCALE_CATALOG
 
   STORAGE_KEY: 'sd_preferred_locale',
 
@@ -71,16 +118,40 @@ const I18n = {
     return this._ready;
   },
 
+  _catalogLocales() {
+    return (this.CATALOG && this.CATALOG.locales) || [];
+  },
+
+  selectorLocales() {
+    return this._catalogLocales().map((locale) => ({
+      id: locale.id,
+      nativeName: locale.nativeName,
+      availability: locale.availability || 'always',
+    }));
+  },
+
   _normalize(raw) {
+    // Unsupported tags (including fi / fi-FI) stay unsupported — never alias to sv-SE.
     if (!raw) return null;
     const s = String(raw).trim();
-    if (s === 'sv-SE' || s === 'en-GB') return s;
-    if (s === 'sv') return 'sv-SE';
-    if (s === 'en') return 'en-GB';
-    const base = s.split(/[-_]/)[0].toLowerCase();
-    if (base === 'sv') return 'sv-SE';
-    if (base === 'en') return 'en-GB';
-    // Unsupported tags (including fi / fi-FI) stay unsupported — never alias to sv-SE.
+    if (!s) return null;
+    const locales = this._catalogLocales();
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].id === s) return locales[i].id;
+    }
+    const lower = s.toLowerCase();
+    for (let i = 0; i < locales.length; i++) {
+      const aliases = locales[i].aliases || [];
+      for (let a = 0; a < aliases.length; a++) {
+        if (String(aliases[a]).toLowerCase() === lower) return locales[i].id;
+      }
+    }
+    const base = lower.split(/[-_]/)[0];
+    const baseHits = [];
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].base === base) baseHits.push(locales[i].id);
+    }
+    if (baseHits.length === 1) return baseHits[0];
     return null;
   },
 
@@ -208,8 +279,23 @@ const I18n = {
    * @param {Record<string, string|number>} [params]
    */
   plural(baseKey, count, params = {}) {
-    const suffix = Number(count) === 1 ? 'one' : 'other';
-    return this.t(`${baseKey}.${suffix}`, { ...params, count });
+    const n = Number(count);
+    let category = n === 1 ? 'one' : 'other';
+    try {
+      category = new Intl.PluralRules(this.lang || this.DEFAULT_LOCALE).select(Number.isFinite(n) ? n : 0);
+    } catch (_) {
+      category = n === 1 ? 'one' : 'other';
+    }
+    const merged = Object.assign({ count: n }, params || {});
+    const exactKey = `${baseKey}.${category}`;
+    const exact = this.t(exactKey, merged);
+    if (exact !== exactKey) return exact;
+    if (category !== 'other') {
+      const otherKey = `${baseKey}.other`;
+      const other = this.t(otherKey, merged);
+      if (other !== otherKey) return other;
+    }
+    return exact;
   },
 
   /**

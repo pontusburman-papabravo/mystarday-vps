@@ -10,15 +10,10 @@
   }
 
   function subscriptionDateLocale() {
-    let raw = 'sv-SE';
-    if (window.I18n) {
-      if (typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang()) {
-        raw = I18n.getCurrentLang();
-      } else if (typeof I18n.getLocale === 'function' && I18n.getLocale()) {
-        raw = I18n.getLocale();
-      }
+    if (window.I18n && typeof I18n._normalize === 'function' && typeof I18n.getCurrentLang === 'function') {
+      return I18n._normalize(I18n.getCurrentLang()) || I18n.DEFAULT_LOCALE || 'sv-SE';
     }
-    return String(raw).toLowerCase().indexOf('en') === 0 ? 'en-GB' : 'sv-SE';
+    return 'sv-SE';
   }
 
   function formatDate(iso) {

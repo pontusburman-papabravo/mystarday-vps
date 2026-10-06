@@ -9,6 +9,10 @@
  */
 
 const { z } = require('zod');
+const { SUPPORTED_LOCALES, LOCALE_INPUT_ALIASES } = require('./locale');
+
+const preferredLocaleEnum = z.enum([...SUPPORTED_LOCALES]);
+const preferredLocaleInputEnum = z.enum([...SUPPORTED_LOCALES, ...LOCALE_INPUT_ALIASES]);
 
 // ─── Shared primitives ────────────────────────────────────
 
@@ -79,15 +83,15 @@ const RegisterSchema = z.object({
   first_touch_at: z.string().max(40).optional(),
   // language is optional (legacy) — preferred_locale is canonical
   language: z.string().max(10).optional(),
-  preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),
+  preferred_locale: preferredLocaleEnum.optional(),
   country_code: z.string().length(2).optional(),
 });
 
 const LoginSchema = z.object({
   email: email,
   password: z.string().min(1, 'Lösenord krävs').max(128),
-  preferred_locale: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
-  language: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
+  preferred_locale: preferredLocaleInputEnum.optional(),
+  language: preferredLocaleInputEnum.optional(),
 });
 
 const ChildLoginSchema = z.object({
@@ -97,8 +101,8 @@ const ChildLoginSchema = z.object({
 
 const ForgotPasswordSchema = z.object({
   email: email,
-  preferred_locale: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
-  language: z.enum(['sv-SE', 'en-GB', 'sv', 'en']).optional(),
+  preferred_locale: preferredLocaleInputEnum.optional(),
+  language: preferredLocaleInputEnum.optional(),
 });
 
 const ResetPasswordSchema = z.object({
@@ -414,7 +418,7 @@ const UpdateFamilySchema = z.object({
   streak_start_day: z.coerce.number().int().min(0).max(6).optional(),
   sound_enabled: z.boolean().optional(),
   family_chest_enabled: z.boolean().optional(),
-  preferred_locale: z.enum(['sv-SE', 'en-GB']).optional(),
+  preferred_locale: preferredLocaleEnum.optional(),
 }).partial();
 
 const UpdateFamilyMemberSchema = z.object({

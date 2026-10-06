@@ -122,7 +122,7 @@ function buildEmailHtml({ subject, bodyHtml, unsubscribeUrl, locale = 'sv-SE' })
   const brand = config.email.fromName || 'Stjärndag';
   const lang = resolveCommunicationLocale(locale);
   return `<!DOCTYPE html>
-<html lang="${lang === 'en-GB' ? 'en-GB' : 'sv-SE'}">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -204,7 +204,7 @@ function buildTrialEmailHtml({ greeting, upgradeUrl, subject, locale = 'sv-SE', 
   const lang = resolveCommunicationLocale(locale);
   const resolvedBrand = brand || config.email.fromName || 'Stjärndag';
   return `<!DOCTYPE html>
-<html lang="${lang === 'en-GB' ? 'en-GB' : 'sv-SE'}">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

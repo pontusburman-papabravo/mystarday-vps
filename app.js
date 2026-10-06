@@ -14,6 +14,7 @@ const {
   validateLocale,
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
+  getPublicLocaleCatalog,
 } = require('./src/lib/locale');
 const checkMaintenanceMode = require('./src/middleware/maintenance');
 const { blockImpersonationWrites } = require('./src/middleware/impersonation');
@@ -122,7 +123,11 @@ function createApp() {
   });
 
   app.get('/api/i18n', (req, res) => {
-    res.json({ languages: getAvailableLanguages(), default: DEFAULT_LOCALE });
+    res.json({
+      languages: getAvailableLanguages(),
+      default: DEFAULT_LOCALE,
+      locales: getPublicLocaleCatalog(),
+    });
   });
 
   app.get('/api/i18n/options', async (req, res) => {

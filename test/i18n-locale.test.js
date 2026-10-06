@@ -15,7 +15,7 @@ const {
   SUPPORTED_LOCALES,
 } = require('../src/lib/locale');
 
-const { loadLocales, t, getLocale, compareLocaleStructures } = require('../src/lib/i18n');
+const { loadLocales, t, getLocale, compareLocaleStructures, auditTranslationContract } = require('../src/lib/i18n');
 const { loadDefaultContent } = require('../src/lib/default-content');
 
 describe('locale normalization', () => {
@@ -112,6 +112,8 @@ describe('i18n bundles', () => {
     const { missingInEn, missingInSv } = compareLocaleStructures();
     assert.deepEqual(missingInEn, [], `en-GB missing keys: ${missingInEn.join(', ')}`);
     assert.deepEqual(missingInSv, [], `sv-SE missing keys: ${missingInSv.join(', ')}`);
+    const contract = auditTranslationContract();
+    assert.equal(contract.ok, true, contract.errors.slice(0, 20).join('\n'));
   });
 
   it('t() returns en-GB app name when key exists', () => {

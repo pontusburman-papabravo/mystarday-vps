@@ -68,7 +68,7 @@
   },
   "auth": {
     "meta": {
-      "ogTitle": "My Starday — Simplify everyday life for the whole family",
+      "ogTitle": "{{brand}} — Simplify everyday life for the whole family",
       "ogDescription": "Create and follow daily schedules, activities and rewards"
     },
     "login": {
@@ -141,7 +141,7 @@
       },
       "verify": {
         "title": "Verify your email address",
-        "body": "You must verify your email address to continue using My Starday. Check your inbox (and spam folder) for an email from us.",
+        "body": "You must verify your email address to continue using {{brand}}. Check your inbox (and spam folder) for an email from us.",
         "emailLabel": "Email address:",
         "resendBtn": "Send new verification link",
         "resendSending": "Sending…",
@@ -156,7 +156,7 @@
       "welcome": {
         "ariaLabel": "Welcome",
         "headline": "A calmer everyday life with clear steps, schedules and stars",
-        "lead": "My Starday helps children and families with daily routines through visual schedules, clear sub-steps and rewards that make it easier to get through the day more independently.",
+        "lead": "{{brand}} helps children and families with daily routines through visual schedules, clear sub-steps and rewards that make it easier to get through the day more independently.",
         "chipVisualSchedules": "Visual schedules",
         "chipStarsRewards": "Stars & rewards",
         "chipMultipleUsers": "Multiple children and adults",
@@ -189,7 +189,7 @@
       },
       "signupIntro": {
         "ariaLabel": "Get started",
-        "title": "Get started with My Starday",
+        "title": "Get started with {{brand}}",
         "sub": "Create a free account and build your child's first schedule with clear steps, stars and goals.",
         "point1": "Visual schedules your child understands",
         "point2": "Stars and rewards that motivate",

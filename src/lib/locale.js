@@ -1,22 +1,84 @@
 'use strict';
 
 /**
- * Canonical locale resolution for the family app (sv-SE / en-GB).
- * Single source of truth — do not duplicate locale logic elsewhere.
+ * Canonical locale resolution.
+ * Supported languages live in config/locale-catalog.json — not in route or market code.
+ * Language (presentation) is independent of country and commercial policy.
  */
 
-const SUPPORTED_LOCALES = Object.freeze(['sv-SE', 'en-GB']);
-const DEFAULT_LOCALE = 'sv-SE';
-/** Message fallback when a key is missing in the requested locale. Never sv-SE for non-Swedish. */
-const CANONICAL_FALLBACK_LOCALE = 'en-GB';
+const fs = require('fs');
+const path = require('path');
 
-const ALIASES = Object.freeze({
-  sv: 'sv-SE',
-  en: 'en-GB',
-  'sv-se': 'sv-SE',
-  'en-gb': 'en-GB',
-  'en-us': 'en-GB',
-});
+const CATALOG_PATH = path.join(__dirname, '..', '..', 'config', 'locale-catalog.json');
+
+function readCatalogFile() {
+  return JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
+}
+
+function compileCatalog(catalog) {
+  const locales = Array.isArray(catalog.locales) ? catalog.locales : [];
+  const ids = locales.map((locale) => locale.id);
+  const byId = new Map(locales.map((locale) => [locale.id, locale]));
+  const aliases = {};
+  const baseToIds = new Map();
+  const inputAliases = [];
+
+  for (const locale of locales) {
+    const baseHits = baseToIds.get(locale.base) || [];
+    baseHits.push(locale.id);
+    baseToIds.set(locale.base, baseHits);
+    for (const alias of locale.aliases || []) {
+      aliases[String(alias).toLowerCase()] = locale.id;
+    }
+    for (const alias of locale.inputAliases || []) {
+      inputAliases.push(alias);
+    }
+  }
+
+  return {
+    ids,
+    byId,
+    aliases,
+    baseToIds,
+    inputAliases,
+    defaultLocale: catalog.defaultLocale,
+    fallbackLocale: catalog.fallbackLocale,
+    publicLocales: locales.map((locale) => ({
+      id: locale.id,
+      nativeName: locale.nativeName,
+      availability: locale.availability || 'always',
+    })),
+  };
+}
+
+const shippedCatalog = readCatalogFile();
+const shippedDerived = compileCatalog(shippedCatalog);
+
+let derived = shippedDerived;
+
+const SUPPORTED_LOCALES = Object.freeze([...shippedDerived.ids]);
+const DEFAULT_LOCALE = shippedDerived.defaultLocale;
+const CANONICAL_FALLBACK_LOCALE = shippedDerived.fallbackLocale;
+const ALIASES = Object.freeze({ ...shippedDerived.aliases });
+const LOCALE_INPUT_ALIASES = Object.freeze([...shippedDerived.inputAliases]);
+
+/**
+ * Test-only catalog swap. The exported sv-SE / en-GB list does not change.
+ * @param {object} catalog
+ * @param {() => unknown} fn
+ */
+function withLocaleCatalog(catalog, fn) {
+  if (process.env.NODE_ENV !== 'test') {
+    throw new Error('withLocaleCatalog is only available when NODE_ENV=test');
+  }
+  const previous = derived;
+  derived = compileCatalog(catalog);
+  try {
+    return fn();
+  } finally {
+    derived = previous;
+  }
+}
 
 /**
  * Normalize a raw locale string to canonical BCP 47 or null if unrecognised.
@@ -28,17 +90,15 @@ function normalizeLocale(raw) {
   const trimmed = String(raw).trim();
   if (!trimmed) return null;
 
-  if (SUPPORTED_LOCALES.includes(trimmed)) return trimmed;
+  if (derived.ids.includes(trimmed)) return trimmed;
 
-  const alias = ALIASES[trimmed.toLowerCase()];
+  const alias = derived.aliases[trimmed.toLowerCase()];
   if (alias) return alias;
 
   const base = trimmed.split(/[-_]/)[0].toLowerCase();
-  if (base === 'sv') return 'sv-SE';
-  if (base === 'en') return 'en-GB';
-  // Unsupported tags (fi / fi-FI / fr-FR / …) stay unsupported.
-  // FI as a country still defaults to sv-SE via COUNTRY_DEFAULTS — that is not a locale alias.
-
+  const matches = derived.baseToIds.get(base) || [];
+  // One locale per base language (sv, en). Two English regions must be explicit aliases.
+  if (matches.length === 1) return matches[0];
   return null;
 }
 
@@ -59,7 +119,7 @@ function isSupportedLocale(raw) {
 function validateLocale(raw, opts = {}) {
   const normalized = normalizeLocale(raw);
   if (normalized) return normalized;
-  const fallback = normalizeLocale(opts.fallback) || DEFAULT_LOCALE;
+  const fallback = normalizeLocale(opts.fallback) || derived.defaultLocale;
   return fallback;
 }
 
@@ -109,7 +169,7 @@ function resolvePreAuthLocale(input = {}) {
   const fromHeader = parseAcceptLanguage(input.acceptLanguage);
   if (fromHeader) return fromHeader;
 
-  return DEFAULT_LOCALE;
+  return derived.defaultLocale;
 }
 
 /**
@@ -119,7 +179,32 @@ function resolvePreAuthLocale(input = {}) {
  * @returns {string}
  */
 function resolveFamilyLocale(familyPreferredLocale) {
-  return validateLocale(familyPreferredLocale, { fallback: DEFAULT_LOCALE });
+  return validateLocale(familyPreferredLocale, { fallback: derived.defaultLocale });
+}
+
+function catalogEntry(locale) {
+  return derived.byId.get(resolveFamilyLocale(locale)) || null;
+}
+
+/**
+ * Swedish canonical library (admin DB) is only the default locale.
+ * Every other registered locale uses its own content files, then English.
+ * @param {string|null|undefined} locale
+ * @returns {boolean}
+ */
+function usesCanonicalLibrary(locale) {
+  const entry = catalogEntry(locale);
+  return Boolean(entry && entry.contentSource === 'canonical-db');
+}
+
+/**
+ * English rollout flag is a property of the en-GB catalog row, not a locale branch in routes.
+ * @param {string|null|undefined} locale
+ * @returns {boolean}
+ */
+function shouldEnableEnglishAppOnRegister(locale) {
+  const entry = catalogEntry(locale);
+  return Boolean(entry && entry.enableEnglishAppOnRegister);
 }
 
 /**
@@ -130,25 +215,47 @@ function resolveFamilyLocale(familyPreferredLocale) {
  */
 function journeyLocaleCandidates(familyLocale) {
   const canonical = resolveFamilyLocale(familyLocale);
+  const entry = derived.byId.get(canonical);
   const candidates = [canonical];
-  if (canonical === 'sv-SE') candidates.push('sv');
-  if (canonical === 'en-GB') candidates.push('en');
+  for (const tag of (entry && entry.legacyJourneyTags) || []) {
+    if (!candidates.includes(tag)) candidates.push(tag);
+  }
   return candidates;
 }
 
 /**
  * Map family locale to experience pack id.
  * en-GB selects child_en only when english_child_experience is enabled for the family.
+ * A future locale uses its catalog pack and never the Swedish pack.
  * @param {string} familyLocale
  * @param {{ englishChildExperienceEnabled?: boolean }} [opts]
  * @returns {string}
  */
+/**
+ * Child UI bundle. en-GB stays behind english_child_experience.
+ * Any other non-default locale uses itself (never Swedish copy).
+ * @param {string|null|undefined} familyLocale
+ * @param {boolean} [englishChildEnabled]
+ * @returns {string}
+ */
+function childUiLocaleForFamily(familyLocale, englishChildEnabled = false) {
+  const canonical = resolveFamilyLocale(familyLocale);
+  const entry = derived.byId.get(canonical);
+  if (!entry || canonical === derived.defaultLocale) return derived.defaultLocale;
+  if (entry.experiencePackRequiresFlag === 'english_child_experience') {
+    return englishChildEnabled === true ? canonical : derived.defaultLocale;
+  }
+  return canonical;
+}
+
 function experiencePackIdForLocale(familyLocale, opts = {}) {
   const canonical = resolveFamilyLocale(familyLocale);
-  if (canonical === 'en-GB' && opts.englishChildExperienceEnabled === true) {
-    return 'child_en';
+  const entry = derived.byId.get(canonical);
+  if (!entry) return 'child_se';
+  if (entry.experiencePackRequiresFlag === 'english_child_experience') {
+    return opts.englishChildExperienceEnabled === true ? entry.experiencePack : 'child_se';
   }
-  return 'child_se';
+  return entry.experiencePack || 'child_se';
 }
 
 /**
@@ -161,18 +268,32 @@ function htmlLang(locale) {
   return canonical.toLowerCase();
 }
 
+/**
+ * Names shown in the language selector. Availability flags stay per locale.
+ * @returns {Array<{ id: string, nativeName: string, availability: string }>}
+ */
+function getPublicLocaleCatalog() {
+  return derived.publicLocales.map((locale) => ({ ...locale }));
+}
+
 module.exports = {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
   CANONICAL_FALLBACK_LOCALE,
   ALIASES,
+  LOCALE_INPUT_ALIASES,
   normalizeLocale,
   isSupportedLocale,
   validateLocale,
   parseAcceptLanguage,
   resolvePreAuthLocale,
   resolveFamilyLocale,
+  usesCanonicalLibrary,
+  shouldEnableEnglishAppOnRegister,
   journeyLocaleCandidates,
+  childUiLocaleForFamily,
   experiencePackIdForLocale,
   htmlLang,
+  getPublicLocaleCatalog,
+  withLocaleCatalog,
 };

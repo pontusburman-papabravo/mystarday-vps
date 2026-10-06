@@ -44,19 +44,26 @@
       const flag = englishChildEnabled ? '1' : '0';
       sessionStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
       localStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
-      if (resolvedLocale === 'en-GB' || resolvedLocale === 'sv-SE') {
-        sessionStorage.setItem(storageKey, resolvedLocale);
-        localStorage.setItem(storageKey, resolvedLocale);
+      const storedLocale = (typeof I18n._normalize === 'function' && I18n._normalize(resolvedLocale)) || null;
+      if (storedLocale) {
+        sessionStorage.setItem(storageKey, storedLocale);
+        localStorage.setItem(storageKey, storedLocale);
       }
     } catch (_) { /* ignore */ }
   }
 
   function resolveChildUiLocale(preferredLocale, englishChildEnabled) {
-    const locale = String(preferredLocale || 'sv-SE').trim();
-    if (locale === 'en-GB' && englishChildEnabled === true) {
-      return 'en-GB';
+    const i18n = window.I18n;
+    if (!i18n || typeof i18n._normalize !== 'function') {
+      return preferredLocale === 'en-GB' && englishChildEnabled === true ? 'en-GB' : 'sv-SE';
     }
-    return 'sv-SE';
+    const locale = i18n._normalize(preferredLocale);
+    if (!locale || locale === (i18n.DEFAULT_LOCALE || 'sv-SE')) return i18n.DEFAULT_LOCALE || 'sv-SE';
+    const entry = (i18n._catalogLocales ? i18n._catalogLocales() : []).find((item) => item.id === locale);
+    if (entry && entry.experiencePackRequiresFlag === 'english_child_experience') {
+      return englishChildEnabled === true ? locale : (i18n.DEFAULT_LOCALE || 'sv-SE');
+    }
+    return locale;
   }
 
   /**
