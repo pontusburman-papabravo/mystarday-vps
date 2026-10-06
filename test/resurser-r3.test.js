@@ -232,8 +232,9 @@ describe('resurser R3 — SEO aliases', () => {
         assert.equal(res.status, 301, from);
         assert.equal(res.headers.get('location'), to, from);
       }
-      const canonical = await fetch(`${http.baseUrl}/resurser/bildschema-helg-barn`);
-      assert.equal(canonical.status, 200);
+      const canonical = await fetch(`${http.baseUrl}/resurser/bildschema-helg-barn`, { redirect: 'manual' });
+      assert.equal(canonical.status, 301);
+      assert.equal(canonical.headers.get('location'), '/resurser/pdf/helgschema');
     } finally {
       await http.close();
     }
@@ -255,11 +256,15 @@ describe('resurser R3 — SEO aliases', () => {
 });
 
 describe('resurser R3 — SEO and HTTP', () => {
-  it('all R3 paths are in SEO_INDEXABLE_PATHS and sitemap', () => {
+  it('only kept R3 paths stay in the sitemap', () => {
+    const { resurserDecision } = require('../config/resurser-consolidation');
     const xml = buildSitemapXml();
     for (const p of R3_INDEXABLE_PATHS) {
-      assert.equal(SEO_INDEXABLE_PATHS.has(p), true, p);
-      assert.match(xml, new RegExp(`${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}<\\/loc>`), p);
+      const keep = resurserDecision(p) === 'keep';
+      assert.equal(SEO_INDEXABLE_PATHS.has(p), keep, p);
+      const loc = new RegExp(`${p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}<\\/loc>`);
+      if (keep) assert.match(xml, loc, p);
+      else assert.doesNotMatch(xml, loc, p);
     }
   });
 
@@ -288,22 +293,15 @@ describe('resurser R3 — SEO and HTTP', () => {
     const { createApp } = require('../app');
     const http = await listenApp(createApp);
     try {
-      const sample = [
-        '/resurser/bildschema-forskolan',
-        '/resurser/bildstod-adhd-barn',
-        '/resurser/hygienschema-barn-pdf',
-        '/resurser/bildkort-rutiner-barn',
-        '/resurser/bildschema-lakarbesok-barn',
-        '/resurser/pdf/helgschema',
-        '/resurser/pdf/laxschema',
-      ];
-      for (const p of sample) {
-        const res = await fetch(`${http.baseUrl}${p}`);
-        assert.equal(res.status, 200, p);
-      }
+      const { resurserDecision, resurserRedirectTarget } = require('../config/resurser-consolidation');
       for (const page of R3_LONGTAIL_PAGES) {
-        const res = await fetch(`${http.baseUrl}${page.path}`);
-        assert.equal(res.status, 200, page.path);
+        const res = await fetch(`${http.baseUrl}${page.path}`, { redirect: 'manual' });
+        if (resurserDecision(page.path) === 'redirect') {
+          assert.equal(res.status, 301, page.path);
+          assert.equal(res.headers.get('location'), resurserRedirectTarget(page.path), page.path);
+        } else {
+          assert.equal(res.status, 200, page.path);
+        }
       }
     } finally {
       await http.close();

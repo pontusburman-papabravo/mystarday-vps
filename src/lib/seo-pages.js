@@ -1,11 +1,12 @@
 /**
  * SEO indexability — which HTML paths may be indexed by search engines.
- * All other HTML responses get <meta name="robots" content="noindex"> injected.
+ * All other HTML responses get <meta name="robots" content="noindex, follow"> injected.
  */
 
 const { R1_INDEXABLE_PATHS } = require('../../config/resurser-r1');
 const { R2_INDEXABLE_PATHS } = require('../../config/resurser-r2');
 const { R3_INDEXABLE_PATHS } = require('../../config/resurser-r3');
+const { isResurserIndexable } = require('../../config/resurser-consolidation');
 const { allEnglishIndexablePaths } = require('../../config/en-public-mirror');
 const { isEnglishContentIndexable, sitemapAudienceForHost, englishOrigin, swedishOrigin } = require('./public-seo');
 
@@ -31,10 +32,10 @@ const SEO_INDEXABLE_PATHS = new Set([
   '/bildschema-app',
   '/alternativ-bildschema-tavla',
   '/veckoschema-bildstod',
-  '/resurser',
-  ...R1_INDEXABLE_PATHS,
-  ...R2_INDEXABLE_PATHS,
-  ...R3_INDEXABLE_PATHS,
+  ...(isResurserIndexable('/resurser') ? ['/resurser'] : []),
+  ...R1_INDEXABLE_PATHS.filter(isResurserIndexable),
+  ...R2_INDEXABLE_PATHS.filter(isResurserIndexable),
+  ...R3_INDEXABLE_PATHS.filter(isResurserIndexable),
 ]);
 
 /** App/auth/admin paths — noindex + robots Disallow (not marketing SEO). */
@@ -88,7 +89,7 @@ function isSeoIndexable(path) {
   return SEO_INDEXABLE_PATHS.has(normalizeSeoPath(path));
 }
 
-const NOINDEX_META = '<meta name="robots" content="noindex">';
+const NOINDEX_META = '<meta name="robots" content="noindex, follow">';
 
 function buildRobotsTxt(opts = {}) {
   const audience = sitemapAudienceForHost(opts.host);
