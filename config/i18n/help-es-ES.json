@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Ayuda",
+    "openAria": "Abrir la ayuda",
+    "closeAria": "Cerrar la ayuda"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Ayuda – Resumen",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Resumen",
+          "faqs": [
+            {
+              "q": "¿Qué hacen los 3 botones rápidos de arriba?",
+              "a": "<strong>⭐ Dar estrellas extra</strong>: dale estrellas extra a un niño a mano. <strong>📋 Actividad puntual</strong>: añade una actividad solo para hoy. <strong>🏠 Día libre</strong>: pausa el horario del niño un día (por ejemplo, enfermedad o festivo)."
+            },
+            {
+              "q": "¿Cómo marco una actividad?",
+              "a": "Toca la actividad en la tarjeta del niño: se marca al momento. Tu niño también puede marcarla en su <strong>vista del niño</strong>."
+            },
+            {
+              "q": "¿Qué es una tarjeta de niño compacta?",
+              "a": "La tarjeta del niño muestra el avatar, el nombre, las estrellas y las pastillas de bloque en modo compacto. Ábrela para ver más detalles, un enlace al horario y el botón de pausa."
+            },
+            {
+              "q": "¿Qué es Día libre?",
+              "a": "<strong>🏠 Día libre</strong> pausa el horario del niño el día elegido: va bien si está enfermo o de vacaciones. El niño ve el horario como inactivo. Vuelve a activar el día con el mismo botón."
+            },
+            {
+              "q": "¿Qué es el modo pausa?",
+              "a": "Toca el icono de pausa (⏸) en la tarjeta del niño para pausarlo. Las actividades se ven inactivas y el niño no gana estrellas hasta que reanudes."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Estrellas",
+          "faqs": [
+            {
+              "q": "¿Cómo gana estrellas mi niño?",
+              "a": "Cada actividad hecha da <strong>1 estrella</strong>. Tu niño las marca en la vista del niño, o puedes marcarlas tú en Hoy mientras lo vais probando. Da estrellas extra con el botón ⭐ encima de las tarjetas."
+            },
+            {
+              "q": "¿Cómo funciona el cofre de estrellas?",
+              "a": "Tu niño abre el cofre de estrellas con la pestaña 💎 en la vista del niño y ve las recompensas con su precio en estrellas. Cuando ha ahorrado bastante, puede pedir una recompensa: tú la apruebas."
+            },
+            {
+              "q": "¿Cómo añado recompensas?",
+              "a": "Ve a <strong>Biblioteca</strong> en el menú → la pestaña «Recompensas». Añade tus recompensas, cambia el coste en estrellas y elige qué niños las ven."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Horario",
+          "faqs": [
+            {
+              "q": "¿Cómo añado una actividad?",
+              "a": "Ve a <strong>Horario semanal</strong> → elige niño → elige día → toca «+» para añadir una actividad de la biblioteca. Puedes buscar entre 63 actividades estándar."
+            },
+            {
+              "q": "¿Cómo copio un horario a todos los días?",
+              "a": "En Horario semanal → «Copiar de…» → elige un origen (tu propio horario o la biblioteca estándar) → marca los días a los que quieres copiar."
+            },
+            {
+              "q": "¿Qué es la vista Hoy?",
+              "a": "La vista «Hoy» del Resumen se actualiza sola cuando cambias el horario. Los cambios del Horario semanal aparecen enseguida en el Resumen y en la vista de tu niño."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Familia",
+          "faqs": [
+            {
+              "q": "¿Cómo invito a otro adulto?",
+              "a": "Ve a <strong>Familia y ajustes → Miembros de la familia</strong> → toca «Invitar». La persona invitada recibe un correo con un enlace para entrar."
+            },
+            {
+              "q": "¿Cómo veo el día de mi niño?",
+              "a": "Abre <strong>Hoy</strong> en el menú: ahí ves las actividades de hoy como las verá tu niño. Va muy bien la primera tarde, antes de que entre solo."
+            },
+            {
+              "q": "¿Cómo entra mi niño?",
+              "a": "Cuando estéis listos: tu niño entra en <strong>/child-login</strong> con usuario y PIN. Los datos están en <strong>Familia y ajustes → Niños</strong>."
+            },
+            {
+              "q": "Contactar con soporte",
+              "a": "Escríbenos a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — respondemos en 24 horas."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Ayuda – Recompensas",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Recompensas",
+          "faqs": [
+            {
+              "q": "¿Cómo funciona el sistema de recompensas?",
+              "a": "Tu niño junta estrellas al completar actividades. Cuando tiene bastantes para una recompensa, puede pedir canjearla: tú apruebas o rechazas."
+            },
+            {
+              "q": "¿Cómo añado recompensas nuevas?",
+              "a": "Ve a <strong>Biblioteca</strong> en el menú → la pestaña «Recompensas» → busca o toca «+ Añadir recompensa». También puedes copiar directamente de la biblioteca estándar."
+            },
+            {
+              "q": "¿Cómo controlo qué ve cada niño?",
+              "a": "Al crear o editar una recompensa, eliges qué niños deben verla. Va bien para recompensas a medida."
+            },
+            {
+              "q": "¿Cómo apruebo una petición de canje?",
+              "a": "La petición de tu niño aparece en el Resumen con una insignia. Toca para aprobar. Las estrellas se descuentan solas y tu niño ve el cambio enseguida."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Estrellas",
+          "faqs": [
+            {
+              "q": "¿Cómo gana estrellas mi niño?",
+              "a": "Cada actividad hecha da estrellas (1 estrella por actividad, por defecto). También puedes dar estrellas extra con el botón ⭐ del Resumen."
+            },
+            {
+              "q": "¿Qué diferencia hay entre el saldo de estrellas y el progreso del día?",
+              "a": "<strong>Saldo de estrellas</strong> = el total ahorrado. <strong>Progreso del día</strong> (el anillo alrededor del emoji) = cuántas actividades ha completado tu niño hoy. Son cosas distintas."
+            },
+            {
+              "q": "¿Qué pasa cuando se canjea una recompensa?",
+              "a": "Las estrellas se descuentan solas de la cuenta de tu niño. Lo ve enseguida en su cofre de estrellas. Tú ves el historial en la página de Recompensas."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Ayuda – Horario semanal",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Editar el horario",
+          "faqs": [
+            {
+              "q": "¿Cómo añado una actividad?",
+              "a": "Elige día → toca «+» → busca y elige una actividad. Puedes elegir <strong>varios bloques a la vez</strong> (Mañana + Tarde) y la actividad se añade a todos."
+            },
+            {
+              "q": "¿Cómo creo una actividad nueva directamente en el horario?",
+              "a": "Toca «+» → busca → si no hay coincidencias, aparece el formulario «Crear nueva» en el buscador. Rellena el nombre, el emoji, las estrellas y los pasos si los hay."
+            },
+            {
+              "q": "¿Cómo cambio el nombre o el emoji de una actividad?",
+              "a": "Toca el nombre o el emoji de la actividad en el horario → se abre la edición. Los cambios se aplican solos a todos los niños y días."
+            },
+            {
+              "q": "¿Cómo copio el horario de otro niño?",
+              "a": "Toca «Copiar de…» → elige el origen → marca los días de la semana a los que quieres copiar. Elige si quieres sustituir lo que ya hay."
+            },
+            {
+              "q": "¿El horario se sincroniza solo con la vista del niño?",
+              "a": "¡Sí! Los cambios del Horario semanal llegan enseguida a la vista «Hoy» del Resumen y a la vista de tu niño. No hace falta actualizar a mano."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Biblioteca",
+          "faqs": [
+            {
+              "q": "¿Qué es la biblioteca estándar?",
+              "a": "La biblioteca estándar tiene 63 actividades ya hechas en 6 categorías y 5 plantillas de horario. Toca «Insertar rápido desde la biblioteca» para añadirlas al horario."
+            },
+            {
+              "q": "¿Cómo copio un horario estándar?",
+              "a": "En la pestaña Horario → «Copiar de…» → elige «Biblioteca estándar» → elige un horario → elige los días → copiar."
+            },
+            {
+              "q": "¿Por qué mi niño no ve actividades?",
+              "a": "Comprueba que el horario es del niño correcto y que hay actividades para el día de hoy. ¿Horario vacío? Copia de la biblioteca estándar para arrancar rápido."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Consejos",
+          "faqs": [
+            {
+              "q": "¿Cómo monto un buen horario de rutina?",
+              "a": "Empieza con 3–5 actividades fijas (desayunar, cepillarse los dientes, deberes). Ponlas en el orden correcto. Los niños aprenden la rutina rápido si se mantiene estable."
+            },
+            {
+              "q": "¿Qué son los pasos de una actividad?",
+              "a": "Puedes añadir pasos a las actividades (por ejemplo «Lavarse las manos», «Ponerse el pijama» dentro de «Rutina de la tarde»). Tu niño los ve como una guía visual, pero marca la actividad entera de una vez."
+            },
+            {
+              "q": "¿Cuántas actividades por día?",
+              "a": "Recomendado: 4–8 actividades. Muy pocas y no hay ritmo; demasiadas y agobia. Empieza con poco y ve sumando."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Ayuda – Familia y ajustes",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Niños",
+          "faqs": [
+            {
+              "q": "¿Cómo añado un niño?",
+              "a": "Ve al Resumen → toca «+ Añadir niño». Rellena el nombre, el emoji y el cumpleaños. El niño recibe un horario automático según la edad."
+            },
+            {
+              "q": "¿Cómo cambio el PIN de mi niño?",
+              "a": "Toca la tarjeta del niño → la pestaña «Ajustes» → «Cambiar PIN». Elige un PIN nuevo de 4 cifras."
+            },
+            {
+              "q": "Mi niño tiene que hacer las actividades en orden. ¿Puedo cambiarlo?",
+              "a": "Por defecto se marca libremente. Para un orden guiado, ve al perfil de tu niño → la pestaña <strong>Ajustes</strong> → activa <strong>AHORA / SIGUIENTE / LUEGO</strong>."
+            },
+            {
+              "q": "¿Cómo veo los datos de acceso de mi niño?",
+              "a": "Toca la tarjeta del niño → la pestaña «Ajustes» → «Ver datos de acceso». Verás el usuario y el PIN de tu niño."
+            },
+            {
+              "q": "¿Cómo quito a un niño?",
+              "a": "Familia → elige niño → pestaña Ajustes → «Eliminar niño de forma permanente». Ojo: se borra todo el historial de horario, estrellas y recompensas, y no se puede deshacer."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Adultos",
+          "faqs": [
+            {
+              "q": "¿Cómo invito a otro adulto?",
+              "a": "Ve a la pestaña <strong>Miembros de la familia</strong> → «Invitar». La persona invitada recibe un correo con un enlace para crear una cuenta."
+            },
+            {
+              "q": "¿Puedo elegir qué niños ve un adulto?",
+              "a": "¡Sí! Eliges a qué niños puede acceder al enviar la invitación. Luego puedes cambiarlo en Miembros de la familia → la persona → Acceso a los niños."
+            },
+            {
+              "q": "¿Cómo quito a un miembro de la familia?",
+              "a": "Toca a la persona en la lista de Miembros de la familia → «Quitar». Pierde el acceso a la familia al momento."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Ajustes",
+          "faqs": [
+            {
+              "q": "¿Cómo cambio mi contraseña?",
+              "a": "Ve a <strong>Ajustes</strong> (⚙️) en el menú → «Cambiar contraseña». Necesitarás tu contraseña actual."
+            },
+            {
+              "q": "¿Cómo activo las notificaciones?",
+              "a": "Ve a Ajustes → «Recordatorios» → activa las notificaciones y elige las horas. Las notificaciones necesitan permiso del navegador."
+            },
+            {
+              "q": "Contactar con soporte",
+              "a": "Escríbenos a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — respondemos en 24 horas."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Ayuda – Actividades",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Gestionar",
+          "faqs": [
+            {
+              "q": "¿Qué es una actividad?",
+              "a": "Una <strong>actividad</strong> es una tarea que hace tu niño (por ejemplo «Cepillarse los dientes»). Las actividades dan de 1 a 5 estrellas y pueden tener pasos. Guárdalas en tu biblioteca y añádelas a los horarios de los niños."
+            },
+            {
+              "q": "¿Cómo creo una actividad nueva?",
+              "a": "Toca «+ Actividad nueva» → rellena el nombre, la categoría (Higiene, Comida, Juego, etc.), la duración y las estrellas. Guarda y la actividad entra en tu biblioteca."
+            },
+            {
+              "q": "¿Cómo añado una actividad al horario?",
+              "a": "Las actividades viven en tu biblioteca. Ve al Horario semanal → elige día → «+» → elige la actividad que quieres añadir."
+            },
+            {
+              "q": "¿Cómo quito una actividad de todos los días?",
+              "a": "Toca ✕ en la actividad → elige <strong>Todos los días de la semana</strong>. Para quitar solo hoy o un día de la semana (por ejemplo todos los jueves), hay opciones aparte."
+            },
+            {
+              "q": "¿Cómo edito una actividad?",
+              "a": "Toca la actividad en la lista → «Editar». Los cambios se aplican enseguida en todos los horarios donde se usa."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Categorías",
+          "faqs": [
+            {
+              "q": "¿Para qué sirven las categorías?",
+              "a": "Las categorías dan color a las actividades en la vista del niño. <strong>Higiene</strong>=azul, <strong>Comida</strong>=amarillo, <strong>Juego</strong>=verde, <strong>Colegio</strong>=morado, <strong>Movimiento</strong>=rojo, <strong>Descanso</strong>=gris, <strong>Social</strong>=naranja."
+            },
+            {
+              "q": "¿Cómo elijo una categoría?",
+              "a": "Al crear o editar una actividad, elige una categoría en el desplegable. Quédate con la que mejor describa la actividad."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Ayuda – Biblioteca",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Pestañas",
+          "faqs": [
+            {
+              "q": "¿Qué pestañas hay en la biblioteca?",
+              "a": "<strong>Horarios</strong>: tus plantillas de horario. <strong>Actividades</strong>: biblioteca de actividades con pasos. <strong>Recompensas</strong>: tus recompensas. <strong>Biblioteca estándar</strong>: 63 actividades, 15 recompensas y 5 horarios para copiar."
+            },
+            {
+              "q": "¿Cómo copio de la biblioteca estándar?",
+              "a": "Ve a la pestaña «Biblioteca estándar» → elige actividad o recompensa → toca el botón 📥 para copiarla a la biblioteca de tu familia. Los horarios se copian desde Horario semanal → «Copiar de…»."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Actividades",
+          "faqs": [
+            {
+              "q": "¿Cómo creo una actividad nueva?",
+              "a": "Toca «+ Actividad nueva» → rellena el nombre, el emoji (elige o escribe el tuyo), las estrellas y los pasos si los hay → guarda. La actividad queda en la biblioteca para toda la familia."
+            },
+            {
+              "q": "¿Qué son los pasos?",
+              "a": "Los pasos son instrucciones dentro de una actividad (por ejemplo «Lavarse las manos» dentro de «Higiene»). Tu niño los ve como guía, pero marca la actividad entera con un toque."
+            },
+            {
+              "q": "¿Cómo edito una actividad?",
+              "a": "Toca el nombre de la actividad en el horario: se abre la edición. Los cambios (nombre, emoji, pasos) se aplican solos a todos los niños y días."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Recompensas",
+          "faqs": [
+            {
+              "q": "¿Cómo añado una recompensa?",
+              "a": "La pestaña «Recompensas» → busca una recompensa → toca «+ Crear nueva» si no existe → rellena el nombre, el emoji y el precio en estrellas → elige qué niños la ven → guarda."
+            },
+            {
+              "q": "¿Cómo busco recompensas?",
+              "a": "El buscador mira a la vez en tus recompensas Y en la biblioteca estándar. ¿Sin coincidencias? El botón «Crear [nombre]» abre un formulario ya relleno."
+            },
+            {
+              "q": "¿Un niño puede tener recompensas solo para él?",
+              "a": "¡Sí! Al crear la recompensa, eliges qué niños deben verla. Va bien para recompensas a medida."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Ayuda – Ajustes",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Cuenta",
+          "faqs": [
+            {
+              "q": "¿Cómo cambio mi contraseña?",
+              "a": "Escribe tu contraseña actual y la nueva → toca «Guardar». La contraseña debe tener al menos 6 caracteres."
+            },
+            {
+              "q": "¿Cómo cambio mi correo?",
+              "a": "Escribe tu correo nuevo → toca «Guardar». Puede que tengas que verificar la dirección nueva por correo."
+            },
+            {
+              "q": "¿Cómo elimino mi cuenta?",
+              "a": "Escríbenos a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> para eliminar la cuenta. Lo hacemos en 48 horas."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notificaciones",
+          "faqs": [
+            {
+              "q": "¿Cómo activo los recordatorios?",
+              "a": "Activa el interruptor en «Recordatorios» → elige la hora y los días. Tu navegador tiene que permitir notificaciones."
+            },
+            {
+              "q": "No me llegan notificaciones aunque están activadas",
+              "a": "Comprueba que el navegador ha permitido las notificaciones del sitio. Ve a los ajustes del navegador → Notificaciones → busca [REDACTED].se → Permitir."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Ayuda – Calendario",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Calendario",
+          "faqs": [
+            {
+              "q": "¿Qué muestra el calendario?",
+              "a": "El calendario da una vista del mes con las actividades de tu niño, las recompensas canjeadas y los momentos importantes."
+            },
+            {
+              "q": "¿Cómo cambio de mes?",
+              "a": "Toca las flechas (< >) junto al nombre del mes para cambiar de mes."
+            },
+            {
+              "q": "¿Cómo veo más detalle de un día?",
+              "a": "Toca una fecha para ver la lista de actividades y estrellas de ese día."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Ayuda – Hoy",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Registro",
+          "faqs": [
+            {
+              "q": "¿Qué es el registro del día?",
+              "a": "El registro muestra el día de tu niño: actividades, marcas y estrellas. Úsalo para <strong>ver antes</strong> lo que ve tu niño, o para completarlo después."
+            },
+            {
+              "q": "¿Cómo filtro el registro?",
+              "a": "Elige un niño en el filtro de arriba para ver el registro de un solo niño. También puedes filtrar por fecha."
+            },
+            {
+              "q": "¿Hasta cuándo atrás puedo mirar?",
+              "a": "El registro guarda los datos desde el día en que empezaste a usar [REDACTED]. Desplázate o elige una fecha para ver datos más antiguos. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Ayuda – Elegir horario por día",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Asignar horario",
+          "faqs": [
+            {
+              "q": "¿Qué es «Elegir horario por día»?",
+              "a": "Aquí eliges qué horario semanal está activo para cada niño y día. Va bien si tienes rutinas distintas entre semana y el fin de semana."
+            },
+            {
+              "q": "¿Un niño puede tener horarios distintos entre semana y el fin de semana?",
+              "a": "¡Sí! Elige un horario para lun–vie y otro para sáb–dom. Toca el día y elige el horario que quieras."
+            },
+            {
+              "q": "¿Qué pasa si un día no tiene horario?",
+              "a": "Si un día no tiene horario asignado, tu niño no ve actividades ese día. Asegúrate de que cada día que quieras usar tenga un horario."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Panel de administración",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Resumen",
+          "faqs": [
+            {
+              "q": "¿Qué puedo hacer en el panel de administración?",
+              "a": "El panel de administración te da acceso a todas las familias, usuarios y datos del sistema. Puedes ver estadísticas, gestionar cuentas y moderar contenido."
+            },
+            {
+              "q": "¿Cómo encuentro a un usuario concreto?",
+              "a": "Usa el buscador de arriba para buscar por correo o nombre. Toca una familia para ver el detalle."
+            },
+            {
+              "q": "¿Cómo archivo una familia?",
+              "a": "Toca la tarjeta de la familia → «Archivar». Las familias archivadas se pueden restaurar, pero siguen inactivas hasta entonces."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Soporte",
+          "faqs": [
+            {
+              "q": "¿Cómo veo los mensajes de soporte que llegan?",
+              "a": "En la pestaña «Bandeja de soporte» ves cada mensaje enviado desde el formulario de contacto. Toca para leer el texto completo y responder."
+            },
+            {
+              "q": "¿Cómo marco un caso como resuelto?",
+              "a": "Toca el caso → «Marcar como resuelto». Los casos resueltos desaparecen de la vista por defecto, pero puedes verlos con «Mostrar resueltos»."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Apoyo al niño — {{brand}}",
+    "loadError": "No se ha podido cargar la página."
+  },
+  "supportSvar": {
+    "pageTitle": "Tu caso",
+    "title": "Tu caso",
+    "intro": "Aquí está la conversación completa. Escribe abajo si quieres seguir. Una respuesta normal por correo no aparece aquí.",
+    "sent": "Enviado. Lo veremos en el mismo caso.",
+    "escalate": "Necesito más ayuda de una persona",
+    "placeholder": "Escribe qué está pasando…"
+  }
+}

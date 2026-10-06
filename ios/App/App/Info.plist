@@ -14,6 +14,10 @@
 		<string>da</string>
 		<string>fi</string>
 		<string>nb</string>
+		<string>es-ES</string>
+		<string>it</string>
+		<string>pt-PT</string>
+		<string>pl</string>
 	</array>
 	<key>CFBundleDisplayName</key>
         <string>[REDACTED]</string> <!-- pragma: allowlist secret -->

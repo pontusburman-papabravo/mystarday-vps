@@ -4,7 +4,7 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleLocalizations</key>
+		<key>CFBundleLocalizations</key>
 	<array>
 		<string>sv</string>
 		<string>en-GB</string>
@@ -14,6 +14,10 @@
 		<string>da</string>
 		<string>fi</string>
 		<string>nb</string>
+		<string>es-ES</string>
+		<string>it</string>
+		<string>pt-PT</string>
+		<string>pl</string>
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Nästa aktivitet</string>

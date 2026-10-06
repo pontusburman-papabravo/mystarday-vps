@@ -1,0 +1,20 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Routine visive in famiglia",
+  "keywords": "routine,piano,ADHD,autismo,stella,ricompensa,famiglia,bambino",
+  "promotionalText": "Routine visive per bambini che hanno bisogno di più punti di riferimento, soprattutto con ADHD o autismo.",
+  "description": "Non è solo un altro calendario.\n\n{{brand}} aiuta i bambini a capire la giornata: cosa succede adesso, cosa viene dopo e cosa hanno già fatto.\n\nL'app è pensata per le famiglie che hanno bisogno di più punti di riferimento, più prevedibilità e più sostegno visivo nel quotidiano.\n\nPer un bambino con ADHD, autismo, o semplicemente per chi si orienta meglio con passi più chiari, {{brand}} divide la giornata in piccoli passi possibili.\n\nÈ particolarmente utile quando un bambino ha ADHD, autismo o altri bisogni neurodivergenti. Non serve una diagnosi. {{brand}} non cura né l'ADHD né l'autismo.\n\nIl bambino vede routine visive, passo dopo passo, e stelle per ciò che è già fatto. I genitori preparano il piano, le ricompense e possono condividere un riepilogo scelto.\n\nCondizioni d'uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "L'italiano è disponibile nell'app. Le routine, i riepiloghi e la vista del bambino seguono la lingua della famiglia."
+}

@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Início",
+    "planning": "Planeamento",
+    "rewards": "Recompensas",
+    "forYou": "Para ti",
+    "family": "Família"
+  },
+  "settings": "Definições",
+  "mainAria": "Navegação principal",
+  "notifications": "Notificações",
+  "share": "Partilhar",
+  "logout": "Terminar sessão",
+  "switchUser": "Mudar de perfil",
+  "returnToChild": "Voltar à criança",
+  "darkMode": "Modo escuro",
+  "lightMode": "Modo claro",
+  "overview": "Visão geral",
+  "dailyLog": "Hoje",
+  "weekSchedule": "Horário",
+  "reports": "Relatórios",
+  "library": "Biblioteca",
+  "libraryAdvanced": "📚 Biblioteca (avançada)",
+  "pedagogNotes": "📝 Notas do educador",
+  "treasureChest": "Cofre das estrelas",
+  "familySettings": "Família e definições",
+  "capability": {
+    "subscription": "Subscrição",
+    "reports": "Relatórios",
+    "samarbete": "Colaboração com o educador",
+    "barnStod": "Apoio extra"
+  },
+  "header": {
+    "notifications": "Notificações",
+    "settings": "Definições",
+    "share": "Partilhar",
+    "shareTitle": "Fala desta aplicação a uma família!",
+    "shareAria": "Partilhar"
+  },
+  "avatar": {
+    "switchPedagog": "Mudar para a vista de educador",
+    "subscription": "Subscrição",
+    "settings": "Definições",
+    "logout": "Terminar sessão"
+  },
+  "mobile": {
+    "openMenu": "Abrir o menu",
+    "darkModeTitle": "Modo escuro",
+    "darkModeAria": "Ligar ou desligar o modo escuro"
+  }
+}

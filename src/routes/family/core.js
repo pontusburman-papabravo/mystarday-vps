@@ -23,6 +23,7 @@ const {
   validateLocale,
   resolveFamilyLocale,
   featureGrantedOnRegister,
+  selectableLocaleOptions,
 } = require('../../lib/locale');
 const {
   isEnglishAppEnabled,
@@ -330,6 +331,7 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
       [req.user.familyId]
     );
     const row = familyRow.rows[0] || {};
+    const locales = selectableLocaleOptions();
     res.json({
       preferred_locale: row.preferred_locale || 'sv-SE',
       locale_selected_at: row.locale_selected_at || null,
@@ -337,7 +339,8 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
       english_beta_offer_state: row.english_beta_offer_state || 'not_shown',
       english_app_enabled: englishApp,
       english_child_experience_enabled: englishChild,
-      supported_locales: ['sv-SE', 'en-GB'],
+      locales,
+      supported_locales: locales.map((locale) => locale.id),
     });
   } catch (err) {
     console.error('[FAMILY] locale-options error:', err);

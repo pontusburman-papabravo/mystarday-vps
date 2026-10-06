@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Hoje — {{brand}}",
+  "shell": {
+    "headerTitle": "Hoje",
+    "backToHome": "← Voltar ao Início",
+    "pdfHint": "Criar PDF do dia, da semana ou dos meus dias",
+    "printBtn": "📄 Criar PDF ▾",
+    "printDay": "📄 Criar PDF — dia",
+    "printWeek": "📅 Criar PDF — semana",
+    "printMyDays": "🏠 Criar PDF — os meus dias",
+    "selectChildHeading": "Escolher criança",
+    "selectChildEmpty": "Escolhe uma criança em cima para veres o registo",
+    "loadingChildren": "A carregar…",
+    "tipsTitle": "Dica: acompanha as atividades em Hoje",
+    "tips1": "Marca as atividades como feitas — a criança vê-as na hora",
+    "tips2": "Na vista da criança, as atividades marcam-se com um toque e dão estrelas logo",
+    "tips3": "Volta atrás com o calendário para veres como a criança se saiu",
+    "tips4": "Pausa um dia quando a rotina é diferente — não se perdem estrelas",
+    "rateActivity": "Avaliar a atividade",
+    "commentPlaceholder": "Comentário (opcional)…",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "moveUp": "Subir",
+    "moveDown": "Descer",
+    "printWeekDocTitle": "Horário semanal — {{name}}",
+    "printMyDaysDocTitle": "Os meus dias"
+  },
+  "childFallback": "Criança",
+  "noChildren": "Ainda não há crianças adicionadas.",
+  "loading": "A carregar…",
+  "retry": "Tentar outra vez",
+  "errors": {
+    "signInRequired": "Inicia sessão para veres Hoje",
+    "loadChildren": "Não foi possível carregar as crianças",
+    "loadLog": "Não foi possível carregar o registo. Tenta outra vez.",
+    "saveOrder": "Não foi possível guardar a ordem",
+    "updateActivity": "Não foi possível atualizar a atividade",
+    "undo": "Não foi possível desfazer",
+    "changeStatus": "Não foi possível mudar o estado",
+    "adjustTime": "Não foi possível ajustar as horas",
+    "selectChild": "Escolhe primeiro uma criança",
+    "custodyDisabled": "O horário de guarda não está ativo",
+    "loadWeek": "Não foi possível carregar a semana",
+    "saveRating": "Não foi possível guardar a avaliação",
+    "ratingScoreOrEmotion": "Escolhe uma avaliação ou um cartão de emoção",
+    "ratingScoreRange": "A avaliação tem de ser entre 1 e 10",
+    "ratingInvalidEmotion": "Cartão de emoção inválido",
+    "ratingActivityNotFound": "Atividade não encontrada",
+    "ratingNotAllowed": "A avaliação não é permitida para esta criança nesta atividade",
+    "ratingParentScoreRange": "A avaliação tem de ser entre 1 e 5",
+    "ratingParentDisabled": "A avaliação do adulto não está ativa nesta atividade",
+    "dayPaused": "O dia está em pausa",
+    "dailyLogItemRequired": "daily_log_item_id é obrigatório",
+    "invalidTimerMinutes": "Minutos inválidos. Valores permitidos: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Não há atividades hoje!",
+    "noScheduleDay": "Não há rotina neste dia",
+    "addToWeekSchedule": "Adiciona atividades ao horário semanal para criar registos automaticamente.",
+    "noScheduleSelected": "Não há rotina no dia escolhido.",
+    "thisDay": "este dia",
+    "today": "hoje",
+    "noChildrenTitle": "Nenhuma criança adicionada",
+    "addFirstChild": "Adiciona a primeira criança no Início para começares!",
+    "goToDashboard": "Ir para o Início",
+    "goToWeekSchedule": "📅 Ir para o horário semanal"
+  },
+  "nav": {
+    "prevWeek": "Semana anterior",
+    "prevDay": "Dia anterior",
+    "nextDay": "Dia seguinte",
+    "nextWeek": "Semana seguinte",
+    "pickDate": "Escolher data",
+    "todayBtn": "Hoje",
+    "undoBump": "Desfazer o último ajuste de hora"
+  },
+  "activity": {
+    "markDone": "Marcar como feita",
+    "undoMark": "Desfazer a marca",
+    "rate": "⭐ Avaliar",
+    "setRating": "Definir avaliação",
+    "changeRating": "Mudar a avaliação",
+    "dragReorder": "Arrastar para reordenar",
+    "completeAllInSection": "Concluir tudo em {{section}}",
+    "completeAllBtn": "✅ Marcar tudo como feito",
+    "defaultName": "Atividade",
+    "undoneToast": "↩️ Marca desfeita"
+  },
+  "pause": {
+    "confirmPause": "Pôr este dia em pausa? As atividades não contam de forma negativa.",
+    "confirmUnpause": "Reativar este dia?",
+    "pausedToast": "😴 Dia em pausa",
+    "unpausedToast": "✅ Dia reativado",
+    "dayTitle": "Dia de folga",
+    "banner": "Este dia está em pausa (p. ex. doença ou feriado). As atividades não contam de forma negativa.",
+    "reactivate": "✅ Reativar o dia",
+    "pauseBtn": "😴 Pôr este dia em pausa (doença / folga)"
+  },
+  "bump": {
+    "noItems": "Não há atividades por marcar com hora para ajustar",
+    "moved": "⏩ Adiaste {{count}} atividade{{suffix}} {{minutes}} min",
+    "movedOne": "",
+    "movedMany": "s",
+    "undoToast": "↩️ Ajuste de hora desfeito",
+    "title": "Adiar o que ainda vem",
+    "adjustHint": "Ajusta as horas das atividades por marcar",
+    "minutesTitle": "Adiar {{minutes}} min",
+    "undoBtn": "↩ Desfazer"
+  },
+  "retrofill": {
+    "title": "Preencher a rotina depois",
+    "description": "Estás a preencher uma rotina depois. Marca as atividades como feitas — ficam guardadas com a data certa."
+  },
+  "rating": {
+    "childMood": "Humor da criança",
+    "parentScore": "Avaliação do adulto",
+    "noMoodCards": "Ainda não há cartões de humor",
+    "saved": "⭐ Avaliação guardada!",
+    "labels": [
+      "",
+      "Difícil 😓",
+      "Razoável 😐",
+      "Bem 😊",
+      "Muito bem 😄",
+      "Fantástico! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiene",
+    "mat": "Comida",
+    "skola": "Escola",
+    "lek": "Brincar",
+    "rorelse": "Movimento",
+    "vila": "Descanso",
+    "social": "Social"
+  },
+  "legend": {
+    "colorCoding": "Código de cores:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Todas as atividades feitas!",
+    "completedOf": "{{completed}} de {{total}} atividades feitas"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Marcado: {{name}}",
+    "undo": "Desfazer"
+  },
+  "emotions": {
+    "title": "💛 Humores de hoje",
+    "noCards": "Ainda não há cartões de humor",
+    "sliderResponses": "Cursor: {{count}} resposta{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "s",
+    "sliderAvg": " (média {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "A preparar a visão da semana...",
+    "preparingCustody": "A preparar os meus dias…",
+    "noMyDays": "Nenhum dos teus dias esta semana",
+    "weekScheduleTitle": "{{name}} — Horário semanal",
+    "myDaysTitle": "{{name}} — Os meus dias"
+  }
+}

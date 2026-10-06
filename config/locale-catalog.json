@@ -6,9 +6,16 @@
       "id": "sv-SE",
       "nativeName": "Svenska",
       "base": "sv",
-      "aliases": ["sv", "sv-se"],
-      "inputAliases": ["sv"],
-      "legacyJourneyTags": ["sv"],
+      "aliases": [
+        "sv",
+        "sv-se"
+      ],
+      "inputAliases": [
+        "sv"
+      ],
+      "legacyJourneyTags": [
+        "sv"
+      ],
       "experiencePack": "child_se",
       "availability": "public",
       "showOnFirstRun": true,
@@ -18,9 +25,17 @@
       "id": "en-GB",
       "nativeName": "English",
       "base": "en",
-      "aliases": ["en", "en-gb", "en-us"],
-      "inputAliases": ["en"],
-      "legacyJourneyTags": ["en"],
+      "aliases": [
+        "en",
+        "en-gb",
+        "en-us"
+      ],
+      "inputAliases": [
+        "en"
+      ],
+      "legacyJourneyTags": [
+        "en"
+      ],
       "experiencePack": "child_en",
       "availability": "public",
       "showOnFirstRun": true,
@@ -33,9 +48,16 @@
       "id": "de-DE",
       "nativeName": "Deutsch",
       "base": "de",
-      "aliases": ["de", "de-de"],
-      "inputAliases": ["de"],
-      "legacyJourneyTags": ["de"],
+      "aliases": [
+        "de",
+        "de-de"
+      ],
+      "inputAliases": [
+        "de"
+      ],
+      "legacyJourneyTags": [
+        "de"
+      ],
       "experiencePack": "child_de",
       "availability": "public",
       "showOnFirstRun": true,
@@ -46,9 +68,16 @@
       "id": "fr-FR",
       "nativeName": "Français",
       "base": "fr",
-      "aliases": ["fr", "fr-fr"],
-      "inputAliases": ["fr"],
-      "legacyJourneyTags": ["fr"],
+      "aliases": [
+        "fr",
+        "fr-fr"
+      ],
+      "inputAliases": [
+        "fr"
+      ],
+      "legacyJourneyTags": [
+        "fr"
+      ],
       "experiencePack": "child_fr",
       "availability": "public",
       "showOnFirstRun": true,
@@ -59,9 +88,16 @@
       "id": "nl-NL",
       "nativeName": "Nederlands",
       "base": "nl",
-      "aliases": ["nl", "nl-nl"],
-      "inputAliases": ["nl"],
-      "legacyJourneyTags": ["nl"],
+      "aliases": [
+        "nl",
+        "nl-nl"
+      ],
+      "inputAliases": [
+        "nl"
+      ],
+      "legacyJourneyTags": [
+        "nl"
+      ],
       "experiencePack": "child_nl",
       "availability": "public",
       "showOnFirstRun": true,
@@ -72,9 +108,16 @@
       "id": "da-DK",
       "nativeName": "Dansk",
       "base": "da",
-      "aliases": ["da", "da-dk"],
-      "inputAliases": ["da"],
-      "legacyJourneyTags": ["da"],
+      "aliases": [
+        "da",
+        "da-dk"
+      ],
+      "inputAliases": [
+        "da"
+      ],
+      "legacyJourneyTags": [
+        "da"
+      ],
       "experiencePack": "child_da",
       "availability": "public",
       "showOnFirstRun": true,
@@ -85,9 +128,16 @@
       "id": "fi-FI",
       "nativeName": "Suomi",
       "base": "fi",
-      "aliases": ["fi", "fi-fi"],
-      "inputAliases": ["fi"],
-      "legacyJourneyTags": ["fi"],
+      "aliases": [
+        "fi",
+        "fi-fi"
+      ],
+      "inputAliases": [
+        "fi"
+      ],
+      "legacyJourneyTags": [
+        "fi"
+      ],
       "experiencePack": "child_fi",
       "availability": "public",
       "showOnFirstRun": true,
@@ -98,14 +148,104 @@
       "id": "nb-NO",
       "nativeName": "Norsk bokmål",
       "base": "nb",
-      "aliases": ["nb", "nb-no", "no"],
-      "inputAliases": ["nb", "no"],
-      "legacyJourneyTags": ["nb", "no"],
+      "aliases": [
+        "nb",
+        "nb-no",
+        "no"
+      ],
+      "inputAliases": [
+        "nb",
+        "no"
+      ],
+      "legacyJourneyTags": [
+        "nb",
+        "no"
+      ],
       "experiencePack": "child_nb",
       "availability": "public",
       "showOnFirstRun": true,
       "contentSource": "locale-files",
       "contentMap": "nb-NO.json"
+    },
+    {
+      "id": "es-ES",
+      "nativeName": "Español",
+      "base": "es",
+      "aliases": [
+        "es",
+        "es-es"
+      ],
+      "inputAliases": [
+        "es"
+      ],
+      "legacyJourneyTags": [
+        "es"
+      ],
+      "experiencePack": "child_es",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "es-ES.json"
+    },
+    {
+      "id": "it-IT",
+      "nativeName": "Italiano",
+      "base": "it",
+      "aliases": [
+        "it",
+        "it-it"
+      ],
+      "inputAliases": [
+        "it"
+      ],
+      "legacyJourneyTags": [
+        "it"
+      ],
+      "experiencePack": "child_it",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "it-IT.json"
+    },
+    {
+      "id": "pt-PT",
+      "nativeName": "Português",
+      "base": "pt",
+      "aliases": [
+        "pt",
+        "pt-pt"
+      ],
+      "inputAliases": [
+        "pt"
+      ],
+      "legacyJourneyTags": [
+        "pt"
+      ],
+      "experiencePack": "child_pt",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "pt-PT.json"
+    },
+    {
+      "id": "pl-PL",
+      "nativeName": "Polski",
+      "base": "pl",
+      "aliases": [
+        "pl",
+        "pl-pl"
+      ],
+      "inputAliases": [
+        "pl"
+      ],
+      "legacyJourneyTags": [
+        "pl"
+      ],
+      "experiencePack": "child_pl",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "pl-PL.json"
     }
   ]
 }

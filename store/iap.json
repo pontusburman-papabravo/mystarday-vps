@@ -36,6 +36,22 @@
         "no": {
           "name": "Premium månedlig",
           "description": "Månedlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium mensual",
+          "description": "Premium mensual en la app."
+        },
+        "it": {
+          "name": "Premium mensile",
+          "description": "Premium mensile nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium mensal",
+          "description": "Premium mensal na app."
+        },
+        "pl": {
+          "name": "Premium miesięcznie",
+          "description": "Miesięczny Premium w aplikacji."
         }
       },
       "google": {
@@ -70,6 +86,22 @@
         "no-NO": {
           "name": "Premium månedlig",
           "description": "Månedlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium mensual",
+          "description": "Premium mensual en la app."
+        },
+        "it-IT": {
+          "name": "Premium mensile",
+          "description": "Premium mensile nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium mensal",
+          "description": "Premium mensal na app."
+        },
+        "pl-PL": {
+          "name": "Premium miesięcznie",
+          "description": "Miesięczny Premium w aplikacji."
         }
       }
     },
@@ -107,6 +139,22 @@
         "no": {
           "name": "Premium årlig",
           "description": "Årlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium anual",
+          "description": "Premium anual en la app."
+        },
+        "it": {
+          "name": "Premium annuale",
+          "description": "Premium annuale nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium anual",
+          "description": "Premium anual na app."
+        },
+        "pl": {
+          "name": "Premium rocznie",
+          "description": "Roczny Premium w aplikacji."
         }
       },
       "google": {
@@ -141,6 +189,22 @@
         "no-NO": {
           "name": "Premium årlig",
           "description": "Årlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium anual",
+          "description": "Premium anual en la app."
+        },
+        "it-IT": {
+          "name": "Premium annuale",
+          "description": "Premium annuale nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium anual",
+          "description": "Premium anual na app."
+        },
+        "pl-PL": {
+          "name": "Premium rocznie",
+          "description": "Roczny Premium w aplikacji."
         }
       }
     }

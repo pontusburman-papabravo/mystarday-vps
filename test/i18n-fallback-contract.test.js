@@ -225,9 +225,10 @@ describe('i18n fallback invariant: fi is not Swedish', () => {
   });
 
   it('an unsupported language still falls back instead of becoming Swedish by alias', () => {
-    assert.equal(parseAcceptLanguage('pl-PL'), null);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'pl-PL' }), DEFAULT_LOCALE);
-    assert.equal(parseAcceptLanguage('pl-PL,en-GB;q=0.8'), 'en-GB');
+    assert.equal(parseAcceptLanguage('is-IS'), null);
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'is-IS' }), DEFAULT_LOCALE);
+    assert.equal(parseAcceptLanguage('is-IS,en-GB;q=0.8'), 'en-GB');
+    assert.equal(parseAcceptLanguage('pl-PL,en-GB;q=0.8'), 'pl-PL');
   });
 
   it('client _normalize maps fi to fi-FI and not to sv-SE', () => {

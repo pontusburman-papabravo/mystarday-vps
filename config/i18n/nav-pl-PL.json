@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Start",
+    "planning": "Planowanie",
+    "rewards": "Nagrody",
+    "forYou": "Dla ciebie",
+    "family": "Rodzina"
+  },
+  "settings": "Ustawienia",
+  "mainAria": "Nawigacja główna",
+  "notifications": "Powiadomienia",
+  "share": "Udostępnij",
+  "logout": "Wyloguj się",
+  "switchUser": "Zmień profil",
+  "returnToChild": "Wróć do dziecka",
+  "darkMode": "Tryb ciemny",
+  "lightMode": "Tryb jasny",
+  "overview": "Przegląd",
+  "dailyLog": "Dziś",
+  "weekSchedule": "Plan",
+  "reports": "Raporty",
+  "library": "Biblioteka",
+  "libraryAdvanced": "📚 Biblioteka (zaawansowane)",
+  "pedagogNotes": "📝 Notatki pedagoga",
+  "treasureChest": "Skrzynia gwiazdek",
+  "familySettings": "Rodzina i ustawienia",
+  "capability": {
+    "subscription": "Subskrypcja",
+    "reports": "Raporty",
+    "samarbete": "Współpraca z pedagogiem",
+    "barnStod": "Dodatkowe wsparcie"
+  },
+  "header": {
+    "notifications": "Powiadomienia",
+    "settings": "Ustawienia",
+    "share": "Udostępnij",
+    "shareTitle": "Opowiedz o aplikacji innej rodzinie!",
+    "shareAria": "Udostępnij"
+  },
+  "avatar": {
+    "switchPedagog": "Przełącz na widok pedagoga",
+    "subscription": "Subskrypcja",
+    "settings": "Ustawienia",
+    "logout": "Wyloguj się"
+  },
+  "mobile": {
+    "openMenu": "Otwórz menu",
+    "darkModeTitle": "Tryb ciemny",
+    "darkModeAria": "Przełącz tryb ciemny"
+  }
+}

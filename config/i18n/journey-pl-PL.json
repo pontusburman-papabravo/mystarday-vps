@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Pokaż wskazówki",
+    "close": "Zamknij",
+    "milestone": "Kamień milowy",
+    "nextStep": "Następny krok",
+    "tip": "Wskazówka",
+    "weekReflection": "Podsumowanie tygodnia",
+    "weekTogether": "Tydzień razem",
+    "weekLabel": "Jeden tydzień",
+    "sjDay3Headline": "Czas, żeby {{name}} spróbowało",
+    "tips": {
+      "coach_consistency": [
+        "Trzymaj rutynę krótko i jasno — dziecko buduje nawyk krok po kroku.",
+        "Ciesz się każdym odhaczeniem, także tym małym.",
+        "Pozwól dziecku logować się samodzielnie każdego ranka."
+      ],
+      "coach_evening": [
+        "Dodaj 2–3 spokojne czynności przed snem.",
+        "Ta sama kolejność każdego wieczoru ułatwia zaśnięcie."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nowość",
+    "dismissAria": "Zamknij wyjaśnienie",
+    "continueFallback": "Dalej",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Tutaj, na Starcie, pokazujemy teraz jasną podpowiedź następnego kroku.",
+        "whatChanged": "Na górze jest karta „Następny krok”.",
+        "whyItMatters": "Nie musisz szukać wśród przypomnień — jedna podpowiedź naraz."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Pozwól dziecku spróbować swojej rutyny",
+      "body": "Otwórzcie razem widok dziecka — od razu widać, co robić.",
+      "cta": "Otwórz widok dziecka"
+    },
+    "ADD_EVENING": {
+      "headline": "Dodaj wieczorną rutynę",
+      "body": "Niech pora snu będzie tak jasna jak rano.",
+      "cta": "Dodaj wieczór"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Zaproś drugiego rodzica",
+      "body": "Udostępnij rutynę, żebyście mogli iść za nią razem.",
+      "cta": "Zaproś"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Zacznij od jednego małego kroku",
+      "body": "Rutyna wciąż tu jest — dziś weź jedną czynność naraz.",
+      "cta": "Otwórz plan"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Dostosuj rutynę",
+      "body": "Teraz możesz ułożyć plan po swojemu.",
+      "cta": "Dostosuj"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Ucieszcie się z postępu",
+      "body": "To ważny krok — zatrzymaj się na chwilę razem z dzieckiem.",
+      "cta": "Pokaż dziecku"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Dziecko ukończyło czynność!",
+    "defaultChild": "Twoje dziecko",
+    "defaultActivity": "czynność",
+    "defaultCta": "Rozumiem"
+  }
+}

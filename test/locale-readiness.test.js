@@ -69,4 +69,20 @@ describe('app locale readiness', () => {
       ['fi-FI', 'sv-SE']
     );
   });
+
+  it('the next language packs are ready while their markets stay closed', () => {
+    const markets = { 'es-ES': 'ES', 'it-IT': 'IT', 'pt-PT': 'PT', 'pl-PL': 'PL' };
+    const catalog = loadStoreCatalog();
+    for (const [id, marketId] of Object.entries(markets)) {
+      const result = assessAppLocale(id);
+      assert.equal(result.ready, true, `${id}: ${result.errors.join('; ')}`);
+      const market = assessMarket(marketId);
+      assert.equal(market.APP_READY, true, id);
+      assert.equal(market.APPLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.GOOGLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.MARKET_READY, false, id);
+      const row = catalog.markets.markets.find((item) => item.id === marketId);
+      assert.equal(row.activation, 'planned', marketId);
+    }
+  });
 });

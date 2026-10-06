@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Paso {{current}} de {{total}}",
+    "back": "← Atrás",
+    "next": "Siguiente paso →",
+    "continue": "Continuar →",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "loading": "Cargando…",
+    "genericError": "Algo ha salido mal. Inténtalo de nuevo.",
+    "networkError": "Error de red. Inténtalo de nuevo.",
+    "closeAria": "Cerrar",
+    "childFallback": "Tu niño",
+    "addChildDone": "¡Hecho! →",
+    "goForward": "Continuar →",
+    "finishing": "Terminando…",
+    "recommended": "Recomendado",
+    "optional": "Opcional"
+  },
+  "pageTitle": {
+    "welcome": "Bienvenida — {{brand}}",
+    "ogTitle": "{{brand}} — Empieza en 2 minutos",
+    "ogDescription": "Monta el horario y las recompensas de tu niño enseguida"
+  },
+  "verifyEmail": {
+    "title": "Verifica tu correo",
+    "body": "Hemos enviado un correo a {{email}}. Pulsa el enlace del correo para activar tu cuenta.",
+    "resend": "Enviar otra vez",
+    "resendSending": "Enviando…",
+    "resendSuccess": "✓ ¡Enviado!",
+    "resendSent": "Enviado",
+    "resendError": "Algo ha salido mal. Inténtalo de nuevo."
+  },
+  "child": {
+    "title": "Cuéntanos de tu niño",
+    "lead": "Elige un nombre, un emoji, el cumpleaños y un horario que encaje con vuestra rutina.",
+    "nameLabel": "Nombre del niño",
+    "namePlaceholder": "p. ej. Ella",
+    "birthdayLabel": "Cumpleaños",
+    "birthdayOptionalHint": "(opcional: nos ayuda a proponerte el horario adecuado)",
+    "yearPlaceholder": "Año",
+    "monthPlaceholder": "Mes",
+    "dayPlaceholder": "Día",
+    "birthYearAria": "Año de nacimiento",
+    "birthMonthAria": "Mes de nacimiento",
+    "birthDayAria": "Día de nacimiento",
+    "months": [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre"
+    ],
+    "emojiLabel": "Elige un emoji",
+    "customEmojiPlaceholder": "O escribe tu propio emoji…",
+    "emojiAriaLabel": "Elegir el emoji {{emoji}}",
+    "avatarLabel": "Opcional: foto de perfil",
+    "avatarHint": "Elige una foto de tu biblioteca o haz una nueva.",
+    "avatarDefaultBtn": "✨ Imagen predeterminada",
+    "avatarPickBtn": "📷 Elegir foto",
+    "avatarLoading": "Cargando…",
+    "avatarPreparing": "Preparando…",
+    "avatarUploadFailed": "No se ha podido subir la foto. Inténtalo de nuevo.",
+    "avatarReadFailed": "No se ha podido leer la imagen",
+    "avatarAlt": "Foto de perfil del niño",
+    "scheduleLabel": "Elige un horario",
+    "templatesLoading": "Cargando horarios…",
+    "templatesLoadFailed": "Ahora no se han podido cargar las plantillas de horario.",
+    "templatesRetryBtn": "Intentar de nuevo",
+    "nextBtn": "Siguiente paso →",
+    "creatingChild": "Creando al niño…",
+    "creatingSchedule": "Creando el horario…",
+    "nameRequired": "Escribe el nombre de tu niño",
+    "emojiRequired": "Elige un emoji para tu niño",
+    "scheduleRequired": "Elige un horario",
+    "childResumedToast": "Hemos encontrado a tu niño de la última vez: seguimos con el horario.",
+    "avatarSaveFailedToast": "El niño se ha creado, pero no se ha podido guardar la foto. Puedes añadirla en Familia.",
+    "scheduleCreateFailed": "No se ha podido crear el horario"
+  },
+  "activityGuide": {
+    "title": "¿Cómo debe ayudar la app a {{childName}} con las actividades de hoy?",
+    "lead": "Puedes cambiarlo cuando quieras en los ajustes de tu niño.",
+    "stepLabel": "Paso {{current}} de {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Orden libre",
+        "description": "Tu niño puede marcar en el orden que quiera."
+      },
+      "one_at_a_time": {
+        "title": "Una cosa cada vez",
+        "description": "La app ayuda a tu niño a centrarse en el siguiente paso."
+      },
+      "time_and_order": {
+        "title": "Hora y orden claros",
+        "description": "La app ayuda con el siguiente paso y un temporizador que tú pones en cada actividad."
+      }
+    },
+    "continueBtn": "Continuar →",
+    "saving": "Guardando…",
+    "selectError": "Elige una opción",
+    "saveError": "No se ha podido guardar tu elección"
+  },
+  "viewType": {
+    "title": "¿Qué vista debe ver {{childName}} al entrar?",
+    "lead": "Elige cómo se ve el horario cuando entra tu niño. Puedes cambiarlo cuando quieras en ajustes.",
+    "dayViewTitle": "Vista del día",
+    "dayViewSubtitle": "Mañana · Media mañana · Tarde · Noche",
+    "timelineViewTitle": "Vista Ahora/Siguiente/Luego",
+    "timelineViewSubtitle": "Muestra solo lo que está pasando ahora",
+    "timelineNow": "AHORA",
+    "timelineNext": "SIGUIENTE",
+    "timelineThen": "LUEGO",
+    "mock": {
+      "wakeStretch": "Despertarse y estirarse",
+      "brushTeeth": "Cepillarse los dientes",
+      "packBag": "Preparar la mochila",
+      "preschool": "Ir a la escuela infantil",
+      "freePlay": "Juego libre",
+      "dinner": "Cenar",
+      "bedtimeStory": "Cuento para dormir",
+      "preschoolShort": "Escuela infantil",
+      "play": "Jugar"
+    },
+    "dayViewHint": "También puedes elegir la vista del día si tu niño prefiere las partes del día con color.",
+    "skipHint": "¿Lo saltas? Se elige sola la vista del día.",
+    "saving": "Guardando la vista…"
+  },
+  "scheduleReady": {
+    "title": "¡Horario listo!",
+    "subtitle": "Hemos preparado un horario de inicio para {{childName}}.",
+    "subtitleWithTemplate": "Hemos preparado el horario {{templateName}} para {{childName}}. Incluye los pasos clave para conseguirlo solo.",
+    "templateFallback": "Horario",
+    "daysWeek": "7 días / semana",
+    "daysMonFri": "Lun–vie",
+    "daysMonFriWeekend": "Lun–vie + fin de semana",
+    "socialProofTitle": "¿Sabías que…?",
+    "socialProofBody": "El apoyo visual suele bajar el estrés del día a día hasta un 30 %, y los niños con rutinas claras se duermen antes y se despiertan más contentos.",
+    "continueBtn": "¡Perfecto, vamos! →"
+  },
+  "rewards": {
+    "title": "Cómo funcionan las estrellas",
+    "checkOff": "Marcar",
+    "star": "Estrella",
+    "treasureChest": "Cofre de estrellas",
+    "intro": "Hemos puesto recompensas divertidas. ¡Elige las que {{childName}} puede ir consiguiendo!",
+    "introWithCount": "Hemos puesto {{count}} recompensas divertidas. ¡Elige las que {{childName}} puede ir consiguiendo!",
+    "selectCount": {
+      "zero": "Elige al menos 1 recompensa (0 elegidas)",
+      "one": "{{count}} recompensa elegida ✓",
+      "other": "{{count}} recompensas elegidas ✓"
+    },
+    "minOneError": "Elige al menos una recompensa para continuar",
+    "saveBtn": "Guardar recompensas →",
+    "saving": "Guardando recompensas…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Cuento extra",
+      "chooseDessert": "Elegir el postre",
+      "movieNight": "Noche de película",
+      "chooseDinner": "Elegir la cena",
+      "outing": "Excursión",
+      "bakeTogether": "Hornear juntos",
+      "familyGameNight": "Noche de juegos en familia",
+      "lateBedtime": "Acostarse más tarde",
+      "cinemaTrip": "Ir al cine"
+    }
+  },
+  "handoff": {
+    "title": "Cómo se entra",
+    "lead": "{{childName}} entra con nombre y PIN, sin contraseñas.",
+    "childLoginLabel": "Acceso del niño",
+    "usernameFallback": "usuario",
+    "pinLabel": "PIN",
+    "pinNote": "Apunta el PIN: puedes cambiarlo en ajustes.",
+    "pinResumeHint": "Usa el PIN de tu niño. Si lo has olvidado, puedes poner uno nuevo con el botón de abajo.",
+    "chooseCustomPin": "✏️ Elegir tu propio PIN",
+    "savePin": "Guardar PIN",
+    "savingPin": "Guardando…",
+    "pinMustBe4": "El PIN debe tener 4 cifras",
+    "pinTooWeak": "Elige un PIN más fuerte (no 1111, 2222, etc.)",
+    "pinSaveFailed": "No se ha podido guardar el PIN",
+    "copyInfo": "📋 Copiar datos",
+    "copied": "✓ ¡Copiado!",
+    "copyManual": "Copia a mano:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nUsuario: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Enviar por correo",
+    "emailSubject": "{{brand}} — Acceso de {{childName}}",
+    "emailBody": "¡Hola!\n\nAquí tienes los datos de acceso de {{brand}} para {{childName}}:\n\nUsuario: {{username}}\nPIN: {{pin}}\n\nAbre la app: {{appUrl}}/child-login\n\nUn saludo,\n{{brand}}",
+    "emailFallbackAlert": "Acceso de {{childName}}:\nUsuario: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Instalar como app",
+    "installBody": "Añade {{brand}} a tu pantalla de inicio: funciona como una app de verdad, también sin conexión, sin tiendas de apps.",
+    "installInstructions": "iPhone: Compartir → Añadir a pantalla de inicio · Android: ⋮ → Instalar app",
+    "parentTipTitle": "Un consejo para ti, como adulto",
+    "parentTipLead": "Sentaos juntos esta noche. Enseñad primero el cofre de estrellas",
+    "parentTipEmphasis": "primero",
+    "parentTipTail": "para despertar la curiosidad, y luego explicad que la app es el mapa del día de {{childName}}.",
+    "testChildLogin": "👶 Probar el acceso del niño ahora",
+    "continueAsParent": "Continuar como adulto →",
+    "skipConfirmTitle": "¿Saltar el acceso del niño?",
+    "skipConfirmBody": "Tu niño necesita el PIN para entrar solo. Si no lo probáis ahora, la rutina de la mañana puede costar más. Os enviaremos un recordatorio en 24 horas si tu niño aún no lo ha probado.",
+    "skipConfirmPrimary": "👶 Probar el acceso del niño",
+    "skipConfirmSecondary": "Saltar igualmente"
+  },
+  "parentPin": {
+    "setLater": "Poner el PIN del adulto más tarde",
+    "title": "Poner el PIN del adulto",
+    "description": "Un PIN de 4 cifras que solo tú conoces protege la zona del adulto: por ejemplo cuando los niños añaden un hermano o entras como adulto en el dispositivo de tu niño.",
+    "choosePin": "Elige tu PIN",
+    "confirmPin": "Confirmar PIN",
+    "changeLater": "Puedes cambiar el PIN más tarde en Familia y ajustes.",
+    "pinRequiredOrEmpty": "Escribe un PIN de 4 cifras o deja los campos vacíos",
+    "pinRequiredForHandoff": "Pon un PIN de 4 cifras antes de que tu niño pueda quedarse con el dispositivo.",
+    "pinMismatch": "Los PIN no coinciden",
+    "saveFailed": "No se ha podido guardar el PIN",
+    "handoffRequired": "En un dispositivo compartido hace falta un PIN de adulto antes de que tu niño pueda entrar.",
+    "saveAndContinue": "Guardar y continuar"
+  },
+  "invite": {
+    "inviteLater": "Invitar al otro adulto más tarde",
+    "title": "Invitar a otro adulto",
+    "namePlaceholder": "Nombre (p. ej. Erik)",
+    "emailPlaceholder": "Correo",
+    "whichChildren": "¿Qué niños debe ver esta persona?",
+    "sendBtn": "📧 Enviar invitación",
+    "sending": "Enviando…",
+    "sent": "✓ Enviada",
+    "skip": "Omitir →",
+    "emailRequired": "Escribe un correo",
+    "invalidEmail": "Correo no válido",
+    "success": "¡Invitación enviada a {{email}}! ✓",
+    "sendFailed": "Algo ha salido mal"
+  },
+  "complete": {
+    "title": "¡Casi está!",
+    "lead": "Deja que tu niño pruebe la app: puedes invitar a otros adultos y poner el PIN del adulto después de la primera marca.",
+    "tips": {
+      "editScheduleTitle": "Editar el horario",
+      "editScheduleBody": "Ve a Inicio → toca la tarjeta de tu niño → ajusta las actividades a vuestra rutina.",
+      "checkRewardsTitle": "Revisar las recompensas",
+      "checkRewardsBody": "En la vista del niño, toca la estrella: tu niño ve cuántas estrellas necesita cada recompensa.",
+      "addChildrenTitle": "Añadir más niños",
+      "addChildrenBody": "Cada niño tiene su horario y sus estrellas. Añade otro con + en Inicio."
+    },
+    "letChildStart": "👶 Deja que empiece tu niño",
+    "letChildStartPlain": "Deja que empiece tu niño",
+    "completeFailed": "No se ha podido terminar el inicio",
+    "completeFailedShort": "No se ha podido terminar",
+    "welcomeFooter": "Te damos la bienvenida a {{brand}}. ¡Nos alegra que estés aquí! 🌟"
+  },
+  "weekend": {
+    "title": "¿Añadir un horario de fin de semana?",
+    "body": "El horario de entre semana está listo de lunes a viernes. ¿Quieres un horario tranquilo de fin de semana para sábado y domingo?",
+    "scheduleLabel": "Horario de fin de semana",
+    "satSun": "Sáb + dom",
+    "preview": {
+      "sleepIn": "Dormir hasta tarde",
+      "breakfast": "Desayunar con calma",
+      "freePlay": "Juego libre",
+      "outing": "Excursión / parque",
+      "familyActivity": "Actividad en familia",
+      "dinner": "Cenar"
+    },
+    "yesBtn": "✅ Sí, añadir horario de fin de semana",
+    "yesLoading": "Añadiendo…",
+    "noBtn": "No, gracias, lo relleno más tarde",
+    "addFailed": "No se ha podido añadir el horario de fin de semana"
+  },
+  "starter": {
+    "stepLabel": "Crear horario {{current}} de {{total}}",
+    "slimTitle": "Tu rutina está casi lista",
+    "fullTitle": "Crea tu primer horario",
+    "slimIntro": "Tres preguntas rápidas y tu rutina está lista.",
+    "birthdayHint": "Elige la fecha de nacimiento de tu niño: nos ayuda a proponerte el horario adecuado.",
+    "fullIntro": "Responde a unas preguntas: lleva menos de un minuto.",
+    "powerPathLead": "¿Quieres elegir o montarlo tú?",
+    "chooseTemplate": "📋 Elegir un horario ya hecho",
+    "fullWizard": "✏️ Montarlo y personalizarlo tú (7 preguntas)",
+    "answerRequired": "Elige o escribe una respuesta",
+    "showSchedule": "Ver horario →",
+    "buttons": {
+      "next": "Siguiente →"
+    },
+    "createRoutine": "Crear rutina →",
+    "creatingRoutine": "Creando la rutina…",
+    "personalizing": "Personalizando el horario…",
+    "loading": "Cargando…",
+    "useSchedule": "Usar este horario →",
+    "saving": "Guardando…",
+    "changeAnswers": "← Cambiar respuestas",
+    "removeStep": "Quitar",
+    "previewHint": "Puedes quitar pasos: más adelante añades otros en ajustes.",
+    "previewForChild": "Para {{childName}} · {{count}} actividades",
+    "previewAiTail": " · ✨ personalizado con IA",
+    "defaultPlanTitle": "Tu horario",
+    "slimSuccessTitle": "Tu rutina está lista",
+    "slimSuccessTonight": "El horario está listo. Enseña a {{childName}} Hoy en este dispositivo.",
+    "showChildToday": "Enseñar Hoy del niño",
+    "openingChildToday": "Abriendo Hoy del niño…",
+    "hourglassOfferTitle": "Reloj de arena visual",
+    "hourglassOfferBody": "Ayuda a tu niño a ver cuánto tiempo queda de una actividad.",
+    "hourglassEnableBtn": "Activar el reloj de arena",
+    "hourglassEnabling": "Activando…",
+    "hourglassEnabledMsg": "El reloj de arena está activado para tu niño.",
+    "hourglassEnableFailed": "No se ha podido activar el reloj de arena",
+    "goHome": "Ir a Inicio →",
+    "openingHome": "Abriendo Inicio…",
+    "customizeFirst": "Personalizar primero el horario",
+    "openingSchedule": "Abriendo el horario…",
+    "nameRequired": "Escribe el nombre de tu niño",
+    "templateFailed": "No se ha podido elegir la plantilla",
+    "previewFailed": "No se ha podido cargar el horario",
+    "childCreateFailed": "No se ha podido crear al niño",
+    "scheduleSaveFailed": "No se ha podido guardar el horario",
+    "personalizeFailed": "No se ha podido personalizar el horario",
+    "completeFailed": "No se ha podido terminar",
+    "packages": {
+      "morning-short": {
+        "name": "Mañana corta"
+      },
+      "evening-routine": {
+        "name": "Rutina de la tarde"
+      },
+      "preschool-day": {
+        "name": "Escuela infantil entre semana"
+      },
+      "school-day": {
+        "name": "Colegio entre semana"
+      },
+      "weekend": {
+        "name": "Fin de semana"
+      },
+      "getting-ready": {
+        "name": "Mañana corta"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Nombre del niño",
+        "placeholder": "p. ej. Ella"
+      },
+      "age_band": {
+        "label": "¿Cuántos años tiene tu niño?",
+        "options": {
+          "3-5": "3–5 años",
+          "6-8": "6–8 años",
+          "9-12": "9–12 años",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "¿Con qué rutina quieres empezar?",
+        "options": {
+          "morgon": "☀️ Mañana",
+          "kvall": "🌙 Tarde",
+          "efter-skola": "🏫 Después del colegio",
+          "laxor": "📚 Deberes",
+          "gora-sig-klar": "🎒 Prepararse"
+        }
+      },
+      "main_challenge": {
+        "label": "¿Qué es lo más difícil ahora?",
+        "options": {
+          "getting_started": "Empezar",
+          "focus": "Mantener la atención",
+          "conflicts": "Conflictos",
+          "forgetting": "Olvidar pasos",
+          "transitions": "Transiciones"
+        }
+      },
+      "support_ui": {
+        "label": "¿Tu niño necesita un apoyo más claro?",
+        "options": {
+          "ja": "Sí",
+          "lite": "Un poco",
+          "nej": "No"
+        }
+      },
+      "length_ui": {
+        "label": "¿Con cuántos pasos quieres empezar?",
+        "options": {
+          "kort": "Corto (3–4)",
+          "normal": "Normal (5)",
+          "detaljerad": "Detallado (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "¿Hay algo importante que debamos saber? (opcional)",
+        "placeholder": "p. ej. cepillarse los dientes es lo que más cuesta"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutina lista",
+      "handoff": "Abrid juntos la vista del niño",
+      "child": "Tu niño ve qué pasa ahora",
+      "done": "¡Hecho!",
+      "star": "Primera estrella ⭐"
+    },
+    "mock": {
+      "parentView": "Vista del adulto",
+      "dailyRoutine": "Rutina de hoy",
+      "dress": "Vestirse",
+      "brushTeeth": "Cepillarse los dientes",
+      "packBag": "Preparar la mochila",
+      "tryChildMode": "👶 Probar la vista del niño",
+      "now": "Ahora",
+      "markDone": "Marcar hecho ✓",
+      "wellDone": "¡Bien hecho!"
+    },
+    "ctaReady": "¿Listo para probar?",
+    "ctaTryNow": "Probar la vista del niño ahora",
+    "ctaLater": "Hacerlo más tarde",
+    "loginTitle": "Abrir la vista de tu niño",
+    "loginLead": "El horario está listo. Dale este dispositivo a {{childName}} para que vea su rutina.",
+    "usernameLabel": "Usuario",
+    "pinLabel": "PIN",
+    "loginHint": "Sentaos juntos: vale el mismo dispositivo u otro.",
+    "copyLogin": "📋 Copiar datos de acceso",
+    "copied": "✓ ¡Copiado!",
+    "openChildMode": "Abrir la vista del niño",
+    "copyText": "{{childName}}\nAbre la vista del niño en la app.",
+    "previewTitle": "Vista previa — película de inicio"
+  },
+  "firstStar": {
+    "title": "Da la primera estrella",
+    "lead": "Tres pasos rápidos y ya estáis en marcha de verdad.",
+    "steps": {
+      "login": "Deja que tu niño entre con su PIN",
+      "complete": "Marca una actividad como hecha en la vista del niño",
+      "celebrate": "¡Celebrad la estrella juntos!"
+    },
+    "openChildLogin": "👶 Abrir el acceso del niño",
+    "continueAsParent": "Continuar como adulto"
+  },
+  "activation": {
+    "finalStepLabel": "Último paso",
+    "introTitle": "¿Cómo quieres empezar?",
+    "introBody": "Has montado el horario de tu niño: buen comienzo. A muchas familias lo que más les cuesta no es arrancar, sino sostener la rutina los primeros días, cuando el día a día se come el plan. Elige lo que te encaje:",
+    "guidedBadge": "Recomendado",
+    "guidedTitle": "Sostener la rutina la primera semana",
+    "guidedBody": "A muchas familias les viene bien un poco de apoyo cuando el horario ya está listo. No porque algo vaya mal, sino porque los hábitos nuevos tardan en asentarse.",
+    "guidedBenefits": [
+      "Recordatorios diarios cortos para seguir",
+      "Ver cuándo tu niño completa tareas sin insistir de más",
+      "El horario de tu niño ya está: nosotros ayudamos a que la rutina funcione",
+      "Para cuando quieras"
+    ],
+    "guidedCta": "Sí, ayudadnos la primera semana",
+    "directTitle": "Empezar ya",
+    "directBody": "Te ves listo para seguir por tu cuenta. Todo está en su sitio y puedes empezar ahora.",
+    "directBenefits": [
+      "Directo a Inicio",
+      "El mismo horario, estrellas y recompensas",
+      "Usa la app a tu ritmo"
+    ],
+    "directCta": "Lo haremos solos",
+    "footnote": "Elija lo que elijas, puedes usar la app entera. El inicio guiado solo da un poco más de apoyo la primera semana.",
+    "saveFailed": "No se ha podido guardar tu elección"
+  },
+  "loading": {
+    "buildingSchedule": "Montando tu horario…",
+    "takesSeconds": "¡Solo tarda unos segundos!"
+  },
+  "templateGroups": {
+    "showActivities": "Ver actividades",
+    "loadingActivities": "Cargando...",
+    "activityCount": {
+      "one": "{{count}} actividad",
+      "other": "{{count}} actividades"
+    },
+    "forskola": {
+      "name": "Escuela infantil",
+      "description": "Día completo — niños de 2 a 5 años"
+    },
+    "skola": {
+      "name": "Colegio",
+      "description": "Día completo — niños de 6 años en adelante"
+    },
+    "morgon": {
+      "name": "Mañana",
+      "description": "Rutina de la mañana"
+    },
+    "dag": {
+      "name": "Día",
+      "description": "Actividades del día"
+    },
+    "kvall": {
+      "name": "Tarde",
+      "description": "Rutina de la tarde"
+    },
+    "helg": {
+      "name": "Fin de semana",
+      "description": "Rutina de fin de semana"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Despertarse",
+        "Vestirse",
+        "Desayunar",
+        "Escuela infantil",
+        "Jugar",
+        "Cenar",
+        "Cuento para dormir"
+      ],
+      "skola": [
+        "Despertarse",
+        "Desayunar",
+        "Preparar la mochila",
+        "Colegio",
+        "Deberes",
+        "Cenar",
+        "Cuento para dormir"
+      ],
+      "morgon": [
+        "Despertarse",
+        "Vestirse",
+        "Cepillarse los dientes",
+        "Desayunar",
+        "Preparar la mochila"
+      ],
+      "dag": [
+        "Escuela infantil",
+        "Jugar fuera",
+        "Merienda",
+        "Comida",
+        "Manualidades"
+      ],
+      "kvall": [
+        "Cenar",
+        "Cepillarse los dientes",
+        "Pijama",
+        "Cuento para dormir",
+        "Dormir"
+      ],
+      "helg": [
+        "Despertarse",
+        "Desayunar",
+        "Juego libre",
+        "Excursión",
+        "Actividad en familia",
+        "Cenar"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Mañana",
+    "lateMorning": "Media mañana",
+    "afternoon": "Tarde",
+    "evening": "Noche"
+  },
+  "errors": {
+    "avatarUploadPath": "La foto de perfil se sube con PUT /api/children/:id/avatar después de crear al niño",
+    "childNameRequired": "Hace falta el nombre del niño",
+    "emojiRequired": "Elige un emoji para tu niño",
+    "invalidBirthday": "Fecha de cumpleaños no válida",
+    "birthdayFuture": "El cumpleaños no puede ser en el futuro",
+    "invalidTemplate": "Elección no válida. Elige un horario válido.",
+    "noActivities": "No se han encontrado actividades para el horario elegido.",
+    "childIdRequired": "hace falta child_id",
+    "noChildAccess": "No tienes acceso a este niño",
+    "weekendNotFound": "No se ha encontrado el horario de fin de semana en la biblioteca.",
+    "weekendEmpty": "El horario de fin de semana no tiene actividades.",
+    "rewardNameRequired": "Hace falta el nombre de la recompensa",
+    "rewardCostMin": "El coste en estrellas debe ser al menos 1",
+    "rewardsFetchFailed": "No se han podido obtener las recompensas.",
+    "childCreateFailed": "Algo ha salido mal al crear al niño.",
+    "scheduleCreateFailed": "Algo ha salido mal al crear el horario.",
+    "weekendCreateFailed": "Algo ha salido mal al crear el horario de fin de semana.",
+    "rewardCreateFailed": "Algo ha salido mal al crear la recompensa.",
+    "generic": "Algo ha salido mal.",
+    "invalidViewType": "view_type no válido. Elige day o timeline.",
+    "notAllowed": "No permitido",
+    "invalidChoice": "Elección no válida.",
+    "activityGuideSaveFailed": "No se ha podido guardar la elección de actividad.",
+    "pinMustBe4": "El PIN debe tener exactamente 4 cifras",
+    "pinTooWeak": "Elige un PIN más fuerte",
+    "pinTaken": "Este PIN ya lo usa un niño con el mismo nombre",
+    "pinUpdateFailed": "No se ha podido actualizar el PIN.",
+    "handoffContextFailed": "No se ha podido obtener el contexto del traspaso",
+    "templateGroupsFailed": "No se han podido obtener los grupos de horario.",
+    "schedulePreviewFailed": "No se ha podido obtener el horario.",
+    "viewSaveFailed": "No se ha podido guardar la vista.",
+    "activationNotEnabled": "El flujo de activación no está activado para tu familia",
+    "starterSuggestFailed": "No se ha podido elegir la plantilla",
+    "starterPreviewFailed": "No se ha podido obtener la vista previa",
+    "starterPersonalizeFailed": "No se ha podido personalizar el horario",
+    "scheduleNameRequired": "hace falta scheduleName",
+    "templateNotFound": "Plantilla no encontrada",
+    "enrollChoiceUnavailable": "La pantalla de elección no está disponible"
+  },
+  "starterPlan": {
+    "firstSchedule": "Tu primer horario"
+  }
+}

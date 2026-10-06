@@ -1,0 +1,20 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Rotinas visuais em família",
+  "keywords": "rotina,horário,PHDA,autismo,estrela,recompensa,família,criança",
+  "promotionalText": "Rotinas visuais para crianças que precisam de mais pontos de apoio, sobretudo com PHDA ou autismo.",
+  "description": "Não é só mais um calendário.\n\n{{brand}} ajuda as crianças a perceber o dia: o que acontece agora, o que vem a seguir e o que já conseguiram.\n\nA app é para famílias que precisam de mais pontos de apoio, mais previsibilidade e mais apoio visual no dia a dia.\n\nPara uma criança com PHDA, autismo, ou simplesmente para quem se organiza melhor com passos mais claros, {{brand}} parte o dia em passos pequenos.\n\nÉ especialmente útil quando uma criança tem PHDA, autismo ou outras necessidades neurodivergentes. Não é preciso um diagnóstico. {{brand}} não trata a PHDA nem o autismo.\n\nA criança vê rotinas visuais, passo a passo, e estrelas pelo que já está feito. Os adultos preparam o horário, as recompensas e podem partilhar um relatório escolhido.\n\nCondições de utilização (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "O português europeu já está na app. As rotinas, os relatórios e a vista da criança seguem a língua da família."
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Brak połączenia</string>
+    <string name="native_offline_body">Sprawdź połączenie z internetem i spróbuj jeszcze raz.</string>
+    <string name="camera_permission_rationale">[REDACTED] używa aparatu, żeby zrobić zdjęcie profilowe dziecka.</string>
+    <string name="photos_permission_rationale">[REDACTED] potrzebuje dostępu do zdjęć, żeby wybrać zdjęcie profilowe dziecka.</string>
+    <string name="notification_channel_routine_name">Przypomnienia rutyny</string>
+    <string name="notification_channel_routine_desc">Przypomnienia o planie rodziny</string>
+</resources>

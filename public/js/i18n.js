@@ -178,6 +178,86 @@ const I18n = {
         "showOnFirstRun": true,
         "contentSource": "locale-files",
         "contentMap": "nb-NO.json"
+      },
+      {
+        "id": "es-ES",
+        "nativeName": "Español",
+        "base": "es",
+        "aliases": [
+          "es",
+          "es-es"
+        ],
+        "inputAliases": [
+          "es"
+        ],
+        "legacyJourneyTags": [
+          "es"
+        ],
+        "experiencePack": "child_es",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "es-ES.json"
+      },
+      {
+        "id": "it-IT",
+        "nativeName": "Italiano",
+        "base": "it",
+        "aliases": [
+          "it",
+          "it-it"
+        ],
+        "inputAliases": [
+          "it"
+        ],
+        "legacyJourneyTags": [
+          "it"
+        ],
+        "experiencePack": "child_it",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "it-IT.json"
+      },
+      {
+        "id": "pt-PT",
+        "nativeName": "Português",
+        "base": "pt",
+        "aliases": [
+          "pt",
+          "pt-pt"
+        ],
+        "inputAliases": [
+          "pt"
+        ],
+        "legacyJourneyTags": [
+          "pt"
+        ],
+        "experiencePack": "child_pt",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "pt-PT.json"
+      },
+      {
+        "id": "pl-PL",
+        "nativeName": "Polski",
+        "base": "pl",
+        "aliases": [
+          "pl",
+          "pl-pl"
+        ],
+        "inputAliases": [
+          "pl"
+        ],
+        "legacyJourneyTags": [
+          "pl"
+        ],
+        "experiencePack": "child_pl",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "pl-PL.json"
       }
     ]
   },
