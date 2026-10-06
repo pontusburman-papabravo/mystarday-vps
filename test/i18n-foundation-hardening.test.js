@@ -45,6 +45,16 @@ describe('locale backward compatibility matrix', () => {
     ['hr-HR', 'hr-HR'],
     ['hu-HU', 'hu-HU'],
     ['ro-RO', 'ro-RO'],
+    ['bg-BG', 'bg-BG'],
+    ['bg', 'bg-BG'],
+    ['el-GR', 'el-GR'],
+    ['el', 'el-GR'],
+    ['et-EE', 'et-EE'],
+    ['et', 'et-EE'],
+    ['lt-LT', 'lt-LT'],
+    ['lt', 'lt-LT'],
+    ['lv-LV', 'lv-LV'],
+    ['lv', 'lv-LV'],
     ['is-IS', null],
   ];
 

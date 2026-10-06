@@ -76,6 +76,10 @@
         "ro": {
           "name": "Premium lunar",
           "description": "Premium lunar în aplicație."
+        },
+        "el": {
+          "name": "Premium μηνιαία",
+          "description": "Μηνιαίο Premium στην εφαρμογή."
         }
       },
       "google": {
@@ -150,6 +154,26 @@
         "ro": {
           "name": "Premium lunar",
           "description": "Premium lunar în aplicație."
+        },
+        "bg": {
+          "name": "Premium месечно",
+          "description": "Месечен Premium в приложението."
+        },
+        "el-GR": {
+          "name": "Premium μηνιαία",
+          "description": "Μηνιαίο Premium για όλη την οικογένεια: ρουτίνες, αστέρια και ανταμοιβές."
+        },
+        "et": {
+          "name": "Premium kuus",
+          "description": "Igakuine Premium rakenduses."
+        },
+        "lt": {
+          "name": "Premium mėnesiui",
+          "description": "Mėnesinis Premium programėlėje."
+        },
+        "lv": {
+          "name": "Premium mēnesī",
+          "description": "Mēneša Premium lietotnē."
         }
       }
     },
@@ -227,6 +251,10 @@
         "ro": {
           "name": "Premium anual",
           "description": "Premium anual în aplicație."
+        },
+        "el": {
+          "name": "Premium ετήσια",
+          "description": "Ετήσιο Premium στην εφαρμογή."
         }
       },
       "google": {
@@ -301,6 +329,26 @@
         "ro": {
           "name": "Premium anual",
           "description": "Premium anual în aplicație."
+        },
+        "bg": {
+          "name": "Premium годишно",
+          "description": "Годишен Premium в приложението."
+        },
+        "el-GR": {
+          "name": "Premium ετήσια",
+          "description": "Ετήσιο Premium για όλη την οικογένεια: ρουτίνες, αστέρια και ανταμοιβές."
+        },
+        "et": {
+          "name": "Premium aastas",
+          "description": "Aastane Premium rakenduses."
+        },
+        "lt": {
+          "name": "Premium metams",
+          "description": "Metinis Premium programėlėje."
+        },
+        "lv": {
+          "name": "Premium gadā",
+          "description": "Gada Premium lietotnē."
         }
       }
     }

@@ -82,4 +82,34 @@ describe('translation contract', () => {
     assert.equal(plural('ro-RO', 'schedule.activityCount', 22), '22 de activități');
     assert.equal(plural('pl-PL', 'schedule.activityCount', 5), plural('pl-PL', 'schedule.activityCount', 5));
   });
+
+  it('uses Intl.PluralRules for Bulgarian, Greek, Estonian, Lithuanian, and Latvian', () => {
+    assert.equal(pluralCategory('bg-BG', 1), 'one');
+    assert.equal(pluralCategory('bg-BG', 5), 'other');
+    assert.equal(pluralCategory('el-GR', 2), 'other');
+    assert.equal(pluralCategory('et-EE', 0), 'other');
+    assert.equal(pluralCategory('et-EE', 1), 'one');
+    assert.equal(pluralCategory('lt-LT', 1), 'one');
+    assert.equal(pluralCategory('lt-LT', 2), 'few');
+    assert.equal(pluralCategory('lt-LT', 5), 'few');
+    assert.equal(pluralCategory('lt-LT', 11), 'other');
+    assert.equal(pluralCategory('lt-LT', 21), 'one');
+    assert.equal(pluralCategory('lt-LT', 101), 'one');
+    assert.equal(pluralCategory('lv-LV', 0), 'zero');
+    assert.equal(pluralCategory('lv-LV', 1), 'one');
+    assert.equal(pluralCategory('lv-LV', 11), 'zero');
+    assert.equal(pluralCategory('lv-LV', 2), 'other');
+    assert.equal(plural('bg-BG', 'schedule.activityCount', 5), '5 дейности');
+    assert.equal(plural('el-GR', 'schedule.activityCount', 2), '2 δραστηριότητες');
+    assert.equal(plural('et-EE', 'schedule.activityCount', 2), '2 tegevust');
+    assert.equal(plural('lt-LT', 'schedule.activityCount', 2), '2 veiklos');
+    assert.equal(plural('lt-LT', 'schedule.activityCount', 11), '11 veiklų');
+    assert.equal(plural('lt-LT', 'schedule.activityCount', 21), '21 veikla');
+    assert.equal(plural('lt-LT', 'schedule.activityCount', 101), '101 veikla');
+    assert.equal(plural('lv-LV', 'schedule.activityCount', 21), '21 aktivitāte');
+    assert.equal(plural('lv-LV', 'schedule.activityCount', 0), '0 aktivitāšu');
+    assert.equal(plural('lv-LV', 'schedule.activityCount', 1), '1 aktivitāte');
+    assert.equal(plural('lv-LV', 'schedule.activityCount', 2), '2 aktivitātes');
+    assert.equal(plural('lv-LV', 'schedule.activityCount', 11), '11 aktivitāšu');
+  });
 });

@@ -98,6 +98,31 @@
       "mustNotCopy": "en-GB",
       "positive": "[ăâîșț]|\\b(?:nu|pentru|este|copil)\\b",
       "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "bg-BG": {
+      "mustNotCopy": "en-GB",
+      "positive": "[а-я]|\\b(?:не|за|дете)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "el-GR": {
+      "mustNotCopy": "en-GB",
+      "positive": "[α-ωάέήίόύώ]",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "et-EE": {
+      "mustNotCopy": "en-GB",
+      "positive": "[äöõüšž]|\\b(?:ja|ei|on|laps)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "lt-LT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ąčęėįšųūž]|\\b(?:ne|ir|yra|vaikas)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "lv-LV": {
+      "mustNotCopy": "en-GB",
+      "positive": "[āčēģīķļņšūž]|\\b(?:un|nav|ir|bērns)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
     }
   }
 }
