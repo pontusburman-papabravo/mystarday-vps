@@ -57,9 +57,13 @@ body.child-has-bottom-nav .child-bottom-nav {
 .child-bottom-nav-btn span:last-child {
   max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.15;
+  overflow-wrap: break-word;
 }
 
 .child-bottom-nav-btn .child-bottom-nav-icon {
