@@ -1280,5 +1280,47 @@
     "activity": "{{name}} heeft {{activity}} afgemaakt",
     "goalFallback": "doel",
     "goal": "Het gezin heeft het doel gehaald: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie-instellingen",
+    "intro": "We gebruiken cookies voor statistiek, marketing en personalisatie op onze site.",
+    "manage": "Instellingen beheren",
+    "manageHide": "Instellingen verbergen",
+    "deny": "Alles weigeren",
+    "accept": "Alles accepteren",
+    "save": "Mijn keuzes opslaan",
+    "necessaryLabel": "Noodzakelijk",
+    "necessaryDesc": "Nodig om de site te laten werken.",
+    "analyticsLabel": "Statistiek",
+    "analyticsDesc": "Helpt ons begrijpen hoe de site wordt gebruikt (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Toont relevante advertenties en meet campagnes.",
+    "personalizationLabel": "Personalisatie",
+    "personalizationDesc": "Past inhoud en aanbevelingen aan."
+  },
+  "growthHelp": {
+    "reportProblem": "Meld een probleem",
+    "suggestedHelp": "Voorgestelde hulp",
+    "reportThanks": "Bedankt — we hebben je melding met technische details ontvangen.",
+    "howChildStarts": "Hoe begint het kind?",
+    "needHelpLogin": "Hulp nodig bij inloggen?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Korte opmerking (wordt meegestuurd met je antwoord)",
+    "notNow": "Niet nu",
+    "thanks": "Bedankt voor je feedback."
+  },
+  "growthReferral": {
+    "title": "Kennen jullie een ander gezin dat kalmere ochtenden nodig heeft?",
+    "subtitle": "Deel je persoonlijke link — geen beloningsspam, alleen een tip.",
+    "copyLink": "Link kopiëren",
+    "copied": "Gekopieerd",
+    "copyPrompt": "Kopieer deze link:",
+    "share": "Delen",
+    "shareText": "Wij gebruiken {{brand}} voor kindroutines. Maak gratis een account: ",
+    "notNow": "Niet nu"
+  },
+  "legalReturn": {
+    "backToPremium": "Terug naar Premium"
   }
 }

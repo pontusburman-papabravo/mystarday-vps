@@ -21,10 +21,8 @@
         return I18n._normalize(raw) || I18n.DEFAULT_LOCALE || 'sv-SE';
       }
     }
-    const tag = String(raw).toLowerCase();
-    if (tag.indexOf('en') === 0) return 'en-GB';
-    if (tag.indexOf('sv') === 0) return 'sv-SE';
-    return String(raw);
+    const tag = String(raw || '').trim();
+    return tag || 'sv-SE';
   }
 
   function formatDate(iso) {

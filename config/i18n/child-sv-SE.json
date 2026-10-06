@@ -735,7 +735,15 @@
     "ariaMinutes": "Timer. {{count}} minuter kvar.",
     "ariaOneSecond": "Timer. 1 sekund kvar.",
     "ariaSeconds": "Timer. {{count}} sekunder kvar.",
-    "ariaMinutesAndSeconds": "Timer. {{minutes}} minut{{minutePlural}} och {{seconds}} sekund{{secondPlural}} kvar."
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} {{minuteWord}} och {{seconds}} {{secondWord}} kvar.",
+    "minuteUnit": {
+      "one": "minut",
+      "other": "minuter"
+    },
+    "secondUnit": {
+      "one": "sekund",
+      "other": "sekunder"
+    }
   },
   "helpBubble": {
     "title": "❓ Hjälp – Barnvyn",

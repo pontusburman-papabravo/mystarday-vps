@@ -35,10 +35,17 @@
       const list = I18n.selectorLocales();
       if (list && list.length) return list;
     }
-    return [
-      { id: 'sv-SE', nativeName: 'Svenska', availability: 'public', showOnFirstRun: true, selectRequiresFeature: null },
-      { id: 'en-GB', nativeName: 'English', availability: 'public', showOnFirstRun: true, selectRequiresFeature: 'english_app' },
-    ];
+    return [];
+  }
+
+  /**
+   * english_app gates only the catalog row that asks for it (en-GB).
+   * Other public locales stay selectable when the flag is off.
+   */
+  function localeChangeAllowed(entry, featureEnabled) {
+    if (!entry || !entry.selectRequiresFeature) return true;
+    if (entry.selectRequiresFeature === 'english_app') return featureEnabled === true;
+    return true;
   }
 
   function buildSwitcherHtml() {
@@ -149,7 +156,7 @@
   async function applyLocaleChange(container, next, previous, englishOk) {
     if (_localeChangeInflight) return;
     const nextEntry = selectorLocales().find((locale) => locale.id === next);
-    if (nextEntry && nextEntry.selectRequiresFeature === 'english_app' && !englishOk) {
+    if (!localeChangeAllowed(nextEntry, englishOk)) {
       setSelected(container, I18n.DEFAULT_LOCALE || 'sv-SE');
       return;
     }
@@ -240,7 +247,7 @@
 
     let locale = I18n.getCurrentLang();
     const activeEntry = selectorLocales().find((item) => item.id === locale);
-    if (activeEntry && activeEntry.selectRequiresFeature === 'english_app' && !englishOk) {
+    if (!localeChangeAllowed(activeEntry, englishOk)) {
       locale = I18n.DEFAULT_LOCALE || 'sv-SE';
     }
     setSelected(container, locale);
@@ -267,5 +274,5 @@
     autoMount();
   });
 
-  window.LocaleSwitcher = { mount, autoMount };
+  window.LocaleSwitcher = { mount, autoMount, localeChangeAllowed };
 })();

@@ -10,28 +10,58 @@
 (function nativeLocaleContractModule() {
   'use strict';
 
+  function catalogLocales() {
+    const embedded = window.I18n && I18n.CATALOG && I18n.CATALOG.locales;
+    return Array.isArray(embedded) ? embedded : [];
+  }
+
+  function configuredDefault() {
+    if (window.I18n && I18n.DEFAULT_LOCALE) return I18n.DEFAULT_LOCALE;
+    return 'sv-SE';
+  }
+
+  function normalizeAgainstCatalog(raw, locales) {
+    if (!raw || !locales || !locales.length) return null;
+    const s = String(raw).trim();
+    if (!s) return null;
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].id === s) return locales[i].id;
+    }
+    const lower = s.toLowerCase();
+    for (let i = 0; i < locales.length; i++) {
+      const aliases = locales[i].aliases || [];
+      for (let a = 0; a < aliases.length; a++) {
+        if (String(aliases[a]).toLowerCase() === lower) return locales[i].id;
+      }
+    }
+    const base = lower.split(/[-_]/)[0];
+    const baseHits = [];
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].base === base) baseHits.push(locales[i].id);
+    }
+    if (baseHits.length === 1) return baseHits[0];
+    return null;
+  }
+
   function normalizeLocale(raw) {
     if (!raw) return null;
-    const s = String(raw).trim();
-    if (s === 'sv-SE' || s === 'sv') return 'sv-SE';
-    if (s === 'en-GB' || s === 'en') return 'en-GB';
-    const base = s.split(/[-_]/)[0].toLowerCase();
-    if (base === 'sv') return 'sv-SE';
-    if (base === 'en') return 'en-GB';
-    return null;
+    if (window.I18n && typeof I18n._normalize === 'function') {
+      return I18n._normalize(raw);
+    }
+    return normalizeAgainstCatalog(raw, catalogLocales());
   }
 
   /** OS / browser hint before auth — never persisted over server locale. */
   function getOsLocaleHint() {
     if (typeof window.I18n !== 'undefined' && typeof window.I18n._fromNavigator === 'function') {
-      return window.I18n._fromNavigator() || 'sv-SE';
+      return window.I18n._fromNavigator() || configuredDefault();
     }
     const langs = navigator.languages || [navigator.language || ''];
     for (let i = 0; i < langs.length; i++) {
       const n = normalizeLocale(langs[i]);
       if (n) return n;
     }
-    return 'sv-SE';
+    return configuredDefault();
   }
 
   /**
@@ -39,8 +69,8 @@
    * @param {string} preferredLocale from /api/auth/me
    */
   async function applyFamilyLocale(preferredLocale) {
-    if (!window.I18n || typeof window.I18n.init !== 'function') return 'sv-SE';
-    const locale = normalizeLocale(preferredLocale) || 'sv-SE';
+    if (!window.I18n || typeof window.I18n.init !== 'function') return null;
+    const locale = normalizeLocale(preferredLocale) || configuredDefault();
     await window.I18n.init(locale);
     document.dispatchEvent(new CustomEvent('locale-changed', { detail: { locale: locale } }));
     return locale;

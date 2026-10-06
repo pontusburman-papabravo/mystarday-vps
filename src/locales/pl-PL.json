@@ -1280,5 +1280,47 @@
     "activity": "{{name}} ukończyło {{activity}}",
     "goalFallback": "cel",
     "goal": "Rodzina osiągnęła cel: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Ustawienia plików cookie",
+    "intro": "Używamy plików cookie do statystyk, marketingu i personalizacji na naszej stronie.",
+    "manage": "Zarządzaj ustawieniami",
+    "manageHide": "Ukryj ustawienia",
+    "deny": "Odrzuć wszystkie",
+    "accept": "Akceptuj wszystkie",
+    "save": "Zapisz mój wybór",
+    "necessaryLabel": "Niezbędne",
+    "necessaryDesc": "Są potrzebne, żeby strona działała.",
+    "analyticsLabel": "Statystyki",
+    "analyticsDesc": "Pomagają nam zrozumieć, jak używana jest strona (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Pokazuje trafne reklamy i mierzy kampanie.",
+    "personalizationLabel": "Personalizacja",
+    "personalizationDesc": "Dopasowuje treści i polecenia."
+  },
+  "growthHelp": {
+    "reportProblem": "Zgłoś problem",
+    "suggestedHelp": "Proponowana pomoc",
+    "reportThanks": "Dzięki — dostaliśmy zgłoszenie ze szczegółami technicznymi.",
+    "howChildStarts": "Jak dziecko zaczyna?",
+    "needHelpLogin": "Potrzebujesz pomocy przy logowaniu?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Krótki komentarz (wysyłany razem z odpowiedzią)",
+    "notNow": "Nie teraz",
+    "thanks": "Dziękujemy za opinię."
+  },
+  "growthReferral": {
+    "title": "Znacie inną rodzinę, która potrzebuje spokojniejszych poranków?",
+    "subtitle": "Udostępnijcie swój link — bez spamu z nagrodami, tylko wskazówka.",
+    "copyLink": "Kopiuj link",
+    "copied": "Skopiowano",
+    "copyPrompt": "Skopiuj ten link:",
+    "share": "Udostępnij",
+    "shareText": "Używamy {{brand}} do rutyn dzieci. Załóż darmowe konto: ",
+    "notNow": "Nie teraz"
+  },
+  "legalReturn": {
+    "backToPremium": "Wróć do Premium"
   }
 }

@@ -83,12 +83,14 @@
   if (tokenInput && !tokenInput.value) tokenInput.value = pathToken;
 
   function copy() {
-    return STRINGS[locale] || STRINGS['sv-SE'];
+    if (STRINGS[locale]) return STRINGS[locale];
+    if (locale && locale !== 'sv-SE') return STRINGS['en-GB'];
+    return STRINGS['sv-SE'];
   }
 
   function applyChrome() {
     const c = copy();
-    document.documentElement.lang = locale === 'en-GB' ? 'en' : 'sv';
+    document.documentElement.lang = String(locale || 'sv-SE').toLowerCase();
     document.title = c.title;
     if (titleEl) titleEl.textContent = c.title;
     if (introEl) introEl.textContent = c.intro;
@@ -116,7 +118,7 @@
   function formatWhen(at) {
     const date = new Date(at);
     if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleString(locale === 'en-GB' ? 'en-GB' : 'sv-SE', {
+    return date.toLocaleString(locale || 'sv-SE', {
       dateStyle: 'short',
       timeStyle: 'short',
     });
@@ -163,7 +165,7 @@
         cache: 'no-store',
       });
       const data = await res.json().catch(function () { return {}; });
-      if (data.locale === 'en-GB' || data.locale === 'sv-SE') locale = data.locale;
+      if (typeof data.locale === 'string' && data.locale) locale = data.locale;
       applyChrome();
       if (!res.ok) throw new Error(data.error || copy().generic);
       renderMeta(data);
@@ -203,7 +205,7 @@
         const data = await res.json().catch(function () { return {}; });
         if (!res.ok) throw new Error(data.error || copy().sendFailed);
         if (messageEl) messageEl.value = '';
-        if (data.locale === 'en-GB' || data.locale === 'sv-SE') locale = data.locale;
+        if (typeof data.locale === 'string' && data.locale) locale = data.locale;
         applyChrome();
         renderMeta(data);
         renderThread(data.thread || []);

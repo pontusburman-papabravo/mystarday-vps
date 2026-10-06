@@ -1280,5 +1280,47 @@
     "activity": "{{name}} klarade {{activity}}",
     "goalFallback": "projekt",
     "goal": "Familjen nådde målet: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie-inställningar",
+    "intro": "Vi använder cookies för analys, marknadsföring och personalisering på vår webbplats.",
+    "manage": "Hantera inställningar",
+    "manageHide": "Dölj inställningar",
+    "deny": "Avvisa alla",
+    "accept": "Godkänn alla",
+    "save": "Spara mina val",
+    "necessaryLabel": "Nödvändiga",
+    "necessaryDesc": "Krävs för att sidan ska fungera.",
+    "analyticsLabel": "Analys och statistik",
+    "analyticsDesc": "Hjälper oss förstå hur sidan används (GA4).",
+    "marketingLabel": "Marknadsföring",
+    "marketingDesc": "Visar relevanta annonser och mäter kampanjer.",
+    "personalizationLabel": "Personalisering",
+    "personalizationDesc": "Anpassar innehåll och rekommendationer."
+  },
+  "growthHelp": {
+    "reportProblem": "Rapportera problem",
+    "suggestedHelp": "Föreslagen hjälp",
+    "reportThanks": "Tack — vi har tagit emot rapporten med teknisk kontext.",
+    "howChildStarts": "Hur gör barnet?",
+    "needHelpLogin": "Behöver du hjälp med inloggning?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Valfri kort kommentar (skickas med ditt svar)",
+    "notNow": "Inte nu",
+    "thanks": "Tack för feedbacken."
+  },
+  "growthReferral": {
+    "title": "Känner ni en annan familj som behöver lugnare morgnar?",
+    "subtitle": "Dela er personliga länk — ingen belönings-spam, bara ett tips.",
+    "copyLink": "Kopiera länk",
+    "copied": "Kopierad",
+    "copyPrompt": "Kopiera länken:",
+    "share": "Dela",
+    "shareText": "Vi använder {{brand}} för barnens rutiner. Skapa konto gratis: ",
+    "notNow": "Inte nu"
+  },
+  "legalReturn": {
+    "backToPremium": "Tillbaka till Premium"
   }
 }

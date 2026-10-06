@@ -346,6 +346,7 @@
 // stjarndag-v986: resource library bilingual PDFs + download IA
 // stjarndag-v985: final i18n closure — Class A runtime copy = 0
 // stjarndag-v983: dashboard remainder i18n (home chrome, help, modals)
+// stjarndag-v1044: Product chrome follows the locale catalog; timer units use plural keys
 // stjarndag-v1043: Spanish, Italian, European Portuguese, and Polish join the locale catalog
 // stjarndag-v1039: Child UI follows family locale; family report copy is localized
 // stjarndag-v1036: Subscription dates keep en-GB formatting when the locale normalizer is absent
@@ -376,7 +377,7 @@
 // stjarndag-v1015: native cold start resumes via app-entry (ADR-022); role picker is not the start screen
 // stjarndag-v1014: anchor Switch profile in the parent header on phones
 // stjarndag-v1013: keep Hem child-login CTA when schema is saved
-const CACHE_NAME = 'stjarndag-v1043';
+const CACHE_NAME = 'stjarndag-v1044';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host

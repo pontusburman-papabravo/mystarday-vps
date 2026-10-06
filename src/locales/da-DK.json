@@ -1280,5 +1280,47 @@
     "activity": "{{name}} gennemførte {{activity}}",
     "goalFallback": "mål",
     "goal": "Familien nåede målet: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie-indstillinger",
+    "intro": "Vi bruger cookies til statistik, marketing og tilpasning på vores website.",
+    "manage": "Administrer indstillinger",
+    "manageHide": "Skjul indstillinger",
+    "deny": "Afvis alle",
+    "accept": "Acceptér alle",
+    "save": "Gem mine valg",
+    "necessaryLabel": "Nødvendige",
+    "necessaryDesc": "Kræves for at siden kan fungere.",
+    "analyticsLabel": "Statistik",
+    "analyticsDesc": "Hjælper os med at forstå, hvordan siden bruges (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Viser relevante annoncer og måler kampagner.",
+    "personalizationLabel": "Tilpasning",
+    "personalizationDesc": "Tilpasser indhold og anbefalinger."
+  },
+  "growthHelp": {
+    "reportProblem": "Rapportér et problem",
+    "suggestedHelp": "Foreslået hjælp",
+    "reportThanks": "Tak — vi har modtaget din rapport med tekniske detaljer.",
+    "howChildStarts": "Hvordan starter barnet?",
+    "needHelpLogin": "Brug for hjælp til login?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Kort kommentar (sendes med dit svar)",
+    "notNow": "Ikke nu",
+    "thanks": "Tak for feedbacken."
+  },
+  "growthReferral": {
+    "title": "Kender I en anden familie, der har brug for roligere morgener?",
+    "subtitle": "Del jeres personlige link — ingen belønningsspam, bare et tip.",
+    "copyLink": "Kopiér link",
+    "copied": "Kopieret",
+    "copyPrompt": "Kopiér dette link:",
+    "share": "Del",
+    "shareText": "Vi bruger {{brand}} til børns rutiner. Opret en gratis konto: ",
+    "notNow": "Ikke nu"
+  },
+  "legalReturn": {
+    "backToPremium": "Tilbage til Premium"
   }
 }

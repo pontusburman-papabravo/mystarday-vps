@@ -483,7 +483,7 @@
         await I18n.init(requested);
       }
       const lang = I18n.getCurrentLang();
-      document.documentElement.lang = lang === 'en-GB' ? 'en' : 'sv';
+      document.documentElement.lang = String(lang || I18n.DEFAULT_LOCALE || 'sv-SE').toLowerCase();
       const title = ot('onboarding.handoffFilm.previewTitle');
       if (title && title !== 'onboarding.handoffFilm.previewTitle') {
         document.title = title;

@@ -737,7 +737,19 @@
     "ariaMinutes": "Minutnik. Zostało {{count}} minut.",
     "ariaOneSecond": "Minutnik. Została 1 sekunda.",
     "ariaSeconds": "Minutnik. Zostało {{count}} sekund.",
-    "ariaMinutesAndSeconds": "Minutnik. {{minutes}} min{{minutePlural}} i {{seconds}} s{{secondPlural}} zostało."
+    "ariaMinutesAndSeconds": "Minutnik. {{minutes}} {{minuteWord}} i {{seconds}} {{secondWord}} zostało.",
+    "minuteUnit": {
+      "one": "minuta",
+      "few": "minuty",
+      "many": "minut",
+      "other": "minuty"
+    },
+    "secondUnit": {
+      "one": "sekunda",
+      "few": "sekundy",
+      "many": "sekund",
+      "other": "sekundy"
+    }
   },
   "helpBubble": {
     "title": "❓ Pomoc – widok dziecka",

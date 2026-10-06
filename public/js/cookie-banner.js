@@ -41,7 +41,39 @@
     return false;
   }
 
+  function tx(key) {
+    if (!window.I18n || typeof I18n.t !== 'function') return '';
+    const value = I18n.t(key);
+    return value && value !== key ? value : '';
+  }
+
+  /**
+   * Product pages load the app catalog. Marketing pages that do not
+   * keep the public Swedish / English copy below.
+   */
+  function catalogCookieCopy() {
+    const intro = tx('cookie.intro');
+    if (!intro) return null;
+    return {
+      ariaLabel: tx('cookie.ariaLabel'),
+      intro: intro,
+      manage: tx('cookie.manage'),
+      manageHide: tx('cookie.manageHide'),
+      deny: tx('cookie.deny'),
+      accept: tx('cookie.accept'),
+      save: tx('cookie.save'),
+      categories: [
+        { id: 'necessary', icon: '🔒', label: tx('cookie.necessaryLabel'), desc: tx('cookie.necessaryDesc'), locked: true, checked: true },
+        { id: 'analytics', icon: '📊', label: tx('cookie.analyticsLabel'), desc: tx('cookie.analyticsDesc'), locked: false },
+        { id: 'marketing', icon: '📢', label: tx('cookie.marketingLabel'), desc: tx('cookie.marketingDesc'), locked: false },
+        { id: 'personalization', icon: '🎯', label: tx('cookie.personalizationLabel'), desc: tx('cookie.personalizationDesc'), locked: false },
+      ],
+    };
+  }
+
   function cookieBannerCopy() {
+    const fromCatalog = catalogCookieCopy();
+    if (fromCatalog) return fromCatalog;
     if (isEnglishPublicPath() || appLocaleUsesEnglishBanner()) {
       return {
         ariaLabel: 'Cookie settings',

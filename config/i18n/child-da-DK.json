@@ -735,7 +735,15 @@
     "ariaMinutes": "Timer. {{count}} minutter tilbage.",
     "ariaOneSecond": "Timer. 1 sekund tilbage.",
     "ariaSeconds": "Timer. {{count}} sekunder tilbage.",
-    "ariaMinutesAndSeconds": "Timer. {{minutes}} minut{{minutePlural}} og {{seconds}} sekund{{secondPlural}} tilbage."
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} {{minuteWord}} og {{seconds}} {{secondWord}} tilbage.",
+    "minuteUnit": {
+      "one": "minut",
+      "other": "minutter"
+    },
+    "secondUnit": {
+      "one": "sekund",
+      "other": "sekunder"
+    }
   },
   "helpBubble": {
     "title": "❓ Hjælp – børnevisning",
