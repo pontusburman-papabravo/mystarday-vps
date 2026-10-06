@@ -29,8 +29,20 @@
     return /^\/en(\/|$)/.test(window.location.pathname || '');
   }
 
+  function appLocaleUsesEnglishBanner() {
+    try {
+      const stored = sessionStorage.getItem('sd_preferred_locale')
+        || localStorage.getItem('sd_preferred_locale');
+      if (stored) return !/^sv([-_]|$)/i.test(stored);
+      if (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.lang) {
+        return !/^sv([-_]|$)/i.test(I18n.getCurrentLang() || '');
+      }
+    } catch (_) { /* keep the Swedish banner */ }
+    return false;
+  }
+
   function cookieBannerCopy() {
-    if (isEnglishPublicPath()) {
+    if (isEnglishPublicPath() || appLocaleUsesEnglishBanner()) {
       return {
         ariaLabel: 'Cookie settings',
         intro: 'We use cookies for analytics, marketing and personalisation on our website.',
@@ -467,6 +479,14 @@
       }
     },
   };
+
+  document.addEventListener('language-choice-confirmed', function () {
+    if (!document.getElementById(BANNER_ID)) return;
+    const existing = loadConsent();
+    const banner = document.getElementById(BANNER_ID);
+    if (banner) banner.remove();
+    buildBanner(existing);
+  });
 
   init();
 })();
