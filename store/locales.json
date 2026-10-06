@@ -1,0 +1,597 @@
+{
+  "version": 1,
+  "sources": {
+    "apple": "App Store Connect localizations (fastlane ALL_LANGUAGES / Spaceship available_languages). Icelandic, Irish, Maltese, Bulgarian, Estonian, Latvian and Lithuanian are absent. Storefront default for those countries is English (U.K.).",
+    "google": "Google Play store listing translations (support article 9844778, Add your own translations). Irish and Maltese are absent. Icelandic is is-IS."
+  },
+  "appleLocales": [
+    "ar-SA",
+    "bn-BD",
+    "ca",
+    "cs",
+    "da",
+    "de-DE",
+    "el",
+    "en-AU",
+    "en-CA",
+    "en-GB",
+    "en-US",
+    "es-ES",
+    "es-MX",
+    "fi",
+    "fr-CA",
+    "fr-FR",
+    "gu-IN",
+    "he",
+    "hi",
+    "hr",
+    "hu",
+    "id",
+    "it",
+    "ja",
+    "kn-IN",
+    "ko",
+    "ml-IN",
+    "mr-IN",
+    "ms",
+    "nl-NL",
+    "no",
+    "or-IN",
+    "pa-IN",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "ro",
+    "ru",
+    "sk",
+    "sl-SI",
+    "sv",
+    "ta-IN",
+    "te-IN",
+    "th",
+    "tr",
+    "uk",
+    "ur-PK",
+    "vi",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "googleLocales": [
+    "af",
+    "sq",
+    "am",
+    "ar",
+    "hy-AM",
+    "az-AZ",
+    "bn-BD",
+    "eu-ES",
+    "be",
+    "bg",
+    "my-MM",
+    "ca",
+    "zh-HK",
+    "zh-CN",
+    "zh-TW",
+    "hr",
+    "cs-CZ",
+    "da-DK",
+    "nl-NL",
+    "en-AU",
+    "en-CA",
+    "en-US",
+    "en-GB",
+    "en-IN",
+    "en-SG",
+    "en-ZA",
+    "et",
+    "fil",
+    "fi-FI",
+    "fr-CA",
+    "fr-FR",
+    "gl-ES",
+    "ka-GE",
+    "de-DE",
+    "el-GR",
+    "gu",
+    "iw-IL",
+    "hi-IN",
+    "hu-HU",
+    "is-IS",
+    "id",
+    "it-IT",
+    "ja-JP",
+    "kn-IN",
+    "kk",
+    "km-KH",
+    "ko-KR",
+    "ky-KG",
+    "lo-LA",
+    "lv",
+    "lt",
+    "mk-MK",
+    "ms-MY",
+    "ms",
+    "ml-IN",
+    "mr-IN",
+    "mn-MN",
+    "ne-NP",
+    "no-NO",
+    "fa",
+    "fa-AE",
+    "fa-AF",
+    "fa-IR",
+    "pl-PL",
+    "pt-BR",
+    "pt-PT",
+    "pa",
+    "ro",
+    "rm",
+    "ru-RU",
+    "sr",
+    "si-LK",
+    "sk",
+    "sl",
+    "es-419",
+    "es-ES",
+    "es-US",
+    "sw",
+    "sv-SE",
+    "ta-IN",
+    "te-IN",
+    "th",
+    "tr-TR",
+    "uk",
+    "ur",
+    "vi"
+  ],
+  "appLocales": {
+    "bg-BG": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": "bg",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "hr-HR": {
+      "status": "planned",
+      "apple": {
+        "locale": "hr",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "hr",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "cs-CZ": {
+      "status": "planned",
+      "apple": {
+        "locale": "cs",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "cs-CZ",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "da-DK": {
+      "status": "planned",
+      "apple": {
+        "locale": "da",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "da-DK",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "nl-NL": {
+      "status": "planned",
+      "apple": {
+        "locale": "nl-NL",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "nl-NL",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "en-GB": {
+      "status": "shipped",
+      "apple": {
+        "locale": "en-GB",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "en-GB",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": "en-GB",
+        "androidResources": [
+          "scripts/android/l10n/res/values-en-rGB/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-en-rGB/strings.xml"
+        ]
+      }
+    },
+    "et-EE": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": "et",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "fi-FI": {
+      "status": "planned",
+      "apple": {
+        "locale": "fi",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "fi-FI",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "fr-FR": {
+      "status": "planned",
+      "apple": {
+        "locale": "fr-FR",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "fr-FR",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "de-DE": {
+      "status": "planned",
+      "apple": {
+        "locale": "de-DE",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "de-DE",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "el-GR": {
+      "status": "planned",
+      "apple": {
+        "locale": "el",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "el-GR",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "hu-HU": {
+      "status": "planned",
+      "apple": {
+        "locale": "hu",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "hu-HU",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "ga-IE": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "it-IT": {
+      "status": "planned",
+      "apple": {
+        "locale": "it",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "it-IT",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "lv-LV": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": "lv",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "lt-LT": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": "lt",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "mt-MT": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "pl-PL": {
+      "status": "planned",
+      "apple": {
+        "locale": "pl",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "pl-PL",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "pt-PT": {
+      "status": "planned",
+      "apple": {
+        "locale": "pt-PT",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "pt-PT",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "ro-RO": {
+      "status": "planned",
+      "apple": {
+        "locale": "ro",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "ro",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "sk-SK": {
+      "status": "planned",
+      "apple": {
+        "locale": "sk",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "sk",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "sl-SI": {
+      "status": "planned",
+      "apple": {
+        "locale": "sl-SI",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "sl",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "es-ES": {
+      "status": "planned",
+      "apple": {
+        "locale": "es-ES",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "es-ES",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "sv-SE": {
+      "status": "shipped",
+      "apple": {
+        "locale": "sv",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "sv-SE",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": "sv",
+        "androidResources": [
+          "scripts/android/l10n/res/values-sv/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values/strings.xml"
+        ]
+      }
+    },
+    "nb-NO": {
+      "status": "planned",
+      "apple": {
+        "locale": "no",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "google": {
+        "locale": "no-NO",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    },
+    "is-IS": {
+      "status": "planned",
+      "apple": {
+        "locale": null,
+        "fallback": "en-GB",
+        "acceptFallbackForReady": true
+      },
+      "google": {
+        "locale": "is-IS",
+        "fallback": null,
+        "acceptFallbackForReady": false
+      },
+      "native": {
+        "ios": null,
+        "androidResources": []
+      }
+    }
+  }
+}

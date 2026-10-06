@@ -69,6 +69,9 @@ jobs:
       - name: i18n copy ratchet
         run: npm run audit:i18n
 
+      - name: Store localization
+        run: npm run store:validate
+
       - name: Migrate
         run: npm run migrate
 

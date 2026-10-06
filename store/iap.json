@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "note": "Display names only. Prices and trial rules stay in market commercial policy.",
+  "products": [
+    {
+      "id": "premium_monthly",
+      "apple": {
+        "sv": {
+          "name": "Premium månadsvis",
+          "description": "Månadsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium monthly",
+          "description": "Monthly Premium in the app."
+        }
+      },
+      "google": {
+        "sv-SE": {
+          "name": "Premium månadsvis",
+          "description": "Månadsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium monthly",
+          "description": "Monthly Premium in the app."
+        }
+      }
+    },
+    {
+      "id": "premium_annual",
+      "apple": {
+        "sv": {
+          "name": "Premium årsvis",
+          "description": "Årsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium yearly",
+          "description": "Yearly Premium in the app."
+        }
+      },
+      "google": {
+        "sv-SE": {
+          "name": "Premium årsvis",
+          "description": "Årsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium yearly",
+          "description": "Yearly Premium in the app."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "acceptPrimaryInheritance": false,
+  "note": "Live SE/IE/CA screenshots stay in the store consoles (live_external). A new locale is not store-ready until a screenshot set is present in the repo or a future decision sets acceptPrimaryInheritance.",
+  "sets": {
+    "apple": {
+      "sv": {
+        "status": "live_external"
+      },
+      "en-GB": {
+        "status": "live_external"
+      }
+    },
+    "google": {
+      "sv-SE": {
+        "status": "live_external"
+      },
+      "en-GB": {
+        "status": "live_external"
+      }
+    }
+  }
+}

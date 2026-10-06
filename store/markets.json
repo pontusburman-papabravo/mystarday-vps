@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "note": "activation live is only SE, IE and CA. Other markets stay planned. Copy is per language; listingOverride is the exception.",
+  "markets": [
+    {
+      "id": "SE",
+      "defaultAppLocale": "sv-SE",
+      "activation": "live",
+      "screenshots": {
+        "apple": "live_external",
+        "google": "live_external"
+      }
+    },
+    {
+      "id": "IE",
+      "defaultAppLocale": "en-GB",
+      "activation": "live",
+      "screenshots": {
+        "apple": "live_external",
+        "google": "live_external"
+      },
+      "listingOverride": "IE"
+    },
+    {
+      "id": "CA",
+      "defaultAppLocale": "en-GB",
+      "activation": "live",
+      "screenshots": {
+        "apple": "live_external",
+        "google": "live_external"
+      }
+    },
+    {
+      "id": "FI",
+      "defaultAppLocale": "sv-SE",
+      "activation": "planned"
+    },
+    {
+      "id": "NO",
+      "defaultAppLocale": "nb-NO",
+      "activation": "planned"
+    },
+    {
+      "id": "DK",
+      "defaultAppLocale": "da-DK",
+      "activation": "planned"
+    },
+    {
+      "id": "DE",
+      "defaultAppLocale": "de-DE",
+      "activation": "planned"
+    },
+    {
+      "id": "AT",
+      "defaultAppLocale": "de-DE",
+      "activation": "planned"
+    },
+    {
+      "id": "BE",
+      "defaultAppLocale": "fr-FR",
+      "activation": "planned"
+    },
+    {
+      "id": "NL",
+      "defaultAppLocale": "nl-NL",
+      "activation": "planned"
+    },
+    {
+      "id": "FR",
+      "defaultAppLocale": "fr-FR",
+      "activation": "planned"
+    },
+    {
+      "id": "LU",
+      "defaultAppLocale": "fr-FR",
+      "activation": "planned"
+    },
+    {
+      "id": "ES",
+      "defaultAppLocale": "es-ES",
+      "activation": "planned"
+    },
+    {
+      "id": "PT",
+      "defaultAppLocale": "pt-PT",
+      "activation": "planned"
+    },
+    {
+      "id": "IT",
+      "defaultAppLocale": "it-IT",
+      "activation": "planned"
+    },
+    {
+      "id": "GR",
+      "defaultAppLocale": "el-GR",
+      "activation": "planned"
+    },
+    {
+      "id": "CY",
+      "defaultAppLocale": "el-GR",
+      "activation": "planned"
+    },
+    {
+      "id": "PL",
+      "defaultAppLocale": "pl-PL",
+      "activation": "planned"
+    },
+    {
+      "id": "CZ",
+      "defaultAppLocale": "cs-CZ",
+      "activation": "planned"
+    },
+    {
+      "id": "SK",
+      "defaultAppLocale": "sk-SK",
+      "activation": "planned"
+    },
+    {
+      "id": "HU",
+      "defaultAppLocale": "hu-HU",
+      "activation": "planned"
+    },
+    {
+      "id": "RO",
+      "defaultAppLocale": "ro-RO",
+      "activation": "planned"
+    },
+    {
+      "id": "BG",
+      "defaultAppLocale": "bg-BG",
+      "activation": "planned"
+    },
+    {
+      "id": "HR",
+      "defaultAppLocale": "hr-HR",
+      "activation": "planned"
+    },
+    {
+      "id": "SI",
+      "defaultAppLocale": "sl-SI",
+      "activation": "planned"
+    },
+    {
+      "id": "EE",
+      "defaultAppLocale": "et-EE",
+      "activation": "planned"
+    },
+    {
+      "id": "LV",
+      "defaultAppLocale": "lv-LV",
+      "activation": "planned"
+    },
+    {
+      "id": "LT",
+      "defaultAppLocale": "lt-LT",
+      "activation": "planned"
+    },
+    {
+      "id": "MT",
+      "defaultAppLocale": "mt-MT",
+      "activation": "planned"
+    },
+    {
+      "id": "IS",
+      "defaultAppLocale": "is-IS",
+      "activation": "planned"
+    }
+  ]
+}
