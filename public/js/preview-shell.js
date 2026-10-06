@@ -97,7 +97,7 @@
       return {
         action: 'interest',
         label: chromeLabel('packageInterest.interested', 'Jag är intresserad', 'I am interested'),
-        sublabel: chromeLabel('packageInterest.interestedSub', 'Anmäl intresse för kommande beta', 'Register interest for the upcoming beta'),
+        sublabel: chromeLabel('packageInterest.interestedSub', 'Anmäl intresse för kommande beta', "Register interest in what's next"),
       };
     }
     if (access.rollout_mode === 'purchase' && access.purchase_enabled) {

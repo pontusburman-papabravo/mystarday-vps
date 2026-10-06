@@ -135,7 +135,7 @@ describe('third locale xx is data, not a code branch', () => {
     assert.equal(sandbox.window.I18n._normalize('pl'), 'pl-PL');
     assert.equal(sandbox.window.I18n._normalize('is'), null);
     const names = sandbox.window.I18n.selectorLocales().map((locale) => locale.nativeName);
-    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch', 'Français', 'Nederlands', 'Dansk', 'Suomi', 'Norsk bokmål', 'Español', 'Italiano', 'Português', 'Polski']);
+    assert.deepEqual(names, ['Svenska', 'English', 'Deutsch', 'Français', 'Nederlands', 'Dansk', 'Suomi', 'Norsk bokmål', 'Español', 'Italiano', 'Português', 'Polski', 'Čeština', 'Slovenčina', 'Slovenščina', 'Hrvatski', 'Magyar', 'Română']);
     assert.equal(sandbox.window.I18n.firstRunLocales().some((locale) => locale.id === 'xx-XX'), false);
 
     sandbox.window.I18n.CATALOG = {
