@@ -71,10 +71,21 @@ function isEnglishPublicMarketingPath(pathname) {
   return true;
 }
 
+/** /en, /nl and later path locales. Auth stays put. Unknown prefixes are not locales. */
+function isPublicLocaleMarketingPath(pathname) {
+  const path = englishMarketingPathname(pathname);
+  const { localeFromPublicPath } = require('../../config/web-locales');
+  const locale = localeFromPublicPath(path);
+  if (!locale || !locale.pathPrefix) return false;
+  if (ENGLISH_AUTH_PATHS.has(path)) return false;
+  if (path.startsWith(`${locale.pathPrefix}/api`)) return false;
+  return true;
+}
+
 /** Swedish documents that should rank on .se. Never includes /en (that would loop). */
 function isSwedishCanonicalPath(pathname) {
   const path = englishMarketingPathname(pathname);
-  if (!path || path === '/' || path === '/en' || path.startsWith('/en/')) return false;
+  if (!path || path === '/' || isPublicLocaleMarketingPath(path)) return false;
   return swedishIndexablePaths().has(path);
 }
 
@@ -89,7 +100,7 @@ function createDomainRedirect() {
     const onSwedishHost = host === MAIN_DOMAIN || host === `www.${MAIN_DOMAIN}`;
     const onAppHost = host === APP_DOMAIN || host === `www.${APP_DOMAIN}`;
     const safeRead = method === 'GET' || method === 'HEAD';
-    if (onSwedishHost && safeRead && isEnglishPublicMarketingPath(pathname)) {
+    if (onSwedishHost && safeRead && isPublicLocaleMarketingPath(pathname)) {
       return res.redirect(301, `https://${APP_DOMAIN}${pathname}${parts.search}${parts.hash}`);
     }
     if (onAppHost && safeRead && (pathname === '/' || pathname === '')) {
@@ -104,7 +115,7 @@ function createDomainRedirect() {
     if (onAppHost && safeRead && (isSwedishCanonicalPath(pathname) || isHostedSwedishResurserDocument(pathname))) {
       return res.redirect(301, `https://${MAIN_DOMAIN}${pathname}${parts.search}${parts.hash}`);
     }
-    if (onAppHost && safeRead && isEnglishPublicMarketingPath(pathname) && trailingSlash) {
+    if (onAppHost && safeRead && isPublicLocaleMarketingPath(pathname) && trailingSlash) {
       return res.redirect(301, `https://${APP_DOMAIN}${pathname}${parts.search}${parts.hash}`);
     }
     if (host === `www.${MAIN_DOMAIN}`) {
@@ -131,5 +142,6 @@ module.exports = {
   EU_REDIRECT_DOMAINS,
   ENGLISH_AUTH_PATHS,
   isEnglishPublicMarketingPath,
+  isPublicLocaleMarketingPath,
   isSwedishCanonicalPath,
 };

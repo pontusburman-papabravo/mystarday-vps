@@ -11,9 +11,10 @@
 <body class="platform-web landing-page en-market-page">
   <header class="en-market-top">
     <a class="en-market-brand" href="/en">My Starday</a>
-    <nav class="en-market-lang" aria-label="Language">
-      <a href="__SV_HOME__">Svenska</a>
-      <a href="/en">English</a>
+    <nav class="en-market-lang" aria-label="Language" data-public-lang-switcher="1">
+      <a href="__SV_HOME__" hreflang="sv" data-locale-switch="sv">Svenska</a>
+      <a href="/en" hreflang="en" data-locale-switch="en" aria-current="page">English</a>
+      <a href="/nl" hreflang="nl" data-locale-switch="nl">Nederlands</a>
     </nav>
     <nav class="landing-market-switch" aria-label="Market">
       <a href="/en/ie" __IE_CURRENT__>Ireland</a>
@@ -48,6 +49,6 @@
   </main>
   <script src="/js/utm-capture.js?v=1.2.0"></script>
   <script src="/js/landing-canada-ios.js?v=3"></script>
-  <script src="/js/landing-events.js?v=7"></script>
+  <script src="/js/landing-events.js?v=8"></script>
 </body>
 </html>

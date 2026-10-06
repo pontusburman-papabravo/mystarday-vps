@@ -4,7 +4,7 @@ const { SEO_INDEXABLE_PATHS } = require('./seo-pages');
 const {
   absolutePublicUrl,
   sitemapAudienceForHost,
-  isEnglishPublicPath,
+  isInternationalPublicPath,
 } = require('./public-seo');
 
 const SITE_URL = (process.env.PUBLIC_SITE_URL || ['https://', 'mys', 'tar', 'day', '.se'].join('')).replace(/\/$/, '');
@@ -18,9 +18,9 @@ function buildSitemapXml(opts = {}) {
   const audience = sitemapAudienceForHost(opts.host);
   const paths = [...SEO_INDEXABLE_PATHS]
     .filter((p) => {
-      const english = isEnglishPublicPath(p);
-      if (audience === 'en') return english;
-      if (audience === 'sv') return !english;
+      const international = isInternationalPublicPath(p);
+      if (audience === 'en') return international;
+      if (audience === 'sv') return !international;
       return true;
     })
     .sort((a, b) => a.localeCompare(b));

@@ -10,6 +10,8 @@
 const { siteUrl, ENGLISH_PUBLIC_SITE_URL } = require('./public-html-placeholders');
 const { enToSv, svToEn } = require('../../config/en-public-mirror');
 const { APP_DOMAIN, MAIN_DOMAIN } = require('./domain-redirect');
+const { LOCALES, localeFromPublicPath } = require('../../config/web-locales');
+const { contentByPath } = require('../../config/web-content-keys');
 
 /** English URLs with a real English document. Everything else under /en is noindex. */
 const ENGLISH_CONTENT_INDEXABLE = new Set([
@@ -79,6 +81,24 @@ function isEnglishContentIndexable(path) {
   return ENGLISH_CONTENT_INDEXABLE.has(normalizePublicPath(path));
 }
 
+function isInternationalPublicPath(path) {
+  return !!localeFromPublicPath(normalizePublicPath(path));
+}
+
+function isInternationalContentIndexable(path) {
+  const p = normalizePublicPath(path);
+  if (isEnglishContentIndexable(p)) return true;
+  const locale = localeFromPublicPath(p);
+  const entry = contentByPath(p);
+  return !!(
+    locale
+    && locale.seoEnabled
+    && entry
+    && entry.indexable
+    && entry.paths[locale.code] === p
+  );
+}
+
 function swedishOrigin() {
   return siteUrl().replace(/\/$/, '');
 }
@@ -114,7 +134,7 @@ function sitemapAudienceForHost(host) {
 
 function absolutePublicUrl(pathname) {
   const p = normalizePublicPath(pathname);
-  if (isEnglishPublicPath(p)) return `${englishOrigin()}${p}`;
+  if (isInternationalPublicPath(p) || isEnglishPublicPath(p)) return `${englishOrigin()}${p}`;
   if (p === '/') return `${swedishOrigin()}/`;
   return `${swedishOrigin()}${p}`;
 }
@@ -125,8 +145,25 @@ function isIndexableSwedishPath(pathname) {
   return isSeoIndexable(pathname);
 }
 
+function hreflangFromContent(entry) {
+  if (!entry || !entry.indexable) return [];
+  const rows = [];
+  for (const locale of Object.values(LOCALES)) {
+    if (!locale.enabled || !locale.seoEnabled) continue;
+    const target = entry.paths[locale.code];
+    if (!target) continue;
+    const href = absolutePublicUrl(target);
+    for (const tag of locale.hreflang) rows.push([tag, href]);
+  }
+  const fallback = entry.paths.en || entry.paths.sv || entry.paths.nl;
+  if (fallback) rows.push(['x-default', absolutePublicUrl(fallback)]);
+  return rows;
+}
+
 function hreflangAlternates(pathname) {
   const p = normalizePublicPath(pathname);
+  const entry = contentByPath(p);
+  if (entry) return hreflangFromContent(entry);
   const english = isEnglishPublicPath(p);
   const en = english ? p : svToEn(p);
   const sv = english ? enToSv(p) : p;
@@ -164,6 +201,7 @@ function originsBootstrap() {
   return `<script>window.__PUBLIC_SEO_ORIGINS=${JSON.stringify({
     sv: swedishOrigin(),
     en: englishOrigin(),
+    nl: englishOrigin(),
   })};</script>`;
 }
 
@@ -177,15 +215,15 @@ function originsBootstrap() {
 function applyPublicSeoHead(html, reqPath, opts = {}) {
   if (typeof html !== 'string' || !html.includes('<head')) return html;
   const p = normalizePublicPath(reqPath);
-  const english = isEnglishPublicPath(p);
-  if (!english && !opts.indexable) return html;
+  const international = isInternationalPublicPath(p);
+  if (!international && !opts.indexable) return html;
 
   let next = html
     .replace(CANONICAL_LINK_RE, '')
     .replace(HREFLANG_LINK_RE, '')
     .replace(HREFLANG_LINK_RE_ALT, '');
 
-  const robotsNeeded = english && !isEnglishContentIndexable(p);
+  const robotsNeeded = international && !isInternationalContentIndexable(p);
   if (robotsNeeded) {
     next = next.replace(ROBOTS_META_RE, '');
   }
@@ -209,6 +247,8 @@ module.exports = {
   normalizePublicPath,
   isEnglishPublicPath,
   isEnglishContentIndexable,
+  isInternationalPublicPath,
+  isInternationalContentIndexable,
   swedishOrigin,
   englishOrigin,
   isAppHost,

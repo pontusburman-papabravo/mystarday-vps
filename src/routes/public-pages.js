@@ -10,6 +10,9 @@ const {
   injectBrandPlaceholders,
 } = require('../lib/public-html-placeholders');
 const { injectStoreLinkPlaceholders } = require('../../config/store-links');
+const localeWeb = require('./locale-web');
+
+router.use(localeWeb);
 
 function injectStoreLinks(html, { ireland = false } = {}) {
   return injectStoreLinkPlaceholders(html, { ireland });

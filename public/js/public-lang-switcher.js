@@ -1,46 +1,64 @@
 /**
- * Public marketing language switcher (sv ↔ en paths).
- * Routes loaded from generated public-lang-routes.js
+ * Public marketing language switcher.
+ * Language is separate from market. A missing translation goes to that language's home.
+ * Routes: window.PUBLIC_LOCALE_ALTERNATES, with the older sv↔en map as fallback.
  */
 (function publicLangSwitcherModule() {
   'use strict';
 
-  const FALLBACK_ROUTES = {
-    '/': '/en',
-    '/en': '/',
-  };
-
-  function routes() {
-    return window.PUBLIC_LANG_ROUTES || FALLBACK_ROUTES;
-  }
+  const HOMES = { sv: '/', en: '/en', nl: '/nl' };
+  const LABELS = { sv: 'Svenska', en: 'English', nl: 'Nederlands' };
 
   function currentPath() {
     const p = location.pathname.replace(/\/$/, '') || '/';
     return p;
   }
 
+  function localeOf(path) {
+    if (path === '/nl' || path.indexOf('/nl/') === 0) return 'nl';
+    if (path === '/en' || path.indexOf('/en/') === 0) return 'en';
+    return 'sv';
+  }
+
   function origins() {
     return window.__PUBLIC_SEO_ORIGINS || null;
   }
 
-  function absoluteHref(path) {
-    const target = path || '/';
-    const o = origins();
-    if (!o || !o.sv || !o.en) return target;
-    const english = target === '/en' || target.startsWith('/en/');
-    const origin = english ? o.en : o.sv;
-    if (target === '/') return origin + '/';
-    return origin + target;
+  function groupFor(path) {
+    const list = window.PUBLIC_LOCALE_ALTERNATES || [];
+    for (let i = 0; i < list.length; i += 1) {
+      const group = list[i];
+      if (group.sv === path || group.en === path || group.nl === path) return group;
+    }
+    return null;
   }
 
-  function alternatePath() {
-    const p = currentPath();
-    const map = routes();
-    return map[p] || (p.startsWith('/en') ? '/' : '/en');
+  function targetFor(locale) {
+    const group = groupFor(currentPath());
+    if (group && group[locale]) return group[locale];
+    const legacy = window.PUBLIC_LANG_ROUTES || { '/': '/en', '/en': '/' };
+    if (locale === 'en' && localeOf(currentPath()) === 'sv') return legacy[currentPath()] || HOMES.en;
+    if (locale === 'sv' && localeOf(currentPath()) === 'en') return legacy[currentPath()] || HOMES.sv;
+    return HOMES[locale];
+  }
+
+  function absoluteHref(target) {
+    const path = target || '/';
+    const o = origins();
+    if (!o || !o.sv || !o.en) return path;
+    const locale = localeOf(path);
+    const origin = locale === 'nl' ? (o.nl || o.en) : (locale === 'en' ? o.en : o.sv);
+    if (path === '/') return origin + '/';
+    return origin + path;
   }
 
   function isEnglish() {
-    return currentPath() === '/en' || currentPath().startsWith('/en/');
+    return localeOf(currentPath()) === 'en';
+  }
+
+  function alternatePath() {
+    const here = localeOf(currentPath());
+    return targetFor(here === 'sv' ? 'en' : 'sv');
   }
 
   function hasInAppReturnContext() {
@@ -57,21 +75,28 @@
     if (hasInAppReturnContext()) return;
     if (document.querySelector('[data-public-lang-switcher]')) return;
     const nav = document.querySelector('nav') || document.body;
-    const wrap = document.createElement('div');
+    const wrap = document.createElement('nav');
     wrap.setAttribute('data-public-lang-switcher', '1');
+    wrap.setAttribute('aria-label', 'Language');
     wrap.style.cssText = 'display:flex;gap:0.5rem;align-items:center;font-size:0.8125rem;font-weight:600;';
-    const map = routes();
-    const sv = document.createElement('a');
-    sv.href = absoluteHref(isEnglish() ? (map[currentPath()] || '/') : currentPath());
-    sv.textContent = 'Svenska';
-    sv.style.cssText = isEnglish() ? 'color:#8A92AA;text-decoration:none;' : 'color:#1C2340;text-decoration:none;';
-    const en = document.createElement('a');
-    en.href = absoluteHref(isEnglish() ? currentPath() : (map[currentPath()] || '/en'));
-    en.textContent = 'English';
-    en.style.cssText = isEnglish() ? 'color:#1C2340;text-decoration:none;' : 'color:#8A92AA;text-decoration:none;';
-    wrap.appendChild(sv);
-    wrap.appendChild(document.createTextNode(' · '));
-    wrap.appendChild(en);
+    const here = localeOf(currentPath());
+    ['sv', 'en', 'nl'].forEach(function (code, index) {
+      if (index) wrap.appendChild(document.createTextNode(' · '));
+      const href = absoluteHref(targetFor(code));
+      if (code === here) {
+        const span = document.createElement('span');
+        span.textContent = LABELS[code];
+        span.setAttribute('aria-current', 'page');
+        span.style.cssText = 'color:#1C2340;';
+        wrap.appendChild(span);
+        return;
+      }
+      const link = document.createElement('a');
+      link.href = href;
+      link.textContent = LABELS[code];
+      link.style.cssText = 'color:#8A92AA;text-decoration:none;';
+      wrap.appendChild(link);
+    });
     if (nav.tagName === 'NAV') {
       nav.appendChild(wrap);
     } else {
@@ -81,17 +106,25 @@
   }
 
   function loadRoutesThenInject() {
-    if (window.PUBLIC_LANG_ROUTES) {
+    function ready() {
       inject();
+    }
+    if (window.PUBLIC_LOCALE_ALTERNATES) {
+      ready();
       return;
     }
     const s = document.createElement('script');
-    s.src = '/js/public-lang-routes.js?v=1';
-    s.onload = inject;
-    s.onerror = inject;
+    s.src = '/js/public-locale-alternates.js?v=1';
+    s.onload = ready;
+    s.onerror = ready;
     document.head.appendChild(s);
   }
 
   document.addEventListener('DOMContentLoaded', loadRoutesThenInject);
-  window.PublicLangSwitcher = { alternatePath, isEnglish, routes };
+  window.PublicLangSwitcher = {
+    alternatePath: alternatePath,
+    isEnglish: isEnglish,
+    targetFor: targetFor,
+    localeOf: localeOf,
+  };
 })();
