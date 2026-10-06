@@ -18,6 +18,9 @@ const {
   injectBrandPlaceholders,
 } = require('../lib/public-html-placeholders');
 const { renderEnMarketPage, legacyCountryCampaignPath } = require('../lib/en-market-landing');
+const { marketForPublicPath } = require('../../config/web-markets');
+const { renderLocaleDocument } = require('../lib/locale-document');
+const { openEnglishMarketPage } = require('../lib/en-open-market');
 
 const router = express.Router();
 
@@ -234,6 +237,19 @@ router.get('/en/thank-you', async (req, res) => {
   html = injectBrandPlaceholders(html);
   html = injectSiteUrl(html);
   html = injectSocialLinks(html);
+  res.type('html').send(html);
+});
+
+// English market pages other than Ireland and Canada.
+// A segment that is not a market falls through to the English content routes.
+router.get('/en/:segment', (req, res, next) => {
+  const segment = String(req.params.segment || '').toLowerCase();
+  if (segment === 'ie' || segment === 'ca') return next();
+  const hit = marketForPublicPath(`/en/${segment}`);
+  if (!hit || hit.locale.code !== 'en') return next();
+  let html = renderLocaleDocument('en', openEnglishMarketPage(hit.market.code), `/en/${segment}`);
+  html = injectBrandPlaceholders(html);
+  html = injectSiteUrl(html);
   res.type('html').send(html);
 });
 

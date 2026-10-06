@@ -90,14 +90,14 @@ test('locale registry enables English and Dutch, and keeps market separate', () 
   assert.equal(LOCALES.nl.seoEnabled, true);
   assert.equal(LOCALES.nl.htmlLang, 'nl');
   assert.equal(LOCALES.nl.nativeName, 'Nederlands');
-  assert.deepEqual([...LOCALES.nl.hreflang], ['nl-NL']);
+  assert.deepEqual([...LOCALES.nl.hreflang], ['nl']);
   assert.equal(LOCALES.en.defaultPublic, true);
   assert.equal(MARKETS.IE.defaultLocale, 'en');
-  assert.deepEqual([...MARKETS.IE.locales], ['en']);
+  assert.deepEqual([...MARKETS.IE.locales], ['en', 'ga']);
   assert.deepEqual([...MARKETS.CA.campaignLocales], ['en']);
   assert.deepEqual([...MARKETS.NL.locales], ['nl', 'en']);
   assert.equal(MARKETS.NL.defaultLocale, 'nl');
-  assert.deepEqual([...MARKETS.NL.campaignLocales], ['nl']);
+  assert.deepEqual([...MARKETS.NL.campaignLocales], ['nl', 'en']);
   assert.equal(MARKETS.NL.webAvailable, true);
   assert.equal(MARKETS.NL.marketingActive, false);
   assert.equal(localeMeetsSeoContract('en'), true);
@@ -117,9 +117,9 @@ test('content routes and market routes do not share a path', () => {
   assert.equal(contentByPath('/nl/nl'), null);
   assert.equal(contentByPath('/en/morning-routine-children').key, 'morningRoutine');
   assert.equal(contentByPath('/nl/visueel-schema').key, 'visualSchedule');
-  assert.equal(marketForPublicPath('/en/nl'), null);
+  assert.equal(marketForPublicPath('/en/nl').market.code, 'NL');
   assert.equal(marketForPublicPath('/nl/ie'), null);
-  assert.equal(campaignPath(MARKETS.NL, 'en'), null);
+  assert.equal(campaignPath(MARKETS.NL, 'en'), '/en/nl');
   for (const market of Object.values(MARKETS)) {
     for (const localeCode of market.campaignLocales) {
       const reserved = campaignPath(market, localeCode);
@@ -143,34 +143,38 @@ test('language switch follows contentKey and falls back to the language home', (
   assert.equal(localeSwitchTarget('/nl/nl', 'en'), '/en');
   assert.equal(pathFor('visualSchedule', 'nl'), '/nl/visueel-schema');
   assert.equal(localeMarketQueryPath('/nl', { country: 'NL', utm_source: 'google' }), '/nl/nl?utm_source=google');
-  assert.equal(localeMarketQueryPath('/en', { country: 'NL' }), null);
+  assert.equal(localeMarketQueryPath('/en', { country: 'NL' }), '/en/nl');
   assert.equal(localeMarketQueryPath('/nl', { country: 'IE' }), null);
+  assert.equal(localeMarketQueryPath('/nl', { country: 'BE' }), '/nl/be');
   const nlMarkets = marketsForLocale('nl').map((market) => market.code);
   const enMarkets = marketsForLocale('en').map((market) => market.code);
-  assert.deepEqual(nlMarkets, ['NL']);
-  assert.deepEqual(enMarkets, ['IE', 'CA']);
+  assert.deepEqual(nlMarkets, ['BE', 'NL']);
+  assert.ok(enMarkets.includes('IE'));
+  assert.ok(enMarkets.includes('CA'));
+  assert.ok(enMarkets.includes('AT'));
 });
 
 test('Dutch hreflang comes from content identity and market pages stay out', () => {
   const nl = hreflangMap('/nl/visueel-schema');
   const en = hreflangMap('/en/visual-schedule-app');
   const sv = hreflangMap('/bildschema-app');
-  assert.equal(nl['nl-NL'], absolutePublicUrl('/nl/visueel-schema'));
-  assert.equal(nl['en-IE'], absolutePublicUrl('/en/visual-schedule-app'));
-  assert.equal(nl['en-CA'], nl['en-IE']);
+  assert.equal(nl['nl'], absolutePublicUrl('/nl/visueel-schema'));
+  assert.equal(nl['en'], absolutePublicUrl('/en/visual-schedule-app'));
+  assert.equal(nl['en-IE'], undefined);
+  assert.equal(nl['en-CA'], undefined);
   assert.equal(nl['sv-SE'], absolutePublicUrl('/bildschema-app'));
-  assert.equal(nl['x-default'], nl['en-IE']);
-  assert.equal(en['nl-NL'], nl['nl-NL']);
-  assert.equal(sv['nl-NL'], nl['nl-NL']);
+  assert.equal(nl['x-default'], nl['en']);
+  assert.equal(en['nl'], nl['nl']);
+  assert.equal(sv['nl'], nl['nl']);
   assert.equal(en['x-default'], nl['x-default']);
   assert.deepEqual(hreflangAlternates('/nl/nl'), []);
   assert.deepEqual(hreflangAlternates('/en/ie'), []);
   assert.equal(isInternationalContentIndexable('/nl/visueel-schema'), true);
   assert.equal(isInternationalContentIndexable('/nl/nl'), false);
   const home = hreflangMap('/nl');
-  assert.equal(home['nl-NL'], absolutePublicUrl('/nl'));
+  assert.equal(home['nl'], absolutePublicUrl('/nl'));
   assert.equal(home['x-default'], absolutePublicUrl('/en'));
-  assert.equal(home['en-IE'].endsWith('/en/ie'), false);
+  assert.equal(home['en'].endsWith('/en/ie'), false);
   const generated = localeAlternates();
   assert.match(ALT_FILE, /window\.PUBLIC_LOCALE_ALTERNATES/);
   assert.equal(ALT_FILE.includes(JSON.stringify(generated, null, 2)), true);
@@ -184,7 +188,7 @@ test('indexable Dutch pages are Dutch, self-canonical, and campaign pages are no
     assert.match(html, /property="og:locale" content="nl_NL"/, routePath);
     assert.match(html, new RegExp(`rel="canonical" href="${absolutePublicUrl(routePath).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`), routePath);
     assert.doesNotMatch(html, /name="robots" content="noindex/, routePath);
-    assert.match(html, /hreflang="nl-NL"/, routePath);
+    assert.match(html, /rel="alternate" hreflang="nl"/, routePath);
     assert.match(html, /<h1>[^<]+<\/h1>/, routePath);
     assert.match(html, /name="description" content="[^"]+"/, routePath);
     assertDutchCopy(html, routePath);
@@ -211,7 +215,7 @@ test('indexable Dutch pages are Dutch, self-canonical, and campaign pages are no
   assert.match(marketHtml, /data-web-market="NL"/);
   assert.match(marketHtml, /name="robots" content="noindex, follow"/);
   assert.match(marketHtml, new RegExp(`rel="canonical" href="${absolutePublicUrl('/nl/nl').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
-  assert.doesNotMatch(marketHtml, /hreflang="nl-NL"/);
+  assert.doesNotMatch(marketHtml, /rel="alternate" hreflang=/);
   assert.match(marketHtml, /staan standaard niet open/);
   assert.match(marketHtml, /geen gratisperiode tot en met 31 december 2026/);
   assert.match(marketHtml, new RegExp(APPLE_APP_STORE_GEO_NEUTRAL_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
@@ -345,7 +349,7 @@ test('locale routes answer, and unknown locale or market does not render the wro
   assert.match(nlHtml, /<html lang="nl"/);
   assert.match(nlHtml, new RegExp(`rel="canonical" href="${absolutePublicUrl('/nl').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
   assert.doesNotMatch(nlHtml, /name="robots" content="noindex/);
-  assert.match(nlHtml, /hreflang="nl-NL"/);
+  assert.match(nlHtml, /hreflang="nl"/);
   assertDutchCopy(nlHtml, 'GET /nl');
 
   const guide = await fetch(`${http.baseUrl}/nl/visueel-schema?utm_source=test`, { redirect: 'manual' });
@@ -400,11 +404,17 @@ test('locale routes answer, and unknown locale or market does not render the wro
   assert.doesNotMatch(badHtml, /data-en-market="IE"/);
   assert.match(badHtml, /noindex, follow/);
 
-  const wrongCampaign = await fetch(`${http.baseUrl}/en/nl`, { redirect: 'manual' });
+  const wrongCampaign = await fetch(`${http.baseUrl}/en/gb`, { redirect: 'manual' });
   assert.equal(wrongCampaign.status, 404);
   const wrongHtml = await wrongCampaign.text();
   assert.match(wrongHtml, /This page is not available/);
-  assert.doesNotMatch(wrongHtml, /data-web-market="NL"/);
+  assert.doesNotMatch(wrongHtml, /data-web-market="GB"/);
+
+  const englishNetherlands = await fetch(`${http.baseUrl}/en/nl`, { redirect: 'manual' });
+  assert.equal(englishNetherlands.status, 200);
+  const englishNlHtml = await englishNetherlands.text();
+  assert.match(englishNlHtml, /data-web-market="NL"/);
+  assert.match(englishNlHtml, /name="robots" content="noindex, follow"/);
 
   const swedishHost = createDomainRedirect();
   let status;

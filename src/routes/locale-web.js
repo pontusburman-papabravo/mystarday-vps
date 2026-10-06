@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { CONTENT_KEYS, pathFor } = require('../../config/web-content-keys');
-const { localeMarketQueryPath } = require('../../config/web-markets');
+const { MARKETS, localeMarketQueryPath, campaignPath } = require('../../config/web-markets');
 const { pageFor } = require('../../content/nl/pages');
 const { renderLocaleDocument } = require('../lib/locale-document');
 const { publicNotFoundHtml } = require('../lib/web-routing');
@@ -20,10 +20,14 @@ router.get('/nl', (req, res) => {
   res.type('html').send(renderLocaleDocument('nl', page, '/nl'));
 });
 
-router.get('/nl/nl', (req, res) => {
-  const page = pageFor('market-nl');
-  res.type('html').send(renderLocaleDocument('nl', page, '/nl/nl'));
-});
+for (const market of Object.values(MARKETS)) {
+  if (!market.campaignLocales.includes('nl')) continue;
+  const routePath = campaignPath(market, 'nl');
+  router.get(routePath, (req, res) => {
+    const page = pageFor(`market-${market.pathSegment}`);
+    res.type('html').send(renderLocaleDocument('nl', page, routePath));
+  });
+}
 
 for (const key of NL_KEYS) {
   const routePath = pathFor(key, 'nl');

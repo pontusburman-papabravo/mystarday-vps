@@ -67,14 +67,16 @@
 
   function englishLandingPath(path) {
     const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
-    if (p === '/en' || p === '/en/ie' || p === '/en/ca' || p === '/nl' || p === '/nl/nl') return p;
+    if (p === '/en' || p.indexOf('/en/') === 0) return p;
+    if (p === '/nl' || p.indexOf('/nl/') === 0) return p;
     return null;
   }
 
   function landingLocale(path) {
     const p = englishLandingPath(path);
     if (!p) return null;
-    return p === '/nl' || p.indexOf('/nl/') === 0 ? 'nl' : 'en';
+    if (p === '/nl' || p.indexOf('/nl/') === 0) return 'nl';
+    return 'en';
   }
 
   function isIrelandLanding(path) {
@@ -86,8 +88,8 @@
       const root = global.document && global.document.documentElement;
       if (!root || typeof root.getAttribute !== 'function') return null;
       const mode = root.getAttribute('data-en-market') || root.getAttribute('data-web-market');
-      if (mode === 'CA' || mode === 'IE' || mode === 'NL') return mode;
       if (mode === 'both') return 'BOTH';
+      if (mode && /^[A-Za-z]{2}$/.test(mode) && mode.toLowerCase() !== 'neutral') return mode.toUpperCase();
     } catch (_) { /* neutral /en has no market */ }
     return null;
   }
@@ -104,13 +106,19 @@
     return null;
   }
 
-  function irelandMarket(path) {
+  function marketFromPath(path) {
     const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
-    if (p === '/en/ie') return 'IE';
-    if (p === '/en/ca') return 'CA';
-    if (p === '/nl/nl') return 'NL';
+    const parts = p.split('/').filter(Boolean);
+    if (parts.length === 2 && /^[a-z]{2}$/.test(parts[1])) return parts[1].toUpperCase();
+    return null;
+  }
+
+  function irelandMarket(path) {
+    const fromPath = marketFromPath(path);
+    if (fromPath) return fromPath;
     const page = pageMarket();
-    if (page === 'IE' || page === 'CA' || page === 'NL' || page === 'BOTH') return page;
+    if (page === 'BOTH' || (page && /^[A-Z]{2}$/.test(page))) return page;
+    const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
     if (p === '/en') {
       const fromQuery = queryCountry();
       if (fromQuery === 'IE' || fromQuery === 'CA') return fromQuery;
@@ -200,7 +208,7 @@
           const locale = landingLocale();
           if (locale) meta.locale = locale;
           const pathMarket = irelandMarket();
-          if (pathMarket === 'IE' || pathMarket === 'CA' || pathMarket === 'NL') {
+          if (pathMarket && /^[A-Z]{2}$/.test(pathMarket)) {
             meta.market = pathMarket;
             meta.country = pathMarket;
           }
@@ -230,7 +238,7 @@
     }, utmMetadata());
     if (market === 'BOTH') {
       meta.market = 'BOTH';
-    } else if (market === 'IE' || market === 'CA' || market === 'NL') {
+    } else if (market && /^[A-Z]{2}$/.test(market)) {
       meta.market = market;
       meta.country = market;
     }

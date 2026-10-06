@@ -10,7 +10,7 @@
 const { siteUrl, ENGLISH_PUBLIC_SITE_URL } = require('./public-html-placeholders');
 const { enToSv, svToEn } = require('../../config/en-public-mirror');
 const { APP_DOMAIN, MAIN_DOMAIN } = require('./domain-redirect');
-const { LOCALES, localeFromPublicPath } = require('../../config/web-locales');
+const { LOCALES, localeFromPublicPath, publicPathLocales } = require('../../config/web-locales');
 const { contentByPath } = require('../../config/web-content-keys');
 
 /** English URLs with a real English document. Everything else under /en is noindex. */
@@ -172,19 +172,16 @@ function hreflangAlternates(pathname) {
   if (!sv || isEnglishPublicPath(sv) || !isIndexableSwedishPath(sv)) {
     const self = absolutePublicUrl(en);
     return [
-      ['en-IE', self],
-      ['en-CA', self],
+      ['en', self],
       ['x-default', self],
     ];
   }
   const enUrl = absolutePublicUrl(en);
   const svUrl = absolutePublicUrl(sv);
-  const xDefault = en === '/en' ? enUrl : enUrl;
   return [
     ['sv-SE', svUrl],
-    ['en-IE', enUrl],
-    ['en-CA', enUrl],
-    ['x-default', xDefault],
+    ['en', enUrl],
+    ['x-default', enUrl],
   ];
 }
 
@@ -198,11 +195,11 @@ function buildHeadLinks(pathname) {
 }
 
 function originsBootstrap() {
-  return `<script>window.__PUBLIC_SEO_ORIGINS=${JSON.stringify({
-    sv: swedishOrigin(),
-    en: englishOrigin(),
-    nl: englishOrigin(),
-  })};</script>`;
+  const origins = { sv: swedishOrigin() };
+  for (const locale of publicPathLocales()) {
+    if (locale.host === 'app') origins[locale.code] = englishOrigin();
+  }
+  return `<script>window.__PUBLIC_SEO_ORIGINS=${JSON.stringify(origins)};</script>`;
 }
 
 /**

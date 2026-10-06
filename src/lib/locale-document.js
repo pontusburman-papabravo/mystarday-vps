@@ -1,8 +1,8 @@
 'use strict';
 
-const { localeByCode } = require('../../config/web-locales');
+const { localeByCode, publishedLocales } = require('../../config/web-locales');
 const { chromeFor } = require('../../config/web-locale-chrome');
-const { marketsForLocale } = require('../../config/web-markets');
+const { marketsForLocale, campaignPath, marketDisplayName } = require('../../config/web-markets');
 const { pathFor } = require('../../config/web-content-keys');
 const { absolutePublicUrl, swedishOrigin, englishOrigin } = require('./public-seo');
 const { localeSwitchTarget } = require('./locale-switch');
@@ -41,12 +41,13 @@ function absoluteLocaleHome(localeCode) {
   return `${englishOrigin()}${path}`;
 }
 
+const MARKET_LINK_LIMIT = 8;
+
 function languageNav(localeCode, pathname) {
-  const links = [
-    { code: 'sv', label: 'Svenska' },
-    { code: 'en', label: 'English' },
-    { code: 'nl', label: 'Nederlands' },
-  ];
+  const links = publishedLocales().map((locale) => ({
+    code: locale.code,
+    label: locale.nativeName,
+  }));
   return links.map((link) => {
     const target = localeSwitchTarget(pathname, link.code) || absoluteLocaleHome(link.code);
     const href = absolutePublicUrl(target);
@@ -58,12 +59,21 @@ function languageNav(localeCode, pathname) {
 function marketNav(localeCode, activeMarket) {
   const markets = marketsForLocale(localeCode);
   if (!markets.length) return '';
+  const label = chromeFor(localeCode).marketLabel;
+  if (markets.length > MARKET_LINK_LIMIT) {
+    const options = markets.map((market) => {
+      const href = campaignPath(market, localeCode);
+      const selected = activeMarket === market.code ? ' selected' : '';
+      return `<option value="${escapeHtml(href)}"${selected}>${escapeHtml(marketDisplayName(market, localeCode))}</option>`;
+    }).join('');
+    return `<label class="landing-market-switch">${escapeHtml(label)} <select data-market-switch aria-label="${escapeHtml(label)}" onchange="if(this.value)location.href=this.value">${options}</select></label>`;
+  }
   const links = markets.map((market) => {
-    const href = `/${localeCode}/${market.pathSegment}`;
+    const href = campaignPath(market, localeCode);
     const current = activeMarket === market.code ? ' aria-current="page"' : '';
-    return `<a href="${href}"${current}>${escapeHtml(market.nativeName)}</a>`;
+    return `<a href="${escapeHtml(href)}"${current}>${escapeHtml(marketDisplayName(market, localeCode))}</a>`;
   }).join('\n');
-  return `<nav class="landing-market-switch" aria-label="${escapeHtml(chromeFor(localeCode).marketLabel)}">${links}</nav>`;
+  return `<nav class="landing-market-switch" aria-label="${escapeHtml(label)}">${links}</nav>`;
 }
 
 function renderLocaleDocument(localeCode, page, pathname) {
@@ -117,7 +127,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <script src="/js/utm-capture.js?v=1.2.0"></script>
   <script src="/js/public-locale-alternates.js?v=1"></script>
   <script src="/js/public-lang-switcher.js?v=4"></script>
-  <script src="/js/landing-events.js?v=8"></script>
+  <script src="/js/landing-events.js?v=9"></script>
 </body>
 </html>`;
 }

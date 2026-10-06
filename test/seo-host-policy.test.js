@@ -97,11 +97,14 @@ describe('canonical and hreflang', () => {
     const svMap = Object.fromEntries(sv);
     const enMap = Object.fromEntries(en);
     assert.equal(svMap['sv-SE'], `${swedishOrigin()}/`);
-    assert.equal(svMap['en-IE'], `${englishOrigin()}/en`);
-    assert.equal(svMap['en-CA'], `${englishOrigin()}/en`);
+    assert.equal(svMap['en'], `${englishOrigin()}/en`);
+    assert.equal(svMap['nl'], `${englishOrigin()}/nl`);
+    assert.equal(svMap['en-IE'], undefined);
+    assert.equal(svMap['en-CA'], undefined);
     assert.equal(svMap['x-default'], `${englishOrigin()}/en`);
     assert.equal(enMap['sv-SE'], svMap['sv-SE']);
-    assert.equal(enMap['en-IE'], svMap['en-IE']);
+    assert.equal(enMap['en'], svMap['en']);
+    assert.equal(enMap['nl'], svMap['nl']);
     assert.equal(enMap['x-default'], svMap['x-default']);
   });
 
