@@ -11,11 +11,22 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { expectedIosLanguages } = require('./sync-native-locales');
 
 const appDir = path.join(process.cwd(), 'ios', 'App', 'App');
 const infoPlistPath = path.join(appDir, 'Info.plist');
 
 const APP_NAME = 'Min Stjärndag'; // pragma: allowlist secret
+
+const DE_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} nutzt die Kamera, damit du ein Profilfoto für dein Kind aufnehmen kannst. Das Foto wird im Familienkonto gespeichert und nur eurer Familie gezeigt.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} braucht Zugriff auf deine Fotos, damit du ein vorhandenes Bild als Profilfoto für dein Kind wählen kannst. Zum Beispiel ein Foto aus dem Sommeralbum, das dann als Avatar im Tagesplan erscheint.`,
+};
 
 const EN_USAGE = {
   NSCameraUsageDescription:
@@ -29,6 +40,12 @@ const SV_USAGE = {
     `${APP_NAME} använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.`,
   NSPhotoLibraryUsageDescription:
     `${APP_NAME} behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.`,
+};
+
+const USAGE_BY_IOS = {
+  sv: SV_USAGE,
+  'en-GB': EN_USAGE,
+  de: DE_USAGE,
 };
 
 /** App only reads photos; never saves to the library. No ATT — no cross-app tracking. */
@@ -138,8 +155,9 @@ for (const key of REMOVE_KEYS) {
   content = removePlistKey(content, key);
 }
 
+const iosLanguages = expectedIosLanguages();
 content = upsertPlistKey(content, 'CFBundleDevelopmentRegion', 'sv');
-content = upsertPlistStringArray(content, 'CFBundleLocalizations', ['sv', 'en-GB']);
+content = upsertPlistStringArray(content, 'CFBundleLocalizations', iosLanguages);
 
 // Base Info.plist = development language (Swedish)
 for (const [key, value] of Object.entries(SV_USAGE)) {
@@ -153,10 +171,15 @@ if (content !== before) {
   console.log('Info.plist localization keys unchanged.');
 }
 
-const svPath = writeSwedishInfoPlistStrings();
-const enPath = writeEnGbInfoPlistStrings();
-console.log(`Wrote ${path.relative(process.cwd(), svPath)}`);
-console.log(`Wrote ${path.relative(process.cwd(), enPath)}`);
+for (const lang of iosLanguages) {
+  const usage = USAGE_BY_IOS[lang];
+  if (!usage) {
+    console.error(`No InfoPlist usage strings for iOS language ${lang}`);
+    process.exit(1);
+  }
+  const written = writeInfoPlistStrings(`${lang}.lproj`, usage, `/* App Store + system permission strings (${lang}) */`);
+  console.log(`Wrote ${path.relative(process.cwd(), written)}`);
+}
 if (removeEnglishLproj()) {
   console.log('Removed ios/App/App/en.lproj (legacy Capacitor English folder).');
 }

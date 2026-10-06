@@ -1,0 +1,20 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Visuelle Routinen für Familien",
+  "keywords": "Routine,Bildplan,ADHD,Autismus,Tagesablauf,Sterne,Belohnung,Familie",
+  "promotionalText": "Visuelle Routinen für Kinder, die mehr Struktur brauchen — besonders hilfreich bei ADHS und Autismus.",
+  "description": "Nicht nur ein weiterer Familienkalender.\n\n{{brand}} hilft Kindern, ihren Alltag zu verstehen — was jetzt passiert, was als Nächstes kommt und was sie schon geschafft haben.\n\nDie App ist für Familien gemacht, die im Alltag mehr Struktur, Vorhersehbarkeit und visuelle Unterstützung brauchen.\n\nFür Kinder mit ADHS, Autismus — oder einfach für alle, denen klarere Abläufe helfen — macht {{brand}} den Tag zu kleinen, machbaren Schritten.\n\nBesonders nützlich für Familien mit Kindern, die ADHS, Autismus oder andere neurodivergente Bedürfnisse haben. Eine Diagnose ist nicht nötig. {{brand}} behandelt ADHS oder Autismus nicht.\n\nKinder bekommen klare visuelle Routinen, Schritt für Schritt, und Sterne für das, was sie schon getan haben. Eltern bekommen Pläne, Belohnungen und eine Möglichkeit, einen ausgewählten Bericht zu teilen.\n\nNutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Deutsch ist jetzt in der App verfügbar. Routinen, Berichte und die Kinderansicht folgen der Familiensprache."
+}

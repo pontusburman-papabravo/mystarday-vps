@@ -423,7 +423,7 @@ describe('Finnish locale aliases never introduce a Finnish bundle', () => {
     assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,sv;q=0.8'), 'sv-SE');
     assert.equal(parseAcceptLanguage('fi_FI'), null);
     assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi,en;q=0.5' }), 'en-GB');
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
     assert.equal(fs.existsSync(path.join(__dirname, '../src/locales/fi.json')), false);
     assert.equal(fs.existsSync(path.join(__dirname, '../src/locales/fi-FI.json')), false);
   });

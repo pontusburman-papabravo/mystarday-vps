@@ -143,6 +143,13 @@ function iapFor(catalog, storeName, storeLocale) {
  * @param {string} [appLocale]
  * @param {ReturnType<typeof loadStoreCatalog>} [catalog]
  */
+function requiredAppLocales(market) {
+  if (Array.isArray(market.requiredAppLocales) && market.requiredAppLocales.length) {
+    return market.requiredAppLocales;
+  }
+  return [market.defaultAppLocale];
+}
+
 function assessMarket(marketId, appLocale, catalog = loadStoreCatalog()) {
   const market = findMarket(catalog, marketId);
   const reasons = [];
@@ -156,21 +163,39 @@ function assessMarket(marketId, appLocale, catalog = loadStoreCatalog()) {
       reasons: [`Unknown market ${marketId}`],
     };
   }
+  const { assessAppLocale } = require('./locale-readiness');
   const localeId = appLocale || market.defaultAppLocale;
   const resolved = resolveStoreLocales(localeId, catalog);
-  const { isPublicLocale } = require('./locale');
-  const appReady = resolved.mapped && isPublicLocale(localeId);
+  const appAssessment = assessAppLocale(localeId);
+  const appReady = appAssessment.ready;
   if (!resolved.mapped) reasons.push(`App locale ${localeId} has no store mapping`);
-  else if (!appReady) reasons.push(`App locale ${localeId} is not a public app locale`);
+  for (const error of appAssessment.errors) reasons.push(error);
 
-  const apple = assessStore('apple', resolved.apple, market, catalog, reasons, 'Apple');
-  const google = assessStore('google', resolved.google, market, catalog, reasons, 'Google Play');
+  const apple = assessStore('apple', resolved.apple, market, catalog, reasons, 'Apple', localeId);
+  const google = assessStore('google', resolved.google, market, catalog, reasons, 'Google Play', localeId);
+
+  let requiredReady = true;
+  for (const required of requiredAppLocales(market)) {
+    if (required === localeId) {
+      if (!appReady || !apple.ready || !google.ready) requiredReady = false;
+      continue;
+    }
+    const otherApp = assessAppLocale(required);
+    const otherResolved = resolveStoreLocales(required, catalog);
+    const otherReasons = [];
+    const otherApple = assessStore('apple', otherResolved.apple, market, catalog, otherReasons, 'Apple', required);
+    const otherGoogle = assessStore('google', otherResolved.google, market, catalog, otherReasons, 'Google Play', required);
+    if (!otherApp.ready || !otherApple.ready || !otherGoogle.ready) {
+      requiredReady = false;
+      reasons.push(`Required app locale ${required} is not ready`);
+    }
+  }
 
   if (market.activation !== 'live') {
     reasons.push(`Market ${marketId} is not activated`);
   }
 
-  const marketReady = market.activation === 'live' && appReady && apple.ready && google.ready;
+  const marketReady = market.activation === 'live' && requiredReady;
   return {
     market: marketId,
     appLocale: localeId,
@@ -186,7 +211,52 @@ function assessMarket(marketId, appLocale, catalog = loadStoreCatalog()) {
   };
 }
 
-function assessStore(storeName, side, market, catalog, reasons, label) {
+function expandedLength(value, limits) {
+  const text = typeof value === 'string' ? value : '';
+  return [...text.replace(/\{\{brand\}\}/g, 'B'.repeat(limits.brandTokenMax))].length;
+}
+
+function listingFieldErrors(storeName, listing, catalog) {
+  const spec = catalog.limits[storeName];
+  const errors = [];
+  for (const field of spec.required) {
+    if (field === 'releaseNotes') continue;
+    const value = listing[field];
+    if (value == null || value === '') {
+      errors.push(`missing ${field}`);
+      continue;
+    }
+    if (spec.urlFields && spec.urlFields.includes(field)) {
+      const url = resolveStoreUrl(value);
+      if (!/^https:\/\/[^\s]+$/.test(url)) errors.push(`${field} is not an https URL`);
+    }
+    const max = spec.max && spec.max[field];
+    if (max && expandedLength(value, catalog.limits) > max) errors.push(`${field} exceeds ${max}`);
+  }
+  return errors;
+}
+
+function releaseNotesReady(listing, market) {
+  const notes = listing.releaseNotes;
+  if (notes && typeof notes === 'object' && notes.status === 'live_external') {
+    return market.activation === 'live';
+  }
+  return typeof notes === 'string' && notes.trim().length > 0;
+}
+
+function screenshotFileReady(file, minimum) {
+  const { pngSize } = require('./locale-readiness');
+  const absolute = path.join(STORE_DIR, file);
+  if (!fs.existsSync(absolute)) return `${file} missing`;
+  const size = pngSize(absolute);
+  if (!size) return `${file} is not a PNG`;
+  if (size.width < minimum.width || size.height < minimum.height) {
+    return `${file} is ${size.width}x${size.height}`;
+  }
+  return null;
+}
+
+function assessStore(storeName, side, market, catalog, reasons, label, appLocale) {
   if (!side || !side.locale) {
     reasons.push(`${label} locale missing`);
     return { ready: false };
@@ -217,11 +287,40 @@ function assessStore(storeName, side, market, catalog, reasons, label) {
     reasons.push(`${label} screenshot set ${side.locale} missing`);
     return { ready: false };
   } else {
+    const { MIN_SHOT, MIN_FEATURE } = require('./locale-readiness');
     for (const file of shots.files) {
-      if (!fs.existsSync(path.join(STORE_DIR, file))) {
-        reasons.push(`${label} screenshot file missing: ${file}`);
+      const problem = screenshotFileReady(file, MIN_SHOT);
+      if (problem) {
+        reasons.push(`${label} screenshot ${problem}`);
         return { ready: false };
       }
+    }
+    if (storeName === 'google') {
+      if (!shots.featureGraphic) {
+        reasons.push(`${label} feature graphic missing`);
+        return { ready: false };
+      }
+      const problem = screenshotFileReady(shots.featureGraphic, MIN_FEATURE);
+      if (problem) {
+        reasons.push(`${label} feature graphic ${problem}`);
+        return { ready: false };
+      }
+    }
+  }
+  if (!releaseNotesReady(listing, market)) {
+    reasons.push(`${label} release notes missing`);
+    return { ready: false };
+  }
+  for (const error of listingFieldErrors(storeName, listing, catalog)) {
+    reasons.push(`${label} ${side.locale} ${error}`);
+    return { ready: false };
+  }
+  if (!side.fallback && side.locale !== 'en-GB' && side.locale !== 'en-US' && appLocale && appLocale !== 'sv-SE') {
+    const reference = readListing(storeName, 'en-GB');
+    const field = storeName === 'apple' ? 'description' : 'fullDescription';
+    if (reference && listing[field] && listing[field] === reference[field]) {
+      reasons.push(`${label} description copies en-GB`);
+      return { ready: false };
     }
   }
   const missingIap = iapFor(catalog, storeName, side.locale);

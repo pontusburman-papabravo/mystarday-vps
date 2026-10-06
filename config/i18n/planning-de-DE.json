@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planung — {{brand}}",
+  "shell": {
+    "title": "Planung",
+    "lead": "Wähle die Woche, Aktivitäten oder mehr.",
+    "logout": "Abmelden"
+  },
+  "sections": {
+    "planWeek": "Die Woche planen",
+    "buildContent": "Inhalte erstellen",
+    "other": "Sonstiges"
+  },
+  "primary": {
+    "week": { "title": "Die Woche", "sub": "Die Tagesliste für die Woche deiner Kinder" },
+    "activities": { "title": "Aktivitäten", "sub": "Die Bibliothek — erstellen und bearbeiten" },
+    "more": { "title": "Mehr", "sub": "Drucken, Vorlagen und andere Werkzeuge" }
+  },
+  "more": {
+    "title": "Mehr",
+    "close": "Schließen"
+  },
+  "links": {
+    "library": { "title": "Bibliothek", "sub": "Aktivitäten und Belohnungen erstellen" },
+    "imageArchive": { "title": "Bildarchiv", "sub": "Eure Fotos — Zahnbürste, Bett, Schule" },
+    "templates": { "title": "Vorlagen", "sub": "Gespeicherte Pläne zum Wiederverwenden" },
+    "weekSchedule": { "title": "Wochenplan", "sub": "Die Woche deines Kindes bearbeiten" },
+    "calendar": { "title": "Kalender", "sub": "Monat und besondere Tage ansehen" },
+    "custody": { "title": "Betreuungsplan", "sub": "Geteilte Betreuung zwischen Haushalten" },
+    "dailyLog": { "title": "Heute", "sub": "Frühere Tage ansehen und anpassen" },
+    "printSchema": { "title": "PDF erstellen — Plan", "sub": "Einen Plan drucken" },
+    "assignSchedule": { "title": "Plan zuweisen", "sub": "Einen Plan einem Kind zuordnen" },
+    "reports": { "title": "Berichte", "sub": "Fortschritt und Teilen" },
+    "samarbete": { "title": "Zusammenarbeit mit Pädagogen", "sub": "Mit einer Fachkraft arbeiten" },
+    "barnStod": { "title": "Extra Unterstützung", "sub": "Visuelle Unterstützung und TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Erste Schritte",
+    "bodyBeforeLibrary": "Starte in der ",
+    "libraryLink": "Bibliothek",
+    "bodyMiddle": ", wenn du Aktivitäten erstellen möchtest. Geh zu ",
+    "forYouLink": "Für dich",
+    "bodyAfter": ", wenn du eine fertige Empfehlung möchtest."
+  }
+}

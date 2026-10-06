@@ -21,10 +21,10 @@ export function englishBrandName() {
 
 /** @param {string} [resDirName] Android resource qualifier folder, e.g. values-sv */
 export function brandNameForResDir(resDirName) {
-  if (resDirName && /(?:^|-)en(?:-|$)/i.test(resDirName)) {
-    return englishBrandName();
+  if (!resDirName || resDirName === 'values' || /(?:^|-)sv(?:-|$)/i.test(resDirName)) {
+    return swedishBrandName();
   }
-  return swedishBrandName();
+  return englishBrandName();
 }
 
 function escapeXmlText(value) {

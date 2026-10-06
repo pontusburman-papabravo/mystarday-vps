@@ -1,9 +1,7 @@
 'use strict';
 
-const maps = require('../../config/family-content-locale/sv-to-en.json');
-const { isEnglishFamilyLocale } = require('./family-locale');
 const { usesLocaleFileContent } = require('./locale');
-const { buildContentTranslator, staticLookup, translateContentText } = require('./content-translator');
+const { buildContentTranslator, staticLookup, localeContentMap, translateContentText } = require('./content-translator');
 
 const CONTENT_SCOPE = {
   FAMILY: 'family',
@@ -21,24 +19,26 @@ function activityCompositeKey(row) {
   ].join('|');
 }
 
-function lookupActivityName(svName, row) {
+function lookupActivityName(svName, row, locale) {
   if (!svName) return undefined;
-  if (maps.activities[svName]) return maps.activities[svName];
+  const table = localeContentMap(locale);
+  if (table && table.activities && table.activities[svName]) return table.activities[svName];
   const byKey = activityCompositeKey(row);
-  if (byKey && maps.activityByKey && maps.activityByKey[byKey]) {
-    return maps.activityByKey[byKey];
+  if (table && byKey && table.activityByKey && table.activityByKey[byKey]) {
+    return table.activityByKey[byKey];
   }
-  return staticLookup(svName, 'en-GB') || undefined;
+  return staticLookup(svName, locale) || undefined;
 }
 
-function lookupRewardName(svName, row) {
+function lookupRewardName(svName, row, locale) {
   if (!svName) return undefined;
-  if (maps.rewards[svName]) return maps.rewards[svName];
+  const table = localeContentMap(locale);
+  if (table && table.rewards && table.rewards[svName]) return table.rewards[svName];
   const byKey = `${row?.icon || row?.reward_icon || ''}|${row?.star_cost ?? ''}`;
-  if (byKey && maps.rewardByKey && maps.rewardByKey[byKey]) {
-    return maps.rewardByKey[byKey];
+  if (table && byKey && table.rewardByKey && table.rewardByKey[byKey]) {
+    return table.rewardByKey[byKey];
   }
-  return staticLookup(svName, 'en-GB') || undefined;
+  return staticLookup(svName, locale) || undefined;
 }
 
 /**
@@ -77,10 +77,8 @@ function shouldLocalizeReward(row, options = {}) {
 }
 
 function resolveSchoolVariantDisplayName(svVariant, locale) {
-  if (!isEnglishFamilyLocale(locale)) return svVariant;
-  if (svVariant === 'Skola/Förskola' || svVariant === 'Förskola/Skola') return 'Preschool/School';
-  if (svVariant === 'Skola') return 'School';
-  return svVariant;
+  if (!usesLocaleFileContent(locale)) return svVariant;
+  return staticLookup(svVariant, locale) || svVariant;
 }
 
 /**
@@ -92,9 +90,9 @@ function resolveSchoolVariantDisplayName(svVariant, locale) {
 async function resolveActivityDisplayName(locale, storedName, row) {
   if (!storedName || !usesLocaleFileContent(locale)) return storedName;
   if (row && !isSystemSeededActivity(row)) return storedName;
-  const schoolEn = resolveSchoolVariantDisplayName(storedName, locale);
-  if (schoolEn !== storedName) return schoolEn;
-  const mapped = lookupActivityName(storedName, row);
+  const schoolName = resolveSchoolVariantDisplayName(storedName, locale);
+  if (schoolName !== storedName) return schoolName;
+  const mapped = lookupActivityName(storedName, row, locale);
   if (mapped) return mapped;
   return translateContentText(storedName, locale);
 }
@@ -108,7 +106,7 @@ async function resolveActivityDisplayName(locale, storedName, row) {
 async function resolveRewardDisplayName(locale, storedName, row) {
   if (!storedName || !usesLocaleFileContent(locale)) return storedName;
   if (row && !isSystemSeededReward(row)) return storedName;
-  const mapped = lookupRewardName(storedName, row);
+  const mapped = lookupRewardName(storedName, row, locale);
   if (mapped) return mapped;
   return translateContentText(storedName, locale);
 }

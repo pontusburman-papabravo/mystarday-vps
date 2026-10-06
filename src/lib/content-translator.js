@@ -3,8 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
-const maps = require('../../config/family-content-locale/sv-to-en.json');
-const { normalizeLocale, usesCanonicalLibrary } = require('./locale');
+const { normalizeLocale, usesCanonicalLibrary, contentMapFile } = require('./locale');
 
 const MEMORY_CACHE_MAX = 1000;
 const memoryCache = new Map();
@@ -31,9 +30,14 @@ function rememberInMemory(key, value) {
 function localeContentMap(targetLocale) {
   const target = normalizeLocale(targetLocale);
   if (!target || usesCanonicalLibrary(target)) return null;
-  if (target === 'en-GB') return maps;
-  if (contentMapCache.has(target)) return contentMapCache.get(target);
-  const file = path.join(__dirname, '../../config/family-content-locale', `${target}.json`);
+  const fileName = contentMapFile(target);
+  const cacheKey = `${target}::${fileName || ''}`;
+  if (contentMapCache.has(cacheKey)) return contentMapCache.get(cacheKey);
+  if (!fileName) {
+    contentMapCache.set(cacheKey, null);
+    return null;
+  }
+  const file = path.join(__dirname, '../../config/family-content-locale', fileName);
   let table = null;
   if (fs.existsSync(file)) {
     try {
@@ -42,7 +46,7 @@ function localeContentMap(targetLocale) {
       table = null;
     }
   }
-  contentMapCache.set(target, table);
+  contentMapCache.set(cacheKey, table);
   return table;
 }
 
@@ -195,5 +199,6 @@ module.exports = {
   buildContentTranslator,
   clearTranslationMemoryCache,
   staticLookup,
+  localeContentMap,
   looksAlreadyEnglish,
 };

@@ -125,6 +125,17 @@ function validateMappings(catalog, errors) {
   }
 }
 
+function validateShippedAppLocales(catalog, errors) {
+  const { assessAppLocale } = require('../src/lib/locale-readiness');
+  for (const [id, row] of Object.entries(catalog.locales.appLocales)) {
+    if (row.status !== 'shipped') continue;
+    const app = assessAppLocale(id);
+    if (!app.ready) {
+      for (const error of app.errors) errors.push(`${id} ${error}`);
+    }
+  }
+}
+
 function validateShippedListings(catalog, errors) {
   for (const market of catalog.markets.markets) {
     if (market.activation !== 'live') continue;
@@ -146,6 +157,7 @@ function main() {
   const errors = [];
   validateMappings(catalog, errors);
   validateShippedListings(catalog, errors);
+  validateShippedAppLocales(catalog, errors);
   validateIap(catalog, errors);
   try {
     syncIos(true);

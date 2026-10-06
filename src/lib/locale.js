@@ -262,6 +262,18 @@ function usesLocaleFileContent(locale) {
 }
 
 /**
+ * Family-content map filename for a locale-file language.
+ * Canonical Swedish has no map. The name comes from the catalog row.
+ * @param {string|null|undefined} locale
+ * @returns {string|null}
+ */
+function contentMapFile(locale) {
+  const entry = catalogMeta(locale);
+  if (!entry || entry.contentSource === 'canonical-db') return null;
+  return entry.contentMap || null;
+}
+
+/**
  * English rollout flag is a property of the en-GB catalog row, not a locale branch in routes.
  * @param {string|null|undefined} locale
  * @returns {boolean}
@@ -394,6 +406,7 @@ module.exports = {
   resolveFamilyLocale,
   usesCanonicalLibrary,
   usesLocaleFileContent,
+  contentMapFile,
   intlLocaleTag,
   isPublicLocale,
   featureGrantedOnRegister,

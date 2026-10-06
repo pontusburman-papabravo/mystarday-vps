@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Heute — {{brand}}",
+  "shell": {
+    "headerTitle": "Heute",
+    "backToHome": "← Zur Startseite",
+    "pdfHint": "PDF für Tag, Woche oder meine Tage erstellen",
+    "printBtn": "📄 PDF erstellen ▾",
+    "printDay": "📄 PDF erstellen — Tag",
+    "printWeek": "📅 PDF erstellen — Woche",
+    "printMyDays": "🏠 PDF erstellen — meine Tage",
+    "selectChildHeading": "Kind wählen",
+    "selectChildEmpty": "Wähle oben ein Kind, um das Protokoll zu sehen",
+    "loadingChildren": "Wird geladen…",
+    "tipsTitle": "Tipp: Aktivitäten in Heute verfolgen",
+    "tips1": "Aktivitäten als erledigt markieren — dein Kind sieht sie in Echtzeit",
+    "tips2": "In der Kinderansicht reicht ein Tipp zum Abhaken — Sterne gibt es sofort",
+    "tips3": "Mit der Datumsauswahl zurückblättern und sehen, wie es gelaufen ist",
+    "tips4": "Einen Tag pausieren, wenn die Routine anders ist — keine Sterne gehen verloren",
+    "rateActivity": "Aktivität bewerten",
+    "commentPlaceholder": "Kommentar (optional)…",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten",
+    "printWeekDocTitle": "Wochenplan — {{name}}",
+    "printMyDaysDocTitle": "Meine Tage"
+  },
+  "childFallback": "Kind",
+  "noChildren": "Noch keine Kinder hinzugefügt.",
+  "loading": "Wird geladen…",
+  "retry": "Erneut versuchen",
+  "errors": {
+    "signInRequired": "Melde dich an, um Heute zu sehen",
+    "loadChildren": "Kinder konnten nicht geladen werden",
+    "loadLog": "Protokoll konnte nicht geladen werden. Bitte erneut versuchen.",
+    "saveOrder": "Reihenfolge konnte nicht gespeichert werden",
+    "updateActivity": "Aktivität konnte nicht aktualisiert werden",
+    "undo": "Rückgängig machen fehlgeschlagen",
+    "changeStatus": "Status konnte nicht geändert werden",
+    "adjustTime": "Zeiten konnten nicht angepasst werden",
+    "selectChild": "Wähle zuerst ein Kind",
+    "custodyDisabled": "Betreuungsplan ist nicht aktiviert",
+    "loadWeek": "Woche konnte nicht geladen werden",
+    "saveRating": "Bewertung konnte nicht gespeichert werden",
+    "ratingScoreOrEmotion": "Wähle eine Bewertung oder eine Gefühlskarte",
+    "ratingScoreRange": "Bewertung muss zwischen 1 und 10 liegen",
+    "ratingInvalidEmotion": "Ungültige Gefühlskarte",
+    "ratingActivityNotFound": "Aktivität nicht gefunden",
+    "ratingNotAllowed": "Bewertung ist für dieses Kind bei dieser Aktivität nicht erlaubt",
+    "ratingParentScoreRange": "Bewertung muss zwischen 1 und 5 liegen",
+    "ratingParentDisabled": "Eltern-Bewertung ist für diese Aktivität nicht aktiviert",
+    "dayPaused": "Der Tag ist pausiert",
+    "dailyLogItemRequired": "daily_log_item_id ist erforderlich",
+    "invalidTimerMinutes": "Ungültige Minuten. Erlaubt: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Heute keine Aktivitäten!",
+    "noScheduleDay": "An diesem Tag keine Routine",
+    "addToWeekSchedule": "Füge Aktivitäten im Wochenplan hinzu — dann werden Protokolle automatisch erstellt.",
+    "noScheduleSelected": "Für den gewählten Tag keine Routine.",
+    "thisDay": "diesen Tag",
+    "today": "heute",
+    "noChildrenTitle": "Keine Kinder hinzugefügt",
+    "addFirstChild": "Füge auf der Startseite dein erstes Kind hinzu!",
+    "goToDashboard": "Zur Startseite",
+    "goToWeekSchedule": "📅 Zum Wochenplan"
+  },
+  "nav": {
+    "prevWeek": "Vorherige Woche",
+    "prevDay": "Vorheriger Tag",
+    "nextDay": "Nächster Tag",
+    "nextWeek": "Nächste Woche",
+    "pickDate": "Datum wählen",
+    "todayBtn": "Heute",
+    "undoBump": "Letzte Zeitanpassung rückgängig"
+  },
+  "activity": {
+    "markDone": "Als erledigt markieren",
+    "undoMark": "Markierung rückgängig",
+    "rate": "⭐ Bewerten",
+    "setRating": "Bewertung setzen",
+    "changeRating": "Bewertung ändern",
+    "dragReorder": "Ziehen zum Sortieren",
+    "completeAllInSection": "Alle in {{section}} erledigen",
+    "completeAllBtn": "✅ Alle erledigt",
+    "defaultName": "Aktivität",
+    "undoneToast": "↩️ Markierung rückgängig gemacht"
+  },
+  "pause": {
+    "confirmPause": "Diesen Tag pausieren? Aktivitäten zählen nicht negativ.",
+    "confirmUnpause": "Diesen Tag wieder aktivieren?",
+    "pausedToast": "😴 Tag pausiert",
+    "unpausedToast": "✅ Tag wieder aktiv",
+    "dayTitle": "Freier Tag",
+    "banner": "Dieser Tag ist pausiert (z. B. krank oder frei). Aktivitäten zählen nicht negativ.",
+    "reactivate": "✅ Tag wieder aktivieren",
+    "pauseBtn": "😴 Diesen Tag pausieren (krank / frei)"
+  },
+  "bump": {
+    "noItems": "Keine offenen Aktivitäten mit Zeiten zum Anpassen",
+    "moved": "⏩ {{count}} Aktivität{{suffix}} um {{minutes}} Min. nach vorne verschoben",
+    "movedOne": "",
+    "movedMany": "en",
+    "undoToast": "↩️ Zeitanpassung rückgängig",
+    "title": "Alle kommenden nach vorne schieben",
+    "adjustHint": "Passt Zeiten bei noch nicht abgehakten Aktivitäten an",
+    "minutesTitle": "{{minutes}} Min. nach vorne",
+    "undoBtn": "↩ Rückgängig"
+  },
+  "retrofill": {
+    "title": "Routine nachträglich ausfüllen",
+    "description": "Du trägst eine Routine nachträglich ein. Markiere Aktivitäten als erledigt — sie werden mit dem richtigen Datum gespeichert."
+  },
+  "rating": {
+    "childMood": "Stimmung des Kindes",
+    "parentScore": "Bewertung der Eltern",
+    "noMoodCards": "Noch keine Gefühlskarten",
+    "saved": "⭐ Bewertung gespeichert!",
+    "labels": [
+      "",
+      "Schwer 😓",
+      "Okay 😐",
+      "Gut 😊",
+      "Sehr gut 😄",
+      "Fantastisch! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiene",
+    "mat": "Essen",
+    "skola": "Schule",
+    "lek": "Spiel",
+    "rorelse": "Bewegung",
+    "vila": "Ruhe",
+    "social": "Soziales"
+  },
+  "legend": {
+    "colorCoding": "Farbcode:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Alle Aktivitäten erledigt!",
+    "completedOf": "{{completed}} von {{total}} Aktivitäten erledigt"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Abgehakt: {{name}}",
+    "undo": "Rückgängig"
+  },
+  "emotions": {
+    "title": "💛 Stimmungen heute",
+    "noCards": "Noch keine Gefühlskarten",
+    "sliderResponses": "Schieberegler: {{count}} Antwort{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "en",
+    "sliderAvg": " (Ø {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Wochenübersicht wird vorbereitet…",
+    "preparingCustody": "Meine Tage werden vorbereitet…",
+    "noMyDays": "Keine deiner Tage in dieser Woche",
+    "weekScheduleTitle": "{{name}} — Wochenplan",
+    "myDaysTitle": "{{name}} — Meine Tage"
+  }
+}

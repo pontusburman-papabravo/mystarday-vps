@@ -12,6 +12,10 @@
         "en-GB": {
           "name": "Premium monthly",
           "description": "Monthly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium monatlich",
+          "description": "Monatliches Premium in der App."
         }
       },
       "google": {
@@ -22,6 +26,10 @@
         "en-GB": {
           "name": "Premium monthly",
           "description": "Monthly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium monatlich",
+          "description": "Monatliches Premium in der App."
         }
       }
     },
@@ -35,6 +43,10 @@
         "en-GB": {
           "name": "Premium yearly",
           "description": "Yearly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium jährlich",
+          "description": "Jährliches Premium in der App."
         }
       },
       "google": {
@@ -45,6 +57,10 @@
         "en-GB": {
           "name": "Premium yearly",
           "description": "Yearly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium jährlich",
+          "description": "Jährliches Premium in der App."
         }
       }
     }

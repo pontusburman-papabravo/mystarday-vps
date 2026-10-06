@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Morgenhaus",
+      "first_unlock_message": "Das Morgenhaus wartet auf dich",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Das Morgenhaus weiß, dass du da bist.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Ein sanftes Licht geht an.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Die Tür",
+          "always_active": true,
+          "ambient_message_sv": "Die Tür wackelt ein wenig — als würde jemand draußen warten.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Draußen wartet der Garten …",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Der Garten",
+      "first_unlock_message": "Der Garten wartet auf dich",
+      "ambient_message_sv": "Das Gras bewegt sich langsam im Wind.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Der Weg",
+          "emoji": "🌿",
+          "ambient_message_sv": "Der Weg führt tiefer in den Garten.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Der Weg führt in ein warmes Zimmer voller Erinnerungen …",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Blumenbeet",
+          "emoji": "🪴",
+          "ambient_message_sv": "Die Erde fühlt sich weich und warm an.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Der Himmel",
+          "emoji": "☁️",
+          "ambient_message_sv": "Wolken ziehen langsam dahin.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Erinnerungszimmer",
+      "first_unlock_message": "Hier ist, worauf du stolz warst.",
+      "ambient_message_sv": "Hier ist es warm und sicher.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Das Fenster",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Sanftes Licht fällt herein."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Erinnerungswand",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Hier hängt, was dir wichtig ist."
+        }
+      ]
+    }
+  ]
+}

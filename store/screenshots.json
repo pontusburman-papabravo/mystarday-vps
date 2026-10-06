@@ -9,6 +9,14 @@
       },
       "en-GB": {
         "status": "live_external"
+      },
+      "de-DE": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/de-DE/01-heute.png",
+          "screenshots/apple/de-DE/02-stern.png",
+          "screenshots/apple/de-DE/03-belohnung.png"
+        ]
       }
     },
     "google": {
@@ -17,6 +25,14 @@
       },
       "en-GB": {
         "status": "live_external"
+      },
+      "de-DE": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/de-DE/feature.png",
+        "files": [
+          "screenshots/google/de-DE/01-heute.png",
+          "screenshots/google/de-DE/02-familie.png"
+        ]
       }
     }
   }

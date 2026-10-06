@@ -26,7 +26,21 @@
       "showOnFirstRun": true,
       "selectRequiresFeature": "english_app",
       "grantFeatureOnRegister": "english_app",
-      "contentSource": "locale-files"
+      "contentSource": "locale-files",
+      "contentMap": "sv-to-en.json"
+    },
+    {
+      "id": "de-DE",
+      "nativeName": "Deutsch",
+      "base": "de",
+      "aliases": ["de", "de-de"],
+      "inputAliases": ["de"],
+      "legacyJourneyTags": ["de"],
+      "experiencePack": "child_de",
+      "availability": "public",
+      "showOnFirstRun": true,
+      "contentSource": "locale-files",
+      "contentMap": "de-DE.json"
     }
   ]
 }

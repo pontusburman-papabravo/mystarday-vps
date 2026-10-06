@@ -53,7 +53,28 @@ const I18n = {
         "showOnFirstRun": true,
         "selectRequiresFeature": "english_app",
         "grantFeatureOnRegister": "english_app",
-        "contentSource": "locale-files"
+        "contentSource": "locale-files",
+        "contentMap": "sv-to-en.json"
+      },
+      {
+        "id": "de-DE",
+        "nativeName": "Deutsch",
+        "base": "de",
+        "aliases": [
+          "de",
+          "de-de"
+        ],
+        "inputAliases": [
+          "de"
+        ],
+        "legacyJourneyTags": [
+          "de"
+        ],
+        "experiencePack": "child_de",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "de-DE.json"
       }
     ]
   },
@@ -309,7 +330,12 @@ const I18n = {
       }
       return key;
     }
-    return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+    const merged = Object.assign({}, params);
+    if (merged.brand == null || merged.brand === '') {
+      const appName = this.locale && this.locale.app && this.locale.app.name;
+      if (typeof appName === 'string' && appName.indexOf('{{') === -1) merged.brand = appName;
+    }
+    return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(merged[k] ?? ''));
   },
 
   /**
