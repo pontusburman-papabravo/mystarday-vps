@@ -108,7 +108,7 @@ test('locale registry enables English and Dutch, and keeps market separate', () 
   assert.equal(localeMeetsSeoContract('nl'), true);
   assert.deepEqual(localeSeoGaps('en'), []);
   assert.deepEqual(localeSeoGaps('nl'), []);
-  assert.equal(localeMeetsSeoContract('ga'), false);
+  assert.equal(localeMeetsSeoContract('ga'), true);
   assert.equal(localeMeetsSeoContract('de'), true);
 });
 

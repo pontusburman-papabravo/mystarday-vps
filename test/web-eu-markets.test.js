@@ -151,11 +151,12 @@ test('an unpublished locale cannot enter the sitemap, and hreflang stays on lang
       assert.ok(back.some(([, candidate]) => candidate === absolutePublicUrl(pathname)), `${pathname} reciprocal`);
     }
   }
-  assert.equal(publicNotFoundKind('/ga'), 'unknown-locale');
-  assert.equal(publicNotFoundKind('/ga/ie'), 'unknown-locale');
+  assert.equal(publicNotFoundKind('/xx'), 'unknown-locale');
+  assert.equal(publicNotFoundKind('/ga'), null);
+  assert.equal(publicNotFoundKind('/ga/ie'), 'unknown-locale-path');
   assert.equal(publicNotFoundKind('/sv'), 'unknown-locale');
   assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'de'), '/de/visueller-tagesplan');
-  assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'ga'), null);
+  assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'ga'), '/ga/sceideal-amhairc');
   assert.equal(legacyCountryCampaignPath({ country: 'AT' }), '/en/at');
   assert.equal(legacyCountryCampaignPath({ country: 'IE' }), '/en/ie');
   assert.equal(legacyCountryCampaignPath({ country: 'GB' }), null);
@@ -222,7 +223,10 @@ test('market routes answer for all 29 markets without sending anyone to Ireland'
   assert.equal(austria.status, 302);
   assert.equal(austria.headers.get('location'), '/en/at?utm_source=google');
 
-  const closed = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  const irish = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  assert.equal(irish.status, 200);
+  assert.match(await irish.text(), /lang="ga"/);
+  const closed = await fetch(`${http.baseUrl}/xx`, { redirect: 'manual' });
   assert.equal(closed.status, 404);
   const closedHtml = await closed.text();
   assert.match(closedHtml, /This language is not available/);
