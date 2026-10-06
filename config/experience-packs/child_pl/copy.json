@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Dziś {{child_name}} stawia pierwszy krok.",
+      "body_template": "Mały gest w ciągu dnia — a znaczy bardzo dużo. Widzisz, że rutyna działa.",
+      "cta": "Widzę to"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Udało się wam razem",
+      "body_template": "{{child_name}} rusza. Widzisz to. Tak rosną nawyki.",
+      "cta": "Co za radość"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Coś świeci w Domu poranka…"
+    }
+  }
+}

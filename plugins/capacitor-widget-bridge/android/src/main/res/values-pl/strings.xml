@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Następna czynność</string>
+    <string name="widget_routine_description">Dokończ następny krok rutyny bez otwierania całej aplikacji.</string>
+    <string name="widget_cd_pictogram">Symbol czynności</string>
+    <string name="widget_cd_complete">Oznacz czynność jako zrobioną</string>
+    <string name="widget_cd_open_app">Otwórz w aplikacji</string>
+    <string name="widget_action_complete">Zrobione</string>
+    <string name="widget_action_open_timer">Otwórz klepsydrę</string>
+    <string name="widget_action_show_steps">Pokaż kroki</string>
+    <string name="widget_action_open_app">Otwórz aplikację</string>
+    <string name="widget_loading">Ładowanie…</string>
+    <string name="widget_all_done">Wszystko zrobione na dziś!</string>
+    <string name="widget_nothing_now">Nic w tej chwili</string>
+    <string name="widget_offline">Brak połączenia</string>
+    <string name="widget_reauth">Zaloguj się w aplikacji</string>
+    <string name="widget_revoked">Dostęp urządzenia cofnięty</string>
+    <string name="widget_switching">Zmiana dziecka…</string>
+    <string name="widget_feedback_done">✓ Zrobione!</string>
+    <string name="widget_feedback_done_for">✓ Zrobione dla %1$s</string>
+    <string name="widget_cd_child_prev">Poprzednie dziecko</string>
+    <string name="widget_cd_child_next">Następne dziecko</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d z %2$d zrobione</string>
+    <string name="widget_private_activity">Następny krok</string>
+    <string name="widget_configure_title">Wybierz widżet</string>
+    <string name="widget_configure_personal">Własny (jedno dziecko)</string>
+    <string name="widget_configure_family">Rodzina (zmiana dziecka)</string>
+    <string name="widget_configure_save">Zapisz</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

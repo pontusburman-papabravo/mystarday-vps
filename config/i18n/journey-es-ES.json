@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Ver consejos",
+    "close": "Cerrar",
+    "milestone": "Hito",
+    "nextStep": "Siguiente paso",
+    "tip": "Consejo",
+    "weekReflection": "Mirada a la semana",
+    "weekTogether": "Una semana juntos",
+    "weekLabel": "Una semana",
+    "sjDay3Headline": "Es el momento de que {{name}} lo pruebe",
+    "tips": {
+      "coach_consistency": [
+        "Mantén la rutina corta y clara: tu niño construye el hábito paso a paso.",
+        "Celebra cada marca, incluso las pequeñas.",
+        "Deja que tu niño entre solo cada mañana."
+      ],
+      "coach_evening": [
+        "Añade 2 o 3 actividades tranquilas antes de dormir.",
+        "El mismo orden cada tarde hace más fácil dormirse."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nuevo",
+    "dismissAria": "Cerrar la explicación",
+    "continueFallback": "Continuar",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Ahora te mostramos aquí, en Inicio, una propuesta clara para tu siguiente paso.",
+        "whatChanged": "Se ha añadido una tarjeta de «Siguiente paso» arriba.",
+        "whyItMatters": "No tienes que buscar entre los avisos: una propuesta cada vez."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Deja que tu niño pruebe su rutina",
+      "body": "Abrid juntos la vista del niño: ve enseguida qué hacer.",
+      "cta": "Abrir la vista del niño"
+    },
+    "ADD_EVENING": {
+      "headline": "Añade la rutina de la tarde",
+      "body": "Haz que la hora de dormir sea tan clara como la mañana.",
+      "cta": "Añadir la tarde"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Invita al otro adulto",
+      "body": "Comparte la rutina para que podáis seguirla juntos.",
+      "cta": "Invitar"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Empieza con un paso pequeño",
+      "body": "Tu rutina sigue ahí: hoy, una actividad cada vez.",
+      "cta": "Abrir el horario"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Personaliza tu rutina",
+      "body": "Ahora puedes hacer el horario a vuestra medida.",
+      "cta": "Personalizar"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Celebra el avance",
+      "body": "Habéis dado un paso importante: tomad un momento juntos.",
+      "cta": "Enséñaselo a tu niño"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "¡Tu niño ha completado una actividad!",
+    "defaultChild": "Tu niño",
+    "defaultActivity": "una actividad",
+    "defaultCta": "Entendido"
+  }
+}

@@ -40,6 +40,7 @@ const CRITICAL_INTEGRATION = [
 ];
 
 const CRITICAL_UNIT = [
+  'test/locale-options-catalog.test.js',
   'test/rate-limit-buckets.test.js',
   'test/safe-url-fetch.test.js',
   'test/parent-session-backup-security.test.js',

@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planowanie — {{brand}}",
+  "shell": {
+    "title": "Planowanie",
+    "lead": "Wybierz tydzień, czynności albo coś więcej.",
+    "logout": "Wyloguj się"
+  },
+  "sections": {
+    "planWeek": "Zaplanuj tydzień",
+    "buildContent": "Ułóż treści",
+    "other": "Inne"
+  },
+  "primary": {
+    "week": { "title": "Tydzień", "sub": "Lista dnia na tydzień twoich dzieci" },
+    "activities": { "title": "Czynności", "sub": "Biblioteka — twórz i edytuj" },
+    "more": { "title": "Więcej", "sub": "Druk, szablony i inne narzędzia" }
+  },
+  "more": {
+    "title": "Więcej",
+    "close": "Zamknij"
+  },
+  "links": {
+    "library": { "title": "Biblioteka", "sub": "Twórz czynności i nagrody" },
+    "imageArchive": { "title": "Archiwum zdjęć", "sub": "Twoje zdjęcia — szczoteczka, łóżko, szkoła" },
+    "templates": { "title": "Szablony", "sub": "Zapisane plany, których użyjesz ponownie" },
+    "weekSchedule": { "title": "Plan tygodnia", "sub": "Edytuj tydzień dziecka" },
+    "calendar": { "title": "Kalendarz", "sub": "Zobacz miesiąc i dni szczególne" },
+    "custody": { "title": "Plan opieki", "sub": "Opieka dzielona między domami" },
+    "dailyLog": { "title": "Dziś", "sub": "Zobacz i popraw wcześniejsze dni" },
+    "printSchema": { "title": "Utwórz PDF — plan", "sub": "Wydrukuj plan" },
+    "assignSchedule": { "title": "Przypisz plan", "sub": "Skopiuj plan do dziecka" },
+    "reports": { "title": "Raporty", "sub": "Postępy i udostępnianie" },
+    "samarbete": { "title": "Współpraca z pedagogiem", "sub": "Pracuj z pedagogiem" },
+    "barnStod": { "title": "Dodatkowe wsparcie", "sub": "Wsparcie wizualne i TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Zacznij",
+    "bodyBeforeLibrary": "Zacznij w ",
+    "libraryLink": "Bibliotece",
+    "bodyMiddle": ", jeśli chcesz utworzyć czynności. Przejdź do ",
+    "forYouLink": "Dla ciebie",
+    "bodyAfter": ", jeśli chcesz gotową propozycję."
+  }
+}

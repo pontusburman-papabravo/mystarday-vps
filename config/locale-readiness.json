@@ -48,6 +48,26 @@
       "mustNotCopy": "en-GB",
       "positive": "[æøå]|\\b(?:og|ikke|det|en|for)\\b",
       "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman)\\b|\\bför\\b"
+    },
+    "es-ES": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áéíóúñü¡¿]|\\b(?:el|la|para|una|niño)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "it-IT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[àèéìòù]|\\b(?:il|non|per|una|bambino)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "pt-PT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ãõáàâéêíóúç]|\\b(?:não|para|criança|uma)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "pl-PL": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ąęćłńóśźż]|\\b(?:nie|dla|jest|dziecko)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
     }
   }
 }

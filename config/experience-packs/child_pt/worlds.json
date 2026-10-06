@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Casa da manhã",
+      "first_unlock_message": "A Casa da manhã espera por ti",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "A Casa da manhã sabe que estás aqui.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Uma luz suave acende-se.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "A porta",
+          "always_active": true,
+          "ambient_message_sv": "A porta treme um pouco — como se alguém estivesse à espera lá fora.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Lá fora, o jardim espera por ti…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "O jardim",
+      "first_unlock_message": "O jardim espera por ti",
+      "ambient_message_sv": "A relva mexe-se devagar ao vento.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "O caminho",
+          "emoji": "🌿",
+          "ambient_message_sv": "O caminho entra pelo jardim.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "O caminho leva a uma sala quente, cheia de memórias…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Canteiro",
+          "emoji": "🪴",
+          "ambient_message_sv": "A terra está macia e morna.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "O céu",
+          "emoji": "☁️",
+          "ambient_message_sv": "As nuvens avançam devagar.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Sala das memórias",
+      "first_unlock_message": "Aqui estão os teus momentos de orgulho.",
+      "ambient_message_sv": "Aqui está quente e seguro.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "A janela",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "A luz entra bem devagar."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Parede das memórias",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Aqui está o que importa para ti."
+        }
+      ]
+    }
+  ]
+}

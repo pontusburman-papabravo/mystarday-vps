@@ -1,0 +1,607 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Krok {{current}} z {{total}}",
+    "back": "← Wstecz",
+    "next": "Następny krok →",
+    "continue": "Dalej →",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "loading": "Wczytuję…",
+    "genericError": "Coś poszło nie tak. Spróbuj ponownie.",
+    "networkError": "Błąd sieci. Spróbuj ponownie.",
+    "closeAria": "Zamknij",
+    "childFallback": "Twoje dziecko",
+    "addChildDone": "Gotowe! →",
+    "goForward": "Dalej →",
+    "finishing": "Kończę…",
+    "recommended": "Polecane",
+    "optional": "Opcjonalnie"
+  },
+  "pageTitle": {
+    "welcome": "Witaj — {{brand}}",
+    "ogTitle": "{{brand}} — Zacznij w 2 minuty",
+    "ogDescription": "Ustaw od razu plan i nagrody dziecka"
+  },
+  "verifyEmail": {
+    "title": "Potwierdź adres e-mail",
+    "body": "Wysłaliśmy e-mail na {{email}}. Kliknij link w wiadomości, żeby aktywować konto.",
+    "resend": "Wyślij ponownie",
+    "resendSending": "Wysyłam…",
+    "resendSuccess": "✓ Wysłano!",
+    "resendSent": "Wysłano",
+    "resendError": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "child": {
+    "title": "Opowiedz o dziecku",
+    "lead": "Wybierz imię, emoji, urodziny i plan, który pasuje do codziennej rutyny.",
+    "nameLabel": "Imię dziecka",
+    "namePlaceholder": "np. Zosia",
+    "birthdayLabel": "Urodziny",
+    "birthdayOptionalHint": "(opcjonalnie — pomaga podpowiedzieć właściwy plan)",
+    "yearPlaceholder": "Rok",
+    "monthPlaceholder": "Miesiąc",
+    "dayPlaceholder": "Dzień",
+    "birthYearAria": "Rok urodzenia",
+    "birthMonthAria": "Miesiąc urodzenia",
+    "birthDayAria": "Dzień urodzenia",
+    "months": [
+      "Styczeń",
+      "Luty",
+      "Marzec",
+      "Kwiecień",
+      "Maj",
+      "Czerwiec",
+      "Lipiec",
+      "Sierpień",
+      "Wrzesień",
+      "Październik",
+      "Listopad",
+      "Grudzień"
+    ],
+    "emojiLabel": "Wybierz emoji",
+    "customEmojiPlaceholder": "Albo wpisz własne emoji…",
+    "emojiAriaLabel": "Wybierz emoji {{emoji}}",
+    "avatarLabel": "Opcjonalnie: zdjęcie profilowe",
+    "avatarHint": "Wybierz zdjęcie z biblioteki albo zrób nowe.",
+    "avatarDefaultBtn": "✨ Obraz domyślny",
+    "avatarPickBtn": "📷 Wybierz zdjęcie",
+    "avatarLoading": "Wczytuję…",
+    "avatarPreparing": "Przygotowuję…",
+    "avatarUploadFailed": "Nie udało się wgrać zdjęcia. Spróbuj ponownie.",
+    "avatarReadFailed": "Nie udało się odczytać obrazu",
+    "avatarAlt": "Zdjęcie profilowe dziecka",
+    "scheduleLabel": "Wybierz plan",
+    "templatesLoading": "Wczytuję plany…",
+    "templatesLoadFailed": "Szablonów planu nie da się teraz wczytać.",
+    "templatesRetryBtn": "Spróbuj ponownie",
+    "nextBtn": "Następny krok →",
+    "creatingChild": "Tworzę dziecko…",
+    "creatingSchedule": "Tworzę plan…",
+    "nameRequired": "Wpisz imię dziecka",
+    "emojiRequired": "Wybierz emoji dla dziecka",
+    "scheduleRequired": "Wybierz plan",
+    "childResumedToast": "Znaleźliśmy dziecko z ostatniego razu — idziemy dalej z planem.",
+    "avatarSaveFailedToast": "Dziecko utworzone, ale zdjęcia nie udało się zapisać. Dodasz je w Rodzinie.",
+    "scheduleCreateFailed": "Nie udało się utworzyć planu"
+  },
+  "activityGuide": {
+    "title": "Jak aplikacja ma pomagać {{childName}} z czynnościami na dziś?",
+    "lead": "Zmienisz to w każdej chwili w ustawieniach dziecka.",
+    "stepLabel": "Krok {{current}} z {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Dowolna kolejność",
+        "description": "Dziecko może odhaczać w dowolnej kolejności."
+      },
+      "one_at_a_time": {
+        "title": "Jedna rzecz naraz",
+        "description": "Aplikacja pomaga dziecku skupić się na następnym kroku."
+      },
+      "time_and_order": {
+        "title": "Jasny czas i kolejność",
+        "description": "Aplikacja pomaga z następnym krokiem i minutnikiem, który ustawisz przy każdej czynności."
+      }
+    },
+    "continueBtn": "Dalej →",
+    "saving": "Zapisuję…",
+    "selectError": "Wybierz opcję",
+    "saveError": "Nie udało się zapisać wyboru"
+  },
+  "viewType": {
+    "title": "Który widok ma widzieć {{childName}} teraz?",
+    "lead": "Wybierz, jak wygląda plan, kiedy dziecko się loguje. Zmienisz to w każdej chwili w ustawieniach.",
+    "dayViewTitle": "Widok dnia",
+    "dayViewSubtitle": "Rano · Przedpołudnie · Popołudnie · Wieczór",
+    "timelineViewTitle": "Widok Teraz/Dalej/Później",
+    "timelineViewSubtitle": "Pokazuje tylko to, co dzieje się właśnie teraz",
+    "timelineNow": "TERAZ",
+    "timelineNext": "DALEJ",
+    "timelineThen": "PÓŹNIEJ",
+    "mock": {
+      "wakeStretch": "Obudź się i przeciągnij",
+      "brushTeeth": "Umyj zęby",
+      "packBag": "Spakuj plecak",
+      "preschool": "Idź do przedszkola",
+      "freePlay": "Pobaw się swobodnie",
+      "dinner": "Zjedz kolację",
+      "bedtimeStory": "Posłuchaj bajki na dobranoc",
+      "preschoolShort": "Przedszkole",
+      "play": "Pobaw się"
+    },
+    "dayViewHint": "Możesz też wybrać widok dnia, jeśli dziecko woli kolorowe części dnia.",
+    "skipHint": "Pomijasz? Widok dnia wybierze się sam.",
+    "saving": "Zapisuję wybór widoku…"
+  },
+  "scheduleReady": {
+    "title": "Plan gotowy!",
+    "subtitle": "Przygotowaliśmy plan na start dla {{childName}}.",
+    "subtitleWithTemplate": "Przygotowaliśmy plan {{templateName}} dla {{childName}}. Są w nim najważniejsze kroki, żeby dziecko dawało radę samo.",
+    "templateFallback": "Plan",
+    "daysWeek": "7 dni / tydzień",
+    "daysMonFri": "pon.–pt.",
+    "daysMonFriWeekend": "pon.–pt. + weekend",
+    "socialProofTitle": "Czy wiesz?",
+    "socialProofBody": "Wsparcie wizualne często zmniejsza codzienny stres nawet o 30% — a dzieci z jasną rutyną szybciej zasypiają i budzą się pogodniej.",
+    "continueBtn": "Świetnie, ruszamy! →"
+  },
+  "rewards": {
+    "title": "Jak działają gwiazdki",
+    "checkOff": "Odhacz",
+    "star": "Gwiazdka",
+    "treasureChest": "Skrzynia gwiazdek",
+    "intro": "Wpisaliśmy fajne nagrody. Wybierz te, do których {{childName}} może dążyć!",
+    "introWithCount": "Wpisaliśmy {{count}} fajnych nagród. Wybierz te, do których {{childName}} może dążyć!",
+    "selectCount": {
+      "zero": "Wybierz co najmniej 1 nagrodę (0 wybranych)",
+      "one": "{{count}} nagroda wybrana ✓",
+      "few": "{{count}} nagrody wybrane ✓",
+      "many": "{{count}} nagród wybranych ✓",
+      "other": "{{count}} nagród wybranych ✓"
+    },
+    "minOneError": "Wybierz co najmniej jedną nagrodę, żeby iść dalej",
+    "saveBtn": "Zapisz nagrody →",
+    "saving": "Zapisuję nagrody…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Dodatkowa bajka",
+      "chooseDessert": "Wybierz deser",
+      "movieNight": "Wieczór filmowy",
+      "chooseDinner": "Wybierz kolację",
+      "outing": "Wycieczka",
+      "bakeTogether": "Wspólne pieczenie",
+      "familyGameNight": "Rodzinny wieczór z grami",
+      "lateBedtime": "Późniejsze spanie",
+      "cinemaTrip": "Wyjście do kina"
+    }
+  },
+  "handoff": {
+    "title": "Jak wygląda logowanie",
+    "lead": "{{childName}} loguje się imieniem i PIN-em — bez haseł.",
+    "childLoginLabel": "Logowanie dziecka",
+    "usernameFallback": "nazwa użytkownika",
+    "pinLabel": "PIN",
+    "pinNote": "Zapisz PIN — zmienisz go w ustawieniach.",
+    "pinResumeHint": "Użyj PIN-u dziecka. Jeśli go nie pamiętasz, ustawisz nowy przyciskiem poniżej.",
+    "chooseCustomPin": "✏️ Wybierz własny PIN",
+    "savePin": "Zapisz PIN",
+    "savingPin": "Zapisuję…",
+    "pinMustBe4": "PIN musi mieć 4 cyfry",
+    "pinTooWeak": "Wybierz mocniejszy PIN (nie 1111, 2222 i tym podobne)",
+    "pinSaveFailed": "Nie udało się zapisać PIN-u",
+    "copyInfo": "📋 Kopiuj dane",
+    "copied": "✓ Skopiowano!",
+    "copyManual": "Skopiuj ręcznie:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nNazwa użytkownika: {{username}}\nPIN: {{pin}}\nAplikacja: {{appUrl}}/child-login",
+    "emailLogin": "📧 Wyślij na e-mail",
+    "emailSubject": "{{brand}} — Logowanie dla {{childName}}",
+    "emailBody": "Cześć!\n\nOto dane logowania do {{brand}} dla {{childName}}:\n\nNazwa użytkownika: {{username}}\nPIN: {{pin}}\n\nOtwórz aplikację: {{appUrl}}/child-login\n\nPozdrawiamy,\n{{brand}}",
+    "emailFallbackAlert": "Logowanie dla {{childName}}:\nNazwa użytkownika: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Zainstaluj jako aplikację",
+    "installBody": "Dodaj {{brand}} do ekranu początkowego — działa jak zwykła aplikacja, także bez sieci, bez sklepów z aplikacjami.",
+    "installInstructions": "iPhone: Udostępnij → Dodaj do ekranu początkowego · Android: ⋮ → Zainstaluj aplikację",
+    "parentTipTitle": "Wskazówka dla ciebie jako rodzica",
+    "parentTipLead": "Usiądź dziś wieczorem razem z dzieckiem. Pokaż skrzynię gwiazdek",
+    "parentTipEmphasis": "najpierw",
+    "parentTipTail": ", żeby obudzić ciekawość — a potem wyjaśnij, że aplikacja to własna mapa dnia {{childName}}!",
+    "testChildLogin": "👶 Wypróbuj logowanie dziecka",
+    "continueAsParent": "Dalej jako rodzic →",
+    "skipConfirmTitle": "Pominąć logowanie dziecka?",
+    "skipConfirmBody": "Dziecko potrzebuje PIN-u, żeby logować się samo. Bez próby teraz poranna rutyna może być trudniejsza — wyślemy przypomnienie za 24 godziny, jeśli dziecko jeszcze nie spróbuje.",
+    "skipConfirmPrimary": "👶 Wypróbuj logowanie dziecka",
+    "skipConfirmSecondary": "Pomiń mimo to"
+  },
+  "parentPin": {
+    "setLater": "Ustaw PIN rodzica później",
+    "title": "Ustaw PIN rodzica",
+    "description": "4-cyfrowy PIN, który znasz tylko ty, chroni strefę rodzica — na przykład kiedy dzieci dodają rodzeństwo albo logujesz się jako rodzic na urządzeniu dziecka.",
+    "choosePin": "Wybierz PIN",
+    "confirmPin": "Potwierdź PIN",
+    "changeLater": "PIN zmienisz później w Rodzinie i ustawieniach.",
+    "pinRequiredOrEmpty": "Wpisz 4-cyfrowy PIN albo zostaw pola puste",
+    "pinRequiredForHandoff": "Ustaw 4-cyfrowy PIN, zanim dziecko przejmie urządzenie.",
+    "pinMismatch": "PIN-y się nie zgadzają",
+    "saveFailed": "Nie udało się zapisać PIN-u",
+    "handoffRequired": "Na wspólnym urządzeniu potrzebny jest PIN osoby dorosłej, zanim dziecko się zaloguje.",
+    "saveAndContinue": "Zapisz i idź dalej"
+  },
+  "invite": {
+    "inviteLater": "Zaproś drugiego rodzica później",
+    "title": "Zaproś kolejną osobę dorosłą",
+    "namePlaceholder": "Imię (np. Tomek)",
+    "emailPlaceholder": "Adres e-mail",
+    "whichChildren": "Które dzieci ma widzieć ta osoba?",
+    "sendBtn": "📧 Wyślij zaproszenie",
+    "sending": "Wysyłam…",
+    "sent": "✓ Wysłano",
+    "skip": "Pomiń →",
+    "emailRequired": "Wpisz adres e-mail",
+    "invalidEmail": "Nieprawidłowy adres e-mail",
+    "success": "Zaproszenie wysłane na {{email}}! ✓",
+    "sendFailed": "Coś poszło nie tak"
+  },
+  "complete": {
+    "title": "Prawie gotowe!",
+    "lead": "Niech dziecko wypróbuje aplikację — innych dorosłych zaprosisz i PIN rodzica ustawisz po pierwszym odhaczeniu.",
+    "tips": {
+      "editScheduleTitle": "Edytuj plan",
+      "editScheduleBody": "Wejdź na Start → stuknij kartę dziecka → dopasuj czynności do codziennej rutyny.",
+      "checkRewardsTitle": "Sprawdź nagrody",
+      "checkRewardsBody": "W widoku dziecka — stuknij gwiazdkę — dziecko widzi, ile gwiazdek potrzeba na każdą nagrodę.",
+      "addChildrenTitle": "Dodaj więcej dzieci",
+      "addChildrenBody": "Każde dziecko ma własny plan i gwiazdki. Kolejne dodasz przez + na Starcie."
+    },
+    "letChildStart": "👶 Niech dziecko zacznie",
+    "letChildStartPlain": "Niech dziecko zacznie",
+    "completeFailed": "Nie udało się dokończyć wprowadzenia",
+    "completeFailedShort": "Nie udało się dokończyć",
+    "welcomeFooter": "Witaj w {{brand}} — cieszymy się, że jesteś! 🌟"
+  },
+  "weekend": {
+    "title": "Dodać plan na weekend?",
+    "body": "Plan na dni powszednie jest gotowy na pon.–pt. Chcesz spokojny plan na sobotę i niedzielę?",
+    "scheduleLabel": "Plan na weekend",
+    "satSun": "sob. + niedz.",
+    "preview": {
+      "sleepIn": "Pośpij dłużej",
+      "breakfast": "Zjedz śniadanie na spokojnie",
+      "freePlay": "Pobaw się swobodnie",
+      "outing": "Wycieczka / park",
+      "familyActivity": "Wspólna zabawa",
+      "dinner": "Zjedz kolację"
+    },
+    "yesBtn": "✅ Tak, dodaj plan na weekend",
+    "yesLoading": "Dodaję…",
+    "noBtn": "Nie, dziękuję, uzupełnię później",
+    "addFailed": "Nie udało się dodać planu na weekend"
+  },
+  "starter": {
+    "stepLabel": "Tworzenie planu {{current}} z {{total}}",
+    "slimTitle": "Rutyna jest prawie gotowa",
+    "fullTitle": "Utwórz pierwszy plan",
+    "slimIntro": "Trzy szybkie pytania — i rutyna jest gotowa.",
+    "birthdayHint": "Wybierz datę urodzenia dziecka — pomaga podpowiedzieć właściwy plan.",
+    "fullIntro": "Odpowiedz na kilka pytań — zajmie to mniej niż minutę.",
+    "powerPathLead": "Chcesz wybrać albo zbudować własny?",
+    "chooseTemplate": "📋 Wybierz gotowy plan",
+    "fullWizard": "✏️ Zbuduj i dopasuj samodzielnie (7 pytań)",
+    "answerRequired": "Wybierz albo wpisz odpowiedź",
+    "showSchedule": "Pokaż plan →",
+    "buttons": {
+      "next": "Dalej →"
+    },
+    "createRoutine": "Utwórz rutynę →",
+    "creatingRoutine": "Tworzę rutynę…",
+    "personalizing": "Dopasowuję plan…",
+    "loading": "Wczytuję…",
+    "useSchedule": "Użyj tego planu →",
+    "saving": "Zapisuję…",
+    "changeAnswers": "← Zmień odpowiedzi",
+    "removeStep": "Usuń",
+    "previewHint": "Możesz usunąć kroki — więcej dodasz później w ustawieniach.",
+    "previewForChild": "Dla {{childName}} · {{count}} czynności",
+    "previewAiTail": " · ✨ dopasowane przez AI",
+    "defaultPlanTitle": "Twój plan",
+    "slimSuccessTitle": "Rutyna jest gotowa",
+    "slimSuccessTonight": "Plan jest gotowy. Pokaż {{childName}} Dziś na tym urządzeniu.",
+    "showChildToday": "Pokaż Dziś dziecka",
+    "openingChildToday": "Otwieram Dziś dziecka…",
+    "hourglassOfferTitle": "Klepsydra wizualna",
+    "hourglassOfferBody": "Pomóż dziecku zobaczyć, ile czasu zostało na czynność.",
+    "hourglassEnableBtn": "Włącz klepsydrę",
+    "hourglassEnabling": "Włączam…",
+    "hourglassEnabledMsg": "Klepsydra jest włączona dla dziecka.",
+    "hourglassEnableFailed": "Nie udało się włączyć klepsydry",
+    "goHome": "Idź na Start →",
+    "openingHome": "Otwieram Start…",
+    "customizeFirst": "Najpierw dopasuj plan",
+    "openingSchedule": "Otwieram plan…",
+    "nameRequired": "Wpisz imię dziecka",
+    "templateFailed": "Nie udało się wybrać szablonu",
+    "previewFailed": "Nie udało się wczytać planu",
+    "childCreateFailed": "Nie udało się utworzyć dziecka",
+    "scheduleSaveFailed": "Nie udało się zapisać planu",
+    "personalizeFailed": "Nie udało się dopasować planu",
+    "completeFailed": "Nie udało się dokończyć",
+    "packages": {
+      "morning-short": {
+        "name": "Krótkie rano"
+      },
+      "evening-routine": {
+        "name": "Wieczorna rutyna"
+      },
+      "preschool-day": {
+        "name": "Przedszkole w tygodniu"
+      },
+      "school-day": {
+        "name": "Szkoła w tygodniu"
+      },
+      "weekend": {
+        "name": "Weekend"
+      },
+      "getting-ready": {
+        "name": "Krótkie rano"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Imię dziecka",
+        "placeholder": "np. Zosia"
+      },
+      "age_band": {
+        "label": "Ile lat ma dziecko?",
+        "options": {
+          "3-5": "3–5 lat",
+          "6-8": "6–8 lat",
+          "9-12": "9–12 lat",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Od której rutyny chcesz zacząć?",
+        "options": {
+          "morgon": "☀️ Rano",
+          "kvall": "🌙 Wieczór",
+          "efter-skola": "🏫 Po szkole",
+          "laxor": "📚 Lekcje",
+          "gora-sig-klar": "🎒 Przygotowanie"
+        }
+      },
+      "main_challenge": {
+        "label": "Co jest teraz najtrudniejsze?",
+        "options": {
+          "getting_started": "Zaczynanie",
+          "focus": "Utrzymanie skupienia",
+          "conflicts": "Konflikty",
+          "forgetting": "Zapominanie kroków",
+          "transitions": "Przejścia"
+        }
+      },
+      "support_ui": {
+        "label": "Czy dziecko potrzebuje szczególnie jasnego wsparcia?",
+        "options": {
+          "ja": "Tak",
+          "lite": "Trochę",
+          "nej": "Nie"
+        }
+      },
+      "length_ui": {
+        "label": "Od ilu kroków chcesz zacząć?",
+        "options": {
+          "kort": "Krótko (3–4)",
+          "normal": "Normalnie (5)",
+          "detaljerad": "Szczegółowo (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Jest coś ważnego, co powinniśmy wiedzieć? (opcjonalnie)",
+        "placeholder": "np. mycie zębów jest najtrudniejsze"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutyna gotowa",
+      "handoff": "Otwórz razem tryb dziecka",
+      "child": "Dziecko widzi, co dzieje się teraz",
+      "done": "Gotowe!",
+      "star": "Pierwsza gwiazdka ⭐"
+    },
+    "mock": {
+      "parentView": "Widok rodzica",
+      "dailyRoutine": "Rutyna na dziś",
+      "dress": "Ubierz się",
+      "brushTeeth": "Umyj zęby",
+      "packBag": "Spakuj plecak",
+      "tryChildMode": "👶 Wypróbuj tryb dziecka",
+      "now": "Teraz",
+      "markDone": "Oznacz jako zrobione ✓",
+      "wellDone": "Brawo!"
+    },
+    "ctaReady": "Czas spróbować?",
+    "ctaTryNow": "Wypróbuj tryb dziecka teraz",
+    "ctaLater": "Zrób to później",
+    "loginTitle": "Otwórz widok dziecka",
+    "loginLead": "Plan jest gotowy. Daj {{childName}} to urządzenie, żeby zobaczyło swoją rutynę.",
+    "usernameLabel": "Nazwa użytkownika",
+    "pinLabel": "PIN",
+    "loginHint": "Usiądź razem z dzieckiem — to samo albo inne urządzenie, oba działają.",
+    "copyLogin": "📋 Kopiuj dane logowania",
+    "copied": "✓ Skopiowano!",
+    "openChildMode": "Otwórz widok dziecka",
+    "copyText": "{{childName}}\nOtwórz widok dziecka w aplikacji.",
+    "previewTitle": "Podgląd — film wprowadzenia"
+  },
+  "firstStar": {
+    "title": "Daj pierwszą gwiazdkę",
+    "lead": "Trzy szybkie kroki — i naprawdę ruszacie.",
+    "steps": {
+      "login": "Niech dziecko zaloguje się swoim PIN-em",
+      "complete": "Oznacz czynność jako zrobioną w widoku dziecka",
+      "celebrate": "Ucieszcie się razem z gwiazdki!"
+    },
+    "openChildLogin": "👶 Otwórz logowanie dziecka",
+    "continueAsParent": "Dalej jako rodzic"
+  },
+  "activation": {
+    "finalStepLabel": "Ostatni krok",
+    "introTitle": "Jak chcesz zacząć?",
+    "introBody": "Plan dziecka jest ustawiony — to dobry start. Wiele rodzin widzi, że największym wyzwaniem nie jest ruszenie, tylko utrzymanie rutyny w pierwszych dniach, kiedy codzienność przejmuje stery. Wybierz to, co ci pasuje:",
+    "guidedBadge": "Polecane",
+    "guidedTitle": "Utrzymaj rutynę przez pierwszy tydzień",
+    "guidedBody": "Wiele rodzin docenia odrobinę wsparcia, kiedy plan jest już gotowy. Nie dlatego, że coś jest nie tak, tylko dlatego, że nowe nawyki potrzebują czasu.",
+    "guidedBenefits": [
+      "Krótkie codzienne przypomnienia, żeby iść dalej",
+      "Zobacz, kiedy dziecko kończy zadania, bez dodatkowego nagabywania",
+      "Plan dziecka jest już ustawiony — pomagamy, żeby rutyna działała",
+      "Zatrzymaj się, kiedy chcesz"
+    ],
+    "guidedCta": "Tak, pomóż nam przez pierwszy tydzień",
+    "directTitle": "Rusz od razu",
+    "directBody": "Czujesz, że dasz sobie radę. Wszystko jest na miejscu i możesz zacząć od razu.",
+    "directBenefits": [
+      "Od razu na Start",
+      "Ten sam plan, gwiazdki i nagrody",
+      "Korzystaj z aplikacji we własnym tempie"
+    ],
+    "directCta": "Damy sobie radę sami",
+    "footnote": "Niezależnie od wyboru możesz korzystać z aplikacji w pełni. Prowadzony start daje tylko odrobinę dodatkowego wsparcia w pierwszym tygodniu.",
+    "saveFailed": "Nie udało się zapisać wyboru"
+  },
+  "loading": {
+    "buildingSchedule": "Buduję plan…",
+    "takesSeconds": "To tylko kilka sekund!"
+  },
+  "templateGroups": {
+    "showActivities": "Pokaż czynności",
+    "loadingActivities": "Wczytuję...",
+    "activityCount": {
+      "one": "{{count}} czynność",
+      "few": "{{count}} czynności",
+      "many": "{{count}} czynności",
+      "other": "{{count}} czynności"
+    },
+    "forskola": {
+      "name": "Przedszkole",
+      "description": "Cały dzień — dzieci w wieku 2–5 lat"
+    },
+    "skola": {
+      "name": "Szkoła",
+      "description": "Cały dzień — dzieci od 6 lat"
+    },
+    "morgon": {
+      "name": "Rano",
+      "description": "Poranna rutyna"
+    },
+    "dag": {
+      "name": "Dzień",
+      "description": "Czynności w ciągu dnia"
+    },
+    "kvall": {
+      "name": "Wieczór",
+      "description": "Wieczorna rutyna"
+    },
+    "helg": {
+      "name": "Weekend",
+      "description": "Weekendowa rutyna"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Obudź się",
+        "Ubierz się",
+        "Zjedz śniadanie",
+        "Przedszkole",
+        "Pobaw się",
+        "Zjedz kolację",
+        "Posłuchaj bajki na dobranoc"
+      ],
+      "skola": [
+        "Obudź się",
+        "Zjedz śniadanie",
+        "Spakuj plecak",
+        "Szkoła",
+        "Odrób lekcje",
+        "Zjedz kolację",
+        "Posłuchaj bajki na dobranoc"
+      ],
+      "morgon": [
+        "Obudź się",
+        "Ubierz się",
+        "Umyj zęby",
+        "Zjedz śniadanie",
+        "Spakuj plecak"
+      ],
+      "dag": [
+        "Przedszkole",
+        "Pobaw się na dworze",
+        "Zjedz przekąskę",
+        "Zjedz obiad",
+        "Zrób pracę plastyczną"
+      ],
+      "kvall": [
+        "Zjedz kolację",
+        "Umyj zęby",
+        "Załóż piżamę",
+        "Posłuchaj bajki na dobranoc",
+        "Śpij"
+      ],
+      "helg": [
+        "Obudź się",
+        "Zjedz śniadanie",
+        "Pobaw się swobodnie",
+        "Wycieczka",
+        "Wspólna zabawa",
+        "Zjedz kolację"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Rano",
+    "lateMorning": "Przedpołudnie",
+    "afternoon": "Popołudnie",
+    "evening": "Wieczór"
+  },
+  "errors": {
+    "avatarUploadPath": "Zdjęcie profilowe wgrywa się przez PUT /api/children/:id/avatar po utworzeniu dziecka",
+    "childNameRequired": "Imię dziecka jest wymagane",
+    "emojiRequired": "Wybierz emoji dla dziecka",
+    "invalidBirthday": "Nieprawidłowa data urodzenia",
+    "birthdayFuture": "Urodziny nie mogą być w przyszłości",
+    "invalidTemplate": "Nieprawidłowy wybór. Wybierz prawidłowy plan.",
+    "noActivities": "Nie znaleziono czynności dla wybranego planu.",
+    "childIdRequired": "Wymagany jest identyfikator dziecka",
+    "noChildAccess": "Nie masz dostępu do tego dziecka",
+    "weekendNotFound": "Planu na weekend nie znaleziono w bibliotece.",
+    "weekendEmpty": "Plan na weekend nie ma czynności.",
+    "rewardNameRequired": "Nazwa nagrody jest wymagana",
+    "rewardCostMin": "Koszt w gwiazdkach musi wynosić co najmniej 1",
+    "rewardsFetchFailed": "Nie udało się pobrać nagród.",
+    "childCreateFailed": "Coś poszło nie tak przy tworzeniu dziecka.",
+    "scheduleCreateFailed": "Coś poszło nie tak przy tworzeniu planu.",
+    "weekendCreateFailed": "Coś poszło nie tak przy tworzeniu planu na weekend.",
+    "rewardCreateFailed": "Coś poszło nie tak przy tworzeniu nagrody.",
+    "generic": "Coś poszło nie tak.",
+    "invalidViewType": "Nieprawidłowy typ widoku. Wybierz dzień albo oś czasu.",
+    "notAllowed": "Niedozwolone",
+    "invalidChoice": "Nieprawidłowy wybór.",
+    "activityGuideSaveFailed": "Nie udało się zapisać wyboru czynności.",
+    "pinMustBe4": "PIN musi mieć dokładnie 4 cyfry",
+    "pinTooWeak": "Wybierz mocniejszy PIN",
+    "pinTaken": "Ten PIN jest już zajęty przez dziecko o tym samym imieniu",
+    "pinUpdateFailed": "Nie udało się zaktualizować PIN-u.",
+    "handoffContextFailed": "Nie udało się pobrać kontekstu przekazania",
+    "templateGroupsFailed": "Nie udało się pobrać grup planów.",
+    "schedulePreviewFailed": "Nie udało się pobrać planu.",
+    "viewSaveFailed": "Nie udało się zapisać wyboru widoku.",
+    "activationNotEnabled": "Przepływ aktywacji nie jest włączony dla twojej rodziny",
+    "starterSuggestFailed": "Nie udało się wybrać szablonu",
+    "starterPreviewFailed": "Nie udało się pobrać podglądu",
+    "starterPersonalizeFailed": "Nie udało się dopasować planu",
+    "scheduleNameRequired": "Nazwa planu jest wymagana",
+    "templateNotFound": "Nie znaleziono szablonu",
+    "enrollChoiceUnavailable": "Ekran wyboru jest niedostępny"
+  },
+  "starterPlan": {
+    "firstSchedule": "Twój pierwszy plan"
+  }
+}

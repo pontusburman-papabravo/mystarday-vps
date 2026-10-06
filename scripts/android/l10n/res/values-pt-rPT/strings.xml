@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Sem ligação</string>
+    <string name="native_offline_body">Verifica a ligação à internet e tenta outra vez.</string>
+    <string name="camera_permission_rationale">[REDACTED] usa a câmara para tirares uma foto de perfil da tua criança.</string>
+    <string name="photos_permission_rationale">[REDACTED] precisa de acesso às tuas fotos para escolheres uma foto de perfil da tua criança.</string>
+    <string name="notification_channel_routine_name">Lembretes da rotina</string>
+    <string name="notification_channel_routine_desc">Lembretes sobre o horário da família</string>
+</resources>

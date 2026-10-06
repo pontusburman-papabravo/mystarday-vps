@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Criar PDF — horário — {{brand}}",
+  "backLink": "← Voltar ao Planeamento",
+  "heading": "📄 Criar PDF — horário",
+  "intro": "Escolhe uma criança e um período. A pré-visualização mostra o horário completo — o PDF ajusta-se sozinho a uma folha A4 em horizontal.",
+  "pdfSave": {
+    "title": "Onde fica guardado o PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Depois de <em>Criar PDF</em>, abre-se a folha de partilha — escolhe <strong>Guardar em Ficheiros</strong> e uma pasta (p. ex. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computador:</strong> O PDF vai para a pasta <strong>Transferências</strong> (muitas vezes em baixo à esquerda no navegador)."
+  },
+  "sections": {
+    "child": "Criança",
+    "period": "Período",
+    "scope": "O que deve o PDF incluir?",
+    "startWeek": "Semana de início"
+  },
+  "period": {
+    "1w": "1 semana",
+    "2w": "2 semanas",
+    "1m": "1 mês"
+  },
+  "scope": {
+    "all": "Horário completo",
+    "my": "Só os meus dias"
+  },
+  "weekNav": {
+    "prevAria": "Semana anterior",
+    "nextAria": "Semana seguinte",
+    "today": "Esta semana"
+  },
+  "actions": {
+    "preview": "Pré-visualizar",
+    "createPdf": "Criar PDF"
+  },
+  "preview": {
+    "heading": "Pré-visualização",
+    "hint": "Desce se um dia tiver muitas atividades."
+  },
+  "pdfHelp": {
+    "title": "Como guardar o PDF",
+    "closeAria": "Fechar",
+    "ok": "OK, percebi",
+    "introShare": "A folha de partilha está aberta. Escolhe Guardar em Ficheiros para guardar o PDF.",
+    "introPreview": "O PDF abriu no navegador{{filename}}.",
+    "introDesktop": "O PDF foi descarregado{{filename}}.",
+    "filenameSuffix": " como {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Na folha de partilha: desliza e toca em <strong>Guardar em Ficheiros</strong>.",
+      "Escolhe uma pasta (p. ex. <strong>iCloud Drive</strong> ou <strong>No meu iPhone</strong>).",
+      "Toca em <strong>Guardar</strong> em cima à direita.",
+      "Mais tarde encontras o ficheiro na aplicação <strong>Ficheiros</strong>."
+    ],
+    "previewSteps": [
+      "O PDF abriu numa vista nova — toca em <strong>Partilhar</strong> (↑) em cima à direita.",
+      "Escolhe <strong>Guardar em Ficheiros</strong>.",
+      "Escolhe uma pasta e toca em <strong>Guardar</strong>."
+    ],
+    "desktopSteps": [
+      "Abre a pasta <strong>Transferências</strong> no computador.",
+      "Procura um ficheiro que comece por <strong>{{prefix}}</strong> e a data de hoje."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Horário",
+    "titleMyDays": "Os meus dias",
+    "emptyCell": "–",
+    "childFallback": "Criança",
+    "loadingPrint": "A preparar a impressão…",
+    "iframeTitle": "Imprimir"
+  },
+  "filename": {
+    "prefixSchedule": "horario-semanal",
+    "prefixMyDays": "os-meus-dias",
+    "fallbackSlug": "crianca"
+  },
+  "toasts": {
+    "loadChildrenError": "Não foi possível carregar as crianças",
+    "selectChild": "Escolhe primeiro uma criança",
+    "loadingPreview": "A carregar a pré-visualização…",
+    "noMyDays": "Não há dias teus no período escolhido",
+    "loadScheduleError": "Não foi possível carregar o horário",
+    "creatingPdf": "A criar o PDF…",
+    "pdfCancelled": "A gravação do PDF foi cancelada",
+    "shareHint": "Escolhe Guardar em Ficheiros na folha de partilha",
+    "mobileSavedHint": "PDF pronto — guarda-o em Ficheiros",
+    "desktopSavedHint": "PDF guardado em Transferências",
+    "pdfLibsMissing": "Faltam as ferramentas de PDF — recarrega a página e tenta outra vez",
+    "createPdfError": "Não foi possível criar o PDF",
+    "shareAgain": "O PDF está pronto. Toca outra vez em Criar PDF para escolheres onde o guardar."
+  },
+  "empty": {
+    "noChildren": "Ainda não há crianças adicionadas.",
+    "goDashboard": "Ir para o Início"
+  }
+}

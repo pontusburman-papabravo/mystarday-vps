@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Ver as dicas",
+    "close": "Fechar",
+    "milestone": "Marco",
+    "nextStep": "Próximo passo",
+    "tip": "Dica",
+    "weekReflection": "Balanço da semana",
+    "weekTogether": "Uma semana juntos",
+    "weekLabel": "Uma semana",
+    "sjDay3Headline": "Está na hora de {{name}} experimentar",
+    "tips": {
+      "coach_consistency": [
+        "Mantém a rotina curta e clara — a criança cria o hábito passo a passo.",
+        "Festeja cada marca, mesmo as pequenas.",
+        "Deixa a criança iniciar sessão sozinha todas as manhãs."
+      ],
+      "coach_evening": [
+        "Acrescenta 2 ou 3 atividades calmas antes de deitar.",
+        "A mesma ordem todas as tardes ajuda a adormecer."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Novo",
+    "dismissAria": "Fechar a explicação",
+    "continueFallback": "Continuar",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Mostramos aqui, no Início, uma sugestão clara para o próximo passo.",
+        "whatChanged": "Foi adicionado um cartão «Próximo passo» no topo.",
+        "whyItMatters": "Não precisas de procurar nos lembretes — uma sugestão de cada vez."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Deixa a criança experimentar a rotina",
+      "body": "Abre a vista da criança em conjunto — a criança vê logo o que fazer.",
+      "cta": "Abrir a vista da criança"
+    },
+    "ADD_EVENING": {
+      "headline": "Acrescentar a rotina da tarde",
+      "body": "Torna a hora de deitar tão clara como a manhã.",
+      "cta": "Acrescentar a tarde"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Convidar o outro adulto",
+      "body": "Partilha a rotina para acompanharem o dia juntos.",
+      "cta": "Convidar"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Começar por um passo pequeno",
+      "body": "A rotina continua aqui — uma atividade de cada vez, hoje.",
+      "cta": "Abrir o horário"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Personalizar a rotina",
+      "body": "Agora podes tornar o horário vosso.",
+      "cta": "Personalizar"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Festejar o progresso",
+      "body": "Deram um passo importante — tirem um momento juntos.",
+      "cta": "Mostrar à criança"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "A criança terminou uma atividade!",
+    "defaultChild": "A criança",
+    "defaultActivity": "uma atividade",
+    "defaultCta": "Percebi"
+  }
+}

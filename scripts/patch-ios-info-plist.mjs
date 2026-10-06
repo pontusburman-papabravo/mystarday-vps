@@ -77,6 +77,34 @@ const NB_USAGE = {
     `${APP_NAME} trenger tilgang til bildene dine så du kan velge et eksisterende bilde som barnets profilbilde. For eksempel et sommerbilde, som deretter vises som avatar i planen.`,
 };
 
+const ES_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa la cámara para que puedas hacer una foto de perfil de tu hijo. La foto se guarda en la cuenta familiar y solo la ve vuestra familia.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} necesita acceso a tus fotos para que puedas elegir una imagen que ya tienes como foto de perfil de tu hijo. Por ejemplo una foto del verano, que luego aparece como avatar en el horario.`,
+};
+
+const IT_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa la fotocamera così puoi scattare una foto profilo per tuo figlio. La foto resta sull'account di famiglia e la vede solo la vostra famiglia.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} ha bisogno di accedere alle tue foto così puoi scegliere un'immagine già presente come foto profilo di tuo figlio. Per esempio una foto dell'estate, che poi compare come avatar nel piano.`,
+};
+
+const PT_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa a câmara para tirares uma foto de perfil da tua criança. A foto fica na conta da família e só a vossa família a vê.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} precisa de acesso às tuas fotos para escolheres uma imagem que já tens como foto de perfil da tua criança. Por exemplo uma foto do verão, que depois aparece como avatar no horário.`,
+};
+
+const PL_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} używa aparatu, żeby zrobić zdjęcie profilowe dziecka. Zdjęcie zostaje na koncie rodziny i widzi je tylko wasza rodzina.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} potrzebuje dostępu do zdjęć, żeby wybrać istniejące zdjęcie jako zdjęcie profilowe dziecka. Na przykład zdjęcie z lata, które potem widać jako awatar w planie.`,
+};
+
 const USAGE_BY_IOS = {
   sv: SV_USAGE,
   'en-GB': EN_USAGE,
@@ -86,6 +114,10 @@ const USAGE_BY_IOS = {
   da: DA_USAGE,
   fi: FI_USAGE,
   nb: NB_USAGE,
+  'es-ES': ES_USAGE,
+  it: IT_USAGE,
+  'pt-PT': PT_USAGE,
+  pl: PL_USAGE,
 };
 
 /** App only reads photos; never saves to the library. No ATT — no cross-app tracking. */

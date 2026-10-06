@@ -385,7 +385,7 @@
       }
     },
     "it-IT": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "it",
         "fallback": null,
@@ -397,8 +397,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "it",
+        "androidResources": [
+          "scripts/android/l10n/res/values-it/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-it/strings.xml"
+        ]
       }
     },
     "lv-LV": {
@@ -453,7 +456,7 @@
       }
     },
     "pl-PL": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "pl",
         "fallback": null,
@@ -465,12 +468,15 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "pl",
+        "androidResources": [
+          "scripts/android/l10n/res/values-pl/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-pl/strings.xml"
+        ]
       }
     },
     "pt-PT": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "pt-PT",
         "fallback": null,
@@ -482,8 +488,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "pt-PT",
+        "androidResources": [
+          "scripts/android/l10n/res/values-pt-rPT/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-pt-rPT/strings.xml"
+        ]
       }
     },
     "ro-RO": {
@@ -538,7 +547,7 @@
       }
     },
     "es-ES": {
-      "status": "planned",
+      "status": "shipped",
       "apple": {
         "locale": "es-ES",
         "fallback": null,
@@ -550,8 +559,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "es-ES",
+        "androidResources": [
+          "scripts/android/l10n/res/values-es-rES/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-es-rES/strings.xml"
+        ]
       }
     },
     "sv-SE": {

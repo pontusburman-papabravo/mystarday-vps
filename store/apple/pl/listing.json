@@ -1,0 +1,20 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Wizualne rutyny dla rodzin",
+  "keywords": "rutyna,plan,ADHD,autyzm,gwiazdka,nagroda,rodzina,dziecko",
+  "promotionalText": "Wizualne rutyny dla dzieci, które potrzebują więcej punktów oparcia, zwłaszcza przy ADHD lub autyzmie.",
+  "description": "To nie jest kolejny kalendarz.\n\n{{brand}} pomaga dzieciom rozumieć dzień: co jest teraz, co będzie potem i co już się udało.\n\nAplikacja jest dla rodzin, które potrzebują więcej punktów oparcia, więcej przewidywalności i więcej wsparcia wizualnego na co dzień.\n\nDla dziecka z ADHD, autyzmem albo po prostu dla kogoś, komu pomagają wyraźniejsze kroki, {{brand}} dzieli dzień na małe, możliwe kroki.\n\nSzczególnie przydaje się, gdy dziecko ma ADHD, autyzm albo inne potrzeby neuroróżnorodne. Diagnoza nie jest potrzebna. {{brand}} nie leczy ADHD ani autyzmu.\n\nDziecko widzi wizualne rutyny, krok po kroku, i gwiazdki za to, co już zrobione. Rodzice przygotowują plan, nagrody i mogą udostępnić wybrany raport.\n\nWarunki korzystania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Polski jest już w aplikacji. Rutyny, raporty i widok dziecka idą za językiem rodziny."
+}

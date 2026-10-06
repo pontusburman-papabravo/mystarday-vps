@@ -33,7 +33,12 @@ describe('locale backward compatibility matrix', () => {
     ['fi-FI', 'fi-FI'],
     ['nb-NO', 'nb-NO'],
     ['no', 'nb-NO'],
-    ['es-ES', null],
+    ['es-ES', 'es-ES'],
+    ['es', 'es-ES'],
+    ['it-IT', 'it-IT'],
+    ['pt-PT', 'pt-PT'],
+    ['pl-PL', 'pl-PL'],
+    ['is-IS', null],
   ];
 
   for (const [input, expected] of cases) {
@@ -135,8 +140,15 @@ describe('GET /api/i18n legacy aliases', () => {
     assert.equal(body.auth?.login?.title, getLocale('fr-FR').auth?.login?.title);
   });
 
-  it('/api/i18n/invalid returns 400', async () => {
+  it('/api/i18n/es-ES returns the Spanish bundle', async () => {
     const { status, body } = await fetchLocale('es-ES');
+    assert.equal(status, 200);
+    assert.equal(body.auth?.login?.title, 'Entrar');
+    assert.equal(body.auth?.login?.title, getLocale('es-ES').auth?.login?.title);
+  });
+
+  it('/api/i18n/invalid returns 400', async () => {
+    const { status, body } = await fetchLocale('is-IS');
     assert.equal(status, 400);
     assert.ok(body.supported);
   });

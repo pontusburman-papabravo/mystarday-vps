@@ -106,6 +106,16 @@ function spacingMatches(reference, value) {
   return true;
 }
 
+const EXTRA_PLURAL_CATEGORIES = new Set(['zero', 'two', 'few', 'many']);
+
+function extraPluralParent(key) {
+  const dot = key.lastIndexOf('.');
+  if (dot <= 0) return null;
+  const category = key.slice(dot + 1);
+  if (!EXTRA_PLURAL_CATEGORIES.has(category)) return null;
+  return key.slice(0, dot);
+}
+
 function compareLeaves(locale, ownBundle, referenceBundle, errors) {
   const own = new Map(flattenLeaves(ownBundle).map((leaf) => [leaf.key, leaf.value]));
   const reference = new Map(flattenLeaves(referenceBundle).map((leaf) => [leaf.key, leaf.value]));
@@ -113,7 +123,10 @@ function compareLeaves(locale, ownBundle, referenceBundle, errors) {
     if (!own.has(key)) errors.push(`missing key ${key}`);
   }
   for (const key of own.keys()) {
-    if (!reference.has(key)) errors.push(`extra key ${key}`);
+    if (reference.has(key)) continue;
+    const parent = extraPluralParent(key);
+    if (parent && reference.has(`${parent}.other`)) continue;
+    errors.push(`extra key ${key}`);
   }
   const signal = CONTRACT.signals[locale];
   const minLength = CONTRACT.identicalStringMinLength;
@@ -134,6 +147,18 @@ function compareLeaves(locale, ownBundle, referenceBundle, errors) {
       errors.push(`english copy ${key}`);
     }
   }
+  for (const key of own.keys()) {
+    if (reference.has(key)) continue;
+    const parent = extraPluralParent(key);
+    if (!parent || !reference.has(`${parent}.other`)) continue;
+    const ownValue = own.get(key);
+    const otherValue = reference.get(`${parent}.other`);
+    if (typeof ownValue !== 'string' || typeof otherValue !== 'string') continue;
+    if (ownValue.trim() === '') errors.push(`empty ${key}`);
+    if (placeholderKey(otherValue) !== placeholderKey(ownValue)) {
+      errors.push(`placeholder mismatch ${key}`);
+    }
+  }
   if (signal && signal.positive) {
     const blob = [...own.values()].filter((value) => typeof value === 'string').join('\n');
     if (!new RegExp(signal.positive, 'i').test(blob)) {
@@ -141,6 +166,32 @@ function compareLeaves(locale, ownBundle, referenceBundle, errors) {
     }
     if (signal.forbidden && new RegExp(signal.forbidden, 'i').test(blob)) {
       errors.push('source-language text in product copy');
+    }
+  }
+  missingPluralCategories(locale, own, reference, errors);
+}
+
+function missingPluralCategories(locale, own, reference, errors) {
+  let rules;
+  try {
+    rules = new Intl.PluralRules(intlLocaleTag(locale));
+  } catch (_) {
+    return;
+  }
+  const operationalCounts = [0, 1, 2, 3, 4, 5, 11, 12, 22, 25];
+  const extras = [...new Set(operationalCounts.map((count) => rules.select(count)))]
+    .filter((category) => EXTRA_PLURAL_CATEGORIES.has(category));
+  if (!extras.length) return;
+  const parents = new Set();
+  for (const key of reference.keys()) {
+    if (!key.endsWith('.one')) continue;
+    const parent = key.slice(0, -4);
+    if (reference.has(`${parent}.other`)) parents.add(parent);
+  }
+  for (const parent of parents) {
+    for (const category of extras) {
+      const key = `${parent}.${category}`;
+      if (!own.has(key)) errors.push(`missing plural ${key}`);
     }
   }
 }

@@ -392,6 +392,22 @@ function getPublicLocaleCatalog() {
   return derived.publicLocales.map((locale) => ({ ...locale }));
 }
 
+/**
+ * Public and enabled app locales for API clients.
+ * The catalog is the only list. `code` and `id` are the same BCP 47 tag.
+ * @returns {Array<{ id: string, code: string, nativeName: string, selectRequiresFeature: string|null }>}
+ */
+function selectableLocaleOptions() {
+  return derived.publicLocales
+    .filter((locale) => locale.availability === 'public' || locale.availability === 'enabled')
+    .map((locale) => ({
+      id: locale.id,
+      code: locale.id,
+      nativeName: locale.nativeName,
+      selectRequiresFeature: locale.selectRequiresFeature || null,
+    }));
+}
+
 module.exports = {
   SUPPORTED_LOCALES,
   DEFAULT_LOCALE,
@@ -418,5 +434,6 @@ module.exports = {
   experiencePackIdForLocale,
   htmlLang,
   getPublicLocaleCatalog,
+  selectableLocaleOptions,
   withLocaleCatalog,
 };

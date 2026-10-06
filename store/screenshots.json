@@ -57,6 +57,38 @@
           "screenshots/apple/no/02-hem.png",
           "screenshots/apple/no/03-beloning.png"
         ]
+      },
+      "es-ES": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/es-ES/01-idag.png",
+          "screenshots/apple/es-ES/02-hem.png",
+          "screenshots/apple/es-ES/03-beloning.png"
+        ]
+      },
+      "it": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/it/01-idag.png",
+          "screenshots/apple/it/02-hem.png",
+          "screenshots/apple/it/03-beloning.png"
+        ]
+      },
+      "pt-PT": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/pt-PT/01-idag.png",
+          "screenshots/apple/pt-PT/02-hem.png",
+          "screenshots/apple/pt-PT/03-beloning.png"
+        ]
+      },
+      "pl": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/pl/01-idag.png",
+          "screenshots/apple/pl/02-hem.png",
+          "screenshots/apple/pl/03-beloning.png"
+        ]
       }
     },
     "google": {
@@ -112,6 +144,38 @@
         "files": [
           "screenshots/google/no-NO/01-hem.png",
           "screenshots/google/no-NO/02-familj.png"
+        ]
+      },
+      "es-ES": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/es-ES/feature.png",
+        "files": [
+          "screenshots/google/es-ES/01-hem.png",
+          "screenshots/google/es-ES/02-familj.png"
+        ]
+      },
+      "it-IT": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/it-IT/feature.png",
+        "files": [
+          "screenshots/google/it-IT/01-hem.png",
+          "screenshots/google/it-IT/02-familj.png"
+        ]
+      },
+      "pt-PT": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/pt-PT/feature.png",
+        "files": [
+          "screenshots/google/pt-PT/01-hem.png",
+          "screenshots/google/pt-PT/02-familj.png"
+        ]
+      },
+      "pl-PL": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/pl-PL/feature.png",
+        "files": [
+          "screenshots/google/pl-PL/01-hem.png",
+          "screenshots/google/pl-PL/02-familj.png"
         ]
       }
     }
