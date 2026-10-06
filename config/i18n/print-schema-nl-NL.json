@@ -1,0 +1,96 @@
+{
+  "pageTitle": "PDF maken — schema — {{brand}}",
+  "backLink": "← Terug naar Planning",
+  "heading": "📄 PDF maken — schema",
+  "intro": "Kies een kind en een periode. Het voorbeeld toont het hele schema — de PDF schaalt automatisch zodat hij op één A4-blad in liggend formaat past.",
+  "pdfSave": {
+    "title": "Waar wordt de PDF opgeslagen?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Na <em>PDF maken</em> opent een deelmenu — kies <strong>Bewaar in Bestanden</strong> en kies een map (bijv. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computer:</strong> De PDF gaat naar je map <strong>Downloads</strong> (vaak linksonder in de browser)."
+  },
+  "sections": {
+    "child": "Kind",
+    "period": "Periode",
+    "scope": "Wat moet er in de PDF staan?",
+    "startWeek": "Startweek"
+  },
+  "period": {
+    "1w": "1 week",
+    "2w": "2 weken",
+    "1m": "1 maand"
+  },
+  "scope": {
+    "all": "Volledig schema",
+    "my": "Alleen mijn dagen"
+  },
+  "weekNav": {
+    "prevAria": "Vorige week",
+    "nextAria": "Volgende week",
+    "today": "Deze week"
+  },
+  "actions": {
+    "preview": "Voorbeeld",
+    "createPdf": "PDF maken"
+  },
+  "preview": {
+    "heading": "Voorbeeld",
+    "hint": "Scroll omlaag als een dag veel activiteiten heeft."
+  },
+  "pdfHelp": {
+    "title": "Zo sla je de PDF op",
+    "closeAria": "Sluiten",
+    "ok": "OK, begrepen",
+    "introShare": "Het deelmenu is open. Kies Bewaar in Bestanden om de PDF op te slaan.",
+    "introPreview": "De PDF is in de browser geopend{{filename}}.",
+    "introDesktop": "De PDF is gedownload{{filename}}.",
+    "filenameSuffix": " als {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "In het deelmenu: scroll en tik op <strong>Bewaar in Bestanden</strong>.",
+      "Kies een map (bijv. <strong>iCloud Drive</strong> of <strong>Op mijn iPhone</strong>).",
+      "Tik rechtsboven op <strong>Bewaar</strong>.",
+      "Je vindt het bestand later in de app <strong>Bestanden</strong>."
+    ],
+    "previewSteps": [
+      "De PDF opende in een nieuw scherm — tik rechtsboven op <strong>Deel</strong> (↑).",
+      "Kies <strong>Bewaar in Bestanden</strong>.",
+      "Kies een map en tik op <strong>Bewaar</strong>."
+    ],
+    "desktopSteps": [
+      "Open de map <strong>Downloads</strong> op je computer.",
+      "Zoek een bestand dat begint met <strong>{{prefix}}</strong> en de datum van vandaag."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Schema",
+    "titleMyDays": "Mijn dagen",
+    "emptyCell": "–",
+    "childFallback": "Kind",
+    "loadingPrint": "Afdruk voorbereiden…",
+    "iframeTitle": "Afdrukken"
+  },
+  "filename": {
+    "prefixSchedule": "weekschema",
+    "prefixMyDays": "mijn-dagen",
+    "fallbackSlug": "kind"
+  },
+  "toasts": {
+    "loadChildrenError": "Kinderen konden niet worden geladen",
+    "selectChild": "Kies eerst een kind",
+    "loadingPreview": "Voorbeeld laden…",
+    "noMyDays": "Geen dagen voor jou in de gekozen periode",
+    "loadScheduleError": "Het schema kon niet worden geladen",
+    "creatingPdf": "PDF maken…",
+    "pdfCancelled": "PDF opslaan geannuleerd",
+    "shareHint": "Kies Bewaar in Bestanden in het deelmenu",
+    "mobileSavedHint": "PDF klaar — sla hem op in Bestanden",
+    "desktopSavedHint": "PDF opgeslagen in Downloads",
+    "pdfLibsMissing": "PDF-hulpmiddelen ontbreken — laad de pagina opnieuw en probeer het nog eens",
+    "createPdfError": "De PDF kon niet worden gemaakt",
+    "shareAgain": "De PDF is klaar. Tik nog eens op PDF maken om te kiezen waar je hem opslaat."
+  },
+  "empty": {
+    "noChildren": "Nog geen kinderen toegevoegd.",
+    "goDashboard": "Ga naar Thuis"
+  }
+}

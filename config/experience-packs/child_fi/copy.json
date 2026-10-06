@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Tänään {{child_name}} otti ensimmäisen askeleen.",
+      "body_template": "Pieni arjen asia — mutta se merkitsee paljon. Nyt tiedät, että rutiini toimii.",
+      "cta": "Sen näen"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Se onnistui yhdessä",
+      "body_template": "{{child_name}} aloitti. Sinä näit sen. Näin tavat kasvavat.",
+      "cta": "Ihanaa"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Aamutalossa välkähtää jotain…"
+    }
+  }
+}

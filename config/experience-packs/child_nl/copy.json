@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Vandaag zette {{child_name}} een eerste stap.",
+      "body_template": "Een klein ding uit de dag — maar het betekent veel. Nu weet je dat de routine werkt.",
+      "cta": "Ik zie het"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Jullie deden het samen",
+      "body_template": "{{child_name}} is begonnen. Jij zag het. Zo groeien gewoontes.",
+      "cta": "Wat fijn"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Er glinstert iets in het Ochtendhuis…"
+    }
+  }
+}

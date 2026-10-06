@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "garden",
+      "display_name_sv": "De tuin",
+      "slots": [
+        {
+          "slot_id": "bed_1",
+          "label_sv": "Het bloembed",
+          "default_archetype_id": "sunflower"
+        }
+      ],
+      "archetypes": [
+        {
+          "archetype_id": "sunflower",
+          "display_name_sv": "De zonnebloem",
+          "initial_state": "empty",
+          "states": [
+            {
+              "state_key": "empty",
+              "label_sv": "Lege aarde",
+              "visual_token": "garden_bed_empty"
+            },
+            {
+              "state_key": "planted",
+              "label_sv": "Het zaadje is geplant",
+              "visual_token": "sunflower_seed"
+            },
+            {
+              "state_key": "watered",
+              "label_sv": "Je hebt het zaadje water gegeven",
+              "visual_token": "sunflower_seed",
+              "timer_ms": 30000,
+              "timer_next_state": "blooming"
+            },
+            {
+              "state_key": "blooming",
+              "label_sv": "De zonnebloem bloeit!",
+              "visual_token": "sunflower_bloom"
+            },
+            {
+              "state_key": "harvested",
+              "label_sv": "De bloem van vandaag",
+              "visual_token": "sunflower_harvested"
+            }
+          ],
+          "verbs": [
+            {
+              "verb": "plant",
+              "from_state": "empty",
+              "to_state": "planted",
+              "child_message_sv": "Je hebt een zaadje geplant!"
+            },
+            {
+              "verb": "water",
+              "from_state": "planted",
+              "to_state": "watered",
+              "child_message_sv": "Je gaf het zaadje water — nu groeit het!"
+            },
+            {
+              "verb": "harvest",
+              "from_state": "blooming",
+              "to_state": "harvested",
+              "child_message_sv": "Je hebt de zonnebloem geplukt!"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

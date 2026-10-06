@@ -109,27 +109,29 @@ describe('family report locale', () => {
     assert.match(english.title, /SUMMARY FOR NOVA/);
     assert.match(swedish.title, /SAMMANFATTNING FÖR NOVA/);
 
-    const frenchCatalog = {
+    assert.equal(t('fr-FR', 'reports.professional.sectionMorning'), 'Matin');
+
+    const futureCatalog = {
       defaultLocale: 'sv-SE',
       fallbackLocale: 'en-GB',
       locales: [
         { id: 'sv-SE', nativeName: 'Svenska', base: 'sv', aliases: ['sv'], availability: 'public', experiencePack: 'child_se', contentSource: 'canonical-db' },
         { id: 'en-GB', nativeName: 'English', base: 'en', aliases: ['en'], availability: 'public', experiencePack: 'child_en', contentSource: 'locale-files' },
-        { id: 'fr-FR', nativeName: 'Français', base: 'fr', aliases: ['fr'], availability: 'registered', experiencePack: 'child_fr', contentSource: 'locale-files' },
+        { id: 'es-ES', nativeName: 'Español', base: 'es', aliases: ['es'], availability: 'registered', experiencePack: 'child_es', contentSource: 'locale-files' },
       ],
     };
-    withLocaleCatalog(frenchCatalog, () => {
-      assert.equal(t('fr-FR', 'reports.professional.sectionMorning'), 'Morning');
-      const french = mapReportToPlayful({
+    withLocaleCatalog(futureCatalog, () => {
+      assert.equal(t('es-ES', 'reports.professional.sectionMorning'), 'Morning');
+      const future = mapReportToPlayful({
         link: {},
         blocks,
         fields: ['section_summary'],
         dateFrom: '2026-10-01',
         dateTo: '2026-10-06',
-        locale: 'fr-FR',
+        locale: 'es-ES',
       });
-      assert.equal(french.sections[0].label, 'Morning');
-      assert.notEqual(french.sections[0].label, 'Morgon');
+      assert.equal(future.sections[0].label, 'Morning');
+      assert.notEqual(future.sections[0].label, 'Morgon');
     });
   });
 });

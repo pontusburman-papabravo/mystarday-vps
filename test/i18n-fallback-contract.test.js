@@ -208,40 +208,42 @@ describe('i18n fallback contract', () => {
 });
 
 describe('i18n fallback invariant: fi is not Swedish', () => {
-  it('normalizeLocale never maps fi / fi-FI to sv-SE', () => {
+  it('normalizeLocale maps fi / fi-FI to fi-FI and never to sv-SE', () => {
     for (const raw of ['fi', 'fi-FI', 'fi-fi', 'fi_FI', 'fi_fi', 'FI']) {
-      assert.equal(normalizeLocale(raw), null, raw);
+      assert.equal(normalizeLocale(raw), 'fi-FI', raw);
+      assert.notEqual(normalizeLocale(raw), 'sv-SE', raw);
     }
-    assert.equal(ALIASES.fi, undefined);
-    assert.equal(ALIASES['fi-fi'], undefined);
+    assert.equal(ALIASES.fi, 'fi-FI');
+    assert.equal(ALIASES['fi-fi'], 'fi-FI');
   });
 
-  it('Accept-Language fi then en-GB resolves to English, not Swedish', () => {
-    assert.equal(parseAcceptLanguage('fi-FI,en-GB;q=0.8'), 'en-GB');
-    assert.equal(parseAcceptLanguage('fi,en;q=0.5'), 'en-GB');
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
+  it('Accept-Language fi then en-GB resolves to Finnish, not Swedish', () => {
+    assert.equal(parseAcceptLanguage('fi-FI,en-GB;q=0.8'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi,en;q=0.5'), 'fi-FI');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'fi-FI');
+    assert.notEqual(parseAcceptLanguage('fi-FI'), 'sv-SE');
   });
 
-  it('fi-only header is unknown (product default), not an alias', () => {
-    assert.equal(parseAcceptLanguage('fi-FI'), null);
-    assert.equal(parseAcceptLanguage('fi'), null);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI' }), DEFAULT_LOCALE);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fr-FR' }), DEFAULT_LOCALE);
+  it('an unsupported language still falls back instead of becoming Swedish by alias', () => {
+    assert.equal(parseAcceptLanguage('pl-PL'), null);
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'pl-PL' }), DEFAULT_LOCALE);
+    assert.equal(parseAcceptLanguage('pl-PL,en-GB;q=0.8'), 'en-GB');
   });
 
-  it('client _normalize does not alias fi to sv-SE', () => {
+  it('client _normalize maps fi to fi-FI and not to sv-SE', () => {
     const { sandbox } = loadClientI18n({ languages: ['sv-SE'] });
     const I18n = sandbox.window.I18n;
-    assert.equal(I18n._normalize('fi'), null);
-    assert.equal(I18n._normalize('fi-FI'), null);
-    assert.equal(I18n._normalize('fi_FI'), null);
+    assert.equal(I18n._normalize('fi'), 'fi-FI');
+    assert.equal(I18n._normalize('fi-FI'), 'fi-FI');
+    assert.notEqual(I18n._normalize('fi-FI'), 'sv-SE');
+    assert.equal(I18n._normalize('fi_FI'), 'fi-FI');
     assert.equal(I18n._fromNavigator(), 'sv-SE');
   });
 
-  it('client navigator fi-FI,en-GB picks English', () => {
+  it('client navigator fi-FI,en-GB picks Finnish', () => {
     const { sandbox } = loadClientI18n({ languages: ['fi-FI', 'en-GB'] });
-    assert.equal(sandbox.window.I18n._fromNavigator(), 'en-GB');
-    assert.equal(sandbox.window.I18n.lang, 'en-GB');
+    assert.equal(sandbox.window.I18n._fromNavigator(), 'fi-FI');
+    assert.equal(sandbox.window.I18n.lang, 'fi-FI');
   });
 });
 

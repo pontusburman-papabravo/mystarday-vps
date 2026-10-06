@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planning — {{brand}}",
+  "shell": {
+    "title": "Planning",
+    "lead": "Choisissez la semaine, les activités, ou la suite.",
+    "logout": "Se déconnecter"
+  },
+  "sections": {
+    "planWeek": "Préparer la semaine",
+    "buildContent": "Créer le contenu",
+    "other": "Autre"
+  },
+  "primary": {
+    "week": { "title": "La semaine", "sub": "La liste des journées de vos enfants" },
+    "activities": { "title": "Activités", "sub": "La bibliothèque — créer et modifier" },
+    "more": { "title": "Plus", "sub": "Impression, modèles et autres outils" }
+  },
+  "more": {
+    "title": "Plus",
+    "close": "Fermer"
+  },
+  "links": {
+    "library": { "title": "Bibliothèque", "sub": "Créer des activités et des récompenses" },
+    "imageArchive": { "title": "Archives photos", "sub": "Vos photos — brosse à dents, lit, école" },
+    "templates": { "title": "Modèles", "sub": "Plannings enregistrés, à réutiliser" },
+    "weekSchedule": { "title": "Planning de la semaine", "sub": "Modifier la semaine de votre enfant" },
+    "calendar": { "title": "Calendrier", "sub": "Voir le mois et les jours particuliers" },
+    "custody": { "title": "Planning de garde", "sub": "Garde partagée entre deux foyers" },
+    "dailyLog": { "title": "Aujourd'hui", "sub": "Voir et ajuster les jours passés" },
+    "printSchema": { "title": "Créer un PDF — planning", "sub": "Imprimer un planning" },
+    "assignSchedule": { "title": "Attribuer un planning", "sub": "Copier un planning vers un enfant" },
+    "reports": { "title": "Rapports", "sub": "Progrès et partage" },
+    "samarbete": { "title": "Collaboration éducateur", "sub": "Travailler avec un éducateur" },
+    "barnStod": { "title": "Soutien supplémentaire", "sub": "Soutien visuel et TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Pour commencer",
+    "bodyBeforeLibrary": "Commencez dans la ",
+    "libraryLink": "Bibliothèque",
+    "bodyMiddle": " si vous voulez créer des activités. Allez dans ",
+    "forYouLink": "Pour vous",
+    "bodyAfter": " si vous voulez une suggestion prête à l'emploi."
+  }
+}

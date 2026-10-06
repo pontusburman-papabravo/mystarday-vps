@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planlægning — {{brand}}",
+  "shell": {
+    "title": "Planlægning",
+    "lead": "Vælg ugen, aktiviteter eller mere.",
+    "logout": "Log ud"
+  },
+  "sections": {
+    "planWeek": "Planlæg ugen",
+    "buildContent": "Byg indhold",
+    "other": "Andet"
+  },
+  "primary": {
+    "week": { "title": "Ugen", "sub": "Dagens liste for dine børns uge" },
+    "activities": { "title": "Aktiviteter", "sub": "Biblioteket — opret og rediger" },
+    "more": { "title": "Mere", "sub": "Udskriv, skabeloner og andre værktøjer" }
+  },
+  "more": {
+    "title": "Mere",
+    "close": "Luk"
+  },
+  "links": {
+    "library": { "title": "Bibliotek", "sub": "Opret aktiviteter og belønninger" },
+    "imageArchive": { "title": "Billedarkiv", "sub": "Dine fotos — tandbørste, seng, skole" },
+    "templates": { "title": "Skabeloner", "sub": "Gemte skemaer, du kan bruge igen" },
+    "weekSchedule": { "title": "Ugeskema", "sub": "Rediger dit barns uge" },
+    "calendar": { "title": "Kalender", "sub": "Se måneden og særlige dage" },
+    "custody": { "title": "Samværsskema", "sub": "Delt omsorg mellem hjem" },
+    "dailyLog": { "title": "I dag", "sub": "Se og ret tidligere dage" },
+    "printSchema": { "title": "Opret PDF — skema", "sub": "Udskriv et skema" },
+    "assignSchedule": { "title": "Tildel skema", "sub": "Kopiér et skema til et barn" },
+    "reports": { "title": "Rapporter", "sub": "Fremgang og deling" },
+    "samarbete": { "title": "Samarbejde med pædagog", "sub": "Arbejd sammen med en pædagog" },
+    "barnStod": { "title": "Ekstra støtte", "sub": "Visuel støtte og TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Kom i gang",
+    "bodyBeforeLibrary": "Start i ",
+    "libraryLink": "Bibliotek",
+    "bodyMiddle": ", hvis du vil oprette aktiviteter. Gå til ",
+    "forYouLink": "Til dig",
+    "bodyAfter": ", hvis du vil have et færdigt forslag."
+  }
+}

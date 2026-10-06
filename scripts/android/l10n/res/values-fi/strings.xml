@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> 
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Ei yhteyttä</string>
+    <string name="native_offline_body">Tarkista internetyhteys ja yritä uudelleen.</string>
+    <string name="camera_permission_rationale">[REDACTED] käyttää kameraa, jotta voit ottaa lapsellesi profiilikuvan.</string>
+    <string name="photos_permission_rationale">[REDACTED] tarvitsee pääsyn kuviisi, jotta voit valita lapsellesi profiilikuvan.</string>
+    <string name="notification_channel_routine_name">Rutiinimuistutukset</string>
+    <string name="notification_channel_routine_desc">Muistutuksia perheen aikataulusta</string>
+</resources>

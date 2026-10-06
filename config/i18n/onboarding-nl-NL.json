@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Stap {{current}} van {{total}}",
+    "back": "← Terug",
+    "next": "Volgende stap →",
+    "continue": "Verder →",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "loading": "Laden…",
+    "genericError": "Er ging iets mis. Probeer het opnieuw.",
+    "networkError": "Netwerkfout. Probeer het opnieuw.",
+    "closeAria": "Sluiten",
+    "childFallback": "Je kind",
+    "addChildDone": "Klaar! →",
+    "goForward": "Verder →",
+    "finishing": "Afronden…",
+    "recommended": "Aanbevolen",
+    "optional": "Optioneel"
+  },
+  "pageTitle": {
+    "welcome": "Welkom — {{brand}}",
+    "ogTitle": "{{brand}} — Begin in 2 minuten",
+    "ogDescription": "Zet meteen het schema en de beloningen van je kind klaar"
+  },
+  "verifyEmail": {
+    "title": "Bevestig je e-mailadres",
+    "body": "We hebben een e-mail gestuurd naar {{email}}. Klik op de link in de e-mail om je account te activeren.",
+    "resend": "Opnieuw versturen",
+    "resendSending": "Versturen…",
+    "resendSuccess": "✓ Verstuurd!",
+    "resendSent": "Verstuurd",
+    "resendError": "Er ging iets mis. Probeer het opnieuw."
+  },
+  "child": {
+    "title": "Vertel ons over je kind",
+    "lead": "Kies een naam, emoji, verjaardag en een schema dat bij jullie dagelijkse routine past.",
+    "nameLabel": "Naam van het kind",
+    "namePlaceholder": "bijv. Ella",
+    "birthdayLabel": "Verjaardag",
+    "birthdayOptionalHint": "(optioneel — helpt ons het juiste schema voor te stellen)",
+    "yearPlaceholder": "Jaar",
+    "monthPlaceholder": "Maand",
+    "dayPlaceholder": "Dag",
+    "birthYearAria": "Geboortejaar",
+    "birthMonthAria": "Geboortemaand",
+    "birthDayAria": "Geboortedag",
+    "months": [
+      "januari",
+      "februari",
+      "maart",
+      "april",
+      "mei",
+      "juni",
+      "juli",
+      "augustus",
+      "september",
+      "oktober",
+      "november",
+      "december"
+    ],
+    "emojiLabel": "Kies een emoji",
+    "customEmojiPlaceholder": "Of typ je eigen emoji…",
+    "emojiAriaLabel": "Kies emoji {{emoji}}",
+    "avatarLabel": "Optioneel: profielfoto",
+    "avatarHint": "Kies een foto uit je bibliotheek of maak een nieuwe.",
+    "avatarDefaultBtn": "✨ Standaardafbeelding",
+    "avatarPickBtn": "📷 Foto kiezen",
+    "avatarLoading": "Laden…",
+    "avatarPreparing": "Voorbereiden…",
+    "avatarUploadFailed": "De foto kon niet worden geüpload. Probeer het opnieuw.",
+    "avatarReadFailed": "De afbeelding kon niet worden gelezen",
+    "avatarAlt": "Profielfoto van het kind",
+    "scheduleLabel": "Kies een schema",
+    "templatesLoading": "Schema's laden…",
+    "templatesLoadFailed": "Schemasjablonen konden nu niet worden geladen.",
+    "templatesRetryBtn": "Opnieuw proberen",
+    "nextBtn": "Volgende stap →",
+    "creatingChild": "Kind aanmaken…",
+    "creatingSchedule": "Schema maken…",
+    "nameRequired": "Vul de naam van je kind in",
+    "emojiRequired": "Kies een emoji voor je kind",
+    "scheduleRequired": "Kies een schema",
+    "childResumedToast": "We hebben je kind van de vorige keer gevonden — we gaan verder met het schema.",
+    "avatarSaveFailedToast": "Kind aangemaakt, maar de foto kon niet worden opgeslagen. Je kunt hem toevoegen onder Gezin.",
+    "scheduleCreateFailed": "Het schema kon niet worden gemaakt"
+  },
+  "activityGuide": {
+    "title": "Hoe moet de app {{childName}} helpen met de activiteiten van vandaag?",
+    "lead": "Je kunt dit altijd wijzigen in de instellingen van je kind.",
+    "stepLabel": "Stap {{current}} van {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Vrije volgorde",
+        "description": "Je kind mag in elke volgorde afvinken."
+      },
+      "one_at_a_time": {
+        "title": "Eén ding tegelijk",
+        "description": "De app helpt je kind zich te richten op de volgende stap."
+      },
+      "time_and_order": {
+        "title": "Duidelijke tijd en volgorde",
+        "description": "De app helpt met de volgende stap en een timer die je per activiteit instelt."
+      }
+    },
+    "continueBtn": "Verder →",
+    "saving": "Opslaan…",
+    "selectError": "Kies een optie",
+    "saveError": "Je keuze kon niet worden opgeslagen"
+  },
+  "viewType": {
+    "title": "Welke weergave moet {{childName}} zien?",
+    "lead": "Kies hoe het schema eruitziet als je kind inlogt. Je kunt dit altijd wijzigen in de instellingen.",
+    "dayViewTitle": "Dagweergave",
+    "dayViewSubtitle": "Ochtend · Late ochtend · Middag · Avond",
+    "timelineViewTitle": "Weergave Nu/Hierna/Later",
+    "timelineViewSubtitle": "Toont alleen wat er nu gebeurt",
+    "timelineNow": "NU",
+    "timelineNext": "HIERNA",
+    "timelineThen": "LATER",
+    "mock": {
+      "wakeStretch": "Wakker worden en rekken",
+      "brushTeeth": "Tanden poetsen",
+      "packBag": "Tas inpakken",
+      "preschool": "Naar de peuterschool",
+      "freePlay": "Vrij spelen",
+      "dinner": "Avondeten",
+      "bedtimeStory": "Verhaaltje voor het slapen",
+      "preschoolShort": "Peuterschool",
+      "play": "Spelen"
+    },
+    "dayViewHint": "Je kunt ook Dagweergave kiezen als je kind kleurgecodeerde dagdelen fijner vindt.",
+    "skipHint": "Overslaan? Dan wordt Dagweergave automatisch gekozen.",
+    "saving": "Weergavekeuze opslaan…"
+  },
+  "scheduleReady": {
+    "title": "Schema klaar!",
+    "subtitle": "We hebben een startschema klaargezet voor {{childName}}.",
+    "subtitleWithTemplate": "We hebben het schema {{templateName}} klaargezet voor {{childName}}. Het bevat de belangrijkste stappen om het zelf te redden.",
+    "templateFallback": "Schema",
+    "daysWeek": "7 dagen / week",
+    "daysMonFri": "ma–vr",
+    "daysMonFriWeekend": "ma–vr + weekend",
+    "socialProofTitle": "Wist je dat?",
+    "socialProofBody": "Visuele ondersteuning vermindert dagelijkse stress vaak met wel 30% — en kinderen met duidelijke routines vallen sneller in slaap en worden vrolijker wakker.",
+    "continueBtn": "Top, aan de slag! →"
+  },
+  "rewards": {
+    "title": "Zo werken sterren",
+    "checkOff": "Afvinken",
+    "star": "Ster",
+    "treasureChest": "Sterrenkist",
+    "intro": "We hebben leuke beloningen ingevuld. Kies de beloningen waar {{childName}} naartoe kan werken!",
+    "introWithCount": "We hebben {{count}} leuke beloningen ingevuld. Kies de beloningen waar {{childName}} naartoe kan werken!",
+    "selectCount": {
+      "zero": "Kies minstens 1 beloning (0 gekozen)",
+      "one": "{{count}} beloning gekozen ✓",
+      "other": "{{count}} beloningen gekozen ✓"
+    },
+    "minOneError": "Kies minstens één beloning om verder te gaan",
+    "saveBtn": "Beloningen opslaan →",
+    "saving": "Beloningen opslaan…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Extra verhaaltje",
+      "chooseDessert": "Toetje kiezen",
+      "movieNight": "Filmavond",
+      "chooseDinner": "Avondeten kiezen",
+      "outing": "Uitje",
+      "bakeTogether": "Samen bakken",
+      "familyGameNight": "Gezinsspelavond",
+      "lateBedtime": "Lang opblijven",
+      "cinemaTrip": "Naar de bioscoop"
+    }
+  },
+  "handoff": {
+    "title": "Hoe jullie inloggen",
+    "lead": "{{childName}} logt in met naam en pincode — geen wachtwoorden.",
+    "childLoginLabel": "Kindlogin",
+    "usernameFallback": "gebruikersnaam",
+    "pinLabel": "Pincode",
+    "pinNote": "Noteer de pincode — je kunt hem wijzigen in de instellingen.",
+    "pinResumeHint": "Gebruik de pincode van je kind. Als je hem vergeten bent, kun je hieronder een nieuwe instellen.",
+    "chooseCustomPin": "✏️ Kies je eigen pincode",
+    "savePin": "Pincode opslaan",
+    "savingPin": "Opslaan…",
+    "pinMustBe4": "De pincode moet 4 cijfers zijn",
+    "pinTooWeak": "Kies een sterkere pincode (niet 1111, 2222, enzovoort)",
+    "pinSaveFailed": "Pincode kon niet worden opgeslagen",
+    "copyInfo": "📋 Gegevens kopiëren",
+    "copied": "✓ Gekopieerd!",
+    "copyManual": "Kopieer handmatig:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nGebruikersnaam: {{username}}\nPincode: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Naar e-mail sturen",
+    "emailSubject": "{{brand}} — Inloggen voor {{childName}}",
+    "emailBody": "Hallo!\n\nHier zijn de inloggegevens voor {{brand}} voor {{childName}}:\n\nGebruikersnaam: {{username}}\nPincode: {{pin}}\n\nOpen de app: {{appUrl}}/child-login\n\nHartelijke groet,\n{{brand}}",
+    "emailFallbackAlert": "Inloggen voor {{childName}}:\nGebruikersnaam: {{username}}\nPincode: {{pin}}",
+    "installTitle": "Installeer als app",
+    "installBody": "Zet {{brand}} op je beginscherm — werkt als een echte app, ook offline, zonder appwinkels.",
+    "installInstructions": "iPhone: Deel → Zet op beginscherm · Android: ⋮ → App installeren",
+    "parentTipTitle": "Een tip voor jou als ouder",
+    "parentTipLead": "Ga vanavond samen zitten. Laat eerst de sterrenkist zien",
+    "parentTipEmphasis": "eerst",
+    "parentTipTail": "om nieuwsgierigheid te wekken — leg daarna uit dat de app de eigen kaart van {{childName}} is voor de dag!",
+    "testChildLogin": "👶 Probeer nu de kindlogin",
+    "continueAsParent": "Verder als ouder →",
+    "skipConfirmTitle": "Kindlogin overslaan?",
+    "skipConfirmBody": "Je kind heeft de pincode nodig om zelf in te loggen. Als je het nu niet probeert, kan de ochtendroutine lastiger voelen — we sturen een herinnering over 24 uur als je kind het nog niet heeft geprobeerd.",
+    "skipConfirmPrimary": "👶 Kindlogin proberen",
+    "skipConfirmSecondary": "Toch overslaan"
+  },
+  "parentPin": {
+    "setLater": "Ouder-pincode later instellen",
+    "title": "Ouder-pincode instellen",
+    "description": "Een pincode van 4 cijfers die alleen jij kent, beschermt het oudergedeelte — bijvoorbeeld als kinderen een broer of zus toevoegen of als jij als ouder inlogt op het apparaat van je kind.",
+    "choosePin": "Kies je pincode",
+    "confirmPin": "Bevestig de pincode",
+    "changeLater": "Je kunt je pincode later wijzigen onder Gezin en instellingen.",
+    "pinRequiredOrEmpty": "Vul een pincode van 4 cijfers in of laat de velden leeg",
+    "pinRequiredForHandoff": "Stel een pincode van 4 cijfers in voordat je kind het apparaat kan overnemen.",
+    "pinMismatch": "De pincodes komen niet overeen",
+    "saveFailed": "Pincode kon niet worden opgeslagen",
+    "handoffRequired": "Op een gedeeld apparaat heb je een pincode voor volwassenen nodig voordat je kind kan inloggen.",
+    "saveAndContinue": "Opslaan en verder"
+  },
+  "invite": {
+    "inviteLater": "Andere ouder later uitnodigen",
+    "title": "Nodig een andere volwassene uit",
+    "namePlaceholder": "Naam (bijv. Erik)",
+    "emailPlaceholder": "E-mailadres",
+    "whichChildren": "Welke kinderen mag deze persoon zien?",
+    "sendBtn": "📧 Uitnodiging versturen",
+    "sending": "Versturen…",
+    "sent": "✓ Verstuurd",
+    "skip": "Overslaan →",
+    "emailRequired": "Vul een e-mailadres in",
+    "invalidEmail": "Ongeldig e-mailadres",
+    "success": "Uitnodiging verstuurd naar {{email}}! ✓",
+    "sendFailed": "Er ging iets mis"
+  },
+  "complete": {
+    "title": "Bijna klaar!",
+    "lead": "Laat je kind de app proberen — je kunt andere volwassenen uitnodigen en een ouder-pincode instellen na het eerste vinkje.",
+    "tips": {
+      "editScheduleTitle": "Het schema bewerken",
+      "editScheduleBody": "Ga naar Thuis → tik op de kaart van je kind → pas activiteiten aan zodat ze bij jullie dag passen.",
+      "checkRewardsTitle": "Bekijk de beloningen",
+      "checkRewardsBody": "In de kindweergave — tik op de ster — ziet je kind hoeveel sterren elke beloning kost.",
+      "addChildrenTitle": "Meer kinderen toevoegen",
+      "addChildrenBody": "Elk kind krijgt een eigen schema en sterren. Voeg er nog een toe via + op Thuis."
+    },
+    "letChildStart": "👶 Laat je kind beginnen",
+    "letChildStartPlain": "Laat je kind beginnen",
+    "completeFailed": "De start kon niet worden afgerond",
+    "completeFailedShort": "Afronden lukte niet",
+    "welcomeFooter": "Welkom bij {{brand}} — fijn dat je er bent! 🌟"
+  },
+  "weekend": {
+    "title": "Een weekendschema toevoegen?",
+    "body": "Het doordeweekse schema staat klaar voor ma–vr. Wil je een ontspannen weekendschema voor zaterdag en zondag?",
+    "scheduleLabel": "Weekendschema",
+    "satSun": "za + zo",
+    "preview": {
+      "sleepIn": "Uitslapen",
+      "breakfast": "Rustig ontbijten",
+      "freePlay": "Vrij spelen",
+      "outing": "Uitje / park",
+      "familyActivity": "Gezinsactiviteit",
+      "dinner": "Avondeten"
+    },
+    "yesBtn": "✅ Ja, weekendschema toevoegen",
+    "yesLoading": "Toevoegen…",
+    "noBtn": "Nee bedankt, ik vul het later in",
+    "addFailed": "Het weekendschema kon niet worden toegevoegd"
+  },
+  "starter": {
+    "stepLabel": "Schema maken {{current}} van {{total}}",
+    "slimTitle": "Je routine is bijna klaar",
+    "fullTitle": "Maak je eerste schema",
+    "slimIntro": "Drie korte vragen — daarna staat je routine klaar.",
+    "birthdayHint": "Kies de geboortedatum van je kind — dat helpt ons het juiste schema voor te stellen.",
+    "fullIntro": "Beantwoord een paar vragen — het duurt minder dan een minuut.",
+    "powerPathLead": "Wil je zelf kiezen of bouwen?",
+    "chooseTemplate": "📋 Kies een kant-en-klaar schema",
+    "fullWizard": "✏️ Zelf bouwen en aanpassen (7 vragen)",
+    "answerRequired": "Kies of vul een antwoord in",
+    "showSchedule": "Schema tonen →",
+    "buttons": {
+      "next": "Volgende →"
+    },
+    "createRoutine": "Routine maken →",
+    "creatingRoutine": "Routine maken…",
+    "personalizing": "Schema aanpassen…",
+    "loading": "Laden…",
+    "useSchedule": "Dit schema gebruiken →",
+    "saving": "Opslaan…",
+    "changeAnswers": "← Antwoorden wijzigen",
+    "removeStep": "Verwijderen",
+    "previewHint": "Je kunt stappen weghalen — later voeg je er meer toe in de instellingen.",
+    "previewForChild": "Voor {{childName}} · {{count}} activiteiten",
+    "previewAiTail": " · ✨ met AI aangepast",
+    "defaultPlanTitle": "Jouw schema",
+    "slimSuccessTitle": "Je routine staat klaar",
+    "slimSuccessTonight": "Het schema staat klaar. Laat {{childName}} Vandaag zien op dit apparaat.",
+    "showChildToday": "Vandaag van het kind tonen",
+    "openingChildToday": "Vandaag van het kind openen…",
+    "hourglassOfferTitle": "Visuele zandloper",
+    "hourglassOfferBody": "Help je kind zien hoeveel tijd er nog over is bij een activiteit.",
+    "hourglassEnableBtn": "Zandloper aanzetten",
+    "hourglassEnabling": "Aanzetten…",
+    "hourglassEnabledMsg": "De zandloper staat aan voor je kind.",
+    "hourglassEnableFailed": "De zandloper kon niet worden aangezet",
+    "goHome": "Ga naar Thuis →",
+    "openingHome": "Thuis openen…",
+    "customizeFirst": "Eerst het schema aanpassen",
+    "openingSchedule": "Schema openen…",
+    "nameRequired": "Vul de naam van je kind in",
+    "templateFailed": "Sjabloon kiezen lukte niet",
+    "previewFailed": "Het schema kon niet worden geladen",
+    "childCreateFailed": "Het kind kon niet worden aangemaakt",
+    "scheduleSaveFailed": "Het schema kon niet worden opgeslagen",
+    "personalizeFailed": "Het schema kon niet worden aangepast",
+    "completeFailed": "Afronden lukte niet",
+    "packages": {
+      "morning-short": {
+        "name": "Korte ochtend"
+      },
+      "evening-routine": {
+        "name": "Avondroutine"
+      },
+      "preschool-day": {
+        "name": "Peuterschool doordeweeks"
+      },
+      "school-day": {
+        "name": "School doordeweeks"
+      },
+      "weekend": {
+        "name": "Weekend"
+      },
+      "getting-ready": {
+        "name": "Korte ochtend"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Naam van het kind",
+        "placeholder": "bijv. Ella"
+      },
+      "age_band": {
+        "label": "Hoe oud is je kind?",
+        "options": {
+          "3-5": "3–5 jaar",
+          "6-8": "6–8 jaar",
+          "9-12": "9–12 jaar",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Met welke routine wil je beginnen?",
+        "options": {
+          "morgon": "☀️ Ochtend",
+          "kvall": "🌙 Avond",
+          "efter-skola": "🏫 Na school",
+          "laxor": "📚 Huiswerk",
+          "gora-sig-klar": "🎒 Klaarmaken"
+        }
+      },
+      "main_challenge": {
+        "label": "Wat is nu het moeilijkst?",
+        "options": {
+          "getting_started": "Op gang komen",
+          "focus": "Bij de les blijven",
+          "conflicts": "Ruzie",
+          "forgetting": "Stappen vergeten",
+          "transitions": "Overgangen"
+        }
+      },
+      "support_ui": {
+        "label": "Heeft je kind extra duidelijke ondersteuning nodig?",
+        "options": {
+          "ja": "Ja",
+          "lite": "Een beetje",
+          "nej": "Nee"
+        }
+      },
+      "length_ui": {
+        "label": "Met hoeveel stappen wil je beginnen?",
+        "options": {
+          "kort": "Kort (3–4)",
+          "normal": "Normaal (5)",
+          "detaljerad": "Uitgebreid (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Is er iets belangrijks dat we moeten weten? (optioneel)",
+        "placeholder": "bijv. tanden poetsen is het lastigst"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Routine klaar",
+      "handoff": "Open samen de kindweergave",
+      "child": "Je kind ziet wat er nu gebeurt",
+      "done": "Klaar!",
+      "star": "Eerste ster ⭐"
+    },
+    "mock": {
+      "parentView": "Ouderweergave",
+      "dailyRoutine": "Routine van vandaag",
+      "dress": "Aankleden",
+      "brushTeeth": "Tanden poetsen",
+      "packBag": "Tas inpakken",
+      "tryChildMode": "👶 Kindweergave proberen",
+      "now": "Nu",
+      "markDone": "Klaar afvinken ✓",
+      "wellDone": "Goed gedaan!"
+    },
+    "ctaReady": "Klaar om te proberen?",
+    "ctaTryNow": "Kindweergave nu proberen",
+    "ctaLater": "Later doen",
+    "loginTitle": "Open de weergave van je kind",
+    "loginLead": "Het schema staat klaar. Geef {{childName}} dit apparaat, zodat de routine te zien is.",
+    "usernameLabel": "Gebruikersnaam",
+    "pinLabel": "Pincode",
+    "loginHint": "Ga samen zitten — hetzelfde apparaat of een ander, allebei kan.",
+    "copyLogin": "📋 Inloggegevens kopiëren",
+    "copied": "✓ Gekopieerd!",
+    "openChildMode": "Weergave van het kind openen",
+    "copyText": "{{childName}}\nOpen de weergave van het kind in de app.",
+    "previewTitle": "Voorbeeld — startfilmpje"
+  },
+  "firstStar": {
+    "title": "Geef de eerste ster",
+    "lead": "Drie korte stappen — daarna ben je echt op weg.",
+    "steps": {
+      "login": "Laat je kind inloggen met de pincode",
+      "complete": "Markeer een activiteit als klaar in de kindweergave",
+      "celebrate": "Vier de ster samen!"
+    },
+    "openChildLogin": "👶 Kindlogin openen",
+    "continueAsParent": "Verder als ouder"
+  },
+  "activation": {
+    "finalStepLabel": "Laatste stap",
+    "introTitle": "Hoe wil je beginnen?",
+    "introBody": "Je hebt het schema van je kind klaargezet — een goede start. Veel gezinnen merken dat de grootste uitdaging niet het beginnen is, maar de routine vasthouden in de eerste dagen als het dagelijks leven het overneemt. Kies wat bij je past:",
+    "guidedBadge": "Aanbevolen",
+    "guidedTitle": "Houd de routine de eerste week vol",
+    "guidedBody": "Veel gezinnen waarderen een beetje steun nadat het schema klaar is. Niet omdat er iets mis is, maar omdat nieuwe gewoontes tijd nodig hebben.",
+    "guidedBenefits": [
+      "Korte dagelijkse herinneringen om je op weg te houden",
+      "Zie wanneer je kind taken afrondt, zonder extra zeuren",
+      "Het schema van je kind staat al — wij helpen de routine te laten werken",
+      "Stop wanneer je wilt"
+    ],
+    "guidedCta": "Ja, help ons de eerste week",
+    "directTitle": "Meteen aan de slag",
+    "directBody": "Je voelt je klaar om het zelf te doen. Alles staat klaar en je kunt meteen beginnen.",
+    "directBenefits": [
+      "Rechtstreeks naar Thuis",
+      "Hetzelfde schema, dezelfde sterren en beloningen",
+      "Gebruik de app in je eigen tempo"
+    ],
+    "directCta": "We redden het zelf",
+    "footnote": "Wat je ook kiest, je kunt de app volledig gebruiken. Begeleide start geeft alleen wat extra steun in de eerste week.",
+    "saveFailed": "Je keuze kon niet worden opgeslagen"
+  },
+  "loading": {
+    "buildingSchedule": "Je schema wordt gemaakt…",
+    "takesSeconds": "Duurt maar een paar seconden!"
+  },
+  "templateGroups": {
+    "showActivities": "Activiteiten tonen",
+    "loadingActivities": "Laden...",
+    "activityCount": {
+      "one": "{{count}} activiteit",
+      "other": "{{count}} activiteiten"
+    },
+    "forskola": {
+      "name": "Peuterschool",
+      "description": "Hele dag — kinderen van 2–5 jaar"
+    },
+    "skola": {
+      "name": "School",
+      "description": "Hele dag — kinderen vanaf 6 jaar"
+    },
+    "morgon": {
+      "name": "Ochtend",
+      "description": "Ochtendroutine"
+    },
+    "dag": {
+      "name": "Dag",
+      "description": "Activiteiten overdag"
+    },
+    "kvall": {
+      "name": "Avond",
+      "description": "Avondroutine"
+    },
+    "helg": {
+      "name": "Weekend",
+      "description": "Weekendroutine"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Wakker worden",
+        "Aankleden",
+        "Ontbijt",
+        "Peuterschool",
+        "Spelen",
+        "Avondeten",
+        "Verhaaltje voor het slapen"
+      ],
+      "skola": [
+        "Wakker worden",
+        "Ontbijt",
+        "Tas inpakken",
+        "School",
+        "Huiswerk",
+        "Avondeten",
+        "Verhaaltje voor het slapen"
+      ],
+      "morgon": [
+        "Wakker worden",
+        "Aankleden",
+        "Tanden poetsen",
+        "Ontbijt",
+        "Tas inpakken"
+      ],
+      "dag": [
+        "Peuterschool",
+        "Buiten spelen",
+        "Tussendoortje",
+        "Lunch",
+        "Knutselen"
+      ],
+      "kvall": [
+        "Avondeten",
+        "Tanden poetsen",
+        "Pyjama",
+        "Verhaaltje voor het slapen",
+        "Slapen"
+      ],
+      "helg": [
+        "Wakker worden",
+        "Ontbijt",
+        "Vrij spelen",
+        "Uitje",
+        "Gezinsactiviteit",
+        "Avondeten"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Ochtend",
+    "lateMorning": "Late ochtend",
+    "afternoon": "Middag",
+    "evening": "Avond"
+  },
+  "errors": {
+    "avatarUploadPath": "De profielfoto wordt geüpload via PUT /api/children/:id/avatar nadat het kind is aangemaakt",
+    "childNameRequired": "De naam van het kind is verplicht",
+    "emojiRequired": "Kies een emoji voor je kind",
+    "invalidBirthday": "Ongeldige geboortedatum",
+    "birthdayFuture": "De geboortedatum kan niet in de toekomst liggen",
+    "invalidTemplate": "Ongeldige keuze. Kies een geldig schema.",
+    "noActivities": "Geen activiteiten gevonden voor het gekozen schema.",
+    "childIdRequired": "child_id is verplicht",
+    "noChildAccess": "Je hebt geen toegang tot dit kind",
+    "weekendNotFound": "Het weekendschema is niet gevonden in de bibliotheek.",
+    "weekendEmpty": "Het weekendschema heeft geen activiteiten.",
+    "rewardNameRequired": "De naam van de beloning is verplicht",
+    "rewardCostMin": "De sterrenprijs moet minstens 1 zijn",
+    "rewardsFetchFailed": "Beloningen konden niet worden opgehaald.",
+    "childCreateFailed": "Er ging iets mis bij het aanmaken van het kind.",
+    "scheduleCreateFailed": "Er ging iets mis bij het maken van het schema.",
+    "weekendCreateFailed": "Er ging iets mis bij het maken van het weekendschema.",
+    "rewardCreateFailed": "Er ging iets mis bij het maken van de beloning.",
+    "generic": "Er ging iets mis.",
+    "invalidViewType": "Ongeldig view_type. Kies dag of tijdlijn.",
+    "notAllowed": "Niet toegestaan",
+    "invalidChoice": "Ongeldige keuze.",
+    "activityGuideSaveFailed": "De activiteitenkeuze kon niet worden opgeslagen.",
+    "pinMustBe4": "De pincode moet precies 4 cijfers zijn",
+    "pinTooWeak": "Kies een sterkere pincode",
+    "pinTaken": "Deze pincode is al in gebruik voor een kind met dezelfde naam",
+    "pinUpdateFailed": "De pincode kon niet worden bijgewerkt.",
+    "handoffContextFailed": "De overdracht kon niet worden opgehaald",
+    "templateGroupsFailed": "Schemagroepen konden niet worden opgehaald.",
+    "schedulePreviewFailed": "Het schema kon niet worden opgehaald.",
+    "viewSaveFailed": "De weergavekeuze kon niet worden opgeslagen.",
+    "activationNotEnabled": "De activatiestroom staat niet aan voor je gezin",
+    "starterSuggestFailed": "Sjabloon kiezen lukte niet",
+    "starterPreviewFailed": "Het voorbeeld kon niet worden opgehaald",
+    "starterPersonalizeFailed": "Het schema kon niet worden aangepast",
+    "scheduleNameRequired": "scheduleName is verplicht",
+    "templateNotFound": "Sjabloon niet gevonden",
+    "enrollChoiceUnavailable": "Het keuzescherm is niet beschikbaar"
+  },
+  "starterPlan": {
+    "firstSchedule": "Je eerste schema"
+  }
+}

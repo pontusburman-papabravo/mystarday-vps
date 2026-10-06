@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planning — {{brand}}",
+  "shell": {
+    "title": "Planning",
+    "lead": "Kies de week, activiteiten of meer.",
+    "logout": "Uitloggen"
+  },
+  "sections": {
+    "planWeek": "Plan de week",
+    "buildContent": "Inhoud maken",
+    "other": "Overig"
+  },
+  "primary": {
+    "week": { "title": "De week", "sub": "De daglijst voor de week van je kinderen" },
+    "activities": { "title": "Activiteiten", "sub": "De bibliotheek — maken en bewerken" },
+    "more": { "title": "Meer", "sub": "Printen, sjablonen en andere tools" }
+  },
+  "more": {
+    "title": "Meer",
+    "close": "Sluiten"
+  },
+  "links": {
+    "library": { "title": "Bibliotheek", "sub": "Activiteiten en beloningen maken" },
+    "imageArchive": { "title": "Fotoarchief", "sub": "Jouw foto's — tandenborstel, bed, school" },
+    "templates": { "title": "Sjablonen", "sub": "Opgeslagen schema's die je opnieuw kunt gebruiken" },
+    "weekSchedule": { "title": "Weekschema", "sub": "Bewerk de week van je kind" },
+    "calendar": { "title": "Kalender", "sub": "Bekijk de maand en bijzondere dagen" },
+    "custody": { "title": "Omgangsregeling", "sub": "Gedeelde zorg tussen huishoudens" },
+    "dailyLog": { "title": "Vandaag", "sub": "Bekijk en pas eerdere dagen aan" },
+    "printSchema": { "title": "PDF maken — schema", "sub": "Een schema printen" },
+    "assignSchedule": { "title": "Schema toewijzen", "sub": "Kopieer een schema naar een kind" },
+    "reports": { "title": "Rapporten", "sub": "Voortgang en delen" },
+    "samarbete": { "title": "Samenwerken met een begeleider", "sub": "Werk samen met een begeleider" },
+    "barnStod": { "title": "Extra ondersteuning", "sub": "Visuele ondersteuning en TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Aan de slag",
+    "bodyBeforeLibrary": "Begin in de ",
+    "libraryLink": "Bibliotheek",
+    "bodyMiddle": " als je activiteiten wilt maken. Ga naar ",
+    "forYouLink": "Voor jou",
+    "bodyAfter": " als je een kant-en-klaar voorstel wilt."
+  }
+}

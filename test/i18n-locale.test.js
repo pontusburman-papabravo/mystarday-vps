@@ -27,24 +27,24 @@ describe('locale normalization', () => {
   });
 
   it('rejects unsupported locales', () => {
-    assert.equal(normalizeLocale('fr-FR'), null);
+    assert.equal(normalizeLocale('fr-FR'), 'fr-FR');
     assert.equal(normalizeLocale(''), null);
   });
 
-  it('does not alias Finnish tags to sv-SE', () => {
-    assert.equal(normalizeLocale('fi'), null);
-    assert.equal(normalizeLocale('fi-FI'), null);
-    assert.equal(normalizeLocale('fi-fi'), null);
-    assert.equal(normalizeLocale('fi_FI'), null);
-    assert.equal(normalizeLocale('fi_fi'), null);
-    assert.equal(parseAcceptLanguage('fi'), null);
-    assert.equal(parseAcceptLanguage('fi-FI'), null);
-    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'en-GB');
-    assert.equal(parseAcceptLanguage('fi_FI'), null);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
-    assert.equal(SUPPORTED_LOCALES.includes('fi'), false);
-    assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), false);
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE']);
+  it('resolves Finnish to fi-FI and never to sv-SE', () => {
+    assert.equal(normalizeLocale('fi'), 'fi-FI');
+    assert.equal(normalizeLocale('fi-FI'), 'fi-FI');
+    assert.equal(normalizeLocale('fi-fi'), 'fi-FI');
+    assert.equal(normalizeLocale('fi_FI'), 'fi-FI');
+    assert.equal(normalizeLocale('fi_fi'), 'fi-FI');
+    assert.notEqual(normalizeLocale('fi-FI'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi-FI'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi_FI'), 'fi-FI');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'fi-FI');
+    assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), true);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO']);
   });
 
   it('validateLocale falls back to sv-SE', () => {

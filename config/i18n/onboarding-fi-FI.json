@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Vaihe {{current}} / {{total}}",
+    "back": "← Takaisin",
+    "next": "Seuraava askel →",
+    "continue": "Jatka →",
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "loading": "Ladataan…",
+    "genericError": "Jokin meni pieleen. Yritä uudelleen.",
+    "networkError": "Verkkovirhe. Yritä uudelleen.",
+    "closeAria": "Sulje",
+    "childFallback": "Lapsesi",
+    "addChildDone": "Valmis! →",
+    "goForward": "Jatka →",
+    "finishing": "Viimeistellään…",
+    "recommended": "Suositeltu",
+    "optional": "Valinnainen"
+  },
+  "pageTitle": {
+    "welcome": "Tervetuloa — {{brand}}",
+    "ogTitle": "{{brand}} — Aloita 2 minuutissa",
+    "ogDescription": "Rakenna lapsen aikataulu ja palkinnot heti"
+  },
+  "verifyEmail": {
+    "title": "Vahvista sähköpostiosoitteesi",
+    "body": "Lähetimme sähköpostin osoitteeseen {{email}}. Napauta linkkiä sähköpostissa, niin tili aktivoituu.",
+    "resend": "Lähetä uudelleen",
+    "resendSending": "Lähetetään…",
+    "resendSuccess": "✓ Lähetetty!",
+    "resendSent": "Lähetetty",
+    "resendError": "Jokin meni pieleen. Yritä uudelleen."
+  },
+  "child": {
+    "title": "Kerro lapsestasi",
+    "lead": "Valitse nimi, emoji, syntymäpäivä ja aikataulu, joka sopii arkirutiiniin.",
+    "nameLabel": "Lapsen nimi",
+    "namePlaceholder": "esim. Ella",
+    "birthdayLabel": "Syntymäpäivä",
+    "birthdayOptionalHint": "(valinnainen — auttaa ehdottamaan sopivaa aikataulua)",
+    "yearPlaceholder": "Vuosi",
+    "monthPlaceholder": "Kuukausi",
+    "dayPlaceholder": "Päivä",
+    "birthYearAria": "Syntymävuosi",
+    "birthMonthAria": "Syntymäkuukausi",
+    "birthDayAria": "Syntymäpäivä",
+    "months": [
+      "Tammikuu",
+      "Helmikuu",
+      "Maaliskuu",
+      "Huhtikuu",
+      "Toukokuu",
+      "Kesäkuu",
+      "Heinäkuu",
+      "Elokuu",
+      "Syyskuu",
+      "Lokakuu",
+      "Marraskuu",
+      "Joulukuu"
+    ],
+    "emojiLabel": "Valitse emoji",
+    "customEmojiPlaceholder": "Tai kirjoita oma emoji…",
+    "emojiAriaLabel": "Valitse emoji {{emoji}}",
+    "avatarLabel": "Valinnainen: profiilikuva",
+    "avatarHint": "Valitse kuva kirjastosta tai ota uusi.",
+    "avatarDefaultBtn": "✨ Oletuskuva",
+    "avatarPickBtn": "📷 Valitse kuva",
+    "avatarLoading": "Ladataan…",
+    "avatarPreparing": "Valmistellaan…",
+    "avatarUploadFailed": "Kuvaa ei voitu lähettää. Yritä uudelleen.",
+    "avatarReadFailed": "Kuvaa ei voitu lukea",
+    "avatarAlt": "Lapsen profiilikuva",
+    "scheduleLabel": "Valitse aikataulu",
+    "templatesLoading": "Aikatauluja ladataan…",
+    "templatesLoadFailed": "Aikataulumalleja ei voitu ladata juuri nyt.",
+    "templatesRetryBtn": "Yritä uudelleen",
+    "nextBtn": "Seuraava askel →",
+    "creatingChild": "Luodaan lasta…",
+    "creatingSchedule": "Luodaan aikataulua…",
+    "nameRequired": "Kirjoita lapsen nimi",
+    "emojiRequired": "Valitse lapselle emoji",
+    "scheduleRequired": "Valitse aikataulu",
+    "childResumedToast": "Löysimme lapsesi edelliseltä kerralta — jatketaan aikataululla.",
+    "avatarSaveFailedToast": "Lapsi luotiin, mutta kuvaa ei voitu tallentaa. Voit lisätä sen kohdassa Perhe.",
+    "scheduleCreateFailed": "Aikataulua ei voitu luoda"
+  },
+  "activityGuide": {
+    "title": "Miten sovellus auttaa lasta {{childName}} aktiviteeteissa tänään?",
+    "lead": "Voit vaihtaa tätä milloin tahansa lapsen asetuksissa.",
+    "stepLabel": "Vaihe {{current}} / {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Vapaa järjestys",
+        "description": "Lapsi voi merkitä asioita missä järjestyksessä tahansa."
+      },
+      "one_at_a_time": {
+        "title": "Yksi asia kerrallaan",
+        "description": "Sovellus auttaa lasta keskittymään seuraavaan askeleeseen."
+      },
+      "time_and_order": {
+        "title": "Selkeä aika ja järjestys",
+        "description": "Sovellus auttaa seuraavassa askeleessa ja ajastimessa, jonka asetat jokaiselle aktiviteetille."
+      }
+    },
+    "continueBtn": "Jatka →",
+    "saving": "Tallennetaan…",
+    "selectError": "Valitse vaihtoehto",
+    "saveError": "Valintaa ei voitu tallentaa"
+  },
+  "viewType": {
+    "title": "Minkä näkymän {{childName}} näkee?",
+    "lead": "Valitse, miltä aikataulu näyttää, kun lapsi kirjautuu. Voit vaihtaa tätä milloin tahansa asetuksissa.",
+    "dayViewTitle": "Päivänäkymä",
+    "dayViewSubtitle": "Aamu · Myöhäinen aamu · Iltapäivä · Ilta",
+    "timelineViewTitle": "Nyt/Seuraava/Myöhemmin-näkymä",
+    "timelineViewSubtitle": "Näyttää vain sen, mitä tapahtuu juuri nyt",
+    "timelineNow": "NYT",
+    "timelineNext": "SEURAAVA",
+    "timelineThen": "MYÖHEMMIN",
+    "mock": {
+      "wakeStretch": "Herää ja venyttele",
+      "brushTeeth": "Harjaa hampaat",
+      "packBag": "Pakkaa reppu",
+      "preschool": "Mene päiväkotiin",
+      "freePlay": "Vapaa leikki",
+      "dinner": "Illallinen",
+      "bedtimeStory": "Iltasatu",
+      "preschoolShort": "Päiväkoti",
+      "play": "Leikki"
+    },
+    "dayViewHint": "Voit valita myös päivänäkymän, jos lapsi pitää värikoodatuista päivän osista.",
+    "skipHint": "Ohitetaanko? Päivänäkymä valitaan automaattisesti.",
+    "saving": "Tallennetaan näkymävalintaa…"
+  },
+  "scheduleReady": {
+    "title": "Aikataulu valmis!",
+    "subtitle": "Olemme valmistelleet aloitusaikataulun lapselle {{childName}}.",
+    "subtitleWithTemplate": "Olemme valmistelleet aikataulun {{templateName}} lapselle {{childName}}. Siinä on tärkeimmät askeleet, jotta onnistuu itse.",
+    "templateFallback": "Aikataulu",
+    "daysWeek": "7 päivää / viikko",
+    "daysMonFri": "Ma–pe",
+    "daysMonFriWeekend": "Ma–pe + viikonloppu",
+    "socialProofTitle": "Tiesitkö?",
+    "socialProofBody": "Kuvituki vähentää usein arjen stressiä jopa 30 % — ja lapset, joilla on selkeät rutiinit, nukahtavat nopeammin ja heräävät iloisempina.",
+    "continueBtn": "Hienoa, mennään! →"
+  },
+  "rewards": {
+    "title": "Näin tähdet toimivat",
+    "checkOff": "Merkitse",
+    "star": "Tähti",
+    "treasureChest": "Tähtiaarre",
+    "intro": "Olemme täyttäneet kivoja palkintoja. Valitse ne, joita kohti {{childName}} voi edetä!",
+    "introWithCount": "Olemme täyttäneet {{count}} kivaa palkintoa. Valitse ne, joita kohti {{childName}} voi edetä!",
+    "selectCount": {
+      "zero": "Valitse vähintään 1 palkinto (0 valittu)",
+      "one": "{{count}} palkinto valittu ✓",
+      "other": "{{count}} palkintoa valittu ✓"
+    },
+    "minOneError": "Valitse vähintään yksi palkinto jatkaaksesi",
+    "saveBtn": "Tallenna palkinnot →",
+    "saving": "Tallennetaan palkintoja…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Lisäsatu",
+      "chooseDessert": "Valitse jälkiruoka",
+      "movieNight": "Elokuva-ilta",
+      "chooseDinner": "Valitse illallinen",
+      "outing": "Retki",
+      "bakeTogether": "Leivo yhdessä",
+      "familyGameNight": "Perheen peli-ilta",
+      "lateBedtime": "Valvo myöhempään",
+      "cinemaTrip": "Elokuvateatteri"
+    }
+  },
+  "handoff": {
+    "title": "Näin kirjaudut",
+    "lead": "{{childName}} kirjautuu nimellä ja PIN-koodilla — ei salasanoja.",
+    "childLoginLabel": "Lapsen kirjautuminen",
+    "usernameFallback": "käyttäjänimi",
+    "pinLabel": "PIN",
+    "pinNote": "Kirjaa PIN muistiin — voit vaihtaa sen asetuksissa.",
+    "pinResumeHint": "Käytä lapsen PIN-koodia. Jos unohdit sen, voit asettaa uuden alla olevalla painikkeella.",
+    "chooseCustomPin": "✏️ Valitse oma PIN",
+    "savePin": "Tallenna PIN",
+    "savingPin": "Tallennetaan…",
+    "pinMustBe4": "PIN-koodissa pitää olla 4 numeroa",
+    "pinTooWeak": "Valitse vahvempi PIN (ei 1111, 2222 jne.)",
+    "pinSaveFailed": "PIN-koodia ei voitu tallentaa",
+    "copyInfo": "📋 Kopioi tiedot",
+    "copied": "✓ Kopioitu!",
+    "copyManual": "Kopioi käsin:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nKäyttäjänimi: {{username}}\nPIN: {{pin}}\nSovellus: {{appUrl}}/child-login",
+    "emailLogin": "📧 Lähetä sähköpostiin",
+    "emailSubject": "{{brand}} — Kirjautuminen lapselle {{childName}}",
+    "emailBody": "Hei!\n\nTässä ovat kirjautumistiedot sovellukseen {{brand}} lapselle {{childName}}:\n\nKäyttäjänimi: {{username}}\nPIN: {{pin}}\n\nAvaa sovellus: {{appUrl}}/child-login\n\nYstävällisin terveisin\n{{brand}}",
+    "emailFallbackAlert": "Kirjautuminen lapselle {{childName}}:\nKäyttäjänimi: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Asenna sovelluksena",
+    "installBody": "Lisää {{brand}} kotinäytölle — toimii kuin oikea sovellus, toimii ilman verkkoa, ei sovelluskauppoja.",
+    "installInstructions": "iPhone: Jaa → Lisää Koti-valikkoon · Android: ⋮ → Asenna sovellus",
+    "parentTipTitle": "Vinkki sinulle vanhempana",
+    "parentTipLead": "Istu yhdessä tänä iltana. Näytä tähtiaarre",
+    "parentTipEmphasis": "ensin",
+    "parentTipTail": "herättääksesi uteliaisuuden — ja kerro sitten, että sovellus on lapsen {{childName}}n oma kartta päivälle!",
+    "testChildLogin": "👶 Kokeile lapsen kirjautumista nyt",
+    "continueAsParent": "Jatka vanhempana →",
+    "skipConfirmTitle": "Ohitetaanko lapsen kirjautuminen?",
+    "skipConfirmBody": "Lapsi tarvitsee PIN-koodin kirjautuakseen itse. Jos et kokeile nyt, aamurutiini voi tuntua vaikeammalta — lähetämme muistutuksen 24 tunnin kuluttua, jos lapsi ei ole vielä kokeillut.",
+    "skipConfirmPrimary": "👶 Kokeile lapsen kirjautumista",
+    "skipConfirmSecondary": "Ohita silti"
+  },
+  "parentPin": {
+    "setLater": "Aseta vanhemman PIN myöhemmin",
+    "title": "Aseta vanhemman PIN",
+    "description": "4-numeroinen PIN, jonka vain sinä tiedät, suojaa vanhemman aluetta — esimerkiksi kun lapset lisäävät sisaruksen tai kirjaudut vanhempana lapsen laitteella.",
+    "choosePin": "Valitse PIN",
+    "confirmPin": "Vahvista PIN",
+    "changeLater": "Voit vaihtaa PIN-koodin myöhemmin kohdassa Perhe ja asetukset.",
+    "pinRequiredOrEmpty": "Kirjoita 4-numeroinen PIN tai jätä kentät tyhjiksi",
+    "pinRequiredForHandoff": "Aseta 4-numeroinen PIN, ennen kuin lapsi voi ottaa laitteen käyttöön.",
+    "pinMismatch": "PIN-koodit eivät täsmää",
+    "saveFailed": "PIN-koodia ei voitu tallentaa",
+    "handoffRequired": "Jaetulla laitteella tarvitaan aikuisen PIN, ennen kuin lapsi voi kirjautua.",
+    "saveAndContinue": "Tallenna ja jatka"
+  },
+  "invite": {
+    "inviteLater": "Kutsu toinen vanhempi myöhemmin",
+    "title": "Kutsu toinen aikuinen",
+    "namePlaceholder": "Nimi (esim. Erik)",
+    "emailPlaceholder": "Sähköpostiosoite",
+    "whichChildren": "Keiden lasten tiedot tämä henkilö näkee?",
+    "sendBtn": "📧 Lähetä kutsu",
+    "sending": "Lähetetään…",
+    "sent": "✓ Lähetetty",
+    "skip": "Ohita →",
+    "emailRequired": "Kirjoita sähköpostiosoite",
+    "invalidEmail": "Virheellinen sähköpostiosoite",
+    "success": "Kutsu lähetetty osoitteeseen {{email}}! ✓",
+    "sendFailed": "Jokin meni pieleen"
+  },
+  "complete": {
+    "title": "Melkein valmista!",
+    "lead": "Anna lapsen kokeilla sovellusta — voit kutsua muita aikuisia ja asettaa vanhemman PIN-koodin ensimmäisen merkinnän jälkeen.",
+    "tips": {
+      "editScheduleTitle": "Muokkaa aikataulua",
+      "editScheduleBody": "Siirry kotiin → napauta lapsen korttia → sovita aktiviteetit arkirutiiniin.",
+      "checkRewardsTitle": "Tarkista palkinnot",
+      "checkRewardsBody": "Lapsen näkymässä — napauta tähteä — lapsi näkee, montako tähteä kukin palkinto tarvitsee.",
+      "addChildrenTitle": "Lisää lapsia",
+      "addChildrenBody": "Jokainen lapsi saa oman aikataulun ja tähdet. Lisää toinen plussalla Kodissa."
+    },
+    "letChildStart": "👶 Anna lapsen aloittaa",
+    "letChildStartPlain": "Anna lapsen aloittaa",
+    "completeFailed": "Aloitusta ei voitu viimeistellä",
+    "completeFailedShort": "Ei voitu viimeistellä",
+    "welcomeFooter": "Tervetuloa sovellukseen {{brand}} — kiva, että olet täällä! 🌟"
+  },
+  "weekend": {
+    "title": "Lisätäänkö viikonlopun aikataulu?",
+    "body": "Arjen aikataulu on valmis ma–pe. Haluatko rennon viikonloppu-aikataulun lauantaille ja sunnuntaille?",
+    "scheduleLabel": "Viikonlopun aikataulu",
+    "satSun": "La + su",
+    "preview": {
+      "sleepIn": "Nuku pitkään",
+      "breakfast": "Rauhallinen aamiainen",
+      "freePlay": "Vapaa leikki",
+      "outing": "Retki tai puisto",
+      "familyActivity": "Perheen aktiviteetti",
+      "dinner": "Illallinen"
+    },
+    "yesBtn": "✅ Kyllä, lisää viikonlopun aikataulu",
+    "yesLoading": "Lisätään…",
+    "noBtn": "Ei kiitos, täytän sen myöhemmin",
+    "addFailed": "Viikonlopun aikataulua ei voitu lisätä"
+  },
+  "starter": {
+    "stepLabel": "Luo aikataulu {{current}} / {{total}}",
+    "slimTitle": "Rutiinisi on melkein valmis",
+    "fullTitle": "Luo ensimmäinen aikataulu",
+    "slimIntro": "Kolme nopeaa kysymystä — sitten rutiini on valmis.",
+    "birthdayHint": "Valitse lapsen syntymäaika — se auttaa ehdottamaan sopivaa aikataulua.",
+    "fullIntro": "Vastaa muutamaan kysymykseen — vie alle minuutin.",
+    "powerPathLead": "Haluatko valita valmiin vai rakentaa itse?",
+    "chooseTemplate": "📋 Valitse valmis aikataulu",
+    "fullWizard": "✏️ Rakenna ja muokkaa itse (7 kysymystä)",
+    "answerRequired": "Valitse tai kirjoita vastaus",
+    "showSchedule": "Näytä aikataulu →",
+    "buttons": {
+      "next": "Seuraava →"
+    },
+    "createRoutine": "Luo rutiini →",
+    "creatingRoutine": "Luodaan rutiinia…",
+    "personalizing": "Muokataan aikataulua…",
+    "loading": "Ladataan…",
+    "useSchedule": "Käytä tätä aikataulua →",
+    "saving": "Tallennetaan…",
+    "changeAnswers": "← Muuta vastauksia",
+    "removeStep": "Poista",
+    "previewHint": "Voit poistaa askeleita — lisää niitä myöhemmin asetuksissa.",
+    "previewForChild": "Lapselle {{childName}} · {{count}} aktiviteettia",
+    "previewAiTail": " · ✨ Tekoälyllä muokattu",
+    "defaultPlanTitle": "Aikataulusi",
+    "slimSuccessTitle": "Rutiinisi on valmis",
+    "slimSuccessTonight": "Aikataulu on valmis. Näytä {{childName}} tänään tällä laitteella.",
+    "showChildToday": "Näytä lapsen tänään",
+    "openingChildToday": "Avataan lapsen tänään…",
+    "hourglassOfferTitle": "Visuaalinen tiimalasi",
+    "hourglassOfferBody": "Auta lasta näkemään, paljonko aikaa aktiviteetissa on jäljellä.",
+    "hourglassEnableBtn": "Ota tiimalasi käyttöön",
+    "hourglassEnabling": "Otetaan käyttöön…",
+    "hourglassEnabledMsg": "Tiimalasi on käytössä lapsellasi.",
+    "hourglassEnableFailed": "Tiimalasia ei voitu ottaa käyttöön",
+    "goHome": "Siirry kotiin →",
+    "openingHome": "Avataan kotia…",
+    "customizeFirst": "Muokkaa aikataulua ensin",
+    "openingSchedule": "Avataan aikataulua…",
+    "nameRequired": "Kirjoita lapsen nimi",
+    "templateFailed": "Mallia ei voitu valita",
+    "previewFailed": "Aikataulua ei voitu ladata",
+    "childCreateFailed": "Lasta ei voitu luoda",
+    "scheduleSaveFailed": "Aikataulua ei voitu tallentaa",
+    "personalizeFailed": "Aikataulua ei voitu muokata",
+    "completeFailed": "Ei voitu viimeistellä",
+    "packages": {
+      "morning-short": {
+        "name": "Lyhyt aamu"
+      },
+      "evening-routine": {
+        "name": "Iltarutiini"
+      },
+      "preschool-day": {
+        "name": "Päiväkodin arki"
+      },
+      "school-day": {
+        "name": "Koulun arki"
+      },
+      "weekend": {
+        "name": "Viikonloppu"
+      },
+      "getting-ready": {
+        "name": "Lyhyt aamu"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Lapsen nimi",
+        "placeholder": "esim. Ella"
+      },
+      "age_band": {
+        "label": "Kuinka vanha lapsesi on?",
+        "options": {
+          "3-5": "3–5 vuotta",
+          "6-8": "6–8 vuotta",
+          "9-12": "9–12 vuotta",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Mistä rutiinista haluat aloittaa?",
+        "options": {
+          "morgon": "☀️ Aamu",
+          "kvall": "🌙 Ilta",
+          "efter-skola": "🏫 Koulun jälkeen",
+          "laxor": "📚 Läksyt",
+          "gora-sig-klar": "🎒 Lähtövalmistelu"
+        }
+      },
+      "main_challenge": {
+        "label": "Mikä on vaikeinta juuri nyt?",
+        "options": {
+          "getting_started": "Aloittaminen",
+          "focus": "Keskittyminen",
+          "conflicts": "Riidat",
+          "forgetting": "Askelten unohtaminen",
+          "transitions": "Siirtymät"
+        }
+      },
+      "support_ui": {
+        "label": "Tarvitseeko lapsesi erityisen selkeää tukea?",
+        "options": {
+          "ja": "Kyllä",
+          "lite": "Vähän",
+          "nej": "Ei"
+        }
+      },
+      "length_ui": {
+        "label": "Monellako askeleella haluat aloittaa?",
+        "options": {
+          "kort": "Lyhyt (3–4)",
+          "normal": "Tavallinen (5)",
+          "detaljerad": "Yksityiskohtainen (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Onko jotain tärkeää, joka meidän pitäisi tietää? (valinnainen)",
+        "placeholder": "esim. hampaiden harjaus on vaikein kohta"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutiini valmis",
+      "handoff": "Avaa lapsen näkymä yhdessä",
+      "child": "Lapsi näkee, mitä tapahtuu nyt",
+      "done": "Valmis!",
+      "star": "Ensimmäinen tähti ⭐"
+    },
+    "mock": {
+      "parentView": "Vanhemman näkymä",
+      "dailyRoutine": "Rutiini tänään",
+      "dress": "Pukeudu",
+      "brushTeeth": "Harjaa hampaat",
+      "packBag": "Pakkaa reppu",
+      "tryChildMode": "👶 Kokeile lapsen näkymää",
+      "now": "Nyt",
+      "markDone": "Merkitse tehdyksi ✓",
+      "wellDone": "Hienosti tehty!"
+    },
+    "ctaReady": "Valmis kokeilemaan?",
+    "ctaTryNow": "Kokeile lapsen näkymää nyt",
+    "ctaLater": "Tee myöhemmin",
+    "loginTitle": "Avaa lapsen näkymä",
+    "loginLead": "Aikataulu on valmis. Anna {{childName}} tämä laite, jotta hän näkee rutiininsa.",
+    "usernameLabel": "Käyttäjänimi",
+    "pinLabel": "PIN",
+    "loginHint": "Istu yhdessä — sama tai toinen laite käy.",
+    "copyLogin": "📋 Kopioi kirjautumistiedot",
+    "copied": "✓ Kopioitu!",
+    "openChildMode": "Avaa lapsen näkymä",
+    "copyText": "{{childName}}\nAvaa lapsen näkymä sovelluksessa.",
+    "previewTitle": "Esikatselu — Aloitusfilmi"
+  },
+  "firstStar": {
+    "title": "Anna ensimmäinen tähti",
+    "lead": "Kolme nopeaa askelta — sitten olet oikeasti käynnissä.",
+    "steps": {
+      "login": "Anna lapsen kirjautua PIN-koodilla",
+      "complete": "Merkitse aktiviteetti tehdyksi lapsen näkymässä",
+      "celebrate": "Juhli tähti yhdessä!"
+    },
+    "openChildLogin": "👶 Avaa lapsen kirjautuminen",
+    "continueAsParent": "Jatka vanhempana"
+  },
+  "activation": {
+    "finalStepLabel": "Viimeinen askel",
+    "introTitle": "Miten haluat aloittaa?",
+    "introBody": "Olet rakentanut lapsen aikataulun — hyvä alku. Monille perheille suurin haaste ei ole lähteminen vaan rutiinin pitäminen ensimmäisinä päivinä, kun arki täyttää kaiken. Valitse, mikä sopii sinulle:",
+    "guidedBadge": "Suositeltu",
+    "guidedTitle": "Pidä rutiini käynnissä ensimmäinen viikko",
+    "guidedBody": "Monet perheet arvostavat pientä tukea, kun aikataulu on valmis. Ei siksi, että mikään olisi vialla, vaan koska uudet tavat tarvitsevat aikaa.",
+    "guidedBenefits": [
+      "Lyhyet päivittäiset muistutukset, jotka auttavat jatkamaan",
+      "Näe, kun lapsi saa tehtävät valmiiksi ilman ylimääräistä hoputusta",
+      "Lapsen aikataulu on jo valmis — autamme rutiinia toimimaan",
+      "Lopeta milloin haluat"
+    ],
+    "guidedCta": "Kyllä, auta meitä ensimmäinen viikko",
+    "directTitle": "Aloita heti",
+    "directBody": "Tunnet olevasi valmis jatkamaan itse. Kaikki on paikallaan, ja voit aloittaa heti.",
+    "directBenefits": [
+      "Suoraan kotiin",
+      "Sama aikataulu, tähdet ja palkinnot",
+      "Käytä sovellusta omassa tahdissasi"
+    ],
+    "directCta": "Pärjäämme itse",
+    "footnote": "Valitsit kumman tahansa, voit käyttää sovellusta täysin. Ohjattu aloitus antaa vain vähän lisätukea ensimmäisellä viikolla.",
+    "saveFailed": "Valintaa ei voitu tallentaa"
+  },
+  "loading": {
+    "buildingSchedule": "Rakennetaan aikatauluasi…",
+    "takesSeconds": "Vie vain muutaman sekunnin!"
+  },
+  "templateGroups": {
+    "showActivities": "Näytä aktiviteetit",
+    "loadingActivities": "Ladataan...",
+    "activityCount": {
+      "one": "{{count}} aktiviteetti",
+      "other": "{{count}} aktiviteettia"
+    },
+    "forskola": {
+      "name": "Päiväkoti",
+      "description": "Koko päivä — lapset 2–5 vuotta"
+    },
+    "skola": {
+      "name": "Koulu",
+      "description": "Koko päivä — lapset 6+"
+    },
+    "morgon": {
+      "name": "Aamu",
+      "description": "Aamurutiini"
+    },
+    "dag": {
+      "name": "Päivä",
+      "description": "Päivän aktiviteetit"
+    },
+    "kvall": {
+      "name": "Ilta",
+      "description": "Iltarutiini"
+    },
+    "helg": {
+      "name": "Viikonloppu",
+      "description": "Viikonloppurutiini"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Herää",
+        "Pukeudu",
+        "Aamiainen",
+        "Päiväkoti",
+        "Leikki",
+        "Illallinen",
+        "Iltasatu"
+      ],
+      "skola": [
+        "Herää",
+        "Aamiainen",
+        "Pakkaa reppu",
+        "Koulu",
+        "Läksyt",
+        "Illallinen",
+        "Iltasatu"
+      ],
+      "morgon": [
+        "Herää",
+        "Pukeudu",
+        "Harjaa hampaat",
+        "Aamiainen",
+        "Pakkaa reppu"
+      ],
+      "dag": [
+        "Päiväkoti",
+        "Leiki ulkona",
+        "Välipala",
+        "Lounas",
+        "Askartelu"
+      ],
+      "kvall": [
+        "Illallinen",
+        "Harjaa hampaat",
+        "Pyjama",
+        "Iltasatu",
+        "Nuku"
+      ],
+      "helg": [
+        "Herää",
+        "Aamiainen",
+        "Vapaa leikki",
+        "Retki",
+        "Perheen aktiviteetti",
+        "Illallinen"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Aamu",
+    "lateMorning": "Myöhäinen aamu",
+    "afternoon": "Iltapäivä",
+    "evening": "Ilta"
+  },
+  "errors": {
+    "avatarUploadPath": "Profiilikuva lähetetään kutsulla PUT /api/children/:id/avatar, kun lapsi on luotu",
+    "childNameRequired": "Lapsen nimi vaaditaan",
+    "emojiRequired": "Valitse lapselle emoji",
+    "invalidBirthday": "Virheellinen syntymäpäivä",
+    "birthdayFuture": "Syntymäpäivä ei voi olla tulevaisuudessa",
+    "invalidTemplate": "Virheellinen valinta. Valitse kelvollinen aikataulu.",
+    "noActivities": "Valitulle aikataululle ei löytynyt aktiviteetteja.",
+    "childIdRequired": "child_id vaaditaan",
+    "noChildAccess": "Sinulla ei ole oikeutta tähän lapseen",
+    "weekendNotFound": "Viikonlopun aikataulua ei löytynyt kirjastosta.",
+    "weekendEmpty": "Viikonlopun aikataulussa ei ole aktiviteetteja.",
+    "rewardNameRequired": "Palkinnon nimi vaaditaan",
+    "rewardCostMin": "Tähden hinnan pitää olla vähintään 1",
+    "rewardsFetchFailed": "Palkintoja ei voitu hakea.",
+    "childCreateFailed": "Jokin meni pieleen lasta luotaessa.",
+    "scheduleCreateFailed": "Jokin meni pieleen aikataulua luotaessa.",
+    "weekendCreateFailed": "Jokin meni pieleen viikonlopun aikataulua luotaessa.",
+    "rewardCreateFailed": "Jokin meni pieleen palkintoa luotaessa.",
+    "generic": "Jokin meni pieleen.",
+    "invalidViewType": "Virheellinen view_type. Valitse päivä tai aikajana.",
+    "notAllowed": "Ei sallittu",
+    "invalidChoice": "Virheellinen valinta.",
+    "activityGuideSaveFailed": "Aktiviteettivalintaa ei voitu tallentaa.",
+    "pinMustBe4": "PIN-koodissa pitää olla tasan 4 numeroa",
+    "pinTooWeak": "Valitse vahvempi PIN",
+    "pinTaken": "Tämä PIN on jo käytössä samannimisellä lapsella",
+    "pinUpdateFailed": "PIN-koodia ei voitu päivittää.",
+    "handoffContextFailed": "Luovutuskontekstia ei voitu hakea",
+    "templateGroupsFailed": "Aikatauluryhmiä ei voitu hakea.",
+    "schedulePreviewFailed": "Aikataulua ei voitu hakea.",
+    "viewSaveFailed": "Näkymävalintaa ei voitu tallentaa.",
+    "activationNotEnabled": "Aktivointipolku ei ole käytössä perheessäsi",
+    "starterSuggestFailed": "Mallia ei voitu valita",
+    "starterPreviewFailed": "Esikatselua ei voitu hakea",
+    "starterPersonalizeFailed": "Aikataulua ei voitu muokata",
+    "scheduleNameRequired": "scheduleName vaaditaan",
+    "templateNotFound": "Mallia ei löytynyt",
+    "enrollChoiceUnavailable": "Valintanäkymä ei ole saatavilla"
+  },
+  "starterPlan": {
+    "firstSchedule": "Ensimmäinen aikataulusi"
+  }
+}

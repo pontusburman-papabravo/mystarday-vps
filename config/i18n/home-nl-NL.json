@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Thuis — {{brand}}",
+  "greeting": {
+    "morning": "Goedemorgen!",
+    "afternoon": "Hallo!",
+    "evening": "Goedenavond!",
+    "default": "Hallo!"
+  },
+  "sub": "Zo ziet de dag eruit.",
+  "status": {
+    "paused": "Vandaag een vrije dag",
+    "allDone": "Alles klaar!",
+    "noSchedule": "Geen routine",
+    "progressDone": "{{done}}/{{total}} klaar",
+    "emptyChildren": "Voeg een kind toe onder Gezin om hier de status te zien.",
+    "loadError": "De status van de kinderen kon niet worden geladen. Dat betekent niet dat je geen kinderen hebt.",
+    "retry": "Opnieuw proberen",
+    "viewActivitiesAria": "{{name}} — bekijk de activiteiten van vandaag"
+  },
+  "ready": {
+    "title": "Klaar voor de volgende activiteit",
+    "childrenCount": "({{count}} kinderen)"
+  },
+  "quickActions": {
+    "aria": "Snelle acties",
+    "retroactive": "Later invullen",
+    "onceTask": "Eenmalige activiteit",
+    "extraStars": "Bonus-sterren",
+    "dayOff": "Vrije dag"
+  },
+  "dayOffModal": {
+    "title": "🏠 Vrije dag",
+    "subtitle": "Pauzeert de routine van je kind voor de hele dag",
+    "footer": "Op een vrije dag hoeft je kind geen activiteiten af te vinken",
+    "noChildren": "Geen kinderen gevonden",
+    "stateActive": "🟢 Routine actief",
+    "statePaused": "⏸ Vandaag een vrije dag",
+    "markDayOff": "🏠 Markeer als vrije dag",
+    "resumeSchedule": "▶ Routine hervatten",
+    "noScheduleTitle": "Er is vandaag geen routine gemaakt",
+    "resumedToast": "Routine hervat!",
+    "pausedToast": "🏠 Gemarkeerd als vrije dag!",
+    "genericError": "Er ging iets mis",
+    "networkError": "Netwerkfout"
+  },
+  "handoff": {
+    "title": "Tijd voor je kind om in te loggen?",
+    "sub": "Wissel naar de kindweergave met de pincode.",
+    "childLogin": "👶 Kind logt in",
+    "changePin": "Pincode van het kind wijzigen",
+    "changePinAria": "Open Gezin en wijzig de pincode van het kind",
+    "parentLogout": "Uitloggen",
+    "regionAria": "Wissel naar inloggen als kind",
+    "dismissTitle": "Sluiten",
+    "trusted": {
+      "title": "Tijd om de kindweergave te openen?",
+      "sub": "Open de weergave van je kind op dit apparaat.",
+      "childLogin": "Kindweergave openen",
+      "regionAria": "Kindweergave openen"
+    },
+    "pin": {
+      "title": "Tijd voor je kind om in te loggen?",
+      "sub": "Wissel naar de kindweergave met de pincode.",
+      "childLogin": "Inloggen met de pincode van het kind",
+      "regionAria": "Inloggen met de pincode van het kind"
+    },
+    "postSchema": {
+      "title": "Volgende stap: laat je kind de routine proberen",
+      "sub": "Open samen de kindweergave — het duurt ongeveer een minuut.",
+      "childLogin": "Kindweergave nu proberen",
+      "regionAria": "Volgende stap: laat je kind de routine proberen",
+      "trusted": {
+        "title": "Volgende stap: kindweergave openen",
+        "sub": "Open samen de kindweergave — het duurt ongeveer een minuut.",
+        "childLogin": "Kindweergave openen",
+        "regionAria": "Volgende stap: kindweergave openen"
+      },
+      "pin": {
+        "title": "Volgende stap: laat je kind de routine proberen",
+        "sub": "Open samen de kindweergave — het duurt ongeveer een minuut.",
+        "childLogin": "Inloggen met de pincode van het kind",
+        "regionAria": "Volgende stap: inloggen met de pincode van het kind"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Volgende stap naar je eerste geslaagde routine",
+    "pinHint": "Je kind gebruikt de eigen pincode. Je kunt de ouderweergave terugzetten als het kind klaar is.",
+    "recovery": {
+      "fetchErrorHeadline": "We konden je volgende stap niet laden",
+      "fetchErrorBody": "Dit lijkt tijdelijk. Probeer het opnieuw, of ga nu verder zonder de gids.",
+      "retry": "Opnieuw proberen",
+      "continueWithoutGuide": "Verder zonder gids",
+      "defer": "Later doen",
+      "deferError": "Je keuze kon nu niet worden opgeslagen. Probeer het opnieuw.",
+      "retrying": "Opnieuw proberen…",
+      "deferring": "Opslaan…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Maak het profiel van je kind",
+        "body": "Een naam en een eenvoudige pincode zijn genoeg om te beginnen.",
+        "cta": "Verder met kind"
+      },
+      "save_schedule": {
+        "headline": "Sla een eenvoudige eerste routine op",
+        "body": "Kies een startsjabloon — je kunt het altijd aanpassen.",
+        "cta": "Startschema kiezen"
+      },
+      "child_access": {
+        "headline": "Kindweergave openen",
+        "body": "Laat je kind de eerste activiteit van vandaag in de kindweergave proberen.",
+        "cta": "Kindweergave openen"
+      },
+      "child_access_named": {
+        "headline": "De routine van {{name}} staat klaar",
+        "body": "Je kind kan beginnen wanneer het jou uitkomt.",
+        "cta": "Kindweergave openen"
+      },
+      "await_first_completion": {
+        "headline": "Wachten op de eerste activiteit",
+        "body": "Je kind ziet de routine in de kindweergave. Help met starten als dat nodig is.",
+        "cta": "Kindweergave openen"
+      },
+      "parent_ack": {
+        "headline": "Je kind heeft een activiteit afgerond!",
+        "body": "Bevestig het, zodat de ster telt en jullie samen kunnen vieren.",
+        "cta": "Activiteit bekijken"
+      },
+      "celebrate_first_success": {
+        "headline": "Eerste ster binnen!",
+        "body": "Goed gedaan — de routine werkt echt.",
+        "cta": "Verder"
+      },
+      "journey_coach": {
+        "headline": "Volgende stap",
+        "body": "Bouw de routine verder op in je eigen tempo.",
+        "cta": "Verder"
+      },
+      "engine_legacy": {
+        "headline": "Volgende stap",
+        "body": "Volg de voorgestelde volgende stap.",
+        "cta": "Verder"
+      },
+      "continue_today": {
+        "headline": "{{name}} heeft vandaag nog routine over",
+        "body": "Wil je verdergaan waar jullie gebleven waren?",
+        "cta": "Routine vervolgen"
+      },
+      "welcome_back": {
+        "headline": "Welkom terug",
+        "body": "Je volgende stap staat er nog als je die nodig hebt — de routine van je kind openen?",
+        "cta": "Kindweergave openen"
+      },
+      "invite_adult": {
+        "headline": "Wil een andere volwassene ook helpen?",
+        "body": "Nodig uit wanneer het jou uitkomt — jij houdt de regie.",
+        "cta": "Volwassene uitnodigen"
+      },
+      "share_week": {
+        "headline": "Een klein hoogtepunt uit de week",
+        "body": "Deel alleen als je dat wilt — er wordt niets automatisch geplaatst.",
+        "cta": "Hoogtepunt delen"
+      },
+      "refer_family": {
+        "headline": "Ken je een gezin dat routines fijn zou vinden?",
+        "body": "Deel een persoonlijke link — geen beloning, alleen een tip.",
+        "cta": "De app delen"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Niet nu",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Je hebt deze week stappen gezet in je routines",
+        "body": "Een rustige samenvatting — alleen voor jou.",
+        "shareText": "Wij gebruiken {{brand}} voor de routines van de kinderen thuis. Als je een eenvoudige gezinsapp wilt proberen."
+      },
+      "morning": {
+        "headline": "Meerdere ochtenden liepen deze week wat soepeler",
+        "body": "Goed gedaan — deel alleen als je dat wilt.",
+        "shareText": "Wij hebben rustigere ochtenden met een eenvoudige routine-app. Misschien helpt het jouw gezin ook."
+      },
+      "evening": {
+        "headline": "De avondroutine werkte deze week een paar keer",
+        "body": "Een persoonlijk hoogtepunt — geen ranglijst.",
+        "shareText": "Avondroutines werden bij ons thuis een beetje makkelijker. Als je een rustig hulpmiddel zoekt."
+      },
+      "multi_child": {
+        "headline": "Je kinderen hebben deze week meerdere stappen gezet in hun routines",
+        "body": "Samenvatting zonder namen of foto's.",
+        "shareText": "Wij gebruiken {{brand}} voor de routines van de kinderen. Om het te proberen:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Je bent een oprichtend lid",
+    "body": "Als een van de eerste gezinnen heb je levenslang toegang, zonder kosten. Dank je wel dat je er vanaf het begin bij bent!"
+  },
+  "weekStory": {
+    "title": "Het verhaal van deze week"
+  },
+  "starHistory": {
+    "title": "Weekvoortgang",
+    "subtitle": "Laatste 8 weken",
+    "thisWeek": "{{count}} ⭐ deze week",
+    "weekTooltip": "W{{week}}: {{count}} sterren",
+    "diffUp": "+{{diff}} vergeleken met vorige week",
+    "diffSame": "Hetzelfde als vorige week",
+    "bestWeek": "🎉 De beste week van {{name}} tot nu toe!"
+  },
+  "nav": {
+    "today": "Vandaag",
+    "dailyLog": "Daglogboek",
+    "fillRetroactive": "📝 Later invullen"
+  },
+  "readiness": {
+    "heading": "Heeft aandacht nodig",
+    "warningsOnly": "Alleen waarschuwingen",
+    "loadError": "Kon niet controleren wat aandacht nodig heeft.",
+    "retry": "Opnieuw proberen",
+    "items": {
+      "pendingInviteTitleOne": "1 openstaande uitnodiging voor een andere ouder",
+      "pendingInviteTitleMany": "{{count}} openstaande uitnodigingen voor een andere ouder",
+      "pendingInviteSub": "Beheer in Gezin",
+      "pendingApprovalTitle": "{{name}} — {{count}} openstaand verzoek",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} openstaande verzoeken",
+      "pendingApprovalSub": "Goedkeuren bij Beloningen",
+      "incompleteDaysTitleOne": "{{name}} — 1 onvolledige dag",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} onvolledige dagen",
+      "incompleteDaysSub": "Achteraf invullen",
+      "missingPinTitle": "{{name}} heeft geen pincode",
+      "missingPinSub": "Pincode instellen in het kindprofiel",
+      "pausedDayTitle": "{{name}} — vandaag een vrije dag",
+      "pausedDaySub": "Vandaag openen",
+      "noScheduleTitle": "{{name}} — vandaag geen routine",
+      "noScheduleSub": "Weekschema openen"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} wil een beloning inwisselen",
+    "pendingRewardSubOne": "Er wacht één verzoek op je",
+    "pendingRewardSubMany": "Er wachten {{count}} verzoeken op je",
+    "showRequest": "Verzoek bekijken",
+    "closeToReward": "{{name}} is nog maar {{gap}} verwijderd van de volgende beloning",
+    "starOne": "1 ster",
+    "starMany": "{{count}} sterren",
+    "seeRewards": "Beloningen bekijken",
+    "starsTodayHeadline": "De kinderen hebben er vandaag {{count}} verdiend",
+    "starsTodaySubOne": "{{name}} heeft ze vandaag verdiend",
+    "starsTodaySubMany": "De kinderen hebben ze vandaag verdiend",
+    "tasksDoneHeadline": "{{name}} heeft er vandaag al {{count}} afgerond",
+    "taskOne": "1 taak",
+    "taskMany": "{{count}} taken",
+    "tasksRemaining": "Nog {{count}} in de routine van vandaag",
+    "allActivitiesDone": "Alle activiteiten klaar — mooi gedaan!",
+    "seeSchedule": "Schema bekijken",
+    "nextActivityHeadline": "{{name}} is klaar voor {{activity}}",
+    "nextActivitySub": "Volgende activiteit in de routine",
+    "openToday": "Vandaag openen",
+    "calmDayHeadline": "Rustige dag — nu geen routine",
+    "calmDaySub": "Een goed moment om activiteiten toe te voegen of bonus-sterren te geven",
+    "defaultChild": "Je kind",
+    "pageTitleStars": "🌟 Sterren van vandaag",
+    "pageTitleWelcome": "👋 Welkom terug",
+    "pageTitleProgress": "🌟 Gezinsvoortgang vandaag",
+    "greetingFallback": "{{greeting}} Zo ziet vandaag eruit",
+    "followChild": "Volg hier de voortgang van {{name}}",
+    "followChildren": "Volg hier de voortgang van je kinderen"
+  },
+  "childStats": {
+    "paused": "⏸ Vandaag een vrije dag",
+    "allDone": "🌟 Vandaag alles klaar!",
+    "tasksDoneOne": "🔥 1 taak vandaag klaar",
+    "tasksDoneMany": "🔥 {{count}} taken vandaag klaar",
+    "noSchedule": "Vandaag geen routine",
+    "todayProgress": "Vandaag <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> totaal",
+    "starsTodayOne": "+1 ster vandaag",
+    "starsTodayMany": "+{{count}} sterren vandaag",
+    "remaining": "Nog {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Nog maar 1 ster tot de volgende beloning",
+    "rewardGapMany": "🎁 Nog maar {{count}} sterren tot de volgende beloning"
+  },
+  "offline": {
+    "banner": "Offline — je wijzigingen zijn opgeslagen",
+    "lastUpdated": "· Laatst bijgewerkt {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Daglogboek",
+    "dailyLogSub": "Volg de dag van je kinderen — vul sterren later in"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Hoe is {{goal}} gegaan?",
+      "sub": "Voor {{name}}",
+      "great": "Veel beter",
+      "better": "Een beetje beter",
+      "same": "Geen verschil",
+      "worse": "Werkt niet",
+      "followUpBetter": "Wat werd beter?",
+      "followUpWorse": "Wat ontbreekt er?",
+      "optional": "(optioneel)",
+      "send": "Versturen",
+      "skip": "Overslaan",
+      "dismissAria": "Sluiten",
+      "thanks": "Dank je! Je antwoord is opgeslagen.",
+      "alreadyAnswered": "Dank je! Het lijkt erop dat je al hebt geantwoord.",
+      "next": "Beantwoord de volgende",
+      "done": "Klaar"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Overslaan",
+    "next": "Volgende →",
+    "start": "🎉 Aan de slag!",
+    "steps": {
+      "welcome": {
+        "title": "Welkom op het overzicht!",
+        "body": "Hier zie je de dag van elk kind. Het weekschema bewerk je in Planning."
+      },
+      "stars": {
+        "title": "Sterren en sterrenkist",
+        "body": "Elke afgeronde activiteit levert 1 ster op. Je kind spaart sterren en wisselt ze in voor beloningen in de sterrenkist."
+      },
+      "schedule": {
+        "title": "Weekschema en activiteiten",
+        "body": "Onder Planning in het menu vind je de activiteitenbibliotheek en kun je je eigen beloningen toevoegen."
+      },
+      "family": {
+        "title": "Meer kinderen of volwassenen toevoegen",
+        "body": "Tik op \"+ Kind toevoegen\" om een broer of zus toe te voegen. Onder Gezin kun je een andere volwassene uitnodigen."
+      },
+      "help": {
+        "title": "Hulp nodig?",
+        "body": "Tik op elk moment op de knop ❓ rechtsonder voor veelgestelde vragen en tips. Veel succes met {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} probeert in te loggen",
+    "body": "3 verkeerde pincodepogingen — je kind heeft misschien hulp nodig"
+  },
+  "shareSchedule": {
+    "notAvailable": "Delen is op dit apparaat niet beschikbaar",
+    "notSupported": "Delen is op dit apparaat niet beschikbaar",
+    "shared": "Gedeeld!",
+    "childNotFound": "Kind niet gevonden",
+    "couldNotShare": "Delen lukte niet: {{message}}",
+    "routineToday": "De routine van {{name}} vandaag:",
+    "title": "Routine van {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Er staat een nieuwe versie van de app klaar!",
+    "reloadNow": "Nu herladen",
+    "later": "Later",
+    "dismissAria": "Updatebanner sluiten"
+  },
+  "pwa": {
+    "title": "Installeer de app voor pushmeldingen",
+    "iosLead": "Op iPhone/iPad moet de app op je beginscherm staan voor pushmeldingen.",
+    "iosStep1": "Tik onderaan Safari op de deelknop",
+    "iosStep2": "Kies \"Zet op beginscherm\"",
+    "iosStep3": "Open de app vanaf je beginscherm en sta meldingen toe",
+    "iosArrowHint": "Een bewegende pijl wijst naar de deelknop in je browser",
+    "androidTitle": "Installeer de app voor de beste ervaring",
+    "androidLead": "Installeer de app om herinneringen op je telefoon te krijgen.",
+    "androidHomeLead": "Zet {{brand}} op je beginscherm voor snelle toegang en pushmeldingen.",
+    "androidInstall": "App installeren",
+    "androidInstallBtn": "📲 App installeren",
+    "androidChromeFallback": "Tik op ⋮ (menu) in Chrome → <strong>\"Toevoegen aan startscherm\"</strong>",
+    "desktopTitle": "De app installeren",
+    "desktopLead": "Tik op het installatiepictogram (⊕) in de adresbalk of gebruik het menu van je browser.",
+    "dismissAria": "Sluiten"
+  },
+  "pushPrompt": {
+    "title": "Ontvang pushmeldingen over je kinderen",
+    "body": "Weet meteen wanneer een kind een activiteit afvinkt of een beloning wil inwisselen.",
+    "later": "Later",
+    "enable": "Aanzetten",
+    "enabledToast": "✅ Pushmeldingen aan!"
+  },
+  "globalFeedback": {
+    "fabAria": "Feedback geven",
+    "fabTitle": "Feedback geven",
+    "modalTitle": "Feedback geven",
+    "typeBug": "Probleem melden",
+    "typeSuggestion": "Suggestie",
+    "typeLanguage": "Taal",
+    "titlePlaceholder": "Titel",
+    "messagePlaceholder": "Wat gebeurde er?",
+    "cancel": "Annuleren",
+    "submit": "Melding versturen",
+    "submitting": "Versturen...",
+    "validationRequired": "Vul alle velden in.",
+    "success": "Je melding is verstuurd.",
+    "errorGeneric": "Er ging iets mis. Probeer het opnieuw."
+  },
+  "cards": {
+    "loadError": "Kindkaarten konden niet worden geladen. Trek omlaag om te vernieuwen.",
+    "last": "Laatste:",
+    "next": "Volgende:",
+    "noActivitiesToday": "Vandaag geen activiteiten gepland",
+    "noRoutineToday": "Vandaag geen routine",
+    "createActivity": "✨ Maak een activiteit in het schema →",
+    "childNoActivities": "{{name}} heeft nog geen activiteiten — maak de eerste →",
+    "noRewards": "🎁 Nog geen beloningen",
+    "addReward": "→ Beloning toevoegen",
+    "pendingRequest": "{{count}} openstaand verzoek",
+    "pendingRequestMany": "{{count}} openstaande verzoeken",
+    "pausedBadge": "GEPAUZEERD",
+    "allDoneTitle": "Alles klaar!",
+    "statusNow": "NU",
+    "statusNext": "HIERNA",
+    "onceTask": "Eenmalige activiteit",
+    "markDone": "Markeer als klaar",
+    "unmark": "Vinkje weghalen",
+    "activityMarked": "✅ Klaar!",
+    "activityUnmarked": "Weer open",
+    "fillDay": "{{day}} invullen",
+    "allActivitiesDone": "Alle activiteiten van vandaag klaar!",
+    "last7Days": "Laatste 7 dagen"
+  },
+  "approvals": {
+    "title": "Openstaande verzoeken",
+    "loading": "Verzoeken laden...",
+    "empty": "Geen openstaande verzoeken! 🎉",
+    "loadError": "Verzoeken konden niet worden geladen.",
+    "wantsGoalChange": "Wil het doel wijzigen",
+    "goalChangeTo": "Naar: {{name}}",
+    "wantsRedeem": "Wil inwisselen",
+    "approve": "Goedkeuren",
+    "deny": "Afwijzen",
+    "requiresApproval": "Heeft goedkeuring nodig",
+    "requiresApprovalCount": "Heeft goedkeuring nodig ({{count}})",
+    "goalApproved": "🎯 Doelwijziging goedgekeurd!",
+    "redemptionApproved": "🎉 Inwisseling goedgekeurd!",
+    "goalDenied": "Doelwijziging afgewezen.",
+    "redemptionDenied": "Inwisseling afgewezen.",
+    "updateFailed": "Bijwerken lukte niet",
+    "genericError": "Fout",
+    "wantsGoalNamed": "{{name}} wil het doel wijzigen naar {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Wil het doel wijzigen naar {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} wil \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Tijd vandaag aanpassen",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Tijd aanpassen lukte niet",
+    "undone": "Ongedaan gemaakt",
+    "undoFailed": "Ongedaan maken lukte niet"
+  },
+  "loading": {
+    "initFailed": "Er ging iets mis bij het laden. Laad de pagina opnieuw.",
+    "couldNotLoad": "Laden lukte niet.",
+    "checkConnection": "Controleer je internetverbinding",
+    "reloadPage": "Pagina opnieuw laden"
+  },
+  "activationProgram": {
+    "exitConfirm": "Wil je het 7-dagenprogramma beëindigen?",
+    "reflectionPlaceholder": "Optioneel: vertel meer…",
+    "send": "Versturen",
+    "reflectionQuestion": "Heeft de app het dagelijks leven makkelijker gemaakt?",
+    "previewEmpty": "Open de kindlogin om het schema te zien.",
+    "optOutTitle": "Programma beëindigen",
+    "skipToday": "Vandaag overslaan",
+    "orOpenChildLogin": "Of open de kindlogin",
+    "dayOf": "Dag {{day}} van {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Gezinsvoortgang vandaag",
+    "allChildren": "← Alle kinderen",
+    "systemMsgFrom": "Bericht van de app",
+    "systemMsgClose": "Sluiten ✕",
+    "sharingManage": "Tik om gedeelde rapporten te beheren",
+    "inviteTitle": "Nodig een andere ouder uit",
+    "inviteSub": "Zodat jullie elkaar niet hoeven te vragen hoe het schema eruitziet",
+    "inviteBtn": "Uitnodigen",
+    "shareTitle": "Vertel het een vriend!",
+    "shareSub": "Help een ander gezin structuur te brengen in het dagelijks leven",
+    "shareBtn": "Delen",
+    "inviteModalTitle": "Nodig een andere ouder uit",
+    "inviteModalBody": "Je partner krijgt een e-mail met een directe link — geen extra apps, niets ingewikkelds.",
+    "inviteSentBody": "Je partner kan nu inloggen en het schema zien.",
+    "inviteDone": "Klaar",
+    "supportPrefix": "🔒 Je bent in supportmodus: gegevens van gezin",
+    "supportSuffix": ". Er kunnen geen gegevens worden gewijzigd. De sessie verloopt over",
+    "tourSkip": "Overslaan",
+    "tourNext": "Volgende →",
+    "starTipsTitle": "Tips: zo werken sterren",
+    "starTipsCollect": "• Je kind verdient sterren als activiteiten in de kindweergave worden afgevinkt",
+    "starTipsExtra": "• Geef bonus-sterren vanaf de kindkaart voor inzet buiten het schema",
+    "starTipsRewards": "• Sterren tellen mee voor opgespaarde beloningen — stel doelen in bij Beloningen",
+    "starTipsEdit": "• Bewerk het weekschema in Planning",
+    "dayDragInner": "sleep een dagtab naar een andere dag om te kopiëren of te wisselen",
+    "calViewDay": "Dag",
+    "calViewWeek": "Week",
+    "calViewMonth": "Maand",
+    "retroactiveFull": "📝 Later invullen",
+    "extraStarsFull": "⭐ Bonus-sterren geven",
+    "onceTaskFull": "📋 Eenmalige activiteit",
+    "dayOffFull": "🏠 Vrije dag",
+    "trialEndingTitle": "Nog één dag van de proefperiode",
+    "trialEndingBody": "De proefperiode eindigt binnen een dag. Kies een abonnement in de app als je volledige toegang wilt houden. Al je gegevens blijven staan.",
+    "trialEndingChoose": "Kies in de app",
+    "trialEndingClose": "Sluiten"
+  },
+  "helpPanel": {
+    "title": "❓ Hoe werkt het?",
+    "tabSchema": "📅 Schema",
+    "tabStars": "⭐ Sterren",
+    "tabFamily": "👨‍👩‍👧 Gezin",
+    "tabAdults": "🔑 Meer volwassenen",
+    "tabTrouble": "🔧 Problemen oplossen",
+    "addActivityQ": "Hoe voeg ik een activiteit toe?",
+    "addActivityA": "Tik op een kindkaart op Thuis → kies een dag → tik op \"+\" om een activiteit uit je bibliotheek toe te voegen. Je kunt ook eigen activiteiten maken in de <strong>Bibliotheek</strong>.",
+    "dragQ": "Kan ik activiteiten slepen en verplaatsen?",
+    "dragA": "Ja! In het schema van het kind (tik op een kaart op Thuis) kun je activiteiten ingedrukt houden en slepen om de volgorde te wijzigen. Je kunt een activiteit ook naar een ander dagtab slepen om hem te kopiëren.",
+    "copyQ": "Hoe kopieer ik het schema naar elke dag?",
+    "copyA": "In de schemabewerker (knop 📋) → kies \"Kopiëren naar andere dagen\" om het schema van één dag naar de rest van de week te kopiëren.",
+    "earnStarsQ": "Hoe verdient mijn kind sterren?",
+    "earnStarsA": "Elke afgeronde activiteit geeft <strong>1 ster</strong>. Je kind vinkt af in de kindweergave. Je kunt ook <strong>bonus-sterren</strong> geven vanaf de kindkaart op Thuis.",
+    "treasureQ": "Hoe werkt de sterrenkist?",
+    "treasureA": "Tik in de kindweergave op het ⭐-pictogram om de sterrenkist te zien — een lijst met beloningen en hoeveel sterren ze kosten. Je kind kan een beloning vragen als er genoeg is gespaard.",
+    "retroQ": "Hoe vul ik sterren in voor dagen die ik vergeten was?",
+    "retroA": "Ga naar <strong>Vandaag</strong> (☰ menu → Vandaag, of de knop <strong>Later invullen</strong> op Thuis). Kies het kind, ga met de pijlen of de datumkiezer naar de juiste dag en vink de activiteiten af. Sterren worden met de juiste datum opgeslagen.",
+    "rewardsQ": "Hoe voeg ik beloningen toe of bewerk ik ze?",
+    "rewardsA": "Ga in het menu naar Beloningen. Daar kun je eigen beloningen toevoegen, de sterrenprijs aanpassen en kiezen welke kinderen ze zien.",
+    "siblingQ": "Hoe voeg ik een broer of zus toe?",
+    "siblingA": "Op Thuis → tik op <strong>\"+ Kind toevoegen\"</strong>. Elk kind krijgt een eigen schema, activiteiten en sterren.",
+    "childLoginQ": "Hoe logt mijn kind in?",
+    "childLoginA": "De eerste dagen kun je <strong>de dag van het kind bekijken</strong> via Vandaag. Als je er klaar voor bent, logt je kind in op <strong>/child-login</strong> met gebruikersnaam en pincode — geen wachtwoorden. De gegevens vind je onder <strong>Gezin en instellingen → Kinderen</strong>.",
+    "inviteAdultQ": "Hoe nodig ik een andere volwassene uit?",
+    "inviteAdultA": "Ga naar <strong>Gezin en instellingen → Gezinsleden</strong> → tik op \"Uitnodigen\". Diegene krijgt een e-mail met een link om een eigen account te maken en bij het gezin te komen.",
+    "inviteSeeQ": "Ziet de uitgenodigde volwassene elk kind?",
+    "inviteSeeA": "Je kiest welke kinderen zichtbaar zijn als je de uitnodiging stuurt. Later kun je dat wijzigen onder <strong>Gezinsleden</strong> → tik op de persoon → pas de toegang tot kinderen aan.",
+    "noActivitiesQ": "Mijn kind ziet vandaag geen activiteiten",
+    "noActivitiesA": "Controleer of het schema voor de juiste dag staat. Open het schema van het kind (tik op de kindkaart) → kies vandaag → kijk of er activiteiten zijn. Als het schema leeg is: gebruik \"Kopiëren naar andere dagen\" om het te vullen.",
+    "forgotPinQ": "Ik ben de pincode van het kind vergeten",
+    "forgotPinA": "Ga naar <strong>Gezin en instellingen → Kinderen</strong> → kies het kind → tik op \"Pincode wijzigen\" om een nieuwe pincode in te stellen.",
+    "innerOneStar": "1 ster",
+    "innerBonusStars": "bonus-sterren",
+    "innerAddChild": "\"+ Kind toevoegen\"",
+    "innerPreview": "de dag van het kind bekijken",
+    "innerFamilyMembersPath": "Gezin en instellingen → Gezinsleden",
+    "innerMembers": "Gezinsleden",
+    "innerFamilyChildren": "Gezin en instellingen → Kinderen",
+    "supportQ": "Contact met support",
+    "supportLead": "Mail ons op",
+    "supportTail": " — we reageren binnen 24 uur."
+  },
+  "journeyAck": {
+    "headline": "Je kind heeft een activiteit afgerond!",
+    "childFallback": "Je kind",
+    "activityFallback": "een activiteit",
+    "dismiss": "Ik heb het gezien"
+  },
+  "journeyCelebration": {
+    "headline": "Jullie deden het samen",
+    "body": "Je kind is begonnen — en jij hebt het gezien.",
+    "dismiss": "Top!"
+  },
+  "activationAha": {
+    "body": "Zonder dat jij hoefde te herinneren.",
+    "dismiss": "Top!"
+  }
+}

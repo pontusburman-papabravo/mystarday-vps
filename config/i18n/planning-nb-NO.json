@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planlegging — {{brand}}",
+  "shell": {
+    "title": "Planlegging",
+    "lead": "Velg uken, aktiviteter eller mer.",
+    "logout": "Logg ut"
+  },
+  "sections": {
+    "planWeek": "Planlegg uken",
+    "buildContent": "Bygg innhold",
+    "other": "Annet"
+  },
+  "primary": {
+    "week": { "title": "Uken", "sub": "Daglisten for barnas uke" },
+    "activities": { "title": "Aktiviteter", "sub": "Biblioteket — lag og rediger" },
+    "more": { "title": "Mer", "sub": "Utskrift, maler og andre verktøy" }
+  },
+  "more": {
+    "title": "Mer",
+    "close": "Lukk"
+  },
+  "links": {
+    "library": { "title": "Bibliotek", "sub": "Lag aktiviteter og belønninger" },
+    "imageArchive": { "title": "Bildearkiv", "sub": "Bildene dine — tannbørste, seng, skole" },
+    "templates": { "title": "Maler", "sub": "Lagrede planer du kan bruke igjen" },
+    "weekSchedule": { "title": "Ukeplan", "sub": "Rediger barnets uke" },
+    "calendar": { "title": "Kalender", "sub": "Se måneden og spesielle dager" },
+    "custody": { "title": "Samværsplan", "sub": "Delt omsorg mellom hjem" },
+    "dailyLog": { "title": "I dag", "sub": "Se og juster tidligere dager" },
+    "printSchema": { "title": "Lag PDF — plan", "sub": "Skriv ut en plan" },
+    "assignSchedule": { "title": "Tildel plan", "sub": "Kopier en plan til et barn" },
+    "reports": { "title": "Rapporter", "sub": "Fremgang og deling" },
+    "samarbete": { "title": "Samarbeid med pedagog", "sub": "Jobb sammen med en pedagog" },
+    "barnStod": { "title": "Ekstra støtte", "sub": "Visuell støtte og TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Kom i gang",
+    "bodyBeforeLibrary": "Start i ",
+    "libraryLink": "Biblioteket",
+    "bodyMiddle": " hvis du vil lage aktiviteter. Gå til ",
+    "forYouLink": "For deg",
+    "bodyAfter": " hvis du vil ha et ferdig forslag."
+  }
+}

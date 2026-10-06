@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Innstillinger — {{brand}}",
+  "title": "Innstillinger",
+  "shellLead": "Profil, familie og app",
+  "familySettings": "Familieinnstillinger",
+  "groups": {
+    "profile": {
+      "title": "Profil og konto",
+      "sub": "Innlogging, PIN og konto"
+    },
+    "family": {
+      "title": "Familie",
+      "sub": "Navn og språk. Personer administreres under Familie."
+    },
+    "device": {
+      "title": "Denne enheten",
+      "sub": "Barnetelefon, voksen telefon eller delt telefon"
+    },
+    "appearance": {
+      "title": "Utseende",
+      "sub": "Mørkt eller lyst tema"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Varsler, push og personvern"
+    },
+    "premium": {
+      "title": "Abonnement",
+      "sub": "Premium, kjøp og betaling"
+    }
+  },
+  "appearance": {
+    "dark": "Mørk",
+    "light": "Lys",
+    "backToSettings": "← Tilbake til innstillinger"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planlegging",
+      "sub": "Bygg innhold eller planlegg barnas uke."
+    },
+    "rewards": {
+      "title": "Belønninger",
+      "sub": "Stjerner, belønninger og familiens stjernekiste."
+    },
+    "calendar": {
+      "title": "Kalender",
+      "sub": "Månedsvisning for alle barn"
+    },
+    "activities": {
+      "title": "Aktiviteter",
+      "sub": "Administrer barnas aktiviteter"
+    },
+    "assignSchedule": {
+      "title": "Tildel plan",
+      "sub": "Kopier plan til barn"
+    },
+    "dailyLog": {
+      "title": "I dag",
+      "sub": "Følg barnets dag — fyll inn stjerner i etterkant"
+    },
+    "treasureChest": {
+      "title": "Stjernekiste",
+      "sub": "Belønninger og stjerner"
+    },
+    "childSettings": {
+      "title": "Barneinnstillinger",
+      "sub": "Visning, PIN og tilpasning"
+    },
+    "familyChild": {
+      "title": "Barneinnstillinger",
+      "sub": "Plan, visning, PIN og tilpasning"
+    },
+    "notifications": {
+      "title": "Varsler",
+      "sub": "Påminnelser og meldinger"
+    },
+    "schedule": {
+      "title": "Ukeplan",
+      "sub": "Planlegg og tilpass barnas dager"
+    },
+    "library": {
+      "title": "Bibliotek",
+      "sub": "Planer, aktiviteter og belønninger for familien"
+    },
+    "family": {
+      "title": "Familie",
+      "sub": "Barn, voksne og pedagoger"
+    }
+  },
+  "backToPlanning": "← Tilbake til Planlegging",
+  "avatar": {
+    "title": "Profilbilde",
+    "description": "Bildet ditt vises for barnet under Mine personer og på Familiesiden.",
+    "changePhoto": "Bytt bilde",
+    "addPhoto": "Legg til bilde",
+    "removePhoto": "Fjern bilde",
+    "saved": "Profilbildet er lagret!",
+    "removed": "Profilbildet er fjernet",
+    "saveFailed": "Kunne ikke lagre",
+    "removeFailed": "Kunne ikke fjerne"
+  },
+  "nativeAccount": {
+    "title": "Konto",
+    "sub": "Bytt til barnets innlogging, eller logg helt ut av appen."
+  },
+  "account": {
+    "title": "Konto og innlogging",
+    "appleLinked": "Apple-konto er koblet til",
+    "googleLinked": "Google-konto er koblet til",
+    "appleLinkedOnIosHint": "Du koblet til Apple-kontoen på en iPhone. For å logge inn her, legg til et passord under.",
+    "googleLinkedElsewhereHint": "Du koblet til Google-kontoen på en annen enhet. For å logge inn her, legg til et passord under.",
+    "newPassword": "Nytt passord",
+    "confirmPassword": "Bekreft passord",
+    "minCharsPlaceholder": "Minst 8 tegn",
+    "repeatPasswordPlaceholder": "Skriv passordet på nytt",
+    "savePassword": "Lagre passord",
+    "passwordForNonApple": "For innlogging uten Apple",
+    "changePasswordHint": "Endre passordet for å beholde tilgangen til kontoen.",
+    "currentPassword": "Nåværende passord",
+    "confirmNewPassword": "Bekreft nytt passord",
+    "changePassword": "Endre passord",
+    "linkApple": "Koble til Apple-konto",
+    "unlinkApple": "Koble fra Apple-konto",
+    "linkGoogle": "Koble til Google-konto",
+    "unlinkGoogle": "Koble fra Google-konto",
+    "changeEmail": "Endre e-postadresse",
+    "newEmail": "Ny e-postadresse",
+    "yourPassword": "Passordet ditt",
+    "confirmWithPassword": "Bekreft med passord",
+    "sendConfirmLink": "Send bekreftelseslenke",
+    "passwordsMismatch": "Passordene er ikke like",
+    "passwordMinLength": "Passordet må være minst 8 tegn",
+    "saving": "Lagrer…",
+    "passwordNowActive": "✓ Passordet er aktivt nå",
+    "somethingWrong": "Noe gikk galt. Prøv igjen.",
+    "somethingWrongShort": "Noe gikk galt",
+    "appleSignInUnavailable": "Apple-innlogging er ikke tilgjengelig på denne enheten.",
+    "googleSignInUnavailable": "Google-innlogging er ikke tilgjengelig på denne enheten.",
+    "linking": "Kobler til…",
+    "appleAlreadyLinked": "Denne Apple-kontoen er allerede koblet til en annen konto.",
+    "googleAlreadyLinked": "Denne Google-kontoen er allerede koblet til en annen konto.",
+    "couldNotLinkApple": "Kunne ikke koble til Apple:",
+    "couldNotLinkGoogle": "Kunne ikke koble til Google:",
+    "tryAgain": "Prøv igjen.",
+    "unlinkApplePrompt": "Skriv inn passordet for å koble fra Apple:",
+    "unlinkGooglePrompt": "Skriv inn passordet for å koble fra Google:",
+    "removing": "Fjerner…",
+    "couldNotUnlink": "Kunne ikke koble fra",
+    "invalidEmail": "Skriv inn en gyldig e-postadresse",
+    "sending": "Sender…",
+    "linkSentTo": "Lenke sendt til {{email}}",
+    "passwordChanged": "Passordet er endret!",
+    "linkAppleBtn": "🍎 Koble til Apple-konto",
+    "linkGoogleBtn": "G Koble til Google-konto",
+    "emailUpdated": "E-posten din er oppdatert! Du kan nå logge inn med den nye adressen.",
+    "passwordSet": "Passordet er satt. Du kan nå logge inn med e-post og passord.",
+    "errors": {
+      "invalidAppleToken": "Ugyldig Apple-identitetstoken",
+      "invalidGoogleToken": "Ugyldig Google-identitetstoken",
+      "appleAlreadyLinkedThis": "En Apple-konto er allerede koblet til denne kontoen",
+      "googleAlreadyLinkedThis": "En Google-konto er allerede koblet til denne kontoen",
+      "passwordRequiredUnlink": "Passord kreves for å koble fra kontoen",
+      "setPasswordBeforeUnlink": "Sett et passord før du kobler fra kontoen",
+      "emailPasswordRequired": "Ny e-postadresse og passord kreves",
+      "setPasswordBeforeEmail": "Sett et passord før du kan endre e-postadresse",
+      "emailAlreadyRegistered": "Denne e-posten er allerede registrert på en annen konto",
+      "emailChangeLinkInvalid": "Ugyldig eller utløpt lenke. Be om en ny endring under Innstillinger.",
+      "emailChangeLinkUsed": "Denne lenken er allerede brukt. Be om en ny endring under Innstillinger.",
+      "emailChangeLinkExpired": "Denne lenken er utløpt. Be om en ny endring under Innstillinger.",
+      "passwordAlreadySet": "Et passord finnes allerede. Bruk «Endre passord» for å oppdatere det.",
+      "emailAllOff": "Alle e-postvarsler er av. Du kan slå dem på igjen under Innstillinger → Varsler.",
+      "weeklyEmailOff": "Vi sender ikke flere ukesammendrag til e-posten din. Du kan slå dem på igjen under Innstillinger → Varsler.",
+      "redeemEmailOff": "Vi sender ikke flere e-poster når barnet vil løse inn belønninger. Du kan slå dem på igjen under Innstillinger → Varsler.",
+      "passwordCurrentAndNew": "Nåværende og nytt passord kreves",
+      "appleLinkLoginRequired": "Du må være innlogget for å koble til en Apple-konto",
+      "googleLinkLoginRequired": "Du må være innlogget for å koble til en Google-konto"
+    }
+  },
+  "toast": {
+    "saved": "Lagret!",
+    "savedCheck": "✅ Lagret!",
+    "saveFailedRetry": "Kunne ikke lagre. Prøv igjen.",
+    "networkError": "Nettverksfeil"
+  },
+  "parentPin": {
+    "title": "PIN-kode",
+    "security": "Sikkerhet",
+    "hasPinDescription": "Den personlige PIN-koden din beskytter foreldremodus — barn kan ikke forlate barnemodus uten PIN-koden din.",
+    "noPinDescription": "Sett din egen PIN på 4 sifre — barn kan ikke forlate barnemodus uten PIN-koden din.",
+    "choosePin": "Velg en PIN på 4 sifre",
+    "confirmPin": "Bekreft PIN",
+    "changePinBack": "← Endre PIN",
+    "enterCurrentPin": "Skriv inn nåværende PIN",
+    "forgotPin": "Glemt PIN?",
+    "chooseNewPin": "Velg ny PIN",
+    "confirmNewPin": "Bekreft ny PIN",
+    "forgotIntro": "Skriv inn passordet for å sette en ny PIN.",
+    "yourPassword": "Passordet ditt",
+    "verify": "Bekreft",
+    "keypadAria": "Talltastatur",
+    "confirmKeypadAria": "Tastatur for å bekrefte PIN",
+    "pinKeypadAria": "PIN-tastatur",
+    "newPinKeypadAria": "Tastatur for ny PIN",
+    "confirmNewPinKeypadAria": "Tastatur for å bekrefte ny PIN",
+    "pinsMismatch": "PIN-kodene er ikke like — prøv igjen",
+    "pinNowActive": "✓ PIN er aktiv nå",
+    "wrongPin": "Feil PIN — prøv igjen",
+    "pinChanged": "✓ PIN er endret!",
+    "couldNotChangePin": "Kunne ikke endre PIN",
+    "sessionExpired": "Økten er utløpt — skriv inn nåværende PIN på nytt",
+    "enterPassword": "Skriv inn passordet",
+    "wrongPassword": "Feil passord"
+  },
+  "push": {
+    "title": "Pushvarsler",
+    "lead": "Få varsler på telefonen — også når appen er lukket.",
+    "unsupported": "Nettleseren din støtter ikke pushvarsler.",
+    "toggleLabel": "Pushvarsler",
+    "toggleDescription": "Slå på for å få varsler om barnas aktiviteter",
+    "toggleAria": "Slå av eller på pushvarsler",
+    "perChildHeading": "Varsler per barn",
+    "typesHeading": "Hvilke varsler?",
+    "typeScheduleTitle": "Planpåminnelse",
+    "typeScheduleHint": "10 min før aktiviteten",
+    "typeScheduleAria": "Slå av eller på planpåminnelse",
+    "typeInactivityTitle": "Påminnelse ved inaktivitet",
+    "typeInactivityHint": "18:00 hvis barnet ikke har logget inn",
+    "typeInactivityAria": "Slå av eller på påminnelse ved inaktivitet",
+    "typeMilestoneTitle": "Stjernemilepæl",
+    "typeMilestoneHint": "Ved 10/25/50/100 stjerner",
+    "typeMilestoneAria": "Slå av eller på stjernemilepæl",
+    "typeBackfillTitle": "Påminnelse om etterregistrering",
+    "typeBackfillHint": "09:00 hvis i går mangler",
+    "typeBackfillAria": "Slå av eller på påminnelse om etterregistrering",
+    "leadTimeLabel": "Påminnelse før",
+    "quietHoursLabel": "Stilletid",
+    "quietHoursTo": "til",
+    "archiveTitle": "Varselarkiv",
+    "archiveHint": "Vellykkede pushvarsler fra de siste 7 dagene",
+    "noChildren": "Ingen barn er koblet til.",
+    "childToggleAria": "Pushvarsler for {{name}}",
+    "saved": "✅ Lagret!",
+    "saveFailed": "Kunne ikke lagre.",
+    "saveFailedRetry": "Kunne ikke lagre. Prøv igjen.",
+    "requestingPermission": "⏳ Ber om tillatelse…",
+    "enabled": "✅ Pushvarsler er slått på!",
+    "permissionDenied": "🚫 Tillatelse avslått. Slå på i nettleseren eller i appinnstillingene.",
+    "iosNotInstalled": "Legg {{brand}} på Hjem-skjermen for push i Safari.",
+    "genericError": "Noe gikk galt. Prøv igjen.",
+    "disabled": "✅ Pushvarsler er slått av.",
+    "errors": {
+      "unsupportedBrowser": "Push støttes ikke i denne nettleseren",
+      "permissionDeniedApp": "Varslingstillatelse ble avslått i appinnstillingene.",
+      "pushPluginMissing": "Push-tillegget mangler i appen. Kjør npx cap sync ios og bygg på nytt.",
+      "platformMissing": "Push-støtte for plattformen mangler",
+      "permissionDeniedBrowser": "Varslingstillatelse avslått. Slå den på i nettleserinnstillingene.",
+      "permissionDenied": "Varslingstillatelse avslått",
+      "subscriptionFailed": "Abonnementet mislyktes",
+      "enableFailed": "Kunne ikke slå på pushvarsler",
+      "disableFailed": "Kunne ikke slå av pushvarsler",
+      "iosNotInstalled": "Legg appen på Hjem-skjermen for push i Safari.",
+      "notConfigured": "Pushvarsler er ikke satt opp",
+      "invalidSubscription": "Ugyldig push-abonnement",
+      "endpointRequired": "Et endepunkt kreves",
+      "invalidToken": "Ugyldig token",
+      "invalidPlatform": "Plattformen må være iOS eller Android",
+      "tokenRequired": "Token og plattform kreves",
+      "parentNotFound": "Fant ikke forelderen"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Legge til en widget på Hjem-skjermen?",
+      "lead": "Se neste aktivitet på Hjem-skjermen — uten å åpne appen.",
+      "step1": "Trykk <strong class=\"text-navy\">Koble til widget</strong> her i appen.",
+      "step2": "På Hjem-skjermen: trykk lenge på bakgrunnen → trykk <strong class=\"text-navy\">+</strong> → søk etter <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Ikke spør igjen",
+      "connect": "Koble til widget",
+      "later": "Ikke nå",
+      "openSettings": "Åpne innstillinger"
+    },
+    "settings": {
+      "title": "Widgeter og snarveier",
+      "description": "Personlig widget = ett barn. Familie-widget = flere barn. Velg et barn her hvis du har mer enn ett.",
+      "childPickerLabel": "Hvilket barn skal widgeten vise?",
+      "childFallbackName": "Barn",
+      "statusLabel": "Status:",
+      "statusConnected": "Koblet til",
+      "statusReconnect": "Må kobles til på nytt",
+      "privacyLabel": "Personvern:",
+      "privacyFull": "Fullt",
+      "privacyLimited": "Begrenset",
+      "reconnectBtn": "Koble til widget på nytt",
+      "guideBtn": "Vis guide for widget på Hjem-skjermen",
+      "connecting": "Kobler til…",
+      "supportMissing": "Widget-støtte mangler i denne versjonen. Oppdater appen.",
+      "addChildFirst": "Legg til et barn i familien først, så kan du koble til widgeten.",
+      "loginRequired": "Du må være innlogget for å koble til widgeten.",
+      "success": "Ferdig! Legg widgeten på Hjem-skjermen (+ → {{brand}}) hvis du ikke allerede har gjort det.",
+      "pickChild": "Velg et barn i listen ovenfor og prøv igjen.",
+      "retryLater": "Kunne ikke koble til akkurat nå. Prøv igjen om et øyeblikk.",
+      "networkError": "Kunne ikke koble til akkurat nå. Sjekk nettverket og prøv igjen.",
+      "errors": {
+        "offlineUnavailable": "Widgeten er ikke slått på for familien din ennå. Kontakt brukerstøtte hvis den skal være på.",
+        "reauthRequired": "Økten må fornyes. Logg ut og inn igjen, og prøv å koble til på nytt.",
+        "nativeConfigureFailed": "Appen kunne ikke lagre widget-koblingen. Lukk appen helt og åpne den igjen.",
+        "notEnabled": "Widgeten er ikke slått på, eller økten må fornyes. Logg ut og inn igjen."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Varslingsinnstillinger",
+    "weeklySummary": "Ukesammendrag (søndag 21:00)",
+    "rewardRedemption": "Innløsning av belønninger",
+    "newsletter": "Nyhetsbrev på e-post",
+    "emailGlobal": "Alle e-poster globalt",
+    "save": "Lagre varslingsinnstillinger"
+  },
+  "reminders": {
+    "title": "Påminnelser",
+    "lead": "Sett en daglig påminnelse, så du husker å sjekke planen.",
+    "daily": "Daglig påminnelse",
+    "hint": "Du får en påminnelse til valgt tid på valgte dager",
+    "toggleAria": "Slå av eller på påminnelse",
+    "time": "Tid",
+    "days": "Dager"
+  },
+  "familyName": {
+    "label": "Familienavn",
+    "placeholder": "f.eks. Familien Berg",
+    "autoFromParent": "Familien til {{name}}"
+  },
+  "sound": {
+    "label": "Lyd på",
+    "hint": "Spiller en lyd når barnet krysser av en aktivitet i dagsvisningen."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Voksne og tilgang",
+    "adultsBody": "Inviter en medforelder og se hvem som har tilgang under Familie.",
+    "openFamily": "Åpne Familie",
+    "pedagogsTitle": "👩‍🏫 Pedagoger",
+    "pedagogsBody": "Invitasjoner og tilgang for pedagoger administreres under Familie."
+  },
+  "dataExport": {
+    "title": "Dataene mine",
+    "body": "Last ned en kopi av alle dataene dine som CSV (ZIP-fil). Inkluderer profil, barn, planer, belønninger og aktivitetshistorikk.",
+    "download": "Last ned dataene mine",
+    "preparing": "Forbereder nedlasting…",
+    "started": "✅ Nedlasting startet!",
+    "rateLimited": "Du kan bare eksportere én gang per 24 timer.",
+    "failed": "Noe gikk galt. Prøv igjen.",
+    "networkError": "Nettverksfeil. Prøv igjen."
+  },
+  "deleteAccount": {
+    "title": "Slett konto",
+    "permanent": "⚠️ Permanent handling",
+    "loading": "Laster hva som vil skje…",
+    "storeBillingNote": "Hvis du har et abonnement via App Store eller Google Play, avsluttes det ikke automatisk når kontoen slettes. Administrer eller avslutt abonnementet i butikken.",
+    "button": "Slett kontoen min",
+    "summarySelf": "Du fjerner din egen konto og tilgangen din. Familien, barna, planene og data for andre voksne blir liggende. Dette kan ikke angres.",
+    "summaryLastAdmin": "Du er den siste voksne med administratortilgang. Hele familien og alle tilknyttede data — barn, planer, aktiviteter, stjerner og belønninger — slettes med en gang og for godt. Dette kan ikke angres.",
+    "modalTitleSelf": "Forlat familien",
+    "modalTitleFamily": "Slett familie og konto",
+    "modalTitleFallback": "Slett konto for godt",
+    "leadSelf": "Du fjerner bare din egen konto og tilgangen din.",
+    "leadFamily": "Du sletter hele familien og alle tilknyttede data.",
+    "sure": "Er du sikker?",
+    "cannotUndo": "Dette kan ikke angres.",
+    "storeBillingModal": "Et abonnement via App Store eller Google Play avsluttes ikke automatisk — administrer det i butikken.",
+    "typeConfirmLabel": "Skriv {{token}} for å bekrefte",
+    "typeConfirmLabelHtml": "Skriv <strong>RADERA</strong> for å bekrefte",
+    "typeConfirmError": "Skriv {{token}} for å bekrefte.",
+    "confirmToken": "RADERA",
+    "cancel": "Avbryt",
+    "confirmSelf": "Forlat familien",
+    "confirmFamily": "Slett alt for godt",
+    "deleting": "Sletter...",
+    "deleted": "✅ Kontoen er slettet.",
+    "deleteFailed": "Noe gikk galt under sletting.",
+    "networkError": "Nettverksfeil. Prøv igjen.",
+    "bulletSelfAccount": "Foreldrekontoen din og tilgangen din",
+    "bulletSelfOthersRemain": "Familien, barna og andre voksne blir liggende",
+    "bulletParentAccount": "Foreldrekontoen",
+    "bulletAllChildren": "Alle barn i familien",
+    "bulletAllSchedules": "Alle planer, aktiviteter og belønninger",
+    "bulletAllHistory": "All daglig historikk og stjerner"
+  },
+  "support": {
+    "title": "Teknisk info til brukerstøtte",
+    "hint": "Kopier appversjon, hurtiglager og en feilsøkings-ID. Ingen personopplysninger eller passord er med.",
+    "copy": "Kopier teknisk info",
+    "copied": "Kopiert — lim det inn i en e-post til brukerstøtte.",
+    "copyFailed": "Kunne ikke kopiere. Prøv igjen."
+  },
+  "legal": {
+    "privacy": "Personvernerklæring",
+    "terms": "Bruksvilkår"
+  },
+  "consent": {
+    "title": "Samtykke og personvern",
+    "lead": "Administrer personverninnstillingene og informasjonskapselvalgene dine.",
+    "change": "Endre samtykkeinnstillinger",
+    "empty": "Ingen samtykkeinnstillinger er lagret ennå.",
+    "modalTitle": "Samtykke og personvern",
+    "aria": "Samtykkeinnstillinger",
+    "intro": "Hjelp oss å gjøre {{brand}} enda bedre. Vi bruker informasjonskapsler for å forstå hvordan appen brukes, og for å nå flere familier. Trykk på hver kategori for å bytte ✓ Ja / ✗ Nei / — Nøytral.",
+    "save": "Lagre valg",
+    "saving": "Lagrer…",
+    "skip": "Hopp over",
+    "closing": "Lukker…",
+    "analytics": "Analyse og forbedring",
+    "analyticsDesc": "Hjelper oss å forstå hvordan appen brukes, så vi kan gjøre den bedre.",
+    "ads": "Markedsføring",
+    "adsDesc": "Viser annonser tilpasset deg på Meta (Facebook/Instagram) og Google.",
+    "adUserData": "Data til plattformer",
+    "adUserDataDesc": "Deler dataene dine med annonseplattformer for bedre treff.",
+    "adPersonalization": "Personlig tilpasning",
+    "adPersonalizationDesc": "Tilpasser annonser ut fra interessene og atferden din.",
+    "email": "E-post og tips",
+    "emailDesc": "E-poster med tips, nyheter og tilbud fra {{brand}}."
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "loading": "Laster abonnement…",
+    "loadFailed": "Kunne ikke laste abonnementsstatus.",
+    "restore": "Gjenopprett kjøp",
+    "manage": "Administrer abonnement",
+    "activate": "Aktiver Premium",
+    "viewPlans": "Se abonnementer",
+    "howToActivate": "Slik aktiverer du Premium",
+    "webActivateHint": "Premium aktiveres i iPhone- eller Android-appen.",
+    "restoreSuccess": "Kjøp gjenopprettet. Premium er aktivt.",
+    "restoreNone": "Fant ingen kjøp å gjenopprette.",
+    "restoreFailed": "Kunne ikke gjenopprette kjøp.",
+    "launchHoldTitle": "Lanseringstilgang — betaling er ikke live ennå",
+    "launchHoldBody": "Du kan fortsette å bruke appen. Abonnement kreves ikke mens betaling er av.",
+    "complimentaryTitle": "Gratis til 31. desember 2026",
+    "complimentaryBody": "{{brand}} er gratis til 31. desember 2026. Ingen abonnement eller betalingsmåte kreves. Dette tilbudet blir ikke automatisk et betalt abonnement.",
+    "complimentaryBodyUntil": "Gratis til {{date}}. Ingen abonnement eller betalingsmåte kreves, og dette tilbudet blir ikke automatisk et betalt abonnement. Fra 1. januar 2027 kan du velge om du vil abonnere.",
+    "launchTitle": "Lanseringstilgang",
+    "launchBody": "Du kan bruke appen nå. Abonnement kreves ikke ennå.",
+    "launchBodyUntil": "Du kan bruke appen nå. Abonnement kreves ikke ennå. Betalt start: {{date}}.",
+    "noPremium": "Ingen aktiv Premium",
+    "choosePlan": "Velg Premium månedlig eller Premium årlig for full tilgang.",
+    "billingNotLive": "Abonnement kreves ikke ennå. Betaling er ikke live.",
+    "activateBody": "Aktiver Premium for full tilgang til appen.",
+    "grandfatheredTitle": "Premium inkludert for godt",
+    "grandfatheredBody": "Familien din har full tilgang uten kostnad.",
+    "trialTitle": "Premium – gratis prøveperiode",
+    "ends": "Slutter {{date}}",
+    "giftTitle": "Premium – gavekort",
+    "validUntil": "Gyldig til {{date}}",
+    "graceTitle": "Premium – betalingen må oppdateres",
+    "graceBody": "Tilgangen virker fortsatt, men betalingen må ordnes i {{store}}.",
+    "activeTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "årsplan",
+    "planMonthly": "månedsplan"
+  },
+  "theme": {
+    "title": "Utseende",
+    "darkMode": "Mørk modus",
+    "darkHint": "Slå på et mørkt tema for mer behagelig bruk i mørket",
+    "toggleAria": "Slå av eller på mørk modus",
+    "colorBlind": "Tema for fargeblindhet",
+    "colorBlindHint": "Justerer farger for ulike typer fargeblindhet",
+    "colorNone": "Ingen (standard)",
+    "protanopia": "Protanopi (rødblind)",
+    "deuteranopia": "Deuteranopi (grønnblind)",
+    "tritanopia": "Tritanopi (blåblind)"
+  },
+  "viewMode": {
+    "dualAccess": "Du har tilgang til både foreldre- og pedagogvisningen.",
+    "switchPedagog": "🌟 Bytt til pedagogvisning",
+    "switchParent": "👨‍👩‍👧 Bytt til foreldrevisning"
+  },
+  "loadError": {
+    "title": "Familieinnstillinger kunne ikke lastes",
+    "fallback": "Kunne ikke laste familieinnstillinger akkurat nå.",
+    "retry": "Prøv igjen",
+    "retryIn": "Prøv igjen om {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Vi sender ikke flere ukesammendrag til e-posten din. Du kan slå dem på igjen under Innstillinger → Varsler.",
+    "reward": "Vi sender ikke flere e-poster når barnet vil løse inn belønninger. Du kan slå dem på igjen under Innstillinger → Varsler.",
+    "all": "Alle e-postvarsler er av. Du kan slå dem på igjen under Innstillinger → Varsler.",
+    "invalidTitle": "Ugyldig lenke",
+    "invalidBody": "Lenken er ugyldig eller utløpt.",
+    "errorTitle": "Noe gikk galt",
+    "errorBody": "Prøv igjen senere, eller gå til Innstillinger i appen."
+  },
+  "notifArchive": {
+    "retry": "Prøv igjen",
+    "failedHidden": "Mislykkede eller avslåtte utsendelser vises ikke her.",
+    "loading": "Laster push-arkiv…",
+    "loadError": "Kunne ikke laste push-arkivet. Det betyr ikke at du ikke har varsler.",
+    "markAll": "Merk alle som lest"
+  }
+}

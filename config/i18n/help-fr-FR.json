@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Aide",
+    "openAria": "Ouvrir l'aide",
+    "closeAria": "Fermer l'aide"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Aide – Aperçu",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Aperçu",
+          "faqs": [
+            {
+              "q": "À quoi servent les 3 boutons rapides en haut ?",
+              "a": "<strong>⭐ Donner des étoiles bonus</strong> — donnez des étoiles bonus à un enfant à la main. <strong>📋 Activité ponctuelle</strong> — ajoutez une activité temporaire pour aujourd'hui. <strong>🏠 Jour de repos</strong> — met en pause le planning de l'enfant pour une journée (maladie, jour férié)."
+            },
+            {
+              "q": "Comment je coche une activité ?",
+              "a": "Touchez l'activité sur la carte de l'enfant — elle se coche tout de suite. Votre enfant peut aussi cocher dans sa <strong>vue enfant</strong>."
+            },
+            {
+              "q": "C'est quoi une carte enfant compacte ?",
+              "a": "La carte enfant montre l'avatar, le prénom, le solde d'étoiles et les pastilles de moment en mode compact. Ouvrez la carte pour plus de détails, un lien vers le planning et le bouton pause."
+            },
+            {
+              "q": "C'est quoi le jour de repos ?",
+              "a": "<strong>🏠 Jour de repos</strong> met en pause le planning de l'enfant pour le jour choisi — pratique en cas de maladie ou de vacances. L'enfant voit le planning comme inactif. Relancez la journée avec le même bouton."
+            },
+            {
+              "q": "C'est quoi le mode pause ?",
+              "a": "Touchez l'icône pause (⏸) sur la carte enfant pour mettre un enfant en pause. Les activités apparaissent comme inactives et l'enfant ne gagne pas d'étoiles tant que vous ne relancez pas."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Étoiles",
+          "faqs": [
+            {
+              "q": "Comment mon enfant gagne-t-il des étoiles ?",
+              "a": "Chaque activité terminée rapporte <strong>1 étoile</strong>. Votre enfant coche dans la vue enfant — ou vous pouvez cocher dans Aujourd'hui le temps de vous familiariser. Donnez des étoiles bonus avec le bouton ⭐ au-dessus des cartes enfant."
+            },
+            {
+              "q": "Comment fonctionne le coffre aux étoiles ?",
+              "a": "Votre enfant ouvre le coffre aux étoiles via l'onglet 💎 dans la vue enfant et voit les récompenses avec leur prix en étoiles. Quand il en a assez, il peut demander une récompense — vous la validez."
+            },
+            {
+              "q": "Comment j'ajoute des récompenses ?",
+              "a": "Allez dans <strong>Bibliothèque</strong> dans le menu → l'onglet « Récompenses ». Ajoutez les vôtres, modifiez le coût en étoiles et choisissez quels enfants les voient."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Planning",
+          "faqs": [
+            {
+              "q": "Comment j'ajoute une activité ?",
+              "a": "Allez dans <strong>Planning de la semaine</strong> → choisissez l'enfant → choisissez le jour → touchez « + » pour ajouter une activité de la bibliothèque. Vous pouvez chercher parmi 63 activités standard."
+            },
+            {
+              "q": "Comment je copie un planning sur tous les jours ?",
+              "a": "Dans le planning de la semaine → « Copier depuis… » → choisissez une source (votre planning ou la bibliothèque standard) → cochez les jours vers lesquels copier."
+            },
+            {
+              "q": "C'est quoi la vue Aujourd'hui ?",
+              "a": "La vue « Aujourd'hui » de l'aperçu se met à jour toute seule quand vous changez le planning. Les changements du planning de la semaine apparaissent tout de suite dans l'aperçu et dans la vue de votre enfant."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Famille",
+          "faqs": [
+            {
+              "q": "Comment j'invite un autre adulte ?",
+              "a": "Allez dans <strong>Famille et réglages → Membres de la famille</strong> → touchez « Inviter ». La personne invitée reçoit un e-mail avec un lien de connexion."
+            },
+            {
+              "q": "Comment je vois la journée de mon enfant ?",
+              "a": "Ouvrez <strong>Aujourd'hui</strong> dans le menu — vous y voyez les activités du jour telles que votre enfant les verra. Parfait le premier soir, avant qu'il se connecte lui-même."
+            },
+            {
+              "q": "Comment mon enfant se connecte-t-il ?",
+              "a": "Quand vous êtes prêts : votre enfant se connecte sur <strong>/child-login</strong> avec son nom et son code. Vous trouvez les détails dans <strong>Famille et réglages → Enfants</strong>."
+            },
+            {
+              "q": "Contacter l'assistance",
+              "a": "Écrivez-nous à <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — nous répondons sous 24 heures."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Aide – Récompenses",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Récompenses",
+          "faqs": [
+            {
+              "q": "Comment fonctionne le système de récompenses ?",
+              "a": "Votre enfant rassemble des étoiles en terminant des activités. Quand son solde suffit pour une récompense, il peut demander à la prendre — vous acceptez ou refusez."
+            },
+            {
+              "q": "Comment j'ajoute de nouvelles récompenses ?",
+              "a": "Allez dans <strong>Bibliothèque</strong> dans le menu → l'onglet « Récompenses » → cherchez ou touchez « + Ajouter une récompense ». Vous pouvez aussi copier directement depuis la bibliothèque standard."
+            },
+            {
+              "q": "Comment je règle la visibilité par enfant ?",
+              "a": "Quand vous créez ou modifiez une récompense, vous choisissez quels enfants doivent la voir. Pratique pour des récompenses adaptées à chacun."
+            },
+            {
+              "q": "Comment je valide une demande de récompense ?",
+              "a": "La demande de votre enfant apparaît dans l'aperçu avec un badge. Touchez pour valider. Les étoiles sont retirées automatiquement et votre enfant voit le changement tout de suite."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Étoiles",
+          "faqs": [
+            {
+              "q": "Comment mon enfant gagne-t-il des étoiles ?",
+              "a": "Chaque activité terminée rapporte des étoiles (1 étoile par activité par défaut). Vous pouvez aussi donner des étoiles bonus avec le bouton ⭐ dans l'aperçu."
+            },
+            {
+              "q": "Quelle différence entre le solde d'étoiles et les progrès du jour ?",
+              "a": "<strong>Solde d'étoiles</strong> = le total gardé. <strong>Progrès du jour</strong> (l'anneau autour de l'emoji) = combien d'activités votre enfant a terminées aujourd'hui. Ce sont deux choses distinctes."
+            },
+            {
+              "q": "Que se passe-t-il quand une récompense est prise ?",
+              "a": "Les étoiles sont retirées automatiquement du compte de votre enfant. Il voit le changement tout de suite dans son coffre aux étoiles. Vous voyez l'historique sur la page Récompenses."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Aide – Planning de la semaine",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Modifier le planning",
+          "faqs": [
+            {
+              "q": "Comment j'ajoute une activité ?",
+              "a": "Choisissez le jour → touchez « + » → cherchez et choisissez une activité. Vous pouvez choisir <strong>plusieurs moments à la fois</strong> (Matin + Soir) et l'activité est ajoutée à tous."
+            },
+            {
+              "q": "Comment je crée une nouvelle activité directement dans le planning ?",
+              "a": "Touchez « + » → cherchez → si rien ne correspond, le formulaire « Créer » apparaît dans la fenêtre de recherche. Indiquez le nom, l'emoji, la valeur en étoiles et les petites étapes éventuelles."
+            },
+            {
+              "q": "Comment je modifie le nom ou l'emoji d'une activité ?",
+              "a": "Touchez le nom ou l'emoji de l'activité dans le planning → la fenêtre de modification s'ouvre. Les changements s'appliquent automatiquement à tous les enfants et tous les jours."
+            },
+            {
+              "q": "Comment je copie le planning d'un autre enfant ?",
+              "a": "Touchez « Copier depuis… » → choisissez la source → cochez les jours vers lesquels copier. Choisissez si le contenu existant doit être remplacé."
+            },
+            {
+              "q": "Le planning se synchronise-t-il tout seul avec la vue enfant ?",
+              "a": "Oui ! Les changements du planning de la semaine arrivent tout de suite dans la vue « Aujourd'hui » de l'aperçu et dans la vue de votre enfant — aucune mise à jour manuelle."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliothèque",
+          "faqs": [
+            {
+              "q": "C'est quoi la bibliothèque standard ?",
+              "a": "La bibliothèque standard contient 63 activités prêtes dans 6 catégories et 5 modèles de planning. Touchez « Insertion rapide depuis la bibliothèque » pour les ajouter au planning."
+            },
+            {
+              "q": "Comment je copie un planning standard ?",
+              "a": "Sous l'onglet Planning → « Copier depuis… » → choisissez « Bibliothèque standard » → choisissez un planning → choisissez les jours → copiez."
+            },
+            {
+              "q": "Pourquoi mon enfant ne voit-il aucune activité ?",
+              "a": "Vérifiez que le planning est bien celui de cet enfant et qu'il y a des activités pour aujourd'hui. Planning vide ? Copiez depuis la bibliothèque standard pour démarrer vite."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Conseils",
+          "faqs": [
+            {
+              "q": "Comment je construis une bonne routine ?",
+              "a": "Commencez par 3 à 5 activités fixes (petit-déjeuner, brossage des dents, devoirs). Mettez-les dans le bon ordre. Les enfants apprennent vite la routine quand elle reste stable."
+            },
+            {
+              "q": "C'est quoi les petites étapes d'une activité ?",
+              "a": "Vous pouvez ajouter des petites étapes aux activités (par exemple « Se laver les mains », « Mettre le pyjama » sous « Routine du soir »). Votre enfant les voit comme un guide visuel, mais coche toute l'activité d'un seul geste."
+            },
+            {
+              "q": "Combien d'activités par jour ?",
+              "a": "Recommandé : 4 à 8 activités. Trop peu, et il n'y a pas de rythme ; trop, et cela devient lourd. Commencez petit, puis ajoutez."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Aide – Famille et réglages",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Enfants",
+          "faqs": [
+            {
+              "q": "Comment j'ajoute un enfant ?",
+              "a": "Allez dans l'aperçu → touchez « + Ajouter un enfant ». Indiquez le prénom, l'emoji et la date de naissance. L'enfant reçoit un planning automatiquement selon son âge."
+            },
+            {
+              "q": "Comment je change le code de mon enfant ?",
+              "a": "Touchez la carte enfant → l'onglet « Réglages » → « Changer le code ». Choisissez un nouveau code à 4 chiffres."
+            },
+            {
+              "q": "Mon enfant doit faire les activités dans l'ordre — je peux changer ça ?",
+              "a": "Par défaut, on coche librement. Pour un ordre guidé, allez dans le profil de votre enfant → l'onglet <strong>Réglages</strong> → activez <strong>MAINTENANT / ENSUITE / PLUS TARD</strong>."
+            },
+            {
+              "q": "Comment mon enfant voit-il ses identifiants ?",
+              "a": "Touchez la carte enfant → l'onglet « Réglages » → « Afficher les identifiants ». Vous y voyez le nom et le code de votre enfant."
+            },
+            {
+              "q": "Comment je retire un enfant ?",
+              "a": "Famille → choisissez l'enfant → onglet Réglages → « Supprimer l'enfant définitivement ». Attention : tout l'historique de planning, d'étoiles et de récompenses est supprimé et ne peut pas être annulé."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Adultes",
+          "faqs": [
+            {
+              "q": "Comment j'invite un autre adulte ?",
+              "a": "Allez dans l'onglet <strong>Membres de la famille</strong> → « Inviter ». La personne invitée reçoit un e-mail avec un lien pour créer un compte."
+            },
+            {
+              "q": "Je peux choisir quels enfants un adulte voit ?",
+              "a": "Oui ! Vous choisissez quels enfants sont accessibles au moment de l'invitation. Vous pouvez changer plus tard dans Membres de la famille → la personne → Accès aux enfants."
+            },
+            {
+              "q": "Comment je retire un membre de la famille ?",
+              "a": "Touchez la personne dans la liste des membres → « Retirer ». Elle perd l'accès à la famille immédiatement."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Réglages",
+          "faqs": [
+            {
+              "q": "Comment je change mon mot de passe ?",
+              "a": "Allez dans <strong>Réglages</strong> (⚙️) dans le menu → « Changer le mot de passe ». Il vous faut votre mot de passe actuel."
+            },
+            {
+              "q": "Comment j'active les notifications ?",
+              "a": "Allez dans Réglages → « Rappels » → activez les notifications et choisissez les horaires. Les notifications demandent l'autorisation du navigateur."
+            },
+            {
+              "q": "Contacter l'assistance",
+              "a": "Écrivez-nous à <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — nous répondons sous 24 heures."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Aide – Activités",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Gérer",
+          "faqs": [
+            {
+              "q": "C'est quoi une activité ?",
+              "a": "Une <strong>activité</strong> est une tâche que votre enfant fait (par exemple « Se brosser les dents »). Les activités rapportent 1 à 5 étoiles et peuvent avoir des petites étapes. Rassemblez-les dans votre bibliothèque et ajoutez-les aux plannings des enfants."
+            },
+            {
+              "q": "Comment je crée une nouvelle activité ?",
+              "a": "Touchez « + Nouvelle activité » → indiquez le nom, la catégorie (Hygiène, Repas, Jeu, etc.), la durée et la valeur en étoiles. Enregistrez : l'activité rejoint votre bibliothèque."
+            },
+            {
+              "q": "Comment j'ajoute une activité au planning ?",
+              "a": "Les activités vivent dans votre bibliothèque. Allez dans le planning de la semaine → choisissez le jour → « + » → choisissez l'activité à ajouter."
+            },
+            {
+              "q": "Comment je retire une activité de tous les jours ?",
+              "a": "Touchez ✕ sur l'activité → choisissez <strong>Tous les jours de la semaine</strong>. Pour retirer seulement aujourd'hui ou un jour précis (par exemple chaque jeudi), il y a des options séparées."
+            },
+            {
+              "q": "Comment je modifie une activité ?",
+              "a": "Touchez l'activité dans la liste → « Modifier ». Les changements s'appliquent tout de suite dans chaque planning où l'activité est utilisée."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Catégories",
+          "faqs": [
+            {
+              "q": "À quoi servent les catégories ?",
+              "a": "Les catégories colorent les activités dans la vue enfant. <strong>Hygiène</strong>=bleu, <strong>Repas</strong>=jaune, <strong>Jeu</strong>=vert, <strong>École</strong>=violet, <strong>Mouvement</strong>=rouge, <strong>Repos</strong>=gris, <strong>Social</strong>=orange."
+            },
+            {
+              "q": "Comment je choisis une catégorie ?",
+              "a": "Quand vous créez ou modifiez une activité, choisissez une catégorie dans la liste. Prenez celle qui décrit le mieux l'activité."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Aide – Bibliothèque",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Onglets",
+          "faqs": [
+            {
+              "q": "Quels onglets y a-t-il dans la bibliothèque ?",
+              "a": "<strong>Plannings</strong> — vos modèles de planning. <strong>Activités</strong> — la bibliothèque d'activités avec les petites étapes. <strong>Récompenses</strong> — vos récompenses. <strong>Bibliothèque standard</strong> — 63 activités, 15 récompenses et 5 plannings à copier."
+            },
+            {
+              "q": "Comment je copie depuis la bibliothèque standard ?",
+              "a": "Allez dans l'onglet « Bibliothèque standard » → choisissez une activité ou une récompense → touchez le bouton 📥 pour copier vers la bibliothèque de la famille. Les plannings se copient via le planning de la semaine → « Copier depuis… »."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Activités",
+          "faqs": [
+            {
+              "q": "Comment je crée une nouvelle activité ?",
+              "a": "Touchez « + Nouvelle activité » → indiquez le nom, l'emoji (choisissez ou tapez le vôtre), la valeur en étoiles et les petites étapes éventuelles → enregistrez. L'activité est gardée dans la bibliothèque pour toute la famille."
+            },
+            {
+              "q": "C'est quoi les petites étapes ?",
+              "a": "Les petites étapes sont des consignes pas à pas sous une activité (par exemple « Se laver les mains » sous « Hygiène »). Votre enfant les voit comme un guide, mais coche toute l'activité d'un seul appui."
+            },
+            {
+              "q": "Comment je modifie une activité ?",
+              "a": "Touchez le nom de l'activité dans le planning — la fenêtre de modification s'ouvre. Les changements (nom, emoji, petites étapes) s'appliquent automatiquement à tous les enfants et tous les jours."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Récompenses",
+          "faqs": [
+            {
+              "q": "Comment j'ajoute une récompense ?",
+              "a": "L'onglet « Récompenses » → cherchez une récompense → touchez « + Créer » si elle n'existe pas → indiquez le nom, l'emoji, le prix en étoiles → choisissez quels enfants la voient → enregistrez."
+            },
+            {
+              "q": "Comment je cherche des récompenses ?",
+              "a": "La recherche regarde en même temps vos récompenses ET la bibliothèque standard. Aucun résultat ? Le bouton « Créer [nom] » ouvre un formulaire déjà rempli."
+            },
+            {
+              "q": "Un enfant peut-il avoir des récompenses rien que pour lui ?",
+              "a": "Oui ! Quand vous créez la récompense, vous choisissez quels enfants doivent la voir. Pratique pour des récompenses adaptées à chacun."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Aide – Réglages",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Compte",
+          "faqs": [
+            {
+              "q": "Comment je change mon mot de passe ?",
+              "a": "Saisissez votre mot de passe actuel et le nouveau → touchez « Enregistrer ». Le mot de passe doit avoir au moins 6 caractères."
+            },
+            {
+              "q": "Comment je change mon adresse e-mail ?",
+              "a": "Saisissez votre nouvelle adresse e-mail → touchez « Enregistrer ». Vous devrez peut-être confirmer la nouvelle adresse par e-mail."
+            },
+            {
+              "q": "Comment je supprime mon compte ?",
+              "a": "Contactez-nous à <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> pour supprimer le compte. Nous nous en occupons sous 48 heures."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notifications",
+          "faqs": [
+            {
+              "q": "Comment j'active les rappels ?",
+              "a": "Activez l'interrupteur sous « Rappels » → choisissez l'heure et les jours. Votre navigateur doit autoriser les notifications."
+            },
+            {
+              "q": "Je ne reçois pas de notifications alors qu'elles sont activées",
+              "a": "Vérifiez que votre navigateur autorise les notifications pour le site. Allez dans les réglages du navigateur → Notifications → trouvez [REDACTED].se → Autoriser."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Aide – Calendrier",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Calendrier",
+          "faqs": [
+            {
+              "q": "Qu'est-ce que le calendrier affiche ?",
+              "a": "Le calendrier donne une vue du mois : activités de votre enfant, récompenses prises et événements importants."
+            },
+            {
+              "q": "Comment je change de mois ?",
+              "a": "Touchez les flèches (< >) à côté du nom du mois pour changer de mois."
+            },
+            {
+              "q": "Comment je vois le détail d'une journée ?",
+              "a": "Touchez une date pour voir la liste détaillée des activités et des étoiles de ce jour."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Aide – Journal du jour",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Journal",
+          "faqs": [
+            {
+              "q": "C'est quoi le journal du jour ?",
+              "a": "Le journal montre la journée de votre enfant — activités, coches et étoiles. Utilisez-le pour <strong>prévisualiser</strong> ce que votre enfant voit, ou pour compléter après coup."
+            },
+            {
+              "q": "Comment je filtre le journal ?",
+              "a": "Choisissez un enfant dans le filtre en haut pour n'afficher que son journal. Vous pouvez aussi filtrer par date."
+            },
+            {
+              "q": "Jusqu'où je peux remonter ?",
+              "a": "Le journal conserve les données depuis le jour où vous avez commencé à utiliser [REDACTED]. Faites défiler ou choisissez une date pour voir les données plus anciennes. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Aide – Choisir le planning par jour",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Attribuer un planning",
+          "faqs": [
+            {
+              "q": "C'est quoi « Choisir le planning par jour » ?",
+              "a": "Ici vous choisissez quel planning de la semaine est actif pour chaque enfant et chaque jour. Pratique si les routines changent entre la semaine et le week-end."
+            },
+            {
+              "q": "Un enfant peut-il avoir un planning différent en semaine et le week-end ?",
+              "a": "Oui ! Choisissez un planning pour lun–ven et un autre pour sam–dim. Touchez le jour et choisissez le planning voulu."
+            },
+            {
+              "q": "Que se passe-t-il si aucun jour n'est attribué ?",
+              "a": "Si aucun jour n'a de planning, votre enfant ne voit pas d'activités ce jour-là. Vérifiez que chaque jour que vous voulez utiliser a bien un planning."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Panneau d'administration",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Aperçu",
+          "faqs": [
+            {
+              "q": "Que puis-je faire dans le panneau d'administration ?",
+              "a": "Le panneau d'administration donne accès à toutes les familles, aux utilisateurs et aux données du système. Vous pouvez voir les statistiques, gérer les comptes et modérer le contenu."
+            },
+            {
+              "q": "Comment je trouve un utilisateur précis ?",
+              "a": "Utilisez le champ de recherche en haut pour chercher par e-mail ou par nom. Touchez une famille pour voir le détail."
+            },
+            {
+              "q": "Comment j'archive une famille ?",
+              "a": "Touchez la carte famille → « Archiver ». Les familles archivées peuvent être restaurées, mais restent inactives jusque-là."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Assistance",
+          "faqs": [
+            {
+              "q": "Comment je vois les messages d'assistance reçus ?",
+              "a": "Sous l'onglet « Boîte assistance » vous voyez chaque message envoyé via le formulaire de contact. Touchez pour lire le texte complet et répondre."
+            },
+            {
+              "q": "Comment je marque un dossier comme résolu ?",
+              "a": "Touchez le dossier → « Marquer comme résolu ». Les dossiers résolus sortent de la vue par défaut, mais restent visibles via « Afficher les résolus »."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Soutien enfant — {{brand}}",
+    "loadError": "Impossible de charger la page."
+  },
+  "supportSvar": {
+    "pageTitle": "Votre dossier",
+    "title": "Votre dossier",
+    "intro": "Voici toute la conversation. Écrivez ci-dessous si vous voulez continuer. Une réponse par e-mail ordinaire n'apparaît pas ici.",
+    "sent": "Envoyé. Nous le verrons sur le même dossier.",
+    "escalate": "J'ai besoin de plus d'aide d'une personne",
+    "placeholder": "Décrivez ce qui se passe…"
+  }
+}

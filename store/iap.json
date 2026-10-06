@@ -16,6 +16,26 @@
         "de-DE": {
           "name": "Premium monatlich",
           "description": "Monatliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium mensuel",
+          "description": "Premium mensuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium maandelijks",
+          "description": "Maandelijks Premium in de app."
+        },
+        "da": {
+          "name": "Premium månedligt",
+          "description": "Månedligt Premium i appen."
+        },
+        "fi": {
+          "name": "Premium kuukausittain",
+          "description": "Kuukausittainen Premium sovelluksessa."
+        },
+        "no": {
+          "name": "Premium månedlig",
+          "description": "Månedlig Premium i appen."
         }
       },
       "google": {
@@ -30,6 +50,26 @@
         "de-DE": {
           "name": "Premium monatlich",
           "description": "Monatliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium mensuel",
+          "description": "Premium mensuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium maandelijks",
+          "description": "Maandelijks Premium in de app."
+        },
+        "da-DK": {
+          "name": "Premium månedligt",
+          "description": "Månedligt Premium i appen."
+        },
+        "fi-FI": {
+          "name": "Premium kuukausittain",
+          "description": "Kuukausittainen Premium sovelluksessa."
+        },
+        "no-NO": {
+          "name": "Premium månedlig",
+          "description": "Månedlig Premium i appen."
         }
       }
     },
@@ -47,6 +87,26 @@
         "de-DE": {
           "name": "Premium jährlich",
           "description": "Jährliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium annuel",
+          "description": "Premium annuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium jaarlijks",
+          "description": "Jaarlijks Premium in de app."
+        },
+        "da": {
+          "name": "Premium årligt",
+          "description": "Årligt Premium i appen."
+        },
+        "fi": {
+          "name": "Premium vuodeksi",
+          "description": "Vuosittainen Premium sovelluksessa."
+        },
+        "no": {
+          "name": "Premium årlig",
+          "description": "Årlig Premium i appen."
         }
       },
       "google": {
@@ -61,6 +121,26 @@
         "de-DE": {
           "name": "Premium jährlich",
           "description": "Jährliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium annuel",
+          "description": "Premium annuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium jaarlijks",
+          "description": "Jaarlijks Premium in de app."
+        },
+        "da-DK": {
+          "name": "Premium årligt",
+          "description": "Årligt Premium i appen."
+        },
+        "fi-FI": {
+          "name": "Premium vuodeksi",
+          "description": "Vuosittainen Premium sovelluksessa."
+        },
+        "no-NO": {
+          "name": "Premium årlig",
+          "description": "Årlig Premium i appen."
         }
       }
     }

@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Hjem — {{brand}}",
+  "greeting": {
+    "morning": "Godmorgen!",
+    "afternoon": "Hej!",
+    "evening": "Godaften!",
+    "default": "Hej!"
+  },
+  "sub": "Sådan ser dagen ud.",
+  "status": {
+    "paused": "Fridag i dag",
+    "allDone": "Helt færdig!",
+    "noSchedule": "Ingen rutine",
+    "progressDone": "{{done}}/{{total}} færdige",
+    "emptyChildren": "Tilføj et barn under Familie for at se status her.",
+    "loadError": "Kunne ikke hente børnenes status. Det betyder ikke, at du ingen børn har.",
+    "retry": "Prøv igen",
+    "viewActivitiesAria": "{{name}} — se dagens aktiviteter"
+  },
+  "ready": {
+    "title": "Klar til næste aktivitet",
+    "childrenCount": "({{count}} børn)"
+  },
+  "quickActions": {
+    "aria": "Hurtige handlinger",
+    "retroactive": "Udfyld senere",
+    "onceTask": "Engangsaktivitet",
+    "extraStars": "Bonusstjerner",
+    "dayOff": "Fridag"
+  },
+  "dayOffModal": {
+    "title": "🏠 Fridag",
+    "subtitle": "Sætter dit barns rutine på pause hele dagen",
+    "footer": "Dit barn behøver ikke krydse aktiviteter af på en fridag",
+    "noChildren": "Ingen børn fundet",
+    "stateActive": "🟢 Rutine aktiv",
+    "statePaused": "⏸ Fridag i dag",
+    "markDayOff": "🏠 Markér som fridag",
+    "resumeSchedule": "▶ Genoptag rutine",
+    "noScheduleTitle": "Ingen rutine er oprettet for i dag",
+    "resumedToast": "Rutinen er genoptaget!",
+    "pausedToast": "🏠 Markeret som fridag!",
+    "genericError": "Noget gik galt",
+    "networkError": "Netværksfejl"
+  },
+  "handoff": {
+    "title": "Tid til at dit barn logger ind?",
+    "sub": "Skift til barnets visning med PIN.",
+    "childLogin": "👶 Barnet logger ind",
+    "changePin": "Skift barnets PIN",
+    "changePinAria": "Åbn Familie, og skift barnets PIN",
+    "parentLogout": "Log ud",
+    "regionAria": "Skift til barnets login",
+    "dismissTitle": "Luk",
+    "trusted": {
+      "title": "Tid til at åbne barnets visning?",
+      "sub": "Åbn dit barns visning på den her enhed.",
+      "childLogin": "Åbn barnets visning",
+      "regionAria": "Åbn barnets visning"
+    },
+    "pin": {
+      "title": "Tid til at dit barn logger ind?",
+      "sub": "Skift til barnets visning med PIN.",
+      "childLogin": "Log ind med barnets PIN",
+      "regionAria": "Log ind med barnets PIN"
+    },
+    "postSchema": {
+      "title": "Næste skridt: Lad dit barn prøve sin rutine",
+      "sub": "Åbn barnets visning sammen — det tager cirka et minut.",
+      "childLogin": "Prøv barnets visning nu",
+      "regionAria": "Næste skridt: lad dit barn prøve sin rutine",
+      "trusted": {
+        "title": "Næste skridt: Åbn barnets visning",
+        "sub": "Åbn barnets visning sammen — det tager cirka et minut.",
+        "childLogin": "Åbn barnets visning",
+        "regionAria": "Næste skridt: åbn barnets visning"
+      },
+      "pin": {
+        "title": "Næste skridt: Lad dit barn prøve sin rutine",
+        "sub": "Åbn barnets visning sammen — det tager cirka et minut.",
+        "childLogin": "Log ind med barnets PIN",
+        "regionAria": "Næste skridt: log ind med barnets PIN"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Næste skridt mod jeres første vellykkede rutine",
+    "pinHint": "Dit barn bruger sin PIN. Du kan vende tilbage til forældretilstand, når barnet er færdigt.",
+    "recovery": {
+      "fetchErrorHeadline": "Vi kunne ikke hente dit næste skridt",
+      "fetchErrorBody": "Det ser midlertidigt ud. Prøv igen, eller fortsæt uden guiden lige nu.",
+      "retry": "Prøv igen",
+      "continueWithoutGuide": "Fortsæt uden guide",
+      "defer": "Gør det senere",
+      "deferError": "Kunne ikke gemme dit valg lige nu. Prøv igen.",
+      "retrying": "Prøver igen…",
+      "deferring": "Gemmer…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Opret dit barns profil",
+        "body": "Et navn og en enkel PIN er nok til at komme i gang.",
+        "cta": "Fortsæt med barn"
+      },
+      "save_schedule": {
+        "headline": "Gem en enkel første rutine",
+        "body": "Vælg et startskema — du kan ændre det når som helst.",
+        "cta": "Vælg startskema"
+      },
+      "child_access": {
+        "headline": "Åbn barnets visning",
+        "body": "Lad dit barn prøve dagens første aktivitet i barnets visning.",
+        "cta": "Åbn barnets visning"
+      },
+      "child_access_named": {
+        "headline": "{{name}}s rutine er klar",
+        "body": "Dit barn kan starte, når det passer jer.",
+        "cta": "Åbn barnets visning"
+      },
+      "await_first_completion": {
+        "headline": "Venter på den første aktivitet",
+        "body": "Dit barn ser sin rutine i barnets visning. Hjælp barnet i gang, hvis der er brug for det.",
+        "cta": "Åbn barnets visning"
+      },
+      "parent_ack": {
+        "headline": "Dit barn gennemførte en aktivitet!",
+        "body": "Bekræft, så stjernen tæller, og I kan fejre sammen.",
+        "cta": "Se aktivitet"
+      },
+      "celebrate_first_success": {
+        "headline": "Første stjerne er i hus!",
+        "body": "Godt klaret — rutinen virker i virkeligheden.",
+        "cta": "Fortsæt"
+      },
+      "journey_coach": {
+        "headline": "Næste skridt",
+        "body": "Byg videre på rutinen i jeres tempo.",
+        "cta": "Fortsæt"
+      },
+      "engine_legacy": {
+        "headline": "Næste skridt",
+        "body": "Følg det foreslåede næste skridt.",
+        "cta": "Fortsæt"
+      },
+      "continue_today": {
+        "headline": "{{name}} har stadig rutine tilbage i dag",
+        "body": "Vil du fortsætte, hvor I slap?",
+        "cta": "Fortsæt rutine"
+      },
+      "welcome_back": {
+        "headline": "Velkommen tilbage",
+        "body": "Dit næste skridt ligger her, når du har brug for det — åbn dit barns rutine?",
+        "cta": "Åbn barnets visning"
+      },
+      "invite_adult": {
+        "headline": "Vil en anden voksen også hjælpe?",
+        "body": "Inviter, når det passer dig — du bestemmer.",
+        "cta": "Inviter en voksen"
+      },
+      "share_week": {
+        "headline": "Et lille højdepunkt fra ugen",
+        "body": "Del kun, hvis du har lyst — intet bliver lagt op automatisk.",
+        "cta": "Del højdepunkt"
+      },
+      "refer_family": {
+        "headline": "Kender du en familie, der kunne lide rutiner?",
+        "body": "Del et personligt link — ingen belønning, bare et tip.",
+        "cta": "Del appen"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ikke nu",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "I tog skridt i jeres rutiner i den her uge",
+        "body": "En rolig opsummering — kun til dig.",
+        "shareText": "Vi bruger {{brand}} til børns rutiner derhjemme. Hvis I vil prøve en enkel familieapp."
+      },
+      "morning": {
+        "headline": "Flere morgener gik lidt lettere i den her uge",
+        "body": "Godt klaret — del kun, hvis du har lyst.",
+        "shareText": "Vi har haft roligere morgener med en enkel rutineapp. Den kan måske også hjælpe jeres familie."
+      },
+      "evening": {
+        "headline": "Aftenrutinen virkede flere gange i den her uge",
+        "body": "Et privat højdepunkt — ingen rangliste.",
+        "shareText": "Aftenrutiner blev lidt lettere hjemme hos os. Hvis I leder efter et roligt værktøj."
+      },
+      "multi_child": {
+        "headline": "Jeres børn tog flere skridt i deres rutiner i den her uge",
+        "body": "Opsummering uden navne eller fotos.",
+        "shareText": "Vi bruger {{brand}} til børnenes rutiner. Prøv det her:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Du er stiftende medlem",
+    "body": "Som en af de første familier har du livslang adgang uden betaling. Tak, fordi I var med fra starten!"
+  },
+  "weekStory": {
+    "title": "Ugens historie"
+  },
+  "starHistory": {
+    "title": "Ugens fremgang",
+    "subtitle": "Seneste 8 uger",
+    "thisWeek": "{{count}} ⭐ i den her uge",
+    "weekTooltip": "U{{week}}: {{count}} stjerner",
+    "diffUp": "+{{diff}} i forhold til sidste uge",
+    "diffSame": "Det samme som sidste uge",
+    "bestWeek": "🎉 {{name}}s bedste uge indtil nu!"
+  },
+  "nav": {
+    "today": "I dag",
+    "dailyLog": "Dagslog",
+    "fillRetroactive": "📝 Udfyld senere"
+  },
+  "readiness": {
+    "heading": "Kræver opmærksomhed",
+    "warningsOnly": "Kun advarsler",
+    "loadError": "Kunne ikke tjekke, hvad der kræver opmærksomhed.",
+    "retry": "Prøv igen",
+    "items": {
+      "pendingInviteTitleOne": "1 ventende invitation til medforælder",
+      "pendingInviteTitleMany": "{{count}} ventende invitationer til medforældre",
+      "pendingInviteSub": "Administrer under Familie",
+      "pendingApprovalTitle": "{{name}} — {{count}} ventende anmodning",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} ventende anmodninger",
+      "pendingApprovalSub": "Godkend under Belønninger",
+      "incompleteDaysTitleOne": "{{name}} — 1 ufuldstændig dag",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} ufuldstændige dage",
+      "incompleteDaysSub": "Udfyld bagefter",
+      "missingPinTitle": "{{name}} har ingen PIN",
+      "missingPinSub": "Sæt PIN i barnets profil",
+      "pausedDayTitle": "{{name}} — fridag i dag",
+      "pausedDaySub": "Åbn I dag",
+      "noScheduleTitle": "{{name}} — ingen rutine i dag",
+      "noScheduleSub": "Åbn ugeskema"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} vil indløse en belønning",
+    "pendingRewardSubOne": "Én anmodning venter på dig",
+    "pendingRewardSubMany": "{{count}} anmodninger venter på dig",
+    "showRequest": "Se anmodning",
+    "closeToReward": "{{name}} mangler kun {{gap}} til næste belønning",
+    "starOne": "1 stjerne",
+    "starMany": "{{count}} stjerner",
+    "seeRewards": "Se belønninger",
+    "starsTodayHeadline": "Børnene tjente {{count}} i dag",
+    "starsTodaySubOne": "{{name}} tjente dem i dag",
+    "starsTodaySubMany": "Børnene tjente dem i dag",
+    "tasksDoneHeadline": "{{name}} har allerede klaret {{count}} i dag",
+    "taskOne": "1 opgave",
+    "taskMany": "{{count}} opgaver",
+    "tasksRemaining": "{{count}} tilbage i dagens rutine",
+    "allActivitiesDone": "Alle aktiviteter er færdige — godt klaret!",
+    "seeSchedule": "Se skema",
+    "nextActivityHeadline": "{{name}} er klar til {{activity}}",
+    "nextActivitySub": "Næste aktivitet i rutinen",
+    "openToday": "Åbn I dag",
+    "calmDayHeadline": "Rolig dag — ingen rutine lige nu",
+    "calmDaySub": "Et godt øjeblik til at tilføje aktiviteter eller give bonusstjerner",
+    "defaultChild": "Dit barn",
+    "pageTitleStars": "🌟 Dagens stjerner",
+    "pageTitleWelcome": "👋 Velkommen tilbage",
+    "pageTitleProgress": "🌟 Familiens fremgang i dag",
+    "greetingFallback": "{{greeting}} Sådan ser i dag ud",
+    "followChild": "Følg {{name}}s fremgang her",
+    "followChildren": "Følg dine børns fremgang her"
+  },
+  "childStats": {
+    "paused": "⏸ Fridag i dag",
+    "allDone": "🌟 Helt færdig i dag!",
+    "tasksDoneOne": "🔥 1 opgave færdig i dag",
+    "tasksDoneMany": "🔥 {{count}} opgaver færdige i dag",
+    "noSchedule": "Ingen rutine i dag",
+    "todayProgress": "I dag <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> i alt",
+    "starsTodayOne": "+1 stjerne i dag",
+    "starsTodayMany": "+{{count}} stjerner i dag",
+    "remaining": "{{count}} tilbage · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Kun 1 stjerne til næste belønning",
+    "rewardGapMany": "🎁 Kun {{count}} stjerner til næste belønning"
+  },
+  "offline": {
+    "banner": "Offline — dine ændringer er gemt",
+    "lastUpdated": "· Sidst opdateret {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Dagslog",
+    "dailyLogSub": "Følg dine børns dag — registrer stjerner bagefter"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Hvordan er {{goal}} gået?",
+      "sub": "For {{name}}",
+      "great": "Stor forbedring",
+      "better": "Lidt bedre",
+      "same": "Ingen forskel",
+      "worse": "Virker ikke",
+      "followUpBetter": "Hvad blev bedre?",
+      "followUpWorse": "Hvad mangler?",
+      "optional": "(valgfri)",
+      "send": "Send",
+      "skip": "Spring over",
+      "dismissAria": "Luk",
+      "thanks": "Tak! Dit svar er gemt.",
+      "alreadyAnswered": "Tak! Det ser ud til, at du allerede har svaret.",
+      "next": "Svar på den næste",
+      "done": "Færdig"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Spring over",
+    "next": "Næste →",
+    "start": "🎉 Så går vi i gang!",
+    "steps": {
+      "welcome": {
+        "title": "Velkommen til overblikket!",
+        "body": "Her ser du hvert barns dag. Rediger ugeskemaet under Planlægning."
+      },
+      "stars": {
+        "title": "Stjerner og stjernekiste",
+        "body": "Hver gennemført aktivitet giver 1 stjerne. Dit barn samler stjerner og bytter dem til belønninger i stjernekisten."
+      },
+      "schedule": {
+        "title": "Ugeskema og aktiviteter",
+        "body": "Under Planlægning i menuen finder du aktivitetsbiblioteket og kan tilføje dine egne belønninger."
+      },
+      "family": {
+        "title": "Tilføj flere børn eller voksne",
+        "body": "Tryk på \"+ Tilføj barn\" for at tilføje en søskende. Under Familie kan du invitere en anden voksen."
+      },
+      "help": {
+        "title": "Brug for hjælp?",
+        "body": "Tryk på ❓-knappen nederst til højre når som helst for spørgsmål og tips. Held og lykke med {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} prøver at logge ind",
+    "body": "3 forkerte PIN-forsøg — dit barn har måske brug for hjælp"
+  },
+  "shareSchedule": {
+    "notAvailable": "Deling er ikke mulig på den her enhed",
+    "notSupported": "Deling er ikke tilgængelig på den her enhed",
+    "shared": "Delt!",
+    "childNotFound": "Kunne ikke finde barnet",
+    "couldNotShare": "Kunne ikke dele: {{message}}",
+    "routineToday": "{{name}}s rutine i dag:",
+    "title": "{{name}}s rutine"
+  },
+  "swUpdate": {
+    "ready": "✨ En ny version af appen er klar!",
+    "reloadNow": "Genindlæs nu",
+    "later": "Senere",
+    "dismissAria": "Luk opdateringsbanner"
+  },
+  "pwa": {
+    "title": "Installér appen for push-notifikationer",
+    "iosLead": "På iPhone/iPad skal appen ligge på hjemmeskærmen for push-notifikationer.",
+    "iosStep1": "Tryk på Del-knappen nederst i Safari",
+    "iosStep2": "Vælg \"Føj til hjemmeskærm\"",
+    "iosStep3": "Åbn appen fra hjemmeskærmen, og tillad notifikationer",
+    "iosArrowHint": "En animeret pil peger på Del-knappen i din browser",
+    "androidTitle": "Installér appen for den bedste oplevelse",
+    "androidLead": "Installér appen for at få påmindelser på telefonen.",
+    "androidHomeLead": "Installér {{brand}} på hjemmeskærmen for hurtig adgang og push-notifikationer.",
+    "androidInstall": "Installér app",
+    "androidInstallBtn": "📲 Installér app",
+    "androidChromeFallback": "Tryk på ⋮ (menu) i Chrome → <strong>\"Føj til hjemmeskærm\"</strong>",
+    "desktopTitle": "Installér appen",
+    "desktopLead": "Tryk på installationsikonet (⊕) i adresselinjen, eller brug browserens menu.",
+    "dismissAria": "Luk"
+  },
+  "pushPrompt": {
+    "title": "Få push-notifikationer om dine børn",
+    "body": "Vid med det samme, når et barn krydser en aktivitet af eller vil indløse en belønning.",
+    "later": "Senere",
+    "enable": "Slå til",
+    "enabledToast": "✅ Push-notifikationer er slået til!"
+  },
+  "globalFeedback": {
+    "fabAria": "Giv feedback",
+    "fabTitle": "Giv feedback",
+    "modalTitle": "Giv feedback",
+    "typeBug": "Rapportér et problem",
+    "typeSuggestion": "Forslag",
+    "typeLanguage": "Sprog",
+    "titlePlaceholder": "Titel",
+    "messagePlaceholder": "Hvad skete der?",
+    "cancel": "Annuller",
+    "submit": "Send rapport",
+    "submitting": "Sender...",
+    "validationRequired": "Udfyld alle felter.",
+    "success": "Din rapport er sendt.",
+    "errorGeneric": "Noget gik galt. Prøv igen."
+  },
+  "cards": {
+    "loadError": "Kunne ikke hente barnkort. Træk ned for at opdatere.",
+    "last": "Sidst:",
+    "next": "Næste:",
+    "noActivitiesToday": "Ingen aktiviteter planlagt i dag",
+    "noRoutineToday": "Ingen rutine for i dag",
+    "createActivity": "✨ Opret en aktivitet i skemaet →",
+    "childNoActivities": "{{name}} har ingen aktiviteter endnu — opret den første →",
+    "noRewards": "🎁 Ingen belønninger endnu",
+    "addReward": "→ Tilføj en belønning",
+    "pendingRequest": "{{count}} ventende anmodning",
+    "pendingRequestMany": "{{count}} ventende anmodninger",
+    "pausedBadge": "PAUSE",
+    "allDoneTitle": "Helt færdig!",
+    "statusNow": "NU",
+    "statusNext": "NÆSTE",
+    "onceTask": "Engangsaktivitet",
+    "markDone": "Markér som færdig",
+    "unmark": "Fjern markering",
+    "activityMarked": "✅ Færdig!",
+    "activityUnmarked": "Markering fjernet",
+    "fillDay": "Udfyld {{day}}",
+    "allActivitiesDone": "Alle aktiviteter er færdige i dag!",
+    "last7Days": "Seneste 7 dage"
+  },
+  "approvals": {
+    "title": "Ventende anmodninger",
+    "loading": "Indlæser anmodninger...",
+    "empty": "Ingen ventende anmodninger! 🎉",
+    "loadError": "Kunne ikke hente anmodninger.",
+    "wantsGoalChange": "Vil skifte mål",
+    "goalChangeTo": "Til: {{name}}",
+    "wantsRedeem": "Vil indløse",
+    "approve": "Godkend",
+    "deny": "Afvis",
+    "requiresApproval": "Kræver godkendelse",
+    "requiresApprovalCount": "Kræver godkendelse ({{count}})",
+    "goalApproved": "🎯 Målskifte godkendt!",
+    "redemptionApproved": "🎉 Indløsning godkendt!",
+    "goalDenied": "Målskifte afvist.",
+    "redemptionDenied": "Indløsning afvist.",
+    "updateFailed": "Kunne ikke opdatere",
+    "genericError": "Fejl",
+    "wantsGoalNamed": "{{name}} vil skifte målet til {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Vil skifte målet til {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} vil have \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Justér tid i dag",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Kunne ikke justere tiden",
+    "undone": "Fortrudt",
+    "undoFailed": "Kunne ikke fortryde"
+  },
+  "loading": {
+    "initFailed": "Noget gik galt under indlæsning. Genindlæs siden.",
+    "couldNotLoad": "Kunne ikke indlæse.",
+    "checkConnection": "Tjek din internetforbindelse",
+    "reloadPage": "Genindlæs siden"
+  },
+  "activationProgram": {
+    "exitConfirm": "Vil du afslutte 7-dages programmet?",
+    "reflectionPlaceholder": "Valgfrit: fortæl mere…",
+    "send": "Send",
+    "reflectionQuestion": "Har appen gjort hverdagen lettere?",
+    "previewEmpty": "Åbn barnets login for at se skemaet.",
+    "optOutTitle": "Afslut program",
+    "skipToday": "Spring i dag over",
+    "orOpenChildLogin": "Eller åbn barnets login",
+    "dayOf": "Dag {{day}} af {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Familiens fremgang i dag",
+    "allChildren": "← Alle børn",
+    "systemMsgFrom": "Besked fra appen",
+    "systemMsgClose": "Luk ✕",
+    "sharingManage": "Tryk for at administrere delte rapporter",
+    "inviteTitle": "Inviter en medforælder",
+    "inviteSub": "Så I ikke behøver spørge hinanden om skemaet",
+    "inviteBtn": "Inviter",
+    "shareTitle": "Fortæl en ven!",
+    "shareSub": "Hjælp en anden familie med at få struktur i hverdagen",
+    "shareBtn": "Del",
+    "inviteModalTitle": "Inviter en medforælder",
+    "inviteModalBody": "Din partner får en e-mail med et direkte link — ingen ekstra apps, intet besvær.",
+    "inviteSentBody": "Din partner kan nu logge ind og se skemaet.",
+    "inviteDone": "Færdig",
+    "supportPrefix": "🔒 Du er i supporttilstand: viser data for familie",
+    "supportSuffix": ". Ingen data kan ændres. Sessionen udløber om",
+    "tourSkip": "Spring over",
+    "tourNext": "Næste →",
+    "starTipsTitle": "Tips: sådan virker stjerner",
+    "starTipsCollect": "• Dit barn tjener stjerner, når aktiviteter krydses af i barnets visning",
+    "starTipsExtra": "• Giv bonusstjerner fra barnkortet for en indsats uden for skemaet",
+    "starTipsRewards": "• Stjerner tæller med til gemte belønninger — sæt mål under Belønninger",
+    "starTipsEdit": "• Rediger ugeskemaet under Planlægning",
+    "dayDragInner": "træk en dagfane over på en anden dag for at kopiere eller bytte",
+    "calViewDay": "Dag",
+    "calViewWeek": "Uge",
+    "calViewMonth": "Måned",
+    "retroactiveFull": "📝 Udfyld senere",
+    "extraStarsFull": "⭐ Giv bonusstjerner",
+    "onceTaskFull": "📋 Engangsaktivitet",
+    "dayOffFull": "🏠 Fridag",
+    "trialEndingTitle": "Én dag tilbage af prøveperioden",
+    "trialEndingBody": "Prøveperioden slutter inden for et døgn. Vælg et abonnement i appen, hvis du vil beholde fuld adgang. Alle jeres data bliver.",
+    "trialEndingChoose": "Vælg i appen",
+    "trialEndingClose": "Luk"
+  },
+  "helpPanel": {
+    "title": "❓ Hvordan virker det?",
+    "tabSchema": "📅 Skema",
+    "tabStars": "⭐ Stjerner",
+    "tabFamily": "👨‍👩‍👧 Familie",
+    "tabAdults": "🔑 Flere voksne",
+    "tabTrouble": "🔧 Fejlfinding",
+    "addActivityQ": "Hvordan tilføjer jeg en aktivitet?",
+    "addActivityA": "Tryk på et barnkort på Hjem → vælg en dag → tryk på \"+\" for at tilføje en aktivitet fra biblioteket. Du kan også oprette dine egne aktiviteter i <strong>Bibliotek</strong>.",
+    "dragQ": "Kan jeg trække og flytte aktiviteter?",
+    "dragA": "Ja! I barnets skemavisning (tryk på et kort på Hjem) kan du holde og trække aktiviteter for at ændre rækkefølge. Du kan også trække en aktivitet over på en anden dagfane for at kopiere den.",
+    "copyQ": "Hvordan kopierer jeg skemaet til alle dage?",
+    "copyA": "I skemaredigeringen (📋-knappen) → vælg \"Kopiér til andre dage\" for at kopiere én dags skema til resten af ugen.",
+    "earnStarsQ": "Hvordan tjener mit barn stjerner?",
+    "earnStarsA": "Hver gennemført aktivitet giver <strong>1 stjerne</strong>. Dit barn krydser af i barnets visning. Du kan også give <strong>bonusstjerner</strong> fra barnkortet på Hjem.",
+    "treasureQ": "Hvordan virker stjernekisten?",
+    "treasureA": "I barnets visning trykker du på ⭐-ikonet for at se stjernekisten — en liste over belønninger og hvor mange stjerner de koster. Dit barn kan bede om en belønning, når det har sparet nok sammen.",
+    "retroQ": "Hvordan udfylder jeg stjerner for dage, jeg glemte?",
+    "retroA": "Gå til <strong>I dag</strong> (☰ menu → I dag, eller knappen <strong>Udfyld senere</strong> på Hjem). Vælg barnet, find den rigtige dag med pilene eller datovælgeren, og kryds aktiviteterne af. Stjerner gemmes med den rigtige dato.",
+    "rewardsQ": "Hvordan tilføjer eller redigerer jeg belønninger?",
+    "rewardsA": "Gå til Belønninger i menuen. Der kan du tilføje dine egne belønninger, rette stjerneprisen og vælge, hvilke børn der ser dem.",
+    "siblingQ": "Hvordan tilføjer jeg en søskende?",
+    "siblingA": "På Hjem → tryk på <strong>\"+ Tilføj barn\"</strong>. Hvert barn får sit eget skema, sine egne aktiviteter og sine egne stjerner.",
+    "childLoginQ": "Hvordan logger mit barn ind?",
+    "childLoginA": "De første dage kan du <strong>forhåndsvise barnets dag</strong> via I dag. Når I er klar, logger dit barn ind på <strong>/child-login</strong> med brugernavn og PIN — ingen adgangskoder. Du finder oplysningerne under <strong>Familie og indstillinger → Børn</strong>.",
+    "inviteAdultQ": "Hvordan inviterer jeg en anden voksen?",
+    "inviteAdultA": "Gå til <strong>Familie og indstillinger → Familiemedlemmer</strong> → tryk på \"Inviter\". De får en e-mail med et link til at oprette deres egen konto og blive en del af familien.",
+    "inviteSeeQ": "Kan den inviterede voksne se alle børn?",
+    "inviteSeeA": "Du vælger, hvilke børn de kan se, når du sender invitationen. Du kan ændre det senere under <strong>Familiemedlemmer</strong> → tryk på personen → juster adgang til børn.",
+    "noActivitiesQ": "Mit barn ser ingen aktiviteter i dag",
+    "noActivitiesA": "Tjek, at skemaet er sat for den rigtige dag. Åbn barnets skema (tryk på barnkortet) → vælg i dag → se, om der er aktiviteter. Hvis skemaet er tomt: brug \"Kopiér til andre dage\" for at fylde det.",
+    "forgotPinQ": "Jeg har glemt barnets PIN",
+    "forgotPinA": "Gå til <strong>Familie og indstillinger → Børn</strong> → vælg barnet → tryk på \"Skift PIN\" for at sætte en ny PIN.",
+    "innerOneStar": "1 stjerne",
+    "innerBonusStars": "bonusstjerner",
+    "innerAddChild": "\"+ Tilføj barn\"",
+    "innerPreview": "forhåndsvise barnets dag",
+    "innerFamilyMembersPath": "Familie og indstillinger → Familiemedlemmer",
+    "innerMembers": "Familiemedlemmer",
+    "innerFamilyChildren": "Familie og indstillinger → Børn",
+    "supportQ": "Kontakt support",
+    "supportLead": "Skriv til os på",
+    "supportTail": " — vi svarer inden for 24 timer."
+  },
+  "journeyAck": {
+    "headline": "Dit barn gennemførte en aktivitet!",
+    "childFallback": "Dit barn",
+    "activityFallback": "en aktivitet",
+    "dismiss": "Det så jeg"
+  },
+  "journeyCelebration": {
+    "headline": "I klarede det sammen",
+    "body": "Dit barn gik i gang — og du så det.",
+    "dismiss": "Super!"
+  },
+  "activationAha": {
+    "body": "Uden at du behøvede at minde om det.",
+    "dismiss": "Super!"
+  }
+}

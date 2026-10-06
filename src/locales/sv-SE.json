@@ -55,7 +55,8 @@
       "closedDk": "My Starday är inte tillgängligt i Danmark ännu.",
       "closedUk": "My Starday är inte tillgängligt i Storbritannien ännu.",
       "closedUs": "My Starday är inte tillgängligt i USA ännu.",
-      "closedOther": "My Starday är inte tillgängligt i ditt land ännu."
+      "closedOther": "My Starday är inte tillgängligt i ditt land ännu.",
+      "euGroup": "Annat EU/EES-land"
     }
   },
   "nav": {

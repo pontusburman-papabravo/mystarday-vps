@@ -42,10 +42,50 @@ const SV_USAGE = {
     `${APP_NAME} behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.`,
 };
 
+const FR_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} utilise l’appareil photo pour que vous puissiez prendre une photo de profil pour votre enfant. La photo est enregistrée sur le compte familial et n’est montrée qu’à votre famille.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} a besoin d’accéder à vos photos pour que vous puissiez choisir une image existante comme photo de profil de votre enfant. Par exemple une photo de l’été, qui apparaît ensuite comme avatar dans le planning.`,
+};
+
+const NL_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} gebruikt de camera zodat je een profielfoto voor je kind kunt maken. De foto wordt op het gezinsaccount bewaard en alleen aan jullie gezin getoond.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} heeft toegang tot je foto’s nodig zodat je een bestaande foto als profielfoto voor je kind kunt kiezen. Bijvoorbeeld een foto uit de zomer, die daarna als avatar in het schema staat.`,
+};
+
+const DA_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} bruger kameraet, så du kan tage et profilbillede af dit barn. Billedet gemmes på familiekontoen og vises kun for jeres familie.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} har brug for adgang til dine billeder, så du kan vælge et eksisterende billede som dit barns profilbillede. For eksempel et foto fra sommeren, som så vises som avatar i skemaet.`,
+};
+
+const FI_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} käyttää kameraa, jotta voit ottaa lapsellesi profiilikuvan. Kuva tallennetaan perhetilille ja näytetään vain teidän perheellenne.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} tarvitsee pääsyn kuviisi, jotta voit valita olemassa olevan kuvan lapsesi profiilikuvaksi. Esimerkiksi kesäkuvan, joka näkyy sitten avatarina aikataulussa.`,
+};
+
+const NB_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} bruker kameraet så du kan ta et profilbilde av barnet ditt. Bildet lagres på familiekontoen og vises bare for familien deres.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} trenger tilgang til bildene dine så du kan velge et eksisterende bilde som barnets profilbilde. For eksempel et sommerbilde, som deretter vises som avatar i planen.`,
+};
+
 const USAGE_BY_IOS = {
   sv: SV_USAGE,
   'en-GB': EN_USAGE,
   de: DE_USAGE,
+  fr: FR_USAGE,
+  nl: NL_USAGE,
+  da: DA_USAGE,
+  fi: FI_USAGE,
+  nb: NB_USAGE,
 };
 
 /** App only reads photos; never saves to the library. No ATT — no cross-app tracking. */

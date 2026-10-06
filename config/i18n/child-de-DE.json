@@ -909,5 +909,10 @@
   },
   "catalog": {
     "back": "Zurück"
+  },
+  "sessionGate": {
+    "title": "Melde dich als Kind an, um den Plan zu sehen",
+    "body": "Diese Ansicht braucht die PIN des Kindes.",
+    "cta": "Als Kind anmelden"
   }
 }

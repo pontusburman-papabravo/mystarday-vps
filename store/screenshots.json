@@ -17,6 +17,46 @@
           "screenshots/apple/de-DE/02-stern.png",
           "screenshots/apple/de-DE/03-belohnung.png"
         ]
+      },
+      "fr-FR": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/fr-FR/01-idag.png",
+          "screenshots/apple/fr-FR/02-hem.png",
+          "screenshots/apple/fr-FR/03-beloning.png"
+        ]
+      },
+      "nl-NL": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/nl-NL/01-idag.png",
+          "screenshots/apple/nl-NL/02-hem.png",
+          "screenshots/apple/nl-NL/03-beloning.png"
+        ]
+      },
+      "da": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/da/01-idag.png",
+          "screenshots/apple/da/02-hem.png",
+          "screenshots/apple/da/03-beloning.png"
+        ]
+      },
+      "fi": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/fi/01-idag.png",
+          "screenshots/apple/fi/02-hem.png",
+          "screenshots/apple/fi/03-beloning.png"
+        ]
+      },
+      "no": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/no/01-idag.png",
+          "screenshots/apple/no/02-hem.png",
+          "screenshots/apple/no/03-beloning.png"
+        ]
       }
     },
     "google": {
@@ -32,6 +72,46 @@
         "files": [
           "screenshots/google/de-DE/01-heute.png",
           "screenshots/google/de-DE/02-familie.png"
+        ]
+      },
+      "fr-FR": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/fr-FR/feature.png",
+        "files": [
+          "screenshots/google/fr-FR/01-hem.png",
+          "screenshots/google/fr-FR/02-familj.png"
+        ]
+      },
+      "nl-NL": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/nl-NL/feature.png",
+        "files": [
+          "screenshots/google/nl-NL/01-hem.png",
+          "screenshots/google/nl-NL/02-familj.png"
+        ]
+      },
+      "da-DK": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/da-DK/feature.png",
+        "files": [
+          "screenshots/google/da-DK/01-hem.png",
+          "screenshots/google/da-DK/02-familj.png"
+        ]
+      },
+      "fi-FI": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/fi-FI/feature.png",
+        "files": [
+          "screenshots/google/fi-FI/01-hem.png",
+          "screenshots/google/fi-FI/02-familj.png"
+        ]
+      },
+      "no-NO": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/no-NO/feature.png",
+        "files": [
+          "screenshots/google/no-NO/01-hem.png",
+          "screenshots/google/no-NO/02-familj.png"
         ]
       }
     }

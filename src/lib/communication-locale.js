@@ -11,7 +11,7 @@ const { resolveFamilyLocale, DEFAULT_LOCALE } = require('./locale');
 
 /**
  * @param {string|null|undefined} familyPreferredLocale
- * @returns {'sv-SE'|'en-GB'}
+ * @returns {string} canonical catalog locale, or the default locale when unknown
  */
 function resolveCommunicationLocale(familyPreferredLocale) {
   return resolveFamilyLocale(familyPreferredLocale);

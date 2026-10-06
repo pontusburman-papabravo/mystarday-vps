@@ -55,7 +55,8 @@
       "closedDk": "{{brand}} ist in Dänemark noch nicht verfügbar.",
       "closedUk": "{{brand}} ist im Vereinigten Königreich noch nicht verfügbar.",
       "closedUs": "{{brand}} ist in den Vereinigten Staaten noch nicht verfügbar.",
-      "closedOther": "{{brand}} ist in deinem Land noch nicht verfügbar."
+      "closedOther": "{{brand}} ist in deinem Land noch nicht verfügbar.",
+      "euGroup": "Anderes EU/EWR-Land"
     }
   },
   "nav": {

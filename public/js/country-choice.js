@@ -27,6 +27,17 @@
     return entry.labels[locale] || entry.labels['en-GB'] || entry.code;
   }
 
+  function euGroupLabel() {
+    try {
+      const i18n = window.I18n;
+      if (i18n && typeof i18n.t === 'function') {
+        const value = i18n.t('market.choice.euGroup');
+        if (value && value !== 'market.choice.euGroup') return value;
+      }
+    } catch (_) { /* English safety net below */ }
+    return 'Other EU/EEA country';
+  }
+
   function suggestedCountry() {
     const path = location.pathname || '';
     const lang = (document.documentElement.lang || '').toLowerCase();
@@ -82,7 +93,7 @@
     options += `<option value="CA"${selectedAttr('CA', confirmedCode)}>${labelFor({ code: 'CA', labels: { 'sv-SE': 'Kanada', 'en-GB': 'Canada' } }, locale)}</option>`;
     options += `<option value="FI"${selectedAttr('FI', confirmedCode)}>${labelFor({ code: 'FI', labels: { 'sv-SE': 'Finland', 'en-GB': 'Finland' } }, locale)}</option>`;
     if (eu.length) {
-      options += `<optgroup label="${locale === 'en-GB' ? 'Other EU/EEA country' : 'Annat EU/EES-land'}">`;
+      options += `<optgroup label="${euGroupLabel()}">`;
       eu.forEach((c) => {
         options += `<option value="${c.code}"${selectedAttr(c.code, confirmedCode)}>${labelFor(c, locale)}</option>`;
       });
