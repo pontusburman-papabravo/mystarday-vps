@@ -334,37 +334,31 @@ function journeyLocaleCandidates(familyLocale) {
 }
 
 /**
- * Map family locale to experience pack id.
- * en-GB selects child_en only when english_child_experience is enabled for the family.
- * A future locale uses its catalog pack and never the Swedish pack.
- * @param {string} familyLocale
- * @param {{ englishChildExperienceEnabled?: boolean }} [opts]
- * @returns {string}
- */
-/**
- * Child UI bundle. en-GB stays behind english_child_experience.
- * Any other non-default locale uses itself (never Swedish copy).
+ * Child UI locale follows the family locale.
+ * english_child_experience is not a language switch.
  * @param {string|null|undefined} familyLocale
- * @param {boolean} [englishChildEnabled]
+ * @param {boolean} [englishChildEnabled] retained for callers; ignored
  * @returns {string}
  */
 function childUiLocaleForFamily(familyLocale, englishChildEnabled = false) {
+  void englishChildEnabled;
   const canonical = resolveFamilyLocale(familyLocale);
   const entry = derived.byId.get(canonical);
-  if (!entry || canonical === derived.defaultLocale) return derived.defaultLocale;
-  if (entry.experiencePackRequiresFlag === 'english_child_experience') {
-    return englishChildEnabled === true ? canonical : derived.defaultLocale;
-  }
+  if (!entry) return derived.defaultLocale;
   return canonical;
 }
 
+/**
+ * Experience pack id from the catalog row for the family locale.
+ * @param {string} familyLocale
+ * @param {{ englishChildExperienceEnabled?: boolean }} [opts] retained for callers; ignored
+ * @returns {string}
+ */
 function experiencePackIdForLocale(familyLocale, opts = {}) {
+  void opts;
   const canonical = resolveFamilyLocale(familyLocale);
   const entry = derived.byId.get(canonical);
   if (!entry) return 'child_se';
-  if (entry.experiencePackRequiresFlag === 'english_child_experience') {
-    return opts.englishChildExperienceEnabled === true ? entry.experiencePack : 'child_se';
-  }
   return entry.experiencePack || 'child_se';
 }
 

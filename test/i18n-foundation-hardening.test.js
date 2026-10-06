@@ -42,13 +42,13 @@ describe('locale backward compatibility matrix', () => {
   });
 });
 
-describe('experience pack gating', () => {
-  it('en-GB without english_child_experience stays on child_se', () => {
-    assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
-    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_se');
+describe('experience pack follows family locale', () => {
+  it('en-GB uses child_en even when english_child_experience is off', () => {
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
+    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_en');
   });
 
-  it('en-GB with english_child_experience may use child_en', () => {
+  it('the child flag does not change the en-GB pack', () => {
     assert.equal(
       experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }),
       'child_en'

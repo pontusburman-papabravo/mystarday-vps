@@ -98,9 +98,9 @@ describe('third locale xx is data, not a code branch', () => {
       assert.equal(normalizeLocale('fr-FR'), null);
       assert.equal(experiencePackIdForLocale('xx-XX'), 'child_xx');
       assert.equal(experiencePackIdForLocale('sv-SE'), 'child_se');
-      assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
+      assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
       assert.equal(
-        experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }),
+        experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }),
         'child_en'
       );
       assert.equal(usesCanonicalLibrary('sv-SE'), true);
@@ -109,7 +109,7 @@ describe('third locale xx is data, not a code branch', () => {
       assert.equal(shouldEnableEnglishAppOnRegister('en-GB'), true);
       assert.equal(shouldEnableEnglishAppOnRegister('xx-XX'), false);
       assert.equal(childUiLocaleForFamily('xx-XX', false), 'xx-XX');
-      assert.equal(childUiLocaleForFamily('en-GB', false), 'sv-SE');
+      assert.equal(childUiLocaleForFamily('en-GB', false), 'en-GB');
       assert.equal(childUiLocaleForFamily('en-GB', true), 'en-GB');
 
       const bundles = {

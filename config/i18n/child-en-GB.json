@@ -35,7 +35,10 @@
     "keypadBackspace": "Delete",
     "keypadAria": "Number pad",
     "pinDotsAria": "PIN code",
-    "lockoutSubMinutes": "Try again in {{minutes}} minute{{minuteSuffix}}",
+    "lockoutSubMinutes": {
+      "one": "Try again in {{count}} minute",
+      "other": "Try again in {{count}} minutes"
+    },
     "lockoutSubSeconds": "Only {{seconds}} seconds left!"
   },
   "sharedDevice": {

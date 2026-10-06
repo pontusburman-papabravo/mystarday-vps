@@ -835,6 +835,7 @@
       "subject": "⚠️ {{childName}} is trying to log in",
       "title": "Sign-in attempt on {{brand}}",
       "body": "{{childName}} entered the wrong PIN 3 times on {{brand}}.",
+      "inApp": "{{childName}} tried to sign in with the wrong PIN 3 times ({{time}})",
       "help": "You can help with the correct code or reset the PIN in the app.",
       "button": "Open {{brand}}",
       "footer": "If this was not your child, sign in and change the PIN under the child's settings."

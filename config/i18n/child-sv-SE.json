@@ -35,7 +35,10 @@
     "keypadBackspace": "Radera",
     "keypadAria": "Siffertavla",
     "pinDotsAria": "PIN-kod",
-    "lockoutSubMinutes": "Försök igen om {{minutes}} minut{{minuteSuffix}}",
+    "lockoutSubMinutes": {
+      "one": "Försök igen om {{count}} minut",
+      "other": "Försök igen om {{count}} minuter"
+    },
     "lockoutSubSeconds": "Bara {{seconds}} sekunder kvar!"
   },
   "sharedDevice": {

@@ -85,10 +85,10 @@ describe('family locale', () => {
     assert.ok(journeyLocaleCandidates('en-GB').includes('en-GB'));
   });
 
-  it('experiencePackIdForLocale defaults en-GB to child_se until child flag on', () => {
-    assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
+  it('experiencePackIdForLocale follows the catalog pack for en-GB', () => {
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
     assert.equal(
-      experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }),
+      experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }),
       'child_en'
     );
     assert.equal(experiencePackIdForLocale('sv-SE'), 'child_se');

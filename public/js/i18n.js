@@ -49,7 +49,6 @@ const I18n = {
           "en"
         ],
         "experiencePack": "child_en",
-        "experiencePackRequiresFlag": "english_child_experience",
         "availability": "public",
         "showOnFirstRun": true,
         "selectRequiresFeature": "english_app",

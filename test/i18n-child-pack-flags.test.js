@@ -38,10 +38,10 @@ test('english_child_experience pack gating', async (t) => {
     );
     childId = child.rows[0].id;
 
-    assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
     assert.equal(await isEnglishAppEnabled(familyId), true);
     assert.equal(await isEnglishChildExperienceEnabled(familyId), false);
-    assert.equal(await resolvePackIdForChild(childId), 'child_se');
+    assert.equal(await resolvePackIdForChild(childId), 'child_en');
 
     await pg.query(
       `INSERT INTO family_features (family_id, feature_slug) VALUES ($1, 'english_app')
@@ -50,7 +50,7 @@ test('english_child_experience pack gating', async (t) => {
     );
     assert.equal(await isEnglishAppEnabled(familyId), true);
     assert.equal(await isEnglishChildExperienceEnabled(familyId), false);
-    assert.equal(await resolvePackIdForChild(childId), 'child_se');
+    assert.equal(await resolvePackIdForChild(childId), 'child_en');
 
     await pg.query(
       `INSERT INTO family_features (family_id, feature_slug) VALUES ($1, 'english_child_experience')
