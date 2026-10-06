@@ -298,6 +298,32 @@ const LOCALE_PATHS = Object.freeze({
     privacy: '/lt/privatumas',
     terms: '/lt/salygos',
   }),
+  mt: Object.freeze({
+    home: '/mt',
+    howItWorks: '/mt/kif-jahdem',
+    visualSchedule: '/mt/skeda-vizwali',
+    morningRoutine: '/mt/rutina-ta-filghodu',
+    weeklySchedule: '/mt/pjan-tal-gimgha',
+    neurodiverseRoutines: '/mt/rutini-tfal-newrodiversi',
+    rewardSystem: '/mt/sistema-ta-premjijiet',
+    resources: '/mt/materjali',
+    faq: '/mt/mistoqsijiet',
+    privacy: '/mt/privatezza',
+    terms: '/mt/termini',
+  }),
+  ga: Object.freeze({
+    home: '/ga',
+    howItWorks: '/ga/conas-a-oibrionn-se',
+    visualSchedule: '/ga/sceideal-amhairc',
+    morningRoutine: '/ga/gnathamh-maidin',
+    weeklySchedule: '/ga/plean-seachtaini',
+    neurodiverseRoutines: '/ga/gnathaimh-paiste-neorodhifriuil',
+    rewardSystem: '/ga/coras-duaiseanna',
+    resources: '/ga/acmhainni',
+    faq: '/ga/ceisteanna',
+    privacy: '/ga/priobhaideachas',
+    terms: '/ga/tearmai',
+  }),
 });
 
 function pathsFor(key, base) {

@@ -39,7 +39,7 @@ function article(html) {
   return match ? match[0] : html;
 }
 
-test('batch 4 locales are published and Irish and Maltese stay blocked', () => {
+test('batch 4 locales are published', () => {
   assert.equal(WEB_LOCALE_CODES.length, 26);
   assert.equal(EU_WEB_MARKET_CODES.length, 29);
   const enabled = WEB_LOCALE_CODES.filter((code) => LOCALES[code].seoEnabled);
@@ -50,8 +50,8 @@ test('batch 4 locales are published and Irish and Maltese stay blocked', () => {
     assert.equal(localeMeetsSeoContract(code), true, localeSeoGaps(code).join(' '));
     assert.equal(LOCALES[code].block, null);
   }
-  assert.equal(localeMeetsSeoContract('ga'), false);
-  assert.equal(localeMeetsSeoContract('mt'), false);
+  assert.equal(localeMeetsSeoContract('ga'), true);
+  assert.equal(localeMeetsSeoContract('mt'), true);
 });
 
 test('batch 4 pages are in the language, in the sitemap, and keep market pages out', () => {
@@ -170,6 +170,6 @@ test('batch 4 routes answer in their language and same-letter markets stay noind
   const missing = await fetch(`${http.baseUrl}/ro/pagina-asta-lipseste`, { redirect: 'manual' });
   assert.equal(missing.status, 404);
   assert.match(await missing.text(), /Pagina nu a fost găsită/);
-  const blocked = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  const blocked = await fetch(`${http.baseUrl}/xx`, { redirect: 'manual' });
   assert.equal(blocked.status, 404);
 });

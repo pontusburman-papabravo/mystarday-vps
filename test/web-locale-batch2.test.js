@@ -49,7 +49,7 @@ test('batch 2 locales are published and still-blocked languages stay out', () =>
     assert.equal(localeMeetsSeoContract(code), true, localeSeoGaps(code).join(' '));
     assert.equal(LOCALES[code].block, null);
   }
-  assert.equal(localeMeetsSeoContract('ga'), false);
+  assert.equal(localeMeetsSeoContract('ga'), true);
 });
 
 test('batch 2 pages are in the language, in the sitemap, and keep market pages out', () => {
@@ -171,7 +171,7 @@ test('batch 2 routes answer in their language and unknown tails stay local', asy
   assert.match(missingHtml, /Siden blev ikke fundet/);
   assert.match(missingHtml, /noindex, follow/);
 
-  const blocked = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  const blocked = await fetch(`${http.baseUrl}/xx`, { redirect: 'manual' });
   assert.equal(blocked.status, 404);
   assert.match(await blocked.text(), /This language is not available/);
 

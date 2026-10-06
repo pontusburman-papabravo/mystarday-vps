@@ -49,7 +49,7 @@ test('batch 3 locales are published and later languages stay blocked', () => {
     assert.equal(localeMeetsSeoContract(code), true, localeSeoGaps(code).join(' '));
     assert.equal(LOCALES[code].block, null);
   }
-  assert.equal(localeMeetsSeoContract('ga'), false);
+  assert.equal(localeMeetsSeoContract('ga'), true);
 });
 
 test('batch 3 pages are in the language, in the sitemap, and keep market pages out', () => {
@@ -158,6 +158,6 @@ test('batch 3 routes answer in their language and same-letter markets stay noind
   const missing = await fetch(`${http.baseUrl}/cs/tahle-stranka-chybi`, { redirect: 'manual' });
   assert.equal(missing.status, 404);
   assert.match(await missing.text(), /Stránka nebyla nalezena/);
-  const blocked = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  const blocked = await fetch(`${http.baseUrl}/xx`, { redirect: 'manual' });
   assert.equal(blocked.status, 404);
 });

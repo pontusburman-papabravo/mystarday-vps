@@ -51,7 +51,7 @@ test('batch 1 locales are published and the rest of the registry stays blocked',
     assert.equal(localeMeetsSeoContract(code), true, localeSeoGaps(code).join(' '));
     assert.equal(LOCALES[code].block, null);
   }
-  assert.equal(localeMeetsSeoContract('ga'), false);
+  assert.equal(localeMeetsSeoContract('ga'), true);
 });
 
 test('batch 1 pages are in the language, in the sitemap, and keep market pages out', () => {
@@ -128,7 +128,7 @@ test('indexing plan lists batch 1 content and keeps new market rows noindex', ()
     assert.equal(row.indexable, 'false', pathname);
     assert.equal(row.hreflang, '', pathname);
   }
-  assert.equal(rows.filter((row) => row.locale === 'ga').length, 0);
+  assert.ok(rows.some((row) => row.locale === 'ga' && row.content_key === 'home'));
 });
 
 let http;
@@ -181,7 +181,7 @@ test('batch 1 routes answer in their language and unknown tails stay local', asy
   assert.match(missingHtml, /Seite nicht gefunden/);
   assert.match(missingHtml, /noindex, follow/);
 
-  const blocked = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
+  const blocked = await fetch(`${http.baseUrl}/xx`, { redirect: 'manual' });
   assert.equal(blocked.status, 404);
   assert.match(await blocked.text(), /This language is not available/);
 
