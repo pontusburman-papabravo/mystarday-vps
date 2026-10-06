@@ -109,7 +109,7 @@
     "saveError": "Neizdevās saglabāt izvēli"
   },
   "viewType": {
-    "title": "Kādu skatu redzēs {{childName}}?",
+    "title": "Kādu skatu redzēs {{childName}} tagad?",
     "lead": "Izvēlies, kā plāns izskatās, kad bērns pieslēdzas. To vari mainīt jebkurā brīdī iestatījumos.",
     "dayViewTitle": "Dienas skats",
     "dayViewSubtitle": "Rīts · Vēlais rīts · Pēcpusdiena · Vakars",

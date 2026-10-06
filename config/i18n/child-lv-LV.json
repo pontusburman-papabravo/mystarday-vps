@@ -636,7 +636,7 @@
     "prevWeek": "Iepriekšējā nedēļa",
     "nextWeek": "Nākamā nedēļa",
     "weekThis": "Šī nedēļa",
-    "weekNum": "{{num}}. nedēļa · {{from}} – {{to}}",
+    "weekNum": "Nedēļa {{num}} · {{from}} – {{to}}",
     "todayTab": "šodien",
     "parentRatingTitle": "Pieaugušā vērtējums",
     "nextBadge": "Tālāk",
@@ -736,7 +736,7 @@
     "ariaMinutes": "Taimeris. Atlikušas {{count}} minūtes.",
     "ariaOneSecond": "Taimeris. Atlikusi 1 sekunde.",
     "ariaSeconds": "Taimeris. Atlikušas {{count}} sekundes.",
-    "ariaMinutesAndSeconds": "Taimeris. Vēl {{minutes}} {{minuteWord}} un {{seconds}} {{secondWord}}.",
+    "ariaMinutesAndSeconds": "Taimeris. Vēl {{minutes}} {{minuteWord}} un {{seconds}} {{secondWord}} atlikuši.",
     "minuteUnit": {
       "one": "minūte",
       "zero": "minūšu",

@@ -293,7 +293,7 @@
   },
   "forDig": {
     "outcome": {
-      "title": "Kā veicas ar {{goal}}?",
+      "title": "Kā veicas ar {{goal}} pēdējā laikā?",
       "sub": "Bērnam {{name}}",
       "great": "Liels uzlabojums",
       "better": "Mazliet labāk",
@@ -467,7 +467,7 @@
     "optOutTitle": "Beigt programmu",
     "skipToday": "Izlaist šodien",
     "orOpenChildLogin": "Vai atver bērna pieslēgšanos",
-    "dayOf": "{{day}}. diena no {{total}}"
+    "dayOf": "Diena {{day}} no {{total}}"
   },
   "dash": {
     "heading": "🌟 Ģimenes progress šodien",
