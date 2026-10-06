@@ -67,16 +67,15 @@
 
   function englishLandingPath(path) {
     const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
-    if (p === '/en' || p.indexOf('/en/') === 0) return p;
-    if (p === '/nl' || p.indexOf('/nl/') === 0) return p;
-    return null;
+    const first = p.split('/').filter(Boolean)[0] || '';
+    if (!/^[a-z]{2}$/.test(first)) return null;
+    return p;
   }
 
   function landingLocale(path) {
     const p = englishLandingPath(path);
     if (!p) return null;
-    if (p === '/nl' || p.indexOf('/nl/') === 0) return 'nl';
-    return 'en';
+    return p.split('/').filter(Boolean)[0];
   }
 
   function isIrelandLanding(path) {

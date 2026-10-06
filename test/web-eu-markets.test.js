@@ -66,9 +66,16 @@ test('the public web configures 26 locales and 29 EU/EEA markets', () => {
   assert.equal(LOCALES.sv.host, 'se');
   assert.deepEqual([...LOCALES.sv.hreflang], ['sv-SE']);
   assert.deepEqual([...LOCALES.en.hreflang], ['en']);
-  assert.equal(LOCALES.de.seoEnabled, false);
-  assert.equal(LOCALES.de.publicWeb, false);
-  assert.equal(LOCALES.de.block, 'LOCALE_BLOCKED');
+  for (const code of WEB_LOCALE_CODES) {
+    const locale = LOCALES[code];
+    if (locale.seoEnabled) {
+      assert.equal(locale.publicWeb, true, code);
+      assert.equal(locale.block, null, code);
+    } else {
+      assert.equal(locale.publicWeb, false, code);
+      assert.equal(locale.block, 'LOCALE_BLOCKED', code);
+    }
+  }
 });
 
 test('locale and market stay separate, including when the letters match', () => {
@@ -115,7 +122,8 @@ test('every market has a public entry and market pages stay out of the index', (
 test('an unpublished locale cannot enter the sitemap, and hreflang stays on language documents', () => {
   const readiness = localeReadiness();
   const blocked = readiness.filter((row) => row.blocking.startsWith('LOCALE_BLOCKED'));
-  assert.equal(blocked.length, 23);
+  const expectedBlocked = WEB_LOCALE_CODES.filter((code) => !LOCALES[code].seoEnabled);
+  assert.equal(blocked.length, expectedBlocked.length);
   for (const row of blocked) {
     assert.equal(row.seoEnabled, false, row.locale);
     assert.equal(row.urlCount, 0, row.locale);
@@ -143,10 +151,11 @@ test('an unpublished locale cannot enter the sitemap, and hreflang stays on lang
       assert.ok(back.some(([, candidate]) => candidate === absolutePublicUrl(pathname)), `${pathname} reciprocal`);
     }
   }
-  assert.equal(publicNotFoundKind('/de'), 'unknown-locale');
-  assert.equal(publicNotFoundKind('/de/at'), 'unknown-locale');
+  assert.equal(publicNotFoundKind('/ga'), 'unknown-locale');
+  assert.equal(publicNotFoundKind('/ga/ie'), 'unknown-locale');
   assert.equal(publicNotFoundKind('/sv'), 'unknown-locale');
-  assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'de'), null);
+  assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'de'), '/de/visueller-tagesplan');
+  assert.equal(localeSwitchTarget('/en/visual-schedule-app', 'ga'), null);
   assert.equal(legacyCountryCampaignPath({ country: 'AT' }), '/en/at');
   assert.equal(legacyCountryCampaignPath({ country: 'IE' }), '/en/ie');
   assert.equal(legacyCountryCampaignPath({ country: 'GB' }), null);
@@ -213,7 +222,7 @@ test('market routes answer for all 29 markets without sending anyone to Ireland'
   assert.equal(austria.status, 302);
   assert.equal(austria.headers.get('location'), '/en/at?utm_source=google');
 
-  const closed = await fetch(`${http.baseUrl}/de`, { redirect: 'manual' });
+  const closed = await fetch(`${http.baseUrl}/ga`, { redirect: 'manual' });
   assert.equal(closed.status, 404);
   const closedHtml = await closed.text();
   assert.match(closedHtml, /This language is not available/);

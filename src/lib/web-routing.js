@@ -1,6 +1,15 @@
 'use strict';
 
 const { localeFromPublicPath, normalizeWebPath, localeByCode } = require('../../config/web-locales');
+const { chromeFor } = require('../../config/web-locale-chrome');
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 /**
  * Catch-all classification for public HTML.
@@ -25,13 +34,15 @@ function publicNotFoundKind(pathname) {
 
 function publicNotFoundHtml(kind, pathname) {
   const path = normalizeWebPath(pathname);
-  const dutch = path === '/nl' || path.startsWith('/nl/');
-  if (dutch) {
-    return '<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8">'
+  const first = path.split('/').filter(Boolean)[0] || '';
+  const locale = localeByCode(first);
+  const chrome = locale && chromeFor(locale.code);
+  if (locale && locale.publicWeb && locale.code !== 'en' && chrome && chrome.notFoundTitle) {
+    return '<!DOCTYPE html><html lang="' + escapeHtml(locale.htmlLang) + '"><head><meta charset="utf-8">'
       + '<meta name="robots" content="noindex, follow">'
-      + '<title>Pagina niet gevonden</title></head><body>'
-      + '<h1>Pagina niet gevonden</h1>'
-      + '<p><a href="/nl">Naar de Nederlandstalige site</a></p></body></html>';
+      + '<title>' + escapeHtml(chrome.notFoundTitle) + '</title></head><body>'
+      + '<h1>' + escapeHtml(chrome.notFoundH1 || chrome.notFoundTitle) + '</h1>'
+      + '<p><a href="' + escapeHtml(locale.pathPrefix) + '">' + escapeHtml(chrome.notFoundLink || chrome.home) + '</a></p></body></html>';
   }
   return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
     + '<meta name="robots" content="noindex, follow">'
