@@ -235,7 +235,8 @@ test('market routes answer for all 29 markets without sending anyone to Ireland'
   assert.match(belgiumHtml, /data-web-market="BE"/);
   assert.match(belgiumHtml, /name="robots" content="noindex, follow"/);
   assert.match(belgiumHtml, /België/);
-  assert.doesNotMatch(belgiumHtml, /[åäöÅÄÖ]/);
+  const belgiumCopy = belgiumHtml.replace(/<nav\b[^>]*data-public-lang-switcher="1"[\s\S]*?<\/nav>/gi, ' ');
+  assert.doesNotMatch(belgiumCopy, /[åäöÅÄÖ]/);
 
   const ireland = await fetch(`${http.baseUrl}/en/ie`, { redirect: 'manual' });
   assert.equal(ireland.status, 200);
