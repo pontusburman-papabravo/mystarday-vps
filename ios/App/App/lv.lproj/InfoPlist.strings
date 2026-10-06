@@ -1,0 +1,4 @@
+/* App Store + system permission strings (lv) */
+"CFBundleDisplayName" = "[REDACTED]"; // pragma: allowlist secret
+"NSCameraUsageDescription" = "[REDACTED] izmanto kameru, lai uzņemtu bērna profila foto. Foto paliek ģimenes kontā, un to redz tikai tava ģimene."; // pragma: allowlist secret
+"NSPhotoLibraryUsageDescription" = "[REDACTED] vajag piekļuvi foto, lai izvēlētos esošu bildi kā bērna profila foto. Piemēram, vasaras foto, ko pēc tam redz kā attēlu plānā."; // pragma: allowlist secret

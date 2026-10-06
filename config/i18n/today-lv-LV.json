@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Šodien — {{brand}}",
+  "shell": {
+    "headerTitle": "Šodien",
+    "backToHome": "← Atpakaļ uz Sākumu",
+    "pdfHint": "Izveido PDF dienai, nedēļai vai manām dienām",
+    "printBtn": "📄 Izveidot PDF ▾",
+    "printDay": "📄 Izveidot PDF — diena",
+    "printWeek": "📅 Izveidot PDF — nedēļa",
+    "printMyDays": "🏠 Izveidot PDF — manas dienas",
+    "selectChildHeading": "Izvēlies bērnu",
+    "selectChildEmpty": "Izvēlies bērnu augšā, lai redzētu pierakstu",
+    "loadingChildren": "Ielādē…",
+    "tipsTitle": "Padoms: seko aktivitātēm sadaļā Šodien",
+    "tips1": "Atzīmē aktivitātes kā paveiktas — bērns tās redz uzreiz",
+    "tips2": "Bērna skatā aktivitātes atzīmē ar vienu pieskārienu, un zvaigznes pienāk uzreiz",
+    "tips3": "Ritinies atpakaļ ar datuma izvēli, lai redzētu, kā bērnam gājis",
+    "tips4": "Apturi dienu, kad rutīna ir citāda — zvaigznes nepazūd",
+    "rateActivity": "Novērtē aktivitāti",
+    "commentPlaceholder": "Komentārs (nav obligāts)…",
+    "cancel": "Atcelt",
+    "save": "Saglabāt",
+    "moveUp": "Uz augšu",
+    "moveDown": "Uz leju",
+    "printWeekDocTitle": "Nedēļas plāns — {{name}}",
+    "printMyDaysDocTitle": "Manas dienas"
+  },
+  "childFallback": "Bērns",
+  "noChildren": "Vēl nav pievienots neviens bērns.",
+  "loading": "Ielādē…",
+  "retry": "Mēģini vēlreiz",
+  "errors": {
+    "signInRequired": "Pieslēdzies, lai redzētu Šodien",
+    "loadChildren": "Neizdevās ielādēt bērnus",
+    "loadLog": "Neizdevās ielādēt pierakstu. Mēģini vēlreiz.",
+    "saveOrder": "Neizdevās saglabāt secību",
+    "updateActivity": "Neizdevās atjaunināt aktivitāti",
+    "undo": "Neizdevās atsaukt",
+    "changeStatus": "Neizdevās mainīt statusu",
+    "adjustTime": "Neizdevās pielāgot laikus",
+    "selectChild": "Vispirms izvēlies bērnu",
+    "custodyDisabled": "Aprūpes plāns nav ieslēgts",
+    "loadWeek": "Neizdevās ielādēt nedēļu",
+    "saveRating": "Neizdevās saglabāt vērtējumu",
+    "ratingScoreOrEmotion": "Izvēlies vērtējumu vai emociju kartīti",
+    "ratingScoreRange": "Vērtējumam jābūt no 1 līdz 10",
+    "ratingInvalidEmotion": "Nederīga emociju kartīte",
+    "ratingActivityNotFound": "Aktivitāte nav atrasta",
+    "ratingNotAllowed": "Šim bērnam šo aktivitāti nevar vērtēt",
+    "ratingParentScoreRange": "Vērtējumam jābūt no 1 līdz 5",
+    "ratingParentDisabled": "Vecāka vērtējums šai aktivitātei nav ieslēgts",
+    "dayPaused": "Diena ir apturēta",
+    "dailyLogItemRequired": "daily_log_item_id ir obligāts",
+    "invalidTimerMinutes": "Nederīgas minūtes. Atļautās vērtības: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Šodien nav aktivitāšu!",
+    "noScheduleDay": "Šajā dienā nav rutīnas",
+    "addToWeekSchedule": "Pievieno aktivitātes nedēļas plānam, lai pieraksti veidotos paši.",
+    "noScheduleSelected": "Izvēlētajai dienai nav rutīnas.",
+    "thisDay": "šajā dienā",
+    "today": "šodien",
+    "noChildrenTitle": "Nav pievienotu bērnu",
+    "addFirstChild": "Pievieno pirmo bērnu Sākumā, lai sāktu!",
+    "goToDashboard": "Uz Sākumu",
+    "goToWeekSchedule": "📅 Uz nedēļas plānu"
+  },
+  "nav": {
+    "prevWeek": "Iepriekšējā nedēļa",
+    "prevDay": "Iepriekšējā diena",
+    "nextDay": "Nākamā diena",
+    "nextWeek": "Nākamā nedēļa",
+    "pickDate": "Izvēlies datumu",
+    "todayBtn": "Šodien",
+    "undoBump": "Atsaukt pēdējo laika labojumu"
+  },
+  "activity": {
+    "markDone": "Atzīmēt kā paveiktu",
+    "undoMark": "Atsaukt atzīmi",
+    "rate": "⭐ Vērtēt",
+    "setRating": "Iestatīt vērtējumu",
+    "changeRating": "Mainīt vērtējumu",
+    "dragReorder": "Velc, lai mainītu secību",
+    "completeAllInSection": "Pabeigt visu sadaļā {{section}}",
+    "completeAllBtn": "✅ Atzīmēt visu paveiktu",
+    "defaultName": "Aktivitāte",
+    "undoneToast": "↩️ Atzīme atsaukta"
+  },
+  "pause": {
+    "confirmPause": "Apturēt šo dienu? Aktivitātes netiks skaitītas negatīvi.",
+    "confirmUnpause": "Atsākt šo dienu?",
+    "pausedToast": "😴 Diena apturēta",
+    "unpausedToast": "✅ Diena atsākta",
+    "dayTitle": "Brīvdiena",
+    "banner": "Šī diena ir apturēta (piemēram, slimības vai brīvdiena). Aktivitātes netiek skaitītas negatīvi.",
+    "reactivate": "✅ Atsākt dienu",
+    "pauseBtn": "😴 Apturēt šo dienu (slimība / brīvdiena)"
+  },
+  "bump": {
+    "noItems": "Nav neatķeksētu aktivitāšu ar laikiem, ko pārcelt",
+    "moved": "⏩ Pārcēlām {{count}} aktivitāt{{suffix}} uz priekšu par {{minutes}} min",
+    "movedOne": "e",
+    "movedMany": "es",
+    "undoToast": "↩️ Laika labojums atsaukts",
+    "title": "Pārcelt visu turpmāko uz priekšu",
+    "adjustHint": "Pielāgo laikus neatķeksētām aktivitātēm",
+    "minutesTitle": "Pārcelt uz priekšu par {{minutes}} min",
+    "undoBtn": "↩ Atsaukt"
+  },
+  "retrofill": {
+    "title": "Aizpildi rutīnu pēc tam",
+    "description": "Tu aizpildi rutīnu vēlāk. Atzīmē aktivitātes kā paveiktas — tās saglabājas ar pareizo datumu."
+  },
+  "rating": {
+    "childMood": "Bērna noskaņojums",
+    "parentScore": "Vecāka vērtējums",
+    "noMoodCards": "Vēl nav noskaņojuma kartīšu",
+    "saved": "⭐ Vērtējums saglabāts!",
+    "labels": [
+      "",
+      "Grūti 😓",
+      "Normāli 😐",
+      "Labi 😊",
+      "Lieliski 😄",
+      "Fantastiski! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiēna",
+    "mat": "Ēdiens",
+    "skola": "Skola",
+    "lek": "Rotaļa",
+    "rorelse": "Kustība",
+    "vila": "Atpūta",
+    "social": "Sociālais"
+  },
+  "legend": {
+    "colorCoding": "Krāsu kodējums:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Visas aktivitātes paveiktas!",
+    "completedOf": "{{completed}} no {{total}} aktivitātēm paveiktas"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Atzīmēts: {{name}}",
+    "undo": "Atsaukt"
+  },
+  "emotions": {
+    "title": "💛 Noskaņojums šodien",
+    "noCards": "Vēl nav noskaņojuma kartīšu",
+    "sliderResponses": "Slīdnis: {{count}} atbild{{suffix}}",
+    "sliderSuffixOne": "e",
+    "sliderSuffixMany": "es",
+    "sliderAvg": " (vid. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Gatavo nedēļas pārskatu...",
+    "preparingCustody": "Gatavo manas dienas…",
+    "noMyDays": "Šonedēļ tev nav savu dienu",
+    "weekScheduleTitle": "{{name}} — Nedēļas plāns",
+    "myDaysTitle": "{{name}} — Manas dienas"
+  }
+}

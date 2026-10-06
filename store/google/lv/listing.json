@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Vizuālas rutīnas, zvaigznes un balvas bērniem, kam vajag atbalstu",
+  "fullDescription": "Šis nav vēl viens kalendārs.\n\n{{brand}} palīdz bērniem saprast dienu: kas ir tagad, kas būs pēc tam un kas jau izdevies.\n\nLietotne ir ģimenēm, kam ikdienā vajag vairāk atbalsta, vairāk paredzamības un vairāk vizuāla atbalsta.\n\nBērnam ar ADHD, autismu vai vienkārši tam, kam palīdz skaidrāki soļi, {{brand}} sadala dienu mazos, paveicamos soļos.\n\nĪpaši noder, ja bērnam ir ADHD, autisms vai citas neirdažādības vajadzības. Diagnoze nav vajadzīga. {{brand}} neārstē ADHD vai autismu.\n\nBērns redz vizuālas rutīnas, soli pa solim, un zvaigznes par to, kas jau padarīts. Vecāki sagatavo plānu, balvas un var dalīties ar izvēlētu pārskatu.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Latviešu valoda tagad ir lietotnē. Rutīnas, pārskati un bērna skats seko ģimenes valodai."
+}

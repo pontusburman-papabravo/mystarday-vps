@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Nav savienojuma</string>
+    <string name="native_offline_body">Pārbaudi interneta savienojumu un mēģini vēlreiz.</string>
+    <string name="camera_permission_rationale">[REDACTED] izmanto kameru, lai uzņemtu bērna profila foto.</string>
+    <string name="photos_permission_rationale">[REDACTED] vajag piekļuvi foto, lai izvēlētos bērna profila foto.</string>
+    <string name="notification_channel_routine_name">Rutīnas atgādinājumi</string>
+    <string name="notification_channel_routine_desc">Atgādinājumi par ģimenes plānu</string>
+</resources>
