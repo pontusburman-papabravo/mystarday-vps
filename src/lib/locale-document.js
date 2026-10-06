@@ -15,6 +15,14 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function faqHtml(page) {
+  if (!page.faqs || !page.faqs.length) return '';
+  const items = page.faqs.map((item) => (
+    `<section class="locale-faq"><h2>${escapeHtml(item.q)}</h2><p>${escapeHtml(item.a)}</p></section>`
+  )).join('\n');
+  return `<div class="locale-faq-list">${items}</div>`;
+}
+
 function jsonLd(page, canonical) {
   const graph = [];
   if (page.faqs && page.faqs.length) {
@@ -150,6 +158,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
     <article class="seo-article en-market-inner">
       <h1>${h1}</h1>
       ${page.body}
+      ${faqHtml(page)}
     </article>
   </main>
   <footer class="locale-footer"><p>${footer}</p></footer>

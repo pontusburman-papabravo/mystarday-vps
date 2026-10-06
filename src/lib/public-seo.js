@@ -225,6 +225,8 @@ function applyPublicSeoHead(html, reqPath, opts = {}) {
     next = next.replace(ROBOTS_META_RE, '');
   }
 
+  const canonical = absolutePublicUrl(p);
+  const indexableDocument = opts.indexable === true || (international && isInternationalContentIndexable(p));
   const block = [
     buildHeadLinks(p),
     robotsNeeded ? '<meta name="robots" content="noindex, follow">' : '',
@@ -232,11 +234,39 @@ function applyPublicSeoHead(html, reqPath, opts = {}) {
   ].filter(Boolean).join('\n');
 
   next = next.replace(/<head([^>]*)>/i, (full) => `${full}\n${block}\n`);
-  const canonical = absolutePublicUrl(p);
   if (OG_URL_RE.test(next)) {
     next = next.replace(OG_URL_RE, `$1${canonical}$2`);
   }
+  if (indexableDocument) next = fillSocialMeta(next, canonical);
   return next;
+}
+
+function metaContent(html, key) {
+  const tags = String(html || '').match(/<meta\b[^>]*>/gi) || [];
+  for (const tag of tags) {
+    const name = tag.match(/\b(?:name|property)=["']([^"']+)["']/i);
+    if (!name || name[1].toLowerCase() !== key.toLowerCase()) continue;
+    const content = tag.match(/\bcontent=["']([^"']*)["']/i);
+    return content ? content[1] : '';
+  }
+  return '';
+}
+
+/** Copy existing title and description into Open Graph when a tag is missing. */
+function fillSocialMeta(html, canonical) {
+  const next = html;
+  const title = (next.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+  const named = metaContent(next, 'description');
+  const ogTitle = metaContent(next, 'og:title');
+  const ogDescription = metaContent(next, 'og:description');
+  const description = named || ogDescription;
+  const inserts = [];
+  if (!named && ogDescription) inserts.push(`<meta name="description" content="${ogDescription}">`);
+  if (title && !ogTitle) inserts.push(`<meta property="og:title" content="${title}">`);
+  if (description && !ogDescription) inserts.push(`<meta property="og:description" content="${description}">`);
+  if (!metaContent(next, 'og:url')) inserts.push(`<meta property="og:url" content="${canonical}">`);
+  if (!inserts.length) return next;
+  return next.replace(/<head([^>]*)>/i, (full) => `${full}\n${inserts.join('\n')}\n`);
 }
 
 module.exports = {
