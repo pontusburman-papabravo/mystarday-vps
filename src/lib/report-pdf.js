@@ -8,8 +8,20 @@
  * near the page bottom; widthOfString avoids the issue.
  */
 
+const { MAIN_DOMAIN } = require('./domain-redirect');
 const { formatDayMonth, formatDayMonthRange, formatDayMonthLong } = require('./locale-format');
 const { DEFAULT_LOCALE } = require('./locale');
+const {
+  SECTION_ORDER,
+  tr,
+  sectionMeta,
+  statusLabel,
+  timesLabel,
+  sleepHoursLabel,
+  sleepQualityLabel,
+  mealStatusLabel,
+  mealNameLabel,
+} = require('./report-copy');
 
 const NAVY  = '#1C2340';
 const AMBER = '#F5A623';
@@ -24,11 +36,6 @@ const fmtDate = (str, locale) => {
   if (!str) return '';
   return formatDayMonth(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE);
 };
-const sectionLabel = (sec) => {
-  const map = { morgon: 'Morgon', fm: 'Morgon', dag: 'Dag', em: 'Dag', kvall: 'Kväll', evening: 'Kväll', natt: 'Natt', other: 'Övrigt' };
-  return map[sec?.toLowerCase()] || (sec ? sec.charAt(0).toUpperCase() + sec.slice(1) : 'Övrigt');
-};
-
 function getISOWeek(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -38,7 +45,7 @@ function getISOWeek(date) {
 }
 
 function fmtWeek(dates, locale) {
-  if (!dates || dates.length === 0) return 'v.?';
+  if (!dates || dates.length === 0) return tr(locale, 'weekUnknown');
   const sorted = [...dates].sort();
   const startD = new Date(sorted[0] + 'T00:00:00');
   const endD   = new Date(sorted[sorted.length - 1] + 'T00:00:00');
@@ -57,7 +64,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
     margin: 40,
     size: 'A4',
     info: {
-      Title: link.label || 'Rapport',
+      Title: link.label || tr(locale, 'reportFallback'),
       Author: 'Min Stjärndag',
       Creator: 'Min Stjärndag',
     },
@@ -95,23 +102,23 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   doc.fillColor(WHITE).fontSize(14).font('Helvetica-Bold')
      .text('Min Stjärndag', 40, 10, { lineBreak: false });
   const childLabelHeader = link.anonymous
-    ? link.label || 'Rapport'
-    : (link.child_name ? link.child_name : (link.label || 'Rapport'));
+    ? link.label || tr(reportLocale, 'reportFallback')
+    : (link.child_name ? link.child_name : (link.label || tr(reportLocale, 'reportFallback')));
   doc.fillColor('#C9D0D8').fontSize(9).font('Helvetica')
-     .text(childLabelHeader + ' · ' + fmtDate(dateFrom, reportLocale) + '–' + fmtDate(dateTo, reportLocale) + ' · Genererad ' + formatDayMonthLong(now, reportLocale), 40, 27, { lineBreak: false });
+     .text(childLabelHeader + ' · ' + fmtDate(dateFrom, reportLocale) + '–' + fmtDate(dateTo, reportLocale) + ' · ' + tr(reportLocale, 'generated', { date: formatDayMonthLong(now, reportLocale) }), 40, 27, { lineBreak: false });
 
   doc.y = 52;
 
   // Disclaimer
-  let disclaimerText = 'OBS: Sammanställning vald av vårdnadshavare. Ersätter inte journalföring.';
-  if (link.anonymous) disclaimerText += ' Barnets namn och identifiering har anonymiserats.';
+  let disclaimerText = tr(reportLocale, 'pdfDisclaimer');
+  if (link.anonymous) disclaimerText += tr(reportLocale, 'pdfDisclaimerAnonymous');
   doc.fillColor(GRAY).fontSize(7).font('Helvetica')
      .text(disclaimerText, 40, doc.y, { width: PAGE_W });
   doc.y += 14;
 
   // Parent summary
   if (link.parent_summary && link.parent_summary.trim()) {
-    pill('Sammanfattning från vårdnadshavare', doc.y);
+    pill(tr(reportLocale, 'pdfParentSummary'), doc.y);
     doc.y += 20;
     const summaryText = link.parent_summary.trim();
     const truncated = summaryText.length > 200 ? summaryText.slice(0, 197) + '...' : summaryText;
@@ -127,20 +134,22 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   const col2X = 40 + colW + 16;
 
   // LEFT: Section completion
-  pill('Genomförande per dagdel', doc.y);
+  pill(tr(reportLocale, 'titleSection'), doc.y);
   let y1 = doc.y + 20;
-  const sectionOrder = ['Morgon', 'Dag', 'Kväll', 'Natt'];
   const sections = (blocks.section_summary || [])
-    .map((s) => ({ label: sectionLabel(s.section), pct: s.completion_pct || 0 }))
+    .map((s) => {
+      const meta = sectionMeta(s.section, reportLocale);
+      return { id: meta.id, label: meta.label, pct: s.completion_pct || 0 };
+    })
     .sort((a, b) => {
-      const ai = sectionOrder.indexOf(a.label);
-      const bi = sectionOrder.indexOf(b.label);
+      const ai = SECTION_ORDER.indexOf(a.id);
+      const bi = SECTION_ORDER.indexOf(b.id);
       return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
     });
 
   if (sections.length === 0) {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Ingen data för perioden', col1X, y1);
+       .text(tr(reportLocale, 'emptyPeriod'), col1X, y1);
     y1 += 14;
   } else {
     const barMaxW = 100;
@@ -160,24 +169,23 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   }
 
   // RIGHT: Stars + Rewards
-  pill('Stjärnor & Belöningar', doc.y);
+  pill(tr(reportLocale, 'pdfStarsRewards'), doc.y);
   let y2 = doc.y + 20;
 
   if (fields.includes('stars') && blocks.stars && blocks.stars.total != null) {
     doc.fillColor(AMBER).fontSize(38).font('Helvetica-Bold')
        .text(String(blocks.stars.total), col2X, y2);
     doc.fillColor(GRAY).fontSize(9).font('Helvetica')
-       .text('intjänade stjärnor', col2X, y2 + 32);
+       .text(tr(reportLocale, 'starsEarned'), col2X, y2 + 32);
     y2 += 50;
   } else {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Stjärnor: ingen data', col2X, y2);
+       .text(tr(reportLocale, 'starsNoData'), col2X, y2);
     y2 += 14;
   }
 
   if (fields.includes('rewards') && blocks.rewards && blocks.rewards.counts && blocks.rewards.counts.length > 0) {
-    const statusLabel = (s) => s === 'approved' ? 'Godkända' : s === 'pending' ? 'Väntande' : s === 'denied' ? 'Avslagna' : s;
-    const counts = blocks.rewards.counts.map((r) => String(r.count) + ' ' + statusLabel(r.status)).join(' · ');
+    const counts = blocks.rewards.counts.map((r) => String(r.count) + ' ' + statusLabel(r.status, reportLocale)).join(' · ');
     doc.fillColor(GRAY).fontSize(9).font('Helvetica')
        .text(counts, col2X, y2);
     y2 += 14;
@@ -187,7 +195,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
 
   // Weekly bar chart
   needPage(110);
-  pill('Genomförande över tid', doc.y);
+  pill(tr(reportLocale, 'pdfOverTime'), doc.y);
   doc.y += 20;
 
   const completion = blocks.completion || [];
@@ -208,7 +216,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   const weekEntries = Object.entries(weekMap).sort((a, b) => a[0].localeCompare(b[0])).slice(0, 5);
   if (weekEntries.length === 0) {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Ingen data för perioden', 40, doc.y);
+       .text(tr(reportLocale, 'emptyPeriod'), 40, doc.y);
     doc.y += 16;
   } else {
     const chartX = 40;
@@ -262,7 +270,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   doc.addPage();
   doc.y = 40;
 
-  pill('Genomförande – Periodöversikt', doc.y);
+  pill(tr(reportLocale, 'pdfPeriodOverview'), doc.y);
   doc.y += 20;
 
   let avgPct = 0, bestDay = null, worstDay = null, bestPct = -1, worstPct = 101;
@@ -286,10 +294,10 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   const statRow = doc.y;
   if (completion.length > 0 && daysWithData > 0) {
     const stats = [
-      { label: 'Genomsnitt', value: avgPct + '%' },
-      { label: 'Bästa dagen', value: fmtDate(bestDay, reportLocale) + ' (' + bestPct + '%)' },
-      { label: 'Sämsta dagen', value: fmtDate(worstDay, reportLocale) + ' (' + worstPct + '%)' },
-      { label: 'Dagar m. data', value: String(daysWithData) },
+      { label: tr(reportLocale, 'pdfAverage'), value: avgPct + '%' },
+      { label: tr(reportLocale, 'pdfBestDay'), value: fmtDate(bestDay, reportLocale) + ' (' + bestPct + '%)' },
+      { label: tr(reportLocale, 'pdfWorstDay'), value: fmtDate(worstDay, reportLocale) + ' (' + worstPct + '%)' },
+      { label: tr(reportLocale, 'pdfDaysWithData'), value: String(daysWithData) },
     ];
     stats.forEach((s, i) => {
       const sx = 40 + i * (statW + 4);
@@ -302,26 +310,26 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
     doc.y = statRow + 44;
   } else {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Ingen data för perioden', 40, doc.y);
+       .text(tr(reportLocale, 'emptyPeriod'), 40, doc.y);
     doc.y += 20;
   }
 
   // Weekly rollup table
   needPage(40);
   doc.y += 6;
-  pill('Veckovis sammanfattning', doc.y);
+  pill(tr(reportLocale, 'pdfWeekly'), doc.y);
   doc.y += 20;
 
   if (weekEntries.length === 0) {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Ingen data för perioden', 40, doc.y);
+       .text(tr(reportLocale, 'emptyPeriod'), 40, doc.y);
     doc.y += 16;
   } else {
     const tCol = [40, 175, 245, 305];
     doc.fillColor(GRAY).fontSize(8).font('Helvetica-Bold')
-       .text('Period', tCol[0], doc.y, { lineBreak: false })
-       .text('Utförda', tCol[1], doc.y, { lineBreak: false })
-       .text('Totalt', tCol[2], doc.y, { lineBreak: false })
+       .text(tr(reportLocale, 'pdfPeriod'), tCol[0], doc.y, { lineBreak: false })
+       .text(tr(reportLocale, 'colDone'), tCol[1], doc.y, { lineBreak: false })
+       .text(tr(reportLocale, 'colTotal'), tCol[2], doc.y, { lineBreak: false })
        .text('%', tCol[3], doc.y, { lineBreak: false });
     doc.y += 4;
     doc.rect(40, doc.y, PAGE_W, 1).fill(LGRAY);
@@ -342,14 +350,14 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   // Top 5 activities
   needPage(50);
   doc.y += 8;
-  pill('Topp 5 aktiviteter (genomförda)', doc.y);
+  pill(tr(reportLocale, 'pdfTopActivities'), doc.y);
   doc.y += 20;
 
   const activityCounts = {};
   if (blocks.activities) {
     Object.values(blocks.activities).forEach((items) => {
       items.forEach((item) => {
-        const name = item.activity_name || '(unknown)';
+        const name = item.activity_name || tr(reportLocale, 'unknownActivityName');
         if (!activityCounts[name]) activityCounts[name] = { done: 0, total: 0 };
         if (item.completed) activityCounts[name].done++;
         activityCounts[name].total++;
@@ -364,7 +372,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
 
   if (top5.length === 0) {
     doc.fillColor(GRAY).fontSize(9).font('Helvetica-Oblique')
-       .text('Ingen data för perioden', 50, doc.y);
+       .text(tr(reportLocale, 'emptyPeriod'), 50, doc.y);
     doc.y += 16;
   } else {
     top5.forEach((a, i) => {
@@ -374,7 +382,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
       doc.fillColor(NAVY).font('Helvetica').fontSize(9)
          .text(' ' + a.name, 55, doc.y, { lineBreak: false });
       doc.fillColor(GRAY).fontSize(9)
-         .text(a.done + ' ggr', 310, doc.y);
+         .text(timesLabel(a.done, reportLocale), 310, doc.y);
       doc.y += 13;
     });
   }
@@ -388,7 +396,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
       items.forEach((item) => {
         const parts = [];
         if (item.parent_note) parts.push('(' + item.parent_note + ')');
-        if (item.child_note)  parts.push('Barnet: ' + item.child_note);
+        if (item.child_note)  parts.push(tr(reportLocale, 'pdfChildNote', { note: item.child_note }));
         if (parts.length > 0) {
           const combined = parts.join(' ');
           const truncated = combined.length > 80 ? combined.slice(0, 77) + '...' : combined;
@@ -399,7 +407,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   }
 
   if (noteLines.length > 0) {
-    pill('Anteckningar', doc.y);
+    pill(tr(reportLocale, 'pdfNotes'), doc.y);
     doc.y += 20;
     noteLines.slice(0, 5).forEach((n) => {
       needPage(20);
@@ -416,11 +424,20 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   if (pedagogNotes.length > 0) {
     needPage(40);
     doc.y += 8;
-    pill('Pedagoganteckningar', doc.y);
+    pill(tr(reportLocale, 'titlePedagogNotes'), doc.y);
     doc.y += 20;
 
-    const mealsLabelMap = { good: 'Åt bra', little: 'Åt lite', none: 'Åt ej', not_served: 'Serverades ej' };
-    const sleepLabelMap  = { easy: 'Sn-snabbt', slow: 'Varvade ner', difficult: 'Svårt' };
+    const mealsLabelMap = {
+      good: mealStatusLabel('good', reportLocale),
+      little: mealStatusLabel('little', reportLocale),
+      none: mealStatusLabel('none', reportLocale),
+      not_served: mealStatusLabel('not_served', reportLocale),
+    };
+    const sleepLabelMap = {
+      easy: sleepQualityLabel('easy', reportLocale),
+      slow: sleepQualityLabel('slow', reportLocale),
+      difficult: sleepQualityLabel('difficult', reportLocale),
+    };
 
     pedagogNotes.slice(0, 5).forEach((n) => {
       needPage(30);
@@ -431,7 +448,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
 
       if (n.mood) {
         doc.fillColor(NAVY).fontSize(9).font('Helvetica')
-           .text('Humör: (' + n.mood + '/5)', 55, doc.y);
+           .text(tr(reportLocale, 'mood') + ': (' + n.mood + '/5)', 55, doc.y);
         doc.y += 11;
       }
 
@@ -439,41 +456,45 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
         const sleepParts = [];
         if (n.sleep_hours != null) {
           const hrs = parseFloat(n.sleep_hours);
-          sleepParts.push(hrs === 0 ? 'Ingen vila' : hrs === 0.5 ? '30 min' : hrs < 2 ? hrs + 'h' : '2+h');
+          sleepParts.push(sleepHoursLabel(hrs, reportLocale));
         }
         if (n.sleep_quality && sleepLabelMap[n.sleep_quality]) {
           sleepParts.push(sleepLabelMap[n.sleep_quality]);
         }
         if (sleepParts.length > 0) {
           doc.fillColor(NAVY).fontSize(9).font('Helvetica')
-             .text('Sömn: ' + sleepParts.join(' · '), 55, doc.y);
+             .text(tr(reportLocale, 'sleep') + ': ' + sleepParts.join(' · '), 55, doc.y);
           doc.y += 11;
         }
       }
 
       if (n.meals_structured && typeof n.meals_structured === 'object') {
         const mealParts = [];
-        const mealKeys = { frukost: 'Fru', lunch: 'Lunch', mellanmal: 'Mellanmål' };
+        const mealKeys = {
+          frukost: mealNameLabel('frukost', reportLocale),
+          lunch: mealNameLabel('lunch', reportLocale),
+          mellanmal: mealNameLabel('mellanmal', reportLocale),
+        };
         Object.keys(mealKeys).forEach(function(k) {
           const val = n.meals_structured[k];
           if (val && mealsLabelMap[val]) mealParts.push(mealKeys[k] + ': ' + mealsLabelMap[val]);
         });
         if (mealParts.length > 0) {
           doc.fillColor(NAVY).fontSize(9).font('Helvetica')
-             .text('Måltider: ' + mealParts.join(' · '), 55, doc.y);
+             .text(tr(reportLocale, 'meals') + ': ' + mealParts.join(' · '), 55, doc.y);
           doc.y += 11;
         }
       } else if (n.meals) {
         const m = n.meals.length > 50 ? n.meals.slice(0, 47) + '...' : n.meals;
         doc.fillColor(NAVY).fontSize(9).font('Helvetica')
-           .text('Måltider: ' + m, 55, doc.y);
+           .text(tr(reportLocale, 'meals') + ': ' + m, 55, doc.y);
         doc.y += 11;
       }
 
       if (n.behavior) {
         const b = n.behavior.length > 60 ? n.behavior.slice(0, 57) + '...' : n.behavior;
         doc.fillColor(NAVY).fontSize(9).font('Helvetica')
-           .text('Beteende: ' + b, 55, doc.y);
+           .text(tr(reportLocale, 'behavior') + ': ' + b, 55, doc.y);
         doc.y += 11;
       }
 
@@ -487,7 +508,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
   const totalPages = doc.bufferedPageRange().count;
   for (let i = 0; i < totalPages; i++) {
     doc.switchToPage(i);
-    const footerText = 'Min Stjärndag · mystarday.se · Sid. ' + (i + 1) + '/' + totalPages;
+    const footerText = doc.info.Author + ' · ' + MAIN_DOMAIN + ' · ' + tr(reportLocale, 'pageOf', { page: i + 1, total: totalPages });
     doc.fontSize(8).font('Helvetica').fillColor(GRAY);
     const footerW = doc.widthOfString(footerText);
     const footerX = (doc.page.width - footerW) / 2;

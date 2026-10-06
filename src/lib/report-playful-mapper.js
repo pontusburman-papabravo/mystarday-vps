@@ -6,6 +6,7 @@
 
 const { formatDayMonth, formatLocaleDate } = require('./locale-format');
 const { DEFAULT_LOCALE } = require('./locale');
+const { SECTION_ORDER, tr, sectionMeta } = require('./report-copy');
 
 function fmtDate(str, locale) {
   if (!str) return '';
@@ -41,8 +42,8 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo, locale }) 
   vm.childEmoji = (!link.anonymous && link.child_emoji) ? link.child_emoji : null;
   vm.anonymous = !!link.anonymous;
   vm.title = vm.childName
-    ? ('SAMMANFATTNING FÖR ' + vm.childName.toUpperCase())
-    : 'SAMMANFATTNING';
+    ? tr(reportLocale, 'pdfPlayfulTitleFor', { name: vm.childName.toLocaleUpperCase(reportLocale) })
+    : tr(reportLocale, 'pdfPlayfulTitle');
 
   // Period band
   vm.period = fmtDateUpper(dateFrom, reportLocale) + ' – ' + fmtDateUpper(dateTo, reportLocale);
@@ -111,18 +112,20 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo, locale }) 
   // Section summary (dagdelar)
   vm.sections = [];
   if (fields.includes('section_summary') && blocks.section_summary) {
-    const sectionMap = { fm: 'Morgon', morgon: 'Morgon', em: 'Dag', dag: 'Dag', kvall: 'Kväll', evening: 'Kväll', natt: 'Natt' };
-    const order = ['Morgon', 'Dag', 'Kväll', 'Natt'];
     vm.sections = blocks.section_summary
-      .map(s => ({
-        label: sectionMap[s.section?.toLowerCase()] || s.section || 'Other',
-        pct: s.completion_pct || 0,
-        completed: s.completed || 0,
-        total: s.total || 0,
-      }))
+      .map(s => {
+        const meta = sectionMeta(s.section, reportLocale);
+        return {
+          id: meta.id,
+          label: meta.label,
+          pct: s.completion_pct || 0,
+          completed: s.completed || 0,
+          total: s.total || 0,
+        };
+      })
       .sort((a, b) => {
-        const ai = order.indexOf(a.label);
-        const bi = order.indexOf(b.label);
+        const ai = SECTION_ORDER.indexOf(a.id);
+        const bi = SECTION_ORDER.indexOf(b.id);
         return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
       });
   }
@@ -187,7 +190,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo, locale }) 
 
   // Quote bubble
   vm.quote = vm.parentSummary
-    || (vm.avgPct > 0 ? 'Genomsnittligt genomförande: ' + vm.avgPct + '% under perioden.' : null);
+    || (vm.avgPct > 0 ? tr(reportLocale, 'quoteAverage', { pct: vm.avgPct }) : null);
 
   return vm;
 }

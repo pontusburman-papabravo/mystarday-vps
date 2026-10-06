@@ -681,6 +681,8 @@ router.get('/public/report/:publicId', async (req, res) => {
     const displayName = link.anonymous ? null : link.child_name;
     const displayEmoji = link.anonymous ? null : link.child_emoji;
 
+    const { validateLocale } = require('../lib/locale');
+    const reportLocale = validateLocale(link.preferred_locale);
     res.json({
       label:          link.label,
       child_label:    displayName,
@@ -692,6 +694,7 @@ router.get('/public/report/:publicId', async (req, res) => {
       blocks: normalizeBlockDates(blocks),
       generated_at:   new Date().toISOString(),
       anonymous:      !!link.anonymous,
+      locale:         reportLocale,
     });
   } catch (err) {
     console.error('[PUBLIC-REPORT] Error:', err);
@@ -701,7 +704,7 @@ router.get('/public/report/:publicId', async (req, res) => {
 
 // GET /api/public/report/:publicId/pdf
 // Same auth model as the JSON endpoint; streams a PDFKit-generated PDF.
-// Output: max 2 A4 pages, Swedish labels. Layout lives in src/lib/report-pdf.js.
+// Labels follow family.preferred_locale. Layout lives in src/lib/report-pdf.js.
 router.get('/public/report/:publicId/pdf', async (req, res) => {
   try {
     const { publicId } = req.params;
@@ -750,8 +753,12 @@ router.get('/public/report/:publicId/pdf', async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}.pdf"`);
 
+    const { validateLocale } = require('../lib/locale');
     const { generateReportPdf } = require('../lib/report-pdf');
-    generateReportPdf(res, { link, fields, blocks, dateFrom, dateTo });
+    generateReportPdf(res, {
+      link, fields, blocks, dateFrom, dateTo,
+      locale: validateLocale(link.preferred_locale),
+    });
   } catch (err) {
     console.error('[PUBLIC-REPORT-PDF] Error:', err);
     if (!res.headersSent) sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
@@ -782,9 +789,13 @@ router.get('/public/report/:publicId/playful', async (req, res) => {
     const dateTo = link.date_to.toISOString ? link.date_to.toISOString().slice(0, 10) : String(link.date_to);
     const blocks = await shareLink.getReportData(link.id, fields, dateFrom, dateTo, link.child_id);
 
+    const { validateLocale } = require('../lib/locale');
     const { mapReportToPlayful } = require('../lib/report-playful-mapper');
-    const viewModel = mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo });
-    res.json({ viewModel });
+    const reportLocale = validateLocale(link.preferred_locale);
+    const viewModel = mapReportToPlayful({
+      link, blocks, fields, dateFrom, dateTo, locale: reportLocale,
+    });
+    res.json({ viewModel, locale: reportLocale });
   } catch (err) {
     console.error('[PUBLIC-REPORT-PLAYFUL] Error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
