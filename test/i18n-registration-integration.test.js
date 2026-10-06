@@ -113,7 +113,7 @@ test('defaults to sv-SE when locale omitted at registration', async (t) => {
     const email = uniqueEmail();
     const res = await fetch(`${http.baseUrl}/api/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'sv-SE' },
       body: JSON.stringify({
         name: 'Sven Förälder',
         email,
