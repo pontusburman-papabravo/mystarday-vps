@@ -65,9 +65,14 @@
     }
   }
 
+  function englishLandingPath(path) {
+    const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
+    if (p === '/en' || p === '/en/ie' || p === '/en/ca') return p;
+    return null;
+  }
+
   function isIrelandLanding(path) {
-    const p = path || pathname();
-    return p === '/en' || p === '/en/';
+    return !!englishLandingPath(path);
   }
 
   function pageMarket() {
@@ -77,11 +82,11 @@
       const mode = root.getAttribute('data-en-market');
       if (mode === 'CA' || mode === 'IE') return mode;
       if (mode === 'both') return 'BOTH';
-    } catch (_) { /* bare /en stays on the Ireland default */ }
+    } catch (_) { /* neutral /en has no market */ }
     return null;
   }
 
-  function explicitLandingCountry() {
+  function queryCountry() {
     try {
       const search = (global.location && global.location.search) || '';
       const query = typeof URLSearchParams === 'function'
@@ -89,19 +94,21 @@
         : null;
       const fromQuery = query && (query.get('country') || query.get('market'));
       if (fromQuery && /^[A-Za-z]{2}$/.test(fromQuery)) return fromQuery.toUpperCase();
-      const stored = global.sessionStorage && global.sessionStorage.getItem('sd_country_code');
-      if (stored && /^[A-Z]{2}$/.test(stored)) return stored;
-    } catch (_) { /* anonymous /en stays on the Ireland default */ }
+    } catch (_) { /* no query */ }
     return null;
   }
 
   function irelandMarket(path) {
+    const p = String(path || pathname() || '').replace(/\/$/, '') || '/';
+    if (p === '/en/ie') return 'IE';
+    if (p === '/en/ca') return 'CA';
     const page = pageMarket();
-    if (page) return page;
-    const explicit = explicitLandingCountry();
-    if (explicit) return explicit;
-    const p = path || pathname();
-    if (p === '/en' || p === '/en/' || p.indexOf('/en/') === 0) return 'IE';
+    if (page === 'IE' || page === 'CA' || page === 'BOTH') return page;
+    if (p === '/en') {
+      const fromQuery = queryCountry();
+      if (fromQuery === 'IE' || fromQuery === 'CA') return fromQuery;
+      return null;
+    }
     return undefined;
   }
 
@@ -192,13 +199,19 @@
   }
 
   function trackLandingView() {
-    if (!isIrelandLanding()) return;
+    const landingPath = englishLandingPath();
+    if (!landingPath) return;
     const market = irelandMarket();
-    if (!market) return;
     const meta = Object.assign({
       page: 'landing',
-      market: market,
+      landing_path: landingPath,
     }, utmMetadata());
+    if (market === 'BOTH') {
+      meta.market = 'BOTH';
+    } else if (market === 'IE' || market === 'CA') {
+      meta.market = market;
+      meta.country = market;
+    }
     track('landing_view', meta);
   }
 

@@ -62,7 +62,7 @@
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
       if (!/Swedish only|English is coming soon|English coming soon/i.test(el.textContent || '')) return;
-      el.textContent = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is now available in Ireland.';
+      el.textContent = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is currently available in selected markets.';
     });
     document.querySelectorAll('script[type="application/ld+json"]').forEach((el) => {
       try {
@@ -71,7 +71,7 @@
         data.mainEntity.forEach((item) => {
           const answer = item && item.acceptedAnswer && item.acceptedAnswer.text;
           if (typeof answer === 'string' && /Swedish only|English is coming soon/i.test(answer)) {
-            item.acceptedAnswer.text = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is now available in Ireland.';
+            item.acceptedAnswer.text = 'Get My Starday from the App Store or Google Play. The apps are available in Swedish and English. My Starday is currently available in selected markets.';
           }
         });
         el.textContent = JSON.stringify(data);
@@ -127,7 +127,7 @@
   }
 
   function hasIrelandWelcome() {
-    return !!document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
+    return !!document.querySelector('.hero-launch-card[data-hero-launch="markets"], .hero-launch-card[data-hero-launch="ireland"]');
   }
 
   function quietIrelandWelcomeHero() {

@@ -71,8 +71,10 @@ describe('public English surfaces follow launch state, not waitlist-as-English',
     assert.doesNotMatch(html, /Create account/);
     assert.doesNotMatch(html, /href="\/en\/register"/);
     assert.doesNotMatch(html, /https:\/\/apple\.co\/4v2ESuH/);
-    assert.match(html, /data-hero-launch="ireland"/);
-    assert.match(html, /Welcome Ireland/);
+    assert.match(html, /data-hero-launch="markets"/);
+    assert.match(html, /Selected markets/);
+    assert.doesNotMatch(html, /Welcome Ireland/);
+    assert.doesNotMatch(html, /Now in Ireland/);
     assert.match(html, /Free until 31 December 2026\. No payment required during the free period\./);
     assert.doesNotMatch(html, /No card required/);
     assert.match(html, /Is My Starday free\?/);

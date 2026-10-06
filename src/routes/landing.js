@@ -17,6 +17,7 @@ const {
   injectSiteUrl,
   injectBrandPlaceholders,
 } = require('../lib/public-html-placeholders');
+const { renderEnMarketPage, legacyCountryCampaignPath } = require('../lib/en-market-landing');
 
 const router = express.Router();
 
@@ -182,8 +183,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ─── GET /en — English landing page ────────────────────────
+function sendEnglishMarket(res, code) {
+  let html = renderEnMarketPage(code);
+  html = injectBrandPlaceholders(html);
+  html = injectSiteUrl(html);
+  res.type('html').send(html);
+}
+
+// Country campaign pages. Registered before /en so the path is the market.
+router.get('/en/ie', (req, res) => sendEnglishMarket(res, 'IE'));
+router.get('/en/ca', (req, res) => sendEnglishMarket(res, 'CA'));
+
+// ─── GET /en — neutral English landing page ────────────────
 router.get('/en', async (req, res) => {
+  const legacy = legacyCountryCampaignPath(req.query);
+  if (legacy) return res.redirect(302, legacy);
   const served = await serveLandingHtml(res, 'en.html');
   if (!served) {
     res.status(404).send('English page not found');
