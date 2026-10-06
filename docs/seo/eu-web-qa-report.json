@@ -1,0 +1,634 @@
+{
+  "verdict": "READY_FOR_EU_WEB_ROLLOUT",
+  "markets": {
+    "euEea": 29,
+    "missing": [],
+    "extra": [],
+    "duplicate": [],
+    "wrongIso": [],
+    "wrongDefault": [],
+    "invalidLocale": [],
+    "canadaSeparate": true,
+    "canadaPath": "/en/ca",
+    "multi": {
+      "BE": {
+        "locales": [
+          "nl",
+          "fr",
+          "de",
+          "en"
+        ],
+        "expected": [
+          "nl",
+          "fr",
+          "de",
+          "en"
+        ],
+        "match": true,
+        "campaignPaths": [
+          "/nl/be",
+          "/fr/be",
+          "/de/be",
+          "/en/be"
+        ]
+      },
+      "FI": {
+        "locales": [
+          "fi",
+          "sv",
+          "en"
+        ],
+        "expected": [
+          "fi",
+          "sv",
+          "en"
+        ],
+        "match": true,
+        "campaignPaths": [
+          "/fi/fi",
+          "/en/fi"
+        ]
+      },
+      "LU": {
+        "locales": [
+          "fr",
+          "de",
+          "en"
+        ],
+        "expected": [
+          "fr",
+          "de",
+          "en"
+        ],
+        "match": true,
+        "campaignPaths": [
+          "/fr/lu",
+          "/de/lu",
+          "/en/lu"
+        ]
+      },
+      "IE": {
+        "locales": [
+          "en",
+          "ga"
+        ],
+        "expected": [
+          "en",
+          "ga"
+        ],
+        "match": true,
+        "campaignPaths": [
+          "/en/ie",
+          "/ga/ie"
+        ]
+      },
+      "MT": {
+        "locales": [
+          "mt",
+          "en"
+        ],
+        "expected": [
+          "mt",
+          "en"
+        ],
+        "match": true,
+        "campaignPaths": [
+          "/mt/mt",
+          "/en/mt"
+        ]
+      }
+    },
+    "swedishCampaignOmitted": [
+      "SE",
+      "FI"
+    ]
+  },
+  "locales": {
+    "configured": 26,
+    "seoEnabled": 26,
+    "complete": 26,
+    "blocked": [],
+    "rows": [
+      {
+        "locale": "bg",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/bg",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "hr",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/hr",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "cs",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/cs",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "da",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/da",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "nl",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/nl",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "en",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/en",
+        "indexableCount": 41,
+        "blocking": ""
+      },
+      {
+        "locale": "et",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/et",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "fi",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/fi",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "fr",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/fr",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "de",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/de",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "el",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/el",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "hu",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/hu",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "ga",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/ga",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "it",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/it",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "lv",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/lv",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "lt",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/lt",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "mt",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/mt",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "pl",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/pl",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "pt",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/pt",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "ro",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/ro",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "sk",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/sk",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "sl",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/sl",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "es",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/es",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "sv",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/",
+        "indexableCount": 33,
+        "blocking": ""
+      },
+      {
+        "locale": "nb",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/nb",
+        "indexableCount": 11,
+        "blocking": ""
+      },
+      {
+        "locale": "is",
+        "configured": true,
+        "complete": true,
+        "seoEnabled": true,
+        "published": true,
+        "root": "/is",
+        "indexableCount": 11,
+        "blocking": ""
+      }
+    ]
+  },
+  "counts": {
+    "indexable": 338,
+    "perLocale": {
+      "bg": 11,
+      "hr": 11,
+      "cs": 11,
+      "da": 11,
+      "nl": 11,
+      "en": 41,
+      "et": 11,
+      "fi": 11,
+      "fr": 11,
+      "de": 11,
+      "el": 11,
+      "hu": 11,
+      "ga": 11,
+      "it": 11,
+      "lv": 11,
+      "lt": 11,
+      "mt": 11,
+      "pl": 11,
+      "pt": 11,
+      "ro": 11,
+      "sk": 11,
+      "sl": 11,
+      "es": 11,
+      "sv": 33,
+      "nb": 11,
+      "is": 11
+    },
+    "appSitemap": 305,
+    "seSitemap": 33,
+    "marketPaths": 61,
+    "explosionIfMarketCartesian": 8580,
+    "crawled": 399
+  },
+  "canonicalMismatches": 0,
+  "hreflang": {
+    "clusters": 11,
+    "broken": 0,
+    "orphaned": 0,
+    "duplicate": 0,
+    "marketTargets": 0,
+    "xDefaultMismatches": 0,
+    "samples": {
+      "broken": [],
+      "orphaned": [],
+      "xDefault": []
+    },
+    "xDefaultPolicy": "x-default is the English URL of the same contentKey. English-only documents point x-default at themselves.",
+    "howItWorksLocales": [
+      "bg",
+      "cs",
+      "da",
+      "de",
+      "el",
+      "en",
+      "es",
+      "et",
+      "fi",
+      "fr",
+      "ga",
+      "hr",
+      "hu",
+      "is",
+      "it",
+      "lt",
+      "lv",
+      "mt",
+      "nb",
+      "nl",
+      "pl",
+      "pt",
+      "ro",
+      "sk",
+      "sl"
+    ],
+    "howItWorksOmitsSwedish": true
+  },
+  "sitemapErrors": {
+    "app": {
+      "status": 200,
+      "count": 305,
+      "errors": 0,
+      "sample": []
+    },
+    "se": {
+      "status": 200,
+      "count": 33,
+      "errors": 0,
+      "sample": []
+    }
+  },
+  "robots": {
+    "app": {
+      "status": 200,
+      "sitemap": "/sitemap.xml",
+      "allowRoot": true,
+      "disallowMatchesPolicy": true,
+      "blocksMarket": false,
+      "blocksLocaleHome": false,
+      "expectedSitemap": "/sitemap.xml"
+    },
+    "se": {
+      "status": 200,
+      "sitemap": "/sitemap.xml",
+      "allowRoot": true,
+      "disallowMatchesPolicy": true,
+      "blocksMarket": false,
+      "blocksLocaleHome": false,
+      "expectedSitemap": "/sitemap.xml"
+    }
+  },
+  "links": {
+    "problems": [],
+    "problemCount": 0,
+    "coreOrphans": [],
+    "switchProblems": []
+  },
+  "language": {
+    "mixedLanguage": 0
+  },
+  "legalFlags": [],
+  "resurser": {
+    "noindex": {
+      "path": "/resurser/bildkort-rutiner-barn",
+      "status": 200,
+      "robots": "noindex, follow",
+      "inSitemap": false
+    },
+    "redirect": {
+      "path": "/resurser/beloningsschema-barn-gratis",
+      "status": 301,
+      "location": "/resurser/pdf/beloningsschema",
+      "owner": "/resurser/pdf/beloningsschema"
+    }
+  },
+  "pilots": {
+    "/en": {
+      "status": 200,
+      "ok": true,
+      "issues": []
+    },
+    "/en/ie": {
+      "status": 200,
+      "ok": true,
+      "issues": []
+    },
+    "/en/ca": {
+      "status": 200,
+      "ok": true,
+      "issues": []
+    },
+    "/nl": {
+      "status": 200,
+      "ok": true,
+      "issues": []
+    },
+    "/nl/nl": {
+      "status": 200,
+      "ok": true,
+      "issues": []
+    }
+  },
+  "querySamples": [
+    {
+      "path": "/",
+      "status": 200,
+      "canonical": "/",
+      "ok": true
+    },
+    {
+      "path": "/en",
+      "status": 200,
+      "canonical": "/en",
+      "ok": true
+    },
+    {
+      "path": "/nl",
+      "status": 200,
+      "canonical": "/nl",
+      "ok": true
+    }
+  ],
+  "performance": {
+    "deHtmlBytes": 16490,
+    "enHtmlBytes": 62916,
+    "deScripts": 49,
+    "alternatesJsBytes": 9840,
+    "alternatesStatus": 200,
+    "alternatesCache": "public, max-age=0",
+    "cacheName": "stjarndag-v1039",
+    "serverRendered": true,
+    "precachesLocaleHtml": false,
+    "localePayload": "One shared alternates script and a 26-link switcher. Locale HTML does not embed the other languages."
+  },
+  "urlIssues": [],
+  "faqSchemaWording": [
+    {
+      "path": "/",
+      "missing": 1,
+      "questions": 6
+    },
+    {
+      "path": "/beloningssystem-barn",
+      "missing": 1,
+      "questions": 4
+    },
+    {
+      "path": "/alternativ-bildschema-tavla",
+      "missing": 1,
+      "questions": 2
+    },
+    {
+      "path": "/bildschema-app",
+      "missing": 1,
+      "questions": 6
+    },
+    {
+      "path": "/en/alternative-visual-schedule-board",
+      "missing": 1,
+      "questions": 2
+    },
+    {
+      "path": "/en/morning-routine-children",
+      "missing": 1,
+      "questions": 3
+    },
+    {
+      "path": "/en/reward-system-children",
+      "missing": 2,
+      "questions": 4
+    },
+    {
+      "path": "/en/visual-schedule-app",
+      "missing": 3,
+      "questions": 5
+    },
+    {
+      "path": "/en/weekly-schedule-visual-support",
+      "missing": 2,
+      "questions": 2
+    },
+    {
+      "path": "/morgonrutin-barn",
+      "missing": 1,
+      "questions": 3
+    },
+    {
+      "path": "/veckoschema-bildstod",
+      "missing": 1,
+      "questions": 2
+    }
+  ],
+  "observations": {
+    "professionalLanding": "professionell_landingssida is off in this database, so /pedagoger-och-terapeuter redirects home. The document stays in the sitemap for the flag.",
+    "register": "/register is the existing account form. Its heading is filled by the page script.",
+    "platformScripts": "Public HTML still receives the existing platform script shell. Locale pages do not each download the other 25 languages."
+  },
+  "blockers": []
+}
