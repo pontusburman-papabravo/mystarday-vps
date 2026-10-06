@@ -8,6 +8,8 @@
  * near the page bottom; widthOfString avoids the issue.
  */
 
+const fs = require('fs');
+const path = require('path');
 const { MAIN_DOMAIN } = require('./domain-redirect');
 const { formatDayMonth, formatDayMonthRange, formatDayMonthLong } = require('./locale-format');
 const { DEFAULT_LOCALE } = require('./locale');
@@ -30,6 +32,43 @@ const LGRAY = '#E8E4DC';
 const WHITE = '#FFFFFF';
 const RED   = '#EF4444';
 const GREEN = '#22C55E';
+
+const UNICODE_REGULAR = path.join(__dirname, '..', '..', 'assets', 'fonts', 'DejaVuSans.ttf');
+const UNICODE_BOLD = path.join(__dirname, '..', '..', 'assets', 'fonts', 'DejaVuSans-Bold.ttf');
+
+/** Helvetica is WinAnsi. Anything outside that range needs the embedded Unicode face. */
+function needsUnicodeFont(value) {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  for (const ch of value) {
+    if (ch.codePointAt(0) > 255) return true;
+  }
+  return false;
+}
+
+function unicodeFace(currentName) {
+  return /Bold/.test(currentName || '') ? 'Unicode-Bold' : 'Unicode';
+}
+
+function attachUnicodeFonts(doc) {
+  if (!fs.existsSync(UNICODE_REGULAR) || !fs.existsSync(UNICODE_BOLD)) return;
+  doc.registerFont('Unicode', UNICODE_REGULAR);
+  doc.registerFont('Unicode-Bold', UNICODE_BOLD);
+  const origText = doc.text;
+  const origWidth = doc.widthOfString;
+  function useUnicode(text) {
+    if (!needsUnicodeFont(text)) return;
+    const name = doc._font && doc._font.name;
+    doc.font(unicodeFace(name));
+  }
+  doc.text = function (text, x, y, options) {
+    useUnicode(text);
+    return origText.call(this, text, x, y, options);
+  };
+  doc.widthOfString = function (text, options) {
+    useUnicode(text);
+    return origWidth.call(this, text, options);
+  };
+}
 
 const pad = (n) => String(n < 10 ? '0' + n : n);
 const fmtDate = (str, locale) => {
@@ -75,6 +114,7 @@ function generateReportPdf(stream, { link, fields, blocks, dateFrom, dateTo, loc
     if (!stream.destroyed) stream.destroy();
   });
   doc.pipe(stream);
+  attachUnicodeFonts(doc);
 
   const PAGE_W = doc.page.width - 80;
   const now = new Date();
