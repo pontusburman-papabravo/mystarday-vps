@@ -225,7 +225,7 @@
   "addActivity": "Aktiviteetti",
   "emptySection": "Ei aktiviteetteja",
   "activityCount": {
-    "one": "1 aktiviteetti",
+    "one": "{{count}} aktiviteetti",
     "other": "{{count}} aktiviteettia"
   },
   "loading": "Ladataan…",

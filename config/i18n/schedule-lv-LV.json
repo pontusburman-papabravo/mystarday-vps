@@ -225,7 +225,7 @@
   "addActivity": "Aktivitāte",
   "emptySection": "Nav aktivitāšu",
   "activityCount": {
-    "one": "1 aktivitāte",
+    "one": "{{count}} aktivitāte",
     "zero": "{{count}} aktivitāšu",
     "other": "{{count}} aktivitātes"
   },

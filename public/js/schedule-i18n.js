@@ -4,7 +4,13 @@
     return window.pt ? window.pt(key, params) : key;
   }
   function activityCount(n) {
-    return Number(n) === 1 ? t('schedule.activityCount.one') : t('schedule.activityCount.other', { count: n });
+    const count = Number(n);
+    if (window.I18n && typeof I18n.plural === 'function') {
+      return I18n.plural('schedule.activityCount', count);
+    }
+    return count === 1
+      ? t('schedule.activityCount.one', { count: count })
+      : t('schedule.activityCount.other', { count: count });
   }
   function sentenceCase(value) {
     const s = String(value || '');

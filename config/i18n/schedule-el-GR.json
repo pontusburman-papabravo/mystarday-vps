@@ -225,7 +225,7 @@
   "addActivity": "Δραστηριότητα",
   "emptySection": "Καμία δραστηριότητα",
   "activityCount": {
-    "one": "1 δραστηριότητα",
+    "one": "{{count}} δραστηριότητα",
     "other": "{{count}} δραστηριότητες"
   },
   "loading": "Φόρτωση…",

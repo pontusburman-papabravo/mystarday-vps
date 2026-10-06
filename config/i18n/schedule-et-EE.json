@@ -225,7 +225,7 @@
   "addActivity": "Tegevus",
   "emptySection": "Tegevusi pole",
   "activityCount": {
-    "one": "1 tegevus",
+    "one": "{{count}} tegevus",
     "other": "{{count}} tegevust"
   },
   "loading": "Laen…",

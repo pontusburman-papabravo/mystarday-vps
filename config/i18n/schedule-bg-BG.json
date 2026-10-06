@@ -225,7 +225,7 @@
   "addActivity": "Дейност",
   "emptySection": "Няма дейности",
   "activityCount": {
-    "one": "1 дейност",
+    "one": "{{count}} дейност",
     "other": "{{count}} дейности"
   },
   "loading": "Зареждам…",

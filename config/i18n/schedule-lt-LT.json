@@ -225,7 +225,7 @@
   "addActivity": "Veikla",
   "emptySection": "Veiklų nėra",
   "activityCount": {
-    "one": "1 veikla",
+    "one": "{{count}} veikla",
     "few": "{{count}} veiklos",
     "other": "{{count}} veiklų"
   },

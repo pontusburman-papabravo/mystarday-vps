@@ -225,7 +225,7 @@
   "addActivity": "Aktivita",
   "emptySection": "Žiadne aktivity",
   "activityCount": {
-    "one": "1 aktivita",
+    "one": "{{count}} aktivita",
     "other": "{{count}} aktivít",
     "few": "{{count}} aktivity"
   },
