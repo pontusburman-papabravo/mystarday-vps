@@ -73,8 +73,12 @@ function indexableCopy(html) {
   return `${visible}\n${ld}`.replace(/\s+/g, ' ').trim();
 }
 
+function withoutLanguageSwitcher(html) {
+  return String(html).replace(/<nav\b[^>]*data-public-lang-switcher="1"[\s\S]*?<\/nav>/gi, ' ');
+}
+
 function assertDutchCopy(html, label) {
-  const text = indexableCopy(html);
+  const text = indexableCopy(withoutLanguageSwitcher(html));
   assert.doesNotMatch(text, /[åäöÅÄÖ]/, `${label} has Swedish letters`);
   assert.doesNotMatch(text, /\b(och|inte|stjärn|morgonrutin|veckoschema|belöning|så fungerar|integritetspolicy)\b/i, `${label} has Swedish`);
   assert.doesNotMatch(text, /\b(How it works|Privacy Policy|Terms of Service|Visual schedule|morning routine|Sign up|Learn more|coming soon|14-day trial|Click here|Read more|Available now|Get started|Not just another|Create an account|This page is not available)\b/, `${label} has English`);
