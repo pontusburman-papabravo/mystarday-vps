@@ -29,6 +29,8 @@
 		R45D01201FED79650016851 /* WidgetBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */; };
 		R45D01221FED79650016851 /* WidgetBridgeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = R45D01231FED79650016851 /* WidgetBridgeStore.swift */; };
 		R45D01241FED79650016851 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = R45D01251FED79650016851 /* Assets.xcassets */; };
+		W1D6E7F401F0A00100000010 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = W1D6E7F401F0A00100000020 /* Localizable.strings */; };
+		W1D6E7F401F0A00100000011 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = W1D6E7F401F0A00100000021 /* InfoPlist.strings */; };
 		R45D01081FED79650016851 /* WidgetRoutine.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = R45D01001FED79650016851 /* WidgetRoutine.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -67,6 +69,12 @@
 		R45D01261FED79650016851 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		R45D01271FED79650016851 /* WidgetRoutine.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetRoutine.entitlements; sourceTree = "<group>"; };
 		R45D01251FED79650016851 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000001 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000002 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000003 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000004 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000005 /* en-GB */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "en-GB"; path = "en-GB.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		W1D6E7F401F0A00100000006 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +166,8 @@
 				R45D01211FED79650016851 /* WidgetBackgroundModifier.swift */,
 				R45D01231FED79650016851 /* WidgetBridgeStore.swift */,
 				R45D01261FED79650016851 /* Info.plist */,
+				W1D6E7F401F0A00100000021 /* InfoPlist.strings */,
+				W1D6E7F401F0A00100000020 /* Localizable.strings */,
 				R45D01271FED79650016851 /* WidgetRoutine.entitlements */,
 				R45D01251FED79650016851 /* Assets.xcassets */,
 			);
@@ -270,6 +280,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				R45D01241FED79650016851 /* Assets.xcassets in Resources */,
+				W1D6E7F401F0A00100000010 /* Localizable.strings in Resources */,
+				W1D6E7F401F0A00100000011 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +411,26 @@
 				504EC30C1FED79650016851F /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		W1D6E7F401F0A00100000020 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				W1D6E7F401F0A00100000001 /* sv */,
+				W1D6E7F401F0A00100000002 /* en-GB */,
+				W1D6E7F401F0A00100000003 /* de */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		W1D6E7F401F0A00100000021 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				W1D6E7F401F0A00100000004 /* sv */,
+				W1D6E7F401F0A00100000005 /* en-GB */,
+				W1D6E7F401F0A00100000006 /* de */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 		504EC3101FED79650016851F /* LaunchScreen.storyboard */ = {

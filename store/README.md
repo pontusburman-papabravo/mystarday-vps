@@ -4,7 +4,7 @@ App locale, market, Apple metadata locale, and Google Play locale are separate.
 
 `locales.json` is the only mapping. A language the store cannot list has an explicit `fallback`. Copy lives under `apple/<store-locale>/` and `google/<store-locale>/`. A market override in `overrides/` is optional and is how Ireland keeps its complimentary sentences on the shared English listing. Austria uses `de-DE` copy; it does not get a second German file.
 
-Shipped listings are `sv` / `sv-SE` and `en-GB`. Other European languages are `planned` and are not store-ready.
+Shipped listings are `sv` / `sv-SE`, `en-GB`, and `de-DE`. Other European languages are `planned` and are not store-ready.
 
 Privacy, support, and marketing URLs are `{ "host": "app"|"main", "path": "/..." }`. `app` is the international host and `main` is the Swedish host. The validator turns those into https URLs. Listings do not repeat the hostnames.
 
