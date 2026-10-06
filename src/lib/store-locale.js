@@ -206,6 +206,8 @@ function assessMarket(marketId, appLocale, catalog = loadStoreCatalog()) {
     APP_READY: appReady,
     APPLE_READY: apple.ready,
     GOOGLE_READY: google.ready,
+    appleScreenshotOrigin: apple.screenshotOrigin || null,
+    googleScreenshotOrigin: google.screenshotOrigin || null,
     MARKET_READY: marketReady,
     reasons,
   };
@@ -236,10 +238,11 @@ function listingFieldErrors(storeName, listing, catalog) {
   return errors;
 }
 
-function releaseNotesReady(listing, market) {
+function releaseNotesReady(listing, market, side) {
   const notes = listing.releaseNotes;
   if (notes && typeof notes === 'object' && notes.status === 'live_external') {
-    return market.activation === 'live';
+    if (market.activation === 'live') return true;
+    return Boolean(side && side.fallback);
   }
   return typeof notes === 'string' && notes.trim().length > 0;
 }
@@ -276,8 +279,13 @@ function assessStore(storeName, side, market, catalog, reasons, label, appLocale
   }
   const shots = screenshotStatus(catalog, storeName, side.locale);
   const marketShots = market.screenshots && market.screenshots[storeName];
-  const liveExternal = market.activation === 'live'
-    && (marketShots === 'live_external' || (shots && shots.status === 'live_external'));
+  // An explicit catalog fallback may reuse a screenshot set that already
+  // lives in the store console. That is not an implicit English default.
+  const explicitFallbackAsset = Boolean(side.fallback) && shots && shots.status === 'live_external';
+  const liveExternal = explicitFallbackAsset || (
+    market.activation === 'live'
+    && (marketShots === 'live_external' || (shots && shots.status === 'live_external'))
+  );
   if (liveExternal) {
     // Screenshots already in the live store console.
   } else if (shots && shots.inheritFrom && catalog.screenshots.acceptPrimaryInheritance !== true) {
@@ -307,7 +315,7 @@ function assessStore(storeName, side, market, catalog, reasons, label, appLocale
       }
     }
   }
-  if (!releaseNotesReady(listing, market)) {
+  if (!releaseNotesReady(listing, market, side)) {
     reasons.push(`${label} release notes missing`);
     return { ready: false };
   }
@@ -328,7 +336,10 @@ function assessStore(storeName, side, market, catalog, reasons, label, appLocale
     reasons.push(`${label} subscription localization ${side.locale} missing (${missingIap.join(', ')})`);
     return { ready: false };
   }
-  return { ready: true };
+  return {
+    ready: true,
+    screenshotOrigin: explicitFallbackAsset ? 'explicit_fallback' : 'native_locale',
+  };
 }
 
 function formatAssessment(result) {
