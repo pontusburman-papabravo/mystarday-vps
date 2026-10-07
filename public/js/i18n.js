@@ -742,14 +742,15 @@ const I18n = {
   },
 
   /**
-   * Plural helper — keys at baseKey.one / baseKey.other
-   * @param {string} baseKey dot path without .one/.other
+   * Plural helper. The category comes from Intl.PluralRules.
+   * one/other is only the fallback when Intl.PluralRules is unavailable.
+   * @param {string} baseKey dot path without a plural suffix
    * @param {number} count
    * @param {Record<string, string|number>} [params]
    */
   plural(baseKey, count, params = {}) {
     const n = Number(count);
-    let category = n === 1 ? 'one' : 'other';
+    let category;
     try {
       category = new Intl.PluralRules(this.lang || this.DEFAULT_LOCALE).select(Number.isFinite(n) ? n : 0);
     } catch (_) {
