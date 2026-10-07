@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1050: Icelandic, Irish, and Maltese app packs stay registered
  * v1016: fail-closed veto when a legacy parent JWT meets child device mode
  * v1015: native cold start resumes via app-entry (ADR-022)
  * v1014: anchor Switch profile in the parent header on phones
@@ -380,7 +381,7 @@
 // stjarndag-v1049: reward empty state is not the CLDR zero category
 // stjarndag-v1048: plural categories come from Intl.PluralRules
 // stjarndag-v1047: Bulgarian, Greek, Estonian, Lithuanian, and Latvian app locales
-const CACHE_NAME = 'stjarndag-v1049';
+const CACHE_NAME = 'stjarndag-v1050';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
@@ -817,6 +818,7 @@ const CACHE_NAME = 'stjarndag-v1049';
 // stjarndag-v966: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v985: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v994: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v1050: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

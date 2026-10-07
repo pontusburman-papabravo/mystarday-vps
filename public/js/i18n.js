@@ -478,6 +478,66 @@ const I18n = {
         "showOnFirstRun": true,
         "contentSource": "locale-files",
         "contentMap": "lv-LV.json"
+      },
+      {
+        "id": "is-IS",
+        "nativeName": "Íslenska",
+        "base": "is",
+        "aliases": [
+          "is",
+          "is-is"
+        ],
+        "inputAliases": [
+          "is"
+        ],
+        "legacyJourneyTags": [
+          "is"
+        ],
+        "experiencePack": "child_is",
+        "availability": "registered",
+        "showOnFirstRun": false,
+        "contentSource": "locale-files",
+        "contentMap": "is-IS.json"
+      },
+      {
+        "id": "ga-IE",
+        "nativeName": "Gaeilge",
+        "base": "ga",
+        "aliases": [
+          "ga",
+          "ga-ie"
+        ],
+        "inputAliases": [
+          "ga"
+        ],
+        "legacyJourneyTags": [
+          "ga"
+        ],
+        "experiencePack": "child_ga",
+        "availability": "registered",
+        "showOnFirstRun": false,
+        "contentSource": "locale-files",
+        "contentMap": "ga-IE.json"
+      },
+      {
+        "id": "mt-MT",
+        "nativeName": "Malti",
+        "base": "mt",
+        "aliases": [
+          "mt",
+          "mt-mt"
+        ],
+        "inputAliases": [
+          "mt"
+        ],
+        "legacyJourneyTags": [
+          "mt"
+        ],
+        "experiencePack": "child_mt",
+        "availability": "registered",
+        "showOnFirstRun": false,
+        "contentSource": "locale-files",
+        "contentMap": "mt-MT.json"
       }
     ]
   },
@@ -664,12 +724,22 @@ const I18n = {
     }
   },
 
+  _catalogEntry(id) {
+    const locales = this._catalogLocales();
+    for (let i = 0; i < locales.length; i++) {
+      if (locales[i].id === id) return locales[i];
+    }
+    return null;
+  },
+
   _fromNavigator() {
     try {
       const langs = navigator.languages || [navigator.language || ''];
       for (const l of langs) {
         const n = this._normalize(l);
-        if (n) return n;
+        const entry = n && this._catalogEntry(n);
+        // Registered locales are known but not chosen from the browser.
+        if (entry && this._listedAvailability(entry) === 'public') return n;
       }
     } catch {
       return null;

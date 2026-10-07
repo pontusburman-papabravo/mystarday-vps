@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Heim",
+    "planning": "Skipulag",
+    "rewards": "Verðlaun",
+    "forYou": "Fyrir þig",
+    "family": "Fjölskylda"
+  },
+  "settings": "Stillingar",
+  "mainAria": "Aðalvalmynd",
+  "notifications": "Tilkynningar",
+  "share": "Deila",
+  "logout": "Skrá út",
+  "switchUser": "Skipta um notanda",
+  "returnToChild": "Til baka til barns",
+  "darkMode": "Dökkt þema",
+  "lightMode": "Ljóst þema",
+  "overview": "Yfirlit",
+  "dailyLog": "Í dag",
+  "weekSchedule": "Vikuáætlun",
+  "reports": "Skýrslur",
+  "library": "Safn",
+  "libraryAdvanced": "📚 Safn (ítarlegt)",
+  "pedagogNotes": "📝 Athugasemdir kennara",
+  "treasureChest": "Fjársjóðskistan",
+  "familySettings": "Fjölskylda og stillingar",
+  "capability": {
+    "subscription": "Áskrift",
+    "reports": "Skýrslur",
+    "samarbete": "Samstarf við kennara",
+    "barnStod": "Aukastuðningur"
+  },
+  "header": {
+    "notifications": "Tilkynningar",
+    "settings": "Stillingar",
+    "share": "Deila",
+    "shareTitle": "Segðu fjölskyldu frá appinu!",
+    "shareAria": "Deila"
+  },
+  "avatar": {
+    "switchPedagog": "Skipta yfir í kennarasýn",
+    "subscription": "Áskrift",
+    "settings": "Stillingar",
+    "logout": "Skrá út"
+  },
+  "mobile": {
+    "openMenu": "Opna valmynd",
+    "darkModeTitle": "Dökkt þema",
+    "darkModeAria": "Skipta um dökkt þema"
+  }
+}

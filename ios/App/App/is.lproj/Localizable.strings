@@ -1,0 +1,3 @@
+/* Native shell copy (is) — OS picks this before login when device language is Icelandic. */
+"native_offline_title" = "Engin tenging";
+"native_offline_body" = "Athugaðu nettenginguna og reyndu aftur.";

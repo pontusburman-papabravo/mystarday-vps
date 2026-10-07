@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Stillingar — {{brand}}",
+  "title": "Stillingar",
+  "shellLead": "Prófíll, fjölskylda og app",
+  "familySettings": "Stillingar fjölskyldu",
+  "groups": {
+    "profile": {
+      "title": "Prófíll og reikningur",
+      "sub": "Innskráning, PIN og reikningur"
+    },
+    "family": {
+      "title": "Fjölskylda",
+      "sub": "Nafn og tungumál. Fólki er stýrt undir Fjölskylda."
+    },
+    "device": {
+      "title": "Þetta tæki",
+      "sub": "Sími barns, sími fullorðins eða sameiginlegur sími"
+    },
+    "appearance": {
+      "title": "Útlit",
+      "sub": "Dökkt eða ljóst þema"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Tilkynningar, tilkynningar í síma og persónuvernd"
+    },
+    "premium": {
+      "title": "Áskrift",
+      "sub": "Premium, kaup og greiðslur"
+    }
+  },
+  "appearance": {
+    "dark": "Dökkt",
+    "light": "Ljóst",
+    "backToSettings": "← Til baka í stillingar"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Skipulag",
+      "sub": "Búðu til efni eða skipuleggðu viku barnanna."
+    },
+    "rewards": {
+      "title": "Verðlaun",
+      "sub": "Stjörnur, verðlaun og Fjársjóðskista fjölskyldunnar."
+    },
+    "calendar": {
+      "title": "Dagatal",
+      "sub": "Mánaðaryfirlit fyrir öll börn"
+    },
+    "activities": {
+      "title": "Athafnir",
+      "sub": "Sýslaðu með athafnir barnanna"
+    },
+    "assignSchedule": {
+      "title": "Úthluta áætlun",
+      "sub": "Afrita áætlun á barn"
+    },
+    "dailyLog": {
+      "title": "Í dag",
+      "sub": "Fylgstu með degi barnsins — skráðu stjörnur eftir á"
+    },
+    "treasureChest": {
+      "title": "Fjársjóðskistan",
+      "sub": "Verðlaun og stjörnur"
+    },
+    "childSettings": {
+      "title": "Stillingar barns",
+      "sub": "Sýn, PIN og sérsnið"
+    },
+    "familyChild": {
+      "title": "Stillingar barns",
+      "sub": "Áætlun, sýn, PIN og sérsnið"
+    },
+    "notifications": {
+      "title": "Tilkynningar",
+      "sub": "Áminningar og skilaboð"
+    },
+    "schedule": {
+      "title": "Vikuáætlun",
+      "sub": "Skipuleggðu og lagaðu daga barnanna"
+    },
+    "library": {
+      "title": "Safn",
+      "sub": "Áætlanir, athafnir og verðlaun fyrir fjölskylduna"
+    },
+    "family": {
+      "title": "Fjölskylda",
+      "sub": "Börn, fullorðnir og kennarar"
+    }
+  },
+  "backToPlanning": "← Til baka í Skipulag",
+  "avatar": {
+    "title": "Prófílmynd",
+    "description": "Myndin þín birtist barninu undir Fólkið mitt og á síðu Fjölskyldu.",
+    "changePhoto": "Breyta mynd",
+    "addPhoto": "Bæta við mynd",
+    "removePhoto": "Fjarlægja mynd",
+    "saved": "Prófílmynd vistuð!",
+    "removed": "Prófílmynd fjarlægð",
+    "saveFailed": "Gat ekki vistað",
+    "removeFailed": "Gat ekki fjarlægt"
+  },
+  "nativeAccount": {
+    "title": "Reikningur",
+    "sub": "Skiptu yfir í innskráningu barnsins eða skráðu þig alveg út úr appinu."
+  },
+  "account": {
+    "title": "Reikningur og innskráning",
+    "appleLinked": "Apple-reikningur tengdur",
+    "googleLinked": "Google-reikningur tengdur",
+    "appleLinkedOnIosHint": "Þú tengdir Apple-reikninginn á iPhone. Til að skrá þig inn hér skaltu bæta við lykilorði hér fyrir neðan.",
+    "googleLinkedElsewhereHint": "Þú tengdir Google-reikninginn á öðru tæki. Til að skrá þig inn hér skaltu bæta við lykilorði hér fyrir neðan.",
+    "newPassword": "Nýtt lykilorð",
+    "confirmPassword": "Staðfesta lykilorð",
+    "minCharsPlaceholder": "Að minnsta kosti 8 stafir",
+    "repeatPasswordPlaceholder": "Sláðu lykilorðið inn aftur",
+    "savePassword": "Vista lykilorð",
+    "passwordForNonApple": "Til að skrá þig inn án Apple",
+    "changePasswordHint": "Breyttu lykilorðinu til að halda aðgangi að reikningnum.",
+    "currentPassword": "Núverandi lykilorð",
+    "confirmNewPassword": "Staðfesta nýtt lykilorð",
+    "changePassword": "Breyta lykilorði",
+    "linkApple": "Tengja Apple-reikning",
+    "unlinkApple": "Aftengja Apple-reikning",
+    "linkGoogle": "Tengja Google-reikning",
+    "unlinkGoogle": "Aftengja Google-reikning",
+    "changeEmail": "Breyta netfangi",
+    "newEmail": "Nýtt netfang",
+    "yourPassword": "Lykilorðið þitt",
+    "confirmWithPassword": "Staðfesta með lykilorði",
+    "sendConfirmLink": "Senda staðfestingarhlekk",
+    "passwordsMismatch": "Lykilorðin stemma ekki",
+    "passwordMinLength": "Lykilorð þarf að vera að minnsta kosti 8 stafir",
+    "saving": "Vista…",
+    "passwordNowActive": "✓ Lykilorð er nú virkt",
+    "somethingWrong": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+    "somethingWrongShort": "Eitthvað fór úrskeiðis",
+    "appleSignInUnavailable": "Innskráning með Apple er ekki í boði á þessu tæki.",
+    "googleSignInUnavailable": "Innskráning með Google er ekki í boði á þessu tæki.",
+    "linking": "Tengi…",
+    "appleAlreadyLinked": "Þessi Apple-reikningur er þegar tengdur öðrum reikningi.",
+    "googleAlreadyLinked": "Þessi Google-reikningur er þegar tengdur öðrum reikningi.",
+    "couldNotLinkApple": "Gat ekki tengt Apple:",
+    "couldNotLinkGoogle": "Gat ekki tengt Google:",
+    "tryAgain": "Reyndu aftur.",
+    "unlinkApplePrompt": "Sláðu inn lykilorðið til að aftengja Apple:",
+    "unlinkGooglePrompt": "Sláðu inn lykilorðið til að aftengja Google:",
+    "removing": "Fjarlægi…",
+    "couldNotUnlink": "Gat ekki aftengt",
+    "invalidEmail": "Sláðu inn gilt netfang",
+    "sending": "Sendi…",
+    "linkSentTo": "Hlekkur sendur á {{email}}",
+    "passwordChanged": "Lykilorði hefur verið breytt!",
+    "linkAppleBtn": "🍎 Tengja Apple-reikning",
+    "linkGoogleBtn": "G Tengja Google-reikning",
+    "emailUpdated": "Netfangið þitt hefur verið uppfært! Þú getur nú skráð þig inn með nýja netfanginu.",
+    "passwordSet": "Lykilorð er sett. Þú getur nú skráð þig inn með netfangi og lykilorði.",
+    "errors": {
+      "invalidAppleToken": "Ógilt auðkenni frá Apple",
+      "invalidGoogleToken": "Ógilt auðkenni frá Google",
+      "appleAlreadyLinkedThis": "Apple-reikningur er þegar tengdur þessum reikningi",
+      "googleAlreadyLinkedThis": "Google-reikningur er þegar tengdur þessum reikningi",
+      "passwordRequiredUnlink": "Lykilorð er nauðsynlegt til að aftengja reikninginn",
+      "setPasswordBeforeUnlink": "Settu lykilorð áður en þú aftengir reikninginn",
+      "emailPasswordRequired": "Nýtt netfang og lykilorð eru nauðsynleg",
+      "setPasswordBeforeEmail": "Settu lykilorð áður en þú getur breytt netfangi",
+      "emailAlreadyRegistered": "Þetta netfang er þegar skráð á annan reikning",
+      "emailChangeLinkInvalid": "Ógildur eða útrunninn hlekkur. Biddu um nýja breytingu í Stillingum.",
+      "emailChangeLinkUsed": "Þessi hlekkur hefur þegar verið notaður. Biddu um nýja breytingu í Stillingum.",
+      "emailChangeLinkExpired": "Þessi hlekkur er útrunninn. Biddu um nýja breytingu í Stillingum.",
+      "passwordAlreadySet": "Lykilorð er þegar til. Notaðu „Breyta lykilorði“ til að uppfæra það.",
+      "emailAllOff": "Öllum tölvupósti er slökkt. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+      "weeklyEmailOff": "Við sendum ekki fleiri vikuyfirlit á netfangið þitt. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+      "redeemEmailOff": "Við sendum ekki fleiri tölvupósta þegar barnið vill leysa út verðlaun. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+      "passwordCurrentAndNew": "Núverandi og nýtt lykilorð eru nauðsynleg",
+      "appleLinkLoginRequired": "Þú þarft að hafa skráð þig inn til að tengja Apple-reikning",
+      "googleLinkLoginRequired": "Þú þarft að hafa skráð þig inn til að tengja Google-reikning"
+    }
+  },
+  "toast": {
+    "saved": "Vistað!",
+    "savedCheck": "✅ Vistað!",
+    "saveFailedRetry": "Gat ekki vistað. Reyndu aftur.",
+    "networkError": "Netvilla"
+  },
+  "parentPin": {
+    "title": "PIN-númer",
+    "security": "Öryggi",
+    "hasPinDescription": "Persónulega PIN-ið þitt verndar foreldrasýnina — börn komast ekki úr barnasýn án PIN-ins þíns.",
+    "noPinDescription": "Settu þitt eigið 4 stafa PIN — börn komast ekki úr barnasýn án PIN-ins þíns.",
+    "choosePin": "Veldu 4 stafa PIN",
+    "confirmPin": "Staðfesta PIN",
+    "changePinBack": "← Breyta PIN",
+    "enterCurrentPin": "Sláðu inn núverandi PIN",
+    "forgotPin": "Gleymdirðu PIN?",
+    "chooseNewPin": "Veldu nýtt PIN",
+    "confirmNewPin": "Staðfesta nýtt PIN",
+    "forgotIntro": "Sláðu inn lykilorðið til að setja nýtt PIN.",
+    "yourPassword": "Lykilorðið þitt",
+    "verify": "Staðfesta",
+    "keypadAria": "Talnaborð",
+    "confirmKeypadAria": "Borð til að staðfesta PIN",
+    "pinKeypadAria": "PIN-borð",
+    "newPinKeypadAria": "Borð fyrir nýtt PIN",
+    "confirmNewPinKeypadAria": "Borð til að staðfesta nýtt PIN",
+    "pinsMismatch": "PIN stemma ekki — reyndu aftur",
+    "pinNowActive": "✓ PIN er nú virkt",
+    "wrongPin": "Rangt PIN — reyndu aftur",
+    "pinChanged": "✓ PIN hefur verið breytt!",
+    "couldNotChangePin": "Gat ekki breytt PIN",
+    "sessionExpired": "Lota rann út — sláðu núverandi PIN inn aftur",
+    "enterPassword": "Sláðu inn lykilorðið þitt",
+    "wrongPassword": "Rangt lykilorð"
+  },
+  "push": {
+    "title": "Tilkynningar í síma",
+    "lead": "Fáðu tilkynningar í símann — líka þegar appið er lokað.",
+    "unsupported": "Vafrinn þinn styður ekki tilkynningar.",
+    "toggleLabel": "Tilkynningar í síma",
+    "toggleDescription": "Kveiktu á til að fá tilkynningar um athafnir barnanna",
+    "toggleAria": "Kveikja eða slökkva á tilkynningum",
+    "perChildHeading": "Tilkynningar fyrir hvert barn",
+    "typesHeading": "Hvaða tilkynningar?",
+    "typeScheduleTitle": "Áminning um áætlun",
+    "typeScheduleHint": "10 mín. fyrir athöfn",
+    "typeScheduleAria": "Kveikja eða slökkva á áminningu um áætlun",
+    "typeInactivityTitle": "Áminning um aðgerðaleysi",
+    "typeInactivityHint": "18:00 ef barnið hefur ekki skráð sig inn",
+    "typeInactivityAria": "Kveikja eða slökkva á áminningu um aðgerðaleysi",
+    "typeMilestoneTitle": "Stjörnuáfangi",
+    "typeMilestoneHint": "Við 10/25/50/100 stjörnur",
+    "typeMilestoneAria": "Kveikja eða slökkva á stjörnuáfanga",
+    "typeBackfillTitle": "Áminning um að fylla út eftir á",
+    "typeBackfillHint": "09:00 ef gærdagurinn vantar",
+    "typeBackfillAria": "Kveikja eða slökkva á áminningu um að fylla út",
+    "leadTimeLabel": "Áminning fyrir",
+    "quietHoursLabel": "Kyrrðartími",
+    "quietHoursTo": "til",
+    "archiveTitle": "Tilkynningasafn",
+    "archiveHint": "Tilkynningar sem tókust síðustu 7 dagana",
+    "noChildren": "Engin börn tengd.",
+    "childToggleAria": "Tilkynningar fyrir {{name}}",
+    "saved": "✅ Vistað!",
+    "saveFailed": "Gat ekki vistað.",
+    "saveFailedRetry": "Gat ekki vistað. Reyndu aftur.",
+    "requestingPermission": "⏳ Bið um leyfi…",
+    "enabled": "✅ Tilkynningar virkar!",
+    "permissionDenied": "🚫 Leyfi hafnað. Kveiktu á í stillingum vafra eða apps.",
+    "iosNotInstalled": "Bættu {{brand}} við á heimaskjáinn til að fá tilkynningar í Safari.",
+    "genericError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+    "disabled": "✅ Slökkt á tilkynningum.",
+    "errors": {
+      "unsupportedBrowser": "Tilkynningar eru ekki studdar í þessum vafra",
+      "permissionDeniedApp": "Tilkynningaleyfi var hafnað í stillingum appsins.",
+      "pushPluginMissing": "Viðbót fyrir tilkynningar vantar í appið. Keyrðu npx cap sync ios og byggðu aftur.",
+      "platformMissing": "Stuðningur við tilkynningar á vettvangi vantar",
+      "permissionDeniedBrowser": "Tilkynningaleyfi hafnað. Kveiktu á því í stillingum vafrans.",
+      "permissionDenied": "Tilkynningaleyfi hafnað",
+      "subscriptionFailed": "Áskrift mistókst",
+      "enableFailed": "Gat ekki kveikt á tilkynningum",
+      "disableFailed": "Gat ekki slökkt á tilkynningum",
+      "iosNotInstalled": "Bættu appinu við á heimaskjáinn til að fá tilkynningar í Safari.",
+      "notConfigured": "Tilkynningar eru ekki stilltar",
+      "invalidSubscription": "Ógild áskrift að tilkynningum",
+      "endpointRequired": "Endapunktur er nauðsynlegur",
+      "invalidToken": "Ógilt tákn",
+      "invalidPlatform": "Vettvangur þarf að vera iOS eða Android",
+      "tokenRequired": "Tákn og vettvangur eru nauðsynleg",
+      "parentNotFound": "Foreldri fannst ekki"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Bæta græju við á heimaskjáinn?",
+      "lead": "Sjáðu næstu athöfn á heimaskjánum — án þess að opna appið.",
+      "step1": "Ýttu á <strong class=\"text-navy\">Tengja græju</strong> hér í appinu.",
+      "step2": "Á heimaskjánum: haltu inni á bakgrunninum → ýttu á <strong class=\"text-navy\">+</strong> → leitaðu að <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Ekki spyrja aftur",
+      "connect": "Tengja græju",
+      "later": "Ekki núna",
+      "openSettings": "Opna stillingar"
+    },
+    "settings": {
+      "title": "Græjur og flýtiaðgangur",
+      "description": "Persónuleg græja = eitt barn. Fjölskyldugræja = fleiri börn. Veldu barn hér ef þú átt fleiri en eitt.",
+      "childPickerLabel": "Hvaða barn á græjan að sýna?",
+      "childFallbackName": "Barn",
+      "statusLabel": "Staða:",
+      "statusConnected": "Tengt",
+      "statusReconnect": "Þarf að tengja aftur",
+      "privacyLabel": "Persónuvernd:",
+      "privacyFull": "Fullt",
+      "privacyLimited": "Takmörkuð",
+      "reconnectBtn": "Tengja græju aftur",
+      "guideBtn": "Sýna leiðbeiningar fyrir græju á heimaskjá",
+      "connecting": "Tengi…",
+      "supportMissing": "Stuðningur við græju vantar í þessari útgáfu. Uppfærðu appið.",
+      "addChildFirst": "Bættu barni við í fjölskylduna fyrst, svo geturðu tengt græjuna.",
+      "loginRequired": "Þú þarft að hafa skráð þig inn til að tengja græjuna.",
+      "success": "Lokið! Bættu græjunni við á heimaskjáinn (+ → {{brand}}) ef þú hefur ekki þegar gert það.",
+      "pickChild": "Veldu barn á listanum hér fyrir ofan og reyndu aftur.",
+      "retryLater": "Gat ekki tengt núna. Reyndu aftur eftir augnablik.",
+      "networkError": "Gat ekki tengt núna. Athugaðu netið og reyndu aftur.",
+      "errors": {
+        "offlineUnavailable": "Græjan er ekki virk fyrir fjölskylduna þína enn. Hafðu samband við þjónustu ef hún á að vera í gangi.",
+        "reauthRequired": "Lotan þín þarf að endurnýjast. Skráðu þig út og inn aftur, og reyndu svo að tengja aftur.",
+        "nativeConfigureFailed": "Appið gat ekki vistað tengingu græjunnar. Lokaðu appinu alveg og opnaðu það aftur.",
+        "notEnabled": "Græjan er ekki virk eða lotan þarf að endurnýjast. Skráðu þig út og inn aftur."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Stillingar tilkynninga",
+    "weeklySummary": "Vikuyfirlit (sunnudag kl. 21:00)",
+    "rewardRedemption": "Útleysing verðlauna",
+    "newsletter": "Fréttabréf í tölvupósti",
+    "emailGlobal": "Allur tölvupóstur",
+    "save": "Vista stillingar tilkynninga"
+  },
+  "reminders": {
+    "title": "Áminningar",
+    "lead": "Stilltu daglega áminningu svo þú munir að skoða áætlunina.",
+    "daily": "Dagleg áminning",
+    "hint": "Þú færð áminningu á völdum tíma á völdum dögum",
+    "toggleAria": "Kveikja eða slökkva á áminningu",
+    "time": "Tími",
+    "days": "Dagar"
+  },
+  "familyName": {
+    "label": "Nafn fjölskyldu",
+    "placeholder": "t.d. Fjölskyldan Jónsdóttir",
+    "autoFromParent": "Fjölskylda {{name}}"
+  },
+  "sound": {
+    "label": "Hljóð á",
+    "hint": "Spilar hljóð þegar barnið hakar við athöfn í dagsýninni."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Fullorðnir og aðgangur",
+    "adultsBody": "Bjóddu öðru foreldri og sjáðu hver hefur aðgang undir Fjölskylda.",
+    "openFamily": "Opna Fjölskyldu",
+    "pedagogsTitle": "👩‍🏫 Kennarar",
+    "pedagogsBody": "Boð til kennara og aðgangur er í umsjón undir Fjölskylda."
+  },
+  "dataExport": {
+    "title": "Gögnin mín",
+    "body": "Sæktu afrit af öllum gögnum þínum sem CSV (ZIP-skrá). Inniheldur prófíl, börn, áætlanir, verðlaun og athafnasögu.",
+    "download": "Sækja gögnin mín",
+    "preparing": "Undirbý niðurhal…",
+    "started": "✅ Niðurhal hafið!",
+    "rateLimited": "Þú getur aðeins flutt út einu sinni á 24 klukkustunda fresti.",
+    "failed": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+    "networkError": "Netvilla. Reyndu aftur."
+  },
+  "deleteAccount": {
+    "title": "Eyða reikningi",
+    "permanent": "⚠️ Varanleg aðgerð",
+    "loading": "Hleð því sem gerist…",
+    "storeBillingNote": "Ef þú ert með áskrift í App Store eða Google Play er henni ekki sagt upp sjálfkrafa þegar reikningnum er eytt. Sýslaðu með eða segðu upp áskriftinni í versluninni.",
+    "button": "Eyða reikningnum mínum",
+    "summarySelf": "Þú fjarlægir þinn eigin reikning og aðgang. Fjölskyldan, börnin, áætlanir og gögn annarra fullorðinna standa. Þetta er ekki hægt að afturkalla.",
+    "summaryLastAdmin": "Þú ert síðasti fullorðni með stjórnandaðgang. Öll fjölskyldan og öll tengd gögn — börn, áætlanir, athafnir, stjörnur og verðlaun — verða eytt strax og varanlega. Þetta er ekki hægt að afturkalla.",
+    "modalTitleSelf": "Yfirgefa fjölskylduna",
+    "modalTitleFamily": "Eyða fjölskyldu og reikningi",
+    "modalTitleFallback": "Eyða reikningi varanlega",
+    "leadSelf": "Þú fjarlægir aðeins þinn eigin reikning og aðgang.",
+    "leadFamily": "Þú eyðir allri fjölskyldunni og öllum tengdum gögnum.",
+    "sure": "Ertu viss?",
+    "cannotUndo": "Þetta er ekki hægt að afturkalla.",
+    "storeBillingModal": "Áskrift í App Store eða Google Play er ekki sagt upp sjálfkrafa — sýslaðu með hana í versluninni.",
+    "typeConfirmLabel": "Skrifaðu {{token}} til að staðfesta",
+    "typeConfirmLabelHtml": "Skrifaðu <strong>RADERA</strong> til að staðfesta",
+    "typeConfirmError": "Skrifaðu {{token}} til að staðfesta.",
+    "confirmToken": "RADERA",
+    "cancel": "Hætta við",
+    "confirmSelf": "Yfirgefa fjölskylduna",
+    "confirmFamily": "Eyða öllu varanlega",
+    "deleting": "Eyði...",
+    "deleted": "✅ Reikningnum hefur verið eytt.",
+    "deleteFailed": "Eitthvað fór úrskeiðis við eyðingu.",
+    "networkError": "Netvilla. Reyndu aftur.",
+    "bulletSelfAccount": "Foreldrareikningurinn þinn og aðgangurinn þinn",
+    "bulletSelfOthersRemain": "Fjölskyldan, börnin og aðrir fullorðnir standa",
+    "bulletParentAccount": "Foreldrareikningurinn",
+    "bulletAllChildren": "Öll börn í fjölskyldunni",
+    "bulletAllSchedules": "Allar áætlanir, athafnir og verðlaun",
+    "bulletAllHistory": "Öll dagssaga og stjörnur"
+  },
+  "support": {
+    "title": "Tæknilegar upplýsingar fyrir þjónustu",
+    "hint": "Afritaðu útgáfu apps, skyndiminni og villuleitarauðkenni. Engin persónugögn eða lykilorð fylgja.",
+    "copy": "Afrita tæknilegar upplýsingar",
+    "copied": "Afritað — límdu það í tölvupóst til þjónustu.",
+    "copyFailed": "Gat ekki afritað. Reyndu aftur."
+  },
+  "legal": {
+    "privacy": "Persónuverndarstefna",
+    "terms": "Notkunarskilmálar"
+  },
+  "consent": {
+    "title": "Samþykki og persónuvernd",
+    "lead": "Sýslaðu með persónuverndarstillingar og vafrakökur.",
+    "change": "Breyta samþykkisstillingum",
+    "empty": "Engar samþykkisstillingar vistaðar enn.",
+    "modalTitle": "Samþykki og persónuvernd",
+    "aria": "Samþykkisstillingar",
+    "intro": "Hjálpaðu okkur að gera {{brand}} enn betra. Við notum vafrakökur til að skilja hvernig appið er notað og til að ná til fleiri fjölskyldna. Ýttu á hvern flokk til að skipta á ✓ Já / ✗ Nei / — Hlutlaust.",
+    "save": "Vista val",
+    "saving": "Vista…",
+    "skip": "Sleppa",
+    "closing": "Lokar…",
+    "analytics": "Greining og umbætur",
+    "analyticsDesc": "Hjálpar okkur að skilja hvernig appið er notað svo við getum gert það betra.",
+    "ads": "Markaðssetning",
+    "adsDesc": "Sýnir auglýsingar sniðnar að þér á Meta (Facebook/Instagram) og Google.",
+    "adUserData": "Gögn til vettvanga",
+    "adUserDataDesc": "Deilir gögnum þínum með auglýsingavettvöngum til betri pörunar.",
+    "adPersonalization": "Sérsnið",
+    "adPersonalizationDesc": "Sérsníður auglýsingar út frá áhuga þínum og hegðun.",
+    "email": "Tölvupóstur og ráð",
+    "emailDesc": "Tölvupóstur með ráðum, fréttum og tilboðum frá {{brand}}."
+  },
+  "subscription": {
+    "title": "Áskrift",
+    "loading": "Hleð áskrift…",
+    "loadFailed": "Gat ekki sótt stöðu áskriftar.",
+    "restore": "Endurheimta kaup",
+    "manage": "Sýsla með áskrift",
+    "activate": "Virkja Premium",
+    "viewPlans": "Skoða áskriftir",
+    "howToActivate": "Hvernig á að virkja Premium",
+    "webActivateHint": "Premium er virkjað í iPhone- eða Android-appinu.",
+    "restoreSuccess": "Kaup endurheimt. Premium er virkt.",
+    "restoreNone": "Engin kaup fundust til að endurheimta.",
+    "restoreFailed": "Gat ekki endurheimt kaup.",
+    "launchHoldTitle": "Opnunaraðgangur — innheimta er ekki komin í gang",
+    "launchHoldBody": "Þú getur haldið áfram að nota appið. Áskrift er ekki nauðsynleg á meðan innheimta er óvirk.",
+    "complimentaryTitle": "Ókeypis til 31. desember 2026",
+    "complimentaryBody": "{{brand}} er ókeypis til 31. desember 2026. Engin áskrift eða greiðslumáti er nauðsynlegur. Þetta tilboð breytist ekki sjálfkrafa í greidda áskrift.",
+    "complimentaryBodyUntil": "Ókeypis til {{date}}. Engin áskrift eða greiðslumáti er nauðsynlegur, og tilboðið verður ekki sjálfkrafa greidd áskrift. Frá 1. janúar 2027 geturðu valið hvort þú gerist áskrifandi.",
+    "launchTitle": "Opnunaraðgangur",
+    "launchBody": "Þú getur notað appið núna. Áskrift er ekki nauðsynleg enn.",
+    "launchBodyUntil": "Þú getur notað appið núna. Áskrift er ekki nauðsynleg enn. Greitt hefst: {{date}}.",
+    "noPremium": "Ekkert virkt Premium",
+    "choosePlan": "Veldu Premium mánaðarlega eða Premium árlega til að opna fullan aðgang.",
+    "billingNotLive": "Áskrift er ekki nauðsynleg enn. Innheimta er ekki komin í gang.",
+    "activateBody": "Virkjaðu Premium til að fá fullan aðgang að appinu.",
+    "grandfatheredTitle": "Premium innifalið varanlega",
+    "grandfatheredBody": "Fjölskyldan þín hefur fullan aðgang án kostnaðar.",
+    "trialTitle": "Premium – ókeypis prufutími",
+    "ends": "Rennur út {{date}}",
+    "giftTitle": "Premium – gjafakort",
+    "validUntil": "Gildir til {{date}}",
+    "graceTitle": "Premium – greiðsla þarf uppfærslu",
+    "graceBody": "Aðgangurinn virkar enn, en greiðsluna þarf að laga í {{store}}.",
+    "activeTitle": "Premium – {{plan}} í gegnum {{store}}",
+    "planYearly": "ársáskrift",
+    "planMonthly": "mánaðarleg áskrift"
+  },
+  "theme": {
+    "title": "Útlit",
+    "darkMode": "Dökkt þema",
+    "darkHint": "Kveiktu á dökku þema til að nota appið þægilegra í myrkri",
+    "toggleAria": "Kveikja eða slökkva á dökku þema",
+    "colorBlind": "Þema fyrir litblindu",
+    "colorBlindHint": "Lagar liti fyrir mismunandi tegundir litblindu",
+    "colorNone": "Ekkert (sjálfgefið)",
+    "protanopia": "Protanopia (rauðblinda)",
+    "deuteranopia": "Deuteranopia (grænblinda)",
+    "tritanopia": "Tritanopia (bláblinda)"
+  },
+  "viewMode": {
+    "dualAccess": "Þú hefur aðgang að bæði foreldrasýn og kennarasýn.",
+    "switchPedagog": "🌟 Skipta yfir í kennarasýn",
+    "switchParent": "👨‍👩‍👧 Skipta yfir í foreldrasýn"
+  },
+  "loadError": {
+    "title": "Ekki tókst að hlaða stillingum fjölskyldu",
+    "fallback": "Gat ekki sótt stillingar fjölskyldu núna.",
+    "retry": "Reyna aftur",
+    "retryIn": "Reyndu aftur eftir {{seconds}} sek."
+  },
+  "unsubscribe": {
+    "weekly": "Við sendum ekki fleiri vikuyfirlit á netfangið þitt. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+    "reward": "Við sendum ekki fleiri tölvupósta þegar barnið vill leysa út verðlaun. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+    "all": "Öllum tölvupósti er slökkt. Þú getur kveikt aftur undir Stillingar → Tilkynningar.",
+    "invalidTitle": "Ógildur hlekkur",
+    "invalidBody": "Hlekkurinn er ógildur eða útrunninn.",
+    "errorTitle": "Eitthvað fór úrskeiðis",
+    "errorBody": "Reyndu aftur síðar eða farðu í Stillingar í appinu."
+  },
+  "notifArchive": {
+    "retry": "Reyna aftur",
+    "failedHidden": "Misheppnaðar eða óvirkar sendingar birtast ekki hér.",
+    "loading": "Hleð tilkynningasafni…",
+    "loadError": "Gat ekki sótt tilkynningasafnið. Það þýðir ekki að þú eigir engar tilkynningar.",
+    "markAll": "Merkja allt sem lesið"
+  }
+}

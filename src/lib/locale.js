@@ -179,7 +179,9 @@ function intlLocaleTag(raw) {
 }
 
 /**
- * Parse Accept-Language header to best supported locale.
+ * Parse Accept-Language to the best public locale.
+ * A registered locale stays in the catalog and can be stored explicitly.
+ * It is not chosen from a browser header.
  * @param {string|null|undefined} header
  * @returns {string|null}
  */
@@ -202,10 +204,10 @@ function parseAcceptLanguage(header) {
 
   for (const { tag } of parts) {
     const normalized = normalizeLocale(tag);
-    if (normalized) return normalized;
+    if (normalized && isPublicLocale(normalized)) return normalized;
     const base = tag.split('-')[0];
     const fromBase = normalizeLocale(base);
-    if (fromBase) return fromBase;
+    if (fromBase && isPublicLocale(fromBase)) return fromBase;
   }
 
   return null;

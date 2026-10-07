@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Í dag — {{brand}}",
+  "shell": {
+    "headerTitle": "Í dag",
+    "backToHome": "← Til baka á Heim",
+    "pdfHint": "Búa til PDF fyrir dag, viku eða daga mína",
+    "printBtn": "📄 Búa til PDF ▾",
+    "printDay": "📄 Búa til PDF — dagur",
+    "printWeek": "📅 Búa til PDF — vika",
+    "printMyDays": "🏠 Búa til PDF — dagar mínir",
+    "selectChildHeading": "Velja barn",
+    "selectChildEmpty": "Veldu barn hér að ofan til að sjá skráninguna",
+    "loadingChildren": "Hleð…",
+    "tipsTitle": "Ráð: Fylgstu með athöfnum í Í dag",
+    "tips1": "Merktu athafnir sem búnar — barnið sér þær í rauntíma",
+    "tips2": "Athafnir eru hakaðar í barnasýn með einu snerti og gefa stjörnur strax",
+    "tips3": "Flettu aftur með dagatalinu til að sjá hvernig barninu gekk",
+    "tips4": "Settu dag í pásu þegar rútínan er öðruvísi — engar stjörnur tapast",
+    "rateActivity": "Gefa athöfn einkunn",
+    "commentPlaceholder": "Athugasemd (valfrjálst)…",
+    "cancel": "Hætta við",
+    "save": "Vista",
+    "moveUp": "Færa upp",
+    "moveDown": "Færa niður",
+    "printWeekDocTitle": "Vikuáætlun — {{name}}",
+    "printMyDaysDocTitle": "Dagar mínir"
+  },
+  "childFallback": "Barn",
+  "noChildren": "Engin börn hafa verið bætt við enn.",
+  "loading": "Hleð…",
+  "retry": "Reyna aftur",
+  "errors": {
+    "signInRequired": "Skráðu þig inn til að sjá Í dag",
+    "loadChildren": "Gat ekki sótt börn",
+    "loadLog": "Gat ekki sótt skráninguna. Reyndu aftur.",
+    "saveOrder": "Gat ekki vistað röð",
+    "updateActivity": "Gat ekki uppfært athöfn",
+    "undo": "Gat ekki afturkallað",
+    "changeStatus": "Gat ekki breytt stöðu",
+    "adjustTime": "Gat ekki lagað tíma",
+    "selectChild": "Veldu barn fyrst",
+    "custodyDisabled": "Umgengnisáætlun er ekki virk",
+    "loadWeek": "Gat ekki sótt vikuna",
+    "saveRating": "Gat ekki vistað einkunn",
+    "ratingScoreOrEmotion": "Veldu einkunn eða tilfinningaspjald",
+    "ratingScoreRange": "Einkunn þarf að vera á milli 1 og 10",
+    "ratingInvalidEmotion": "Ógilt tilfinningaspjald",
+    "ratingActivityNotFound": "Athöfn fannst ekki",
+    "ratingNotAllowed": "Einkunn er ekki leyfð fyrir þetta barn á þessari athöfn",
+    "ratingParentScoreRange": "Einkunn þarf að vera á milli 1 og 5",
+    "ratingParentDisabled": "Einkunn foreldris er ekki virk fyrir þessa athöfn",
+    "dayPaused": "Dagurinn er í pásu",
+    "dailyLogItemRequired": "daily_log_item_id er nauðsynlegt",
+    "invalidTimerMinutes": "Ógildar mínútur. Leyfileg gildi: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Engar athafnir í dag!",
+    "noScheduleDay": "Engin rútína þennan dag",
+    "addToWeekSchedule": "Bættu athöfnum við vikuáætlunina til að skráning verði til sjálfkrafa.",
+    "noScheduleSelected": "Engin rútína fyrir valinn dag.",
+    "thisDay": "þennan dag",
+    "today": "í dag",
+    "noChildrenTitle": "Engin börn bætt við",
+    "addFirstChild": "Bættu fyrsta barninu við á Heim til að komast af stað!",
+    "goToDashboard": "Fara á Heim",
+    "goToWeekSchedule": "📅 Fara í vikuáætlun"
+  },
+  "nav": {
+    "prevWeek": "Fyrri vika",
+    "prevDay": "Fyrri dagur",
+    "nextDay": "Næsti dagur",
+    "nextWeek": "Næsta vika",
+    "pickDate": "Velja dagsetningu",
+    "todayBtn": "Í dag",
+    "undoBump": "Afturkalla síðustu tímalagfæringu"
+  },
+  "activity": {
+    "markDone": "Merkja sem búið",
+    "undoMark": "Afturkalla merki",
+    "rate": "⭐ Einkunn",
+    "setRating": "Setja einkunn",
+    "changeRating": "Breyta einkunn",
+    "dragReorder": "Dragðu til að raða",
+    "completeAllInSection": "Klára allt í {{section}}",
+    "completeAllBtn": "✅ Merkja allt búið",
+    "defaultName": "Athöfn",
+    "undoneToast": "↩️ Merki afturkallað"
+  },
+  "pause": {
+    "confirmPause": "Setja þennan dag í pásu? Athafnir teljast ekki neikvætt.",
+    "confirmUnpause": "Virkja þennan dag aftur?",
+    "pausedToast": "😴 Dagur í pásu",
+    "unpausedToast": "✅ Dagur virkjaður aftur",
+    "dayTitle": "Frídagur",
+    "banner": "Þessi dagur er í pásu (t.d. veikindadagur eða frí). Athafnir teljast ekki neikvætt.",
+    "reactivate": "✅ Virkja dag aftur",
+    "pauseBtn": "😴 Setja þennan dag í pásu (veikindi / frí)"
+  },
+  "bump": {
+    "noItems": "Engar óhakaðar athafnir með tíma til að laga",
+    "moved": "⏩ Færði {{count}} ath{{suffix}} fram um {{minutes}} mín.",
+    "movedOne": "öfn",
+    "movedMany": "afnir",
+    "undoToast": "↩️ Tímalagfæring afturkölluð",
+    "title": "Færa allt sem kemur fram á við",
+    "adjustHint": "Lagar tíma á óhökuðum athöfnum",
+    "minutesTitle": "Færa fram um {{minutes}} mín.",
+    "undoBtn": "↩ Afturkalla"
+  },
+  "retrofill": {
+    "title": "Fylla út rútínu aftur í tímann",
+    "description": "Þú ert að fylla út rútínu eftir á. Merktu athafnir sem búnar — þær vistast með réttri dagsetningu."
+  },
+  "rating": {
+    "childMood": "Líðan barns",
+    "parentScore": "Einkunn foreldris",
+    "noMoodCards": "Engin líðanaspjöld enn",
+    "saved": "⭐ Einkunn vistuð!",
+    "labels": [
+      "",
+      "Erfitt 😓",
+      "Í lagi 😐",
+      "Gott 😊",
+      "Frábært 😄",
+      "Æðislegt! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hreinlæti",
+    "mat": "Matur",
+    "skola": "Skóli",
+    "lek": "Leikur",
+    "rorelse": "Hreyfing",
+    "vila": "Hvíld",
+    "social": "Samvera"
+  },
+  "legend": {
+    "colorCoding": "Litakóðun:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Allar athafnir búnar!",
+    "completedOf": "{{completed}} af {{total}} athöfnum búnar"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Hakað við: {{name}}",
+    "undo": "Afturkalla"
+  },
+  "emotions": {
+    "title": "💛 Líðan í dag",
+    "noCards": "Engin líðanaspjöld enn",
+    "sliderResponses": "Sleði: {{count}} sv{{suffix}}",
+    "sliderSuffixOne": "ar",
+    "sliderSuffixMany": "ör",
+    "sliderAvg": " (meðaltal {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Undirbý vikuyfirlit...",
+    "preparingCustody": "Undirbý daga mína…",
+    "noMyDays": "Engir dagar þínir í þessari viku",
+    "weekScheduleTitle": "{{name}} — Vikuáætlun",
+    "myDaysTitle": "{{name}} — Dagar mínir"
+  }
+}

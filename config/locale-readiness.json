@@ -123,6 +123,21 @@
       "mustNotCopy": "en-GB",
       "positive": "[āčēģīķļņšūž]|\\b(?:un|nav|ir|bērns)\\b",
       "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "is-IS": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áðéíóúýþæö]|\\b(?:og|ekki|barn)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "ga-IE": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áéíóú]|\\b(?:agus|páiste)\\b",
+      "forbidden": "(?<![A-Za-zÁÉÍÓÚáéíóú])(?:och|inte)(?![A-Za-zÁÉÍÓÚáéíóú])|stjärn\\w*|förälder\\w*|\\bvardagen\\b|\\bscheman\\b|\\bbarnet\\b|å|\\bför\\b"
+    },
+    "mt-MT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ċġħż]|\\b(?:mhux|tifel)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
     }
   }
 }

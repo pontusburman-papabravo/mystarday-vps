@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Inniu — {{brand}}",
+  "shell": {
+    "headerTitle": "Inniu",
+    "backToHome": "← Ar ais abhaile",
+    "pdfHint": "Cruthaigh PDF don lá, don tseachtain nó do mo laethanta",
+    "printBtn": "📄 Cruthaigh PDF ▾",
+    "printDay": "📄 Cruthaigh PDF — lá",
+    "printWeek": "📅 Cruthaigh PDF — seachtain",
+    "printMyDays": "🏠 Cruthaigh PDF — mo laethanta",
+    "selectChildHeading": "Roghnaigh páiste",
+    "selectChildEmpty": "Roghnaigh páiste thuas leis an log a fheiceáil",
+    "loadingChildren": "Ag lódáil…",
+    "tipsTitle": "Leideanna: Coinnigh súil ar ghníomhaíochtaí in Inniu",
+    "tips1": "Marcáil gníomhaíochtaí déanta — feiceann do pháiste iad láithreach",
+    "tips2": "Tictear gníomhaíochtaí in amharc an pháiste le tap amháin, agus faightear réaltaí láithreach",
+    "tips3": "Scrollaigh siar leis an roghnóir dáta le feiceáil conas a d’éirigh le do pháiste",
+    "tips4": "Cuir lá ar sos nuair a bhíonn an gnátham difriúil — ní chailltear aon réalta",
+    "rateActivity": "Rátáil an ghníomhaíocht",
+    "commentPlaceholder": "Nóta (roghnach)…",
+    "cancel": "Cealaigh",
+    "save": "Sábháil",
+    "moveUp": "Bog suas",
+    "moveDown": "Bog síos",
+    "printWeekDocTitle": "Plean na seachtaine — {{name}}",
+    "printMyDaysDocTitle": "Mo laethanta"
+  },
+  "childFallback": "Páiste",
+  "noChildren": "Níl aon pháiste curtha leis fós.",
+  "loading": "Ag lódáil…",
+  "retry": "Bain triail eile as",
+  "errors": {
+    "signInRequired": "Logáil isteach le hInniu a fheiceáil",
+    "loadChildren": "Níorbh fhéidir na páistí a lódáil",
+    "loadLog": "Níorbh fhéidir an log a lódáil. Bain triail eile as.",
+    "saveOrder": "Níorbh fhéidir an t-ord a shábháil",
+    "updateActivity": "Níorbh fhéidir an ghníomhaíocht a nuashonrú",
+    "undo": "Níorbh fhéidir é a chur ar ceal",
+    "changeStatus": "Níorbh fhéidir an stádas a athrú",
+    "adjustTime": "Níorbh fhéidir na hamanna a choigeartú",
+    "selectChild": "Roghnaigh páiste ar dtús",
+    "custodyDisabled": "Níl plean coimeádta casta air",
+    "loadWeek": "Níorbh fhéidir an tseachtain a lódáil",
+    "saveRating": "Níorbh fhéidir an rátáil a shábháil",
+    "ratingScoreOrEmotion": "Roghnaigh rátáil nó cárta mothúcháin",
+    "ratingScoreRange": "Caithfidh an rátáil a bheith idir 1 agus 10",
+    "ratingInvalidEmotion": "Cárta mothúcháin neamhbhailí",
+    "ratingActivityNotFound": "Níor aimsíodh an ghníomhaíocht",
+    "ratingNotAllowed": "Níl rátáil ceadaithe don pháiste seo ar an ngníomhaíocht seo",
+    "ratingParentScoreRange": "Caithfidh an rátáil a bheith idir 1 agus 5",
+    "ratingParentDisabled": "Níl rátáil tuismitheora casta air don ghníomhaíocht seo",
+    "dayPaused": "Tá an lá ar sos",
+    "dailyLogItemRequired": "Tá daily_log_item_id de dhíth",
+    "invalidTimerMinutes": "Nóiméid neamhbhailí. Luachanna ceadaithe: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Gan aon ghníomhaíocht inniu!",
+    "noScheduleDay": "Gan ghnátham ar an lá seo",
+    "addToWeekSchedule": "Cuir gníomhaíochtaí le plean na seachtaine le logaí a chruthú go huathoibríoch.",
+    "noScheduleSelected": "Gan ghnátham don lá roghnaithe.",
+    "thisDay": "an lá seo",
+    "today": "inniu",
+    "noChildrenTitle": "Níl aon pháiste curtha leis",
+    "addFirstChild": "Cuir do chéad pháiste leis ar Bhaile le tosú!",
+    "goToDashboard": "Téigh abhaile",
+    "goToWeekSchedule": "📅 Téigh go plean na seachtaine"
+  },
+  "nav": {
+    "prevWeek": "An tseachtain roimhe seo",
+    "prevDay": "An lá roimhe seo",
+    "nextDay": "An chéad lá eile",
+    "nextWeek": "An chéad tseachtain eile",
+    "pickDate": "Roghnaigh dáta",
+    "todayBtn": "Inniu",
+    "undoBump": "Cealaigh an coigeartú ama deireanach"
+  },
+  "activity": {
+    "markDone": "Marcáil déanta",
+    "undoMark": "Cealaigh an marc",
+    "rate": "⭐ Rátáil",
+    "setRating": "Socraigh rátáil",
+    "changeRating": "Athraigh an rátáil",
+    "dragReorder": "Tarraing le hathordú",
+    "completeAllInSection": "Críochnaigh gach rud in {{section}}",
+    "completeAllBtn": "✅ Marcáil gach rud déanta",
+    "defaultName": "Gníomhaíocht",
+    "undoneToast": "↩️ Marcáil gan déanamh"
+  },
+  "pause": {
+    "confirmPause": "Cuir an lá seo ar sos? Ní chomhairfear na gníomhaíochtaí go diúltach.",
+    "confirmUnpause": "Cuir an lá seo ar siúl arís?",
+    "pausedToast": "😴 Lá ar sos",
+    "unpausedToast": "✅ Lá ar siúl arís",
+    "dayTitle": "Lá saor",
+    "banner": "Tá an lá seo ar sos (mar shampla lá tinnis nó saoire). Ní chomhairfear na gníomhaíochtaí go diúltach.",
+    "reactivate": "✅ Cuir an lá ar siúl arís",
+    "pauseBtn": "😴 Cuir an lá seo ar sos (lá tinnis / lá saor)"
+  },
+  "bump": {
+    "noItems": "Níl aon ghníomhaíocht gan tic le ham is féidir a bhogadh",
+    "moved": "⏩ Bogadh {{count}} ghníomhaíocht{{suffix}} ar aghaidh {{minutes}} nóim",
+    "movedOne": "",
+    "movedMany": "aí",
+    "undoToast": "↩️ Coigeartú ama curtha ar ceal",
+    "title": "Bog gach rud atá le teacht ar aghaidh",
+    "adjustHint": "Coigeartaíonn sé amanna ar ghníomhaíochtaí gan tic",
+    "minutesTitle": "Bog ar aghaidh {{minutes}} nóim",
+    "undoBtn": "↩ Cealaigh"
+  },
+  "retrofill": {
+    "title": "Ag líonadh an ghnáthaimh siar",
+    "description": "Tá tú ag líonadh gnáthaimh i ndiaidh an lae. Marcáil gníomhaíochtaí déanta — sábháiltear iad leis an dáta ceart."
+  },
+  "rating": {
+    "childMood": "Meon an pháiste",
+    "parentScore": "Rátáil an tuismitheora",
+    "noMoodCards": "Gan chártaí mothúcháin fós",
+    "saved": "⭐ Rátáil sábháilte!",
+    "labels": [
+      "",
+      "Deacair 😓",
+      "Ceart go leor 😐",
+      "Go maith 😊",
+      "Iontach 😄",
+      "Ar fheabhas! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Sláinteachas",
+    "mat": "Bia",
+    "skola": "Scoil",
+    "lek": "Súgradh",
+    "rorelse": "Gluaiseacht",
+    "vila": "Sos",
+    "social": "Sóisialta"
+  },
+  "legend": {
+    "colorCoding": "Cód dathanna:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Gach gníomhaíocht déanta!",
+    "completedOf": "{{completed}} as {{total}} gníomhaíocht déanta"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Ticte: {{name}}",
+    "undo": "Cealaigh"
+  },
+  "emotions": {
+    "title": "💛 Mothúcháin inniu",
+    "noCards": "Gan chártaí mothúcháin fós",
+    "sliderResponses": "Sleamhnán: {{count}} freagra{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "í",
+    "sliderAvg": " (meán {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Ag ullmhú forbhreathnú na seachtaine...",
+    "preparingCustody": "Ag ullmhú mo laethanta…",
+    "noMyDays": "Níl aon lá agatsa an tseachtain seo",
+    "weekScheduleTitle": "{{name}} — Plean na seachtaine",
+    "myDaysTitle": "{{name}} — Mo laethanta"
+  }
+}

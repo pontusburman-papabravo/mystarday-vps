@@ -55,7 +55,13 @@ describe('locale backward compatibility matrix', () => {
     ['lt', 'lt-LT'],
     ['lv-LV', 'lv-LV'],
     ['lv', 'lv-LV'],
-    ['is-IS', null],
+    ['is-IS', 'is-IS'],
+    ['is', 'is-IS'],
+    ['ga-IE', 'ga-IE'],
+    ['ga', 'ga-IE'],
+    ['mt-MT', 'mt-MT'],
+    ['mt', 'mt-MT'],
+    ['xx-XX', null],
   ];
 
   for (const [input, expected] of cases) {
@@ -165,9 +171,16 @@ describe('GET /api/i18n legacy aliases', () => {
   });
 
   it('/api/i18n/invalid returns 400', async () => {
-    const { status, body } = await fetchLocale('is-IS');
+    const { status, body } = await fetchLocale('xx-XX');
     assert.equal(status, 400);
     assert.ok(body.supported);
+    assert.equal(body.supported.includes('ga-IE'), true);
+  });
+
+  it('/api/i18n/is-IS returns Icelandic without making it a selector locale', async () => {
+    const { status, body } = await fetchLocale('is-IS');
+    assert.equal(status, 200);
+    assert.equal(body.auth?.login?.title, 'Skrá inn');
   });
 });
 

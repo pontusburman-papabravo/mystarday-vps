@@ -321,6 +321,14 @@
           "screenshots/google/lv/01-hem.png",
           "screenshots/google/lv/02-familj.png"
         ]
+      },
+      "is-IS": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/is-IS/feature.png",
+        "files": [
+          "screenshots/google/is-IS/01-hem.png",
+          "screenshots/google/is-IS/02-familj.png"
+        ]
       }
     }
   }

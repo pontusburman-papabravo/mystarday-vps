@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Għażliet — {{brand}}",
+  "title": "Għażliet",
+  "shellLead": "Profil, familja u app",
+  "familySettings": "Għażliet tal-familja",
+  "groups": {
+    "profile": {
+      "title": "Profil u kont",
+      "sub": "Dħul, PIN u kont"
+    },
+    "family": {
+      "title": "Familja",
+      "sub": "Isem u lingwa. In-nies jiġu mmaniġġjati taħt Familja."
+    },
+    "device": {
+      "title": "Dan l-apparat",
+      "sub": "Telefon tat-tifel, telefon tal-kbar jew telefon kondiviż"
+    },
+    "appearance": {
+      "title": "Dehra",
+      "sub": "Tema skura jew ċara"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Notifiki, messaġġi u ħarsien"
+    },
+    "premium": {
+      "title": "Abbonament",
+      "sub": "Premium, xiri u ħlasijiet"
+    }
+  },
+  "appearance": {
+    "dark": "Skur",
+    "light": "Ċar",
+    "backToSettings": "← Lura lejn l-għażliet"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Ippjanar",
+      "sub": "Ibni l-kontenut jew ippjana l-ġimgħa tat-tfal tiegħek."
+    },
+    "rewards": {
+      "title": "Premjijiet",
+      "sub": "Stilel, premjijiet u s-senduq tal-familja."
+    },
+    "calendar": {
+      "title": "Kalendarju",
+      "sub": "Veduta tax-xahar għat-tfal kollha"
+    },
+    "activities": {
+      "title": "Attivitajiet",
+      "sub": "Immaniġġja l-attivitajiet tat-tfal tiegħek"
+    },
+    "assignSchedule": {
+      "title": "Assenja pjan",
+      "sub": "Ikkopja l-pjan għat-tifel"
+    },
+    "dailyLog": {
+      "title": "Illum",
+      "sub": "Segwi l-ġurnata tat-tifel tiegħek — imla l-istilel wara"
+    },
+    "treasureChest": {
+      "title": "It-teżor",
+      "sub": "Premjijiet u stilel"
+    },
+    "childSettings": {
+      "title": "Għażliet tat-tifel",
+      "sub": "Veduta, PIN u adattament"
+    },
+    "familyChild": {
+      "title": "Għażliet tat-tifel",
+      "sub": "Pjan, veduta, PIN u adattament"
+    },
+    "notifications": {
+      "title": "Notifiki",
+      "sub": "Tfakkiriet u messaġġi"
+    },
+    "schedule": {
+      "title": "Pjan tal-ġimgħa",
+      "sub": "Ippjana u adatta l-ġranet tat-tfal tiegħek"
+    },
+    "library": {
+      "title": "Librerija",
+      "sub": "Pjanijiet, attivitajiet u premjijiet għall-familja tiegħek"
+    },
+    "family": {
+      "title": "Familja",
+      "sub": "Tfal, kbar u edukaturi"
+    }
+  },
+  "backToPlanning": "← Lura lejn l-Ippjanar",
+  "avatar": {
+    "title": "Ritratt tal-profil",
+    "description": "Ir-ritratt tiegħek jidher lit-tifel tiegħek taħt In-nies tiegħi u fil-paġna tal-Familja.",
+    "changePhoto": "Ibdel ir-ritratt",
+    "addPhoto": "Żid ritratt",
+    "removePhoto": "Neħħi r-ritratt",
+    "saved": "Ir-ritratt tal-profil ġie ssejvjat!",
+    "removed": "Ir-ritratt tal-profil tneħħa",
+    "saveFailed": "Ma stajtx insalva",
+    "removeFailed": "Ma stajtx inneħħi"
+  },
+  "nativeAccount": {
+    "title": "Kont",
+    "sub": "Aqleb għad-dħul tat-tifel tiegħek jew oħroġ għalkollox mill-app."
+  },
+  "account": {
+    "title": "Kont u dħul",
+    "appleLinked": "Kont Apple marbut",
+    "googleLinked": "Kont Google marbut",
+    "appleLinkedOnIosHint": "Rbat il-kont Apple tiegħek fuq iPhone. Biex tidħol hawn, żid kelma tas-sigurtà hawn taħt.",
+    "googleLinkedElsewhereHint": "Rbat il-kont Google tiegħek fuq apparat ieħor. Biex tidħol hawn, żid kelma tas-sigurtà hawn taħt.",
+    "newPassword": "Kelma tas-sigurtà ġdida",
+    "confirmPassword": "Ikkonferma l-kelma tas-sigurtà",
+    "minCharsPlaceholder": "Mill-inqas 8 karattri",
+    "repeatPasswordPlaceholder": "Erġa' daħħal l-kelma tas-sigurtà",
+    "savePassword": "Issejvja l-kelma tas-sigurtà",
+    "passwordForNonApple": "Biex tidħol mingħajr Apple",
+    "changePasswordHint": "Ibdel l-kelma tas-sigurtà tiegħek biex iżżomm l-aċċess għall-kont tiegħek.",
+    "currentPassword": "Kelma tas-sigurtà attwali",
+    "confirmNewPassword": "Ikkonferma l-kelma tas-sigurtà l-ġdida",
+    "changePassword": "Ibdel l-kelma tas-sigurtà",
+    "linkApple": "Orbot kont Apple",
+    "unlinkApple": "Neħħi r-rabta tal-kont Apple",
+    "linkGoogle": "Orbot kont Google",
+    "unlinkGoogle": "Neħħi r-rabta tal-kont Google",
+    "changeEmail": "Ibdel l-indirizz tal-imejl",
+    "newEmail": "Indirizz tal-imejl ġdid",
+    "yourPassword": "Il-kelma tas-sigurtà tiegħek",
+    "confirmWithPassword": "Ikkonferma bil-kelma tas-sigurtà",
+    "sendConfirmLink": "Ibgħat il-ħolqa tal-konferma",
+    "passwordsMismatch": "Il-kliem tas-sigurtà ma jaqblux",
+    "passwordMinLength": "Il-kelma tas-sigurtà trid ikollha mill-inqas 8 karattri",
+    "saving": "Qed jiġi ssejvjat…",
+    "passwordNowActive": "✓ Il-kelma tas-sigurtà issa attiva",
+    "somethingWrong": "Xi ħaġa marret ħażin. Erġa' pprova.",
+    "somethingWrongShort": "Xi ħaġa marret ħażin",
+    "appleSignInUnavailable": "Id-dħul b'Apple mhux disponibbli fuq dan l-apparat.",
+    "googleSignInUnavailable": "Id-dħul b'Google mhux disponibbli fuq dan l-apparat.",
+    "linking": "Qed jorbot…",
+    "appleAlreadyLinked": "Dan il-kont Apple diġà marbut ma' kont ieħor.",
+    "googleAlreadyLinked": "Dan il-kont Google diġà marbut ma' kont ieħor.",
+    "couldNotLinkApple": "Ma stajtx norbot Apple:",
+    "couldNotLinkGoogle": "Ma stajtx norbot Google:",
+    "tryAgain": "Erġa' pprova.",
+    "unlinkApplePrompt": "Daħħal l-kelma tas-sigurtà tiegħek biex tneħħi r-rabta ta' Apple:",
+    "unlinkGooglePrompt": "Daħħal l-kelma tas-sigurtà tiegħek biex tneħħi r-rabta ta' Google:",
+    "removing": "Qed jitneħħa…",
+    "couldNotUnlink": "Ma stajtx inneħħi r-rabta",
+    "invalidEmail": "Daħħal indirizz tal-imejl validu",
+    "sending": "Qed jintbagħat…",
+    "linkSentTo": "Il-ħolqa ntbagħtet lil {{email}}",
+    "passwordChanged": "Il-kelma tas-sigurtà inbidlet!",
+    "linkAppleBtn": "🍎 Orbot kont Apple",
+    "linkGoogleBtn": "G Orbot kont Google",
+    "emailUpdated": "L-imejl tiegħek ġie aġġornat! Issa tista' tidħol bl-indirizz il-ġdid tiegħek.",
+    "passwordSet": "Il-kelma tas-sigurtà ġiet issettjata. Issa tista' tidħol bl-imejl u l-kelma tas-sigurtà.",
+    "errors": {
+      "invalidAppleToken": "Token tal-identità ta' Apple mhux validu",
+      "invalidGoogleToken": "Token tal-identità ta' Google mhux validu",
+      "appleAlreadyLinkedThis": "Kont Apple diġà marbut ma' dan il-kont",
+      "googleAlreadyLinkedThis": "Kont Google diġà marbut ma' dan il-kont",
+      "passwordRequiredUnlink": "Il-kelma tas-sigurtà hija meħtieġa biex tneħħi r-rabta tal-kont",
+      "setPasswordBeforeUnlink": "Issettja kelma tas-sigurtà qabel ma tneħħi r-rabta tal-kont",
+      "emailPasswordRequired": "Indirizz tal-imejl ġdid u kelma tas-sigurtà huma meħtieġa",
+      "setPasswordBeforeEmail": "Issettja kelma tas-sigurtà qabel ma tkun tista' tibdel l-indirizz tal-imejl",
+      "emailAlreadyRegistered": "Dan l-imejl diġà rreġistrat fuq kont ieħor",
+      "emailChangeLinkInvalid": "Ħolqa mhux valida jew skaduta. Itlob bidla ġdida fl-Għażliet.",
+      "emailChangeLinkUsed": "Din il-ħolqa diġà ntużat. Itlob bidla ġdida fl-Għażliet.",
+      "emailChangeLinkExpired": "Din il-ħolqa skadiet. Itlob bidla ġdida fl-Għażliet.",
+      "passwordAlreadySet": "Kelma tas-sigurtà diġà teżisti. Uża \"Ibdel l-kelma tas-sigurtà\" biex taġġornaha.",
+      "emailAllOff": "In-notifiki kollha bl-imejl mitfija. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+      "weeklyEmailOff": "Mhux se nibagħtu aktar sommarji tal-ġimgħa fl-imejl tiegħek. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+      "redeemEmailOff": "Mhux se nibagħtu aktar imejls meta t-tifel irid jitlob premju. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+      "passwordCurrentAndNew": "Il-kelma tas-sigurtà attwali u l-ġdida huma meħtieġa",
+      "appleLinkLoginRequired": "Trid tkun idħolt biex torbot kont Apple",
+      "googleLinkLoginRequired": "Trid tkun idħolt biex torbot kont Google"
+    }
+  },
+  "toast": {
+    "saved": "Issejvjat!",
+    "savedCheck": "✅ Issejvjat!",
+    "saveFailedRetry": "Ma stajtx insalva. Erġa' pprova.",
+    "networkError": "Żball tan-netwerk"
+  },
+  "parentPin": {
+    "title": "Kodiċi PIN",
+    "security": "Sigurtà",
+    "hasPinDescription": "Il-PIN personali tiegħek jipproteġi l-mod tal-ġenitur — it-tfal ma jistgħux joħorġu mill-mod tat-tifel mingħajr il-PIN tiegħek.",
+    "noPinDescription": "Issettja PIN tiegħek ta' 4 ċifri — it-tfal ma jistgħux joħorġu mill-mod tat-tifel mingħajr il-PIN tiegħek.",
+    "choosePin": "Agħżel PIN ta' 4 ċifri",
+    "confirmPin": "Ikkonferma l-PIN",
+    "changePinBack": "← Ibdel il-PIN",
+    "enterCurrentPin": "Daħħal il-PIN attwali",
+    "forgotPin": "Insejt il-PIN?",
+    "chooseNewPin": "Agħżel PIN ġdid",
+    "confirmNewPin": "Ikkonferma l-PIN il-ġdid",
+    "forgotIntro": "Daħħal l-kelma tas-sigurtà tiegħek biex tisettja PIN ġdid.",
+    "yourPassword": "Il-kelma tas-sigurtà tiegħek",
+    "verify": "Ivverifika",
+    "keypadAria": "Tastiera tan-numri",
+    "confirmKeypadAria": "Tastiera tal-konferma tal-PIN",
+    "pinKeypadAria": "Tastiera tal-PIN",
+    "newPinKeypadAria": "Tastiera tal-PIN il-ġdid",
+    "confirmNewPinKeypadAria": "Tastiera tal-konferma tal-PIN il-ġdid",
+    "pinsMismatch": "Il-PINs ma jaqblux — erġa' pprova",
+    "pinNowActive": "✓ Il-PIN issa attiv",
+    "wrongPin": "PIN ħażin — erġa' pprova",
+    "pinChanged": "✓ Il-PIN inbidel!",
+    "couldNotChangePin": "Ma stajtx nibdel il-PIN",
+    "sessionExpired": "Is-sessjoni skadiet — erġa' daħħal il-PIN attwali",
+    "enterPassword": "Daħħal l-kelma tas-sigurtà tiegħek",
+    "wrongPassword": "Kelma tas-sigurtà ħażina"
+  },
+  "push": {
+    "title": "Notifiki fuq it-telefon",
+    "lead": "Ikseb notifiki fuq it-telefon tiegħek — anki meta l-app magħluqa.",
+    "unsupported": "Il-brawżer tiegħek ma jappoġġjax notifiki fuq it-telefon.",
+    "toggleLabel": "Notifiki fuq it-telefon",
+    "toggleDescription": "Ixgħel biex tirċievi notifiki dwar l-attivitajiet tat-tfal tiegħek",
+    "toggleAria": "Ixgħel jew itfi n-notifiki fuq it-telefon",
+    "perChildHeading": "Notifiki għal kull tifel",
+    "typesHeading": "Liema notifiki?",
+    "typeScheduleTitle": "Tfakkira tal-pjan",
+    "typeScheduleHint": "10 min qabel l-attività",
+    "typeScheduleAria": "Ixgħel jew itfi t-tfakkira tal-pjan",
+    "typeInactivityTitle": "Tfakkira jekk ma jidħolx",
+    "typeInactivityHint": "18:00 jekk it-tifel ma jkunx daħal",
+    "typeInactivityAria": "Ixgħel jew itfi t-tfakkira jekk ma jidħolx",
+    "typeMilestoneTitle": "Mira tal-istilel",
+    "typeMilestoneHint": "F'10/25/50/100 stilla",
+    "typeMilestoneAria": "Ixgħel jew itfi l-mira tal-istilel",
+    "typeBackfillTitle": "Tfakkira biex timla l-bieraħ",
+    "typeBackfillHint": "09:00 jekk il-bieraħ nieqes",
+    "typeBackfillAria": "Ixgħel jew itfi t-tfakkira biex timla l-bieraħ",
+    "leadTimeLabel": "Tfakkira qabel",
+    "quietHoursLabel": "Sigħat kwieti",
+    "quietHoursTo": "sa",
+    "archiveTitle": "Arkivju tan-notifiki",
+    "archiveHint": "Notifiki fuq it-telefon li rnexxew mill-aħħar 7 ijiem",
+    "noChildren": "M'hemmx tfal marbuta.",
+    "childToggleAria": "Notifiki għal {{name}}",
+    "saved": "✅ Issejvjat!",
+    "saveFailed": "Ma stajtx insalva.",
+    "saveFailedRetry": "Ma stajtx insalva. Erġa' pprova.",
+    "requestingPermission": "⏳ Qed nitolbu l-permess…",
+    "enabled": "✅ In-notifiki fuq it-telefon inxtegħlu!",
+    "permissionDenied": "🚫 Permess miċħud. Ixgħlu fl-għażliet tal-brawżer jew tal-app.",
+    "iosNotInstalled": "Żid {{brand}} mal-iskrin tad-dar tiegħek għan-notifiki f'Safari.",
+    "genericError": "Xi ħaġa marret ħażin. Erġa' pprova.",
+    "disabled": "✅ In-notifiki fuq it-telefon intfew.",
+    "errors": {
+      "unsupportedBrowser": "In-notifiki fuq it-telefon mhumiex appoġġjati f'dan il-brawżer",
+      "permissionDeniedApp": "Il-permess tan-notifiki ġie miċħud fl-għażliet tal-app.",
+      "pushPluginMissing": "Il-plugin tan-notifiki nieqes fl-app. Mexxi npx cap sync ios u erġa' ibni.",
+      "platformMissing": "L-appoġġ tan-notifiki tal-pjattaforma nieqes",
+      "permissionDeniedBrowser": "Permess tan-notifiki miċħud. Ixgħlu fl-għażliet tal-brawżer tiegħek.",
+      "permissionDenied": "Permess tan-notifiki miċħud",
+      "subscriptionFailed": "L-abbonament falla",
+      "enableFailed": "Ma stajtx nixgħel in-notifiki fuq it-telefon",
+      "disableFailed": "Ma stajtx nitfi n-notifiki fuq it-telefon",
+      "iosNotInstalled": "Żid l-app mal-iskrin tad-dar tiegħek għan-notifiki f'Safari.",
+      "notConfigured": "In-notifiki fuq it-telefon mhumiex ikkonfigurati",
+      "invalidSubscription": "Abbonament tan-notifiki mhux validu",
+      "endpointRequired": "endpoint huwa meħtieġ",
+      "invalidToken": "Token mhux validu",
+      "invalidPlatform": "Il-pjattaforma trid tkun iOS jew Android",
+      "tokenRequired": "It-token u l-pjattaforma huma meħtieġa",
+      "parentNotFound": "Il-ġenitur ma nstabx"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Żid wiġit mal-iskrin tad-dar tiegħek?",
+      "lead": "Ara l-attività li jmiss fuq l-iskrin tad-dar tiegħek — mingħajr ma tiftaħ l-app.",
+      "step1": "Agħfas <strong class=\"text-navy\">Qabbad il-wiġit</strong> hawn fl-app.",
+      "step2": "Fuq l-iskrin tad-dar: agħfas fit-tul l-isfond → agħfas <strong class=\"text-navy\">+</strong> → fittex <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Terġax tistaqsi",
+      "connect": "Qabbad il-wiġit",
+      "later": "Mhux issa",
+      "openSettings": "Iftaħ l-għażliet"
+    },
+    "settings": {
+      "title": "Wiġits u aċċess malajr",
+      "description": "Wiġit personali = tifel wieħed. Wiġit tal-familja = diversi tfal. Agħżel tifel hawn jekk għandek aktar minn wieħed.",
+      "childPickerLabel": "Liema tifel għandu juri l-wiġit?",
+      "childFallbackName": "Tifel",
+      "statusLabel": "Stat:",
+      "statusConnected": "Imqabbad",
+      "statusReconnect": "Jeħtieġ jerġa' jitqabbad",
+      "privacyLabel": "Ħarsien:",
+      "privacyFull": "Sħiħ",
+      "privacyLimited": "Limitat",
+      "reconnectBtn": "Erġa' qabbad il-wiġit",
+      "guideBtn": "Uri l-gwida tal-wiġit tal-iskrin tad-dar",
+      "connecting": "Qed jitqabbad…",
+      "supportMissing": "L-appoġġ tal-wiġit nieqes f'din il-verżjoni. Aġġorna l-app.",
+      "addChildFirst": "Żid tifel mal-familja l-ewwel, imbagħad tista' tqabbad il-wiġit.",
+      "loginRequired": "Trid tkun idħolt biex tqabbad il-wiġit.",
+      "success": "Lest! Żid il-wiġit mal-iskrin tad-dar tiegħek (+ → {{brand}}) jekk għadek m'għamiltx.",
+      "pickChild": "Agħżel tifel fil-lista t'hawn fuq u erġa' pprova.",
+      "retryLater": "Ma stajtx inqabbad bħalissa. Erġa' pprova wara ftit.",
+      "networkError": "Ma stajtx inqabbad bħalissa. Iċċekkja n-netwerk tiegħek u erġa' pprova.",
+      "errors": {
+        "offlineUnavailable": "Il-wiġit għadu mhux mixgħul għall-familja tiegħek. Ikkuntattja l-appoġġ jekk għandu jkun mixgħul.",
+        "reauthRequired": "Is-sessjoni tiegħek teħtieġ tiġġedded. Oħroġ u erġa' idħol, imbagħad erġa' pprova tqabbad.",
+        "nativeConfigureFailed": "L-app ma setgħetx issalva l-ħolqa tal-wiġit. Agħlaq l-app għalkollox u erġa' iftaħha.",
+        "notEnabled": "Il-wiġit mhux mixgħul jew is-sessjoni tiegħek teħtieġ tiġġedded. Oħroġ u erġa' idħol."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Għażliet tan-notifiki",
+    "weeklySummary": "Sommarju tal-ġimgħa (il-Ħadd 21:00)",
+    "rewardRedemption": "Talbiet ta' premjijiet",
+    "newsletter": "Ittra tal-aħbarijiet bl-imejl",
+    "emailGlobal": "L-imejls kollha, kullimkien",
+    "save": "Issejvja l-għażliet tan-notifiki"
+  },
+  "reminders": {
+    "title": "Tfakkiriet",
+    "lead": "Issettja tfakkira ta' kuljum biex tiftakar tiċċekkja l-pjan.",
+    "daily": "Tfakkira ta' kuljum",
+    "hint": "Tirċievi tfakkira fil-ħin magħżul fil-jiem magħżula",
+    "toggleAria": "Ixgħel jew itfi t-tfakkira",
+    "time": "Ħin",
+    "days": "Jiem"
+  },
+  "familyName": {
+    "label": "Isem il-familja",
+    "placeholder": "eż. Il-familja Borg",
+    "autoFromParent": "Il-familja ta' {{name}}"
+  },
+  "sound": {
+    "label": "Ħoss mixgħul",
+    "hint": "Iddoqq ħoss meta t-tifel jimmarka attività fil-veduta tal-ġurnata tiegħu."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Kbar u aċċess",
+    "adultsBody": "Stieden ġenitur ieħor u ara min għandu aċċess taħt Familja.",
+    "openFamily": "Iftaħ il-Familja",
+    "pedagogsTitle": "👩‍🏫 Edukaturi",
+    "pedagogsBody": "L-istedini u l-aċċess tal-edukaturi jiġu mmaniġġjati taħt Familja."
+  },
+  "dataExport": {
+    "title": "Id-data tiegħi",
+    "body": "Niżżel kopja tad-data kollha tiegħek bħala CSV (fajl ZIP). Jinkludi profil, tfal, pjanijiet, premjijiet u storja tal-attivitajiet.",
+    "download": "Niżżel id-data tiegħi",
+    "preparing": "Qed nippreparaw in-niżżil…",
+    "started": "✅ In-niżżil beda!",
+    "rateLimited": "Tista' tesporta darba biss kull 24 siegħa.",
+    "failed": "Xi ħaġa marret ħażin. Erġa' pprova.",
+    "networkError": "Żball tan-netwerk. Erġa' pprova."
+  },
+  "deleteAccount": {
+    "title": "Ħassar il-kont",
+    "permanent": "⚠️ Azzjoni permanenti",
+    "loading": "Qed jitgħabba x'se jiġri…",
+    "storeBillingNote": "Jekk għandek abbonament permezz tal-App Store jew Google Play, ma jiġix ikkanċellat waħdu meta l-kont jitħassar. Immaniġġja jew ikkanċella l-abbonament fil-ħanut.",
+    "button": "Ħassar il-kont tiegħi",
+    "summarySelf": "Tneħħi l-kont tiegħek u l-aċċess tiegħek. Il-familja, it-tfal, il-pjanijiet u d-data tal-kbar l-oħra jibqgħu. Dan ma jistax jitneħħa lura.",
+    "summaryLastAdmin": "Int l-aħħar kbir b'aċċess amministrattiv. Il-familja kollha u d-data relatata kollha — tfal, pjanijiet, attivitajiet, stilel u premjijiet — titħassar minnufih u għal kollox. Dan ma jistax jitneħħa lura.",
+    "modalTitleSelf": "Ħalli l-familja",
+    "modalTitleFamily": "Ħassar il-familja u l-kont",
+    "modalTitleFallback": "Ħassar il-kont għal kollox",
+    "leadSelf": "Tneħħi biss il-kont tiegħek u l-aċċess tiegħek.",
+    "leadFamily": "Tħassar il-familja kollha u d-data relatata kollha.",
+    "sure": "Żgur?",
+    "cannotUndo": "Dan ma jistax jitneħħa lura.",
+    "storeBillingModal": "Abbonament permezz tal-App Store jew Google Play ma jiġix ikkanċellat waħdu — immaniġġjah fil-ħanut.",
+    "typeConfirmLabel": "Ikteb {{token}} biex tikkonferma",
+    "typeConfirmLabelHtml": "Ikteb <strong>RADERA</strong> biex tikkonferma",
+    "typeConfirmError": "Ikteb {{token}} biex tikkonferma.",
+    "confirmToken": "RADERA",
+    "cancel": "Ikkanċella",
+    "confirmSelf": "Ħalli l-familja",
+    "confirmFamily": "Ħassar kollox għal kollox",
+    "deleting": "Qed jitħassar...",
+    "deleted": "✅ Il-kont tħassar.",
+    "deleteFailed": "Xi ħaġa marret ħażin waqt it-tħassir.",
+    "networkError": "Żball tan-netwerk. Erġa' pprova.",
+    "bulletSelfAccount": "Il-kont tal-ġenitur tiegħek u l-aċċess tiegħek",
+    "bulletSelfOthersRemain": "Il-familja, it-tfal u l-kbar l-oħra jibqgħu",
+    "bulletParentAccount": "Il-kont tal-ġenitur",
+    "bulletAllChildren": "It-tfal kollha fil-familja",
+    "bulletAllSchedules": "Il-pjanijiet, l-attivitajiet u l-premjijiet kollha",
+    "bulletAllHistory": "L-istorja ta' kuljum u l-istilel kollha"
+  },
+  "support": {
+    "title": "Informazzjoni teknika għall-appoġġ",
+    "hint": "Ikkopja l-verżjoni tal-app, il-memorja temporanja u identifikatur tad-dijanjosi. L-ebda data personali jew kliem tas-sigurtà mhumiex inklużi.",
+    "copy": "Ikkopja l-informazzjoni teknika",
+    "copied": "Ikkupjat — waħħlu f'imejl lill-appoġġ.",
+    "copyFailed": "Ma stajtx nikkopja. Erġa' pprova."
+  },
+  "legal": {
+    "privacy": "Politika tal-privatezza",
+    "terms": "Termini tal-użu"
+  },
+  "consent": {
+    "title": "Kunsens u ħarsien",
+    "lead": "Immaniġġja l-għażliet tal-ħarsien tiegħek u l-għażliet tal-cookies tal-brawżer.",
+    "change": "Ibdel l-għażliet tal-kunsens",
+    "empty": "Għad m'hemmx għażliet tal-kunsens issejvjati.",
+    "modalTitle": "Kunsens u ħarsien",
+    "aria": "Għażliet tal-kunsens",
+    "intro": "Għinna nagħmlu {{brand}} saħansitra aħjar. Nużaw cookies tal-brawżer biex nifhmu kif tintuża l-app u nilħqu aktar familji. Agħfas kull kategorija biex taqleb ✓ Iva / ✗ Le / — Newtrali.",
+    "save": "Issejvja l-għażliet",
+    "saving": "Qed jiġi ssejvjat…",
+    "skip": "Aqbeż",
+    "closing": "Qed jingħalaq…",
+    "analytics": "Analitika u titjib",
+    "analyticsDesc": "Jgħinna nifhmu kif tintuża l-app biex nagħmluha aħjar.",
+    "ads": "Reklami",
+    "adsDesc": "Juri reklami magħmula għalik fuq Meta (Facebook/Instagram) u Google.",
+    "adUserData": "Data lill-pjattaformi",
+    "adUserDataDesc": "Taqsam id-data tiegħek mal-pjattaformi tar-reklami għal tqabbil aħjar.",
+    "adPersonalization": "Reklami personali",
+    "adPersonalizationDesc": "Tadatta r-reklami skont l-interessi u l-imġiba tiegħek.",
+    "email": "Imejl u suġġerimenti",
+    "emailDesc": "Imejls b'suġġerimenti, aħbarijiet u offerti minn {{brand}}."
+  },
+  "subscription": {
+    "title": "Abbonament",
+    "loading": "Qed jitgħabba l-abbonament…",
+    "loadFailed": "Ma stajtx intella' l-istatus tal-abbonament.",
+    "restore": "Irrestawra x-xiri",
+    "manage": "Immaniġġja l-abbonament",
+    "activate": "Attiva Premium",
+    "viewPlans": "Ara l-abbonamenti",
+    "howToActivate": "Kif tattiva Premium",
+    "webActivateHint": "Premium jiġi attivat fl-app tal-iPhone jew tal-Android.",
+    "restoreSuccess": "Ix-xiri ġie rrestawrat. Premium attiv.",
+    "restoreNone": "Ma nstab l-ebda xiri x'jiġi rrestawrat.",
+    "restoreFailed": "Ma stajtx nirrestawra x-xiri.",
+    "launchHoldTitle": "Aċċess tal-bidu — il-ħlas għadu mhux ħaj",
+    "launchHoldBody": "Tista' tkompli tuża l-app. Abbonament mhux meħtieġ waqt li l-ħlas mitfi.",
+    "complimentaryTitle": "B'xejn sa 31 ta' Diċembru 2026",
+    "complimentaryBody": "{{brand}} huwa b'xejn sa 31 ta' Diċembru 2026. M'hemmx bżonn abbonament jew metodu ta' ħlas. Din l-offerta ma tinbidilx waħedha f'abbonament imħallas.",
+    "complimentaryBodyUntil": "B'xejn sa {{date}}. M'hemmx bżonn abbonament jew metodu ta' ħlas, u din l-offerta ma ssirx waħedha abbonament imħallas. Mill-1 ta' Jannar 2027 tista' tagħżel jekk tabbonax.",
+    "launchTitle": "Aċċess tal-bidu",
+    "launchBody": "Tista' tuża l-app issa. Abbonament għadu mhux meħtieġ.",
+    "launchBodyUntil": "Tista' tuża l-app issa. Abbonament għadu mhux meħtieġ. Bidu mħallas: {{date}}.",
+    "noPremium": "M'hemmx Premium attiv",
+    "choosePlan": "Agħżel Premium ta' kull xahar jew Premium tas-sena biex tiftaħ l-aċċess sħiħ.",
+    "billingNotLive": "Abbonament għadu mhux meħtieġ. Il-ħlas għadu mhux ħaj.",
+    "activateBody": "Attiva Premium għal aċċess sħiħ għall-app.",
+    "grandfatheredTitle": "Premium inkluż għal dejjem",
+    "grandfatheredBody": "Il-familja tiegħek għandha aċċess sħiħ bla ħlas.",
+    "trialTitle": "Premium – prova b'xejn",
+    "ends": "Jispiċċa {{date}}",
+    "giftTitle": "Premium – karta tar-rigal",
+    "validUntil": "Validu sa {{date}}",
+    "graceTitle": "Premium – il-ħlas jeħtieġ aġġornament",
+    "graceBody": "L-aċċess għadu jaħdem, imma l-ħlas jeħtieġ jiġi rranġat fi {{store}}.",
+    "activeTitle": "Premium – {{plan}} permezz ta' {{store}}",
+    "planYearly": "pjan tas-sena",
+    "planMonthly": "pjan tax-xahar"
+  },
+  "theme": {
+    "title": "Dehra",
+    "darkMode": "Dehra skura",
+    "darkHint": "Ixgħel tema skura għal użu aktar komdu fid-dlam",
+    "toggleAria": "Ixgħel jew itfi d-dehra skura",
+    "colorBlind": "Tema għal min ma jarax il-kuluri sew",
+    "colorBlindHint": "Tadatta l-kuluri għal tipi differenti ta' nuqqas tal-kulur",
+    "colorNone": "Xejn (awtomatiku)",
+    "protanopia": "Protanopja (ma jarax l-aħmar)",
+    "deuteranopia": "Dewteranopja (ma jarax l-aħdar)",
+    "tritanopia": "Tritanopja (ma jarax l-blu)"
+  },
+  "viewMode": {
+    "dualAccess": "Għandek aċċess kemm għall-veduta tal-ġenitur kif ukoll għal dik tal-edukatur.",
+    "switchPedagog": "🌟 Aqleb għall-veduta tal-edukatur",
+    "switchParent": "👨‍👩‍👧 Aqleb għall-veduta tal-ġenitur"
+  },
+  "loadError": {
+    "title": "L-għażliet tal-familja ma setgħux jitgħabbew",
+    "fallback": "Ma stajtx intella' l-għażliet tal-familja bħalissa.",
+    "retry": "Erġa' pprova",
+    "retryIn": "Erġa' pprova fi {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Mhux se nibagħtu aktar sommarji tal-ġimgħa fl-imejl tiegħek. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+    "reward": "Mhux se nibagħtu aktar imejls meta t-tifel irid jitlob premju. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+    "all": "In-notifiki kollha bl-imejl mitfija. Tista' terġa' tixgħelhom taħt Għażliet → Notifiki.",
+    "invalidTitle": "Ħolqa mhux valida",
+    "invalidBody": "Il-ħolqa mhix valida jew skadiet.",
+    "errorTitle": "Xi ħaġa marret ħażin",
+    "errorBody": "Jekk jogħġbok erġa' pprova aktar tard jew mur fl-Għażliet fl-app."
+  },
+  "notifArchive": {
+    "retry": "Erġa' pprova",
+    "failedHidden": "Il-bgħit li falla jew li hu mitfi ma jidhirx hawn.",
+    "loading": "Qed jitgħabba l-arkivju tan-notifiki…",
+    "loadError": "Ma stajtx intella' l-arkivju tan-notifiki. Dan ma jfissirx li m'għandekx notifiki.",
+    "markAll": "Immarka kollox bħala moqri"
+  }
+}

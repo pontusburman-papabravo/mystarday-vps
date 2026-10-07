@@ -1,0 +1,4 @@
+/* App Store + system permission strings (ga) */
+"CFBundleDisplayName" = "Min Stjärndag"; // pragma: allowlist secret
+"NSCameraUsageDescription" = "[REDACTED] úsáideann an ceamara ionas gur féidir leat grianghraf próifíle nua a thógáil do do pháiste san aip. Sábháiltear an grianghraf ar chuntas an teaghlaigh agus ní fheiceann ach bhur dteaghlach é."; // pragma: allowlist secret
+"NSPhotoLibraryUsageDescription" = "[REDACTED] — tá rochtain ar do ghrianghraif de dhíth chun pictiúr atá ann cheana a roghnú mar ghrianghraf próifíle do do pháiste. Mar shampla, is féidir leat grianghraf as albam an tsamhraidh a phiocadh, agus feicfear é mar avatar do pháiste ar phlean an lae."; // pragma: allowlist secret

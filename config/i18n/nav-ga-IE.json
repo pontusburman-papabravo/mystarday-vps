@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Baile",
+    "planning": "Pleanáil",
+    "rewards": "Duaiseanna",
+    "forYou": "Duitse",
+    "family": "Teaghlach"
+  },
+  "settings": "Socruithe",
+  "mainAria": "Príomhthreoraíocht",
+  "notifications": "Fógraí",
+  "share": "Roinn",
+  "logout": "Logáil amach",
+  "switchUser": "Athraigh próifíl",
+  "returnToChild": "Ar ais chuig an bpáiste",
+  "darkMode": "Mód dorcha",
+  "lightMode": "Mód geal",
+  "overview": "Forbhreathnú",
+  "dailyLog": "Inniu",
+  "weekSchedule": "Plean na seachtaine",
+  "reports": "Tuairiscí",
+  "library": "Leabharlann",
+  "libraryAdvanced": "📚 Leabharlann (ardleibhéal)",
+  "pedagogNotes": "📝 Nótaí an oide",
+  "treasureChest": "An ciste",
+  "familySettings": "Teaghlach agus socruithe",
+  "capability": {
+    "subscription": "Síntiús",
+    "reports": "Tuairiscí",
+    "samarbete": "Comhoibriú le hoide",
+    "barnStod": "Tacaíocht bhreise"
+  },
+  "header": {
+    "notifications": "Fógraí",
+    "settings": "Socruithe",
+    "share": "Roinn",
+    "shareTitle": "Inis do theaghlach eile faoin aip!",
+    "shareAria": "Roinn"
+  },
+  "avatar": {
+    "switchPedagog": "Athraigh go dtí amharc an oide",
+    "subscription": "Síntiús",
+    "settings": "Socruithe",
+    "logout": "Logáil amach"
+  },
+  "mobile": {
+    "openMenu": "Oscail an roghchlár",
+    "darkModeTitle": "Mód dorcha",
+    "darkModeAria": "Athraigh an mód dorcha"
+  }
+}

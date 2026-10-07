@@ -222,7 +222,13 @@ function intlErrors(locale, errors) {
     const englishDate = new Intl.DateTimeFormat(CONTRACT.referenceLocale, {
       day: 'numeric', month: 'long', timeZone: 'UTC',
     }).format(new Date('2026-10-06T12:00:00Z'));
-    if (number === englishNumber) errors.push('number format matches the reference locale');
+    if (number === englishNumber) {
+      const resolved = new Intl.NumberFormat(tag).resolvedOptions().locale;
+      const englishResolved = new Intl.NumberFormat(CONTRACT.referenceLocale).resolvedOptions().locale;
+      // Same digits are a missing-locale failure only when Intl fell back to English.
+      // Irish and Maltese use the same decimal pattern as en-GB on purpose.
+      if (resolved === englishResolved) errors.push('number format matches the reference locale');
+    }
     if (date === englishDate) errors.push('date format matches the reference locale');
   }
 }

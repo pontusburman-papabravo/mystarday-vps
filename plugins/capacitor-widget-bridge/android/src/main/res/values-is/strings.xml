@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Næsta athöfn</string>
+    <string name="widget_routine_description">Kláraðu næsta skref í rútínunni án þess að opna appið allt.</string>
+    <string name="widget_cd_pictogram">Tákn athafnar</string>
+    <string name="widget_cd_complete">Merkja athöfn sem búna</string>
+    <string name="widget_cd_open_app">Opna í appinu</string>
+    <string name="widget_action_complete">Búið</string>
+    <string name="widget_action_open_timer">Opna teljara</string>
+    <string name="widget_action_show_steps">Sýna skref</string>
+    <string name="widget_action_open_app">Opna app</string>
+    <string name="widget_loading">Hleð…</string>
+    <string name="widget_all_done">Allt búið í dag!</string>
+    <string name="widget_nothing_now">Ekkert akkúrat núna</string>
+    <string name="widget_offline">Engin nettenging</string>
+    <string name="widget_reauth">Skráðu þig inn í appinu</string>
+    <string name="widget_revoked">Aðgangur tækis afturkallaður</string>
+    <string name="widget_switching">Skipti um barn…</string>
+    <string name="widget_feedback_done">✓ Búið!</string>
+    <string name="widget_feedback_done_for">✓ Búið fyrir %1$s</string>
+    <string name="widget_cd_child_prev">Fyrra barn</string>
+    <string name="widget_cd_child_next">Næsta barn</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d af %2$d búið</string>
+    <string name="widget_private_activity">Næsta skref</string>
+    <string name="widget_configure_title">Velja græju</string>
+    <string name="widget_configure_personal">Persónuleg (eitt barn)</string>
+    <string name="widget_configure_family">Fjölskylda (skipta um barn)</string>
+    <string name="widget_configure_save">Vista</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>
