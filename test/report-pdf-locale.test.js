@@ -81,7 +81,7 @@ function renderUnicode() {
         label: 'Report',
         child_name: 'Здравей',
         anonymous: false,
-        parent_summary: 'Γεια āčē ąčę õä',
+        parent_summary: 'Здравей Ααάέήίόύώ āčēģīķļņšūž ąčęėįšųūž äöõü',
       },
       fields: ['stars'],
       blocks,
@@ -127,7 +127,7 @@ describe('family report locale', () => {
 
     const unicode = await renderUnicode();
     const cmap = inflatedPdf(unicode).toLowerCase();
-    for (const sample of ['Здравей', 'Γεια', 'āčē', 'ąčę', 'õä']) {
+    for (const sample of ['Здравей', 'Ααάέήίόύώ', 'āčēģīķļņšūž', 'ąčęėįšųūž', 'äöõü']) {
       for (const ch of sample) {
         const hex = `<${ch.codePointAt(0).toString(16).padStart(4, '0')}>`;
         assert.equal(cmap.includes(hex), true, hex);

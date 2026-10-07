@@ -10,6 +10,7 @@ const {
   auditTranslationContract,
   plural,
   pluralCategory,
+  t,
   ALLOW_EMPTY_TRANSLATIONS,
   ALLOW_PLACEHOLDER_MISMATCH,
 } = require('../src/lib/i18n');
@@ -246,5 +247,201 @@ describe('translation contract', () => {
     assert.equal(plural('lv-LV', 'schedule.activityCount', 1), '1 aktivitāte');
     assert.equal(plural('lv-LV', 'schedule.activityCount', 2), '2 aktivitātes');
     assert.equal(plural('lv-LV', 'schedule.activityCount', 11), '11 aktivitāšu');
+  });
+
+  it('locks Bulgarian, Greek, Estonian, and Latvian plurals to Intl.PluralRules', () => {
+    const counts = [0, 1, 2, 3, 5, 10, 11, 20, 21, 22, 101, 111];
+    const packs = {
+      'bg-BG': {
+        'schedule.activityCount': { one: '{{count}} дейност', other: '{{count}} дейности' },
+        'onboarding.templateGroups.activityCount': { one: '{{count}} дейност', other: '{{count}} дейности' },
+        'onboarding.rewards.selectCount': {
+          one: '{{count}} награда е избрана ✓',
+          other: '{{count}} награди са избрани ✓',
+        },
+        'library.confirm.usedInSchedules': {
+          one: 'Използва се в {{count}} седмичен план.',
+          other: 'Използва се в {{count}} седмични плана.',
+        },
+        'reports.professional.times': { one: '{{count}} път', other: '{{count}} пъти' },
+        'child.login.lockoutSubMinutes': {
+          one: 'Опитай отново след {{count}} минута',
+          other: 'Опитай отново след {{count}} минути',
+        },
+        'child.activityTimer.minuteUnit': { one: 'минута', other: 'минути' },
+        'child.activityTimer.secondUnit': { one: 'секунда', other: 'секунди' },
+      },
+      'el-GR': {
+        'schedule.activityCount': { one: '{{count}} δραστηριότητα', other: '{{count}} δραστηριότητες' },
+        'onboarding.templateGroups.activityCount': { one: '{{count}} δραστηριότητα', other: '{{count}} δραστηριότητες' },
+        'onboarding.rewards.selectCount': {
+          one: '{{count}} ανταμοιβή επιλέχθηκε ✓',
+          other: '{{count}} ανταμοιβές επιλέχθηκαν ✓',
+        },
+        'library.confirm.usedInSchedules': {
+          one: 'Χρησιμοποιείται σε {{count}} εβδομαδιαίο πρόγραμμα.',
+          other: 'Χρησιμοποιείται σε {{count}} εβδομαδιαία προγράμματα.',
+        },
+        'reports.professional.times': { one: '{{count}} φορά', other: '{{count}} φορές' },
+        'child.login.lockoutSubMinutes': {
+          one: 'Δοκίμασε ξανά σε {{count}} λεπτό',
+          other: 'Δοκίμασε ξανά σε {{count}} λεπτά',
+        },
+        'child.activityTimer.minuteUnit': { one: 'λεπτό', other: 'λεπτά' },
+        'child.activityTimer.secondUnit': { one: 'δευτερόλεπτο', other: 'δευτερόλεπτα' },
+      },
+      'et-EE': {
+        'schedule.activityCount': { one: '{{count}} tegevus', other: '{{count}} tegevust' },
+        'onboarding.templateGroups.activityCount': { one: '{{count}} tegevus', other: '{{count}} tegevust' },
+        'onboarding.rewards.selectCount': {
+          one: 'Valitud {{count}} auhind ✓',
+          other: 'Valitud {{count}} auhinda ✓',
+        },
+        'library.confirm.usedInSchedules': {
+          one: 'Kasutusel {{count}} nädalaplaanis.',
+          other: 'Kasutusel {{count}} nädalaplaani.',
+        },
+        'reports.professional.times': { one: '{{count}} kord', other: '{{count}} korda' },
+        'child.login.lockoutSubMinutes': {
+          one: 'Proovi uuesti {{count}} minuti pärast',
+          other: 'Proovi uuesti {{count}} minuti pärast',
+        },
+        'child.activityTimer.minuteUnit': { one: 'minut', other: 'minutit' },
+        'child.activityTimer.secondUnit': { one: 'sekund', other: 'sekundit' },
+      },
+      'lv-LV': {
+        'schedule.activityCount': {
+          zero: '{{count}} aktivitāšu',
+          one: '{{count}} aktivitāte',
+          other: '{{count}} aktivitātes',
+        },
+        'onboarding.templateGroups.activityCount': {
+          zero: '{{count}} aktivitāšu',
+          one: '{{count}} aktivitāte',
+          other: '{{count}} aktivitātes',
+        },
+        'onboarding.rewards.selectCount': {
+          zero: '{{count}} balvu izvēlētas ✓',
+          one: '{{count}} balva izvēlēta ✓',
+          other: '{{count}} balvas izvēlētas ✓',
+        },
+        'library.confirm.usedInSchedules': {
+          zero: 'Lieto {{count}} nedēļas plānu.',
+          one: 'Lieto {{count}} nedēļas plānā.',
+          other: 'Lieto {{count}} nedēļas plānos.',
+        },
+        'reports.professional.times': {
+          zero: '{{count}} reižu',
+          one: '{{count}} reize',
+          other: '{{count}} reizes',
+        },
+        'child.login.lockoutSubMinutes': {
+          zero: 'Mēģini vēlreiz pēc {{count}} minūšu',
+          one: 'Mēģini vēlreiz pēc {{count}} minūtes',
+          other: 'Mēģini vēlreiz pēc {{count}} minūtēm',
+        },
+        'child.activityTimer.minuteUnit': { zero: 'minūšu', one: 'minūte', other: 'minūtes' },
+        'child.activityTimer.secondUnit': { zero: 'sekunžu', one: 'sekunde', other: 'sekundes' },
+      },
+    };
+
+    for (const [locale, keys] of Object.entries(packs)) {
+      const rules = new Intl.PluralRules(locale);
+      for (const count of counts) {
+        const category = rules.select(count);
+        assert.equal(pluralCategory(locale, count), category, `${locale} ${count}`);
+        const binary = count === 1 ? 'one' : 'other';
+        if (locale === 'lv-LV' && (count === 11 || count === 21)) {
+          assert.notEqual(category, binary, `${locale} ${count}`);
+        }
+      }
+      for (const [key, forms] of Object.entries(keys)) {
+        for (const count of counts) {
+          const category = rules.select(count);
+          const form = forms[category];
+          assert.equal(typeof form, 'string', `${locale} ${key} ${category}`);
+          const expected = form.replaceAll('{{count}}', String(count));
+          assert.equal(plural(locale, key, count, { count }), expected, `${locale} ${key} ${count}`);
+        }
+      }
+    }
+
+    assert.equal(
+      plural('lv-LV', 'onboarding.rewards.selectCount', 11, { count: 11 }),
+      '11 balvu izvēlētas ✓'
+    );
+    assert.equal(
+      t('lv-LV', 'onboarding.rewards.selectCount.none'),
+      'Izvēlies vismaz 1 balvu (0 izvēlētas)'
+    );
+    assert.notEqual(
+      plural('lv-LV', 'onboarding.rewards.selectCount', 0, { count: 0 }),
+      t('lv-LV', 'onboarding.rewards.selectCount.none')
+    );
+
+    const lithuanian = JSON.parse(fs.readFileSync(
+      path.join(__dirname, '../config/i18n/onboarding-lt-LT.json'),
+      'utf8'
+    ));
+    assert.equal(lithuanian.rewards.selectCount.zero, undefined);
+    assert.equal(lithuanian.rewards.selectCount.none, 'Pasirink bent 1 apdovanojimą (0 pasirinkta)');
+    assert.equal(lithuanian.rewards.selectCount.one, '{{count}} apdovanojimas pasirinktas ✓');
+    assert.equal(lithuanian.rewards.selectCount.few, '{{count}} apdovanojimai pasirinkti ✓');
+    assert.equal(lithuanian.rewards.selectCount.other, '{{count}} apdovanojimų pasirinkta ✓');
+    assert.equal(plural('lt-LT', 'onboarding.rewards.selectCount', 11, { count: 11 }), '11 apdovanojimų pasirinkta ✓');
+
+    const onboardingJs = fs.readFileSync(path.join(__dirname, '../public/js/onboarding.js'), 'utf8');
+    const onboardingHtml = fs.readFileSync(path.join(__dirname, '../public/onboarding.html'), 'utf8');
+    assert.match(onboardingJs, /onboarding\.rewards\.selectCount\.none/);
+    assert.doesNotMatch(onboardingJs, /selectCount\.zero/);
+    assert.match(onboardingHtml, /data-i18n="onboarding\.rewards\.selectCount\.none"/);
+  });
+
+  it('keeps Cyrillic, Greek, Estonian, Latvian, and Lithuanian glyphs through the locale chain', () => {
+    const root = path.join(__dirname, '..');
+    const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
+    const samples = [
+      ['src/locales/bg-BG.json', /[А-Яа-я]/, 'Здравей'],
+      ['src/locales/el-GR.json', /[Α-Ωα-ωάέήίόύώ]/, 'Γεια'],
+      ['src/locales/et-EE.json', /[äöõü]/, 'Täna'],
+      ['src/locales/lv-LV.json', /[āčēģīķļņšūž]/, 'Šodien'],
+      ['src/locales/lt-LT.json', /[ąčęėįšųūž]/, 'Šiandien'],
+      ['scripts/android/l10n/res/values-bg/strings.xml', /[А-Яа-я]/, 'Няма връзка'],
+      ['scripts/android/l10n/res/values-el/strings.xml', /[Α-Ωα-ω]/, 'Χωρίς σύνδεση'],
+      ['scripts/android/l10n/res/values-et/strings.xml', /[äöõü]/, 'Ühendust pole'],
+      ['scripts/android/l10n/res/values-lv/strings.xml', /[āčēģīķļņšūž]/, 'Nav savienojuma'],
+      ['scripts/android/l10n/res/values-lt/strings.xml', /[ąčęėįšųūž]/, 'Nėra ryšio'],
+      ['plugins/capacitor-widget-bridge/android/src/main/res/values-bg/strings.xml', /[А-Яа-я]/, 'Следваща дейност'],
+      ['plugins/capacitor-widget-bridge/android/src/main/res/values-el/strings.xml', /[Α-Ωα-ω]/, 'Επόμενη'],
+      ['plugins/capacitor-widget-bridge/android/src/main/res/values-et/strings.xml', /[äöõü]/, 'Järgmine tegevus'],
+      ['plugins/capacitor-widget-bridge/android/src/main/res/values-lv/strings.xml', /[āčēģīķļņšūž]/, 'Nākamā aktivitāte'],
+      ['plugins/capacitor-widget-bridge/android/src/main/res/values-lt/strings.xml', /[ąčęėįšųūž]/, 'Kita veikla'],
+      ['ios/App/WidgetRoutine/bg.lproj/Localizable.strings', /[А-Яа-я]/, 'Следваща'],
+      ['ios/App/WidgetRoutine/el.lproj/Localizable.strings', /[Α-Ωα-ω]/, 'Επόμενη δραστηριότητα'],
+      ['ios/App/App/et.lproj/InfoPlist.strings', /[äöõü]/, 'profiilipilt'],
+      ['ios/App/WidgetRoutine/lv.lproj/InfoPlist.strings', /[āčēģīķļņšūž]/, 'Nākamā'],
+      ['ios/App/App/lt.lproj/InfoPlist.strings', /[ąčęėįšųūž]/, 'nuotrauką'],
+      ['store/google/bg/listing.json', /[А-Яа-я]/, 'Визуални рутини'],
+      ['store/google/el-GR/listing.json', /[Α-Ωα-ω]/, 'ρουτίν'],
+      ['store/google/et/listing.json', /[äöõü]/, 'rutiin'],
+      ['store/google/lv/listing.json', /[āčēģīķļņšūž]/, 'rutīn'],
+      ['store/google/lt/listing.json', /[ąčęėįšųūž]/, 'rutin'],
+      ['store/apple/el/listing.json', /[Α-Ωα-ωάέήίόύώ]/, 'Οπτικές ρουτίνες'],
+    ];
+    for (const [rel, pattern, phrase] of samples) {
+      const text = read(rel);
+      assert.match(text, pattern, rel);
+      assert.ok(text.includes(phrase), `${rel} missing ${phrase}`);
+      assert.equal(text.includes('\uFFFD'), false, rel);
+    }
+    for (const locale of ['bg-BG', 'el-GR', 'et-EE', 'lv-LV']) {
+      const sub = t(locale, 'packageInterest.interestedSub');
+      assert.equal(/beta/i.test(sub), false, sub);
+      assert.notEqual(sub, t('en-GB', 'packageInterest.interestedSub'));
+      const subject = t(locale, 'support.receipt.subject');
+      assert.notEqual(subject, 'Your support conversation');
+    }
+    const greek = read('src/locales/el-GR.json') + read('config/i18n/home-el-GR.json');
+    assert.equal(greek.includes('?'), false);
   });
 });
