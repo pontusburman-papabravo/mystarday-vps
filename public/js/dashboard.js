@@ -769,7 +769,7 @@ function renderSchedule() {
   const dateLabel = getDayDateLabel();
   const countLabel = window.ScheduleI18n
     ? ScheduleI18n.activityCount(scheduleItems.length)
-    : hpt(scheduleItems.length === 1 ? 'schedule.activityCount.one' : 'schedule.activityCount.other', { count: scheduleItems.length });
+    : (window.I18n ? I18n.plural('schedule.activityCount', scheduleItems.length) : hpt('schedule.activityCount.other', { count: scheduleItems.length }));
   const dragHint = hpt('schedule.actions.dragCopyHint');
   const copyDayLabel = hpt('schedule.editor.copyDay');
   const copyChildLabel = hpt('schedule.editor.copyToChild');

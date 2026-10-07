@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Pagalba",
+    "openAria": "Atidaryti pagalbą",
+    "closeAria": "Uždaryti pagalbą"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Pagalba – Apžvalga",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Apžvalga",
+          "faqs": [
+            {
+              "q": "Ką daro 3 greiti mygtukai viršuje?",
+              "a": "<strong>⭐ Duoti papildomų žvaigždžių</strong> — ranka duok vaikui papildomų žvaigždžių. <strong>📋 Vienkartinė veikla</strong> — pridėk laikiną veiklą šiandienai. <strong>🏠 Laisva diena</strong> — pristabdo vaiko planą vienai dienai (pvz. liga, šventė)."
+            },
+            {
+              "q": "Kaip pažymėti veiklą atlikta?",
+              "a": "Bakstelėk veiklą vaiko kortelėje — ji pažymima iškart. Vaikas taip pat gali pažymėti savo <strong>vaiko vaizde</strong>."
+            },
+            {
+              "q": "Kas yra glausta vaiko kortelė?",
+              "a": "Glaustame režime vaiko kortelė rodo avatarą, vardą, žvaigždžių likutį ir dalių žymes. Išskleisk kortelę, jei nori daugiau detalių, nuorodos į planą ir pristabdymo mygtuko."
+            },
+            {
+              "q": "Kas yra laisva diena?",
+              "a": "<strong>🏠 Laisva diena</strong> pristabdo vaiko planą pasirinktai dienai — tinka, kai vaikas serga ar atostogauja. Vaikas mato planą kaip neaktyvų. Tą pačią dieną vėl įjungi tuo pačiu mygtuku."
+            },
+            {
+              "q": "Kas yra pristabdymo režimas?",
+              "a": "Bakstelėk pauzės piktogramą (⏸) vaiko kortelėje, kad pristabdytum vaiką. Veiklos rodomos kaip neaktyvios ir vaikas negaus žvaigždžių, kol vėl įjungsi."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Žvaigždės",
+          "faqs": [
+            {
+              "q": "Kaip vaikas gauna žvaigždes?",
+              "a": "Kiekviena atlikta veikla duoda <strong>1 žvaigždę</strong>. Vaikas žymi vaiko vaizde — arba tu gali žymėti dienos žurnale, kol bandote. Papildomų žvaigždžių duok mygtuku ⭐ virš vaiko kortelių."
+            },
+            {
+              "q": "Kaip veikia Lobių skrynia?",
+              "a": "Vaikas atidaro Lobių skrynią per 💎 skirtuką vaiko vaizde ir mato apdovanojimus su žvaigždžių kainomis. Kai sukaupia pakankamai, gali paprašyti apdovanojimo — tu jį patvirtini."
+            },
+            {
+              "q": "Kaip pridėti apdovanojimų?",
+              "a": "Meniu eik į <strong>Biblioteką</strong> → skirtuką „Apdovanojimai“. Pridėk savus apdovanojimus, pakeisk žvaigždžių kainą ir pasirink, kurie vaikai juos mato."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Planas",
+          "faqs": [
+            {
+              "q": "Kaip pridėti veiklą?",
+              "a": "Eik į <strong>Savaitės planą</strong> → pasirink vaiką → pasirink dieną → bakstelėk „+“ ir pridėk veiklą iš bibliotekos. Gali ieškoti tarp 63 standartinių veiklų."
+            },
+            {
+              "q": "Kaip nukopijuoti planą į kiekvieną dieną?",
+              "a": "Savaitės plane → „Kopijuoti iš…“ → pasirink šaltinį (savo planą arba standartinę biblioteką) → pažymėk dienas, į kurias nori kopijuoti."
+            },
+            {
+              "q": "Kas yra vaizdas Šiandien?",
+              "a": "Apžvalgos vaizdas „Šiandien“ atsinaujina pats, kai keiti planą. Savaitės plano pakeitimai iškart matomi Apžvalgoje ir vaiko vaizde."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Šeima",
+          "faqs": [
+            {
+              "q": "Kaip pakviesti kitą suaugusįjį?",
+              "a": "Eik į <strong>Šeima ir nustatymai → Šeimos nariai</strong> → bakstelėk „Pakviesti“. Pakviestas žmogus gauna el. laišką su prisijungimo nuoroda."
+            },
+            {
+              "q": "Kaip pamatyti vaiko dieną?",
+              "a": "Meniu atidaryk <strong>Šiandien</strong> — ten matai šiandienos veiklas taip, kaip jas matys vaikas. Tinka pirmą vakarą, kol vaikas dar neprisijungia."
+            },
+            {
+              "q": "Kaip vaikas prisijungia?",
+              "a": "Kai ateis metas: vaikas prisijungia adresu <strong>/child-login</strong> su vartotojo vardu ir PIN. Duomenis rasi skiltyje <strong>Šeima ir nustatymai → Vaikai</strong>."
+            },
+            {
+              "q": "Susisiekti su pagalba",
+              "a": "Rašyk mums <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — atsakome per 24 valandas."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Pagalba – Apdovanojimai",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Apdovanojimai",
+          "faqs": [
+            {
+              "q": "Kaip veikia apdovanojimų sistema?",
+              "a": "Vaikas renka žvaigždes atlikdamas veiklas. Kai žvaigždžių užtenka apdovanojimui, gali paprašyti jį išsikeisti — tu patvirtini arba atmeti."
+            },
+            {
+              "q": "Kaip pridėti naujų apdovanojimų?",
+              "a": "Meniu eik į <strong>Biblioteką</strong> → skirtuką „Apdovanojimai“ → ieškok arba bakstelėk „+ Pridėti apdovanojimą“. Taip pat gali kopijuoti tiesiai iš standartinės bibliotekos."
+            },
+            {
+              "q": "Kaip valdyti, ką mato kiekvienas vaikas?",
+              "a": "Kurdamas ar redaguodamas apdovanojimą pasirenki, kurie vaikai jį mato. Patogu, kai apdovanojimai skirtingi kiekvienam vaikui."
+            },
+            {
+              "q": "Kaip patvirtinti iškeitimo prašymą?",
+              "a": "Vaiko prašymas rodomas Apžvalgoje su žyme. Bakstelėk ir patvirtink. Žvaigždės nuskaičiuojamos pačios, ir vaikas pokytį mato iškart."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Žvaigždės",
+          "faqs": [
+            {
+              "q": "Kaip vaikas gauna žvaigždes?",
+              "a": "Kiekviena atlikta veikla duoda žvaigždes (pagal numatymą 1 žvaigždė už veiklą). Papildomų žvaigždžių gali duoti mygtuku ⭐ Apžvalgoje."
+            },
+            {
+              "q": "Kuo skiriasi žvaigždžių likutis ir dienos eiga?",
+              "a": "<strong>Žvaigždžių likutis</strong> = visas sukauptas likutis. <strong>Dienos eiga</strong> (žiedas aplink jaustuką) = kiek veiklų vaikas atliko šiandien. Tai skirtingi dalykai."
+            },
+            {
+              "q": "Kas nutinka, kai apdovanojimas iškeičiamas?",
+              "a": "Žvaigždės nuskaičiuojamos pačios iš vaiko paskyros. Vaikas pokytį iškart mato Lobių skrynioje. Istoriją matai Apdovanojimų puslapyje."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Pagalba – Savaitės planas",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Redaguoti planą",
+          "faqs": [
+            {
+              "q": "Kaip pridėti veiklą?",
+              "a": "Pasirink dieną → bakstelėk „+“ → ieškok ir pasirink veiklą. Gali pasirinkti <strong>kelis laikus iš karto</strong> (Rytas + Vakaras), ir veikla bus pridėta į visus."
+            },
+            {
+              "q": "Kaip sukurti naują veiklą tiesiai plane?",
+              "a": "Bakstelėk „+“ → ieškok → jei niekas netinka, paieškos lange atsiranda forma „Sukurti naują“. Užpildyk pavadinimą, jaustuką, žvaigždžių vertę ir žingsnius, jei reikia."
+            },
+            {
+              "q": "Kaip pakeisti veiklos pavadinimą ar jaustuką?",
+              "a": "Plane bakstelėk veiklos pavadinimą arba jaustuką → atsidaro redagavimo langas. Pakeitimai patys taikomi visiems vaikams ir dienoms."
+            },
+            {
+              "q": "Kaip nukopijuoti planą nuo kito vaiko?",
+              "a": "Bakstelėk „Kopijuoti iš…“ → pasirink šaltinį → pažymėk savaitės dienas, į kurias nori kopijuoti. Pasirink, ar perrašyti tai, kas jau yra."
+            },
+            {
+              "q": "Ar planas pats sinchronizuojasi su vaiko vaizdu?",
+              "a": "Taip! Savaitės plano pakeitimai iškart sinchronizuojasi su Apžvalgos vaizdu „Šiandien“ ir su vaiko vaizdu — ranka nieko atnaujinti nereikia."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Biblioteka",
+          "faqs": [
+            {
+              "q": "Kas yra standartinė biblioteka?",
+              "a": "Standartinėje bibliotekoje yra 63 paruoštos veiklos 6 kategorijose ir 5 planų šablonai. Bakstelėk „Greitai įdėti iš bibliotekos“, kad pridėtum jas į planą."
+            },
+            {
+              "q": "Kaip nukopijuoti standartinį planą?",
+              "a": "Skirtuke Planas → „Kopijuoti iš…“ → pasirink „Standartinė biblioteka“ → pasirink planą → pasirink dienas → kopijuok."
+            },
+            {
+              "q": "Kodėl vaikas nemato jokių veiklų?",
+              "a": "Patikrink, ar planas nustatytas tinkamam vaikui ir ar šiandienos dienai yra veiklų. Planas tuščias? Nukopijuok iš standartinės bibliotekos, kad greitai pradėtum."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Patarimai",
+          "faqs": [
+            {
+              "q": "Kaip sudėti gerą rutinos planą?",
+              "a": "Pradėk nuo 3–5 pastovių veiklų (pusryčiai, dantų valymas, namų darbai). Sudėk jas tinkama tvarka. Vaikai rutiną greitai išmoksta, kai ji lieka tokia pati."
+            },
+            {
+              "q": "Kas yra veiklų žingsniai?",
+              "a": "Prie veiklos gali pridėti žingsnius (pvz. „Nusiplauti rankas“, „Apsirengti pižamą“ po „Vakaro rutina“). Vaikas juos mato kaip vaizdinį gidą, bet visą veiklą pažymi vienu kartu."
+            },
+            {
+              "q": "Kiek veiklų per dieną?",
+              "a": "Rekomenduojame 4–8 veiklas. Per mažai — nėra ritmo; per daug — užgula. Pradėk nuo mažo ir pildyk."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Pagalba – Šeima ir nustatymai",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Vaikai",
+          "faqs": [
+            {
+              "q": "Kaip pridėti vaiką?",
+              "a": "Eik į Apžvalgą → bakstelėk „+ Pridėti vaiką“. Užpildyk vardą, jaustuką ir gimtadienį. Vaikas gauna planą pagal amžių."
+            },
+            {
+              "q": "Kaip pakeisti vaiko PIN?",
+              "a": "Bakstelėk vaiko kortelę → skirtuką „Nustatymai“ → „Keisti PIN“. Pasirink naują 4 skaitmenų PIN."
+            },
+            {
+              "q": "Vaikas turi daryti veiklas iš eilės — ar galiu tai pakeisti?",
+              "a": "Pagal numatymą žymėti galima laisvai. Jei nori vedamos tvarkos, eik į vaiko profilį → skirtuką <strong>Nustatymai</strong> → įjunk <strong>DABAR / PASKUI / VĖLIAU</strong>."
+            },
+            {
+              "q": "Kaip vaikas mato savo prisijungimo duomenis?",
+              "a": "Bakstelėk vaiko kortelę → skirtuką „Nustatymai“ → „Rodyti prisijungimo duomenis“. Matysi vaiko vartotojo vardą ir PIN."
+            },
+            {
+              "q": "Kaip pašalinti vaiką?",
+              "a": "Šeima → pasirink vaiką → skirtukas Nustatymai → „Ištrinti vaiką visam laikui“. Dėmesio: visa plano, žvaigždžių ir apdovanojimų istorija ištrinama ir to atšaukti negalima."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Suaugusieji",
+          "faqs": [
+            {
+              "q": "Kaip pakviesti kitą suaugusįjį?",
+              "a": "Eik į skirtuką <strong>Šeimos nariai</strong> → „Pakviesti“. Pakviestas žmogus gauna el. laišką su nuoroda paskyrai sukurti."
+            },
+            {
+              "q": "Ar galiu pasirinkti, kuriuos vaikus suaugęs mato?",
+              "a": "Taip! Siųsdamas kvietimą pasirenki, prie kurių vaikų jis turi prieigą. Vėliau gali pakeisti skiltyje Šeimos nariai → žmogus → Vaikų prieiga."
+            },
+            {
+              "q": "Kaip pašalinti šeimos narį?",
+              "a": "Bakstelėk žmogų Šeimos narių sąraše → „Pašalinti“. Prieigą prie šeimos jis praranda iškart."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Nustatymai",
+          "faqs": [
+            {
+              "q": "Kaip pakeisti slaptažodį?",
+              "a": "Meniu eik į <strong>Nustatymus</strong> (⚙️) → „Keisti slaptažodį“. Reikės dabartinio slaptažodžio."
+            },
+            {
+              "q": "Kaip įjungti pranešimus?",
+              "a": "Eik į Nustatymus → „Priminimai“ → įjunk pranešimus ir pasirink laikus. Pranešimams reikia naršyklės leidimo."
+            },
+            {
+              "q": "Susisiekti su pagalba",
+              "a": "Rašyk mums <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — atsakome per 24 valandas."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Pagalba – Veiklos",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Tvarkyti",
+          "faqs": [
+            {
+              "q": "Kas yra veikla?",
+              "a": "<strong>Veikla</strong> yra užduotis, kurią vaikas daro (pvz. „Išsivalyti dantis“). Veiklos duoda 1–5 žvaigždes ir gali turėti žingsnius. Surink jas bibliotekoje ir pridėk į vaikų planus."
+            },
+            {
+              "q": "Kaip sukurti naują veiklą?",
+              "a": "Bakstelėk „+ Nauja veikla“ → užpildyk pavadinimą, kategoriją (Higiena, Maistas, Žaidimas ir kt.), trukmę ir žvaigždžių vertę. Išsaugok — veikla atsiranda bibliotekoje."
+            },
+            {
+              "q": "Kaip pridėti veiklą į planą?",
+              "a": "Veiklos gyvena bibliotekoje. Eik į Savaitės planą → pasirink dieną → „+“ → pasirink veiklą, kurią nori pridėti."
+            },
+            {
+              "q": "Kaip pašalinti veiklą iš visų dienų?",
+              "a": "Bakstelėk ✕ prie veiklos → pasirink <strong>Kiekvieną savaitės dieną</strong>. Jei nori pašalinti tik šiandien arba vieną savaitės dieną (pvz. kiekvieną ketvirtadienį), yra atskiri pasirinkimai."
+            },
+            {
+              "q": "Kaip redaguoti veiklą?",
+              "a": "Bakstelėk veiklą sąraše → „Redaguoti“. Pakeitimai iškart taikomi kiekviename plane, kur veikla naudojama."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorijos",
+          "faqs": [
+            {
+              "q": "Kam reikalingos kategorijos?",
+              "a": "Kategorijos spalvina veiklas vaiko vaizde. <strong>Higiena</strong>=mėlyna, <strong>Maistas</strong>=geltona, <strong>Žaidimas</strong>=žalia, <strong>Mokykla</strong>=violetinė, <strong>Judėjimas</strong>=raudona, <strong>Poilsis</strong>=pilka, <strong>Buvimas kartu</strong>=oranžinė."
+            },
+            {
+              "q": "Kaip pasirinkti kategoriją?",
+              "a": "Kurdamas ar redaguodamas veiklą pasirink kategoriją iš sąrašo. Imk tą, kuri veiklą apibūdina geriausiai."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Pagalba – Biblioteka",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Skirtukai",
+          "faqs": [
+            {
+              "q": "Kokie skirtukai yra bibliotekoje?",
+              "a": "<strong>Planai</strong> — tavo planų šablonai. <strong>Veiklos</strong> — veiklų biblioteka su žingsniais. <strong>Apdovanojimai</strong> — tavo apdovanojimai. <strong>Standartinė biblioteka</strong> — 63 veiklos, 15 apdovanojimų ir 5 planai, iš kurių gali kopijuoti."
+            },
+            {
+              "q": "Kaip kopijuoti iš standartinės bibliotekos?",
+              "a": "Eik į skirtuką „Standartinė biblioteka“ → pasirink veiklą arba apdovanojimą → bakstelėk mygtuką 📥 ir nukopijuok į šeimos biblioteką. Planai kopijuojami per Savaitės planą → „Kopijuoti iš…“."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Veiklos",
+          "faqs": [
+            {
+              "q": "Kaip sukurti naują veiklą?",
+              "a": "Bakstelėk „+ Nauja veikla“ → užpildyk pavadinimą, jaustuką (pasirink arba įrašyk savą), žvaigždžių vertę ir žingsnius, jei reikia → išsaugok. Veikla išsaugoma bibliotekoje visai šeimai."
+            },
+            {
+              "q": "Kas yra žingsniai?",
+              "a": "Žingsniai yra nurodymai po veikla (pvz. „Nusiplauti rankas“ po „Higiena“). Vaikas juos mato kaip gidą, bet visą veiklą pažymi vienu bakstelėjimu."
+            },
+            {
+              "q": "Kaip redaguoti veiklą?",
+              "a": "Plane bakstelėk veiklos pavadinimą — atsidaro redagavimo langas. Pakeitimai (pavadinimas, jaustukas, žingsniai) patys taikomi visiems vaikams ir dienoms."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Apdovanojimai",
+          "faqs": [
+            {
+              "q": "Kaip pridėti apdovanojimą?",
+              "a": "Skirtukas „Apdovanojimai“ → ieškok apdovanojimo → bakstelėk „+ Sukurti naują“, jei jo nėra → užpildyk pavadinimą, jaustuką, žvaigždžių kainą → pasirink, kurie vaikai mato → išsaugok."
+            },
+            {
+              "q": "Kaip ieškoti apdovanojimų?",
+              "a": "Paieška vienu metu žiūri ir tavo apdovanojimus, ir standartinę biblioteką. Nėra atitikmenų? Mygtukas „Sukurti [pavadinimą]“ atidaro iš anksto užpildytą formą."
+            },
+            {
+              "q": "Ar vaikas gali turėti privačių apdovanojimų?",
+              "a": "Taip! Kurdamas apdovanojimą pasirenki, kurie vaikai jį mato. Patogu, kai apdovanojimai skirtingi kiekvienam vaikui."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Pagalba – Nustatymai",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Paskyra",
+          "faqs": [
+            {
+              "q": "Kaip pakeisti slaptažodį?",
+              "a": "Įvesk dabartinį slaptažodį ir naują → bakstelėk „Išsaugoti“. Slaptažodis turi būti bent 6 simboliai."
+            },
+            {
+              "q": "Kaip pakeisti el. pašto adresą?",
+              "a": "Įvesk naują el. pašto adresą → bakstelėk „Išsaugoti“. Naują adresą gali reikėti patvirtinti laišku."
+            },
+            {
+              "q": "Kaip ištrinti paskyrą?",
+              "a": "Dėl paskyros ištrynimo rašyk mums <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>. Sutvarkome per 48 valandas."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Pranešimai",
+          "faqs": [
+            {
+              "q": "Kaip įjungti priminimus?",
+              "a": "Įjunk jungiklį skiltyje „Priminimai“ → pasirink laiką ir dienas. Naršyklė turi leisti pranešimus."
+            },
+            {
+              "q": "Pranešimų negaunu, nors jie įjungti",
+              "a": "Patikrink, ar naršyklė leido pranešimus šiai svetainei. Eik į naršyklės nustatymus → Pranešimai → rask [REDACTED].se → Leisti."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Pagalba – Kalendorius",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendorius",
+          "faqs": [
+            {
+              "q": "Ką rodo kalendorius?",
+              "a": "Kalendorius duoda mėnesio apžvalgą: vaiko veiklos, iškeisti apdovanojimai ir svarbūs įvykiai."
+            },
+            {
+              "q": "Kaip judėti tarp mėnesių?",
+              "a": "Bakstelėk rodykles (< >) šalia mėnesio pavadinimo, kad pakeistum mėnesį."
+            },
+            {
+              "q": "Kaip pamatyti daugiau apie dieną?",
+              "a": "Bakstelėk datą ir pamatysi tos dienos veiklų ir žvaigždžių sąrašą."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Pagalba – Dienos žurnalas",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Žurnalas",
+          "faqs": [
+            {
+              "q": "Kas yra dienos žurnalas?",
+              "a": "Žurnalas rodo vaiko dieną — veiklas, pažymėjimus ir žvaigždes. Naudok jį, kad <strong>pamatytum iš anksto</strong>, ką mato vaikas, arba užpildytum vėliau."
+            },
+            {
+              "q": "Kaip filtruoti žurnalą?",
+              "a": "Viršuje filtre pasirink vaiką, kad matytum tik jo žurnalą. Taip pat gali filtruoti pagal datą."
+            },
+            {
+              "q": "Kaip toli atgal galiu žiūrėti?",
+              "a": "Žurnalas saugo duomenis nuo dienos, kai pradėjai naudoti [REDACTED]. Slink arba pasirink datą ir matysi senesnius duomenis. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Pagalba – Planas kiekvienai dienai",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Priskirti planą",
+          "faqs": [
+            {
+              "q": "Kas yra „Planas kiekvienai dienai“?",
+              "a": "Čia pasirenki, kuris savaitės planas aktyvus kiekvienam vaikui ir dienai. Patogu, kai darbo dienų ir savaitgalio rutinos skiriasi."
+            },
+            {
+              "q": "Ar vaikas gali turėti skirtingus planus darbo dienomis ir savaitgalį?",
+              "a": "Taip! Pasirink vieną planą pr–pn ir kitą št–sk. Bakstelėk dieną ir pasirink norimą planą."
+            },
+            {
+              "q": "Kas nutinka, jei dienai planas nepriskirtas?",
+              "a": "Jei dienai planas nepriskirtas, vaikas tą dieną nemato veiklų. Pasirūpink, kad kiekviena diena, kurią nori naudoti, turėtų planą."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Admin skydelis",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Apžvalga",
+          "faqs": [
+            {
+              "q": "Ką galiu daryti admin skydelyje?",
+              "a": "Admin skydelis duoda prieigą prie visų šeimų, naudotojų ir sistemos duomenų. Gali žiūrėti statistiką, tvarkyti paskyras ir moderuoti turinį."
+            },
+            {
+              "q": "Kaip rasti konkretų naudotoją?",
+              "a": "Naudok paiešką viršuje ir ieškok pagal el. paštą arba vardą. Bakstelėk šeimą, kad matytum detales."
+            },
+            {
+              "q": "Kaip archyvuoti šeimą?",
+              "a": "Bakstelėk šeimos kortelę → „Archyvuoti“. Archyvuotas šeimas galima atkurti, bet iki tol jos lieka neaktyvios."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Pagalba",
+          "faqs": [
+            {
+              "q": "Kaip matyti ateinančias pagalbos žinutes?",
+              "a": "Skirtuke „Pagalbos dėžutė“ matai kiekvieną žinutę, atsiųstą per kontaktų formą. Bakstelėk, kad perskaitytum visą tekstą ir atsakytum."
+            },
+            {
+              "q": "Kaip pažymėti bylą išspręsta?",
+              "a": "Bakstelėk bylą → „Pažymėti išspręsta“. Išspręstos bylos dingsta iš numatyto vaizdo, bet jas gali parodyti per „Rodyti išspręstas“."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Pagalba vaikui — {{brand}}",
+    "loadError": "Nepavyko įkelti puslapio."
+  },
+  "supportSvar": {
+    "pageTitle": "Tavo byla",
+    "title": "Tavo byla",
+    "intro": "Čia visas pokalbis. Rašyk apačioje, jei nori tęsti. Paprastas el. pašto atsakymas čia nerodomas.",
+    "sent": "Išsiųsta. Pamatysime toje pačioje byloje.",
+    "escalate": "Man reikia daugiau pagalbos iš žmogaus",
+    "placeholder": "Parašyk, kas vyksta…"
+  }
+}

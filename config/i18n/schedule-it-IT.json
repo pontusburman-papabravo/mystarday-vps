@@ -225,7 +225,7 @@
   "addActivity": "Attività",
   "emptySection": "Nessuna attività",
   "activityCount": {
-    "one": "1 attività",
+    "one": "{{count}} attività",
     "other": "{{count}} attività"
   },
   "loading": "Caricamento…",

@@ -378,6 +378,106 @@ const I18n = {
         "showOnFirstRun": true,
         "contentSource": "locale-files",
         "contentMap": "ro-RO.json"
+      },
+      {
+        "id": "bg-BG",
+        "nativeName": "Български",
+        "base": "bg",
+        "aliases": [
+          "bg",
+          "bg-bg"
+        ],
+        "inputAliases": [
+          "bg"
+        ],
+        "legacyJourneyTags": [
+          "bg"
+        ],
+        "experiencePack": "child_bg",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "bg-BG.json"
+      },
+      {
+        "id": "el-GR",
+        "nativeName": "Ελληνικά",
+        "base": "el",
+        "aliases": [
+          "el",
+          "el-gr"
+        ],
+        "inputAliases": [
+          "el"
+        ],
+        "legacyJourneyTags": [
+          "el"
+        ],
+        "experiencePack": "child_el",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "el-GR.json"
+      },
+      {
+        "id": "et-EE",
+        "nativeName": "Eesti",
+        "base": "et",
+        "aliases": [
+          "et",
+          "et-ee"
+        ],
+        "inputAliases": [
+          "et"
+        ],
+        "legacyJourneyTags": [
+          "et"
+        ],
+        "experiencePack": "child_et",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "et-EE.json"
+      },
+      {
+        "id": "lt-LT",
+        "nativeName": "Lietuvių",
+        "base": "lt",
+        "aliases": [
+          "lt",
+          "lt-lt"
+        ],
+        "inputAliases": [
+          "lt"
+        ],
+        "legacyJourneyTags": [
+          "lt"
+        ],
+        "experiencePack": "child_lt",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "lt-LT.json"
+      },
+      {
+        "id": "lv-LV",
+        "nativeName": "Latviešu",
+        "base": "lv",
+        "aliases": [
+          "lv",
+          "lv-lv"
+        ],
+        "inputAliases": [
+          "lv"
+        ],
+        "legacyJourneyTags": [
+          "lv"
+        ],
+        "experiencePack": "child_lv",
+        "availability": "public",
+        "showOnFirstRun": true,
+        "contentSource": "locale-files",
+        "contentMap": "lv-LV.json"
       }
     ]
   },
@@ -642,14 +742,15 @@ const I18n = {
   },
 
   /**
-   * Plural helper — keys at baseKey.one / baseKey.other
-   * @param {string} baseKey dot path without .one/.other
+   * Plural helper. The category comes from Intl.PluralRules.
+   * one/other is only the fallback when Intl.PluralRules is unavailable.
+   * @param {string} baseKey dot path without a plural suffix
    * @param {number} count
    * @param {Record<string, string|number>} [params]
    */
   plural(baseKey, count, params = {}) {
     const n = Number(count);
-    let category = n === 1 ? 'one' : 'other';
+    let category;
     try {
       category = new Intl.PluralRules(this.lang || this.DEFAULT_LOCALE).select(Number.isFinite(n) ? n : 0);
     } catch (_) {

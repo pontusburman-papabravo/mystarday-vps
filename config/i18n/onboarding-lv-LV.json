@@ -1,0 +1,605 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Solis {{current}} no {{total}}",
+    "back": "← Atpakaļ",
+    "next": "Nākamais solis →",
+    "continue": "Turpināt →",
+    "save": "Saglabāt",
+    "cancel": "Atcelt",
+    "loading": "Ielādē…",
+    "genericError": "Kaut kas nogāja greizi. Mēģini vēlreiz.",
+    "networkError": "Tīkla kļūda. Mēģini vēlreiz.",
+    "closeAria": "Aizvērt",
+    "childFallback": "Tavs bērns",
+    "addChildDone": "Gatavs! →",
+    "goForward": "Turpināt →",
+    "finishing": "Pabeidz…",
+    "recommended": "Ieteicams",
+    "optional": "Neobligāti"
+  },
+  "pageTitle": {
+    "welcome": "Laipni lūdzam — {{brand}}",
+    "ogTitle": "{{brand}} — Sāc 2 minūtēs",
+    "ogDescription": "Uzreiz saved bērna plānu un balvas"
+  },
+  "verifyEmail": {
+    "title": "Apstiprini e-pasta adresi",
+    "body": "Nosūtījām vēstuli uz {{email}}. Spied saiti vēstulē, lai aktivizētu kontu.",
+    "resend": "Sūtīt vēlreiz",
+    "resendSending": "Sūta…",
+    "resendSuccess": "✓ Nosūtīts!",
+    "resendSent": "Nosūtīts",
+    "resendError": "Kaut kas nogāja greizi. Mēģini vēlreiz."
+  },
+  "child": {
+    "title": "Pastāsti par savu bērnu",
+    "lead": "Izvēlies vārdu, emocijzīmi, dzimšanas dienu un plānu, kas der tavai ikdienas rutīnai.",
+    "nameLabel": "Bērna vārds",
+    "namePlaceholder": "piem. Ella",
+    "birthdayLabel": "Dzimšanas diena",
+    "birthdayOptionalHint": "(neobligāti — palīdz ieteikt piemērotu plānu)",
+    "yearPlaceholder": "Gads",
+    "monthPlaceholder": "Mēnesis",
+    "dayPlaceholder": "Diena",
+    "birthYearAria": "Dzimšanas gads",
+    "birthMonthAria": "Dzimšanas mēnesis",
+    "birthDayAria": "Dzimšanas diena",
+    "months": [
+      "Janvāris",
+      "Februāris",
+      "Marts",
+      "Aprīlis",
+      "Maijs",
+      "Jūnijs",
+      "Jūlijs",
+      "Augusts",
+      "Septembris",
+      "Oktobris",
+      "Novembris",
+      "Decembris"
+    ],
+    "emojiLabel": "Izvēlies emocijzīmi",
+    "customEmojiPlaceholder": "Vai ieraksti savu emocijzīmi…",
+    "emojiAriaLabel": "Izvēlēties emocijzīmi {{emoji}}",
+    "avatarLabel": "Neobligāti: profila foto",
+    "avatarHint": "Izvēlies foto no bibliotēkas vai uzņem jaunu.",
+    "avatarDefaultBtn": "✨ Noklusējuma attēls",
+    "avatarPickBtn": "📷 Izvēlēties foto",
+    "avatarLoading": "Ielādē…",
+    "avatarPreparing": "Sagatavo…",
+    "avatarUploadFailed": "Neizdevās augšupielādēt foto. Mēģini vēlreiz.",
+    "avatarReadFailed": "Neizdevās nolasīt attēlu",
+    "avatarAlt": "Bērna profila foto",
+    "scheduleLabel": "Izvēlies plānu",
+    "templatesLoading": "Ielādē plānus…",
+    "templatesLoadFailed": "Plānu veidnes šobrīd neizdevās ielādēt.",
+    "templatesRetryBtn": "Mēģini vēlreiz",
+    "nextBtn": "Nākamais solis →",
+    "creatingChild": "Izveido bērnu…",
+    "creatingSchedule": "Izveido plānu…",
+    "nameRequired": "Ievadi bērna vārdu",
+    "emojiRequired": "Izvēlies bērnam emocijzīmi",
+    "scheduleRequired": "Izvēlies plānu",
+    "childResumedToast": "Atradām bērnu no iepriekšējās reizes — turpinām ar plānu.",
+    "avatarSaveFailedToast": "Bērns izveidots, bet foto neizdevās saglabāt. Vari to pievienot sadaļā Ģimene.",
+    "scheduleCreateFailed": "Plānu neizdevās izveidot"
+  },
+  "activityGuide": {
+    "title": "Kā lietotnei palīdzēt {{childName}} ar šodienas aktivitātēm?",
+    "lead": "To vari mainīt jebkurā brīdī bērna iestatījumos.",
+    "stepLabel": "Solis {{current}} no {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Brīva secība",
+        "description": "Bērns var atzīmēt lietas jebkurā secībā."
+      },
+      "one_at_a_time": {
+        "title": "Viena lieta vienlaikus",
+        "description": "Lietotne palīdz bērnam koncentrēties uz nākamo soli."
+      },
+      "time_and_order": {
+        "title": "Skaidrs laiks un secība",
+        "description": "Lietotne palīdz ar nākamo soli un taimeri, ko tu iestati katrai aktivitātei."
+      }
+    },
+    "continueBtn": "Turpināt →",
+    "saving": "Saglabā…",
+    "selectError": "Izvēlies iespēju",
+    "saveError": "Neizdevās saglabāt izvēli"
+  },
+  "viewType": {
+    "title": "Kādu skatu redzēs {{childName}} tagad?",
+    "lead": "Izvēlies, kā plāns izskatās, kad bērns pieslēdzas. To vari mainīt jebkurā brīdī iestatījumos.",
+    "dayViewTitle": "Dienas skats",
+    "dayViewSubtitle": "Rīts · Vēlais rīts · Pēcpusdiena · Vakars",
+    "timelineViewTitle": "Tagad/Pēc tam/Vēlāk skats",
+    "timelineViewSubtitle": "Rāda tikai to, kas notiek tieši tagad",
+    "timelineNow": "TAGAD",
+    "timelineNext": "PĒC TAM",
+    "timelineThen": "VĒLĀK",
+    "mock": {
+      "wakeStretch": "Pamosties un izstaipīties",
+      "brushTeeth": "Tīri zobus",
+      "packBag": "Sakravā somu",
+      "preschool": "Uz pirmsskolu",
+      "freePlay": "Brīva rotaļa",
+      "dinner": "Vakariņas",
+      "bedtimeStory": "Pasaka pirms miega",
+      "preschoolShort": "Pirmsskola",
+      "play": "Rotaļa"
+    },
+    "dayViewHint": "Vari izvēlēties arī dienas skatu, ja bērnam labāk patīk krāsainas dienas daļas.",
+    "skipHint": "Izlaidīsi? Automātiski tiks izvēlēts dienas skats.",
+    "saving": "Saglabā skata izvēli…"
+  },
+  "scheduleReady": {
+    "title": "Plāns gatavs!",
+    "subtitle": "Esam sagatavojuši sākuma plānu bērnam {{childName}}.",
+    "subtitleWithTemplate": "Esam sagatavojuši plānu {{templateName}} bērnam {{childName}}. Tajā ir galvenie soļi, lai izdotos pašam.",
+    "templateFallback": "Plāns",
+    "daysWeek": "7 dienas / nedēļā",
+    "daysMonFri": "Pr–Pk",
+    "daysMonFriWeekend": "Pr–Pk + nedēļas nogale",
+    "socialProofTitle": "Vai zināji?",
+    "socialProofBody": "Vizuāls atbalsts bieži samazina ikdienas stresu pat par 30 % — un bērni ar skaidru rutīnu aizmieg ātrāk un mostas priecīgāki.",
+    "continueBtn": "Lieliski, ejam! →"
+  },
+  "rewards": {
+    "title": "Kā darbojas zvaigznes",
+    "checkOff": "Atzīmēt",
+    "star": "Zvaigzne",
+    "treasureChest": "Dārgumu lāde",
+    "intro": "Esam ielikuši jautras balvas. Izvēlies tās, uz kurām {{childName}} var tiekties!",
+    "introWithCount": "Esam ielikuši {{count}} jautras balvas. Izvēlies tās, uz kurām {{childName}} var tiekties!",
+    "selectCount": {
+      "none": "Izvēlies vismaz 1 balvu (0 izvēlētas)",
+      "zero": "{{count}} balvu izvēlētas ✓",
+      "one": "{{count}} balva izvēlēta ✓",
+      "other": "{{count}} balvas izvēlētas ✓"
+    },
+    "minOneError": "Izvēlies vismaz vienu balvu, lai turpinātu",
+    "saveBtn": "Saglabāt balvas →",
+    "saving": "Saglabā balvas…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Papildu pasaka",
+      "chooseDessert": "Izvēlies desertu",
+      "movieNight": "Filmu vakars",
+      "chooseDinner": "Izvēlies vakariņas",
+      "outing": "Izbrauciens",
+      "bakeTogether": "Cepam kopā",
+      "familyGameNight": "Ģimenes spēļu vakars",
+      "lateBedtime": "Paliec nomodā ilgāk",
+      "cinemaTrip": "Brauciens uz kino"
+    }
+  },
+  "handoff": {
+    "title": "Kā pieslēgties",
+    "lead": "{{childName}} pieslēdzas ar vārdu un PIN — bez parolēm.",
+    "childLoginLabel": "Bērna pieslēgšanās",
+    "usernameFallback": "lietotājvārds",
+    "pinLabel": "PIN",
+    "pinNote": "Pieraksti PIN — to vari mainīt iestatījumos.",
+    "pinResumeHint": "Lieto bērna PIN. Ja esi to aizmirsis, vari iestatīt jaunu ar pogu zemāk.",
+    "chooseCustomPin": "✏️ Izvēlies savu PIN",
+    "savePin": "Saglabāt PIN",
+    "savingPin": "Saglabā…",
+    "pinMustBe4": "PIN jābūt 4 cipariem",
+    "pinTooWeak": "Izvēlies stiprāku PIN (ne 1111, 2222 utt.)",
+    "pinSaveFailed": "Neizdevās saglabāt PIN",
+    "copyInfo": "📋 Kopēt datus",
+    "copied": "✓ Nokopēts!",
+    "copyManual": "Kopē manuāli:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nLietotājvārds: {{username}}\nPIN: {{pin}}\nLietotne: {{appUrl}}/child-login",
+    "emailLogin": "📧 Sūtīt uz e-pastu",
+    "emailSubject": "{{brand}} — Pieslēgšanās bērnam {{childName}}",
+    "emailBody": "Sveiki!\n\nŠeit ir pieslēgšanās dati {{brand}} bērnam {{childName}}:\n\nLietotājvārds: {{username}}\nPIN: {{pin}}\n\nAtver lietotni: {{appUrl}}/child-login\n\nAr cieņu,\n{{brand}}",
+    "emailFallbackAlert": "Pieslēgšanās bērnam {{childName}}:\nLietotājvārds: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Instalēt kā lietotni",
+    "installBody": "Pievieno {{brand}} sākuma ekrānam — darbojas kā īsta lietotne, arī bezsaistē, bez lietotņu veikaliem.",
+    "installInstructions": "iPhone: Kopīgot → Pievienot sākuma ekrānam · Android: ⋮ → Instalēt lietotni",
+    "parentTipTitle": "Padoms tev kā vecākam",
+    "parentTipLead": "Šovakar apsēdies kopā ar bērnu. Parādi Dārgumu lādi",
+    "parentTipEmphasis": "vispirms",
+    "parentTipTail": ", lai raisītu interesi — pēc tam pastāsti, ka lietotne ir {{childName}} paša dienas karte!",
+    "testChildLogin": "👶 Izmēģini bērna pieslēgšanos",
+    "continueAsParent": "Turpināt kā vecākam →",
+    "skipConfirmTitle": "Izlaist bērna pieslēgšanos?",
+    "skipConfirmBody": "Bērnam vajag PIN, lai pieslēgtos pašam. Ja to neizmēģināsi tagad, rīta rutīna var šķist grūtāka — pēc 24 stundām nosūtīsim atgādinājumu, ja bērns vēl nebūs mēģinājis.",
+    "skipConfirmPrimary": "👶 Izmēģini bērna pieslēgšanos",
+    "skipConfirmSecondary": "Izlaist tik un tā"
+  },
+  "parentPin": {
+    "setLater": "Vecāka PIN iestatīt vēlāk",
+    "title": "Iestatīt vecāka PIN",
+    "description": "4 ciparu PIN, ko zini tikai tu, aizsargā vecāka zonu — piemēram, kad bērni pievieno brāli vai māsu vai tu pieslēdzies kā vecāks bērna ierīcē.",
+    "choosePin": "Izvēlies savu PIN",
+    "confirmPin": "Apstiprini PIN",
+    "changeLater": "PIN vari mainīt vēlāk sadaļā Ģimene un iestatījumi.",
+    "pinRequiredOrEmpty": "Ievadi 4 ciparu PIN vai atstāj laukus tukšus",
+    "pinRequiredForHandoff": "Iestati 4 ciparu PIN, pirms bērns var pārņemt ierīci.",
+    "pinMismatch": "PIN nesakrīt",
+    "saveFailed": "Neizdevās saglabāt PIN",
+    "handoffRequired": "Kopīgā ierīcē vajadzīgs pieaugušā PIN, pirms bērns var pieslēgties.",
+    "saveAndContinue": "Saglabāt un turpināt"
+  },
+  "invite": {
+    "inviteLater": "Uzaicināt otru vecāku vēlāk",
+    "title": "Uzaicināt vēl vienu pieaugušo",
+    "namePlaceholder": "Vārds (piem. Ēriks)",
+    "emailPlaceholder": "E-pasta adrese",
+    "whichChildren": "Kurus bērnus šim cilvēkam rādīt?",
+    "sendBtn": "📧 Sūtīt uzaicinājumu",
+    "sending": "Sūta…",
+    "sent": "✓ Nosūtīts",
+    "skip": "Izlaist →",
+    "emailRequired": "Ievadi e-pasta adresi",
+    "invalidEmail": "Nederīga e-pasta adrese",
+    "success": "Uzaicinājums nosūtīts uz {{email}}! ✓",
+    "sendFailed": "Kaut kas nogāja greizi"
+  },
+  "complete": {
+    "title": "Gandrīz gatavs!",
+    "lead": "Ļauj bērnam izmēģināt lietotni — citus pieaugušos un vecāka PIN vari pievienot pēc pirmās atzīmes.",
+    "tips": {
+      "editScheduleTitle": "Labot plānu",
+      "editScheduleBody": "Ej uz Sākumu → pieskaries bērna kartei → pielāgo aktivitātes savai ikdienas rutīnai.",
+      "checkRewardsTitle": "Apskati balvas",
+      "checkRewardsBody": "Bērna skatā — pieskaries zvaigznei — bērns redz, cik zvaigžņu katrai balvai vajag.",
+      "addChildrenTitle": "Pievienot vēl bērnus",
+      "addChildrenBody": "Katram bērnam ir savs plāns un zvaigznes. Pievieno vēl vienu ar + Sākumā."
+    },
+    "letChildStart": "👶 Lai bērns sāk",
+    "letChildStartPlain": "Lai bērns sāk",
+    "completeFailed": "Neizdevās pabeigt ievadīšanu",
+    "completeFailedShort": "Neizdevās pabeigt",
+    "welcomeFooter": "Laipni lūdzam {{brand}} — priecājamies, ka esi šeit! 🌟"
+  },
+  "weekend": {
+    "title": "Pievienot nedēļas nogales plānu?",
+    "body": "Darbdienu plāns ir gatavs pr–pk. Vai gribi mierīgāku plānu sestdienai un svētdienai?",
+    "scheduleLabel": "Nedēļas nogales plāns",
+    "satSun": "Se + Sv",
+    "preview": {
+      "sleepIn": "Paguļ ilgāk",
+      "breakfast": "Brokastis mierā",
+      "freePlay": "Brīva rotaļa",
+      "outing": "Izbrauciens / parks",
+      "familyActivity": "Ģimenes aktivitāte",
+      "dinner": "Vakariņas"
+    },
+    "yesBtn": "✅ Jā, pievienot nedēļas nogales plānu",
+    "yesLoading": "Pievieno…",
+    "noBtn": "Nē, paldies, aizpildīšu vēlāk",
+    "addFailed": "Neizdevās pievienot nedēļas nogales plānu"
+  },
+  "starter": {
+    "stepLabel": "Izveidot plānu {{current}} no {{total}}",
+    "slimTitle": "Tava rutīna ir gandrīz gatava",
+    "fullTitle": "Izveido savu pirmo plānu",
+    "slimIntro": "Trīs īsi jautājumi — un rutīna ir gatava.",
+    "birthdayHint": "Izvēlies bērna dzimšanas datumu — tas palīdz ieteikt piemērotu plānu.",
+    "fullIntro": "Atbildi uz dažiem jautājumiem — tas aizņem mazāk par minūti.",
+    "powerPathLead": "Gribi izvēlēties vai veidot pats?",
+    "chooseTemplate": "📋 Izvēlēties gatavu plānu",
+    "fullWizard": "✏️ Veidot un pielāgot pašam (7 jautājumi)",
+    "answerRequired": "Izvēlies vai ievadi atbildi",
+    "showSchedule": "Rādīt plānu →",
+    "buttons": {
+      "next": "Tālāk →"
+    },
+    "createRoutine": "Izveidot rutīnu →",
+    "creatingRoutine": "Izveido rutīnu…",
+    "personalizing": "Pielāgo plānu…",
+    "loading": "Ielādē…",
+    "useSchedule": "Lietot šo plānu →",
+    "saving": "Saglabā…",
+    "changeAnswers": "← Mainīt atbildes",
+    "removeStep": "Noņemt",
+    "previewHint": "Soļus vari noņemt — vēlāk iestatījumos vari pievienot citus.",
+    "previewForChild": "Bērnam {{childName}} · {{count}} aktivitātes",
+    "previewAiTail": " · ✨ pielāgots ar MI",
+    "defaultPlanTitle": "Tavs plāns",
+    "slimSuccessTitle": "Tava rutīna ir gatava",
+    "slimSuccessTonight": "Plāns ir gatavs. Parādi {{childName}} Šodien šajā ierīcē.",
+    "showChildToday": "Rādīt bērna Šodien",
+    "openingChildToday": "Atver bērna Šodien…",
+    "hourglassOfferTitle": "Vizuālais smilšu pulkstenis",
+    "hourglassOfferBody": "Palīdzi bērnam redzēt, cik daudz laika aktivitātē vēl atlicis.",
+    "hourglassEnableBtn": "Ieslēgt smilšu pulksteni",
+    "hourglassEnabling": "Ieslēdz…",
+    "hourglassEnabledMsg": "Smilšu pulkstenis bērnam ir ieslēgts.",
+    "hourglassEnableFailed": "Neizdevās ieslēgt smilšu pulksteni",
+    "goHome": "Uz Sākumu →",
+    "openingHome": "Atver Sākumu…",
+    "customizeFirst": "Vispirms pielāgot plānu",
+    "openingSchedule": "Atver plānu…",
+    "nameRequired": "Ievadi bērna vārdu",
+    "templateFailed": "Neizdevās izvēlēties veidni",
+    "previewFailed": "Neizdevās ielādēt plānu",
+    "childCreateFailed": "Neizdevās izveidot bērnu",
+    "scheduleSaveFailed": "Neizdevās saglabāt plānu",
+    "personalizeFailed": "Neizdevās pielāgot plānu",
+    "completeFailed": "Neizdevās pabeigt",
+    "packages": {
+      "morning-short": {
+        "name": "Īss rīts"
+      },
+      "evening-routine": {
+        "name": "Vakara rutīna"
+      },
+      "preschool-day": {
+        "name": "Pirmsskolas darbdiena"
+      },
+      "school-day": {
+        "name": "Skolas darbdiena"
+      },
+      "weekend": {
+        "name": "Nedēļas nogale"
+      },
+      "getting-ready": {
+        "name": "Īss rīts"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Bērna vārds",
+        "placeholder": "piem. Ella"
+      },
+      "age_band": {
+        "label": "Cik vecs ir tavs bērns?",
+        "options": {
+          "3-5": "3–5 gadi",
+          "6-8": "6–8 gadi",
+          "9-12": "9–12 gadi",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Ar kuru rutīnu gribi sākt?",
+        "options": {
+          "morgon": "☀️ Rīts",
+          "kvall": "🌙 Vakars",
+          "efter-skola": "🏫 Pēc skolas",
+          "laxor": "📚 Mājasdarbi",
+          "gora-sig-klar": "🎒 Sagatavošanās"
+        }
+      },
+      "main_challenge": {
+        "label": "Kas šobrīd ir visgrūtāk?",
+        "options": {
+          "getting_started": "Sākt",
+          "focus": "Noturēt uzmanību",
+          "conflicts": "Konflikti",
+          "forgetting": "Aizmirst soļus",
+          "transitions": "Pārejas"
+        }
+      },
+      "support_ui": {
+        "label": "Vai bērnam vajag īpaši skaidru atbalstu?",
+        "options": {
+          "ja": "Jā",
+          "lite": "Nedaudz",
+          "nej": "Nē"
+        }
+      },
+      "length_ui": {
+        "label": "Ar cik soļiem gribi sākt?",
+        "options": {
+          "kort": "Īsi (3–4)",
+          "normal": "Parasti (5)",
+          "detaljerad": "Detalizēti (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Vai ir kas svarīgs, kas mums jāzina? (neobligāti)",
+        "placeholder": "piem. zobu tīrīšana ir visgrūtākā"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutīna gatava",
+      "handoff": "Atver bērna režīmu kopā",
+      "child": "Bērns redz, kas notiek tagad",
+      "done": "Gatavs!",
+      "star": "Pirmā zvaigzne ⭐"
+    },
+    "mock": {
+      "parentView": "Vecāka skats",
+      "dailyRoutine": "Šodienas rutīna",
+      "dress": "Saģērbies",
+      "brushTeeth": "Tīri zobus",
+      "packBag": "Sakravā somu",
+      "tryChildMode": "👶 Izmēģini bērna režīmu",
+      "now": "Tagad",
+      "markDone": "Atzīmēt gatavu ✓",
+      "wellDone": "Labi padarīts!"
+    },
+    "ctaReady": "Gatavs izmēģināt?",
+    "ctaTryNow": "Izmēģini bērna režīmu tagad",
+    "ctaLater": "Vēlāk",
+    "loginTitle": "Atver bērna skatu",
+    "loginLead": "Plāns ir gatavs. Iedod {{childName}} šo ierīci, lai redz savu rutīnu.",
+    "usernameLabel": "Lietotājvārds",
+    "pinLabel": "PIN",
+    "loginHint": "Apsēdies kopā — der gan šī, gan cita ierīce.",
+    "copyLogin": "📋 Kopēt pieslēgšanās datus",
+    "copied": "✓ Nokopēts!",
+    "openChildMode": "Atvērt bērna skatu",
+    "copyText": "{{childName}}\nAtver bērna skatu lietotnē.",
+    "previewTitle": "Priekšskats — ievada filmiņa"
+  },
+  "firstStar": {
+    "title": "Iedod pirmo zvaigzni",
+    "lead": "Trīs īsi soļi — un tu tiešām esi ceļā.",
+    "steps": {
+      "login": "Lai bērns pieslēdzas ar savu PIN",
+      "complete": "Atzīmē aktivitāti kā gatavu bērna skatā",
+      "celebrate": "Nosvini zvaigzni kopā!"
+    },
+    "openChildLogin": "👶 Atvērt bērna pieslēgšanos",
+    "continueAsParent": "Turpināt kā vecākam"
+  },
+  "activation": {
+    "finalStepLabel": "Pēdējais solis",
+    "introTitle": "Kā gribi sākt?",
+    "introBody": "Esi savedis bērna plānu — labs sākums. Daudzām ģimenēm lielākais izaicinājums nav sākt, bet noturēt rutīnu pirmajās dienās, kad ikdiena pārņem. Izvēlies, kas tev der:",
+    "guidedBadge": "Ieteicams",
+    "guidedTitle": "Noturi rutīnu pirmo nedēļu",
+    "guidedBody": "Daudzas ģimenes novērtē nelielu atbalstu pēc tam, kad plāns ir gatavs. Ne tāpēc, ka kaut kas būtu greizi, bet tāpēc, ka jauniem ieradumiem vajag laiku.",
+    "guidedBenefits": [
+      "Īsi ikdienas atgādinājumi, kas palīdz turpināt",
+      "Redzi, kad bērns pabeidz uzdevumus, bez papildu mudināšanas",
+      "Bērna plāns jau ir gatavs — mēs palīdzam rutīnai darboties",
+      "Apstājies, kad gribi"
+    ],
+    "guidedCta": "Jā, palīdzi mums pirmo nedēļu",
+    "directTitle": "Sākt uzreiz",
+    "directBody": "Jūties gatavs turpināt pats. Viss ir vietā, un vari sākt tūlīt.",
+    "directBenefits": [
+      "Uzreiz uz Sākumu",
+      "Tas pats plāns, zvaigznes un balvas",
+      "Lieto lietotni savā tempā"
+    ],
+    "directCta": "Tiks galā paši",
+    "footnote": "Lai ko izvēlētos, lietotni vari lietot pilnībā. Vadītais starts dod tikai nedaudz papildu atbalsta pirmajā nedēļā.",
+    "saveFailed": "Neizdevās saglabāt izvēli"
+  },
+  "loading": {
+    "buildingSchedule": "Veido tavu plānu…",
+    "takesSeconds": "Tas aizņem tikai dažas sekundes!"
+  },
+  "templateGroups": {
+    "showActivities": "Rādīt aktivitātes",
+    "loadingActivities": "Ielādē...",
+    "activityCount": {
+      "one": "{{count}} aktivitāte",
+      "zero": "{{count}} aktivitāšu",
+      "other": "{{count}} aktivitātes"
+    },
+    "forskola": {
+      "name": "Pirmsskola",
+      "description": "Visa diena — bērni 2–5 gadu vecumā"
+    },
+    "skola": {
+      "name": "Skola",
+      "description": "Visa diena — bērni no 6 gadiem"
+    },
+    "morgon": {
+      "name": "Rīts",
+      "description": "Rīta rutīna"
+    },
+    "dag": {
+      "name": "Diena",
+      "description": "Dienas aktivitātes"
+    },
+    "kvall": {
+      "name": "Vakars",
+      "description": "Vakara rutīna"
+    },
+    "helg": {
+      "name": "Nedēļas nogale",
+      "description": "Nedēļas nogales rutīna"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Pamosties",
+        "Saģērbies",
+        "Brokastis",
+        "Pirmsskola",
+        "Spēlējies",
+        "Vakariņas",
+        "Pasaka pirms miega"
+      ],
+      "skola": [
+        "Pamosties",
+        "Brokastis",
+        "Sakravā somu",
+        "Skola",
+        "Mājasdarbi",
+        "Vakariņas",
+        "Pasaka pirms miega"
+      ],
+      "morgon": [
+        "Pamosties",
+        "Saģērbies",
+        "Tīri zobus",
+        "Brokastis",
+        "Sakravā somu"
+      ],
+      "dag": [
+        "Pirmsskola",
+        "Spēlējies ārā",
+        "Uzkoda",
+        "Pusdienas",
+        "Radošais darbs"
+      ],
+      "kvall": [
+        "Vakariņas",
+        "Tīri zobus",
+        "Pidžama",
+        "Pasaka pirms miega",
+        "Gulēt"
+      ],
+      "helg": [
+        "Pamosties",
+        "Brokastis",
+        "Brīva rotaļa",
+        "Izbrauciens",
+        "Ģimenes aktivitāte",
+        "Vakariņas"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Rīts",
+    "lateMorning": "Vēlais rīts",
+    "afternoon": "Pēcpusdiena",
+    "evening": "Vakars"
+  },
+  "errors": {
+    "avatarUploadPath": "Profila foto augšupielādē ar PUT /api/children/:id/avatar pēc bērna izveides",
+    "childNameRequired": "Vajadzīgs bērna vārds",
+    "emojiRequired": "Izvēlies bērnam emocijzīmi",
+    "invalidBirthday": "Nederīgs dzimšanas datums",
+    "birthdayFuture": "Dzimšanas diena nevar būt nākotnē",
+    "invalidTemplate": "Nederīga izvēle. Izvēlies derīgu plānu.",
+    "noActivities": "Izvēlētajam plānam nav atrasta neviena aktivitāte.",
+    "childIdRequired": "Vajadzīgs child_id",
+    "noChildAccess": "Tev nav piekļuves šim bērnam",
+    "weekendNotFound": "Nedēļas nogales plāns bibliotēkā nav atrasts.",
+    "weekendEmpty": "Nedēļas nogales plānā nav aktivitāšu.",
+    "rewardNameRequired": "Vajadzīgs balvas nosaukums",
+    "rewardCostMin": "Zvaigžņu cenai jābūt vismaz 1",
+    "rewardsFetchFailed": "Neizdevās ielādēt balvas.",
+    "childCreateFailed": "Kaut kas nogāja greizi, veidojot bērnu.",
+    "scheduleCreateFailed": "Kaut kas nogāja greizi, veidojot plānu.",
+    "weekendCreateFailed": "Kaut kas nogāja greizi, veidojot nedēļas nogales plānu.",
+    "rewardCreateFailed": "Kaut kas nogāja greizi, veidojot balvu.",
+    "generic": "Kaut kas nogāja greizi.",
+    "invalidViewType": "Nederīgs view_type. Izvēlies day vai timeline.",
+    "notAllowed": "Nav atļauts",
+    "invalidChoice": "Nederīga izvēle.",
+    "activityGuideSaveFailed": "Neizdevās saglabāt aktivitātes izvēli.",
+    "pinMustBe4": "PIN jābūt tieši 4 cipariem",
+    "pinTooWeak": "Izvēlies stiprāku PIN",
+    "pinTaken": "Šis PIN jau ir aizņemts bērnam ar tādu pašu vārdu",
+    "pinUpdateFailed": "Neizdevās atjaunināt PIN.",
+    "handoffContextFailed": "Neizdevās ielādēt nodošanas kontekstu",
+    "templateGroupsFailed": "Neizdevās ielādēt plānu grupas.",
+    "schedulePreviewFailed": "Neizdevās ielādēt plānu.",
+    "viewSaveFailed": "Neizdevās saglabāt skata izvēli.",
+    "activationNotEnabled": "Aktivizācijas plūsma tavai ģimenei nav ieslēgta",
+    "starterSuggestFailed": "Neizdevās izvēlēties veidni",
+    "starterPreviewFailed": "Neizdevās ielādēt priekšskatu",
+    "starterPersonalizeFailed": "Neizdevās pielāgot plānu",
+    "scheduleNameRequired": "Vajadzīgs scheduleName",
+    "templateNotFound": "Veidne nav atrasta",
+    "enrollChoiceUnavailable": "Izvēles ekrāns nav pieejams"
+  },
+  "starterPlan": {
+    "firstSchedule": "Tavs pirmais plāns"
+  }
+}

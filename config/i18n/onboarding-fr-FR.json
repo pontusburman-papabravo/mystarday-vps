@@ -153,7 +153,7 @@
     "intro": "Nous avons préparé des récompenses qui font envie. Choisissez celles vers lesquelles {{childName}} peut avancer !",
     "introWithCount": "Nous avons préparé {{count}} récompenses qui font envie. Choisissez celles vers lesquelles {{childName}} peut avancer !",
     "selectCount": {
-      "zero": "Choisissez au moins 1 récompense (0 sélectionnée)",
+      "none": "Choisissez au moins 1 récompense (0 sélectionnée)",
       "one": "{{count}} récompense sélectionnée ✓",
       "other": "{{count}} récompenses sélectionnées ✓"
     },

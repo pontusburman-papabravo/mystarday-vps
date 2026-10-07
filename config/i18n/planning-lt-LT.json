@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planavimas — {{brand}}",
+  "shell": {
+    "title": "Planavimas",
+    "lead": "Pasirink savaitę, veiklas arba daugiau.",
+    "logout": "Atsijungti"
+  },
+  "sections": {
+    "planWeek": "Planuok savaitę",
+    "buildContent": "Kurk turinį",
+    "other": "Kita"
+  },
+  "primary": {
+    "week": { "title": "Savaitė", "sub": "Dienų sąrašas vaikų savaitei" },
+    "activities": { "title": "Veiklos", "sub": "Biblioteka — kurk ir redaguok" },
+    "more": { "title": "Daugiau", "sub": "Spausdinimas, šablonai ir kiti įrankiai" }
+  },
+  "more": {
+    "title": "Daugiau",
+    "close": "Uždaryti"
+  },
+  "links": {
+    "library": { "title": "Biblioteka", "sub": "Kurk veiklas ir apdovanojimus" },
+    "imageArchive": { "title": "Nuotraukų archyvas", "sub": "Tavo nuotraukos — šepetėlis, lova, mokykla" },
+    "templates": { "title": "Šablonai", "sub": "Išsaugoti planai, kuriuos gali naudoti vėl" },
+    "weekSchedule": { "title": "Savaitės planas", "sub": "Redaguok vaiko savaitę" },
+    "calendar": { "title": "Kalendorius", "sub": "Mėnuo ir ypatingos dienos" },
+    "custody": { "title": "Globos planas", "sub": "Bendra globa tarp namų" },
+    "dailyLog": { "title": "Šiandien", "sub": "Žiūrėk ir taisyk ankstesnes dienas" },
+    "printSchema": { "title": "Kurti PDF — planas", "sub": "Spausdinti planą" },
+    "assignSchedule": { "title": "Priskirti planą", "sub": "Nukopijuok planą vaikui" },
+    "reports": { "title": "Ataskaitos", "sub": "Pažanga ir dalijimasis" },
+    "samarbete": { "title": "Darbas su pedagogu", "sub": "Dirbk su pedagogu" },
+    "barnStod": { "title": "Papildoma pagalba", "sub": "Vaizdinė pagalba ir TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Pradėk",
+    "bodyBeforeLibrary": "Pradėk skiltyje ",
+    "libraryLink": "Biblioteka",
+    "bodyMiddle": " — jei nori kurti veiklas. Eik į ",
+    "forYouLink": "Tau",
+    "bodyAfter": " — jei nori paruoštos rekomendacijos."
+  }
+}

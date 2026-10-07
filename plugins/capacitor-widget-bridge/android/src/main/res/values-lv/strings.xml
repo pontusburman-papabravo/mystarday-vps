@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Nākamā aktivitāte</string>
+    <string name="widget_routine_description">Pabeidz nākamo rutīnas soli, neatverot visu lietotni.</string>
+    <string name="widget_cd_pictogram">Aktivitātes simbols</string>
+    <string name="widget_cd_complete">Atzīmēt aktivitāti kā paveiktu</string>
+    <string name="widget_cd_open_app">Atvērt lietotnē</string>
+    <string name="widget_action_complete">Gatavs</string>
+    <string name="widget_action_open_timer">Atvērt smilšu pulksteni</string>
+    <string name="widget_action_show_steps">Rādīt soļus</string>
+    <string name="widget_action_open_app">Atvērt lietotni</string>
+    <string name="widget_loading">Ielādē…</string>
+    <string name="widget_all_done">Šodien viss padarīts!</string>
+    <string name="widget_nothing_now">Šobrīd nekā nav</string>
+    <string name="widget_offline">Nav savienojuma</string>
+    <string name="widget_reauth">Pieslēdzies lietotnē</string>
+    <string name="widget_revoked">Ierīces piekļuve atsauktas</string>
+    <string name="widget_switching">Maina bērnu…</string>
+    <string name="widget_feedback_done">✓ Gatavs!</string>
+    <string name="widget_feedback_done_for">✓ Gatavs %1$s</string>
+    <string name="widget_cd_child_prev">Iepriekšējais bērns</string>
+    <string name="widget_cd_child_next">Nākamais bērns</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d no %2$d paveikts</string>
+    <string name="widget_private_activity">Nākamais solis</string>
+    <string name="widget_configure_title">Izvēlies logrīku</string>
+    <string name="widget_configure_personal">Savs (viens bērns)</string>
+    <string name="widget_configure_family">Ģimene (mainīt bērnu)</string>
+    <string name="widget_configure_save">Saglabāt</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

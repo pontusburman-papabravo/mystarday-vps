@@ -153,7 +153,7 @@
     "intro": "We hebben leuke beloningen ingevuld. Kies de beloningen waar {{childName}} naartoe kan werken!",
     "introWithCount": "We hebben {{count}} leuke beloningen ingevuld. Kies de beloningen waar {{childName}} naartoe kan werken!",
     "selectCount": {
-      "zero": "Kies minstens 1 beloning (0 gekozen)",
+      "none": "Kies minstens 1 beloning (0 gekozen)",
       "one": "{{count}} beloning gekozen ✓",
       "other": "{{count}} beloningen gekozen ✓"
     },

@@ -225,7 +225,7 @@
   "addActivity": "Czynność",
   "emptySection": "Brak czynności",
   "activityCount": {
-    "one": "1 czynność",
+    "one": "{{count}} czynność",
     "few": "{{count}} czynności",
     "many": "{{count}} czynności",
     "other": "{{count}} czynności"

@@ -153,7 +153,7 @@
     "intro": "Unaprijed smo unijeli zabavne nagrade. Odaberi one koje {{childName}} može zaslužiti!",
     "introWithCount": "Unaprijed smo unijeli {{count}} zabavnih nagrada. Odaberi one koje {{childName}} može zaslužiti!",
     "selectCount": {
-      "zero": "Odaberi barem 1 nagradu (0 odabrano)",
+      "none": "Odaberi barem 1 nagradu (0 odabrano)",
       "one": "{{count}} nagrada odabrana ✓",
       "few": "{{count}} nagrade odabrane ✓",
       "other": "{{count}} nagrada odabrano ✓"

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Papildomas ekrano laikas",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Pasirink vakarienę",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Maža dovanėlė",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

@@ -538,10 +538,17 @@ a.parent-handoff-secondary {
 .parent-week-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  gap: 2px;
+  font-size: clamp(8px, 2.6vw, 10px);
   font-weight: 700;
   color: rgba(244, 244, 255, 0.55);
   padding: 0 2px;
+}
+
+.parent-week-labels > span {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
 }
 
 .parent-week-labels .is-today {

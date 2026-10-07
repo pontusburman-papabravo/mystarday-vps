@@ -153,7 +153,7 @@
     "intro": "Wpisaliśmy fajne nagrody. Wybierz te, do których {{childName}} może dążyć!",
     "introWithCount": "Wpisaliśmy {{count}} fajnych nagród. Wybierz te, do których {{childName}} może dążyć!",
     "selectCount": {
-      "zero": "Wybierz co najmniej 1 nagrodę (0 wybranych)",
+      "none": "Wybierz co najmniej 1 nagrodę (0 wybranych)",
       "one": "{{count}} nagroda wybrana ✓",
       "few": "{{count}} nagrody wybrane ✓",
       "many": "{{count}} nagród wybranych ✓",

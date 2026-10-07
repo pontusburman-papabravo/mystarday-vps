@@ -153,7 +153,7 @@
     "intro": "Vpisali smo zabavne nagrade. Izberi tiste, h katerim {{childName}} lahko stremi!",
     "introWithCount": "Vpisali smo {{count}} zabavnih nagrad. Izberi tiste, h katerim {{childName}} lahko stremi!",
     "selectCount": {
-      "zero": "Izberi vsaj 1 nagrado (0 izbranih)",
+      "none": "Izberi vsaj 1 nagrado (0 izbranih)",
       "one": "{{count}} nagrada izbrana ✓",
       "two": "{{count}} nagradi izbrani ✓",
       "few": "{{count}} nagrade izbrane ✓",

@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Seaded — {{brand}}",
+  "title": "Seaded",
+  "shellLead": "Profiil, pere ja rakendus",
+  "familySettings": "Pere seaded",
+  "groups": {
+    "profile": {
+      "title": "Profiil ja konto",
+      "sub": "Sisselogimine, PIN ja konto"
+    },
+    "family": {
+      "title": "Pere",
+      "sub": "Nimi ja keel. Inimesi hallatakse Pere all."
+    },
+    "device": {
+      "title": "See seade",
+      "sub": "Lapse telefon, vanema telefon või jagatud telefon"
+    },
+    "appearance": {
+      "title": "Välimus",
+      "sub": "Tume või hele kujundus"
+    },
+    "app": {
+      "title": "Rakendus",
+      "sub": "Teavitused, tõuked ja privaatsus"
+    },
+    "premium": {
+      "title": "Tellimus",
+      "sub": "Premium, ostud ja maksed"
+    }
+  },
+  "appearance": {
+    "dark": "Tume",
+    "light": "Hele",
+    "backToSettings": "← Tagasi seadetesse"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planeerimine",
+      "sub": "Koosta sisu või planeeri laste nädal."
+    },
+    "rewards": {
+      "title": "Auhinnad",
+      "sub": "Tähed, auhinnad ja Aardekirst."
+    },
+    "calendar": {
+      "title": "Kalender",
+      "sub": "Kuuvaade kõigile lastele"
+    },
+    "activities": {
+      "title": "Tegevused",
+      "sub": "Halda laste tegevusi"
+    },
+    "assignSchedule": {
+      "title": "Määra plaan",
+      "sub": "Kopeeri plaan lapsele"
+    },
+    "dailyLog": {
+      "title": "Täna",
+      "sub": "Jälgi lapse päeva — täida tähed hiljem"
+    },
+    "treasureChest": {
+      "title": "Aardekirst",
+      "sub": "Auhinnad ja tähed"
+    },
+    "childSettings": {
+      "title": "Lapse seaded",
+      "sub": "Vaade, PIN ja kohandus"
+    },
+    "familyChild": {
+      "title": "Lapse seaded",
+      "sub": "Plaan, vaade, PIN ja kohandus"
+    },
+    "notifications": {
+      "title": "Teavitused",
+      "sub": "Meeldetuletused ja sõnumid"
+    },
+    "schedule": {
+      "title": "Nädalaplaan",
+      "sub": "Planeeri ja kohanda laste päevi"
+    },
+    "library": {
+      "title": "Kogu",
+      "sub": "Plaanid, tegevused ja auhinnad sinu perele"
+    },
+    "family": {
+      "title": "Pere",
+      "sub": "Lapsed, täiskasvanud ja pedagoogid"
+    }
+  },
+  "backToPlanning": "← Tagasi planeerimisse",
+  "avatar": {
+    "title": "Profiilipilt",
+    "description": "Sinu pilt paistab lapsele jaotises Minu inimesed ja pere lehel.",
+    "changePhoto": "Muuda pilti",
+    "addPhoto": "Lisa foto",
+    "removePhoto": "Eemalda pilt",
+    "saved": "Profiilipilt salvestatud!",
+    "removed": "Profiilipilt eemaldatud",
+    "saveFailed": "Ei saanud salvestada",
+    "removeFailed": "Ei saanud eemaldada"
+  },
+  "nativeAccount": {
+    "title": "Konto",
+    "sub": "Lülitu lapse sisselogimisele või logi rakendusest täielikult välja."
+  },
+  "account": {
+    "title": "Konto ja sisselogimine",
+    "appleLinked": "Apple’i konto seotud",
+    "googleLinked": "Google’i konto seotud",
+    "appleLinkedOnIosHint": "Sidusid Apple’i konto iPhone’is. Siin sisselogimiseks lisa alla parool.",
+    "googleLinkedElsewhereHint": "Sidusid Google’i konto teises seadmes. Siin sisselogimiseks lisa alla parool.",
+    "newPassword": "Uus parool",
+    "confirmPassword": "Kinnita parool",
+    "minCharsPlaceholder": "Vähemalt 8 tähemärki",
+    "repeatPasswordPlaceholder": "Sisesta parool uuesti",
+    "savePassword": "Salvesta parool",
+    "passwordForNonApple": "Sisselogimiseks ilma Apple’ita",
+    "changePasswordHint": "Muuda parooli, et kontole ligipääs alles jääks.",
+    "currentPassword": "Praegune parool",
+    "confirmNewPassword": "Kinnita uus parool",
+    "changePassword": "Muuda parooli",
+    "linkApple": "Seo Apple’i konto",
+    "unlinkApple": "Eemalda Apple’i konto side",
+    "linkGoogle": "Seo Google’i konto",
+    "unlinkGoogle": "Eemalda Google’i konto side",
+    "changeEmail": "Muuda e-posti aadressi",
+    "newEmail": "Uus e-posti aadress",
+    "yourPassword": "Sinu parool",
+    "confirmWithPassword": "Kinnita parooliga",
+    "sendConfirmLink": "Saada kinnituslink",
+    "passwordsMismatch": "Paroolid ei kattu",
+    "passwordMinLength": "Parool peab olema vähemalt 8 tähemärki",
+    "saving": "Salvestan…",
+    "passwordNowActive": "✓ Parool on nüüd aktiivne",
+    "somethingWrong": "Midagi läks valesti. Proovi uuesti.",
+    "somethingWrongShort": "Midagi läks valesti",
+    "appleSignInUnavailable": "Apple’iga sisselogimine ei ole sellel seadmel saadaval.",
+    "googleSignInUnavailable": "Google’iga sisselogimine ei ole sellel seadmel saadaval.",
+    "linking": "Seon…",
+    "appleAlreadyLinked": "See Apple’i konto on juba teise kontoga seotud.",
+    "googleAlreadyLinked": "See Google’i konto on juba teise kontoga seotud.",
+    "couldNotLinkApple": "Apple’i ei saanud siduda:",
+    "couldNotLinkGoogle": "Google’it ei saanud siduda:",
+    "tryAgain": "Proovi uuesti.",
+    "unlinkApplePrompt": "Sisesta parool, et Apple’i side eemaldada:",
+    "unlinkGooglePrompt": "Sisesta parool, et Google’i side eemaldada:",
+    "removing": "Eemaldan…",
+    "couldNotUnlink": "Sidet ei saanud eemaldada",
+    "invalidEmail": "Sisesta kehtiv e-posti aadress",
+    "sending": "Saadan…",
+    "linkSentTo": "Link saadetud aadressile {{email}}",
+    "passwordChanged": "Parool on muudetud!",
+    "linkAppleBtn": "🍎 Seo Apple’i konto",
+    "linkGoogleBtn": "G Seo Google’i konto",
+    "emailUpdated": "E-post on uuendatud! Nüüd saad sisse logida uue aadressiga.",
+    "passwordSet": "Parool on määratud. Nüüd saad sisse logida e-posti ja parooliga.",
+    "errors": {
+      "invalidAppleToken": "Vigane Apple’i identiteedikood",
+      "invalidGoogleToken": "Vigane Google’i identiteedikood",
+      "appleAlreadyLinkedThis": "Selle kontoga on juba Apple’i konto seotud",
+      "googleAlreadyLinkedThis": "Selle kontoga on juba Google’i konto seotud",
+      "passwordRequiredUnlink": "Konto side eemaldamiseks on parool vajalik",
+      "setPasswordBeforeUnlink": "Määra parool enne konto side eemaldamist",
+      "emailPasswordRequired": "Uus e-posti aadress ja parool on vajalikud",
+      "setPasswordBeforeEmail": "Määra parool, enne kui saad e-posti aadressi muuta",
+      "emailAlreadyRegistered": "See e-post on juba teisel kontol registreeritud",
+      "emailChangeLinkInvalid": "Vigane või aegunud link. Küsi seadetes uus muudatus.",
+      "emailChangeLinkUsed": "Seda linki on juba kasutatud. Küsi seadetes uus muudatus.",
+      "emailChangeLinkExpired": "See link on aegunud. Küsi seadetes uus muudatus.",
+      "passwordAlreadySet": "Parool on juba olemas. Kasuta uuendamiseks «Muuda parooli».",
+      "emailAllOff": "Kõik e-kirja teavitused on väljas. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+      "weeklyEmailOff": "Me ei saada enam nädala kokkuvõtteid sinu e-postile. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+      "redeemEmailOff": "Me ei saada enam kirju, kui laps tahab auhinda lunastada. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+      "passwordCurrentAndNew": "Praegune ja uus parool on vajalikud",
+      "appleLinkLoginRequired": "Apple’i konto sidumiseks pead olema sisse logitud",
+      "googleLinkLoginRequired": "Google’i konto sidumiseks pead olema sisse logitud"
+    }
+  },
+  "toast": {
+    "saved": "Salvestatud!",
+    "savedCheck": "✅ Salvestatud!",
+    "saveFailedRetry": "Ei saanud salvestada. Proovi uuesti.",
+    "networkError": "Võrguviga"
+  },
+  "parentPin": {
+    "title": "PIN-kood",
+    "security": "Turvalisus",
+    "hasPinDescription": "Sinu isiklik PIN kaitseb vanema režiimi — lapsed ei saa lapse vaatest lahkuda ilma sinu PIN-ita.",
+    "noPinDescription": "Määra oma 4-numbriline PIN — lapsed ei saa lapse vaatest lahkuda ilma sinu PIN-ita.",
+    "choosePin": "Vali 4-numbriline PIN",
+    "confirmPin": "Kinnita PIN",
+    "changePinBack": "← Muuda PIN-i",
+    "enterCurrentPin": "Sisesta praegune PIN",
+    "forgotPin": "Unustasid PIN-i?",
+    "chooseNewPin": "Vali uus PIN",
+    "confirmNewPin": "Kinnita uus PIN",
+    "forgotIntro": "Sisesta parool, et uus PIN määrata.",
+    "yourPassword": "Sinu parool",
+    "verify": "Kinnita",
+    "keypadAria": "Numbriklahvistik",
+    "confirmKeypadAria": "PIN-i kinnitusklahvistik",
+    "pinKeypadAria": "PIN-klahvistik",
+    "newPinKeypadAria": "Uue PIN-i klahvistik",
+    "confirmNewPinKeypadAria": "Uue PIN-i kinnitusklahvistik",
+    "pinsMismatch": "PIN-id ei kattu — proovi uuesti",
+    "pinNowActive": "✓ PIN on nüüd aktiivne",
+    "wrongPin": "Vale PIN — proovi uuesti",
+    "pinChanged": "✓ PIN on muudetud!",
+    "couldNotChangePin": "PIN-i ei saanud muuta",
+    "sessionExpired": "Seanss aegus — sisesta praegune PIN uuesti",
+    "enterPassword": "Sisesta parool",
+    "wrongPassword": "Vale parool"
+  },
+  "push": {
+    "title": "Tõuketeavitused",
+    "lead": "Saa teavitusi telefoni — ka siis, kui rakendus on suletud.",
+    "unsupported": "Sinu brauser ei toeta tõuketeavitusi.",
+    "toggleLabel": "Tõuketeavitused",
+    "toggleDescription": "Lülita sisse, et saada teavitusi laste tegevuste kohta",
+    "toggleAria": "Lülita tõuketeavitused",
+    "perChildHeading": "Teavitused lapse kaupa",
+    "typesHeading": "Millised teavitused?",
+    "typeScheduleTitle": "Plaani meeldetuletus",
+    "typeScheduleHint": "10 min enne tegevust",
+    "typeScheduleAria": "Lülita plaani meeldetuletus",
+    "typeInactivityTitle": "Tegevusetuse meeldetuletus",
+    "typeInactivityHint": "18:00, kui laps ei ole sisse loginud",
+    "typeInactivityAria": "Lülita tegevusetuse meeldetuletus",
+    "typeMilestoneTitle": "Tähe verstapost",
+    "typeMilestoneHint": "10/25/50/100 tähe juures",
+    "typeMilestoneAria": "Lülita tähe verstapost",
+    "typeBackfillTitle": "Tagantjärele meeldetuletus",
+    "typeBackfillHint": "09:00, kui eile on puudu",
+    "typeBackfillAria": "Lülita tagantjärele meeldetuletus",
+    "leadTimeLabel": "Meeldetuletus enne",
+    "quietHoursLabel": "Vaikne aeg",
+    "quietHoursTo": "kuni",
+    "archiveTitle": "Teavituste arhiiv",
+    "archiveHint": "Õnnestunud tõuketeavitused viimase 7 päeva jooksul",
+    "noChildren": "Lapsi pole seotud.",
+    "childToggleAria": "Tõuge lapsele {{name}}",
+    "saved": "✅ Salvestatud!",
+    "saveFailed": "Ei saanud salvestada.",
+    "saveFailedRetry": "Ei saanud salvestada. Proovi uuesti.",
+    "requestingPermission": "⏳ Küsin luba…",
+    "enabled": "✅ Tõuketeavitused sees!",
+    "permissionDenied": "🚫 Luba keelati. Lülita sisse brauseri või rakenduse seadetes.",
+    "iosNotInstalled": "Lisa {{brand}} avakuvale, et Safari tõuked töötaksid.",
+    "genericError": "Midagi läks valesti. Proovi uuesti.",
+    "disabled": "✅ Tõuketeavitused välja lülitatud.",
+    "errors": {
+      "unsupportedBrowser": "Tõuked ei ole selles brauseris toetatud",
+      "permissionDeniedApp": "Teavituste luba keelati rakenduse seadetes.",
+      "pushPluginMissing": "Tõukeplugin puudub rakenduses. Käivita npx cap sync ios ja ehita uuesti.",
+      "platformMissing": "Platvormi tõuketugi puudub",
+      "permissionDeniedBrowser": "Teavituste luba keelati. Lülita see brauseri seadetes sisse.",
+      "permissionDenied": "Teavituste luba keelati",
+      "subscriptionFailed": "Tellimus ebaõnnestus",
+      "enableFailed": "Tõuketeavitusi ei saanud sisse lülitada",
+      "disableFailed": "Tõuketeavitusi ei saanud välja lülitada",
+      "iosNotInstalled": "Lisa rakendus avakuvale, et Safari tõuked töötaksid.",
+      "notConfigured": "Tõuketeavitused ei ole seadistatud",
+      "invalidSubscription": "Vigane tõuketellimus",
+      "endpointRequired": "Lõpp-punkt on vajalik",
+      "invalidToken": "Vigane kood",
+      "invalidPlatform": "Platvorm peab olema iOS või Android",
+      "tokenRequired": "Kood ja platvorm on vajalikud",
+      "parentNotFound": "Vanemat ei leitud"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Lisad vidina avakuvale?",
+      "lead": "Näe järgmist tegevust avakuval — ilma rakendust avamata.",
+      "step1": "Puuduta siin rakenduses <strong class=\"text-navy\">Seo vidin</strong>.",
+      "step2": "Avakuval: hoia tausta all → puuduta <strong class=\"text-navy\">+</strong> → otsi <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Ära küsi enam",
+      "connect": "Seo vidin",
+      "later": "Mitte praegu",
+      "openSettings": "Ava seaded"
+    },
+    "settings": {
+      "title": "Vidinad ja kiirligipääs",
+      "description": "Isiklik vidin = üks laps. Pere vidin = mitu last. Vali siin laps, kui sul on rohkem kui üks.",
+      "childPickerLabel": "Millist last vidin näitab?",
+      "childFallbackName": "Laps",
+      "statusLabel": "Olek:",
+      "statusConnected": "Ühendatud",
+      "statusReconnect": "Vajab uuesti ühendamist",
+      "privacyLabel": "Privaatsus:",
+      "privacyFull": "Täielik",
+      "privacyLimited": "Piiratud",
+      "reconnectBtn": "Ühenda vidin uuesti",
+      "guideBtn": "Näita avakuva vidina juhendit",
+      "connecting": "Ühendan…",
+      "supportMissing": "Selles versioonis vidinatugi puudub. Uuenda rakendus.",
+      "addChildFirst": "Lisa esmalt perele laps, siis saad vidina ühendada.",
+      "loginRequired": "Vidina ühendamiseks pead olema sisse logitud.",
+      "success": "Valmis! Lisa vidin avakuvale (+ → {{brand}}), kui sa seda veel teinud ei ole.",
+      "pickChild": "Vali ülal nimekirjast laps ja proovi uuesti.",
+      "retryLater": "Praegu ei saanud ühendada. Proovi hetke pärast uuesti.",
+      "networkError": "Praegu ei saanud ühendada. Kontrolli võrku ja proovi uuesti.",
+      "errors": {
+        "offlineUnavailable": "Vidin ei ole sinu perele veel sisse lülitatud. Võta toega ühendust, kui see peaks sees olema.",
+        "reauthRequired": "Seanss vajab uuendamist. Logi välja ja tagasi sisse, siis proovi uuesti ühendada.",
+        "nativeConfigureFailed": "Rakendus ei saanud vidina linki salvestada. Sulge rakendus täielikult ja ava uuesti.",
+        "notEnabled": "Vidin ei ole sees või seanss vajab uuendamist. Logi välja ja tagasi sisse."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Teavituste seaded",
+    "weeklySummary": "Nädala kokkuvõte (pühapäev 21:00)",
+    "rewardRedemption": "Auhindade lunastamine",
+    "newsletter": "E-posti uudiskiri",
+    "emailGlobal": "Kõik e-kirjad",
+    "save": "Salvesta teavituste seaded"
+  },
+  "reminders": {
+    "title": "Meeldetuletused",
+    "lead": "Sea igapäevane meeldetuletus, et plaani vaatamine meeles püsiks.",
+    "daily": "Igapäevane meeldetuletus",
+    "hint": "Saad meeldetuletuse valitud ajal valitud päevadel",
+    "toggleAria": "Lülita meeldetuletus",
+    "time": "Kellaaeg",
+    "days": "Päevad"
+  },
+  "familyName": {
+    "label": "Pere nimi",
+    "placeholder": "nt Tamme pere",
+    "autoFromParent": "Pere {{name}}"
+  },
+  "sound": {
+    "label": "Heli sees",
+    "hint": "Mängib heli, kui laps märgib oma päevavaates tegevuse tehtuks."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Täiskasvanud ja ligipääs",
+    "adultsBody": "Kutsu teine vanem ja vaata, kellel on ligipääs, jaotises Pere.",
+    "openFamily": "Ava Pere",
+    "pedagogsTitle": "👩‍🏫 Pedagoogid",
+    "pedagogsBody": "Pedagoogi kutseid ja ligipääsu hallatakse jaotises Pere."
+  },
+  "dataExport": {
+    "title": "Minu andmed",
+    "body": "Laadi alla koopia kõigist oma andmetest CSV-na (ZIP-fail). Sisaldab profiili, lapsi, plaane, auhindu ja tegevuste ajalugu.",
+    "download": "Laadi minu andmed alla",
+    "preparing": "Valmistan allalaadimist…",
+    "started": "✅ Allalaadimine algas!",
+    "rateLimited": "Eksportida saad vaid korra 24 tunni jooksul.",
+    "failed": "Midagi läks valesti. Proovi uuesti.",
+    "networkError": "Võrguviga. Proovi uuesti."
+  },
+  "deleteAccount": {
+    "title": "Kustuta konto",
+    "permanent": "⚠️ Jäädav toiming",
+    "loading": "Laadin, mis juhtub…",
+    "storeBillingNote": "Kui sul on tellimus App Store’i või Google Play kaudu, ei tühistata seda konto kustutamisel automaatselt. Halda või tühista tellimus poes.",
+    "button": "Kustuta minu konto",
+    "summarySelf": "Eemaldad oma konto ja ligipääsu. Pere, lapsed, plaanid ja teiste täiskasvanute andmed jäävad alles. Seda ei saa tagasi võtta.",
+    "summaryLastAdmin": "Oled viimane täiskasvanu haldusligipääsuga. Kogu pere ja kõik seotud andmed — lapsed, plaanid, tegevused, tähed ja auhinnad — kustutatakse kohe ja jäädavalt. Seda ei saa tagasi võtta.",
+    "modalTitleSelf": "Lahku perest",
+    "modalTitleFamily": "Kustuta pere ja konto",
+    "modalTitleFallback": "Kustuta konto jäädavalt",
+    "leadSelf": "Eemaldad ainult oma konto ja ligipääsu.",
+    "leadFamily": "Kustutad kogu pere ja kõik seotud andmed.",
+    "sure": "Kas oled kindel?",
+    "cannotUndo": "Seda ei saa tagasi võtta.",
+    "storeBillingModal": "App Store’i või Google Play tellimust ei tühistata automaatselt — halda seda poes.",
+    "typeConfirmLabel": "Kirjuta kinnituseks {{token}}",
+    "typeConfirmLabelHtml": "Kirjuta kinnituseks <strong>RADERA</strong>",
+    "typeConfirmError": "Kirjuta {{token}} kinnituseks.",
+    "confirmToken": "RADERA",
+    "cancel": "Tühista",
+    "confirmSelf": "Lahku perest",
+    "confirmFamily": "Kustuta kõik jäädavalt",
+    "deleting": "Kustutan...",
+    "deleted": "✅ Konto on kustutatud.",
+    "deleteFailed": "Kustutamisel läks midagi valesti.",
+    "networkError": "Võrguviga. Proovi uuesti.",
+    "bulletSelfAccount": "Sinu vanema konto ja ligipääs",
+    "bulletSelfOthersRemain": "Pere, lapsed ja teised täiskasvanud jäävad alles",
+    "bulletParentAccount": "Vanema konto",
+    "bulletAllChildren": "Kõik peres olevad lapsed",
+    "bulletAllSchedules": "Kõik plaanid, tegevused ja auhinnad",
+    "bulletAllHistory": "Kogu päevaajalugu ja tähed"
+  },
+  "support": {
+    "title": "Tehniline info toele",
+    "hint": "Kopeeri rakenduse versioon, vahemälu ja silumiskood. Isikuandmeid ega paroole ei lisata.",
+    "copy": "Kopeeri tehniline info",
+    "copied": "Kopeeritud — kleebi see toe e-kirja.",
+    "copyFailed": "Ei saanud kopeerida. Proovi uuesti."
+  },
+  "legal": {
+    "privacy": "Privaatsuspoliitika",
+    "terms": "Kasutustingimused"
+  },
+  "consent": {
+    "title": "Nõusolek ja privaatsus",
+    "lead": "Halda privaatsusseadeid ja küpsiste valikuid.",
+    "change": "Muuda nõusoleku seadeid",
+    "empty": "Nõusoleku seadeid pole veel salvestatud.",
+    "modalTitle": "Nõusolek ja privaatsus",
+    "aria": "Nõusoleku seaded",
+    "intro": "Aita meil teha {{brand}} veel paremaks. Kasutame küpsiseid, et mõista, kuidas rakendust kasutatakse, ja et jõuda rohkemate peredeni. Puuduta iga kategooriat, et vahetada ✓ Jah / ✗ Ei / — Neutraalne.",
+    "save": "Salvesta valikud",
+    "saving": "Salvestan…",
+    "skip": "Jäta vahele",
+    "closing": "Sulgen…",
+    "analytics": "Analüütika ja parandused",
+    "analyticsDesc": "Aitab mõista, kuidas rakendust kasutatakse, et saaksime seda paremaks teha.",
+    "ads": "Turundus",
+    "adsDesc": "Näitab sulle kohandatud reklaame Metas (Facebook/Instagram) ja Google’is.",
+    "adUserData": "Andmed platvormidele",
+    "adUserDataDesc": "Jagab su andmeid reklaamiplatvormidega parema sobitamise jaoks.",
+    "adPersonalization": "Isikupärastamine",
+    "adPersonalizationDesc": "Kohandab reklaame sinu huvide ja käitumise järgi.",
+    "email": "E-post ja nipid",
+    "emailDesc": "Kirjad nippide, uudiste ja pakkumistega rakenduselt {{brand}}."
+  },
+  "subscription": {
+    "title": "Tellimus",
+    "loading": "Laadin tellimust…",
+    "loadFailed": "Tellimuse olekut ei saanud laadida.",
+    "restore": "Taasta ostud",
+    "manage": "Halda tellimust",
+    "activate": "Aktiveeri Premium",
+    "viewPlans": "Vaata tellimusi",
+    "howToActivate": "Kuidas Premium aktiveerida",
+    "webActivateHint": "Premium aktiveeritakse iPhone’i või Androidi rakenduses.",
+    "restoreSuccess": "Ostud taastatud. Premium on aktiivne.",
+    "restoreNone": "Taastamiseks oste ei leitud.",
+    "restoreFailed": "Oste ei saanud taastada.",
+    "launchHoldTitle": "Avamisligipääs — arveldus ei ole veel avatud",
+    "launchHoldBody": "Saad rakendust edasi kasutada. Tellimust pole vaja, kuni arveldus on väljas.",
+    "complimentaryTitle": "Tasuta kuni 31. detsembrini 2026",
+    "complimentaryBody": "{{brand}} on tasuta kuni 31. detsembrini 2026. Tellimust ega makseviisi pole vaja. See pakkumine ei muutu automaatselt tasuliseks tellimuseks.",
+    "complimentaryBodyUntil": "Tasuta kuni {{date}}. Tellimust ega makseviisi pole vaja ja see pakkumine ei muutu automaatselt tasuliseks tellimuseks. Alates 1. jaanuarist 2027 saad valida, kas tellid.",
+    "launchTitle": "Avamisligipääs",
+    "launchBody": "Saad rakendust praegu kasutada. Tellimust pole veel vaja.",
+    "launchBodyUntil": "Saad rakendust praegu kasutada. Tellimust pole veel vaja. Tasuline algus: {{date}}.",
+    "noPremium": "Aktiivset Premiumit pole",
+    "choosePlan": "Vali Premium kuus või Premium aastas, et täielik ligipääs avada.",
+    "billingNotLive": "Tellimust pole veel vaja. Arveldus ei ole avatud.",
+    "activateBody": "Aktiveeri Premium, et saada rakendusele täielik ligipääs.",
+    "grandfatheredTitle": "Premium on jäädavalt kaasas",
+    "grandfatheredBody": "Sinu perel on täielik ligipääs tasuta.",
+    "trialTitle": "Premium – tasuta proov",
+    "ends": "Lõpeb {{date}}",
+    "giftTitle": "Premium – kinkekaart",
+    "validUntil": "Kehtib kuni {{date}}",
+    "graceTitle": "Premium – makse vajab uuendamist",
+    "graceBody": "Ligipääs töötab veel, aga makse tuleb korda teha poes {{store}}.",
+    "activeTitle": "Premium – {{plan}} poe {{store}} kaudu",
+    "planYearly": "aastaplaan",
+    "planMonthly": "kuuplaan"
+  },
+  "theme": {
+    "title": "Välimus",
+    "darkMode": "Tume režiim",
+    "darkHint": "Lülita sisse tume kujundus, et pimedas oleks mugavam",
+    "toggleAria": "Lülita tume režiim",
+    "colorBlind": "Värvipimeduse kujundus",
+    "colorBlindHint": "Kohandab värve eri tüüpi värvipimeduse jaoks",
+    "colorNone": "Puudub (vaikimisi)",
+    "protanopia": "Protanopia (punapimedus)",
+    "deuteranopia": "Deuteranopia (rohepimedus)",
+    "tritanopia": "Tritanopia (sinipimedus)"
+  },
+  "viewMode": {
+    "dualAccess": "Sul on ligipääs nii vanema kui ka pedagoogi vaatele.",
+    "switchPedagog": "🌟 Lülitu pedagoogi vaatesse",
+    "switchParent": "👨‍👩‍👧 Lülitu vanema vaatesse"
+  },
+  "loadError": {
+    "title": "Pere seadeid ei saanud laadida",
+    "fallback": "Pere seadeid ei saa praegu laadida.",
+    "retry": "Proovi uuesti",
+    "retryIn": "Proovi uuesti {{seconds}} s pärast"
+  },
+  "unsubscribe": {
+    "weekly": "Me ei saada enam nädala kokkuvõtteid sinu e-postile. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+    "reward": "Me ei saada enam kirju, kui laps tahab auhinda lunastada. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+    "all": "Kõik e-kirja teavitused on väljas. Saad need tagasi lülitada jaotises Seaded → Teavitused.",
+    "invalidTitle": "Vigane link",
+    "invalidBody": "Link on vigane või aegunud.",
+    "errorTitle": "Midagi läks valesti",
+    "errorBody": "Proovi hiljem uuesti või mine rakenduses Seadetesse."
+  },
+  "notifArchive": {
+    "retry": "Proovi uuesti",
+    "failedHidden": "Ebaõnnestunud või väljalülitatud saatmisi siin ei näidata.",
+    "loading": "Laadin tõukearhiivi…",
+    "loadError": "Tõukearhiivi ei saanud laadida. See ei tähenda, et teavitusi pole.",
+    "markAll": "Märgi kõik loetuks"
+  }
+}

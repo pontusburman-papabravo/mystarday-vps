@@ -225,7 +225,7 @@
   "addActivity": "Tevékenység",
   "emptySection": "Nincs tevékenység",
   "activityCount": {
-    "one": "1 tevékenység",
+    "one": "{{count}} tevékenység",
     "other": "{{count}} tevékenység"
   },
   "loading": "Betöltés…",

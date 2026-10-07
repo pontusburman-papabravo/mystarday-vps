@@ -108,4 +108,41 @@ describe('app locale readiness', () => {
       assert.equal(row.activation, 'planned', marketId);
     }
   });
+
+  it('the Baltic and Hellenic packs are ready while their markets stay closed', () => {
+    const markets = {
+      'bg-BG': 'BG',
+      'el-GR': 'GR',
+      'et-EE': 'EE',
+      'lt-LT': 'LT',
+      'lv-LV': 'LV',
+    };
+    const catalog = loadStoreCatalog();
+    for (const [id, marketId] of Object.entries(markets)) {
+      const result = assessAppLocale(id);
+      assert.equal(result.ready, true, `${id}: ${result.errors.join('; ')}`);
+      const market = assessMarket(marketId);
+      assert.equal(market.APP_READY, true, id);
+      assert.equal(market.APPLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.GOOGLE_READY, true, `${id}: ${market.reasons.join('; ')}`);
+      assert.equal(market.MARKET_READY, false, id);
+      const row = catalog.markets.markets.find((item) => item.id === marketId);
+      assert.equal(row.activation, 'planned', marketId);
+      if (id === 'el-GR') {
+        assert.equal(market.appleFallback, null);
+        assert.equal(market.appleScreenshotOrigin, 'native_locale');
+      } else {
+        assert.equal(market.appleFallback, 'en-GB');
+        assert.equal(market.appleScreenshotOrigin, 'explicit_fallback');
+      }
+      assert.equal(market.googleScreenshotOrigin, 'native_locale');
+    }
+    const cyprus = assessMarket('CY');
+    assert.equal(cyprus.APP_READY, true);
+    assert.equal(cyprus.MARKET_READY, false);
+    assert.equal(catalog.markets.markets.find((item) => item.id === 'CY').activation, 'planned');
+    assert.equal(assessMarket('SE').MARKET_READY, true);
+    assert.equal(assessMarket('IE').MARKET_READY, true);
+    assert.equal(assessMarket('CA').MARKET_READY, true);
+  });
 });

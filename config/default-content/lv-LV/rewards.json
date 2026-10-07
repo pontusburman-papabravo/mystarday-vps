@@ -1,0 +1,5 @@
+[
+  { "name": "Papildu ekrāna laiks", "icon": "📱", "star_cost": 5 },
+  { "name": "Izvēlies vakariņas", "icon": "🍕", "star_cost": 10 },
+  { "name": "Maza dāvaniņa", "icon": "🎁", "star_cost": 20 }
+]

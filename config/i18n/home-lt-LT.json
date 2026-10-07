@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Pradžia — {{brand}}",
+  "greeting": {
+    "morning": "Labas rytas!",
+    "afternoon": "Labas!",
+    "evening": "Labas vakaras!",
+    "default": "Labas!"
+  },
+  "sub": "Štai kaip atrodo diena.",
+  "status": {
+    "paused": "Šiandien laisvadienis",
+    "allDone": "Viskas padaryta!",
+    "noSchedule": "Nėra rutinos",
+    "progressDone": "{{done}}/{{total}} padaryta",
+    "emptyChildren": "Pridėk vaiką skiltyje Šeima, kad čia matytum būseną.",
+    "loadError": "Nepavyko įkelti vaikų būsenos. Tai nereiškia, kad vaikų nėra.",
+    "retry": "Bandyk dar kartą",
+    "viewActivitiesAria": "{{name}} — žiūrėti šiandienos veiklas"
+  },
+  "ready": {
+    "title": "Pasiruošę kitai veiklai",
+    "childrenCount": "({{count}} vaikai)"
+  },
+  "quickActions": {
+    "aria": "Greiti veiksmai",
+    "retroactive": "Užpildyti vėliau",
+    "onceTask": "Vienkartinė veikla",
+    "extraStars": "Papildomos žvaigždės",
+    "dayOff": "Laisvadienis"
+  },
+  "dayOffModal": {
+    "title": "🏠 Laisvadienis",
+    "subtitle": "Sustabdo vaiko rutiną visai dienai",
+    "footer": "Laisvadienį vaikui nereikia pažymėti veiklų",
+    "noChildren": "Vaikų nerasta",
+    "stateActive": "🟢 Rutina veikia",
+    "statePaused": "⏸ Šiandien laisvadienis",
+    "markDayOff": "🏠 Pažymėti laisvadienį",
+    "resumeSchedule": "▶ Tęsti rutiną",
+    "noScheduleTitle": "Šiandien rutina nesukurta",
+    "resumedToast": "Rutina tęsiama!",
+    "pausedToast": "🏠 Pažymėta kaip laisvadienis!",
+    "genericError": "Kažkas nutiko",
+    "networkError": "Tinklo klaida"
+  },
+  "handoff": {
+    "title": "Laikas vaikui prisijungti?",
+    "sub": "Perjunk į vaiko vaizdą su PIN.",
+    "childLogin": "👶 Vaikas prisijungia",
+    "changePin": "Keisti vaiko PIN",
+    "changePinAria": "Atidaryti Šeimą ir pakeisti vaiko PIN",
+    "parentLogout": "Atsijungti",
+    "regionAria": "Perjungti į vaiko prisijungimą",
+    "dismissTitle": "Uždaryti",
+    "trusted": {
+      "title": "Laikas atidaryti vaiko vaizdą?",
+      "sub": "Atidaryk vaiko vaizdą šiame įrenginyje.",
+      "childLogin": "Atidaryti vaiko vaizdą",
+      "regionAria": "Atidaryti vaiko vaizdą"
+    },
+    "pin": {
+      "title": "Laikas vaikui prisijungti?",
+      "sub": "Perjunk į vaiko vaizdą su PIN.",
+      "childLogin": "Prisijungti vaiko PIN",
+      "regionAria": "Prisijungti vaiko PIN"
+    },
+    "postSchema": {
+      "title": "Kitas žingsnis: tegul vaikas išbando rutiną",
+      "sub": "Atidaryk vaiko režimą kartu — užtrunka apie minutę.",
+      "childLogin": "Išbandyti vaiko režimą dabar",
+      "regionAria": "Kitas žingsnis: tegul vaikas išbando rutiną",
+      "trusted": {
+        "title": "Kitas žingsnis: atidaryk vaiko vaizdą",
+        "sub": "Atidaryk vaiko režimą kartu — užtrunka apie minutę.",
+        "childLogin": "Atidaryti vaiko vaizdą",
+        "regionAria": "Kitas žingsnis: atidaryti vaiko vaizdą"
+      },
+      "pin": {
+        "title": "Kitas žingsnis: tegul vaikas išbando rutiną",
+        "sub": "Atidaryk vaiko režimą kartu — užtrunka apie minutę.",
+        "childLogin": "Prisijungti vaiko PIN",
+        "regionAria": "Kitas žingsnis: prisijungti vaiko PIN"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Kitas žingsnis link pirmos sėkmingos rutinos",
+    "pinHint": "Vaikas naudoja savo PIN. Kai baigs, galėsi grįžti į tėvo režimą.",
+    "recovery": {
+      "fetchErrorHeadline": "Nepavyko įkelti kito žingsnio",
+      "fetchErrorBody": "Tai atrodo laikina. Bandyk dar kartą arba tęsk be gido.",
+      "retry": "Bandyk dar kartą",
+      "continueWithoutGuide": "Tęsti be gido",
+      "defer": "Padarysiu vėliau",
+      "deferError": "Dabar nepavyko išsaugoti pasirinkimo. Bandyk dar kartą.",
+      "retrying": "Bandoma dar kartą…",
+      "deferring": "Saugoma…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Sukurk vaiko profilį",
+        "body": "Užtenka vardo ir paprasto PIN, kad pradėtum.",
+        "cta": "Tęsti su vaiku"
+      },
+      "save_schedule": {
+        "headline": "Išsaugok paprastą pirmą rutiną",
+        "body": "Pasirink pradinį planą — vėliau galėsi jį keisti.",
+        "cta": "Rinktis pradinį planą"
+      },
+      "child_access": {
+        "headline": "Atidaryk vaiko vaizdą",
+        "body": "Tegul vaikas vaiko vaizde išbando pirmą šiandienos veiklą.",
+        "cta": "Atidaryti vaiko vaizdą"
+      },
+      "child_access_named": {
+        "headline": "{{name}} rutina paruošta",
+        "body": "Vaikas gali pradėti, kai tau tinka.",
+        "cta": "Atidaryti vaiko vaizdą"
+      },
+      "await_first_completion": {
+        "headline": "Laukiama pirmos veiklos",
+        "body": "Vaikas rutiną mato vaiko vaizde. Padėk pradėti, jei reikia.",
+        "cta": "Atidaryti vaiko vaizdą"
+      },
+      "parent_ack": {
+        "headline": "Vaikas atliko veiklą!",
+        "body": "Patvirtink, kad žvaigždė būtų įskaityta, ir pasidžiaukite kartu.",
+        "cta": "Žiūrėti veiklą"
+      },
+      "celebrate_first_success": {
+        "headline": "Pirma žvaigždė gauta!",
+        "body": "Puiku — rutina tikrai veikia.",
+        "cta": "Tęsti"
+      },
+      "journey_coach": {
+        "headline": "Kitas žingsnis",
+        "body": "Tęsk rutiną savo tempu.",
+        "cta": "Tęsti"
+      },
+      "engine_legacy": {
+        "headline": "Kitas žingsnis",
+        "body": "Sek siūlomą kitą žingsnį.",
+        "cta": "Tęsti"
+      },
+      "continue_today": {
+        "headline": "{{name}} šiandien dar turi rutinos",
+        "body": "Nori tęsti ten, kur sustojote?",
+        "cta": "Tęsti rutiną"
+      },
+      "welcome_back": {
+        "headline": "Smagu, kad grįžai",
+        "body": "Kitas žingsnis vis dar čia, kai prireiks — atidaryti vaiko rutiną?",
+        "cta": "Atidaryti vaiko vaizdą"
+      },
+      "invite_adult": {
+        "headline": "Ar kitas suaugęs irgi norėtų padėti?",
+        "body": "Pakviesk, kai tau tinka — kontrolė lieka pas tave.",
+        "cta": "Pakviesti suaugusį"
+      },
+      "share_week": {
+        "headline": "Mažas savaitės akcentas",
+        "body": "Dalinkis tik jei nori — niekas neskelbiama automatiškai.",
+        "cta": "Dalintis akcentu"
+      },
+      "refer_family": {
+        "headline": "Pažįsti šeimą, kuriai galėtų tikti rutinos?",
+        "body": "Pasidalink asmenine nuoroda — be apdovanojimo, tik patarimas.",
+        "cta": "Dalintis programėle"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ne dabar",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Šią savaitę rutinos pajudėjo į priekį",
+        "body": "Rami santrauka — tik tau.",
+        "shareText": "Naudojame {{brand}} vaikų rutinoms namuose. Jei nori išbandyti paprastą šeimos programėlę."
+      },
+      "morning": {
+        "headline": "Kelios šios savaitės rytinės praėjo šiek tiek ramiau",
+        "body": "Puiku — dalinkis tik jei nori.",
+        "shareText": "Ramesni rytai su paprasta rutinų programėle. Gal padės ir tavo šeimai."
+      },
+      "evening": {
+        "headline": "Vakaro rutina šią savaitę suveikė kelis kartus",
+        "body": "Privatus akcentas — be reitingų.",
+        "shareText": "Vakaro rutinos mūsų namuose tapo šiek tiek lengvesnės. Jei ieškai ramaus įrankio."
+      },
+      "multi_child": {
+        "headline": "Vaikai šią savaitę žengė kelis žingsnius savo rutinose",
+        "body": "Santrauka be vardų ir nuotraukų.",
+        "shareText": "Naudojame {{brand}} vaikų rutinoms. Išbandyti:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Esi steigėjų šeima",
+    "body": "Kaip viena pirmųjų šeimų, turi prieigą visam laikui be mokesčio. Ačiū, kad esi su mumis nuo pradžių!"
+  },
+  "weekStory": {
+    "title": "Šios savaitės istorija"
+  },
+  "starHistory": {
+    "title": "Savaitės pažanga",
+    "subtitle": "Paskutinės 8 savaitės",
+    "thisWeek": "{{count}} ⭐ šią savaitę",
+    "weekTooltip": "S{{week}}: {{count}} žvaigždės",
+    "diffUp": "+{{diff}} palyginti su praėjusia savaite",
+    "diffSame": "Tiek pat kaip praėjusią savaitę",
+    "bestWeek": "🎉 Geriausia {{name}} savaitė iki šiol!"
+  },
+  "nav": {
+    "today": "Šiandien",
+    "dailyLog": "Dienos žurnalas",
+    "fillRetroactive": "📝 Užpildyti vėliau"
+  },
+  "readiness": {
+    "heading": "Reikia dėmesio",
+    "warningsOnly": "Tik įspėjimai",
+    "loadError": "Nepavyko patikrinti, kam reikia dėmesio.",
+    "retry": "Bandyk dar kartą",
+    "items": {
+      "pendingInviteTitleOne": "1 laukiantis kvietimas kitam tėvui",
+      "pendingInviteTitleMany": "{{count}} laukiantys kvietimai kitam tėvui",
+      "pendingInviteSub": "Tvarkyk skiltyje Šeima",
+      "pendingApprovalTitle": "{{name}} — {{count}} laukiantis prašymas",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} laukiantys prašymai",
+      "pendingApprovalSub": "Patvirtink skiltyje Apdovanojimai",
+      "incompleteDaysTitleOne": "{{name}} — 1 neužpildyta diena",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} neužpildytos dienos",
+      "incompleteDaysSub": "Užpildyk vėliau",
+      "missingPinTitle": "{{name}} neturi PIN",
+      "missingPinSub": "Nustatyk PIN vaiko profilyje",
+      "pausedDayTitle": "{{name}} — šiandien laisvadienis",
+      "pausedDaySub": "Atidaryti Šiandien",
+      "noScheduleTitle": "{{name}} — šiandien nėra rutinos",
+      "noScheduleSub": "Atidaryti savaitės planą"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} nori išsikeisti apdovanojimą",
+    "pendingRewardSubOne": "Vienas prašymas laukia tavęs",
+    "pendingRewardSubMany": "{{count}} prašymai laukia tavęs",
+    "showRequest": "Žiūrėti prašymą",
+    "closeToReward": "{{name}} iki kito apdovanojimo skiria tik {{gap}}",
+    "starOne": "1 žvaigždė",
+    "starMany": "{{count}} žvaigždės",
+    "seeRewards": "Žiūrėti apdovanojimus",
+    "starsTodayHeadline": "Vaikai šiandien surinko {{count}}",
+    "starsTodaySubOne": "{{name}} jas surinko šiandien",
+    "starsTodaySubMany": "Vaikai jas surinko šiandien",
+    "tasksDoneHeadline": "{{name}} šiandien jau atliko {{count}}",
+    "taskOne": "1 veiklą",
+    "taskMany": "{{count}} veiklas",
+    "tasksRemaining": "Šiandienos rutinoje liko {{count}}",
+    "allActivitiesDone": "Visos veiklos atliktos — puikus darbas!",
+    "seeSchedule": "Žiūrėti planą",
+    "nextActivityHeadline": "{{name}} pasiruošė veiklai {{activity}}",
+    "nextActivitySub": "Kita rutinos veikla",
+    "openToday": "Atidaryti Šiandien",
+    "calmDayHeadline": "Rami diena — dabar nėra rutinos",
+    "calmDaySub": "Gera akimirka pridėti veiklų arba duoti papildomų žvaigždžių",
+    "defaultChild": "Tavo vaikas",
+    "pageTitleStars": "🌟 Šiandienos žvaigždės",
+    "pageTitleWelcome": "👋 Smagu, kad grįžai",
+    "pageTitleProgress": "🌟 Šeimos pažanga šiandien",
+    "greetingFallback": "{{greeting}} Štai kaip atrodo šiandien",
+    "followChild": "Sek {{name}} pažangą čia",
+    "followChildren": "Sek vaikų pažangą čia"
+  },
+  "childStats": {
+    "paused": "⏸ Šiandien laisvadienis",
+    "allDone": "🌟 Šiandien viskas padaryta!",
+    "tasksDoneOne": "🔥 Šiandien atlikta 1 veikla",
+    "tasksDoneMany": "🔥 Šiandien atlikta {{count}} veiklos",
+    "noSchedule": "Šiandien nėra rutinos",
+    "todayProgress": "Šiandien <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> iš viso",
+    "starsTodayOne": "+1 žvaigždė šiandien",
+    "starsTodayMany": "+{{count}} žvaigždės šiandien",
+    "remaining": "liko {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Iki kito apdovanojimo trūksta tik 1 žvaigždės",
+    "rewardGapMany": "🎁 Iki kito apdovanojimo trūksta tik {{count}} žvaigždžių"
+  },
+  "offline": {
+    "banner": "Be ryšio — pakeitimai išsaugoti",
+    "lastUpdated": "· Paskutinį kartą atnaujinta {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Dienos žurnalas",
+    "dailyLogSub": "Sek vaikų dieną — žvaigždes įrašyk vėliau"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Kaip sekasi su {{goal}} šiuo metu?",
+      "sub": "Vaikui {{name}}",
+      "great": "Daug geriau",
+      "better": "Šiek tiek geriau",
+      "same": "Be skirtumo",
+      "worse": "Neveikia",
+      "followUpBetter": "Kas pagerėjo?",
+      "followUpWorse": "Ko trūksta?",
+      "optional": "(nebūtina)",
+      "send": "Siųsti",
+      "skip": "Praleisti",
+      "dismissAria": "Uždaryti",
+      "thanks": "Ačiū! Atsakymas išsaugotas.",
+      "alreadyAnswered": "Ačiū! Atrodo, jau atsakei.",
+      "next": "Atsakyti į kitą",
+      "done": "Atlikta"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Praleisti",
+    "next": "Toliau →",
+    "start": "🎉 Pirmyn!",
+    "steps": {
+      "welcome": {
+        "title": "Labas, čia apžvalga!",
+        "body": "Čia matai kiekvieno vaiko dieną. Savaitės planą redaguoji skiltyje Planavimas."
+      },
+      "stars": {
+        "title": "Žvaigždės ir lobių skrynia",
+        "body": "Kiekviena atlikta veikla duoda 1 žvaigždę. Vaikas renka žvaigždes ir keičia jas į apdovanojimus lobių skrynioje."
+      },
+      "schedule": {
+        "title": "Savaitės planas ir veiklos",
+        "body": "Meniu skiltyje Planavimas rasi veiklų biblioteką ir galėsi pridėti savo apdovanojimų."
+      },
+      "family": {
+        "title": "Pridėk daugiau vaikų ar suaugusiųjų",
+        "body": "Paliesk „+ Pridėti vaiką“, kad pridėtum brolį ar sesę. Skiltyje Šeima gali pakviesti kitą suaugusį."
+      },
+      "help": {
+        "title": "Reikia pagalbos?",
+        "body": "Bet kada paliesk ❓ mygtuką apačioje dešinėje — ten DUK ir patarimai. Sėkmės su {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} bando prisijungti",
+    "body": "3 neteisingi PIN bandymai — vaikui gali prireikti pagalbos"
+  },
+  "shareSchedule": {
+    "notAvailable": "Dalijimasis šiame įrenginyje nepasiekiamas",
+    "notSupported": "Dalijimasis šiame įrenginyje nepasiekiamas",
+    "shared": "Pasidalinta!",
+    "childNotFound": "Vaiko nerasta",
+    "couldNotShare": "Nepavyko pasidalinti: {{message}}",
+    "routineToday": "{{name}} rutina šiandien:",
+    "title": "{{name}} rutina"
+  },
+  "swUpdate": {
+    "ready": "✨ Paruošta nauja programėlės versija!",
+    "reloadNow": "Įkelti iš naujo dabar",
+    "later": "Vėliau",
+    "dismissAria": "Uždaryti atnaujinimo juostą"
+  },
+  "pwa": {
+    "title": "Įdiek programėlę pranešimams",
+    "iosLead": "iPhone ir iPad pranešimams programėlė turi būti pradžios ekrane.",
+    "iosStep1": "Safari apačioje paliesk Bendrinti",
+    "iosStep2": "Pasirink „Įtraukti į pradžios ekraną“",
+    "iosStep3": "Atidaryk programėlę iš pradžios ekrano ir leisk pranešimus",
+    "iosArrowHint": "Animuota rodyklė rodo naršyklės mygtuką Bendrinti",
+    "androidTitle": "Įdiek programėlę, kad būtų patogiau",
+    "androidLead": "Įdiek programėlę, kad gautum priminimus telefone.",
+    "androidHomeLead": "Įdiek {{brand}} į pradžios ekraną, kad greitai atidarytum ir gautum pranešimus.",
+    "androidInstall": "Įdiegti programėlę",
+    "androidInstallBtn": "📲 Įdiegti programėlę",
+    "androidChromeFallback": "Chrome paliesk ⋮ (meniu) → <strong>„Įtraukti į pradžios ekraną“</strong>",
+    "desktopTitle": "Įdiegti programėlę",
+    "desktopLead": "Paliesk diegimo piktogramą (⊕) adreso juostoje arba naudok naršyklės meniu.",
+    "dismissAria": "Uždaryti"
+  },
+  "pushPrompt": {
+    "title": "Gauk pranešimus apie vaikus",
+    "body": "Sužinok iš karto, kai vaikas pažymi veiklą arba nori išsikeisti apdovanojimą.",
+    "later": "Vėliau",
+    "enable": "Įjungti",
+    "enabledToast": "✅ Pranešimai įjungti!"
+  },
+  "globalFeedback": {
+    "fabAria": "Palikti atsiliepimą",
+    "fabTitle": "Palikti atsiliepimą",
+    "modalTitle": "Palikti atsiliepimą",
+    "typeBug": "Pranešti apie problemą",
+    "typeSuggestion": "Pasiūlymas",
+    "typeLanguage": "Kalba",
+    "titlePlaceholder": "Pavadinimas",
+    "messagePlaceholder": "Kas nutiko?",
+    "cancel": "Atšaukti",
+    "submit": "Siųsti pranešimą",
+    "submitting": "Siunčiama...",
+    "validationRequired": "Užpildyk visus laukus.",
+    "success": "Pranešimas išsiųstas.",
+    "errorGeneric": "Kažkas nutiko. Bandyk dar kartą."
+  },
+  "cards": {
+    "loadError": "Nepavyko įkelti vaikų kortelių. Patrauk žemyn, kad atnaujintum.",
+    "last": "Paskutinė:",
+    "next": "Kita:",
+    "noActivitiesToday": "Šiandien veiklų nesuplanuota",
+    "noRoutineToday": "Šiandien nėra rutinos",
+    "createActivity": "✨ Sukurk veiklą plane →",
+    "childNoActivities": "{{name}} dar neturi veiklų — sukurk pirmą →",
+    "noRewards": "🎁 Apdovanojimų dar nėra",
+    "addReward": "→ Pridėti apdovanojimą",
+    "pendingRequest": "{{count}} laukiantis prašymas",
+    "pendingRequestMany": "{{count}} laukiantys prašymai",
+    "pausedBadge": "PAUZĖ",
+    "allDoneTitle": "Viskas padaryta!",
+    "statusNow": "DABAR",
+    "statusNext": "TOLIAU",
+    "onceTask": "Vienkartinė veikla",
+    "markDone": "Pažymėti kaip atlikta",
+    "unmark": "Atžymėti",
+    "activityMarked": "✅ Atlikta!",
+    "activityUnmarked": "Atžymėta",
+    "fillDay": "Užpildyti {{day}}",
+    "allActivitiesDone": "Šiandien visos veiklos atliktos!",
+    "last7Days": "Paskutinės 7 dienos"
+  },
+  "approvals": {
+    "title": "Laukiantys prašymai",
+    "loading": "Įkeliami prašymai...",
+    "empty": "Laukiančių prašymų nėra! 🎉",
+    "loadError": "Nepavyko įkelti prašymų.",
+    "wantsGoalChange": "Nori pakeisti tikslą",
+    "goalChangeTo": "Į: {{name}}",
+    "wantsRedeem": "Nori išsikeisti",
+    "approve": "Patvirtinti",
+    "deny": "Atmesti",
+    "requiresApproval": "Reikia patvirtinimo",
+    "requiresApprovalCount": "Reikia patvirtinimo ({{count}})",
+    "goalApproved": "🎯 Tikslo keitimas patvirtintas!",
+    "redemptionApproved": "🎉 Iškeitimas patvirtintas!",
+    "goalDenied": "Tikslo keitimas atmestas.",
+    "redemptionDenied": "Iškeitimas atmestas.",
+    "updateFailed": "Nepavyko atnaujinti",
+    "genericError": "Klaida",
+    "wantsGoalNamed": "{{name}} nori pakeisti tikslą į {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Nori pakeisti tikslą į {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} nori „{{reward}}“ ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Pakoreguoti šiandienos laiką",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Nepavyko pakoreguoti laiko",
+    "undone": "Atšaukta",
+    "undoFailed": "Nepavyko atšaukti"
+  },
+  "loading": {
+    "initFailed": "Kraunant kažkas nutiko. Įkelk puslapį iš naujo.",
+    "couldNotLoad": "Nepavyko įkelti.",
+    "checkConnection": "Patikrink interneto ryšį",
+    "reloadPage": "Įkelti puslapį iš naujo"
+  },
+  "activationProgram": {
+    "exitConfirm": "Nori baigti 7 dienų programą?",
+    "reflectionPlaceholder": "Nebūtina: papasakok daugiau…",
+    "send": "Siųsti",
+    "reflectionQuestion": "Ar programėlė palengvino kasdienybę?",
+    "previewEmpty": "Atidaryk vaiko prisijungimą, kad pamatytum planą.",
+    "optOutTitle": "Baigti programą",
+    "skipToday": "Praleisti šiandien",
+    "orOpenChildLogin": "Arba atidaryk vaiko prisijungimą",
+    "dayOf": "{{day}} diena iš {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Šeimos pažanga šiandien",
+    "allChildren": "← Visi vaikai",
+    "systemMsgFrom": "Žinutė iš programėlės",
+    "systemMsgClose": "Uždaryti ✕",
+    "sharingManage": "Paliesk, kad tvarkytum bendrinamas ataskaitas",
+    "inviteTitle": "Pakviesk kitą tėvą",
+    "inviteSub": "Kad nereikėtų vienas kito klausinėti apie planą",
+    "inviteBtn": "Pakviesti",
+    "shareTitle": "Papasakok draugui!",
+    "shareSub": "Padėk kitai šeimai įnešti struktūros į kasdienybę",
+    "shareBtn": "Dalintis",
+    "inviteModalTitle": "Pakviesk kitą tėvą",
+    "inviteModalBody": "Partneris gauna el. laišką su tiesiogine nuoroda — be papildomų programėlių ir be vargo.",
+    "inviteSentBody": "Partneris dabar gali prisijungti ir matyti planą.",
+    "inviteDone": "Atlikta",
+    "supportPrefix": "🔒 Esi palaikymo režime: rodomi šeimos duomenys",
+    "supportSuffix": ". Duomenų keisti negalima. Sesija baigsis po",
+    "tourSkip": "Praleisti",
+    "tourNext": "Toliau →",
+    "starTipsTitle": "Patarimas: kaip veikia žvaigždės",
+    "starTipsCollect": "• Vaikas gauna žvaigždes, kai veiklos pažymimos vaiko vaizde",
+    "starTipsExtra": "• Papildomas žvaigždes duok iš vaiko kortelės už pastangas už plano ribų",
+    "starTipsRewards": "• Žvaigždės skaičiuojamos išsaugotiems apdovanojimams — tikslus nustatyk skiltyje Apdovanojimai",
+    "starTipsEdit": "• Savaitės planą redaguoji skiltyje Planavimas",
+    "dayDragInner": "nutempk dienos skirtuką ant kitos dienos, kad nukopijuotum ar sukeistum",
+    "calViewDay": "Diena",
+    "calViewWeek": "Savaitė",
+    "calViewMonth": "Mėnuo",
+    "retroactiveFull": "📝 Užpildyti vėliau",
+    "extraStarsFull": "⭐ Duoti papildomų žvaigždžių",
+    "onceTaskFull": "📋 Vienkartinė veikla",
+    "dayOffFull": "🏠 Laisvadienis",
+    "trialEndingTitle": "Bandomajam laikotarpiui liko viena diena",
+    "trialEndingBody": "Bandomasis laikotarpis baigiasi per dieną. Jei nori išlaikyti visą prieigą, pasirink prenumeratą programėlėje. Visi duomenys lieka.",
+    "trialEndingChoose": "Rinktis programėlėje",
+    "trialEndingClose": "Uždaryti"
+  },
+  "helpPanel": {
+    "title": "❓ Kaip tai veikia?",
+    "tabSchema": "📅 Planas",
+    "tabStars": "⭐ Žvaigždės",
+    "tabFamily": "👨‍👩‍👧 Šeima",
+    "tabAdults": "🔑 Daugiau suaugusiųjų",
+    "tabTrouble": "🔧 Trikčių šalinimas",
+    "addActivityQ": "Kaip pridėti veiklą?",
+    "addActivityA": "Pradžioje paliesk vaiko kortelę → pasirink dieną → paliesk „+“, kad pridėtum veiklą iš bibliotekos. Savo veiklas gali kurti ir skiltyje <strong>Biblioteka</strong>.",
+    "dragQ": "Ar galiu tempti ir perkelti veiklas?",
+    "dragA": "Taip! Vaiko plano vaizde (paliesk kortelę Pradžioje) gali paspausti ir tempti veiklas, kad pakeistum eilę. Veiklą taip pat gali nutempti ant kitos dienos skirtuko ir ją nukopijuoti.",
+    "copyQ": "Kaip nukopijuoti planą į kiekvieną dieną?",
+    "copyA": "Plano redaktoriuje (mygtukas 📋) → pasirink „Kopijuoti į kitas dienas“, kad vienos dienos planą nukopijuotum į likusią savaitę.",
+    "earnStarsQ": "Kaip vaikas uždirba žvaigždes?",
+    "earnStarsA": "Kiekviena atlikta veikla duoda <strong>1 žvaigždę</strong>. Vaikas pažymi vaiko vaizde. <strong>Papildomas žvaigždes</strong> gali duoti ir iš vaiko kortelės Pradžioje.",
+    "treasureQ": "Kaip veikia lobių skrynia?",
+    "treasureA": "Vaiko vaizde paliesk ⭐ piktogramą ir pamatysi lobių skrynią — apdovanojimų sąrašą ir kiek žvaigždžių jie kainuoja. Vaikas gali paprašyti apdovanojimo, kai jų sukaupia pakankamai.",
+    "retroQ": "Kaip įrašyti žvaigždes už dienas, kurias pamiršau?",
+    "retroA": "Eik į <strong>Šiandien</strong> (☰ meniu → Šiandien arba mygtukas <strong>Užpildyti vėliau</strong> Pradžioje). Pasirink vaiką, rodyklėmis arba datos parinkikliu rask reikiamą dieną ir pažymėk veiklas. Žvaigždės išsaugomos su teisinga data.",
+    "rewardsQ": "Kaip pridėti ar redaguoti apdovanojimus?",
+    "rewardsA": "Meniu eik į Apdovanojimus. Ten gali pridėti savo apdovanojimų, keisti žvaigždžių kainą ir pasirinkti, kurie vaikai juos mato.",
+    "siblingQ": "Kaip pridėti brolį ar sesę?",
+    "siblingA": "Pradžioje → paliesk <strong>„+ Pridėti vaiką“</strong>. Kiekvienas vaikas gauna savo planą, veiklas ir žvaigždes.",
+    "childLoginQ": "Kaip vaikas prisijungia?",
+    "childLoginA": "Pirmas dienas vaiko dieną gali <strong>peržiūrėti vaiko dieną</strong> per Šiandien. Kai ateis metas, vaikas prisijungia adresu <strong>/child-login</strong> su naudotojo vardu ir PIN — be slaptažodžių. Duomenis rasi skiltyje <strong>Šeima ir nustatymai → Vaikai</strong>.",
+    "inviteAdultQ": "Kaip pakviesti kitą suaugusį?",
+    "inviteAdultA": "Eik į <strong>Šeima ir nustatymai → Šeimos nariai</strong> → paliesk „Pakviesti“. Jie gaus el. laišką su nuoroda susikurti paskyrą ir prisijungti prie šeimos.",
+    "inviteSeeQ": "Ar pakviestas suaugęs mato visus vaikus?",
+    "inviteSeeA": "Siųsdamas kvietimą pasirenki, kuriuos vaikus jie mato. Vėliau tai gali pakeisti skiltyje <strong>Šeimos nariai</strong> → paliesk asmenį → pakoreguok prieigą prie vaikų.",
+    "noActivitiesQ": "Vaikas šiandien nemato veiklų",
+    "noActivitiesA": "Patikrink, ar planas nustatytas tinkamai dienai. Atidaryk vaiko planą (paliesk vaiko kortelę) → pasirink šiandien → pažiūrėk, ar yra veiklų. Jei planas tuščias, užpildyk jį parinktimi „Kopijuoti į kitas dienas“.",
+    "forgotPinQ": "Pamiršau vaiko PIN",
+    "forgotPinA": "Eik į <strong>Šeima ir nustatymai → Vaikai</strong> → pasirink vaiką → paliesk „Keisti PIN“ ir nustatyk naują PIN.",
+    "innerOneStar": "1 žvaigždė",
+    "innerBonusStars": "papildomos žvaigždės",
+    "innerAddChild": "„+ Pridėti vaiką“",
+    "innerPreview": "peržiūrėti vaiko dieną",
+    "innerFamilyMembersPath": "Šeima ir nustatymai → Šeimos nariai",
+    "innerMembers": "Šeimos nariai",
+    "innerFamilyChildren": "Šeima ir nustatymai → Vaikai",
+    "supportQ": "Susisiekti su pagalba",
+    "supportLead": "Rašyk mums",
+    "supportTail": " — atsakome per 24 valandas."
+  },
+  "journeyAck": {
+    "headline": "Vaikas atliko veiklą!",
+    "childFallback": "Tavo vaikas",
+    "activityFallback": "veiklą",
+    "dismiss": "Mačiau"
+  },
+  "journeyCelebration": {
+    "headline": "Padarėte tai kartu",
+    "body": "Vaikas pradėjo — ir tu tai pamatei.",
+    "dismiss": "Puiku!"
+  },
+  "activationAha": {
+    "body": "Nereikėjo priminti.",
+    "dismiss": "Puiku!"
+  }
+}

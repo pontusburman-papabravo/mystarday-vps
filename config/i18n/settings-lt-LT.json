@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Nustatymai — {{brand}}",
+  "title": "Nustatymai",
+  "shellLead": "Profilis, šeima ir programėlė",
+  "familySettings": "Šeimos nustatymai",
+  "groups": {
+    "profile": {
+      "title": "Profilis ir paskyra",
+      "sub": "Prisijungimas, PIN ir paskyra"
+    },
+    "family": {
+      "title": "Šeima",
+      "sub": "Vardas ir kalba. Žmonės tvarkomi skiltyje Šeima."
+    },
+    "device": {
+      "title": "Šis įrenginys",
+      "sub": "Vaiko telefonas, suaugusiojo telefonas arba bendras telefonas"
+    },
+    "appearance": {
+      "title": "Išvaizda",
+      "sub": "Tamsi arba šviesi tema"
+    },
+    "app": {
+      "title": "Programėlė",
+      "sub": "Pranešimai, push ir privatumas"
+    },
+    "premium": {
+      "title": "Prenumerata",
+      "sub": "Premium, pirkimai ir mokėjimai"
+    }
+  },
+  "appearance": {
+    "dark": "Tamsi",
+    "light": "Šviesi",
+    "backToSettings": "← Atgal į nustatymus"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planavimas",
+      "sub": "Kurk turinį arba planuok vaikų savaitę."
+    },
+    "rewards": {
+      "title": "Apdovanojimai",
+      "sub": "Žvaigždės, apdovanojimai ir šeimos skrynia."
+    },
+    "calendar": {
+      "title": "Kalendorius",
+      "sub": "Mėnesio vaizdas visiems vaikams"
+    },
+    "activities": {
+      "title": "Veiklos",
+      "sub": "Tvarkyk vaikų veiklas"
+    },
+    "assignSchedule": {
+      "title": "Priskirti planą",
+      "sub": "Kopijuoti planą vaikui"
+    },
+    "dailyLog": {
+      "title": "Šiandien",
+      "sub": "Sek vaiko dieną — žvaigždes įrašyk vėliau"
+    },
+    "treasureChest": {
+      "title": "Lobių skrynia",
+      "sub": "Apdovanojimai ir žvaigždės"
+    },
+    "childSettings": {
+      "title": "Vaiko nustatymai",
+      "sub": "Vaizdas, PIN ir pritaikymas"
+    },
+    "familyChild": {
+      "title": "Vaiko nustatymai",
+      "sub": "Planas, vaizdas, PIN ir pritaikymas"
+    },
+    "notifications": {
+      "title": "Pranešimai",
+      "sub": "Priminimai ir žinutės"
+    },
+    "schedule": {
+      "title": "Savaitės planas",
+      "sub": "Planuok ir pritaikyk vaikų dienas"
+    },
+    "library": {
+      "title": "Biblioteka",
+      "sub": "Planai, veiklos ir apdovanojimai tavo šeimai"
+    },
+    "family": {
+      "title": "Šeima",
+      "sub": "Vaikai, suaugusieji ir pedagogai"
+    }
+  },
+  "backToPlanning": "← Atgal į planavimą",
+  "avatar": {
+    "title": "Profilio nuotrauka",
+    "description": "Tavo nuotrauką vaikas mato skiltyje Mano žmonės ir Šeimos puslapyje.",
+    "changePhoto": "Keisti nuotrauką",
+    "addPhoto": "Pridėti nuotrauką",
+    "removePhoto": "Pašalinti nuotrauką",
+    "saved": "Profilio nuotrauka išsaugota!",
+    "removed": "Profilio nuotrauka pašalinta",
+    "saveFailed": "Nepavyko išsaugoti",
+    "removeFailed": "Nepavyko pašalinti"
+  },
+  "nativeAccount": {
+    "title": "Paskyra",
+    "sub": "Perjunk į vaiko prisijungimą arba visiškai atsijunk nuo programėlės."
+  },
+  "account": {
+    "title": "Paskyra ir prisijungimas",
+    "appleLinked": "Apple paskyra susieta",
+    "googleLinked": "Google paskyra susieta",
+    "appleLinkedOnIosHint": "Apple paskyrą susiejai iPhone. Kad prisijungtum čia, žemiau pridėk slaptažodį.",
+    "googleLinkedElsewhereHint": "Google paskyrą susiejai kitame įrenginyje. Kad prisijungtum čia, žemiau pridėk slaptažodį.",
+    "newPassword": "Naujas slaptažodis",
+    "confirmPassword": "Pakartok slaptažodį",
+    "minCharsPlaceholder": "Bent 8 simboliai",
+    "repeatPasswordPlaceholder": "Įrašyk slaptažodį dar kartą",
+    "savePassword": "Išsaugoti slaptažodį",
+    "passwordForNonApple": "Prisijungimui be Apple",
+    "changePasswordHint": "Pakeisk slaptažodį, kad išlaikytum prieigą prie paskyros.",
+    "currentPassword": "Dabartinis slaptažodis",
+    "confirmNewPassword": "Pakartok naują slaptažodį",
+    "changePassword": "Keisti slaptažodį",
+    "linkApple": "Susieti Apple paskyrą",
+    "unlinkApple": "Atsieti Apple paskyrą",
+    "linkGoogle": "Susieti Google paskyrą",
+    "unlinkGoogle": "Atsieti Google paskyrą",
+    "changeEmail": "Keisti el. pašto adresą",
+    "newEmail": "Naujas el. pašto adresas",
+    "yourPassword": "Tavo slaptažodis",
+    "confirmWithPassword": "Patvirtink slaptažodžiu",
+    "sendConfirmLink": "Siųsti patvirtinimo nuorodą",
+    "passwordsMismatch": "Slaptažodžiai nesutampa",
+    "passwordMinLength": "Slaptažodis turi būti bent 8 simbolių",
+    "saving": "Saugoma…",
+    "passwordNowActive": "✓ Slaptažodis jau veikia",
+    "somethingWrong": "Kažkas nutiko. Bandyk dar kartą.",
+    "somethingWrongShort": "Kažkas nutiko",
+    "appleSignInUnavailable": "Prisijungimas su Apple šiame įrenginyje nepasiekiamas.",
+    "googleSignInUnavailable": "Prisijungimas su Google šiame įrenginyje nepasiekiamas.",
+    "linking": "Sieja…",
+    "appleAlreadyLinked": "Ši Apple paskyra jau susieta su kita paskyra.",
+    "googleAlreadyLinked": "Ši Google paskyra jau susieta su kita paskyra.",
+    "couldNotLinkApple": "Nepavyko susieti Apple:",
+    "couldNotLinkGoogle": "Nepavyko susieti Google:",
+    "tryAgain": "Bandyk dar kartą.",
+    "unlinkApplePrompt": "Įrašyk slaptažodį, kad atsietum Apple:",
+    "unlinkGooglePrompt": "Įrašyk slaptažodį, kad atsietum Google:",
+    "removing": "Šalinama…",
+    "couldNotUnlink": "Nepavyko atsieti",
+    "invalidEmail": "Įrašyk tinkamą el. pašto adresą",
+    "sending": "Siunčiama…",
+    "linkSentTo": "Nuoroda išsiųsta adresu {{email}}",
+    "passwordChanged": "Slaptažodis pakeistas!",
+    "linkAppleBtn": "🍎 Susieti Apple paskyrą",
+    "linkGoogleBtn": "G Susieti Google paskyrą",
+    "emailUpdated": "El. paštas atnaujintas! Dabar gali prisijungti nauju adresu.",
+    "passwordSet": "Slaptažodis nustatytas. Dabar gali prisijungti el. paštu ir slaptažodžiu.",
+    "errors": {
+      "invalidAppleToken": "Netinkamas Apple tapatybės prieigos raktas",
+      "invalidGoogleToken": "Netinkamas Google tapatybės prieigos raktas",
+      "appleAlreadyLinkedThis": "Apple paskyra jau susieta su šia paskyra",
+      "googleAlreadyLinkedThis": "Google paskyra jau susieta su šia paskyra",
+      "passwordRequiredUnlink": "Norint atsieti paskyrą, reikia slaptažodžio",
+      "setPasswordBeforeUnlink": "Prieš atsiedamas paskyrą, nustatyk slaptažodį",
+      "emailPasswordRequired": "Būtinas naujas el. pašto adresas ir slaptažodis",
+      "setPasswordBeforeEmail": "Prieš keisdamas el. pašto adresą, nustatyk slaptažodį",
+      "emailAlreadyRegistered": "Šis el. paštas jau registruotas kitoje paskyroje",
+      "emailChangeLinkInvalid": "Nuoroda netinkama arba nebegalioja. Nustatymuose paprašyk naujo keitimo.",
+      "emailChangeLinkUsed": "Ši nuoroda jau panaudota. Nustatymuose paprašyk naujo keitimo.",
+      "emailChangeLinkExpired": "Ši nuoroda nebegalioja. Nustatymuose paprašyk naujo keitimo.",
+      "passwordAlreadySet": "Slaptažodis jau yra. Atnaujink jį per „Keisti slaptažodį“.",
+      "emailAllOff": "Visi el. laiškų pranešimai išjungti. Juos vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+      "weeklyEmailOff": "Daugiau savaitės santraukų į el. paštą nesiųsime. Jas vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+      "redeemEmailOff": "Daugiau laiškų, kai vaikas nori išsikeisti apdovanojimą, nesiųsime. Juos vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+      "passwordCurrentAndNew": "Būtinas dabartinis ir naujas slaptažodis",
+      "appleLinkLoginRequired": "Kad susietum Apple paskyrą, turi būti prisijungęs",
+      "googleLinkLoginRequired": "Kad susietum Google paskyrą, turi būti prisijungęs"
+    }
+  },
+  "toast": {
+    "saved": "Išsaugota!",
+    "savedCheck": "✅ Išsaugota!",
+    "saveFailedRetry": "Nepavyko išsaugoti. Bandyk dar kartą.",
+    "networkError": "Tinklo klaida"
+  },
+  "parentPin": {
+    "title": "PIN kodas",
+    "security": "Saugumas",
+    "hasPinDescription": "Tavo asmeninis PIN saugo tėvo režimą — vaikai negali išeiti iš vaiko režimo be tavo PIN.",
+    "noPinDescription": "Nustatyk savo 4 skaitmenų PIN — vaikai negali išeiti iš vaiko režimo be tavo PIN.",
+    "choosePin": "Pasirink 4 skaitmenų PIN",
+    "confirmPin": "Pakartok PIN",
+    "changePinBack": "← Keisti PIN",
+    "enterCurrentPin": "Įrašyk dabartinį PIN",
+    "forgotPin": "Pamiršai PIN?",
+    "chooseNewPin": "Pasirink naują PIN",
+    "confirmNewPin": "Pakartok naują PIN",
+    "forgotIntro": "Įrašyk slaptažodį, kad nustatytum naują PIN.",
+    "yourPassword": "Tavo slaptažodis",
+    "verify": "Patvirtinti",
+    "keypadAria": "Skaičių klaviatūra",
+    "confirmKeypadAria": "PIN patvirtinimo klaviatūra",
+    "pinKeypadAria": "PIN klaviatūra",
+    "newPinKeypadAria": "Naujo PIN klaviatūra",
+    "confirmNewPinKeypadAria": "Naujo PIN patvirtinimo klaviatūra",
+    "pinsMismatch": "PIN nesutampa — bandyk dar kartą",
+    "pinNowActive": "✓ PIN jau veikia",
+    "wrongPin": "Neteisingas PIN — bandyk dar kartą",
+    "pinChanged": "✓ PIN pakeistas!",
+    "couldNotChangePin": "Nepavyko pakeisti PIN",
+    "sessionExpired": "Sesija baigėsi — dar kartą įrašyk dabartinį PIN",
+    "enterPassword": "Įrašyk slaptažodį",
+    "wrongPassword": "Neteisingas slaptažodis"
+  },
+  "push": {
+    "title": "Push pranešimai",
+    "lead": "Gauk pranešimus telefone — net kai programėlė uždaryta.",
+    "unsupported": "Tavo naršyklė nepalaiko push pranešimų.",
+    "toggleLabel": "Push pranešimai",
+    "toggleDescription": "Įjunk, kad gautum pranešimus apie vaikų veiklas",
+    "toggleAria": "Perjungti push pranešimus",
+    "perChildHeading": "Pranešimai pagal vaiką",
+    "typesHeading": "Kurie pranešimai?",
+    "typeScheduleTitle": "Plano priminimas",
+    "typeScheduleHint": "10 min. prieš veiklą",
+    "typeScheduleAria": "Perjungti plano priminimą",
+    "typeInactivityTitle": "Neaktyvumo priminimas",
+    "typeInactivityHint": "18:00, jei vaikas neprisijungė",
+    "typeInactivityAria": "Perjungti neaktyvumo priminimą",
+    "typeMilestoneTitle": "Žvaigždžių riba",
+    "typeMilestoneHint": "Ties 10/25/50/100 žvaigždžių",
+    "typeMilestoneAria": "Perjungti žvaigždžių ribą",
+    "typeBackfillTitle": "Užpildymo priminimas",
+    "typeBackfillHint": "09:00, jei trūksta vakarykštės dienos",
+    "typeBackfillAria": "Perjungti užpildymo priminimą",
+    "leadTimeLabel": "Priminimas prieš",
+    "quietHoursLabel": "Tylos valandos",
+    "quietHoursTo": "iki",
+    "archiveTitle": "Pranešimų archyvas",
+    "archiveHint": "Sėkmingi push pranešimai per paskutines 7 dienas",
+    "noChildren": "Susietų vaikų nėra.",
+    "childToggleAria": "Push vaikui {{name}}",
+    "saved": "✅ Išsaugota!",
+    "saveFailed": "Nepavyko išsaugoti.",
+    "saveFailedRetry": "Nepavyko išsaugoti. Bandyk dar kartą.",
+    "requestingPermission": "⏳ Prašoma leidimo…",
+    "enabled": "✅ Push pranešimai įjungti!",
+    "permissionDenied": "🚫 Leidimas atmestas. Įjunk naršyklės arba programėlės nustatymuose.",
+    "iosNotInstalled": "Pridėk {{brand}} į pradžios ekraną, kad Safari veiktų push.",
+    "genericError": "Kažkas nutiko. Bandyk dar kartą.",
+    "disabled": "✅ Push pranešimai išjungti.",
+    "errors": {
+      "unsupportedBrowser": "Push šioje naršyklėje nepalaikomas",
+      "permissionDeniedApp": "Pranešimų leidimas atmestas programėlės nustatymuose.",
+      "pushPluginMissing": "Programėlėje trūksta push įskiepio. Paleisk npx cap sync ios ir sukurk iš naujo.",
+      "platformMissing": "Trūksta platformos push palaikymo",
+      "permissionDeniedBrowser": "Pranešimų leidimas atmestas. Įjunk jį naršyklės nustatymuose.",
+      "permissionDenied": "Pranešimų leidimas atmestas",
+      "subscriptionFailed": "Prenumerata nepavyko",
+      "enableFailed": "Nepavyko įjungti push pranešimų",
+      "disableFailed": "Nepavyko išjungti push pranešimų",
+      "iosNotInstalled": "Pridėk programėlę į pradžios ekraną, kad Safari veiktų push.",
+      "notConfigured": "Push pranešimai nesukonfigūruoti",
+      "invalidSubscription": "Netinkama push prenumerata",
+      "endpointRequired": "Endpoint būtinas",
+      "invalidToken": "Netinkamas prieigos raktas",
+      "invalidPlatform": "Platforma turi būti iOS arba Android",
+      "tokenRequired": "Prieigos raktas ir platforma būtini",
+      "parentNotFound": "Tėvas nerastas"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Pridėti valdiklį į pradžios ekraną?",
+      "lead": "Matyk kitą veiklą pradžios ekrane — neatidaręs programėlės.",
+      "step1": "Čia programėlėje paliesk <strong class=\"text-navy\">Prijungti valdiklį</strong>.",
+      "step2": "Pradžios ekrane: ilgai paspausk foną → paliesk <strong class=\"text-navy\">+</strong> → ieškok <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Daugiau neklausti",
+      "connect": "Prijungti valdiklį",
+      "later": "Ne dabar",
+      "openSettings": "Atidaryti nustatymus"
+    },
+    "settings": {
+      "title": "Valdikliai ir greita prieiga",
+      "description": "Asmeninis valdiklis = vienas vaikas. Šeimos valdiklis = keli vaikai. Jei vaikų daugiau nei vienas, vaiką rinkis čia.",
+      "childPickerLabel": "Kurį vaiką turi rodyti valdiklis?",
+      "childFallbackName": "Vaikas",
+      "statusLabel": "Būsena:",
+      "statusConnected": "Prijungta",
+      "statusReconnect": "Reikia prijungti iš naujo",
+      "privacyLabel": "Privatumas:",
+      "privacyFull": "Visas",
+      "privacyLimited": "Ribotas",
+      "reconnectBtn": "Prijungti valdiklį iš naujo",
+      "guideBtn": "Rodyti pradžios ekrano valdiklio gidą",
+      "connecting": "Jungiamasi…",
+      "supportMissing": "Šioje versijoje valdiklių palaikymo nėra. Atnaujink programėlę.",
+      "addChildFirst": "Pirmiausia pridėk vaiką prie šeimos, tada galėsi prijungti valdiklį.",
+      "loginRequired": "Kad prijungtum valdiklį, turi būti prisijungęs.",
+      "success": "Atlikta! Pridėk valdiklį į pradžios ekraną (+ → {{brand}}), jei dar nepridėjai.",
+      "pickChild": "Pasirink vaiką sąraše viršuje ir bandyk dar kartą.",
+      "retryLater": "Dabar prijungti nepavyko. Netrukus bandyk dar kartą.",
+      "networkError": "Dabar prijungti nepavyko. Patikrink tinklą ir bandyk dar kartą.",
+      "errors": {
+        "offlineUnavailable": "Valdiklis tavo šeimai dar neįjungtas. Susisiek su pagalba, jei jis turėtų veikti.",
+        "reauthRequired": "Sesiją reikia atnaujinti. Atsijunk ir prisijunk, tada bandyk prijungti iš naujo.",
+        "nativeConfigureFailed": "Programėlei nepavyko išsaugoti valdiklio ryšio. Visiškai uždaryk programėlę ir atidaryk iš naujo.",
+        "notEnabled": "Valdiklis neįjungtas arba sesiją reikia atnaujinti. Atsijunk ir prisijunk."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Pranešimų nustatymai",
+    "weeklySummary": "Savaitės santrauka (sekmadienį 21:00)",
+    "rewardRedemption": "Apdovanojimų iškeitimai",
+    "newsletter": "El. pašto naujienlaiškis",
+    "emailGlobal": "Visi el. laiškai bendrai",
+    "save": "Išsaugoti pranešimų nustatymus"
+  },
+  "reminders": {
+    "title": "Priminimai",
+    "lead": "Nustatyk kasdienį priminimą, kad nepamirštum patikrinti plano.",
+    "daily": "Kasdienis priminimas",
+    "hint": "Priminimą gausi pasirinktu laiku pasirinktomis dienomis",
+    "toggleAria": "Perjungti priminimą",
+    "time": "Laikas",
+    "days": "Dienos"
+  },
+  "familyName": {
+    "label": "Šeimos vardas",
+    "placeholder": "pvz. Kazlauskų šeima",
+    "autoFromParent": "{{name}} šeima"
+  },
+  "sound": {
+    "label": "Garsas įjungtas",
+    "hint": "Groja garsą, kai vaikas pažymi veiklą savo dienos vaizde."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Suaugusieji ir prieiga",
+    "adultsBody": "Pakviesk kitą tėvą ir pažiūrėk, kas turi prieigą, skiltyje Šeima.",
+    "openFamily": "Atidaryti Šeimą",
+    "pedagogsTitle": "👩‍🏫 Pedagogai",
+    "pedagogsBody": "Pedagogų kvietimai ir prieiga tvarkomi skiltyje Šeima."
+  },
+  "dataExport": {
+    "title": "Mano duomenys",
+    "body": "Atsisiųsk visų savo duomenų kopiją kaip CSV (ZIP failas). Įeina profilis, vaikai, planai, apdovanojimai ir veiklų istorija.",
+    "download": "Atsisiųsti mano duomenis",
+    "preparing": "Ruošiamas atsisiuntimas…",
+    "started": "✅ Atsisiuntimas pradėtas!",
+    "rateLimited": "Eksportuoti gali tik kartą per 24 valandas.",
+    "failed": "Kažkas nutiko. Bandyk dar kartą.",
+    "networkError": "Tinklo klaida. Bandyk dar kartą."
+  },
+  "deleteAccount": {
+    "title": "Ištrinti paskyrą",
+    "permanent": "⚠️ Negrįžtamas veiksmas",
+    "loading": "Įkeliama, kas nutiks…",
+    "storeBillingNote": "Jei prenumeratą turi per App Store arba Google Play, ištrynus paskyrą ji automatiškai neatšaukiama. Prenumeratą tvarkyk arba atšauk parduotuvėje.",
+    "button": "Ištrinti mano paskyrą",
+    "summarySelf": "Pašalini savo paskyrą ir prieigą. Šeima, vaikai, planai ir kitų suaugusiųjų duomenys lieka. To nebus galima atšaukti.",
+    "summaryLastAdmin": "Esi paskutinis suaugęs su administratoriaus prieiga. Visa šeima ir susiję duomenys — vaikai, planai, veiklos, žvaigždės ir apdovanojimai — bus ištrinti iš karto ir visam laikui. To nebus galima atšaukti.",
+    "modalTitleSelf": "Palikti šeimą",
+    "modalTitleFamily": "Ištrinti šeimą ir paskyrą",
+    "modalTitleFallback": "Ištrinti paskyrą visam laikui",
+    "leadSelf": "Pašalini tik savo paskyrą ir prieigą.",
+    "leadFamily": "Ištrini visą šeimą ir visus susijusius duomenis.",
+    "sure": "Ar tikrai?",
+    "cannotUndo": "To nebus galima atšaukti.",
+    "storeBillingModal": "Prenumerata per App Store arba Google Play automatiškai neatšaukiama — tvarkyk ją parduotuvėje.",
+    "typeConfirmLabel": "Įrašyk {{token}} kad patvirtintum",
+    "typeConfirmLabelHtml": "Įrašyk <strong>RADERA</strong>, kad patvirtintum",
+    "typeConfirmError": "Įrašyk {{token}} kad patvirtintum.",
+    "confirmToken": "RADERA",
+    "cancel": "Atšaukti",
+    "confirmSelf": "Palikti šeimą",
+    "confirmFamily": "Ištrinti viską visam laikui",
+    "deleting": "Trinama...",
+    "deleted": "✅ Paskyra ištrinta.",
+    "deleteFailed": "Trinant kažkas nutiko.",
+    "networkError": "Tinklo klaida. Bandyk dar kartą.",
+    "bulletSelfAccount": "Tavo tėvo paskyra ir prieiga",
+    "bulletSelfOthersRemain": "Šeima, vaikai ir kiti suaugusieji lieka",
+    "bulletParentAccount": "Tėvo paskyra",
+    "bulletAllChildren": "Visi šeimos vaikai",
+    "bulletAllSchedules": "Visi planai, veiklos ir apdovanojimai",
+    "bulletAllHistory": "Visa dienos istorija ir žvaigždės"
+  },
+  "support": {
+    "title": "Techninė informacija pagalbai",
+    "hint": "Nukopijuok programėlės versiją, podėlį ir derinimo ID. Asmens duomenų ir slaptažodžių neįtraukiama.",
+    "copy": "Kopijuoti techninę informaciją",
+    "copied": "Nukopijuota — įklijuok į laišką pagalbai.",
+    "copyFailed": "Nepavyko nukopijuoti. Bandyk dar kartą."
+  },
+  "legal": {
+    "privacy": "Privatumo politika",
+    "terms": "Naudojimo sąlygos"
+  },
+  "consent": {
+    "title": "Sutikimas ir privatumas",
+    "lead": "Tvarkyk privatumo nustatymus ir slapukų pasirinkimus.",
+    "change": "Keisti sutikimo nustatymus",
+    "empty": "Sutikimo nustatymų dar neišsaugota.",
+    "modalTitle": "Sutikimas ir privatumas",
+    "aria": "Sutikimo nustatymai",
+    "intro": "Padėk mums padaryti {{brand}} dar geresnį. Slapukus naudojame suprasti, kaip naudojama programėlė, ir pasiekti daugiau šeimų. Paliesk kiekvieną kategoriją, kad perjungtum ✓ Taip / ✗ Ne / — Neutralu.",
+    "save": "Išsaugoti pasirinkimus",
+    "saving": "Saugoma…",
+    "skip": "Praleisti",
+    "closing": "Uždaroma…",
+    "analytics": "Analitika ir tobulinimas",
+    "analyticsDesc": "Padeda suprasti, kaip naudojama programėlė, kad galėtume ją gerinti.",
+    "ads": "Rinkodara",
+    "adsDesc": "Rodo tau pritaikytas reklamas Meta (Facebook/Instagram) ir Google.",
+    "adUserData": "Duomenys platformoms",
+    "adUserDataDesc": "Dalijasi tavo duomenimis su reklamos platformomis, kad atitiktis būtų geresnė.",
+    "adPersonalization": "Pritaikymas",
+    "adPersonalizationDesc": "Pritaiko reklamas pagal tavo interesus ir elgesį.",
+    "email": "El. paštas ir patarimai",
+    "emailDesc": "Laiškai su patarimais, naujienomis ir pasiūlymais iš {{brand}}."
+  },
+  "subscription": {
+    "title": "Prenumerata",
+    "loading": "Įkeliama prenumerata…",
+    "loadFailed": "Nepavyko įkelti prenumeratos būsenos.",
+    "restore": "Atkurti pirkimus",
+    "manage": "Tvarkyti prenumeratą",
+    "activate": "Įjungti Premium",
+    "viewPlans": "Žiūrėti prenumeratas",
+    "howToActivate": "Kaip įjungti Premium",
+    "webActivateHint": "Premium įjungiamas iPhone arba Android programėlėje.",
+    "restoreSuccess": "Pirkimai atkurti. Premium aktyvus.",
+    "restoreNone": "Nerasta pirkimų, kuriuos atkurti.",
+    "restoreFailed": "Nepavyko atkurti pirkimų.",
+    "launchHoldTitle": "Paleidimo prieiga — atsiskaitymas dar neveikia",
+    "launchHoldBody": "Programėle gali naudotis toliau. Kol atsiskaitymas išjungtas, prenumerata nebūtina.",
+    "complimentaryTitle": "Nemokama iki 2026 m. gruodžio 31 d.",
+    "complimentaryBody": "{{brand}} nemokama iki 2026 m. gruodžio 31 d. Prenumeratos ar mokėjimo būdo nereikia. Šis pasiūlymas automatiškai nevirsta mokama prenumerata.",
+    "complimentaryBodyUntil": "Nemokama iki {{date}}. Prenumeratos ar mokėjimo būdo nereikia, ir šis pasiūlymas automatiškai netampa mokama prenumerata. Nuo 2027 m. sausio 1 d. galėsi pasirinkti, ar prenumeruoti.",
+    "launchTitle": "Paleidimo prieiga",
+    "launchBody": "Programėle gali naudotis dabar. Prenumerata dar nebūtina.",
+    "launchBodyUntil": "Programėle gali naudotis dabar. Prenumerata dar nebūtina. Mokama pradžia: {{date}}.",
+    "noPremium": "Nėra aktyvaus Premium",
+    "choosePlan": "Rinkis Premium mėnesinį arba Premium metinį, kad atrakintum visą prieigą.",
+    "billingNotLive": "Prenumerata dar nebūtina. Atsiskaitymas neveikia.",
+    "activateBody": "Įjunk Premium visai programėlės prieigai.",
+    "grandfatheredTitle": "Premium įskaičiuotas visam laikui",
+    "grandfatheredBody": "Tavo šeima turi visą prieigą be mokesčio.",
+    "trialTitle": "Premium – nemokamas bandomasis laikotarpis",
+    "ends": "Baigiasi {{date}}",
+    "giftTitle": "Premium – dovanų kortelė",
+    "validUntil": "Galioja iki {{date}}",
+    "graceTitle": "Premium – reikia atnaujinti mokėjimą",
+    "graceBody": "Prieiga vis dar veikia, bet mokėjimą reikia sutvarkyti {{store}}.",
+    "activeTitle": "Premium – {{plan}} per {{store}}",
+    "planYearly": "metinis planas",
+    "planMonthly": "mėnesinis planas"
+  },
+  "theme": {
+    "title": "Išvaizda",
+    "darkMode": "Tamsus režimas",
+    "darkHint": "Įjunk tamsią temą, kad tamsoje būtų patogiau",
+    "toggleAria": "Perjungti tamsų režimą",
+    "colorBlind": "Daltonizmo tema",
+    "colorBlindHint": "Pritaiko spalvas skirtingiems daltonizmo tipams",
+    "colorNone": "Nėra (numatyta)",
+    "protanopia": "Protanopija (neraudo)",
+    "deuteranopia": "Deuteranopija (nežalio)",
+    "tritanopia": "Tritanopija (nemėlyno)"
+  },
+  "viewMode": {
+    "dualAccess": "Turi prieigą ir prie tėvo, ir prie pedagogo vaizdo.",
+    "switchPedagog": "🌟 Perjungti į pedagogo vaizdą",
+    "switchParent": "👨‍👩‍👧 Perjungti į tėvo vaizdą"
+  },
+  "loadError": {
+    "title": "Šeimos nustatymų įkelti nepavyko",
+    "fallback": "Šeimos nustatymų dabar įkelti nepavyko.",
+    "retry": "Bandyk dar kartą",
+    "retryIn": "Bandyk dar kartą po {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Daugiau savaitės santraukų į el. paštą nesiųsime. Jas vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+    "reward": "Daugiau laiškų, kai vaikas nori išsikeisti apdovanojimą, nesiųsime. Juos vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+    "all": "Visi el. laiškų pranešimai išjungti. Juos vėl įjungsi skiltyje Nustatymai → Pranešimai.",
+    "invalidTitle": "Netinkama nuoroda",
+    "invalidBody": "Nuoroda netinkama arba nebegalioja.",
+    "errorTitle": "Kažkas nutiko",
+    "errorBody": "Bandyk vėliau arba eik į programėlės Nustatymus."
+  },
+  "notifArchive": {
+    "retry": "Bandyk dar kartą",
+    "failedHidden": "Nepavykę arba išjungti siuntimai čia nerodomi.",
+    "loading": "Įkeliamas push archyvas…",
+    "loadError": "Nepavyko įkelti push archyvo. Tai nereiškia, kad pranešimų neturi.",
+    "markAll": "Pažymėti visus kaip skaitytus"
+  }
+}

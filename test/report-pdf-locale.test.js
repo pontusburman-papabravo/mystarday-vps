@@ -53,6 +53,45 @@ function pdfText(buffer) {
   return decodeWinAnsi(parts.join('\n'));
 }
 
+function inflatedPdf(buffer) {
+  const raw = buffer.toString('latin1');
+  const parts = [];
+  const re = /stream\r?\n([\s\S]*?)endstream/g;
+  let match;
+  while ((match = re.exec(raw))) {
+    const body = Buffer.from(match[1], 'latin1');
+    try {
+      parts.push(zlib.inflateSync(body).toString('latin1'));
+    } catch {
+      parts.push(match[1]);
+    }
+  }
+  return parts.join('\n');
+}
+
+function renderUnicode() {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const stream = new PassThrough();
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+    generateReportPdf(stream, {
+      link: {
+        label: 'Report',
+        child_name: 'Здравей',
+        anonymous: false,
+        parent_summary: 'Здравей Ααάέήίόύώ āčēģīķļņšūž ąčęėįšųūž äöõü',
+      },
+      fields: ['stars'],
+      blocks,
+      dateFrom: '2026-10-01',
+      dateTo: '2026-10-06',
+      locale: 'en-GB',
+    });
+  });
+}
+
 function render(locale) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -85,6 +124,15 @@ describe('family report locale', () => {
     assert.doesNotMatch(english, /Morgon/);
     assert.doesNotMatch(english, /Ingen data/);
     assert.doesNotMatch(english, /Kväll/);
+
+    const unicode = await renderUnicode();
+    const cmap = inflatedPdf(unicode).toLowerCase();
+    for (const sample of ['Здравей', 'Ααάέήίόύώ', 'āčēģīķļņšūž', 'ąčęėįšųūž', 'äöõü']) {
+      for (const ch of sample) {
+        const hex = `<${ch.codePointAt(0).toString(16).padStart(4, '0')}>`;
+        assert.equal(cmap.includes(hex), true, hex);
+      }
+    }
   });
 
   it('localizes the playful view model and falls back to English for a future locale', () => {

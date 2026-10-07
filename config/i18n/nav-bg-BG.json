@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Начало",
+    "planning": "Планиране",
+    "rewards": "Награди",
+    "forYou": "За теб",
+    "family": "Семейство"
+  },
+  "settings": "Настройки",
+  "mainAria": "Основна навигация",
+  "notifications": "Известия",
+  "share": "Сподели",
+  "logout": "Излез",
+  "switchUser": "Смени профил",
+  "returnToChild": "Обратно при детето",
+  "darkMode": "Тъмен режим",
+  "lightMode": "Светъл режим",
+  "overview": "Преглед",
+  "dailyLog": "Днес",
+  "weekSchedule": "План",
+  "reports": "Отчети",
+  "library": "Библиотека",
+  "libraryAdvanced": "📚 Библиотека (разширена)",
+  "pedagogNotes": "📝 Бележки на педагога",
+  "treasureChest": "Съкровището",
+  "familySettings": "Семейство и настройки",
+  "capability": {
+    "subscription": "Абонамент",
+    "reports": "Отчети",
+    "samarbete": "Сътрудничество с педагог",
+    "barnStod": "Допълнителна подкрепа"
+  },
+  "header": {
+    "notifications": "Известия",
+    "settings": "Настройки",
+    "share": "Сподели",
+    "shareTitle": "Разкажи на едно семейство за приложението!",
+    "shareAria": "Сподели"
+  },
+  "avatar": {
+    "switchPedagog": "Премини към изглед за педагог",
+    "subscription": "Абонамент",
+    "settings": "Настройки",
+    "logout": "Излез"
+  },
+  "mobile": {
+    "openMenu": "Отвори менюто",
+    "darkModeTitle": "Тъмен режим",
+    "darkModeAria": "Превключи тъмен режим"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Αρχική",
+    "planning": "Προγραμματισμός",
+    "rewards": "Ανταμοιβές",
+    "forYou": "Για σένα",
+    "family": "Οικογένεια"
+  },
+  "settings": "Ρυθμίσεις",
+  "mainAria": "Κύρια πλοήγηση",
+  "notifications": "Ειδοποιήσεις",
+  "share": "Κοινοποίηση",
+  "logout": "Αποσύνδεση",
+  "switchUser": "Αλλαγή προφίλ",
+  "returnToChild": "Πίσω στο παιδί",
+  "darkMode": "Σκοτεινή λειτουργία",
+  "lightMode": "Φωτεινή λειτουργία",
+  "overview": "Επισκόπηση",
+  "dailyLog": "Σήμερα",
+  "weekSchedule": "Πρόγραμμα",
+  "reports": "Αναφορές",
+  "library": "Βιβλιοθήκη",
+  "libraryAdvanced": "📚 Βιβλιοθήκη (για προχωρημένους)",
+  "pedagogNotes": "📝 Σημειώσεις παιδαγωγού",
+  "treasureChest": "Το σεντούκι",
+  "familySettings": "Οικογένεια και ρυθμίσεις",
+  "capability": {
+    "subscription": "Συνδρομή",
+    "reports": "Αναφορές",
+    "samarbete": "Συνεργασία με παιδαγωγό",
+    "barnStod": "Επιπλέον στήριξη"
+  },
+  "header": {
+    "notifications": "Ειδοποιήσεις",
+    "settings": "Ρυθμίσεις",
+    "share": "Κοινοποίηση",
+    "shareTitle": "Πες το σε μια οικογένεια!",
+    "shareAria": "Κοινοποίηση"
+  },
+  "avatar": {
+    "switchPedagog": "Μετάβαση στην προβολή παιδαγωγού",
+    "subscription": "Συνδρομή",
+    "settings": "Ρυθμίσεις",
+    "logout": "Αποσύνδεση"
+  },
+  "mobile": {
+    "openMenu": "Άνοιγμα μενού",
+    "darkModeTitle": "Σκοτεινή λειτουργία",
+    "darkModeAria": "Εναλλαγή σκοτεινής λειτουργίας"
+  }
+}

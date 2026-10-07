@@ -1,0 +1,13 @@
+{
+  "version": "1.0.1",
+  "rewards": [
+    {
+      "reward_id": "first_step_acknowledgment",
+      "trigger_signal": "first_activity_complete",
+      "parent_message_template": "Täna astus {{child_name}} esimese sammu.",
+      "celebration_theme": "warm_glow",
+      "celebration_max_ms": 2000,
+      "pack_config_key": "rewards.first_step_acknowledgment"
+    }
+  ]
+}
