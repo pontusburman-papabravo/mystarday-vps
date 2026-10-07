@@ -6,7 +6,7 @@
  */
 
 const { isActivationFlagEnabled } = require('./activation-flags');
-const { evaluateStuckFamily } = require('./growth-stuck-classifier');
+const { classifyBlockingStep, evaluateStuckFamily } = require('./growth-stuck-classifier');
 const { FOLLOW_UP } = require('./growth-stuck-work-queue');
 const helpDb = require('../../db/growth-system-help');
 const analytics = require('../../db/analytics');
@@ -155,6 +155,52 @@ function computeProgressionOutcome(shownAt, milestoneAt) {
   if (hours <= 24) return 'progressed_24h';
   if (hours <= 72) return 'progressed_72h';
   return null;
+}
+
+function asMilestoneDate(value) {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Timestamp that cleared the step help was shown for.
+ * Later stuck steps must not be treated as failure of this episode.
+ */
+function clearingMilestoneAt(helpedStep, facts) {
+  if (!facts) return null;
+  switch (helpedStep) {
+    case 'schema_no_child_login':
+      return asMilestoneDate(facts.child_access_completed_at);
+    case 'login_no_completion':
+      return asMilestoneDate(facts.first_completion_at);
+    case 'completion_no_return':
+      return asMilestoneDate(facts.last_login_at);
+    default:
+      return null;
+  }
+}
+
+/** True while the family is still on the step this help episode is about. */
+function helpedStepStillOpen(helpedStep, facts, now = new Date()) {
+  if (!helpedStep || !facts) return false;
+  return classifyBlockingStep(facts, now) === helpedStep;
+}
+
+/**
+ * Success-path analytics label. A stored no_progress must not be re-emitted
+ * when this call is recording that the helped step was cleared.
+ */
+function progressionEventOutcome(storedOutcome, computedOutcome) {
+  if (computedOutcome) return computedOutcome;
+  if (
+    storedOutcome === 'progressed_24h'
+    || storedOutcome === 'progressed_72h'
+    || storedOutcome === 'progressed_after_72h'
+  ) {
+    return storedOutcome;
+  }
+  return 'progressed_after_72h';
 }
 
 const REPORT_CONTEXT_KEYS = [
@@ -356,7 +402,9 @@ async function recordSupportRequested(familyId, meta = {}) {
 }
 
 /**
- * Call when family clears a stuck blocking step (milestone progression).
+ * Call when family clears the blocking step this help episode is about.
+ * A later stuck step (for example first star done, then no return) is not
+ * failure of the earlier episode.
  * @param {string} familyId
  * @param {Date} [milestoneAt]
  */
@@ -371,21 +419,22 @@ async function maybeRecordProgression(familyId, milestoneAt = new Date()) {
 
   const facts = await helpDb.loadFamilyStuckFacts(familyId);
   if (!facts) return null;
-  const stuck = evaluateStuckFamily(facts);
-  if (stuck.blockingStep) {
+  if (helpedStepStillOpen(state.blocking_step, facts, milestoneAt)) {
     return null;
   }
 
-  const outcome = computeProgressionOutcome(state.system_help_shown_at, milestoneAt);
-  const row = await helpDb.markProgression(familyId, milestoneAt, outcome);
+  const shownAt = new Date(state.system_help_shown_at);
+  let at = clearingMilestoneAt(state.blocking_step, facts) || milestoneAt;
+  if (at.getTime() < shownAt.getTime()) at = milestoneAt;
+
+  const outcome = computeProgressionOutcome(shownAt, at);
+  const row = await helpDb.markProgression(familyId, at, outcome);
   if (row) {
-    const hours = Math.round(
-      (milestoneAt.getTime() - new Date(state.system_help_shown_at).getTime()) / 3600000
-    );
+    const hours = Math.round((at.getTime() - shownAt.getTime()) / 3600000);
     analytics.track(familyId, 'system_help_progressed', {
       blocking_step: row.blocking_step,
       help_type: row.help_type,
-      outcome: row.progression_outcome || (outcome ? outcome : 'progressed_after_72h'),
+      outcome: progressionEventOutcome(row.progression_outcome, outcome),
       hours_to_milestone: hours,
     }).catch(() => {});
   }
@@ -403,8 +452,14 @@ async function finalizeNoProgressOutcomes(now = new Date()) {
   for (const candidate of candidates) {
     const facts = await helpDb.loadFamilyStuckFacts(candidate.family_id);
     if (!facts) continue;
-    const stuck = evaluateStuckFamily(facts, now);
-    if (!stuck.blockingStep) continue;
+    if (!helpedStepStillOpen(candidate.blocking_step, facts, now)) {
+      try {
+        await maybeRecordProgression(candidate.family_id, now);
+      } catch (err) {
+        console.error('[GROWTH-SYSTEM-HELP] missed progression finalize failed:', err.message);
+      }
+      continue;
+    }
     const row = await helpDb.markNoProgress(candidate.family_id);
     if (!row) continue;
     // Same event name as milestone progress — ops report splits on metadata.outcome.
@@ -472,6 +527,9 @@ module.exports = {
   maybeRecordProgression,
   finalizeNoProgressOutcomes,
   computeProgressionOutcome,
+  clearingMilestoneAt,
+  helpedStepStillOpen,
+  progressionEventOutcome,
   sanitizeReportContext,
   formatSupportReportMessage,
 };

@@ -10,6 +10,9 @@ const {
 const {
   buildHelpPayload,
   computeProgressionOutcome,
+  clearingMilestoneAt,
+  helpedStepStillOpen,
+  progressionEventOutcome,
   SURFACE_BY_BLOCKING_STEP,
 } = require('../src/lib/growth-system-help');
 const { mapGrowthStuckFamily } = require('../src/lib/growth-stuck-work-queue');
@@ -194,6 +197,61 @@ describe('growth-system-help outcome semantics', () => {
     assert.equal(upgrade('progressed_24h', 'no_progress'), 'progressed_24h');
     assert.equal(upgrade('no_progress', 'progressed_24h'), 'progressed_24h');
     assert.ok(rank(upgrade('progressed_72h', 'progressed_24h')) > rank('progressed_72h'));
+  });
+
+  it('keeps schema_no_child_login open until the child actually gets access', () => {
+    const now = new Date('2026-10-03T00:00:00Z');
+    const facts = {
+      onboarding_completed: true,
+      schema_saved_at: '2026-09-20T00:00:00Z',
+      child_access_completed_at: null,
+      first_completion_at: '2026-09-21T00:00:00Z',
+      family_created_at: '2026-09-20T00:00:00Z',
+      has_core_flow_error: false,
+    };
+    assert.equal(helpedStepStillOpen('schema_no_child_login', facts, now), true);
+    assert.equal(clearingMilestoneAt('schema_no_child_login', facts), null);
+  });
+
+  it('treats first completion as clearing login_no_completion even if a later step is open', () => {
+    const shown = new Date('2026-09-01T08:00:00Z');
+    const completed = new Date('2026-09-03T06:36:00Z');
+    const now = new Date('2026-09-06T20:00:00Z');
+    const facts = {
+      onboarding_completed: true,
+      schema_saved_at: '2026-08-20T00:00:00Z',
+      child_access_completed_at: '2026-09-01T07:40:00Z',
+      first_completion_at: completed.toISOString(),
+      last_login_at: '2026-08-20T00:00:00Z',
+      family_created_at: '2026-08-20T00:00:00Z',
+      has_core_flow_error: false,
+    };
+    assert.equal(classifyBlockingStep(facts, now), 'completion_no_return');
+    assert.equal(helpedStepStillOpen('login_no_completion', facts, now), false);
+    assert.equal(clearingMilestoneAt('login_no_completion', facts).toISOString(), completed.toISOString());
+    assert.equal(computeProgressionOutcome(shown, completed), 'progressed_72h');
+  });
+
+  it('credits child access as clearing schema help even when the next step is still open', () => {
+    const shown = new Date('2026-09-01T08:00:00Z');
+    const access = new Date('2026-09-01T18:00:00Z');
+    const facts = {
+      onboarding_completed: true,
+      schema_saved_at: '2026-08-28T00:00:00Z',
+      child_access_completed_at: access.toISOString(),
+      first_completion_at: null,
+      family_created_at: '2026-08-28T00:00:00Z',
+      has_core_flow_error: false,
+    };
+    assert.equal(classifyBlockingStep(facts, access), 'login_no_completion');
+    assert.equal(helpedStepStillOpen('schema_no_child_login', facts, access), false);
+    assert.equal(computeProgressionOutcome(shown, clearingMilestoneAt('schema_no_child_login', facts)), 'progressed_24h');
+  });
+
+  it('does not re-emit no_progress from the success path', () => {
+    assert.equal(progressionEventOutcome('no_progress', null), 'progressed_after_72h');
+    assert.equal(progressionEventOutcome('no_progress', 'progressed_72h'), 'progressed_72h');
+    assert.equal(progressionEventOutcome('progressed_24h', null), 'progressed_24h');
   });
 
   it('no_progress cutoff requires full 72h after shown', () => {

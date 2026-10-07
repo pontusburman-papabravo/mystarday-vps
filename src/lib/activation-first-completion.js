@@ -60,6 +60,17 @@ function emitFirstCompletionRecorded(familyId, metadata = {}) {
   } catch (err) {
     console.error('[ACTIVATION-P0] first_completion_recorded analytics failed:', err.message);
   }
+  // First star is written in the completion transaction, not via updateActivationState,
+  // so the system-help progression hook has to run here or a cleared login_no_completion
+  // episode is later stamped no_progress.
+  try {
+    const { maybeRecordProgression } = require('./growth-system-help');
+    maybeRecordProgression(familyId).catch((err) => {
+      console.error('[ACTIVATION-P0] system help progression failed:', err.message);
+    });
+  } catch (err) {
+    console.error('[ACTIVATION-P0] system help progression failed:', err.message);
+  }
 }
 
 function isParentEmailUniqueViolation(err) {
