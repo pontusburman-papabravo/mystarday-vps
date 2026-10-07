@@ -19,6 +19,7 @@ const {
   assertAppleRead,
   assertGoogleRead,
   normalizeTerritory,
+  territoryIdToCode,
   readAppleInventory,
   readGoogleInventory,
 } = require('../src/lib/store-connect-read');
@@ -234,6 +235,8 @@ describe('store readers stay read-only', () => {
     assert.doesNotThrow(() => assertGoogleRead('DELETE', 'https://androidpublisher.googleapis.com/androidpublisher/v3/applications/app/edits/edit-1'));
     assert.equal(normalizeTerritory('SWE'), 'SE');
     assert.equal(normalizeTerritory('DE'), 'DE');
+    const encoded = Buffer.from(JSON.stringify({ s: '1', t: 'SWE' })).toString('base64');
+    assert.equal(territoryIdToCode(encoded), 'SE');
   });
 
   it('opens a Play edit only to read it, then deletes it', async () => {
@@ -315,6 +318,27 @@ describe('store readers stay read-only', () => {
         });
       }
       if (url.includes('appScreenshotSets')) return httpResult(200, { data: [{ id: 'set1' }] });
+      if (url.includes('/v2/appAvailabilities/')) {
+        return httpResult(200, {
+          data: {
+            relationships: {
+              territoryAvailabilities: {
+                links: { related: 'https://api.appstoreconnect.apple.com/v1/appAvailabilities/app1/territoryAvailabilities' },
+              },
+            },
+          },
+        });
+      }
+      if (url.includes('territoryAvailabilities')) {
+        return httpResult(200, {
+          data: [
+            { id: Buffer.from(JSON.stringify({ s: '1', t: 'SWE' })).toString('base64'), attributes: { available: true } },
+            { id: Buffer.from(JSON.stringify({ s: '1', t: 'IRL' })).toString('base64'), attributes: { available: true } },
+            { id: Buffer.from(JSON.stringify({ s: '1', t: 'CAN' })).toString('base64'), attributes: { available: true } },
+            { id: Buffer.from(JSON.stringify({ s: '1', t: 'USA' })).toString('base64'), attributes: { available: false } },
+          ],
+        });
+      }
       if (url.includes('availableTerritories')) return httpResult(200, { data: [{ id: 'SWE' }, { id: 'IRL' }, { id: 'CAN' }] });
       if (url.includes('subscriptionGroups')) return httpResult(200, { data: [], included: [] });
       throw new Error(`unexpected ${url}`);

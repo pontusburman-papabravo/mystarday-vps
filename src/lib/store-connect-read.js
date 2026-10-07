@@ -118,6 +118,46 @@ function normalizeTerritory(code) {
   return raw;
 }
 
+function territoryIdToCode(id) {
+  const raw = String(id || '');
+  if (raw.length > 3) {
+    try {
+      const parsed = JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
+      if (parsed && parsed.t) return normalizeTerritory(parsed.t);
+    } catch {
+      // Opaque ids fall through to the alpha-2/alpha-3 map.
+    }
+  }
+  return normalizeTerritory(raw);
+}
+
+async function readAppleTerritories(get, appId) {
+  try {
+    const availability = await get(`/v2/appAvailabilities/${appId}`);
+    const related = availability.data
+      && availability.data.relationships
+      && availability.data.relationships.territoryAvailabilities
+      && availability.data.relationships.territoryAvailabilities.links
+      && availability.data.relationships.territoryAvailabilities.links.related;
+    if (related) {
+      const rows = await appleCollect(get, applePath(related));
+      return rows
+        .filter((row) => row.attributes && row.attributes.available === true)
+        .map((row) => territoryIdToCode(row.id))
+        .filter(Boolean);
+    }
+  } catch (error) {
+    if (error.status !== 404) throw error;
+  }
+  try {
+    const availability = await appleCollect(get, `/v1/apps/${appId}/availableTerritories?limit=200`);
+    return availability.map((row) => territoryIdToCode(row.id)).filter(Boolean);
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    return [];
+  }
+}
+
 function googleServiceAccount(env = process.env) {
   if (env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON) return JSON.parse(env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON);
   if (env.GOOGLE_PLAY_SERVICE_ACCOUNT_PATH) {
@@ -235,14 +275,7 @@ async function readAppleInventory(options = {}) {
     }
   }
 
-  let territories = [];
-  try {
-    const availability = await appleCollect(get, `/v1/apps/${appId}/availableTerritories?limit=200`);
-    territories = availability.map((row) => normalizeTerritory(row.id)).filter(Boolean);
-  } catch (error) {
-    if (error.status !== 404) throw error;
-    territories = [];
-  }
+  const territories = await readAppleTerritories(get, appId);
 
   return {
     accessible: true,
@@ -392,6 +425,7 @@ module.exports = {
   assertAppleRead,
   assertGoogleRead,
   normalizeTerritory,
+  territoryIdToCode,
   readAppleInventory,
   readGoogleInventory,
   APPLE_PRODUCT_MONTHLY,
