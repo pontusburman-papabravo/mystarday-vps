@@ -131,13 +131,28 @@ test('SoftwareApplication JSON-LD uses numeric price (Search Console value type)
   assert.doesNotMatch(enHtml, /aggregateRating/);
 });
 
-test('robots.txt disallows app routes like activities and notifications', () => {
-  const { buildRobotsTxt, SITE_URL } = require('../src/lib/seo-pages');
+test('robots.txt blocks the API and leaves HTML crawlable', () => {
+  const { buildRobotsTxt, SITE_URL, isCrawlDisallowed, SEO_INDEXABLE_PATHS } = require('../src/lib/seo-pages');
   const txt = buildRobotsTxt();
-  assert.match(txt, /Disallow: \/activities/);
-  assert.match(txt, /Disallow: \/notifications/);
-  assert.match(txt, /Disallow: \/dashboard/);
+  assert.match(txt, /Disallow: \/api\//);
+  assert.doesNotMatch(txt, /Disallow: \/activities/);
+  assert.doesNotMatch(txt, /Disallow: \/notifications/);
+  assert.doesNotMatch(txt, /Disallow: \/dashboard/);
+  assert.doesNotMatch(txt, /Disallow: \/login/);
+  assert.doesNotMatch(txt, /Disallow: \/home/);
+  assert.doesNotMatch(txt, /Disallow: \/en\/register/);
   assert.equal(txt.trimEnd().endsWith(`Sitemap: ${SITE_URL}/sitemap.xml`), true);
+
+  assert.equal(isCrawlDisallowed('/api/auth/login'), true);
+  assert.equal(isCrawlDisallowed('/login'), false);
+  for (const pathname of SEO_INDEXABLE_PATHS) {
+    assert.equal(isCrawlDisallowed(pathname), false, pathname);
+  }
+  const privateHtml = ['/login', '/dashboard', '/schedule', '/rewards', '/for-dig', '/home', '/paywall', '/en/register', '/child/today'];
+  for (const pathname of privateHtml) {
+    assert.equal(isSeoIndexable(pathname), false, pathname);
+    assert.equal(isCrawlDisallowed(pathname), false, pathname);
+  }
 });
 
 test('robots.txt has no höst 2026 campaign exception', () => {
@@ -167,7 +182,8 @@ test('GET /robots.txt and /activities SEO headers', async () => {
     const robots = await fetch(`${http.baseUrl}/robots.txt`);
     assert.equal(robots.status, 200);
     const robotsBody = await robots.text();
-    assert.match(robotsBody, /Disallow: \/activities/);
+    assert.match(robotsBody, /Disallow: \/api\//);
+    assert.doesNotMatch(robotsBody, /Disallow: \/activities/);
 
     const activities = await fetch(`${http.baseUrl}/activities`, { redirect: 'manual' });
     assert.equal(activities.status, 302);

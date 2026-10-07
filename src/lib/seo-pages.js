@@ -46,44 +46,19 @@ const SEO_INDEXABLE_PATHS = new Set([
   ...R3_INDEXABLE_PATHS.filter(isResurserIndexable),
 ]);
 
-/** App/auth/admin paths — noindex + robots Disallow (not marketing SEO). */
+/**
+ * Paths Google must not crawl.
+ *
+ * App, auth and admin HTML is noindex, and must stay crawlable. A robots.txt
+ * Disallow on a URL Google has already indexed becomes
+ * "Indexed, though blocked by robots.txt": Google keeps the URL and cannot
+ * see the noindex tag that would drop it. That was the Search Console reason
+ * in October 2026, including URLs still tied to an older sitemap.
+ *
+ * /api/ is not a document. Crawling it spends budget and hits rate limits.
+ */
 const SEO_CRAWL_DISALLOW_PATHS = [
   '/api/',
-  '/admin',
-  '/login',
-  '/child-login',
-  '/dashboard',
-  '/activities',
-  '/notifications',
-  '/schedule',
-  '/daily-log',
-  '/family',
-  '/settings',
-  '/library',
-  '/calendar',
-  '/onboarding',
-  '/onboarding/film-preview',
-  '/child-wizard',
-  '/child-dashboard',
-  '/child/',
-  '/planning',
-  '/rewards',
-  '/for-dig',
-  '/assign-schedule',
-  '/verify-email',
-  '/forgot-password',
-  '/reset-password',
-  '/accept-invite',
-  '/pedagog-invite',
-  '/print-schema',
-  '/upgrade',
-  '/payment-success',
-  '/child-settings',
-  '/home',
-  '/paywall',
-  '/en/login',
-  '/en/register',
-  '/en/forgot-password',
 ];
 
 function normalizeSeoPath(path) {
@@ -112,6 +87,26 @@ function buildRobotsTxt(opts = {}) {
   return `${lines.join('\n')}\n`;
 }
 
+/**
+ * Google's robots.txt rule: longest matching path wins. Allow wins a tie.
+ * Used to keep sitemap URLs off every Disallow prefix.
+ */
+function isCrawlDisallowed(pathname) {
+  const raw = String(pathname || '').split('?')[0] || '/';
+  const rules = [
+    { allow: true, path: '/' },
+    ...SEO_CRAWL_DISALLOW_PATHS.map((path) => ({ allow: false, path })),
+  ];
+  let best = null;
+  for (const rule of rules) {
+    if (!rule.path || !raw.startsWith(rule.path)) continue;
+    const longer = !best || rule.path.length > best.path.length;
+    const allowWinsTie = best && rule.path.length === best.path.length && rule.allow && !best.allow;
+    if (longer || allowWinsTie) best = rule;
+  }
+  return !!(best && !best.allow);
+}
+
 function injectNoindexMeta(html, reqPath) {
   if (typeof html !== 'string' || !html.includes('<html')) return html;
   if (isSeoIndexable(reqPath)) return html;
@@ -131,5 +126,6 @@ module.exports = {
   isSeoIndexable,
   injectNoindexMeta,
   buildRobotsTxt,
+  isCrawlDisallowed,
   NOINDEX_META,
 };
