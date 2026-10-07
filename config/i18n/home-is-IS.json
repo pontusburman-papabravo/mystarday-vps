@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Heim — {{brand}}",
+  "greeting": {
+    "morning": "Góðan morgun!",
+    "afternoon": "Hæ!",
+    "evening": "Gott kvöld!",
+    "default": "Hæ!"
+  },
+  "sub": "Svona lítur dagurinn út.",
+  "status": {
+    "paused": "Frídagur í dag",
+    "allDone": "Allt búið!",
+    "noSchedule": "Engin rútína",
+    "progressDone": "{{done}}/{{total}} búið",
+    "emptyChildren": "Bættu barni við undir Fjölskylda til að sjá stöðuna hér.",
+    "loadError": "Gat ekki sótt stöðu barnanna. Það þýðir ekki að þú eigir engin börn.",
+    "retry": "Reyna aftur",
+    "viewActivitiesAria": "{{name}} — skoða athafnir dagsins"
+  },
+  "ready": {
+    "title": "Tilbúið í næstu athöfn",
+    "childrenCount": "({{count}} börn)"
+  },
+  "quickActions": {
+    "aria": "Flýtiaðgerðir",
+    "retroactive": "Skrá eftir á",
+    "onceTask": "Einstök athöfn",
+    "extraStars": "Aukastjörnur",
+    "dayOff": "Frídagur"
+  },
+  "dayOffModal": {
+    "title": "🏠 Frídagur",
+    "subtitle": "Setur rútínu barnsins í pásu allan daginn",
+    "footer": "Barnið þarf ekki að haka við athafnir á frídag",
+    "noChildren": "Engin börn fundust",
+    "stateActive": "🟢 Rútína virk",
+    "statePaused": "⏸ Frídagur í dag",
+    "markDayOff": "🏠 Merkja sem frídag",
+    "resumeSchedule": "▶ Halda rútínu áfram",
+    "noScheduleTitle": "Engin rútína búin til fyrir daginn",
+    "resumedToast": "Rútína hafin aftur!",
+    "pausedToast": "🏠 Merkt sem frídagur!",
+    "genericError": "Eitthvað fór úrskeiðis",
+    "networkError": "Netvilla"
+  },
+  "handoff": {
+    "title": "Tími fyrir barnið að skrá sig inn?",
+    "sub": "Skiptu yfir í barnasýn með PIN.",
+    "childLogin": "👶 Barnið skráir sig inn",
+    "changePin": "Breyta PIN barnsins",
+    "changePinAria": "Opna Fjölskyldu og breyta PIN barnsins",
+    "parentLogout": "Skrá út",
+    "regionAria": "Skipta yfir í innskráningu barns",
+    "dismissTitle": "Loka",
+    "trusted": {
+      "title": "Tími til að opna barnasýn?",
+      "sub": "Opnaðu sýn barnsins á þessu tæki.",
+      "childLogin": "Opna barnasýn",
+      "regionAria": "Opna barnasýn"
+    },
+    "pin": {
+      "title": "Tími fyrir barnið að skrá sig inn?",
+      "sub": "Skiptu yfir í barnasýn með PIN.",
+      "childLogin": "Skrá inn með PIN barnsins",
+      "regionAria": "Skrá inn með PIN barnsins"
+    },
+    "postSchema": {
+      "title": "Næsta skref: Leyfðu barninu að prófa rútínuna",
+      "sub": "Opnið barnasýnina saman — það tekur um eina mínútu.",
+      "childLogin": "Prófa barnasýn núna",
+      "regionAria": "Næsta skref: leyfðu barninu að prófa rútínuna",
+      "trusted": {
+        "title": "Næsta skref: Opna barnasýn",
+        "sub": "Opnið barnasýnina saman — það tekur um eina mínútu.",
+        "childLogin": "Opna barnasýn",
+        "regionAria": "Næsta skref: opna barnasýn"
+      },
+      "pin": {
+        "title": "Næsta skref: Leyfðu barninu að prófa rútínuna",
+        "sub": "Opnið barnasýnina saman — það tekur um eina mínútu.",
+        "childLogin": "Skrá inn með PIN barnsins",
+        "regionAria": "Næsta skref: skrá inn með PIN barnsins"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Næsta skref að fyrstu rútínunni sem tekst",
+    "pinHint": "Barnið notar PIN-ið sitt. Þú getur farið aftur í foreldrasýn þegar því er lokið.",
+    "recovery": {
+      "fetchErrorHeadline": "Við gátum ekki sótt næsta skref",
+      "fetchErrorBody": "Þetta lítur út fyrir að vera tímabundið. Reyndu aftur, eða haltu áfram án leiðsagnar í bili.",
+      "retry": "Reyna aftur",
+      "continueWithoutGuide": "Halda áfram án leiðsagnar",
+      "defer": "Gera þetta síðar",
+      "deferError": "Gat ekki vistað valið þitt núna. Reyndu aftur.",
+      "retrying": "Reyni aftur…",
+      "deferring": "Vista…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Búðu til prófíl barnsins",
+        "body": "Nafn og einfalt PIN duga til að byrja.",
+        "cta": "Halda áfram með barninu"
+      },
+      "save_schedule": {
+        "headline": "Vistaðu einfalda fyrstu rútínu",
+        "body": "Veldu byrjunaráætlun — þú getur breytt henni hvenær sem er.",
+        "cta": "Velja byrjunaráætlun"
+      },
+      "child_access": {
+        "headline": "Opna barnasýn",
+        "body": "Leyfðu barninu að prófa fyrstu athöfn dagsins í barnasýn.",
+        "cta": "Opna barnasýn"
+      },
+      "child_access_named": {
+        "headline": "Rútínan hjá {{name}} er tilbúin",
+        "body": "Barnið getur byrjað þegar þér hentar.",
+        "cta": "Opna barnasýn"
+      },
+      "await_first_completion": {
+        "headline": "Bíð eftir fyrstu athöfninni",
+        "body": "Barnið sér rútínuna í barnasýn. Hjálpaðu því að byrja ef þörf er á.",
+        "cta": "Opna barnasýn"
+      },
+      "parent_ack": {
+        "headline": "Barnið kláraði athöfn!",
+        "body": "Staðfestu svo stjarnan teljist og þið getið fagnað saman.",
+        "cta": "Skoða athöfn"
+      },
+      "celebrate_first_success": {
+        "headline": "Fyrsta stjarnan komin!",
+        "body": "Vel gert — rútínan virkar í alvöru.",
+        "cta": "Halda áfram"
+      },
+      "journey_coach": {
+        "headline": "Næsta skref",
+        "body": "Haltu áfram að byggja rútínuna á þínum hraða.",
+        "cta": "Halda áfram"
+      },
+      "engine_legacy": {
+        "headline": "Næsta skref",
+        "body": "Fylgdu næsta skrefi sem lagt er til.",
+        "cta": "Halda áfram"
+      },
+      "continue_today": {
+        "headline": "{{name}} á enn rútínu eftir í dag",
+        "body": "Viltu halda áfram þar sem hætt var?",
+        "cta": "Halda rútínu áfram"
+      },
+      "welcome_back": {
+        "headline": "Velkomið aftur",
+        "body": "Næsta skref bíður þegar þú þarft á því að halda — opna rútínu barnsins?",
+        "cta": "Opna barnasýn"
+      },
+      "invite_adult": {
+        "headline": "Viltu að annar fullorðinn hjálpi líka?",
+        "body": "Bjóddu þegar þér hentar — þú stjórnar áfram.",
+        "cta": "Bjóða fullorðnum"
+      },
+      "share_week": {
+        "headline": "Lítið hámark úr vikunni",
+        "body": "Deildu aðeins ef þú vilt — ekkert er birt sjálfkrafa.",
+        "cta": "Deila hámarki"
+      },
+      "refer_family": {
+        "headline": "Þekkirðu fjölskyldu sem gæti viljað rútínur?",
+        "body": "Deildu persónulegum hlekk — engin verðlaun, bara ábending.",
+        "cta": "Deila appinu"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ekki núna",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Þið tókuð skref í rútínunum þessa vikuna",
+        "body": "Rólegt yfirlit — bara fyrir þig.",
+        "shareText": "Við notum {{brand}} fyrir rútínur barnanna heima. Ef þú vilt prófa einfalt fjölskylduapp."
+      },
+      "morning": {
+        "headline": "Nokkrir morgnar gengu aðeins betur í þessari viku",
+        "body": "Vel gert — deildu aðeins ef þú vilt.",
+        "shareText": "Við höfum átt rólegri morgna með einföldu rútínuappi. Það gæti hjálpað fjölskyldunni þinni líka."
+      },
+      "evening": {
+        "headline": "Kvöldrútínan virkaði nokkrum sinnum í þessari viku",
+        "body": "Einkahámark — engin röðun.",
+        "shareText": "Kvöldrútínur urðu aðeins auðveldari hjá okkur. Ef þú leitar að rólegu tóli."
+      },
+      "multi_child": {
+        "headline": "Börnin þín tóku nokkur skref í rútínunum í þessari viku",
+        "body": "Yfirlit án nafna eða mynda.",
+        "shareText": "Við notum {{brand}} fyrir rútínur barnanna. Til að prófa:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Þú ert stofnfélagi",
+    "body": "Sem ein af fyrstu fjölskyldunum hefurðu aðgang til æviloka án kostnaðar. Takk fyrir að vera með okkur frá upphafi!"
+  },
+  "weekStory": {
+    "title": "Saga vikunnar"
+  },
+  "starHistory": {
+    "title": "Framvinda vikunnar",
+    "subtitle": "Síðustu 8 vikur",
+    "thisWeek": "{{count}} ⭐ í þessari viku",
+    "weekTooltip": "V{{week}}: {{count}} stjörnur",
+    "diffUp": "+{{diff}} miðað við síðustu viku",
+    "diffSame": "Sama og í síðustu viku",
+    "bestWeek": "🎉 Besta vika {{name}} hingað til!"
+  },
+  "nav": {
+    "today": "Í dag",
+    "dailyLog": "Í dag",
+    "fillRetroactive": "📝 Skrá eftir á"
+  },
+  "readiness": {
+    "heading": "Þarfnast athygli",
+    "warningsOnly": "Aðeins viðvaranir",
+    "loadError": "Gat ekki athugað hvað þarfnast athygli.",
+    "retry": "Reyna aftur",
+    "items": {
+      "pendingInviteTitleOne": "1 boð til annars foreldris í bið",
+      "pendingInviteTitleMany": "{{count}} boð til annarra foreldra í bið",
+      "pendingInviteSub": "Sjá um í Fjölskyldu",
+      "pendingApprovalTitle": "{{name}} — {{count}} beiðni í bið",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} beiðnir í bið",
+      "pendingApprovalSub": "Samþykkja í Verðlaunum",
+      "incompleteDaysTitleOne": "{{name}} — 1 óútfylltur dagur",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} óútfylltir dagar",
+      "incompleteDaysSub": "Fylla út eftir á",
+      "missingPinTitle": "{{name}} er ekki með PIN",
+      "missingPinSub": "Settu PIN í prófíl barnsins",
+      "pausedDayTitle": "{{name}} — frídagur í dag",
+      "pausedDaySub": "Opna Í dag",
+      "noScheduleTitle": "{{name}} — engin rútína í dag",
+      "noScheduleSub": "Opna vikuáætlun"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} vill leysa út verðlaun",
+    "pendingRewardSubOne": "Ein beiðni bíður þín",
+    "pendingRewardSubMany": "{{count}} beiðnir bíða þín",
+    "showRequest": "Skoða beiðni",
+    "closeToReward": "{{name}} á aðeins {{gap}} eftir í næstu verðlaun",
+    "starOne": "1 stjarna",
+    "starMany": "{{count}} stjörnur",
+    "seeRewards": "Sjá verðlaun",
+    "starsTodayHeadline": "Börnin unnu sér inn {{count}} í dag",
+    "starsTodaySubOne": "{{name}} vann sér þær inn í dag",
+    "starsTodaySubMany": "Börnin unnu sér þær inn í dag",
+    "tasksDoneHeadline": "{{name}} er þegar búið með {{count}} í dag",
+    "taskOne": "1 verkefni",
+    "taskMany": "{{count}} verkefni",
+    "tasksRemaining": "{{count}} eftir í rútínu dagsins",
+    "allActivitiesDone": "Allar athafnir búnar — flott!",
+    "seeSchedule": "Sjá áætlun",
+    "nextActivityHeadline": "{{name}} er tilbúið í {{activity}}",
+    "nextActivitySub": "Næsta athöfn í rútínunni",
+    "openToday": "Opna Í dag",
+    "calmDayHeadline": "Rólegur dagur — engin rútína í bili",
+    "calmDaySub": "Gott tækifæri til að bæta við athöfnum eða gefa aukastjörnur",
+    "defaultChild": "Barnið þitt",
+    "pageTitleStars": "🌟 Stjörnur dagsins",
+    "pageTitleWelcome": "👋 Velkomið aftur",
+    "pageTitleProgress": "🌟 Framvinda fjölskyldunnar í dag",
+    "greetingFallback": "{{greeting}} Svona lítur dagurinn út",
+    "followChild": "Fylgstu með framvindu {{name}} hér",
+    "followChildren": "Fylgstu með framvindu barnanna hér"
+  },
+  "childStats": {
+    "paused": "⏸ Frídagur í dag",
+    "allDone": "🌟 Allt búið í dag!",
+    "tasksDoneOne": "🔥 1 verkefni búið í dag",
+    "tasksDoneMany": "🔥 {{count}} verkefni búin í dag",
+    "noSchedule": "Engin rútína í dag",
+    "todayProgress": "Í dag <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> samtals",
+    "starsTodayOne": "+1 stjarna í dag",
+    "starsTodayMany": "+{{count}} stjörnur í dag",
+    "remaining": "{{count}} eftir · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Aðeins 1 stjarna í næstu verðlaun",
+    "rewardGapMany": "🎁 Aðeins {{count}} stjörnur í næstu verðlaun"
+  },
+  "offline": {
+    "banner": "Ónettengt — breytingarnar þínar eru vistaðar",
+    "lastUpdated": "· Síðast uppfært {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Í dag",
+    "dailyLogSub": "Fylgstu með degi barnanna — skráðu stjörnur eftir á"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Hvernig hefur {{goal}} gengið?",
+      "sub": "Fyrir {{name}}",
+      "great": "Mikil bæting",
+      "better": "Aðeins betra",
+      "same": "Enginn munur",
+      "worse": "Virkar ekki",
+      "followUpBetter": "Hvað varð betra?",
+      "followUpWorse": "Hvað vantar?",
+      "optional": "(valfrjálst)",
+      "send": "Senda",
+      "skip": "Sleppa",
+      "dismissAria": "Loka",
+      "thanks": "Takk! Svarið þitt er vistað.",
+      "alreadyAnswered": "Takk! Þú virðist þegar hafa svarað.",
+      "next": "Svara næsta",
+      "done": "Lokið"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Sleppa",
+    "next": "Næsta →",
+    "start": "🎉 Förum!",
+    "steps": {
+      "welcome": {
+        "title": "Velkomið á Heim!",
+        "body": "Hér sérðu dag hvers barns. Breyttu vikuáætluninni í Skipulagi."
+      },
+      "stars": {
+        "title": "Stjörnur og Fjársjóðskistan",
+        "body": "Hver kláruð athöfn gefur 1 stjörnu. Barnið safnar stjörnum og leysir þær út fyrir verðlaun í Fjársjóðskistunni."
+      },
+      "schedule": {
+        "title": "Vikuáætlun og athafnir",
+        "body": "Undir Skipulag í valmyndinni finnurðu safnið og getur bætt við þínum eigin verðlaunum."
+      },
+      "family": {
+        "title": "Bæta við fleiri börnum eða fullorðnum",
+        "body": "Ýttu á „+ Bæta við barni“ til að bæta við systkini. Undir Fjölskylda geturðu boðið öðrum fullorðnum."
+      },
+      "help": {
+        "title": "Þarftu hjálp?",
+        "body": "Ýttu á ❓ hnappinn neðst til hægri hvenær sem er til að sjá algengar spurningar og ráð. Gangi þér vel með {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} er að reyna að skrá sig inn",
+    "body": "3 rangar PIN-tilraunir — barnið gæti þurft hjálp"
+  },
+  "shareSchedule": {
+    "notAvailable": "Ekki hægt að deila á þessu tæki",
+    "notSupported": "Ekki hægt að deila á þessu tæki",
+    "shared": "Deilt!",
+    "childNotFound": "Barn fannst ekki",
+    "couldNotShare": "Gat ekki deilt: {{message}}",
+    "routineToday": "Rútína {{name}} í dag:",
+    "title": "Rútína {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Ný útgáfa af appinu er tilbúin!",
+    "reloadNow": "Endurhlaða núna",
+    "later": "Seinna",
+    "dismissAria": "Loka uppfærsluborða"
+  },
+  "pwa": {
+    "title": "Settu appið upp til að fá tilkynningar",
+    "iosLead": "Á iPhone/iPad þarf appið að vera á heimaskjánum til að tilkynningar virki.",
+    "iosStep1": "Ýttu á Deila-hnappinn neðst í Safari",
+    "iosStep2": "Veldu „Bæta við á heimaskjá“",
+    "iosStep3": "Opnaðu appið af heimaskjánum og leyfðu tilkynningar",
+    "iosArrowHint": "Hreyfð ör bendir á Deila-hnappinn í vafranum",
+    "androidTitle": "Settu appið upp til að fá bestu upplifunina",
+    "androidLead": "Settu appið upp til að fá áminningar í símann.",
+    "androidHomeLead": "Settu {{brand}} upp á heimaskjáinn til að komast fljótt inn og fá tilkynningar.",
+    "androidInstall": "Setja upp app",
+    "androidInstallBtn": "📲 Setja upp app",
+    "androidChromeFallback": "Ýttu á ⋮ (valmynd) í Chrome → <strong>„Bæta við á heimaskjá“</strong>",
+    "desktopTitle": "Setja appið upp",
+    "desktopLead": "Ýttu á uppsetningartáknið (⊕) í veffangastikunni eða notaðu valmynd vafrans.",
+    "dismissAria": "Loka"
+  },
+  "pushPrompt": {
+    "title": "Fáðu tilkynningar um börnin þín",
+    "body": "Fáðu strax að vita þegar barn hakar við athöfn eða vill leysa út verðlaun.",
+    "later": "Seinna",
+    "enable": "Kveikja á",
+    "enabledToast": "✅ Tilkynningar virkar!"
+  },
+  "globalFeedback": {
+    "fabAria": "Gefa endurgjöf",
+    "fabTitle": "Gefa endurgjöf",
+    "modalTitle": "Gefa endurgjöf",
+    "typeBug": "Tilkynna vandamál",
+    "typeSuggestion": "Tillaga",
+    "typeLanguage": "Tungumál",
+    "titlePlaceholder": "Titill",
+    "messagePlaceholder": "Hvað gerðist?",
+    "cancel": "Hætta við",
+    "submit": "Senda tilkynningu",
+    "submitting": "Sendi...",
+    "validationRequired": "Fylltu út alla reiti.",
+    "success": "Tilkynningin þín hefur verið send.",
+    "errorGeneric": "Eitthvað fór úrskeiðis. Reyndu aftur."
+  },
+  "cards": {
+    "loadError": "Gat ekki sótt barnaspjöld. Dragðu niður til að endurhlaða.",
+    "last": "Síðast:",
+    "next": "Næst:",
+    "noActivitiesToday": "Engar athafnir skipulagðar í dag",
+    "noRoutineToday": "Engin rútína í dag",
+    "createActivity": "✨ Búðu til athöfn í áætluninni →",
+    "childNoActivities": "{{name}} er ekki með athafnir enn — búðu til þá fyrstu →",
+    "noRewards": "🎁 Engin verðlaun enn",
+    "addReward": "→ Bæta við verðlaunum",
+    "pendingRequest": "{{count}} beiðni í bið",
+    "pendingRequestMany": "{{count}} beiðnir í bið",
+    "pausedBadge": "Í PÁSU",
+    "allDoneTitle": "Allt búið!",
+    "statusNow": "NÚNA",
+    "statusNext": "NÆST",
+    "onceTask": "Einstök athöfn",
+    "markDone": "Merkja sem búið",
+    "unmark": "Afmerkja",
+    "activityMarked": "✅ Búið!",
+    "activityUnmarked": "Afmerkt",
+    "fillDay": "Fylla út {{day}}",
+    "allActivitiesDone": "Allar athafnir búnar í dag!",
+    "last7Days": "Síðustu 7 dagarnir"
+  },
+  "approvals": {
+    "title": "Beiðnir í bið",
+    "loading": "Sæki beiðnir...",
+    "empty": "Engar beiðnir í bið! 🎉",
+    "loadError": "Gat ekki sótt beiðnir.",
+    "wantsGoalChange": "Vill breyta markmiði",
+    "goalChangeTo": "Í: {{name}}",
+    "wantsRedeem": "Vill leysa út",
+    "approve": "Samþykkja",
+    "deny": "Hafna",
+    "requiresApproval": "Þarfnast samþykkis",
+    "requiresApprovalCount": "Þarfnast samþykkis ({{count}})",
+    "goalApproved": "🎯 Breyting á markmiði samþykkt!",
+    "redemptionApproved": "🎉 Útleysing samþykkt!",
+    "goalDenied": "Breytingu á markmiði hafnað.",
+    "redemptionDenied": "Útleysingu hafnað.",
+    "updateFailed": "Gat ekki uppfært",
+    "genericError": "Villa",
+    "wantsGoalNamed": "{{name}} vill breyta markmiðinu í {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Vill breyta markmiðinu í {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} vill „{{reward}}“ ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Laga tíma í dag",
+    "plusMinutes": "+{{minutes}} mín.",
+    "failed": "Gat ekki lagað tíma",
+    "undone": "Afturkallað",
+    "undoFailed": "Gat ekki afturkallað"
+  },
+  "loading": {
+    "initFailed": "Eitthvað fór úrskeiðis við að hlaða. Endurhladdu síðuna.",
+    "couldNotLoad": "Gat ekki hlaðið.",
+    "checkConnection": "Athugaðu nettenginguna",
+    "reloadPage": "Endurhlaða síðunni"
+  },
+  "activationProgram": {
+    "exitConfirm": "Viltu ljúka 7 daga prógramminu?",
+    "reflectionPlaceholder": "Valfrjálst: segðu okkur meira…",
+    "send": "Senda",
+    "reflectionQuestion": "Hefur appið gert daglegt líf auðveldara?",
+    "previewEmpty": "Opnaðu innskráningu barns til að sjá áætlunina.",
+    "optOutTitle": "Ljúka prógrammi",
+    "skipToday": "Sleppa deginum í dag",
+    "orOpenChildLogin": "Eða opna innskráningu barns",
+    "dayOf": "Dagur {{day}} af {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Framvinda fjölskyldunnar í dag",
+    "allChildren": "← Öll börn",
+    "systemMsgFrom": "Skilaboð frá appinu",
+    "systemMsgClose": "Loka ✕",
+    "sharingManage": "Ýttu til að sýsla með deildarskýrslum",
+    "inviteTitle": "Bjóddu öðru foreldri",
+    "inviteSub": "Svo þið þurfið ekki að spyrja hvort annað um áætlunina",
+    "inviteBtn": "Bjóða",
+    "shareTitle": "Segðu vini frá!",
+    "shareSub": "Hjálpaðu annarri fjölskyldu að fá skipulag í daglegt líf",
+    "shareBtn": "Deila",
+    "inviteModalTitle": "Bjóddu öðru foreldri",
+    "inviteModalBody": "Makinn þinn fær tölvupóst með beinum hlekk — engin aukaforrit, ekkert vesen.",
+    "inviteSentBody": "Makinn þinn getur nú skráð sig inn og séð áætlunina.",
+    "inviteDone": "Lokið",
+    "supportPrefix": "🔒 Þú ert í stuðningsham: sýni gögn fyrir fjölskyldu",
+    "supportSuffix": ". Ekki er hægt að breyta neinum gögnum. Lotan rennur út eftir",
+    "tourSkip": "Sleppa",
+    "tourNext": "Næsta →",
+    "starTipsTitle": "Ráð: svona virka stjörnur",
+    "starTipsCollect": "• Barnið fær stjörnur þegar athafnir eru hakaðar í barnasýn",
+    "starTipsExtra": "• Gefðu aukastjörnur af barnaspjaldinu fyrir það sem er utan áætlunar",
+    "starTipsRewards": "• Stjörnur safnast upp í vistuð verðlaun — settu markmið í Verðlaunum",
+    "starTipsEdit": "• Breyttu vikuáætluninni í Skipulagi",
+    "dayDragInner": "dragðu dagflipa yfir á annan dag til að afrita eða skipta",
+    "calViewDay": "Dagur",
+    "calViewWeek": "Vika",
+    "calViewMonth": "Mánuður",
+    "retroactiveFull": "📝 Skrá eftir á",
+    "extraStarsFull": "⭐ Gefa aukastjörnur",
+    "onceTaskFull": "📋 Einstök athöfn",
+    "dayOffFull": "🏠 Frídagur",
+    "trialEndingTitle": "Einn dagur eftir af prufutímanum",
+    "trialEndingBody": "Prufutíminn rennur út innan dags. Veldu áskrift í appinu ef þú vilt halda fullum aðgangi. Öll gögnin þín verða áfram.",
+    "trialEndingChoose": "Velja í appinu",
+    "trialEndingClose": "Loka"
+  },
+  "helpPanel": {
+    "title": "❓ Hvernig virkar þetta?",
+    "tabSchema": "📅 Vikuáætlun",
+    "tabStars": "⭐ Stjörnur",
+    "tabFamily": "👨‍👩‍👧 Fjölskylda",
+    "tabAdults": "🔑 Fleiri fullorðnir",
+    "tabTrouble": "🔧 Úrræðaleit",
+    "addActivityQ": "Hvernig bæti ég við athöfn?",
+    "addActivityA": "Ýttu á barnaspjald á Heim → veldu dag → ýttu á „+“ til að bæta við athöfn úr safninu. Þú getur líka búið til þínar eigin athafnir í <strong>Safni</strong>.",
+    "dragQ": "Get ég dregið og fært athafnir?",
+    "dragA": "Já! Í áætlunarsýn barnsins (ýttu á spjald á Heim) geturðu ýtt og dregið athafnir til að breyta röð. Þú getur líka dregið athöfn yfir á flipa annars dags til að afrita hana.",
+    "copyQ": "Hvernig afrita ég áætlunina á alla daga?",
+    "copyA": "Í ritli áætlunarinnar (📋 hnappur) → veldu „Afrita á aðra daga“ til að afrita áætlun eins dags yfir á restina af vikunni.",
+    "earnStarsQ": "Hvernig fær barnið mitt stjörnur?",
+    "earnStarsA": "Hver kláruð athöfn gefur <strong>1 stjörnu</strong>. Barnið hakar við í barnasýn. Þú getur líka gefið <strong>aukastjörnur</strong> af barnaspjaldinu á Heim.",
+    "treasureQ": "Hvernig virkar Fjársjóðskistan?",
+    "treasureA": "Í barnasýn ýtirðu á ⭐ táknið til að sjá Fjársjóðskistuna — lista yfir verðlaun og hvað þau kosta margar stjörnur. Barnið getur beðið um verðlaun þegar það hefur safnað nóg.",
+    "retroQ": "Hvernig fylli ég út stjörnur fyrir daga sem ég gleymdi?",
+    "retroA": "Farðu í <strong>Í dag</strong> (☰ valmynd → Í dag, eða hnappurinn <strong>Skrá eftir á</strong> á Heim). Veldu barnið, flettu á réttan dag með örvunum eða dagatalinu og hakaðu við athafnirnar. Stjörnur vistast með réttri dagsetningu.",
+    "rewardsQ": "Hvernig bæti ég við eða breyti verðlaunum?",
+    "rewardsA": "Farðu í Verðlaun í valmyndinni. Þar geturðu bætt við þínum eigin verðlaunum, breytt stjörnukostnaði og valið hvaða börn sjá þau.",
+    "siblingQ": "Hvernig bæti ég við systkini?",
+    "siblingA": "Á Heim → ýttu á <strong>„+ Bæta við barni“</strong>. Hvert barn fær sína áætlun, sínar athafnir og sínar stjörnur.",
+    "childLoginQ": "Hvernig skráir barnið mitt sig inn?",
+    "childLoginA": "Fyrstu dagana geturðu <strong>skoðað dag barnsins</strong> í Í dag. Þegar ykkur hentar skráir barnið sig inn á <strong>/child-login</strong> með notandanafni og PIN — engin lykilorð. Upplýsingarnar eru undir <strong>Fjölskylda og stillingar → Börn</strong>.",
+    "inviteAdultQ": "Hvernig býð ég öðrum fullorðnum?",
+    "inviteAdultA": "Farðu í <strong>Fjölskylda og stillingar → Fjölskyldumeðlimir</strong> → ýttu á „Bjóða“. Viðkomandi fær tölvupóst með hlekk til að stofna eigin reikning og ganga í fjölskylduna.",
+    "inviteSeeQ": "Sér sá sem þú býður öll börnin?",
+    "inviteSeeA": "Þú velur hvaða börn viðkomandi sér þegar þú sendir boðið. Þú getur breytt því síðar undir <strong>Fjölskyldumeðlimir</strong> → ýttu á viðkomandi → stilltu aðgang að börnum.",
+    "noActivitiesQ": "Barnið mitt sér engar athafnir í dag",
+    "noActivitiesA": "Athugaðu að áætlunin sé sett á réttan dag. Opnaðu áætlun barnsins (ýttu á barnaspjaldið) → veldu daginn í dag → sjáðu hvort athafnir séu til staðar. Ef áætlunin er tóm: notaðu „Afrita á aðra daga“ til að fylla hana.",
+    "forgotPinQ": "Ég hef gleymt PIN barnsins",
+    "forgotPinA": "Farðu í <strong>Fjölskylda og stillingar → Börn</strong> → veldu barnið → ýttu á „Breyta PIN“ til að setja nýtt PIN.",
+    "innerOneStar": "1 stjörnu",
+    "innerBonusStars": "aukastjörnur",
+    "innerAddChild": "„+ Bæta við barni“",
+    "innerPreview": "skoða dag barnsins",
+    "innerFamilyMembersPath": "Fjölskylda og stillingar → Fjölskyldumeðlimir",
+    "innerMembers": "Fjölskyldumeðlimir",
+    "innerFamilyChildren": "Fjölskylda og stillingar → Börn",
+    "supportQ": "Hafa samband við þjónustu",
+    "supportLead": "Sendu okkur tölvupóst á",
+    "supportTail": " — við svörum innan 24 klukkustunda."
+  },
+  "journeyAck": {
+    "headline": "Barnið kláraði athöfn!",
+    "childFallback": "Barnið þitt",
+    "activityFallback": "athöfn",
+    "dismiss": "Ég sá það"
+  },
+  "journeyCelebration": {
+    "headline": "Þetta tókst ykkur saman",
+    "body": "Barnið byrjaði — og þú sást það.",
+    "dismiss": "Frábært!"
+  },
+  "activationAha": {
+    "body": "Án þess að þú þurfir að minna á.",
+    "dismiss": "Frábært!"
+  }
+}

@@ -1,0 +1,4 @@
+/* App Store + system permission strings (mt) */
+"CFBundleDisplayName" = "Min Stjärndag"; // pragma: allowlist secret
+"NSCameraUsageDescription" = "Min Stjärndag juża l-kamera biex tieħu ritratt ġdid tal-profil tat-tifel tiegħek fl-app. Ir-ritratt jinżamm fil-kont tal-familja u tarah biss il-familja tiegħek."; // pragma: allowlist secret
+"NSPhotoLibraryUsageDescription" = "Min Stjärndag jeħtieġ aċċess għar-ritratti tiegħek biex tagħżel ritratt eżistenti bħala ritratt tal-profil tat-tifel tiegħek. Pereżempju, tista' tagħżel ritratt minn album tas-sajf u jidher bħala r-ritratt tat-tifel tiegħek fil-pjan tal-ġurnata."; // pragma: allowlist secret

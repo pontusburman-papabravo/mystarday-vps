@@ -398,8 +398,11 @@
         "acceptFallbackForReady": true
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "ga",
+        "androidResources": [
+          "scripts/android/l10n/res/values-ga/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-ga/strings.xml"
+        ]
       }
     },
     "it-IT": {
@@ -475,8 +478,11 @@
         "acceptFallbackForReady": true
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "mt",
+        "androidResources": [
+          "scripts/android/l10n/res/values-mt/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-mt/strings.xml"
+        ]
       }
     },
     "pl-PL": {
@@ -652,8 +658,11 @@
         "acceptFallbackForReady": false
       },
       "native": {
-        "ios": null,
-        "androidResources": []
+        "ios": "is",
+        "androidResources": [
+          "scripts/android/l10n/res/values-is/strings.xml",
+          "plugins/capacitor-widget-bridge/android/src/main/res/values-is/strings.xml"
+        ]
       }
     }
   }

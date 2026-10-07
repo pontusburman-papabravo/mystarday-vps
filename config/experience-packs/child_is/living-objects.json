@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Garðurinn",
+      "slots": [
+        {
+          "slot_id": "bed_1",
+          "label_sv": "Blómabeðið",
+          "default_archetype_id": "sunflower"
+        }
+      ],
+      "archetypes": [
+        {
+          "archetype_id": "sunflower",
+          "display_name_sv": "Sólblómið",
+          "initial_state": "empty",
+          "states": [
+            {
+              "state_key": "empty",
+              "label_sv": "Tóm mold",
+              "visual_token": "garden_bed_empty"
+            },
+            {
+              "state_key": "planted",
+              "label_sv": "Fræið er í moldinni",
+              "visual_token": "sunflower_seed"
+            },
+            {
+              "state_key": "watered",
+              "label_sv": "Þú vökvaðir fræið",
+              "visual_token": "sunflower_seed",
+              "timer_ms": 30000,
+              "timer_next_state": "blooming"
+            },
+            {
+              "state_key": "blooming",
+              "label_sv": "Sólblómið er að blómstra!",
+              "visual_token": "sunflower_bloom"
+            },
+            {
+              "state_key": "harvested",
+              "label_sv": "Blóm dagsins",
+              "visual_token": "sunflower_harvested"
+            }
+          ],
+          "verbs": [
+            {
+              "verb": "plant",
+              "from_state": "empty",
+              "to_state": "planted",
+              "child_message_sv": "Þú plantaðir fræi!"
+            },
+            {
+              "verb": "water",
+              "from_state": "planted",
+              "to_state": "watered",
+              "child_message_sv": "Þú vökvaðir fræið — nú vex það!"
+            },
+            {
+              "verb": "harvest",
+              "from_state": "blooming",
+              "to_state": "harvested",
+              "child_message_sv": "Þú tíndir sólblómið!"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

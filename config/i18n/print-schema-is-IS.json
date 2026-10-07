@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Búa til PDF — áætlun — {{brand}}",
+  "backLink": "← Til baka í Skipulag",
+  "heading": "📄 Búa til PDF — áætlun",
+  "intro": "Veldu barn og tímabil. Forskoðunin sýnir alla áætlunina — PDF-ið minnkar sjálfkrafa svo það passi á eitt A4-blað á langsnið.",
+  "pdfSave": {
+    "title": "Hvar vistast PDF-ið?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Eftir <em>Búa til PDF</em> opnast deilingargluggi — veldu <strong>Vista í Skrár</strong> og veldu möppu (t.d. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Tölva:</strong> PDF-ið fer í möppuna <strong>Niðurhal</strong> (oft neðst til vinstri í vafranum)."
+  },
+  "sections": {
+    "child": "Barn",
+    "period": "Tímabil",
+    "scope": "Hvað á PDF-ið að innihalda?",
+    "startWeek": "Upphafsvika"
+  },
+  "period": {
+    "1w": "1 vika",
+    "2w": "2 vikur",
+    "1m": "1 mánuður"
+  },
+  "scope": {
+    "all": "Öll áætlunin",
+    "my": "Aðeins dagar mínir"
+  },
+  "weekNav": {
+    "prevAria": "Fyrri vika",
+    "nextAria": "Næsta vika",
+    "today": "Þessi vika"
+  },
+  "actions": {
+    "preview": "Forskoðun",
+    "createPdf": "Búa til PDF"
+  },
+  "preview": {
+    "heading": "Forskoðun",
+    "hint": "Skrunaðu niður ef dagur hefur margar athafnir."
+  },
+  "pdfHelp": {
+    "title": "Hvernig á að vista PDF-ið",
+    "closeAria": "Loka",
+    "ok": "Allt í lagi",
+    "introShare": "Deilingarglugginn er opinn. Veldu Vista í Skrár til að vista PDF-ið.",
+    "introPreview": "PDF-ið opnaðist í vafranum{{filename}}.",
+    "introDesktop": "PDF-ið var sótt{{filename}}.",
+    "filenameSuffix": " sem {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Í deilingarglugganum: skrunaðu og ýttu á <strong>Vista í Skrár</strong>.",
+      "Veldu möppu (t.d. <strong>iCloud Drive</strong> eða <strong>Á iPhone-inum mínum</strong>).",
+      "Ýttu á <strong>Vista</strong> efst til hægri.",
+      "Finndu skrána síðar í appinu <strong>Skrár</strong>."
+    ],
+    "previewSteps": [
+      "PDF-ið opnaðist í nýrri sýn — ýttu á <strong>Deila</strong> (↑) efst til hægri.",
+      "Veldu <strong>Vista í Skrár</strong>.",
+      "Veldu möppu og ýttu á <strong>Vista</strong>."
+    ],
+    "desktopSteps": [
+      "Opnaðu möppuna <strong>Niðurhal</strong> á tölvunni.",
+      "Leitaðu að skrá sem byrjar á <strong>{{prefix}}</strong> og dagsetningu dagsins."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Áætlun",
+    "titleMyDays": "Dagar mínir",
+    "emptyCell": "–",
+    "childFallback": "Barn",
+    "loadingPrint": "Undirbý prentun…",
+    "iframeTitle": "Prenta"
+  },
+  "filename": {
+    "prefixSchedule": "vikuaaetlun",
+    "prefixMyDays": "dagar-minir",
+    "fallbackSlug": "barn"
+  },
+  "toasts": {
+    "loadChildrenError": "Gat ekki sótt börn",
+    "selectChild": "Veldu barn fyrst",
+    "loadingPreview": "Hleð forskoðun…",
+    "noMyDays": "Engir dagar fyrir þig á völdu tímabili",
+    "loadScheduleError": "Gat ekki sótt áætlunina",
+    "creatingPdf": "Bý til PDF…",
+    "pdfCancelled": "Vistun PDF hætt við",
+    "shareHint": "Veldu Vista í Skrár í deilingarglugganum",
+    "mobileSavedHint": "PDF tilbúið — vistaðu það í Skrár",
+    "desktopSavedHint": "PDF vistað í Niðurhal",
+    "pdfLibsMissing": "PDF-verkfæri vantar — endurhladdu síðunni og reyndu aftur",
+    "createPdfError": "Gat ekki búið til PDF-ið",
+    "shareAgain": "PDF-ið er tilbúið. Ýttu aftur á Búa til PDF til að velja hvar á að vista það."
+  },
+  "empty": {
+    "noChildren": "Engin börn hafa verið bætt við enn.",
+    "goDashboard": "Fara á Heim"
+  }
+}

@@ -389,6 +389,66 @@
       "showOnFirstRun": true,
       "contentSource": "locale-files",
       "contentMap": "lv-LV.json"
+    },
+    {
+      "id": "is-IS",
+      "nativeName": "Íslenska",
+      "base": "is",
+      "aliases": [
+        "is",
+        "is-is"
+      ],
+      "inputAliases": [
+        "is"
+      ],
+      "legacyJourneyTags": [
+        "is"
+      ],
+      "experiencePack": "child_is",
+      "availability": "registered",
+      "showOnFirstRun": false,
+      "contentSource": "locale-files",
+      "contentMap": "is-IS.json"
+    },
+    {
+      "id": "ga-IE",
+      "nativeName": "Gaeilge",
+      "base": "ga",
+      "aliases": [
+        "ga",
+        "ga-ie"
+      ],
+      "inputAliases": [
+        "ga"
+      ],
+      "legacyJourneyTags": [
+        "ga"
+      ],
+      "experiencePack": "child_ga",
+      "availability": "registered",
+      "showOnFirstRun": false,
+      "contentSource": "locale-files",
+      "contentMap": "ga-IE.json"
+    },
+    {
+      "id": "mt-MT",
+      "nativeName": "Malti",
+      "base": "mt",
+      "aliases": [
+        "mt",
+        "mt-mt"
+      ],
+      "inputAliases": [
+        "mt"
+      ],
+      "legacyJourneyTags": [
+        "mt"
+      ],
+      "experiencePack": "child_mt",
+      "availability": "registered",
+      "showOnFirstRun": false,
+      "contentSource": "locale-files",
+      "contentMap": "mt-MT.json"
     }
   ]
 }

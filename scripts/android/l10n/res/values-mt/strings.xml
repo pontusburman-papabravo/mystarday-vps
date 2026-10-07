@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">M\'hemmx konnessjoni</string>
+    <string name="native_offline_body">Iċċekkja l-konnessjoni tal-internet u erġa\' pprova.</string>
+    <string name="camera_permission_rationale">[REDACTED] juża l-kamera biex tieħu ritratt tal-profil tat-tifel tiegħek.</string>
+    <string name="photos_permission_rationale">[REDACTED] jeħtieġ aċċess għar-ritratti tiegħek biex tagħżel ritratt tal-profil tat-tifel tiegħek.</string>
+    <string name="notification_channel_routine_name">Tfakkiriet tar-rutina</string>
+    <string name="notification_channel_routine_desc">Tfakkiriet dwar il-pjan tal-familja</string>
+</resources>

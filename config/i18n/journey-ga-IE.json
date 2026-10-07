@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Taispeáin leideanna",
+    "close": "Dún",
+    "milestone": "Cloch mhíle",
+    "nextStep": "An chéad chéim eile",
+    "tip": "Leid",
+    "weekReflection": "Machnamh na seachtaine",
+    "weekTogether": "Seachtain le chéile",
+    "weekLabel": "Seachtain amháin",
+    "sjDay3Headline": "Tá sé in am do {{name}} triail a bhaint as",
+    "tips": {
+      "coach_consistency": [
+        "Coinnigh an gnátham gearr agus soiléir — tógann do pháiste an nós céim ar chéim.",
+        "Ceiliúraigh gach tic, fiú na cinn bheaga.",
+        "Lig do do pháiste logáil isteach as féin gach maidin."
+      ],
+      "coach_evening": [
+        "Cuir 2–3 ghníomhaíocht chiúin leis roimh am codlata.",
+        "An t-ord céanna gach tráthnóna, is fusa codladh a theacht."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nua",
+    "dismissAria": "Dún an míniú",
+    "continueFallback": "Lean ar aghaidh",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Taispeánaimid moladh soiléir anois don chéad chéim eile, anseo ar Bhaile.",
+        "whatChanged": "Cuireadh cárta «An chéad chéim eile» ag an mbarr.",
+        "whyItMatters": "Ní gá duit ruaille buaille a dhéanamh trí mheabhrúcháin — moladh amháin ag an am."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lig do do pháiste triail a bhaint as an ngnátham",
+      "body": "Oscail mód an pháiste libh beirt — feiceann sé láithreach cad atá le déanamh.",
+      "cta": "Oscail amharc an pháiste"
+    },
+    "ADD_EVENING": {
+      "headline": "Cuir gnátham an tráthnóna leis",
+      "body": "Déan an t-am codlata chomh soiléir leis an maidin.",
+      "cta": "Cuir an tráthnóna leis"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Tabhair cuireadh don tuismitheoir eile",
+      "body": "Roinn an gnátham ionas gur féidir libh leanúint leis le chéile.",
+      "cta": "Tabhair cuireadh"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Tosaigh le céim bheag amháin",
+      "body": "Tá do ghnátham ann fós — tóg gníomhaíocht amháin ag an am inniu.",
+      "cta": "Oscail plean na seachtaine"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Cuir do ghnátham in oiriúint duit féin",
+      "body": "Is féidir leat plean na seachtaine a dhéanamh leat féin anois.",
+      "cta": "Cuir in oiriúint"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Ceiliúraigh an dul chun cinn",
+      "body": "Tá céim thábhachtach tógtha agat — tóg nóiméad le chéile.",
+      "cta": "Taispeáin do do pháiste"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Chríochnaigh do pháiste gníomhaíocht!",
+    "defaultChild": "Do pháiste",
+    "defaultActivity": "gníomhaíocht",
+    "defaultCta": "Tuigim"
+  }
+}

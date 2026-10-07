@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Í dag tók {{child_name}} fyrsta skrefið.",
+      "body_template": "Lítið hversdagslegt skref — en það skiptir máli. Nú veistu að rútínan virkar.",
+      "cta": "Ég sé það"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Þið gerðuð þetta saman",
+      "body_template": "{{child_name}} byrjaði. Þú sást það. Svona vaxa venjur.",
+      "cta": "Yndislegt"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Eitthvað glitrar í Morgungarhúsinu…"
+    }
+  }
+}

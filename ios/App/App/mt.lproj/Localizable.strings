@@ -1,0 +1,3 @@
+/* Native shell copy (mt) — OS picks this before login when device language is Maltese. */
+"native_offline_title" = "M'hemmx konnessjoni";
+"native_offline_body" = "Iċċekkja l-konnessjoni tal-internet u erġa' pprova.";

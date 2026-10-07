@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Id-dar",
+    "planning": "Ippjanar",
+    "rewards": "Premjijiet",
+    "forYou": "Għalik",
+    "family": "Familja"
+  },
+  "settings": "Għażliet",
+  "mainAria": "Navigazzjoni ewlenija",
+  "notifications": "Notifiki",
+  "share": "Aqsam",
+  "logout": "Oħroġ",
+  "switchUser": "Ibdel il-profil",
+  "returnToChild": "Lura għat-tifel",
+  "darkMode": "Mod skur",
+  "lightMode": "Mod ċar",
+  "overview": "Ħarsa ġenerali",
+  "dailyLog": "Illum",
+  "weekSchedule": "Pjan tal-ġimgħa",
+  "reports": "Rapporti",
+  "library": "Librerija",
+  "libraryAdvanced": "📚 Librerija (avanzata)",
+  "pedagogNotes": "📝 Noti tal-edukatur",
+  "treasureChest": "It-teżor",
+  "familySettings": "Familja u għażliet",
+  "capability": {
+    "subscription": "Abbonament",
+    "reports": "Rapporti",
+    "samarbete": "Kollaborazzjoni mal-edukatur",
+    "barnStod": "Appoġġ żejjed"
+  },
+  "header": {
+    "notifications": "Notifiki",
+    "settings": "Għażliet",
+    "share": "Aqsam",
+    "shareTitle": "Għid lil familja oħra dwar l-app!",
+    "shareAria": "Aqsam"
+  },
+  "avatar": {
+    "switchPedagog": "Aqleb għall-vista tal-edukatur",
+    "subscription": "Abbonament",
+    "settings": "Għażliet",
+    "logout": "Oħroġ"
+  },
+  "mobile": {
+    "openMenu": "Iftaħ il-menu",
+    "darkModeTitle": "Mod skur",
+    "darkModeAria": "Aqleb il-mod skur"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Inniu thug {{child_name}} an chéad chéim.",
+      "body_template": "Rud beag laethúil — ach is mór an rud é. Anois tá a fhios agat go n-oibríonn an gnátham.",
+      "cta": "Feicim é"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Rinne sibh é le chéile",
+      "body_template": "Thosaigh {{child_name}}. Chonaic tú é. Mar sin a fhásann nósanna.",
+      "cta": "Nach álainn"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Tá rud éigin ag lonrú i dTeach na Maidine…"
+    }
+  }
+}

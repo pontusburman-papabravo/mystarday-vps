@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Hjálp",
+    "openAria": "Opna hjálp",
+    "closeAria": "Loka hjálp"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Hjálp – Yfirlit",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Yfirlit",
+          "faqs": [
+            {
+              "q": "Hvað gera 3 flýtihnapparnir efst?",
+              "a": "<strong>⭐ Gefa aukastjörnur</strong> — gefðu barni aukastjörnur handvirkt. <strong>📋 Einstök athöfn</strong> — bættu við tímabundinni athöfn fyrir daginn. <strong>🏠 Frídagur</strong> — setur áætlun barnsins í pásu í einn dag (t.d. veikindadag, frí)."
+            },
+            {
+              "q": "Hvernig haka ég við athöfn?",
+              "a": "Ýttu á athöfnina á barnaspjaldinu — hún verður hökuð strax. Barnið getur líka hakað við í <strong>barnasýn</strong>."
+            },
+            {
+              "q": "Hvað er þjappað barnaspjald?",
+              "a": "Barnaspjaldið sýnir andlit, nafn, stjörnustöðu og hlutamerki í þjöppuðum ham. Opnaðu spjaldið til að sjá meira, hlekk á áætlun og pásuhnapp."
+            },
+            {
+              "q": "Hvað er frídagur?",
+              "a": "<strong>🏠 Frídagur</strong> setur áætlun barnsins í pásu á völdum degi — hentar þegar barnið er veikt eða í fríi. Barnið sér áætlunina sem óvirka. Kveiktu á deginum aftur með sama hnappi."
+            },
+            {
+              "q": "Hvað er pásuhamur?",
+              "a": "Ýttu á pásutáknið (⏸) á barnaspjaldinu til að setja barn í pásu. Athafnir birtast sem óvirkar og barnið fær ekki stjörnur fyrr en þú heldur áfram."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stjörnur",
+          "faqs": [
+            {
+              "q": "Hvernig fær barnið mitt stjörnur?",
+              "a": "Hver kláruð athöfn gefur <strong>1 stjörnu</strong>. Barnið hakar við í barnasýn — eða þú getur hakað við í Í dag á meðan þið eruð að prófa. Gefðu aukastjörnur með ⭐ hnappnum fyrir ofan barnaspjöldin."
+            },
+            {
+              "q": "Hvernig virkar Fjársjóðskistan?",
+              "a": "Barnið opnar Fjársjóðskistuna í gegnum 💎 flipann í barnasýn og sér verðlaun með stjörnuverði. Þegar það hefur safnað nóg getur það beðið um verðlaun — þú samþykkir."
+            },
+            {
+              "q": "Hvernig bæti ég við verðlaunum?",
+              "a": "Farðu í <strong>Safn</strong> í valmyndinni → flipann „Verðlaun“. Bættu við þínum eigin verðlaunum, breyttu stjörnukostnaði og veldu hvaða börn sjá þau."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Vikuáætlun",
+          "faqs": [
+            {
+              "q": "Hvernig bæti ég við athöfn?",
+              "a": "Farðu í <strong>Vikuáætlun</strong> → veldu barn → veldu dag → ýttu á „+“ til að bæta við athöfn úr safninu. Þú getur leitað meðal 63 staðlaðra athafna."
+            },
+            {
+              "q": "Hvernig afrita ég áætlun á alla daga?",
+              "a": "Í vikuáætlun → „Afrita frá…“ → veldu uppruna (þína eigin áætlun eða staðlasafnið) → hakaðu við dagana sem þú vilt afrita á."
+            },
+            {
+              "q": "Hvað er sýnin Í dag?",
+              "a": "Sýnin „Í dag“ á yfirlitinu uppfærist sjálfkrafa þegar þú breytir áætluninni. Breytingar í vikuáætlun birtast strax á yfirlitinu og í sýn barnsins."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Fjölskylda",
+          "faqs": [
+            {
+              "q": "Hvernig býð ég öðrum fullorðnum?",
+              "a": "Farðu í <strong>Fjölskylda og stillingar → Fjölskyldumeðlimir</strong> → ýttu á „Bjóða“. Sá sem þú býður fær tölvupóst með innskráningarhlekk."
+            },
+            {
+              "q": "Hvernig sé ég dag barnsins míns?",
+              "a": "Opnaðu <strong>Í dag</strong> í valmyndinni — þar sérðu athafnir dagsins eins og barnið sér þær. Hentar vel fyrsta kvöldið áður en barnið skráir sig inn sjálft."
+            },
+            {
+              "q": "Hvernig skráir barnið mitt sig inn?",
+              "a": "Þegar ykkur hentar: barnið skráir sig inn á <strong>/child-login</strong> með notandanafni og PIN. Upplýsingarnar eru undir <strong>Fjölskylda og stillingar → Börn</strong>."
+            },
+            {
+              "q": "Hafa samband við þjónustu",
+              "a": "Sendu okkur tölvupóst á <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — við svörum innan 24 klukkustunda."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Hjálp – Verðlaun",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Verðlaun",
+          "faqs": [
+            {
+              "q": "Hvernig virkar verðlaunakerfið?",
+              "a": "Barnið safnar stjörnum með því að klára athafnir. Þegar stjörnustaðan dugar fyrir verðlaun getur það beðið um að leysa þau út — þú samþykkir eða hafnar."
+            },
+            {
+              "q": "Hvernig bæti ég við nýjum verðlaunum?",
+              "a": "Farðu í <strong>Safn</strong> í valmyndinni → flipann „Verðlaun“ → leitaðu eða ýttu á „+ Bæta við verðlaunum“. Þú getur líka afritað beint úr staðlasafninu."
+            },
+            {
+              "q": "Hvernig stýri ég sýnileika fyrir hvert barn?",
+              "a": "Þegar þú býrð til eða breytir verðlaunum velurðu hvaða börn eiga að sjá þau. Hentar fyrir sérsniðin verðlaun fyrir hvert barn."
+            },
+            {
+              "q": "Hvernig samþykki ég beiðni um útleysingu?",
+              "a": "Beiðni barnsins birtist á yfirlitinu með merki. Ýttu til að samþykkja. Stjörnur dragast frá sjálfkrafa og barnið sér breytinguna strax."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stjörnur",
+          "faqs": [
+            {
+              "q": "Hvernig fær barnið mitt stjörnur?",
+              "a": "Hver kláruð athöfn gefur stjörnur (1 stjarna á athöfn sjálfgefið). Þú getur líka gefið aukastjörnur með ⭐ hnappnum á yfirlitinu."
+            },
+            {
+              "q": "Hver er munurinn á stjörnustöðu og framvindu dagsins?",
+              "a": "<strong>Stjörnustaða</strong> = heildarsafn. <strong>Framvinda dagsins</strong> (hringurinn í kringum emojið) = hversu margar athafnir barnið kláraði í dag. Þetta er tvennt ólíkt."
+            },
+            {
+              "q": "Hvað gerist þegar verðlaun eru leyst út?",
+              "a": "Stjörnur dragast sjálfkrafa frá reikningi barnsins. Barnið sér breytinguna strax í Fjársjóðskistunni. Þú sérð söguna á síðu Verðlauna."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Hjálp – Vikuáætlun",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Breyta áætlun",
+          "faqs": [
+            {
+              "q": "Hvernig bæti ég við athöfn?",
+              "a": "Veldu dag → ýttu á „+“ → leitaðu og veldu athöfn. Þú getur valið <strong>nokkra tímaramma í einu</strong> (morgunn + kvöld) og athöfnin bætist við alla."
+            },
+            {
+              "q": "Hvernig bý ég til nýja athöfn beint í áætluninni?",
+              "a": "Ýttu á „+“ → leitaðu → ef ekkert passar birtist eyðublaðið „Búa til nýtt“ í leitarglugganum. Fylltu út nafn, emoji, stjörnugildi og skref ef þau eru til."
+            },
+            {
+              "q": "Hvernig breyti ég nafni eða emoji athafnar?",
+              "a": "Ýttu á nafn eða emoji athafnarinnar í áætluninni → breytingarglugginn opnast. Breytingar gilda sjálfkrafa fyrir öll börn og alla daga."
+            },
+            {
+              "q": "Hvernig afrita ég áætlun frá öðru barni?",
+              "a": "Ýttu á „Afrita frá…“ → veldu uppruna → hakaðu við vikudagana sem þú vilt afrita á. Veldu hvort skrifa eigi yfir það sem er til."
+            },
+            {
+              "q": "Samstillist áætlunin sjálfkrafa við barnasýn?",
+              "a": "Já! Breytingar í vikuáætlun birtast strax í sýninni „Í dag“ á yfirlitinu og í sýn barnsins — engin handvirk uppfærsla."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Safn",
+          "faqs": [
+            {
+              "q": "Hvað er staðlasafnið?",
+              "a": "Staðlasafnið hefur 63 tilbúnar athafnir í 6 flokkum og 5 áætlunarsniðmát. Ýttu á „Flýtiinnsetning úr safni“ til að bæta þeim í áætlunina."
+            },
+            {
+              "q": "Hvernig afrita ég staðlaða áætlun?",
+              "a": "Undir flipanum Áætlun → „Afrita frá…“ → veldu „Staðlasafn“ → veldu áætlun → veldu daga → afritaðu."
+            },
+            {
+              "q": "Af hverju sér barnið mitt engar athafnir?",
+              "a": "Athugaðu að áætlunin sé sett á rétt barn og að athafnir séu til fyrir daginn í dag. Tóm áætlun? Afritaðu úr staðlasafninu til að komast fljótt af stað."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Ráð",
+          "faqs": [
+            {
+              "q": "Hvernig byggi ég góða rútínuáætlun?",
+              "a": "Byrjaðu á 3–5 föstum athöfnum (morgunmatur, bursta tennur, heimanám). Settu þær í rétta röð. Börn læra rútínuna fljótt þegar hún helst stöðug."
+            },
+            {
+              "q": "Hvað eru undirskref á athöfnum?",
+              "a": "Þú getur bætt undirskrefum við athafnir (t.d. „Þvo sér um hendur“, „Fara í náttföt“ undir „Kvöldrútína“). Barnið sér þau sem sjónræna leiðsögn en hakar við alla athöfnina í einu."
+            },
+            {
+              "q": "Hversu margar athafnir á dag?",
+              "a": "Ráðlagt: 4–8 athafnir. Of fáar og flæðið vantar; of margar og það verður yfirþyrmandi. Byrjaðu smátt og byggðu ofan á."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Hjálp – Fjölskylda og stillingar",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Börn",
+          "faqs": [
+            {
+              "q": "Hvernig bæti ég við barni?",
+              "a": "Farðu á yfirlitið → ýttu á „+ Bæta við barni“. Fylltu út nafn, emoji og afmæli. Barnið fær áætlun sjálfkrafa út frá aldri."
+            },
+            {
+              "q": "Hvernig breyti ég PIN barnsins míns?",
+              "a": "Ýttu á barnaspjaldið → flipann „Stillingar“ → „Breyta PIN“. Veldu nýtt 4 stafa PIN."
+            },
+            {
+              "q": "Barnið mitt þarf að gera athafnir í röð — get ég breytt því?",
+              "a": "Sjálfgefið er frjálst að haka. Fyrir leiðandi röð ferðu í prófíl barnsins → flipann <strong>Stillingar</strong> → kveiktu á <strong>NÚNA / NÆST / SÍÐAR</strong>."
+            },
+            {
+              "q": "Hvernig sér barnið mitt innskráningarupplýsingarnar sínar?",
+              "a": "Ýttu á barnaspjaldið → flipann „Stillingar“ → „Sýna innskráningarupplýsingar“. Þú sérð notandanafn og PIN barnsins."
+            },
+            {
+              "q": "Hvernig fjarlægi ég barn?",
+              "a": "Fjölskylda → veldu barn → flipinn Stillingar → „Eyða barni varanlega“. Athugaðu: öll saga áætlunar, stjarna og verðlauna er eytt og það er ekki hægt að afturkalla."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Fullorðnir",
+          "faqs": [
+            {
+              "q": "Hvernig býð ég öðrum fullorðnum?",
+              "a": "Farðu í flipann <strong>Fjölskyldumeðlimir</strong> → „Bjóða“. Sá sem þú býður fær tölvupóst með hlekk til að stofna reikning."
+            },
+            {
+              "q": "Get ég valið hvaða börn fullorðinn sér?",
+              "a": "Já! Þú velur hvaða börn viðkomandi hefur aðgang að þegar þú sendir boðið. Þú getur breytt því síðar undir Fjölskyldumeðlimir → viðkomandi → Aðgangur að börnum."
+            },
+            {
+              "q": "Hvernig fjarlægi ég fjölskyldumeðlim?",
+              "a": "Ýttu á viðkomandi á lista fjölskyldumeðlima → „Fjarlægja“. Aðgangur að fjölskyldunni hverfur strax."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Stillingar",
+          "faqs": [
+            {
+              "q": "Hvernig breyti ég lykilorðinu mínu?",
+              "a": "Farðu í <strong>Stillingar</strong> (⚙️) í valmyndinni → „Breyta lykilorði“. Þú þarft núverandi lykilorð."
+            },
+            {
+              "q": "Hvernig kveiki ég á tilkynningum?",
+              "a": "Farðu í Stillingar → „Áminningar“ → kveiktu á tilkynningum og veldu tíma. Tilkynningar þurfa leyfi vafrans."
+            },
+            {
+              "q": "Hafa samband við þjónustu",
+              "a": "Sendu okkur tölvupóst á <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — við svörum innan 24 klukkustunda."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Hjálp – Athafnir",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Umsjón",
+          "faqs": [
+            {
+              "q": "Hvað er athöfn?",
+              "a": "<strong>Athöfn</strong> er verkefni sem barnið gerir (t.d. „Bursta tennur“). Athafnir gefa 1–5 stjörnur og geta haft undirskref. Safnaðu þeim í safninu og bættu þeim í áætlanir barnanna."
+            },
+            {
+              "q": "Hvernig bý ég til nýja athöfn?",
+              "a": "Ýttu á „+ Ný athöfn“ → fylltu út nafn, flokk (hreinlæti, matur, leikur o.s.frv.), lengd og stjörnugildi. Vistaðu og athöfnin bætist í safnið þitt."
+            },
+            {
+              "q": "Hvernig bæti ég athöfn í áætlunina?",
+              "a": "Athafnir búa í safninu þínu. Farðu í vikuáætlun → veldu dag → „+“ → veldu athöfnina sem þú vilt bæta við."
+            },
+            {
+              "q": "Hvernig fjarlægi ég athöfn af öllum dögum?",
+              "a": "Ýttu á ✕ á athöfninni → veldu <strong>Alla daga vikunnar</strong>. Til að fjarlægja aðeins daginn í dag eða einn vikudag (t.d. hvern fimmtudag) eru sér valkostir."
+            },
+            {
+              "q": "Hvernig breyti ég athöfn?",
+              "a": "Ýttu á athöfnina á listanum → „Breyta“. Breytingar gilda strax í hverri áætlun þar sem athöfnin er notuð."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Flokkar",
+          "faqs": [
+            {
+              "q": "Til hvers eru flokkar?",
+              "a": "Flokkar litakóða athafnir í barnasýn. <strong>Hreinlæti</strong>=blátt, <strong>Matur</strong>=gult, <strong>Leikur</strong>=grænt, <strong>Skóli</strong>=fjólublátt, <strong>Hreyfing</strong>=rautt, <strong>Hvíld</strong>=grátt, <strong>Félagslegt</strong>=appelsínugult."
+            },
+            {
+              "q": "Hvernig vel ég flokk?",
+              "a": "Þegar þú býrð til eða breytir athöfn velurðu flokk í fellilistanum. Veldu þann sem lýsir athöfninni best."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Hjálp – Safn",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Flipar",
+          "faqs": [
+            {
+              "q": "Hvaða flipar eru í safninu?",
+              "a": "<strong>Áætlanir</strong> — þín eigin áætlunarsniðmát. <strong>Athafnir</strong> — athafnasafn með undirskrefum. <strong>Verðlaun</strong> — þín eigin verðlaun. <strong>Staðlasafn</strong> — 63 athafnir, 15 verðlaun og 5 áætlanir til að afrita."
+            },
+            {
+              "q": "Hvernig afrita ég úr staðlasafninu?",
+              "a": "Farðu í flipann „Staðlasafn“ → veldu athöfn eða verðlaun → ýttu á 📥 hnappinn til að afrita í safn fjölskyldunnar. Áætlanir eru afritaðar í gegnum vikuáætlun → „Afrita frá…“."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Athafnir",
+          "faqs": [
+            {
+              "q": "Hvernig bý ég til nýja athöfn?",
+              "a": "Ýttu á „+ Ný athöfn“ → fylltu út nafn, emoji (veldu eða sláðu inn þitt eigið), stjörnugildi og undirskref ef þau eru til → vistaðu. Athöfnin vistast í safninu fyrir alla fjölskylduna."
+            },
+            {
+              "q": "Hvað eru undirskref?",
+              "a": "Undirskref eru leiðbeiningar skref fyrir skref undir athöfn (t.d. „Þvo sér um hendur“ undir „Hreinlæti“). Barnið sér þau sem leiðsögn en hakar við alla athöfnina með einu snerti."
+            },
+            {
+              "q": "Hvernig breyti ég athöfn?",
+              "a": "Ýttu á nafn athafnarinnar í áætluninni — breytingarglugginn opnast. Breytingar (nafn, emoji, undirskref) gilda sjálfkrafa fyrir öll börn og alla daga."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Verðlaun",
+          "faqs": [
+            {
+              "q": "Hvernig bæti ég við verðlaunum?",
+              "a": "Flipinn „Verðlaun“ → leitaðu að verðlaunum → ýttu á „+ Búa til nýtt“ ef þau eru ekki til → fylltu út nafn, emoji, stjörnuverð → veldu hvaða börn sjá þau → vistaðu."
+            },
+            {
+              "q": "Hvernig leita ég að verðlaunum?",
+              "a": "Leitarreiturinn leitar í þínum eigin verðlaunum OG staðlasafninu í einu. Engar niðurstöður? Hnappurinn „Búa til [nafn]“ opnar forútfyllt eyðublað."
+            },
+            {
+              "q": "Getur barn haft einkaverðlaun?",
+              "a": "Já! Þegar þú býrð til verðlaunin velurðu hvaða börn eiga að sjá þau. Hentar fyrir sérsniðin verðlaun fyrir hvert barn."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Hjálp – Stillingar",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Reikningur",
+          "faqs": [
+            {
+              "q": "Hvernig breyti ég lykilorðinu mínu?",
+              "a": "Sláðu inn núverandi lykilorð og nýja lykilorðið → ýttu á „Vista“. Lykilorðið þarf að vera að minnsta kosti 6 stafir."
+            },
+            {
+              "q": "Hvernig breyti ég netfanginu mínu?",
+              "a": "Sláðu inn nýja netfangið → ýttu á „Vista“. Þú gætir þurft að staðfesta nýja netfangið með tölvupósti."
+            },
+            {
+              "q": "Hvernig eyði ég reikningnum mínum?",
+              "a": "Hafðu samband við okkur á <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> vegna eyðingar reiknings. Við afgreiðum það innan 48 klukkustunda."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Tilkynningar",
+          "faqs": [
+            {
+              "q": "Hvernig kveiki ég á áminningum?",
+              "a": "Kveiktu á rofanum undir „Áminningar“ → veldu tíma og hvaða daga. Vafrinn þarf að leyfa tilkynningar."
+            },
+            {
+              "q": "Ég fæ ekki tilkynningar þótt kveikt sé á þeim",
+              "a": "Athugaðu að vafrinn hafi leyft tilkynningar fyrir síðuna. Farðu í stillingar vafrans → Tilkynningar → finndu [REDACTED].se → Leyfa."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Hjálp – Dagatal",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Dagatal",
+          "faqs": [
+            {
+              "q": "Hvað sýnir dagatalið?",
+              "a": "Dagatalið gefur mánaðaryfirlit yfir athafnir barnsins, útleyst verðlaun og mikilvæga viðburði."
+            },
+            {
+              "q": "Hvernig færi ég mig á milli mánaða?",
+              "a": "Ýttu á örvarnar (< >) við hliðina á nafni mánaðarins til að skipta um mánuð."
+            },
+            {
+              "q": "Hvernig sé ég meira um dag?",
+              "a": "Ýttu á dagsetningu til að sjá nákvæman lista yfir athafnir og stjörnur þann dag."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Hjálp – Í dag",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Skráning",
+          "faqs": [
+            {
+              "q": "Hvað er skráningin?",
+              "a": "Skráningin sýnir dag barnsins — athafnir, hökun og stjörnur. Notaðu hana til að <strong>forskoða</strong> það sem barnið sér, eða til að fylla út eftir á."
+            },
+            {
+              "q": "Hvernig sía ég skráninguna?",
+              "a": "Veldu barn í síunni efst til að sýna skráningu eins barns. Þú getur líka síað eftir dagsetningu."
+            },
+            {
+              "q": "Hversu langt aftur get ég skoðað?",
+              "a": "Skráningin geymir gögn frá deginum sem þú byrjaðir að nota {{brand}}. Flettu eða veldu dagsetningu til að sjá eldri gögn. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Hjálp – Velja áætlun fyrir hvern dag",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Úthluta áætlun",
+          "faqs": [
+            {
+              "q": "Hvað er „Velja áætlun fyrir hvern dag“?",
+              "a": "Hér velurðu hvaða vikuáætlun er virk fyrir hvert barn og hvern dag. Hentar ef þið hafið mismunandi rútínur á virkum dögum og um helgar."
+            },
+            {
+              "q": "Getur barn haft mismunandi áætlanir á virkum dögum og um helgar?",
+              "a": "Já! Veldu eina áætlun fyrir mán–fös og aðra fyrir lau–sun. Ýttu á daginn og veldu áætlunina sem þú vilt."
+            },
+            {
+              "q": "Hvað gerist ef engum degi er úthlutað?",
+              "a": "Ef enginn dagur er með áætlun sér barnið engar athafnir þann dag. Gakktu úr skugga um að hver dagur sem þú vilt nota sé með áætlun."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Stjórnborð",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Yfirlit",
+          "faqs": [
+            {
+              "q": "Hvað get ég gert í stjórnborðinu?",
+              "a": "Stjórnborðið gefur þér aðgang að öllum fjölskyldum, notendum og kerfisgögnum. Þú getur skoðað tölfræði, sýslað með reikninga og haft umsjón með efni."
+            },
+            {
+              "q": "Hvernig finn ég ákveðinn notanda?",
+              "a": "Notaðu leitarreitinn efst til að leita eftir netfangi eða nafni. Ýttu á fjölskyldu til að sjá nánar."
+            },
+            {
+              "q": "Hvernig set ég fjölskyldu í geymslu?",
+              "a": "Ýttu á fjölskylduspjaldið → „Geyma“. Fjölskyldur í geymslu er hægt að endurheimta en þær eru óvirkar þar til."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Þjónusta",
+          "faqs": [
+            {
+              "q": "Hvernig sé ég innkomin þjónustuskilaboð?",
+              "a": "Undir flipanum „Þjónustuinnhólf“ sérðu öll skilaboð sem send eru í gegnum sambandseyðublaðið. Ýttu til að lesa allan textann og svara."
+            },
+            {
+              "q": "Hvernig merkja ég mál sem leyst?",
+              "a": "Ýttu á málið → „Merkja sem leyst“. Leyst mál hverfa úr sjálfgefinni sýn en hægt er að sýna þau með „Sýna leyst“."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Stuðningur við barn — {{brand}}",
+    "loadError": "Gat ekki hlaðið síðunni."
+  },
+  "supportSvar": {
+    "pageTitle": "Málið þitt",
+    "title": "Málið þitt",
+    "intro": "Hér er allt samtalið. Skrifaðu hér fyrir neðan ef þú vilt halda áfram. Venjulegt tölvupóstssvar birtist ekki hér.",
+    "sent": "Sent. Við sjáum það á sama máli.",
+    "escalate": "Ég þarf meiri hjálp frá manneskju",
+    "placeholder": "Skrifaðu hvað er að gerast…"
+  }
+}

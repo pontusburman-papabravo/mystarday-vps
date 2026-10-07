@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Skipulag — {{brand}}",
+  "shell": {
+    "title": "Skipulag",
+    "lead": "Veldu vikuna, athafnir eða fleira.",
+    "logout": "Skrá út"
+  },
+  "sections": {
+    "planWeek": "Skipuleggja vikuna",
+    "buildContent": "Búa til efni",
+    "other": "Annað"
+  },
+  "primary": {
+    "week": { "title": "Vikan", "sub": "Dagalistinn fyrir viku barnanna" },
+    "activities": { "title": "Athafnir", "sub": "Safnið — búa til og breyta" },
+    "more": { "title": "Meira", "sub": "Prentun, sniðmát og önnur verkfæri" }
+  },
+  "more": {
+    "title": "Meira",
+    "close": "Loka"
+  },
+  "links": {
+    "library": { "title": "Safn", "sub": "Búa til athafnir og verðlaun" },
+    "imageArchive": { "title": "Myndasafn", "sub": "Myndirnar þínar — tannbursti, rúm, skóli" },
+    "templates": { "title": "Sniðmát", "sub": "Vistaðar áætlanir sem þú getur notað aftur" },
+    "weekSchedule": { "title": "Vikuáætlun", "sub": "Breyta viku barnsins" },
+    "calendar": { "title": "Dagatal", "sub": "Sjá mánuðinn og sérstaka daga" },
+    "custody": { "title": "Umgengnisáætlun", "sub": "Sameiginleg umönnun milli heimila" },
+    "dailyLog": { "title": "Í dag", "sub": "Skoða og laga fyrri daga" },
+    "printSchema": { "title": "Búa til PDF — áætlun", "sub": "Prenta áætlun" },
+    "assignSchedule": { "title": "Úthluta áætlun", "sub": "Afrita áætlun á barn" },
+    "reports": { "title": "Skýrslur", "sub": "Framfarir og deiling" },
+    "samarbete": { "title": "Samstarf við kennara", "sub": "Vinna með kennara" },
+    "barnStod": { "title": "Aukastuðningur", "sub": "Sjónrænn stuðningur og TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Komdu þér af stað",
+    "bodyBeforeLibrary": "Byrjaðu í ",
+    "libraryLink": "Safninu",
+    "bodyMiddle": " ef þú vilt búa til athafnir. Farðu í ",
+    "forYouLink": "Fyrir þig",
+    "bodyAfter": " ef þú vilt tilbúna tillögu."
+  }
+}

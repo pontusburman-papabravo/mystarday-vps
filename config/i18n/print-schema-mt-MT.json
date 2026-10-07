@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Oħloq PDF — pjan — {{brand}}",
+  "backLink": "← Lura lejn l-Ippjanar",
+  "heading": "📄 Oħloq PDF — pjan",
+  "intro": "Agħżel tifel u perjodu. Il-ħarsa minn qabel turi l-pjan kollu — il-PDF jiċkien waħdu biex joqgħod fuq folja A4 waħda mimduda.",
+  "pdfSave": {
+    "title": "Fejn jinżamm il-PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Wara <em>Oħloq PDF</em> tinfetaħ folja tal-qsim — agħżel <strong>Issejvja f'Fajls</strong> u agħżel fowlder (pereżempju iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Kompjuter:</strong> Il-PDF imur fil-fowlder <strong>Niżżil</strong> (sikwit fin-naħa t'isfel tax-xellug fil-brawżer)."
+  },
+  "sections": {
+    "child": "Tifel",
+    "period": "Perjodu",
+    "scope": "X'għandu jinkludi l-PDF?",
+    "startWeek": "Il-ġimgħa tal-bidu"
+  },
+  "period": {
+    "1w": "1 ġimgħa",
+    "2w": "2 ġimgħat",
+    "1m": "1 xahar"
+  },
+  "scope": {
+    "all": "Il-pjan kollu",
+    "my": "Il-jiem tiegħi biss"
+  },
+  "weekNav": {
+    "prevAria": "Il-ġimgħa ta' qabel",
+    "nextAria": "Il-ġimgħa li jmiss",
+    "today": "Din il-ġimgħa"
+  },
+  "actions": {
+    "preview": "Ħarsa minn qabel",
+    "createPdf": "Oħloq PDF"
+  },
+  "preview": {
+    "heading": "Ħarsa minn qabel",
+    "hint": "Niżżel 'l isfel jekk jum għandu ħafna attivitajiet."
+  },
+  "pdfHelp": {
+    "title": "Kif tissejvja l-PDF",
+    "closeAria": "Agħlaq",
+    "ok": "OK, fhimt",
+    "introShare": "Il-folja tal-qsim miftuħa. Agħżel Issejvja f'Fajls biex tissejvja l-PDF.",
+    "introPreview": "Il-PDF infetaħ fil-brawżer{{filename}}.",
+    "introDesktop": "Il-PDF tniżżel{{filename}}.",
+    "filenameSuffix": " bħala {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Fil-folja tal-qsim: iskrollja u agħfas <strong>Issejvja f'Fajls</strong>.",
+      "Agħżel fowlder (pereżempju <strong>iCloud Drive</strong> jew <strong>Fuq l-iPhone tiegħi</strong>).",
+      "Agħfas <strong>Issejvja</strong> fuq il-lemin, fuq nett.",
+      "Issib il-fajl aktar tard fl-app <strong>Fajls</strong>."
+    ],
+    "previewSteps": [
+      "Il-PDF infetaħ f'vista ġdida — agħfas <strong>Aqsam</strong> (↑) fuq il-lemin, fuq nett.",
+      "Agħżel <strong>Issejvja f'Fajls</strong>.",
+      "Agħżel fowlder u agħfas <strong>Issejvja</strong>."
+    ],
+    "desktopSteps": [
+      "Iftaħ il-fowlder <strong>Niżżil</strong> fuq il-kompjuter.",
+      "Fittex fajl li jibda b'<strong>{{prefix}}</strong> u d-data tal-lum."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Pjan",
+    "titleMyDays": "Il-jiem tiegħi",
+    "emptyCell": "–",
+    "childFallback": "Tifel",
+    "loadingPrint": "Qed nippreparaw l-istampar…",
+    "iframeTitle": "Stampa"
+  },
+  "filename": {
+    "prefixSchedule": "pjan-tal-gimgha",
+    "prefixMyDays": "il-jiem-tieghi",
+    "fallbackSlug": "tifel"
+  },
+  "toasts": {
+    "loadChildrenError": "Ma stajtx intella' t-tfal",
+    "selectChild": "Agħżel tifel l-ewwel",
+    "loadingPreview": "Qed titgħabba l-ħarsa minn qabel…",
+    "noMyDays": "L-ebda jum tiegħek fil-perjodu magħżul",
+    "loadScheduleError": "Ma stajtx intella' l-pjan",
+    "creatingPdf": "Qed noħolqu l-PDF…",
+    "pdfCancelled": "Is-salvataġġ tal-PDF tħassar",
+    "shareHint": "Agħżel Issejvja f'Fajls fil-folja tal-qsim",
+    "mobileSavedHint": "Il-PDF lest — issejvjah f'Fajls",
+    "desktopSavedHint": "Il-PDF inżamm f'Niżżil",
+    "pdfLibsMissing": "L-għodod tal-PDF nieqsa — erġa' tella' l-paġna u pprova",
+    "createPdfError": "Ma stajtx noħloq il-PDF",
+    "shareAgain": "Il-PDF lest. Agħfas Oħloq PDF mill-ġdid biex tagħżel fejn tissejvjah."
+  },
+  "empty": {
+    "noChildren": "Għad m'hemmx tfal miżjuda.",
+    "goDashboard": "Mur f'Id-dar"
+  }
+}

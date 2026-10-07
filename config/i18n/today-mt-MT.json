@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Illum — {{brand}}",
+  "shell": {
+    "headerTitle": "Illum",
+    "backToHome": "← Lura lejn Id-dar",
+    "pdfHint": "Oħloq PDF għall-jum, il-ġimgħa jew il-jiem tiegħi",
+    "printBtn": "📄 Oħloq PDF ▾",
+    "printDay": "📄 Oħloq PDF — jum",
+    "printWeek": "📅 Oħloq PDF — ġimgħa",
+    "printMyDays": "🏠 Oħloq PDF — il-jiem tiegħi",
+    "selectChildHeading": "Agħżel tifel",
+    "selectChildEmpty": "Agħżel tifel hawn fuq biex tara l-ġurnal",
+    "loadingChildren": "Qed jitgħabba…",
+    "tipsTitle": "Parir: Segwi l-attivitajiet f'Illum",
+    "tips1": "Immarka l-attivitajiet bħala lesti — it-tifel jarahom fil-ħin",
+    "tips2": "L-attivitajiet jitnikktu fil-vista tat-tifel b'taptipa waħda u l-istilla tasal minnufih",
+    "tips3": "Erġa' lura bid-data biex tara kif mar it-tifel",
+    "tips4": "Waqqaf jum meta r-rutini jkunu differenti — l-ebda stilla ma tintilef",
+    "rateActivity": "Ivvaluta l-attività",
+    "commentPlaceholder": "Kumment (mhux obbligatorju)…",
+    "cancel": "Ikkanċella",
+    "save": "Issejvja",
+    "moveUp": "Itla' 'l fuq",
+    "moveDown": "Niżżel 'l isfel",
+    "printWeekDocTitle": "Pjan tal-ġimgħa — {{name}}",
+    "printMyDaysDocTitle": "Il-jiem tiegħi"
+  },
+  "childFallback": "Tifel",
+  "noChildren": "Għad m'hemmx tfal miżjuda.",
+  "loading": "Qed jitgħabba…",
+  "retry": "Erġa' pprova",
+  "errors": {
+    "signInRequired": "Idħol biex tara Illum",
+    "loadChildren": "Ma stajtx intella' t-tfal",
+    "loadLog": "Ma stajtx intella' l-ġurnal. Erġa' pprova.",
+    "saveOrder": "Ma stajtx insalva l-ordni",
+    "updateActivity": "Ma stajtx naġġorna l-attività",
+    "undo": "Ma stajtx inreġġa' lura",
+    "changeStatus": "Ma stajtx nibdel l-istatus",
+    "adjustTime": "Ma stajtx naġġusta l-ħinijiet",
+    "selectChild": "Agħżel tifel l-ewwel",
+    "custodyDisabled": "Il-pjan tal-kustodja mhux attivat",
+    "loadWeek": "Ma stajtx intella' l-ġimgħa",
+    "saveRating": "Ma stajtx insalva l-valutazzjoni",
+    "ratingScoreOrEmotion": "Agħżel valutazzjoni jew karta tal-emozzjoni",
+    "ratingScoreRange": "Il-valutazzjoni trid tkun bejn 1 u 10",
+    "ratingInvalidEmotion": "Karta tal-emozzjoni mhux valida",
+    "ratingActivityNotFound": "L-attività ma nstabitx",
+    "ratingNotAllowed": "Il-valutazzjoni mhix permessa għal dan it-tifel fuq din l-attività",
+    "ratingParentScoreRange": "Il-valutazzjoni trid tkun bejn 1 u 5",
+    "ratingParentDisabled": "Il-valutazzjoni tal-ġenitur mhix attivata għal din l-attività",
+    "dayPaused": "Il-jum imwaqqaf",
+    "dailyLogItemRequired": "daily_log_item_id huwa meħtieġ",
+    "invalidTimerMinutes": "Minuti mhux validi. Valuri permessi: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "L-ebda attività illum!",
+    "noScheduleDay": "L-ebda rutina f'dan il-jum",
+    "addToWeekSchedule": "Żid attivitajiet fil-pjan tal-ġimgħa biex il-ġurnali jinħolqu waħedhom.",
+    "noScheduleSelected": "L-ebda rutina għall-jum magħżul.",
+    "thisDay": "dan il-jum",
+    "today": "illum",
+    "noChildrenTitle": "L-ebda tifel miżjud",
+    "addFirstChild": "Żid l-ewwel tifel tiegħek f'Id-dar biex tibda!",
+    "goToDashboard": "Mur f'Id-dar",
+    "goToWeekSchedule": "📅 Mur fil-pjan tal-ġimgħa"
+  },
+  "nav": {
+    "prevWeek": "Il-ġimgħa ta' qabel",
+    "prevDay": "Il-jum ta' qabel",
+    "nextDay": "Il-jum li jmiss",
+    "nextWeek": "Il-ġimgħa li jmiss",
+    "pickDate": "Agħżel data",
+    "todayBtn": "Illum",
+    "undoBump": "Reġġa' lura l-aħħar aġġustament tal-ħin"
+  },
+  "activity": {
+    "markDone": "Immarka bħala lest",
+    "undoMark": "Neħħi l-marka",
+    "rate": "⭐ Ivvaluta",
+    "setRating": "Agħti valutazzjoni",
+    "changeRating": "Ibdel il-valutazzjoni",
+    "dragReorder": "Iddaħħal biex tibdel l-ordni",
+    "completeAllInSection": "Lesti kollox fi {{section}}",
+    "completeAllBtn": "✅ Immarka kollox lest",
+    "defaultName": "Attività",
+    "undoneToast": "↩️ Il-marka tneħħiet"
+  },
+  "pause": {
+    "confirmPause": "Twaqqaf dan il-jum? L-attivitajiet ma jgħoddux kontra tiegħek.",
+    "confirmUnpause": "Terġa' tiftaħ dan il-jum?",
+    "pausedToast": "😴 Il-jum imwaqqaf",
+    "unpausedToast": "✅ Il-jum reġa' nfetaħ",
+    "dayTitle": "Jum ta' mistrieħ",
+    "banner": "Dan il-jum imwaqqaf (pereżempju mard jew btala). L-attivitajiet ma jgħoddux kontra tiegħek.",
+    "reactivate": "✅ Erġa' iftaħ il-jum",
+    "pauseBtn": "😴 Waqqaf dan il-jum (mard / jum ta' mistrieħ)"
+  },
+  "bump": {
+    "noItems": "L-ebda attività mhux immarkata b'ħin x'taġġusta",
+    "moved": "⏩ Mexxejna {{count}} attività{{suffix}} 'il quddiem bi {{minutes}} min",
+    "movedOne": "",
+    "movedMany": "jiet",
+    "undoToast": "↩️ L-aġġustament tal-ħin tneħħa",
+    "title": "Mexxi dak li ġej 'il quddiem",
+    "adjustHint": "Jaġġusta l-ħinijiet tal-attivitajiet li għadhom mhumiex immarkati",
+    "minutesTitle": "Mexxi 'l quddiem {{minutes}} min",
+    "undoBtn": "↩ Reġġa' lura"
+  },
+  "retrofill": {
+    "title": "Qed timla r-rutina wara",
+    "description": "Qed timla rutina wara li għaddiet. Immarka l-attivitajiet bħala lesti — jinżammu bid-data t-tajba."
+  },
+  "rating": {
+    "childMood": "Il-burdata tat-tifel",
+    "parentScore": "Valutazzjoni tal-ġenitur",
+    "noMoodCards": "Għad m'hemmx karti tal-burdata",
+    "saved": "⭐ Il-valutazzjoni nsalvata!",
+    "labels": [
+      "",
+      "Iebes 😓",
+      "Orrajt 😐",
+      "Tajjeb 😊",
+      "Kbir 😄",
+      "Fantastiku! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Iġjene",
+    "mat": "Ikel",
+    "skola": "Skola",
+    "lek": "Logħob",
+    "rorelse": "Moviment",
+    "vila": "Mistrieħ",
+    "social": "Soċjali"
+  },
+  "legend": {
+    "colorCoding": "Kuluri:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 L-attivitajiet kollha lesti!",
+    "completedOf": "{{completed}} minn {{total}} attivitajiet lesti"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Immarkajt: {{name}}",
+    "undo": "Reġġa' lura"
+  },
+  "emotions": {
+    "title": "💛 Burdata illum",
+    "noCards": "Għad m'hemmx karti tal-burdata",
+    "sliderResponses": "Slajder: {{count}} risposta{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "i",
+    "sliderAvg": " (medja {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Qed nippreparaw il-ħarsa tal-ġimgħa...",
+    "preparingCustody": "Qed nippreparaw il-jiem tiegħi…",
+    "noMyDays": "L-ebda jum tiegħek din il-ġimgħa",
+    "weekScheduleTitle": "{{name}} — Pjan tal-ġimgħa",
+    "myDaysTitle": "{{name}} — Il-jiem tiegħi"
+  }
+}

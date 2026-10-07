@@ -1,0 +1,609 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Pass {{current}} minn {{total}}",
+    "back": "← Lura",
+    "next": "Il-pass li jmiss →",
+    "continue": "Kompli →",
+    "save": "Issejvja",
+    "cancel": "Ikkanċella",
+    "loading": "Qed jitgħabba…",
+    "genericError": "Xi ħaġa marret ħażin. Jekk jogħġbok erġa' pprova.",
+    "networkError": "Żball tan-netwerk. Jekk jogħġbok erġa' pprova.",
+    "closeAria": "Agħlaq",
+    "childFallback": "It-tifel tiegħek",
+    "addChildDone": "Lest! →",
+    "goForward": "Kompli →",
+    "finishing": "Qed nispiċċaw…",
+    "recommended": "Rakkomandat",
+    "optional": "Mhux obbligatorju"
+  },
+  "pageTitle": {
+    "welcome": "Merħba — {{brand}}",
+    "ogTitle": "{{brand}} — Ibda f'2 minuti",
+    "ogDescription": "Issettja l-pjan u l-premjijiet tat-tifel tiegħek mill-ewwel"
+  },
+  "verifyEmail": {
+    "title": "Ivverifika l-indirizz tal-imejl tiegħek",
+    "body": "Bgħatna imejl lil {{email}}. Agħfas il-ħolqa fl-imejl biex tattiva l-kont tiegħek.",
+    "resend": "Erġa' ibgħat",
+    "resendSending": "Qed jintbagħat…",
+    "resendSuccess": "✓ Mibgħut!",
+    "resendSent": "Mibgħut",
+    "resendError": "Xi ħaġa marret ħażin. Jekk jogħġbok erġa' pprova."
+  },
+  "child": {
+    "title": "Għidilna dwar it-tifel tiegħek",
+    "lead": "Agħżel isem, emoji, għeluq snin u pjan li joqgħod mar-rutina ta' kuljum tiegħek.",
+    "nameLabel": "Isem it-tifel",
+    "namePlaceholder": "eż. Marija",
+    "birthdayLabel": "Għeluq snin",
+    "birthdayOptionalHint": "(mhux obbligatorju — jgħinna nissuġġerixxu l-pjan it-tajjeb)",
+    "yearPlaceholder": "Sena",
+    "monthPlaceholder": "Xahar",
+    "dayPlaceholder": "Jum",
+    "birthYearAria": "Sena tat-twelid",
+    "birthMonthAria": "Xahar tat-twelid",
+    "birthDayAria": "Jum tat-twelid",
+    "months": [
+      "Jannar",
+      "Frar",
+      "Marzu",
+      "April",
+      "Mejju",
+      "Ġunju",
+      "Lulju",
+      "Awwissu",
+      "Settembru",
+      "Ottubru",
+      "Novembru",
+      "Diċembru"
+    ],
+    "emojiLabel": "Agħżel emoji",
+    "customEmojiPlaceholder": "Jew ikteb emoji tiegħek…",
+    "emojiAriaLabel": "Agħżel emoji {{emoji}}",
+    "avatarLabel": "Mhux obbligatorju: ritratt tal-profil",
+    "avatarHint": "Agħżel ritratt mil-librerija tiegħek jew ħu wieħed ġdid.",
+    "avatarDefaultBtn": "✨ Stampa awtomatika",
+    "avatarPickBtn": "📷 Agħżel ritratt",
+    "avatarLoading": "Qed jitgħabba…",
+    "avatarPreparing": "Qed nippreparaw…",
+    "avatarUploadFailed": "Ma stajtx intella' r-ritratt. Jekk jogħġbok erġa' pprova.",
+    "avatarReadFailed": "Ma stajtx naqra l-istampa",
+    "avatarAlt": "Ritratt tal-profil tat-tifel",
+    "scheduleLabel": "Agħżel pjan",
+    "templatesLoading": "Qed jitgħabbew il-pjanijiet…",
+    "templatesLoadFailed": "Il-mudelli tal-pjan ma setgħux jitgħabbew bħalissa.",
+    "templatesRetryBtn": "Erġa' pprova",
+    "nextBtn": "Il-pass li jmiss →",
+    "creatingChild": "Qed jinħoloq it-tifel…",
+    "creatingSchedule": "Qed jinħoloq il-pjan…",
+    "nameRequired": "Daħħal l-isem tat-tifel tiegħek",
+    "emojiRequired": "Agħżel emoji għat-tifel tiegħek",
+    "scheduleRequired": "Agħżel pjan",
+    "childResumedToast": "Sibna t-tifel tiegħek mid-darba ta' qabel — qed inkomplu bil-pjan.",
+    "avatarSaveFailedToast": "It-tifel inħoloq, imma r-ritratt ma setax jiġi ssejvjat. Tista' żżidu taħt Familja.",
+    "scheduleCreateFailed": "Il-pjan ma setax jinħoloq"
+  },
+  "activityGuide": {
+    "title": "Kif għandha l-app tgħin lil {{childName}} bl-attivitajiet tal-lum?",
+    "lead": "Tista' tibdel dan meta trid fl-għażliet tat-tifel tiegħek.",
+    "stepLabel": "Pass {{current}} minn {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Ordni ħielsa",
+        "description": "It-tifel tiegħek jista' jimmarka f'liema ordni jrid."
+      },
+      "one_at_a_time": {
+        "title": "Ħaġa waħda kull darba",
+        "description": "L-app tgħin lit-tifel tiegħek jiffoka fuq il-pass li jmiss."
+      },
+      "time_and_order": {
+        "title": "Ħin u ordni ċari",
+        "description": "L-app tgħin bil-pass li jmiss u b'arloġġ li tisettja għal kull attività."
+      }
+    },
+    "continueBtn": "Kompli →",
+    "saving": "Qed jiġi ssejvjat…",
+    "selectError": "Agħżel għażla",
+    "saveError": "Ma stajtx insalva l-għażla tiegħek"
+  },
+  "viewType": {
+    "title": "Liema veduta għandu jara {{childName}} meta jidħol?",
+    "lead": "Agħżel kif jidher il-pjan meta t-tifel tiegħek jidħol. Tista' tibdel dan meta trid fl-għażliet.",
+    "dayViewTitle": "Veduta tal-ġurnata",
+    "dayViewSubtitle": "Filgħodu · Filgħodu tard · Wara nofsinhar · Filgħaxija",
+    "timelineViewTitle": "Veduta Issa/Li jmiss/Aktar tard",
+    "timelineViewSubtitle": "Turi biss dak li qed jiġri issa",
+    "timelineNow": "ISSA",
+    "timelineNext": "LI JMISS",
+    "timelineThen": "AKTAR TARD",
+    "mock": {
+      "wakeStretch": "Qum u ġebbed",
+      "brushTeeth": "Aħsel snienek",
+      "packBag": "Ipprepara l-basket",
+      "preschool": "Mur il-pre-skola",
+      "freePlay": "Logħob ħieles",
+      "dinner": "Pranzu",
+      "bedtimeStory": "Storja qabel l-irqad",
+      "preschoolShort": "Pre-skola",
+      "play": "Logħob"
+    },
+    "dayViewHint": "Tista' tagħżel ukoll Veduta tal-ġurnata jekk it-tifel tiegħek jippreferi partijiet tal-ġurnata bil-kulur.",
+    "skipHint": "Taqbeż? Il-Veduta tal-ġurnata tintgħażel waħedha.",
+    "saving": "Qed tiġi ssejvjata l-għażla tal-veduta…"
+  },
+  "scheduleReady": {
+    "title": "Il-pjan lest!",
+    "subtitle": "Ħejjejna pjan tal-bidu għal {{childName}}.",
+    "subtitleWithTemplate": "Ħejjejna l-pjan {{templateName}} għal {{childName}}. Fih il-passi ewlenin biex jirnexxi waħdu.",
+    "templateFallback": "Pjan tal-ġimgħa",
+    "daysWeek": "7 ijiem / ġimgħa",
+    "daysMonFri": "Tnejn–Ġimgħa",
+    "daysMonFriWeekend": "Tnejn–Ġimgħa + tmiem il-ġimgħa",
+    "socialProofTitle": "Kont taf?",
+    "socialProofBody": "L-appoġġ viżiv spiss inaqqas l-istress ta' kuljum sa 30% — u t-tfal b'rutini ċari jorqdu aktar malajr u jqumu aktar ferħanin.",
+    "continueBtn": "Perfett, ejja! →"
+  },
+  "rewards": {
+    "title": "Kif jaħdmu l-istilel",
+    "checkOff": "Immarka",
+    "star": "Stilla",
+    "treasureChest": "It-teżor",
+    "intro": "Imlejna premjijiet divertenti. Agħżel dawk li {{childName}} jista' jaħdem għalihom!",
+    "introWithCount": "Imlejna {{count}} premjijiet divertenti. Agħżel dawk li {{childName}} jista' jaħdem għalihom!",
+    "selectCount": {
+      "none": "Agħżel mill-inqas premju wieħed (0 magħżula)",
+      "one": "{{count}} premju magħżul ✓",
+      "two": "{{count}} premjijiet magħżula ✓",
+      "few": "{{count}} premjijiet magħżula ✓",
+      "many": "{{count}} premju magħżul ✓",
+      "other": "{{count}} premju magħżul ✓"
+    },
+    "minOneError": "Agħżel mill-inqas premju wieħed biex tkompli",
+    "saveBtn": "Issejvja l-premjijiet →",
+    "saving": "Qed jiġu ssejvjati l-premjijiet…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Storja żejda",
+      "chooseDessert": "Agħżel id-deżerta",
+      "movieNight": "Lejl tal-film",
+      "chooseDinner": "Agħżel l-ikla",
+      "outing": "Ġurnata barra",
+      "bakeTogether": "Aħmi flimkien",
+      "familyGameNight": "Lejl tal-logħob tal-familja",
+      "lateBedtime": "Ibqa' mqajjem tard",
+      "cinemaTrip": "Vjaġġ iċ-ċinema"
+    }
+  },
+  "handoff": {
+    "title": "Kif tidħol",
+    "lead": "{{childName}} jidħol bl-isem u l-PIN — mingħajr kliem tas-sigurtà.",
+    "childLoginLabel": "Dħul tat-tifel",
+    "usernameFallback": "isem tal-utent",
+    "pinLabel": "PIN",
+    "pinNote": "Innota l-PIN — tista' tibdilha fl-għażliet.",
+    "pinResumeHint": "Uża l-PIN tat-tifel tiegħek. Jekk insejt, tista' tisettja waħda ġdida bil-buttuna t'hawn taħt.",
+    "chooseCustomPin": "✏️ Agħżel PIN tiegħek",
+    "savePin": "Issejvja l-PIN",
+    "savingPin": "Qed jiġi ssejvjat…",
+    "pinMustBe4": "Il-PIN irid ikun ta' 4 ċifri",
+    "pinTooWeak": "Agħżel PIN aktar b'saħħtu (mhux 1111, 2222, eċċ.)",
+    "pinSaveFailed": "Ma stajtx insalva l-PIN",
+    "copyInfo": "📋 Ikkopja d-dettalji",
+    "copied": "✓ Ikkupjat!",
+    "copyManual": "Ikkopja bl-idejn:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nIsem tal-utent: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Ibgħat bl-imejl",
+    "emailSubject": "{{brand}} — Dħul għal {{childName}}",
+    "emailBody": "Bonġu!\n\nHawn id-dettalji tad-dħul għal {{brand}} għal {{childName}}:\n\nIsem tal-utent: {{username}}\nPIN: {{pin}}\n\nIftaħ l-app: {{appUrl}}/child-login\n\nTislijiet,\n{{brand}}",
+    "emailFallbackAlert": "Dħul għal {{childName}}:\nIsem tal-utent: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Installa bħala app",
+    "installBody": "Żid {{brand}} mal-iskrin tad-dar tiegħek — taħdem bħal app vera, taħdem offline, mingħajr ħwienet tal-apps.",
+    "installInstructions": "iPhone: Aqsam → Żid mal-iskrin tad-dar · Android: ⋮ → Installa l-app",
+    "parentTipTitle": "Suġġeriment għalik bħala ġenitur",
+    "parentTipLead": "Oqogħdu flimkien illejla. Uri It-teżor",
+    "parentTipEmphasis": "l-ewwel",
+    "parentTipTail": "biex tqanqal il-kurżità — imbagħad spjega li l-app hija l-mappa ta' {{childName}} għall-ġurnata!",
+    "testChildLogin": "👶 Ipprova d-Dħul tat-tifel issa",
+    "continueAsParent": "Kompli bħala ġenitur →",
+    "skipConfirmTitle": "Taqbeż id-dħul tat-tifel?",
+    "skipConfirmBody": "It-tifel tiegħek jeħtieġ il-PIN biex jidħol waħdu. Jekk ma tipprovax issa, ir-rutina ta' filgħodu tista' tkun aktar iebsa — nibgħatu tfakkira fi 24 siegħa jekk it-tifel tiegħek ma jkunx ipprova.",
+    "skipConfirmPrimary": "👶 Ipprova d-Dħul tat-tifel",
+    "skipConfirmSecondary": "Aqbeż xorta waħda"
+  },
+  "parentPin": {
+    "setLater": "Issettja l-PIN tal-ġenitur aktar tard",
+    "title": "Issettja l-PIN tal-ġenitur",
+    "description": "PIN ta' 4 ċifri li taf int biss jipproteġi ż-żona tal-ġenitur — pereżempju meta t-tfal iżidu aħwa jew tidħol bħala ġenitur fuq l-apparat tat-tifel tiegħek.",
+    "choosePin": "Agħżel il-PIN tiegħek",
+    "confirmPin": "Ikkonferma l-PIN",
+    "changeLater": "Tista' tibdel il-PIN tiegħek aktar tard taħt Familja u għażliet.",
+    "pinRequiredOrEmpty": "Daħħal PIN ta' 4 ċifri jew ħalli l-oqsma vojta",
+    "pinRequiredForHandoff": "Issettja PIN ta' 4 ċifri qabel ma t-tifel tiegħek ikun jista' jieħu l-apparat.",
+    "pinMismatch": "Il-PINs ma jaqblux",
+    "saveFailed": "Ma stajtx insalva l-PIN",
+    "handoffRequired": "Fuq apparat kondiviż għandek bżonn PIN ta' kbir qabel ma t-tifel tiegħek ikun jista' jidħol.",
+    "saveAndContinue": "Issejvja u kompli"
+  },
+  "invite": {
+    "inviteLater": "Stieden ġenitur ieħor aktar tard",
+    "title": "Stieden kbir ieħor",
+    "namePlaceholder": "Isem (eż. Pawlu)",
+    "emailPlaceholder": "Indirizz tal-imejl",
+    "whichChildren": "Liema tfal għandha tara din il-persuna?",
+    "sendBtn": "📧 Ibgħat l-istedina",
+    "sending": "Qed jintbagħat…",
+    "sent": "✓ Mibgħut",
+    "skip": "Aqbeż →",
+    "emailRequired": "Daħħal indirizz tal-imejl",
+    "invalidEmail": "Indirizz tal-imejl mhux validu",
+    "success": "L-istedina ntbagħtet lil {{email}}! ✓",
+    "sendFailed": "Xi ħaġa marret ħażin"
+  },
+  "complete": {
+    "title": "Kważi lest!",
+    "lead": "Ħalli lit-tifel tiegħek jipprova l-app — tista' tistieden kbar oħra u tisettja PIN tal-ġenitur wara l-ewwel marka.",
+    "tips": {
+      "editScheduleTitle": "Ibdel il-pjan",
+      "editScheduleBody": "Mur f'Id-dar → agħfas il-karta tat-tifel tiegħek → adatta l-attivitajiet għar-rutina ta' kuljum tiegħek.",
+      "checkRewardsTitle": "Iċċekkja l-premjijiet",
+      "checkRewardsBody": "Fil-veduta tat-tifel — agħfas l-istilla — it-tifel tiegħek jara kemm stilel jeħtieġ kull premju.",
+      "addChildrenTitle": "Żid aktar tfal",
+      "addChildrenBody": "Kull tifel ikollu l-pjan u l-istilel tiegħu. Żid ieħor permezz ta' + f'Id-dar."
+    },
+    "letChildStart": "👶 Ħalli lit-tifel tiegħek jibda",
+    "letChildStartPlain": "Ħalli lit-tifel tiegħek jibda",
+    "completeFailed": "Ma stajtx inlesti l-bidu",
+    "completeFailedShort": "Ma stajtx inlesti",
+    "welcomeFooter": "Merħba fi {{brand}} — ferħanin li int hawn! 🌟"
+  },
+  "weekend": {
+    "title": "Żid pjan tat-tmiem il-ġimgħa?",
+    "body": "Il-pjan tal-ġimgħa lest għat-Tnejn–Ġimgħa. Trid pjan aktar kalm tas-Sibt u l-Ħadd?",
+    "scheduleLabel": "Pjan tat-tmiem il-ġimgħa",
+    "satSun": "Sibt + Ħadd",
+    "preview": {
+      "sleepIn": "Orqod aktar",
+      "breakfast": "Kolazzjon bil-kalma",
+      "freePlay": "Logħob ħieles",
+      "outing": "Ġurnata barra / park",
+      "familyActivity": "Attività tal-familja",
+      "dinner": "Pranzu"
+    },
+    "yesBtn": "✅ Iva, żid pjan tat-tmiem il-ġimgħa",
+    "yesLoading": "Qed inżidu…",
+    "noBtn": "Le grazzi, nimlieh aktar tard",
+    "addFailed": "Ma stajtx inżid il-pjan tat-tmiem il-ġimgħa"
+  },
+  "starter": {
+    "stepLabel": "Oħloq pjan {{current}} minn {{total}}",
+    "slimTitle": "Ir-rutina tiegħek kważi lesta",
+    "fullTitle": "Oħloq l-ewwel pjan tiegħek",
+    "slimIntro": "Tliet mistoqsijiet qosra — imbagħad ir-rutina tiegħek lesta.",
+    "birthdayHint": "Agħżel id-data tat-twelid tat-tifel tiegħek — tgħinna nissuġġerixxu l-pjan it-tajjeb.",
+    "fullIntro": "Wieġeb ftit mistoqsijiet — inqas minn minuta.",
+    "powerPathLead": "Trid tagħżel wieħed lest jew tibni tiegħek?",
+    "chooseTemplate": "📋 Agħżel pjan lest",
+    "fullWizard": "✏️ Ibni u adatta int (7 mistoqsijiet)",
+    "answerRequired": "Agħżel jew imla tweġiba",
+    "showSchedule": "Uri l-pjan →",
+    "buttons": {
+      "next": "Li jmiss →"
+    },
+    "createRoutine": "Oħloq rutina →",
+    "creatingRoutine": "Qed tinħoloq ir-rutina…",
+    "personalizing": "Qed jiġi adattat il-pjan…",
+    "loading": "Qed jitgħabba…",
+    "useSchedule": "Uża dan il-pjan →",
+    "saving": "Qed jiġi ssejvjat…",
+    "changeAnswers": "← Ibdel it-tweġibiet",
+    "removeStep": "Neħħi",
+    "previewHint": "Tista' tneħħi passi — żid aktar fl-għażliet aktar tard.",
+    "previewForChild": "Għal {{childName}} · {{count}} attivitajiet",
+    "previewAiTail": " · ✨ adattat",
+    "defaultPlanTitle": "Il-pjan tiegħek",
+    "slimSuccessTitle": "Ir-rutina tiegħek lesta",
+    "slimSuccessTonight": "Il-pjan lest. Uri lil {{childName}} Illum fuq dan l-apparat.",
+    "showChildToday": "Uri Illum tat-tifel",
+    "openingChildToday": "Qed jinfetaħ Illum tat-tifel…",
+    "hourglassOfferTitle": "Klessidra viżiva",
+    "hourglassOfferBody": "Għin lit-tifel tiegħek jara kemm fadal ħin f'attività.",
+    "hourglassEnableBtn": "Ixgħel il-klessidra",
+    "hourglassEnabling": "Qed nixgħelu…",
+    "hourglassEnabledMsg": "Il-klessidra mixgħula għat-tifel tiegħek.",
+    "hourglassEnableFailed": "Ma stajtx nixgħel il-klessidra",
+    "goHome": "Mur f'Id-dar →",
+    "openingHome": "Qed tinfetaħ Id-dar…",
+    "customizeFirst": "Adatta l-pjan l-ewwel",
+    "openingSchedule": "Qed jinfetaħ il-pjan…",
+    "nameRequired": "Daħħal l-isem tat-tifel tiegħek",
+    "templateFailed": "Ma stajtx nagħżel il-mudell",
+    "previewFailed": "Ma stajtx intella' l-pjan",
+    "childCreateFailed": "Ma stajtx noħloq it-tifel",
+    "scheduleSaveFailed": "Ma stajtx insalva l-pjan",
+    "personalizeFailed": "Ma stajtx nadatta l-pjan",
+    "completeFailed": "Ma stajtx inlesti",
+    "packages": {
+      "morning-short": {
+        "name": "Filgħodu qasir"
+      },
+      "evening-routine": {
+        "name": "Rutina ta' filgħaxija"
+      },
+      "preschool-day": {
+        "name": "Jum ta' pre-skola"
+      },
+      "school-day": {
+        "name": "Jum ta' skola"
+      },
+      "weekend": {
+        "name": "Tmiem il-ġimgħa"
+      },
+      "getting-ready": {
+        "name": "Filgħodu qasir"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Isem it-tifel",
+        "placeholder": "eż. Marija"
+      },
+      "age_band": {
+        "label": "Kemm għandu żmien it-tifel tiegħek?",
+        "options": {
+          "3-5": "3–5 snin",
+          "6-8": "6–8 snin",
+          "9-12": "9–12-il sena",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "B'liema rutina trid tibda?",
+        "options": {
+          "morgon": "☀️ Filgħodu",
+          "kvall": "🌙 Filgħaxija",
+          "efter-skola": "🏫 Wara l-iskola",
+          "laxor": "📚 Xogħol tad-dar",
+          "gora-sig-klar": "🎒 Tħejjija"
+        }
+      },
+      "main_challenge": {
+        "label": "X'inhu l-aktar iebes bħalissa?",
+        "options": {
+          "getting_started": "Il-bidu",
+          "focus": "Li tibqa' ffukat",
+          "conflicts": "Kunflitti",
+          "forgetting": "Tinsa l-passi",
+          "transitions": "Il-bidliet"
+        }
+      },
+      "support_ui": {
+        "label": "It-tifel tiegħek jeħtieġ appoġġ aktar ċar?",
+        "options": {
+          "ja": "Iva",
+          "lite": "Ftit",
+          "nej": "Le"
+        }
+      },
+      "length_ui": {
+        "label": "B'kemm passi trid tibda?",
+        "options": {
+          "kort": "Qasir (3–4)",
+          "normal": "Normali (5)",
+          "detaljerad": "Dettaljat (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Hemm xi ħaġa importanti li għandna nkunu nafu? (mhux obbligatorju)",
+        "placeholder": "eż. l-ħasil tas-snien huwa l-aktar parti iebsa"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Ir-rutina lesta",
+      "handoff": "Iftħu l-mod tat-tifel flimkien",
+      "child": "It-tifel tiegħek jara x'qed jiġri issa",
+      "done": "Lest!",
+      "star": "L-ewwel stilla ⭐"
+    },
+    "mock": {
+      "parentView": "Veduta tal-ġenitur",
+      "dailyRoutine": "Ir-rutina tal-lum",
+      "dress": "Ilbes",
+      "brushTeeth": "Aħsel snienek",
+      "packBag": "Ipprepara l-basket",
+      "tryChildMode": "👶 Ipprova l-mod tat-tifel",
+      "now": "Issa",
+      "markDone": "Immarka lest ✓",
+      "wellDone": "Prosit!"
+    },
+    "ctaReady": "Lest tipprova?",
+    "ctaTryNow": "Ipprova l-mod tat-tifel issa",
+    "ctaLater": "Agħmilha aktar tard",
+    "loginTitle": "Iftaħ il-veduta tat-tifel tiegħek",
+    "loginLead": "Il-pjan lest. Agħti dan l-apparat lil {{childName}} biex jara r-rutina tiegħu.",
+    "usernameLabel": "Isem tal-utent",
+    "pinLabel": "PIN",
+    "loginHint": "Oqogħdu flimkien — l-istess apparat jew ieħor, it-tnejn jaħdmu.",
+    "copyLogin": "📋 Ikkopja d-dettalji tad-dħul",
+    "copied": "✓ Ikkupjat!",
+    "openChildMode": "Iftaħ il-veduta tat-tifel",
+    "copyText": "{{childName}}\nIftaħ il-veduta tat-tifel fl-app.",
+    "previewTitle": "Ħarsa minn qabel — Film tal-bidu"
+  },
+  "firstStar": {
+    "title": "Agħti l-ewwel stilla",
+    "lead": "Tliet passi qosra — imbagħad tkunu tassew għaddejjin.",
+    "steps": {
+      "login": "Ħalli lit-tifel tiegħek jidħol bil-PIN tiegħu",
+      "complete": "Immarka attività bħala lesta fil-veduta tat-tifel",
+      "celebrate": "Iċċelebra l-istilla flimkien!"
+    },
+    "openChildLogin": "👶 Iftaħ id-Dħul tat-tifel",
+    "continueAsParent": "Kompli bħala ġenitur"
+  },
+  "activation": {
+    "finalStepLabel": "L-aħħar pass",
+    "introTitle": "Kif tixtieq tibda?",
+    "introBody": "Issettjajt il-pjan tat-tifel tiegħek — bidu tajjeb. Ħafna familji jsibu li l-isfida l-kbira mhix li jibdew, imma li jżommu r-rutina fl-ewwel jiem meta l-ħajja ta' kuljum tieħu f'idejha. Agħżel dak li joqgħod għalik:",
+    "guidedBadge": "Rakkomandat",
+    "guidedTitle": "Żomm ir-rutina għaddejja fl-ewwel ġimgħa",
+    "guidedBody": "Ħafna familji japprezzaw ftit appoġġ wara li l-pjan ikun lest. Mhux għax hemm xi ħaġa ħażina, imma għax id-drawwiet ġodda jieħdu ż-żmien biex joqogħdu.",
+    "guidedBenefits": [
+      "Tfakkiriet qosra ta' kuljum biex jgħinuk tkompli",
+      "Ara meta t-tifel tiegħek ilesti l-kompiti mingħajr ttennija żejda",
+      "Il-pjan tat-tifel tiegħek diġà lest — aħna ngħinu r-rutina taħdem",
+      "Waqqaf meta trid"
+    ],
+    "guidedCta": "Iva, għinuna fl-ewwel ġimgħa",
+    "directTitle": "Ibda mill-ewwel",
+    "directBody": "Tħossok lest tkompli waħdek. Kollox f'postu u tista' tibda issa.",
+    "directBenefits": [
+      "Dritt lejn Id-dar",
+      "L-istess pjan, stilel u premjijiet",
+      "Uża l-app bil-pass tiegħek"
+    ],
+    "directCta": "Nirranġaw waħedna",
+    "footnote": "Tkun liema tkun l-għażla, tista' tuża l-app kollha. Il-bidu ggwidat jagħti biss ftit appoġġ żejjed fl-ewwel ġimgħa.",
+    "saveFailed": "Ma stajtx insalva l-għażla tiegħek"
+  },
+  "loading": {
+    "buildingSchedule": "Qed jinbena l-pjan tiegħek…",
+    "takesSeconds": "Jieħu biss ftit sekondi!"
+  },
+  "templateGroups": {
+    "showActivities": "Uri l-attivitajiet",
+    "loadingActivities": "Qed jitgħabba...",
+    "activityCount": {
+      "one": "{{count}} attività",
+      "two": "{{count}} attivitajiet",
+      "few": "{{count}} attivitajiet",
+      "many": "{{count}} attività",
+      "other": "{{count}} attività"
+    },
+    "forskola": {
+      "name": "Pre-skola",
+      "description": "Jum sħiħ — tfal ta' 2–5 snin"
+    },
+    "skola": {
+      "name": "Skola",
+      "description": "Jum sħiħ — tfal ta' 6+ snin"
+    },
+    "morgon": {
+      "name": "Filgħodu",
+      "description": "Rutina ta' filgħodu"
+    },
+    "dag": {
+      "name": "Jum",
+      "description": "Attivitajiet binhar"
+    },
+    "kvall": {
+      "name": "Filgħaxija",
+      "description": "Rutina ta' filgħaxija"
+    },
+    "helg": {
+      "name": "Tmiem il-ġimgħa",
+      "description": "Rutina tat-tmiem il-ġimgħa"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Qum",
+        "Ilbes",
+        "Kolazzjon",
+        "Pre-skola",
+        "Logħob",
+        "Pranzu",
+        "Storja qabel l-irqad"
+      ],
+      "skola": [
+        "Qum",
+        "Kolazzjon",
+        "Ipprepara l-basket",
+        "Skola",
+        "Xogħol tad-dar",
+        "Pranzu",
+        "Storja qabel l-irqad"
+      ],
+      "morgon": [
+        "Qum",
+        "Ilbes",
+        "Aħsel snienek",
+        "Kolazzjon",
+        "Ipprepara l-basket"
+      ],
+      "dag": [
+        "Pre-skola",
+        "Ilgħab barra",
+        "Merenda",
+        "Ikla",
+        "Xogħol tal-idejn"
+      ],
+      "kvall": [
+        "Pranzu",
+        "Aħsel snienek",
+        "Piġami",
+        "Storja qabel l-irqad",
+        "Orqod"
+      ],
+      "helg": [
+        "Qum",
+        "Kolazzjon",
+        "Logħob ħieles",
+        "Ġurnata barra",
+        "Attività tal-familja",
+        "Pranzu"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Filgħodu",
+    "lateMorning": "Filgħodu tard",
+    "afternoon": "Wara nofsinhar",
+    "evening": "Filgħaxija"
+  },
+  "errors": {
+    "avatarUploadPath": "Ir-ritratt tal-profil jitla' permezz ta' PUT /api/children/:id/avatar wara li jinħoloq it-tifel",
+    "childNameRequired": "L-isem tat-tifel huwa meħtieġ",
+    "emojiRequired": "Agħżel emoji għat-tifel tiegħek",
+    "invalidBirthday": "Data tat-twelid mhux valida",
+    "birthdayFuture": "L-għeluq snin ma jistax ikun fil-futur",
+    "invalidTemplate": "Għażla mhux valida. Agħżel pjan validu.",
+    "noActivities": "Ma nstabet l-ebda attività għall-pjan magħżul.",
+    "childIdRequired": "child_id huwa meħtieġ",
+    "noChildAccess": "M'għandekx aċċess għal dan it-tifel",
+    "weekendNotFound": "Il-pjan tat-tmiem il-ġimgħa ma nstabx fil-librerija.",
+    "weekendEmpty": "Il-pjan tat-tmiem il-ġimgħa m'għandu l-ebda attività.",
+    "rewardNameRequired": "L-isem tal-premju huwa meħtieġ",
+    "rewardCostMin": "L-ispiża fl-istilel trid tkun mill-inqas 1",
+    "rewardsFetchFailed": "Ma stajtx inġib il-premjijiet.",
+    "childCreateFailed": "Xi ħaġa marret ħażin meta nħoloq it-tifel.",
+    "scheduleCreateFailed": "Xi ħaġa marret ħażin meta nħoloq il-pjan.",
+    "weekendCreateFailed": "Xi ħaġa marret ħażin meta nħoloq il-pjan tat-tmiem il-ġimgħa.",
+    "rewardCreateFailed": "Xi ħaġa marret ħażin meta nħoloq il-premju.",
+    "generic": "Xi ħaġa marret ħażin.",
+    "invalidViewType": "view_type mhux validu. Agħżel day jew timeline.",
+    "notAllowed": "Mhux permess",
+    "invalidChoice": "Għażla mhux valida.",
+    "activityGuideSaveFailed": "Ma stajtx insalva l-għażla tal-attività.",
+    "pinMustBe4": "Il-PIN irid ikun eżattament 4 ċifri",
+    "pinTooWeak": "Agħżel PIN aktar b'saħħtu",
+    "pinTaken": "Dan il-PIN diġà meħud għal tifel bl-istess isem",
+    "pinUpdateFailed": "Ma stajtx naġġorna l-PIN.",
+    "handoffContextFailed": "Ma stajtx inġib il-kuntest tal-passaġġ",
+    "templateGroupsFailed": "Ma stajtx inġib il-gruppi tal-pjan.",
+    "schedulePreviewFailed": "Ma stajtx inġib il-pjan.",
+    "viewSaveFailed": "Ma stajtx insalva l-għażla tal-veduta.",
+    "activationNotEnabled": "Il-fluss tal-attivazzjoni mhux mixgħul għall-familja tiegħek",
+    "starterSuggestFailed": "Ma stajtx nagħżel il-mudell",
+    "starterPreviewFailed": "Ma stajtx inġib il-ħarsa minn qabel",
+    "starterPersonalizeFailed": "Ma stajtx nadatta l-pjan",
+    "scheduleNameRequired": "scheduleName huwa meħtieġ",
+    "templateNotFound": "Il-mudell ma nstabx",
+    "enrollChoiceUnavailable": "L-iskrin tal-għażla mhux disponibbli"
+  },
+  "starterPlan": {
+    "firstSchedule": "L-ewwel pjan tiegħek"
+  }
+}

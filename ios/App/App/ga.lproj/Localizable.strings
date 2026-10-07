@@ -1,0 +1,3 @@
+/* Native shell copy (ga-IE) — OS picks this before login when device language is Irish. */
+"native_offline_title" = "Níl aon nasc ann";
+"native_offline_body" = "Seiceáil do nasc idirlín agus bain triail eile as.";

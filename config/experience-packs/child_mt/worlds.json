@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Id-Dar ta' Filgħodu",
+      "first_unlock_message": "Id-Dar ta' Filgħodu qed tistenniek",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Id-Dar ta' Filgħodu taf li int hawn.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Jixgħel dawl ħelu.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Il-bieb",
+          "always_active": true,
+          "ambient_message_sv": "Il-bieb jitħarrek ftit — bħallikieku xi ħadd qed jistenna barra.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Barra, il-ġnien qed jistenna…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Il-Ġnien",
+      "first_unlock_message": "Il-ġnien qed jistennek",
+      "ambient_message_sv": "Il-ħaxix jiċċaqlaq bil-mod fir-riħ.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Il-mogħdija",
+          "emoji": "🌿",
+          "ambient_message_sv": "Il-mogħdija tkompli 'l ġewwa fil-ġnien.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Il-mogħdija twassal għal kamra sħuna mimlija tifkiriet…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Sodda tal-fjuri",
+          "emoji": "🪴",
+          "ambient_message_sv": "Il-ħamrija tinħass ratba u sħuna.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Is-sema",
+          "emoji": "☁️",
+          "ambient_message_sv": "Is-sħab jimxi bil-mod.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Il-Kamra tat-Tifkiriet",
+      "first_unlock_message": "Hawn dak li int kburi bih.",
+      "ambient_message_sv": "Hawn sħun u sigur.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "It-tieqa",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Id-dawl jidħol bil-mod."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Ħajt tat-tifkiriet",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Hawn imdendel dak li jgħodd għalik."
+        }
+      ]
+    }
+  ]
+}

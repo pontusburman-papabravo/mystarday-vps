@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Il-ġnien",
+      "slots": [
+        {
+          "slot_id": "bed_1",
+          "label_sv": "Is-sodda tal-fjuri",
+          "default_archetype_id": "sunflower"
+        }
+      ],
+      "archetypes": [
+        {
+          "archetype_id": "sunflower",
+          "display_name_sv": "Il-ġirasol",
+          "initial_state": "empty",
+          "states": [
+            {
+              "state_key": "empty",
+              "label_sv": "Ħamrija vojta",
+              "visual_token": "garden_bed_empty"
+            },
+            {
+              "state_key": "planted",
+              "label_sv": "Iż-żerriegħa mħawla",
+              "visual_token": "sunflower_seed"
+            },
+            {
+              "state_key": "watered",
+              "label_sv": "Sqqejt iż-żerriegħa",
+              "visual_token": "sunflower_seed",
+              "timer_ms": 30000,
+              "timer_next_state": "blooming"
+            },
+            {
+              "state_key": "blooming",
+              "label_sv": "Il-ġirasol qed jiftaħ!",
+              "visual_token": "sunflower_bloom"
+            },
+            {
+              "state_key": "harvested",
+              "label_sv": "Il-fjura tal-lum",
+              "visual_token": "sunflower_harvested"
+            }
+          ],
+          "verbs": [
+            {
+              "verb": "plant",
+              "from_state": "empty",
+              "to_state": "planted",
+              "child_message_sv": "Ħawwilt żerriegħa!"
+            },
+            {
+              "verb": "water",
+              "from_state": "planted",
+              "to_state": "watered",
+              "child_message_sv": "Sqqejt iż-żerriegħa — issa qed tikber!"
+            },
+            {
+              "verb": "harvest",
+              "from_state": "blooming",
+              "to_state": "harvested",
+              "child_message_sv": "Qattajt il-ġirasol!"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
