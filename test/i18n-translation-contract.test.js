@@ -504,6 +504,62 @@ describe('translation contract', () => {
     );
   });
 
+  it('locks every planned app locale plural to Intl.PluralRules', () => {
+    const { SUPPORTED_LOCALES } = require('../src/lib/locale');
+    const counts = [0, 1, 2, 3, 4, 5, 10, 11, 20, 21, 22, 100, 101, 111];
+    function leaves(value, prefix, out) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+      for (const [key, child] of Object.entries(value)) {
+        const next = prefix ? `${prefix}.${key}` : key;
+        if (child && typeof child === 'object' && !Array.isArray(child)) leaves(child, next, out);
+        else out[next] = child;
+      }
+    }
+    const english = {};
+    leaves(getLocale('en-GB'), '', english);
+    const parents = Object.keys(english)
+      .filter((key) => key.endsWith('.one'))
+      .map((key) => key.slice(0, -4))
+      .filter((parent) => Object.prototype.hasOwnProperty.call(english, `${parent}.other`));
+    assert.equal(SUPPORTED_LOCALES.length, 26);
+    assert.ok(parents.includes('schedule.activityCount'));
+    for (const locale of SUPPORTED_LOCALES) {
+      const rules = new Intl.PluralRules(locale);
+      const own = {};
+      leaves(getLocale(locale), '', own);
+      for (const parent of parents) {
+        for (const count of counts) {
+          const category = rules.select(count);
+          assert.equal(pluralCategory(locale, count), category, `${locale} ${count}`);
+          const template = own[`${parent}.${category}`];
+          assert.equal(typeof template, 'string', `${locale} ${parent}.${category}`);
+          if (String(template).includes('{{count}}')) {
+            assert.equal(
+              plural(locale, parent, count).includes(String(count)),
+              true,
+              `${locale} ${parent} ${count}`
+            );
+          }
+        }
+        const none = own[`${parent}.none`];
+        if (typeof none === 'string') {
+          assert.notEqual(plural(locale, parent, 0), none, `${locale} ${parent}`);
+        }
+      }
+    }
+    assert.equal(pluralCategory('lt-LT', 21), 'one');
+    assert.equal(pluralCategory('lv-LV', 0), 'zero');
+    assert.equal(pluralCategory('lv-LV', 11), 'zero');
+    assert.equal(pluralCategory('lv-LV', 20), 'zero');
+    assert.equal(pluralCategory('lv-LV', 111), 'zero');
+    assert.equal(pluralCategory('ga-IE', 2), 'two');
+    assert.equal(pluralCategory('ga-IE', 4), 'few');
+    assert.equal(pluralCategory('ga-IE', 7), 'many');
+    assert.equal(pluralCategory('mt-MT', 2), 'two');
+    assert.equal(pluralCategory('mt-MT', 0), 'few');
+    assert.equal(pluralCategory('mt-MT', 11), 'many');
+  });
+
   it('keeps Icelandic, Irish, and Maltese glyphs in the app resources', () => {
     const root = path.join(__dirname, '..');
     const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
