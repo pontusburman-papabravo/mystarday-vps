@@ -165,8 +165,9 @@ describe('sitemap and robots hosts', () => {
     const app = buildRobotsTxt({ host: APP_DOMAIN });
     assert.match(se, new RegExp(`Sitemap: ${swedishOrigin()}/sitemap\\.xml`));
     assert.match(app, new RegExp(`Sitemap: ${englishOrigin()}/sitemap\\.xml`));
-    assert.match(se, /Disallow: \/login/);
-    assert.match(se, /Disallow: \/home/);
+    assert.match(se, /Disallow: \/api\//);
+    assert.doesNotMatch(se, /Disallow: \/login/);
+    assert.doesNotMatch(se, /Disallow: \/home/);
     assert.doesNotMatch(se, /Disallow: \/bildschema-app/);
     assert.doesNotMatch(app, /Disallow: \/en$/m);
   });

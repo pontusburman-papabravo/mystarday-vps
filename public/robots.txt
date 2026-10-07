@@ -3,5 +3,6 @@
 
 User-agent: *
 Allow: /
+Disallow: /api/
 
 Sitemap: [REDACTED]/sitemap.xml
