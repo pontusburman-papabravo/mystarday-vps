@@ -224,9 +224,15 @@ describe('i18n fallback invariant: fi is not Swedish', () => {
     assert.notEqual(parseAcceptLanguage('fi-FI'), 'sv-SE');
   });
 
-  it('an unsupported language still falls back instead of becoming Swedish by alias', () => {
+  it('a registered locale is known but not chosen from Accept-Language', () => {
+    assert.equal(normalizeLocale('is-IS'), 'is-IS');
+    assert.equal(normalizeLocale('ga-IE'), 'ga-IE');
+    assert.equal(normalizeLocale('mt-MT'), 'mt-MT');
     assert.equal(parseAcceptLanguage('is-IS'), null);
+    assert.equal(parseAcceptLanguage('ga-IE'), null);
+    assert.equal(parseAcceptLanguage('mt-MT'), null);
     assert.equal(resolvePreAuthLocale({ acceptLanguage: 'is-IS' }), DEFAULT_LOCALE);
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'ga-IE,en-GB;q=0.8' }), 'en-GB');
     assert.equal(parseAcceptLanguage('is-IS,en-GB;q=0.8'), 'en-GB');
     assert.equal(parseAcceptLanguage('pl-PL,en-GB;q=0.8'), 'pl-PL');
   });
@@ -245,6 +251,18 @@ describe('i18n fallback invariant: fi is not Swedish', () => {
     const { sandbox } = loadClientI18n({ languages: ['fi-FI', 'en-GB'] });
     assert.equal(sandbox.window.I18n._fromNavigator(), 'fi-FI');
     assert.equal(sandbox.window.I18n.lang, 'fi-FI');
+  });
+
+  it('client navigator does not boot a registered locale', () => {
+    for (const languages of [['ga-IE', 'en-GB'], ['is-IS'], ['mt-MT', 'en-GB']]) {
+      const { sandbox } = loadClientI18n({ languages });
+      const picked = sandbox.window.I18n._fromNavigator();
+      assert.notEqual(picked, 'ga-IE', languages.join(','));
+      assert.notEqual(picked, 'is-IS', languages.join(','));
+      assert.notEqual(picked, 'mt-MT', languages.join(','));
+      if (languages.includes('en-GB')) assert.equal(picked, 'en-GB');
+      else assert.equal(picked, null);
+    }
   });
 });
 

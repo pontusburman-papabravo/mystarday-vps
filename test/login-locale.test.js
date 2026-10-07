@@ -60,7 +60,7 @@ describe('applyLoginLocaleChoice unit', () => {
     const { applyLoginLocaleChoice } = require('../src/lib/apply-login-locale');
     const result = await applyLoginLocaleChoice({
       familyId: null,
-      explicitLocale: 'is-IS',
+      explicitLocale: 'xx-XX',
     });
     assert.equal(result, 'sv-SE');
   });
@@ -329,7 +329,7 @@ describe('login locale integration', () => {
         body: JSON.stringify({
           email,
           password: 'testpass123',
-          preferred_locale: 'is-IS',
+          preferred_locale: 'xx-XX',
         }),
       });
       assert.equal(loginRes.status, 400);

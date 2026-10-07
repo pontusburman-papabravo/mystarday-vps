@@ -145,4 +145,61 @@ describe('app locale readiness', () => {
     assert.equal(assessMarket('IE').MARKET_READY, true);
     assert.equal(assessMarket('CA').MARKET_READY, true);
   });
+
+  it('keeps Icelandic, Irish, and Maltese content-ready and hidden', () => {
+    const { selectableLocaleOptions, firstRunLocales } = require('../src/lib/locale');
+    const hidden = ['is-IS', 'ga-IE', 'mt-MT'];
+    const selectable = selectableLocaleOptions().map((locale) => locale.id);
+    const firstRun = firstRunLocales().map((locale) => locale.id);
+    for (const id of hidden) {
+      assert.equal(selectable.includes(id), false, id);
+      assert.equal(firstRun.includes(id), false, id);
+      const app = assessAppLocale(id);
+      assert.equal(app.ready, false, id);
+      const contentErrors = app.errors.filter((error) => (
+        !/not public or enabled/.test(error) && !/iOS language .+ is not declared/.test(error)
+      ));
+      assert.deepEqual(contentErrors, [], id);
+    }
+    const iceland = assessMarket('IS');
+    assert.equal(iceland.APP_READY, false);
+    assert.equal(iceland.APPLE_READY, true, iceland.reasons.join('; '));
+    assert.equal(iceland.appleLocale, 'en-GB');
+    assert.equal(iceland.appleFallback, 'en-GB');
+    assert.equal(iceland.appleScreenshotOrigin, 'explicit_fallback');
+    assert.equal(iceland.GOOGLE_READY, true, iceland.reasons.join('; '));
+    assert.equal(iceland.googleLocale, 'is-IS');
+    assert.equal(iceland.googleFallback, null);
+    assert.equal(iceland.googleScreenshotOrigin, 'native_locale');
+    assert.equal(iceland.MARKET_READY, false);
+    const malta = assessMarket('MT');
+    assert.equal(malta.APP_READY, false);
+    assert.equal(malta.APPLE_READY, true, malta.reasons.join('; '));
+    assert.equal(malta.GOOGLE_READY, true, malta.reasons.join('; '));
+    assert.equal(malta.appleScreenshotOrigin, 'explicit_fallback');
+    assert.equal(malta.googleLocale, 'en-GB');
+    assert.equal(malta.googleFallback, 'en-GB');
+    assert.equal(malta.googleScreenshotOrigin, 'explicit_fallback');
+    assert.equal(malta.MARKET_READY, false);
+    const irish = assessMarket('IE', 'ga-IE');
+    assert.equal(irish.APP_READY, false);
+    assert.equal(irish.APPLE_READY, true, irish.reasons.join('; '));
+    assert.equal(irish.GOOGLE_READY, true, irish.reasons.join('; '));
+    assert.equal(irish.appleScreenshotOrigin, 'explicit_fallback');
+    assert.equal(irish.googleScreenshotOrigin, 'explicit_fallback');
+    assert.equal(irish.appleFallback, 'en-GB');
+    assert.equal(irish.googleFallback, 'en-GB');
+    const ireland = assessMarket('IE');
+    assert.equal(ireland.APP_READY, true);
+    assert.equal(ireland.MARKET_READY, true);
+    assert.equal(ireland.appLocale, 'en-GB');
+    assert.equal(assessMarket('SE').MARKET_READY, true);
+    assert.equal(assessMarket('CA').MARKET_READY, true);
+    const catalog = loadStoreCatalog();
+    const ie = catalog.markets.markets.find((market) => market.id === 'IE');
+    assert.deepEqual(ie.requiredAppLocales, ['en-GB']);
+    assert.equal(ie.activation, 'live');
+    assert.equal(catalog.markets.markets.find((market) => market.id === 'IS').activation, 'planned');
+    assert.equal(catalog.markets.markets.find((market) => market.id === 'MT').activation, 'planned');
+  });
 });

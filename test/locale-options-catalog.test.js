@@ -29,6 +29,8 @@ describe('GET /api/family/locale-options follows the locale catalog', () => {
       assert.equal(typeof locale.nativeName, 'string');
       assert.ok(locale.nativeName.length > 0);
     }
+    const hidden = ['is-IS', 'ga-IE', 'mt-MT'];
+    assert.deepEqual(actual.map((locale) => locale.id).filter((id) => hidden.includes(id)), []);
   });
 
   it('the family route does not keep a handwritten locale list', () => {

@@ -11,6 +11,7 @@ const {
   plural,
   pluralCategory,
   t,
+  getLocale,
   ALLOW_EMPTY_TRANSLATIONS,
   ALLOW_PLACEHOLDER_MISMATCH,
 } = require('../src/lib/i18n');
@@ -443,5 +444,86 @@ describe('translation contract', () => {
     }
     const greek = read('src/locales/el-GR.json') + read('config/i18n/home-el-GR.json');
     assert.equal(greek.includes('?'), false);
+  });
+
+  it('locks Icelandic, Irish, and Maltese plurals to Intl.PluralRules', () => {
+    const counts = [0, 1, 2, 3, 4, 5, 10, 11, 20, 21, 22, 100, 101, 111];
+    function leaves(value, prefix, out) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+      for (const [key, child] of Object.entries(value)) {
+        const next = prefix ? `${prefix}.${key}` : key;
+        if (child && typeof child === 'object' && !Array.isArray(child)) leaves(child, next, out);
+        else out[next] = child;
+      }
+    }
+    const english = {};
+    leaves(getLocale('en-GB'), '', english);
+    const parents = Object.keys(english)
+      .filter((key) => key.endsWith('.one'))
+      .map((key) => key.slice(0, -4))
+      .filter((parent) => Object.prototype.hasOwnProperty.call(english, `${parent}.other`));
+    assert.ok(parents.includes('schedule.activityCount'));
+    assert.ok(parents.includes('onboarding.rewards.selectCount'));
+    for (const locale of ['is-IS', 'ga-IE', 'mt-MT']) {
+      const rules = new Intl.PluralRules(locale);
+      const own = {};
+      leaves(getLocale(locale), '', own);
+      for (const parent of parents) {
+        for (const count of counts) {
+          const category = rules.select(count);
+          assert.equal(pluralCategory(locale, count), category, `${locale} ${parent} ${count}`);
+          const rendered = plural(locale, parent, count);
+          const template = own[`${parent}.${category}`] || own[`${parent}.other`];
+          assert.equal(typeof template, 'string', `${locale} ${parent}.${category}`);
+          if (String(template).includes('{{count}}')) {
+            assert.equal(rendered.includes(String(count)), true, `${locale} ${parent} ${count} ${rendered}`);
+          }
+        }
+        const none = own[`${parent}.none`];
+        if (typeof none === 'string') {
+          assert.notEqual(plural(locale, parent, 0), none, `${locale} ${parent}`);
+        }
+      }
+      assert.equal(/beta/i.test(t(locale, 'packageInterest.interestedSub')), false);
+    }
+    assert.equal(plural('is-IS', 'schedule.activityCount', 1), '1 athöfn');
+    assert.equal(plural('is-IS', 'schedule.activityCount', 21), '21 athöfn');
+    assert.equal(plural('is-IS', 'schedule.activityCount', 2), '2 athafnir');
+    assert.equal(plural('ga-IE', 'schedule.activityCount', 1), '1 ghníomhaíocht');
+    assert.equal(plural('ga-IE', 'schedule.activityCount', 2), '2 ghníomhaíocht');
+    assert.equal(plural('ga-IE', 'schedule.activityCount', 7), '7 ngníomhaíocht');
+    assert.equal(plural('ga-IE', 'schedule.activityCount', 11), '11 gníomhaíocht');
+    assert.equal(plural('mt-MT', 'schedule.activityCount', 1), '1 attività');
+    assert.equal(plural('mt-MT', 'schedule.activityCount', 2), '2 attivitajiet');
+    assert.equal(plural('mt-MT', 'schedule.activityCount', 11), '11 attività');
+    assert.equal(plural('mt-MT', 'schedule.activityCount', 20), '20 attività');
+    assert.equal(plural('mt-MT', 'onboarding.rewards.selectCount', 0), '0 premjijiet magħżula ✓');
+    assert.notEqual(
+      plural('is-IS', 'onboarding.rewards.selectCount', 0),
+      t('is-IS', 'onboarding.rewards.selectCount.none')
+    );
+  });
+
+  it('keeps Icelandic, Irish, and Maltese glyphs in the app resources', () => {
+    const root = path.join(__dirname, '..');
+    const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
+    const samples = [
+      ['src/locales/is-IS.json', /[áðéíóúýþæö]/, 'Skrá inn'],
+      ['src/locales/ga-IE.json', /[áéíóú]/, 'Logáil isteach'],
+      ['src/locales/mt-MT.json', /[ċġħż]/, 'Idħol'],
+      ['scripts/android/l10n/res/values-is/strings.xml', /[áðéíóúýþæö]/, 'Engin tenging'],
+      ['scripts/android/l10n/res/values-ga/strings.xml', /[áéíóú]/, 'Níl aon nasc ann'],
+      ['scripts/android/l10n/res/values-mt/strings.xml', /[ċġħż]/, 'konnessjoni'],
+      ['ios/App/WidgetRoutine/is.lproj/InfoPlist.strings', /[áðéíóúýþæö]/, 'Næsta athöfn'],
+      ['ios/App/WidgetRoutine/ga.lproj/Localizable.strings', /[áéíóú]/, 'Déanta'],
+      ['ios/App/WidgetRoutine/mt.lproj/Localizable.strings', /[ċġħż]/, 'Lest'],
+      ['store/google/is-IS/listing.json', /[áðéíóúýþæö]/, 'Sjónrænar'],
+    ];
+    for (const [rel, pattern, phrase] of samples) {
+      const text = read(rel);
+      assert.match(text, pattern, rel);
+      assert.ok(text.includes(phrase), `${rel} missing ${phrase}`);
+      assert.equal(text.includes('\uFFFD'), false, rel);
+    }
   });
 });
