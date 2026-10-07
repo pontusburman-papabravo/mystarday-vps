@@ -153,7 +153,7 @@
     "intro": "Vidám jutalmakat töltöttünk be. Válaszd ki azokat, amelyekért {{childName}} dolgozhat!",
     "introWithCount": "{{count}} vidám jutalmat töltöttünk be. Válaszd ki azokat, amelyekért {{childName}} dolgozhat!",
     "selectCount": {
-      "zero": "Válassz legalább 1 jutalmat (0 kiválasztva)",
+      "none": "Válassz legalább 1 jutalmat (0 kiválasztva)",
       "one": "{{count}} jutalom kiválasztva ✓",
       "other": "{{count}} jutalom kiválasztva ✓"
     },

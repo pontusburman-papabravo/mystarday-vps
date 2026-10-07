@@ -153,7 +153,7 @@
     "intro": "We have filled in fun rewards. Choose the ones {{childName}} can work towards!",
     "introWithCount": "We have filled in {{count}} fun rewards. Choose the ones {{childName}} can work towards!",
     "selectCount": {
-      "zero": "Choose at least 1 reward (0 selected)",
+      "none": "Choose at least 1 reward (0 selected)",
       "one": "{{count}} reward selected ✓",
       "other": "{{count}} rewards selected ✓"
     },

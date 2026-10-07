@@ -153,7 +153,7 @@
     "intro": "Am completat recompense amuzante. Alege-le pe cele spre care poate lucra {{childName}} acum!",
     "introWithCount": "Am completat {{count}} recompense amuzante. Alege-le pe cele spre care poate lucra {{childName}} acum!",
     "selectCount": {
-      "zero": "Alege cel puțin 1 recompensă (0 alese)",
+      "none": "Alege cel puțin 1 recompensă (0 alese)",
       "one": "{{count}} recompensă aleasă ✓",
       "other": "{{count}} de recompense alese ✓",
       "few": "{{count}} recompense alese ✓"

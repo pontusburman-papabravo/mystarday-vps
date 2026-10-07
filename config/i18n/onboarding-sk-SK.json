@@ -153,7 +153,7 @@
     "intro": "Pripravili sme zábavné odmeny. Vyber tie, ku ktorým môže {{childName}} smerovať!",
     "introWithCount": "Pripravili sme {{count}} zábavných odmien. Vyber tie, ku ktorým môže {{childName}} smerovať!",
     "selectCount": {
-      "zero": "Vyber aspoň 1 odmenu (0 vybraných)",
+      "none": "Vyber aspoň 1 odmenu (0 vybraných)",
       "one": "{{count}} odmena vybraná ✓",
       "other": "{{count}} odmien vybraných ✓",
       "few": "{{count}} odmeny vybrané ✓"

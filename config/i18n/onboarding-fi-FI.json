@@ -153,7 +153,7 @@
     "intro": "Olemme täyttäneet kivoja palkintoja. Valitse ne, joita kohti {{childName}} voi edetä!",
     "introWithCount": "Olemme täyttäneet {{count}} kivaa palkintoa. Valitse ne, joita kohti {{childName}} voi edetä!",
     "selectCount": {
-      "zero": "Valitse vähintään 1 palkinto (0 valittu)",
+      "none": "Valitse vähintään 1 palkinto (0 valittu)",
       "one": "{{count}} palkinto valittu ✓",
       "other": "{{count}} palkintoa valittu ✓"
     },

@@ -153,7 +153,7 @@
     "intro": "Doplnili jsme hezké odměny. Vyber ty, ke kterým může {{childName}} směřovat dál!",
     "introWithCount": "Doplnili jsme {{count}} hezkých odměn. Vyber ty, ke kterým může {{childName}} směřovat dál!",
     "selectCount": {
-      "zero": "Vyber aspoň 1 odměnu (0 vybraných)",
+      "none": "Vyber aspoň 1 odměnu (0 vybraných)",
       "one": "{{count}} vybraná odměna ✓",
       "few": "{{count}} vybrané odměny ✓",
       "other": "{{count}} vybraných odměn ✓"

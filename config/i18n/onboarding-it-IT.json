@@ -153,7 +153,7 @@
     "intro": "Abbiamo inserito ricompense divertenti. Scegli quelle verso cui {{childName}} può lavorare!",
     "introWithCount": "Abbiamo inserito {{count}} ricompense divertenti. Scegli quelle verso cui {{childName}} può lavorare!",
     "selectCount": {
-      "zero": "Scegli almeno 1 ricompensa (0 selezionate)",
+      "none": "Scegli almeno 1 ricompensa (0 selezionate)",
       "one": "{{count}} ricompensa selezionata ✓",
       "other": "{{count}} ricompense selezionate ✓"
     },

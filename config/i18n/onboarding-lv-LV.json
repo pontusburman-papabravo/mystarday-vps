@@ -153,7 +153,8 @@
     "intro": "Esam ielikuši jautras balvas. Izvēlies tās, uz kurām {{childName}} var tiekties!",
     "introWithCount": "Esam ielikuši {{count}} jautras balvas. Izvēlies tās, uz kurām {{childName}} var tiekties!",
     "selectCount": {
-      "zero": "Izvēlies vismaz 1 balvu (0 izvēlētas)",
+      "none": "Izvēlies vismaz 1 balvu (0 izvēlētas)",
+      "zero": "{{count}} balvu izvēlētas ✓",
       "one": "{{count}} balva izvēlēta ✓",
       "other": "{{count}} balvas izvēlētas ✓"
     },

@@ -153,7 +153,7 @@
     "intro": "Įrašėme smagių apdovanojimų. Pasirink tuos, kurių {{childName}} gali siekti!",
     "introWithCount": "Įrašėme {{count}} smagių apdovanojimų. Pasirink tuos, kurių {{childName}} gali siekti!",
     "selectCount": {
-      "zero": "Pasirink bent 1 apdovanojimą (0 pasirinkta)",
+      "none": "Pasirink bent 1 apdovanojimą (0 pasirinkta)",
       "one": "{{count}} apdovanojimas pasirinktas ✓",
       "few": "{{count}} apdovanojimai pasirinkti ✓",
       "other": "{{count}} apdovanojimų pasirinkta ✓"

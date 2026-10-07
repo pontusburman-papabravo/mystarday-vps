@@ -153,7 +153,7 @@
     "intro": "Preenchemos recompensas divertidas. Escolhe as que {{childName}} pode conquistar!",
     "introWithCount": "Preenchemos {{count}} recompensas divertidas. Escolhe as que {{childName}} pode conquistar!",
     "selectCount": {
-      "zero": "Escolhe pelo menos 1 recompensa (0 selecionadas)",
+      "none": "Escolhe pelo menos 1 recompensa (0 selecionadas)",
       "one": "{{count}} recompensa selecionada ✓",
       "other": "{{count}} recompensas selecionadas ✓"
     },

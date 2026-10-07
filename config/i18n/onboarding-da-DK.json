@@ -153,7 +153,7 @@
     "intro": "Vi har udfyldt sjove belønninger. Vælg dem, {{childName}} kan arbejde hen imod!",
     "introWithCount": "Vi har udfyldt {{count}} sjove belønninger. Vælg dem, {{childName}} kan arbejde hen imod!",
     "selectCount": {
-      "zero": "Vælg mindst 1 belønning (0 valgt)",
+      "none": "Vælg mindst 1 belønning (0 valgt)",
       "one": "{{count}} belønning valgt ✓",
       "other": "{{count}} belønninger valgt ✓"
     },

@@ -153,7 +153,7 @@
     "intro": "Oleme toredad auhinnad ette pannud. Vali need, mille poole {{childName}} püüelda saab!",
     "introWithCount": "Oleme ette pannud {{count}} toredat auhinda. Vali need, mille poole {{childName}} püüelda saab!",
     "selectCount": {
-      "zero": "Vali vähemalt 1 auhind (0 valitud)",
+      "none": "Vali vähemalt 1 auhind (0 valitud)",
       "one": "Valitud {{count}} auhind ✓",
       "other": "Valitud {{count}} auhinda ✓"
     },
