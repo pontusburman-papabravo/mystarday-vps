@@ -21,7 +21,7 @@ function nativeMarketingHomeCheck() {
 const RELEASE_TAG = '2026-06-24-native-sw-guard';
 const INJECT_MARKER = '<!-- platform-html-inject -->';
 const MAGIC_INJECT_MARKER = '<!-- parent-magic-inject -->';
-const MAGIC_VERSION = '43'; // Bump when parent-magic CSS, profile-switch, app-layers, or app-entry-orchestrator changes (native WebView cache bust)
+const MAGIC_VERSION = '44'; // Bump when parent-magic CSS, profile-switch, app-layers, or app-entry-orchestrator changes (native WebView cache bust)
 
 const PARENT_MAGIC_PATHS = new Set([
   '/home',

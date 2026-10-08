@@ -75,6 +75,22 @@
     return stars + ' ⭐ · ' + pt('library.rewardsHub.proximity.leftUntil', { gap: gapLabel, reward: rewardLabel });
   }
 
+  /**
+   * Same copy as proximityCopy, with the reward name kept on one line so a
+   * long Finnish label wraps as a unit instead of splitting mid-word.
+   */
+  function proximityHtml(child) {
+    const text = proximityCopy(child);
+    const nearest = child.nearest_reward;
+    if (!nearest) return escHtml(text);
+    const rewardLabel = (nearest.icon || '🎁') + ' ' + (nearest.display_name || nearest.name || pt('library.rewardsHub.proximity.fallbackReward'));
+    const idx = text.lastIndexOf(rewardLabel);
+    if (idx < 0) return escHtml(text);
+    return escHtml(text.slice(0, idx)) +
+      '<span class="rewards-proximity-reward inline-block max-w-full align-bottom whitespace-nowrap overflow-hidden text-ellipsis">' +
+      escHtml(rewardLabel) + '</span>';
+  }
+
   function selectedChildId(children) {
     const id = new URLSearchParams(window.location.search).get('child') || '';
     if (!id) return '';
@@ -125,7 +141,7 @@
       '<span class="text-2xl flex-shrink-0" aria-hidden="true">' + escHtml(emoji) + '</span>' +
       '<span class="flex-1 min-w-0">' +
       '<span class="font-heading font-bold text-navy block truncate">' + escHtml(childName) + '</span>' +
-      '<span class="text-sm text-text-soft leading-snug">' + escHtml(proximityCopy(child)) + '</span>' +
+      '<span class="text-sm text-text-soft leading-snug">' + proximityHtml(child) + '</span>' +
       '</span>' +
       '<span class="text-text-soft flex-shrink-0" aria-hidden="true">→</span></a>'
     );

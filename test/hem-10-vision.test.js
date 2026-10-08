@@ -96,6 +96,15 @@ describe('Hem 10/10 — priority ladder', () => {
     assert.match(css, /parent-hub-readiness-slot/);
   });
 
+  it('home summary action moves below the headline on phone widths', () => {
+    const css = read('public/css/dashboard-warmth.css');
+    assert.match(css, /overflow-wrap:\s*break-word/);
+    assert.match(css, /@media \(max-width: 640px\)/);
+    assert.match(css, /\.dash-summary-text\s*\{[^}]*flex-basis:\s*calc\(100% - 52px\)/);
+    assert.match(css, /\.dash-summary-action\s*\{[^}]*flex:\s*0 0 auto/);
+    assert.doesNotMatch(css, /@media \(max-width: 360px\)/);
+  });
+
   it('SW cache version matches config (Hem + Planering merge)', () => {
     const sw = read('public/sw.js');
     const cache = JSON.parse(read('config/cache-version.json'));
