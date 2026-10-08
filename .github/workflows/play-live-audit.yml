@@ -34,5 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: play-live-audit
-          path: artifacts/play-live-audit.json
+          path: |
+            artifacts/play-live-audit.json
+            artifacts/play-live-audit.md
           if-no-files-found: error

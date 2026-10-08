@@ -13,13 +13,19 @@ const {
   PACKAGE_NAME,
   SCREENSHOT_COMPARISON,
   SYNC_WITH_RELEASE,
-  languagePlan,
+  finishReport,
+  finlandKeptOpen,
   judgeLanguage,
   judgeMarkets,
+  judgeScreenshotSet,
   judgeScreenshots,
+  languagePlan,
+  phoneDimensionProblem,
   readTrackCountryAvailability,
+  renderAuditMarkdown,
   runPlayLiveAudit,
   redactValue,
+  storeContentReady,
 } = require('../src/lib/play-live-audit');
 const { loadStoreCatalog } = require('../src/lib/store-locale');
 
@@ -111,8 +117,13 @@ describe('Play listing comparison', () => {
       listing: { language: 'sv-SE', title: 'Brand', shortDescription: 'Kort', fullDescription: 'Lång' },
       counts: { phoneScreenshots: 2, featureGraphic: 1 },
     });
-    assert.equal(match.status, 'MATCH');
-    assert.equal(match.screenshotComparison, SCREENSHOT_COMPARISON);
+    assert.equal(match.text, 'MATCH');
+    assert.equal(match.screenshots, 'COUNT_MATCH');
+    assert.equal(match.status, 'COUNT_MATCH');
+    assert.notEqual(match.screenshots, 'MATCH');
+    assert.equal(match.screenshotComparison, 'count');
+    assert.equal(match.fields.title.live, 'Brand');
+    assert.equal(match.fields.title.expected, 'Brand');
     const drift = judgeLanguage(row, {
       listing: { language: 'sv-SE', title: 'Other', shortDescription: 'Kort', fullDescription: 'Lång' },
       counts: { phoneScreenshots: 2, featureGraphic: 1 },
@@ -131,9 +142,12 @@ describe('Play listing comparison', () => {
       expected: { title: 'Brand', shortDescription: 'Kurz', fullDescription: 'Lang' },
       screenshotExpectation: { status: 'present', files: ['a.png'], featureGraphic: 'feature.png' },
     };
-    assert.equal(judgeLanguage(row, { listing: null }).status, 'MISSING');
+    const missing = judgeLanguage(row, { listing: null });
+    assert.equal(missing.status, 'MISSING');
+    assert.equal(missing.screenshots, 'MISSING');
     assert.equal(judgeLanguage(row, { textForbidden: true }).status, 'UNKNOWN');
-    assert.equal(judgeScreenshots({ status: 'present', files: ['a.png'], featureGraphic: 'f.png' }, { phoneScreenshots: 1, featureGraphic: 1 }, false), 'MATCH');
+    assert.equal(judgeScreenshots({ status: 'present', files: ['a.png'], featureGraphic: 'f.png' }, { phoneScreenshots: 1, featureGraphic: 1 }, false), 'COUNT_MATCH');
+    assert.notEqual(judgeScreenshots({ status: 'live_external' }, { phoneScreenshots: 1, featureGraphic: 1 }, false), 'MATCH');
   });
 
   it('reports Finland when it is open and does not ask for a change', () => {
@@ -179,6 +193,7 @@ describe('Play audit workflow', () => {
     assert.match(workflow, /secrets\.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON/);
     assert.match(workflow, /persist-credentials: false/);
     assert.match(workflow, /if: always\(\)/);
+    assert.match(workflow, /play-live-audit\.md/);
     assert.doesNotMatch(workflow, /:commit|edits\.commit|pricing|availability/);
     assert.doesNotMatch(workflow, /private_key|BEGIN PRIVATE/);
   });
@@ -216,7 +231,8 @@ describe('Play audit run', () => {
     assert.equal(report.edit.committed, false);
     assert.equal(report.edit.deleted, true);
     assert.equal(report.languages[0].status, 'UNKNOWN');
-    assert.equal(report.languages[0].screenshotComparison, 'count');
+    assert.equal(report.languages[0].screenshotComparison, 'unavailable');
+    assert.equal(report.listingContentReady, false);
     assert.equal(report.fiStoreAvailability, 'KEEP_OPEN');
     assert.equal(report.markets.status, 'UNKNOWN');
     assert.equal(report.markets.fiObserved, 'UNKNOWN');
@@ -267,17 +283,25 @@ describe('Play audit run', () => {
       }],
       repoLive: ['CA', 'IE', 'SE'],
     });
-    assert.equal(report.languages[0].status, 'MATCH');
+    assert.equal(report.languages[0].text, 'MATCH');
+    assert.equal(report.languages[0].screenshots, 'COUNT_MATCH');
+    assert.equal(report.languages[0].status, 'COUNT_MATCH');
     assert.equal(report.languages[0].mapping, 'fallback');
+    assert.equal(report.languages[0].recommendation.action, 'keep-fallback');
     assert.equal(report.markets.status, 'MATCH');
     assert.equal(report.markets.restOfWorld, false);
     assert.equal(report.markets[SYNC_WITH_RELEASE], false);
     assert.equal(report.markets.fiObserved, 'absent');
     assert.equal(report.markets.action, 'none');
     assert.equal(report.writes.commit, false);
+    assert.equal(report.writes.listingUpdate, false);
+    assert.equal(report.writes.imageUpload, false);
     assert.equal(report.writes.availabilityChange, false);
-    assert.equal(report.screenshotComparison, 'count');
-    assert.match(report.screenshotComparisonNote, /count and presence only/);
+    assert.equal(report.writes.pricing, false);
+    assert.equal(report.screenshotComparison, SCREENSHOT_COMPARISON);
+    assert.match(report.screenshotComparisonNote, /never reported as MATCH/);
+    assert.equal(report.listingContentReady, false);
+    assert.match(renderAuditMarkdown(report), /inte klart/);
   });
 });
 
@@ -394,5 +418,166 @@ describe('Play release-track country availability', () => {
     assert.equal(empty.report.markets.status, 'UNKNOWN');
     assert.equal(empty.report.markets.fiObserved, 'UNKNOWN');
     assert.equal(empty.report.markets.restOfWorld, null);
+
+    assert.equal(readTrackCountryAvailability(null), null);
+    assert.equal(readTrackCountryAvailability({}), null);
+    const blank = await auditCountries(200, {});
+    assert.equal(blank.report.markets.status, 'UNKNOWN');
+    assert.equal(blank.report.markets.fiObserved, 'UNKNOWN');
+    assert.equal(blank.report.markets.restOfWorld, null);
+    assert.equal(blank.report.markets.action, 'none');
+  });
+});
+
+describe('Play screenshot bytes and launch classification', () => {
+  it('compares SHA-256 when Play returns a hash for every image', () => {
+    const hash = 'a'.repeat(64);
+    const other = 'b'.repeat(64);
+    const expectation = { status: 'present', files: ['phone.png'], featureGraphic: 'feature.png' };
+    const localFacts = {
+      phoneHashes: [hash],
+      featureHashes: [hash],
+      problems: [],
+      dimensions: 'OK',
+    };
+    const counts = {
+      phoneScreenshots: 1,
+      featureGraphic: 1,
+      phoneSha256: [hash],
+      featureSha256: [hash],
+      sha256Complete: true,
+    };
+    assert.equal(judgeScreenshotSet({ expectation, counts, unreadable: false, localFacts }).status, 'CONTENT_MATCH');
+    assert.equal(judgeScreenshotSet({
+      expectation,
+      counts: { ...counts, phoneSha256: [other] },
+      unreadable: false,
+      localFacts,
+    }).status, 'CONTENT_DRIFT');
+    const counted = judgeScreenshotSet({
+      expectation,
+      counts: { phoneScreenshots: 1, featureGraphic: 1 },
+      unreadable: false,
+      localFacts,
+    });
+    assert.equal(counted.status, 'COUNT_MATCH');
+    assert.equal(counted.comparison, 'count');
+    assert.notEqual(counted.status, 'MATCH');
+  });
+
+  it('reports a too-narrow phone image separately from a byte match', () => {
+    assert.equal(phoneDimensionProblem(780, 1688), 'aspect-over-2-to-1');
+    assert.equal(phoneDimensionProblem(1080, 1920), null);
+    const hash = 'c'.repeat(64);
+    const shot = judgeScreenshotSet({
+      expectation: { status: 'present', files: ['phone.png'], featureGraphic: 'feature.png' },
+      counts: {
+        phoneScreenshots: 1,
+        featureGraphic: 1,
+        phoneSha256: [hash],
+        featureSha256: [hash],
+        sha256Complete: true,
+      },
+      unreadable: false,
+      localFacts: {
+        phoneHashes: [hash],
+        featureHashes: [hash],
+        problems: [{ file: 'phone.png', problem: 'aspect-over-2-to-1', width: 780, height: 1688 }],
+        dimensions: 'INVALID',
+      },
+    });
+    assert.equal(shot.status, 'CONTENT_MATCH');
+    assert.equal(shot.dimensions, 'INVALID');
+    const row = judgeLanguage({
+      appLocale: 'bg-BG',
+      appAvailability: 'public',
+      googleLocale: 'bg',
+      mapping: 'direct',
+      fallback: null,
+      brand: 'Brand',
+      expected: { title: 'Brand', shortDescription: 'Kort', fullDescription: 'Lång' },
+      screenshotExpectation: { status: 'present', files: ['missing-phone.png'], featureGraphic: 'missing-feature.png' },
+    }, { listing: null });
+    assert.equal(row.status, 'MISSING');
+    assert.equal(row.screenshotDimensions, 'INVALID');
+    assert.equal(row.recommendation.action, 'do-not-publish');
+  });
+
+  it('keeps Finland open and does not call the store ready when copy drifts', () => {
+    const markets = judgeMarkets(['CA', 'IE', 'SE'], ['CA', 'FI', 'IE', 'SE'], false, { restOfWorld: false, syncWithRelease: false });
+    assert.equal(finlandKeptOpen(markets), true);
+    const report = finishReport({
+      auth: 'OK',
+      fiStoreAvailability: 'KEEP_OPEN',
+      forbidden: [],
+      markets,
+      languages: [{
+        appLocale: 'sv-SE',
+        googleLocale: 'sv-SE',
+        mapping: 'direct',
+        appAvailability: 'public',
+        status: 'DRIFT',
+        text: 'DRIFT',
+        screenshots: 'COUNT_MATCH',
+        screenshotDimensions: 'UNKNOWN',
+        differingFields: ['shortDescription'],
+        fields: {
+          shortDescription: { live: 'hela familjen', expected: 'familjen' },
+        },
+        recommendation: { action: 'review', reason: 'Do not overwrite.' },
+      }],
+    });
+    assert.equal(report.markets.acceptedDifference, true);
+    assert.equal(report.markets.action, 'none');
+    assert.equal(report.listingContentReady, false);
+    assert.equal(storeContentReady(report), false);
+    assert.equal(report.launchPlan[0].group, 'already-listed');
+    assert.equal(report.launchPlan[0].publish, false);
+    const markdown = renderAuditMarkdown(report);
+    assert.match(markdown, /inte klart/);
+    assert.match(markdown, /Lämna Finland öppet/);
+    assert.match(markdown, /hela familjen/);
+    assert.match(markdown, /Skrivningar: inga/);
+  });
+
+  it('classifies missing Play languages without publishing them', () => {
+    const plan = languagePlan();
+    const judged = (id) => judgeLanguage(plan.find((row) => row.appLocale === id), { listing: null });
+    const finnish = judged('fi-FI');
+    const french = judged('fr-FR');
+    const norwegian = judged('nb-NO');
+    const irish = judged('ga-IE');
+    const maltese = judged('mt-MT');
+    const icelandic = judged('is-IS');
+    const bulgarian = judged('bg-BG');
+    const english = plan.find((row) => row.appLocale === 'en-GB');
+    const swedish = plan.find((row) => row.appLocale === 'sv-SE');
+    assert.equal(english.expected.title, 'My Starday');
+    assert.match(swedish.expected.shortDescription, /hela familjen/);
+    assert.equal(irish.mapping, 'fallback');
+    assert.equal(irish.recommendation.action, 'keep-fallback');
+    assert.equal(maltese.recommendation.action, 'keep-fallback');
+    assert.equal(icelandic.appAvailability, 'registered');
+    assert.equal(icelandic.recommendation.action, 'do-not-publish');
+    assert.equal(finnish.screenshotDimensions, 'OK');
+    assert.equal(finnish.recommendation.action, 'do-not-publish-yet');
+    assert.equal(bulgarian.screenshotDimensions, 'INVALID');
+    assert.equal(bulgarian.recommendation.action, 'do-not-publish');
+    const report = finishReport({
+      auth: 'OK',
+      fiStoreAvailability: 'KEEP_OPEN',
+      forbidden: [],
+      markets: judgeMarkets(['CA', 'IE', 'SE'], ['CA', 'FI', 'IE', 'SE'], false),
+      languages: [finnish, french, norwegian, irish, icelandic, bulgarian],
+    });
+    const group = Object.fromEntries(report.launchPlan.map((item) => [item.appLocale, item.group]));
+    assert.equal(group['fi-FI'], 'approve-first');
+    assert.equal(group['fr-FR'], 'approve-next');
+    assert.equal(group['nb-NO'], 'prepare-only');
+    assert.equal(group['ga-IE'], 'fallback');
+    assert.equal(group['is-IS'], 'hidden');
+    assert.equal(group['bg-BG'], 'blocked-dimensions');
+    assert.equal(report.launchPlan.every((item) => item.publish === false), true);
+    assert.equal(report.listingContentReady, false);
   });
 });
