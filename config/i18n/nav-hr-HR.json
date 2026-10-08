@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Početna",
+    "planning": "Planiranje",
+    "rewards": "Nagrade",
+    "forYou": "Za tebe",
+    "family": "Obitelj"
+  },
+  "settings": "Postavke",
+  "mainAria": "Glavna navigacija",
+  "notifications": "Obavijesti",
+  "share": "Podijeli",
+  "logout": "Odjavi se",
+  "switchUser": "Promijeni profil",
+  "returnToChild": "Natrag djetetu",
+  "darkMode": "Tamni način",
+  "lightMode": "Svijetli način",
+  "overview": "Pregled",
+  "dailyLog": "Danas",
+  "weekSchedule": "Raspored",
+  "reports": "Izvješća",
+  "library": "Biblioteka",
+  "libraryAdvanced": "📚 Biblioteka (napredno)",
+  "pedagogNotes": "📝 Bilješke pedagoga",
+  "treasureChest": "Škrinja s blagom",
+  "familySettings": "Obitelj i postavke",
+  "capability": {
+    "subscription": "Pretplata",
+    "reports": "Izvješća",
+    "samarbete": "Suradnja s pedagogom",
+    "barnStod": "Dodatna podrška"
+  },
+  "header": {
+    "notifications": "Obavijesti",
+    "settings": "Postavke",
+    "share": "Podijeli",
+    "shareTitle": "Reci nekoj obitelji za aplikaciju!",
+    "shareAria": "Podijeli"
+  },
+  "avatar": {
+    "switchPedagog": "Prijeđi na prikaz pedagoga",
+    "subscription": "Pretplata",
+    "settings": "Postavke",
+    "logout": "Odjavi se"
+  },
+  "mobile": {
+    "openMenu": "Otvori izbornik",
+    "darkModeTitle": "Tamni način",
+    "darkModeAria": "Uključi tamni način"
+  }
+}

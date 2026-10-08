@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Ranný dom",
+      "first_unlock_message": "Ranný dom na teba čaká",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Ranný dom vie, že si tu.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Zapne sa jemné svetlo.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Dvere",
+          "always_active": true,
+          "ambient_message_sv": "Dvere sa trochu zatrasú — akoby vonku niekto čakal.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Vonku čaká záhrada…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Záhrada",
+      "first_unlock_message": "Záhrada na teba čaká",
+      "ambient_message_sv": "Tráva sa pomaly hýbe vo vánku.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Chodník",
+          "emoji": "🌿",
+          "ambient_message_sv": "Chodník vedie hlbšie do záhrady.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Chodník vedie do teplej izby plnej spomienok…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Záhon",
+          "emoji": "🪴",
+          "ambient_message_sv": "Hlina je mäkká a teplá.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Obloha",
+          "emoji": "☁️",
+          "ambient_message_sv": "Oblaky sa pomaly hýbu.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Spomienková izba",
+      "first_unlock_message": "Tu je to, čo ťa teší.",
+      "ambient_message_sv": "Je tu teplo a bezpečne.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Okno",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Svetlo padá jemne dnu."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Stena spomienok",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Tu visí to, na čom ti záleží."
+        }
+      ]
+    }
+  ]
+}

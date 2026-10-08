@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Следваща дейност</string>
+    <string name="widget_routine_description">Завърши следващата стъпка от рутината, без да отваряш цялото приложение.</string>
+    <string name="widget_cd_pictogram">Символ на дейността</string>
+    <string name="widget_cd_complete">Отбележи дейността като готова</string>
+    <string name="widget_cd_open_app">Отвори в приложението</string>
+    <string name="widget_action_complete">Готово</string>
+    <string name="widget_action_open_timer">Отвори пясъчния часовник</string>
+    <string name="widget_action_show_steps">Покажи стъпките</string>
+    <string name="widget_action_open_app">Отвори приложението</string>
+    <string name="widget_loading">Зареждане…</string>
+    <string name="widget_all_done">Всичко е готово за днес!</string>
+    <string name="widget_nothing_now">Нищо в момента</string>
+    <string name="widget_offline">Няма връзка</string>
+    <string name="widget_reauth">Влез в приложението</string>
+    <string name="widget_revoked">Достъпът на устройството е спрян</string>
+    <string name="widget_switching">Смяна на детето…</string>
+    <string name="widget_feedback_done">✓ Готово!</string>
+    <string name="widget_feedback_done_for">✓ Готово за %1$s</string>
+    <string name="widget_cd_child_prev">Предишно дете</string>
+    <string name="widget_cd_child_next">Следващо дете</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d от %2$d готови</string>
+    <string name="widget_private_activity">Следваща стъпка</string>
+    <string name="widget_configure_title">Избери уиджета</string>
+    <string name="widget_configure_personal">Личен (едно дете)</string>
+    <string name="widget_configure_family">Семейство (смяна на дете)</string>
+    <string name="widget_configure_save">Запази</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

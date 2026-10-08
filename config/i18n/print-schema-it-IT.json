@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Crea PDF — piano — {{brand}}",
+  "backLink": "← Torna al Piano",
+  "heading": "📄 Crea PDF — piano",
+  "intro": "Scegli un bambino e un periodo. L'anteprima mostra il piano completo — il PDF si adatta da solo a un foglio A4 in orizzontale.",
+  "pdfSave": {
+    "title": "Dove viene salvato il PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Dopo <em>Crea PDF</em> si apre il foglio di condivisione — scegli <strong>Salva su File</strong> e una cartella (per esempio iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computer:</strong> Il PDF va nella cartella <strong>Download</strong> (spesso in basso a sinistra nel browser)."
+  },
+  "sections": {
+    "child": "Bambino",
+    "period": "Periodo",
+    "scope": "Cosa deve includere il PDF?",
+    "startWeek": "Settimana di partenza"
+  },
+  "period": {
+    "1w": "1 settimana",
+    "2w": "2 settimane",
+    "1m": "1 mese"
+  },
+  "scope": {
+    "all": "Piano completo",
+    "my": "Solo i miei giorni"
+  },
+  "weekNav": {
+    "prevAria": "Settimana precedente",
+    "nextAria": "Settimana successiva",
+    "today": "Questa settimana"
+  },
+  "actions": {
+    "preview": "Anteprima",
+    "createPdf": "Crea PDF"
+  },
+  "preview": {
+    "heading": "Anteprima",
+    "hint": "Scorri in basso se un giorno ha molte attività."
+  },
+  "pdfHelp": {
+    "title": "Come salvare il PDF",
+    "closeAria": "Chiudi",
+    "ok": "OK, capito",
+    "introShare": "Il foglio di condivisione è aperto. Scegli Salva su File per salvare il PDF.",
+    "introPreview": "Il PDF si è aperto nel browser{{filename}}.",
+    "introDesktop": "Il PDF è stato scaricato{{filename}}.",
+    "filenameSuffix": " come {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Nel foglio di condivisione: scorri e tocca <strong>Salva su File</strong>.",
+      "Scegli una cartella (per esempio <strong>iCloud Drive</strong> o <strong>Sul mio iPhone</strong>).",
+      "Tocca <strong>Salva</strong> in alto a destra.",
+      "Poi trovi il file nell'app <strong>File</strong>."
+    ],
+    "previewSteps": [
+      "Il PDF si è aperto in una nuova vista — tocca <strong>Condividi</strong> (↑) in alto a destra.",
+      "Scegli <strong>Salva su File</strong>.",
+      "Scegli una cartella e tocca <strong>Salva</strong>."
+    ],
+    "desktopSteps": [
+      "Apri la cartella <strong>Download</strong> sul computer.",
+      "Cerca un file che inizia con <strong>{{prefix}}</strong> e la data di oggi."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Piano",
+    "titleMyDays": "I miei giorni",
+    "emptyCell": "–",
+    "childFallback": "Bambino",
+    "loadingPrint": "Preparazione della stampa…",
+    "iframeTitle": "Stampa"
+  },
+  "filename": {
+    "prefixSchedule": "piano-settimanale",
+    "prefixMyDays": "i-miei-giorni",
+    "fallbackSlug": "bambino"
+  },
+  "toasts": {
+    "loadChildrenError": "Impossibile caricare i bambini",
+    "selectChild": "Prima scegli un bambino",
+    "loadingPreview": "Caricamento dell'anteprima…",
+    "noMyDays": "Nessun giorno tuo nel periodo scelto",
+    "loadScheduleError": "Impossibile caricare il piano",
+    "creatingPdf": "Creazione del PDF…",
+    "pdfCancelled": "Salvataggio del PDF annullato",
+    "shareHint": "Nel foglio di condivisione scegli Salva su File",
+    "mobileSavedHint": "PDF pronto — salvalo in File",
+    "desktopSavedHint": "PDF salvato in Download",
+    "pdfLibsMissing": "Mancano gli strumenti PDF — ricarica la pagina e riprova",
+    "createPdfError": "Impossibile creare il PDF",
+    "shareAgain": "Il PDF è pronto. Tocca di nuovo Crea PDF per scegliere dove salvarlo."
+  },
+  "empty": {
+    "noChildren": "Nessun bambino aggiunto.",
+    "goDashboard": "Vai a Casa"
+  }
+}

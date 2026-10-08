@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Επόμενη δραστηριότητα</string>
+    <string name="widget_routine_description">Ολοκλήρωσε το επόμενο βήμα της ρουτίνας χωρίς να ανοίξεις όλη την εφαρμογή.</string>
+    <string name="widget_cd_pictogram">Σύμβολο δραστηριότητας</string>
+    <string name="widget_cd_complete">Σημείωσε τη δραστηριότητα ως έτοιμη</string>
+    <string name="widget_cd_open_app">Άνοιγμα στην εφαρμογή</string>
+    <string name="widget_action_complete">Έγινε</string>
+    <string name="widget_action_open_timer">Άνοιξε το χρονόμετρο</string>
+    <string name="widget_action_show_steps">Δείξε τα βήματα</string>
+    <string name="widget_action_open_app">Άνοιξε την εφαρμογή</string>
+    <string name="widget_loading">Φόρτωση…</string>
+    <string name="widget_all_done">Όλα έτοιμα για σήμερα!</string>
+    <string name="widget_nothing_now">Τίποτα αυτή τη στιγμή</string>
+    <string name="widget_offline">Χωρίς σύνδεση</string>
+    <string name="widget_reauth">Συνδέσου στην εφαρμογή</string>
+    <string name="widget_revoked">Η πρόσβαση της συσκευής ανακλήθηκε</string>
+    <string name="widget_switching">Αλλαγή παιδιού…</string>
+    <string name="widget_feedback_done">✓ Έγινε!</string>
+    <string name="widget_feedback_done_for">✓ Έγινε για %1$s</string>
+    <string name="widget_cd_child_prev">Προηγούμενο παιδί</string>
+    <string name="widget_cd_child_next">Επόμενο παιδί</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d από %2$d έτοιμα</string>
+    <string name="widget_private_activity">Επόμενο βήμα</string>
+    <string name="widget_configure_title">Διάλεξε γραφικό στοιχείο</string>
+    <string name="widget_configure_personal">Προσωπικό (ένα παιδί)</string>
+    <string name="widget_configure_family">Οικογένεια (αλλαγή παιδιού)</string>
+    <string name="widget_configure_save">Αποθήκευση</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

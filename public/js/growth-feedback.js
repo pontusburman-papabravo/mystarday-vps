@@ -20,6 +20,19 @@
     return 'sv-SE';
   }
 
+  function chromeText(key, fallbackSv, fallbackEn) {
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t('growthFeedback.' + key);
+      if (value && value !== 'growthFeedback.' + key) return value;
+    }
+    const tag = String(locale() || '');
+    const configured = (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
+    const base = tag.split(/[-_]/)[0].toLowerCase();
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    if (!tag || base === configuredBase) return fallbackSv;
+    return fallbackEn;
+  }
+
   function platform() {
     if (window.UtmCapture && UtmCapture.detectPlatform) return UtmCapture.detectPlatform();
     return 'web';
@@ -116,10 +129,11 @@
       commentEl.maxLength = 500;
       commentEl.className =
         'w-full mb-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700';
-      commentEl.placeholder =
-        locale().indexOf('en') === 0
-          ? 'Optional short comment (sent with your answer)'
-          : 'Valfri kort kommentar (skickas med ditt svar)';
+      commentEl.placeholder = chromeText(
+        'commentPlaceholder',
+        'Valfri kort kommentar (skickas med ditt svar)',
+        'Optional short comment (sent with your answer)'
+      );
       commentEl.setAttribute('aria-label', commentEl.placeholder);
       card.appendChild(commentEl);
     }
@@ -145,7 +159,7 @@
     const dismiss = document.createElement('button');
     dismiss.type = 'button';
     dismiss.className = 'mt-2 block min-h-[44px] text-xs text-slate-500';
-    dismiss.textContent = locale().indexOf('en') === 0 ? 'Not now' : 'Inte nu';
+    dismiss.textContent = chromeText('notNow', 'Inte nu', 'Not now');
     dismiss.addEventListener('click', function () {
       markDismissed(prompt.promptKey);
       try {
@@ -181,7 +195,7 @@
       if (root) {
         root.innerHTML =
           '<p class="text-sm text-slate-600 px-1">' +
-          (locale().indexOf('en') === 0 ? 'Thank you for the feedback.' : 'Tack för feedbacken.') +
+          chromeText('thanks', 'Tack för feedbacken.', 'Thank you for the feedback.') +
           '</p>';
       }
     } catch (_) {

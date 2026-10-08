@@ -15,7 +15,7 @@ const {
   SUPPORTED_LOCALES,
 } = require('../src/lib/locale');
 
-const { loadLocales, t, getLocale, compareLocaleStructures } = require('../src/lib/i18n');
+const { loadLocales, t, getLocale, compareLocaleStructures, auditTranslationContract } = require('../src/lib/i18n');
 const { loadDefaultContent } = require('../src/lib/default-content');
 
 describe('locale normalization', () => {
@@ -27,24 +27,24 @@ describe('locale normalization', () => {
   });
 
   it('rejects unsupported locales', () => {
-    assert.equal(normalizeLocale('fr-FR'), null);
+    assert.equal(normalizeLocale('fr-FR'), 'fr-FR');
     assert.equal(normalizeLocale(''), null);
   });
 
-  it('does not alias Finnish tags to sv-SE', () => {
-    assert.equal(normalizeLocale('fi'), null);
-    assert.equal(normalizeLocale('fi-FI'), null);
-    assert.equal(normalizeLocale('fi-fi'), null);
-    assert.equal(normalizeLocale('fi_FI'), null);
-    assert.equal(normalizeLocale('fi_fi'), null);
-    assert.equal(parseAcceptLanguage('fi'), null);
-    assert.equal(parseAcceptLanguage('fi-FI'), null);
-    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'en-GB');
-    assert.equal(parseAcceptLanguage('fi_FI'), null);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'en-GB');
-    assert.equal(SUPPORTED_LOCALES.includes('fi'), false);
-    assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), false);
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+  it('resolves Finnish to fi-FI and never to sv-SE', () => {
+    assert.equal(normalizeLocale('fi'), 'fi-FI');
+    assert.equal(normalizeLocale('fi-FI'), 'fi-FI');
+    assert.equal(normalizeLocale('fi-fi'), 'fi-FI');
+    assert.equal(normalizeLocale('fi_FI'), 'fi-FI');
+    assert.equal(normalizeLocale('fi_fi'), 'fi-FI');
+    assert.notEqual(normalizeLocale('fi-FI'), 'sv-SE');
+    assert.equal(parseAcceptLanguage('fi'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi-FI'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,en;q=0.8'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi_FI'), 'fi-FI');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi-FI,en-GB;q=0.8' }), 'fi-FI');
+    assert.equal(SUPPORTED_LOCALES.includes('fi-FI'), true);
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL', 'cs-CZ', 'sk-SK', 'sl-SI', 'hr-HR', 'hu-HU', 'ro-RO', 'bg-BG', 'el-GR', 'et-EE', 'lt-LT', 'lv-LV', 'is-IS', 'ga-IE', 'mt-MT']);
   });
 
   it('validateLocale falls back to sv-SE', () => {
@@ -85,10 +85,10 @@ describe('family locale', () => {
     assert.ok(journeyLocaleCandidates('en-GB').includes('en-GB'));
   });
 
-  it('experiencePackIdForLocale defaults en-GB to child_se until child flag on', () => {
-    assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
+  it('experiencePackIdForLocale follows the catalog pack for en-GB', () => {
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
     assert.equal(
-      experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }),
+      experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }),
       'child_en'
     );
     assert.equal(experiencePackIdForLocale('sv-SE'), 'child_se');
@@ -112,6 +112,8 @@ describe('i18n bundles', () => {
     const { missingInEn, missingInSv } = compareLocaleStructures();
     assert.deepEqual(missingInEn, [], `en-GB missing keys: ${missingInEn.join(', ')}`);
     assert.deepEqual(missingInSv, [], `sv-SE missing keys: ${missingInSv.join(', ')}`);
+    const contract = auditTranslationContract();
+    assert.equal(contract.ok, true, contract.errors.slice(0, 20).join('\n'));
   });
 
   it('t() returns en-GB app name when key exists', () => {

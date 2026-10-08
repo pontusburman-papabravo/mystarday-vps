@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Kelkis",
+    "icon": "🛏️",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Apsirenk",
+    "icon": "🌟",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Išsivalyk dantis",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Papusryčiauk",
+    "icon": "🍳",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Darželis/Mokykla",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Žaisk lauke",
+    "icon": "🛝",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Darbeliai",
+    "icon": "🎨",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Užkandis",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Žaisk",
+    "icon": "🧩",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Sportas/Veikla",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vakarienė",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Išsivalyk dantis (vakaras)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pižama",
+    "icon": "🧸",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pasaka prieš miegą",
+    "icon": "📕",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Miegok",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 4,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Kelkis ir apsirenk",
+    "icon": "🌅",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Pusryčiai",
+    "icon": "🥣",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Išsivalyk dantis",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Susidėk kuprinę",
+    "icon": "🎒",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Mokykla",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 2,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Pertrauka ir žaidimas",
+    "icon": "⚽",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Užkandis",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Namų darbai",
+    "icon": "📚",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Būrelis",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Vakarienė",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Išsivalyk dantis (vakaras)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Skaitymas",
+    "icon": "📖",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Miegok",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  }
+]

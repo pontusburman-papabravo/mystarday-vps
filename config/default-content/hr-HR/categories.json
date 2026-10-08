@@ -1,0 +1,8 @@
+[
+  { "key": "forskola", "name": "Vrtić", "sort_order": 0 },
+  { "key": "skola", "name": "Škola", "sort_order": 1 },
+  { "key": "morgon", "name": "Jutro", "sort_order": 2 },
+  { "key": "dag", "name": "Dan", "sort_order": 3 },
+  { "key": "kvall", "name": "Večer", "sort_order": 4 },
+  { "key": "helg", "name": "Vikend", "sort_order": 5 }
+]

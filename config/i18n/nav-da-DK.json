@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Hjem",
+    "planning": "Planlægning",
+    "rewards": "Belønninger",
+    "forYou": "Til dig",
+    "family": "Familie"
+  },
+  "settings": "Indstillinger",
+  "mainAria": "Hovednavigation",
+  "notifications": "Notifikationer",
+  "share": "Del",
+  "logout": "Log ud",
+  "switchUser": "Skift profil",
+  "returnToChild": "Tilbage til barn",
+  "darkMode": "Mørk tilstand",
+  "lightMode": "Lys tilstand",
+  "overview": "Overblik",
+  "dailyLog": "I dag",
+  "weekSchedule": "Skema",
+  "reports": "Rapporter",
+  "library": "Bibliotek",
+  "libraryAdvanced": "📚 Bibliotek (avanceret)",
+  "pedagogNotes": "📝 Pædagognoter",
+  "treasureChest": "Stjernekiste",
+  "familySettings": "Familie og indstillinger",
+  "capability": {
+    "subscription": "Abonnement",
+    "reports": "Rapporter",
+    "samarbete": "Samarbejde med pædagog",
+    "barnStod": "Ekstra støtte"
+  },
+  "header": {
+    "notifications": "Notifikationer",
+    "settings": "Indstillinger",
+    "share": "Del",
+    "shareTitle": "Fortæl en familie om appen!",
+    "shareAria": "Del"
+  },
+  "avatar": {
+    "switchPedagog": "Skift til pædagogvisning",
+    "subscription": "Abonnement",
+    "settings": "Indstillinger",
+    "logout": "Log ud"
+  },
+  "mobile": {
+    "openMenu": "Åbn menu",
+    "darkModeTitle": "Mørk tilstand",
+    "darkModeAria": "Slå mørk tilstand til eller fra"
+  }
+}

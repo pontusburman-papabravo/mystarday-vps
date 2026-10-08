@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Palīdzība",
+    "openAria": "Atvērt palīdzību",
+    "closeAria": "Aizvērt palīdzību"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Palīdzība – Kopsavilkums",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Kopsavilkums",
+          "faqs": [
+            {
+              "q": "Ko dara 3 ātrās pogas augšā?",
+              "a": "<strong>⭐ Dot papildu zvaigznes</strong> — iedod bērnam papildu zvaigznes pats. <strong>📋 Vienreizēja aktivitāte</strong> — pievieno pagaidu aktivitāti šodienai. <strong>🏠 Brīvdiena</strong> — aptur bērna plānu uz dienu (piemēram, slimības diena, brīvdiena)."
+            },
+            {
+              "q": "Kā atzīmēt aktivitāti?",
+              "a": "Pieskaries aktivitātei bērna kartītē — tā atzīmējas uzreiz. Bērns var atzīmēt arī savā <strong>bērna skatā</strong>."
+            },
+            {
+              "q": "Kas ir kompakta bērna kartīte?",
+              "a": "Bērna kartīte kompaktajā režīmā rāda attēlu, vārdu, zvaigžņu atlikumu un sadaļu pogas. Izvērs kartīti, lai redzētu vairāk, saiti uz plānu un apturēšanas pogu."
+            },
+            {
+              "q": "Kas ir brīvdiena?",
+              "a": "<strong>🏠 Brīvdiena</strong> aptur bērna plānu izvēlētajai dienai — noder, kad bērns slimo vai ir brīvdienās. Bērns redz plānu kā neaktīvu. Ieslēdz dienu atpakaļ ar to pašu pogu."
+            },
+            {
+              "q": "Kas ir apturētais režīms?",
+              "a": "Pieskaries pauzes ikonai (⏸) uz bērna kartītes, lai apturētu bērnu. Aktivitātes rādās kā neaktīvas, un bērns nepelna zvaigznes, kamēr neatsāc."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvaigznes",
+          "faqs": [
+            {
+              "q": "Kā bērns nopelna zvaigznes?",
+              "a": "Katra paveiktā aktivitāte dod <strong>1 zvaigzni</strong>. Bērns atzīmē bērna skatā — vai tu vari atzīmēt Dienas pierakstā, kamēr mēģināt. Papildu zvaigznes dod ar ⭐ pogu virs bērnu kartītēm."
+            },
+            {
+              "q": "Kā darbojas Dārgumu lāde?",
+              "a": "Bērns atver Dārgumu lādi ar 💎 cilni bērna skatā un redz balvas ar zvaigžņu cenām. Kad ir sakrājis pietiekami, var lūgt balvu — tu to apstiprini."
+            },
+            {
+              "q": "Kā pievienot balvas?",
+              "a": "Ej uz <strong>Bibliotēku</strong> izvēlnē → cilne „Balvas”. Pievieno savas balvas, labo zvaigžņu cenu un izvēlies, kuri bērni tās redz."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plāns",
+          "faqs": [
+            {
+              "q": "Kā pievienot aktivitāti?",
+              "a": "Ej uz <strong>Nedēļas plānu</strong> → izvēlies bērnu → izvēlies dienu → pieskaries „+”, lai pievienotu aktivitāti no bibliotēkas. Vari meklēt starp 63 standarta aktivitātēm."
+            },
+            {
+              "q": "Kā nokopēt plānu uz katru dienu?",
+              "a": "Nedēļas plānā → „Kopēt no…” → izvēlies avotu (savu plānu vai standarta bibliotēku) → atzīmē dienas, uz kurām gribi kopēt."
+            },
+            {
+              "q": "Kas ir skats Šodien?",
+              "a": "Kopsavilkuma skats „Šodien” atjauninās pats, kad maini plānu. Izmaiņas Nedēļas plānā uzreiz redzamas Kopsavilkumā un bērna skatā."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Ģimene",
+          "faqs": [
+            {
+              "q": "Kā uzaicināt vēl vienu pieaugušo?",
+              "a": "Ej uz <strong>Ģimene un iestatījumi → Ģimenes locekļi</strong> → pieskaries „Uzaicināt”. Uzaicinātais saņem e-pastu ar pieslēgšanās saiti."
+            },
+            {
+              "q": "Kā redzēt bērna dienu?",
+              "a": "Atver <strong>Dienas pierakstu</strong> izvēlnē — tur redzi šodienas aktivitātes tā, kā tās redzēs bērns. Noder pirmajā vakarā, pirms bērns pieslēdzas pats."
+            },
+            {
+              "q": "Kā bērns pieslēdzas?",
+              "a": "Kad esi gatavs: bērns pieslēdzas <strong>/child-login</strong> ar lietotājvārdu un PIN. Datus atradīsi sadaļā <strong>Ģimene un iestatījumi → Bērni</strong>."
+            },
+            {
+              "q": "Sazināties ar atbalstu",
+              "a": "Raksti mums uz <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — atbildam 24 stundu laikā."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Palīdzība – Balvas",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Balvas",
+          "faqs": [
+            {
+              "q": "Kā darbojas balvu sistēma?",
+              "a": "Bērns krāj zvaigznes, paveicot aktivitātes. Kad zvaigžņu atlikums pietiek balvai, viņš var lūgt to izpirkt — tu apstiprini vai noraidi."
+            },
+            {
+              "q": "Kā pievienot jaunas balvas?",
+              "a": "Ej uz <strong>Bibliotēku</strong> izvēlnē → cilne „Balvas” → meklē vai pieskaries „+ Pievienot balvu”. Vari arī kopēt tieši no standarta bibliotēkas."
+            },
+            {
+              "q": "Kā noteikt, kurš bērns redz balvu?",
+              "a": "Veidojot vai labojot balvu, izvēlies, kuri bērni to redz. Noder balvām, kas pielāgotas katram bērnam."
+            },
+            {
+              "q": "Kā apstiprināt izpirkšanas pieprasījumu?",
+              "a": "Bērna pieprasījums rādās Kopsavilkumā ar atzīmi. Pieskaries, lai apstiprinātu. Zvaigznes tiek noņemtas automātiski, un bērns izmaiņu redz uzreiz."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Zvaigznes",
+          "faqs": [
+            {
+              "q": "Kā bērns nopelna zvaigznes?",
+              "a": "Katra paveiktā aktivitāte dod zvaigznes (pēc noklusējuma 1 zvaigzne par aktivitāti). Vari arī dot papildu zvaigznes ar ⭐ pogu Kopsavilkumā."
+            },
+            {
+              "q": "Kas ir zvaigžņu atlikums pret dienas progresu?",
+              "a": "<strong>Zvaigžņu atlikums</strong> = kopējais sakrātais. <strong>Dienas progress</strong> (gredzens ap emocijzīmi) = cik aktivitāšu bērns šodien paveicis. Tie ir atsevišķi."
+            },
+            {
+              "q": "Kas notiek, kad balva ir izpirkta?",
+              "a": "Zvaigznes automātiski tiek noņemtas no bērna konta. Bērns izmaiņu uzreiz redz Dārgumu lādē. Tu redzi vēsturi Balvu lapā."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Palīdzība – Nedēļas plāns",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Labot plānu",
+          "faqs": [
+            {
+              "q": "Kā pievienot aktivitāti?",
+              "a": "Izvēlies dienu → pieskaries „+” → meklē un izvēlies aktivitāti. Vari izvēlēties <strong>vairākus laika posmus uzreiz</strong> (Rīts + Vakars), un aktivitāte tiek pievienota visiem."
+            },
+            {
+              "q": "Kā izveidot jaunu aktivitāti tieši plānā?",
+              "a": "Pieskaries „+” → meklē → ja nekas neatbilst, meklēšanas logā parādās forma „Izveidot jaunu”. Aizpildi nosaukumu, emocijzīmi, zvaigžņu vērtību un soļus, ja vajag."
+            },
+            {
+              "q": "Kā labot aktivitātes nosaukumu vai emocijzīmi?",
+              "a": "Pieskaries aktivitātes nosaukumam vai emocijzīmei plānā → atveras labošanas logs. Izmaiņas attiecas uz visiem bērniem un dienām."
+            },
+            {
+              "q": "Kā nokopēt plānu no cita bērna?",
+              "a": "Pieskaries „Kopēt no…” → izvēlies avotu → atzīmē nedēļas dienas, uz kurām gribi kopēt. Izvēlies, vai pārrakstīt esošo saturu."
+            },
+            {
+              "q": "Vai plāns pats nonāk bērna skatā?",
+              "a": "Jā! Izmaiņas Nedēļas plānā uzreiz nonāk skatā „Šodien” Kopsavilkumā un bērna skatā — nekas nav jāatjaunina ar roku."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliotēka",
+          "faqs": [
+            {
+              "q": "Kas ir standarta bibliotēka?",
+              "a": "Standarta bibliotēkā ir 63 gatavas aktivitātes 6 kategorijās un 5 plānu veidnes. Pieskaries „Ātri ievietot no bibliotēkas”, lai pievienotu tās plānam."
+            },
+            {
+              "q": "Kā nokopēt standarta plānu?",
+              "a": "Cilnē Plāns → „Kopēt no…” → izvēlies „Standarta bibliotēka” → izvēlies plānu → izvēlies dienas → kopē."
+            },
+            {
+              "q": "Kāpēc bērns neredz nevienu aktivitāti?",
+              "a": "Pārbaudi, ka plāns ir iestatīts pareizajam bērnam un ka šodienas dienai ir aktivitātes. Tukšs plāns? Kopē no standarta bibliotēkas, lai ātri sāktu."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Padomi",
+          "faqs": [
+            {
+              "q": "Kā veidot labu rutīnas plānu?",
+              "a": "Sāc ar 3–5 pastāvīgām aktivitātēm (brokastis, zobu tīrīšana, mājasdarbi). Liec tās pareizā secībā. Bērni rutīnu ātri iemācās, ja tā paliek nemainīga."
+            },
+            {
+              "q": "Kas ir aktivitāšu soļi?",
+              "a": "Aktivitātēm vari pievienot soļus (piemēram, „Nomazgā rokas”, „Uzvelc pidžamu” zem „Vakara rutīna”). Bērns tos redz kā vizuālu palīgu, bet atzīmē visu aktivitāti vienā reizē."
+            },
+            {
+              "q": "Cik aktivitāšu dienā?",
+              "a": "Ieteicams: 4–8 aktivitātes. Par maz — nav ritma; par daudz — kļūst par smagu. Sāc maz un audzē."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Palīdzība – Ģimene un iestatījumi",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Bērni",
+          "faqs": [
+            {
+              "q": "Kā pievienot bērnu?",
+              "a": "Ej uz Kopsavilkumu → pieskaries „+ Pievienot bērnu”. Aizpildi vārdu, emocijzīmi un dzimšanas dienu. Bērns automātiski saņem plānu pēc vecuma."
+            },
+            {
+              "q": "Kā nomainīt bērna PIN?",
+              "a": "Pieskaries bērna kartītei → cilne „Iestatījumi” → „Mainīt PIN”. Izvēlies jaunu 4 ciparu PIN."
+            },
+            {
+              "q": "Bērnam aktivitātes jādara secībā — vai to var mainīt?",
+              "a": "Pēc noklusējuma atzīmēšana ir brīva. Vadītai secībai ej uz bērna profilu → cilne <strong>Iestatījumi</strong> → ieslēdz <strong>TAGAD / PĒC TAM / VĒLĀK</strong>."
+            },
+            {
+              "q": "Kā bērns redz savus pieslēgšanās datus?",
+              "a": "Pieskaries bērna kartītei → cilne „Iestatījumi” → „Rādīt pieslēgšanās datus”. Redzēsi bērna lietotājvārdu un PIN."
+            },
+            {
+              "q": "Kā noņemt bērnu?",
+              "a": "Ģimene → izvēlies bērnu → cilne Iestatījumi → „Dzēst bērnu neatgriezeniski”. Ņem vērā: visa plāna, zvaigžņu un balvu vēsture tiek dzēsta, un to nevar atsaukt."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Pieaugušie",
+          "faqs": [
+            {
+              "q": "Kā uzaicināt vēl vienu pieaugušo?",
+              "a": "Ej uz cilni <strong>Ģimenes locekļi</strong> → „Uzaicināt”. Uzaicinātais saņem e-pastu ar saiti konta izveidei."
+            },
+            {
+              "q": "Vai varu izvēlēties, kurus bērnus pieaugušais redz?",
+              "a": "Jā! Sūtot uzaicinājumu, izvēlies, kuriem bērniem būs piekļuve. Vēlāk vari mainīt sadaļā Ģimenes locekļi → persona → Bērnu piekļuve."
+            },
+            {
+              "q": "Kā noņemt ģimenes locekli?",
+              "a": "Pieskaries personai Ģimenes locekļu sarakstā → „Noņemt”. Piekļuve ģimenei pazūd uzreiz."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Iestatījumi",
+          "faqs": [
+            {
+              "q": "Kā nomainīt paroli?",
+              "a": "Ej uz <strong>Iestatījumiem</strong> (⚙️) izvēlnē → „Mainīt paroli”. Vajadzēs pašreizējo paroli."
+            },
+            {
+              "q": "Kā ieslēgt paziņojumus?",
+              "a": "Ej uz Iestatījumiem → „Atgādinājumi” → ieslēdz paziņojumus un izvēlies laikus. Paziņojumiem vajag pārlūka atļauju."
+            },
+            {
+              "q": "Sazināties ar atbalstu",
+              "a": "Raksti mums uz <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — atbildam 24 stundu laikā."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Palīdzība – Aktivitātes",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Pārvaldīt",
+          "faqs": [
+            {
+              "q": "Kas ir aktivitāte?",
+              "a": "<strong>Aktivitāte</strong> ir uzdevums, ko bērns dara (piemēram, „Tīri zobus”). Aktivitātes dod 1–5 zvaigznes, un tām var būt soļi. Krāj tās bibliotēkā un pievieno bērnu plāniem."
+            },
+            {
+              "q": "Kā izveidot jaunu aktivitāti?",
+              "a": "Pieskaries „+ Jauna aktivitāte” → aizpildi nosaukumu, kategoriju (Higiēna, Ēdiens, Rotaļa utt.), ilgumu un zvaigžņu vērtību. Saglabā, un aktivitāte nonāk bibliotēkā."
+            },
+            {
+              "q": "Kā pievienot aktivitāti plānam?",
+              "a": "Aktivitātes dzīvo bibliotēkā. Ej uz Nedēļas plānu → izvēlies dienu → „+” → izvēlies aktivitāti, ko gribi pievienot."
+            },
+            {
+              "q": "Kā noņemt aktivitāti no katras dienas?",
+              "a": "Pieskaries ✕ pie aktivitātes → izvēlies <strong>Katra nedēļas diena</strong>. Lai noņemtu tikai šodienu vai vienu nedēļas dienu (piemēram, katru ceturtdienu), ir atsevišķas iespējas."
+            },
+            {
+              "q": "Kā labot aktivitāti?",
+              "a": "Pieskaries aktivitātei sarakstā → „Labot”. Izmaiņas uzreiz attiecas uz katru plānu, kur aktivitāte ir."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorijas",
+          "faqs": [
+            {
+              "q": "Kam domātas kategorijas?",
+              "a": "Kategorijas iekrāso aktivitātes bērna skatā. <strong>Higiēna</strong>=zila, <strong>Ēdiens</strong>=dzeltena, <strong>Rotaļa</strong>=zaļa, <strong>Skola</strong>=violeta, <strong>Kustība</strong>=sarkana, <strong>Atpūta</strong>=pelēka, <strong>Sociālais</strong>=oranža."
+            },
+            {
+              "q": "Kā izvēlēties kategoriju?",
+              "a": "Veidojot vai labojot aktivitāti, izvēlies kategoriju nolaižamajā sarakstā. Izvēlies to, kas aktivitāti apraksta vislabāk."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Palīdzība – Bibliotēka",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Cilnes",
+          "faqs": [
+            {
+              "q": "Kādas cilnes ir bibliotēkā?",
+              "a": "<strong>Plāni</strong> — tavas plānu veidnes. <strong>Aktivitātes</strong> — aktivitāšu bibliotēka ar soļiem. <strong>Balvas</strong> — tavas balvas. <strong>Standarta bibliotēka</strong> — 63 aktivitātes, 15 balvas un 5 plāni, no kuriem kopēt."
+            },
+            {
+              "q": "Kā kopēt no standarta bibliotēkas?",
+              "a": "Ej uz cilni „Standarta bibliotēka” → izvēlies aktivitāti vai balvu → pieskaries 📥 pogai, lai kopētu uz ģimenes bibliotēku. Plānus kopē caur Nedēļas plānu → „Kopēt no…”."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Aktivitātes",
+          "faqs": [
+            {
+              "q": "Kā izveidot jaunu aktivitāti?",
+              "a": "Pieskaries „+ Jauna aktivitāte” → aizpildi nosaukumu, emocijzīmi (izvēlies vai ieraksti savu), zvaigžņu vērtību un soļus, ja vajag → saglabā. Aktivitāte saglabājas bibliotēkā visai ģimenei."
+            },
+            {
+              "q": "Kas ir soļi?",
+              "a": "Soļi ir norādes pa soļiem zem aktivitātes (piemēram, „Nomazgā rokas” zem „Higiēna”). Bērns tos redz kā palīgu, bet atzīmē visu aktivitāti ar vienu pieskārienu."
+            },
+            {
+              "q": "Kā labot aktivitāti?",
+              "a": "Pieskaries aktivitātes nosaukumam plānā — atveras labošanas logs. Izmaiņas (nosaukums, emocijzīme, soļi) attiecas uz visiem bērniem un dienām."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Balvas",
+          "faqs": [
+            {
+              "q": "Kā pievienot balvu?",
+              "a": "Cilne „Balvas” → meklē balvu → pieskaries „+ Izveidot jaunu”, ja tās nav → aizpildi nosaukumu, emocijzīmi, zvaigžņu cenu → izvēlies, kuri bērni to redz → saglabā."
+            },
+            {
+              "q": "Kā meklēt balvas?",
+              "a": "Meklēšanas lauks vienlaikus skatās tavās balvās UN standarta bibliotēkā. Nav atbilstības? Poga „Izveidot [nosaukumu]” atver aizpildītu formu."
+            },
+            {
+              "q": "Vai bērnam var būt savas balvas?",
+              "a": "Jā! Veidojot balvu, izvēlies, kuri bērni to redz. Noder balvām, kas pielāgotas katram bērnam."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Palīdzība – Iestatījumi",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Konts",
+          "faqs": [
+            {
+              "q": "Kā nomainīt paroli?",
+              "a": "Ievadi pašreizējo paroli un jauno paroli → pieskaries „Saglabāt”. Parolei jābūt vismaz 6 rakstzīmēm."
+            },
+            {
+              "q": "Kā nomainīt e-pasta adresi?",
+              "a": "Ievadi jauno e-pasta adresi → pieskaries „Saglabāt”. Jauno adresi var nākties apstiprināt ar e-pastu."
+            },
+            {
+              "q": "Kā dzēst kontu?",
+              "a": "Raksti mums uz <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a>, lai dzēstu kontu. Izdarām to 48 stundu laikā."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Paziņojumi",
+          "faqs": [
+            {
+              "q": "Kā ieslēgt atgādinājumus?",
+              "a": "Ieslēdz slēdzi sadaļā „Atgādinājumi” → izvēlies laiku un dienas. Pārlūkam jāatļauj paziņojumi."
+            },
+            {
+              "q": "Nesaņemu paziņojumus, lai gan tie ir ieslēgti",
+              "a": "Pārbaudi, ka pārlūks ir atļāvis paziņojumus vietnei. Ej uz pārlūka iestatījumiem → Paziņojumi → atrodi [REDACTED].se → Atļaut."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Palīdzība – Kalendārs",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendārs",
+          "faqs": [
+            {
+              "q": "Ko rāda kalendārs?",
+              "a": "Kalendārs dod mēneša pārskatu par bērna aktivitātēm, izpirktajām balvām un svarīgiem notikumiem."
+            },
+            {
+              "q": "Kā pāriet starp mēnešiem?",
+              "a": "Pieskaries bultiņām (< >) pie mēneša nosaukuma, lai mainītu mēnesi."
+            },
+            {
+              "q": "Kā redzēt vairāk par dienu?",
+              "a": "Pieskaries datumam, lai redzētu detalizētu aktivitāšu un zvaigžņu sarakstu tai dienai."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Palīdzība – Dienas pieraksts",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Pieraksts",
+          "faqs": [
+            {
+              "q": "Kas ir dienas pieraksts?",
+              "a": "Pieraksts rāda bērna dienu — aktivitātes, atzīmes un zvaigznes. Lieto to, lai <strong>priekšskatītu</strong>, ko redz bērns, vai lai aizpildītu pēc tam."
+            },
+            {
+              "q": "Kā filtrēt pierakstu?",
+              "a": "Izvēlies bērnu filtrā augšā, lai rādītu pierakstu tikai vienam bērnam. Vari filtrēt arī pēc datuma."
+            },
+            {
+              "q": "Cik tālu atpakaļ varu skatīties?",
+              "a": "Pieraksts glabā datus no dienas, kad sāki lietot [REDACTED]. Ritinies vai izvēlies datumu, lai redzētu vecākus datus. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Palīdzība – Izvēlies plānu katrai dienai",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Piešķirt plānu",
+          "faqs": [
+            {
+              "q": "Kas ir „Izvēlies plānu katrai dienai”?",
+              "a": "Šeit izvēlies, kurš nedēļas plāns ir aktīvs katram bērnam un dienai. Noder, ja darbdienās un nedēļas nogalē ir dažādas rutīnas."
+            },
+            {
+              "q": "Vai bērnam var būt dažādi plāni darbdienās un nedēļas nogalē?",
+              "a": "Jā! Izvēlies vienu plānu pr.–pk. un citu se.–sv. Pieskaries dienai un izvēlies vajadzīgo plānu."
+            },
+            {
+              "q": "Kas notiek, ja dienai nav piešķirts plāns?",
+              "a": "Ja dienai nav piešķirts plāns, bērns tajā dienā neredz aktivitātes. Pārliecinies, ka katrai dienai, ko gribi lietot, ir piešķirts plāns."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Administratora panelis",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Kopsavilkums",
+          "faqs": [
+            {
+              "q": "Ko varu darīt administratora panelī?",
+              "a": "Administratora panelis dod piekļuvi visām ģimenēm, lietotājiem un sistēmas datiem. Vari skatīt statistiku, pārvaldīt kontus un moderēt saturu."
+            },
+            {
+              "q": "Kā atrast konkrētu lietotāju?",
+              "a": "Lieto meklēšanas lauku augšā, lai meklētu pēc e-pasta vai vārda. Pieskaries ģimenei, lai redzētu detaļas."
+            },
+            {
+              "q": "Kā arhivēt ģimeni?",
+              "a": "Pieskaries ģimenes kartītei → „Arhivēt”. Arhivētās ģimenes var atjaunot, bet līdz tam tās ir neaktīvas."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Atbalsts",
+          "faqs": [
+            {
+              "q": "Kā redzēt ienākošās atbalsta ziņas?",
+              "a": "Cilnē „Atbalsta iesūtne” redzi katru ziņu, kas sūtīta caur kontaktu formu. Pieskaries, lai izlasītu pilnu tekstu un atbildētu."
+            },
+            {
+              "q": "Kā atzīmēt lietu kā atrisinātu?",
+              "a": "Pieskaries lietai → „Atzīmēt kā atrisinātu”. Atrisinātās lietas pazūd no noklusējuma skata, bet tās var parādīt ar „Rādīt atrisinātās”."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Bērna atbalsts — {{brand}}",
+    "loadError": "Neizdevās ielādēt lapu."
+  },
+  "supportSvar": {
+    "pageTitle": "Tava lieta",
+    "title": "Tava lieta",
+    "intro": "Šeit ir visa saruna. Raksti zemāk, ja gribi turpināt. Parasta e-pasta atbilde šeit neparādās.",
+    "sent": "Nosūtīts. Redzēsim to tajā pašā lietā.",
+    "escalate": "Man vajag vairāk palīdzības no cilvēka",
+    "placeholder": "Uzraksti, kas notiek…"
+  }
+}

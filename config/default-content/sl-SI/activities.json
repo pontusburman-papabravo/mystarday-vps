@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Zbudi se",
+    "icon": "🛏️",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Obleci se",
+    "icon": "🌟",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Umij zobe",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pojej zajtrk",
+    "icon": "🍳",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Vrtec/Šola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Igraj se zunaj",
+    "icon": "🛝",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Ustvarjanje",
+    "icon": "🎨",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Malica",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Igra",
+    "icon": "🧩",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Gibanje/Dejavnost",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Večerja",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Umij zobe (večer)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pižama",
+    "icon": "🧸",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pravljica za lahko noč",
+    "icon": "📕",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Spanje",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 4,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Zbudi se in se obleci",
+    "icon": "🌅",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Zajtrk",
+    "icon": "🥣",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Umij zobe",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Spakiraj šolsko torbo",
+    "icon": "🎒",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Šola",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 2,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Odmor in igra",
+    "icon": "⚽",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Malica",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Domača naloga",
+    "icon": "📚",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Popoldanska dejavnost",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Večerja",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Umij zobe (večer)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Branje",
+    "icon": "📖",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Spanje",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  }
+]

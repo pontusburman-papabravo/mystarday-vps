@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Volgende activiteit</string>
+    <string name="widget_routine_description">Rond de volgende stap van de routine af zonder de hele app te openen.</string>
+    <string name="widget_cd_pictogram">Symbool van de activiteit</string>
+    <string name="widget_cd_complete">Activiteit als klaar markeren</string>
+    <string name="widget_cd_open_app">Openen in de app</string>
+    <string name="widget_action_complete">Klaar</string>
+    <string name="widget_action_open_timer">Timer openen</string>
+    <string name="widget_action_show_steps">Stappen tonen</string>
+    <string name="widget_action_open_app">App openen</string>
+    <string name="widget_loading">Laden…</string>
+    <string name="widget_all_done">Alles klaar voor vandaag!</string>
+    <string name="widget_nothing_now">Nu even niets</string>
+    <string name="widget_offline">Geen verbinding</string>
+    <string name="widget_reauth">Log in in de app</string>
+    <string name="widget_revoked">Apparaattoegang ingetrokken</string>
+    <string name="widget_switching">Kind wisselen…</string>
+    <string name="widget_feedback_done">✓ Klaar!</string>
+    <string name="widget_feedback_done_for">✓ Klaar voor %1$s</string>
+    <string name="widget_cd_child_prev">Vorig kind</string>
+    <string name="widget_cd_child_next">Volgend kind</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d van %2$d klaar</string>
+    <string name="widget_private_activity">Volgende stap</string>
+    <string name="widget_configure_title">Widget kiezen</string>
+    <string name="widget_configure_personal">Persoonlijk (één kind)</string>
+    <string name="widget_configure_family">Gezin (kind wisselen)</string>
+    <string name="widget_configure_save">Opslaan</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

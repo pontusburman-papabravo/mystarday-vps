@@ -1,0 +1,143 @@
+{
+  "referenceLocale": "en-GB",
+  "canonicalLocale": "sv-SE",
+  "identicalStringMinLength": 40,
+  "productSections": [
+    "auth",
+    "onboarding",
+    "home",
+    "today",
+    "settings",
+    "child",
+    "reports",
+    "email",
+    "push",
+    "schedule",
+    "family",
+    "nav",
+    "library",
+    "help"
+  ],
+  "signals": {
+    "de-DE": {
+      "mustNotCopy": "en-GB",
+      "positive": "[äöüÄÖÜß]|\\b(?:und|nicht|der|die|das|für)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "fr-FR": {
+      "mustNotCopy": "en-GB",
+      "positive": "[àâæçéèêëîïôùûüœ]|\\b(?:et|pas|les|des|pour|une)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "nl-NL": {
+      "mustNotCopy": "en-GB",
+      "positive": "\\b(?:het|een|niet|voor|van|kind|je)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "da-DK": {
+      "mustNotCopy": "en-GB",
+      "positive": "[æøå]|\\b(?:og|ikke|det|en|for)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman)\\b|\\bför\\b"
+    },
+    "fi-FI": {
+      "mustNotCopy": "en-GB",
+      "positive": "[äö]|\\b(?:ja|ei|on|että|lapsi)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "nb-NO": {
+      "mustNotCopy": "en-GB",
+      "positive": "[æøå]|\\b(?:og|ikke|det|en|for)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman)\\b|\\bför\\b"
+    },
+    "es-ES": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áéíóúñü¡¿]|\\b(?:el|la|para|una|niño)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "it-IT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[àèéìòù]|\\b(?:il|non|per|una|bambino)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "pt-PT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ãõáàâéêíóúç]|\\b(?:não|para|criança|uma)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "pl-PL": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ąęćłńóśźż]|\\b(?:nie|dla|jest|dziecko)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "cs-CZ": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áčďéěíňóřšťúůýž]|\\b(?:ne|pro|je|dítě)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "sk-SK": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áäčďéíĺľňóôŕšťúýž]|\\b(?:nie|pre|je|dieťa)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "sl-SI": {
+      "mustNotCopy": "en-GB",
+      "positive": "[čšž]|\\b(?:ne|za|je|otrok)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "hr-HR": {
+      "mustNotCopy": "en-GB",
+      "positive": "[čćđšž]|\\b(?:ne|za|je|dijete)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "hu-HU": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áéíóöőúüű]|\\b(?:nem|egy|gyerek)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "ro-RO": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ăâîșț]|\\b(?:nu|pentru|este|copil)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "bg-BG": {
+      "mustNotCopy": "en-GB",
+      "positive": "[а-я]|\\b(?:не|за|дете)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "el-GR": {
+      "mustNotCopy": "en-GB",
+      "positive": "[α-ωάέήίόύώ]",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "et-EE": {
+      "mustNotCopy": "en-GB",
+      "positive": "[äöõüšž]|\\b(?:ja|ei|on|laps)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "lt-LT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ąčęėįšųūž]|\\b(?:ne|ir|yra|vaikas)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "lv-LV": {
+      "mustNotCopy": "en-GB",
+      "positive": "[āčēģīķļņšūž]|\\b(?:un|nav|ir|bērns)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "is-IS": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áðéíóúýþæö]|\\b(?:og|ekki|barn)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    },
+    "ga-IE": {
+      "mustNotCopy": "en-GB",
+      "positive": "[áéíóú]|\\b(?:agus|páiste)\\b",
+      "forbidden": "(?<![A-Za-zÁÉÍÓÚáéíóú])(?:och|inte)(?![A-Za-zÁÉÍÓÚáéíóú])|stjärn\\w*|förälder\\w*|\\bvardagen\\b|\\bscheman\\b|\\bbarnet\\b|å|\\bför\\b"
+    },
+    "mt-MT": {
+      "mustNotCopy": "en-GB",
+      "positive": "[ċġħż]|\\b(?:mhux|tifel)\\b",
+      "forbidden": "\\b(?:och|inte|stjärn\\w*|förälder\\w*|vardagen|scheman|barnet)\\b|å|\\bför\\b"
+    }
+  }
+}

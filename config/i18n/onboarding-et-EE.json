@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Samm {{current}} / {{total}}",
+    "back": "← Tagasi",
+    "next": "Järgmine samm →",
+    "continue": "Edasi →",
+    "save": "Salvesta",
+    "cancel": "Tühista",
+    "loading": "Laen…",
+    "genericError": "Midagi läks valesti. Proovi uuesti.",
+    "networkError": "Võrguviga. Proovi uuesti.",
+    "closeAria": "Sulge",
+    "childFallback": "Sinu laps",
+    "addChildDone": "Valmis! →",
+    "goForward": "Edasi →",
+    "finishing": "Lõpetan…",
+    "recommended": "Soovitatud",
+    "optional": "Valikuline"
+  },
+  "pageTitle": {
+    "welcome": "Tere tulemast — {{brand}}",
+    "ogTitle": "{{brand}} — alusta 2 minutiga",
+    "ogDescription": "Sea lapse plaan ja auhinnad kohe paika"
+  },
+  "verifyEmail": {
+    "title": "Kinnita oma e-posti aadress",
+    "body": "Saatsime kirja aadressile {{email}}. Konto aktiveerimiseks klõpsa kirjas olevat linki.",
+    "resend": "Saada uuesti",
+    "resendSending": "Saadan…",
+    "resendSuccess": "✓ Saadetud!",
+    "resendSent": "Saadetud",
+    "resendError": "Midagi läks valesti. Proovi uuesti."
+  },
+  "child": {
+    "title": "Räägi oma lapsest",
+    "lead": "Vali nimi, emoji, sünnipäev ja plaan, mis sinu argirutiiniga sobib.",
+    "nameLabel": "Lapse nimi",
+    "namePlaceholder": "nt Mari",
+    "birthdayLabel": "Sünnipäev",
+    "birthdayOptionalHint": "(valikuline — aitab sobivat plaani pakkuda)",
+    "yearPlaceholder": "Aasta",
+    "monthPlaceholder": "Kuu",
+    "dayPlaceholder": "Päev",
+    "birthYearAria": "Sünniaasta",
+    "birthMonthAria": "Sünnikuu",
+    "birthDayAria": "Sünnipäev",
+    "months": [
+      "Jaanuar",
+      "Veebruar",
+      "Märts",
+      "Aprill",
+      "Mai",
+      "Juuni",
+      "Juuli",
+      "August",
+      "September",
+      "Oktoober",
+      "November",
+      "Detsember"
+    ],
+    "emojiLabel": "Vali emoji",
+    "customEmojiPlaceholder": "Või kirjuta oma emoji…",
+    "emojiAriaLabel": "Vali emoji {{emoji}}",
+    "avatarLabel": "Valikuline: profiilifoto",
+    "avatarHint": "Vali foto oma kogust või tee uus.",
+    "avatarDefaultBtn": "✨ Vaikepilt",
+    "avatarPickBtn": "📷 Vali foto",
+    "avatarLoading": "Laen…",
+    "avatarPreparing": "Valmistan…",
+    "avatarUploadFailed": "Fotot ei saanud üles laadida. Proovi uuesti.",
+    "avatarReadFailed": "Pilti ei saanud lugeda",
+    "avatarAlt": "Lapse profiilifoto",
+    "scheduleLabel": "Vali plaan",
+    "templatesLoading": "Laen plaane…",
+    "templatesLoadFailed": "Plaanimalle ei saanud praegu laadida.",
+    "templatesRetryBtn": "Proovi uuesti",
+    "nextBtn": "Järgmine samm →",
+    "creatingChild": "Loon last…",
+    "creatingSchedule": "Loon plaani…",
+    "nameRequired": "Sisesta lapse nimi",
+    "emojiRequired": "Vali lapsele emoji",
+    "scheduleRequired": "Vali plaan",
+    "childResumedToast": "Leidsime sinu lapse eelmisest korrast — jätkame plaaniga.",
+    "avatarSaveFailedToast": "Laps loodi, aga fotot ei saanud salvestada. Saad selle lisada jaotises Pere.",
+    "scheduleCreateFailed": "Plaani ei saanud luua"
+  },
+  "activityGuide": {
+    "title": "Kuidas rakendus aitab lapsel {{childName}} tänaste tegevustega?",
+    "lead": "Seda saad igal ajal lapse seadetes muuta.",
+    "stepLabel": "Samm {{current}} / {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Vaba järjekord",
+        "description": "Laps võib asju mistahes järjekorras tehtuks märkida."
+      },
+      "one_at_a_time": {
+        "title": "Üks asi korraga",
+        "description": "Rakendus aitab lapsel keskenduda järgmisele sammule."
+      },
+      "time_and_order": {
+        "title": "Selge aeg ja järjekord",
+        "description": "Rakendus aitab järgmise sammuga ja taimeriga, mille igale tegevusele sead."
+      }
+    },
+    "continueBtn": "Edasi →",
+    "saving": "Salvestan…",
+    "selectError": "Vali üks variant",
+    "saveError": "Valikut ei saanud salvestada"
+  },
+  "viewType": {
+    "title": "Millist vaadet laps {{childName}} näeb?",
+    "lead": "Vali, kuidas plaan välja näeb, kui laps sisse logib. Seda saad igal ajal seadetes muuta.",
+    "dayViewTitle": "Päevavaade",
+    "dayViewSubtitle": "Hommik · Hiline hommik · Pärastlõuna · Õhtu",
+    "timelineViewTitle": "Praegu/Järgmine/Hiljem",
+    "timelineViewSubtitle": "Näitab ainult seda, mis praegu toimub",
+    "timelineNow": "PRAEGU",
+    "timelineNext": "JÄRGMINE",
+    "timelineThen": "HILJEM",
+    "mock": {
+      "wakeStretch": "Ärka ja venita",
+      "brushTeeth": "Pese hambaid",
+      "packBag": "Paki kott",
+      "preschool": "Mine lasteaeda",
+      "freePlay": "Vaba mäng",
+      "dinner": "Õhtusöök",
+      "bedtimeStory": "Õhtujutt",
+      "preschoolShort": "Lasteaed",
+      "play": "Mäng"
+    },
+    "dayViewHint": "Võid valida ka päevavaate, kui lapsele sobivad värvitud päevaosad.",
+    "skipHint": "Jätad vahele? Päevavaade valitakse automaatselt.",
+    "saving": "Salvestan vaate valikut…"
+  },
+  "scheduleReady": {
+    "title": "Plaan on valmis!",
+    "subtitle": "Oleme lapsele {{childName}} algusplaani valmistanud.",
+    "subtitleWithTemplate": "Oleme lapsele {{childName}} plaani {{templateName}} valmistanud. Selles on tähtsad sammud, et iseseisvalt hakkama saada.",
+    "templateFallback": "Plaan",
+    "daysWeek": "7 päeva nädalas",
+    "daysMonFri": "E–R",
+    "daysMonFriWeekend": "E–R + nädalavahetus",
+    "socialProofTitle": "Kas teadsid?",
+    "socialProofBody": "Visuaalne tugi vähendab sageli argistressi kuni 30% — ja selge rutiiniga lapsed jäävad kiiremini magama ning ärkavad rõõmsamalt.",
+    "continueBtn": "Väga hea, läheme! →"
+  },
+  "rewards": {
+    "title": "Kuidas tähed töötavad",
+    "checkOff": "Märgi tehtuks",
+    "star": "Täht",
+    "treasureChest": "Aardekirst",
+    "intro": "Oleme toredad auhinnad ette pannud. Vali need, mille poole {{childName}} püüelda saab!",
+    "introWithCount": "Oleme ette pannud {{count}} toredat auhinda. Vali need, mille poole {{childName}} püüelda saab!",
+    "selectCount": {
+      "none": "Vali vähemalt 1 auhind (0 valitud)",
+      "one": "Valitud {{count}} auhind ✓",
+      "other": "Valitud {{count}} auhinda ✓"
+    },
+    "minOneError": "Jätkamiseks vali vähemalt üks auhind",
+    "saveBtn": "Salvesta auhinnad →",
+    "saving": "Salvestan auhindu…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Lisajutt",
+      "chooseDessert": "Vali magustoit",
+      "movieNight": "Filmiõhtu",
+      "chooseDinner": "Vali õhtusöök",
+      "outing": "Väljasõit",
+      "bakeTogether": "Küpseta koos",
+      "familyGameNight": "Pere mänguõhtu",
+      "lateBedtime": "Mine hiljem magama",
+      "cinemaTrip": "Kinokülastus"
+    }
+  },
+  "handoff": {
+    "title": "Kuidas sisse logid",
+    "lead": "{{childName}} logib sisse nime ja PIN-iga — paroole pole.",
+    "childLoginLabel": "Lapse sisselogimine",
+    "usernameFallback": "kasutajanimi",
+    "pinLabel": "PIN",
+    "pinNote": "Pane PIN kirja — seda saad seadetes muuta.",
+    "pinResumeHint": "Kasuta lapse PIN-i. Kui see ununes, saad alloleva nupuga uue seada.",
+    "chooseCustomPin": "✏️ Vali oma PIN",
+    "savePin": "Salvesta PIN",
+    "savingPin": "Salvestan…",
+    "pinMustBe4": "PIN peab olema 4 numbrit",
+    "pinTooWeak": "Vali tugevam PIN (mitte 1111, 2222 jne)",
+    "pinSaveFailed": "PIN-i ei saanud salvestada",
+    "copyInfo": "📋 Kopeeri andmed",
+    "copied": "✓ Kopeeritud!",
+    "copyManual": "Kopeeri käsitsi:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nKasutajanimi: {{username}}\nPIN: {{pin}}\nRakendus: {{appUrl}}/child-login",
+    "emailLogin": "📧 Saada e-postile",
+    "emailSubject": "{{brand}} — sisselogimine lapsele {{childName}}",
+    "emailBody": "Tere!\n\nSiin on sisselogimisandmed rakendusele {{brand}} lapsele {{childName}}:\n\nKasutajanimi: {{username}}\nPIN: {{pin}}\n\nAva rakendus: {{appUrl}}/child-login\n\nTervitades\n{{brand}}",
+    "emailFallbackAlert": "Sisselogimine lapsele {{childName}}:\nKasutajanimi: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Paigalda rakendusena",
+    "installBody": "Lisa {{brand}} avakuvale — töötab nagu päris rakendus, ka võrguühenduseta, ilma poodideta.",
+    "installInstructions": "iPhone: Jaga → Lisa avakuvale · Android: ⋮ → Paigalda rakendus",
+    "parentTipTitle": "Üks nipp sulle vanemana",
+    "parentTipLead": "Istuge täna õhtul koos maha. Näita kõigepealt Aardekirstu",
+    "parentTipEmphasis": "esmalt",
+    "parentTipTail": "et uudishimu äratada — siis selgita, et rakendus on lapse {{childName}} oma päevakaart!",
+    "testChildLogin": "👶 Proovi lapse sisselogimist",
+    "continueAsParent": "Jätka vanemana →",
+    "skipConfirmTitle": "Kas jätad lapse sisselogimise vahele?",
+    "skipConfirmBody": "Laps vajab PIN-i, et ise sisse logida. Kui seda praegu ei proovi, võib hommikune rutiin raskem tunduda — saadame 24 tunni pärast meeldetuletuse, kui laps pole veel proovinud.",
+    "skipConfirmPrimary": "👶 Proovi lapse sisselogimist",
+    "skipConfirmSecondary": "Jäta siiski vahele"
+  },
+  "parentPin": {
+    "setLater": "Sea vanema PIN hiljem",
+    "title": "Sea vanema PIN",
+    "description": "4-kohaline PIN, mida tead ainult sina, kaitseb vanema ala — näiteks kui lapsed lisavad õe või venna või logid vanemana sisse lapse seadmes.",
+    "choosePin": "Vali oma PIN",
+    "confirmPin": "Kinnita PIN",
+    "changeLater": "PIN-i saad hiljem muuta jaotises Pere ja seaded.",
+    "pinRequiredOrEmpty": "Sisesta 4-kohaline PIN või jäta väljad tühjaks",
+    "pinRequiredForHandoff": "Sea 4-kohaline PIN enne, kui laps saab seadme üle võtta.",
+    "pinMismatch": "PIN-id ei kattu",
+    "saveFailed": "PIN-i ei saanud salvestada",
+    "handoffRequired": "Jagatud seadmes on enne lapse sisselogimist vaja täiskasvanu PIN-i.",
+    "saveAndContinue": "Salvesta ja jätka"
+  },
+  "invite": {
+    "inviteLater": "Kutsu teine vanem hiljem",
+    "title": "Kutsu teine täiskasvanu",
+    "namePlaceholder": "Nimi (nt Erik)",
+    "emailPlaceholder": "E-posti aadress",
+    "whichChildren": "Milliseid lapsi see inimene näeb?",
+    "sendBtn": "📧 Saada kutse",
+    "sending": "Saadan…",
+    "sent": "✓ Saadetud",
+    "skip": "Jäta vahele →",
+    "emailRequired": "Sisesta e-posti aadress",
+    "invalidEmail": "Vigane e-posti aadress",
+    "success": "Kutse saadetud aadressile {{email}}! ✓",
+    "sendFailed": "Midagi läks valesti"
+  },
+  "complete": {
+    "title": "Peaaegu valmis!",
+    "lead": "Lase lapsel rakendust proovida — teisi täiskasvanuid saad kutsuda ja vanema PIN-i seada pärast esimest märkimist.",
+    "tips": {
+      "editScheduleTitle": "Muuda plaani",
+      "editScheduleBody": "Mine Kodusse → puuduta lapse kaarti → kohanda tegevused oma argipäevaga.",
+      "checkRewardsTitle": "Vaata auhindu",
+      "checkRewardsBody": "Lapse vaates — puuduta tähte — laps näeb, mitu tähte iga auhind vajab.",
+      "addChildrenTitle": "Lisa veel lapsi",
+      "addChildrenBody": "Igal lapsel on oma plaan ja tähed. Lisa järgmine Kodus nupuga +."
+    },
+    "letChildStart": "👶 Lase lapsel alustada",
+    "letChildStartPlain": "Lase lapsel alustada",
+    "completeFailed": "Alustamist ei saanud lõpetada",
+    "completeFailedShort": "Ei saanud lõpetada",
+    "welcomeFooter": "Tere tulemast rakendusse {{brand}} — tore, et oled siin! 🌟"
+  },
+  "weekend": {
+    "title": "Kas lisad nädalavahetuse plaani?",
+    "body": "Argipäeva plaan on E–R jaoks valmis. Kas tahad rahulikku nädalavahetuse plaani laupäevaks ja pühapäevaks?",
+    "scheduleLabel": "Nädalavahetuse plaan",
+    "satSun": "L + P",
+    "preview": {
+      "sleepIn": "Magada kauem",
+      "breakfast": "Rahulik hommikusöök",
+      "freePlay": "Vaba mäng",
+      "outing": "Väljasõit / park",
+      "familyActivity": "Pere tegevus",
+      "dinner": "Õhtusöök"
+    },
+    "yesBtn": "✅ Jah, lisa nädalavahetuse plaan",
+    "yesLoading": "Lisan…",
+    "noBtn": "Ei, täidan selle hiljem",
+    "addFailed": "Nädalavahetuse plaani ei saanud lisada"
+  },
+  "starter": {
+    "stepLabel": "Loo plaan {{current}} / {{total}}",
+    "slimTitle": "Sinu rutiin on peaaegu valmis",
+    "fullTitle": "Loo oma esimene plaan",
+    "slimIntro": "Kolm kiiret küsimust — siis on rutiin valmis.",
+    "birthdayHint": "Vali lapse sünnikuupäev — see aitab sobivat plaani pakkuda.",
+    "fullIntro": "Vasta mõnele küsimusele — võtab alla minuti.",
+    "powerPathLead": "Tahad ise valida või ehitada?",
+    "chooseTemplate": "📋 Vali valmisplaan",
+    "fullWizard": "✏️ Ehita ja kohanda ise (7 küsimust)",
+    "answerRequired": "Vali või täida vastus",
+    "showSchedule": "Näita plaani →",
+    "buttons": {
+      "next": "Edasi →"
+    },
+    "createRoutine": "Loo rutiin →",
+    "creatingRoutine": "Loon rutiini…",
+    "personalizing": "Kohandan plaani…",
+    "loading": "Laen…",
+    "useSchedule": "Kasuta seda plaani →",
+    "saving": "Salvestan…",
+    "changeAnswers": "← Muuda vastuseid",
+    "removeStep": "Eemalda",
+    "previewHint": "Sammud võid eemaldada — hiljem saad seadetes juurde lisada.",
+    "previewForChild": "Lapsele {{childName}} · {{count}} tegevust",
+    "previewAiTail": " · ✨ AI kohandatud",
+    "defaultPlanTitle": "Sinu plaan",
+    "slimSuccessTitle": "Sinu rutiin on valmis",
+    "slimSuccessTonight": "Plaan on valmis. Näita lapsele {{childName}} sellel seadmel vaadet Täna.",
+    "showChildToday": "Näita lapse Tänast",
+    "openingChildToday": "Avan lapse Tänast…",
+    "hourglassOfferTitle": "Visuaalne liivakell",
+    "hourglassOfferBody": "Aita lapsel näha, kui palju aega tegevuses jäänud on.",
+    "hourglassEnableBtn": "Lülita liivakell sisse",
+    "hourglassEnabling": "Lülitan sisse…",
+    "hourglassEnabledMsg": "Liivakell on lapsele sisse lülitatud.",
+    "hourglassEnableFailed": "Liivakella ei saanud sisse lülitada",
+    "goHome": "Mine Kodusse →",
+    "openingHome": "Avan Kodu…",
+    "customizeFirst": "Kohanda enne plaani",
+    "openingSchedule": "Avan plaani…",
+    "nameRequired": "Sisesta lapse nimi",
+    "templateFailed": "Malli ei saanud valida",
+    "previewFailed": "Plaani ei saanud laadida",
+    "childCreateFailed": "Last ei saanud luua",
+    "scheduleSaveFailed": "Plaani ei saanud salvestada",
+    "personalizeFailed": "Plaani ei saanud kohandada",
+    "completeFailed": "Ei saanud lõpetada",
+    "packages": {
+      "morning-short": {
+        "name": "Lühike hommik"
+      },
+      "evening-routine": {
+        "name": "Õhtune rutiin"
+      },
+      "preschool-day": {
+        "name": "Lasteaia argipäev"
+      },
+      "school-day": {
+        "name": "Kooli argipäev"
+      },
+      "weekend": {
+        "name": "Nädalavahetus"
+      },
+      "getting-ready": {
+        "name": "Lühike hommik"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Lapse nimi",
+        "placeholder": "nt Mari"
+      },
+      "age_band": {
+        "label": "Kui vana su laps on?",
+        "options": {
+          "3-5": "3–5 aastat",
+          "6-8": "6–8 aastat",
+          "9-12": "9–12 aastat",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Millisest rutiinist tahad alustada?",
+        "options": {
+          "morgon": "☀️ Hommik",
+          "kvall": "🌙 Õhtu",
+          "efter-skola": "🏫 Pärast kooli",
+          "laxor": "📚 Kodutöö",
+          "gora-sig-klar": "🎒 Valmis saamine"
+        }
+      },
+      "main_challenge": {
+        "label": "Mis on praegu kõige raskem?",
+        "options": {
+          "getting_started": "Alustamine",
+          "focus": "Keskendumine",
+          "conflicts": "Tülid",
+          "forgetting": "Sammude unustamine",
+          "transitions": "Üleminekud"
+        }
+      },
+      "support_ui": {
+        "label": "Kas laps vajab eriti selget tuge?",
+        "options": {
+          "ja": "Jah",
+          "lite": "Natuke",
+          "nej": "Ei"
+        }
+      },
+      "length_ui": {
+        "label": "Mitme sammuga tahad alustada?",
+        "options": {
+          "kort": "Lühike (3–4)",
+          "normal": "Tavaline (5)",
+          "detaljerad": "Üksikasjalik (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Kas on midagi tähtsat, mida peaksime teadma? (valikuline)",
+        "placeholder": "nt hammaste pesemine on kõige raskem"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutiin valmis",
+      "handoff": "Ava lapse vaade koos",
+      "child": "Laps näeb, mis praegu toimub",
+      "done": "Tehtud!",
+      "star": "Esimene täht ⭐"
+    },
+    "mock": {
+      "parentView": "Vanema vaade",
+      "dailyRoutine": "Tänane rutiin",
+      "dress": "Riietu",
+      "brushTeeth": "Pese hambaid",
+      "packBag": "Paki kott",
+      "tryChildMode": "👶 Proovi lapse vaadet",
+      "now": "Praegu",
+      "markDone": "Märgi tehtuks ✓",
+      "wellDone": "Tubli!"
+    },
+    "ctaReady": "Kas oled valmis proovima?",
+    "ctaTryNow": "Proovi lapse vaadet kohe",
+    "ctaLater": "Teen hiljem",
+    "loginTitle": "Ava lapse vaade",
+    "loginLead": "Plaan on valmis. Anna {{childName}} see seade, et ta oma rutiini näeks.",
+    "usernameLabel": "Kasutajanimi",
+    "pinLabel": "PIN",
+    "loginHint": "Istuge koos maha — sobib sama või teine seade.",
+    "copyLogin": "📋 Kopeeri sisselogimisandmed",
+    "copied": "✓ Kopeeritud!",
+    "openChildMode": "Ava lapse vaade",
+    "copyText": "{{childName}}\nAva rakenduses lapse vaade.",
+    "previewTitle": "Eelvaade — alustamise film"
+  },
+  "firstStar": {
+    "title": "Anna esimene täht",
+    "lead": "Kolm kiiret sammu — siis oled päriselt käima läinud.",
+    "steps": {
+      "login": "Lase lapsel oma PIN-iga sisse logida",
+      "complete": "Märgi lapse vaates üks tegevus tehtuks",
+      "celebrate": "Tähistage tähte koos!"
+    },
+    "openChildLogin": "👶 Ava lapse sisselogimine",
+    "continueAsParent": "Jätka vanemana"
+  },
+  "activation": {
+    "finalStepLabel": "Viimane samm",
+    "introTitle": "Kuidas tahad alustada?",
+    "introBody": "Oled lapse plaani paika pannud — hea algus. Paljud pered leiavad, et raskeim ei ole alustamine, vaid rutiini hoidmine esimestel päevadel, kui argipäev võimust võtab. Vali, mis sulle sobib:",
+    "guidedBadge": "Soovitatud",
+    "guidedTitle": "Hoia rutiini esimesel nädalal käimas",
+    "guidedBody": "Paljud pered hindavad väikest tuge pärast seda, kui plaan on valmis. Mitte sellepärast, et midagi oleks valesti, vaid sest uued harjumused võtavad aega.",
+    "guidedBenefits": [
+      "Lühikesed igapäevased meeldetuletused, et jätkaksid",
+      "Näe, millal laps ülesanded ära teeb, ilma lisakäskimiseta",
+      "Lapse plaan on juba paigas — aitame rutiinil toimida",
+      "Peata siis, kui tahad"
+    ],
+    "guidedCta": "Jah, aita meid esimesel nädalal",
+    "directTitle": "Alusta kohe",
+    "directBody": "Tunne end valmis iseseisvalt edasi minema. Kõik on paigas ja saad kohe alustada.",
+    "directBenefits": [
+      "Otse Kodusse",
+      "Sama plaan, tähed ja auhinnad",
+      "Kasuta rakendust omas tempos"
+    ],
+    "directCta": "Saame ise hakkama",
+    "footnote": "Ükskõik, mille valid, saad rakendust täielikult kasutada. Juhitud algus annab esimesel nädalal lihtsalt veidi lisatuge.",
+    "saveFailed": "Valikut ei saanud salvestada"
+  },
+  "loading": {
+    "buildingSchedule": "Ehitan sinu plaani…",
+    "takesSeconds": "Võtab vaid paar sekundit!"
+  },
+  "templateGroups": {
+    "showActivities": "Näita tegevusi",
+    "loadingActivities": "Laen...",
+    "activityCount": {
+      "one": "{{count}} tegevus",
+      "other": "{{count}} tegevust"
+    },
+    "forskola": {
+      "name": "Lasteaed",
+      "description": "Terve päev — lapsed vanuses 2–5"
+    },
+    "skola": {
+      "name": "Kool",
+      "description": "Terve päev — lapsed vanuses 6+"
+    },
+    "morgon": {
+      "name": "Hommik",
+      "description": "Hommikune rutiin"
+    },
+    "dag": {
+      "name": "Päev",
+      "description": "Päevased tegevused"
+    },
+    "kvall": {
+      "name": "Õhtu",
+      "description": "Õhtune rutiin"
+    },
+    "helg": {
+      "name": "Nädalavahetus",
+      "description": "Nädalavahetuse rutiin"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Ärka üles",
+        "Riietu",
+        "Hommikusöök",
+        "Lasteaed",
+        "Mängi",
+        "Õhtusöök",
+        "Õhtujutt"
+      ],
+      "skola": [
+        "Ärka üles",
+        "Hommikusöök",
+        "Paki kott",
+        "Kool",
+        "Kodutöö",
+        "Õhtusöök",
+        "Õhtujutt"
+      ],
+      "morgon": [
+        "Ärka üles",
+        "Riietu",
+        "Pese hambaid",
+        "Hommikusöök",
+        "Paki kott"
+      ],
+      "dag": [
+        "Lasteaed",
+        "Mängi õues",
+        "Vahepala",
+        "Lõuna",
+        "Meisterdamine"
+      ],
+      "kvall": [
+        "Õhtusöök",
+        "Pese hambaid",
+        "Pidžaama",
+        "Õhtujutt",
+        "Maga"
+      ],
+      "helg": [
+        "Ärka üles",
+        "Hommikusöök",
+        "Vaba mäng",
+        "Väljasõit",
+        "Pere tegevus",
+        "Õhtusöök"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Hommik",
+    "lateMorning": "Hiline hommik",
+    "afternoon": "Pärastlõuna",
+    "evening": "Õhtu"
+  },
+  "errors": {
+    "avatarUploadPath": "Profiilifoto laaditakse üles teega PUT /api/children/:id/avatar pärast lapse loomist",
+    "childNameRequired": "Lapse nimi on vajalik",
+    "emojiRequired": "Vali lapsele emoji",
+    "invalidBirthday": "Vigane sünnikuupäev",
+    "birthdayFuture": "Sünnipäev ei saa olla tulevikus",
+    "invalidTemplate": "Vigane valik. Vali kehtiv plaan.",
+    "noActivities": "Valitud plaanile ei leitud tegevusi.",
+    "childIdRequired": "child_id on vajalik",
+    "noChildAccess": "Sul ei ole sellele lapsele ligipääsu",
+    "weekendNotFound": "Nädalavahetuse plaani kogust ei leitud.",
+    "weekendEmpty": "Nädalavahetuse plaanil pole tegevusi.",
+    "rewardNameRequired": "Auhinna nimi on vajalik",
+    "rewardCostMin": "Tähe hind peab olema vähemalt 1",
+    "rewardsFetchFailed": "Auhindu ei saanud tuua.",
+    "childCreateFailed": "Lapse loomisel läks midagi valesti.",
+    "scheduleCreateFailed": "Plaani loomisel läks midagi valesti.",
+    "weekendCreateFailed": "Nädalavahetuse plaani loomisel läks midagi valesti.",
+    "rewardCreateFailed": "Auhinna loomisel läks midagi valesti.",
+    "generic": "Midagi läks valesti.",
+    "invalidViewType": "Vigane view_type. Vali day või timeline.",
+    "notAllowed": "Pole lubatud",
+    "invalidChoice": "Vigane valik.",
+    "activityGuideSaveFailed": "Tegevuse valikut ei saanud salvestada.",
+    "pinMustBe4": "PIN peab olema täpselt 4 numbrit",
+    "pinTooWeak": "Vali tugevam PIN",
+    "pinTaken": "See PIN on sama nimega lapsel juba kasutusel",
+    "pinUpdateFailed": "PIN-i ei saanud uuendada.",
+    "handoffContextFailed": "Üleandmise andmeid ei saanud tuua",
+    "templateGroupsFailed": "Plaanirühmi ei saanud tuua.",
+    "schedulePreviewFailed": "Plaani ei saanud tuua.",
+    "viewSaveFailed": "Vaate valikut ei saanud salvestada.",
+    "activationNotEnabled": "Juhitud algus ei ole sinu perele sisse lülitatud",
+    "starterSuggestFailed": "Malli ei saanud valida",
+    "starterPreviewFailed": "Eelvaadet ei saanud tuua",
+    "starterPersonalizeFailed": "Plaani ei saanud kohandada",
+    "scheduleNameRequired": "scheduleName on vajalik",
+    "templateNotFound": "Malli ei leitud",
+    "enrollChoiceUnavailable": "Valikuekraan ei ole saadaval"
+  },
+  "starterPlan": {
+    "firstSchedule": "Sinu esimene plaan"
+  }
+}

@@ -390,7 +390,7 @@ function updateRewardSelectCount() {
   if (!el) return;
   el.textContent = count >= 1
     ? pOnboarding('onboarding.rewards.selectCount', count, { count })
-    : tOnboarding('onboarding.rewards.selectCount.zero');
+    : tOnboarding('onboarding.rewards.selectCount.none');
 }
 
 function buildRewardGrid(rewards) {

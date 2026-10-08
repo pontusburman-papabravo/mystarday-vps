@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Nyugodt nap, egy csillag egyszerre"
+  },
+  "language": {
+    "label": "Nyelv",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Nyelv váltása",
+    "choice": {
+      "title": "Nyelv",
+      "titleEn": "Nyelv",
+      "description": "A nyelvet később a Beállításokban módosíthatod.",
+      "descriptionEn": "A nyelvet később a Beállításokban módosíthatod.",
+      "confirm": "Tovább",
+      "required": "A folytatáshoz válassz nyelvet",
+      "childNote": "A szülői élmény angolul elérhető. A gyerek élmény még svéd, amíg be nem fejezzük a fordítást.",
+      "childNoteEn": "A szülői élmény angolul elérhető. A gyerek élmény még svéd, amíg be nem fejezzük a fordítást."
+    },
+    "offer": {
+      "title": "A {{brand}} már elérhető angolul",
+      "body": "A {{brand}} már angolul is elérhető. Néhány szöveg még svédül jelenhet meg, amíg be nem fejezzük a fordítást.",
+      "question": "Szeretnél svédül maradni, vagy kipróbálod az angolt?",
+      "staySwedish": "Maradok svédül",
+      "tryEnglish": "Kipróbálom az angolt",
+      "remindLater": "Emlékeztess később"
+    },
+    "legacyNotice": {
+      "body": "A meglévő tevékenységek az eredeti nyelvükön maradnak. Az új tevékenységek angolul jönnek.",
+      "dismiss": "Értem",
+      "dismissAria": "Nyelvi üzenet bezárása"
+    },
+    "reportIssue": "Nyelvi hiba jelzése",
+    "feedback": {
+      "typeLabel": "Nyelvi vagy fordítási hiba",
+      "typeLabelEn": "Nyelvi vagy fordítási hiba",
+      "titlePlaceholder": "Mi nem stimmel?",
+      "visibleText": "Milyen szöveget láttál?",
+      "suggestion": "Hogyan kellene szólnia? (nem kötelező)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Hol él a családod?",
+      "description": "Ebből tudjuk a megfelelő feltételeket és adatvédelmi tájékoztatót. Ez külön van a nyelv választásától.",
+      "label": "Ország",
+      "hint": "",
+      "required": "A folytatáshoz válassz országot",
+      "closedEu": "A {{brand}} a te országodban még nem elérhető. Szólunk, ha több EU-s piacot nyitunk.",
+      "closedIe": "A {{brand}} Írországban még nem elérhető.",
+      "closedCa": "A {{brand}} Kanadában még nem elérhető.",
+      "closedFi": "A {{brand}} Finnországban még nem elérhető.",
+      "closedNo": "A {{brand}} Norvégiában még nem elérhető.",
+      "closedDk": "A {{brand}} Dániában még nem elérhető.",
+      "closedUk": "A {{brand}} az Egyesült Királyságban még nem elérhető.",
+      "closedUs": "A {{brand}} az Egyesült Államokban még nem elérhető.",
+      "closedOther": "A {{brand}} a te országodban még nem elérhető.",
+      "euGroup": "Más EU/EGT-ország"
+    }
+  },
+  "nav": {
+    "login": "Belépés",
+    "register": "Fiók létrehozása",
+    "childLogin": "Gyerek belépés",
+    "dashboard": "Áttekintés",
+    "logout": "Kijelentkezés",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — egyszerűbb mindennapok az egész családnak",
+      "ogDescription": "Napi napirend, tevékenységek és jutalmak, amiket együtt követtek"
+    },
+    "login": {
+      "title": "Belépés",
+      "pageTitle": "Belépés — {{brand}}",
+      "tagline": "Együtt ragyogunk",
+      "subtitle": "Üdv újra a {{brand}} alkalmazásban",
+      "email": "E-mail-cím",
+      "emailPlaceholder": "you@email.com",
+      "password": "Jelszó",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Belépés",
+      "submitting": "Belépés…",
+      "forgotPassword": "Elfelejtett jelszó?",
+      "noAccount": "Nincs még fiókod?",
+      "createAccount": "Fiók létrehozása",
+      "childLogin": "Gyerek vagy?",
+      "childLoginLink": "Gyerek vagy? Lépj be itt",
+      "loginAsAdult": "Belépés szülőként",
+      "orDivider": "vagy",
+      "continueWithApple": "Tovább Apple-lel",
+      "continueWithGoogle": "Tovább Google-lel",
+      "apple_caption": "Csak iOS-en érhető el",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Add meg az e-mailt és a jelszót is",
+      "genericError": "Valami hiba történt. Próbáld újra.",
+      "mascotAlt": "Csillag kabala",
+      "addChildBannerTitle": "👶 Lépj be szülőként, ha gyereket adnál hozzá",
+      "addChildBannerBody": "A «Gyerek vagyok» itt nem elég — szülő vagy pedagógus kell.",
+      "resetSuccessBannerTitle": "A jelszó mentve",
+      "resetSuccessBannerBody": "Lépj be az új jelszavaddal.",
+      "backToChildPicker": "← Vissza a gyerekválasztóhoz",
+      "linking": {
+        "emailExists": "Ehhez az e-mail-címhez már tartozik fiók.",
+        "promptApple": "Összekapcsolod az Apple-fiókodat a meglévő fiókkal?",
+        "promptGoogle": "Összekapcsolod a Google-fiókodat a meglévő fiókkal?",
+        "yes": "Igen, kapcsold össze",
+        "cancel": "Mégse",
+        "modalTitleApple": "Apple-fiók összekapcsolása",
+        "modalTitleGoogle": "Google-fiók összekapcsolása",
+        "modalIntroApple": "Add meg a jelszavad a belépéshez, aztán összekapcsoljuk az Apple-fiókodat.",
+        "modalIntroGoogle": "Add meg a jelszavad a belépéshez, aztán összekapcsoljuk a Google-fiókodat.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Jelszó",
+        "passwordPlaceholder": "A jelszavad",
+        "submit": "Összekapcsolás",
+        "submitting": "Összekapcsolás…",
+        "enterPassword": "Add meg a jelszavad.",
+        "wrongPassword": "Hibás jelszó.",
+        "failed": "Az összekapcsolás nem sikerült."
+      },
+      "apple": {
+        "unavailable": "Az Apple-belépés most nem elérhető. Próbáld újra, vagy lépj be e-maillel.",
+        "notEnabled": "Az Apple-belépés nincs bekapcsolva. Frissítsd az appot a legújabb verzióra.",
+        "cancelled": "Az Apple-belépést megszakítottad.",
+        "incomplete": "Az Apple-belépés nem fejeződött be. Próbáld újra, vagy lépj be e-maillel és jelszóval.",
+        "rateLimited": "Túl sok próbálkozás. Várj egy kicsit, és próbáld újra.",
+        "genericError": "Valami hiba történt az Apple-belépésnél. Próbáld újra, vagy lépj be e-maillel és jelszóval.",
+        "failed": "Az Apple-belépés nem sikerült. Próbáld újra, vagy lépj be e-maillel és jelszóval.",
+        "signInFailed": "Az Apple-belépés nem sikerült.",
+        "completionTitle": "Fejezd be a fiók létrehozását",
+        "completionBody": "Válaszd ki az országot, és fogadd el a feltételeket. A neved és az e-mail-címed már megvan az Apple-től — nem kérdezzük meg újra.",
+        "completionSubmit": "Tovább ugyanazzal az Apple-fiókkal"
+      },
+      "google": {
+        "emailConflictSettings": "Ehhez az e-mail-címhez már tartozik fiók. Lépj be, és a Beállításokban kapcsold össze a Google-t, vagy használj jelszót.",
+        "loginFailed": "A Google-belépés nem sikerült.",
+        "signInFailed": "A Google-belépés nem sikerült."
+      },
+      "verify": {
+        "title": "Erősítsd meg az e-mail-címed",
+        "body": "A {{brand}} további használatához erősítsd meg az e-mail-címed. Nézd meg a beérkező leveleket és a spam mappát is.",
+        "emailLabel": "E-mail-cím:",
+        "resendBtn": "Új megerősítő link küldése",
+        "resendSending": "Küldés…",
+        "resendSuccess": "✅ Új megerősítő link elküldve! Nézd meg a beérkező leveleket és a spam mappát.",
+        "resendError": "Valami hiba történt. Próbáld újra.",
+        "spamHint": "Nézd meg a spam mappát is. A link 24 óráig érvényes."
+      }
+    },
+    "entry": {
+      "back": "Vissza",
+      "backWithArrow": "← Vissza",
+      "welcome": {
+        "ariaLabel": "Üdvözlés",
+        "headline": "Nyugodtabb mindennapok, világos lépésekkel, napirenddel és csillagokkal",
+        "lead": "A {{brand}} képi napirenddel, világos lépésekkel és jutalmakkal segít a gyerekeknek és a családoknak a napi rutinban, hogy a nap önállóbban menjen.",
+        "chipVisualSchedules": "Képi napirendek",
+        "chipStarsRewards": "Csillagok és jutalmak",
+        "chipMultipleUsers": "Több gyerek és felnőtt",
+        "startBtn": "Kezdés",
+        "existingBtn": "Már van fiókom",
+        "howItWorksBtn": "Hogyan működik az app",
+        "firstRunHeadline": "Üdv a {{brand}} alkalmazásban",
+        "firstRunCreateAccount": "Fiók létrehozása",
+        "firstRunLogIn": "Belépés",
+        "firstRunChildLink": "Gyerek vagyok"
+      },
+      "role": {
+        "title": "Ki használja most az appot?",
+        "kidAria": "Gyerek vagyok",
+        "kidLabel": "Gyerek vagyok",
+        "kidSub": "Látni szeretném a napirendem",
+        "kidAlt": "Gyerek",
+        "parentAria": "Felnőtt vagyok",
+        "parentLabel": "Felnőtt vagyok",
+        "parentSub": "Be szeretnék lépni, vagy elkezdeni",
+        "parentAlt": "Család"
+      },
+      "adultStart": {
+        "ariaLabel": "Felnőtt kezdés",
+        "title": "Üdv! Hogyan szeretnél továbbmenni?",
+        "existingLabel": "Már van fiókom",
+        "existingSub": "Belépés Apple-lel, Google-lel vagy e-maillel",
+        "newLabel": "Új vagyok itt",
+        "newSub": "Nézd meg, hogyan működik, és hozz létre egy ingyenes fiókot"
+      },
+      "signupIntro": {
+        "ariaLabel": "Kezdés",
+        "title": "Kezdd el a {{brand}} alkalmazással",
+        "sub": "Hozz létre egy ingyenes fiókot, és állítsd össze a gyereked első napirendjét világos lépésekkel, csillagokkal és célokkal.",
+        "point1": "Képi napirend, amit a gyereked ért",
+        "point2": "Csillagok és jutalmak, amik motiválnak",
+        "point3": "Több gyerek és felnőtt egy családban",
+        "createBtn": "Ingyenes fiók létrehozása",
+        "existingBtn": "Már van fiókom",
+        "founderNote": "Az alap most ingyen jár."
+      },
+      "howItWorks": {
+        "title": "Hogyan működik az app",
+        "step1Title": "1. A gyerek lépésről lépésre látja a napirendet",
+        "step1Body": "A vizuális rutinok tisztává és kiszámíthatóvá teszik a mindennapokat.",
+        "step2Title": "2. A gyerek csillagot kap, ha egy tevékenység kész",
+        "step2Body": "A kis sikerek motivációt és önállóságot építenek.",
+        "step3Title": "3. A felnőttek követik a haladást, és együtt építik a rutint",
+        "step3Body": "Több gyerek és felnőtt oszthatja meg ugyanazt a családot az appban.",
+        "close": "Bezárás"
+      },
+      "noscript": "A bejelentkezéshez JavaScript kell. Kapcsold be a JavaScriptet."
+    },
+    "register": {
+      "title": "Fiók létrehozása",
+      "pageTitle": "Fiók létrehozása | {{brand}}",
+      "pageHeading": "Szülői fiók létrehozása",
+      "pageLead": "Próbáld ki ingyen a {{brand}} alkalmazást. Képi napirend és csillagjutalmak, hogy a gyereked értse a napot, kövesse a rutint, és önállóbb legyen.",
+      "pageLeadSecondary": "Azoknak a családoknak, akik tisztább rutinokat, nyugodtabb váltásokat és kevesebb noszogatást szeretnének a mindennapokban.",
+      "subtitle": "Kezdd el a {{brand}} alkalmazással",
+      "nameLabel": "A neved",
+      "namePlaceholder": "pl. Anna",
+      "familyNameLabel": "Családnév",
+      "familyNamePlaceholder": "pl. A Kovács család",
+      "familyNameAuto": "A nevedből készül automatikusan",
+      "familyNameGenerated": "Automatikus — átírhatod, ha szeretnéd",
+      "familyNameEdited": "Módosítva",
+      "email": "E-mail-cím",
+      "emailPlaceholder": "you@email.com",
+      "emailHelp": "Ide küldjük a megerősítő linket",
+      "password": "Jelszó",
+      "passwordPlaceholder": "Legalább 8 karakter",
+      "passwordHelp": "Legalább 8 karakter hosszú legyen",
+      "confirmPassword": "Jelszó megerősítése",
+      "confirmPasswordPlaceholder": "Jelszó újra",
+      "submit": "Fiók létrehozása",
+      "hasAccount": "Már van fiókod?",
+      "loginLink": "Lépj be itt",
+      "childLoginLink": "Gyerek vagy? Lépj be itt",
+      "gateHintLanguage": "A folytatáshoz válassz nyelvet fent.",
+      "gateHintCountry": "A folytatáshoz válaszd ki az országot fent.",
+      "appleFromLoginHint": "Ehhez az Apple ID-hoz még nincs fiók kötve. Válaszd ki az országot, és fogadd el a feltételeket — a név és az e-mail az Apple-től jön. Újabb Apple-belépés nem kell.",
+      "appleOnlyPath": "Hozd létre a fiókodat Apple-lel. A név és az e-mail az Apple-től jön — az űrlapot nem kell kitöltened.",
+      "tagline": "Nyugodt nap, egy csillag egyszerre",
+      "orDivider": "vagy",
+      "continueWithApple": "Regisztráció Apple-lel",
+      "continueWithGoogle": "Regisztráció Google-lel",
+      "validatingInvite": "Meghívó ellenőrzése…",
+      "inviteInvalid": "Érvénytelen vagy lejárt meghívólink. Írj annak, aki meghívott.",
+      "inviteValidateFailed": "A meghívólinket nem sikerült ellenőrizni. Próbáld újra.",
+      "familyNameSuffix": "{{name}} családja",
+      "termsRequired": "El kell fogadnod a felhasználási feltételeket és az adatvédelmi tájékoztatót",
+      "success": "A fiók elkészült! Nézd meg az e-mailed a megerősítéshez.",
+      "termsPrefix": "Elolvastam és elfogadom a",
+      "termsLink": "felhasználási feltételeket",
+      "termsAnd": "és",
+      "privacyLink": "adatvédelmi tájékoztatót",
+      "termsSuffix": ".",
+      "successTitle": "A fiók elkészült! 🎉",
+      "successVerifyLine1": "Elküldtük a megerősítő linket az e-mail-címedre.",
+      "successVerifyLine2": "Nézd meg a beérkező leveleket (és a spam mappát).",
+      "successGracePeriod": "Azonnal beléphetsz, és 24 órád van az e-mail megerősítésére.",
+      "successLoginBtn": "Belépés",
+      "inviteErrorDefault": "Érvénytelen meghívólink.",
+      "appleEmailExists": "Ehhez az e-mail-címhez már tartozik fiók. Lépj be inkább Apple-lel, vagy e-maillel és jelszóval.",
+      "webDownload": {
+        "title": "Szerezd meg az appot",
+        "lead": "Az új családok az appban hoznak létre fiókot. Töltsd le az App Store-ból vagy a Google Playről.",
+        "appStoreAria": "Letöltés az App Store-ból",
+        "playStoreAria": "Letöltés a Google Playről",
+        "hasAccount": "Már van fiókod?",
+        "loginLink": "Belépés"
+      }
+    },
+    "parentGate": {
+      "title": "Szülői zár",
+      "hint": "A folytatáshoz add meg a PIN-kódot",
+      "keypadAria": "PIN-billentyűzet",
+      "cancel": "Mégse",
+      "forgotPinBackup": "Elfelejtetted a PIN-kódot? Lépj be e-maillel vagy Apple-lel/Google-lel",
+      "digitsEntered": "{{count}} / 4 számjegy",
+      "backspace": "Törlés",
+      "confirm": "Megerősítés",
+      "needFourDigits": "A PIN-kód 4 számjegy"
+    },
+    "childLogin": {
+      "title": "Szia! 👋",
+      "pageTitle": "Csillagfelfedező — {{brand}}",
+      "whoAreYou": "Ki vagy?",
+      "selectProfile": "Válaszd ki a profilod, és add meg a PIN-kódot.",
+      "back": "Vissza",
+      "addChild": "Gyerek hozzáadása",
+      "notMe": "Nem találom magam",
+      "subtitle": "Írd be a felhasználóneved és a PIN-kódot",
+      "username": "Felhasználónév",
+      "usernamePlaceholder": "A felhasználóneved",
+      "pin": "PIN-kód",
+      "pinPlaceholder": "4 számjegy",
+      "submit": "Belépés",
+      "parentLogin": "Szülő vagy?",
+      "parentLoginLink": "Lépj be itt",
+      "adultLogin": "Belépés felnőttként",
+      "adultLoginShort": "Felnőtt",
+      "forgotPassword": "Elfelejtett jelszó?",
+      "emptyNoChildren": "Még nincs gyerek felvéve.",
+      "nameHint": "Írd be a neved a belépéshez",
+      "namePlaceholder": "A neved",
+      "continue": "Tovább →",
+      "switchChild": "Gyerekváltás",
+      "pinSub": "Add meg a kódod",
+      "attemptsLeft": "Hátralévő próbák",
+      "pinDotsAria": "PIN-kód",
+      "lockoutWait": "Várj egy kicsit",
+      "lockoutSoon": "Hamarosan újra próbálhatod",
+      "welcome": "Üdv!",
+      "redirecting": "Viszünk a kezdőlapodra…",
+      "keypadAria": "Számbillentyűzet",
+      "forgotPin": "Ha elfelejtetted a kódot, kérdezd meg a szülőt",
+      "needHelp": "Segítség kell?",
+      "contactParent": "Írj a szülőnek"
+    },
+    "verify": {
+      "title": "E-mail megerősítése",
+      "pageTitle": "E-mail megerősítése — {{brand}}",
+      "checkingTitle": "E-mail ellenőrzése",
+      "checkingBody": "Várj, amíg megerősítjük az e-mail-címed…",
+      "checking": "Ellenőrzés…",
+      "success": "Az e-mailed megerősítve! Most már beléphetsz.",
+      "successTitle": "Az e-mail megerősítve!",
+      "welcomeMessage": "Az e-mail-címed megerősítve. Üdv a {{brand}} alkalmazásban! 🎉",
+      "redirectCountdownPrefix": "Átirányítás",
+      "redirectCountdownSuffix": "másodperc múlva…",
+      "error": "A megerősítő link érvénytelen vagy lejárt.",
+      "errorTitle": "A megerősítés nem sikerült",
+      "verifyFailed": "A megerősítés nem sikerült. A link lehet, hogy lejárt.",
+      "noToken": "A linkben nem volt megerősítő token.",
+      "genericError": "Valami hiba történt. Próbáld újra.",
+      "resendPrompt": "Add meg az e-mail-címed, és küldünk egy új megerősítő linket:",
+      "resendBtn": "Új link küldése",
+      "resendSending": "Küldés…",
+      "resendRateLimit": "Már több linket kértél. Próbáld újra egy óra múlva.",
+      "resendSuccess": "✅ Ha a fiók létezik, elküldtük az új megerősítő linket. Nézd meg a beérkező leveleket és a spam mappát!",
+      "resendEmailInvalid": "Adj meg egy érvényes e-mail-címet.",
+      "needHelpPrefix": "Segítség kell? Nézd meg a spam mappát, vagy",
+      "contactUs": "írj nekünk",
+      "loginLink": "Ugrás a belépéshez"
+    },
+    "forgotPassword": {
+      "title": "Elfelejtett jelszó",
+      "pageTitle": "Elfelejtett jelszó — {{brand}}",
+      "heading": "Elfelejtett jelszó?",
+      "lead": "Semmi gond! Küldünk egy linket a jelszó visszaállításához.",
+      "subtitle": "Add meg az e-mail-címed, és küldjük a visszaállító linket",
+      "email": "E-mail-cím",
+      "emailPlaceholder": "you@email.com",
+      "emailHint": "Biztonságos linket küldünk a jelszó visszaállításához",
+      "submit": "Visszaállító link küldése",
+      "sent": "Ha ez az e-mail-cím nálunk van, elküldtük a visszaállító linket.",
+      "successTitle": "Nézd meg az e-mailed!",
+      "successBody": "Elküldtük a jelszó-visszaállító linket. Nézd meg a beérkező leveleket és a spam mappát.",
+      "orDivider": "vagy",
+      "rememberPassword": "Mégis eszedbe jutott a jelszó?",
+      "backToLogin": "Vissza a belépéshez",
+      "helpTitle": "Nem jött e-mail?",
+      "helpItem1": "Nézd meg a levélszemét vagy a spam mappát",
+      "helpItem2": "Ellenőrizd, hogy jó e-mail-címet írtál-e be",
+      "helpItem3": "Próbáld újra pár perc múlva",
+      "helpItem4Suffix": "ha segítség kell",
+      "contactSupport": "Kapcsolat a támogatással"
+    },
+    "resetPassword": {
+      "title": "Jelszó visszaállítása",
+      "pageTitle": "Jelszó visszaállítása — {{brand}}",
+      "subtitle": "Válassz új jelszót",
+      "password": "Új jelszó",
+      "passwordPlaceholder": "Legalább 8 karakter",
+      "passwordHelp": "Legalább 8 karakter hosszú legyen",
+      "confirmPassword": "Jelszó megerősítése",
+      "confirmPasswordPlaceholder": "Jelszó újra",
+      "submit": "Jelszó visszaállítása",
+      "submitting": "Mentés…",
+      "success": "A jelszavad megváltozott! Most már beléphetsz.",
+      "successRedirect": "Kész! Az új jelszó mentve.",
+      "alreadyUsed": "A jelszavad már megváltozott. Lépj be az új jelszóval.",
+      "error": "A visszaállító link érvénytelen vagy lejárt.",
+      "invalidLink": "Érvénytelen visszaállító link.",
+      "requestNewLink": "Új visszaállító link kérése",
+      "requestNewLinkShort": "Új link kérése",
+      "resetFailed": "A jelszót nem sikerült visszaállítani",
+      "rememberPassword": "Mégis eszedbe jutott a jelszó?",
+      "goToLoginInline": "Ugrás a belépéshez",
+      "loginLink": "Ugrás a belépéshez"
+    },
+    "supportBubble": {
+      "closeAria": "Bezárás",
+      "triggerAria": "Kapcsolat a támogatással",
+      "title": "Segítség kell? 💬",
+      "subtitle": "Amint tudunk, válaszolunk",
+      "oooSubtitle": "Szeptember 1–10. között nem vagyunk elérhetők",
+      "success": "Köszi! Megkaptuk az üzeneted, és hamarosan válaszolunk.",
+      "oooSuccess": "Köszi! Megkaptuk az üzeneted. Szeptember 1–10. között nem vagyunk elérhetők, és amint tudunk, válaszolunk, legkésőbb szeptember 11-ig.",
+      "openThread": "Beszélgetés megnyitása",
+      "nameLabel": "Név",
+      "namePlaceholder": "A neved",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Hogy válaszolni tudjunk",
+      "messageLabel": "Üzenet",
+      "messagePlaceholder": "Írd le, mi a gond…",
+      "submit": "Üzenet küldése",
+      "fillAllFields": "Töltsd ki az összes mezőt",
+      "messageMinLength": "Az üzenet legalább 10 karakter legyen",
+      "submitting": "Küldés…",
+      "sendFailed": "Az üzenetet nem sikerült elküldeni. Próbáld újra.",
+      "genericError": "Valami hiba történt"
+    },
+    "contactForm": {
+      "fillRequired": "Minden mező kötelező.",
+      "emailInvalid": "Adj meg egy érvényes e-mail-címet.",
+      "messageTooShort": "Az üzenet túl rövid (legalább 5 karakter).",
+      "submitting": "Küldés…",
+      "submit": "Küldés",
+      "genericError": "Valami hiba történt. Próbáld újra.",
+      "openThread": "Beszélgetés megnyitása"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "Az e-mail és a jelszó kötelező",
+        "emailRequired": "Az e-mail-cím kötelező",
+        "accountBlocked": "A fiókod le van tiltva. Írj az adminisztrátornak.",
+        "emailVerificationRequired": "A folytatáshoz erősítsd meg az e-mail-címed",
+        "verificationTokenRequired": "A megerősítő token kötelező",
+        "invalidVerificationLink": "Érvénytelen vagy lejárt megerősítő link",
+        "resendVerificationRateLimit": "Már több megerősítő linket kértél. Próbáld újra egy óra múlva.",
+        "tokenAndPasswordRequired": "A token és a jelszó kötelező",
+        "invalidResetLink": "Érvénytelen vagy lejárt visszaállító link. Kérj újat.",
+        "parentOnlyViewMode": "Csak a szülő módosíthatja a nézetmódot",
+        "parentOnlyUiViewMode": "Csak a szülő módosíthatja a felület nézetmódját",
+        "parentOnlyTheme": "Csak a szülő módosíthatja a témát",
+        "preferencesSaveFailed": "A beállításokat nem sikerült menteni",
+        "uiViewModeSaveFailed": "A nézetmódot nem sikerült menteni",
+        "themeSaveFailed": "A témát nem sikerült menteni",
+        "userNotFound": "A felhasználó nem található",
+        "unknownUserType": "Ismeretlen felhasználótípus",
+        "registrationClosed": "A regisztráció jelenleg zárva van",
+        "invalidCountry": "Érvénytelen ország",
+        "countryRequired": "A fiók létrehozása előtt válaszd ki az országot",
+        "registrationRequired": "ELAVULT — használd az appleAccountCompletionRequired üzenetet. Ne irányíts át e-mailes vagy jelszavas regisztrációra.",
+        "appleAccountCompletionRequired": "Válaszd ki az országot, és fogadd el a feltételeket a fiók befejezéséhez. A név és az e-mail az Apple-től jön.",
+        "familyNameRequired": "A családi fiókhoz név kell",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "A svédországi regisztráció átmenetileg zárva van.",
+          "MARKET_IE_CLOSED": "A {{brand}} Írországban még nem elérhető.",
+          "MARKET_CA_CLOSED": "A {{brand}} Kanadában még nem elérhető.",
+          "MARKET_FI_CLOSED": "A {{brand}} Finnországban még nem elérhető.",
+          "MARKET_NO_CLOSED": "A {{brand}} Norvégiában még nem elérhető.",
+          "MARKET_DK_CLOSED": "A {{brand}} Dániában még nem elérhető.",
+          "MARKET_EU_CLOSED": "A {{brand}} a te országodban még nem elérhető. Szólunk, ha több EU-s országot nyitunk.",
+          "MARKET_UK_CLOSED": "A {{brand}} az Egyesült Királyságban még nem elérhető.",
+          "MARKET_US_CLOSED": "A {{brand}} az Egyesült Államokban még nem elérhető.",
+          "MARKET_OTHER_CLOSED": "A {{brand}} a te országodban még nem elérhető.",
+          "MARKET_BILLING_NOT_READY": "Ebben az országban a vásárlás még nem elérhető, ezért nem hozunk létre olyan fiókot, amit nem tudnál használni."
+        }
+      },
+      "success": {
+        "emailVerified": "Az e-mail-címed megerősítve! Most már beléphetsz.",
+        "resendVerification": "Ha a fiók létezik, új megerősítő linket küldünk",
+        "forgotPassword": "Ha az e-mail-cím létezik, küldünk egy linket"
+      }
+    },
+    "errors": {
+      "nameRequired": "Add meg a neved",
+      "emailRequired": "Az e-mail-cím kötelező",
+      "emailInvalid": "Érvénytelen e-mail-cím",
+      "passwordRequired": "A jelszó kötelező",
+      "passwordTooShort": "A jelszó legalább 8 karakter legyen",
+      "passwordMismatch": "A jelszavak nem egyeznek",
+      "usernameRequired": "A felhasználónév kötelező",
+      "pinRequired": "A PIN-kód kötelező",
+      "pinInvalid": "A PIN-kód 4 számjegy",
+      "invalidCredentials": "Hibás e-mail vagy jelszó",
+      "accountLocked": "A fiókod átmenetileg zárolva van. Próbáld újra 15 perc múlva.",
+      "emailNotVerified": "Először erősítsd meg az e-mail-címed",
+      "emailExists": "Ehhez az e-mail-címhez már tartozik fiók",
+      "tooManyAttempts": "Túl sok próbálkozás. Várj egy kicsit, és próbáld újra.",
+      "serverError": "Valami hiba történt. Próbáld meg később.",
+      "invalidValues": "Érvénytelen értékek",
+      "invalidParams": "Érvénytelen URL-paraméterek",
+      "invalidQuery": "Érvénytelen lekérdezési paraméterek",
+      "parentPinInvalid": "Hibás PIN-kód — próbáld újra",
+      "logoutFailed": "A kijelentkezés nem sikerült. Próbáld újra.",
+      "logoutRateLimited": "Túl sok próbálkozás. Várj egy kicsit, és próbáld újra.",
+      "handoffInvalid": "A felnőtt munkamenetet nem sikerült visszaállítani. Lépj be szülőként.",
+      "userNotFound": "A felhasználó nem található",
+      "invalidPassword": "Hibás jelszó",
+      "tokenRequired": "A token kötelező",
+      "idTokenRequired": "Az idToken kötelező",
+      "allFieldsRequired": "Minden mező kötelező",
+      "messageTooShort": "Az üzenet legalább 10 karakter legyen",
+      "serviceUnavailable": "A szolgáltatás átmenetileg nem elérhető",
+      "nameTooShort": "A név kötelező (legalább 2 karakter)",
+      "roleRequired": "A szerep kötelező",
+      "consentRequired": "Hozzájárulás kell ahhoz, hogy tároljuk az adataidat",
+      "refreshInvalid": "A frissítő token érvénytelen vagy lejárt",
+      "authRequired": "Bejelentkezés szükséges",
+      "passwordTooShort6": "A jelszó legalább 6 karakter legyen"
+    }
+  },
+  "surveys": {
+    "thankYou": "Köszönjük a válaszod!",
+    "errors": {
+      "unavailable": "A kérdőív most nem elérhető",
+      "notFound": "A kérdőív nem található",
+      "closed": "A kérdőív lezárult",
+      "paused": "A kérdőív szünetel",
+      "alreadyAnswered": "Erre a kérdőívre már válaszoltál",
+      "alreadySubmitted": "A kérdőív már elküldve",
+      "questionIdRequired": "A kérdés kötelező",
+      "invalidQuestion": "Érvénytelen kérdés",
+      "maxSelections": "Legfeljebb {{max}} lehetőséget választhatsz",
+      "invalidOption": "Érvénytelen válaszlehetőség",
+      "sessionNotFound": "A munkamenet nem található",
+      "answerFirst": "Először válaszolj a kérdőívre",
+      "contestNotOpen": "A nyereményjáték nincs megnyitva",
+      "contestClosed": "A nyereményjáték lezárult",
+      "ageRequired": "A nevezéshez legalább 18 évesnek kell lenned",
+      "contestConsent": "A nyereményjátékhoz hozzájárulás kell",
+      "contestAlready": "Már neveztél a nyereményjátékra",
+      "emailAlready": "Ez a cím már nevezve van",
+      "idActionRequired": "A kérdőív és a művelet kötelező"
+    }
+  },
+  "dashboard": {
+    "welcome": "Üdv, {{name}}!",
+    "todaySchedule": "A mai napirend",
+    "children": "Gyerekek",
+    "addChild": "Gyerek hozzáadása",
+    "settings": "Beállítások",
+    "noChildren": "Még nem adtál hozzá gyereket. Kezdd az első gyerekkel!",
+    "stars": "Csillagok",
+    "streak": "Sorozat"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Az első csillagom"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Szia, {{name}}! ⭐",
+    "today": "Ma",
+    "now": "Most",
+    "next": "Következő",
+    "later": "Később",
+    "done": "Kész!",
+    "stars": "Csillagjaim",
+    "rewards": "Jutalmak"
+  },
+  "sections": {
+    "morgon": "Reggel",
+    "dag": "Nap",
+    "kvall": "Este",
+    "natt": "Éjszaka"
+  },
+  "settings": {
+    "title": "Beállítások",
+    "family": {
+      "title": "Családi beállítások",
+      "timeDisplayMode": "Idő megjelenítése",
+      "morningStart": "Reggel kezdete",
+      "morningEnd": "Reggel vége",
+      "dayStart": "Nap kezdete",
+      "dayEnd": "Nap vége",
+      "eveningStart": "Este kezdete",
+      "eveningEnd": "Este vége",
+      "nightStart": "Éjszaka kezdete",
+      "nightEnd": "Éjszaka vége",
+      "streakStartDay": "A sorozat kezdőnapja",
+      "soundEnabled": "Hang bekapcsolva",
+      "save": "Családi beállítások mentése"
+    },
+    "language": {
+      "description": "Válaszd ki az app nyelvét. Néhány angol fordítás még hiányos lehet.",
+      "switchBack": "Vissza svédre"
+    },
+    "invite": {
+      "title": "Szülő meghívása",
+      "description": "Hívj meg egy másik szülőt, hogy lássa és kezelje a gyerekek napirendjét. A meghívó 7 napig érvényes.",
+      "email": "E-mail-cím",
+      "emailPlaceholder": "szulo@email.com",
+      "selectChildren": "Válaszd ki, mely gyerekekhez férhet hozzá a meghívott szülő:",
+      "submit": "Meghívó küldése",
+      "pending": "Függő meghívók:"
+    },
+    "password": {
+      "title": "Jelszó módosítása",
+      "current": "Jelenlegi jelszó",
+      "new": "Új jelszó",
+      "confirm": "Új jelszó megerősítése",
+      "submit": "Jelszó módosítása",
+      "mismatch": "A jelszavak nem egyeznek"
+    },
+    "notifications": {
+      "title": "Értesítési beállítások",
+      "weeklySummary": "Heti összefoglaló (vasárnap 21:00)",
+      "rewardRedemption": "Jutalom beváltása",
+      "emailEnabled": "Minden e-mail globálisan",
+      "save": "Értesítési beállítások mentése"
+    },
+    "theme": {
+      "title": "Megjelenés",
+      "darkMode": "Sötét mód",
+      "darkModeDescription": "Sötét téma, hogy gyenge fényben kényelmesebb legyen",
+      "colorBlind": "Színtévesztő téma",
+      "colorBlindDescription": "A színeket a színtévesztés típusaihoz igazítja",
+      "colorBlindNone": "Nincs (alapértelmezett)",
+      "colorBlindProtanopia": "Protanópia (vörös)",
+      "colorBlindDeuteranopia": "Deuteranópia (zöld)",
+      "colorBlindTritanopia": "Tritanópia (kék)"
+    },
+    "trustedDevices": {
+      "title": "Megbízható eszközök",
+      "description": "A gyerek eszközei PIN-kód nélkül nyithatják a gyerek nézetet, ha itt jóváhagyod az eszközt.",
+      "disabled": "A gyerekeszköz-mód a családodnál még nincs bekapcsolva.",
+      "enrollHint": "A gyerek táblagépén vagy telefonján: válaszd ki a gyereket, és tedd ezt az eszközt az ő eszközévé.",
+      "enrollThisDevice": "Legyen gyerekeszköz",
+      "enrollSharedDevice": "Legyen közös családi eszköz",
+      "enrollFailed": "Az eszközt nem sikerült regisztrálni. Próbáld újra.",
+      "empty": "Nincs regisztrált megbízható eszköz.",
+      "revoke": "Visszavonás",
+      "revokeAll": "Minden eszköz visszavonása",
+      "revokeAllConfirm": "Minden megbízható eszköz kijelentkezik. Folytatod?",
+      "modeChild": "Gyerekeszköz",
+      "modeShared": "Közös eszköz",
+      "modeParent": "Szülői eszköz",
+      "unknownChild": "Gyerek"
+    },
+    "thisDevice": {
+      "title": "Ez az eszköz",
+      "description": "Hogyan nyissa meg ez a telefon vagy táblagép az appot a családodnak.",
+      "setupTitle": "Hogyan használjátok ezt az eszközt?",
+      "setupLead": "Ezt később a Beállításokban módosíthatod.",
+      "setupLater": "Most nem",
+      "openSettings": "Beállítások megnyitása",
+      "usageHeading": "Használat",
+      "usageParent": "A saját szülői telefonom",
+      "usageShared": "Megosztva a gyerekekkel",
+      "usageChild": "A gyerek eszköze",
+      "startHeading": "Így indul",
+      "startParent": "Szülő",
+      "startChoose": "Gyerek választása",
+      "startParentFixed": "Ez az eszköz mindig a szülői nézetet nyitja.",
+      "startChildFixed": "Ez az eszköz egy gyerekhez van kötve.",
+      "childrenHeading": "Gyerekek ezen az eszközön",
+      "adultAccessHeading": "Felnőtt hozzáférés",
+      "adultPinSet": "A PIN-kód megvan",
+      "adultPinMissing": "Állíts be PIN-kódot a Beállításokban",
+      "biometricIos": "Face ID vagy Touch ID, ha elérhető",
+      "biometricAndroid": "Biometria vagy eszközzár, ha elérhető",
+      "biometricWeb": "PIN-kód a felnőtt módhoz",
+      "widgetsHeading": "Widgetek",
+      "widgetsLinked": "A kezdőképernyő widgetjei a gyerek napirendjéhez vannak kötve.",
+      "widgetsNone": "Ezen az eszközön nincs kötött widget.",
+      "changeStartHeading": "Indítási mód módosítása",
+      "revokeThis": "Hozzáférés eltávolítása erről az eszközről",
+      "revokeConfirm": "Ezt az eszközt újra jóvá kell hagyni, hogy a gyerekek PIN-kód nélkül nyithassák az appot. Folytatod?",
+      "otherDevices": "Más családi eszközök",
+      "openForChild": "Közvetlenül {{name}} számára",
+      "saveFailed": "Nem sikerült menteni. Próbáld újra."
+    }
+  },
+  "common": {
+    "loading": "Betöltés…",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "edit": "Szerkesztés",
+    "back": "Vissza",
+    "confirm": "Megerősítés",
+    "yes": "Igen",
+    "no": "Nem",
+    "networkError": "Hálózati hiba"
+  },
+  "categories": {
+    "title": "Kategóriák",
+    "subtitle": "Rendezd a tevékenységeket kategóriákba",
+    "addCategory": "Kategória hozzáadása",
+    "editCategory": "Kategória szerkesztése",
+    "categoryName": "Kategória neve",
+    "categoryNamePlaceholder": "pl. Higiénia",
+    "noCategories": "Még nincs kategória",
+    "defaultBadge": "Alapértelmezett",
+    "deleteConfirm": "Biztosan törlöd ezt a kategóriát?",
+    "hasActivities": "Ehhez a kategóriához tevékenységek tartoznak. Először azokat vedd le.",
+    "saved": "A kategória mentve",
+    "deleted": "A kategória törölve"
+  },
+  "activities": {
+    "title": "Tevékenységek",
+    "subtitle": "Hozz létre és kezeld a család tevékenység-sablonjait",
+    "addActivity": "Tevékenység hozzáadása",
+    "editActivity": "Tevékenység szerkesztése",
+    "activityName": "Tevékenység neve",
+    "activityNamePlaceholder": "pl. Fogmosás",
+    "icon": "Ikon",
+    "category": "Kategória",
+    "noCategory": "Nincs kategória",
+    "starValue": "Csillagérték",
+    "starValueHelp": "Hány csillagot kap a gyerek",
+    "favorite": "Megjelölés kedvencként",
+    "favoriteHelp": "A kedvencek elöl vannak a napirendben",
+    "noActivities": "Még nincs tevékenység. Hozd létre az elsőt!",
+    "filterAll": "Mind",
+    "favoritesFirst": "A kedvencek elöl vannak",
+    "saved": "A tevékenység mentve",
+    "deleted": "A tevékenység törölve",
+    "deleteConfirm": "Biztosan törlöd ezt a tevékenységet?",
+    "usedInSchedule": "Ez a tevékenység egy napirendben van. Először onnan vedd ki."
+  },
+  "schedule": {
+    "title": "Heti napirend",
+    "subtitle": "Állíts össze napirendet minden gyereknek és minden napra",
+    "selectChild": "Gyerek választása",
+    "selectDay": "Nap választása",
+    "noChild": "Válassz gyereket fent a napirendhez",
+    "noScheduleForDay": "Erre a napra nincs napirend",
+    "createSchedule": "Napirend létrehozása erre a napra",
+    "addActivity": "Tevékenység hozzáadása",
+    "startTime": "Kezdés",
+    "endTime": "Befejezés",
+    "section": "Szakasz",
+    "copyDay": "Nap másolása",
+    "copyDayTitle": "Napirend másolása más napokra",
+    "copyFromDay": "Másolás innen",
+    "copyToDays": "Másolás ide (egy vagy több)",
+    "copyToChild": "Másolás egy másik gyerekhez",
+    "copyToChildTitle": "A teljes heti napirend másolása ide",
+    "copyConfirm": "Másolás",
+    "copied": "A napirend másolva!",
+    "deleteSchedule": "Nap törlése",
+    "deleteConfirm": "Biztos vagy benne? A nap minden tevékenysége törlődik.",
+    "deleted": "A napirend törölve",
+    "activityAdded": "A tevékenység hozzáadva",
+    "activityRemoved": "A tevékenység eltávolítva",
+    "reordered": "A sorrend frissült",
+    "days": {
+      "0": "vasárnap",
+      "1": "hétfő",
+      "2": "kedd",
+      "3": "szerda",
+      "4": "csütörtök",
+      "5": "péntek",
+      "6": "szombat"
+    },
+    "daysShort": {
+      "0": "V",
+      "1": "H",
+      "2": "K",
+      "3": "Sze",
+      "4": "Cs",
+      "5": "P",
+      "6": "Szo"
+    },
+    "sections": {
+      "morgon": "Reggel",
+      "dag": "Nap",
+      "kvall": "Este",
+      "natt": "Éjszaka"
+    }
+  },
+  "dailyLog": {
+    "title": "Napi napló",
+    "subtitle": "A nap tevékenységei",
+    "today": "Ma",
+    "prevDay": "Előző nap",
+    "nextDay": "Következő nap",
+    "selectDate": "Dátum választása",
+    "selectChild": "Gyerek választása",
+    "noChild": "Válassz gyereket fent a naplóhoz",
+    "noSchedule": "Erre a napra nincs napirend",
+    "noScheduleHint": "Adj hozzá heti napirendet, hogy a napi napló magától készüljön.",
+    "loading": "Napló betöltése…",
+    "paused": "Szünetelő nap",
+    "pausedHint": "Ez a nap szünetel (például betegség vagy pihenő).",
+    "pauseDay": "Nap szüneteltetése",
+    "unpauseDay": "Nap folytatása",
+    "pauseConfirm": "Szünetelteted ezt a napot? A tevékenységek nem számítanak ellened.",
+    "dayPaused": "A nap szünetel",
+    "dayUnpaused": "A nap újra megy",
+    "markDone": "Késznek jelölés",
+    "markUndone": "Visszavonás",
+    "completed": "Kész",
+    "notCompleted": "Nincs kész",
+    "completedAt": "Késznek jelölve ekkor",
+    "stars": "csillag",
+    "star": "csillag",
+    "progress": "{{completed}} / {{total}} tevékenység kész",
+    "allDone": "Minden tevékenység kész! 🎉",
+    "emptySection": "Ebben a szakaszban nincs tevékenység",
+    "history": "Előzmények",
+    "historyRange": "Dátumtartomány választása",
+    "historyFrom": "Ettől",
+    "historyTo": "Eddig",
+    "historyFetch": "Előzmények lekérése",
+    "historyEmpty": "A választott tartományban nincs napló",
+    "sections": {
+      "morgon": "Reggel",
+      "dag": "Nap",
+      "kvall": "Este",
+      "natt": "Éjszaka"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "E-mail megerősítése — {{brand}}",
+      "title": "Üdv a {{brand}} alkalmazásban! ⭐",
+      "body": "Koppints a gombra az e-mail-címed megerősítéséhez:",
+      "button": "E-mail megerősítése",
+      "expiry": "Ez a link {{hours}} óráig érvényes."
+    },
+    "resetPassword": {
+      "subject": "Jelszó visszaállítása — {{brand}}",
+      "title": "Állítsd vissza a jelszavad",
+      "greeting": "Szia, {{name}}",
+      "greetingGeneric": "Szia",
+      "body": "koppints ide az új jelszóhoz:",
+      "button": "Jelszó visszaállítása",
+      "expiry": "Ez a link {{hours}} óráig érvényes. Hagyd figyelmen kívül, ha nem te kérted a visszaállítást."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} be akar lépni",
+      "title": "Belépési próba a {{brand}} alkalmazásban",
+      "body": "{{childName}} 3-szor rossz PIN-kódot írt be a {{brand}} alkalmazásban.",
+      "inApp": "{{childName}} 3-szor rossz PIN-kóddal próbált belépni ({{time}})",
+      "help": "Segíthetsz a helyes kóddal, vagy az appban visszaállíthatod a PIN-kódot.",
+      "button": "A {{brand}} megnyitása",
+      "footer": "Ha nem a te gyereked volt, lépj be, és a gyerek beállításainál módosítsd a PIN-kódot."
+    },
+    "accountDeletionRequested": {
+      "subject": "A {{brand}} fiókod törlésre van jelölve",
+      "greeting": "Szia, {{name}}!",
+      "intro": "Kérést kaptunk a fiókod és minden hozzá tartozó adat törlésére.",
+      "graceTitle": "⏳ Az adataid 30 nap múlva végleg törlődnek.",
+      "undo": "Ez idő alatt beléphetsz, és <strong>megszakíthatod a törlést</strong>, ha meggondolod magad.",
+      "loginHint": "Ha meggondolod magad, lépj be a {{brand}} alkalmazásba, és ott megszakíthatod.",
+      "footer": "Ha ez tévedés volt, ezt az e-mailt figyelmen kívül hagyhatod. Az adataid 30 nap múlva törlődnek, ha nem szakítod meg.",
+      "contact": "Ha kérdésed van, írj ide: {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "A {{brand}} fiókod törölve",
+      "greeting": "Szia, {{name}}",
+      "intro": "A fiókod és minden hozzá tartozó adat végleg törlődött a {{brand}} alkalmazásból.",
+      "dataRemoved": "Minden család, gyerek, napirend, tevékenység és csillag el lett távolítva.",
+      "thanks": "Reméljük, a {{brand}} hasznos volt, amíg használtad.",
+      "return": "Ha új fiókot szeretnél, bármikor visszajöhetsz: {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Hagyd, hogy a gyereked kipróbálja az első lépést ⭐",
+      "greeting": "Szia, {{name}}!",
+      "body": "A napirend kész. Most hagyd, hogy a gyereked a PIN-kódjával belépjen — egy perc sincs.",
+      "button": "Tovább a gyerek belépéshez"
+    },
+    "welcomeShell": {
+      "headerTitle": "Üdv! 🌟",
+      "cta": "A {{brand}} megnyitása ⭐",
+      "footerIntro": "Ezt az e-mailt azért kapod, mert nemrég regisztráltál a {{brand}} alkalmazásba.",
+      "unsubscribe": "Leiratkozás"
+    },
+    "common": {
+      "genericParent": "Szülő",
+      "genericInviter": "Valaki",
+      "genericPedagogInviter": "Egy szülő",
+      "genericChild": "a gyereked",
+      "genericReward": "a jutalom",
+      "genericYou": "te",
+      "greetingNamed": "Szia, {{name}}",
+      "greeting": "Szia",
+      "familyNamed": "a(z) „{{familyName}}” család",
+      "aFamily": "egy család",
+      "settingsNotifications": "Beállítások → Értesítések",
+      "settingsNotificationsHtml": "Beállítások → <strong>Értesítések</strong>"
+    },
+    "invite": {
+      "subject": "Meghívtak a(z) {{familyLabel}} családba a {{brand}} alkalmazásban ⭐",
+      "title": "Meghívtak! ⭐",
+      "body": "{{greeting}}, {{inviterName}} meghívott a(z) {{familyLabel}} családba a {{brand}} alkalmazásban.",
+      "intro": "A {{brand}} képi napi napirend, ami segít a gyerekeknek érteni a napot, kipipálni a tevékenységeket és csillagokat gyűjteni.",
+      "ctaIntro": "Koppints ide, hozz létre jelszót, és aktiváld a fiókod:",
+      "button": "Fiók aktiválása",
+      "footer": "A meghívó 7 napig érvényes. Hagyd figyelmen kívül, ha nem vártál meghívót."
+    },
+    "pedagogInvite": {
+      "subject": "Pedagógusként hívtak meg ide: {{familyName}} ⭐",
+      "title": "Üdv pedagógusként! ⭐",
+      "greetingNamed": "Szia, {{name}},",
+      "greeting": "Szia,",
+      "body": "{{inviterName}} pedagógusként hívott meg a(z) {{familyName}} családba, a {{brand}} alkalmazásban.",
+      "intro": "Pedagógusként megfigyeléseket írhatsz, és követheted a gyerek napirendjét.",
+      "button": "Meghívó elfogadása →",
+      "footer": "A meghívó 7 napig érvényes. Ha nem vártad ezt az e-mailt, figyelmen kívül hagyhatod."
+    },
+    "winBack": {
+      "subject": "Egy perc alatt újra a ritmusban ⭐",
+      "greeting": "Szia, {{name}}! 👋",
+      "body1": "{{childName}} napirendje megvan — nyisd meg a mai tevékenységeket, és pipáljátok ki együtt.",
+      "body2": "Egy perc, és újra elindultok.",
+      "button": "Napirend megnyitása →",
+      "settingsHint": "Ezeket az e-maileket itt kapcsolhatod ki: {{settingsLink}} az appban.",
+      "settingsLinkText": "Beállítások → Értesítések"
+    },
+    "activationProgramInvite": {
+      "subject": "Gyengéd kezdés {{childName}} rutinjaihoz?",
+      "greeting": "Szia, {{name}}!",
+      "body1": "Létrehoztad a fiókot, és összeállítottad {{childName}} napirendjét — szép munka.",
+      "body2": "Sok család azt mondja, nem a kezdés a nehéz, hanem <strong>megtartani a rutint</strong>, amikor a mindennapok átveszik a helyet.",
+      "body3": "Most kipróbálhatod a <strong>7 napos kezdőprogramot</strong>: rövid napi lépések, hogy szülőként tartsd a lendületet. A gyereked napirendje ugyanaz marad.",
+      "button": "Igen, segíts az első héten",
+      "footer": "Ha nem kéred az útmutatót, az app a szokott módon működik — minden, amit beállítottál, megmarad."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "A rutin vár — próbáljátok ki együtt ma este ⭐",
+        "greeting": "Szia, {{name}}!",
+        "body1": "A napirend már megvan. Most már csak <strong>együtt kell kipróbálni a rutint</strong> — hagyd, hogy a gyereked belépjen, és begyűjtse az első csillagot.",
+        "body2": "Körülbelül két perc. Nincs nyomás.",
+        "button": "Kezdőlap megnyitása →"
+      },
+      "noSchema": {
+        "subject": "Kezdd el a rutint — csak pár perc ⭐",
+        "greeting": "Szia, {{name}}!",
+        "body1": "Regisztráltál — jó kezdés! A következő lépés a <strong>napirend összeállítása</strong>, hogy a gyereked tudja, mire számíthat minden nap.",
+        "body2": "Körülbelül öt perc. Amit már megcsináltál, megmarad, ha később folytatnád.",
+        "button": "Beléptetés folytatása →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Feliratkoztál a {{brand}} hírlevelére",
+      "title": "Köszi a feliratkozást! ⭐",
+      "greetingNamed": "Szia, {{name}},",
+      "greeting": "Szia,",
+      "body": "Mostantól kapod a {{brand}} hírlevelét tippekkel, hírekkel és appfrissítésekkel.",
+      "settings": "Bármikor leiratkozhatsz az app <a href=\"{{settingsUrl}}\">Beállítások</a> menüjében, vagy a hírlevelek alján lévő linken.",
+      "signoff": "Üdvözlettel:<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} be szeretné váltani: „{{rewardName}}” ⭐",
+      "title": "Jutalom vár jóváhagyásra! 🎁",
+      "greeting": "Szia, {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> ezt szeretné beváltani:",
+      "cost": "Ár: {{starCost}} csillag",
+      "approveHint": "Lépj be az appba, és fogadd el vagy utasítsd el a beváltást.",
+      "settingsHint": "Ezeket az értesítéseket itt kapcsolhatod ki: {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "hónap",
+      "howTitle": "Hogyan működik:",
+      "how1": "Készíts napirendet és tevékenységeket a gyerekednek",
+      "how2": "Hagyd, hogy a gyereked minden nap csillagokat gyűjtsön",
+      "how3": "Állíts be jutalmakat a kincsesládában",
+      "footerIntro": "Ezt az e-mailt azért kapod, mert nemrég regisztráltál a {{brand}} alkalmazásba.",
+      "openApp": "Az app megnyitása",
+      "trial": {
+        "subject": "Üdv a {{brand}} alkalmazásban – elindult az ingyenes időszakod!",
+        "headerTitle": "Elindult az ingyenes időszakod! ⭐",
+        "intro": "Üdv! Most <strong>{{trialDays}} napig ingyen</strong> kipróbálhatod a {{brand}} minden funkcióját — bankkártya nem kell.",
+        "pricing": "{{trialDays}} nap után <strong>{{monthlyPrice}}</strong> az ára — bármikor válthatsz.",
+        "pricingOpen": "{{trialDays}} nap után eldöntöd, folytatod-e előfizetéssel.",
+        "cta": "Próbáld ki a Premiumot ⭐",
+        "ctaHint": "Nincs elköteleződés — bármikor lemondhatod"
+      },
+      "complimentary": {
+        "subject": "Üdv a {{brand}} alkalmazásban – ingyenes eddig: {{freeUntil}}",
+        "headerTitle": "Ingyenes eddig: {{freeUntil}}",
+        "intro": "Üdv! <strong>A {{brand}} ingyenes eddig: {{freeUntil}}.</strong> Előfizetés és fizetési mód nem kell. Ez az ajánlat nem válik magától fizetős előfizetéssé.",
+        "pricing": "{{paidFrom}} után eldöntheted, folytatod-e előfizetéssel. Emiatt az ajánlat miatt semmi nem terhelődik automatikusan.",
+        "cta": "Az app megnyitása",
+        "ctaHint": "Bankkártya nem kell. Ez az ajánlat nem válik magától előfizetéssé."
+      },
+      "introYear": {
+        "subject": "Üdv a {{brand}} alkalmazásban",
+        "headerTitle": "Üdv! ⭐",
+        "intro": "Üdv! Használhatod a {{brand}} funkcióit.",
+        "pricing": "Erre az időszakra nem kell fizetni.",
+        "cta": "Az app megnyitása",
+        "ctaHint": "A Premiumot bármikor megnézheted"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Heti összefoglaló ⭐ — {{weekLabel}}",
+      "greeting": "Szia, {{name}}! 👋",
+      "intro": "Itt a heti összefoglaló erre: <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} ezen a héten {{stars}} csillagot gyűjtött!",
+      "sharePrompt": "Ismersz egy másik szülőt, akinek ez jól jönne?",
+      "shareWhatsApp": "Megosztás WhatsAppon",
+      "shareFriend": "Meséld el egy ismerősnek",
+      "shareTextWithHighlight": "{{highlight}} A gyerekek rutinjához a {{brand}} alkalmazást használjuk – nézd meg:",
+      "shareTextGeneric": "A gyerekek napi rutinjához a {{brand}} alkalmazást használjuk – nézd meg:",
+      "starsEarned": "Begyűjtött csillagok",
+      "routinesCompleted": "Teljesített rutinok",
+      "routinesOf": "{{completed}} / {{total}} ({{pct}}%)",
+      "moodAverage": "Hangulat (átlag)",
+      "moodVeryHappy": "Nagyon vidám 😄 ({{score}}/10)",
+      "moodHappy": "Vidám 🙂 ({{score}}/10)",
+      "moodNeutral": "Semleges 😐 ({{score}}/10)",
+      "moodSad": "Szomorú 😔 ({{score}}/10)",
+      "encourageNoActivity": "Új hét jön — próbáljatok kipipálni egy rutint együtt, csak egy pillanat.",
+      "encourageProgress": "🌟 Csak így tovább! Minden kész rutin egész életre szóló szokást épít.",
+      "encourageSmallSteps": "🌟 A kis lépések számítanak — ezen a héten próbáljatok kipipálni egy rutint együtt.",
+      "genericChildName": "A gyereked"
+    },
+    "notificationFooter": {
+      "settingsLink": "Beállítások → Értesítések",
+      "optOutDefault": "Értesítés kikapcsolása",
+      "optOutWeeklySummary": "Heti összefoglaló kikapcsolása"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "1. nap — nézzétek meg együtt",
+        "body": "Így látja {{childName}} a napirendet — nézzétek meg együtt.",
+        "ctaLabel": "Gyerek élmény mutatása"
+      },
+      "2": {
+        "title": "2. nap — reggeli pillantás",
+        "body": "Nyisd meg ma valamikor az áttekintést — 30 másodperc az egész.",
+        "ctaLabel": "Napirend megnyitása"
+      },
+      "3": {
+        "title": "3. nap — ünnepeljetek meg egy csillagot",
+        "body": "Szerzett ma {{childName}} egy csillagot? Ünnepeljétek meg együtt!",
+        "ctaLabel": "A mai napirend megtekintése",
+        "supportiveFallback": "Az első hét a kezdésről szól — elég belenézni, és látni, hogy a napirend kész."
+      },
+      "4": {
+        "title": "4. nap — a te appod",
+        "body": "Valami nem stimmel? Cseréld ki a tevékenységet, ha kell.",
+        "ctaLabel": "Napirend szerkesztése"
+      },
+      "5": {
+        "title": "5. nap — jutalom",
+        "body": "Nézd meg a kincsesládát — miről álmodik {{childName}} most?",
+        "ctaLabel": "Kincsesláda megnyitása"
+      },
+      "6": {
+        "title": "6. nap — a felelősség megosztása",
+        "body": "Szeretnéd megosztani a felelősséget valakivel?",
+        "ctaLabel": "Valaki meghívása",
+        "soloLabel": "Egyedül csinálom!"
+      },
+      "7": {
+        "title": "Egy hét! 🎉",
+        "body": "Gratulálunk! Milyen volt a hét?",
+        "ctaLabel": "Válasz a kérdésre"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Ideje a(z) „{{activityName}}” tevékenységnek, {{minutes}} perc múlva! ⭐",
+      "body": "Emlékeztető neki: {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Tartsd életben a rutint 💫",
+      "day3Body": "Eltelt pár nap — nyisd meg a napirendet, és add oda a mai csillagokat.",
+      "day7Title": "Egy hete nem voltál bent",
+      "day7Body": "A gyereked napirendje vár. Elég egy gyors pillantás.",
+      "day14Title": "Hiányzol az appból",
+      "day14Body": "Két hét tevékenység nélkül — ugorj be, és tartsd életben a rutint."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} ma még nem lépett be",
+      "body": "Nézd meg a napirendet, és segíts kitölteni a napot!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} összegyűjtött {{milestone}} csillagot! 🌟",
+      "bodyCongrats": "{{emoji}} Gratulálunk neki: {{childName}}!",
+      "body100": "Egészen elképesztő! Új kihívások várnak!"
+    },
+    "backfillReminder": {
+      "title": "{{childName}} tegnapi napirendje hiányzik",
+      "body": "Töltsd ki a tegnapot, hogy minden naprakész legyen!"
+    },
+    "custodyMorning": {
+      "title": "Ma: {{childName}} nálad van",
+      "body": "A napi napirend az appban vár."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Átadás holnap — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} itt: {{homeLabel}}",
+      "bodyPack": "🎒 A táska bepakolása benne van a holnapi napirendben.",
+      "bodyPrepare": "Készülj a heti átadásra."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "befejezte: {{activityName}}!",
+      "bodyBatch": "befejezett {{count}} tevékenységet!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} csillag neki: {{childName}}!",
+      "body": "{{parentName}} adott {{childName}} számára {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "csillag",
+    "starLabelMany": "csillag",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} jutalmat szeretne beváltani!",
+      "body": "{{childName}} ezt kéri: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Jó reggelt! Nézd meg {{childName}} napirendjét — 30 mp 🌅",
+      "day3Body": "Szerzett ma {{childName}} egy csillagot? Ünnepeljétek meg együtt ⭐",
+      "day4Body": "Valami nem stimmel? Cseréld ki a tevékenységet ✏️",
+      "day5Body": "Nézd meg a kincsesládát — miről álmodik {{childName}} most? 🎁",
+      "day6Body": "Szeretnéd megosztani a felelősséget valakivel? 👥",
+      "day7Body": "Gratulálunk! Milyen volt a hét?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Valami hiba történt.",
+          "rewardIdRequired": "A reward_id kötelező",
+          "childNotFound": "A gyerek nem található",
+          "rewardNotFound": "A jutalom nem található",
+          "requestNotFound": "A kérés nem található",
+          "pendingOnlyApprove": "Csak függő kérést lehet jóváhagyni",
+          "pendingOnlyDeny": "Csak függő kérést lehet elutasítani",
+          "childIdRequired": "A child_id kötelező",
+          "reasonRequired": "Az indoklás kötelező",
+          "starCountRange": "A csillagok száma 1 és 100 között legyen"
+        },
+        "forDig": {
+          "childAndGoalRequired": "A child_id és a goal_slug kötelező",
+          "childAccessDenied": "A kiválasztott gyerekek egyikéhez nincs hozzáférésed.",
+          "dismissFailed": "A kérdést nem sikerült bezárni"
+        }
+      },
+      "success": {
+        "goalSet": "A cél beállítva!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Köszönjük a visszajelzést! Mindent elolvasunk, ami beérkezik.",
+    "contactAck": "Köszönjük! Megkaptuk az üzeneted.",
+    "export": {
+      "noData": "Nincs adat",
+      "rateLimit": "Az adataidat 24 óránként csak egyszer exportálhatod. Próbáld újra {{hours}} óra múlva.",
+      "notFound": "A felhasználó nem található"
+    },
+    "account": {
+      "deletionPending": "A fiókod törlésre van jelölve. 30 napod van meggondolni magad.",
+      "alreadyPending": "A fiókod már törlésre van jelölve."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Teljes hozzáférés az egész családnak",
+    "benefit1": "Minden rutin és napirend",
+    "benefit2": "Csillagok és a család funkciói",
+    "benefit3": "Minden adatod nálad marad",
+    "webNoticeTitle": "A Premiumot az appban kapcsold be",
+    "webNoticeBody": "A Premiumot az App Store-ban vagy a Google Playen veszed meg — nem a weben.",
+    "webNoticeBodyAppleOnly": "A Premiumot az App Store-ban veszed meg — nem a weben. Az Android hamarosan jön.",
+    "downloadIphone": "Letöltés iPhone-ra",
+    "downloadAndroid": "Letöltés Androidra",
+    "androidComingSoon": "Az Android hamarosan jön",
+    "loadingPrices": "Árak betöltése…",
+    "continue": "Tovább",
+    "restore": "Vásárlások visszaállítása",
+    "yearlyBadge": "Ajánlott",
+    "yearlyPrice": "{{price}}/év",
+    "yearlySavings": "Olcsóbb, mint havonta fizetni",
+    "yearlyTermsKnownTrial": "{{trialDays}} napos ingyenes próba · utána {{price}}/év · automatikusan megújul",
+    "yearlyTermsConditionalTrial": "14 napos ingyenes próba az arra jogosult új előfizetőknek · utána {{price}}/év · automatikusan megújul",
+    "yearlyTermsNoTrial": "{{price}}/év · automatikusan megújul",
+    "monthlyPrice": "{{price}}/hó",
+    "monthlyBlurb": "Rugalmas havi előfizetés a családodnak.",
+    "monthlyTermsKnownTrial": "{{trialDays}} napos ingyenes próba · utána {{price}}/hó · automatikusan megújul",
+    "monthlyTermsConditionalTrial": "14 napos ingyenes próba az arra jogosult új előfizetőknek · utána {{price}}/hó · automatikusan megújul",
+    "monthlyTermsNoTrial": "{{price}}/hó · automatikusan megújul",
+    "autoRenewApple": "Az előfizetés automatikusan megújul, ha nem mondod le. A fizetést az App Store intézi. Az Apple-fiókodban kezelheted vagy lemondhatod.",
+    "autoRenewGoogle": "Az előfizetés automatikusan megújul, ha nem mondod le. A fizetést a Google Play intézi. A Google-fiókodban kezelheted vagy lemondhatod.",
+    "termsLink": "Feltételek",
+    "privacyLink": "Adatvédelem",
+    "legal": "Az ingyenes próbát a számlázás előtt lemondhatod az App Store vagy a Google Play szabályai szerint. Kezeld vagy mondd le az áruház előfizetési beállításaiban.",
+    "legalAppleOnly": "Az ingyenes próbát a számlázás előtt lemondhatod. Kezeld vagy mondd le az App Store előfizetési beállításaiban.",
+    "legalGoogleOnly": "Az ingyenes próbát a számlázás előtt lemondhatod. Kezeld vagy mondd le a Google Play előfizetési beállításaiban.",
+    "giftCard": "Van ajándékkártyám",
+    "giftCodeLabel": "Ajándékkód",
+    "giftRedeem": "Ajándékkártya beváltása",
+    "limitedAccount": "Tovább korlátozott fiókkal",
+    "statusOpening": "A fizetés megnyílik…",
+    "statusRestoring": "Vásárlások visszaállítása…",
+    "statusSuccess": "A Premium aktív! Üdv újra.",
+    "statusCancelled": "A vásárlás megszakadt.",
+    "statusFailed": "A vásárlás nem sikerült. Próbáld újra.",
+    "statusUnavailable": "Az előfizetéseket most nem sikerült betölteni. Próbáld újra.",
+    "statusAndroidComingSoon": "A Premium Androidon hamarosan jön.",
+    "statusNotNative": "Itt a vásárlás nem elérhető. Használd az appot.",
+    "restoreSuccess": "A vásárlások visszaállítva! Üdv újra.",
+    "restoreNone": "Nem találtunk visszaállítható, aktív vásárlást.",
+    "giftSuccess": "Az ajándékkártya beváltva!",
+    "giftFailed": "A kódot nem sikerült beváltani.",
+    "launchEnded": "A nyitó hozzáférés véget ért. Fizess elő az appban, ha a teljes hozzáférést szeretnéd megtartani."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "szia",
+      "subject": "A támogatási beszélgetésed",
+      "text": "Szia, {{name}}!\n\nMegkaptuk az üzeneted. Itt követheted a beszélgetést, és itt írhatsz vissza (egy sima e-mail-válasz nem jut el hozzánk):\n{{url}}\n\nÜdvözlettel:\n{{fromName}}",
+      "htmlHi": "Szia, {{name}}!",
+      "htmlReceived": "Megkaptuk az üzeneted.",
+      "openLink": "Beszélgetés megnyitása",
+      "htmlHint": "hogy kövesd a beszélgetést, és írj vissza. Egy sima e-mail-válasz nem jut el hozzánk.",
+      "htmlBye": "Üdvözlettel"
+    },
+    "reply": {
+      "subjectBug": "Válasz: a hibajelentésed",
+      "subjectFeedback": "Válasz: a visszajelzésed",
+      "subjectLanguage": "Válasz: a nyelvi jelentésed",
+      "subjectContact": "Válasz: az üzeneted",
+      "text": "Szia, {{name}}!\n\n{{reply}}\n\nItt olvasod a teljes beszélgetést, és itt írhatsz vissza (egy sima e-mail-válasz nem jut el hozzánk):\n{{url}}\n\n---\nAz eredeti üzeneted:\n{{original}}\n\nÜdvözlettel:\n{{fromName}}",
+      "htmlHi": "Szia, {{name}}!",
+      "openLink": "Beszélgetés megnyitása",
+      "htmlHint": "hogy elolvasd a teljes beszélgetést, és írj vissza. Egy sima e-mail-válasz nem jut el hozzánk.",
+      "originalLabel": "Az eredeti üzeneted:",
+      "htmlBye": "Üdvözlettel"
+    },
+    "page": {
+      "title": "A beszélgetésed",
+      "intro": "Ez a teljes beszélgetés. Írj alább, ha folytatnád. Egy sima e-mail-válasz itt nem látszik.",
+      "you": "Te",
+      "us": "Mi",
+      "empty": "Még nincs üzenet.",
+      "label": "Írj nekünk",
+      "placeholder": "Mondd el, mi történik…",
+      "submit": "Küldés",
+      "submitting": "Küldés…",
+      "needHuman": "Több segítség kell egy embertől",
+      "escalating": "Küldés…",
+      "caseRef": "Ügy {{ref}}",
+      "status": {
+        "new": "Megérkezett",
+        "read": "Elolvasva",
+        "in_progress": "Folyamatban",
+        "answered": "Megválaszolva",
+        "archived": "Lezárva"
+      }
+    },
+    "errors": {
+      "invalid": "Ez a link érvénytelen. Kérd, hogy küldjünk új választ.",
+      "expired": "Ez a link lejárt. Kérd, hogy küldjünk újat.",
+      "revoked": "Ez a link már nem működik. Kérd, hogy küldjünk újat.",
+      "archived": "Ez az ügy le van zárva. Írj újra, ha még segítség kell.",
+      "legacySunset": "Ez a link túl régi. Írj nekünk, és küldünk egy újat.",
+      "tooShort": "Írj legalább 10 karaktert, hogy értsük, mi történik.",
+      "tooLong": "A válasz legfeljebb 5000 karakter lehet.",
+      "notFound": "Az ügy nem található.",
+      "rateLimit": "Túl sok próbálkozás. Próbáld újra egy óra múlva.",
+      "generic": "Az ügyet nem sikerült megnyitni.",
+      "sendFailed": "Nem sikerült elküldeni. Próbáld újra."
+    },
+    "success": {
+      "submitted": "Köszi! Megkaptuk a válaszod.",
+      "escalated": "Köszi. Egy ember megnézi ezt az ügyet."
+    }
+  },
+  "story": {
+    "someone": "Valaki",
+    "anActivity": "egy tevékenység",
+    "activityWithStars": "{{name}} befejezte: {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} befejezte: {{activity}}",
+    "goalFallback": "cél",
+    "goal": "A család elérte a célt: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Süti beállítások",
+    "intro": "Sütiket használunk elemzésre, marketingre és személyre szabásra a weboldalon.",
+    "manage": "Beállítások kezelése",
+    "manageHide": "Beállítások elrejtése",
+    "deny": "Összes elutasítása",
+    "accept": "Összes elfogadása",
+    "save": "Választásaim mentése",
+    "necessaryLabel": "Szükséges",
+    "necessaryDesc": "Kell ahhoz, hogy az oldal működjön.",
+    "analyticsLabel": "Elemzés",
+    "analyticsDesc": "Segít érteni, hogyan használják az oldalt (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Ideillő hirdetéseket mutat, és méri a kampányokat.",
+    "personalizationLabel": "Személyre szabás",
+    "personalizationDesc": "A tartalmat és az ajánlásokat igazítja."
+  },
+  "growthHelp": {
+    "reportProblem": "Hiba jelzése",
+    "suggestedHelp": "Javasolt segítség",
+    "reportThanks": "Köszi — megkaptuk a jelentésed a technikai részletekkel.",
+    "howChildStarts": "Hogyan indul a gyerek?",
+    "needHelpLogin": "Segítség kell a belépéshez?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Rövid megjegyzés, nem kötelező (a válaszoddal együtt megy)",
+    "notNow": "Most nem",
+    "thanks": "Köszönjük a visszajelzést."
+  },
+  "growthReferral": {
+    "title": "Ismersz egy másik családot, akinek nyugodtabb reggelek kellenek?",
+    "subtitle": "Oszd meg a saját linked — nincs jutalomspam, csak egy tipp.",
+    "copyLink": "Link másolása",
+    "copied": "Másolva",
+    "copyPrompt": "Másold ezt a linket:",
+    "share": "Megosztás",
+    "shareText": "A gyerekek rutinjához a {{brand}} alkalmazást használjuk. Hozz létre egy ingyenes fiókot: ",
+    "notNow": "Most nem"
+  },
+  "legalReturn": {
+    "backToPremium": "Vissza a Premiumhoz"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Csomag",
+    "dismiss": "Most nem",
+    "interested": "Érdekel",
+    "interestedSub": "Érdeklődés a következő iránt",
+    "buyNow": "Megveszem",
+    "reporting": {
+      "title": "Jelentések",
+      "body": "Két hete rögzíted a tevékenységeket — szeretnél tisztább képet arról, hogyan változnak a dolgok?"
+    },
+    "pedagog": {
+      "title": "Pedagógus",
+      "body": "Szeretnél pedagógussal vagy terapeutával dolgozni a gyerek mindennapjain?"
+    },
+    "teacch": {
+      "title": "Extra támogatás",
+      "body": "Adj vizuális támogatást A hét kérdéssel — segít a gyereknek érteni, mi történik."
+    }
+  }
+}

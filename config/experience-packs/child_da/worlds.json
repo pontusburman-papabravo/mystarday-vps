@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Morgenhus",
+      "first_unlock_message": "Morgenhuset venter på dig",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Morgenhuset ved, at du er her.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Et blødt lys tænder.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Døren",
+          "always_active": true,
+          "ambient_message_sv": "Døren ryster lidt — som om nogen venter udenfor.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Udenfor venter haven …",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Haven",
+      "first_unlock_message": "Haven venter på dig",
+      "ambient_message_sv": "Græsset bevæger sig langsomt i vinden.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Stien",
+          "emoji": "🌿",
+          "ambient_message_sv": "Stien fører længere ind i haven.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Stien fører til et varmt rum fyldt med minder …",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Blomsterbed",
+          "emoji": "🪴",
+          "ambient_message_sv": "Jorden føles blød og varm.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Himlen",
+          "emoji": "☁️",
+          "ambient_message_sv": "Skyerne bevæger sig langsomt.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Minderummet",
+      "first_unlock_message": "Her er det, du har været stolt af.",
+      "ambient_message_sv": "Her føles det varmt og trygt.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Vinduet",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Lyset falder blødt ind."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Mindemur",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Her hænger det, der betyder noget for dig."
+        }
+      ]
+    }
+  ]
+}

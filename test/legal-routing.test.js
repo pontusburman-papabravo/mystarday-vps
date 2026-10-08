@@ -64,6 +64,16 @@ describe('legal-routing', () => {
     assert.notEqual(routes.terms, '/en/uk/terms');
   });
 
+  it('CA keeps the same document status in Swedish and English', () => {
+    const swedish = resolveLegalRoutes({ countryCode: 'CA', marketRegion: 'OTHER', locale: 'sv-SE' });
+    const english = resolveLegalRoutes({ countryCode: 'CA', marketRegion: 'OTHER', locale: 'en-GB' });
+    const ireland = resolveLegalRoutes({ countryCode: 'IE', marketRegion: 'EU', locale: 'en-GB' });
+    assert.deepEqual(swedish, english);
+    assert.equal(english.status, 'draft');
+    assert.equal(ireland.status, 'live');
+    assert.equal(english.privacy, ireland.privacy);
+  });
+
   it('GB uses UK placeholder routes regardless of en-GB locale', () => {
     const routes = resolveLegalRoutes({ countryCode: 'GB', marketRegion: 'UK', locale: 'en-GB' });
     assert.equal(routes.privacy, '/en/uk/privacy');

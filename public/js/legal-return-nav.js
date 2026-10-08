@@ -35,8 +35,16 @@
   }
 
   function backLabel() {
-    const lang = (document.documentElement.lang || '').toLowerCase();
-    return lang.indexOf('en') === 0 ? 'Back to Premium' : 'Tillbaka till Premium';
+    if (window.I18n && typeof I18n.t === 'function') {
+      const value = I18n.t('legalReturn.backToPremium');
+      if (value && value !== 'legalReturn.backToPremium') return value;
+    }
+    const configured = (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
+    const lang = (document.documentElement.lang || configured).toLowerCase();
+    const base = lang.split(/[-_]/)[0];
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    if (base === configuredBase) return 'Tillbaka till Premium';
+    return 'Back to Premium';
   }
 
   function initInAppReturnNav() {

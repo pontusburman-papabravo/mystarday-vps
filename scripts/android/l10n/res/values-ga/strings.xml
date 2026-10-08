@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Níl aon nasc ann</string>
+    <string name="native_offline_body">Seiceáil do nasc idirlín agus bain triail eile as.</string>
+    <string name="camera_permission_rationale">[REDACTED] úsáideann an ceamara ionas gur féidir leat grianghraf próifíle a thógáil do do pháiste.</string>
+    <string name="photos_permission_rationale">[REDACTED] — tá rochtain ar do ghrianghraif de dhíth chun pictiúr próifíle a roghnú do do pháiste.</string>
+    <string name="notification_channel_routine_name">Meabhrúcháin ghnáthaimh</string>
+    <string name="notification_channel_routine_desc">Meabhrúcháin faoi phlean do theaghlaigh</string>
+</resources>

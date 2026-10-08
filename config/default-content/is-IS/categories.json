@@ -1,0 +1,32 @@
+[
+  {
+    "key": "forskola",
+    "name": "Leikskóli",
+    "sort_order": 0
+  },
+  {
+    "key": "skola",
+    "name": "Skóli",
+    "sort_order": 1
+  },
+  {
+    "key": "morgon",
+    "name": "Morgunn",
+    "sort_order": 2
+  },
+  {
+    "key": "dag",
+    "name": "Dagur",
+    "sort_order": 3
+  },
+  {
+    "key": "kvall",
+    "name": "Kvöld",
+    "sort_order": 4
+  },
+  {
+    "key": "helg",
+    "name": "Helgi",
+    "sort_order": 5
+  }
+]

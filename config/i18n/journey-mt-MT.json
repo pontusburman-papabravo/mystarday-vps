@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Uri pariri",
+    "close": "Agħlaq",
+    "milestone": "Pass importanti",
+    "nextStep": "Il-pass li jmiss",
+    "tip": "Parir",
+    "weekReflection": "Ħarsa lejn il-ġimgħa",
+    "weekTogether": "Ġimgħa flimkien",
+    "weekLabel": "Ġimgħa",
+    "sjDay3Headline": "Wasal iż-żmien li {{name}} jipprova",
+    "tips": {
+      "coach_consistency": [
+        "Żomm ir-rutina qasira u ċara — it-tifel jibni d-drawwa pass pass.",
+        "Iċċelebra kull tikka, anke dawk iż-żgħar.",
+        "Ħalli lit-tifel jidħol waħdu kull filgħodu."
+      ],
+      "coach_evening": [
+        "Żid 2–3 attivitajiet kalmi qabel l-irqad.",
+        "L-istess ordni kull filgħaxija jagħmel l-irqad eħfef."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Ġdid",
+    "dismissAria": "Agħlaq it-tifsira",
+    "continueFallback": "Kompli",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Issa nuruk suġġeriment ċar għall-pass li jmiss, hawn fuq Id-dar.",
+        "whatChanged": "Żidna karta \"Il-pass li jmiss\" fil-quċċata.",
+        "whyItMatters": "M'għandekx għalfejn tfittex fit-tfakkiriet — suġġeriment wieħed kull darba."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Ħalli lit-tifel tiegħek jipprova r-rutina",
+      "body": "Iftaħ il-vista tat-tifel flimkien — jara minnufih x'għandu jagħmel.",
+      "cta": "Iftaħ il-vista tat-tifel"
+    },
+    "ADD_EVENING": {
+      "headline": "Żid ir-rutina ta' filgħaxija",
+      "body": "Agħmel il-ħin tal-irqad ċar daqs il-filgħodu.",
+      "cta": "Żid il-filgħaxija"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Stieden lill-ġenitur l-ieħor",
+      "body": "Aqsam ir-rutina biex issegwu flimkien.",
+      "cta": "Stieden"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Ibda b'pass żgħir wieħed",
+      "body": "Ir-rutina tiegħek għadha hemm — ħu attività waħda kull darba illum.",
+      "cta": "Iftaħ il-pjan tal-ġimgħa"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Adatta r-rutina tiegħek",
+      "body": "Issa tista' tagħmel il-pjan tal-ġimgħa tiegħek.",
+      "cta": "Adatta"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Iċċelebra l-progress",
+      "body": "Għamilt pass importanti — ħu mument flimkien.",
+      "cta": "Uri lit-tifel"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "It-tifel tiegħek lesta attività!",
+    "defaultChild": "It-tifel tiegħek",
+    "defaultActivity": "attività",
+    "defaultCta": "Fhimt"
+  }
+}

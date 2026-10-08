@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Opret PDF — skema — {{brand}}",
+  "backLink": "← Tilbage til Planlægning",
+  "heading": "📄 Opret PDF — skema",
+  "intro": "Vælg et barn og en periode. Forhåndsvisningen viser hele skemaet — PDF'en skalerer automatisk, så den passer på ét A4-ark på tværs.",
+  "pdfSave": {
+    "title": "Hvor gemmes PDF'en?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Efter <em>Opret PDF</em> åbner et delingsark — vælg <strong>Gem i Arkiver</strong>, og vælg en mappe (f.eks. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computer:</strong> PDF'en lander i mappen <strong>Overførsler</strong> (ofte nederst til venstre i browseren)."
+  },
+  "sections": {
+    "child": "Barn",
+    "period": "Periode",
+    "scope": "Hvad skal PDF'en indeholde?",
+    "startWeek": "Startuge"
+  },
+  "period": {
+    "1w": "1 uge",
+    "2w": "2 uger",
+    "1m": "1 måned"
+  },
+  "scope": {
+    "all": "Hele skemaet",
+    "my": "Kun mine dage"
+  },
+  "weekNav": {
+    "prevAria": "Forrige uge",
+    "nextAria": "Næste uge",
+    "today": "Denne uge"
+  },
+  "actions": {
+    "preview": "Forhåndsvisning",
+    "createPdf": "Opret PDF"
+  },
+  "preview": {
+    "heading": "Forhåndsvisning",
+    "hint": "Rul ned, hvis en dag har mange aktiviteter."
+  },
+  "pdfHelp": {
+    "title": "Sådan gemmer du PDF'en",
+    "closeAria": "Luk",
+    "ok": "OK, forstået",
+    "introShare": "Delingsarket er åbent. Vælg Gem i Arkiver for at gemme PDF'en.",
+    "introPreview": "PDF'en åbnede i browseren{{filename}}.",
+    "introDesktop": "PDF'en blev hentet{{filename}}.",
+    "filenameSuffix": " som {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "I delingsarket: rul, og tryk på <strong>Gem i Arkiver</strong>.",
+      "Vælg en mappe (f.eks. <strong>iCloud Drive</strong> eller <strong>På min iPhone</strong>).",
+      "Tryk på <strong>Gem</strong> øverst til højre.",
+      "Find filen senere i appen <strong>Arkiver</strong>."
+    ],
+    "previewSteps": [
+      "PDF'en åbnede i en ny visning — tryk på <strong>Del</strong> (↑) øverst til højre.",
+      "Vælg <strong>Gem i Arkiver</strong>.",
+      "Vælg en mappe, og tryk på <strong>Gem</strong>."
+    ],
+    "desktopSteps": [
+      "Åbn mappen <strong>Overførsler</strong> på din computer.",
+      "Led efter en fil, der starter med <strong>{{prefix}}</strong> og dagens dato."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Skema",
+    "titleMyDays": "Mine dage",
+    "emptyCell": "–",
+    "childFallback": "Barn",
+    "loadingPrint": "Forbereder udskrift…",
+    "iframeTitle": "Udskriv"
+  },
+  "filename": {
+    "prefixSchedule": "ugeskema",
+    "prefixMyDays": "mine-dage",
+    "fallbackSlug": "barn"
+  },
+  "toasts": {
+    "loadChildrenError": "Kunne ikke hente børn",
+    "selectChild": "Vælg et barn først",
+    "loadingPreview": "Indlæser forhåndsvisning…",
+    "noMyDays": "Ingen dage til dig i den valgte periode",
+    "loadScheduleError": "Kunne ikke hente skemaet",
+    "creatingPdf": "Opretter PDF…",
+    "pdfCancelled": "Gemning af PDF blev afbrudt",
+    "shareHint": "Vælg Gem i Arkiver i delingsarket",
+    "mobileSavedHint": "PDF klar — gem den i Arkiver",
+    "desktopSavedHint": "PDF gemt i Overførsler",
+    "pdfLibsMissing": "PDF-værktøjer mangler — genindlæs siden, og prøv igen",
+    "createPdfError": "Kunne ikke oprette PDF'en",
+    "shareAgain": "PDF'en er klar. Tryk på Opret PDF igen for at vælge, hvor den skal gemmes."
+  },
+  "empty": {
+    "noChildren": "Ingen børn er tilføjet endnu.",
+    "goDashboard": "Gå til Hjem"
+  }
+}

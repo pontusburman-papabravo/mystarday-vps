@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Instellingen — {{brand}}",
+  "title": "Instellingen",
+  "shellLead": "Profiel, gezin en app",
+  "familySettings": "Gezinsinstellingen",
+  "groups": {
+    "profile": {
+      "title": "Profiel en account",
+      "sub": "Inloggen, pincode en account"
+    },
+    "family": {
+      "title": "Gezin",
+      "sub": "Naam en taal. Personen beheer je onder Gezin."
+    },
+    "device": {
+      "title": "Dit apparaat",
+      "sub": "Telefoon van het kind, van de volwassene of gedeeld"
+    },
+    "appearance": {
+      "title": "Weergave",
+      "sub": "Donker of licht thema"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Meldingen, push en privacy"
+    },
+    "premium": {
+      "title": "Abonnement",
+      "sub": "Premium, aankopen en betalingen"
+    }
+  },
+  "appearance": {
+    "dark": "Donker",
+    "light": "Licht",
+    "backToSettings": "← Terug naar instellingen"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planning",
+      "sub": "Maak inhoud of plan de week van je kinderen."
+    },
+    "rewards": {
+      "title": "Beloningen",
+      "sub": "Sterren, beloningen en de sterrenkist van het gezin."
+    },
+    "calendar": {
+      "title": "Kalender",
+      "sub": "Maandweergave voor alle kinderen"
+    },
+    "activities": {
+      "title": "Activiteiten",
+      "sub": "Beheer de activiteiten van je kinderen"
+    },
+    "assignSchedule": {
+      "title": "Schema toewijzen",
+      "sub": "Schema kopiëren naar een kind"
+    },
+    "dailyLog": {
+      "title": "Vandaag",
+      "sub": "Volg de dag van je kind — vul sterren later in"
+    },
+    "treasureChest": {
+      "title": "Sterrenkist",
+      "sub": "Beloningen en sterren"
+    },
+    "childSettings": {
+      "title": "Kindinstellingen",
+      "sub": "Weergave, pincode en aanpassingen"
+    },
+    "familyChild": {
+      "title": "Kindinstellingen",
+      "sub": "Schema, weergave, pincode en aanpassingen"
+    },
+    "notifications": {
+      "title": "Meldingen",
+      "sub": "Herinneringen en berichten"
+    },
+    "schedule": {
+      "title": "Weekschema",
+      "sub": "Plan en pas de dagen van je kinderen aan"
+    },
+    "library": {
+      "title": "Bibliotheek",
+      "sub": "Schema's, activiteiten en beloningen voor je gezin"
+    },
+    "family": {
+      "title": "Gezin",
+      "sub": "Kinderen, volwassenen en begeleiders"
+    }
+  },
+  "backToPlanning": "← Terug naar Planning",
+  "avatar": {
+    "title": "Profielfoto",
+    "description": "Je foto ziet je kind bij Mijn mensen en op de pagina Gezin.",
+    "changePhoto": "Foto wijzigen",
+    "addPhoto": "Foto toevoegen",
+    "removePhoto": "Foto verwijderen",
+    "saved": "Profielfoto opgeslagen!",
+    "removed": "Profielfoto verwijderd",
+    "saveFailed": "Opslaan lukte niet",
+    "removeFailed": "Verwijderen lukte niet"
+  },
+  "nativeAccount": {
+    "title": "Account",
+    "sub": "Wissel naar de login van je kind of log helemaal uit bij de app."
+  },
+  "account": {
+    "title": "Account en inloggen",
+    "appleLinked": "Apple-account gekoppeld",
+    "googleLinked": "Google-account gekoppeld",
+    "appleLinkedOnIosHint": "Je hebt je Apple-account gekoppeld op een iPhone. Om hier in te loggen, voeg je hieronder een wachtwoord toe.",
+    "googleLinkedElsewhereHint": "Je hebt je Google-account gekoppeld op een ander apparaat. Om hier in te loggen, voeg je hieronder een wachtwoord toe.",
+    "newPassword": "Nieuw wachtwoord",
+    "confirmPassword": "Wachtwoord bevestigen",
+    "minCharsPlaceholder": "Minstens 8 tekens",
+    "repeatPasswordPlaceholder": "Voer het wachtwoord opnieuw in",
+    "savePassword": "Wachtwoord opslaan",
+    "passwordForNonApple": "Om in te loggen zonder Apple",
+    "changePasswordHint": "Wijzig je wachtwoord om toegang tot je account te houden.",
+    "currentPassword": "Huidig wachtwoord",
+    "confirmNewPassword": "Nieuw wachtwoord bevestigen",
+    "changePassword": "Wachtwoord wijzigen",
+    "linkApple": "Apple-account koppelen",
+    "unlinkApple": "Apple-account ontkoppelen",
+    "linkGoogle": "Google-account koppelen",
+    "unlinkGoogle": "Google-account ontkoppelen",
+    "changeEmail": "E-mailadres wijzigen",
+    "newEmail": "Nieuw e-mailadres",
+    "yourPassword": "Je wachtwoord",
+    "confirmWithPassword": "Bevestigen met wachtwoord",
+    "sendConfirmLink": "Bevestigingslink versturen",
+    "passwordsMismatch": "De wachtwoorden komen niet overeen",
+    "passwordMinLength": "Het wachtwoord moet minstens 8 tekens zijn",
+    "saving": "Opslaan…",
+    "passwordNowActive": "✓ Het wachtwoord is nu actief",
+    "somethingWrong": "Er ging iets mis. Probeer het opnieuw.",
+    "somethingWrongShort": "Er ging iets mis",
+    "appleSignInUnavailable": "Inloggen met Apple is op dit apparaat niet beschikbaar.",
+    "googleSignInUnavailable": "Inloggen met Google is op dit apparaat niet beschikbaar.",
+    "linking": "Koppelen…",
+    "appleAlreadyLinked": "Dit Apple-account is al gekoppeld aan een ander account.",
+    "googleAlreadyLinked": "Dit Google-account is al gekoppeld aan een ander account.",
+    "couldNotLinkApple": "Apple koppelen lukte niet:",
+    "couldNotLinkGoogle": "Google koppelen lukte niet:",
+    "tryAgain": "Probeer het opnieuw.",
+    "unlinkApplePrompt": "Vul je wachtwoord in om Apple te ontkoppelen:",
+    "unlinkGooglePrompt": "Vul je wachtwoord in om Google te ontkoppelen:",
+    "removing": "Verwijderen…",
+    "couldNotUnlink": "Ontkoppelen lukte niet",
+    "invalidEmail": "Vul een geldig e-mailadres in",
+    "sending": "Versturen…",
+    "linkSentTo": "Link verstuurd naar {{email}}",
+    "passwordChanged": "Het wachtwoord is gewijzigd!",
+    "linkAppleBtn": "🍎 Apple-account koppelen",
+    "linkGoogleBtn": "G Google-account koppelen",
+    "emailUpdated": "Je e-mailadres is bijgewerkt! Je kunt nu inloggen met je nieuwe adres.",
+    "passwordSet": "Het wachtwoord is ingesteld. Je kunt nu inloggen met e-mail en wachtwoord.",
+    "errors": {
+      "invalidAppleToken": "Ongeldig Apple-identiteitstoken",
+      "invalidGoogleToken": "Ongeldig Google-identiteitstoken",
+      "appleAlreadyLinkedThis": "Er is al een Apple-account gekoppeld aan dit account",
+      "googleAlreadyLinkedThis": "Er is al een Google-account gekoppeld aan dit account",
+      "passwordRequiredUnlink": "Een wachtwoord is verplicht om het account te ontkoppelen",
+      "setPasswordBeforeUnlink": "Stel een wachtwoord in voordat je het account ontkoppelt",
+      "emailPasswordRequired": "Een nieuw e-mailadres en wachtwoord zijn verplicht",
+      "setPasswordBeforeEmail": "Stel een wachtwoord in voordat je het e-mailadres kunt wijzigen",
+      "emailAlreadyRegistered": "Dit e-mailadres is al geregistreerd bij een ander account",
+      "emailChangeLinkInvalid": "Ongeldige of verlopen link. Vraag een nieuwe wijziging aan in Instellingen.",
+      "emailChangeLinkUsed": "Deze link is al gebruikt. Vraag een nieuwe wijziging aan in Instellingen.",
+      "emailChangeLinkExpired": "Deze link is verlopen. Vraag een nieuwe wijziging aan in Instellingen.",
+      "passwordAlreadySet": "Er bestaat al een wachtwoord. Gebruik \"Wachtwoord wijzigen\" om het bij te werken.",
+      "emailAllOff": "Alle e-mailmeldingen staan uit. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+      "weeklyEmailOff": "We sturen geen weekoverzichten meer naar je e-mail. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+      "redeemEmailOff": "We sturen geen e-mails meer als het kind beloningen wil inwisselen. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+      "passwordCurrentAndNew": "Huidig en nieuw wachtwoord zijn verplicht",
+      "appleLinkLoginRequired": "Je moet ingelogd zijn om een Apple-account te koppelen",
+      "googleLinkLoginRequired": "Je moet ingelogd zijn om een Google-account te koppelen"
+    }
+  },
+  "toast": {
+    "saved": "Opgeslagen!",
+    "savedCheck": "✅ Opgeslagen!",
+    "saveFailedRetry": "Opslaan lukte niet. Probeer het opnieuw.",
+    "networkError": "Netwerkfout"
+  },
+  "parentPin": {
+    "title": "Pincode",
+    "security": "Beveiliging",
+    "hasPinDescription": "Je persoonlijke pincode beschermt de ouderstand — kinderen kunnen de kindstand niet verlaten zonder jouw pincode.",
+    "noPinDescription": "Stel je eigen pincode van 4 cijfers in — kinderen kunnen de kindstand niet verlaten zonder jouw pincode.",
+    "choosePin": "Kies een pincode van 4 cijfers",
+    "confirmPin": "Pincode bevestigen",
+    "changePinBack": "← Pincode wijzigen",
+    "enterCurrentPin": "Vul de huidige pincode in",
+    "forgotPin": "Pincode vergeten?",
+    "chooseNewPin": "Kies een nieuwe pincode",
+    "confirmNewPin": "Nieuwe pincode bevestigen",
+    "forgotIntro": "Vul je wachtwoord in om een nieuwe pincode in te stellen.",
+    "yourPassword": "Je wachtwoord",
+    "verify": "Controleren",
+    "keypadAria": "Cijfertoetsen",
+    "confirmKeypadAria": "Toetsen om de pincode te bevestigen",
+    "pinKeypadAria": "Pincodetoetsen",
+    "newPinKeypadAria": "Toetsen voor een nieuwe pincode",
+    "confirmNewPinKeypadAria": "Toetsen om de nieuwe pincode te bevestigen",
+    "pinsMismatch": "De pincodes komen niet overeen — probeer het opnieuw",
+    "pinNowActive": "✓ De pincode is nu actief",
+    "wrongPin": "Onjuiste pincode — probeer het opnieuw",
+    "pinChanged": "✓ De pincode is gewijzigd!",
+    "couldNotChangePin": "De pincode kon niet worden gewijzigd",
+    "sessionExpired": "Sessie verlopen — vul de huidige pincode opnieuw in",
+    "enterPassword": "Vul je wachtwoord in",
+    "wrongPassword": "Onjuist wachtwoord"
+  },
+  "push": {
+    "title": "Pushmeldingen",
+    "lead": "Ontvang meldingen op je telefoon — ook als de app dicht is.",
+    "unsupported": "Je browser ondersteunt geen pushmeldingen.",
+    "toggleLabel": "Pushmeldingen",
+    "toggleDescription": "Zet aan om meldingen te krijgen over de activiteiten van je kinderen",
+    "toggleAria": "Pushmeldingen wisselen",
+    "perChildHeading": "Meldingen per kind",
+    "typesHeading": "Welke meldingen?",
+    "typeScheduleTitle": "Schemaherinnering",
+    "typeScheduleHint": "10 min voor de activiteit",
+    "typeScheduleAria": "Schemaherinnering wisselen",
+    "typeInactivityTitle": "Herinnering bij inactiviteit",
+    "typeInactivityHint": "18:00 als het kind niet is ingelogd",
+    "typeInactivityAria": "Herinnering bij inactiviteit wisselen",
+    "typeMilestoneTitle": "Sterrenmijlpaal",
+    "typeMilestoneHint": "Bij 10/25/50/100 sterren",
+    "typeMilestoneAria": "Sterrenmijlpaal wisselen",
+    "typeBackfillTitle": "Herinnering om achteraf in te vullen",
+    "typeBackfillHint": "09:00 als gisteren ontbreekt",
+    "typeBackfillAria": "Herinnering om achteraf in te vullen wisselen",
+    "leadTimeLabel": "Herinnering ervoor",
+    "quietHoursLabel": "Stille uren",
+    "quietHoursTo": "tot",
+    "archiveTitle": "Meldingenarchief",
+    "archiveHint": "Gelukte pushmeldingen van de laatste 7 dagen",
+    "noChildren": "Geen kinderen gekoppeld.",
+    "childToggleAria": "Push voor {{name}}",
+    "saved": "✅ Opgeslagen!",
+    "saveFailed": "Opslaan lukte niet.",
+    "saveFailedRetry": "Opslaan lukte niet. Probeer het opnieuw.",
+    "requestingPermission": "⏳ Toestemming vragen…",
+    "enabled": "✅ Pushmeldingen aan!",
+    "permissionDenied": "🚫 Toestemming geweigerd. Zet het aan in je browser of in de app-instellingen.",
+    "iosNotInstalled": "Zet {{brand}} op je beginscherm voor push in Safari.",
+    "genericError": "Er ging iets mis. Probeer het opnieuw.",
+    "disabled": "✅ Pushmeldingen uit.",
+    "errors": {
+      "unsupportedBrowser": "Push wordt in deze browser niet ondersteund",
+      "permissionDeniedApp": "Meldingstoestemming is geweigerd in de app-instellingen.",
+      "pushPluginMissing": "De push-plugin ontbreekt in de app. Voer npx cap sync ios uit en bouw opnieuw.",
+      "platformMissing": "Pushondersteuning voor het platform ontbreekt",
+      "permissionDeniedBrowser": "Meldingstoestemming geweigerd. Zet het aan in je browserinstellingen.",
+      "permissionDenied": "Meldingstoestemming geweigerd",
+      "subscriptionFailed": "Abonneren mislukt",
+      "enableFailed": "Pushmeldingen konden niet worden aangezet",
+      "disableFailed": "Pushmeldingen konden niet worden uitgezet",
+      "iosNotInstalled": "Zet de app op je beginscherm voor push in Safari.",
+      "notConfigured": "Pushmeldingen zijn niet ingesteld",
+      "invalidSubscription": "Ongeldig pushabonnement",
+      "endpointRequired": "Een endpoint is verplicht",
+      "invalidToken": "Ongeldig token",
+      "invalidPlatform": "Het platform moet iOS of Android zijn",
+      "tokenRequired": "Token en platform zijn verplicht",
+      "parentNotFound": "Ouder niet gevonden"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Een widget op je beginscherm zetten?",
+      "lead": "Zie de volgende activiteit op je beginscherm — zonder de app te openen.",
+      "step1": "Tik hier in de app op <strong class=\"text-navy\">Widget koppelen</strong>.",
+      "step2": "Op het beginscherm: houd de achtergrond ingedrukt → tik op <strong class=\"text-navy\">+</strong> → zoek naar <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Niet meer vragen",
+      "connect": "Widget koppelen",
+      "later": "Niet nu",
+      "openSettings": "Instellingen openen"
+    },
+    "settings": {
+      "title": "Widgets en snelle toegang",
+      "description": "Persoonlijke widget = één kind. Gezinswidget = meerdere kinderen. Kies hier een kind als je er meer dan één hebt.",
+      "childPickerLabel": "Welk kind moet de widget tonen?",
+      "childFallbackName": "Kind",
+      "statusLabel": "Status:",
+      "statusConnected": "Gekoppeld",
+      "statusReconnect": "Moet opnieuw worden gekoppeld",
+      "privacyLabel": "Privacy:",
+      "privacyFull": "Volledig",
+      "privacyLimited": "Beperkt",
+      "reconnectBtn": "Widget opnieuw koppelen",
+      "guideBtn": "Uitleg voor de beginschermwidget tonen",
+      "connecting": "Koppelen…",
+      "supportMissing": "Widgetondersteuning ontbreekt in deze versie. Werk de app bij.",
+      "addChildFirst": "Voeg eerst een kind toe aan het gezin, daarna kun je de widget koppelen.",
+      "loginRequired": "Je moet ingelogd zijn om de widget te koppelen.",
+      "success": "Klaar! Zet de widget op je beginscherm (+ → {{brand}}) als dat nog niet is gebeurd.",
+      "pickChild": "Kies een kind in de lijst hierboven en probeer het opnieuw.",
+      "retryLater": "Koppelen lukte nu niet. Probeer het zo meteen opnieuw.",
+      "networkError": "Koppelen lukte nu niet. Controleer je netwerk en probeer het opnieuw.",
+      "errors": {
+        "offlineUnavailable": "De widget staat nog niet aan voor je gezin. Neem contact op met support als dat wel zo hoort.",
+        "reauthRequired": "Je sessie moet worden vernieuwd. Log uit en weer in, en probeer daarna opnieuw te koppelen.",
+        "nativeConfigureFailed": "De app kon de widgetkoppeling niet opslaan. Sluit de app helemaal en open hem opnieuw.",
+        "notEnabled": "De widget staat niet aan of je sessie moet worden vernieuwd. Log uit en weer in."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Meldingsinstellingen",
+    "weeklySummary": "Weekoverzicht (zondag 21:00)",
+    "rewardRedemption": "Beloningen inwisselen",
+    "newsletter": "E-mailnieuwsbrief",
+    "emailGlobal": "Alle e-mails globaal",
+    "save": "Meldingsinstellingen opslaan"
+  },
+  "reminders": {
+    "title": "Herinneringen",
+    "lead": "Stel een dagelijkse herinnering in, zodat je eraan denkt het schema te bekijken.",
+    "daily": "Dagelijkse herinnering",
+    "hint": "Je krijgt een herinnering op het gekozen tijdstip op de gekozen dagen",
+    "toggleAria": "Herinnering wisselen",
+    "time": "Tijd",
+    "days": "Dagen"
+  },
+  "familyName": {
+    "label": "Naam van het gezin",
+    "placeholder": "bijv. gezin Jansen",
+    "autoFromParent": "Gezin van {{name}}"
+  },
+  "sound": {
+    "label": "Geluid aan",
+    "hint": "Speelt een geluid als het kind een activiteit afvinkt in de dagweergave."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Volwassenen en toegang",
+    "adultsBody": "Nodig een andere ouder uit en zie wie toegang heeft onder Gezin.",
+    "openFamily": "Gezin openen",
+    "pedagogsTitle": "👩‍🏫 Begeleiders",
+    "pedagogsBody": "Uitnodigingen en toegang voor begeleiders beheer je onder Gezin."
+  },
+  "dataExport": {
+    "title": "Mijn gegevens",
+    "body": "Download een kopie van al je gegevens als CSV (ZIP-bestand). Inclusief profiel, kinderen, schema's, beloningen en activiteitengeschiedenis.",
+    "download": "Mijn gegevens downloaden",
+    "preparing": "Download voorbereiden…",
+    "started": "✅ Download gestart!",
+    "rateLimited": "Je kunt maar één keer per 24 uur exporteren.",
+    "failed": "Er ging iets mis. Probeer het opnieuw.",
+    "networkError": "Netwerkfout. Probeer het opnieuw."
+  },
+  "deleteAccount": {
+    "title": "Account verwijderen",
+    "permanent": "⚠️ Definitieve actie",
+    "loading": "Laden wat er gebeurt…",
+    "storeBillingNote": "Als je een abonnement hebt via de App Store of Google Play, wordt dat niet automatisch opgezegd als het account wordt verwijderd. Beheer of zeg het abonnement op in de winkel.",
+    "button": "Mijn account verwijderen",
+    "summarySelf": "Je verwijdert je eigen account en je toegang. Het gezin, de kinderen, de schema's en de gegevens van andere volwassenen blijven staan. Dit kan niet ongedaan worden gemaakt.",
+    "summaryLastAdmin": "Je bent de laatste volwassene met beheerderstoegang. Het hele gezin en alle bijbehorende gegevens — kinderen, schema's, activiteiten, sterren en beloningen — worden meteen en definitief verwijderd. Dit kan niet ongedaan worden gemaakt.",
+    "modalTitleSelf": "Het gezin verlaten",
+    "modalTitleFamily": "Gezin en account verwijderen",
+    "modalTitleFallback": "Account definitief verwijderen",
+    "leadSelf": "Je verwijdert alleen je eigen account en je toegang.",
+    "leadFamily": "Je verwijdert het hele gezin en alle bijbehorende gegevens.",
+    "sure": "Weet je het zeker?",
+    "cannotUndo": "Dit kan niet ongedaan worden gemaakt.",
+    "storeBillingModal": "Een abonnement via de App Store of Google Play wordt niet automatisch opgezegd — beheer het in de winkel.",
+    "typeConfirmLabel": "Typ {{token}} om te bevestigen",
+    "typeConfirmLabelHtml": "Typ <strong>RADERA</strong> om te bevestigen",
+    "typeConfirmError": "Typ {{token}} om te bevestigen.",
+    "confirmToken": "RADERA",
+    "cancel": "Annuleren",
+    "confirmSelf": "Het gezin verlaten",
+    "confirmFamily": "Alles definitief verwijderen",
+    "deleting": "Verwijderen...",
+    "deleted": "✅ Het account is verwijderd.",
+    "deleteFailed": "Er ging iets mis bij het verwijderen.",
+    "networkError": "Netwerkfout. Probeer het opnieuw.",
+    "bulletSelfAccount": "Je ouderaccount en je toegang",
+    "bulletSelfOthersRemain": "Het gezin, de kinderen en andere volwassenen blijven",
+    "bulletParentAccount": "Het ouderaccount",
+    "bulletAllChildren": "Alle kinderen in het gezin",
+    "bulletAllSchedules": "Alle schema's, activiteiten en beloningen",
+    "bulletAllHistory": "Alle dagelijkse geschiedenis en sterren"
+  },
+  "support": {
+    "title": "Technische info voor support",
+    "hint": "Kopieer appversie, cache en een debug-id. Er zitten geen persoonsgegevens of wachtwoorden in.",
+    "copy": "Technische info kopiëren",
+    "copied": "Gekopieerd — plak het in een e-mail naar support.",
+    "copyFailed": "Kopiëren lukte niet. Probeer het opnieuw."
+  },
+  "legal": {
+    "privacy": "Privacybeleid",
+    "terms": "Gebruiksvoorwaarden"
+  },
+  "consent": {
+    "title": "Toestemming en privacy",
+    "lead": "Beheer je privacy-instellingen en cookiekeuzes.",
+    "change": "Toestemmingsinstellingen wijzigen",
+    "empty": "Er zijn nog geen toestemmingsinstellingen opgeslagen.",
+    "modalTitle": "Toestemming en privacy",
+    "aria": "Toestemmingsinstellingen",
+    "intro": "Help ons {{brand}} nog beter te maken. We gebruiken cookies om te begrijpen hoe de app wordt gebruikt en om meer gezinnen te bereiken. Tik op elke categorie om te wisselen tussen ✓ Ja / ✗ Nee / — Neutraal.",
+    "save": "Keuzes opslaan",
+    "saving": "Opslaan…",
+    "skip": "Overslaan",
+    "closing": "Sluiten…",
+    "analytics": "Analyse en verbetering",
+    "analyticsDesc": "Helpt ons begrijpen hoe de app wordt gebruikt, zodat we hem beter kunnen maken.",
+    "ads": "Marketing",
+    "adsDesc": "Toont advertenties die bij jou passen op Meta (Facebook/Instagram) en Google.",
+    "adUserData": "Gegevens naar platforms",
+    "adUserDataDesc": "Deelt je gegevens met advertentieplatforms voor betere matching.",
+    "adPersonalization": "Personalisatie",
+    "adPersonalizationDesc": "Personaliseert advertenties op basis van je interesses en gedrag.",
+    "email": "E-mail en tips",
+    "emailDesc": "E-mails met tips, nieuws en aanbiedingen van {{brand}}."
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "loading": "Abonnement laden…",
+    "loadFailed": "De abonnementsstatus kon niet worden geladen.",
+    "restore": "Aankopen herstellen",
+    "manage": "Abonnement beheren",
+    "activate": "Premium activeren",
+    "viewPlans": "Abonnementen bekijken",
+    "howToActivate": "Zo activeer je Premium",
+    "webActivateHint": "Premium wordt geactiveerd in de iPhone- of Android-app.",
+    "restoreSuccess": "Aankopen hersteld. Premium is actief.",
+    "restoreNone": "Geen aankopen gevonden om te herstellen.",
+    "restoreFailed": "Aankopen konden niet worden hersteld.",
+    "launchHoldTitle": "Lanceringstoegang — betalen is nog niet live",
+    "launchHoldBody": "Je kunt de app blijven gebruiken. Een abonnement is niet nodig zolang betalen uit staat.",
+    "complimentaryTitle": "Gratis tot 31 december 2026",
+    "complimentaryBody": "{{brand}} is gratis tot 31 december 2026. Er is geen abonnement of betaalmethode nodig. Dit aanbod wordt niet automatisch een betaald abonnement.",
+    "complimentaryBodyUntil": "Gratis tot {{date}}. Er is geen abonnement of betaalmethode nodig, en dit aanbod wordt niet automatisch een betaald abonnement. Vanaf 1 januari 2027 kun je kiezen of je wilt abonneren.",
+    "launchTitle": "Lanceringstoegang",
+    "launchBody": "Je kunt de app nu gebruiken. Een abonnement is nog niet nodig.",
+    "launchBodyUntil": "Je kunt de app nu gebruiken. Een abonnement is nog niet nodig. Betaalde start: {{date}}.",
+    "noPremium": "Geen actief Premium",
+    "choosePlan": "Kies Premium Maand of Premium Jaar om volledige toegang te openen.",
+    "billingNotLive": "Een abonnement is nog niet nodig. Betalen is niet live.",
+    "activateBody": "Activeer Premium voor volledige toegang tot de app.",
+    "grandfatheredTitle": "Premium voor altijd inbegrepen",
+    "grandfatheredBody": "Je gezin heeft volledige toegang, zonder kosten.",
+    "trialTitle": "Premium – gratis proefperiode",
+    "ends": "Eindigt {{date}}",
+    "giftTitle": "Premium – cadeaubon",
+    "validUntil": "Geldig tot {{date}}",
+    "graceTitle": "Premium – betaling moet worden bijgewerkt",
+    "graceBody": "Toegang werkt nog, maar de betaling moet worden hersteld in {{store}}.",
+    "activeTitle": "Premium – {{plan}} via {{store}}",
+    "planYearly": "jaarplan",
+    "planMonthly": "maandplan"
+  },
+  "theme": {
+    "title": "Weergave",
+    "darkMode": "Donkere modus",
+    "darkHint": "Zet een donker thema aan voor prettiger gebruik in het donker",
+    "toggleAria": "Donkere modus wisselen",
+    "colorBlind": "Thema voor kleurenblindheid",
+    "colorBlindHint": "Past kleuren aan voor verschillende vormen van kleurenblindheid",
+    "colorNone": "Geen (standaard)",
+    "protanopia": "Protanopie (roodblind)",
+    "deuteranopia": "Deuteranopie (groenblind)",
+    "tritanopia": "Tritanopie (blauwblind)"
+  },
+  "viewMode": {
+    "dualAccess": "Je hebt toegang tot zowel de ouder- als de begeleidersweergave.",
+    "switchPedagog": "🌟 Naar de begeleidersweergave",
+    "switchParent": "👨‍👩‍👧 Naar de ouderweergave"
+  },
+  "loadError": {
+    "title": "Gezinsinstellingen konden niet worden geladen",
+    "fallback": "Gezinsinstellingen konden nu niet worden geladen.",
+    "retry": "Opnieuw proberen",
+    "retryIn": "Probeer het over {{seconds}} s opnieuw"
+  },
+  "unsubscribe": {
+    "weekly": "We sturen geen weekoverzichten meer naar je e-mail. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+    "reward": "We sturen geen e-mails meer als het kind beloningen wil inwisselen. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+    "all": "Alle e-mailmeldingen staan uit. Je kunt ze weer aanzetten onder Instellingen → Meldingen.",
+    "invalidTitle": "Ongeldige link",
+    "invalidBody": "De link is ongeldig of verlopen.",
+    "errorTitle": "Er ging iets mis",
+    "errorBody": "Probeer het later opnieuw of ga naar Instellingen in de app."
+  },
+  "notifArchive": {
+    "retry": "Opnieuw proberen",
+    "failedHidden": "Mislukte of uitgezette verzendingen worden hier niet getoond.",
+    "loading": "Pusharchief laden…",
+    "loadError": "Het pusharchief kon niet worden geladen. Dat betekent niet dat je geen meldingen hebt.",
+    "markAll": "Alles als gelezen markeren"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Sjónrænar rútínur, stjörnur og verðlaun fyrir börn sem þurfa skýrari daga.",
+  "fullDescription": "Ekki bara enn eitt fjölskyldudagatalið.\n\n{{brand}} hjálpar börnum að skilja hversdagsrútínurnar — hvað er að gerast núna, hvað kemur næst og hvað þau hafa þegar náð.\n\nAppið er fyrir fjölskyldur sem þurfa meiri ramma, fyrirsjáanleika og sjónrænan stuðning í hversdeginum.\n\nFyrir börn með ADHD, einhverfu — eða einfaldlega þau sem njóta skýrari rútína — breytir {{brand}} deginum í einföld, viðráðanleg skref.\n\nSérstaklega gagnlegt fyrir fjölskyldur með börn sem eru með ADHD, einhverfu eða aðrar þarfir tengdar taugafrávikum. Engin greining þarf að liggja fyrir. {{brand}} læknar hvorki ADHD né einhverfu.\n\nBörnin fá skýrar sjónrænar rútínur, stuðning skref fyrir skref og stjörnur fyrir það sem þau hafa þegar gert. Foreldrar fá vikuáætlanir, verðlaun og leið til að deila völdri skýrslu.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Íslenska er nú í appinu. Rútínur, skýrslur og barnasýn fylgja tungumáli fjölskyldunnar."
+}

@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Ajustes — {{brand}}",
+  "title": "Ajustes",
+  "shellLead": "Perfil, familia y app",
+  "familySettings": "Ajustes de la familia",
+  "groups": {
+    "profile": {
+      "title": "Perfil y cuenta",
+      "sub": "Acceso, PIN y cuenta"
+    },
+    "family": {
+      "title": "Familia",
+      "sub": "Nombre e idioma. Las personas se gestionan en Familia."
+    },
+    "device": {
+      "title": "Este dispositivo",
+      "sub": "Móvil del niño, móvil del adulto o móvil compartido"
+    },
+    "appearance": {
+      "title": "Apariencia",
+      "sub": "Tema oscuro o claro"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Notificaciones, avisos y privacidad"
+    },
+    "premium": {
+      "title": "Suscripción",
+      "sub": "Premium, compras y pagos"
+    }
+  },
+  "appearance": {
+    "dark": "Oscuro",
+    "light": "Claro",
+    "backToSettings": "← Volver a ajustes"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Planificación",
+      "sub": "Crea contenido o planifica la semana de tus niños."
+    },
+    "rewards": {
+      "title": "Recompensas",
+      "sub": "Estrellas, recompensas y el cofre de la familia."
+    },
+    "calendar": {
+      "title": "Calendario",
+      "sub": "Vista del mes para todos los niños"
+    },
+    "activities": {
+      "title": "Actividades",
+      "sub": "Gestiona las actividades de tus niños"
+    },
+    "assignSchedule": {
+      "title": "Asignar horario",
+      "sub": "Copiar el horario a un niño"
+    },
+    "dailyLog": {
+      "title": "Hoy",
+      "sub": "Sigue el día de tu niño y completa las estrellas después"
+    },
+    "treasureChest": {
+      "title": "Cofre de estrellas",
+      "sub": "Recompensas y estrellas"
+    },
+    "childSettings": {
+      "title": "Ajustes del niño",
+      "sub": "Vista, PIN y personalización"
+    },
+    "familyChild": {
+      "title": "Ajustes del niño",
+      "sub": "Horario, vista, PIN y personalización"
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "sub": "Recordatorios y mensajes"
+    },
+    "schedule": {
+      "title": "Horario semanal",
+      "sub": "Planifica y adapta los días de tus niños"
+    },
+    "library": {
+      "title": "Biblioteca",
+      "sub": "Horarios, actividades y recompensas para tu familia"
+    },
+    "family": {
+      "title": "Familia",
+      "sub": "Niños, adultos y educadores"
+    }
+  },
+  "backToPlanning": "← Volver a Planificación",
+  "avatar": {
+    "title": "Foto de perfil",
+    "description": "Tu foto aparece para tu niño en Mi gente y en la página Familia.",
+    "changePhoto": "Cambiar foto",
+    "addPhoto": "Añadir foto",
+    "removePhoto": "Quitar foto",
+    "saved": "¡Foto de perfil guardada!",
+    "removed": "Foto de perfil quitada",
+    "saveFailed": "No se ha podido guardar",
+    "removeFailed": "No se ha podido quitar"
+  },
+  "nativeAccount": {
+    "title": "Cuenta",
+    "sub": "Pasa al acceso de tu niño o cierra la sesión por completo en la app."
+  },
+  "account": {
+    "title": "Cuenta y acceso",
+    "appleLinked": "Cuenta de Apple vinculada",
+    "googleLinked": "Cuenta de Google vinculada",
+    "appleLinkedOnIosHint": "Vinculaste tu cuenta de Apple en un iPhone. Para entrar aquí, añade una contraseña abajo.",
+    "googleLinkedElsewhereHint": "Vinculaste tu cuenta de Google en otro dispositivo. Para entrar aquí, añade una contraseña abajo.",
+    "newPassword": "Contraseña nueva",
+    "confirmPassword": "Confirmar contraseña",
+    "minCharsPlaceholder": "Al menos 8 caracteres",
+    "repeatPasswordPlaceholder": "Vuelve a escribir la contraseña",
+    "savePassword": "Guardar contraseña",
+    "passwordForNonApple": "Para entrar sin Apple",
+    "changePasswordHint": "Cambia tu contraseña para seguir teniendo acceso a tu cuenta.",
+    "currentPassword": "Contraseña actual",
+    "confirmNewPassword": "Confirmar la contraseña nueva",
+    "changePassword": "Cambiar contraseña",
+    "linkApple": "Vincular cuenta de Apple",
+    "unlinkApple": "Desvincular cuenta de Apple",
+    "linkGoogle": "Vincular cuenta de Google",
+    "unlinkGoogle": "Desvincular cuenta de Google",
+    "changeEmail": "Cambiar el correo",
+    "newEmail": "Correo nuevo",
+    "yourPassword": "Tu contraseña",
+    "confirmWithPassword": "Confirmar con contraseña",
+    "sendConfirmLink": "Enviar enlace de confirmación",
+    "passwordsMismatch": "Las contraseñas no coinciden",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "saving": "Guardando…",
+    "passwordNowActive": "✓ La contraseña ya está activa",
+    "somethingWrong": "Algo ha salido mal. Inténtalo de nuevo.",
+    "somethingWrongShort": "Algo ha salido mal",
+    "appleSignInUnavailable": "El acceso con Apple no está disponible en este dispositivo.",
+    "googleSignInUnavailable": "El acceso con Google no está disponible en este dispositivo.",
+    "linking": "Vinculando…",
+    "appleAlreadyLinked": "Esta cuenta de Apple ya está vinculada a otra cuenta.",
+    "googleAlreadyLinked": "Esta cuenta de Google ya está vinculada a otra cuenta.",
+    "couldNotLinkApple": "No se ha podido vincular Apple:",
+    "couldNotLinkGoogle": "No se ha podido vincular Google:",
+    "tryAgain": "Inténtalo de nuevo.",
+    "unlinkApplePrompt": "Escribe tu contraseña para desvincular Apple:",
+    "unlinkGooglePrompt": "Escribe tu contraseña para desvincular Google:",
+    "removing": "Quitando…",
+    "couldNotUnlink": "No se ha podido desvincular",
+    "invalidEmail": "Escribe un correo válido",
+    "sending": "Enviando…",
+    "linkSentTo": "Enlace enviado a {{email}}",
+    "passwordChanged": "¡La contraseña se ha cambiado!",
+    "linkAppleBtn": "🍎 Vincular cuenta de Apple",
+    "linkGoogleBtn": "G Vincular cuenta de Google",
+    "emailUpdated": "¡Tu correo se ha actualizado! Ya puedes entrar con la dirección nueva.",
+    "passwordSet": "La contraseña está lista. Ya puedes entrar con correo y contraseña.",
+    "errors": {
+      "invalidAppleToken": "Identidad de Apple no válida",
+      "invalidGoogleToken": "Identidad de Google no válida",
+      "appleAlreadyLinkedThis": "Ya hay una cuenta de Apple vinculada a esta cuenta",
+      "googleAlreadyLinkedThis": "Ya hay una cuenta de Google vinculada a esta cuenta",
+      "passwordRequiredUnlink": "Hace falta la contraseña para desvincular la cuenta",
+      "setPasswordBeforeUnlink": "Pon una contraseña antes de desvincular la cuenta",
+      "emailPasswordRequired": "Hacen falta el correo nuevo y la contraseña",
+      "setPasswordBeforeEmail": "Pon una contraseña antes de poder cambiar el correo",
+      "emailAlreadyRegistered": "Este correo ya está registrado en otra cuenta",
+      "emailChangeLinkInvalid": "Enlace no válido o caducado. Pide un cambio nuevo en Ajustes.",
+      "emailChangeLinkUsed": "Este enlace ya se ha usado. Pide un cambio nuevo en Ajustes.",
+      "emailChangeLinkExpired": "Este enlace ha caducado. Pide un cambio nuevo en Ajustes.",
+      "passwordAlreadySet": "Ya hay una contraseña. Usa «Cambiar contraseña» para actualizarla.",
+      "emailAllOff": "Todos los correos están desactivados. Puedes volver a activarlos en Ajustes → Notificaciones.",
+      "weeklyEmailOff": "No enviaremos más resúmenes semanales a tu correo. Puedes volver a activarlos en Ajustes → Notificaciones.",
+      "redeemEmailOff": "No enviaremos más correos cuando el niño quiera canjear recompensas. Puedes volver a activarlos en Ajustes → Notificaciones.",
+      "passwordCurrentAndNew": "Hacen falta la contraseña actual y la nueva",
+      "appleLinkLoginRequired": "Tienes que haber entrado para vincular una cuenta de Apple",
+      "googleLinkLoginRequired": "Tienes que haber entrado para vincular una cuenta de Google"
+    }
+  },
+  "toast": {
+    "saved": "¡Guardado!",
+    "savedCheck": "✅ ¡Guardado!",
+    "saveFailedRetry": "No se ha podido guardar. Inténtalo de nuevo.",
+    "networkError": "Error de red"
+  },
+  "parentPin": {
+    "title": "Código PIN",
+    "security": "Seguridad",
+    "hasPinDescription": "Tu PIN personal protege el modo del adulto: los niños no pueden salir del modo del niño sin tu PIN.",
+    "noPinDescription": "Pon tu propio PIN de 4 cifras: los niños no pueden salir del modo del niño sin tu PIN.",
+    "choosePin": "Elige un PIN de 4 cifras",
+    "confirmPin": "Confirmar PIN",
+    "changePinBack": "← Cambiar PIN",
+    "enterCurrentPin": "Escribe el PIN actual",
+    "forgotPin": "¿Has olvidado el PIN?",
+    "chooseNewPin": "Elige un PIN nuevo",
+    "confirmNewPin": "Confirmar el PIN nuevo",
+    "forgotIntro": "Escribe tu contraseña para poner un PIN nuevo.",
+    "yourPassword": "Tu contraseña",
+    "verify": "Comprobar",
+    "keypadAria": "Teclado numérico",
+    "confirmKeypadAria": "Teclado para confirmar el PIN",
+    "pinKeypadAria": "Teclado del PIN",
+    "newPinKeypadAria": "Teclado del PIN nuevo",
+    "confirmNewPinKeypadAria": "Teclado para confirmar el PIN nuevo",
+    "pinsMismatch": "Los PIN no coinciden. Inténtalo de nuevo",
+    "pinNowActive": "✓ El PIN ya está activo",
+    "wrongPin": "PIN incorrecto. Inténtalo de nuevo",
+    "pinChanged": "✓ ¡El PIN se ha cambiado!",
+    "couldNotChangePin": "No se ha podido cambiar el PIN",
+    "sessionExpired": "La sesión ha caducado. Vuelve a escribir el PIN actual",
+    "enterPassword": "Escribe tu contraseña",
+    "wrongPassword": "Contraseña incorrecta"
+  },
+  "push": {
+    "title": "Notificaciones push",
+    "lead": "Recibe avisos en el móvil, también con la app cerrada.",
+    "unsupported": "Tu navegador no admite notificaciones push.",
+    "toggleLabel": "Notificaciones push",
+    "toggleDescription": "Actívalas para recibir avisos de las actividades de tus niños",
+    "toggleAria": "Activar o desactivar las notificaciones push",
+    "perChildHeading": "Avisos por niño",
+    "typesHeading": "¿Qué avisos?",
+    "typeScheduleTitle": "Recordatorio del horario",
+    "typeScheduleHint": "10 min antes de la actividad",
+    "typeScheduleAria": "Activar o desactivar el recordatorio del horario",
+    "typeInactivityTitle": "Recordatorio de inactividad",
+    "typeInactivityHint": "18:00 si el niño no ha entrado",
+    "typeInactivityAria": "Activar o desactivar el recordatorio de inactividad",
+    "typeMilestoneTitle": "Hito de estrellas",
+    "typeMilestoneHint": "A las 10/25/50/100 estrellas",
+    "typeMilestoneAria": "Activar o desactivar el hito de estrellas",
+    "typeBackfillTitle": "Recordatorio para completar",
+    "typeBackfillHint": "09:00 si falta el día de ayer",
+    "typeBackfillAria": "Activar o desactivar el recordatorio para completar",
+    "leadTimeLabel": "Avisar antes",
+    "quietHoursLabel": "Horas de silencio",
+    "quietHoursTo": "a",
+    "archiveTitle": "Archivo de notificaciones",
+    "archiveHint": "Notificaciones push correctas de los últimos 7 días",
+    "noChildren": "No hay niños vinculados.",
+    "childToggleAria": "Push para {{name}}",
+    "saved": "✅ ¡Guardado!",
+    "saveFailed": "No se ha podido guardar.",
+    "saveFailedRetry": "No se ha podido guardar. Inténtalo de nuevo.",
+    "requestingPermission": "⏳ Pidiendo permiso…",
+    "enabled": "✅ ¡Notificaciones push activadas!",
+    "permissionDenied": "🚫 Permiso denegado. Actívalo en los ajustes del navegador o de la app.",
+    "iosNotInstalled": "Añade {{brand}} a tu pantalla de inicio para recibir avisos en Safari.",
+    "genericError": "Algo ha salido mal. Inténtalo de nuevo.",
+    "disabled": "✅ Notificaciones push desactivadas.",
+    "errors": {
+      "unsupportedBrowser": "Este navegador no admite push",
+      "permissionDeniedApp": "El permiso de notificaciones se ha denegado en los ajustes de la app.",
+      "pushPluginMissing": "Falta el complemento de push en la app. Ejecuta npx cap sync ios y vuelve a compilar.",
+      "platformMissing": "Falta el soporte de push de la plataforma",
+      "permissionDeniedBrowser": "Permiso de notificaciones denegado. Actívalo en los ajustes del navegador.",
+      "permissionDenied": "Permiso de notificaciones denegado",
+      "subscriptionFailed": "La suscripción ha fallado",
+      "enableFailed": "No se han podido activar las notificaciones push",
+      "disableFailed": "No se han podido desactivar las notificaciones push",
+      "iosNotInstalled": "Añade la app a tu pantalla de inicio para recibir avisos en Safari.",
+      "notConfigured": "Las notificaciones push no están configuradas",
+      "invalidSubscription": "Suscripción push no válida",
+      "endpointRequired": "Hace falta un endpoint",
+      "invalidToken": "Token no válido",
+      "invalidPlatform": "La plataforma debe ser iOS o Android",
+      "tokenRequired": "Hacen falta el token y la plataforma",
+      "parentNotFound": "No se ha encontrado al adulto"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "¿Añadir un widget a la pantalla de inicio?",
+      "lead": "Ve la siguiente actividad en la pantalla de inicio, sin abrir la app.",
+      "step1": "Toca <strong class=\"text-navy\">Conectar widget</strong> aquí en la app.",
+      "step2": "En la pantalla de inicio: mantén pulsado el fondo → toca <strong class=\"text-navy\">+</strong> → busca <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "No volver a preguntar",
+      "connect": "Conectar widget",
+      "later": "Ahora no",
+      "openSettings": "Abrir ajustes"
+    },
+    "settings": {
+      "title": "Widgets y acceso rápido",
+      "description": "Widget personal = un niño. Widget de familia = varios niños. Elige un niño aquí si tienes más de uno.",
+      "childPickerLabel": "¿Qué niño debe mostrar el widget?",
+      "childFallbackName": "Niño",
+      "statusLabel": "Estado:",
+      "statusConnected": "Conectado",
+      "statusReconnect": "Hay que volver a conectar",
+      "privacyLabel": "Privacidad:",
+      "privacyFull": "Completa",
+      "privacyLimited": "Limitada",
+      "reconnectBtn": "Volver a conectar el widget",
+      "guideBtn": "Ver la guía del widget en la pantalla de inicio",
+      "connecting": "Conectando…",
+      "supportMissing": "Esta versión no incluye el widget. Actualiza la app.",
+      "addChildFirst": "Añade primero un niño a la familia y luego podrás conectar el widget.",
+      "loginRequired": "Tienes que haber entrado para conectar el widget.",
+      "success": "¡Hecho! Añade el widget a la pantalla de inicio (+ → {{brand}}) si aún no lo has hecho.",
+      "pickChild": "Elige un niño en la lista de arriba e inténtalo de nuevo.",
+      "retryLater": "No se ha podido conectar ahora. Inténtalo dentro de un momento.",
+      "networkError": "No se ha podido conectar ahora. Revisa la red e inténtalo de nuevo.",
+      "errors": {
+        "offlineUnavailable": "El widget aún no está activado para tu familia. Contacta con soporte si debería estarlo.",
+        "reauthRequired": "Hay que renovar tu sesión. Cierra sesión, vuelve a entrar e intenta reconectar.",
+        "nativeConfigureFailed": "La app no ha podido guardar el enlace del widget. Cierra la app del todo y ábrela otra vez.",
+        "notEnabled": "El widget no está activado o hay que renovar la sesión. Cierra sesión y vuelve a entrar."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Ajustes de notificaciones",
+    "weeklySummary": "Resumen semanal (domingo 21:00)",
+    "rewardRedemption": "Canjes de recompensas",
+    "newsletter": "Boletín por correo",
+    "emailGlobal": "Todos los correos",
+    "save": "Guardar ajustes de notificaciones"
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "lead": "Pon un recordatorio diario para acordarte de mirar el horario.",
+    "daily": "Recordatorio diario",
+    "hint": "Recibes un aviso a la hora elegida los días elegidos",
+    "toggleAria": "Activar o desactivar el recordatorio",
+    "time": "Hora",
+    "days": "Días"
+  },
+  "familyName": {
+    "label": "Nombre de la familia",
+    "placeholder": "p. ej. La familia García",
+    "autoFromParent": "Familia de {{name}}"
+  },
+  "sound": {
+    "label": "Sonido activado",
+    "hint": "Suena cuando el niño marca una actividad en su vista del día."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Adultos y acceso",
+    "adultsBody": "Invita al otro adulto y mira quién tiene acceso en Familia.",
+    "openFamily": "Abrir Familia",
+    "pedagogsTitle": "👩‍🏫 Educadores",
+    "pedagogsBody": "Las invitaciones y el acceso de los educadores se gestionan en Familia."
+  },
+  "dataExport": {
+    "title": "Mis datos",
+    "body": "Descarga una copia de todos tus datos en CSV (archivo ZIP). Incluye perfil, niños, horarios, recompensas e historial de actividades.",
+    "download": "Descargar mis datos",
+    "preparing": "Preparando la descarga…",
+    "started": "✅ ¡Descarga iniciada!",
+    "rateLimited": "Solo puedes exportar una vez cada 24 horas.",
+    "failed": "Algo ha salido mal. Inténtalo de nuevo.",
+    "networkError": "Error de red. Inténtalo de nuevo."
+  },
+  "deleteAccount": {
+    "title": "Eliminar cuenta",
+    "permanent": "⚠️ Acción permanente",
+    "loading": "Cargando lo que va a pasar…",
+    "storeBillingNote": "Si tienes una suscripción por App Store o Google Play, no se cancela sola al eliminar la cuenta. Gestiona o cancela la suscripción en la tienda.",
+    "button": "Eliminar mi cuenta",
+    "summarySelf": "Quitas tu propia cuenta y tu acceso. La familia, los niños, los horarios y los datos de los demás adultos se quedan. No se puede deshacer.",
+    "summaryLastAdmin": "Eres el último adulto con acceso de administración. Se eliminarán al momento y para siempre toda la familia y los datos relacionados: niños, horarios, actividades, estrellas y recompensas. No se puede deshacer.",
+    "modalTitleSelf": "Salir de la familia",
+    "modalTitleFamily": "Eliminar familia y cuenta",
+    "modalTitleFallback": "Eliminar la cuenta para siempre",
+    "leadSelf": "Solo quitas tu propia cuenta y tu acceso.",
+    "leadFamily": "Eliminas toda la familia y todos los datos relacionados.",
+    "sure": "¿Seguro?",
+    "cannotUndo": "No se puede deshacer.",
+    "storeBillingModal": "Una suscripción por App Store o Google Play no se cancela sola: gestiónala en la tienda.",
+    "typeConfirmLabel": "Escribe {{token}} para confirmar",
+    "typeConfirmLabelHtml": "Escribe <strong>RADERA</strong> para confirmar",
+    "typeConfirmError": "Escribe {{token}} para confirmar.",
+    "confirmToken": "RADERA",
+    "cancel": "Cancelar",
+    "confirmSelf": "Salir de la familia",
+    "confirmFamily": "Eliminar todo para siempre",
+    "deleting": "Eliminando...",
+    "deleted": "✅ La cuenta se ha eliminado.",
+    "deleteFailed": "Algo ha salido mal al eliminar.",
+    "networkError": "Error de red. Inténtalo de nuevo.",
+    "bulletSelfAccount": "Tu cuenta de adulto y tu acceso",
+    "bulletSelfOthersRemain": "La familia, los niños y los demás adultos se quedan",
+    "bulletParentAccount": "La cuenta del adulto",
+    "bulletAllChildren": "Todos los niños de la familia",
+    "bulletAllSchedules": "Todos los horarios, actividades y recompensas",
+    "bulletAllHistory": "Todo el historial diario y las estrellas"
+  },
+  "support": {
+    "title": "Datos técnicos para soporte",
+    "hint": "Copia la versión de la app, la caché y un identificador de depuración. No se incluyen datos personales ni contraseñas.",
+    "copy": "Copiar datos técnicos",
+    "copied": "Copiado: pégalo en un correo a soporte.",
+    "copyFailed": "No se ha podido copiar. Inténtalo de nuevo."
+  },
+  "legal": {
+    "privacy": "Política de privacidad",
+    "terms": "Condiciones de uso"
+  },
+  "consent": {
+    "title": "Consentimiento y privacidad",
+    "lead": "Gestiona tus ajustes de privacidad y las cookies.",
+    "change": "Cambiar el consentimiento",
+    "empty": "Aún no hay ajustes de consentimiento guardados.",
+    "modalTitle": "Consentimiento y privacidad",
+    "aria": "Ajustes de consentimiento",
+    "intro": "Ayúdanos a mejorar {{brand}}. Usamos cookies para entender cómo se usa la app y llegar a más familias. Toca cada categoría para cambiar ✓ Sí / ✗ No / — Neutral.",
+    "save": "Guardar elecciones",
+    "saving": "Guardando…",
+    "skip": "Omitir",
+    "closing": "Cerrando…",
+    "analytics": "Analítica y mejora",
+    "analyticsDesc": "Nos ayuda a entender cómo se usa la app para mejorarla.",
+    "ads": "Marketing",
+    "adsDesc": "Muestra anuncios pensados para ti en Meta (Facebook/Instagram) y Google.",
+    "adUserData": "Datos a las plataformas",
+    "adUserDataDesc": "Comparte tus datos con plataformas de anuncios para afinar la coincidencia.",
+    "adPersonalization": "Personalización",
+    "adPersonalizationDesc": "Personaliza los anuncios según tus intereses y tu uso.",
+    "email": "Correo y consejos",
+    "emailDesc": "Correos con consejos, novedades y ofertas de {{brand}}."
+  },
+  "subscription": {
+    "title": "Suscripción",
+    "loading": "Cargando la suscripción…",
+    "loadFailed": "No se ha podido cargar el estado de la suscripción.",
+    "restore": "Restaurar compras",
+    "manage": "Gestionar suscripción",
+    "activate": "Activar Premium",
+    "viewPlans": "Ver suscripciones",
+    "howToActivate": "Cómo activar Premium",
+    "webActivateHint": "Premium se activa en la app de iPhone o Android.",
+    "restoreSuccess": "Compras restauradas. Premium está activo.",
+    "restoreNone": "No hay compras que restaurar.",
+    "restoreFailed": "No se han podido restaurar las compras.",
+    "launchHoldTitle": "Acceso de lanzamiento: el cobro aún no está activo",
+    "launchHoldBody": "Puedes seguir usando la app. No hace falta suscripción mientras el cobro está desactivado.",
+    "complimentaryTitle": "Gratis hasta el 31 de diciembre de 2026",
+    "complimentaryBody": "{{brand}} es gratis hasta el 31 de diciembre de 2026. No hace falta suscripción ni método de pago. Esta oferta no pasa sola a una suscripción de pago.",
+    "complimentaryBodyUntil": "Gratis hasta el {{date}}. No hace falta suscripción ni método de pago, y esta oferta no pasa sola a una suscripción de pago. Desde el 1 de enero de 2027 puedes elegir si quieres suscribirte.",
+    "launchTitle": "Acceso de lanzamiento",
+    "launchBody": "Puedes usar la app ahora. Aún no hace falta suscripción.",
+    "launchBodyUntil": "Puedes usar la app ahora. Aún no hace falta suscripción. Inicio de pago: {{date}}.",
+    "noPremium": "No hay Premium activo",
+    "choosePlan": "Elige Premium mensual o Premium anual para tener acceso completo.",
+    "billingNotLive": "Aún no hace falta suscripción. El cobro no está activo.",
+    "activateBody": "Activa Premium para tener acceso completo a la app.",
+    "grandfatheredTitle": "Premium incluido para siempre",
+    "grandfatheredBody": "Tu familia tiene acceso completo sin coste.",
+    "trialTitle": "Premium – prueba gratis",
+    "ends": "Termina el {{date}}",
+    "giftTitle": "Premium – tarjeta regalo",
+    "validUntil": "Válido hasta el {{date}}",
+    "graceTitle": "Premium – hay que actualizar el pago",
+    "graceBody": "El acceso sigue funcionando, pero hay que arreglar el pago en {{store}}.",
+    "activeTitle": "Premium – {{plan}} por {{store}}",
+    "planYearly": "plan anual",
+    "planMonthly": "plan mensual"
+  },
+  "theme": {
+    "title": "Apariencia",
+    "darkMode": "Modo oscuro",
+    "darkHint": "Activa un tema oscuro para usarla con más comodidad en la oscuridad",
+    "toggleAria": "Activar o desactivar el modo oscuro",
+    "colorBlind": "Tema para daltonismo",
+    "colorBlindHint": "Ajusta los colores según el tipo de daltonismo",
+    "colorNone": "Ninguno (predeterminado)",
+    "protanopia": "Protanopia (dificultad con el rojo)",
+    "deuteranopia": "Deuteranopia (dificultad con el verde)",
+    "tritanopia": "Tritanopia (dificultad con el azul)"
+  },
+  "viewMode": {
+    "dualAccess": "Tienes acceso a la vista del adulto y a la del educador.",
+    "switchPedagog": "🌟 Cambiar a la vista de educador",
+    "switchParent": "👨‍👩‍👧 Cambiar a la vista de adulto"
+  },
+  "loadError": {
+    "title": "No se han podido cargar los ajustes de la familia",
+    "fallback": "No se han podido cargar los ajustes de la familia ahora.",
+    "retry": "Intentar de nuevo",
+    "retryIn": "Inténtalo de nuevo en {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "No enviaremos más resúmenes semanales a tu correo. Puedes volver a activarlos en Ajustes → Notificaciones.",
+    "reward": "No enviaremos más correos cuando el niño quiera canjear recompensas. Puedes volver a activarlos en Ajustes → Notificaciones.",
+    "all": "Todos los correos están desactivados. Puedes volver a activarlos en Ajustes → Notificaciones.",
+    "invalidTitle": "Enlace no válido",
+    "invalidBody": "El enlace no es válido o ha caducado.",
+    "errorTitle": "Algo ha salido mal",
+    "errorBody": "Inténtalo más tarde o ve a Ajustes en la app."
+  },
+  "notifArchive": {
+    "retry": "Intentar de nuevo",
+    "failedHidden": "Los envíos fallidos o desactivados no se muestran aquí.",
+    "loading": "Cargando el archivo de push…",
+    "loadError": "No se ha podido cargar el archivo de push. Eso no significa que no tengas notificaciones.",
+    "markAll": "Marcar todo como leído"
+  }
+}

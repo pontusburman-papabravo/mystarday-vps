@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Prossima attività</string>
+    <string name="widget_routine_description">Completa il passo successivo della routine senza aprire tutta l'app.</string>
+    <string name="widget_cd_pictogram">Simbolo dell'attività</string>
+    <string name="widget_cd_complete">Segna l'attività come fatta</string>
+    <string name="widget_cd_open_app">Apri nell'app</string>
+    <string name="widget_action_complete">Fatto</string>
+    <string name="widget_action_open_timer">Apri la clessidra</string>
+    <string name="widget_action_show_steps">Vedi i passi</string>
+    <string name="widget_action_open_app">Apri l'app</string>
+    <string name="widget_loading">Caricamento…</string>
+    <string name="widget_all_done">Tutto fatto per oggi!</string>
+    <string name="widget_nothing_now">Niente in questo momento</string>
+    <string name="widget_offline">Nessuna connessione</string>
+    <string name="widget_reauth">Entra nell'app</string>
+    <string name="widget_revoked">Accesso del dispositivo rimosso</string>
+    <string name="widget_switching">Cambio bambino…</string>
+    <string name="widget_feedback_done">✓ Fatto!</string>
+    <string name="widget_feedback_done_for">✓ Fatto per %1$s</string>
+    <string name="widget_cd_child_prev">Bambino precedente</string>
+    <string name="widget_cd_child_next">Bambino successivo</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d su %2$d fatti</string>
+    <string name="widget_private_activity">Prossimo passo</string>
+    <string name="widget_configure_title">Scegli il widget</string>
+    <string name="widget_configure_personal">Personale (un bambino)</string>
+    <string name="widget_configure_family">Famiglia (cambia bambino)</string>
+    <string name="widget_configure_save">Salva</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

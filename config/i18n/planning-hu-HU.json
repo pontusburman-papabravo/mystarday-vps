@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Tervezés — {{brand}}",
+  "shell": {
+    "title": "Tervezés",
+    "lead": "Válaszd a hetet, a tevékenységeket vagy a többit.",
+    "logout": "Kijelentkezés"
+  },
+  "sections": {
+    "planWeek": "A hét megtervezése",
+    "buildContent": "Tartalom készítése",
+    "other": "Egyéb"
+  },
+  "primary": {
+    "week": { "title": "A hét", "sub": "A gyerekek heti napjainak listája" },
+    "activities": { "title": "Tevékenységek", "sub": "A könyvtár — létrehozás és szerkesztés" },
+    "more": { "title": "Több", "sub": "Nyomtatás, sablonok és más eszközök" }
+  },
+  "more": {
+    "title": "Több",
+    "close": "Bezárás"
+  },
+  "links": {
+    "library": { "title": "Könyvtár", "sub": "Tevékenységek és jutalmak létrehozása" },
+    "imageArchive": { "title": "Képarchívum", "sub": "A fotóid — fogkefe, ágy, iskola" },
+    "templates": { "title": "Sablonok", "sub": "Elmentett napirendek, amiket újra használhatsz" },
+    "weekSchedule": { "title": "Heti napirend", "sub": "A gyereked hetének szerkesztése" },
+    "calendar": { "title": "Naptár", "sub": "A hónap és a különleges napok" },
+    "custody": { "title": "Gondozási napirend", "sub": "Megosztott gondozás a háztartások között" },
+    "dailyLog": { "title": "Ma", "sub": "Korábbi napok megtekintése és igazítása" },
+    "printSchema": { "title": "PDF készítése — napirend", "sub": "Napirend nyomtatása" },
+    "assignSchedule": { "title": "Napirend hozzárendelése", "sub": "Napirend másolása egy gyerekhez" },
+    "reports": { "title": "Jelentések", "sub": "Haladás és megosztás" },
+    "samarbete": { "title": "Együttműködés pedagógussal", "sub": "Együttműködés egy pedagógussal" },
+    "barnStod": { "title": "Extra támogatás", "sub": "Vizuális támogatás és TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Kezdés",
+    "bodyBeforeLibrary": "Kezdd a ",
+    "libraryLink": "könyvtárban",
+    "bodyMiddle": ", ha tevékenységet szeretnél létrehozni. Menj a ",
+    "forYouLink": "Neked",
+    "bodyAfter": " oldalra, ha kész ajánlást szeretnél."
+  }
+}

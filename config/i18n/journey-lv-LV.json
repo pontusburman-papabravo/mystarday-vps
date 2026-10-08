@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Rādīt padomus",
+    "close": "Aizvērt",
+    "milestone": "Atskaites punkts",
+    "nextStep": "Nākamais solis",
+    "tip": "Padoms",
+    "weekReflection": "Nedēļas pārdomas",
+    "weekTogether": "Nedēļa kopā",
+    "weekLabel": "Viena nedēļa",
+    "sjDay3Headline": "Laiks {{name}} pamēģināt",
+    "tips": {
+      "coach_consistency": [
+        "Turi rutīnu īsu un skaidru — bērns ieradumu veido soli pa solim.",
+        "Atzīmē katru izpildi, arī mazās.",
+        "Ļauj bērnam no rīta pieslēgties pašam."
+      ],
+      "coach_evening": [
+        "Pievieno 2–3 mierīgas aktivitātes pirms miega.",
+        "Tāda pati secība katru vakaru palīdz vieglāk aizmigt."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Jauns",
+    "dismissAria": "Aizvērt skaidrojumu",
+    "continueFallback": "Turpināt",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Šeit Sākumā tagad rādām skaidru ieteikumu nākamajam solim.",
+        "whatChanged": "Augšā ir pievienota kartīte „Nākamais solis”.",
+        "whyItMatters": "Tev nav jāmeklē atgādinājumi — viens ieteikums vienā reizē."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Ļauj bērnam pamēģināt savu rutīnu",
+      "body": "Atver bērna skatu kopā — bērns uzreiz redz, ko darīt.",
+      "cta": "Atvērt bērna skatu"
+    },
+    "ADD_EVENING": {
+      "headline": "Pievieno vakara rutīnu",
+      "body": "Padari gulētiešanu tikpat skaidru kā rītu.",
+      "cta": "Pievienot vakaru"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Uzaicini otru vecāku",
+      "body": "Dalies ar rutīnu, lai varētu sekot līdzi kopā.",
+      "cta": "Uzaicināt"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Sāc ar vienu mazu soli",
+      "body": "Rutīna joprojām ir šeit — šodien ņem vienu aktivitāti.",
+      "cta": "Atvērt plānu"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Pielāgo savu rutīnu",
+      "body": "Tagad vari padarīt plānu par savu.",
+      "cta": "Pielāgot"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Atzīmē progresu",
+      "body": "Svarīgs solis ir sperts — uz brīdi apstājies kopā ar bērnu.",
+      "cta": "Parādīt bērnam"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Bērns pabeidza aktivitāti!",
+    "defaultChild": "Tavs bērns",
+    "defaultActivity": "aktivitāti",
+    "defaultCta": "Sapratu"
+  }
+}

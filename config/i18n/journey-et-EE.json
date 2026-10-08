@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Näita nippe",
+    "close": "Sulge",
+    "milestone": "Verstapost",
+    "nextStep": "Järgmine samm",
+    "tip": "Nipp",
+    "weekReflection": "Nädala peegeldus",
+    "weekTogether": "Nädal koos",
+    "weekLabel": "Üks nädal",
+    "sjDay3Headline": "Aeg, et {{name}} prooviks",
+    "tips": {
+      "coach_consistency": [
+        "Hoia rutiin lühike ja selge — laps ehitab harjumust samm-sammult.",
+        "Tähista iga märgitud tegevust, ka väikseid.",
+        "Lase lapsel igal hommikul ise sisse logida."
+      ],
+      "coach_evening": [
+        "Lisa 2–3 rahulikku tegevust enne magamaminekut.",
+        "Sama järjekord igal õhtul teeb uinumise kergemaks."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Uus",
+    "dismissAria": "Sulge selgitus",
+    "continueFallback": "Jätka",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Näitame nüüd siin Kodul selget ettepanekut järgmiseks sammuks.",
+        "whatChanged": "Üles on lisatud kaart «Järgmine samm».",
+        "whyItMatters": "Sa ei pea meeldetuletusi läbi otsima — üks ettepanek korraga."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lase lapsel rutiini proovida",
+      "body": "Ava lapse vaade koos — ta näeb kohe, mida teha.",
+      "cta": "Ava lapse vaade"
+    },
+    "ADD_EVENING": {
+      "headline": "Lisa õhturutiin",
+      "body": "Tee magamaminek sama selgeks kui hommik.",
+      "cta": "Lisa õhtu"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Kutsu teine vanem",
+      "body": "Jaga rutiini, et saaksid teise vanemaga koos järge pidada.",
+      "cta": "Kutsu"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Alusta ühest väikesest sammust",
+      "body": "Rutiin on endiselt alles — võta täna üks tegevus korraga.",
+      "cta": "Ava plaan"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Kohanda oma rutiini",
+      "body": "Nüüd saad plaani enda omaks teha.",
+      "cta": "Kohanda"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Tähista edenemist",
+      "body": "Oled teinud olulise sammu — võta hetk koos.",
+      "cta": "Näita lapsele"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Laps tegi tegevuse ära!",
+    "defaultChild": "Sinu laps",
+    "defaultActivity": "üks tegevus",
+    "defaultCta": "Selge"
+  }
+}

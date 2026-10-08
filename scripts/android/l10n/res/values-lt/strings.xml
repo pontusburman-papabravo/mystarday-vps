@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Nėra ryšio</string>
+    <string name="native_offline_body">Patikrink interneto ryšį ir bandyk dar kartą.</string>
+    <string name="camera_permission_rationale">[REDACTED] naudoja kamerą vaiko profilio nuotraukai.</string>
+    <string name="photos_permission_rationale">[REDACTED] reikia prieigos prie nuotraukų, kad pasirinktum vaiko profilio nuotrauką.</string>
+    <string name="notification_channel_routine_name">Rutinos priminimai</string>
+    <string name="notification_channel_routine_desc">Priminimai apie šeimos planą</string>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Järgmine tegevus</string>
+    <string name="widget_routine_description">Tee rutiini järgmine samm ära, ilma et avaksid kogu rakenduse.</string>
+    <string name="widget_cd_pictogram">Tegevuse sümbol</string>
+    <string name="widget_cd_complete">Märgi tegevus tehtuks</string>
+    <string name="widget_cd_open_app">Ava rakenduses</string>
+    <string name="widget_action_complete">Tehtud</string>
+    <string name="widget_action_open_timer">Ava liivakell</string>
+    <string name="widget_action_show_steps">Näita samme</string>
+    <string name="widget_action_open_app">Ava rakendus</string>
+    <string name="widget_loading">Laadin…</string>
+    <string name="widget_all_done">Kõik tänaseks tehtud!</string>
+    <string name="widget_nothing_now">Praegu pole midagi</string>
+    <string name="widget_offline">Ühendust pole</string>
+    <string name="widget_reauth">Logi rakenduses sisse</string>
+    <string name="widget_revoked">Seadme ligipääs on tühistatud</string>
+    <string name="widget_switching">Vahetan last…</string>
+    <string name="widget_feedback_done">✓ Tehtud!</string>
+    <string name="widget_feedback_done_for">✓ Tehtud lapsele %1$s</string>
+    <string name="widget_cd_child_prev">Eelmine laps</string>
+    <string name="widget_cd_child_next">Järgmine laps</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d / %2$d tehtud</string>
+    <string name="widget_private_activity">Järgmine samm</string>
+    <string name="widget_configure_title">Vali vidin</string>
+    <string name="widget_configure_personal">Isiklik (üks laps)</string>
+    <string name="widget_configure_family">Pere (lapse vahetus)</string>
+    <string name="widget_configure_save">Salvesta</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

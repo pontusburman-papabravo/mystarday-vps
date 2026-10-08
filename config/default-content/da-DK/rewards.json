@@ -1,0 +1,5 @@
+[
+  { "name": "Ekstra skærmtid", "icon": "📱", "star_cost": 5 },
+  { "name": "Vælg aftensmad", "icon": "🍕", "star_cost": 10 },
+  { "name": "Lille gave", "icon": "🎁", "star_cost": 20 }
+]

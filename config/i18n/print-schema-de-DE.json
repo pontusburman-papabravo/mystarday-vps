@@ -1,0 +1,96 @@
+{
+  "pageTitle": "PDF erstellen — Plan — {{brand}}",
+  "backLink": "← Zurück zur Planung",
+  "heading": "📄 PDF erstellen — Plan",
+  "intro": "Wähle ein Kind und einen Zeitraum. Die Vorschau zeigt den gesamten Plan — das PDF wird automatisch skaliert, damit es auf ein A4-Blatt im Querformat passt.",
+  "pdfSave": {
+    "title": "Wo wird das PDF gespeichert?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Nach <em>PDF erstellen</em> öffnet sich das Teilen-Menü — wähle <strong>In Dateien sichern</strong> und einen Ordner (z. B. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Computer:</strong> Das PDF landet in deinem Ordner <strong>Downloads</strong> (oft unten links im Browser)."
+  },
+  "sections": {
+    "child": "Kind",
+    "period": "Zeitraum",
+    "scope": "Was soll das PDF enthalten?",
+    "startWeek": "Startwoche"
+  },
+  "period": {
+    "1w": "1 Woche",
+    "2w": "2 Wochen",
+    "1m": "1 Monat"
+  },
+  "scope": {
+    "all": "Gesamter Plan",
+    "my": "Nur meine Tage"
+  },
+  "weekNav": {
+    "prevAria": "Vorherige Woche",
+    "nextAria": "Nächste Woche",
+    "today": "Diese Woche"
+  },
+  "actions": {
+    "preview": "Vorschau",
+    "createPdf": "PDF erstellen"
+  },
+  "preview": {
+    "heading": "Vorschau",
+    "hint": "Nach unten scrollen, wenn ein Tag viele Aktivitäten hat."
+  },
+  "pdfHelp": {
+    "title": "So speicherst du das PDF",
+    "closeAria": "Schließen",
+    "ok": "OK, verstanden",
+    "introShare": "Das Teilen-Menü ist geöffnet. Wähle „In Dateien sichern“, um das PDF zu speichern.",
+    "introPreview": "Das PDF wurde im Browser geöffnet{{filename}}.",
+    "introDesktop": "Das PDF wurde heruntergeladen{{filename}}.",
+    "filenameSuffix": " als {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Im Teilen-Menü: nach unten scrollen und <strong>In Dateien sichern</strong> tippen.",
+      "Einen Ordner wählen (z. B. <strong>iCloud Drive</strong> oder <strong>Auf meinem iPhone</strong>).",
+      "Oben rechts auf <strong>Sichern</strong> tippen.",
+      "Die Datei später in der App <strong>Dateien</strong> finden."
+    ],
+    "previewSteps": [
+      "Das PDF wurde in einer neuen Ansicht geöffnet — oben rechts auf <strong>Teilen</strong> (↑) tippen.",
+      "<strong>In Dateien sichern</strong> wählen.",
+      "Ordner wählen und auf <strong>Sichern</strong> tippen."
+    ],
+    "desktopSteps": [
+      "Den Ordner <strong>Downloads</strong> auf deinem Computer öffnen.",
+      "Nach einer Datei suchen, die mit <strong>{{prefix}}</strong> und dem heutigen Datum beginnt."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plan",
+    "titleMyDays": "Meine Tage",
+    "emptyCell": "–",
+    "childFallback": "Kind",
+    "loadingPrint": "Druck wird vorbereitet…",
+    "iframeTitle": "Drucken"
+  },
+  "filename": {
+    "prefixSchedule": "wochenplan",
+    "prefixMyDays": "meine-tage",
+    "fallbackSlug": "kind"
+  },
+  "toasts": {
+    "loadChildrenError": "Kinder konnten nicht geladen werden",
+    "selectChild": "Wähle zuerst ein Kind",
+    "loadingPreview": "Vorschau wird geladen…",
+    "noMyDays": "Keine deiner Tage im gewählten Zeitraum",
+    "loadScheduleError": "Der Plan konnte nicht geladen werden",
+    "creatingPdf": "PDF wird erstellt…",
+    "pdfCancelled": "PDF-Speichern abgebrochen",
+    "shareHint": "Wähle im Teilen-Menü „In Dateien sichern“",
+    "mobileSavedHint": "PDF fertig — in Dateien speichern",
+    "desktopSavedHint": "PDF in Downloads gespeichert",
+    "pdfLibsMissing": "PDF-Werkzeuge fehlen — Seite neu laden und erneut versuchen",
+    "createPdfError": "PDF konnte nicht erstellt werden",
+    "shareAgain": "Das PDF ist fertig. Tippe erneut auf PDF erstellen, um den Speicherort zu wählen."
+  },
+  "empty": {
+    "noChildren": "Noch keine Kinder hinzugefügt.",
+    "goDashboard": "Zur Startseite"
+  }
+}

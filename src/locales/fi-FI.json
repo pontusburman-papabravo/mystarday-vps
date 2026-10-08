@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Rauhallinen päivä, tähti kerrallaan"
+  },
+  "language": {
+    "label": "Kieli",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Vaihda kieltä",
+    "choice": {
+      "title": "Kieli",
+      "titleEn": "Kieli",
+      "description": "Kielen voi vaihtaa myöhemmin asetuksissa.",
+      "descriptionEn": "Kielen voi vaihtaa myöhemmin asetuksissa.",
+      "confirm": "Jatka",
+      "required": "Valitse kieli jatkaaksesi",
+      "childNote": "Lapsen näkymä seuraa perheen kieltä.",
+      "childNoteEn": "Lapsen näkymä seuraa perheen kieltä."
+    },
+    "offer": {
+      "title": "{{brand}} on nyt saatavilla suomeksi",
+      "body": "{{brand}} on nyt saatavilla myös suomeksi.",
+      "question": "Haluatko pysyä ruotsissa vai kokeilla suomea?",
+      "staySwedish": "Pysy ruotsissa",
+      "tryEnglish": "Kokeile suomea",
+      "remindLater": "Muistuta myöhemmin"
+    },
+    "legacyNotice": {
+      "body": "Nykyiset aktiviteetit säilyvät alkuperäisellä kielellä. Uudet aktiviteetit tulevat suomeksi.",
+      "dismiss": "Selvä",
+      "dismissAria": "Sulje kielihuomautus"
+    },
+    "reportIssue": "Ilmoita kieliongelmasta",
+    "feedback": {
+      "typeLabel": "Kieli- tai käännösongelma",
+      "typeLabelEn": "Kieli- tai käännösongelma",
+      "titlePlaceholder": "Mikä näyttää väärältä?",
+      "visibleText": "Minkä tekstin näit?",
+      "suggestion": "Miten sen pitäisi kuulua? (valinnainen)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Missä perheesi asuu?",
+      "description": "Tätä tarvitaan oikeisiin ehtoihin ja tietosuojatietoihin. Se on erillään kielivalinnasta.",
+      "label": "Maa",
+      "hint": "",
+      "required": "Valitse maa jatkaaksesi",
+      "closedEu": "{{brand}} ei ole vielä saatavilla maassasi. Kerromme, kun avaamme lisää EU-maita.",
+      "closedIe": "{{brand}} ei ole vielä saatavilla Irlannissa.",
+      "closedCa": "{{brand}} ei ole vielä saatavilla Kanadassa.",
+      "closedFi": "{{brand}} ei ole vielä saatavilla Suomessa.",
+      "closedNo": "{{brand}} ei ole vielä saatavilla Norjassa.",
+      "closedDk": "{{brand}} ei ole vielä saatavilla Tanskassa.",
+      "closedUk": "{{brand}} ei ole vielä saatavilla Yhdistyneessä kuningaskunnassa.",
+      "closedUs": "{{brand}} ei ole vielä saatavilla Yhdysvalloissa.",
+      "closedOther": "{{brand}} ei ole vielä saatavilla maassasi.",
+      "euGroup": "Muu EU-/ETA-maa"
+    }
+  },
+  "nav": {
+    "login": "Kirjaudu",
+    "register": "Luo tili",
+    "childLogin": "Lapsen kirjautuminen",
+    "dashboard": "Yleiskatsaus",
+    "logout": "Kirjaudu ulos",
+    "admin": "Ylläpito"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — helpota arkea koko perheelle",
+      "ogDescription": "Luo ja seuraa päivän aikatauluja, aktiviteetteja ja palkintoja"
+    },
+    "login": {
+      "title": "Kirjaudu",
+      "pageTitle": "Kirjaudu — {{brand}}",
+      "tagline": "Loistamme yhdessä",
+      "subtitle": "Tervetuloa takaisin sovellukseen {{brand}}",
+      "email": "Sähköpostiosoite",
+      "emailPlaceholder": "sina@email.fi",
+      "password": "Salasana",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Kirjaudu sisään",
+      "submitting": "Kirjaudutaan…",
+      "forgotPassword": "Unohtuiko salasana?",
+      "noAccount": "Eikö sinulla ole tiliä?",
+      "createAccount": "Luo tili",
+      "childLogin": "Oletko lapsi?",
+      "childLoginLink": "Oletko lapsi? Kirjaudu tästä",
+      "loginAsAdult": "Kirjaudu vanhempana",
+      "orDivider": "tai",
+      "continueWithApple": "Jatka Applella",
+      "continueWithGoogle": "Jatka Googlella",
+      "apple_caption": "Saatavilla vain iOS:ssä",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Kirjoita sekä sähköposti että salasana",
+      "genericError": "Jokin meni pieleen. Yritä uudelleen.",
+      "mascotAlt": "Tähtihahmo",
+      "addChildBannerTitle": "👶 Kirjaudu vanhempana lisätäksesi lapsen",
+      "addChildBannerBody": "«Olen lapsi» ei riitä tässä — tarvitaan vanhempi tai kasvattaja.",
+      "resetSuccessBannerTitle": "Salasana tallennettu",
+      "resetSuccessBannerBody": "Kirjaudu uudella salasanalla.",
+      "backToChildPicker": "← Takaisin lapsivalintaan",
+      "linking": {
+        "emailExists": "Tällä sähköpostiosoitteella on jo tili.",
+        "promptApple": "Haluatko yhdistää Apple-tilin olemassa olevaan tiliin?",
+        "promptGoogle": "Haluatko yhdistää Google-tilin olemassa olevaan tiliin?",
+        "yes": "Kyllä, yhdistä",
+        "cancel": "Peruuta",
+        "modalTitleApple": "Yhdistä Apple-tili",
+        "modalTitleGoogle": "Yhdistä Google-tili",
+        "modalIntroApple": "Kirjoita salasana, kirjaudu ja yhdistä sitten Apple-tili.",
+        "modalIntroGoogle": "Kirjoita salasana, kirjaudu ja yhdistä sitten Google-tili.",
+        "emailLabel": "Sähköposti",
+        "passwordLabel": "Salasana",
+        "passwordPlaceholder": "Salasanasi",
+        "submit": "Yhdistä",
+        "submitting": "Yhdistetään…",
+        "enterPassword": "Kirjoita salasana.",
+        "wrongPassword": "Väärä salasana.",
+        "failed": "Yhdistäminen epäonnistui."
+      },
+      "apple": {
+        "unavailable": "Apple-kirjautuminen ei ole juuri nyt käytettävissä. Yritä uudelleen tai kirjaudu sähköpostilla.",
+        "notEnabled": "Apple-kirjautuminen ei ole käytössä. Päivitä sovellus uusimpaan versioon.",
+        "cancelled": "Apple-kirjautuminen peruttiin.",
+        "incomplete": "Apple-kirjautuminen ei valmistunut. Yritä uudelleen tai kirjaudu sähköpostilla ja salasanalla.",
+        "rateLimited": "Liian monta yritystä. Odota hetki ja yritä uudelleen.",
+        "genericError": "Apple-kirjautumisessa meni jotain pieleen. Yritä uudelleen tai kirjaudu sähköpostilla ja salasanalla.",
+        "failed": "Apple-kirjautuminen epäonnistui. Yritä uudelleen tai kirjaudu sähköpostilla ja salasanalla.",
+        "signInFailed": "Apple-kirjautuminen epäonnistui.",
+        "completionTitle": "Viimeistele tilin luonti",
+        "completionBody": "Valitse maa ja hyväksy ehdot. Apple antoi jo nimesi ja sähköpostisi — emme kysy niitä uudelleen.",
+        "completionSubmit": "Jatka samalla Apple-tilillä"
+      },
+      "google": {
+        "emailConflictSettings": "Tällä sähköpostiosoitteella on jo tili. Kirjaudu ja yhdistä Google asetuksissa tai käytä salasanakirjautumista.",
+        "loginFailed": "Google-kirjautuminen epäonnistui.",
+        "signInFailed": "Google-kirjautuminen epäonnistui."
+      },
+      "verify": {
+        "title": "Vahvista sähköpostiosoitteesi",
+        "body": "Vahvista sähköpostiosoitteesi, jotta voit jatkaa sovelluksessa {{brand}}. Tarkista saapuneet (ja roskaposti).",
+        "emailLabel": "Sähköpostiosoite:",
+        "resendBtn": "Lähetä uusi vahvistuslinkki",
+        "resendSending": "Lähetetään…",
+        "resendSuccess": "✅ Uusi vahvistuslinkki lähetetty! Tarkista saapuneet ja roskaposti.",
+        "resendError": "Jokin meni pieleen. Yritä uudelleen.",
+        "spamHint": "Tarkista myös roskaposti. Linkki on voimassa 24 tuntia."
+      }
+    },
+    "entry": {
+      "back": "Takaisin",
+      "backWithArrow": "← Takaisin",
+      "welcome": {
+        "ariaLabel": "Tervetuloa",
+        "headline": "Rauhallisempi arki selkeillä askelilla, aikatauluilla ja tähdillä",
+        "lead": "{{brand}} auttaa lapsia ja perheitä päivän rutiineissa visuaalisilla aikatauluilla, selkeillä osavaiheilla ja palkinnoilla, joiden avulla päivästä selviää itsenäisemmin.",
+        "chipVisualSchedules": "Visuaaliset aikataulut",
+        "chipStarsRewards": "Tähdet ja palkinnot",
+        "chipMultipleUsers": "Useita lapsia ja aikuisia",
+        "startBtn": "Aloita",
+        "existingBtn": "Minulla on jo tili",
+        "howItWorksBtn": "Miten sovellus toimii",
+        "firstRunHeadline": "Tervetuloa, {{brand}}",
+        "firstRunCreateAccount": "Luo tili",
+        "firstRunLogIn": "Kirjaudu",
+        "firstRunChildLink": "Olen lapsi"
+      },
+      "role": {
+        "title": "Kuka käyttää sovellusta nyt?",
+        "kidAria": "Olen lapsi",
+        "kidLabel": "Olen lapsi",
+        "kidSub": "Haluan nähdä aikatauluni",
+        "kidAlt": "Lapsi",
+        "parentAria": "Olen aikuinen",
+        "parentLabel": "Olen aikuinen",
+        "parentSub": "Haluan kirjautua tai aloittaa",
+        "parentAlt": "Perhe"
+      },
+      "adultStart": {
+        "ariaLabel": "Aikuisen aloitus",
+        "title": "Tervetuloa! Miten haluat jatkaa?",
+        "existingLabel": "Minulla on jo tili",
+        "existingSub": "Kirjaudu Applella, Googlella tai sähköpostilla",
+        "newLabel": "Olen uusi täällä",
+        "newSub": "Katso, miten sovellus toimii, ja luo ilmainen tili"
+      },
+      "signupIntro": {
+        "ariaLabel": "Aloita",
+        "title": "Aloita: {{brand}}",
+        "sub": "Luo ilmainen tili ja rakenna lapsesi ensimmäinen aikataulu selkeillä askelilla, tähdillä ja tavoitteilla.",
+        "point1": "Visuaaliset aikataulut, jotka lapsi ymmärtää",
+        "point2": "Tähdet ja palkinnot, jotka motivoivat",
+        "point3": "Useita lapsia ja aikuisia samassa perheessä",
+        "createBtn": "Luo ilmainen tili",
+        "existingBtn": "Minulla on jo tili",
+        "founderNote": "Perus sisältyy nyt ilmaiseksi."
+      },
+      "howItWorks": {
+        "title": "Miten sovellus toimii",
+        "step1Title": "1. Lapsi näkee aikataulunsa askel kerrallaan",
+        "step1Body": "Visuaaliset rutiinit tekevät arjesta selkeän ja ennakoitavan.",
+        "step2Title": "2. Lapsi saa tähtiä, kun aktiviteetit on tehty",
+        "step2Body": "Pienet onnistumiset kasvattavat motivaatiota ja itsenäisyyttä.",
+        "step3Title": "3. Aikuiset seuraavat etenemistä ja rakentavat rutiineja yhdessä",
+        "step3Body": "Useat lapset ja aikuiset voivat jakaa saman perheen sovelluksessa.",
+        "close": "Sulje"
+      },
+      "noscript": "JavaScript tarvitaan — ota JavaScript käyttöön, jotta voit kirjautua."
+    },
+    "register": {
+      "title": "Luo tili",
+      "pageTitle": "Luo tili | {{brand}}",
+      "pageHeading": "Luo vanhemman tili",
+      "pageLead": "Kokeile {{brand}} ilmaiseksi. Visuaalinen aikataulu kuvatuella ja tähtipalkinnoilla auttaa lasta ymmärtämään päivän, seuraamaan rutiineja ja tulemaan itsenäisemmäksi.",
+      "pageLeadSecondary": "Perheille, jotka haluavat selkeämmät rutiinit, rauhallisemmat siirtymät ja vähemmän hoputusta arjessa.",
+      "subtitle": "Aloita sovelluksessa {{brand}}",
+      "nameLabel": "Nimesi",
+      "namePlaceholder": "esim. Anna",
+      "familyNameLabel": "Perheen nimi",
+      "familyNamePlaceholder": "esim. Virtasen perhe",
+      "familyNameAuto": "Luodaan automaattisesti nimestäsi",
+      "familyNameGenerated": "Luotu automaattisesti — vaihda, jos haluat",
+      "familyNameEdited": "Muokattu",
+      "email": "Sähköpostiosoite",
+      "emailPlaceholder": "sina@email.fi",
+      "emailHelp": "Lähetämme vahvistuslinkin tähän",
+      "password": "Salasana",
+      "passwordPlaceholder": "Vähintään 8 merkkiä",
+      "passwordHelp": "Vähintään 8 merkkiä pitkä",
+      "confirmPassword": "Vahvista salasana",
+      "confirmPasswordPlaceholder": "Toista salasana",
+      "submit": "Luo tili",
+      "hasAccount": "Onko sinulla jo tili?",
+      "loginLink": "Kirjaudu tästä",
+      "childLoginLink": "Oletko lapsi? Kirjaudu tästä",
+      "gateHintLanguage": "Valitse kieli yltä, jotta rekisteröityminen jatkuu.",
+      "gateHintCountry": "Valitse maa yltä, jotta rekisteröityminen jatkuu.",
+      "appleFromLoginHint": "Tähän Apple ID:hen ei ole vielä liitetty tiliä. Valitse maa ja hyväksy ehdot — nimi ja sähköposti tulevat Applelta. Uutta Apple-kirjautumista ei tarvita.",
+      "appleOnlyPath": "Luo tili Applella. Nimi ja sähköposti tulevat Applelta — älä täytä lomaketta.",
+      "tagline": "Rauhallinen päivä, tähti kerrallaan",
+      "orDivider": "tai",
+      "continueWithApple": "Rekisteröidy Applella",
+      "continueWithGoogle": "Rekisteröidy Googlella",
+      "validatingInvite": "Kutsua tarkistetaan...",
+      "inviteInvalid": "Virheellinen tai vanhentunut kutsulinkki. Ota yhteyttä kutsujaan.",
+      "inviteValidateFailed": "Kutsulinkkiä ei voitu tarkistaa. Yritä uudelleen.",
+      "familyNameSuffix": "{{name}}n perhe",
+      "termsRequired": "Sinun täytyy hyväksyä käyttöehdot ja tietosuojaseloste",
+      "success": "Tili luotu! Tarkista sähköposti ja vahvista tili.",
+      "termsPrefix": "Olen lukenut ja hyväksyn",
+      "termsLink": "Käyttöehdot",
+      "termsAnd": "ja",
+      "privacyLink": "Tietosuojaseloste",
+      "termsSuffix": ".",
+      "successTitle": "Tili luotu! 🎉",
+      "successVerifyLine1": "Olemme lähettäneet vahvistuslinkin sähköpostiisi.",
+      "successVerifyLine2": "Tarkista saapuneet (ja roskaposti).",
+      "successGracePeriod": "Voit kirjautua heti, ja sinulla on 24 tuntia aikaa vahvistaa sähköposti.",
+      "successLoginBtn": "Kirjaudu sisään",
+      "inviteErrorDefault": "Virheellinen kutsulinkki.",
+      "appleEmailExists": "Tällä sähköpostiosoitteella on jo tili. Kirjaudu sen sijaan Applella tai käytä sähköpostia ja salasanaa.",
+      "webDownload": {
+        "title": "Hanki sovellus",
+        "lead": "Uudet perheet luovat tilin sovelluksessa. Lataa se App Storesta tai Google Playsta.",
+        "appStoreAria": "Lataa App Storesta",
+        "playStoreAria": "Hae Google Playsta",
+        "hasAccount": "Onko sinulla jo tili?",
+        "loginLink": "Kirjaudu"
+      }
+    },
+    "parentGate": {
+      "title": "Vanhemman lukko",
+      "hint": "Kirjoita PIN jatkaaksesi",
+      "keypadAria": "PIN-näppäimistö",
+      "cancel": "Peruuta",
+      "forgotPinBackup": "Unohtuiko PIN? Kirjaudu sähköpostilla tai Applella/Googlella",
+      "digitsEntered": "{{count}} / 4 numeroa",
+      "backspace": "Poista",
+      "confirm": "Vahvista",
+      "needFourDigits": "PIN-koodissa pitää olla 4 numeroa"
+    },
+    "childLogin": {
+      "title": "Hei! 👋",
+      "pageTitle": "Tähtien tutkija — {{brand}}",
+      "whoAreYou": "Kuka sinä olet?",
+      "selectProfile": "Valitse profiili ja kirjoita PIN.",
+      "back": "Takaisin",
+      "addChild": "Lisää lapsi",
+      "notMe": "En löydä itseäni",
+      "subtitle": "Kirjoita käyttäjänimi ja PIN",
+      "username": "Käyttäjänimi",
+      "usernamePlaceholder": "Käyttäjänimesi",
+      "pin": "PIN",
+      "pinPlaceholder": "4 numeroa",
+      "submit": "Kirjaudu",
+      "parentLogin": "Oletko vanhempi?",
+      "parentLoginLink": "Kirjaudu tästä",
+      "adultLogin": "Kirjaudu aikuisena",
+      "adultLoginShort": "Aikuinen",
+      "forgotPassword": "Unohtuiko salasana?",
+      "emptyNoChildren": "Lapsia ei ole vielä rekisteröity.",
+      "nameHint": "Kirjoita nimesi kirjautuaksesi",
+      "namePlaceholder": "Nimesi",
+      "continue": "Jatka →",
+      "switchChild": "Vaihda lasta",
+      "pinSub": "Kirjoita koodisi",
+      "attemptsLeft": "Yrityksiä jäljellä",
+      "pinDotsAria": "PIN-koodi",
+      "lockoutWait": "Odota hetki",
+      "lockoutSoon": "Voit yrittää pian uudelleen",
+      "welcome": "Tervetuloa!",
+      "redirecting": "Viemme sinut näkymääsi…",
+      "keypadAria": "Numeronäppäimistö",
+      "forgotPin": "Kysy vanhemmalta, jos unohdit koodin",
+      "needHelp": "Tarvitsetko apua?",
+      "contactParent": "Ota yhteyttä vanhempaan"
+    },
+    "verify": {
+      "title": "Vahvista sähköposti",
+      "pageTitle": "Vahvista sähköposti — {{brand}}",
+      "checkingTitle": "Sähköpostia vahvistetaan",
+      "checkingBody": "Odota hetki, vahvistamme sähköpostiosoitettasi...",
+      "checking": "Tarkistetaan...",
+      "success": "Sähköpostisi on vahvistettu! Voit nyt kirjautua.",
+      "successTitle": "Sähköposti vahvistettu!",
+      "welcomeMessage": "Sähköpostiosoitteesi on vahvistettu. Tervetuloa, {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Ohjaus alkaa",
+      "redirectCountdownSuffix": "sekunnin kuluttua...",
+      "error": "Vahvistuslinkki on virheellinen tai vanhentunut.",
+      "errorTitle": "Vahvistus epäonnistui",
+      "verifyFailed": "Vahvistus epäonnistui. Linkki on ehkä vanhentunut.",
+      "noToken": "Linkistä ei löytynyt vahvistustunnistetta.",
+      "genericError": "Jokin meni pieleen. Yritä uudelleen.",
+      "resendPrompt": "Kirjoita sähköpostiosoite, niin lähetämme uuden vahvistuslinkin:",
+      "resendBtn": "Lähetä uusi linkki",
+      "resendSending": "Lähetetään...",
+      "resendRateLimit": "Olet jo pyytänyt useita linkkejä. Yritä tunnin kuluttua uudelleen.",
+      "resendSuccess": "✅ Jos tili on olemassa, lähetimme uuden vahvistuslinkin. Tarkista saapuneet ja roskaposti!",
+      "resendEmailInvalid": "Kirjoita kelvollinen sähköpostiosoite.",
+      "needHelpPrefix": "Tarvitsetko apua? Tarkista roskaposti tai",
+      "contactUs": "ota yhteyttä",
+      "loginLink": "Siirry kirjautumiseen"
+    },
+    "forgotPassword": {
+      "title": "Unohtunut salasana",
+      "pageTitle": "Unohtunut salasana — {{brand}}",
+      "heading": "Unohtuiko salasana?",
+      "lead": "Ei hätää! Lähetämme linkin, jolla vaihdat salasanan.",
+      "subtitle": "Kirjoita sähköpostiosoite, niin lähetämme vaihtolinkin",
+      "email": "Sähköpostiosoite",
+      "emailPlaceholder": "sina@email.fi",
+      "emailHint": "Lähetämme turvallisen linkin salasanan vaihtoon",
+      "submit": "Lähetä vaihtolinkki",
+      "sent": "Jos sähköpostiosoite on järjestelmässämme, lähetimme vaihtolinkin.",
+      "successTitle": "Tarkista sähköpostisi!",
+      "successBody": "Lähetimme linkin salasanan vaihtoon. Tarkista saapuneet ja roskaposti.",
+      "orDivider": "tai",
+      "rememberPassword": "Muistatko salasanan?",
+      "backToLogin": "Takaisin kirjautumiseen",
+      "helpTitle": "Etkö saanut sähköpostia?",
+      "helpItem1": "Tarkista roskaposti",
+      "helpItem2": "Varmista, että kirjoitit oikean sähköpostiosoitteen",
+      "helpItem3": "Yritä muutaman minuutin kuluttua uudelleen",
+      "helpItem4Suffix": "jos tarvitset apua",
+      "contactSupport": "Ota yhteyttä tukeen"
+    },
+    "resetPassword": {
+      "title": "Vaihda salasana",
+      "pageTitle": "Vaihda salasana — {{brand}}",
+      "subtitle": "Valitse uusi salasana",
+      "password": "Uusi salasana",
+      "passwordPlaceholder": "Vähintään 8 merkkiä",
+      "passwordHelp": "Vähintään 8 merkkiä pitkä",
+      "confirmPassword": "Vahvista salasana",
+      "confirmPasswordPlaceholder": "Toista salasana",
+      "submit": "Vaihda salasana",
+      "submitting": "Tallennetaan…",
+      "success": "Salasanasi on vaihdettu! Voit nyt kirjautua.",
+      "successRedirect": "Valmis! Uusi salasana on tallennettu.",
+      "alreadyUsed": "Salasana on jo vaihdettu. Kirjaudu uudella salasanalla.",
+      "error": "Vaihtolinkki on virheellinen tai vanhentunut.",
+      "invalidLink": "Virheellinen vaihtolinkki.",
+      "requestNewLink": "Pyydä uusi vaihtolinkki",
+      "requestNewLinkShort": "Pyydä uusi linkki",
+      "resetFailed": "Salasanaa ei voitu vaihtaa",
+      "rememberPassword": "Muistatko salasanan?",
+      "goToLoginInline": "Siirry kirjautumiseen",
+      "loginLink": "Siirry kirjautumiseen"
+    },
+    "supportBubble": {
+      "closeAria": "Sulje",
+      "triggerAria": "Ota yhteyttä tukeen",
+      "title": "Tarvitsetko apua? 💬",
+      "subtitle": "Vastaamme niin pian kuin voimme",
+      "oooSubtitle": "Olemme poissa 1.–10. syyskuuta",
+      "success": "Kiitos! Saimme viestisi ja palaamme asiaan pian.",
+      "oooSuccess": "Kiitos! Saimme viestisi. Olemme poissa 1.–10. syyskuuta ja palaamme asiaan niin pian kuin voimme, viimeistään 11. syyskuuta.",
+      "openThread": "Avaa keskustelu",
+      "nameLabel": "Nimi",
+      "namePlaceholder": "Nimesi",
+      "emailLabel": "Sähköposti",
+      "emailPlaceholder": "sina@example.com",
+      "emailHint": "Jotta voimme vastata sinulle",
+      "messageLabel": "Viesti",
+      "messagePlaceholder": "Kuvaile asiasi...",
+      "submit": "Lähetä viesti",
+      "fillAllFields": "Täytä kaikki kentät",
+      "messageMinLength": "Viestissä pitää olla vähintään 10 merkkiä",
+      "submitting": "Lähetetään...",
+      "sendFailed": "Viestiä ei voitu lähettää. Yritä uudelleen.",
+      "genericError": "Jokin meni pieleen"
+    },
+    "contactForm": {
+      "fillRequired": "Kaikki kentät ovat pakollisia.",
+      "emailInvalid": "Kirjoita kelvollinen sähköpostiosoite.",
+      "messageTooShort": "Viesti on liian lyhyt (vähintään 5 merkkiä).",
+      "submitting": "Lähetetään…",
+      "submit": "Lähetä",
+      "genericError": "Jokin meni pieleen. Yritä uudelleen.",
+      "openThread": "Avaa keskustelu"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "Sähköposti ja salasana vaaditaan",
+        "emailRequired": "Sähköpostiosoite vaaditaan",
+        "accountBlocked": "Tilisi on estetty. Ota yhteyttä ylläpitäjään.",
+        "emailVerificationRequired": "Sinun täytyy vahvistaa sähköpostiosoite jatkaaksesi",
+        "verificationTokenRequired": "Vahvistustunniste vaaditaan",
+        "invalidVerificationLink": "Virheellinen tai vanhentunut vahvistuslinkki",
+        "resendVerificationRateLimit": "Olet jo pyytänyt useita vahvistuslinkkejä. Yritä tunnin kuluttua uudelleen.",
+        "tokenAndPasswordRequired": "Tunniste ja salasana vaaditaan",
+        "invalidResetLink": "Virheellinen tai vanhentunut vaihtolinkki. Pyydä uusi vaihtolinkki.",
+        "parentOnlyViewMode": "Vain vanhemmat voivat vaihtaa näkymätilaa",
+        "parentOnlyUiViewMode": "Vain vanhemmat voivat vaihtaa käyttöliittymän näkymätilaa",
+        "parentOnlyTheme": "Vain vanhemmat voivat vaihtaa teemaa",
+        "preferencesSaveFailed": "Asetuksia ei voitu tallentaa",
+        "uiViewModeSaveFailed": "Näkymätilaa ei voitu tallentaa",
+        "themeSaveFailed": "Teemaa ei voitu tallentaa",
+        "userNotFound": "Käyttäjää ei löytynyt",
+        "unknownUserType": "Tuntematon käyttäjätyyppi",
+        "registrationClosed": "Rekisteröityminen on nyt suljettu",
+        "invalidCountry": "Virheellinen maa",
+        "countryRequired": "Valitse maa ennen tilin luontia",
+        "registrationRequired": "KORVATTU — käytä appleAccountCompletionRequired. Älä ohjaa sähköposti- ja salasanarekisteröintiin.",
+        "appleAccountCompletionRequired": "Valitse maa ja hyväksy ehdot, jotta tilin luonti valmistuu. Nimi ja sähköposti tulevat Applelta.",
+        "familyNameRequired": "Nimi vaaditaan perhetilin luontiin",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Rekisteröityminen Ruotsista on tilapäisesti suljettu.",
+          "MARKET_IE_CLOSED": "{{brand}} ei ole vielä saatavilla Irlannissa.",
+          "MARKET_CA_CLOSED": "{{brand}} ei ole vielä saatavilla Kanadassa.",
+          "MARKET_FI_CLOSED": "{{brand}} ei ole vielä saatavilla Suomessa.",
+          "MARKET_NO_CLOSED": "{{brand}} ei ole vielä saatavilla Norjassa.",
+          "MARKET_DK_CLOSED": "{{brand}} ei ole vielä saatavilla Tanskassa.",
+          "MARKET_EU_CLOSED": "{{brand}} ei ole vielä saatavilla maassasi. Ilmoitamme, kun avaamme lisää EU-maita.",
+          "MARKET_UK_CLOSED": "{{brand}} ei ole vielä saatavilla Yhdistyneessä kuningaskunnassa.",
+          "MARKET_US_CLOSED": "{{brand}} ei ole vielä saatavilla Yhdysvalloissa.",
+          "MARKET_OTHER_CLOSED": "{{brand}} ei ole vielä saatavilla maassasi.",
+          "MARKET_BILLING_NOT_READY": "Ostot eivät ole vielä saatavilla tässä maassa, joten emme voi luoda tiliä, jota et voisi käyttää."
+        }
+      },
+      "success": {
+        "emailVerified": "Sähköpostiosoitteesi on vahvistettu! Voit nyt kirjautua.",
+        "resendVerification": "Jos tili on olemassa, uusi vahvistuslinkki lähetetään",
+        "forgotPassword": "Jos sähköpostiosoite on olemassa, lähetämme linkin"
+      }
+    },
+    "errors": {
+      "nameRequired": "Kirjoita nimesi",
+      "emailRequired": "Sähköpostiosoite vaaditaan",
+      "emailInvalid": "Virheellinen sähköpostiosoite",
+      "passwordRequired": "Salasana vaaditaan",
+      "passwordTooShort": "Salasanassa pitää olla vähintään 8 merkkiä",
+      "passwordMismatch": "Salasanat eivät täsmää",
+      "usernameRequired": "Käyttäjänimi vaaditaan",
+      "pinRequired": "PIN vaaditaan",
+      "pinInvalid": "PIN-koodissa pitää olla 4 numeroa",
+      "invalidCredentials": "Väärä sähköposti tai salasana",
+      "accountLocked": "Tilisi on tilapäisesti lukittu. Yritä 15 minuutin kuluttua uudelleen.",
+      "emailNotVerified": "Sinun täytyy ensin vahvistaa sähköpostiosoite",
+      "emailExists": "Tällä sähköpostiosoitteella on jo tili",
+      "tooManyAttempts": "Liian monta yritystä. Odota hetki ja yritä uudelleen.",
+      "serverError": "Jokin meni pieleen. Yritä myöhemmin uudelleen.",
+      "invalidValues": "Virheelliset arvot",
+      "invalidParams": "Virheelliset URL-parametrit",
+      "invalidQuery": "Virheelliset kyselyparametrit",
+      "parentPinInvalid": "Väärä PIN — yritä uudelleen",
+      "logoutFailed": "Uloskirjautuminen epäonnistui. Yritä uudelleen.",
+      "logoutRateLimited": "Liian monta yritystä. Odota hetki ja yritä uudelleen.",
+      "handoffInvalid": "Aikuisen istuntoa ei voitu palauttaa. Kirjaudu vanhempana.",
+      "userNotFound": "Käyttäjää ei löytynyt",
+      "invalidPassword": "Väärä salasana",
+      "tokenRequired": "Tunniste vaaditaan",
+      "idTokenRequired": "idToken vaaditaan",
+      "allFieldsRequired": "Kaikki kentät vaaditaan",
+      "messageTooShort": "Viestissä pitää olla vähintään 10 merkkiä",
+      "serviceUnavailable": "Palvelu ei ole tilapäisesti käytettävissä",
+      "nameTooShort": "Nimi vaaditaan (vähintään 2 merkkiä)",
+      "roleRequired": "Rooli vaaditaan",
+      "consentRequired": "Sinun täytyy suostua tietojesi tallentamiseen",
+      "refreshInvalid": "Virkistystunniste on virheellinen tai vanhentunut",
+      "authRequired": "Tunnistautuminen vaaditaan",
+      "passwordTooShort6": "Salasanassa pitää olla vähintään 6 merkkiä"
+    }
+  },
+  "surveys": {
+    "thankYou": "Kiitos vastauksestasi!",
+    "errors": {
+      "unavailable": "Kysely ei ole juuri nyt saatavilla",
+      "notFound": "Kyselyä ei löytynyt",
+      "closed": "Kysely on suljettu",
+      "paused": "Kysely on tauolla",
+      "alreadyAnswered": "Olet jo vastannut tähän kyselyyn",
+      "alreadySubmitted": "Kysely on jo lähetetty",
+      "questionIdRequired": "Kysymys vaaditaan",
+      "invalidQuestion": "Virheellinen kysymys",
+      "maxSelections": "Voit valita enintään {{max}}",
+      "invalidOption": "Virheellinen vastausvaihtoehto",
+      "sessionNotFound": "Istuntoa ei löytynyt",
+      "answerFirst": "Vastaa ensin kyselyyn",
+      "contestNotOpen": "Arvonta ei ole auki",
+      "contestClosed": "Arvonta on suljettu",
+      "ageRequired": "Osallistujan pitää olla vähintään 18-vuotias",
+      "contestConsent": "Arvontaan tarvitaan suostumus",
+      "contestAlready": "Olet jo mukana arvonnassa",
+      "emailAlready": "Tämä osoite on jo mukana",
+      "idActionRequired": "Kysely ja toiminto vaaditaan"
+    }
+  },
+  "dashboard": {
+    "welcome": "Tervetuloa, {{name}}!",
+    "todaySchedule": "Aikataulu tänään",
+    "children": "Lapset",
+    "addChild": "Lisää lapsi",
+    "settings": "Asetukset",
+    "noChildren": "Et ole vielä lisännyt lapsia. Aloita lisäämällä ensimmäinen lapsi!",
+    "stars": "Tähdet",
+    "streak": "Päiväputki"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Ensimmäinen tähteni"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Hei {{name}}! ⭐",
+    "today": "Tänään",
+    "now": "Nyt",
+    "next": "Seuraava",
+    "later": "Myöhemmin",
+    "done": "Valmis!",
+    "stars": "Omat tähdet",
+    "rewards": "Palkinnot"
+  },
+  "sections": {
+    "morgon": "Aamu",
+    "dag": "Päivä",
+    "kvall": "Ilta",
+    "natt": "Yö"
+  },
+  "settings": {
+    "title": "Asetukset",
+    "family": {
+      "title": "Perheen asetukset",
+      "timeDisplayMode": "Ajan näyttötapa",
+      "morningStart": "Aamu alkaa",
+      "morningEnd": "Aamu päättyy",
+      "dayStart": "Päivä alkaa",
+      "dayEnd": "Päivä päättyy",
+      "eveningStart": "Ilta alkaa",
+      "eveningEnd": "Ilta päättyy",
+      "nightStart": "Yö alkaa",
+      "nightEnd": "Yö päättyy",
+      "streakStartDay": "Päiväputken aloituspäivä",
+      "soundEnabled": "Äänet päällä",
+      "save": "Tallenna perheen asetukset"
+    },
+    "language": {
+      "description": "Valitse sovelluksen kieli.",
+      "switchBack": "Vaihda takaisin ruotsiin"
+    },
+    "invite": {
+      "title": "Kutsu vanhempi",
+      "description": "Kutsu toinen vanhempi katsomaan ja hallitsemaan lasten aikatauluja. Kutsu on voimassa 7 päivää.",
+      "email": "Sähköpostiosoite",
+      "emailPlaceholder": "vanhempi@email.fi",
+      "selectChildren": "Valitse, keiden lasten tiedot kutsuttu vanhempi näkee:",
+      "submit": "Lähetä kutsu",
+      "pending": "Odottavat kutsut:"
+    },
+    "password": {
+      "title": "Vaihda salasana",
+      "current": "Nykyinen salasana",
+      "new": "Uusi salasana",
+      "confirm": "Vahvista uusi salasana",
+      "submit": "Vaihda salasana",
+      "mismatch": "Salasanat eivät täsmää"
+    },
+    "notifications": {
+      "title": "Ilmoitusasetukset",
+      "weeklySummary": "Viikkokooste (sunnuntai 21.00)",
+      "rewardRedemption": "Palkinnon lunastus",
+      "emailEnabled": "Kaikki sähköpostit",
+      "save": "Tallenna ilmoitusasetukset"
+    },
+    "theme": {
+      "title": "Ulkoasu",
+      "darkMode": "Tumma tila",
+      "darkModeDescription": "Ota tumma teema käyttöön, jotta heikossa valossa on miellyttävämpää",
+      "colorBlind": "Värisokeuden teema",
+      "colorBlindDescription": "Säätää värejä eri värisokeuden tyypeille",
+      "colorBlindNone": "Ei mitään (oletus)",
+      "colorBlindProtanopia": "Protanopia (punasokeus)",
+      "colorBlindDeuteranopia": "Deuteranopia (vihersokeus)",
+      "colorBlindTritanopia": "Tritanopia (sinisokeus)"
+    },
+    "trustedDevices": {
+      "title": "Luotetut laitteet",
+      "description": "Lapsen laitteet voivat avata lapsen näkymän ilman PIN-koodia, kun hyväksyt laitteen täällä.",
+      "disabled": "Lapsen laitetila ei ole vielä käytössä perheessäsi.",
+      "enrollHint": "Lapsen tabletilla tai puhelimella: valitse lapsi ja tee tästä laitteesta lapsen laite.",
+      "enrollThisDevice": "Tee lapsen laitteeksi",
+      "enrollSharedDevice": "Tee jaetuksi perhelaitteeksi",
+      "enrollFailed": "Laitetta ei voitu rekisteröidä. Yritä uudelleen.",
+      "empty": "Luotettuja laitteita ei ole rekisteröity.",
+      "revoke": "Peru käyttöoikeus",
+      "revokeAll": "Peru kaikkien laitteiden käyttöoikeus",
+      "revokeAllConfirm": "Kaikki luotetut laitteet kirjataan ulos. Jatketaanko?",
+      "modeChild": "Lapsen laite",
+      "modeShared": "Jaettu laite",
+      "modeParent": "Vanhemman laite",
+      "unknownChild": "Lapsi"
+    },
+    "thisDevice": {
+      "title": "Tämä laite",
+      "description": "Miten tämä puhelin tai tabletti avaa sovelluksen perheellesi.",
+      "setupTitle": "Miten tätä laitetta käytetään?",
+      "setupLead": "Voit vaihtaa tätä myöhemmin asetuksissa.",
+      "setupLater": "Ei nyt",
+      "openSettings": "Avaa asetukset",
+      "usageHeading": "Käyttö",
+      "usageParent": "Oma vanhemman puhelin",
+      "usageShared": "Jaettu lasten kanssa",
+      "usageChild": "Lapsen laite",
+      "startHeading": "Avautuu näin",
+      "startParent": "Vanhempi",
+      "startChoose": "Valitse lapsi",
+      "startParentFixed": "Tämä laite avaa aina vanhemman näkymän.",
+      "startChildFixed": "Tämä laite on liitetty yhteen lapseen.",
+      "childrenHeading": "Lapset tällä laitteella",
+      "adultAccessHeading": "Aikuisen pääsy",
+      "adultPinSet": "PIN on asetettu",
+      "adultPinMissing": "Aseta PIN asetuksissa",
+      "biometricIos": "Face ID tai Touch ID, kun saatavilla",
+      "biometricAndroid": "Biometria tai laitteen lukitus, kun saatavilla",
+      "biometricWeb": "PIN aikuisen tilaan",
+      "widgetsHeading": "Vimpaimet",
+      "widgetsLinked": "Kotinäytön vimpaimet on liitetty lapsen aikatauluun.",
+      "widgetsNone": "Tähän laitteeseen ei ole liitetty vimpaimia.",
+      "changeStartHeading": "Vaihda avaustapaa",
+      "revokeThis": "Poista tämän laitteen käyttöoikeus",
+      "revokeConfirm": "Laite pitää hyväksyä uudelleen, jotta lapset voivat avata sovelluksen ilman PIN-koodia. Jatketaanko?",
+      "otherDevices": "Muut perheen laitteet",
+      "openForChild": "Avaa suoraan lapselle {{name}}",
+      "saveFailed": "Tallennus ei onnistunut. Yritä uudelleen."
+    }
+  },
+  "common": {
+    "loading": "Ladataan...",
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "delete": "Poista",
+    "edit": "Muokkaa",
+    "back": "Takaisin",
+    "confirm": "Vahvista",
+    "yes": "Kyllä",
+    "no": "Ei",
+    "networkError": "Verkkovirhe"
+  },
+  "categories": {
+    "title": "Kategoriat",
+    "subtitle": "Järjestä aktiviteetit kategorioihin",
+    "addCategory": "Lisää kategoria",
+    "editCategory": "Muokkaa kategoriaa",
+    "categoryName": "Kategorian nimi",
+    "categoryNamePlaceholder": "esim. Hygienia",
+    "noCategories": "Ei vielä kategorioita",
+    "defaultBadge": "Oletus",
+    "deleteConfirm": "Haluatko varmasti poistaa tämän kategorian?",
+    "hasActivities": "Tähän kategoriaan on liitetty aktiviteetteja. Poista aktiviteetit ensin.",
+    "saved": "Kategoria tallennettu",
+    "deleted": "Kategoria poistettu"
+  },
+  "activities": {
+    "title": "Aktiviteetit",
+    "subtitle": "Luo ja hallitse perheen aktiviteettimalleja",
+    "addActivity": "Lisää aktiviteetti",
+    "editActivity": "Muokkaa aktiviteettia",
+    "activityName": "Aktiviteetin nimi",
+    "activityNamePlaceholder": "esim. Harjaa hampaat",
+    "icon": "Kuvake",
+    "category": "Kategoria",
+    "noCategory": "Ei kategoriaa",
+    "starValue": "Tähden arvo",
+    "starValueHelp": "Montako tähteä lapsi saa",
+    "favorite": "Merkitse suosikiksi",
+    "favoriteHelp": "Suosikit näkyvät aikataulussa ensin",
+    "noActivities": "Ei vielä aktiviteetteja. Luo ensimmäinen aktiviteetti!",
+    "filterAll": "Kaikki",
+    "favoritesFirst": "Suosikit ensin",
+    "saved": "Aktiviteetti tallennettu",
+    "deleted": "Aktiviteetti poistettu",
+    "deleteConfirm": "Haluatko varmasti poistaa tämän aktiviteetin?",
+    "usedInSchedule": "Tätä aktiviteettia käytetään aikataulussa. Poista se sieltä ensin."
+  },
+  "schedule": {
+    "title": "Viikkoaikataulu",
+    "subtitle": "Rakenna aikataulu jokaiselle lapselle ja päivälle",
+    "selectChild": "Valitse lapsi",
+    "selectDay": "Valitse päivä",
+    "noChild": "Valitse lapsi yltä, niin näet aikataulun",
+    "noScheduleForDay": "Tälle päivälle ei ole aikataulua",
+    "createSchedule": "Luo aikataulu tälle päivälle",
+    "addActivity": "Lisää aktiviteetti",
+    "startTime": "Alkamisaika",
+    "endTime": "Päättymisaika",
+    "section": "Osio",
+    "copyDay": "Kopioi päivä",
+    "copyDayTitle": "Kopioi aikataulu muille päiville",
+    "copyFromDay": "Kopioi lähteestä",
+    "copyToDays": "Kopioi kohteeseen (valitse yksi tai useampi)",
+    "copyToChild": "Kopioi toiselle lapselle",
+    "copyToChildTitle": "Kopioi koko viikkoaikataulu kohteeseen",
+    "copyConfirm": "Kopioi",
+    "copied": "Aikataulu kopioitu!",
+    "deleteSchedule": "Poista päivä",
+    "deleteConfirm": "Oletko varma? Kaikki tämän päivän aktiviteetit poistetaan.",
+    "deleted": "Aikataulu poistettu",
+    "activityAdded": "Aktiviteetti lisätty",
+    "activityRemoved": "Aktiviteetti poistettu",
+    "reordered": "Järjestys päivitetty",
+    "days": {
+      "0": "Sunnuntai",
+      "1": "Maanantai",
+      "2": "Tiistai",
+      "3": "Keskiviikko",
+      "4": "Torstai",
+      "5": "Perjantai",
+      "6": "Lauantai"
+    },
+    "daysShort": {
+      "0": "Su",
+      "1": "Ma",
+      "2": "Ti",
+      "3": "Ke",
+      "4": "To",
+      "5": "Pe",
+      "6": "La"
+    },
+    "sections": {
+      "morgon": "Aamu",
+      "dag": "Päivä",
+      "kvall": "Ilta",
+      "natt": "Yö"
+    }
+  },
+  "dailyLog": {
+    "title": "Päiväloki",
+    "subtitle": "Päivän aktiviteetit",
+    "today": "Tänään",
+    "prevDay": "Edellinen päivä",
+    "nextDay": "Seuraava päivä",
+    "selectDate": "Valitse päivämäärä",
+    "selectChild": "Valitse lapsi",
+    "noChild": "Valitse lapsi yltä, niin näet lokin",
+    "noSchedule": "Tälle päivälle ei ole aikataulua",
+    "noScheduleHint": "Lisää viikkoaikataulu, niin päivälokit syntyvät automaattisesti.",
+    "loading": "Lokia ladataan...",
+    "paused": "Taukopäivä",
+    "pausedHint": "Tämä päivä on tauolla (esim. sairas- tai vapaapäivä).",
+    "pauseDay": "Keskeytä päivä",
+    "unpauseDay": "Poista tauko",
+    "pauseConfirm": "Keskeytetäänkö tämä päivä? Aktiviteetit eivät laske miinusta.",
+    "dayPaused": "Päivä tauolla",
+    "dayUnpaused": "Tauko poistettu",
+    "markDone": "Merkitse tehdyksi",
+    "markUndone": "Kumoa",
+    "completed": "Tehty",
+    "notCompleted": "Ei tehty",
+    "completedAt": "Merkitty tehdyksi",
+    "stars": "tähteä",
+    "star": "tähti",
+    "progress": "{{completed}} / {{total}} aktiviteettia tehty",
+    "allDone": "Kaikki aktiviteetit tehty! 🎉",
+    "emptySection": "Ei aktiviteetteja tässä osiossa",
+    "history": "Historia",
+    "historyRange": "Valitse aikaväli",
+    "historyFrom": "Alkaen",
+    "historyTo": "Päättyen",
+    "historyFetch": "Hae historia",
+    "historyEmpty": "Valitulta aikaväliltä ei löytynyt lokeja",
+    "sections": {
+      "morgon": "Aamu",
+      "dag": "Päivä",
+      "kvall": "Ilta",
+      "natt": "Yö"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Vahvista sähköposti — {{brand}}",
+      "title": "Tervetuloa sovellukseen {{brand}}! ⭐",
+      "body": "Napauta alla olevaa painiketta vahvistaaksesi sähköpostiosoitteen:",
+      "button": "Vahvista sähköposti",
+      "expiry": "Tämä linkki on voimassa {{hours}} tuntia."
+    },
+    "resetPassword": {
+      "subject": "Vaihda salasana — {{brand}}",
+      "title": "Vaihda salasanasi",
+      "greeting": "Hei {{name}}",
+      "greetingGeneric": "Hei",
+      "body": "napauta tästä ja aseta uusi salasana:",
+      "button": "Vaihda salasana",
+      "expiry": "Tämä linkki on voimassa {{hours}} tunnin. Ohita tämä sähköposti, jos et pyytänyt vaihtoa."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} yrittää kirjautua",
+      "title": "Kirjautumisyritys sovelluksessa {{brand}}",
+      "body": "{{childName}} syötti väärän PIN-koodin 3 kertaa sovelluksessa {{brand}}.",
+      "inApp": "{{childName}} yritti kirjautua väärällä PIN-koodilla 3 kertaa ({{time}})",
+      "help": "Voit auttaa oikealla koodilla tai vaihtaa PIN-koodin sovelluksessa.",
+      "button": "Avaa {{brand}}",
+      "footer": "Jos tämä ei ollut lapsesi, kirjaudu ja vaihda PIN lapsen asetuksissa."
+    },
+    "accountDeletionRequested": {
+      "subject": "Tilisi {{brand}} on merkitty poistettavaksi",
+      "greeting": "Hei {{name}}!",
+      "intro": "Saimme pyynnön poistaa tilisi ja kaikki siihen liittyvät tiedot.",
+      "graceTitle": "⏳ Tietosi poistetaan pysyvästi 30 päivän kuluttua.",
+      "undo": "Tänä aikana voit kirjautua ja <strong>perua poiston</strong>, jos muutat mieltäsi.",
+      "loginHint": "Jos muutat mieltäsi — kirjaudu sovellukseen {{brand}}, niin näet mahdollisuuden perua.",
+      "footer": "Jos tämä oli erehdys, voit ohittaa tämän sähköpostin. Tietosi poistetaan 30 päivän kuluttua, ellet peru.",
+      "contact": "Jos sinulla on kysyttävää, ota yhteyttä osoitteeseen {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Tilisi {{brand}} on poistettu",
+      "greeting": "Hei {{name}}",
+      "intro": "Tilisi ja kaikki siihen liittyvät tiedot on nyt poistettu pysyvästi sovelluksesta {{brand}}.",
+      "dataRemoved": "Kaikki perheet, lapset, aikataulut, aktiviteetit ja tähdet on poistettu.",
+      "thanks": "Toivomme, että {{brand}} oli avuksi, kun käytit sitä.",
+      "return": "Jos haluat luoda uuden tilin, olet tervetullut milloin tahansa osoitteessa {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Anna lapsen kokeilla ensimmäistä askelta ⭐",
+      "greeting": "Hei {{name}}!",
+      "body": "Aikataulu on valmis. Seuraavaksi anna lapsen kirjautua PIN-koodilla — se vie alle minuutin.",
+      "button": "Jatka lapsen kirjautumiseen"
+    },
+    "welcomeShell": {
+      "headerTitle": "Tervetuloa! 🌟",
+      "cta": "Avaa {{brand}} ⭐",
+      "footerIntro": "Saat tämän sähköpostin, koska rekisteröidyit äskettäin sovellukseen {{brand}}.",
+      "unsubscribe": "Peru tilaus"
+    },
+    "common": {
+      "genericParent": "Vanhempi",
+      "genericInviter": "Joku",
+      "genericPedagogInviter": "Vanhempi",
+      "genericChild": "lapsesi",
+      "genericReward": "palkinto",
+      "genericYou": "sinä",
+      "greetingNamed": "Hei {{name}}",
+      "greeting": "Hei",
+      "familyNamed": "perhe \"{{familyName}}\"",
+      "aFamily": "perhe",
+      "settingsNotifications": "Asetukset → Ilmoitukset",
+      "settingsNotificationsHtml": "Asetukset → <strong>Ilmoitukset</strong>"
+    },
+    "invite": {
+      "subject": "Sinut on kutsuttu perheeseen {{familyLabel}} sovelluksessa {{brand}} ⭐",
+      "title": "Sinut on kutsuttu! ⭐",
+      "body": "{{greeting}}, {{inviterName}} on kutsunut sinut perheeseen {{familyLabel}} sovelluksessa {{brand}}.",
+      "intro": "{{brand}} on visuaalinen päiväaikataulu, joka auttaa lapsia ymmärtämään päivän, merkitsemään aktiviteetit ja keräämään tähtiä.",
+      "ctaIntro": "Napauta tästä, luo salasana ja aktivoi tili:",
+      "button": "Aktivoi tili",
+      "footer": "Kutsu on voimassa 7 päivää. Ohita tämä sähköposti, jos et odottanut kutsua."
+    },
+    "pedagogInvite": {
+      "subject": "Sinut on kutsuttu kasvattajaksi perheeseen {{familyName}} ⭐",
+      "title": "Tervetuloa kasvattajaksi! ⭐",
+      "greetingNamed": "Hei {{name}},",
+      "greeting": "Hei,",
+      "body": "{{inviterName}} on kutsunut sinut kasvattajaksi perheeseen {{familyName}} sovelluksessa {{brand}}.",
+      "intro": "Kasvattajana voit kirjata havaintoja ja seurata lapsen aikataulua.",
+      "button": "Hyväksy kutsu →",
+      "footer": "Kutsu on voimassa 7 päivää. Jos et odottanut tätä sähköpostia, voit ohittaa sen."
+    },
+    "winBack": {
+      "subject": "Pääse takaisin rytmiin minuutissa ⭐",
+      "greeting": "Hei {{name}}! 👋",
+      "body1": "{{childName}}n aikataulu on yhä täällä — avaa aktiviteetit tänään ja merkitse ne yhdessä.",
+      "body2": "Uudelleen aloittaminen vie vain minuutin.",
+      "button": "Avaa aikataulu →",
+      "settingsHint": "Voit laittaa nämä sähköpostit pois päältä kohdassa {{settingsLink}} sovelluksessa.",
+      "settingsLinkText": "Asetukset → Ilmoitukset"
+    },
+    "activationProgramInvite": {
+      "subject": "Lempeä alku: {{childName}}n rutiinit?",
+      "greeting": "Hei {{name}}!",
+      "body1": "Olet luonut tilin ja rakentanut aikataulun: {{childName}}n — hienoa.",
+      "body2": "Monet perheet sanovat, että vaikeinta ei ole aloitus vaan <strong>rutiinin pitäminen</strong>, kun arki täyttää päivät.",
+      "body3": "Voit nyt kokeilla <strong>7 päivän aloitusohjelmaa</strong>: lyhyitä päivittäisiä askelia, jotka auttavat sinua vanhempana pitämään vauhdin. Lapsen aikataulu pysyy samana.",
+      "button": "Kyllä, auta meidät ensimmäisen viikon läpi",
+      "footer": "Jos et halua opasta, sovellus toimii kuten ennen — kaikki rakentamasi on yhä tallella."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutiinisi odottaa — kokeile sitä yhdessä tänä iltana ⭐",
+        "greeting": "Hei {{name}}!",
+        "body1": "Sinulla on jo aikataulu. Jäljellä on <strong>kokeilla rutiinia yhdessä</strong> — anna lapsen kirjautua ja kerätä ensimmäinen tähti.",
+        "body2": "Se vie noin kaksi minuuttia. Ei painetta.",
+        "button": "Avaa koti →"
+      },
+      "noSchema": {
+        "subject": "Aloita rutiini — vain muutama minuutti ⭐",
+        "greeting": "Hei {{name}}!",
+        "body1": "Olet rekisteröitynyt — hieno alku! Seuraava askel on <strong>rakentaa aikataulu</strong>, jotta lapsi tietää, mitä päivältä odottaa.",
+        "body2": "Se vie noin viisi minuuttia. Kaikki jo tekemäsi on tallella, jos haluat jatkaa myöhemmin.",
+        "button": "Jatka aloitusta →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Olet tilannut uutiskirjeet sovelluksesta {{brand}}",
+      "title": "Kiitos tilauksesta! ⭐",
+      "greetingNamed": "Hei {{name}},",
+      "greeting": "Hei,",
+      "body": "Olet nyt tilannut uutiskirjeet sovelluksesta {{brand}}, ja niissä on vinkkejä, uutisia ja päivityksiä.",
+      "settings": "Voit perua tilauksen milloin tahansa kohdasta <a href=\"{{settingsUrl}}\">Asetukset</a> sovelluksessa tai jokaisen uutiskirjeen alalaidan linkistä.",
+      "signoff": "Ystävällisin terveisin<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} haluaa lunastaa palkinnon \"{{rewardName}}\" ⭐",
+      "title": "Palkinto odottaa hyväksyntää! 🎁",
+      "greeting": "Hei {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> haluaa lunastaa:",
+      "cost": "Hinta: {{starCost}} tähteä",
+      "approveHint": "Kirjaudu sovellukseen hyväksyäksesi tai hylätäksesi lunastuksen.",
+      "settingsHint": "Voit laittaa nämä ilmoitukset pois päältä kohdassa {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "kk",
+      "howTitle": "Näin se toimii:",
+      "how1": "Luo aikatauluja ja aktiviteetteja lapsellesi",
+      "how2": "Anna lapsen kerätä tähtiä joka päivä",
+      "how3": "Aseta palkinnot tähtiaarteeseen",
+      "footerIntro": "Saat tämän sähköpostin, koska rekisteröidyit äskettäin sovellukseen {{brand}}.",
+      "openApp": "Avaa sovellus",
+      "trial": {
+        "subject": "Tervetuloa sovellukseen {{brand}} – ilmainen jakso on alkanut!",
+        "headerTitle": "Ilmainen jaksosi on alkanut! ⭐",
+        "intro": "Tervetuloa! Sinulla on nyt <strong>{{trialDays}} päivää ilmaiseksi</strong>, jotta voit kokeilla jokaista ominaisuutta sovelluksessa {{brand}} — korttia ei tarvita.",
+        "pricing": "Kun {{trialDays}} päivää on kulunut, hinta on <strong>{{monthlyPrice}}</strong> — voit päivittää milloin haluat.",
+        "pricingOpen": "Kun {{trialDays}} päivää on kulunut, valitset, jatkatko tilauksella.",
+        "cta": "Kokeile Premiumia ⭐",
+        "ctaHint": "Ei sitoumusta — peru milloin haluat"
+      },
+      "complimentary": {
+        "subject": "Tervetuloa sovellukseen {{brand}} – maksuton jakso päättyy {{freeUntil}}",
+        "headerTitle": "Maksuton jakso päättyy {{freeUntil}}",
+        "intro": "Tervetuloa! <strong>{{brand}} on maksuton. Jakso päättyy {{freeUntil}}.</strong> Tilausta tai maksutapaa ei tarvita. Tämä tarjous ei muutu automaattisesti maksulliseksi tilaukseksi.",
+        "pricing": "Alkaen {{paidFrom}} voit valita, jatkatko tilauksella. Tästä tarjouksesta ei veloiteta mitään automaattisesti.",
+        "cta": "Avaa sovellus",
+        "ctaHint": "Korttia ei tarvita. Tämä tarjous ei muutu automaattisesti tilaukseksi."
+      },
+      "introYear": {
+        "subject": "Tervetuloa, {{brand}}",
+        "headerTitle": "Tervetuloa! ⭐",
+        "intro": "Tervetuloa! Voit käyttää ominaisuuksia sovelluksessa {{brand}}.",
+        "pricing": "Tältä jaksolta ei tarvita maksua.",
+        "cta": "Avaa sovellus",
+        "ctaHint": "Voit katsoa Premiumia milloin haluat"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Viikkokooste ⭐ — {{weekLabel}}",
+      "greeting": "Hei {{name}}! 👋",
+      "intro": "Tässä on viikkokooste jaksolle <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} keräsi {{stars}} tähteä tällä viikolla!",
+      "sharePrompt": "Tunnetko toisen vanhemman, jolle tämä sopisi?",
+      "shareWhatsApp": "Jaa WhatsAppissa",
+      "shareFriend": "Kerro kaverille",
+      "shareTextWithHighlight": "{{highlight}} Käytämme sovellusta {{brand}} lasten rutiineihin – käy katsomassa:",
+      "shareTextGeneric": "Käytämme sovellusta {{brand}} lasten päivärutiineihin – käy katsomassa:",
+      "starsEarned": "Ansaitut tähdet",
+      "routinesCompleted": "Tehdyt rutiinit",
+      "routinesOf": "{{completed}} / {{total}} ({{pct}}%)",
+      "moodAverage": "Mieliala (keskiarvo)",
+      "moodVeryHappy": "Todella iloinen 😄 ({{score}}/10)",
+      "moodHappy": "Iloinen 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutraali 😐 ({{score}}/10)",
+      "moodSad": "Surullinen 😔 ({{score}}/10)",
+      "encourageNoActivity": "Uusi viikko tulossa — kokeile merkitä yksi rutiini yhdessä, se vie vain hetken.",
+      "encourageProgress": "🌟 Jatka samaan malliin! Jokainen tehty rutiini rakentaa tapoja koko elämäksi.",
+      "encourageSmallSteps": "🌟 Pienet askeleet merkitsevät — kokeile merkitä yksi rutiini yhdessä tällä viikolla.",
+      "genericChildName": "Lapsesi"
+    },
+    "notificationFooter": {
+      "settingsLink": "Asetukset → Ilmoitukset",
+      "optOutDefault": "Laita tämä ilmoitus pois",
+      "optOutWeeklySummary": "Laita viikkokooste pois"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Päivä 1 — katso yhdessä",
+        "body": "Näin {{childName}} näkee aikataulunsa — katso yhdessä.",
+        "ctaLabel": "Näytä lapsen näkymä"
+      },
+      "2": {
+        "title": "Päivä 2 — aamutarkistus",
+        "body": "Avaa yleiskatsaus jossain vaiheessa tänään — se vie vain 30 sekuntia.",
+        "ctaLabel": "Avaa aikataulu"
+      },
+      "3": {
+        "title": "Päivä 3 — juhli tähteä",
+        "body": "Onko {{childName}} saanut tähden? Juhli yhdessä!",
+        "ctaLabel": "Katso aikataulu tänään",
+        "supportiveFallback": "Ensimmäinen viikko on aloittamista varten — riittää, että vilkaiset ja näet aikataulun olevan valmis."
+      },
+      "4": {
+        "title": "Päivä 4 — oma sovellus",
+        "body": "Tuntuuko jokin väärältä? Vaihda aktiviteetti, jos tarvitsee.",
+        "ctaLabel": "Muokkaa aikataulua"
+      },
+      "5": {
+        "title": "Päivä 5 — palkinto",
+        "body": "Katso tähtiaarre — mistä {{childName}} unelmoi?",
+        "ctaLabel": "Avaa tähtiaarre"
+      },
+      "6": {
+        "title": "Päivä 6 — jaa vastuu",
+        "body": "Haluatko jakaa vastuun jonkun kanssa?",
+        "ctaLabel": "Kutsu joku",
+        "soloLabel": "Teen tämän yksin!"
+      },
+      "7": {
+        "title": "Yksi viikko! 🎉",
+        "body": "Onnittelut! Miten viikko meni?",
+        "ctaLabel": "Vastaa kysymykseen"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Aika aktiviteetille \"{{activityName}}\" {{minutes}} minuutin kuluttua! ⭐",
+      "body": "Muistutus lapselle {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Pidä rutiini käynnissä 💫",
+      "day3Body": "On kulunut muutama päivä — avaa aikataulu ja anna tämän päivän tähdet.",
+      "day7Title": "Viikko viime käynnistä",
+      "day7Body": "Lapsesi aikataulu odottaa. Lyhyt vilkaisu riittää.",
+      "day14Title": "Ikävöimme sinua sovelluksessa",
+      "day14Body": "Kaksi viikkoa ilman aktiviteettia — tule mukaan ja pidä rutiini elossa."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} ei ole kirjautunut tänään",
+      "body": "Katso aikataulu ja auta täyttämään päivä!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} on kerännyt {{milestone}} tähteä! 🌟",
+      "bodyCongrats": "{{emoji}} Onnittelut lapselle {{childName}}!",
+      "body100": "Aivan mahtavaa! Uudet haasteet odottavat!"
+    },
+    "backfillReminder": {
+      "title": "Eilinen aikataulu lapselle {{childName}} puuttuu",
+      "body": "Täytä eilinen, jotta kaikki on ajan tasalla!"
+    },
+    "custodyMorning": {
+      "title": "Tänään: {{childName}} on sinun luonasi",
+      "body": "Päivän aikataulu odottaa sovelluksessa."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Luovutus huomenna — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} paikassa {{homeLabel}}",
+      "bodyPack": "🎒 Repun pakkaus on huomisen aikataulussa.",
+      "bodyPrepare": "Muista valmistautua viikoittaiseen luovutukseen."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "teki aktiviteetin {{activityName}}!",
+      "bodyBatch": "teki {{count}} aktiviteettia!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} tähteä lapselle {{childName}}!",
+      "body": "{{parentName}} antoi lapselle {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "tähti",
+    "starLabelMany": "tähteä",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} haluaa lunastaa palkinnon!",
+      "body": "{{childName}} pyytää: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Hyvää huomenta! Katso aikataulu: {{childName}}n — kestää 30 s 🌅",
+      "day3Body": "Onko {{childName}} saanut tähden tänään? Juhli yhdessä ⭐",
+      "day4Body": "Tuntuuko jokin väärältä? Vaihda aktiviteetti ✏️",
+      "day5Body": "Katso tähtiaarre — mistä {{childName}} unelmoi? 🎁",
+      "day6Body": "Haluatko jakaa vastuun jonkun kanssa? 👥",
+      "day7Body": "Onnittelut! Miten viikko meni?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Jokin meni pieleen.",
+          "rewardIdRequired": "reward_id vaaditaan",
+          "childNotFound": "Lasta ei löytynyt",
+          "rewardNotFound": "Palkintoa ei löytynyt",
+          "requestNotFound": "Pyyntöä ei löytynyt",
+          "pendingOnlyApprove": "Vain odottavan pyynnön voi hyväksyä",
+          "pendingOnlyDeny": "Vain odottavan pyynnön voi hylätä",
+          "childIdRequired": "child_id vaaditaan",
+          "reasonRequired": "Syy vaaditaan",
+          "starCountRange": "Tähtien määrän pitää olla 1–100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id ja goal_slug vaaditaan",
+          "childAccessDenied": "Sinulla ei ole oikeutta yhteen valituista lapsista.",
+          "dismissFailed": "Kysymystä ei voitu sulkea"
+        }
+      },
+      "success": {
+        "goalSet": "Tavoite asetettu!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Kiitos palautteesta! Luemme kaiken, mitä tulee.",
+    "contactAck": "Kiitos! Olemme vastaanottaneet viestisi.",
+    "export": {
+      "noData": "Ei tietoja",
+      "rateLimit": "Voit viedä tietosi vain kerran 24 tunnissa. Yritä uudelleen {{hours}} tunnin kuluttua.",
+      "notFound": "Käyttäjää ei löytynyt"
+    },
+    "account": {
+      "deletionPending": "Tilisi on merkitty poistettavaksi. Sinulla on 30 päivää aikaa muuttaa mieltäsi.",
+      "alreadyPending": "Tilisi on jo merkitty poistettavaksi."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Täysi käyttöoikeus koko perheelle",
+    "benefit1": "Kaikki rutiinit ja aikataulut",
+    "benefit2": "Tähdet ja perheesi ominaisuudet",
+    "benefit3": "Kaikki tietosi pysyvät sinulla",
+    "webNoticeTitle": "Aktivoi Premium sovelluksessa",
+    "webNoticeBody": "Premium ostetaan App Storesta tai Google Playsta — ei verkossa.",
+    "webNoticeBodyAppleOnly": "Premium ostetaan App Storesta — ei verkossa. Android tulossa pian.",
+    "downloadIphone": "Lataa iPhonelle",
+    "downloadAndroid": "Lataa Androidille",
+    "androidComingSoon": "Android tulossa pian",
+    "loadingPrices": "Hintoja ladataan…",
+    "continue": "Jatka",
+    "restore": "Palauta ostot",
+    "yearlyBadge": "Suositeltu",
+    "yearlyPrice": "{{price}}/vuosi",
+    "yearlySavings": "Säästä kuukausimaksuun verrattuna",
+    "yearlyTermsKnownTrial": "{{trialDays}}-päivän ilmainen kokeilu · sitten {{price}}/vuosi · uusiutuu automaattisesti",
+    "yearlyTermsConditionalTrial": "14 päivän ilmainen kokeilu uusille tilaajille · sitten {{price}}/vuosi · uusiutuu automaattisesti",
+    "yearlyTermsNoTrial": "{{price}}/vuosi · uusiutuu automaattisesti",
+    "monthlyPrice": "{{price}}/kk",
+    "monthlyBlurb": "Joustava kuukausitilaus perheellesi.",
+    "monthlyTermsKnownTrial": "{{trialDays}}-päivän ilmainen kokeilu · sitten {{price}}/kk · uusiutuu automaattisesti",
+    "monthlyTermsConditionalTrial": "14 päivän ilmainen kokeilu uusille tilaajille · sitten {{price}}/kk · uusiutuu automaattisesti",
+    "monthlyTermsNoTrial": "{{price}}/kk · uusiutuu automaattisesti",
+    "autoRenewApple": "Tilauksesi uusiutuu automaattisesti, ellet peru sitä. Maksun hoitaa App Store. Voit hallita tilausta tai perua sen Apple-tililläsi.",
+    "autoRenewGoogle": "Tilauksesi uusiutuu automaattisesti, ellet peru sitä. Maksun hoitaa Google Play. Voit hallita tilausta tai perua sen Google-tililläsi.",
+    "termsLink": "Ehdot",
+    "privacyLink": "Tietosuoja",
+    "legal": "Voit perua ilmaisen kokeilun ennen veloitusta App Storen tai Google Playn sääntöjen mukaan. Hallitse tilausta tai peru se kaupan tilausasetuksissa.",
+    "legalAppleOnly": "Voit perua ilmaisen kokeilun ennen veloitusta. Hallitse tilausta tai peru se App Storen tilausasetuksissa.",
+    "legalGoogleOnly": "Voit perua ilmaisen kokeilun ennen veloitusta. Hallitse tilausta tai peru se Google Playn tilausasetuksissa.",
+    "giftCard": "Minulla on lahjakortti",
+    "giftCodeLabel": "Lahjakoodi",
+    "giftRedeem": "Lunasta lahjakortti",
+    "limitedAccount": "Jatka rajatulla tilillä",
+    "statusOpening": "Kassaa avataan…",
+    "statusRestoring": "Ostoksia palautetaan…",
+    "statusSuccess": "Premium on käytössä! Tervetuloa takaisin.",
+    "statusCancelled": "Osto peruttiin.",
+    "statusFailed": "Osto epäonnistui. Yritä uudelleen.",
+    "statusUnavailable": "Tilauksia ei voi ladata juuri nyt. Yritä uudelleen.",
+    "statusAndroidComingSoon": "Premium Androidille tulossa pian.",
+    "statusNotNative": "Ostot eivät ole saatavilla täällä. Käytä sovellusta.",
+    "restoreSuccess": "Ostot palautettu! Tervetuloa takaisin.",
+    "restoreNone": "Palautettavia aktiivisia ostoja ei löytynyt.",
+    "giftSuccess": "Lahjakortti lunastettu!",
+    "giftFailed": "Koodia ei voitu lunastaa.",
+    "launchEnded": "Julkaisuoikeus on päättynyt. Tilaa sovelluksessa, jotta täysi käyttöoikeus säilyy."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "sinä",
+      "subject": "Tukikeskustelusi",
+      "text": "Hei {{name}}!\n\nOlemme vastaanottaneet viestisi. Seuraa keskustelua ja vastaa tästä (tavallinen sähköpostivastaus ei näy meille):\n{{url}}\n\nYstävällisin terveisin\n{{fromName}}",
+      "htmlHi": "Hei {{name}}!",
+      "htmlReceived": "Olemme vastaanottaneet viestisi.",
+      "openLink": "Avaa keskustelu",
+      "htmlHint": "seurataksesi keskustelua ja vastataksesi. Tavallinen sähköpostivastaus ei näy meille.",
+      "htmlBye": "Ystävällisin terveisin"
+    },
+    "reply": {
+      "subjectBug": "Vastaus: vikailmoituksesi",
+      "subjectFeedback": "Vastaus: palautteesi",
+      "subjectLanguage": "Vastaus: kieliraporttisi",
+      "subjectContact": "Vastaus: viestisi",
+      "text": "Hei {{name}}!\n\n{{reply}}\n\nLue koko keskustelu ja vastaa tästä (tavallinen sähköpostivastaus ei näy meille):\n{{url}}\n\n---\nAlkuperäinen viestisi:\n{{original}}\n\nYstävällisin terveisin\n{{fromName}}",
+      "htmlHi": "Hei {{name}}!",
+      "openLink": "Avaa keskustelu",
+      "htmlHint": "lukeaksesi koko keskustelun ja vastataksesi. Tavallinen sähköpostivastaus ei näy meille.",
+      "originalLabel": "Alkuperäinen viestisi:",
+      "htmlBye": "Ystävällisin terveisin"
+    },
+    "page": {
+      "title": "Keskustelusi",
+      "intro": "Tämä on koko keskustelu. Kirjoita alle, jos haluat jatkaa. Tavallinen sähköpostivastaus ei näy täällä.",
+      "you": "Sinä",
+      "us": "Me",
+      "empty": "Ei vielä viestejä.",
+      "label": "Kirjoita meille",
+      "placeholder": "Kerro, mitä tapahtuu…",
+      "submit": "Lähetä",
+      "submitting": "Lähetetään…",
+      "needHuman": "Tarvitsen lisää apua ihmiseltä",
+      "escalating": "Lähetetään…",
+      "caseRef": "Tapaus {{ref}}",
+      "status": {
+        "new": "Vastaanotettu",
+        "read": "Luettu",
+        "in_progress": "Käsittelyssä",
+        "answered": "Vastattu",
+        "archived": "Suljettu"
+      }
+    },
+    "errors": {
+      "invalid": "Tämä linkki on virheellinen. Pyydä meitä lähettämään uusi vastaus.",
+      "expired": "Tämä linkki on vanhentunut. Pyydä meitä lähettämään uusi.",
+      "revoked": "Tämä linkki ei enää toimi. Pyydä meitä lähettämään uusi.",
+      "archived": "Tämä tapaus on suljettu. Ota uudelleen yhteyttä, jos tarvitset lisää apua.",
+      "legacySunset": "Tämä linkki on liian vanha. Ota yhteyttä, niin lähetämme uuden.",
+      "tooShort": "Kirjoita vähintään 10 merkkiä, jotta ymmärrämme, mitä tapahtuu.",
+      "tooLong": "Vastaus saa olla enintään 5000 merkkiä.",
+      "notFound": "Tapausta ei löytynyt.",
+      "rateLimit": "Liian monta yritystä. Yritä tunnin kuluttua uudelleen.",
+      "generic": "Tapausta ei voitu avata.",
+      "sendFailed": "Lähetys ei onnistunut. Yritä uudelleen."
+    },
+    "success": {
+      "submitted": "Kiitos! Olemme vastaanottaneet vastauksesi.",
+      "escalated": "Kiitos. Ihminen katsoo tätä tapausta."
+    }
+  },
+  "story": {
+    "someone": "Joku",
+    "anActivity": "aktiviteetti",
+    "activityWithStars": "{{name}} teki aktiviteetin {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} teki aktiviteetin {{activity}}",
+    "goalFallback": "tavoite",
+    "goal": "Perhe saavutti tavoitteen: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Evästeasetukset",
+    "intro": "Käytämme evästeitä tilastointiin, markkinointiin ja personointiin sivustollamme.",
+    "manage": "Hallitse asetuksia",
+    "manageHide": "Piilota asetukset",
+    "deny": "Hylkää kaikki",
+    "accept": "Hyväksy kaikki",
+    "save": "Tallenna valintani",
+    "necessaryLabel": "Välttämättömät",
+    "necessaryDesc": "Tarvitaan, jotta sivusto toimii.",
+    "analyticsLabel": "Tilastot",
+    "analyticsDesc": "Auttavat meitä ymmärtämään, miten sivustoa käytetään (GA4).",
+    "marketingLabel": "Markkinointi",
+    "marketingDesc": "Näyttää osuvia mainoksia ja mittaa kampanjoita.",
+    "personalizationLabel": "Personointi",
+    "personalizationDesc": "Mukauttaa sisältöä ja suosituksia."
+  },
+  "growthHelp": {
+    "reportProblem": "Ilmoita ongelmasta",
+    "suggestedHelp": "Ehdotettu apu",
+    "reportThanks": "Kiitos — saimme ilmoituksesi teknisine tietoineen.",
+    "howChildStarts": "Miten lapsi aloittaa?",
+    "needHelpLogin": "Tarvitsetko apua kirjautumiseen?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Lyhyt kommentti (lähetetään vastauksesi mukana)",
+    "notNow": "Ei nyt",
+    "thanks": "Kiitos palautteesta."
+  },
+  "growthReferral": {
+    "title": "Tunnetteko toisen perheen, joka tarvitsee rauhallisempia aamuja?",
+    "subtitle": "Jakakaa oma linkkinne — ei palkintospämmiä, vain vinkki.",
+    "copyLink": "Kopioi linkki",
+    "copied": "Kopioitu",
+    "copyPrompt": "Kopioi tämä linkki:",
+    "share": "Jaa",
+    "shareText": "Käytämme {{brand}} lasten rutiineihin. Luo ilmainen tili: ",
+    "notNow": "Ei nyt"
+  },
+  "legalReturn": {
+    "backToPremium": "Takaisin Premiumiin"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paketti",
+    "dismiss": "Ei nyt",
+    "interested": "Olen kiinnostunut",
+    "interestedSub": "Ilmoita kiinnostus siihen, mitä on tulossa",
+    "buyNow": "Osta nyt",
+    "reporting": {
+      "title": "Raportit",
+      "body": "Olet kirjannut tekemisiä kahden viikon ajan — haluatko nähdä, miten arki kehittyy?"
+    },
+    "pedagog": {
+      "title": "Ohjaaja",
+      "body": "Haluatko tehdä yhteistyötä ohjaajan tai terapeutin kanssa lapsen arjessa?"
+    },
+    "teacch": {
+      "title": "Lisätuki",
+      "body": "Lisää visuaalista tukea seitsemällä kysymyksellä — se auttaa lasta ymmärtämään, mitä tapahtuu."
+    }
+  }
+}

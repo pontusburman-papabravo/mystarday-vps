@@ -23,10 +23,16 @@
     return global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  function pluralSuffix(count) {
-    const locale = typeof global.getChildDateLocale === 'function' ? getChildDateLocale() : 'sv-SE';
-    if (locale === 'en-GB') return count === 1 ? '' : 's';
-    return count === 1 ? '' : 'er';
+  function pluralWord(baseKey, count) {
+    if (typeof global.childPlural === 'function') {
+      const word = childPlural(baseKey, count);
+      if (word && word !== baseKey && word.indexOf('child.' + baseKey) !== 0) return word;
+    }
+    if (global.I18n && typeof global.I18n.plural === 'function') {
+      const word = global.I18n.plural('child.' + baseKey, count);
+      if (word && word.indexOf('child.' + baseKey) !== 0) return word;
+    }
+    return '';
   }
 
   function ariaRemainingLabel(seconds) {
@@ -37,8 +43,8 @@
       return t('activityTimer.ariaMinutesAndSeconds', {
         minutes: m,
         seconds: r,
-        minutePlural: pluralSuffix(m),
-        secondPlural: pluralSuffix(r),
+        minuteWord: pluralWord('activityTimer.minuteUnit', m),
+        secondWord: pluralWord('activityTimer.secondUnit', r),
       });
     }
     if (m > 0) {
@@ -872,6 +878,7 @@
     openOverlay: openOverlay,
     attachItemMeta: attachItemMeta,
     refreshParentTimerUi: refreshParentTimerUi,
+    ariaRemainingLabel: ariaRemainingLabel,
     sandProgress: function (r, d) {
       return global.ActivityTimerSession
         ? ActivityTimerSession.sandProgress(r, d)

@@ -1,0 +1,96 @@
+{
+  "pageTitle": "PDF készítése — napirend — {{brand}}",
+  "backLink": "← Vissza a tervezéshez",
+  "heading": "📄 PDF készítése — napirend",
+  "intro": "Válassz gyereket és időszakot. Az előnézet a teljes napirendet mutatja — a PDF magától úgy méreteződik, hogy egy fekvő A4-re férjen.",
+  "pdfSave": {
+    "title": "Hová kerül a PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> A <em>PDF készítése</em> után megnyílik a megosztás — válaszd a <strong>Mentés a Fájlokba</strong> lehetőséget, és válassz mappát (például iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Számítógép:</strong> A PDF a <strong>Letöltések</strong> mappába kerül (gyakran a böngésző bal alsó sarkában)."
+  },
+  "sections": {
+    "child": "Gyerek",
+    "period": "Időszak",
+    "scope": "Mit tartalmazzon a PDF?",
+    "startWeek": "Kezdő hét"
+  },
+  "period": {
+    "1w": "1 hét",
+    "2w": "2 hét",
+    "1m": "1 hónap"
+  },
+  "scope": {
+    "all": "Teljes napirend",
+    "my": "Csak a saját napjaim"
+  },
+  "weekNav": {
+    "prevAria": "Előző hét",
+    "nextAria": "Következő hét",
+    "today": "Ez a hét"
+  },
+  "actions": {
+    "preview": "Előnézet",
+    "createPdf": "PDF készítése"
+  },
+  "preview": {
+    "heading": "Előnézet",
+    "hint": "Görgess lejjebb, ha egy napon sok a tevékenység."
+  },
+  "pdfHelp": {
+    "title": "Hogyan mentsd a PDF-et",
+    "closeAria": "Bezárás",
+    "ok": "Rendben, értem",
+    "introShare": "A megosztás nyitva van. A mentéshez válaszd a Mentés a Fájlokba lehetőséget.",
+    "introPreview": "A PDF megnyílt a böngészőben{{filename}}.",
+    "introDesktop": "A PDF letöltődött{{filename}}.",
+    "filenameSuffix": " ezen a néven: {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "A megosztásban görgess, és koppints a <strong>Mentés a Fájlokba</strong> gombra.",
+      "Válassz mappát (például <strong>iCloud Drive</strong> vagy <strong>Az iPhone-omon</strong>).",
+      "Koppints a <strong>Mentés</strong> gombra jobb felül.",
+      "A fájlt később a <strong>Fájlok</strong> appban találod."
+    ],
+    "previewSteps": [
+      "A PDF új nézetben nyílt meg — koppints a <strong>Megosztás</strong> (↑) gombra jobb felül.",
+      "Válaszd a <strong>Mentés a Fájlokba</strong> lehetőséget.",
+      "Válassz mappát, és koppints a <strong>Mentés</strong> gombra."
+    ],
+    "desktopSteps": [
+      "Nyisd meg a <strong>Letöltések</strong> mappát a számítógépen.",
+      "Keresd a fájlt, ami így kezdődik: <strong>{{prefix}}</strong>, és a mai dátummal."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Napirend",
+    "titleMyDays": "Saját napok",
+    "emptyCell": "–",
+    "childFallback": "Gyerek",
+    "loadingPrint": "Nyomtatás készül…",
+    "iframeTitle": "Nyomtatás"
+  },
+  "filename": {
+    "prefixSchedule": "heti-napirend",
+    "prefixMyDays": "sajat-napjaim",
+    "fallbackSlug": "gyerek"
+  },
+  "toasts": {
+    "loadChildrenError": "A gyerekeket nem sikerült betölteni",
+    "selectChild": "Először válassz gyereket",
+    "loadingPreview": "Előnézet betöltése…",
+    "noMyDays": "A választott időszakban nincs a te napod",
+    "loadScheduleError": "A napirendet nem sikerült betölteni",
+    "creatingPdf": "PDF készül…",
+    "pdfCancelled": "A PDF mentése megszakadt",
+    "shareHint": "A megosztásban válaszd a Mentés a Fájlokba lehetőséget",
+    "mobileSavedHint": "A PDF kész — mentsd a Fájlokba",
+    "desktopSavedHint": "A PDF a Letöltésekbe került",
+    "pdfLibsMissing": "Hiányoznak a PDF-eszközök — töltsd újra az oldalt, és próbáld megint",
+    "createPdfError": "A PDF-et nem sikerült elkészíteni",
+    "shareAgain": "A PDF kész. Koppints újra a PDF készítésére, és válaszd ki, hová kerüljön."
+  },
+  "empty": {
+    "noChildren": "Még nincs gyerek hozzáadva.",
+    "goDashboard": "Ugrás a kezdőlapra"
+  }
+}

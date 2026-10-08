@@ -109,7 +109,7 @@ async function runSc3OnPage(page, browser) {
         return r.ok ? r.json() : null;
       },
     });
-    const result = await enterChildPin(page, CHILD_USER, 'sv-SE');
+    const result = await enterChildPin(page, CHILD_USER, 'en-GB');
     const probe = await probePage(page);
     return { pass: result.pass === true, reason: result.reason || null, probe };
   } catch (e) {

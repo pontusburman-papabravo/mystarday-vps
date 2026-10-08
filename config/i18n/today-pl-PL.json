@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Dziś — {{brand}}",
+  "shell": {
+    "headerTitle": "Dziś",
+    "backToHome": "← Wróć do Startu",
+    "pdfHint": "Utwórz PDF na dzień, tydzień albo moje dni",
+    "printBtn": "📄 Utwórz PDF ▾",
+    "printDay": "📄 Utwórz PDF — dzień",
+    "printWeek": "📅 Utwórz PDF — tydzień",
+    "printMyDays": "🏠 Utwórz PDF — moje dni",
+    "selectChildHeading": "Wybierz dziecko",
+    "selectChildEmpty": "Wybierz dziecko powyżej, żeby zobaczyć dziennik",
+    "loadingChildren": "Ładowanie…",
+    "tipsTitle": "Wskazówka: śledź czynności w Dziś",
+    "tips1": "Oznacz czynności jako zrobione — dziecko widzi je od razu",
+    "tips2": "W widoku dziecka czynności odhacza się jednym stuknięciem i gwiazdki wchodzą od razu",
+    "tips3": "Cofnij się wyborem daty i zobacz, jak dziecku poszło",
+    "tips4": "Wstrzymaj dzień, kiedy rutyna jest inna — gwiazdki nie przepadają",
+    "rateActivity": "Oceń czynność",
+    "commentPlaceholder": "Komentarz (opcjonalnie)…",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "moveUp": "Przesuń w górę",
+    "moveDown": "Przesuń w dół",
+    "printWeekDocTitle": "Plan tygodnia — {{name}}",
+    "printMyDaysDocTitle": "Moje dni"
+  },
+  "childFallback": "Dziecko",
+  "noChildren": "Nie dodano jeszcze dzieci.",
+  "loading": "Ładowanie…",
+  "retry": "Spróbuj ponownie",
+  "errors": {
+    "signInRequired": "Zaloguj się, żeby zobaczyć Dziś",
+    "loadChildren": "Nie udało się wczytać dzieci",
+    "loadLog": "Nie udało się wczytać dziennika. Spróbuj ponownie.",
+    "saveOrder": "Nie udało się zapisać kolejności",
+    "updateActivity": "Nie udało się zaktualizować czynności",
+    "undo": "Nie udało się cofnąć",
+    "changeStatus": "Nie udało się zmienić statusu",
+    "adjustTime": "Nie udało się poprawić godzin",
+    "selectChild": "Najpierw wybierz dziecko",
+    "custodyDisabled": "Plan opieki nie jest włączony",
+    "loadWeek": "Nie udało się wczytać tygodnia",
+    "saveRating": "Nie udało się zapisać oceny",
+    "ratingScoreOrEmotion": "Wybierz ocenę albo kartę nastroju",
+    "ratingScoreRange": "Ocena musi być od 1 do 10",
+    "ratingInvalidEmotion": "Nieprawidłowa karta nastroju",
+    "ratingActivityNotFound": "Nie znaleziono czynności",
+    "ratingNotAllowed": "Ocena tej czynności nie jest dostępna dla tego dziecka",
+    "ratingParentScoreRange": "Ocena musi być od 1 do 5",
+    "ratingParentDisabled": "Ocena rodzica nie jest włączona dla tej czynności",
+    "dayPaused": "Dzień jest wstrzymany",
+    "dailyLogItemRequired": "Wymagany jest identyfikator wpisu dziennika",
+    "invalidTimerMinutes": "Nieprawidłowe minuty. Dozwolone wartości: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Dziś nie ma czynności!",
+    "noScheduleDay": "W tym dniu nie ma rutyny",
+    "addToWeekSchedule": "Dodaj czynności do planu tygodnia, żeby dzienniki tworzyły się same.",
+    "noScheduleSelected": "W wybranym dniu nie ma rutyny.",
+    "thisDay": "ten dzień",
+    "today": "dziś",
+    "noChildrenTitle": "Nie dodano dzieci",
+    "addFirstChild": "Dodaj pierwsze dziecko na Starcie, żeby zacząć!",
+    "goToDashboard": "Przejdź do Startu",
+    "goToWeekSchedule": "📅 Przejdź do planu tygodnia"
+  },
+  "nav": {
+    "prevWeek": "Poprzedni tydzień",
+    "prevDay": "Poprzedni dzień",
+    "nextDay": "Następny dzień",
+    "nextWeek": "Następny tydzień",
+    "pickDate": "Wybierz datę",
+    "todayBtn": "Dziś",
+    "undoBump": "Cofnij ostatnią zmianę godzin"
+  },
+  "activity": {
+    "markDone": "Oznacz jako zrobione",
+    "undoMark": "Cofnij oznaczenie",
+    "rate": "⭐ Oceń",
+    "setRating": "Ustaw ocenę",
+    "changeRating": "Zmień ocenę",
+    "dragReorder": "Przeciągnij, żeby zmienić kolejność",
+    "completeAllInSection": "Ukończ wszystko w: {{section}}",
+    "completeAllBtn": "✅ Oznacz wszystko jako zrobione",
+    "defaultName": "Czynność",
+    "undoneToast": "↩️ Oznacz jako niezrobione"
+  },
+  "pause": {
+    "confirmPause": "Wstrzymać ten dzień? Czynności nie liczą się na minus.",
+    "confirmUnpause": "Przywrócić ten dzień?",
+    "pausedToast": "😴 Dzień wstrzymany",
+    "unpausedToast": "✅ Dzień przywrócony",
+    "dayTitle": "Dzień wolny",
+    "banner": "Ten dzień jest wstrzymany (na przykład choroba albo święto). Czynności nie liczą się na minus.",
+    "reactivate": "✅ Przywróć dzień",
+    "pauseBtn": "😴 Wstrzymaj ten dzień (choroba / dzień wolny)"
+  },
+  "bump": {
+    "noItems": "Nie ma nieodznaczonych czynności z godzinami do przesunięcia",
+    "moved": "⏩ Przesunięto {{count}} czynnoś{{suffix}} o {{minutes}} min",
+    "movedOne": "ć",
+    "movedMany": "ci",
+    "undoToast": "↩️ Zmiana godzin cofnięta",
+    "title": "Przesuń wszystko, co przed tobą",
+    "adjustHint": "Poprawia godziny nieodznaczonych czynności",
+    "minutesTitle": "Przesuń o {{minutes}} min",
+    "undoBtn": "↩ Cofnij"
+  },
+  "retrofill": {
+    "title": "Uzupełnianie rutyny wstecz",
+    "description": "Uzupełniasz rutynę po fakcie. Oznacz czynności jako zrobione — zapiszą się z właściwą datą."
+  },
+  "rating": {
+    "childMood": "Nastrój dziecka",
+    "parentScore": "Ocena rodzica",
+    "noMoodCards": "Nie ma jeszcze kart nastroju",
+    "saved": "⭐ Ocena zapisana!",
+    "labels": [
+      "",
+      "Trudno 😓",
+      "W porządku 😐",
+      "Dobrze 😊",
+      "Świetnie 😄",
+      "Fantastycznie! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiena",
+    "mat": "Jedzenie",
+    "skola": "Szkoła",
+    "lek": "Zabawa",
+    "rorelse": "Ruch",
+    "vila": "Odpoczynek",
+    "social": "Razem"
+  },
+  "legend": {
+    "colorCoding": "Kolory:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Wszystkie czynności zrobione!",
+    "completedOf": "{{completed}} z {{total}} czynności zrobione"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Odhaczone: {{name}}",
+    "undo": "Cofnij"
+  },
+  "emotions": {
+    "title": "💛 Nastroje dziś",
+    "noCards": "Nie ma jeszcze kart nastroju",
+    "sliderResponses": "Suwak: {{count}} odpowied{{suffix}}",
+    "sliderSuffixOne": "ź",
+    "sliderSuffixMany": "zi",
+    "sliderAvg": " (śr. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Przygotowanie przeglądu tygodnia...",
+    "preparingCustody": "Przygotowanie moich dni…",
+    "noMyDays": "W tym tygodniu nie ma twoich dni",
+    "weekScheduleTitle": "{{name}} — Plan tygodnia",
+    "myDaysTitle": "{{name}} — Moje dni"
+  }
+}

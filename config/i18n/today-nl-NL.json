@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Vandaag — {{brand}}",
+  "shell": {
+    "headerTitle": "Vandaag",
+    "backToHome": "← Terug naar Thuis",
+    "pdfHint": "PDF maken voor dag, week of mijn dagen",
+    "printBtn": "📄 PDF maken ▾",
+    "printDay": "📄 PDF maken — dag",
+    "printWeek": "📅 PDF maken — week",
+    "printMyDays": "🏠 PDF maken — mijn dagen",
+    "selectChildHeading": "Kies een kind",
+    "selectChildEmpty": "Kies hierboven een kind om het logboek te zien",
+    "loadingChildren": "Laden…",
+    "tipsTitle": "Tip: volg activiteiten in Vandaag",
+    "tips1": "Markeer activiteiten als klaar — je kind ziet ze meteen",
+    "tips2": "Activiteiten worden in de kindweergave met één tik afgevinkt en leveren direct sterren op",
+    "tips3": "Scroll terug met de datumkiezer om te zien hoe je kind het deed",
+    "tips4": "Pauzeer een dag als de routine anders is — er gaan geen sterren verloren",
+    "rateActivity": "Activiteit beoordelen",
+    "commentPlaceholder": "Opmerking (optioneel)…",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "printWeekDocTitle": "Weekschema — {{name}}",
+    "printMyDaysDocTitle": "Mijn dagen"
+  },
+  "childFallback": "Kind",
+  "noChildren": "Nog geen kinderen toegevoegd.",
+  "loading": "Laden…",
+  "retry": "Opnieuw proberen",
+  "errors": {
+    "signInRequired": "Log in om Vandaag te zien",
+    "loadChildren": "Kinderen konden niet worden geladen",
+    "loadLog": "Het logboek kon niet worden geladen. Probeer het opnieuw.",
+    "saveOrder": "De volgorde kon niet worden opgeslagen",
+    "updateActivity": "De activiteit kon niet worden bijgewerkt",
+    "undo": "Ongedaan maken lukte niet",
+    "changeStatus": "De status kon niet worden gewijzigd",
+    "adjustTime": "De tijden konden niet worden aangepast",
+    "selectChild": "Kies eerst een kind",
+    "custodyDisabled": "De omgangsregeling staat niet aan",
+    "loadWeek": "De week kon niet worden geladen",
+    "saveRating": "De beoordeling kon niet worden opgeslagen",
+    "ratingScoreOrEmotion": "Kies een beoordeling of een emotiekaart",
+    "ratingScoreRange": "De beoordeling moet tussen 1 en 10 liggen",
+    "ratingInvalidEmotion": "Ongeldige emotiekaart",
+    "ratingActivityNotFound": "Activiteit niet gevonden",
+    "ratingNotAllowed": "Beoordelen is voor dit kind bij deze activiteit niet toegestaan",
+    "ratingParentScoreRange": "De beoordeling moet tussen 1 en 5 liggen",
+    "ratingParentDisabled": "Beoordeling door de ouder staat voor deze activiteit niet aan",
+    "dayPaused": "De dag is gepauzeerd",
+    "dailyLogItemRequired": "daily_log_item_id is verplicht",
+    "invalidTimerMinutes": "Ongeldige minuten. Toegestaan: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Vandaag geen activiteiten!",
+    "noScheduleDay": "Geen routine op deze dag",
+    "addToWeekSchedule": "Voeg activiteiten toe aan het weekschema om automatisch logboeken te maken.",
+    "noScheduleSelected": "Geen routine voor de gekozen dag.",
+    "thisDay": "deze dag",
+    "today": "vandaag",
+    "noChildrenTitle": "Geen kinderen toegevoegd",
+    "addFirstChild": "Voeg je eerste kind toe op Thuis om te beginnen!",
+    "goToDashboard": "Ga naar Thuis",
+    "goToWeekSchedule": "📅 Naar het weekschema"
+  },
+  "nav": {
+    "prevWeek": "Vorige week",
+    "prevDay": "Vorige dag",
+    "nextDay": "Volgende dag",
+    "nextWeek": "Volgende week",
+    "pickDate": "Datum kiezen",
+    "todayBtn": "Vandaag",
+    "undoBump": "Laatste tijdaanpassing ongedaan maken"
+  },
+  "activity": {
+    "markDone": "Markeer als klaar",
+    "undoMark": "Vinkje ongedaan maken",
+    "rate": "⭐ Beoordelen",
+    "setRating": "Beoordeling geven",
+    "changeRating": "Beoordeling wijzigen",
+    "dragReorder": "Sleep om te herschikken",
+    "completeAllInSection": "Alles in {{section}} afvinken",
+    "completeAllBtn": "✅ Alles afvinken",
+    "defaultName": "Activiteit",
+    "undoneToast": "↩️ Weer opengezet"
+  },
+  "pause": {
+    "confirmPause": "Deze dag pauzeren? Activiteiten tellen niet negatief mee.",
+    "confirmUnpause": "Deze dag weer activeren?",
+    "pausedToast": "😴 Dag gepauzeerd",
+    "unpausedToast": "✅ Dag weer actief",
+    "dayTitle": "Vrije dag",
+    "banner": "Deze dag is gepauzeerd (bijvoorbeeld ziek of vrij). Activiteiten tellen niet negatief mee.",
+    "reactivate": "✅ Dag weer activeren",
+    "pauseBtn": "😴 Deze dag pauzeren (ziekte / vrije dag)"
+  },
+  "bump": {
+    "noItems": "Geen open activiteiten met tijden om te verschuiven",
+    "moved": "⏩ {{count}} {{suffix}} {{minutes}} min vooruit gezet",
+    "movedOne": "activiteit",
+    "movedMany": "activiteiten",
+    "undoToast": "↩️ Tijdaanpassing ongedaan gemaakt",
+    "title": "Alle komende activiteiten vooruit zetten",
+    "adjustHint": "Past de tijden van open activiteiten aan",
+    "minutesTitle": "Zet {{minutes}} min vooruit",
+    "undoBtn": "↩ Ongedaan maken"
+  },
+  "retrofill": {
+    "title": "Routine achteraf invullen",
+    "description": "Je vult een routine achteraf in. Markeer activiteiten als klaar — ze worden met de juiste datum opgeslagen."
+  },
+  "rating": {
+    "childMood": "Stemming van het kind",
+    "parentScore": "Beoordeling van de ouder",
+    "noMoodCards": "Nog geen stemmingkaarten",
+    "saved": "⭐ Beoordeling opgeslagen!",
+    "labels": [
+      "",
+      "Moeilijk 😓",
+      "Oké 😐",
+      "Goed 😊",
+      "Super 😄",
+      "Fantastisch! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiëne",
+    "mat": "Eten",
+    "skola": "School",
+    "lek": "Spelen",
+    "rorelse": "Bewegen",
+    "vila": "Rust",
+    "social": "Sociaal"
+  },
+  "legend": {
+    "colorCoding": "Kleurcodes:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Alle activiteiten klaar!",
+    "completedOf": "{{completed}} van {{total}} activiteiten klaar"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Afgevinkt: {{name}}",
+    "undo": "Ongedaan maken"
+  },
+  "emotions": {
+    "title": "💛 Stemming vandaag",
+    "noCards": "Nog geen stemmingkaarten",
+    "sliderResponses": "Schuif: {{count}} reactie{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "s",
+    "sliderAvg": " (gem. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Weekoverzicht voorbereiden...",
+    "preparingCustody": "Mijn dagen voorbereiden…",
+    "noMyDays": "Geen van jouw dagen deze week",
+    "weekScheduleTitle": "{{name}} — Weekschema",
+    "myDaysTitle": "{{name}} — Mijn dagen"
+  }
+}

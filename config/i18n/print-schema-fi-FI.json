@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Luo PDF — aikataulu — {{brand}}",
+  "backLink": "← Takaisin suunnitteluun",
+  "heading": "📄 Luo PDF — aikataulu",
+  "intro": "Valitse lapsi ja ajanjakso. Esikatselu näyttää koko aikataulun — PDF skaalautuu automaattisesti yhdelle vaakasuuntaiselle A4-arkille.",
+  "pdfSave": {
+    "title": "Minne PDF tallennetaan?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Kun olet painanut <em>Luo PDF</em>, jakonäkymä aukeaa — valitse <strong>Tallenna Tiedostoihin</strong> ja kansio (esim. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Tietokone:</strong> PDF menee <strong>Lataukset</strong>-kansioon (usein selaimen vasemmassa alakulmassa)."
+  },
+  "sections": {
+    "child": "Lapsi",
+    "period": "Ajanjakso",
+    "scope": "Mitä PDF:ään tulee?",
+    "startWeek": "Aloitusviikko"
+  },
+  "period": {
+    "1w": "1 viikko",
+    "2w": "2 viikkoa",
+    "1m": "1 kuukausi"
+  },
+  "scope": {
+    "all": "Koko aikataulu",
+    "my": "Vain omat päivät"
+  },
+  "weekNav": {
+    "prevAria": "Edellinen viikko",
+    "nextAria": "Seuraava viikko",
+    "today": "Tämä viikko"
+  },
+  "actions": {
+    "preview": "Esikatselu",
+    "createPdf": "Luo PDF"
+  },
+  "preview": {
+    "heading": "Esikatselu",
+    "hint": "Vieritä alas, jos päivässä on paljon aktiviteetteja."
+  },
+  "pdfHelp": {
+    "title": "Näin tallennat PDF:n",
+    "closeAria": "Sulje",
+    "ok": "Selvä",
+    "introShare": "Jakonäkymä on auki. Valitse Tallenna Tiedostoihin, niin PDF tallentuu.",
+    "introPreview": "PDF avautui selaimessa{{filename}}.",
+    "introDesktop": "PDF ladattiin{{filename}}.",
+    "filenameSuffix": " nimellä {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Jakonäkymässä: vieritä ja napauta <strong>Tallenna Tiedostoihin</strong>.",
+      "Valitse kansio (esim. <strong>iCloud Drive</strong> tai <strong>iPhonessani</strong>).",
+      "Napauta <strong>Tallenna</strong> oikeasta yläkulmasta.",
+      "Löydät tiedoston myöhemmin <strong>Tiedostot</strong>-sovelluksesta."
+    ],
+    "previewSteps": [
+      "PDF avautui uuteen näkymään — napauta <strong>Jaa</strong> (↑) oikeasta yläkulmasta.",
+      "Valitse <strong>Tallenna Tiedostoihin</strong>.",
+      "Valitse kansio ja napauta <strong>Tallenna</strong>."
+    ],
+    "desktopSteps": [
+      "Avaa tietokoneen <strong>Lataukset</strong>-kansio.",
+      "Etsi tiedosto, joka alkaa tekstillä <strong>{{prefix}}</strong> ja tämän päivän päivämäärällä."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Aikataulu",
+    "titleMyDays": "Omat päivät",
+    "emptyCell": "–",
+    "childFallback": "Lapsi",
+    "loadingPrint": "Tulostetta valmistellaan…",
+    "iframeTitle": "Tulosta"
+  },
+  "filename": {
+    "prefixSchedule": "viikkoaikataulu",
+    "prefixMyDays": "omat-paivat",
+    "fallbackSlug": "lapsi"
+  },
+  "toasts": {
+    "loadChildrenError": "Lapsia ei voitu ladata",
+    "selectChild": "Valitse ensin lapsi",
+    "loadingPreview": "Esikatselua ladataan…",
+    "noMyDays": "Valitulla jaksolla ei ole sinun päiviäsi",
+    "loadScheduleError": "Aikataulua ei voitu ladata",
+    "creatingPdf": "PDF:ää luodaan…",
+    "pdfCancelled": "PDF:n tallennus peruttiin",
+    "shareHint": "Valitse jakonäkymästä Tallenna Tiedostoihin",
+    "mobileSavedHint": "PDF on valmis — tallenna se Tiedostoihin",
+    "desktopSavedHint": "PDF tallennettiin Latauksiin",
+    "pdfLibsMissing": "PDF-työkalut puuttuvat — lataa sivu uudelleen ja yritä uudestaan",
+    "createPdfError": "PDF:ää ei voitu luoda",
+    "shareAgain": "PDF on valmis. Napauta Luo PDF uudelleen ja valitse tallennuspaikka."
+  },
+  "empty": {
+    "noChildren": "Lapsia ei ole vielä lisätty.",
+    "goDashboard": "Siirry kotiin"
+  }
+}

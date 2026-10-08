@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Създай PDF — план — {{brand}}",
+  "backLink": "← Обратно към Планиране",
+  "heading": "📄 Създай PDF — план",
+  "intro": "Избери дете и период. Прегледът показва целия план — PDF се смалява сам, за да се събере на един лист A4 хоризонтално.",
+  "pdfSave": {
+    "title": "Къде се записва PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> След <em>Създай PDF</em> се отваря споделяне — избери <strong>Save to Files</strong> и папка (например iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Компютър:</strong> PDF отива в папка <strong>Downloads</strong> (често долу вляво в браузъра)."
+  },
+  "sections": {
+    "child": "Дете",
+    "period": "Период",
+    "scope": "Какво да има в PDF?",
+    "startWeek": "Начална седмица"
+  },
+  "period": {
+    "1w": "1 седмица",
+    "2w": "2 седмици",
+    "1m": "1 месец"
+  },
+  "scope": {
+    "all": "Целият план",
+    "my": "Само моите дни"
+  },
+  "weekNav": {
+    "prevAria": "Предишна седмица",
+    "nextAria": "Следваща седмица",
+    "today": "Тази седмица"
+  },
+  "actions": {
+    "preview": "Преглед",
+    "createPdf": "Създай PDF"
+  },
+  "preview": {
+    "heading": "Преглед",
+    "hint": "Превърти надолу, ако в деня има много дейности."
+  },
+  "pdfHelp": {
+    "title": "Как да запазиш PDF",
+    "closeAria": "Затвори",
+    "ok": "Добре, разбрах",
+    "introShare": "Споделянето е отворено. Избери Save to Files, за да запазиш PDF.",
+    "introPreview": "PDF се отвори в браузъра{{filename}}.",
+    "introDesktop": "PDF е изтеглен{{filename}}.",
+    "filenameSuffix": " като {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "В споделянето: превърти и докосни <strong>Save to Files</strong>.",
+      "Избери папка (например <strong>iCloud Drive</strong> или <strong>On My iPhone</strong>).",
+      "Докосни <strong>Save</strong> горе вдясно.",
+      "После намери файла в приложението <strong>Files</strong>."
+    ],
+    "previewSteps": [
+      "PDF се отвори в нов изглед — докосни <strong>Share</strong> (↑) горе вдясно.",
+      "Избери <strong>Save to Files</strong>.",
+      "Избери папка и докосни <strong>Save</strong>."
+    ],
+    "desktopSteps": [
+      "Отвори папка <strong>Downloads</strong> на компютъра.",
+      "Търси файл, който започва с <strong>{{prefix}}</strong> и днешната дата."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "План",
+    "titleMyDays": "Моите дни",
+    "emptyCell": "–",
+    "childFallback": "Дете",
+    "loadingPrint": "Подготвям печата…",
+    "iframeTitle": "Печат"
+  },
+  "filename": {
+    "prefixSchedule": "sedmichen-plan",
+    "prefixMyDays": "moite-dni",
+    "fallbackSlug": "dete"
+  },
+  "toasts": {
+    "loadChildrenError": "Децата не се заредиха",
+    "selectChild": "Първо избери дете",
+    "loadingPreview": "Зареждам прегледа…",
+    "noMyDays": "Няма твои дни в избрания период",
+    "loadScheduleError": "Планът не се зареди",
+    "creatingPdf": "Създавам PDF…",
+    "pdfCancelled": "Записът на PDF е отменен",
+    "shareHint": "В споделянето избери Save to Files",
+    "mobileSavedHint": "PDF е готов — запази го във Files",
+    "desktopSavedHint": "PDF е записан в Downloads",
+    "pdfLibsMissing": "Липсват инструменти за PDF — презареди страницата и опитай отново",
+    "createPdfError": "PDF не се създаде",
+    "shareAgain": "PDF е готов. Докосни Създай PDF отново, за да избереш къде да го запазиш."
+  },
+  "empty": {
+    "noChildren": "Още няма добавени деца.",
+    "goDashboard": "Към Начало"
+  }
+}

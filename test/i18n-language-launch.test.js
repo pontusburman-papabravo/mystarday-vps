@@ -183,9 +183,15 @@ test('english beta offer API declines without switching locale', async (t) => {
     const email = uniqueEmail();
     await fetch(`${http.baseUrl}/api/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': 'sv-SE' },
       body: JSON.stringify({ name: 'Legacy', email, password: 'testpass123' }),
     });
+    await pg.query(`
+      UPDATE family SET preferred_locale = 'sv-SE',
+        english_beta_offer_state = 'not_shown',
+        locale_selection_source = 'legacy_default'
+      FROM parent p WHERE p.family_id = family.id AND p.email = $1
+    `, [email.toLowerCase()]);
 
     const loginRes = await fetch(`${http.baseUrl}/api/auth/login`, {
       method: 'POST',
@@ -389,7 +395,7 @@ describe('english beta offer state machine', () => {
   });
 });
 
-test('legacy registration without locale defaults sv-SE', async (t) => {
+test('registration without an explicit locale stores Accept-Language', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -414,9 +420,9 @@ test('legacy registration without locale defaults sv-SE', async (t) => {
        FROM family f JOIN parent p ON p.family_id = f.id WHERE p.email = $1`,
       [email.toLowerCase()]
     );
-    assert.equal(fam.rows[0].preferred_locale, 'sv-SE');
-    assert.equal(fam.rows[0].locale_selection_source, 'legacy_default');
-    assert.equal(fam.rows[0].english_beta_offer_state, 'not_shown');
+    assert.equal(fam.rows[0].preferred_locale, 'en-GB');
+    assert.equal(fam.rows[0].locale_selection_source, 'registration');
+    assert.equal(fam.rows[0].english_beta_offer_state, 'registration_decided');
   } finally {
     await http.close();
     await db.cleanup();

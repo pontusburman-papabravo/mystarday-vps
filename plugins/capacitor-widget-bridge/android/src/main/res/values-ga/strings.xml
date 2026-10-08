@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">An chéad ghníomhaíocht eile</string>
+    <string name="widget_routine_description">Críochnaigh an chéad chéim eile den ghnátham gan an aip iomlán a oscailt.</string>
+    <string name="widget_cd_pictogram">Siombail na gníomhaíochta</string>
+    <string name="widget_cd_complete">Marcáil an ghníomhaíocht déanta</string>
+    <string name="widget_cd_open_app">Oscail san aip</string>
+    <string name="widget_action_complete">Déanta</string>
+    <string name="widget_action_open_timer">Oscail an t-amadóir</string>
+    <string name="widget_action_show_steps">Taispeáin na céimeanna</string>
+    <string name="widget_action_open_app">Oscail an aip</string>
+    <string name="widget_loading">Ag lódáil…</string>
+    <string name="widget_all_done">Gach rud déanta inniu!</string>
+    <string name="widget_nothing_now">Faic faoi láthair</string>
+    <string name="widget_offline">Níl aon nasc ann</string>
+    <string name="widget_reauth">Sínigh isteach san aip</string>
+    <string name="widget_revoked">Rochtain an ghléis curtha ar ceal</string>
+    <string name="widget_switching">Ag athrú páiste…</string>
+    <string name="widget_feedback_done">✓ Déanta!</string>
+    <string name="widget_feedback_done_for">✓ Déanta do %1$s</string>
+    <string name="widget_cd_child_prev">An páiste roimhe</string>
+    <string name="widget_cd_child_next">An chéad pháiste eile</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d as %2$d déanta</string>
+    <string name="widget_private_activity">An chéad chéim eile</string>
+    <string name="widget_configure_title">Roghnaigh giuirléid</string>
+    <string name="widget_configure_personal">Pearsanta (páiste amháin)</string>
+    <string name="widget_configure_family">Teaghlach (athraigh páiste)</string>
+    <string name="widget_configure_save">Sábháil</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

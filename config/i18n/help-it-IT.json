@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Aiuto",
+    "openAria": "Apri l'aiuto",
+    "closeAria": "Chiudi l'aiuto"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Aiuto – Panoramica",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Panoramica",
+          "faqs": [
+            {
+              "q": "A cosa servono i 3 pulsanti rapidi in alto?",
+              "a": "<strong>⭐ Dai stelle bonus</strong> — dai al bambino delle stelle bonus a mano. <strong>📋 Attività una tantum</strong> — aggiungi un'attività temporanea per oggi. <strong>🏠 Giorno libero</strong> — mette in pausa il piano del bambino per un giorno (per esempio un giorno di malattia o di vacanza)."
+            },
+            {
+              "q": "Come segno un'attività come fatta?",
+              "a": "Tocca l'attività sulla scheda del bambino: si segna subito. Anche il bambino può segnarla nella <strong>vista bambino</strong>."
+            },
+            {
+              "q": "Che cos'è una scheda bambino compatta?",
+              "a": "La scheda bambino mostra avatar, nome, saldo stelle e le sezioni in modalità compatta. Espandi la scheda per più dettagli, il link al piano e il pulsante di pausa."
+            },
+            {
+              "q": "Che cos'è il giorno libero?",
+              "a": "<strong>🏠 Giorno libero</strong> mette in pausa il piano del bambino per il giorno scelto: utile quando è malato o in vacanza. Il bambino vede il piano come inattivo. Riattiva il giorno con lo stesso pulsante."
+            },
+            {
+              "q": "Che cos'è la modalità in pausa?",
+              "a": "Tocca l'icona pausa (⏸) sulla scheda del bambino per metterlo in pausa. Le attività restano inattive e il bambino non guadagna stelle finché non riprendi."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stelle",
+          "faqs": [
+            {
+              "q": "Come guadagna le stelle il bambino?",
+              "a": "Ogni attività completata vale <strong>1 stella</strong>. Il bambino segna nella vista bambino, oppure puoi segnare tu in Oggi mentre provate. Dai stelle bonus con il pulsante ⭐ sopra le schede dei bambini."
+            },
+            {
+              "q": "Come funziona lo scrigno delle stelle?",
+              "a": "Il bambino apre lo scrigno delle stelle dalla scheda 💎 nella vista bambino e vede le ricompense con il prezzo in stelle. Quando ne ha abbastanza, può chiedere una ricompensa: tu la approvi."
+            },
+            {
+              "q": "Come aggiungo le ricompense?",
+              "a": "Vai in <strong>Libreria</strong> nel menu → scheda \"Ricompense\". Aggiungi le tue ricompense, modifica il costo in stelle e scegli quali bambini le vedono."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Piano",
+          "faqs": [
+            {
+              "q": "Come aggiungo un'attività?",
+              "a": "Vai in <strong>Piano della settimana</strong> → scegli il bambino → scegli il giorno → tocca \"+\" per aggiungere un'attività dalla libreria. Puoi cercare tra 63 attività standard."
+            },
+            {
+              "q": "Come copio un piano su tutti i giorni?",
+              "a": "Nel piano della settimana → \"Copia da…\" → scegli una fonte (il tuo piano o la libreria standard) → spunta i giorni su cui vuoi copiare."
+            },
+            {
+              "q": "Che cos'è la vista Oggi?",
+              "a": "La vista \"Oggi\" della panoramica si aggiorna da sola quando modifichi il piano. Le modifiche nel piano della settimana compaiono subito in panoramica e nella vista del bambino."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Famiglia",
+          "faqs": [
+            {
+              "q": "Come invito un altro adulto?",
+              "a": "Vai in <strong>Famiglia e impostazioni → Membri della famiglia</strong> → tocca \"Invita\". La persona invitata riceve un'email con un link per accedere."
+            },
+            {
+              "q": "Come vedo la giornata del bambino?",
+              "a": "Apri <strong>Oggi</strong> nel menu: lì vedi le attività di oggi come le vedrà il bambino. Perfetto la prima sera, prima che il bambino acceda da solo."
+            },
+            {
+              "q": "Come accede il bambino?",
+              "a": "Quando sei pronto: il bambino accede su <strong>/child-login</strong> con nome utente e PIN. I dati sono in <strong>Famiglia e impostazioni → Bambini</strong>."
+            },
+            {
+              "q": "Contatta il supporto",
+              "a": "Scrivici a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — ti rispondiamo entro 24 ore."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Aiuto – Ricompense",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Ricompense",
+          "faqs": [
+            {
+              "q": "Come funziona il sistema delle ricompense?",
+              "a": "Il bambino raccoglie stelle completando le attività. Quando il saldo basta per una ricompensa, può chiedere di riscattarla: tu approvi o rifiuti."
+            },
+            {
+              "q": "Come aggiungo nuove ricompense?",
+              "a": "Vai in <strong>Libreria</strong> nel menu → scheda \"Ricompense\" → cerca o tocca \"+ Aggiungi ricompensa\". Puoi anche copiare direttamente dalla libreria standard."
+            },
+            {
+              "q": "Come controllo la visibilità per ogni bambino?",
+              "a": "Quando crei o modifichi una ricompensa, scegli quali bambini devono vederla. Utile per ricompense su misura."
+            },
+            {
+              "q": "Come approvo una richiesta di riscatto?",
+              "a": "La richiesta del bambino compare in panoramica con un badge. Tocca per approvare. Le stelle si scalano da sole e il bambino vede il cambiamento subito."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stelle",
+          "faqs": [
+            {
+              "q": "Come guadagna le stelle il bambino?",
+              "a": "Ogni attività completata vale stelle (1 stella per attività, di base). Puoi anche dare stelle bonus con il pulsante ⭐ in panoramica."
+            },
+            {
+              "q": "Qual è la differenza tra saldo stelle e progressi di oggi?",
+              "a": "<strong>Saldo stelle</strong> = totale messo da parte. <strong>Progressi di oggi</strong> (l'anello intorno all'emoji) = quante attività il bambino ha completato oggi. Sono due cose diverse."
+            },
+            {
+              "q": "Che cosa succede quando si riscatta una ricompensa?",
+              "a": "Le stelle si scalano da sole dal conto del bambino. Il bambino vede il cambiamento subito nello scrigno delle stelle. Tu vedi la cronologia nella pagina Ricompense."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Aiuto – Piano della settimana",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Modifica il piano",
+          "faqs": [
+            {
+              "q": "Come aggiungo un'attività?",
+              "a": "Scegli il giorno → tocca \"+\" → cerca e scegli un'attività. Puoi scegliere <strong>più fasce orarie insieme</strong> (Mattina + Sera) e l'attività si aggiunge a tutte."
+            },
+            {
+              "q": "Come creo un'attività nuova direttamente nel piano?",
+              "a": "Tocca \"+\" → cerca → se non c'è nulla di adatto, nel riquadro di ricerca compare il modulo \"Crea nuova\". Inserisci nome, emoji, valore in stelle ed eventuali passi."
+            },
+            {
+              "q": "Come modifico il nome o l'emoji di un'attività?",
+              "a": "Tocca il nome o l'emoji dell'attività nel piano: si apre la modifica. Le modifiche valgono automaticamente per tutti i bambini e tutti i giorni."
+            },
+            {
+              "q": "Come copio il piano di un altro bambino?",
+              "a": "Tocca \"Copia da…\" → scegli la fonte → spunta i giorni della settimana su cui vuoi copiare. Scegli se sovrascrivere quello che c'è già."
+            },
+            {
+              "q": "Il piano si aggiorna da solo nella vista bambino?",
+              "a": "Sì. Le modifiche nel piano della settimana arrivano subito nella vista \"Oggi\" della panoramica e nella vista del bambino. Non serve aggiornare a mano."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Libreria",
+          "faqs": [
+            {
+              "q": "Che cos'è la libreria standard?",
+              "a": "La libreria standard ha 63 attività già pronte in 6 categorie e 5 modelli di piano. Tocca \"Inserimento rapido dalla libreria\" per aggiungerle al piano."
+            },
+            {
+              "q": "Come copio un piano standard?",
+              "a": "Nella scheda Piano → \"Copia da…\" → scegli \"Libreria standard\" → scegli un piano → scegli i giorni → copia."
+            },
+            {
+              "q": "Perché il bambino non vede attività?",
+              "a": "Controlla che il piano sia impostato per il bambino giusto e che ci siano attività per il giorno di oggi. Piano vuoto? Copia dalla libreria standard per partire in fretta."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Consigli",
+          "faqs": [
+            {
+              "q": "Come costruisco un buon piano di routine?",
+              "a": "Parti da 3–5 attività fisse (fare colazione, lavarsi i denti, fare i compiti). Mettili nell'ordine giusto. I bambini imparano la routine in fretta se resta stabile."
+            },
+            {
+              "q": "Che cosa sono i passi di un'attività?",
+              "a": "Puoi aggiungere dei passi alle attività (per esempio \"Lavarsi le mani\", \"Mettere il pigiama\" sotto \"Routine della sera\"). Il bambino li vede come guida visiva, ma segna l'attività intera in un colpo solo."
+            },
+            {
+              "q": "Quante attività al giorno?",
+              "a": "Consigliato: 4–8 attività. Troppo poche e manca il ritmo; troppe e diventa pesante. Parti da poco e aggiungi dopo."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Aiuto – Famiglia e impostazioni",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Bambini",
+          "faqs": [
+            {
+              "q": "Come aggiungo un bambino?",
+              "a": "Vai in Panoramica → tocca \"+ Aggiungi bambino\". Inserisci nome, emoji e compleanno. Il bambino riceve un piano in automatico in base all'età."
+            },
+            {
+              "q": "Come cambio il PIN del bambino?",
+              "a": "Tocca la scheda del bambino → scheda \"Impostazioni\" → \"Cambia PIN\". Scegli un nuovo PIN di 4 cifre."
+            },
+            {
+              "q": "Il bambino deve fare le attività in ordine: posso cambiarlo?",
+              "a": "Di base si può segnare in ordine libero. Per un ordine guidato, vai al profilo del bambino → scheda <strong>Impostazioni</strong> → attiva <strong>ADESSO / DOPO / PIÙ TARDI</strong>."
+            },
+            {
+              "q": "Come vede il bambino i dati di accesso?",
+              "a": "Tocca la scheda del bambino → scheda \"Impostazioni\" → \"Mostra i dati di accesso\". Vedrai nome utente e PIN del bambino."
+            },
+            {
+              "q": "Come rimuovo un bambino?",
+              "a": "Famiglia → scegli il bambino → scheda Impostazioni → \"Elimina il bambino per sempre\". Attenzione: piano, stelle e cronologia delle ricompense si cancellano e non si possono recuperare."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Adulti",
+          "faqs": [
+            {
+              "q": "Come invito un altro adulto?",
+              "a": "Vai alla scheda <strong>Membri della famiglia</strong> → \"Invita\". La persona invitata riceve un'email con un link per creare un account."
+            },
+            {
+              "q": "Posso scegliere quali bambini vede un adulto?",
+              "a": "Sì. Scegli a quali bambini può accedere quando invii l'invito. Puoi cambiarlo dopo in Membri della famiglia → la persona → Accesso ai bambini."
+            },
+            {
+              "q": "Come rimuovo un membro della famiglia?",
+              "a": "Tocca la persona nell'elenco Membri della famiglia → \"Rimuovi\". Perde subito l'accesso alla famiglia."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Impostazioni",
+          "faqs": [
+            {
+              "q": "Come cambio la password?",
+              "a": "Vai in <strong>Impostazioni</strong> (⚙️) nel menu → \"Cambia password\". Ti serve la password attuale."
+            },
+            {
+              "q": "Come attivo le notifiche?",
+              "a": "Vai in Impostazioni → \"Promemoria\" → attiva le notifiche e scegli gli orari. Le notifiche hanno bisogno del permesso del browser."
+            },
+            {
+              "q": "Contatta il supporto",
+              "a": "Scrivici a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — ti rispondiamo entro 24 ore."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Aiuto – Attività",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Gestisci",
+          "faqs": [
+            {
+              "q": "Che cos'è un'attività?",
+              "a": "Un'<strong>attività</strong> è un compito che fa il bambino (per esempio \"Lavarsi i denti\"). Le attività valgono 1–5 stelle e possono avere dei passi. Raccoglile nella libreria e aggiungile ai piani dei bambini."
+            },
+            {
+              "q": "Come creo un'attività nuova?",
+              "a": "Tocca \"+ Nuova attività\" → inserisci nome, categoria (Igiene, Cibo, Gioco e così via), durata e valore in stelle. Salva: l'attività entra nella libreria."
+            },
+            {
+              "q": "Come aggiungo un'attività al piano?",
+              "a": "Le attività stanno nella libreria. Vai nel piano della settimana → scegli il giorno → \"+\" → scegli l'attività da aggiungere."
+            },
+            {
+              "q": "Come tolgo un'attività da tutti i giorni?",
+              "a": "Tocca ✕ sull'attività → scegli <strong>Tutti i giorni della settimana</strong>. Per togliere solo oggi o un giorno della settimana (per esempio ogni giovedì) ci sono opzioni separate."
+            },
+            {
+              "q": "Come modifico un'attività?",
+              "a": "Tocca l'attività nell'elenco → \"Modifica\". Le modifiche valgono subito in ogni piano in cui l'attività è usata."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Categorie",
+          "faqs": [
+            {
+              "q": "A che cosa servono le categorie?",
+              "a": "Le categorie colorano le attività nella vista bambino. <strong>Igiene</strong>=blu, <strong>Cibo</strong>=giallo, <strong>Gioco</strong>=verde, <strong>Scuola</strong>=viola, <strong>Movimento</strong>=rosso, <strong>Riposo</strong>=grigio, <strong>Sociale</strong>=arancione."
+            },
+            {
+              "q": "Come scelgo una categoria?",
+              "a": "Quando crei o modifichi un'attività, scegli una categoria dal menu. Prendi quella che descrive meglio l'attività."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Aiuto – Libreria",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Schede",
+          "faqs": [
+            {
+              "q": "Quali schede ci sono nella libreria?",
+              "a": "<strong>Piani</strong> — i tuoi modelli di piano. <strong>Attività</strong> — libreria delle attività con i passi. <strong>Ricompense</strong> — le tue ricompense. <strong>Libreria standard</strong> — 63 attività, 15 ricompense e 5 piani da cui copiare."
+            },
+            {
+              "q": "Come copio dalla libreria standard?",
+              "a": "Vai alla scheda \"Libreria standard\" → scegli attività o ricompensa → tocca il pulsante 📥 per copiare nella libreria della famiglia. I piani si copiano dal piano della settimana → \"Copia da…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Attività",
+          "faqs": [
+            {
+              "q": "Come creo un'attività nuova?",
+              "a": "Tocca \"+ Nuova attività\" → inserisci nome, emoji (scegline una o scrivi la tua), valore in stelle ed eventuali passi → salva. L'attività resta nella libreria per tutta la famiglia."
+            },
+            {
+              "q": "Che cosa sono i passi?",
+              "a": "I passi sono istruzioni passo passo sotto un'attività (per esempio \"Lavarsi le mani\" sotto \"Igiene\"). Il bambino li vede come guida, ma segna l'attività intera con un tocco."
+            },
+            {
+              "q": "Come modifico un'attività?",
+              "a": "Tocca il nome dell'attività nel piano: si apre la modifica. Le modifiche (nome, emoji, passi) valgono automaticamente per tutti i bambini e tutti i giorni."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Ricompense",
+          "faqs": [
+            {
+              "q": "Come aggiungo una ricompensa?",
+              "a": "Scheda \"Ricompense\" → cerca una ricompensa → tocca \"+ Crea nuova\" se non c'è → inserisci nome, emoji, prezzo in stelle → scegli quali bambini la vedono → salva."
+            },
+            {
+              "q": "Come cerco le ricompense?",
+              "a": "La casella di ricerca guarda insieme le tue ricompense E la libreria standard. Nessun risultato? Il pulsante \"Crea [nome]\" apre un modulo già compilato."
+            },
+            {
+              "q": "Un bambino può avere ricompense solo sue?",
+              "a": "Sì. Quando crei la ricompensa, scegli quali bambini devono vederla. Utile per ricompense su misura."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Aiuto – Impostazioni",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Account",
+          "faqs": [
+            {
+              "q": "Come cambio la password?",
+              "a": "Inserisci la password attuale e quella nuova → tocca \"Salva\". La password deve avere almeno 6 caratteri."
+            },
+            {
+              "q": "Come cambio l'indirizzo email?",
+              "a": "Inserisci il nuovo indirizzo email → tocca \"Salva\". Potrebbe servirti confermare il nuovo indirizzo via email."
+            },
+            {
+              "q": "Come elimino l'account?",
+              "a": "Scrivici a <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> per eliminare l'account. Lo gestiamo entro 48 ore."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notifiche",
+          "faqs": [
+            {
+              "q": "Come attivo i promemoria?",
+              "a": "Attiva l'interruttore sotto \"Promemoria\" → scegli l'orario e i giorni. Il browser deve consentire le notifiche."
+            },
+            {
+              "q": "Non ricevo notifiche anche se sono attive",
+              "a": "Controlla che il browser abbia consentito le notifiche per il sito. Vai nelle impostazioni del browser → Notifiche → trova [REDACTED].se → Consenti."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Aiuto – Calendario",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Calendario",
+          "faqs": [
+            {
+              "q": "Che cosa mostra il calendario?",
+              "a": "Il calendario dà una vista del mese con le attività del bambino, le ricompense riscattate e gli eventi importanti."
+            },
+            {
+              "q": "Come cambio mese?",
+              "a": "Tocca le frecce (< >) accanto al nome del mese per cambiare mese."
+            },
+            {
+              "q": "Come vedo più dettagli di un giorno?",
+              "a": "Tocca una data per vedere l'elenco delle attività e delle stelle di quel giorno."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Aiuto – Oggi",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Diario",
+          "faqs": [
+            {
+              "q": "Che cos'è il diario di oggi?",
+              "a": "Il diario mostra la giornata del bambino: attività, spunte e stelle. Usalo per <strong>vedere in anteprima</strong> quello che vede il bambino, oppure per compilare dopo."
+            },
+            {
+              "q": "Come filtro il diario?",
+              "a": "Scegli un bambino nel filtro in alto per vedere il diario di un solo bambino. Puoi anche filtrare per data."
+            },
+            {
+              "q": "Quanto indietro posso guardare?",
+              "a": "Il diario conserva i dati dal giorno in cui hai iniziato a usare {{brand}}. Scorri o scegli una data per vedere i dati più vecchi. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Aiuto – Scegli il piano per ogni giorno",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Assegna il piano",
+          "faqs": [
+            {
+              "q": "Che cos'è \"Scegli il piano per ogni giorno\"?",
+              "a": "Qui scegli quale piano della settimana è attivo per ogni bambino e ogni giorno. Utile se le routine dei giorni di scuola e del fine settimana sono diverse."
+            },
+            {
+              "q": "Un bambino può avere piani diversi nei giorni di scuola e nel fine settimana?",
+              "a": "Sì. Scegli un piano per lun–ven e un altro per sab–dom. Tocca il giorno e scegli il piano che vuoi."
+            },
+            {
+              "q": "Che cosa succede se un giorno non ha un piano?",
+              "a": "Se un giorno non ha un piano assegnato, il bambino non vede attività quel giorno. Controlla che ogni giorno che vuoi usare abbia un piano."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Pannello admin",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Panoramica",
+          "faqs": [
+            {
+              "q": "Che cosa posso fare nel pannello admin?",
+              "a": "Il pannello admin ti dà accesso a tutte le famiglie, gli utenti e i dati di sistema. Puoi vedere le statistiche, gestire gli account e moderare i contenuti."
+            },
+            {
+              "q": "Come trovo un utente preciso?",
+              "a": "Usa il campo di ricerca in alto per cercare per email o nome. Tocca una famiglia per vedere i dettagli."
+            },
+            {
+              "q": "Come archivio una famiglia?",
+              "a": "Tocca la scheda della famiglia → \"Archivia\". Le famiglie archiviate si possono ripristinare, ma restano inattive fino ad allora."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Supporto",
+          "faqs": [
+            {
+              "q": "Come vedo i messaggi di supporto in arrivo?",
+              "a": "Nella scheda \"Posta del supporto\" vedi ogni messaggio inviato dal modulo di contatto. Tocca per leggere il testo intero e rispondere."
+            },
+            {
+              "q": "Come segno una richiesta come risolta?",
+              "a": "Tocca la richiesta → \"Segna come risolta\". Le richieste risolte escono dalla vista predefinita, ma si possono mostrare con \"Mostra risolte\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Supporto in più — {{brand}}",
+    "loadError": "Non è stato possibile caricare la pagina."
+  },
+  "supportSvar": {
+    "pageTitle": "La tua richiesta",
+    "title": "La tua richiesta",
+    "intro": "Qui c'è tutta la conversazione. Scrivi sotto se vuoi continuare. Una risposta email normale non compare qui.",
+    "sent": "Inviato. Lo vedremo sulla stessa richiesta.",
+    "escalate": "Mi serve più aiuto da una persona",
+    "placeholder": "Scrivi che cosa sta succedendo…"
+  }
+}

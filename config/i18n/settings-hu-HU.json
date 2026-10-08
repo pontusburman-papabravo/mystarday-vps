@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Beállítások — {{brand}}",
+  "title": "Beállítások",
+  "shellLead": "Profil, család és app",
+  "familySettings": "Családi beállítások",
+  "groups": {
+    "profile": {
+      "title": "Profil és fiók",
+      "sub": "Belépés, PIN és fiók"
+    },
+    "family": {
+      "title": "Család",
+      "sub": "Név és nyelv. Az embereket a Család alatt kezeled."
+    },
+    "device": {
+      "title": "Ez az eszköz",
+      "sub": "Gyerek telefonja, felnőtt telefonja vagy közös telefon"
+    },
+    "appearance": {
+      "title": "Megjelenés",
+      "sub": "Sötét vagy világos téma"
+    },
+    "app": {
+      "title": "App",
+      "sub": "Értesítések, push és adatvédelem"
+    },
+    "premium": {
+      "title": "Előfizetés",
+      "sub": "Premium, vásárlások és fizetés"
+    }
+  },
+  "appearance": {
+    "dark": "Sötét",
+    "light": "Világos",
+    "backToSettings": "← Vissza a beállításokhoz"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Tervezés",
+      "sub": "Készíts tartalmat, vagy tervezd meg a gyerekek hetét."
+    },
+    "rewards": {
+      "title": "Jutalmak",
+      "sub": "Csillagok, jutalmak és a családi láda."
+    },
+    "calendar": {
+      "title": "Naptár",
+      "sub": "Havi nézet minden gyereknek"
+    },
+    "activities": {
+      "title": "Tevékenységek",
+      "sub": "A gyerekek tevékenységeinek kezelése"
+    },
+    "assignSchedule": {
+      "title": "Napirend hozzárendelése",
+      "sub": "Napirend másolása egy gyerekhez"
+    },
+    "dailyLog": {
+      "title": "Ma",
+      "sub": "Kísérd a gyerek napját — a csillagokat utólag is beírhatod"
+    },
+    "treasureChest": {
+      "title": "Kincsesláda",
+      "sub": "Jutalmak és csillagok"
+    },
+    "childSettings": {
+      "title": "Gyerek beállításai",
+      "sub": "Nézet, PIN és testreszabás"
+    },
+    "familyChild": {
+      "title": "Gyerek beállításai",
+      "sub": "Napirend, nézet, PIN és testreszabás"
+    },
+    "notifications": {
+      "title": "Értesítések",
+      "sub": "Emlékeztetők és üzenetek"
+    },
+    "schedule": {
+      "title": "Heti napirend",
+      "sub": "Tervezd és igazítsd a gyerekek napjait"
+    },
+    "library": {
+      "title": "Könyvtár",
+      "sub": "Napirendek, tevékenységek és jutalmak a családnak"
+    },
+    "family": {
+      "title": "Család",
+      "sub": "Gyerekek, felnőttek és pedagógusok"
+    }
+  },
+  "backToPlanning": "← Vissza a tervezéshez",
+  "avatar": {
+    "title": "Profilkép",
+    "description": "A képed a gyereknél az Emberek között és a Család oldalon jelenik meg.",
+    "changePhoto": "Kép cseréje",
+    "addPhoto": "Fotó hozzáadása",
+    "removePhoto": "Kép eltávolítása",
+    "saved": "A profilkép mentve!",
+    "removed": "A profilkép eltávolítva",
+    "saveFailed": "Nem sikerült menteni",
+    "removeFailed": "Nem sikerült eltávolítani"
+  },
+  "nativeAccount": {
+    "title": "Fiók",
+    "sub": "Válts a gyerek belépésére, vagy jelentkezz ki teljesen az appból."
+  },
+  "account": {
+    "title": "Fiók és belépés",
+    "appleLinked": "Apple-fiók összekapcsolva",
+    "googleLinked": "Google-fiók összekapcsolva",
+    "appleLinkedOnIosHint": "Az Apple-fiókodat iPhone-on kapcsoltad össze. Ha itt szeretnél belépni, adj meg lent egy jelszót.",
+    "googleLinkedElsewhereHint": "A Google-fiókodat egy másik eszközön kapcsoltad össze. Ha itt szeretnél belépni, adj meg lent egy jelszót.",
+    "newPassword": "Új jelszó",
+    "confirmPassword": "Jelszó megerősítése",
+    "minCharsPlaceholder": "Legalább 8 karakter",
+    "repeatPasswordPlaceholder": "Írd be újra a jelszót",
+    "savePassword": "Jelszó mentése",
+    "passwordForNonApple": "Belépéshez Apple nélkül",
+    "changePasswordHint": "Változtasd meg a jelszavadat, hogy megmaradjon a hozzáférésed a fiókhoz.",
+    "currentPassword": "Jelenlegi jelszó",
+    "confirmNewPassword": "Új jelszó megerősítése",
+    "changePassword": "Jelszó módosítása",
+    "linkApple": "Apple-fiók összekapcsolása",
+    "unlinkApple": "Apple-fiók leválasztása",
+    "linkGoogle": "Google-fiók összekapcsolása",
+    "unlinkGoogle": "Google-fiók leválasztása",
+    "changeEmail": "E-mail-cím módosítása",
+    "newEmail": "Új e-mail-cím",
+    "yourPassword": "A jelszavad",
+    "confirmWithPassword": "Megerősítés jelszóval",
+    "sendConfirmLink": "Megerősítő link küldése",
+    "passwordsMismatch": "A jelszavak nem egyeznek",
+    "passwordMinLength": "A jelszó legalább 8 karakter legyen",
+    "saving": "Mentés…",
+    "passwordNowActive": "✓ A jelszó mostantól aktív",
+    "somethingWrong": "Valami hiba történt. Próbáld újra.",
+    "somethingWrongShort": "Valami hiba történt",
+    "appleSignInUnavailable": "Az Apple-belépés ezen az eszközön nem érhető el.",
+    "googleSignInUnavailable": "A Google-belépés ezen az eszközön nem érhető el.",
+    "linking": "Összekapcsolás…",
+    "appleAlreadyLinked": "Ez az Apple-fiók már egy másik fiókhoz van kapcsolva.",
+    "googleAlreadyLinked": "Ez a Google-fiók már egy másik fiókhoz van kapcsolva.",
+    "couldNotLinkApple": "Az Apple-fiókot nem sikerült összekapcsolni:",
+    "couldNotLinkGoogle": "A Google-fiókot nem sikerült összekapcsolni:",
+    "tryAgain": "Próbáld újra.",
+    "unlinkApplePrompt": "Írd be a jelszavadat az Apple leválasztásához:",
+    "unlinkGooglePrompt": "Írd be a jelszavadat a Google leválasztásához:",
+    "removing": "Eltávolítás…",
+    "couldNotUnlink": "Nem sikerült leválasztani",
+    "invalidEmail": "Adj meg érvényes e-mail-címet",
+    "sending": "Küldés…",
+    "linkSentTo": "A link elküldve ide: {{email}}",
+    "passwordChanged": "A jelszó megváltozott!",
+    "linkAppleBtn": "🍎 Apple-fiók összekapcsolása",
+    "linkGoogleBtn": "G Google-fiók összekapcsolása",
+    "emailUpdated": "Az e-mail-címed frissült. Mostantól az új címmel léphetsz be.",
+    "passwordSet": "A jelszó be van állítva. Mostantól e-maillel és jelszóval léphetsz be.",
+    "errors": {
+      "invalidAppleToken": "Érvénytelen Apple-azonosító token",
+      "invalidGoogleToken": "Érvénytelen Google-azonosító token",
+      "appleAlreadyLinkedThis": "Ehhez a fiókhoz már van Apple-fiók kapcsolva",
+      "googleAlreadyLinkedThis": "Ehhez a fiókhoz már van Google-fiók kapcsolva",
+      "passwordRequiredUnlink": "A leválasztáshoz jelszó kell",
+      "setPasswordBeforeUnlink": "A leválasztás előtt állíts be jelszót",
+      "emailPasswordRequired": "Az új e-mail-cím és a jelszó kötelező",
+      "setPasswordBeforeEmail": "Az e-mail-cím módosítása előtt állíts be jelszót",
+      "emailAlreadyRegistered": "Ez az e-mail már egy másik fiókon regisztrálva van",
+      "emailChangeLinkInvalid": "Érvénytelen vagy lejárt link. Kérj új módosítást a Beállításokban.",
+      "emailChangeLinkUsed": "Ezt a linket már felhasználták. Kérj új módosítást a Beállításokban.",
+      "emailChangeLinkExpired": "Ez a link lejárt. Kérj új módosítást a Beállításokban.",
+      "passwordAlreadySet": "Már van jelszó. A módosításhoz használd a „Jelszó módosítása” lehetőséget.",
+      "emailAllOff": "Minden e-mail-értesítés ki van kapcsolva. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+      "weeklyEmailOff": "Nem küldünk több heti összefoglalót az e-mailedre. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+      "redeemEmailOff": "Nem küldünk több e-mailt, amikor a gyerek jutalmat szeretne beváltani. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+      "passwordCurrentAndNew": "A jelenlegi és az új jelszó kötelező",
+      "appleLinkLoginRequired": "Apple-fiók összekapcsolásához be kell jelentkezned",
+      "googleLinkLoginRequired": "Google-fiók összekapcsolásához be kell jelentkezned"
+    }
+  },
+  "toast": {
+    "saved": "Mentve!",
+    "savedCheck": "✅ Mentve!",
+    "saveFailedRetry": "Nem sikerült menteni. Próbáld újra.",
+    "networkError": "Hálózati hiba"
+  },
+  "parentPin": {
+    "title": "PIN-kód",
+    "security": "Biztonság",
+    "hasPinDescription": "A személyes PIN-kódod védi a szülői módot — a gyerekek a PIN nélkül nem léphetnek ki a gyerek módból.",
+    "noPinDescription": "Állíts be saját, 4 számjegyű PIN-kódot — a gyerekek a PIN nélkül nem léphetnek ki a gyerek módból.",
+    "choosePin": "Válassz 4 számjegyű PIN-kódot",
+    "confirmPin": "PIN megerősítése",
+    "changePinBack": "← PIN módosítása",
+    "enterCurrentPin": "Írd be a jelenlegi PIN-kódot",
+    "forgotPin": "Elfelejtetted a PIN-kódot?",
+    "chooseNewPin": "Válassz új PIN-kódot",
+    "confirmNewPin": "Új PIN megerősítése",
+    "forgotIntro": "Írd be a jelszavadat, ha új PIN-kódot szeretnél beállítani.",
+    "yourPassword": "A jelszavad",
+    "verify": "Ellenőrzés",
+    "keypadAria": "Számbillentyűzet",
+    "confirmKeypadAria": "PIN-megerősítő billentyűzet",
+    "pinKeypadAria": "PIN-billentyűzet",
+    "newPinKeypadAria": "Új PIN billentyűzete",
+    "confirmNewPinKeypadAria": "Új PIN megerősítő billentyűzete",
+    "pinsMismatch": "A PIN-kódok nem egyeznek — próbáld újra",
+    "pinNowActive": "✓ A PIN mostantól aktív",
+    "wrongPin": "Hibás PIN — próbáld újra",
+    "pinChanged": "✓ A PIN megváltozott!",
+    "couldNotChangePin": "A PIN-kódot nem sikerült módosítani",
+    "sessionExpired": "A munkamenet lejárt — írd be újra a jelenlegi PIN-kódot",
+    "enterPassword": "Írd be a jelszavadat",
+    "wrongPassword": "Hibás jelszó"
+  },
+  "push": {
+    "title": "Push-értesítések",
+    "lead": "Kapj értesítést a telefonodon — akkor is, ha az app be van zárva.",
+    "unsupported": "A böngésződ nem támogatja a push-értesítéseket.",
+    "toggleLabel": "Push-értesítések",
+    "toggleDescription": "Kapcsold be, ha értesítést szeretnél a gyerekek tevékenységeiről",
+    "toggleAria": "Push-értesítések kapcsolása",
+    "perChildHeading": "Értesítések gyerekenként",
+    "typesHeading": "Melyik értesítések?",
+    "typeScheduleTitle": "Napirend-emlékeztető",
+    "typeScheduleHint": "10 perccel a tevékenység előtt",
+    "typeScheduleAria": "Napirend-emlékeztető kapcsolása",
+    "typeInactivityTitle": "Inaktivitás-emlékeztető",
+    "typeInactivityHint": "18:00, ha a gyerek nem lépett be",
+    "typeInactivityAria": "Inaktivitás-emlékeztető kapcsolása",
+    "typeMilestoneTitle": "Csillag-mérföldkő",
+    "typeMilestoneHint": "10/25/50/100 csillagnál",
+    "typeMilestoneAria": "Csillag-mérföldkő kapcsolása",
+    "typeBackfillTitle": "Pótlás-emlékeztető",
+    "typeBackfillHint": "09:00, ha a tegnapi nap hiányzik",
+    "typeBackfillAria": "Pótlás-emlékeztető kapcsolása",
+    "leadTimeLabel": "Emlékeztető ennyivel előtte",
+    "quietHoursLabel": "Csendes órák",
+    "quietHoursTo": "–",
+    "archiveTitle": "Értesítési archívum",
+    "archiveHint": "Sikeres push-értesítések az elmúlt 7 napból",
+    "noChildren": "Nincs kapcsolt gyerek.",
+    "childToggleAria": "Push neki: {{name}}",
+    "saved": "✅ Mentve!",
+    "saveFailed": "Nem sikerült menteni.",
+    "saveFailedRetry": "Nem sikerült menteni. Próbáld újra.",
+    "requestingPermission": "⏳ Engedély kérése…",
+    "enabled": "✅ A push-értesítések be vannak kapcsolva!",
+    "permissionDenied": "🚫 Az engedélyt elutasították. Kapcsold be a böngésző vagy az app beállításaiban.",
+    "iosNotInstalled": "A Safari pushhoz tedd a {{brand}} alkalmazást a kezdőképernyőre.",
+    "genericError": "Valami hiba történt. Próbáld újra.",
+    "disabled": "✅ A push-értesítések ki vannak kapcsolva.",
+    "errors": {
+      "unsupportedBrowser": "Ez a böngésző nem támogatja a pusht",
+      "permissionDeniedApp": "Az értesítési engedélyt az app beállításaiban elutasították.",
+      "pushPluginMissing": "A push bővítmény hiányzik az appból. Futtasd az npx cap sync ios parancsot, majd fordítsd újra.",
+      "platformMissing": "A platform push-támogatása hiányzik",
+      "permissionDeniedBrowser": "Az értesítési engedélyt elutasították. Kapcsold be a böngésző beállításaiban.",
+      "permissionDenied": "Az értesítési engedélyt elutasították",
+      "subscriptionFailed": "Az előfizetés nem sikerült",
+      "enableFailed": "A push-értesítéseket nem sikerült bekapcsolni",
+      "disableFailed": "A push-értesítéseket nem sikerült kikapcsolni",
+      "iosNotInstalled": "A Safari pushhoz tedd az appot a kezdőképernyőre.",
+      "notConfigured": "A push-értesítések nincsenek beállítva",
+      "invalidSubscription": "Érvénytelen push-feliratkozás",
+      "endpointRequired": "Végpont szükséges",
+      "invalidToken": "Érvénytelen token",
+      "invalidPlatform": "A platform iOS vagy Android legyen",
+      "tokenRequired": "A token és a platform kötelező",
+      "parentNotFound": "A szülő nem található"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Teszünk egy widgetet a kezdőképernyőre?",
+      "lead": "Lásd a következő tevékenységet a kezdőképernyőn — az app megnyitása nélkül.",
+      "step1": "Koppints itt az appban a <strong class=\"text-navy\">Widget csatlakoztatása</strong> gombra.",
+      "step2": "A kezdőképernyőn: hosszan nyomd a hátteret → koppints a <strong class=\"text-navy\">+</strong> jelre → keresd a <strong class=\"text-navy\">{{brand}}</strong> nevet.",
+      "neverAgain": "Ne kérdezd újra",
+      "connect": "Widget csatlakoztatása",
+      "later": "Most nem",
+      "openSettings": "Beállítások megnyitása"
+    },
+    "settings": {
+      "title": "Widgetek és gyors elérés",
+      "description": "Személyes widget = egy gyerek. Családi widget = több gyerek. Ha egynél több gyerek van, itt válassz.",
+      "childPickerLabel": "Melyik gyereket mutassa a widget?",
+      "childFallbackName": "Gyerek",
+      "statusLabel": "Állapot:",
+      "statusConnected": "Csatlakoztatva",
+      "statusReconnect": "Újracsatlakozás kell",
+      "privacyLabel": "Adatvédelem:",
+      "privacyFull": "Teljes",
+      "privacyLimited": "Korlátozott",
+      "reconnectBtn": "Widget újracsatlakoztatása",
+      "guideBtn": "Kezdőképernyő-widget útmutató",
+      "connecting": "Csatlakozás…",
+      "supportMissing": "Ebben a verzióban nincs widget-támogatás. Frissítsd az appot.",
+      "addChildFirst": "Először adj egy gyereket a családhoz, utána csatlakoztathatod a widgetet.",
+      "loginRequired": "A widget csatlakoztatásához be kell jelentkezned.",
+      "success": "Kész! Tedd a widgetet a kezdőképernyőre (+ → {{brand}}), ha még nem tetted.",
+      "pickChild": "Válassz gyereket a fenti listából, és próbáld újra.",
+      "retryLater": "Most nem sikerült csatlakozni. Próbáld újra egy pillanat múlva.",
+      "networkError": "Most nem sikerült csatlakozni. Ellenőrizd a hálózatot, és próbáld újra.",
+      "errors": {
+        "offlineUnavailable": "A widget még nincs bekapcsolva a családodnak. Ha be kellene lennie, írj az ügyfélszolgálatnak.",
+        "reauthRequired": "A munkamenetet meg kell újítani. Jelentkezz ki, majd vissza, és próbáld újra a csatlakozást.",
+        "nativeConfigureFailed": "Az app nem tudta menteni a widget kapcsolatát. Zárd be teljesen az appot, majd nyisd meg újra.",
+        "notEnabled": "A widget nincs bekapcsolva, vagy a munkamenetet meg kell újítani. Jelentkezz ki, majd vissza."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Értesítési beállítások",
+    "weeklySummary": "Heti összefoglaló (vasárnap 21:00)",
+    "rewardRedemption": "Jutalom-beváltások",
+    "newsletter": "E-mail hírlevél",
+    "emailGlobal": "Minden e-mail globálisan",
+    "save": "Értesítési beállítások mentése"
+  },
+  "reminders": {
+    "title": "Emlékeztetők",
+    "lead": "Állíts be napi emlékeztetőt, hogy ne felejtsd el megnézni a napirendet.",
+    "daily": "Napi emlékeztető",
+    "hint": "A kiválasztott napokon, a kiválasztott időben kapsz emlékeztetőt",
+    "toggleAria": "Emlékeztető kapcsolása",
+    "time": "Idő",
+    "days": "Napok"
+  },
+  "familyName": {
+    "label": "Családnév",
+    "placeholder": "pl. A Kovács család",
+    "autoFromParent": "{{name}} családja"
+  },
+  "sound": {
+    "label": "Hang bekapcsolva",
+    "hint": "Hangot játszik, amikor a gyerek kipipál egy tevékenységet a napi nézetben."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Felnőttek és hozzáférés",
+    "adultsBody": "Hívj meg egy társ-szülőt, és a Család alatt látod, kinek van hozzáférése.",
+    "openFamily": "Család megnyitása",
+    "pedagogsTitle": "👩‍🏫 Pedagógusok",
+    "pedagogsBody": "A pedagógus-meghívókat és a hozzáférést a Család alatt kezeled."
+  },
+  "dataExport": {
+    "title": "Az adataim",
+    "body": "Töltsd le az összes adatod másolatát CSV-ként (ZIP-fájl). Tartalmazza a profilt, a gyerekeket, a napirendeket, a jutalmakat és a tevékenységek történetét.",
+    "download": "Adataim letöltése",
+    "preparing": "Letöltés előkészítése…",
+    "started": "✅ A letöltés elindult!",
+    "rateLimited": "24 óránként csak egyszer exportálhatsz.",
+    "failed": "Valami hiba történt. Próbáld újra.",
+    "networkError": "Hálózati hiba. Próbáld újra."
+  },
+  "deleteAccount": {
+    "title": "Fiók törlése",
+    "permanent": "⚠️ Végleges művelet",
+    "loading": "Betöltjük, mi fog történni…",
+    "storeBillingNote": "Ha az App Store-ban vagy a Google Playen van előfizetésed, az a fiók törlésekor nem szűnik meg automatikusan. Az előfizetést az áruházban kezelheted vagy mondhatod le.",
+    "button": "A fiókom törlése",
+    "summarySelf": "A saját fiókodat és a hozzáférésedet távolítod el. A család, a gyerekek, a napirendek és a többi felnőtt adatai megmaradnak. Ezt nem lehet visszavonni.",
+    "summaryLastAdmin": "Te vagy az utolsó felnőtt adminisztrátori hozzáféréssel. Az egész család és minden kapcsolódó adat — gyerekek, napirendek, tevékenységek, csillagok és jutalmak — azonnal és véglegesen törlődik. Ezt nem lehet visszavonni.",
+    "modalTitleSelf": "Kilépés a családból",
+    "modalTitleFamily": "Család és fiók törlése",
+    "modalTitleFallback": "Fiók végleges törlése",
+    "leadSelf": "Csak a saját fiókodat és a hozzáférésedet távolítod el.",
+    "leadFamily": "Az egész családot és minden kapcsolódó adatot törölsz.",
+    "sure": "Biztos vagy benne?",
+    "cannotUndo": "Ezt nem lehet visszavonni.",
+    "storeBillingModal": "Az App Store-os vagy Google Playes előfizetés nem szűnik meg automatikusan — az áruházban kezeled.",
+    "typeConfirmLabel": "A megerősítéshez írd be: {{token}}",
+    "typeConfirmLabelHtml": "A megerősítéshez írd be: <strong>RADERA</strong>",
+    "typeConfirmError": "A megerősítéshez írd be a {{token}} szót.",
+    "confirmToken": "RADERA",
+    "cancel": "Mégse",
+    "confirmSelf": "Kilépés a családból",
+    "confirmFamily": "Minden végleges törlése",
+    "deleting": "Törlés…",
+    "deleted": "✅ A fiók törölve.",
+    "deleteFailed": "Hiba történt a törlés közben.",
+    "networkError": "Hálózati hiba. Próbáld újra.",
+    "bulletSelfAccount": "A szülői fiókod és a hozzáférésed",
+    "bulletSelfOthersRemain": "A család, a gyerekek és a többi felnőtt megmarad",
+    "bulletParentAccount": "A szülői fiók",
+    "bulletAllChildren": "A család minden gyereke",
+    "bulletAllSchedules": "Minden napirend, tevékenység és jutalom",
+    "bulletAllHistory": "Minden napi történet és csillag"
+  },
+  "support": {
+    "title": "Technikai adatok az ügyfélszolgálatnak",
+    "hint": "Másold az app verzióját, a gyorsítótárat és egy hibakeresési azonosítót. Személyes adat és jelszó nincs benne.",
+    "copy": "Technikai adatok másolása",
+    "copied": "Másolva — illeszd be egy e-mailbe az ügyfélszolgálatnak.",
+    "copyFailed": "Nem sikerült másolni. Próbáld újra."
+  },
+  "legal": {
+    "privacy": "Adatvédelmi nyilatkozat",
+    "terms": "Felhasználási feltételek"
+  },
+  "consent": {
+    "title": "Hozzájárulás és adatvédelem",
+    "lead": "Kezeld az adatvédelmi beállításaidat és a sütiválasztásaidat.",
+    "change": "Hozzájárulási beállítások módosítása",
+    "empty": "Még nincs mentett hozzájárulási beállítás.",
+    "modalTitle": "Hozzájárulás és adatvédelem",
+    "aria": "Hozzájárulási beállítások",
+    "intro": "Segíts, hogy a {{brand}} még jobb legyen. Sütiket használunk, hogy értsük, hogyan használják az appot, és hogy több családhoz eljussunk. Koppints egy kategóriára a váltáshoz: ✓ Igen / ✗ Nem / — Semleges.",
+    "save": "Választások mentése",
+    "saving": "Mentés…",
+    "skip": "Kihagyás",
+    "closing": "Bezárás…",
+    "analytics": "Elemzés és fejlesztés",
+    "analyticsDesc": "Segít megérteni, hogyan használják az appot, hogy jobbá tehessük.",
+    "ads": "Marketing",
+    "adsDesc": "Hozzád igazított hirdetéseket mutat a Metán (Facebook/Instagram) és a Google-on.",
+    "adUserData": "Adatok a platformoknak",
+    "adUserDataDesc": "Megosztja az adataidat a hirdetési platformokkal a pontosabb párosításhoz.",
+    "adPersonalization": "Személyre szabás",
+    "adPersonalizationDesc": "Az érdeklődésed és a viselkedésed alapján szabja személyre a hirdetéseket.",
+    "email": "E-mail és tippek",
+    "emailDesc": "E-mailek tippekkel, hírekkel és ajánlatokkal a {{brand}} részéről."
+  },
+  "subscription": {
+    "title": "Előfizetés",
+    "loading": "Előfizetés betöltése…",
+    "loadFailed": "Az előfizetés állapotát nem sikerült betölteni.",
+    "restore": "Vásárlások visszaállítása",
+    "manage": "Előfizetés kezelése",
+    "activate": "Premium bekapcsolása",
+    "viewPlans": "Előfizetések megtekintése",
+    "howToActivate": "Hogyan kapcsold be a Premiumot",
+    "webActivateHint": "A Premiumot az iPhone-os vagy Androidos appban kapcsolod be.",
+    "restoreSuccess": "A vásárlások visszaállítva. A Premium aktív.",
+    "restoreNone": "Nincs visszaállítható vásárlás.",
+    "restoreFailed": "A vásárlásokat nem sikerült visszaállítani.",
+    "launchHoldTitle": "Indulási hozzáférés — a számlázás még nincs élesben",
+    "launchHoldBody": "Az appot tovább használhatod. Amíg a számlázás ki van kapcsolva, előfizetés nem kell.",
+    "complimentaryTitle": "Ingyenes 2026. december 31-ig",
+    "complimentaryBody": "A {{brand}} 2026. december 31-ig ingyenes. Előfizetés és fizetési mód nem kell. Ez az ajánlat nem válik automatikusan fizetős előfizetéssé.",
+    "complimentaryBodyUntil": "Ingyenes eddig: {{date}}. Előfizetés és fizetési mód nem kell, és ez az ajánlat nem válik automatikusan fizetős előfizetéssé. 2027. január 1-jétől eldöntheted, előfizetsz-e.",
+    "launchTitle": "Indulási hozzáférés",
+    "launchBody": "Az appot most használhatod. Előfizetés még nem kell.",
+    "launchBodyUntil": "Az appot most használhatod. Előfizetés még nem kell. Fizetős indulás: {{date}}.",
+    "noPremium": "Nincs aktív Premium",
+    "choosePlan": "Válaszd a Premium havit vagy a Premium évest a teljes hozzáféréshez.",
+    "billingNotLive": "Előfizetés még nem kell. A számlázás nincs élesben.",
+    "activateBody": "Kapcsold be a Premiumot a teljes hozzáféréshez.",
+    "grandfatheredTitle": "A Premium véglegesen benne van",
+    "grandfatheredBody": "A családotok teljes hozzáférést kap, díj nélkül.",
+    "trialTitle": "Premium – ingyenes próba",
+    "ends": "Lejár: {{date}}",
+    "giftTitle": "Premium – ajándékkártya",
+    "validUntil": "Érvényes eddig: {{date}}",
+    "graceTitle": "Premium – a fizetést frissíteni kell",
+    "graceBody": "A hozzáférés még működik, de a fizetést a(z) {{store}} felületén kell rendbe tenni.",
+    "activeTitle": "Premium – {{plan}} a(z) {{store}} felületén",
+    "planYearly": "éves csomag",
+    "planMonthly": "havi csomag"
+  },
+  "theme": {
+    "title": "Megjelenés",
+    "darkMode": "Sötét mód",
+    "darkHint": "Kapcsolj sötét témát, hogy sötétben kényelmesebb legyen",
+    "toggleAria": "Sötét mód kapcsolása",
+    "colorBlind": "Színvak témák",
+    "colorBlindHint": "A színeket a színvakság típusaihoz igazítja",
+    "colorNone": "Nincs (alapértelmezett)",
+    "protanopia": "Protanópia (vörös)",
+    "deuteranopia": "Deuteranópia (zöld)",
+    "tritanopia": "Tritanópia (kék)"
+  },
+  "viewMode": {
+    "dualAccess": "Hozzáférsz a szülői és a pedagógusi nézethez is.",
+    "switchPedagog": "🌟 Váltás pedagógusi nézetre",
+    "switchParent": "👨‍👩‍👧 Váltás szülői nézetre"
+  },
+  "loadError": {
+    "title": "A családi beállításokat nem sikerült betölteni",
+    "fallback": "A családi beállításokat most nem sikerült betölteni.",
+    "retry": "Próbáld újra",
+    "retryIn": "Próbáld újra {{seconds}} mp múlva"
+  },
+  "unsubscribe": {
+    "weekly": "Nem küldünk több heti összefoglalót az e-mailedre. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+    "reward": "Nem küldünk több e-mailt, amikor a gyerek jutalmat szeretne beváltani. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+    "all": "Minden e-mail-értesítés ki van kapcsolva. A Beállítások → Értesítések alatt újra bekapcsolhatod.",
+    "invalidTitle": "Érvénytelen link",
+    "invalidBody": "A link érvénytelen, vagy lejárt.",
+    "errorTitle": "Valami hiba történt",
+    "errorBody": "Próbáld újra később, vagy menj az app Beállítások részére."
+  },
+  "notifArchive": {
+    "retry": "Próbáld újra",
+    "failedHidden": "A sikertelen vagy kikapcsolt küldések itt nem látszanak.",
+    "loading": "Push-archívum betöltése…",
+    "loadError": "A push-archívumot nem sikerült betölteni. Ez nem jelenti azt, hogy nincs értesítésed.",
+    "markAll": "Mind olvasottnak jelölése"
+  }
+}

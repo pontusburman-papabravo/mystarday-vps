@@ -119,7 +119,7 @@
               if (special) { bg = 'bg-amber-50 hover:bg-amber-100 cursor-pointer'; border = 'border-2 border-amber-400'; }
               const dot = special ? `<span class="absolute top-1 right-1 text-[10px]">🌟</span>` : '';
               const note = special && special.note ? `<div class="text-[9px] text-amber-700 truncate leading-tight mt-0.5">${escHtml(special.note)}</div>` : '';
-              const cnt = special ? `<div class="text-[9px] text-amber-600 font-semibold">${Number(special.item_count) === 1 ? spt('schedule.activityCount.one') : spt('schedule.activityCount.other', { count: special.item_count })}</div>` : '';
+              const cnt = special ? `<div class="text-[9px] text-amber-600 font-semibold">${window.I18n ? I18n.plural('schedule.activityCount', special.item_count) : spt('schedule.activityCount.other', { count: special.item_count })}</div>` : '';
               return `<div class="relative min-h-[64px] p-2 ${bg} ${border} transition-colors" onclick="sdOpenDay('${dateStr}')">
                 <div class="text-sm font-bold ${inMonth?'text-navy':'text-gray-400'} ${isToday?'text-blue-700':''}">${dayNum}</div>
                 ${note}${cnt}${dot}
@@ -141,7 +141,7 @@
                 <div>
                   <span class="text-sm font-semibold text-navy">🌟 ${escHtml(label)}</span>
                   ${sd.note ? `<span class="text-xs text-amber-700 ml-2">— ${escHtml(sd.note)}</span>` : ''}
-                  <span class="text-xs text-text-soft ml-2">(${Number(sd.item_count) === 1 ? spt('schedule.activityCount.one') : spt('schedule.activityCount.other', { count: sd.item_count })})</span>
+                  <span class="text-xs text-text-soft ml-2">(${window.I18n ? I18n.plural('schedule.activityCount', sd.item_count) : spt('schedule.activityCount.other', { count: sd.item_count })})</span>
                 </div>
                 <button onclick="sdOpenDay('${sd.date}')" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg text-xs font-semibold transition-colors">${spt('schedule.specialDays.editBtn')}</button>
               </div>`;

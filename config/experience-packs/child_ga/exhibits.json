@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Nóiméad bróid — céim ar chéim, seachas balla trófaithe"
+    },
+    "remembered_gift": {
+      "description": "Duais mar chuimhne te — ní siopa í"
+    },
+    "warm_echo": {
+      "description": "Dul chun cinn bog, gan brú ná sraith"
+    }
+  }
+}

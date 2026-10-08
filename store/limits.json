@@ -1,0 +1,73 @@
+{
+  "brandTokenMax": 16,
+  "apple": {
+    "required": [
+      "name",
+      "subtitle",
+      "description",
+      "keywords",
+      "promotionalText",
+      "privacyPolicyUrl",
+      "supportUrl",
+      "releaseNotes"
+    ],
+    "urlFields": [
+      "privacyPolicyUrl",
+      "supportUrl",
+      "marketingUrl"
+    ],
+    "englishLocales": [
+      "en-GB",
+      "en-US",
+      "en-AU",
+      "en-CA"
+    ],
+    "max": {
+      "name": 30,
+      "subtitle": 30,
+      "keywords": 100,
+      "promotionalText": 170,
+      "description": 4000
+    }
+  },
+  "google": {
+    "required": [
+      "name",
+      "shortDescription",
+      "fullDescription",
+      "privacyPolicyUrl",
+      "supportUrl",
+      "releaseNotes"
+    ],
+    "urlFields": [
+      "privacyPolicyUrl",
+      "supportUrl",
+      "marketingUrl"
+    ],
+    "englishLocales": [
+      "en-GB",
+      "en-US",
+      "en-AU",
+      "en-CA"
+    ],
+    "max": {
+      "name": 50,
+      "shortDescription": 80,
+      "fullDescription": 4000
+    }
+  },
+  "iap": {
+    "englishLocales": [
+      "en-GB",
+      "en-US"
+    ],
+    "apple": {
+      "name": 30,
+      "description": 45
+    },
+    "google": {
+      "name": 50,
+      "description": 200
+    }
+  }
+}

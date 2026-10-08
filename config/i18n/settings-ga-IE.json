@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Socruithe — {{brand}}",
+  "title": "Socruithe",
+  "shellLead": "Próifíl, teaghlach agus aip",
+  "familySettings": "Socruithe an teaghlaigh",
+  "groups": {
+    "profile": {
+      "title": "Próifíl agus cuntas",
+      "sub": "Logáil isteach, PIN agus cuntas"
+    },
+    "family": {
+      "title": "Teaghlach",
+      "sub": "Ainm agus teanga. Bainistítear daoine faoi Theaghlach."
+    },
+    "device": {
+      "title": "An gléas seo",
+      "sub": "Fón an pháiste, fón aosach nó fón roinnte"
+    },
+    "appearance": {
+      "title": "Cuma",
+      "sub": "Téama dorcha nó geal"
+    },
+    "app": {
+      "title": "Aip",
+      "sub": "Fógraí, brúfhógraí agus príobháideachas"
+    },
+    "premium": {
+      "title": "Síntiús",
+      "sub": "Premium, ceannacháin agus íocaíochtaí"
+    }
+  },
+  "appearance": {
+    "dark": "Dorcha",
+    "light": "Geal",
+    "backToSettings": "← Ar ais chuig na socruithe"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Pleanáil",
+      "sub": "Tóg ábhar nó pleanáil seachtain do pháistí."
+    },
+    "rewards": {
+      "title": "Duaiseanna",
+      "sub": "Réaltaí, duaiseanna agus ciste an teaghlaigh."
+    },
+    "calendar": {
+      "title": "Féilire",
+      "sub": "Amharc míosa do gach páiste"
+    },
+    "activities": {
+      "title": "Gníomhaíochtaí",
+      "sub": "Bainistigh gníomhaíochtaí do pháistí"
+    },
+    "assignSchedule": {
+      "title": "Sann plean",
+      "sub": "Cóipeáil an plean chuig páiste"
+    },
+    "dailyLog": {
+      "title": "Inniu",
+      "sub": "Lean lá do pháiste — líon isteach réaltaí ina dhiaidh"
+    },
+    "treasureChest": {
+      "title": "An ciste",
+      "sub": "Duaiseanna agus réaltaí"
+    },
+    "childSettings": {
+      "title": "Socruithe an pháiste",
+      "sub": "Amharc, PIN agus saincheapadh"
+    },
+    "familyChild": {
+      "title": "Socruithe an pháiste",
+      "sub": "Plean, amharc, PIN agus saincheapadh"
+    },
+    "notifications": {
+      "title": "Fógraí",
+      "sub": "Meabhrúcháin agus teachtaireachtaí"
+    },
+    "schedule": {
+      "title": "Plean na seachtaine",
+      "sub": "Pleanáil agus cuir laethanta do pháistí in oiriúint"
+    },
+    "library": {
+      "title": "Leabharlann",
+      "sub": "Pleananna, gníomhaíochtaí agus duaiseanna do do theaghlach"
+    },
+    "family": {
+      "title": "Teaghlach",
+      "sub": "Páistí, aosaigh agus oidí"
+    }
+  },
+  "backToPlanning": "← Ar ais go Pleanáil",
+  "avatar": {
+    "title": "Pictiúr próifíle",
+    "description": "Taispeántar do phictiúr do do pháiste faoi Mo dhaoine agus ar leathanach an Teaghlaigh.",
+    "changePhoto": "Athraigh an pictiúr",
+    "addPhoto": "Cuir grianghraf leis",
+    "removePhoto": "Bain an pictiúr",
+    "saved": "Pictiúr próifíle sábháilte!",
+    "removed": "Baineadh an pictiúr próifíle",
+    "saveFailed": "Níorbh fhéidir a shábháil",
+    "removeFailed": "Níorbh fhéidir a bhaint"
+  },
+  "nativeAccount": {
+    "title": "Cuntas",
+    "sub": "Athraigh go logáil isteach do pháiste nó logáil amach go hiomlán as an aip."
+  },
+  "account": {
+    "title": "Cuntas agus síniú isteach",
+    "appleLinked": "Cuntas Apple nasctha",
+    "googleLinked": "Cuntas Google nasctha",
+    "appleLinkedOnIosHint": "Nasc tú do chuntas Apple ar iPhone. Chun logáil isteach anseo, cuir pasfhocal leis thíos.",
+    "googleLinkedElsewhereHint": "Nasc tú do chuntas Google ar ghléas eile. Chun logáil isteach anseo, cuir pasfhocal leis thíos.",
+    "newPassword": "Pasfhocal nua",
+    "confirmPassword": "Deimhnigh an pasfhocal",
+    "minCharsPlaceholder": "8 gcarachtar ar a laghad",
+    "repeatPasswordPlaceholder": "Cuir isteach an pasfhocal arís",
+    "savePassword": "Sábháil an pasfhocal",
+    "passwordForNonApple": "Chun logáil isteach gan Apple",
+    "changePasswordHint": "Athraigh do phasfhocal chun rochtain ar do chuntas a choinneáil.",
+    "currentPassword": "Pasfhocal reatha",
+    "confirmNewPassword": "Deimhnigh an pasfhocal nua",
+    "changePassword": "Athraigh an pasfhocal",
+    "linkApple": "Nasc an cuntas Apple",
+    "unlinkApple": "Dínasc cuntas Apple",
+    "linkGoogle": "Nasc an cuntas Google",
+    "unlinkGoogle": "Dínasc cuntas Google",
+    "changeEmail": "Athraigh an seoladh ríomhphoist",
+    "newEmail": "Seoladh ríomhphoist nua",
+    "yourPassword": "Do phasfhocal",
+    "confirmWithPassword": "Deimhnigh le pasfhocal",
+    "sendConfirmLink": "Seol nasc deimhnithe",
+    "passwordsMismatch": "Ní hionann na pasfhocail",
+    "passwordMinLength": "Caithfidh 8 gcarachtar ar a laghad a bheith sa phasfhocal",
+    "saving": "Ag sábháil…",
+    "passwordNowActive": "✓ Tá an pasfhocal gníomhach anois",
+    "somethingWrong": "Chuaigh rud éigin amú. Bain triail eile as.",
+    "somethingWrongShort": "Chuaigh rud éigin amú",
+    "appleSignInUnavailable": "Níl síniú isteach Apple ar fáil ar an ngléas seo.",
+    "googleSignInUnavailable": "Níl síniú isteach Google ar fáil ar an ngléas seo.",
+    "linking": "Ag nascadh…",
+    "appleAlreadyLinked": "Tá an cuntas Apple seo nasctha le cuntas eile cheana.",
+    "googleAlreadyLinked": "Tá an cuntas Google seo nasctha le cuntas eile cheana.",
+    "couldNotLinkApple": "Níorbh fhéidir Apple a nascadh:",
+    "couldNotLinkGoogle": "Níorbh fhéidir Google a nascadh:",
+    "tryAgain": "Bain triail eile as.",
+    "unlinkApplePrompt": "Cuir isteach do phasfhocal chun Apple a dhínascadh:",
+    "unlinkGooglePrompt": "Cuir isteach do phasfhocal chun Google a dhínascadh:",
+    "removing": "Á bhaint…",
+    "couldNotUnlink": "Níorbh fhéidir an nasc a bhaint",
+    "invalidEmail": "Cuir isteach seoladh ríomhphoist bailí",
+    "sending": "Ag seoladh…",
+    "linkSentTo": "Nasc seolta chuig {{email}}",
+    "passwordChanged": "Tá an pasfhocal athraithe!",
+    "linkAppleBtn": "🍎 Nasc cuntas Apple",
+    "linkGoogleBtn": "G Nasc cuntas Google",
+    "emailUpdated": "Tá do ríomhphost nuashonraithe! Is féidir leat logáil isteach anois le do sheoladh nua.",
+    "passwordSet": "Tá pasfhocal socraithe. Is féidir leat logáil isteach anois le ríomhphost agus pasfhocal.",
+    "errors": {
+      "invalidAppleToken": "Comhartha aitheantais Apple neamhbhailí",
+      "invalidGoogleToken": "Comhartha aitheantais Google neamhbhailí",
+      "appleAlreadyLinkedThis": "Tá cuntas Apple nasctha leis an gcuntas seo cheana",
+      "googleAlreadyLinkedThis": "Tá cuntas Google nasctha leis an gcuntas seo cheana",
+      "passwordRequiredUnlink": "Tá pasfhocal de dhíth chun an cuntas a dhínascadh",
+      "setPasswordBeforeUnlink": "Socraigh pasfhocal sula ndínascann tú an cuntas",
+      "emailPasswordRequired": "Tá seoladh ríomhphoist nua agus pasfhocal de dhíth",
+      "setPasswordBeforeEmail": "Socraigh pasfhocal sular féidir leat an seoladh ríomhphoist a athrú",
+      "emailAlreadyRegistered": "Tá an ríomhphost seo cláraithe ar chuntas eile cheana",
+      "emailChangeLinkInvalid": "Nasc neamhbhailí nó imithe in éag. Iarr athrú nua sna Socruithe.",
+      "emailChangeLinkUsed": "Úsáideadh an nasc seo cheana. Iarr athrú nua sna Socruithe.",
+      "emailChangeLinkExpired": "Tá an nasc seo imithe in éag. Iarr athrú nua sna Socruithe.",
+      "passwordAlreadySet": "Tá pasfhocal ann cheana. Úsáid \"Athraigh an pasfhocal\" chun é a nuashonrú.",
+      "emailAllOff": "Tá gach fógra ríomhphoist múchta. Is féidir leat iad a chur ar siúl arís faoi Socruithe → Fógraí.",
+      "weeklyEmailOff": "Ní sheolfaimid tuilleadh achoimrí seachtainiúla chuig do ríomhphost. Is féidir leat iad a chasadh air arís faoi Socruithe → Fógraí.",
+      "redeemEmailOff": "Ní sheolfaimid tuilleadh ríomhphost nuair is mian leis an bpáiste duaiseanna a fhuascailt. Is féidir leat iad a chasadh air arís faoi Socruithe → Fógraí.",
+      "passwordCurrentAndNew": "Tá an pasfhocal reatha agus an pasfhocal nua de dhíth",
+      "appleLinkLoginRequired": "Caithfidh tú a bheith logáilte isteach chun cuntas Apple a nascadh",
+      "googleLinkLoginRequired": "Caithfidh tú a bheith logáilte isteach chun cuntas Google a nascadh"
+    }
+  },
+  "toast": {
+    "saved": "Sábháilte!",
+    "savedCheck": "✅ Sábháilte!",
+    "saveFailedRetry": "Níorbh fhéidir é a shábháil. Bain triail eile as.",
+    "networkError": "Earráid líonra"
+  },
+  "parentPin": {
+    "title": "Cód PIN",
+    "security": "Slándáil",
+    "hasPinDescription": "Cosnaíonn do PIN pearsanta mód an tuismitheora — ní féidir le páistí mód an pháiste a fhágáil gan do PIN.",
+    "noPinDescription": "Socraigh do PIN 4 digit féin — ní féidir le páistí mód an pháiste a fhágáil gan do PIN.",
+    "choosePin": "Roghnaigh PIN 4 digit",
+    "confirmPin": "Deimhnigh an PIN",
+    "changePinBack": "← Athraigh an PIN",
+    "enterCurrentPin": "Cuir isteach an PIN reatha",
+    "forgotPin": "PIN dearmadta?",
+    "chooseNewPin": "Roghnaigh PIN nua",
+    "confirmNewPin": "Deimhnigh an PIN nua",
+    "forgotIntro": "Cuir isteach do phasfhocal chun PIN nua a shocrú.",
+    "yourPassword": "Do phasfhocal",
+    "verify": "Fíoraigh",
+    "keypadAria": "Eochaircheap uimhreacha",
+    "confirmKeypadAria": "Eochaircheap deimhnithe PIN",
+    "pinKeypadAria": "Eochaircheap PIN",
+    "newPinKeypadAria": "Eochaircheap PIN nua",
+    "confirmNewPinKeypadAria": "Eochaircheap PIN nua",
+    "pinsMismatch": "Ní hionann na PIN — bain triail eile as",
+    "pinNowActive": "✓ Tá an PIN gníomhach anois",
+    "wrongPin": "PIN mícheart — bain triail eile as",
+    "pinChanged": "✓ Tá an PIN athraithe!",
+    "couldNotChangePin": "Níorbh fhéidir an PIN a athrú",
+    "sessionExpired": "Seisiún imithe in éag — cuir an PIN reatha isteach arís",
+    "enterPassword": "Cuir isteach do phasfhocal",
+    "wrongPassword": "Pasfhocal mícheart"
+  },
+  "push": {
+    "title": "Brúfhógraí",
+    "lead": "Faigh fógraí ar do fhón — fiú nuair atá an aip dúnta.",
+    "unsupported": "Ní thacaíonn do bhrabhsálaí le brúfhógraí.",
+    "toggleLabel": "Brúfhógraí",
+    "toggleDescription": "Cas air chun fógraí a fháil faoi ghníomhaíochtaí do pháistí",
+    "toggleAria": "Scoránaigh brúfhógraí",
+    "perChildHeading": "Fógraí in aghaidh an pháiste",
+    "typesHeading": "Cé na fógraí?",
+    "typeScheduleTitle": "Meabhrúchán plean",
+    "typeScheduleHint": "10 nóim roimh an ngníomhaíocht",
+    "typeScheduleAria": "Scoránaigh meabhrúchán plean",
+    "typeInactivityTitle": "Meabhrúchán neamhghníomhaíochta",
+    "typeInactivityHint": "18:00 mura bhfuil an páiste logáilte isteach",
+    "typeInactivityAria": "Scoránaigh meabhrúchán neamhghníomhaíochta",
+    "typeMilestoneTitle": "Cloch mhíle réaltaí",
+    "typeMilestoneHint": "Ag 10/25/50/100 réalta",
+    "typeMilestoneAria": "Scoránaigh cloch mhíle réaltaí",
+    "typeBackfillTitle": "Meabhrúchán líonta siar",
+    "typeBackfillHint": "09:00 má tá inné in easnamh",
+    "typeBackfillAria": "Scoránaigh meabhrúchán líonta siar",
+    "leadTimeLabel": "Meabhrúchán roimhe",
+    "quietHoursLabel": "Uaireanta ciúine",
+    "quietHoursTo": "go",
+    "archiveTitle": "Cartlann fógraí",
+    "archiveHint": "Brúfhógraí rathúla le 7 lá anuas",
+    "noChildren": "Gan pháistí nasctha.",
+    "childToggleAria": "Brúfhógra do {{name}}",
+    "saved": "✅ Sábháilte!",
+    "saveFailed": "Níorbh fhéidir a shábháil.",
+    "saveFailedRetry": "Níorbh fhéidir é a shábháil. Bain triail eile as.",
+    "requestingPermission": "⏳ Cead á iarraidh…",
+    "enabled": "✅ Brúfhógraí cumasaithe!",
+    "permissionDenied": "🚫 Diúltaíodh don chead. Cas air é i socruithe do bhrabhsálaí nó na haipe.",
+    "iosNotInstalled": "Cuir {{brand}} le do Scáileán Baile le haghaidh brú in Safari.",
+    "genericError": "Chuaigh rud éigin amú. Bain triail eile as.",
+    "disabled": "✅ Brúfhógraí múchta.",
+    "errors": {
+      "unsupportedBrowser": "Ní thacaítear le brúfhógraí sa bhrabhsálaí seo",
+      "permissionDeniedApp": "Diúltaíodh do chead na bhfógraí i socruithe na haipe.",
+      "pushPluginMissing": "Tá an breiseán brúfhógraí ar iarraidh san aip. Rith npx cap sync ios agus atóg.",
+      "platformMissing": "Tacaíocht bhrúfhógra an ardáin ar iarraidh",
+      "permissionDeniedBrowser": "Diúltaíodh do chead na bhfógraí. Cas air é i socruithe do bhrabhsálaí.",
+      "permissionDenied": "Diúltaíodh do chead na bhfógraí",
+      "subscriptionFailed": "Theip ar an síntiús",
+      "enableFailed": "Níorbh fhéidir brúfhógraí a chur ar siúl",
+      "disableFailed": "Níorbh fhéidir brúfhógraí a mhúchadh",
+      "iosNotInstalled": "Cuir an aip le do Scáileán Baile le haghaidh brú in Safari.",
+      "notConfigured": "Níl brúfhógraí cumraithe",
+      "invalidSubscription": "Síntiús brú neamhbhailí",
+      "endpointRequired": "Tá críochphointe de dhíth",
+      "invalidToken": "Comhartha neamhbhailí",
+      "invalidPlatform": "Caithfidh an t-ardán a bheith iOS nó Android",
+      "tokenRequired": "Tá comhartha agus ardán de dhíth",
+      "parentNotFound": "Níor aimsíodh an tuismitheoir"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Cuir giuirléid le do Scáileán Baile?",
+      "lead": "Féach an chéad ghníomhaíocht eile ar do Scáileán Baile — gan an aip a oscailt.",
+      "step1": "Tapáil <strong class=\"text-navy\">Nasc an ghiuirléid</strong> anseo san aip.",
+      "step2": "Ar an Scáileán Baile: brúigh fada ar an gcúlra → tapáil <strong class=\"text-navy\">+</strong> → cuardaigh <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Ná fiafraigh arís",
+      "connect": "Nasc an ghiuirléid",
+      "later": "Ní anois",
+      "openSettings": "Oscail na socruithe"
+    },
+    "settings": {
+      "title": "Giuirléidí agus rochtain thapa",
+      "description": "Giuirléid phearsanta = páiste amháin. Giuirléid teaghlaigh = níos mó ná páiste amháin. Roghnaigh páiste anseo má tá níos mó ná ceann amháin agat.",
+      "childPickerLabel": "Cén páiste ba chóir don ghiuirléid a thaispeáint?",
+      "childFallbackName": "Páiste",
+      "statusLabel": "Stádas:",
+      "statusConnected": "Nasctha",
+      "statusReconnect": "Athnasc de dhíth",
+      "privacyLabel": "Príobháideachas:",
+      "privacyFull": "Lán",
+      "privacyLimited": "Teoranta",
+      "reconnectBtn": "Athnasc an ghiuirléid",
+      "guideBtn": "Taispeáin treoir ghiuirléid an Scáileáin Bhaile",
+      "connecting": "Ag nascadh…",
+      "supportMissing": "Tacaíocht ghiuirléidí ar iarraidh sa leagan seo. Nuashonraigh an aip.",
+      "addChildFirst": "Cuir páiste leis an teaghlach ar dtús, ansin is féidir leat an ghiuirléid a nascadh.",
+      "loginRequired": "Caithfidh tú a bheith logáilte isteach chun an ghiuirléid a nascadh.",
+      "success": "Déanta! Cuir an ghiuirléid le do Scáileán Baile (+ → {{brand}}) mura bhfuil sé déanta agat cheana.",
+      "pickChild": "Roghnaigh páiste sa liosta thuas agus bain triail eile as.",
+      "retryLater": "Níorbh fhéidir nascadh faoi láthair. Bain triail eile as ar ball.",
+      "networkError": "Níorbh fhéidir nascadh faoi láthair. Seiceáil do líonra agus bain triail eile as.",
+      "errors": {
+        "offlineUnavailable": "Níl an ghiuirléid cumasaithe do do theaghlach fós. Déan teagmháil le tacaíocht má ba chóir di a bheith air.",
+        "reauthRequired": "Tá do sheisiún le hathnuachan. Logáil amach agus isteach arís, ansin bain triail as athnascadh.",
+        "nativeConfigureFailed": "Níorbh fhéidir leis an aip nasc na giuirléide a shábháil. Dún an aip go hiomlán agus oscail arís í.",
+        "notEnabled": "Níl an ghiuirléid cumasaithe nó tá do sheisiún le hathnuachan. Logáil amach agus isteach arís."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Socruithe fógraí",
+    "weeklySummary": "Achoimre sheachtainiúil (Dé Domhnaigh 21:00)",
+    "rewardRedemption": "Fuascailtí duaise",
+    "newsletter": "Nuachtlitir ríomhphoist",
+    "emailGlobal": "Gach ríomhphost go ginearálta",
+    "save": "Sábháil socruithe na bhfógraí"
+  },
+  "reminders": {
+    "title": "Meabhrúcháin",
+    "lead": "Socraigh meabhrúchán laethúil ionas go gcuimhneoidh tú an plean a sheiceáil.",
+    "daily": "Meabhrúchán laethúil",
+    "hint": "Faigheann tú meabhrúchán ag an am roghnaithe ar na laethanta roghnaithe",
+    "toggleAria": "Scoránaigh meabhrúchán",
+    "time": "Am",
+    "days": "Laethanta"
+  },
+  "familyName": {
+    "label": "Ainm an teaghlaigh",
+    "placeholder": "m.sh. Teaghlach Ní Bhriain",
+    "autoFromParent": "{{name}} teaghlach"
+  },
+  "sound": {
+    "label": "Fuaim air",
+    "hint": "Seinntear fuaim nuair a thiceálann an páiste gníomhaíocht in amharc an lae."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Daoine fásta agus rochtain",
+    "adultsBody": "Tabhair cuireadh do chomhthuismitheoir agus féach cé a bhfuil rochtain aige faoi Theaghlach.",
+    "openFamily": "Oscail Teaghlach",
+    "pedagogsTitle": "👩‍🏫 Oide",
+    "pedagogsBody": "Bainistítear cuirí agus rochtain oidí faoi Theaghlach."
+  },
+  "dataExport": {
+    "title": "Mo shonraí",
+    "body": "Íoslódáil cóip de do shonraí go léir mar CSV (comhad ZIP). Áirítear próifíl, páistí, pleananna, duaiseanna agus stair gníomhaíochtaí.",
+    "download": "Íoslódáil mo shonraí",
+    "preparing": "Íoslódáil á hullmhú…",
+    "started": "✅ Thosaigh an íoslódáil!",
+    "rateLimited": "Ní féidir leat easpórtáil a dhéanamh ach uair amháin gach 24 uair.",
+    "failed": "Chuaigh rud éigin amú. Bain triail eile as.",
+    "networkError": "Earráid líonra. Bain triail eile as."
+  },
+  "deleteAccount": {
+    "title": "Scrios an cuntas",
+    "permanent": "⚠️ Gníomh buan",
+    "loading": "Ag lódáil a bhfuil le tarlú…",
+    "storeBillingNote": "Má tá síntiús agat tríd an App Store nó Google Play, ní chealaítear é go huathoibríoch nuair a scriostar an cuntas. Bainistigh nó cealaigh an síntiús sa siopa.",
+    "button": "Scrios mo chuntas",
+    "summarySelf": "Baineann tú do chuntas féin agus do rochtain. Fanann an teaghlach, na páistí, na pleananna agus sonraí na ndaoine fásta eile. Ní féidir é seo a chur ar ceal.",
+    "summaryLastAdmin": "Is tusa an duine fásta deireanach le rochtain riaracháin. Scriosfar an teaghlach ar fad agus na sonraí gaolmhara go léir — páistí, pleananna, gníomhaíochtaí, réaltaí agus duaiseanna — láithreach agus go buan. Ní féidir é seo a chur ar ceal.",
+    "modalTitleSelf": "Fág an teaghlach",
+    "modalTitleFamily": "Scrios an teaghlach agus an cuntas",
+    "modalTitleFallback": "Scrios an cuntas go buan",
+    "leadSelf": "Ní bhaineann tú ach do chuntas féin agus do rochtain.",
+    "leadFamily": "Scriosann tú an teaghlach ar fad agus na sonraí gaolmhara go léir.",
+    "sure": "An bhfuil tú cinnte?",
+    "cannotUndo": "Ní féidir é seo a chur ar ceal.",
+    "storeBillingModal": "Ní chealaítear síntiús tríd an App Store nó Google Play go huathoibríoch — bainistigh é sa siopa.",
+    "typeConfirmLabel": "Clóscríobh {{token}} chun deimhniú",
+    "typeConfirmLabelHtml": "Clóscríobh <strong>RADERA</strong> chun deimhniú",
+    "typeConfirmError": "Clóscríobh {{token}} chun deimhniú.",
+    "confirmToken": "RADERA",
+    "cancel": "Cealaigh",
+    "confirmSelf": "Fág an teaghlach",
+    "confirmFamily": "Scrios gach rud go buan",
+    "deleting": "Ag scriosadh...",
+    "deleted": "✅ Scriosadh an cuntas.",
+    "deleteFailed": "Chuaigh rud éigin amú agus á scriosadh.",
+    "networkError": "Earráid líonra. Bain triail eile as.",
+    "bulletSelfAccount": "Do chuntas tuismitheora agus do rochtain",
+    "bulletSelfOthersRemain": "Fanann an teaghlach, na páistí agus daoine fásta eile",
+    "bulletParentAccount": "Cuntas an tuismitheora",
+    "bulletAllChildren": "Gach páiste sa teaghlach",
+    "bulletAllSchedules": "Gach plean, gníomhaíocht agus duais",
+    "bulletAllHistory": "Stair laethúil agus réaltaí go léir"
+  },
+  "support": {
+    "title": "Eolas teicniúil don tacaíocht",
+    "hint": "Cóipeáil leagan na haipe, an taisce agus ID dífhabhtaithe. Níl sonraí pearsanta ná pasfhocail san áireamh.",
+    "copy": "Cóipeáil eolas teicniúil",
+    "copied": "Cóipeáilte — greamaigh é i ríomhphost chuig an tacaíocht.",
+    "copyFailed": "Níorbh fhéidir cóipeáil. Bain triail eile as."
+  },
+  "legal": {
+    "privacy": "Polasaí príobháideachais",
+    "terms": "Téarmaí úsáide"
+  },
+  "consent": {
+    "title": "Toiliú agus príobháideachas",
+    "lead": "Bainistigh do shocruithe príobháideachais agus do roghanna fianán.",
+    "change": "Athraigh socruithe toilithe",
+    "empty": "Gan socruithe toilithe sábháilte fós.",
+    "modalTitle": "Toiliú agus príobháideachas",
+    "aria": "Socruithe toilithe",
+    "intro": "Cabhraigh linn {{brand}} a dhéanamh níos fearr fós. Úsáidimid fianáin chun tuiscint a fháil ar conas a úsáidtear an aip agus chun teacht ar níos mó teaghlach. Brúigh gach catagóir chun athrú ✓ Tá / ✗ Níl / — Neodrach.",
+    "save": "Sábháil na roghanna",
+    "saving": "Ag sábháil…",
+    "skip": "Scipeáil",
+    "closing": "Ag dúnadh…",
+    "analytics": "Anailísíocht agus feabhsú",
+    "analyticsDesc": "Cabhraíonn sé linn tuiscint a fháil ar conas a úsáidtear an aip ionas gur féidir linn í a fheabhsú.",
+    "ads": "Margaíocht",
+    "adsDesc": "Taispeánann sé fógraí atá oiriúnaithe duit ar Meta (Facebook/Instagram) agus ar Google.",
+    "adUserData": "Sonraí chuig ardáin",
+    "adUserDataDesc": "Roinneann sé do shonraí le hardáin fógraíochta le meaitseáil níos fearr.",
+    "adPersonalization": "Pearsantú",
+    "adPersonalizationDesc": "Pearsanaíonn sé fógraí de réir do shuimeanna agus d’iompair.",
+    "email": "Ríomhphost agus leideanna",
+    "emailDesc": "Ríomhphoist le leideanna, nuacht agus tairiscintí ó {{brand}}."
+  },
+  "subscription": {
+    "title": "Síntiús",
+    "loading": "Ag lódáil an tsíntiúis…",
+    "loadFailed": "Níorbh fhéidir stádas an tsíntiúis a lódáil.",
+    "restore": "Athchóirigh ceannacháin",
+    "manage": "Bainistigh an síntiús",
+    "activate": "Gníomhachtaigh Premium",
+    "viewPlans": "Féach ar shíntiúis",
+    "howToActivate": "Conas Premium a ghníomhachtú",
+    "webActivateHint": "Cuirtear Premium i ngníomh san aip iPhone nó Android.",
+    "restoreSuccess": "Ceannacháin athchóirithe. Tá Premium gníomhach.",
+    "restoreNone": "Níor aimsíodh aon cheannach le hathchóiriú.",
+    "restoreFailed": "Níorbh fhéidir ceannacháin a athchóiriú.",
+    "launchHoldTitle": "Rochtain seolta — níl an billeáil beo fós",
+    "launchHoldBody": "Is féidir leat leanúint ar aghaidh ag úsáid na haipe. Ní theastaíonn síntiús fad is atá an billeáil múchta.",
+    "complimentaryTitle": "Saor in aisce go dtí 31 Nollaig 2026",
+    "complimentaryBody": "{{brand}} saor in aisce go dtí 31 Nollaig 2026. Níl síntiús ná modh íocaíochta de dhíth. Ní iompaíonn an tairiscint seo ina síntiús íoctha as féin.",
+    "complimentaryBodyUntil": "Saor in aisce go dtí {{date}}. Níl síntiús ná modh íocaíochta de dhíth, agus ní iompaíonn an tairiscint seo ina síntiús íoctha as féin. Ó 1 Eanáir 2027 is féidir leat a roghnú an nglacfaidh tú síntiús.",
+    "launchTitle": "Rochtain seolta",
+    "launchBody": "Is féidir leat an aip a úsáid anois. Ní theastaíonn síntiús fós.",
+    "launchBodyUntil": "Is féidir leat an aip a úsáid anois. Ní theastaíonn síntiús fós. Tús íoctha: {{date}}.",
+    "noPremium": "Gan Premium gníomhach",
+    "choosePlan": "Roghnaigh Premium Míosúil nó Premium Blianúil chun rochtain iomlán a oscailt.",
+    "billingNotLive": "Níl síntiús de dhíth fós. Níl an billeáil beo.",
+    "activateBody": "Gníomhachtaigh Premium le haghaidh rochtana iomláine ar an aip.",
+    "grandfatheredTitle": "Premium san áireamh go buan",
+    "grandfatheredBody": "Tá rochtain iomlán ag do theaghlach gan chostas.",
+    "trialTitle": "Premium – triail saor in aisce",
+    "ends": "Críochnaíonn {{date}}",
+    "giftTitle": "Premium – cárta bronntanais",
+    "validUntil": "Bailí go {{date}}",
+    "graceTitle": "Premium – tá an íocaíocht le nuashonrú",
+    "graceBody": "Oibríonn an rochtain fós, ach caithfear an íocaíocht a shocrú i {{store}}.",
+    "activeTitle": "Premium – {{plan}} trí {{store}}",
+    "planYearly": "plean bliantúil",
+    "planMonthly": "plean míosúil"
+  },
+  "theme": {
+    "title": "Cuma",
+    "darkMode": "Mód dorcha",
+    "darkHint": "Cas téama dorcha air le húsáid níos compordaí sa dorchadas",
+    "toggleAria": "Athraigh an mód dorcha",
+    "colorBlind": "Téama dathdhaille",
+    "colorBlindHint": "Cuireann sé dathanna in oiriúint do chineálacha éagsúla dathdhaille",
+    "colorNone": "Dada (réamhshocrú)",
+    "protanopia": "Protanopia (dall ar dhearg)",
+    "deuteranopia": "Deuteranopia (dall ar ghlas)",
+    "tritanopia": "Tritanopia (dall ar ghorm)"
+  },
+  "viewMode": {
+    "dualAccess": "Tá rochtain agat ar amharc an tuismitheora agus ar amharc an oide.",
+    "switchPedagog": "🌟 Athraigh go hamharc an oide",
+    "switchParent": "👨‍👩‍👧 Athraigh go hamharc an tuismitheora"
+  },
+  "loadError": {
+    "title": "Níorbh fhéidir socruithe an teaghlaigh a lódáil",
+    "fallback": "Níorbh fhéidir socruithe an teaghlaigh a lódáil faoi láthair.",
+    "retry": "Bain triail eile as",
+    "retryIn": "Bain triail eile as i gceann {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Ní sheolfaimid tuilleadh achoimrí seachtainiúla chuig do ríomhphost. Is féidir leat iad a chasadh air arís faoi Socruithe → Fógraí.",
+    "reward": "Ní sheolfaimid tuilleadh ríomhphost nuair is mian leis an bpáiste duaiseanna a fhuascailt. Is féidir leat iad a chasadh air arís faoi Socruithe → Fógraí.",
+    "all": "Tá gach fógra ríomhphoist múchta. Is féidir leat iad a chur ar siúl arís faoi Socruithe → Fógraí.",
+    "invalidTitle": "Nasc neamhbhailí",
+    "invalidBody": "Tá an nasc neamhbhailí nó imithe in éag.",
+    "errorTitle": "Chuaigh rud éigin amú",
+    "errorBody": "Bain triail eile as níos déanaí, nó téigh go Socruithe san aip."
+  },
+  "notifArchive": {
+    "retry": "Bain triail eile as",
+    "failedHidden": "Ní thaispeántar seoltaí teipthe nó díchumasaithe anseo.",
+    "loading": "Ag lódáil chartlann na mbrúfhógraí…",
+    "loadError": "Níorbh fhéidir cartlann na mbrúfhógraí a lódáil. Ní hionann sin agus gan fhógra a bheith agat.",
+    "markAll": "Marcáil gach rud léite"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Plānošana — {{brand}}",
+  "shell": {
+    "title": "Plānošana",
+    "lead": "Izvēlies nedēļu, aktivitātes vai vēl kaut ko.",
+    "logout": "Iziet"
+  },
+  "sections": {
+    "planWeek": "Plāno nedēļu",
+    "buildContent": "Veido saturu",
+    "other": "Cits"
+  },
+  "primary": {
+    "week": { "title": "Nedēļa", "sub": "Dienu saraksts bērnu nedēļai" },
+    "activities": { "title": "Aktivitātes", "sub": "Bibliotēka — veido un labo" },
+    "more": { "title": "Vēl", "sub": "Druka, veidnes un citi rīki" }
+  },
+  "more": {
+    "title": "Vēl",
+    "close": "Aizvērt"
+  },
+  "links": {
+    "library": { "title": "Bibliotēka", "sub": "Veido aktivitātes un balvas" },
+    "imageArchive": { "title": "Attēlu arhīvs", "sub": "Tavi foto — zobu birste, gulta, skola" },
+    "templates": { "title": "Veidnes", "sub": "Saglabāti plāni, ko vari lietot vēlreiz" },
+    "weekSchedule": { "title": "Nedēļas plāns", "sub": "Labo bērna nedēļu" },
+    "calendar": { "title": "Kalendārs", "sub": "Skaties mēnesi un īpašās dienas" },
+    "custody": { "title": "Aprūpes plāns", "sub": "Dalīta aprūpe starp mājsaimniecībām" },
+    "dailyLog": { "title": "Šodien", "sub": "Skaties un pielāgo iepriekšējās dienas" },
+    "printSchema": { "title": "Izveidot PDF — plāns", "sub": "Izdrukā plānu" },
+    "assignSchedule": { "title": "Piešķirt plānu", "sub": "Kopē plānu bērnam" },
+    "reports": { "title": "Pārskati", "sub": "Progress un dalīšanās" },
+    "samarbete": { "title": "Sadarbība ar pedagogu", "sub": "Strādā kopā ar pedagogu" },
+    "barnStod": { "title": "Papildu atbalsts", "sub": "Vizuālais atbalsts un TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Sāc",
+    "bodyBeforeLibrary": "Sāc ",
+    "libraryLink": "Bibliotēkā",
+    "bodyMiddle": ", ja gribi veidot aktivitātes. Ej uz ",
+    "forYouLink": "Tev",
+    "bodyAfter": ", ja gribi gatavu ieteikumu."
+  }
+}

@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Baile — {{brand}}",
+  "greeting": {
+    "morning": "Maidin mhaith!",
+    "afternoon": "Dia dhuit!",
+    "evening": "Tráthnóna maith!",
+    "default": "Dia dhuit!"
+  },
+  "sub": "Seo mar atá an lá.",
+  "status": {
+    "paused": "Lá saor inniu",
+    "allDone": "Gach rud déanta!",
+    "noSchedule": "Gan ghnátham",
+    "progressDone": "{{done}}/{{total}} déanta",
+    "emptyChildren": "Cuir páiste leis faoi Teaghlach chun an stádas a fheiceáil anseo.",
+    "loadError": "Níorbh fhéidir stádas na bpáistí a lódáil. Ní hionann sin agus gan pháiste a bheith agat.",
+    "retry": "Bain triail eile as",
+    "viewActivitiesAria": "{{name}} — féach ar ghníomhaíochtaí an lae inniu"
+  },
+  "ready": {
+    "title": "Réidh don chéad ghníomhaíocht eile",
+    "childrenCount": "({{count}} páiste)"
+  },
+  "quickActions": {
+    "aria": "Gníomhartha tapa",
+    "retroactive": "Logáil ar ball",
+    "onceTask": "Gníomhaíocht aonuaire",
+    "extraStars": "Réaltaí bónais",
+    "dayOff": "Lá saor"
+  },
+  "dayOffModal": {
+    "title": "🏠 Lá saor",
+    "subtitle": "Cuireann sé gnátham do pháiste ar sos don lá ar fad",
+    "footer": "Ní gá do do pháiste gníomhaíochtaí a thiceáil ar lá saor",
+    "noChildren": "Níor aimsíodh aon pháiste",
+    "stateActive": "🟢 Gnátham gníomhach",
+    "statePaused": "⏸ Lá saor inniu",
+    "markDayOff": "🏠 Marcáil mar lá saor",
+    "resumeSchedule": "▶ Lean ar aghaidh leis an ngnátham",
+    "noScheduleTitle": "Níor gineadh aon ghnátham inniu",
+    "resumedToast": "Gnátham ar siúl arís!",
+    "pausedToast": "🏠 Marcáilte mar lá saor!",
+    "genericError": "Chuaigh rud éigin amú",
+    "networkError": "Earráid líonra"
+  },
+  "handoff": {
+    "title": "An t-am do do pháiste logáil isteach?",
+    "sub": "Athraigh go hamharc an pháiste le PIN.",
+    "childLogin": "👶 Logálann an páiste isteach",
+    "changePin": "Athraigh PIN an pháiste",
+    "changePinAria": "Oscail Teaghlach agus athraigh PIN an pháiste",
+    "parentLogout": "Logáil amach",
+    "regionAria": "Athraigh go logáil isteach an pháiste",
+    "dismissTitle": "Dún",
+    "trusted": {
+      "title": "An t-am amharc an pháiste a oscailt?",
+      "sub": "Oscail amharc do pháiste ar an ngléas seo.",
+      "childLogin": "Oscail amharc an pháiste",
+      "regionAria": "Oscail amharc an pháiste"
+    },
+    "pin": {
+      "title": "An t-am do do pháiste logáil isteach?",
+      "sub": "Athraigh go hamharc an pháiste le PIN.",
+      "childLogin": "Logáil isteach le PIN an pháiste",
+      "regionAria": "Logáil isteach le PIN an pháiste"
+    },
+    "postSchema": {
+      "title": "An chéad chéim eile: Lig do do pháiste a ngnátham a thriail",
+      "sub": "Oscail mód an pháiste le chéile — ní thógann sé ach timpeall nóiméid.",
+      "childLogin": "Bain triail as mód an pháiste anois",
+      "regionAria": "An chéad chéim eile: lig do do pháiste a ngnátham a thriail",
+      "trusted": {
+        "title": "An chéad chéim eile: Oscail amharc an pháiste",
+        "sub": "Oscail mód an pháiste le chéile — ní thógann sé ach timpeall nóiméid.",
+        "childLogin": "Oscail amharc an pháiste",
+        "regionAria": "An chéad chéim eile: oscail amharc an pháiste"
+      },
+      "pin": {
+        "title": "An chéad chéim eile: Lig do do pháiste a ngnátham a thriail",
+        "sub": "Oscail mód an pháiste le chéile — ní thógann sé ach timpeall nóiméid.",
+        "childLogin": "Logáil isteach le PIN an pháiste",
+        "regionAria": "An chéad chéim eile: logáil isteach le PIN an pháiste"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "An chéad chéim eile i dtreo do chéad ghnáthaimh rathúil",
+    "pinHint": "Úsáideann do pháiste a PIN. Is féidir leat mód an tuismitheora a chur ar ais nuair a bhíonn siad críochnaithe.",
+    "recovery": {
+      "fetchErrorHeadline": "Níorbh fhéidir linn do chéad chéim eile a lódáil",
+      "fetchErrorBody": "Dealraíonn sé seo sealadach. Bain triail eile as, nó lean ar aghaidh gan an treoir faoi láthair.",
+      "retry": "Bain triail eile as",
+      "continueWithoutGuide": "Lean ar aghaidh gan treoir",
+      "defer": "Déan é ar ball",
+      "deferError": "Níorbh fhéidir do rogha a shábháil faoi láthair. Bain triail eile as.",
+      "retrying": "Ag triail arís…",
+      "deferring": "Ag sábháil…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Cruthaigh próifíl do pháiste",
+        "body": "Is leor ainm agus PIN simplí chun tosú.",
+        "cta": "Lean ar aghaidh leis an bpáiste"
+      },
+      "save_schedule": {
+        "headline": "Sábháil céad ghnátham simplí",
+        "body": "Roghnaigh plean tosaigh — is féidir leat é a athrú am ar bith.",
+        "cta": "Roghnaigh plean tosaigh"
+      },
+      "child_access": {
+        "headline": "Oscail amharc an pháiste",
+        "body": "Lig do do pháiste céad ghníomhaíocht an lae inniu a thriail in amharc an pháiste.",
+        "cta": "Oscail amharc an pháiste"
+      },
+      "child_access_named": {
+        "headline": "Tá gnátham {{name}} réidh",
+        "body": "Is féidir le do pháiste tosú nuair a oireann sé duit.",
+        "cta": "Oscail amharc an pháiste"
+      },
+      "await_first_completion": {
+        "headline": "Ag fanacht leis an gcéad ghníomhaíocht",
+        "body": "Feiceann do pháiste a ngnátham in amharc an pháiste. Cabhraigh leo tosú más gá.",
+        "cta": "Oscail amharc an pháiste"
+      },
+      "parent_ack": {
+        "headline": "Chríochnaigh do pháiste gníomhaíocht!",
+        "body": "Deimhnigh ionas go n-áireofar an réalta agus gur féidir libh ceiliúradh le chéile.",
+        "cta": "Féach ar an ngníomhaíocht"
+      },
+      "celebrate_first_success": {
+        "headline": "An chéad réalta déanta!",
+        "body": "Maith thú — oibríonn an gnátham i ndáiríre.",
+        "cta": "Lean ar aghaidh"
+      },
+      "journey_coach": {
+        "headline": "An chéad chéim eile",
+        "body": "Lean ort ag tógáil an ghnáthaimh ar do luas féin.",
+        "cta": "Lean ar aghaidh"
+      },
+      "engine_legacy": {
+        "headline": "An chéad chéim eile",
+        "body": "Lean an chéad chéim mholta eile.",
+        "cta": "Lean ar aghaidh"
+      },
+      "continue_today": {
+        "headline": "Tá gnátham fágtha ag {{name}} inniu fós",
+        "body": "Ar mhaith leat leanúint ar aghaidh san áit ar stop siad?",
+        "cta": "Lean leis an ngnátham"
+      },
+      "welcome_back": {
+        "headline": "Fáilte ar ais",
+        "body": "Tá do chéad chéim eile fós anseo nuair a theastaíonn sí — oscail gnátham do pháiste?",
+        "cta": "Oscail amharc an pháiste"
+      },
+      "invite_adult": {
+        "headline": "Ar mhaith le duine fásta eile cabhrú freisin?",
+        "body": "Tabhair cuireadh nuair a oireann sé — fanann tusa i gceannas.",
+        "cta": "Tabhair cuireadh d’aosach"
+      },
+      "share_week": {
+        "headline": "Buaic bheag ón tseachtain",
+        "body": "Roinn ach más mian leat — ní phostáiltear aon rud go huathoibríoch.",
+        "cta": "Roinn an bhuaicphointe"
+      },
+      "refer_family": {
+        "headline": "An bhfuil aithne agat ar theaghlach a bhainfeadh taitneamh as gnáthaimh?",
+        "body": "Roinn nasc pearsanta — gan duais, leid amháin.",
+        "cta": "Roinn an aip"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ní anois",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Thóg tú céimeanna i do ghnáthaimh an tseachtain seo",
+        "body": "Achoimre shocair — duitse amháin.",
+        "shareText": "Úsáidimid {{brand}} do ghnáthaimh páistí sa bhaile. Más mian leat aip theaghlaigh shimplí a thriail."
+      },
+      "morning": {
+        "headline": "Bhí roinnt maidineacha beagán níos réidhe an tseachtain seo",
+        "body": "Maith thú — roinn ach más mian leat.",
+        "shareText": "Bhí maidineacha níos socra againn le haip ghnáthaimh shimplí. Seans go gcabhróidh sí le do theaghlach freisin."
+      },
+      "evening": {
+        "headline": "D’oibrigh gnátham an tráthnóna roinnt uaireanta an tseachtain seo",
+        "body": "Buaic phríobháideach — gan rangú.",
+        "shareText": "D’éirigh gnáthaimh an tráthnóna beagáinín níos éasca inár dteach. Má tá uirlis shocair á lorg agat."
+      },
+      "multi_child": {
+        "headline": "Thóg do pháistí roinnt céimeanna ina ngnáthaimh an tseachtain seo",
+        "body": "Achoimre gan ainmneacha ná grianghraif.",
+        "shareText": "Úsáidimid {{brand}} do ghnáthaimh na bpáistí. Le triail a bhaint as:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Is ball bunaithe thú",
+    "body": "Mar cheann de na chéad teaghlaigh, tá rochtain saoil agat gan chostas. Go raibh maith agat as a bheith linn ón tús!"
+  },
+  "weekStory": {
+    "title": "Scéal na seachtaine seo"
+  },
+  "starHistory": {
+    "title": "Dul chun cinn seachtainiúil",
+    "subtitle": "8 seachtain deireanacha",
+    "thisWeek": "{{count}} ⭐ an tseachtain seo",
+    "weekTooltip": "S{{week}}: {{count}} réaltaí",
+    "diffUp": "+{{diff}} i gcomparáid leis an tseachtain seo caite",
+    "diffSame": "Mar an gcéanna leis an tseachtain seo caite",
+    "bestWeek": "🎉 An tseachtain is fearr fós ag {{name}}!"
+  },
+  "nav": {
+    "today": "Inniu",
+    "dailyLog": "Logáil an lae",
+    "fillRetroactive": "📝 Logáil níos déanaí"
+  },
+  "readiness": {
+    "heading": "Ag teastáil aire",
+    "warningsOnly": "Rabhaidh amháin",
+    "loadError": "Níorbh fhéidir a sheiceáil cad a bhfuil aire de dhíth air.",
+    "retry": "Bain triail eile as",
+    "items": {
+      "pendingInviteTitleOne": "1 chuireadh comhthuismitheora ar feitheamh",
+      "pendingInviteTitleMany": "{{count}} cuireadh comhthuismitheora ar feitheamh",
+      "pendingInviteSub": "Bainistigh i dTeaghlach",
+      "pendingApprovalTitle": "{{name}} — {{count}} iarratas ar feitheamh",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} iarratais ar feitheamh",
+      "pendingApprovalSub": "Ceadaigh i nDuaiseanna",
+      "incompleteDaysTitleOne": "{{name}} — 1 lá neamhchríochnaithe",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} lá neamhchríochnaithe",
+      "incompleteDaysSub": "Líon isteach ina dhiaidh",
+      "missingPinTitle": "Níl aon PIN ag {{name}} fós",
+      "missingPinSub": "Socraigh PIN i bpróifíl an pháiste",
+      "pausedDayTitle": "{{name}} — lá saor inniu",
+      "pausedDaySub": "Oscail Inniu",
+      "noScheduleTitle": "{{name}} — gan ghnátham inniu",
+      "noScheduleSub": "Oscail plean na seachtaine"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "Ba mhaith le {{name}} duais a fhuascailt",
+    "pendingRewardSubOne": "Tá iarratas amháin ag fanacht leat",
+    "pendingRewardSubMany": "Tá {{count}} iarratas ag fanacht leat",
+    "showRequest": "Féach ar an iarratas",
+    "closeToReward": "Níl ag {{name}} ach {{gap}} ón gcéad duais eile",
+    "starOne": "1 réalta",
+    "starMany": "{{count}} réalta",
+    "seeRewards": "Féach ar dhuaiseanna",
+    "starsTodayHeadline": "Thuill na páistí {{count}} inniu",
+    "starsTodaySubOne": "Thuill {{name}} iad inniu",
+    "starsTodaySubMany": "Thuill na páistí iad inniu",
+    "tasksDoneHeadline": "Chríochnaigh {{name}} {{count}} cheana inniu",
+    "taskOne": "1 tasc",
+    "taskMany": "{{count}} tasc",
+    "tasksRemaining": "{{count}} fágtha i ngnátham an lae inniu",
+    "allActivitiesDone": "Gach gníomhaíocht déanta — maith thú!",
+    "seeSchedule": "Féach ar an bplean",
+    "nextActivityHeadline": "Tá {{name}} réidh do {{activity}}",
+    "nextActivitySub": "An chéad ghníomhaíocht eile sa ghnátham",
+    "openToday": "Oscail Inniu",
+    "calmDayHeadline": "Lá socair — gan ghnátham faoi láthair",
+    "calmDaySub": "Nóiméad maith chun gníomhaíochtaí a chur leis nó réaltaí bónais a thabhairt",
+    "defaultChild": "Do pháiste",
+    "pageTitleStars": "🌟 Réaltaí an lae inniu",
+    "pageTitleWelcome": "👋 Fáilte ar ais",
+    "pageTitleProgress": "🌟 Dul chun cinn an teaghlaigh inniu",
+    "greetingFallback": "{{greeting}} Seo mar atá an lá inniu",
+    "followChild": "Lean dul chun cinn {{name}} anseo",
+    "followChildren": "Lean dul chun cinn do pháistí anseo"
+  },
+  "childStats": {
+    "paused": "⏸ Lá saor inniu",
+    "allDone": "🌟 Gach rud déanta inniu!",
+    "tasksDoneOne": "🔥 1 tasc déanta inniu",
+    "tasksDoneMany": "🔥 {{count}} tasc déanta inniu",
+    "noSchedule": "Gan ghnátham inniu",
+    "todayProgress": "Inniu <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> san iomlán",
+    "starsTodayOne": "+1 réalta inniu",
+    "starsTodayMany": "+{{count}} réalta inniu",
+    "remaining": "{{count}} fágtha · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Níl ach 1 réalta fágtha go dtí an chéad duais eile",
+    "rewardGapMany": "🎁 Níl ach {{count}} réalta fágtha go dtí an chéad duais eile"
+  },
+  "offline": {
+    "banner": "As líne — tá do chuid athruithe sábháilte",
+    "lastUpdated": "· Nuashonraithe go deireanach {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Logáil an lae",
+    "dailyLogSub": "Lean lá do pháistí — logáil réaltaí ina dhiaidh"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Conas atá {{goal}} ag dul?",
+      "sub": "Do {{name}}",
+      "great": "Feabhas mór",
+      "better": "Beagáinín níos fearr",
+      "same": "Gan difríocht",
+      "worse": "Níl sé ag obair",
+      "followUpBetter": "Cad a d’éirigh níos fearr?",
+      "followUpWorse": "Cad atá ar iarraidh?",
+      "optional": "(roghnach)",
+      "send": "Seol",
+      "skip": "Scipeáil",
+      "dismissAria": "Dún",
+      "thanks": "Go raibh maith agat! Tá do fhreagra sábháilte.",
+      "alreadyAnswered": "Go raibh maith agat! Dealraíonn sé gur fhreagair tú cheana.",
+      "next": "Freagair an chéad cheann eile",
+      "done": "Déanta"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Scipeáil",
+    "next": "Ar aghaidh →",
+    "start": "🎉 Ar aghaidh linn!",
+    "steps": {
+      "welcome": {
+        "title": "Fáilte chuig an bpainéal!",
+        "body": "Anseo feiceann tú lá gach páiste. Cuir plean na seachtaine in eagar i bPleanáil."
+      },
+      "stars": {
+        "title": "Réaltaí agus an ciste",
+        "body": "Tuilleann gach gníomhaíocht chríochnaithe 1 réalta. Bailíonn do pháiste réaltaí agus fuasclaíonn sé iad ar dhuaiseanna sa chiste."
+      },
+      "schedule": {
+        "title": "Plean na seachtaine agus gníomhaíochtaí",
+        "body": "Faoi Phleanáil sa roghchlár gheobhaidh tú leabharlann na ngníomhaíochtaí agus is féidir leat do dhuaiseanna féin a chur leis."
+      },
+      "family": {
+        "title": "Cuir tuilleadh páistí nó aosach leis",
+        "body": "Tapáil \"+ Cuir páiste leis\" chun siblín a chur leis. Faoi Theaghlach is féidir leat duine fásta eile a chur ar cuireadh."
+      },
+      "help": {
+        "title": "Cabhair uait?",
+        "body": "Tapáil an cnaipe ❓ ag bun ar dheis am ar bith le haghaidh Ceisteanna Coitianta agus leideanna. Ádh mór le do lá réalta!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "Tá {{name}} ag iarraidh logáil isteach",
+    "body": "3 iarracht PIN mícheart — b’fhéidir go bhfuil cabhair de dhíth ar do pháiste"
+  },
+  "shareSchedule": {
+    "notAvailable": "Níl roinnt ar fáil ar an ngléas seo",
+    "notSupported": "Níl roinnt ar fáil ar an ngléas seo",
+    "shared": "Roinnte!",
+    "childNotFound": "Níorbh fhéidir an páiste a aimsiú",
+    "couldNotShare": "Níorbh fhéidir a roinnt: {{message}}",
+    "routineToday": "Gnátham {{name}} inniu:",
+    "title": "Gnátham {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Tá leagan nua den aip réidh!",
+    "reloadNow": "Athlódáil anois",
+    "later": "Níos déanaí",
+    "dismissAria": "Dún meirg nuashonraithe"
+  },
+  "pwa": {
+    "title": "Suiteáil an aip le haghaidh brúfhógraí",
+    "iosLead": "Ar iPhone/iPad caithfidh an aip a bheith ar do Scáileán Baile le haghaidh brúfhógraí.",
+    "iosStep1": "Tapáil an cnaipe Roinn ag bun Safari",
+    "iosStep2": "Roghnaigh \"Cuir leis an Scáileán Baile\"",
+    "iosStep3": "Oscail an aip ó do Scáileán Baile agus ceadaigh fógraí",
+    "iosArrowHint": "Díríonn saighead beo ar an gcnaipe Roinn i do bhrabhsálaí",
+    "androidTitle": "Suiteáil an aip don taithí is fearr",
+    "androidLead": "Suiteáil an aip chun meabhrúcháin a fháil ar do fhón.",
+    "androidHomeLead": "Suiteáil {{brand}} ar do Scáileán Baile le haghaidh rochtana tapa agus brúfhógraí.",
+    "androidInstall": "Suiteáil an aip",
+    "androidInstallBtn": "📲 Suiteáil an aip",
+    "androidChromeFallback": "Tapáil ⋮ (roghchlár) in Chrome → <strong>\"Cuir leis an Scáileán Baile\"</strong>",
+    "desktopTitle": "Suiteáil an aip",
+    "desktopLead": "Tapáil an deilbhín suiteála (⊕) sa bharra seoltaí nó úsáid roghchlár do bhrabhsálaí.",
+    "dismissAria": "Dún"
+  },
+  "pushPrompt": {
+    "title": "Faigh brúfhógraí faoi do pháistí",
+    "body": "Bíodh a fhios agat láithreach nuair a thicéalaíonn páiste gníomhaíocht nó nuair is mian leis duais a fhuascailt.",
+    "later": "Níos déanaí",
+    "enable": "Cas air",
+    "enabledToast": "✅ Brúfhógraí cumasaithe!"
+  },
+  "globalFeedback": {
+    "fabAria": "Tabhair aiseolas",
+    "fabTitle": "Tabhair aiseolas",
+    "modalTitle": "Tabhair aiseolas",
+    "typeBug": "Tuairiscigh fadhb",
+    "typeSuggestion": "Moladh",
+    "typeLanguage": "Teanga",
+    "titlePlaceholder": "Teideal",
+    "messagePlaceholder": "Cad a tharla?",
+    "cancel": "Cealaigh",
+    "submit": "Seol tuairisc",
+    "submitting": "Ag seoladh...",
+    "validationRequired": "Líon na réimsí go léir, le do thoil.",
+    "success": "Tá do thuairisc seolta.",
+    "errorGeneric": "Chuaigh rud éigin amú. Bain triail eile as."
+  },
+  "cards": {
+    "loadError": "Níorbh fhéidir cártaí na bpáistí a lódáil. Tarraing síos chun athnuachan.",
+    "last": "Deireanach:",
+    "next": "Ar aghaidh:",
+    "noActivitiesToday": "Gan gníomhaíochtaí pleanáilte inniu",
+    "noRoutineToday": "Gan ghnátham inniu",
+    "createActivity": "✨ Cruthaigh gníomhaíocht sa phlean →",
+    "childNoActivities": "Níl aon ghníomhaíochtaí ag {{name}} fós — cruthaigh an chéad cheann →",
+    "noRewards": "🎁 Gan duaiseanna fós",
+    "addReward": "→ Cuir duais leis",
+    "pendingRequest": "{{count}} iarratas ar feitheamh",
+    "pendingRequestMany": "{{count}} iarratais ar feitheamh",
+    "pausedBadge": "AR SOS",
+    "allDoneTitle": "Gach rud déanta!",
+    "statusNow": "ANOIS",
+    "statusNext": "AR AGHAIDH",
+    "onceTask": "Gníomhaíocht aonuaire",
+    "markDone": "Marcáil déanta",
+    "unmark": "Bain an marc",
+    "activityMarked": "✅ Déanta!",
+    "activityUnmarked": "Gan marc",
+    "fillDay": "Líon isteach {{day}}",
+    "allActivitiesDone": "Gach gníomhaíocht déanta inniu!",
+    "last7Days": "7 lá deireanacha"
+  },
+  "approvals": {
+    "title": "Iarratais ar feitheamh",
+    "loading": "Ag lódáil iarratas...",
+    "empty": "Gan iarratais ar feitheamh! 🎉",
+    "loadError": "Níorbh fhéidir iarratais a lódáil.",
+    "wantsGoalChange": "Ag iarraidh an sprioc a athrú",
+    "goalChangeTo": "Chuig: {{name}}",
+    "wantsRedeem": "Ag iarraidh fuascailt",
+    "approve": "Ceadaigh",
+    "deny": "Diúltaigh",
+    "requiresApproval": "Ag teastáil ceadú",
+    "requiresApprovalCount": "Ag teastáil ceadú ({{count}})",
+    "goalApproved": "🎯 Athrú sprice ceadaithe!",
+    "redemptionApproved": "🎉 Fuascailt ceadaithe!",
+    "goalDenied": "Diúltaíodh d’athrú sprice.",
+    "redemptionDenied": "Diúltaíodh don fhuascailt.",
+    "updateFailed": "Níorbh fhéidir a nuashonrú",
+    "genericError": "Earráid",
+    "wantsGoalNamed": "Ba mhaith le {{name}} an sprioc a athrú go {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Ag iarraidh an sprioc a athrú go {{reward}} {{icon}}",
+    "wantsRedeemNamed": "Ba mhaith le {{name}} \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Coigeartaigh an t-am inniu",
+    "plusMinutes": "+{{minutes}} nóim",
+    "failed": "Níorbh fhéidir an t-am a choigeartú",
+    "undone": "Gan déanamh",
+    "undoFailed": "Níorbh fhéidir é a chur ar ceal"
+  },
+  "loading": {
+    "initFailed": "Chuaigh rud éigin amú agus á lódáil. Athlódáil an leathanach.",
+    "couldNotLoad": "Níorbh fhéidir a lódáil.",
+    "checkConnection": "Seiceáil do nasc idirlín",
+    "reloadPage": "Athlódáil an leathanach"
+  },
+  "activationProgram": {
+    "exitConfirm": "Ar mhaith leat deireadh a chur leis an gclár 7 lá?",
+    "reflectionPlaceholder": "Roghnach: inis dúinn tuilleadh…",
+    "send": "Seol",
+    "reflectionQuestion": "An bhfuil an saol laethúil níos éasca ag an aip?",
+    "previewEmpty": "Oscail logáil isteach an pháiste chun an plean a fheiceáil.",
+    "optOutTitle": "Críochnaigh an clár",
+    "skipToday": "Fág inniu ar lár",
+    "orOpenChildLogin": "Nó oscail logáil isteach an pháiste",
+    "dayOf": "Lá {{day}} as {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Dul chun cinn an teaghlaigh inniu",
+    "allChildren": "← Gach páiste",
+    "systemMsgFrom": "Teachtaireacht ón aip",
+    "systemMsgClose": "Dún ✕",
+    "sharingManage": "Tapáil chun tuairiscí comhroinnte a bhainistiú",
+    "inviteTitle": "Tabhair cuireadh do chomhthuismitheoir",
+    "inviteSub": "Ionas nach gcaithfidh sibh fiafraí dá chéile faoin bplean",
+    "inviteBtn": "Tabhair cuireadh",
+    "shareTitle": "Inis do chara!",
+    "shareSub": "Cabhraigh le teaghlach eile struchtúr a chur ar an saol laethúil",
+    "shareBtn": "Roinn",
+    "inviteModalTitle": "Tabhair cuireadh do chomhthuismitheoir",
+    "inviteModalBody": "Faigheann do pháirtí ríomhphost le nasc díreach — gan aipeanna breise, gan stró.",
+    "inviteSentBody": "Is féidir le do pháirtí logáil isteach anois agus an plean a fheiceáil.",
+    "inviteDone": "Déanta",
+    "supportPrefix": "🔒 Tá tú i mód tacaíochta: sonraí teaghlaigh á dtaispeáint",
+    "supportSuffix": ". Ní féidir aon sonraí a athrú. Rachaidh an seisiún in éag i gceann",
+    "tourSkip": "Scipeáil",
+    "tourNext": "Ar aghaidh →",
+    "starTipsTitle": "Leideanna: conas a oibríonn réaltaí",
+    "starTipsCollect": "• Tuilleann do pháiste réaltaí nuair a thiceáiltear gníomhaíochtaí in amharc an pháiste",
+    "starTipsExtra": "• Tabhair réaltaí bónais ó chárta an pháiste as iarracht lasmuigh den phlean",
+    "starTipsRewards": "• Comhairtear réaltaí i dtreo duaiseanna sábháilte — socraigh spriocanna i nDuaiseanna",
+    "starTipsEdit": "• Cuir plean na seachtaine in eagar i bPleanáil",
+    "dayDragInner": "tarraing cluaisín lae chuig lá eile chun cóipeáil/malartú",
+    "calViewDay": "Lá",
+    "calViewWeek": "Seachtain",
+    "calViewMonth": "Mí",
+    "retroactiveFull": "📝 Logáil níos déanaí",
+    "extraStarsFull": "⭐ Tabhair réaltaí bónais",
+    "onceTaskFull": "📋 Gníomhaíocht aonuaire",
+    "dayOffFull": "🏠 Lá saor",
+    "trialEndingTitle": "Lá amháin fágtha den triail",
+    "trialEndingBody": "Críochnaíonn an triail laistigh de lá. Roghnaigh síntiús san aip más mian leat rochtain iomlán a choinneáil. Fanann do shonraí go léir.",
+    "trialEndingChoose": "Roghnaigh san aip",
+    "trialEndingClose": "Dún"
+  },
+  "helpPanel": {
+    "title": "❓ Conas a oibríonn sé?",
+    "tabSchema": "📅 Plean",
+    "tabStars": "⭐ Réaltaí",
+    "tabFamily": "👨‍👩‍👧 Teaghlach",
+    "tabAdults": "🔑 Tuilleadh daoine fásta",
+    "tabTrouble": "🔧 Fabhtcheartú",
+    "addActivityQ": "Conas a chuireann mé gníomhaíocht leis?",
+    "addActivityA": "Tapáil cárta páiste ar Bhaile → roghnaigh lá → tapáil \"+\" chun gníomhaíocht a chur leis ó do leabharlann. Is féidir leat do ghníomhaíochtaí féin a chruthú sa <strong>Leabharlann</strong> freisin.",
+    "dragQ": "An féidir liom gníomhaíochtaí a tharraingt agus a bhogadh?",
+    "dragA": "Sea! In amharc plean an pháiste (tapáil cárta ar Bhaile) is féidir leat brú agus tarraingt ar ghníomhaíochtaí chun an t-ord a athrú. Is féidir leat gníomhaíocht a tharraingt chuig cluaisín lae eile chun í a chóipeáil freisin.",
+    "copyQ": "Conas a chóipeálaim an plean chuig gach lá?",
+    "copyA": "San eagarthóir plean (cnaipe 📋) → roghnaigh \"Cóipeáil chuig laethanta eile\" chun plean lae amháin a chóipeáil chuig an gcuid eile den tseachtain.",
+    "earnStarsQ": "Conas a thuilleann mo pháiste réaltaí?",
+    "earnStarsA": "Tugann gach gníomhaíocht chríochnaithe <strong>1 réalta</strong>. Ticéalaíonn do pháiste in amharc an pháiste. Is féidir leat <strong>réaltaí bónais</strong> a thabhairt ó chárta an pháiste ar Bhaile freisin.",
+    "treasureQ": "Conas a oibríonn an Ciste?",
+    "treasureA": "In amharc an pháiste, brúigh an deilbhín ⭐ chun an Ciste a fheiceáil — liosta duaiseanna agus cé mhéad réalta a chosnaíonn siad. Is féidir le do pháiste duais a iarraidh nuair atá go leor sábháilte.",
+    "retroQ": "Conas a líonaim réaltaí do laethanta a ndearna mé dearmad orthu?",
+    "retroA": "Téigh chuig <strong>Inniu</strong> (roghchlár ☰ → Inniu, nó an cnaipe <strong>Logáil ar ball</strong> ar Bhaile). Roghnaigh an páiste, brabhsáil go dtí an lá ceart leis na saigheada nó leis an roghnóir dáta, agus ticéalaigh na gníomhaíochtaí. Sábháiltear na réaltaí leis an dáta ceart.",
+    "rewardsQ": "Conas a chuireann mé duaiseanna leis nó a chuireann mé in eagar iad?",
+    "rewardsA": "Téigh chuig Duaiseanna sa roghchlár. Is féidir leat do dhuaiseanna féin a chur leis ansin, costas na réalta a chur in eagar, agus a roghnú cé na páistí a fheiceann iad.",
+    "siblingQ": "Conas a chuireann mé deartháir nó deirfiúr leis?",
+    "siblingA": "Ar Bhaile → tapáil <strong>\"+ Cuir páiste leis\"</strong>. Faigheann gach páiste a phlean, a ghníomhaíochtaí agus a réaltaí féin.",
+    "childLoginQ": "Conas a logálann mo pháiste isteach?",
+    "childLoginA": "Don chéad chúpla lá is féidir leat <strong>lá an pháiste a réamhamharc</strong> trí Inniu. Nuair atá tú réidh, logálann do pháiste isteach ag <strong>/child-login</strong> le hainm úsáideora agus PIN — gan phasfhocail. Gheobhaidh tú na sonraí faoi <strong>Teaghlach &amp; socruithe → Páistí</strong>.",
+    "inviteAdultQ": "Conas a thugaim cuireadh d’aosach eile?",
+    "inviteAdultA": "Téigh chuig <strong>Teaghlach &amp; socruithe → Baill teaghlaigh</strong> → brúigh \"Tabhair cuireadh\". Faigheann siad ríomhphost le nasc chun a gcuntas féin a chruthú agus dul isteach sa teaghlach.",
+    "inviteSeeQ": "An bhfeiceann an t-aosach a fuair cuireadh gach páiste?",
+    "inviteSeeA": "Roghnaíonn tú cé na páistí is féidir leo a fheiceáil nuair a sheolann tú an cuireadh. Is féidir leat é sin a athrú níos déanaí faoi <strong>Baill an teaghlaigh</strong> → tapáil an duine → coigeartaigh rochtain an pháiste.",
+    "noActivitiesQ": "Ní fheiceann mo pháiste aon ghníomhaíocht inniu",
+    "noActivitiesA": "Deimhnigh go bhfuil an plean socraithe don lá ceart. Oscail plean an pháiste (brúigh cárta an pháiste) → roghnaigh inniu → féach an bhfuil gníomhaíochtaí ann. Má tá an plean folamh: úsáid \"Cóipeáil chuig laethanta eile\" chun é a líonadh.",
+    "forgotPinQ": "Tá PIN an pháiste dearmadta agam",
+    "forgotPinA": "Téigh chuig <strong>Teaghlach &amp; socruithe → Páistí</strong> → roghnaigh an páiste → brúigh \"Athraigh an PIN\" chun PIN nua a shocrú.",
+    "innerOneStar": "1 réalta",
+    "innerBonusStars": "réaltaí bónais",
+    "innerAddChild": "\"+ Cuir páiste leis\"",
+    "innerPreview": "réamhamharc ar lá an pháiste",
+    "innerFamilyMembersPath": "Teaghlach &amp; socruithe → Baill teaghlaigh",
+    "innerMembers": "Baill teaghlaigh",
+    "innerFamilyChildren": "Teaghlach &amp; socruithe → Páistí",
+    "supportQ": "Déan teagmháil leis an tacaíocht",
+    "supportLead": "Seol ríomhphost chugainn ag",
+    "supportTail": " — freagraímid laistigh de 24 uair an chloig."
+  },
+  "journeyAck": {
+    "headline": "Chríochnaigh do pháiste gníomhaíocht!",
+    "childFallback": "Do pháiste",
+    "activityFallback": "gníomhaíocht",
+    "dismiss": "Chonaic mé é sin"
+  },
+  "journeyCelebration": {
+    "headline": "Rinne sibh é le chéile",
+    "body": "Thosaigh do pháiste — agus chonaic tú é.",
+    "dismiss": "Iontach!"
+  },
+  "activationAha": {
+    "body": "Gan ort iad a mheabhrú.",
+    "dismiss": "Iontach!"
+  }
+}

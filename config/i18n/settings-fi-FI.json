@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Asetukset — {{brand}}",
+  "title": "Asetukset",
+  "shellLead": "Profiili, perhe ja sovellus",
+  "familySettings": "Perheen asetukset",
+  "groups": {
+    "profile": {
+      "title": "Profiili ja tili",
+      "sub": "Kirjautuminen, PIN ja tili"
+    },
+    "family": {
+      "title": "Perhe",
+      "sub": "Nimi ja kieli. Henkilöitä hallitaan kohdassa Perhe."
+    },
+    "device": {
+      "title": "Tämä laite",
+      "sub": "Lapsen puhelin, aikuisen puhelin tai jaettu puhelin"
+    },
+    "appearance": {
+      "title": "Ulkoasu",
+      "sub": "Tumma tai vaalea teema"
+    },
+    "app": {
+      "title": "Sovellus",
+      "sub": "Ilmoitukset, push ja tietosuoja"
+    },
+    "premium": {
+      "title": "Tilaus",
+      "sub": "Premium, ostot ja maksut"
+    }
+  },
+  "appearance": {
+    "dark": "Tumma",
+    "light": "Vaalea",
+    "backToSettings": "← Takaisin asetuksiin"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Suunnittelu",
+      "sub": "Rakenna sisältöä tai suunnittele lastesi viikko."
+    },
+    "rewards": {
+      "title": "Palkinnot",
+      "sub": "Tähdet, palkinnot ja perheen tähtiaarre."
+    },
+    "calendar": {
+      "title": "Kalenteri",
+      "sub": "Kuukausinäkymä kaikille lapsille"
+    },
+    "activities": {
+      "title": "Aktiviteetit",
+      "sub": "Hallitse lastesi aktiviteetteja"
+    },
+    "assignSchedule": {
+      "title": "Määritä aikataulu",
+      "sub": "Kopioi aikataulu lapselle"
+    },
+    "dailyLog": {
+      "title": "Tänään",
+      "sub": "Seuraa lapsesi päivää — täytä tähdet jälkeenpäin"
+    },
+    "treasureChest": {
+      "title": "Tähtiaarre",
+      "sub": "Palkinnot ja tähdet"
+    },
+    "childSettings": {
+      "title": "Lapsen asetukset",
+      "sub": "Näkymä, PIN ja mukautus"
+    },
+    "familyChild": {
+      "title": "Lapsen asetukset",
+      "sub": "Aikataulu, näkymä, PIN ja mukautus"
+    },
+    "notifications": {
+      "title": "Ilmoitukset",
+      "sub": "Muistutukset ja viestit"
+    },
+    "schedule": {
+      "title": "Viikkoaikataulu",
+      "sub": "Suunnittele ja mukauta lastesi päiviä"
+    },
+    "library": {
+      "title": "Kirjasto",
+      "sub": "Aikataulut, aktiviteetit ja palkinnot perheellesi"
+    },
+    "family": {
+      "title": "Perhe",
+      "sub": "Lapset, aikuiset ja kasvattajat"
+    }
+  },
+  "backToPlanning": "← Takaisin suunnitteluun",
+  "avatar": {
+    "title": "Profiilikuva",
+    "description": "Kuvasi näkyy lapselle kohdassa Omat ihmiset ja Perhe-sivulla.",
+    "changePhoto": "Vaihda kuva",
+    "addPhoto": "Lisää kuva",
+    "removePhoto": "Poista kuva",
+    "saved": "Profiilikuva tallennettu!",
+    "removed": "Profiilikuva poistettu",
+    "saveFailed": "Ei voitu tallentaa",
+    "removeFailed": "Ei voitu poistaa"
+  },
+  "nativeAccount": {
+    "title": "Tili",
+    "sub": "Vaihda lapsesi kirjautumiseen tai kirjaudu ulos sovelluksesta kokonaan."
+  },
+  "account": {
+    "title": "Tili ja kirjautuminen",
+    "appleLinked": "Apple-tili linkitetty",
+    "googleLinked": "Google-tili linkitetty",
+    "appleLinkedOnIosHint": "Linkitit Apple-tilisi iPhonella. Kirjautuaksesi täällä, lisää salasana alle.",
+    "googleLinkedElsewhereHint": "Linkitit Google-tilisi toisella laitteella. Kirjautuaksesi täällä, lisää salasana alle.",
+    "newPassword": "Uusi salasana",
+    "confirmPassword": "Vahvista salasana",
+    "minCharsPlaceholder": "Vähintään 8 merkkiä",
+    "repeatPasswordPlaceholder": "Anna salasana uudelleen",
+    "savePassword": "Tallenna salasana",
+    "passwordForNonApple": "Kirjautumiseen ilman Applea",
+    "changePasswordHint": "Vaihda salasana, jotta pääsy tiliisi säilyy.",
+    "currentPassword": "Nykyinen salasana",
+    "confirmNewPassword": "Vahvista uusi salasana",
+    "changePassword": "Vaihda salasana",
+    "linkApple": "Yhdistä Apple-tili",
+    "unlinkApple": "Poista Apple-tilin linkitys",
+    "linkGoogle": "Yhdistä Google-tili",
+    "unlinkGoogle": "Poista Google-tilin linkitys",
+    "changeEmail": "Vaihda sähköpostiosoite",
+    "newEmail": "Uusi sähköpostiosoite",
+    "yourPassword": "Salasanasi",
+    "confirmWithPassword": "Vahvista salasanalla",
+    "sendConfirmLink": "Lähetä vahvistuslinkki",
+    "passwordsMismatch": "Salasanat eivät täsmää",
+    "passwordMinLength": "Salasanassa pitää olla vähintään 8 merkkiä",
+    "saving": "Tallennetaan…",
+    "passwordNowActive": "✓ Salasana on nyt käytössä",
+    "somethingWrong": "Jokin meni pieleen. Yritä uudelleen.",
+    "somethingWrongShort": "Jokin meni pieleen",
+    "appleSignInUnavailable": "Apple-kirjautuminen ei ole käytettävissä tällä laitteella.",
+    "googleSignInUnavailable": "Google-kirjautuminen ei ole käytettävissä tällä laitteella.",
+    "linking": "Yhdistetään…",
+    "appleAlreadyLinked": "Tämä Apple-tili on jo linkitetty toiseen tiliin.",
+    "googleAlreadyLinked": "Tämä Google-tili on jo linkitetty toiseen tiliin.",
+    "couldNotLinkApple": "Applea ei voitu linkittää:",
+    "couldNotLinkGoogle": "Googlea ei voitu linkittää:",
+    "tryAgain": "Yritä uudelleen.",
+    "unlinkApplePrompt": "Anna salasanasi poistaaksesi Applen linkityksen:",
+    "unlinkGooglePrompt": "Anna salasanasi poistaaksesi Googlen linkityksen:",
+    "removing": "Poistetaan…",
+    "couldNotUnlink": "Linkitystä ei voitu poistaa",
+    "invalidEmail": "Anna kelvollinen sähköpostiosoite",
+    "sending": "Lähetetään…",
+    "linkSentTo": "Linkki lähetetty osoitteeseen {{email}}",
+    "passwordChanged": "Salasana on vaihdettu!",
+    "linkAppleBtn": "🍎 Linkitä Apple-tili",
+    "linkGoogleBtn": "G Linkitä Google-tili",
+    "emailUpdated": "Sähköpostisi on päivitetty! Voit nyt kirjautua uudella osoitteella.",
+    "passwordSet": "Salasana on asetettu. Voit nyt kirjautua sähköpostilla ja salasanalla.",
+    "errors": {
+      "invalidAppleToken": "Virheellinen Applen tunnistetunnus",
+      "invalidGoogleToken": "Virheellinen Googlen tunnistetunnus",
+      "appleAlreadyLinkedThis": "Apple-tili on jo linkitetty tähän tiliin",
+      "googleAlreadyLinkedThis": "Google-tili on jo linkitetty tähän tiliin",
+      "passwordRequiredUnlink": "Salasana vaaditaan tilin linkityksen poistamiseen",
+      "setPasswordBeforeUnlink": "Aseta salasana ennen tilin linkityksen poistamista",
+      "emailPasswordRequired": "Uusi sähköpostiosoite ja salasana vaaditaan",
+      "setPasswordBeforeEmail": "Aseta salasana ennen kuin voit vaihtaa sähköpostiosoitetta",
+      "emailAlreadyRegistered": "Tämä sähköposti on jo rekisteröity toiseen tiliin",
+      "emailChangeLinkInvalid": "Virheellinen tai vanhentunut linkki. Pyydä uusi vaihto asetuksista.",
+      "emailChangeLinkUsed": "Tätä linkkiä on jo käytetty. Pyydä uusi vaihto asetuksista.",
+      "emailChangeLinkExpired": "Tämä linkki on vanhentunut. Pyydä uusi vaihto asetuksista.",
+      "passwordAlreadySet": "Salasana on jo olemassa. Käytä kohtaa \"Vaihda salasana\" päivittääksesi sen.",
+      "emailAllOff": "Kaikki sähköposti-ilmoitukset ovat pois päältä. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+      "weeklyEmailOff": "Emme lähetä enää viikkoyhteenvetoja sähköpostiisi. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+      "redeemEmailOff": "Emme lähetä enää sähköpostia, kun lapsi haluaa lunastaa palkintoja. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+      "passwordCurrentAndNew": "Nykyinen ja uusi salasana vaaditaan",
+      "appleLinkLoginRequired": "Sinun on oltava kirjautuneena linkittääksesi Apple-tilin",
+      "googleLinkLoginRequired": "Sinun on oltava kirjautuneena linkittääksesi Google-tilin"
+    }
+  },
+  "toast": {
+    "saved": "Tallennettu!",
+    "savedCheck": "✅ Tallennettu!",
+    "saveFailedRetry": "Tallennus ei onnistunut. Yritä uudelleen.",
+    "networkError": "Verkkovirhe"
+  },
+  "parentPin": {
+    "title": "PIN-koodi",
+    "security": "Turvallisuus",
+    "hasPinDescription": "Henkilökohtainen PIN-koodisi suojaa vanhemman tilaa — lapset eivät pääse pois lapsen tilasta ilman PIN-koodiasi.",
+    "noPinDescription": "Aseta oma 4-numeroinen PIN-koodi — lapset eivät pääse pois lapsen tilasta ilman PIN-koodiasi.",
+    "choosePin": "Valitse 4-numeroinen PIN-koodi",
+    "confirmPin": "Vahvista PIN",
+    "changePinBack": "← Vaihda PIN",
+    "enterCurrentPin": "Anna nykyinen PIN",
+    "forgotPin": "Unohditko PIN-koodin?",
+    "chooseNewPin": "Valitse uusi PIN",
+    "confirmNewPin": "Vahvista uusi PIN",
+    "forgotIntro": "Anna salasanasi asettaaksesi uuden PIN-koodin.",
+    "yourPassword": "Salasanasi",
+    "verify": "Vahvista",
+    "keypadAria": "Numeronäppäimistö",
+    "confirmKeypadAria": "Vahvista PIN-näppäimistö",
+    "pinKeypadAria": "PIN-näppäimistö",
+    "newPinKeypadAria": "Uusi PIN-näppäimistö",
+    "confirmNewPinKeypadAria": "Vahvista uusi PIN-näppäimistö",
+    "pinsMismatch": "PIN-koodit eivät täsmää — yritä uudelleen",
+    "pinNowActive": "✓ PIN on nyt käytössä",
+    "wrongPin": "Väärä PIN — yritä uudelleen",
+    "pinChanged": "✓ PIN on vaihdettu!",
+    "couldNotChangePin": "PIN-koodia ei voitu vaihtaa",
+    "sessionExpired": "Istunto vanhentui — anna nykyinen PIN uudelleen",
+    "enterPassword": "Anna salasanasi",
+    "wrongPassword": "Väärä salasana"
+  },
+  "push": {
+    "title": "Push-ilmoitukset",
+    "lead": "Saa ilmoituksia puhelimeesi — myös silloin, kun sovellus on kiinni.",
+    "unsupported": "Selaimesi ei tue push-ilmoituksia.",
+    "toggleLabel": "Push-ilmoitukset",
+    "toggleDescription": "Ota käyttöön saadaksesi ilmoituksia lastesi aktiviteeteista",
+    "toggleAria": "Vaihda push-ilmoitukset",
+    "perChildHeading": "Ilmoitukset lasta kohti",
+    "typesHeading": "Mitkä ilmoitukset?",
+    "typeScheduleTitle": "Aikataulumuistutus",
+    "typeScheduleHint": "10 min ennen aktiviteettia",
+    "typeScheduleAria": "Vaihda aikataulumuistutus",
+    "typeInactivityTitle": "Toimettomuusmuistutus",
+    "typeInactivityHint": "klo 18:00, jos lapsi ei ole kirjautunut",
+    "typeInactivityAria": "Vaihda toimettomuusmuistutus",
+    "typeMilestoneTitle": "Tähtietappi",
+    "typeMilestoneHint": "10/25/50/100 tähteä",
+    "typeMilestoneAria": "Vaihda tähtietappi",
+    "typeBackfillTitle": "Täydennysmuistutus",
+    "typeBackfillHint": "klo 09:00, jos eilinen puuttuu",
+    "typeBackfillAria": "Vaihda täydennysmuistutus",
+    "leadTimeLabel": "Muistutus ennen",
+    "quietHoursLabel": "Hiljaiset tunnit",
+    "quietHoursTo": "asti",
+    "archiveTitle": "Ilmoitusarkisto",
+    "archiveHint": "Onnistuneet push-ilmoitukset viimeiseltä 7 päivältä",
+    "noChildren": "Ei linkitettyjä lapsia.",
+    "childToggleAria": "Push lapselle {{name}}",
+    "saved": "✅ Tallennettu!",
+    "saveFailed": "Ei voitu tallentaa.",
+    "saveFailedRetry": "Tallennus ei onnistunut. Yritä uudelleen.",
+    "requestingPermission": "⏳ Pyydetään lupaa…",
+    "enabled": "✅ Push-ilmoitukset käytössä!",
+    "permissionDenied": "🚫 Lupa evätty. Ota käyttöön selaimen tai sovelluksen asetuksissa.",
+    "iosNotInstalled": "Lisää {{brand}} Koti-valikkoon, jotta push toimii Safarissa.",
+    "genericError": "Jokin meni pieleen. Yritä uudelleen.",
+    "disabled": "✅ Push-ilmoitukset pois päältä.",
+    "errors": {
+      "unsupportedBrowser": "Push ei ole tuettu tässä selaimessa",
+      "permissionDeniedApp": "Ilmoituslupa evättiin sovelluksen asetuksissa.",
+      "pushPluginMissing": "Push-lisäosa puuttuu sovelluksesta. Aja npx cap sync ios ja rakenna uudelleen.",
+      "platformMissing": "Alustan push-tuki puuttuu",
+      "permissionDeniedBrowser": "Ilmoituslupa evätty. Ota se käyttöön selaimen asetuksissa.",
+      "permissionDenied": "Ilmoituslupa evätty",
+      "subscriptionFailed": "Tilaus epäonnistui",
+      "enableFailed": "Push-ilmoituksia ei voitu ottaa käyttöön",
+      "disableFailed": "Push-ilmoituksia ei voitu poistaa käytöstä",
+      "iosNotInstalled": "Lisää sovellus Koti-valikkoon, jotta push toimii Safarissa.",
+      "notConfigured": "Push-ilmoituksia ei ole määritetty",
+      "invalidSubscription": "Virheellinen push-tilaus",
+      "endpointRequired": "Päätepiste vaaditaan",
+      "invalidToken": "Virheellinen tunnus",
+      "invalidPlatform": "Alustan on oltava iOS tai Android",
+      "tokenRequired": "Tunnus ja alusta vaaditaan",
+      "parentNotFound": "Vanhempaa ei löytynyt"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Lisätäänkö widget Koti-valikkoon?",
+      "lead": "Näe seuraava aktiviteetti Koti-valikossa — avaamatta sovellusta.",
+      "step1": "Napauta <strong class=\"text-navy\">Yhdistä widget</strong> täällä sovelluksessa.",
+      "step2": "Koti-valikossa: paina taustaa pitkään → napauta <strong class=\"text-navy\">+</strong> → hae <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Älä kysy uudelleen",
+      "connect": "Yhdistä widget",
+      "later": "Ei nyt",
+      "openSettings": "Avaa asetukset"
+    },
+    "settings": {
+      "title": "Widgetit ja pikakäyttö",
+      "description": "Henkilökohtainen widget = yksi lapsi. Perhewidget = useita lapsia. Valitse lapsi täällä, jos lapsia on enemmän kuin yksi.",
+      "childPickerLabel": "Minkä lapsen widget näyttää?",
+      "childFallbackName": "Lapsi",
+      "statusLabel": "Tila:",
+      "statusConnected": "Yhdistetty",
+      "statusReconnect": "Tarvitsee uudelleenyhdistämisen",
+      "privacyLabel": "Tietosuoja:",
+      "privacyFull": "Täysi",
+      "privacyLimited": "Rajoitettu",
+      "reconnectBtn": "Yhdistä widget uudelleen",
+      "guideBtn": "Näytä Koti-valikon widget-ohje",
+      "connecting": "Yhdistetään…",
+      "supportMissing": "Widget-tuki puuttuu tästä versiosta. Päivitä sovellus.",
+      "addChildFirst": "Lisää ensin lapsi perheeseen, sitten voit yhdistää widgetin.",
+      "loginRequired": "Sinun on oltava kirjautuneena yhdistääksesi widgetin.",
+      "success": "Valmis! Lisää widget Koti-valikkoon (+ → {{brand}}), jos et ole jo lisännyt.",
+      "pickChild": "Valitse lapsi yltä olevasta luettelosta ja yritä uudelleen.",
+      "retryLater": "Yhdistäminen ei onnistunut juuri nyt. Yritä hetken kuluttua uudelleen.",
+      "networkError": "Yhdistäminen ei onnistunut juuri nyt. Tarkista verkko ja yritä uudelleen.",
+      "errors": {
+        "offlineUnavailable": "Widget ei ole vielä käytössä perheellesi. Ota yhteyttä tukeen, jos sen pitäisi olla päällä.",
+        "reauthRequired": "Istunto pitää uusia. Kirjaudu ulos ja takaisin, ja yritä sitten yhdistää uudelleen.",
+        "nativeConfigureFailed": "Sovellus ei voinut tallentaa widget-linkkiä. Sulje sovellus kokonaan ja avaa se uudelleen.",
+        "notEnabled": "Widget ei ole käytössä tai istunto pitää uusia. Kirjaudu ulos ja takaisin."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Ilmoitusasetukset",
+    "weeklySummary": "Viikkokooste (sunnuntai 21.00)",
+    "rewardRedemption": "Palkintojen lunastukset",
+    "newsletter": "Sähköpostikirje",
+    "emailGlobal": "Kaikki sähköpostit",
+    "save": "Tallenna ilmoitusasetukset"
+  },
+  "reminders": {
+    "title": "Muistutukset",
+    "lead": "Aseta päivittäinen muistutus, jotta muistat tarkistaa aikataulun.",
+    "daily": "Päivittäinen muistutus",
+    "hint": "Saat muistutuksen valittuna aikana valittuina päivinä",
+    "toggleAria": "Vaihda muistutus",
+    "time": "Aika",
+    "days": "Päivät"
+  },
+  "familyName": {
+    "label": "Perheen nimi",
+    "placeholder": "esim. Virtasen perhe",
+    "autoFromParent": "{{name}}n perhe"
+  },
+  "sound": {
+    "label": "Äänet päällä",
+    "hint": "Toistaa äänen, kun lapsi merkitsee aktiviteetin päivänäkymässään."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Aikuiset ja käyttöoikeus",
+    "adultsBody": "Kutsu toinen vanhempi ja katso, kenellä on käyttöoikeus, kohdasta Perhe.",
+    "openFamily": "Avaa Perhe",
+    "pedagogsTitle": "👩‍🏫 Kasvattajat",
+    "pedagogsBody": "Kasvattajien kutsut ja käyttöoikeudet hallitaan kohdassa Perhe."
+  },
+  "dataExport": {
+    "title": "Omat tiedot",
+    "body": "Lataa kopio kaikista tiedoistasi CSV-muodossa (ZIP-tiedosto). Sisältää profiilin, lapset, aikataulut, palkinnot ja aktiviteettihistorian.",
+    "download": "Lataa omat tiedot",
+    "preparing": "Valmistellaan latausta…",
+    "started": "✅ Lataus alkoi!",
+    "rateLimited": "Voit viedä tiedot vain kerran 24 tunnissa.",
+    "failed": "Jokin meni pieleen. Yritä uudelleen.",
+    "networkError": "Verkkovirhe. Yritä uudelleen."
+  },
+  "deleteAccount": {
+    "title": "Poista tili",
+    "permanent": "⚠️ Pysyvä toimenpide",
+    "loading": "Ladataan, mitä tapahtuu…",
+    "storeBillingNote": "Jos sinulla on tilaus App Storessa tai Google Playssa, sitä ei peruta automaattisesti, kun tili poistetaan. Hallitse tai peru tilaus kaupassa.",
+    "button": "Poista tilini",
+    "summarySelf": "Poistat oman tilisi ja käyttöoikeutesi. Perhe, lapset, aikataulut ja muiden aikuisten tiedot säilyvät. Tätä ei voi perua.",
+    "summaryLastAdmin": "Olet viimeinen aikuinen, jolla on hallintaoikeus. Koko perhe ja kaikki siihen liittyvät tiedot — lapset, aikataulut, aktiviteetit, tähdet ja palkinnot — poistetaan heti ja pysyvästi. Tätä ei voi perua.",
+    "modalTitleSelf": "Jätä perhe",
+    "modalTitleFamily": "Poista perhe ja tili",
+    "modalTitleFallback": "Poista tili pysyvästi",
+    "leadSelf": "Poistat vain oman tilisi ja käyttöoikeutesi.",
+    "leadFamily": "Poistat koko perheen ja kaikki siihen liittyvät tiedot.",
+    "sure": "Oletko varma?",
+    "cannotUndo": "Tätä ei voi perua.",
+    "storeBillingModal": "App Storen tai Google Playn tilausta ei peruta automaattisesti — hallitse sitä kaupassa.",
+    "typeConfirmLabel": "Kirjoita {{token}} vahvistaaksesi",
+    "typeConfirmLabelHtml": "Kirjoita <strong>RADERA</strong> vahvistaaksesi",
+    "typeConfirmError": "Kirjoita {{token}} vahvistaaksesi.",
+    "confirmToken": "RADERA",
+    "cancel": "Peruuta",
+    "confirmSelf": "Jätä perhe",
+    "confirmFamily": "Poista kaikki pysyvästi",
+    "deleting": "Poistetaan...",
+    "deleted": "✅ Tili on poistettu.",
+    "deleteFailed": "Jokin meni pieleen poistettaessa.",
+    "networkError": "Verkkovirhe. Yritä uudelleen.",
+    "bulletSelfAccount": "Vanhemman tilisi ja käyttöoikeutesi",
+    "bulletSelfOthersRemain": "Perhe, lapset ja muut aikuiset säilyvät",
+    "bulletParentAccount": "Vanhemman tili",
+    "bulletAllChildren": "Kaikki perheen lapset",
+    "bulletAllSchedules": "Kaikki aikataulut, aktiviteetit ja palkinnot",
+    "bulletAllHistory": "Koko päivähistoria ja tähdet"
+  },
+  "support": {
+    "title": "Tekniset tiedot tukea varten",
+    "hint": "Kopioi sovellusversio, välimuisti ja vianjäljitystunnus. Henkilötietoja tai salasanoja ei sisälly.",
+    "copy": "Kopioi tekniset tiedot",
+    "copied": "Kopioitu — liitä se sähköpostiin tuelle.",
+    "copyFailed": "Kopiointi ei onnistunut. Yritä uudelleen."
+  },
+  "legal": {
+    "privacy": "Tietosuojaseloste",
+    "terms": "Käyttöehdot"
+  },
+  "consent": {
+    "title": "Suostumus ja tietosuoja",
+    "lead": "Hallitse tietosuoja-asetuksiasi ja evästevalintoja.",
+    "change": "Muuta suostumusasetuksia",
+    "empty": "Suostumusasetuksia ei ole vielä tallennettu.",
+    "modalTitle": "Suostumus ja tietosuoja",
+    "aria": "Suostumusasetukset",
+    "intro": "Auta meitä tekemään {{brand}} vielä paremmaksi. Käytämme evästeitä ymmärtääksemme, miten sovellusta käytetään, ja tavoittaaksemme lisää perheitä. Napauta kutakin kategoriaa vaihtaaksesi ✓ Kyllä / ✗ Ei / — Neutraali.",
+    "save": "Tallenna valinnat",
+    "saving": "Tallennetaan…",
+    "skip": "Ohita",
+    "closing": "Suljetaan…",
+    "analytics": "Analytiikka ja parantaminen",
+    "analyticsDesc": "Auttaa meitä ymmärtämään, miten sovellusta käytetään, jotta voimme tehdä siitä paremman.",
+    "ads": "Markkinointi",
+    "adsDesc": "Näyttää sinulle räätälöityjä mainoksia Metassa (Facebook/Instagram) ja Googlessa.",
+    "adUserData": "Tiedot alustoille",
+    "adUserDataDesc": "Jakaa tietosi mainosalustoille paremman kohdentamisen vuoksi.",
+    "adPersonalization": "Personointi",
+    "adPersonalizationDesc": "Mukauttaa mainoksia kiinnostuksesi ja käyttäytymisesi mukaan.",
+    "email": "Sähköposti ja vinkit",
+    "emailDesc": "Sähköposteja, joissa on vinkkejä, uutisia ja tarjouksia sovellukselta {{brand}}."
+  },
+  "subscription": {
+    "title": "Tilaus",
+    "loading": "Ladataan tilausta…",
+    "loadFailed": "Tilauksen tilaa ei voitu ladata.",
+    "restore": "Palauta ostot",
+    "manage": "Hallitse tilausta",
+    "activate": "Ota Premium käyttöön",
+    "viewPlans": "Näytä tilaukset",
+    "howToActivate": "Näin otat Premiumin käyttöön",
+    "webActivateHint": "Premium otetaan käyttöön iPhone- tai Android-sovelluksessa.",
+    "restoreSuccess": "Ostot palautettu. Premium on aktiivinen.",
+    "restoreNone": "Palautettavia ostoja ei löytynyt.",
+    "restoreFailed": "Ostoja ei voitu palauttaa.",
+    "launchHoldTitle": "Julkaisukäyttö — laskutus ei ole vielä käytössä",
+    "launchHoldBody": "Voit jatkaa sovelluksen käyttöä. Tilausta ei vaadita, kun laskutus on pois päältä.",
+    "complimentaryTitle": "Ilmainen 31. joulukuuta 2026 asti",
+    "complimentaryBody": "{{brand}} on ilmainen 31. joulukuuta 2026 asti. Tilausta tai maksutapaa ei vaadita. Tämä tarjous ei muutu automaattisesti maksulliseksi tilaukseksi.",
+    "complimentaryBodyUntil": "Ilmainen päivään {{date}}. Tilausta tai maksutapaa ei vaadita, eikä tämä tarjous muutu automaattisesti maksulliseksi tilaukseksi. 1. tammikuuta 2027 alkaen voit valita, haluatko tilata.",
+    "launchTitle": "Julkaisukäyttö",
+    "launchBody": "Voit käyttää sovellusta nyt. Tilausta ei vielä vaadita.",
+    "launchBodyUntil": "Voit käyttää sovellusta nyt. Tilausta ei vielä vaadita. Maksullinen alku: {{date}}.",
+    "noPremium": "Ei aktiivista Premiumia",
+    "choosePlan": "Valitse Premium kuukaudeksi tai Premium vuodeksi saadaksesi täyden käytön.",
+    "billingNotLive": "Tilausta ei vielä vaadita. Laskutus ei ole käytössä.",
+    "activateBody": "Ota Premium käyttöön saadaksesi täyden käytön sovellukseen.",
+    "grandfatheredTitle": "Premium sisältyy pysyvästi",
+    "grandfatheredBody": "Perheelläsi on täysi käyttö ilman maksua.",
+    "trialTitle": "Premium – ilmainen kokeilu",
+    "ends": "Päättyy {{date}}",
+    "giftTitle": "Premium – lahjakortti",
+    "validUntil": "Voimassa päivään {{date}}",
+    "graceTitle": "Premium – maksu pitää päivittää",
+    "graceBody": "Käyttö toimii yhä, mutta maksu pitää korjata kaupassa {{store}}.",
+    "activeTitle": "Premium – {{plan}} kaupassa {{store}}",
+    "planYearly": "vuosisuunnitelma",
+    "planMonthly": "kuukausisuunnitelma"
+  },
+  "theme": {
+    "title": "Ulkoasu",
+    "darkMode": "Tumma tila",
+    "darkHint": "Ota tumma teema käyttöön mukavampaa käyttöä varten pimeässä",
+    "toggleAria": "Vaihda tumma tila",
+    "colorBlind": "Värinäön teema",
+    "colorBlindHint": "Säätää värejä eri värisokeuden tyypeille",
+    "colorNone": "Ei mitään (oletus)",
+    "protanopia": "Protanopia (punasokeus)",
+    "deuteranopia": "Deuteranopia (vihersokeus)",
+    "tritanopia": "Tritanopia (sinisokeus)"
+  },
+  "viewMode": {
+    "dualAccess": "Sinulla on pääsy sekä vanhemman että kasvattajan näkymään.",
+    "switchPedagog": "🌟 Vaihda kasvattajan näkymään",
+    "switchParent": "👨‍👩‍👧 Vaihda vanhemman näkymään"
+  },
+  "loadError": {
+    "title": "Perheen asetuksia ei voitu ladata",
+    "fallback": "Perheen asetuksia ei voitu ladata juuri nyt.",
+    "retry": "Yritä uudelleen",
+    "retryIn": "Yritä uudelleen {{seconds}} s kuluttua"
+  },
+  "unsubscribe": {
+    "weekly": "Emme lähetä enää viikkoyhteenvetoja sähköpostiisi. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+    "reward": "Emme lähetä enää sähköpostia, kun lapsi haluaa lunastaa palkintoja. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+    "all": "Kaikki sähköposti-ilmoitukset ovat pois päältä. Voit laittaa ne takaisin kohdasta Asetukset → Ilmoitukset.",
+    "invalidTitle": "Virheellinen linkki",
+    "invalidBody": "Linkki on virheellinen tai vanhentunut.",
+    "errorTitle": "Jokin meni pieleen",
+    "errorBody": "Yritä myöhemmin uudelleen tai siirry asetuksiin sovelluksessa."
+  },
+  "notifArchive": {
+    "retry": "Yritä uudelleen",
+    "failedHidden": "Epäonnistuneita tai pois käytöstä olevia lähetyksiä ei näytetä täällä.",
+    "loading": "Ladataan push-arkistoa…",
+    "loadError": "Push-arkistoa ei voitu ladata. Se ei tarkoita, ettei ilmoituksia olisi.",
+    "markAll": "Merkitse kaikki luetuiksi"
+  }
+}

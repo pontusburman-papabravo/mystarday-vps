@@ -18,11 +18,18 @@ const { getChildrenForParent } = require('../../../db/parent-access');
 const appSettings = require('../../../db/app-settings');
 const { validate } = require('../../middleware/validate');
 const { UpdateFamilySchema } = require('../../lib/schemas');
-const { isSupportedLocale, validateLocale, resolveFamilyLocale } = require('../../lib/locale');
+const {
+  isSupportedLocale,
+  validateLocale,
+  resolveFamilyLocale,
+  featureGrantedOnRegister,
+  selectableLocaleOptions,
+} = require('../../lib/locale');
 const {
   isEnglishAppEnabled,
   canSelectEnglishLocale,
   isEnglishChildExperienceEnabled,
+  ENGLISH_APP_SLUG,
 } = require('../../lib/i18n-flags');
 const { SELECTION_SOURCES } = require('../../lib/locale-selection');
 const { enableEnglishAppForFamily } = require('../../lib/i18n-enable-english');
@@ -204,7 +211,7 @@ router.put('/settings', requireNotPedagogOnly, validate(UpdateFamilySchema), asy
       );
       const currentLocale = validateLocale(currentRow.rows[0]?.preferred_locale);
 
-      if (canonicalNext === 'en-GB' && canonicalNext !== currentLocale) {
+      if (featureGrantedOnRegister(canonicalNext) === ENGLISH_APP_SLUG && canonicalNext !== currentLocale) {
         const maySelectEnglish = await canSelectEnglishLocale(req.user.familyId);
         if (!maySelectEnglish) {
           return res.status(403).json({
@@ -324,6 +331,7 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
       [req.user.familyId]
     );
     const row = familyRow.rows[0] || {};
+    const locales = selectableLocaleOptions();
     res.json({
       preferred_locale: row.preferred_locale || 'sv-SE',
       locale_selected_at: row.locale_selected_at || null,
@@ -331,7 +339,8 @@ router.get('/locale-options', requireNotPedagogOnly, async (req, res) => {
       english_beta_offer_state: row.english_beta_offer_state || 'not_shown',
       english_app_enabled: englishApp,
       english_child_experience_enabled: englishChild,
-      supported_locales: ['sv-SE', 'en-GB'],
+      locales,
+      supported_locales: locales.map((locale) => locale.id),
     });
   } catch (err) {
     console.error('[FAMILY] locale-options error:', err);

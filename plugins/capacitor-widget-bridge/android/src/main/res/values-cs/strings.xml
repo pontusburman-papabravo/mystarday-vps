@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Další aktivita</string>
+    <string name="widget_routine_description">Dokonči další krok rutiny bez otevření celé aplikace.</string>
+    <string name="widget_cd_pictogram">Symbol aktivity</string>
+    <string name="widget_cd_complete">Označ aktivitu jako hotovou</string>
+    <string name="widget_cd_open_app">Otevřít v aplikaci</string>
+    <string name="widget_action_complete">Hotovo</string>
+    <string name="widget_action_open_timer">Otevřít časovač</string>
+    <string name="widget_action_show_steps">Ukázat kroky</string>
+    <string name="widget_action_open_app">Otevřít aplikaci</string>
+    <string name="widget_loading">Načítání…</string>
+    <string name="widget_all_done">Pro dnešek hotovo!</string>
+    <string name="widget_nothing_now">Teď nic</string>
+    <string name="widget_offline">Žádné připojení</string>
+    <string name="widget_reauth">Přihlas se v aplikaci</string>
+    <string name="widget_revoked">Přístup zařízení je odebraný</string>
+    <string name="widget_switching">Měním dítě…</string>
+    <string name="widget_feedback_done">✓ Hotovo!</string>
+    <string name="widget_feedback_done_for">✓ Hotovo pro %1$s</string>
+    <string name="widget_cd_child_prev">Předchozí dítě</string>
+    <string name="widget_cd_child_next">Další dítě</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d z %2$d hotovo</string>
+    <string name="widget_private_activity">Další krok</string>
+    <string name="widget_configure_title">Vyber widget</string>
+    <string name="widget_configure_personal">Vlastní (jedno dítě)</string>
+    <string name="widget_configure_family">Rodina (přepnout dítě)</string>
+    <string name="widget_configure_save">Uložit</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "worlds": [
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Le jardin",
+      "slots": [
+        {
+          "slot_id": "bed_1",
+          "label_sv": "Le parterre",
+          "default_archetype_id": "sunflower"
+        }
+      ],
+      "archetypes": [
+        {
+          "archetype_id": "sunflower",
+          "display_name_sv": "Le tournesol",
+          "initial_state": "empty",
+          "states": [
+            {
+              "state_key": "empty",
+              "label_sv": "Terre nue",
+              "visual_token": "garden_bed_empty"
+            },
+            {
+              "state_key": "planted",
+              "label_sv": "La graine est plantée",
+              "visual_token": "sunflower_seed"
+            },
+            {
+              "state_key": "watered",
+              "label_sv": "Tu as arrosé la graine",
+              "visual_token": "sunflower_seed",
+              "timer_ms": 30000,
+              "timer_next_state": "blooming"
+            },
+            {
+              "state_key": "blooming",
+              "label_sv": "Le tournesol fleurit !",
+              "visual_token": "sunflower_bloom"
+            },
+            {
+              "state_key": "harvested",
+              "label_sv": "La fleur d’aujourd’hui",
+              "visual_token": "sunflower_harvested"
+            }
+          ],
+          "verbs": [
+            {
+              "verb": "plant",
+              "from_state": "empty",
+              "to_state": "planted",
+              "child_message_sv": "Tu as planté une graine !"
+            },
+            {
+              "verb": "water",
+              "from_state": "planted",
+              "to_state": "watered",
+              "child_message_sv": "Tu as arrosé la graine — elle pousse !"
+            },
+            {
+              "verb": "harvest",
+              "from_state": "blooming",
+              "to_state": "harvested",
+              "child_message_sv": "Tu as cueilli le tournesol !"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

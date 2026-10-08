@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Vis tips",
+    "close": "Lukk",
+    "milestone": "Milepæl",
+    "nextStep": "Neste steg",
+    "tip": "Tips",
+    "weekReflection": "Ukerefleksjon",
+    "weekTogether": "En uke sammen",
+    "weekLabel": "Én uke",
+    "sjDay3Headline": "På tide at {{name}} prøver",
+    "tips": {
+      "coach_consistency": [
+        "Hold rutinen kort og tydelig — barnet bygger vanen steg for steg.",
+        "Feir hver avkryssing, også de små.",
+        "La barnet logge inn selv hver morgen."
+      ],
+      "coach_evening": [
+        "Legg til 2–3 rolige aktiviteter før leggetid.",
+        "Samme rekkefølge hver kveld gjør det lettere å sovne."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Ny",
+    "dismissAria": "Lukk forklaringen",
+    "continueFallback": "Fortsett",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Vi viser nå et tydelig forslag til neste steg her på Hjem.",
+        "whatChanged": "Et kort for «Neste steg» er lagt øverst.",
+        "whyItMatters": "Du trenger ikke lete gjennom påminnelser — ett forslag om gangen."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "La barnet prøve rutinen sin",
+      "body": "Åpne barnemodus sammen — barnet ser med en gang hva som skal gjøres.",
+      "cta": "Åpne barnevisning"
+    },
+    "ADD_EVENING": {
+      "headline": "Legg til kveldsrutinen",
+      "body": "Gjør leggetid like tydelig som morgenen.",
+      "cta": "Legg til kveld"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Inviter den andre forelderen",
+      "body": "Del rutinen, så dere kan følge opp sammen.",
+      "cta": "Inviter"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Start med ett lite steg",
+      "body": "Rutinen er fortsatt der — ta én aktivitet om gangen i dag.",
+      "cta": "Åpne plan"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Tilpass rutinen",
+      "body": "Nå kan du gjøre planen til din egen.",
+      "cta": "Tilpass"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Feir fremgangen",
+      "body": "Dere har tatt et viktig steg — ta et øyeblikk sammen.",
+      "cta": "Vis barnet"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Barnet fullførte en aktivitet!",
+    "defaultChild": "Barnet",
+    "defaultActivity": "en aktivitet",
+    "defaultCta": "Skjønner"
+  }
+}

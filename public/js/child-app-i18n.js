@@ -1,7 +1,7 @@
 /**
  * child-app-i18n.js — Child UI locale bootstrap.
- * Canonical locale: family preferred_locale + english_child_experience flag.
- * When flag is OFF, child UI stays sv-SE even for en-GB families.
+ * Canonical locale: family preferred_locale.
+ * english_child_experience is stored for other features and does not choose the language.
  */
 (function childAppI18nModule() {
   'use strict';
@@ -19,9 +19,9 @@
     try {
       const storedChildUi = localStorage.getItem(CHILD_UI_LOCALE_STORAGE_KEY)
         || sessionStorage.getItem(CHILD_UI_LOCALE_STORAGE_KEY);
-      if (storedChildUi === 'en-GB' || storedChildUi === 'sv-SE') {
-        preferredLocale = storedChildUi;
-        if (storedChildUi === 'en-GB') englishChildEnabled = true;
+      if (storedChildUi) {
+        const normalized = typeof I18n._normalize === 'function' ? I18n._normalize(storedChildUi) : null;
+        if (normalized) preferredLocale = normalized;
       }
       const flagRaw = localStorage.getItem(ENGLISH_CHILD_FLAG_KEY)
         || sessionStorage.getItem(ENGLISH_CHILD_FLAG_KEY);
@@ -44,19 +44,22 @@
       const flag = englishChildEnabled ? '1' : '0';
       sessionStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
       localStorage.setItem(ENGLISH_CHILD_FLAG_KEY, flag);
-      if (resolvedLocale === 'en-GB' || resolvedLocale === 'sv-SE') {
-        sessionStorage.setItem(storageKey, resolvedLocale);
-        localStorage.setItem(storageKey, resolvedLocale);
+      const storedLocale = (typeof I18n._normalize === 'function' && I18n._normalize(resolvedLocale)) || null;
+      if (storedLocale) {
+        sessionStorage.setItem(storageKey, storedLocale);
+        localStorage.setItem(storageKey, storedLocale);
       }
     } catch (_) { /* ignore */ }
   }
 
   function resolveChildUiLocale(preferredLocale, englishChildEnabled) {
-    const locale = String(preferredLocale || 'sv-SE').trim();
-    if (locale === 'en-GB' && englishChildEnabled === true) {
-      return 'en-GB';
+    void englishChildEnabled;
+    const i18n = window.I18n;
+    if (!i18n || typeof i18n._normalize !== 'function') {
+      return /^[a-z]{2}-[A-Z]{2}$/.test(String(preferredLocale || '')) ? preferredLocale : 'sv-SE';
     }
-    return 'sv-SE';
+    const locale = i18n._normalize(preferredLocale);
+    return locale || i18n.DEFAULT_LOCALE || 'sv-SE';
   }
 
   /**
@@ -202,9 +205,7 @@
   function lockoutCountdownText(remainingSeconds) {
     if (remainingSeconds > 60) {
       const mins = Math.floor(remainingSeconds / 60);
-      let suffix = mins === 1 ? '' : 'er';
-      if (getChildUiLocale() === 'en-GB') suffix = mins === 1 ? '' : 's';
-      return cpt('login.lockoutSubMinutes', { minutes: mins, minuteSuffix: suffix });
+      return childPlural('login.lockoutSubMinutes', mins);
     }
     return cpt('login.lockoutSubSeconds', { seconds: remainingSeconds });
   }

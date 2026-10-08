@@ -9,7 +9,6 @@ function getPacksRoot() {
 }
 const db = require('../db');
 const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
-const { isEnglishChildExperienceEnabled } = require('../i18n-flags');
 
 const DEFAULT_PACK_ID = 'child_se';
 
@@ -115,10 +114,7 @@ async function resolvePackIdForChild(childId, client) {
     );
     const row = result.rows[0];
     if (!row) return DEFAULT_PACK_ID;
-    const englishChild = await isEnglishChildExperienceEnabled(row.family_id);
-    const packId = experiencePackIdForLocale(resolveFamilyLocale(row.preferred_locale), {
-      englishChildExperienceEnabled: englishChild,
-    });
+    const packId = experiencePackIdForLocale(resolveFamilyLocale(row.preferred_locale));
     if (packId === 'child_en') {
       try {
         loadPack('child_en');

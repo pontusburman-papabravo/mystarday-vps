@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Auka skjátími",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Velja kvöldmat",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Lítil gjöf",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

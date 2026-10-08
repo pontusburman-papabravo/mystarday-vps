@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Casa",
+    "planning": "Piano",
+    "rewards": "Ricompense",
+    "forYou": "Per te",
+    "family": "Famiglia"
+  },
+  "settings": "Impostazioni",
+  "mainAria": "Navigazione principale",
+  "notifications": "Notifiche",
+  "share": "Condividi",
+  "logout": "Esci",
+  "switchUser": "Cambia profilo",
+  "returnToChild": "Torna al bambino",
+  "darkMode": "Tema scuro",
+  "lightMode": "Tema chiaro",
+  "overview": "Panoramica",
+  "dailyLog": "Oggi",
+  "weekSchedule": "Piano",
+  "reports": "Riepiloghi",
+  "library": "Libreria",
+  "libraryAdvanced": "📚 Libreria (avanzata)",
+  "pedagogNotes": "📝 Note dell'educatore",
+  "treasureChest": "Scrigno delle stelle",
+  "familySettings": "Famiglia e impostazioni",
+  "capability": {
+    "subscription": "Abbonamento",
+    "reports": "Riepiloghi",
+    "samarbete": "Collaborazione con l'educatore",
+    "barnStod": "Supporto in più"
+  },
+  "header": {
+    "notifications": "Notifiche",
+    "settings": "Impostazioni",
+    "share": "Condividi",
+    "shareTitle": "Parla dell'app a una famiglia!",
+    "shareAria": "Condividi"
+  },
+  "avatar": {
+    "switchPedagog": "Passa alla vista educatore",
+    "subscription": "Abbonamento",
+    "settings": "Impostazioni",
+    "logout": "Esci"
+  },
+  "mobile": {
+    "openMenu": "Apri il menu",
+    "darkModeTitle": "Tema scuro",
+    "darkModeAria": "Attiva o disattiva il tema scuro"
+  }
+}

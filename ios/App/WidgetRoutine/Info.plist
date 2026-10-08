@@ -4,6 +4,32 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>sv</string>
+		<string>en-GB</string>
+		<string>de</string>
+		<string>fr</string>
+		<string>nl</string>
+		<string>da</string>
+		<string>fi</string>
+		<string>nb</string>
+		<string>es-ES</string>
+		<string>it</string>
+		<string>pt-PT</string>
+		<string>pl</string>
+		<string>cs</string>
+		<string>sk</string>
+		<string>sl-SI</string>
+		<string>hr</string>
+		<string>hu</string>
+		<string>ro</string>
+		<string>bg</string>
+		<string>el</string>
+		<string>et</string>
+		<string>lt</string>
+		<string>lv</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Nästa aktivitet</string>
 	<key>CFBundleExecutable</key>

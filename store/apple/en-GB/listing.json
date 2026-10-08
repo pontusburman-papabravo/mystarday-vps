@@ -1,0 +1,22 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Visual routines for families",
+  "keywords": "visual routine,picture schedule,ADHD routine,autism routine,daily structure,star chart,rewards",
+  "promotionalText": "Visual routines for children who need more structure — especially helpful for ADHD and autism.",
+  "description": "Not just another family calendar.\n\n{{brand}} helps children understand their everyday routines — what is happening now, what comes next and what they have already achieved.\n\nIt was created for families who need more structure, predictability and visual support in everyday life.\n\nFor children with ADHD, autism — or simply those who benefit from clearer routines — {{brand}} turns the day into simple, manageable steps.\n\nEspecially useful for families with children who have ADHD, autism or other neurodivergent needs — but no diagnosis is required. {{brand}} does not treat ADHD or autism.\n\nChildren get clear visual routines, step-by-step support, and stars for what they have already done. Parents get schedules, rewards and a way to share a selected report.\n\nTerms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": {
+    "status": "live_external"
+  }
+}

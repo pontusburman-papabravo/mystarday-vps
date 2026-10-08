@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Következő tevékenység</string>
+    <string name="widget_routine_description">Fejezd be a rutin következő lépését anélkül, hogy megnyitnád az egész appot.</string>
+    <string name="widget_cd_pictogram">A tevékenység jele</string>
+    <string name="widget_cd_complete">Tevékenység késznek jelölése</string>
+    <string name="widget_cd_open_app">Megnyitás az appban</string>
+    <string name="widget_action_complete">Kész</string>
+    <string name="widget_action_open_timer">Homokóra megnyitása</string>
+    <string name="widget_action_show_steps">Lépések mutatása</string>
+    <string name="widget_action_open_app">App megnyitása</string>
+    <string name="widget_loading">Betöltés…</string>
+    <string name="widget_all_done">Mára minden kész!</string>
+    <string name="widget_nothing_now">Most nincs semmi</string>
+    <string name="widget_offline">Nincs kapcsolat</string>
+    <string name="widget_reauth">Lépj be az appban</string>
+    <string name="widget_revoked">Az eszköz hozzáférése visszavonva</string>
+    <string name="widget_switching">Gyerekváltás…</string>
+    <string name="widget_feedback_done">✓ Kész!</string>
+    <string name="widget_feedback_done_for">✓ Kész neki: %1$s</string>
+    <string name="widget_cd_child_prev">Előző gyerek</string>
+    <string name="widget_cd_child_next">Következő gyerek</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d / %2$d kész</string>
+    <string name="widget_private_activity">Következő lépés</string>
+    <string name="widget_configure_title">Válassz widgetet</string>
+    <string name="widget_configure_personal">Saját (egy gyerek)</string>
+    <string name="widget_configure_family">Család (gyerekváltás)</string>
+    <string name="widget_configure_save">Mentés</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

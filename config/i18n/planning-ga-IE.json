@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Pleanáil — {{brand}}",
+  "shell": {
+    "title": "Pleanáil",
+    "lead": "Roghnaigh an tseachtain, na gníomhaíochtaí, nó tuilleadh.",
+    "logout": "Logáil amach"
+  },
+  "sections": {
+    "planWeek": "Pleanáil an tseachtain",
+    "buildContent": "Tóg an t-ábhar",
+    "other": "Eile"
+  },
+  "primary": {
+    "week": { "title": "An tseachtain", "sub": "Liosta laethanta do sheachtain na bpáistí" },
+    "activities": { "title": "Gníomhaíochtaí", "sub": "An leabharlann — cruthaigh agus cuir in eagar" },
+    "more": { "title": "Tuilleadh", "sub": "Priontáil, teimpléid, agus uirlisí eile" }
+  },
+  "more": {
+    "title": "Tuilleadh",
+    "close": "Dún"
+  },
+  "links": {
+    "library": { "title": "Leabharlann", "sub": "Cruthaigh gníomhaíochtaí agus duaiseanna" },
+    "imageArchive": { "title": "Cartlann íomhánna", "sub": "Do ghrianghraif — scuab fiacla, leaba, scoil" },
+    "templates": { "title": "Teimpléid", "sub": "Pleananna sábháilte is féidir a úsáid arís" },
+    "weekSchedule": { "title": "Plean na seachtaine", "sub": "Cuir seachtain do pháiste in eagar" },
+    "calendar": { "title": "Féilire", "sub": "Feic an mhí agus laethanta speisialta" },
+    "custody": { "title": "Plean coimeádta", "sub": "Cúram roinnte idir teaghlaigh" },
+    "dailyLog": { "title": "Inniu", "sub": "Breathnaigh ar laethanta roimhe seo agus cuir iad in oiriúint" },
+    "printSchema": { "title": "Cruthaigh PDF — plean", "sub": "Priontáil plean" },
+    "assignSchedule": { "title": "Sann plean", "sub": "Cóipeáil plean chuig páiste" },
+    "reports": { "title": "Tuairiscí", "sub": "Dul chun cinn agus roinnt" },
+    "samarbete": { "title": "Comhoibriú le hoide", "sub": "Oibrigh le hoide" },
+    "barnStod": { "title": "Tacaíocht bhreise", "sub": "Tacaíocht amhairc agus TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Tosaigh",
+    "bodyBeforeLibrary": "Tosaigh sa ",
+    "libraryLink": "Leabharlann",
+    "bodyMiddle": " más mian leat gníomhaíochtaí a chruthú. Téigh go ",
+    "forYouLink": "Duitse",
+    "bodyAfter": " más mian leat moladh réidh."
+  }
+}

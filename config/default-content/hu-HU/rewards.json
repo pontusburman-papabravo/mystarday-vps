@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Extra képernyőidő",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Vacsora választása",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Kis ajándék",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

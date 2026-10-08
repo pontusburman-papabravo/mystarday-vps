@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Δημιουργία PDF — πρόγραμμα — {{brand}}",
+  "backLink": "← Πίσω στον Προγραμματισμό",
+  "heading": "📄 Δημιουργία PDF — πρόγραμμα",
+  "intro": "Διάλεξε παιδί και περίοδο. Η προεπισκόπηση δείχνει όλο το πρόγραμμα — το PDF προσαρμόζεται αυτόματα σε ένα φύλλο Α4 σε οριζόντιο προσανατολισμό.",
+  "pdfSave": {
+    "title": "Πού αποθηκεύεται το PDF;",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Μετά το <em>Δημιουργία PDF</em>, ανοίγει το φύλλο κοινοποίησης — διάλεξε <strong>Αποθήκευση στα Αρχεία</strong> και έναν φάκελο (π.χ. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Υπολογιστής:</strong> Το PDF πηγαίνει στον φάκελο <strong>Λήψεις</strong> (συχνά κάτω αριστερά στον browser)."
+  },
+  "sections": {
+    "child": "Παιδί",
+    "period": "Περίοδος",
+    "scope": "Τι να περιλαμβάνει το PDF;",
+    "startWeek": "Εβδομάδα έναρξης"
+  },
+  "period": {
+    "1w": "1 εβδομάδα",
+    "2w": "2 εβδομάδες",
+    "1m": "1 μήνας"
+  },
+  "scope": {
+    "all": "Πλήρες πρόγραμμα",
+    "my": "Μόνο οι μέρες μου"
+  },
+  "weekNav": {
+    "prevAria": "Προηγούμενη εβδομάδα",
+    "nextAria": "Επόμενη εβδομάδα",
+    "today": "Αυτή την εβδομάδα"
+  },
+  "actions": {
+    "preview": "Προεπισκόπηση",
+    "createPdf": "Δημιουργία PDF"
+  },
+  "preview": {
+    "heading": "Προεπισκόπηση",
+    "hint": "Κάνε κύλιση προς τα κάτω αν μια μέρα έχει πολλές δραστηριότητες."
+  },
+  "pdfHelp": {
+    "title": "Πώς να αποθηκεύσεις το PDF",
+    "closeAria": "Κλείσιμο",
+    "ok": "Εντάξει, το κατάλαβα",
+    "introShare": "Το φύλλο κοινοποίησης είναι ανοιχτό. Διάλεξε Αποθήκευση στα Αρχεία για να αποθηκεύσεις το PDF.",
+    "introPreview": "Το PDF άνοιξε στον browser{{filename}}.",
+    "introDesktop": "Το PDF κατέβηκε{{filename}}.",
+    "filenameSuffix": " ως {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Στο φύλλο κοινοποίησης: κάνε κύλιση και πάτα <strong>Αποθήκευση στα Αρχεία</strong>.",
+      "Διάλεξε φάκελο (π.χ. <strong>iCloud Drive</strong> ή <strong>Στο iPhone μου</strong>).",
+      "Πάτα <strong>Αποθήκευση</strong> πάνω δεξιά.",
+      "Βρες το αρχείο αργότερα στην εφαρμογή <strong>Αρχεία</strong>."
+    ],
+    "previewSteps": [
+      "Το PDF άνοιξε σε νέα προβολή — πάτα <strong>Κοινοποίηση</strong> (↑) πάνω δεξιά.",
+      "Διάλεξε <strong>Αποθήκευση στα Αρχεία</strong>.",
+      "Διάλεξε φάκελο και πάτα <strong>Αποθήκευση</strong>."
+    ],
+    "desktopSteps": [
+      "Άνοιξε τον φάκελο <strong>Λήψεις</strong> στον υπολογιστή σου.",
+      "Ψάξε ένα αρχείο που αρχίζει με <strong>{{prefix}}</strong> και τη σημερινή ημερομηνία."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Πρόγραμμα",
+    "titleMyDays": "Οι μέρες μου",
+    "emptyCell": "–",
+    "childFallback": "Παιδί",
+    "loadingPrint": "Ετοιμάζεται η εκτύπωση…",
+    "iframeTitle": "Εκτύπωση"
+  },
+  "filename": {
+    "prefixSchedule": "evdomadiaio-programma",
+    "prefixMyDays": "oi-meres-mou",
+    "fallbackSlug": "paidi"
+  },
+  "toasts": {
+    "loadChildrenError": "Δεν ήταν δυνατή η φόρτωση των παιδιών",
+    "selectChild": "Διάλεξε πρώτα ένα παιδί",
+    "loadingPreview": "Φόρτωση προεπισκόπησης…",
+    "noMyDays": "Δεν υπάρχουν μέρες για σένα στην επιλεγμένη περίοδο",
+    "loadScheduleError": "Δεν ήταν δυνατή η φόρτωση του προγράμματος",
+    "creatingPdf": "Δημιουργία PDF…",
+    "pdfCancelled": "Η αποθήκευση του PDF ακυρώθηκε",
+    "shareHint": "Διάλεξε Αποθήκευση στα Αρχεία στο φύλλο κοινοποίησης",
+    "mobileSavedHint": "Το PDF είναι έτοιμο — αποθήκευσέ το στα Αρχεία",
+    "desktopSavedHint": "Το PDF αποθηκεύτηκε στις Λήψεις",
+    "pdfLibsMissing": "Λείπουν τα εργαλεία PDF — φόρτωσε ξανά τη σελίδα και δοκίμασε πάλι",
+    "createPdfError": "Δεν ήταν δυνατή η δημιουργία του PDF",
+    "shareAgain": "Το PDF είναι έτοιμο. Πάτα ξανά Δημιουργία PDF για να διαλέξεις πού θα αποθηκευτεί."
+  },
+  "empty": {
+    "noChildren": "Δεν έχουν προστεθεί παιδιά ακόμα.",
+    "goDashboard": "Πήγαινε στην Αρχική"
+  }
+}

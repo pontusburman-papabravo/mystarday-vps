@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Nächste Aktivität</string>
+    <string name="widget_routine_description">Den nächsten Routineschritt erledigen, ohne die ganze App zu öffnen.</string>
+    <string name="widget_cd_pictogram">Aktivitätssymbol</string>
+    <string name="widget_cd_complete">Aktivität als erledigt markieren</string>
+    <string name="widget_cd_open_app">In der App öffnen</string>
+    <string name="widget_action_complete">Fertig</string>
+    <string name="widget_action_open_timer">Timer öffnen</string>
+    <string name="widget_action_show_steps">Schritte zeigen</string>
+    <string name="widget_action_open_app">App öffnen</string>
+    <string name="widget_loading">Wird geladen…</string>
+    <string name="widget_all_done">Heute alles geschafft!</string>
+    <string name="widget_nothing_now">Gerade nichts</string>
+    <string name="widget_offline">Keine Verbindung</string>
+    <string name="widget_reauth">In der App anmelden</string>
+    <string name="widget_revoked">Gerätezugriff entzogen</string>
+    <string name="widget_switching">Kind wird gewechselt…</string>
+    <string name="widget_feedback_done">✓ Fertig!</string>
+    <string name="widget_feedback_done_for">✓ Fertig für %1$s</string>
+    <string name="widget_cd_child_prev">Vorheriges Kind</string>
+    <string name="widget_cd_child_next">Nächstes Kind</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d von %2$d erledigt</string>
+    <string name="widget_private_activity">Nächster Schritt</string>
+    <string name="widget_configure_title">Widget wählen</string>
+    <string name="widget_configure_personal">Persönlich (ein Kind)</string>
+    <string name="widget_configure_family">Familie (Kind wechseln)</string>
+    <string name="widget_configure_save">Speichern</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

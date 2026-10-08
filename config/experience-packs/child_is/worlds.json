@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Morgungarhúsið",
+      "first_unlock_message": "Morgungarhúsið bíður þín",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Morgungarhúsið veit að þú ert hér.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Mjúkt ljós kviknar.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Hurðin",
+          "always_active": true,
+          "ambient_message_sv": "Hurðin titrar aðeins — eins og einhver bíði fyrir utan.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Úti bíður garðurinn…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Garðurinn",
+      "first_unlock_message": "Garðurinn bíður þín",
+      "ambient_message_sv": "Grasið hreyfist hægt í golunni.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Stígurinn",
+          "emoji": "🌿",
+          "ambient_message_sv": "Stígurinn liggur lengra inn í garðinn.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Stígurinn liggur að hlýju herbergi fullu af minningum…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Blómabeð",
+          "emoji": "🪴",
+          "ambient_message_sv": "Moldin er mjúk og hlý.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Himinninn",
+          "emoji": "☁️",
+          "ambient_message_sv": "Skýin færast hægt.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Minningaherbergið",
+      "first_unlock_message": "Hér er það sem þú hefur staðið þig vel í.",
+      "ambient_message_sv": "Hér er hlýtt og öruggt.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Glugginn",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Ljósið fellur mjúkt inn."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Minningaveggur",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Hér hangir það sem skiptir þig máli."
+        }
+      ]
+    }
+  ]
+}

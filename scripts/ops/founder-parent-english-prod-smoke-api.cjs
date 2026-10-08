@@ -200,7 +200,7 @@ async function runApiSmoke(opts = {}) {
       report.scenarios.sc3_separation = {
         parent_locale: pm3.preferred_locale,
         child_ui: c3.childMe?.child_ui_locale,
-        pass: pm3.preferred_locale === 'en-GB' && c3.childMe?.child_ui_locale === 'sv-SE',
+        pass: pm3.preferred_locale === 'en-GB' && c3.childMe?.child_ui_locale === 'en-GB',
       };
     } else {
       const vpsRequired = { pass: false, reason: 'FOUNDER_SMOKE_VPS=1 not set' };

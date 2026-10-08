@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Piano — {{brand}}",
+  "shell": {
+    "title": "Piano",
+    "lead": "Scegli la settimana, le attività o altro.",
+    "logout": "Esci"
+  },
+  "sections": {
+    "planWeek": "Pianifica la settimana",
+    "buildContent": "Crea i contenuti",
+    "other": "Altro"
+  },
+  "primary": {
+    "week": { "title": "La settimana", "sub": "L'elenco dei giorni nella settimana dei tuoi bambini" },
+    "activities": { "title": "Attività", "sub": "La libreria — crea e modifica" },
+    "more": { "title": "Altro", "sub": "Stampa, modelli e altri strumenti" }
+  },
+  "more": {
+    "title": "Altro",
+    "close": "Chiudi"
+  },
+  "links": {
+    "library": { "title": "Libreria", "sub": "Crea attività e ricompense" },
+    "imageArchive": { "title": "Archivio immagini", "sub": "Le tue foto — spazzolino, letto, scuola" },
+    "templates": { "title": "Modelli", "sub": "Piani salvati da riusare" },
+    "weekSchedule": { "title": "Piano della settimana", "sub": "Modifica la settimana del tuo bambino" },
+    "calendar": { "title": "Calendario", "sub": "Vedi il mese e i giorni speciali" },
+    "custody": { "title": "Piano di affido", "sub": "Cura condivisa tra due case" },
+    "dailyLog": { "title": "Oggi", "sub": "Vedi e sistema i giorni passati" },
+    "printSchema": { "title": "Crea PDF — piano", "sub": "Stampa un piano" },
+    "assignSchedule": { "title": "Assegna il piano", "sub": "Copia un piano a un bambino" },
+    "reports": { "title": "Riepiloghi", "sub": "Progressi e condivisione" },
+    "samarbete": { "title": "Collaborazione con l'educatore", "sub": "Lavora con un educatore" },
+    "barnStod": { "title": "Supporto in più", "sub": "Supporto visivo e TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Per iniziare",
+    "bodyBeforeLibrary": "Inizia nella ",
+    "libraryLink": "Libreria",
+    "bodyMiddle": " se vuoi creare attività. Vai in ",
+    "forYouLink": "Per te",
+    "bodyAfter": " se vuoi un consiglio già pronto."
+  }
+}

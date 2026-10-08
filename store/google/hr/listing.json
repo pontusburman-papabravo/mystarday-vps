@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Vizualne rutine, zvjezdice i nagrade za djecu kojima treba oslonca",
+  "fullDescription": "Ovo nije još jedan kalendar.\n\n{{brand}} pomaže djeci razumjeti dan: što je sada, što dolazi poslije i što je već uspjelo.\n\nAplikacija je za obitelji kojima treba više oslonca, više predvidljivosti i više vizualne podrške u svakodnevici.\n\nZa dijete s ADHD-om, autizmom ili jednostavno za nekoga kome pomažu jasniji koraci, {{brand}} dijeli dan na male, izvedive korake.\n\nPosebno pomaže kad dijete ima ADHD, autizam ili druge neurorazličite potrebe. Dijagnoza nije potrebna. {{brand}} ne liječi ADHD ni autizam.\n\nDijete vidi vizualne rutine, korak po korak, i zvjezdice za ono što je već napravljeno. Roditelji pripremaju raspored, nagrade i mogu podijeliti odabrano izvješće.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Hrvatski je sada u aplikaciji. Rutine, izvješća i dječji prikaz prate jezik obitelji."
+}

@@ -1,0 +1,18 @@
+{
+  "name": "{{brand}}",
+  "shortDescription": "Rutine vizuale, stele și recompense pentru copiii care au nevoie de sprijin",
+  "fullDescription": "Nu e încă un calendar.\n\n{{brand}} îi ajută pe copii să înțeleagă ziua: ce e acum, ce urmează și ce a mers deja.\n\nAplicația e pentru familiile care au nevoie de mai mult sprijin, mai multă previzibilitate și mai mult ajutor vizual în fiecare zi.\n\nPentru un copil cu ADHD, autism sau pur și simplu pentru cineva căruia îi prind bine pași mai clari, {{brand}} împarte ziua în pași mici, posibili.\n\nAjută mai ales când copilul are ADHD, autism sau alte nevoi neurodivergente. Nu e nevoie de diagnostic. {{brand}} nu tratează ADHD și nici autismul.\n\nCopilul vede rutine vizuale, pas cu pas, și stele pentru ce a făcut deja. Părinții pregătesc programul, recompensele și pot împărtăși un raport ales.",
+  "privacyPolicyUrl": {
+    "host": "app",
+    "path": "/en/privacy"
+  },
+  "supportUrl": {
+    "host": "app",
+    "path": "/en/contact"
+  },
+  "marketingUrl": {
+    "host": "app",
+    "path": "/en"
+  },
+  "releaseNotes": "Româna e acum în aplicație. Rutinele, rapoartele și vederea copilului urmează limba familiei."
+}

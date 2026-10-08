@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Domov",
+    "planning": "Plánovanie",
+    "rewards": "Odmeny",
+    "forYou": "Pre teba",
+    "family": "Rodina"
+  },
+  "settings": "Nastavenia",
+  "mainAria": "Hlavná navigácia",
+  "notifications": "Upozornenia",
+  "share": "Zdieľať",
+  "logout": "Odhlásiť sa",
+  "switchUser": "Prepnúť profil",
+  "returnToChild": "Späť k dieťaťu",
+  "darkMode": "Tmavý režim",
+  "lightMode": "Svetlý režim",
+  "overview": "Prehľad",
+  "dailyLog": "Dnes",
+  "weekSchedule": "Plán",
+  "reports": "Správy",
+  "library": "Knižnica",
+  "libraryAdvanced": "📚 Knižnica (pokročilé)",
+  "pedagogNotes": "📝 Poznámky pedagóga",
+  "treasureChest": "Pokladnica",
+  "familySettings": "Rodina a nastavenia",
+  "capability": {
+    "subscription": "Predplatné",
+    "reports": "Správy",
+    "samarbete": "Spolupráca s pedagógom",
+    "barnStod": "Extra podpora"
+  },
+  "header": {
+    "notifications": "Upozornenia",
+    "settings": "Nastavenia",
+    "share": "Zdieľať",
+    "shareTitle": "Povedz o aplikácii ďalšej rodine!",
+    "shareAria": "Zdieľať"
+  },
+  "avatar": {
+    "switchPedagog": "Prepnúť na pohľad pedagóga",
+    "subscription": "Predplatné",
+    "settings": "Nastavenia",
+    "logout": "Odhlásiť sa"
+  },
+  "mobile": {
+    "openMenu": "Otvoriť menu",
+    "darkModeTitle": "Tmavý režim",
+    "darkModeAria": "Prepnúť tmavý režim"
+  }
+}

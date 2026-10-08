@@ -1,0 +1,32 @@
+[
+  {
+    "key": "forskola",
+    "name": "Óvoda",
+    "sort_order": 0
+  },
+  {
+    "key": "skola",
+    "name": "Iskola",
+    "sort_order": 1
+  },
+  {
+    "key": "morgon",
+    "name": "Reggel",
+    "sort_order": 2
+  },
+  {
+    "key": "dag",
+    "name": "Nap",
+    "sort_order": 3
+  },
+  {
+    "key": "kvall",
+    "name": "Este",
+    "sort_order": 4
+  },
+  {
+    "key": "helg",
+    "name": "Hétvége",
+    "sort_order": 5
+  }
+]

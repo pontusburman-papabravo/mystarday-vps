@@ -588,6 +588,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function childGateCopy(key) {
+    try {
+      if (window.I18n && typeof I18n.t === 'function') {
+        const value = I18n.t(key);
+        if (value && value !== key) return value;
+      }
+    } catch (_) { /* English safety net below */ }
+    const fallback = {
+      'child.sessionGate.title': 'Log in as the child to see the plan',
+      'child.sessionGate.body': "This view needs the child's PIN.",
+      'child.sessionGate.cta': 'Log in as the child',
+    };
+    return fallback[key] || key;
+  }
+
   const localUser = Auth.getUser();
   const hasCookie = document.cookie.includes('access_token=');
 
@@ -607,9 +622,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('scheduleView').innerHTML = `
       <div class="text-center py-12 bg-white rounded-2xl mt-2">
         <p class="text-4xl mb-3">🔒</p>
-        <p class="text-navy font-semibold mb-1">Logga in som barn för att se schemat</p>
-        <p class="text-text-soft text-sm mb-4">Den här vyn kräver barnets PIN-kod.</p>
-        <a href="/child-login" class="inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold">Logga in som barn</a>
+        <p class="text-navy font-semibold mb-1">${childGateCopy('child.sessionGate.title')}</p>
+        <p class="text-text-soft text-sm mb-4">${childGateCopy('child.sessionGate.body')}</p>
+        <a href="/child-login" class="inline-block px-6 py-2 bg-gold text-white rounded-xl font-semibold">${childGateCopy('child.sessionGate.cta')}</a>
       </div>`;
     return;
   }

@@ -1,0 +1,32 @@
+[
+  {
+    "key": "forskola",
+    "name": "Škôlka",
+    "sort_order": 0
+  },
+  {
+    "key": "skola",
+    "name": "Škola",
+    "sort_order": 1
+  },
+  {
+    "key": "morgon",
+    "name": "Ráno",
+    "sort_order": 2
+  },
+  {
+    "key": "dag",
+    "name": "Deň",
+    "sort_order": 3
+  },
+  {
+    "key": "kvall",
+    "name": "Večer",
+    "sort_order": 4
+  },
+  {
+    "key": "helg",
+    "name": "Víkend",
+    "sort_order": 5
+  }
+]

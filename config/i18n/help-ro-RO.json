@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Ajutor",
+    "openAria": "Deschide ajutorul",
+    "closeAria": "Închide ajutorul"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Ajutor – Prezentare",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Prezentare",
+          "faqs": [
+            {
+              "q": "Ce fac cele 3 butoane rapide de sus?",
+              "a": "<strong>⭐ Dă stele bonus</strong> — dă unui copil stele bonus manual. <strong>📋 Activitate unică</strong> — adaugă o activitate temporară pentru azi. <strong>🏠 Zi liberă</strong> — pune programul copilului pe pauză pentru o zi (de ex. zi de boală, vacanță)."
+            },
+            {
+              "q": "Cum bifez o activitate?",
+              "a": "Apasă activitatea de pe cardul copilului — se bifează imediat. Copilul poate bifa și în <strong>vederea copilului</strong>."
+            },
+            {
+              "q": "Ce e un card compact de copil?",
+              "a": "Cardul copilului arată avatarul, numele, soldul de stele și pastilele de secțiune în modul compact. Extinde cardul pentru mai multe detalii, un link către program și butonul de pauză."
+            },
+            {
+              "q": "Ce e ziua liberă?",
+              "a": "<strong>🏠 Zi liberă</strong> pune programul copilului pe pauză pentru ziua aleasă — perfect când e bolnav sau în vacanță. Copilul vede programul ca inactiv. Pornește ziua la loc cu același buton."
+            },
+            {
+              "q": "Ce e modul pauză?",
+              "a": "Apasă pictograma de pauză (⏸) de pe cardul copilului ca să pui un copil pe pauză. Activitățile apar inactive și copilul nu primește stele până reiei."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stele",
+          "faqs": [
+            {
+              "q": "Cum câștigă copilul meu stele?",
+              "a": "Fiecare activitate terminată aduce <strong>1 stea</strong>. Copilul bifează în vederea copilului — sau poți bifa tu în Jurnalul zilei cât testezi. Dă stele bonus cu butonul ⭐ de deasupra cardurilor de copil."
+            },
+            {
+              "q": "Cum funcționează Cufărul cu comori?",
+              "a": "Copilul deschide Cufărul cu comori prin fila 💎 din vederea copilului și vede recompensele cu prețuri în stele. Când a strâns destul, poate cere o recompensă — tu o aprobi."
+            },
+            {
+              "q": "Cum adaug recompense?",
+              "a": "Mergi la <strong>Bibliotecă</strong> în meniu → fila „Recompense”. Adaugă propriile recompense, editează costul în stele și alege ce copii le văd."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Program",
+          "faqs": [
+            {
+              "q": "Cum adaug o activitate?",
+              "a": "Mergi la <strong>Program săptămânal</strong> → alege copilul → alege ziua → apasă „+” ca să adaugi o activitate din bibliotecă. Poți căuta printre 63 de activități standard."
+            },
+            {
+              "q": "Cum copiez un program în fiecare zi?",
+              "a": "În Program săptămânal → „Copiază din…” → alege o sursă (programul tău sau biblioteca standard) → bifează zilele în care vrei să copiezi."
+            },
+            {
+              "q": "Ce e vederea Azi?",
+              "a": "Vederea „Azi” din Prezentare se actualizează automat când schimbi programul. Schimbările din Program săptămânal apar imediat în Prezentare și în vederea copilului."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Familie",
+          "faqs": [
+            {
+              "q": "Cum invit încă un adult?",
+              "a": "Mergi la <strong>Familie și setări → Membrii familiei</strong> → apasă „Invită”. Persoana invitată primește un e-mail cu un link de autentificare."
+            },
+            {
+              "q": "Cum văd ziua copilului?",
+              "a": "Deschide <strong>Jurnalul zilei</strong> în meniu — acolo vezi activitățile de azi așa cum le va vedea copilul. Perfect în prima seară, înainte ca copilul să se autentifice singur."
+            },
+            {
+              "q": "Cum intră copilul meu?",
+              "a": "Când ești gata: copilul se autentifică la <strong>/child-login</strong> cu utilizator și PIN. Găsești datele la <strong>Familie și setări → Copii</strong>."
+            },
+            {
+              "q": "Contactează suportul",
+              "a": "Scrie-ne la <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — răspundem în 24 de ore."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Ajutor – Recompense",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Recompense",
+          "faqs": [
+            {
+              "q": "Cum funcționează sistemul de recompense?",
+              "a": "Copilul strânge stele terminând activități. Când soldul ajunge pentru o recompensă, poate cere să o folosească — tu aprobi sau refuzi."
+            },
+            {
+              "q": "Cum adaug recompense noi?",
+              "a": "Mergi la <strong>Bibliotecă</strong> în meniu → fila „Recompense” → caută sau apasă „+ Adaugă recompensă”. Poți copia și direct din biblioteca standard."
+            },
+            {
+              "q": "Cum controlez vizibilitatea pe copil?",
+              "a": "Când creezi sau editezi o recompensă, alegi ce copii o văd. Util pentru recompense potrivite fiecărui copil."
+            },
+            {
+              "q": "Cum aprob o cerere de folosire?",
+              "a": "Cererea copilului apare în Prezentare, cu o insignă. Apasă ca să aprobi. Stelele se scad automat și copilul vede schimbarea imediat."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stele",
+          "faqs": [
+            {
+              "q": "Cum câștigă copilul meu stele?",
+              "a": "Fiecare activitate terminată aduce stele (1 stea per activitate, implicit). Poți da și stele bonus cu butonul ⭐ din Prezentare."
+            },
+            {
+              "q": "Ce e soldul de stele față de progresul zilnic?",
+              "a": "<strong>Sold de stele</strong> = soldul total strâns. <strong>Progres zilnic</strong> (cercul din jurul emoji-ului) = câte activități a terminat copilul azi. Sunt lucruri separate."
+            },
+            {
+              "q": "Ce se întâmplă când se folosește o recompensă?",
+              "a": "Stelele se scad automat din contul copilului. Copilul vede schimbarea imediat în Cufărul cu comori. Tu vezi istoricul pe pagina Recompense."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Ajutor – Program săptămânal",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Editează programul",
+          "faqs": [
+            {
+              "q": "Cum adaug o activitate?",
+              "a": "Alege ziua → apasă „+” → caută și alege o activitate. Poți alege <strong>mai multe intervale deodată</strong> (Dimineață + Seară) și activitatea se adaugă în toate."
+            },
+            {
+              "q": "Cum creez o activitate nouă direct în program?",
+              "a": "Apasă „+” → caută → dacă nu se potrivește nimic, formularul „Creează nou” apare în fereastra de căutare. Completează numele, emoji-ul, valoarea în stele și eventualii pași."
+            },
+            {
+              "q": "Cum editez numele sau emoji-ul unei activități?",
+              "a": "Apasă numele sau emoji-ul activității în program → se deschide fereastra de editare. Schimbările se aplică automat tuturor copiilor și zilelor."
+            },
+            {
+              "q": "Cum copiez un program de la alt copil?",
+              "a": "Apasă „Copiază din…” → alege sursa → bifează zilele în care vrei să copiezi. Alege dacă suprascrii conținutul existent."
+            },
+            {
+              "q": "Programul se sincronizează automat cu vederea copilului?",
+              "a": "Da! Schimbările din Program săptămânal se sincronizează imediat cu vederea „Azi” din Prezentare și cu vederea copilului — fără actualizări manuale."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliotecă",
+          "faqs": [
+            {
+              "q": "Ce e biblioteca standard?",
+              "a": "Biblioteca standard are 63 de activități gata făcute în 6 categorii și 5 șabloane de program. Apasă „Inserare rapidă din bibliotecă” ca să le adaugi în program."
+            },
+            {
+              "q": "Cum copiez un program standard?",
+              "a": "La fila Program → „Copiază din…” → alege „Bibliotecă standard” → alege un program → alege zilele → copiază."
+            },
+            {
+              "q": "De ce nu vede copilul meu nicio activitate?",
+              "a": "Verifică dacă programul e setat pentru copilul potrivit și dacă există activități pentru ziua de azi. Program gol? Copiază din biblioteca standard ca să pornești repede."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Sfaturi",
+          "faqs": [
+            {
+              "q": "Cum construiesc un program de rutină bun?",
+              "a": "Începe cu 3–5 activități fixe (mic dejun, spălat pe dinți, teme). Pune-le în ordinea potrivită. Copiii învață rutina repede când rămâne consecventă."
+            },
+            {
+              "q": "Ce sunt pașii mici la activități?",
+              "a": "Poți adăuga pași la activități (de ex. „Spală mâinile”, „Pune pijamaua” sub „Rutina de seară”). Copilul îi vede ca ghid vizual, dar bifează toată activitatea dintr-o dată."
+            },
+            {
+              "q": "Câte activități pe zi?",
+              "a": "Recomandat: 4–8 activități. Prea puține și nu e ritm; prea multe și pare copleșitor. Începe mic și crește."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Ajutor – Familie și setări",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Copii",
+          "faqs": [
+            {
+              "q": "Cum adaug un copil?",
+              "a": "Mergi la Prezentare → apasă „+ Adaugă copil”. Completează numele, emoji-ul și ziua de naștere. Copilul primește automat un program după vârstă."
+            },
+            {
+              "q": "Cum schimb PIN-ul copilului?",
+              "a": "Apasă cardul copilului → fila „Setări” → „Schimbă PIN-ul”. Alege un PIN nou de 4 cifre."
+            },
+            {
+              "q": "Copilul meu trebuie să facă activitățile în ordine — pot schimba asta?",
+              "a": "Implicit e bifarea liberă. Pentru ordine ghidată, mergi la profilul copilului → fila <strong>Setări</strong> → pornește <strong>ACUM / URMĂTORUL / MAI TÂRZIU</strong>."
+            },
+            {
+              "q": "Cum își vede copilul datele de intrare?",
+              "a": "Apasă cardul copilului → fila „Setări” → „Arată datele de autentificare”. Vei vedea utilizatorul și PIN-ul copilului."
+            },
+            {
+              "q": "Cum elimin un copil?",
+              "a": "Familie → alege copilul → fila Setări → „Șterge copilul definitiv”. Notă: tot istoricul de program, stele și recompense se șterge și nu se poate anula."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Adulți",
+          "faqs": [
+            {
+              "q": "Cum invit încă un adult?",
+              "a": "Mergi la fila <strong>Membrii familiei</strong> → „Invită”. Persoana invitată primește un e-mail cu un link ca să creeze un cont."
+            },
+            {
+              "q": "Pot alege ce copii vede un adult?",
+              "a": "Da! Alegi la ce copii au acces când trimiți invitația. Poți schimba asta mai târziu la Membrii familiei → persoana → Acces la copii."
+            },
+            {
+              "q": "Cum elimin un membru al familiei?",
+              "a": "Apasă persoana din lista Membrii familiei → „Elimină”. Pierde accesul la familie imediat."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Setări",
+          "faqs": [
+            {
+              "q": "Cum îmi schimb parola?",
+              "a": "Mergi la <strong>Setări</strong> (⚙️) în meniu → „Schimbă parola”. Ai nevoie de parola actuală."
+            },
+            {
+              "q": "Cum pornesc notificările?",
+              "a": "Mergi la Setări → „Mementouri” → pornește notificările și alege orele. Notificările au nevoie de permisiunea browserului."
+            },
+            {
+              "q": "Contactează suportul",
+              "a": "Scrie-ne la <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — răspundem în 24 de ore."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Ajutor – Activități",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Gestionează",
+          "faqs": [
+            {
+              "q": "Ce e o activitate?",
+              "a": "O <strong>activitate</strong> e o sarcină pe care o face copilul (de ex. „Spală dinții”). Activitățile aduc 1–5 stele și pot avea pași. Adună-le în bibliotecă și adaugă-le în programele copiilor."
+            },
+            {
+              "q": "Cum creez o activitate nouă?",
+              "a": "Apasă „+ Activitate nouă” → completează numele, categoria (Igienă, Mâncare, Joacă etc.), durata și valoarea în stele. Salvează și activitatea se adaugă în bibliotecă."
+            },
+            {
+              "q": "Cum adaug o activitate în program?",
+              "a": "Activitățile stau în bibliotecă. Mergi la Program săptămânal → alege ziua → „+” → alege activitatea pe care vrei să o adaugi."
+            },
+            {
+              "q": "Cum elimin o activitate din fiecare zi?",
+              "a": "Apasă ✕ pe activitate → alege <strong>În fiecare zi a săptămânii</strong>. Ca să elimini doar azi sau o zi din săptămână (de ex. în fiecare joi), există opțiuni separate."
+            },
+            {
+              "q": "Cum editez o activitate?",
+              "a": "Apasă activitatea din listă → „Editează”. Schimbările se aplică imediat în fiecare program unde e folosită activitatea."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Categorii",
+          "faqs": [
+            {
+              "q": "La ce folosesc categoriile?",
+              "a": "Categoriile colorează activitățile în vederea copilului. <strong>Igienă</strong>=albastru, <strong>Mâncare</strong>=galben, <strong>Joacă</strong>=verde, <strong>Școală</strong>=mov, <strong>Mișcare</strong>=roșu, <strong>Odihnă</strong>=gri, <strong>Social</strong>=portocaliu."
+            },
+            {
+              "q": "Cum aleg o categorie?",
+              "a": "Când creezi sau editezi o activitate, alege o categorie din listă. Alege-o pe cea care descrie cel mai bine activitatea."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Ajutor – Bibliotecă",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ File",
+          "faqs": [
+            {
+              "q": "Ce file sunt în bibliotecă?",
+              "a": "<strong>Programe</strong> — șabloanele tale de program. <strong>Activități</strong> — biblioteca de activități cu pași. <strong>Recompense</strong> — recompensele tale. <strong>Bibliotecă standard</strong> — 63 de activități, 15 recompense și 5 programe de copiat."
+            },
+            {
+              "q": "Cum copiez din biblioteca standard?",
+              "a": "Mergi la fila „Bibliotecă standard” → alege activitate sau recompensă → apasă butonul 📥 ca să copiezi în biblioteca familiei. Programele se copiază prin Program săptămânal → „Copiază din…”."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Activități",
+          "faqs": [
+            {
+              "q": "Cum creez o activitate nouă?",
+              "a": "Apasă „+ Activitate nouă” → completează numele, emoji-ul (alege sau scrie-l tu), valoarea în stele și eventualii pași → salvează. Activitatea se salvează în bibliotecă pentru toată familia."
+            },
+            {
+              "q": "Ce sunt pașii mici?",
+              "a": "Pașii secundari sunt instrucțiuni pas cu pas sub o activitate (de ex. „Spală mâinile” sub „Igienă”). Copilul îi vede ca ghid, dar bifează toată activitatea dintr-o atingere."
+            },
+            {
+              "q": "Cum editez o activitate?",
+              "a": "Apasă numele activității în program — se deschide fereastra de editare. Schimbările (nume, emoji, pași) se aplică automat tuturor copiilor și zilelor."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Recompense",
+          "faqs": [
+            {
+              "q": "Cum adaug o recompensă?",
+              "a": "Fila „Recompense” → caută o recompensă → apasă „+ Creează nouă” dacă nu există → completează numele, emoji-ul, prețul în stele → alege ce copii o văd → salvează."
+            },
+            {
+              "q": "Cum caut recompense?",
+              "a": "Căutarea se uită în recompensele tale și în biblioteca standard în același timp. Nicio potrivire? Butonul „Creează [nume]” deschide un formular precompletat."
+            },
+            {
+              "q": "Poate un copil avea recompense private?",
+              "a": "Da! Când creezi recompensa, alegi ce copii o văd. Util pentru recompense potrivite fiecărui copil."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Ajutor – Setări",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Cont",
+          "faqs": [
+            {
+              "q": "Cum îmi schimb parola?",
+              "a": "Introdu parola actuală și parola nouă → apasă „Salvează”. Parola trebuie să aibă cel puțin 6 caractere."
+            },
+            {
+              "q": "Cum îmi schimb adresa de e-mail?",
+              "a": "Introdu noua adresă de e-mail → apasă „Salvează”. Poate trebuie să verifici adresa nouă prin e-mail."
+            },
+            {
+              "q": "Cum îmi șterg contul?",
+              "a": "Contactează-ne la <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> pentru ștergerea contului. O rezolvăm în 48 de ore."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notificări",
+          "faqs": [
+            {
+              "q": "Cum pornesc mementourile?",
+              "a": "Pornește comutatorul de la „Mementouri” → alege ora și zilele. Browserul trebuie să permită notificările."
+            },
+            {
+              "q": "Nu primesc notificări, deși sunt pornite",
+              "a": "Verifică dacă browserul a permis notificările pentru site. Mergi la setările browserului → Notificări → găsește [REDACTED].se → Permite."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Ajutor – Calendar",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Calendar",
+          "faqs": [
+            {
+              "q": "Ce arată calendarul?",
+              "a": "Calendarul oferă o privire de lună asupra activităților copilului, recompenselor folosite și evenimentelor importante."
+            },
+            {
+              "q": "Cum trec de la o lună la alta?",
+              "a": "Apasă săgețile (< >) de lângă numele lunii ca să schimbi luna."
+            },
+            {
+              "q": "Cum văd mai multe detalii pentru o zi?",
+              "a": "Apasă o dată ca să vezi lista detaliată de activități și stele pentru ziua aia."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Ajutor – Jurnalul zilei",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Jurnal",
+          "faqs": [
+            {
+              "q": "Ce e jurnalul zilei?",
+              "a": "Jurnalul arată ziua copilului — activități, bifări și stele. Folosește-l ca să <strong>previzualizezi</strong> ce vede copilul sau ca să completezi după aceea."
+            },
+            {
+              "q": "Cum filtrez jurnalul?",
+              "a": "Alege un copil în filtrul de sus ca să arăți jurnalul doar pentru un copil. Poți filtra și după dată."
+            },
+            {
+              "q": "Cât de departe pot privi?",
+              "a": "Jurnalul păstrează datele din ziua în care ai început să folosești [REDACTED]. Derulează sau alege o dată ca să vezi date mai vechi. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Ajutor – Alege programul pe zi",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Atribuie programul",
+          "faqs": [
+            {
+              "q": "Ce e „Alege programul pe zi”?",
+              "a": "Aici alegi ce program săptămânal e activ pentru fiecare copil și zi. Util dacă ai rutine diferite în zilele de lucru și în weekend."
+            },
+            {
+              "q": "Poate un copil avea programe diferite în zilele de lucru și în weekend?",
+              "a": "Da! Alege un program pentru lun–vin și altul pentru sâm–dum. Apasă ziua și alege programul dorit."
+            },
+            {
+              "q": "Ce se întâmplă dacă nu e atribuită nicio zi?",
+              "a": "Dacă nicio zi nu are un program atribuit, copilul nu vede activități în ziua aia. Asigură-te că fiecare zi pe care vrei să o folosești are un program."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Panou admin",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Prezentare",
+          "faqs": [
+            {
+              "q": "Ce pot face în panoul de admin?",
+              "a": "Panoul de admin îți dă acces la toate familiile, utilizatorii și datele de sistem. Poți vedea statistici, gestiona conturi și modera conținut."
+            },
+            {
+              "q": "Cum găsesc un utilizator anume?",
+              "a": "Folosește câmpul de căutare de sus ca să cauți după e-mail sau nume. Apasă o familie ca să vezi detaliile."
+            },
+            {
+              "q": "Cum arhivez o familie?",
+              "a": "Apasă cardul familiei → „Arhivă”. Familiile arhivate pot fi restaurate, dar rămân inactive până atunci."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Suport",
+          "faqs": [
+            {
+              "q": "Cum văd mesajele de suport primite?",
+              "a": "La fila „Inbox de asistență” vezi fiecare mesaj trimis prin formularul de contact. Apasă ca să citești textul întreg și să răspunzi."
+            },
+            {
+              "q": "Cum marchez un caz ca rezolvat?",
+              "a": "Apasă cazul → „Marchează ca rezolvat”. Cazurile rezolvate sunt filtrate din vederea implicită, dar pot fi arătate cu „Arată rezolvate”."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Sprijin pentru copil — {{brand}}",
+    "loadError": "Nu s-a putut încărca pagina."
+  },
+  "supportSvar": {
+    "pageTitle": "Cazul tău",
+    "title": "Cazul tău",
+    "intro": "Aici e toată conversația. Scrie mai jos dacă vrei să continui. Un răspuns normal pe e-mail nu apare aici.",
+    "sent": "Trimis. Îl vedem în același caz.",
+    "escalate": "Am nevoie de mai mult ajutor de la o persoană",
+    "placeholder": "Scrie ce se întâmplă…"
+  }
+}

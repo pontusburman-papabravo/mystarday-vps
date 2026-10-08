@@ -9,10 +9,10 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 
 describe('i18n child core', () => {
-  it('resolveChildUiLocale gates en-GB behind english_child_experience', () => {
+  it('resolveChildUiLocale follows family locale without the child flag', () => {
     const { resolveChildUiLocale } = require('../src/lib/child-ui-locale');
-    assert.equal(resolveChildUiLocale('sv-SE', true), 'sv-SE');
-    assert.equal(resolveChildUiLocale('en-GB', false), 'sv-SE');
+    assert.equal(resolveChildUiLocale('sv-SE', false), 'sv-SE');
+    assert.equal(resolveChildUiLocale('en-GB', false), 'en-GB');
     assert.equal(resolveChildUiLocale('en-GB', true), 'en-GB');
     assert.equal(resolveChildUiLocale(null, true), 'sv-SE');
   });
@@ -92,10 +92,10 @@ describe('i18n child core', () => {
     assert.equal(report.totals.schema_diff_files, 0);
   });
 
-  it('experience pack selects child_en only when english_child_experience ON', () => {
+  it('experience pack follows the family locale pack', () => {
     const { experiencePackIdForLocale } = require('../src/lib/locale');
-    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_se');
-    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }), 'child_en');
+    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_en');
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
     assert.equal(experiencePackIdForLocale('sv-SE', { englishChildExperienceEnabled: true }), 'child_se');
   });
 });

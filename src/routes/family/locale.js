@@ -12,7 +12,7 @@ const db = require('../../lib/db');
 const { requireNotPedagogOnly } = require('../../middleware/authz');
 const { validate } = require('../../middleware/validate');
 const { EnglishBetaOfferSchema } = require('../../lib/schemas');
-const { validateLocale } = require('../../lib/locale');
+const { validateLocale, SUPPORTED_LOCALES } = require('../../lib/locale');
 const {
   OFFER_STATES,
   SELECTION_SOURCES,
@@ -60,7 +60,7 @@ router.get('/locale-context', requireNotPedagogOnly, async (req, res) => {
     res.json({
       ...context,
       english_app_enabled: englishApp,
-      supported_locales: ['sv-SE', 'en-GB'],
+      supported_locales: [...SUPPORTED_LOCALES],
     });
   } catch (err) {
     console.error('[FAMILY] locale-context error:', err);

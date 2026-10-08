@@ -25,11 +25,6 @@
     return 'sv-SE';
   }
 
-  function isEnglishChrome() {
-    const lang = String(currentChromeLang() || '');
-    return lang === 'en-GB' || lang === 'en' || lang.indexOf('en') === 0;
-  }
-
   function tryTranslate(fn, key) {
     if (typeof fn !== 'function' || !key) return '';
     try {
@@ -53,7 +48,10 @@
       const value = tryTranslate(pair[0], pair[1]);
       if (!isUnresolvedKey(value, pair[1])) return value;
     }
-    return isEnglishChrome() ? fallbackEn : fallbackSv;
+    const configured = (window.I18n && window.I18n.DEFAULT_LOCALE) || 'sv-SE';
+    const base = String(currentChromeLang() || configured).split(/[-_]/)[0].toLowerCase();
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    return base === configuredBase ? fallbackSv : fallbackEn;
   }
 
   function i18nT(key) {

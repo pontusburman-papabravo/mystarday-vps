@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Hrdý okamih — krok za krokom, nie stena trofejí"
+    },
+    "remembered_gift": {
+      "description": "Odmena ako teplá spomienka — nie obchod"
+    },
+    "warm_echo": {
+      "description": "Jemný pokrok bez tlaku a bez sérií"
+    }
+  }
+}

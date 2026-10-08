@@ -1,0 +1,22 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Lugnare rutiner i vardagen",
+  "keywords": "dagliga scheman familj föräldrar rutiner aktiviteter vardag",
+  "promotionalText": "Skapa dagsscheman, ge stjärnor och låt barnen följa sin egen vy. {{brand}} – ordning och glädje för hela familjen.",
+  "description": "{{brand}} hjälper föräldrar och barn att få en lugnare vardag — tillsammans.\n\nFör föräldrar: skapa dagsscheman med aktiviteter och belöningar, följ hur det går och ge stjärnor. Dela utvald information med förskola eller skola via säkra delningslänkar.\n\nFör barn: en egen PIN-kod och en stjärnbaserad vy med dagens schema.\n\nVad du får:\n- Dagliga och veckovisa scheman\n- Stjärnbelöningar och Skattkammaren\n- Påminnelser och delning av rapporter\n\nAnvändarvillkor (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": {
+    "host": "main",
+    "path": "/privacy"
+  },
+  "supportUrl": {
+    "host": "main",
+    "path": "/kontakt"
+  },
+  "marketingUrl": {
+    "host": "main",
+    "path": "/"
+  },
+  "releaseNotes": {
+    "status": "live_external"
+  }
+}

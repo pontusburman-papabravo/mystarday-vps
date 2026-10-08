@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Cabhair",
+    "openAria": "Oscail cabhair",
+    "closeAria": "Dún an chabhair"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Cabhair – Forbhreathnú",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Forbhreathnú",
+          "faqs": [
+            {
+              "q": "Cad a dhéanann na 3 chnaipe tapa ag an mbarr?",
+              "a": "<strong>⭐ Tabhair réaltaí bónais</strong> — tabhair réaltaí bónais do pháiste de láimh. <strong>📋 Gníomhaíocht aonuaire</strong> — cuir gníomhaíocht shealadach leis inniu. <strong>🏠 Lá saor</strong> — cuireann sé plean an pháiste ar sos ar feadh lae (m.sh. lá breoiteachta, saoire)."
+            },
+            {
+              "q": "Conas a thicéalaím gníomhaíocht?",
+              "a": "Tapáil an ghníomhaíocht ar chárta an pháiste — ticeáiltear í láithreach. Is féidir le do pháiste ticeáil ina <strong>amharc an pháiste</strong> freisin."
+            },
+            {
+              "q": "Cad is cárta páiste dlúth ann?",
+              "a": "Taispeánann cárta an pháiste abhatár, ainm, iarmhéid réaltaí agus piollaí rannóige sa mhód dlúth. Oscail an cárta le tuilleadh sonraí, nasc plean agus an cnaipe sos."
+            },
+            {
+              "q": "Cad is Lá saor ann?",
+              "a": "Cuireann <strong>🏠 Lá saor</strong> plean an pháiste ar sos don lá roghnaithe — oiriúnach nuair atá siad tinn nó ar saoire. Feiceann an páiste an plean neamhghníomhach. Cuir an lá ar siúl arís leis an gcnaipe céanna."
+            },
+            {
+              "q": "Cad is mód sos ann?",
+              "a": "Tapáil an deilbhín sos (⏸) ar chárta an pháiste chun páiste a chur ar sos. Taispeántar gníomhaíochtaí mar neamhghníomhach agus ní thuillfidh an páiste réaltaí go dtí go leanann tú ar aghaidh."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Réaltaí",
+          "faqs": [
+            {
+              "q": "Conas a thuilleann mo pháiste réaltaí?",
+              "a": "Tuilleann gach gníomhaíocht chríochnaithe <strong>1 réalta</strong>. Ticéalaíonn do pháiste in amharc an pháiste — nó is féidir leat tic a chur sa Logáil laethúil agus tú ag triail rudaí. Tabhair réaltaí bónais leis an gcnaipe ⭐ os cionn chártaí na bpáistí."
+            },
+            {
+              "q": "Conas a oibríonn an Ciste?",
+              "a": "Osclaíonn do pháiste an ciste tríd an gcluaisín 💎 in amharc an pháiste agus feiceann duaiseanna le praghsanna réalta. Nuair a bhíonn go leor sábháilte, is féidir leo duais a iarraidh — ceadaíonn tusa í."
+            },
+            {
+              "q": "Conas a chuireann mé duaiseanna leis?",
+              "a": "Téigh chuig <strong>Leabharlann</strong> sa roghchlár → an cluaisín \"Duaiseanna\". Cuir do dhuaiseanna féin leis, cuir costas na réalta in eagar agus roghnaigh cé na páistí a fheiceann iad."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plean",
+          "faqs": [
+            {
+              "q": "Conas a chuireann mé gníomhaíocht leis?",
+              "a": "Téigh chuig <strong>Plean na seachtaine</strong> → roghnaigh páiste → roghnaigh lá → brúigh \"+\" chun gníomhaíocht a chur leis ón leabharlann. Is féidir leat cuardach a dhéanamh i measc 63 gníomhaíocht chaighdeánach."
+            },
+            {
+              "q": "Conas a chóipeálaim plean chuig gach lá?",
+              "a": "I bPlean na seachtaine → \"Cóipeáil ó…\" → roghnaigh foinse (do phlean féin nó an leabharlann chaighdeánach) → ticéalaigh na laethanta is mian leat cóipeáil chucu."
+            },
+            {
+              "q": "Cad is amharc Inniu ann?",
+              "a": "Nuashonraítear amharc \"Inniu\" san Fhorbhreathnú go huathoibríoch nuair a athraíonn tú an plean. Taispeántar athruithe i bPlean na seachtaine láithreach san Fhorbhreathnú agus in amharc do pháiste."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Teaghlach",
+          "faqs": [
+            {
+              "q": "Conas a thugaim cuireadh do dhuine fásta eile?",
+              "a": "Téigh chuig <strong>Teaghlach agus socruithe → Baill teaghlaigh</strong> → brúigh \"Tabhair cuireadh\". Faigheann an duine a dtugann tú cuireadh dó ríomhphost le nasc logála isteach."
+            },
+            {
+              "q": "Conas a fheicim lá mo pháiste?",
+              "a": "Oscail <strong>Inniu</strong> sa roghchlár — feiceann tú gníomhaíochtaí an lae inniu mar a fheicfidh do pháiste iad. Foirfe an chéad tráthnóna sula logálann do pháiste isteach féin."
+            },
+            {
+              "q": "Conas a logálann mo pháiste isteach?",
+              "a": "Nuair a bheidh tú réidh: logálann do pháiste isteach ag <strong>/child-login</strong> le hainm úsáideora agus PIN. Gheobhaidh tú na sonraí faoi <strong>Teaghlach agus socruithe → Páistí</strong>."
+            },
+            {
+              "q": "Déan teagmháil leis an tacaíocht",
+              "a": "Seol ríomhphost chugainn ag <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — freagraímid laistigh de 24 uair an chloig."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Cabhair – Duaiseanna",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Duaiseanna",
+          "faqs": [
+            {
+              "q": "Conas a oibríonn an córas duaiseanna?",
+              "a": "Bailíonn do pháiste réaltaí trí ghníomhaíochtaí a chríochnú. Nuair is leor iarmhéid na réaltaí do dhuais, is féidir leo í a iarraidh — ceadaíonn tú nó diúltaíonn tú."
+            },
+            {
+              "q": "Conas a chuireann mé duaiseanna nua leis?",
+              "a": "Téigh chuig <strong>Leabharlann</strong> sa roghchlár → an cluaisín \"Duaiseanna\" → cuardaigh nó brúigh \"+ Cuir duais leis\". Is féidir leat cóipeáil díreach ón leabharlann chaighdeánach freisin."
+            },
+            {
+              "q": "Conas a rialaím infheictheacht in aghaidh an pháiste?",
+              "a": "Nuair a chruthaíonn tú duais nó nuair a chuireann tú í in eagar, roghnaíonn tú cé na páistí a fheicfidh í. Áisiúil do dhuaiseanna saincheaptha in aghaidh an pháiste."
+            },
+            {
+              "q": "Conas a cheadaím iarratas fuascailte?",
+              "a": "Taispeántar iarratas do pháiste san Fhorbhreathnú le suaitheantas. Tapáil chun ceadú. Bainfear na réaltaí go huathoibríoch agus feiceann do pháiste an t-athrú láithreach."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Réaltaí",
+          "faqs": [
+            {
+              "q": "Conas a thuilleann mo pháiste réaltaí?",
+              "a": "Tuilleann gach gníomhaíocht chríochnaithe réaltaí (1 réalta in aghaidh na gníomhaíochta de réir réamhshocraithe). Is féidir leat réaltaí bónais a thabhairt leis an gcnaipe ⭐ ar an bhForbhreathnú freisin."
+            },
+            {
+              "q": "Cad is iarmhéid réaltaí in aghaidh dul chun cinn laethúil ann?",
+              "a": "<strong>Iarmhéid réaltaí</strong> = an t-iarmhéid sábháilte iomlán. <strong>Dul chun cinn an lae</strong> (an fáinne timpeall an emoji) = cé mhéad gníomhaíocht a chríochnaigh do pháiste inniu. Tá siad seo scartha óna chéile."
+            },
+            {
+              "q": "Cad a tharlaíonn nuair a fhuasclaítear duais?",
+              "a": "Bainfear réaltaí go huathoibríoch de chuntas do pháiste. Feiceann do pháiste an t-athrú láithreach sa chiste. Feiceann tusa an stair ar leathanach na nDuaiseanna."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Cabhair – Plean na seachtaine",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Cuir an plean in eagar",
+          "faqs": [
+            {
+              "q": "Conas a chuireann mé gníomhaíocht leis?",
+              "a": "Roghnaigh lá → brúigh \"+\" → cuardaigh agus roghnaigh gníomhaíocht. Is féidir leat <strong>roinnt sliotán ama a roghnú le chéile</strong> (Maidin + Tráthnóna) agus cuirtear an ghníomhaíocht leo go léir."
+            },
+            {
+              "q": "Conas a chruthaím gníomhaíocht nua go díreach sa phlean?",
+              "a": "Tapáil \"+\" → cuardaigh → mura bhfuil aon mheaitseáil ann, tagann an fhoirm \"Cruthaigh nua\" sa mhodal cuardaigh. Líon isteach ainm, emoji, luach réalta agus aon fhochéimeanna."
+            },
+            {
+              "q": "Conas a chuireann mé ainm nó emoji gníomhaíochta in eagar?",
+              "a": "Tapáil ainm nó emoji na gníomhaíochta sa phlean → osclaítear an modal eagarthóireachta. Cuirtear athruithe i bhfeidhm go huathoibríoch ar gach páiste agus lá."
+            },
+            {
+              "q": "Conas a chóipeálaim plean ó pháiste eile?",
+              "a": "Tapáil \"Cóipeáil ó…\" → roghnaigh foinse → ticeáil na laethanta seachtaine is mian leat cóipeáil chucu. Roghnaigh an scríobhfar thar ábhar atá ann cheana."
+            },
+            {
+              "q": "An sioncronaítear an plean go huathoibríoch le hamharc an pháiste?",
+              "a": "Sea! Sioncrónaítear athruithe i bPlean na seachtaine láithreach le hamharc \"Inniu\" san Fhorbhreathnú agus le hamharc do pháiste — gan nuashonruithe láimhe."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Leabharlann",
+          "faqs": [
+            {
+              "q": "Cad is an leabharlann chaighdeánach ann?",
+              "a": "Tá 63 gníomhaíocht réamhdhéanta sa leabharlann chaighdeánach i 6 chatagóir agus 5 theimpléad plean. Tapáil \"Ionsá tapa ón leabharlann\" chun iad a chur leis an bplean."
+            },
+            {
+              "q": "Conas a chóipeálaim plean caighdeánach?",
+              "a": "Faoin gcluaisín Plean → \"Cóipeáil ó…\" → roghnaigh \"Leabharlann chaighdeánach\" → roghnaigh plean → roghnaigh laethanta → cóipeáil."
+            },
+            {
+              "q": "Cén fáth nach bhfeiceann mo pháiste aon ghníomhaíochtaí?",
+              "a": "Deimhnigh go bhfuil an plean socraithe don pháiste ceart agus go bhfuil gníomhaíochtaí ann do lá an lae inniu. Plean folamh? Cóipeáil ón leabharlann chaighdeánach chun dul ar aghaidh go tapa."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Leideanna",
+          "faqs": [
+            {
+              "q": "Conas a thógaim plean gnáthaimh maith?",
+              "a": "Tosaigh le 3–5 gníomhaíocht sheasta (bricfeasta, fiacla a scuabadh, obair bhaile). Cuir san ord ceart iad. Foghlaimíonn páistí an gnátham go tapa nuair a fhanann sé seasmhach."
+            },
+            {
+              "q": "Cad is fochéimeanna ar ghníomhaíochtaí ann?",
+              "a": "Is féidir leat fochéimeanna a chur le gníomhaíochtaí (m.sh. \"Nigh na lámha\", \"Cuir ort píjámaí\" faoi \"Gnátham tráthnóna\"). Feiceann do pháiste iad mar threoir amhairc ach ticeálann sé an ghníomhaíocht ar fad in aon iarracht amháin."
+            },
+            {
+              "q": "Cé mhéad gníomhaíocht in aghaidh an lae?",
+              "a": "Molta: 4–8 gníomhaíocht. Róbheag agus níl sreabhadh ann; an iomarca agus éiríonn sé trom. Tosaigh beag agus tóg air."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Cabhair – Teaghlach agus socruithe",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Páistí",
+          "faqs": [
+            {
+              "q": "Conas a chuireann mé páiste leis?",
+              "a": "Téigh chuig an bhForbhreathnú → brúigh \"+ Cuir páiste leis\". Líon isteach ainm, emoji agus breithlá. Faigheann an páiste plean go huathoibríoch bunaithe ar an aois."
+            },
+            {
+              "q": "Conas a athraím PIN mo pháiste?",
+              "a": "Tapáil cárta an pháiste → an cluaisín \"Socruithe\" → \"Athraigh an PIN\". Roghnaigh PIN nua 4 digit."
+            },
+            {
+              "q": "Caithfidh mo pháiste gníomhaíochtaí a dhéanamh in ord — an féidir liom é sin a athrú?",
+              "a": "Is é an réamhshocrú tic saor. Le haghaidh oird threoraithe, téigh go próifíl do pháiste → an cluaisín <strong>Socruithe</strong> → cas <strong>ANOIS / AR AGHAIDH / NÍOS DÉANAÍ</strong> air."
+            },
+            {
+              "q": "Conas a fheiceann mo pháiste a shonraí logála isteach?",
+              "a": "Tapáil cárta an pháiste → an cluaisín \"Socruithe\" → \"Taispeáin sonraí logála isteach\". Feicfidh tú ainm úsáideora agus PIN do pháiste."
+            },
+            {
+              "q": "Conas a bhainim páiste?",
+              "a": "Teaghlach → roghnaigh páiste → cluaisín Socruithe → \"Scrios an páiste go buan\". Nóta: scriostar stair uile an phlean, na réaltaí agus na nduaiseanna agus ní féidir é a chealú."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Daoine fásta",
+          "faqs": [
+            {
+              "q": "Conas a thugaim cuireadh do dhuine fásta eile?",
+              "a": "Téigh chuig an gcluaisín <strong>Baill teaghlaigh</strong> → \"Tabhair cuireadh\". Faigheann an duine a dtugann tú cuireadh dó ríomhphost le nasc chun cuntas a chruthú."
+            },
+            {
+              "q": "An féidir liom a roghnú cé na páistí a fheiceann duine fásta?",
+              "a": "Sea! Roghnaíonn tú cé na páistí ar féidir leo rochtain a fháil nuair a sheolann tú an cuireadh. Is féidir leat é a athrú níos déanaí faoi Bhaill an teaghlaigh → an duine → Rochtain pháiste."
+            },
+            {
+              "q": "Conas a bhainim ball teaghlaigh?",
+              "a": "Tapáil an duine i liosta bhaill an teaghlaigh → \"Bain\". Cailleann siad rochtain ar an teaghlach láithreach."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Socruithe",
+          "faqs": [
+            {
+              "q": "Conas a athraím mo phasfhocal?",
+              "a": "Téigh chuig <strong>Socruithe</strong> (⚙️) sa roghchlár → \"Athraigh an pasfhocal\". Beidh do phasfhocal reatha de dhíth ort."
+            },
+            {
+              "q": "Conas a chuirim fógraí ar siúl?",
+              "a": "Téigh chuig Socruithe → \"Meabhrúcháin\" → cuir fógraí ar siúl agus roghnaigh amanna. Tá cead an bhrabhsálaí de dhíth ar fhógraí."
+            },
+            {
+              "q": "Déan teagmháil leis an tacaíocht",
+              "a": "Seol ríomhphost chugainn ag <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — freagraímid laistigh de 24 uair an chloig."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Cabhair – Gníomhaíochtaí",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Bainistigh",
+          "faqs": [
+            {
+              "q": "Cad is gníomhaíocht ann?",
+              "a": "Is tasc é <strong>gníomhaíocht</strong> a dhéanann do pháiste (m.sh. \"Nigh na fiacla\"). Tuilleann gníomhaíochtaí 1–5 réalta agus is féidir fo-chéimeanna a bheith acu. Bailigh iad i do leabharlann agus cuir le pleananna na bpáistí iad."
+            },
+            {
+              "q": "Conas a chruthaím gníomhaíocht nua?",
+              "a": "Tapáil \"+ Gníomhaíocht nua\" → líon isteach ainm, catagóir (Sláinteachas, Bia, Súgradh, srl.), fad agus luach réalta. Sábháil agus cuirtear an ghníomhaíocht le do leabharlann."
+            },
+            {
+              "q": "Conas a chuireann mé gníomhaíocht leis an bplean?",
+              "a": "Tá na gníomhaíochtaí i do leabharlann. Téigh go Plean na seachtaine → roghnaigh lá → \"+\" → roghnaigh an ghníomhaíocht is mian leat a chur leis."
+            },
+            {
+              "q": "Conas a bhainim gníomhaíocht de gach lá?",
+              "a": "Tapáil ✕ ar an ngníomhaíocht → roghnaigh <strong>Gach lá den tseachtain</strong>. Le baint inniu amháin nó lá seachtaine amháin (m.sh. gach Déardaoin), tá roghanna ar leith ann."
+            },
+            {
+              "q": "Conas a chuireann mé gníomhaíocht in eagar?",
+              "a": "Tapáil an ghníomhaíocht sa liosta → \"Cuir in eagar\". Cuirtear athruithe i bhfeidhm láithreach i ngach plean ina n-úsáidtear an ghníomhaíocht."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Catagóirí",
+          "faqs": [
+            {
+              "q": "Cén fáth catagóirí?",
+              "a": "Dathaíonn catagóirí na gníomhaíochtaí in amharc an pháiste. <strong>Sláinteachas</strong>=gorm, <strong>Bia</strong>=buí, <strong>Súgradh</strong>=glas, <strong>Scoil</strong>=corcra, <strong>Gluaiseacht</strong>=dearg, <strong>Sos</strong>=liath, <strong>Sóisialta</strong>=oráiste."
+            },
+            {
+              "q": "Conas a roghnaím catagóir?",
+              "a": "Nuair a chruthaíonn tú gníomhaíocht nó nuair a chuireann tú í in eagar, roghnaigh catagóir ón roghchlár anuas. Roghnaigh an ceann is fearr a dhéanann cur síos uirthi."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Cabhair – Leabharlann",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Cluaisíní",
+          "faqs": [
+            {
+              "q": "Cé na cluaisíní atá sa leabharlann?",
+              "a": "<strong>Pleananna</strong> — do theimpléid phlean féin. <strong>Gníomhaíochtaí</strong> — leabharlann gníomhaíochtaí le fo-chéimeanna. <strong>Duaiseanna</strong> — do dhuaiseanna féin. <strong>Leabharlann chaighdeánach</strong> — 63 gníomhaíocht, 15 duais agus 5 phlean le cóipeáil uathu."
+            },
+            {
+              "q": "Conas a chóipeálaim ón leabharlann chaighdeánach?",
+              "a": "Téigh chuig an gcluaisín \"Leabharlann chaighdeánach\" → roghnaigh gníomhaíocht nó duais → brúigh an cnaipe 📥 chun cóipeáil chuig leabharlann do theaghlaigh. Cóipeáiltear pleananna trí Phlean na seachtaine → \"Cóipeáil ó…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Gníomhaíochtaí",
+          "faqs": [
+            {
+              "q": "Conas a chruthaím gníomhaíocht nua?",
+              "a": "Tapáil \"+ Gníomhaíocht nua\" → líon isteach ainm, emoji (roghnaigh nó clóscríobh ceann féin), luach réalta agus aon fhochéimeanna → sábháil. Sábháiltear an ghníomhaíocht sa leabharlann don teaghlach ar fad."
+            },
+            {
+              "q": "Cad is fochéimeanna ann?",
+              "a": "Is treoracha céim ar chéim iad fochéimeanna faoi ghníomhaíocht (m.sh. \"Nigh na lámha\" faoi \"Sláinteachas\"). Feiceann do pháiste iad mar threoir ach ticeálann sé an ghníomhaíocht ar fad le tapáil amháin."
+            },
+            {
+              "q": "Conas a chuireann mé gníomhaíocht in eagar?",
+              "a": "Tapáil ainm na gníomhaíochta sa phlean — osclaítear an modal eagarthóireachta. Cuirtear athruithe (ainm, emoji, fochéimeanna) i bhfeidhm go huathoibríoch ar gach páiste agus lá."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Duaiseanna",
+          "faqs": [
+            {
+              "q": "Conas a chuireann mé duais leis?",
+              "a": "An cluaisín \"Duaiseanna\" → cuardaigh duais → tapáil \"+ Cruthaigh nua\" mura bhfuil sí ann → líon isteach ainm, emoji, praghas réalta → roghnaigh cé na páistí a fheiceann í → sábháil."
+            },
+            {
+              "q": "Conas a chuardaim duaiseanna?",
+              "a": "Cuardaíonn an bosca cuardaigh i do dhuaiseanna féin AGUS sa leabharlann chaighdeánach ag an am céanna. Gan meaitseáil? Osclaíonn an cnaipe \"Cruthaigh [ainm]\" foirm réamhlíonta."
+            },
+            {
+              "q": "An féidir duaiseanna príobháideacha a bheith ag páiste?",
+              "a": "Sea! Nuair a chruthaíonn tú an duais, roghnaíonn tú cé na páistí a fheicfidh í. Áisiúil do dhuaiseanna saincheaptha in aghaidh an pháiste."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Cabhair – Socruithe",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Cuntas",
+          "faqs": [
+            {
+              "q": "Conas a athraím mo phasfhocal?",
+              "a": "Cuir isteach do phasfhocal reatha agus do phasfhocal nua → brúigh \"Sábháil\". Caithfidh 6 charachtar ar a laghad a bheith sa phasfhocal."
+            },
+            {
+              "q": "Conas a athraím mo sheoladh ríomhphoist?",
+              "a": "Cuir isteach do sheoladh ríomhphoist nua → brúigh \"Sábháil\". B’fhéidir go mbeidh ort an seoladh nua a dheimhniú le ríomhphost."
+            },
+            {
+              "q": "Conas a scriosaim mo chuntas?",
+              "a": "Déan teagmháil linn ag <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> chun cuntas a scriosadh. Déileálfaimid leis laistigh de 48 uair an chloig."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Fógraí",
+          "faqs": [
+            {
+              "q": "Conas a chuirim meabhrúcháin ar siúl?",
+              "a": "Cas an scorán air faoi \"Meabhrúcháin\" → roghnaigh am agus cé na laethanta. Caithfidh do bhrabhsálaí fógraí a cheadú."
+            },
+            {
+              "q": "Níl fógraí ag teacht chugam cé go bhfuil siad ar siúl",
+              "a": "Deimhnigh go bhfuil fógraí ceadaithe ag do bhrabhsálaí don suíomh. Téigh chuig socruithe an bhrabhsálaí → Fógraí → aimsigh [REDACTED].se → Ceadaigh."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Cabhair – Féilire",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Féilire",
+          "faqs": [
+            {
+              "q": "Cad a thaispeánann an féilire?",
+              "a": "Tugann an féilire forbhreathnú míosúil ar ghníomhaíochtaí do pháiste, duaiseanna fuascailte agus imeachtaí tábhachtacha."
+            },
+            {
+              "q": "Conas a bhogaim idir na míonna?",
+              "a": "Tapáil na saigheada (< >) in aice le hainm na míosa chun mí a athrú."
+            },
+            {
+              "q": "Conas a fheicim tuilleadh sonraí do lá?",
+              "a": "Tapáil dáta chun liosta mionsonraithe de ghníomhaíochtaí agus réaltaí an lae sin a fheiceáil."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Cabhair – Inniu",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Loga",
+          "faqs": [
+            {
+              "q": "Cad is an loga laethúil ann?",
+              "a": "Taispeánann an loga lá do pháiste — gníomhaíochtaí, ticeanna agus réaltaí. Úsáid é le <strong>réamhamharc</strong> a fháil ar a bhfeiceann do pháiste, nó le líonadh isteach ina dhiaidh."
+            },
+            {
+              "q": "Conas a scagaim an logáil?",
+              "a": "Roghnaigh páiste sa scagaire ag an mbarr chun an logáil do pháiste amháin a thaispeáint. Is féidir leat scagadh de réir dáta freisin."
+            },
+            {
+              "q": "Cé chomh fada siar is féidir liom féachaint?",
+              "a": "Coinníonn an loga sonraí ón lá a thosaigh tú ag úsáid [REDACTED]. Scrollaigh nó roghnaigh dáta chun sonraí níos sine a fheiceáil. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Cabhair – Roghnaigh plean in aghaidh an lae",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Sann plean",
+          "faqs": [
+            {
+              "q": "Cad is \"Roghnaigh plean in aghaidh an lae\" ann?",
+              "a": "Anseo roghnaíonn tú cén plean seachtainiúil atá gníomhach do gach páiste agus lá. Áisiúil má tá gnáthaimh éagsúla agat i rith na seachtaine agus ag an deireadh seachtaine."
+            },
+            {
+              "q": "An féidir pleananna éagsúla a bheith ag páiste i rith na seachtaine agus ag an deireadh seachtaine?",
+              "a": "Sea! Roghnaigh plean amháin do Luan–Aoine agus ceann eile do Sath–Domh. Tapáil an lá agus roghnaigh an plean is mian leat."
+            },
+            {
+              "q": "Cad a tharlaíonn mura sannfar lá?",
+              "a": "Mura bhfuil plean sannta d’aon lá, ní fheiceann do pháiste aon ghníomhaíocht an lá sin. Deimhnigh go bhfuil plean sannta do gach lá is mian leat a úsáid."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Painéal riaracháin",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Forbhreathnú",
+          "faqs": [
+            {
+              "q": "Cad is féidir liom a dhéanamh sa phainéal riaracháin?",
+              "a": "Tugann an painéal riaracháin rochtain duit ar gach teaghlach, úsáideoir agus sonraí córais. Is féidir leat staitisticí a fheiceáil, cuntais a bhainistiú agus ábhar a mhaoirsiú."
+            },
+            {
+              "q": "Conas a aimsím úsáideoir ar leith?",
+              "a": "Úsáid an réimse cuardaigh ag an mbarr chun cuardach de réir ríomhphoist nó ainm. Tapáil teaghlach chun sonraí a fheiceáil."
+            },
+            {
+              "q": "Conas a chuireann mé teaghlach i gcartlann?",
+              "a": "Tapáil cárta an teaghlaigh → \"Cartlann\". Is féidir teaghlaigh sa chartlann a chur ar ais ach fanann siad neamhghníomhach go dtí sin."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Tacaíocht",
+          "faqs": [
+            {
+              "q": "Conas a fheicim teachtaireachtaí tacaíochta ag teacht isteach?",
+              "a": "Faoin gcluaisín \"Bosca tacaíochta\" feiceann tú gach teachtaireacht a seoladh tríd an bhfoirm teagmhála. Tapáil chun an téacs iomlán a léamh agus freagra a thabhairt."
+            },
+            {
+              "q": "Conas a mharcálaim cás mar réitithe?",
+              "a": "Tapáil an cás → \"Marcáil mar réitithe\". Scagtar cásanna réitithe amach as an amharc réamhshocraithe ach is féidir iad a thaispeáint trí \"Taispeáin réitithe\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Tacaíocht an pháiste — {{brand}}",
+    "loadError": "Níorbh fhéidir an leathanach a lódáil."
+  },
+  "supportSvar": {
+    "pageTitle": "Do chás",
+    "title": "Do chás",
+    "intro": "Seo an comhrá iomlán. Scríobh thíos más mian leat leanúint ar aghaidh. Ní fheictear gnáthfhreagra ríomhphoist anseo.",
+    "sent": "Seolta. Feicfimid é ar an gcás céanna.",
+    "escalate": "Tá tuilleadh cabhrach ó dhuine de dhíth orm",
+    "placeholder": "Scríobh cad atá ag tarlú…"
+  }
+}

@@ -102,7 +102,7 @@
 
   function htmlLang() {
     if (root.I18n && typeof root.I18n.getCurrentLang === 'function') {
-      return root.I18n.getCurrentLang() === 'en-GB' ? 'en-GB' : 'sv-SE';
+      return root.I18n.getCurrentLang() || root.I18n.DEFAULT_LOCALE || 'sv-SE';
     }
     return 'sv-SE';
   }

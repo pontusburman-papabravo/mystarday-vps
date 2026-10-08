@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Nema mreže</string>
+    <string name="native_offline_body">Provjeri internetsku vezu i pokušaj ponovno.</string>
+    <string name="camera_permission_rationale">[REDACTED] koristi kameru da snimi profilnu fotografiju djeteta.</string>
+    <string name="photos_permission_rationale">[REDACTED] treba pristup fotografijama da odabereš profilnu fotografiju djeteta.</string>
+    <string name="notification_channel_routine_name">Podsjetnici rutine</string>
+    <string name="notification_channel_routine_desc">Podsjetnici o rasporedu obitelji</string>
+</resources>

@@ -55,7 +55,8 @@
       "closedDk": "My Starday är inte tillgängligt i Danmark ännu.",
       "closedUk": "My Starday är inte tillgängligt i Storbritannien ännu.",
       "closedUs": "My Starday är inte tillgängligt i USA ännu.",
-      "closedOther": "My Starday är inte tillgängligt i ditt land ännu."
+      "closedOther": "My Starday är inte tillgängligt i ditt land ännu.",
+      "euGroup": "Annat EU/EES-land"
     }
   },
   "nav": {
@@ -835,6 +836,7 @@
       "subject": "⚠️ {{childName}} försöker logga in",
       "title": "Inloggningsförsök på {{brand}}",
       "body": "{{childName}} har skrivit fel PIN-kod 3 gånger på {{brand}}.",
+      "inApp": "{{childName}} har försökt logga in med fel PIN-kod 3 gånger ({{time}})",
       "help": "Du kan hjälpa till med rätt kod eller återställa PIN:en i appen.",
       "button": "Öppna {{brand}}",
       "footer": "Om detta inte var ditt barn kan du logga in och ändra PIN-koden under barnets inställningar."
@@ -955,19 +957,39 @@
       "settingsHint": "Du kan stänga av dessa aviseringar under {{settingsLink}}."
     },
     "trialWelcome": {
-      "subject": "Välkommen till {{brand}} – din gratis period har börjat!",
       "headerBrand": "{{brand}}",
-      "headerTitle": "Din gratis period har börjat! ⭐",
-      "intro": "Välkommen! Du har nu <strong>14 dagar gratis</strong> att prova alla funktioner i {{brand}} — inget kreditkort behövs.",
+      "perMonth": "månad",
       "howTitle": "Så här fungerar det:",
       "how1": "Skapa scheman och aktiviteter för ditt barn",
       "how2": "Låt barnet samla stjärnor varje dag",
       "how3": "Sätt upp belöningar i Skattkammaren",
-      "pricing": "Efter 14 dagar kostar det <strong>59 kr/månad</strong> — du kan uppgradera när som helst.",
-      "cta": "Prova Premium ⭐",
-      "ctaHint": "Ingen bindningstid — avbryt när som helst",
       "footerIntro": "Du får detta mail för att du nyligen registrerade dig på {{brand}}.",
-      "openApp": "Öppna appen"
+      "openApp": "Öppna appen",
+      "trial": {
+        "subject": "Välkommen till {{brand}} – din gratis period har börjat!",
+        "headerTitle": "Din gratis period har börjat! ⭐",
+        "intro": "Välkommen! Du har nu <strong>{{trialDays}} dagar gratis</strong> att prova alla funktioner i {{brand}} — inget kreditkort behövs.",
+        "pricing": "Efter {{trialDays}} dagar kostar det <strong>{{monthlyPrice}}</strong> — du kan uppgradera när som helst.",
+        "pricingOpen": "Efter {{trialDays}} dagar väljer du om du vill fortsätta med ett abonnemang.",
+        "cta": "Prova Premium ⭐",
+        "ctaHint": "Ingen bindningstid — avbryt när som helst"
+      },
+      "complimentary": {
+        "subject": "Välkommen till {{brand}} – gratis till {{freeUntil}}",
+        "headerTitle": "Gratis till {{freeUntil}}",
+        "intro": "Välkommen! <strong>{{brand}} är gratis till {{freeUntil}}.</strong> Inget abonnemang eller betalmedel behövs. Erbjudandet blir inte automatiskt ett betalt abonnemang.",
+        "pricing": "Från {{paidFrom}} kan du välja om du vill fortsätta med ett abonnemang. Ingenting dras automatiskt på grund av det här erbjudandet.",
+        "cta": "Öppna appen",
+        "ctaHint": "Inget kort krävs. Erbjudandet blir inte automatiskt ett abonnemang."
+      },
+      "introYear": {
+        "subject": "Välkommen till {{brand}}",
+        "headerTitle": "Välkommen! ⭐",
+        "intro": "Välkommen! Du kan använda funktionerna i {{brand}}.",
+        "pricing": "Ingen betalning krävs för den här perioden.",
+        "cta": "Öppna appen",
+        "ctaHint": "Du kan titta på Premium när du vill"
+      }
     },
     "weeklySummary": {
       "subject": "Veckans sammanfattning ⭐ — {{weekLabel}}",
@@ -1244,11 +1266,81 @@
       "tooLong": "Svaret får vara högst 5000 tecken.",
       "notFound": "Ärendet hittades inte.",
       "rateLimit": "För många försök. Försök igen om en timme.",
-      "generic": "Kunde inte öppna ärendet."
+      "generic": "Kunde inte öppna ärendet.",
+      "sendFailed": "Kunde inte skicka. Försök igen."
     },
     "success": {
       "submitted": "Tack! Vi har tagit emot svaret.",
       "escalated": "Tack. En person tittar på ärendet."
+    }
+  },
+  "story": {
+    "someone": "Någon",
+    "anActivity": "en aktivitet",
+    "activityWithStars": "{{name}} klarade {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} klarade {{activity}}",
+    "goalFallback": "projekt",
+    "goal": "Familjen nådde målet: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Cookie-inställningar",
+    "intro": "Vi använder cookies för analys, marknadsföring och personalisering på vår webbplats.",
+    "manage": "Hantera inställningar",
+    "manageHide": "Dölj inställningar",
+    "deny": "Avvisa alla",
+    "accept": "Godkänn alla",
+    "save": "Spara mina val",
+    "necessaryLabel": "Nödvändiga",
+    "necessaryDesc": "Krävs för att sidan ska fungera.",
+    "analyticsLabel": "Analys och statistik",
+    "analyticsDesc": "Hjälper oss förstå hur sidan används (GA4).",
+    "marketingLabel": "Marknadsföring",
+    "marketingDesc": "Visar relevanta annonser och mäter kampanjer.",
+    "personalizationLabel": "Personalisering",
+    "personalizationDesc": "Anpassar innehåll och rekommendationer."
+  },
+  "growthHelp": {
+    "reportProblem": "Rapportera problem",
+    "suggestedHelp": "Föreslagen hjälp",
+    "reportThanks": "Tack — vi har tagit emot rapporten med teknisk kontext.",
+    "howChildStarts": "Hur gör barnet?",
+    "needHelpLogin": "Behöver du hjälp med inloggning?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Valfri kort kommentar (skickas med ditt svar)",
+    "notNow": "Inte nu",
+    "thanks": "Tack för feedbacken."
+  },
+  "growthReferral": {
+    "title": "Känner ni en annan familj som behöver lugnare morgnar?",
+    "subtitle": "Dela er personliga länk — ingen belönings-spam, bara ett tips.",
+    "copyLink": "Kopiera länk",
+    "copied": "Kopierad",
+    "copyPrompt": "Kopiera länken:",
+    "share": "Dela",
+    "shareText": "Vi använder {{brand}} för barnens rutiner. Skapa konto gratis: ",
+    "notNow": "Inte nu"
+  },
+  "legalReturn": {
+    "backToPremium": "Tillbaka till Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paket",
+    "dismiss": "Inte nu",
+    "interested": "Jag är intresserad",
+    "interestedSub": "Anmäl intresse för kommande beta",
+    "buyNow": "Köp nu",
+    "reporting": {
+      "title": "Rapportering",
+      "body": "Du har registrerat aktiviteter i två veckor — vill du få koll på utvecklingen över tid?"
+    },
+    "pedagog": {
+      "title": "Pedagog",
+      "body": "Vill du samarbeta med pedagog eller terapeut kring barnets vardag?"
+    },
+    "teacch": {
+      "title": "Extra stöd",
+      "body": "Lägg till visuellt stöd med De sju frågorna — hjälper barnet förstå vad som händer."
     }
   }
 }

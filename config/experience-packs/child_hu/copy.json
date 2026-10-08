@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Ma {{child_name}} megtette az első lépést.",
+      "body_template": "Egy kis mindennapi dolog — és mégis sokat jelent. Most már látod, hogy a rutin működik.",
+      "cta": "Látom"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Együtt sikerült",
+      "body_template": "{{child_name}} elindult. Te láttad. Így nőnek a szokások.",
+      "cta": "De jó"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Valami csillan a Reggeli házban…"
+    }
+  }
+}

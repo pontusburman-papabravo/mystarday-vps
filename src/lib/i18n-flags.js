@@ -41,9 +41,8 @@ async function canSelectEnglishLocale(familyId) {
 }
 
 /**
- * Whether the family may use the English child pack (child_en).
- * Feature is live for all families; child UI still requires en-GB family locale
- * (see resolveChildUiLocale / experiencePackIdForLocale).
+ * Legacy feature row. Child UI locale follows family.preferred_locale and
+ * does not consult this flag.
  * @param {string|null|undefined} familyId
  * @returns {Promise<boolean>}
  */

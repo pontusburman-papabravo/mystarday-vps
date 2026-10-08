@@ -3,7 +3,8 @@
 /**
  * Apply explicit locale from login/register UI after successful authentication.
  * Pre-auth switcher choice must win over stale family.preferred_locale (e.g. en-GB beta).
- * Only canonical sv-SE / en-GB values are persisted; invalid input is ignored.
+ * Catalog locales are persisted. Unknown input is ignored.
+ * en-GB still requires the english_app gate.
  */
 
 const db = require('./db');

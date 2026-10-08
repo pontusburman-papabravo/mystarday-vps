@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Kita veikla</string>
+    <string name="widget_routine_description">Atlik kitą rutinos žingsnį neatidarius visos programėlės.</string>
+    <string name="widget_cd_pictogram">Veiklos simbolis</string>
+    <string name="widget_cd_complete">Pažymėk veiklą kaip atliktą</string>
+    <string name="widget_cd_open_app">Atidaryk programėlėje</string>
+    <string name="widget_action_complete">Atlikta</string>
+    <string name="widget_action_open_timer">Atidaryk laikmatį</string>
+    <string name="widget_action_show_steps">Rodyk žingsnius</string>
+    <string name="widget_action_open_app">Atidaryk programėlę</string>
+    <string name="widget_loading">Kraunama…</string>
+    <string name="widget_all_done">Šiandien viskas atlikta!</string>
+    <string name="widget_nothing_now">Dabar nieko nėra</string>
+    <string name="widget_offline">Nėra ryšio</string>
+    <string name="widget_reauth">Prisijunk programėlėje</string>
+    <string name="widget_revoked">Įrenginio prieiga atšaukta</string>
+    <string name="widget_switching">Keičiamas vaikas…</string>
+    <string name="widget_feedback_done">✓ Atlikta!</string>
+    <string name="widget_feedback_done_for">✓ Atlikta: %1$s</string>
+    <string name="widget_cd_child_prev">Ankstesnis vaikas</string>
+    <string name="widget_cd_child_next">Kitas vaikas</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d iš %2$d atlikta</string>
+    <string name="widget_private_activity">Kitas žingsnis</string>
+    <string name="widget_configure_title">Pasirink valdiklį</string>
+    <string name="widget_configure_personal">Asmeninis (vienas vaikas)</string>
+    <string name="widget_configure_family">Šeima (keisti vaiką)</string>
+    <string name="widget_configure_save">Išsaugok</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

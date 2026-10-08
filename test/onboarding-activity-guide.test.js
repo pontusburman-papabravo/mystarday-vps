@@ -60,6 +60,15 @@ describe('onboarding activity guide — parent defaults', () => {
     assert.match(src, /activityTimerV2Enabled/);
   });
 
+  it('first daily-log generation returns template duration for the activity timer', () => {
+    const src = read('src/lib/daily-log-generator.js');
+    const freshStart = src.indexOf('// ── 7. Return fresh log');
+    const freshEnd = src.indexOf('generated: true, from_special_day', freshStart);
+    const fresh = src.slice(freshStart, freshEnd);
+    assert.match(fresh, /at\.duration_seconds AS duration_seconds/);
+    assert.match(fresh, /at\.icon_key AS icon_key/);
+  });
+
   it('child-settings keeps separate toggles for parent edits later', () => {
     const src = read('public/js/child-settings.js');
     assert.match(src, /saveNnlMode/);

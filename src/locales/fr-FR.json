@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Une journée calme, une étoile à la fois"
+  },
+  "language": {
+    "label": "Langue",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Changer de langue",
+    "choice": {
+      "title": "Langue",
+      "titleEn": "Langue",
+      "description": "Vous pourrez changer de langue plus tard dans Réglages.",
+      "descriptionEn": "Vous pourrez changer de langue plus tard dans Réglages.",
+      "confirm": "Continuer",
+      "required": "Choisissez une langue pour continuer",
+      "childNote": "La vue enfant suit la langue de la famille.",
+      "childNoteEn": "La vue enfant suit la langue de la famille."
+    },
+    "offer": {
+      "title": "{{brand}} est maintenant disponible en français",
+      "body": "{{brand}} est aussi disponible en français. La vue parent et la vue enfant suivent la langue de la famille.",
+      "question": "Voulez-vous rester en suédois ou essayer le français ?",
+      "staySwedish": "Rester en suédois",
+      "tryEnglish": "Essayer le français",
+      "remindLater": "Me le rappeler plus tard"
+    },
+    "legacyNotice": {
+      "body": "Les activités déjà créées restent dans leur langue d'origine. Les nouvelles activités utilisent le français.",
+      "dismiss": "Compris",
+      "dismissAria": "Fermer l'avis de langue"
+    },
+    "reportIssue": "Signaler un problème de langue",
+    "feedback": {
+      "typeLabel": "Problème de langue ou de traduction",
+      "typeLabelEn": "Problème de langue ou de traduction",
+      "titlePlaceholder": "Qu'est-ce qui ne va pas ?",
+      "visibleText": "Quel texte avez-vous vu ?",
+      "suggestion": "Comment devrait-il être écrit ? (facultatif)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Où vit votre famille ?",
+      "description": "Nous nous en servons pour les bons termes et les informations de confidentialité. C'est distinct de votre choix de langue.",
+      "label": "Pays",
+      "hint": "",
+      "required": "Choisissez un pays pour continuer",
+      "closedEu": "{{brand}} n'est pas encore disponible dans votre pays. Nous vous préviendrons quand nous ouvrirons d'autres marchés de l'UE.",
+      "closedIe": "{{brand}} n'est pas encore disponible en Irlande.",
+      "closedCa": "{{brand}} n'est pas encore disponible au Canada.",
+      "closedFi": "{{brand}} n'est pas encore disponible en Finlande.",
+      "closedNo": "{{brand}} n'est pas encore disponible en Norvège.",
+      "closedDk": "{{brand}} n'est pas encore disponible au Danemark.",
+      "closedUk": "{{brand}} n'est pas encore disponible au Royaume-Uni.",
+      "closedUs": "{{brand}} n'est pas encore disponible aux États-Unis.",
+      "closedOther": "{{brand}} n'est pas encore disponible dans votre pays.",
+      "euGroup": "Autre pays de l'UE/EEE"
+    }
+  },
+  "nav": {
+    "login": "Se connecter",
+    "register": "Créer un compte",
+    "childLogin": "Connexion enfant",
+    "dashboard": "Vue d'ensemble",
+    "logout": "Se déconnecter",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Simplifiez le quotidien de toute la famille",
+      "ogDescription": "Créez et suivez des plannings, des activités et des récompenses au quotidien"
+    },
+    "login": {
+      "title": "Connexion",
+      "pageTitle": "Connexion — {{brand}}",
+      "tagline": "On brille ensemble",
+      "subtitle": "Bon retour sur {{brand}}",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@email.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte",
+      "childLogin": "Tu es un enfant ?",
+      "childLoginLink": "Tu es un enfant ? Connecte-toi ici",
+      "loginAsAdult": "Se connecter en tant que parent",
+      "orDivider": "ou",
+      "continueWithApple": "Continuer avec Apple",
+      "continueWithGoogle": "Continuer avec Google",
+      "apple_caption": "Disponible seulement sur iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Saisissez l'e-mail et le mot de passe",
+      "genericError": "Un problème est survenu. Réessayez.",
+      "mascotAlt": "Mascotte étoile",
+      "addChildBannerTitle": "👶 Connectez-vous en tant que parent pour ajouter un enfant",
+      "addChildBannerBody": "« Je suis un enfant » ne suffit pas ici — un parent ou un éducateur est requis.",
+      "resetSuccessBannerTitle": "Mot de passe enregistré",
+      "resetSuccessBannerBody": "Connectez-vous avec votre nouveau mot de passe.",
+      "backToChildPicker": "← Retour au choix de l'enfant",
+      "linking": {
+        "emailExists": "Un compte avec cette adresse e-mail existe déjà.",
+        "promptApple": "Voulez-vous lier votre compte Apple au compte existant ?",
+        "promptGoogle": "Voulez-vous lier votre compte Google au compte existant ?",
+        "yes": "Oui, lier",
+        "cancel": "Annuler",
+        "modalTitleApple": "Lier le compte Apple",
+        "modalTitleGoogle": "Lier le compte Google",
+        "modalIntroApple": "Saisissez votre mot de passe pour vous connecter, puis lier votre compte Apple.",
+        "modalIntroGoogle": "Saisissez votre mot de passe pour vous connecter, puis lier votre compte Google.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Votre mot de passe",
+        "submit": "Lier",
+        "submitting": "Liaison…",
+        "enterPassword": "Saisissez votre mot de passe.",
+        "wrongPassword": "Mot de passe incorrect.",
+        "failed": "La liaison a échoué."
+      },
+      "apple": {
+        "unavailable": "La connexion Apple n'est pas disponible pour le moment. Réessayez ou connectez-vous par e-mail.",
+        "notEnabled": "La connexion Apple n'est pas activée. Mettez l'appli à jour.",
+        "cancelled": "La connexion Apple a été annulée.",
+        "incomplete": "La connexion Apple ne s'est pas terminée. Réessayez ou connectez-vous par e-mail et mot de passe.",
+        "rateLimited": "Trop de tentatives. Attendez un instant et réessayez.",
+        "genericError": "Un problème est survenu avec la connexion Apple. Réessayez ou connectez-vous par e-mail et mot de passe.",
+        "failed": "La connexion Apple a échoué. Réessayez ou connectez-vous par e-mail et mot de passe.",
+        "signInFailed": "La connexion Apple a échoué.",
+        "completionTitle": "Terminez la création de votre compte",
+        "completionBody": "Choisissez votre pays et acceptez les conditions. Apple a déjà fourni votre nom et votre e-mail — nous ne les redemanderons pas.",
+        "completionSubmit": "Continuer avec le même compte Apple"
+      },
+      "google": {
+        "emailConflictSettings": "Un compte avec cette adresse e-mail existe déjà. Connectez-vous et liez Google dans Réglages, ou utilisez le mot de passe.",
+        "loginFailed": "La connexion Google a échoué.",
+        "signInFailed": "La connexion Google a échoué."
+      },
+      "verify": {
+        "title": "Confirmez votre adresse e-mail",
+        "body": "Vous devez confirmer votre adresse e-mail pour continuer à utiliser {{brand}}. Regardez votre boîte de réception (et les indésirables).",
+        "emailLabel": "Adresse e-mail :",
+        "resendBtn": "Envoyer un nouveau lien",
+        "resendSending": "Envoi…",
+        "resendSuccess": "✅ Nouveau lien envoyé ! Regardez votre boîte de réception et les indésirables.",
+        "resendError": "Un problème est survenu. Réessayez.",
+        "spamHint": "Regardez aussi les indésirables. Le lien est valable 24 heures."
+      }
+    },
+    "entry": {
+      "back": "Retour",
+      "backWithArrow": "← Retour",
+      "welcome": {
+        "ariaLabel": "Bienvenue",
+        "headline": "Un quotidien plus calme, avec des étapes claires, un planning et des étoiles",
+        "lead": "{{brand}} aide les enfants et les familles dans les routines du quotidien, avec des plannings visuels, des étapes claires et des récompenses qui rendent la journée plus autonome.",
+        "chipVisualSchedules": "Plannings visuels",
+        "chipStarsRewards": "Étoiles et récompenses",
+        "chipMultipleUsers": "Plusieurs enfants et adultes",
+        "startBtn": "Commencer",
+        "existingBtn": "J'ai déjà un compte",
+        "howItWorksBtn": "Comment fonctionne l'appli",
+        "firstRunHeadline": "Bienvenue sur {{brand}}",
+        "firstRunCreateAccount": "Créer un compte",
+        "firstRunLogIn": "Se connecter",
+        "firstRunChildLink": "Je suis un enfant"
+      },
+      "role": {
+        "title": "Qui utilise l'appli maintenant ?",
+        "kidAria": "Je suis un enfant",
+        "kidLabel": "Je suis un enfant",
+        "kidSub": "Je veux voir mon planning",
+        "kidAlt": "Enfant",
+        "parentAria": "Je suis un adulte",
+        "parentLabel": "Je suis un adulte",
+        "parentSub": "Je veux me connecter ou commencer",
+        "parentAlt": "Famille"
+      },
+      "adultStart": {
+        "ariaLabel": "Démarrage adulte",
+        "title": "Bienvenue ! Comment voulez-vous continuer ?",
+        "existingLabel": "J'ai déjà un compte",
+        "existingSub": "Connexion avec Apple, Google ou e-mail",
+        "newLabel": "Je suis nouveau ici",
+        "newSub": "Voir comment l'appli fonctionne et créer un compte gratuit"
+      },
+      "signupIntro": {
+        "ariaLabel": "Commencer",
+        "title": "Commencer avec {{brand}}",
+        "sub": "Créez un compte gratuit et préparez le premier planning de votre enfant, avec des étapes claires, des étoiles et des objectifs.",
+        "point1": "Des plannings visuels que votre enfant comprend",
+        "point2": "Des étoiles et des récompenses qui donnent envie",
+        "point3": "Plusieurs enfants et adultes dans la même famille",
+        "createBtn": "Créer un compte gratuit",
+        "existingBtn": "J'ai déjà un compte",
+        "founderNote": "L'essentiel est inclus gratuitement pour le moment."
+      },
+      "howItWorks": {
+        "title": "Comment fonctionne l'appli",
+        "step1Title": "1. L'enfant voit son planning, étape par étape",
+        "step1Body": "Les routines visuelles rendent le quotidien clair et prévisible.",
+        "step2Title": "2. L'enfant gagne des étoiles quand les activités sont faites",
+        "step2Body": "Les petites réussites donnent envie de continuer et d'être plus autonome.",
+        "step3Title": "3. Les adultes suivent les progrès et construisent les routines ensemble",
+        "step3Body": "Plusieurs enfants et adultes peuvent partager la même famille dans l'appli.",
+        "close": "Fermer"
+      },
+      "noscript": "JavaScript est requis — activez JavaScript pour vous connecter."
+    },
+    "register": {
+      "title": "Créer un compte",
+      "pageTitle": "Créer un compte | {{brand}}",
+      "pageHeading": "Créer un compte parent",
+      "pageLead": "Essayez {{brand}} gratuitement. Un planning visuel, avec des images et des récompenses en étoiles, qui aide votre enfant à comprendre la journée, suivre les routines et gagner en autonomie.",
+      "pageLeadSecondary": "Pour les familles qui veulent des routines plus claires, des transitions plus calmes et moins de rappels dans le quotidien.",
+      "subtitle": "Commencer avec {{brand}}",
+      "nameLabel": "Votre nom",
+      "namePlaceholder": "ex. Camille",
+      "familyNameLabel": "Nom de la famille",
+      "familyNamePlaceholder": "ex. Famille Martin",
+      "familyNameAuto": "Généré à partir de votre nom",
+      "familyNameGenerated": "Généré automatiquement — modifiez si vous voulez",
+      "familyNameEdited": "Modifié",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@email.com",
+      "emailHelp": "Nous enverrons un lien de confirmation ici",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "passwordHelp": "Au moins 8 caractères",
+      "confirmPassword": "Confirmez le mot de passe",
+      "confirmPasswordPlaceholder": "Répétez le mot de passe",
+      "submit": "Créer un compte",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Connectez-vous ici",
+      "childLoginLink": "Tu es un enfant ? Connecte-toi ici",
+      "gateHintLanguage": "Choisissez une langue ci-dessus pour continuer l'inscription.",
+      "gateHintCountry": "Choisissez votre pays ci-dessus pour continuer l'inscription.",
+      "appleFromLoginHint": "Aucun compte n'est encore lié à cet identifiant Apple. Choisissez votre pays et acceptez les conditions — le nom et l'e-mail viennent d'Apple. Une nouvelle connexion Apple n'est pas nécessaire.",
+      "appleOnlyPath": "Créez votre compte avec Apple. Le nom et l'e-mail viennent d'Apple — ne remplissez pas le formulaire.",
+      "tagline": "Une journée calme, une étoile à la fois",
+      "orDivider": "ou",
+      "continueWithApple": "S'inscrire avec Apple",
+      "continueWithGoogle": "S'inscrire avec Google",
+      "validatingInvite": "Vérification de l'invitation…",
+      "inviteInvalid": "Lien d'invitation invalide ou expiré. Contactez la personne qui vous a invité.",
+      "inviteValidateFailed": "Impossible de vérifier le lien d'invitation. Réessayez.",
+      "familyNameSuffix": "Famille de {{name}}",
+      "termsRequired": "Vous devez accepter les conditions d'utilisation et la politique de confidentialité",
+      "success": "Compte créé ! Regardez votre e-mail pour le confirmer.",
+      "termsPrefix": "J'ai lu et j'accepte les",
+      "termsLink": "Conditions d'utilisation",
+      "termsAnd": "et",
+      "privacyLink": "Politique de confidentialité",
+      "termsSuffix": ".",
+      "successTitle": "Compte créé ! 🎉",
+      "successVerifyLine1": "Nous avons envoyé un lien de confirmation à votre adresse e-mail.",
+      "successVerifyLine2": "Regardez votre boîte de réception (et les indésirables).",
+      "successGracePeriod": "Vous pouvez vous connecter tout de suite et vous avez 24 heures pour confirmer votre e-mail.",
+      "successLoginBtn": "Se connecter",
+      "inviteErrorDefault": "Lien d'invitation invalide.",
+      "appleEmailExists": "Un compte avec cette adresse e-mail existe déjà. Connectez-vous avec Apple, ou utilisez l'e-mail et le mot de passe.",
+      "webDownload": {
+        "title": "Télécharger l'appli",
+        "lead": "Les nouvelles familles créent un compte dans l'appli. Téléchargez-la sur l'App Store ou Google Play.",
+        "appStoreAria": "Télécharger sur l'App Store",
+        "playStoreAria": "Disponible sur Google Play",
+        "hasAccount": "Vous avez déjà un compte ?",
+        "loginLink": "Se connecter"
+      }
+    },
+    "parentGate": {
+      "title": "Verrou parent",
+      "hint": "Saisissez votre code PIN pour continuer",
+      "keypadAria": "Clavier PIN",
+      "cancel": "Annuler",
+      "forgotPinBackup": "PIN oublié ? Connectez-vous par e-mail ou Apple/Google",
+      "digitsEntered": "{{count}} chiffres sur 4",
+      "backspace": "Effacer",
+      "confirm": "Confirmer",
+      "needFourDigits": "Le PIN doit faire 4 chiffres"
+    },
+    "childLogin": {
+      "title": "Salut ! 👋",
+      "pageTitle": "Explorateur d'étoiles — {{brand}}",
+      "whoAreYou": "Qui es-tu ?",
+      "selectProfile": "Choisis ton profil et saisis ton code.",
+      "back": "Retour",
+      "addChild": "Ajouter un enfant",
+      "notMe": "Je ne me trouve pas",
+      "subtitle": "Saisis ton identifiant et ton code",
+      "username": "Identifiant",
+      "usernamePlaceholder": "Ton identifiant",
+      "pin": "PIN",
+      "pinPlaceholder": "4 chiffres",
+      "submit": "Entrer",
+      "parentLogin": "Vous êtes un parent ?",
+      "parentLoginLink": "Connectez-vous ici",
+      "adultLogin": "Connexion adulte",
+      "adultLoginShort": "Adulte",
+      "forgotPassword": "Mot de passe oublié ?",
+      "emptyNoChildren": "Aucun enfant inscrit pour le moment.",
+      "nameHint": "Écris ton prénom pour te connecter",
+      "namePlaceholder": "Ton prénom",
+      "continue": "Continuer →",
+      "switchChild": "Changer d'enfant",
+      "pinSub": "Saisis ton code",
+      "attemptsLeft": "Essais restants",
+      "pinDotsAria": "Code PIN",
+      "lockoutWait": "Attends un instant",
+      "lockoutSoon": "Tu pourras réessayer bientôt",
+      "welcome": "Bienvenue !",
+      "redirecting": "Direction ta journée…",
+      "keypadAria": "Clavier numérique",
+      "forgotPin": "Demande à un parent si tu as oublié ton code",
+      "needHelp": "Besoin d'aide ?",
+      "contactParent": "Parle à un parent"
+    },
+    "verify": {
+      "title": "Confirmez votre e-mail",
+      "pageTitle": "Confirmer l'e-mail — {{brand}}",
+      "checkingTitle": "Confirmation de l'e-mail",
+      "checkingBody": "Patientez pendant la confirmation de votre adresse e-mail…",
+      "checking": "Vérification…",
+      "success": "Votre e-mail est confirmé ! Vous pouvez vous connecter.",
+      "successTitle": "E-mail confirmé !",
+      "welcomeMessage": "Votre adresse e-mail est confirmée. Bienvenue sur {{brand}} ! 🎉",
+      "redirectCountdownPrefix": "Redirection dans",
+      "redirectCountdownSuffix": "secondes…",
+      "error": "Le lien de confirmation est invalide ou a expiré.",
+      "errorTitle": "La confirmation a échoué",
+      "verifyFailed": "La confirmation a échoué. Le lien a peut-être expiré.",
+      "noToken": "Aucun jeton de confirmation dans le lien.",
+      "genericError": "Un problème est survenu. Réessayez.",
+      "resendPrompt": "Saisissez votre adresse e-mail pour recevoir un nouveau lien :",
+      "resendBtn": "Envoyer un nouveau lien",
+      "resendSending": "Envoi…",
+      "resendRateLimit": "Vous avez déjà demandé plusieurs liens. Réessayez dans une heure.",
+      "resendSuccess": "✅ Si le compte existe, nous avons envoyé un nouveau lien. Regardez votre boîte de réception et les indésirables !",
+      "resendEmailInvalid": "Saisissez une adresse e-mail valide.",
+      "needHelpPrefix": "Besoin d'aide ? Regardez les indésirables ou",
+      "contactUs": "contactez-nous",
+      "loginLink": "Aller à la connexion"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "pageTitle": "Mot de passe oublié — {{brand}}",
+      "heading": "Mot de passe oublié ?",
+      "lead": "Pas de souci ! Nous vous enverrons un lien pour le réinitialiser.",
+      "subtitle": "Saisissez votre adresse e-mail et nous vous enverrons un lien",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "vous@email.com",
+      "emailHint": "Nous enverrons un lien sécurisé pour réinitialiser votre mot de passe",
+      "submit": "Envoyer le lien",
+      "sent": "Si cette adresse est dans notre système, nous avons envoyé un lien.",
+      "successTitle": "Regardez votre e-mail !",
+      "successBody": "Nous avons envoyé un lien pour réinitialiser votre mot de passe. Regardez votre boîte de réception et les indésirables.",
+      "orDivider": "ou",
+      "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+      "backToLogin": "Retour à la connexion",
+      "helpTitle": "Vous n'avez pas reçu l'e-mail ?",
+      "helpItem1": "Regardez les courriers indésirables",
+      "helpItem2": "Vérifiez que l'adresse e-mail est la bonne",
+      "helpItem3": "Réessayez dans quelques minutes",
+      "helpItem4Suffix": "si vous avez besoin d'aide",
+      "contactSupport": "Contacter l'assistance"
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "pageTitle": "Réinitialiser le mot de passe — {{brand}}",
+      "subtitle": "Choisissez un nouveau mot de passe",
+      "password": "Nouveau mot de passe",
+      "passwordPlaceholder": "Au moins 8 caractères",
+      "passwordHelp": "Au moins 8 caractères",
+      "confirmPassword": "Confirmez le mot de passe",
+      "confirmPasswordPlaceholder": "Répétez le mot de passe",
+      "submit": "Réinitialiser le mot de passe",
+      "submitting": "Enregistrement…",
+      "success": "Votre mot de passe a été changé ! Vous pouvez vous connecter.",
+      "successRedirect": "C'est fait ! Votre nouveau mot de passe est enregistré.",
+      "alreadyUsed": "Votre mot de passe a déjà été changé. Connectez-vous avec le nouveau.",
+      "error": "Le lien de réinitialisation est invalide ou a expiré.",
+      "invalidLink": "Lien de réinitialisation invalide.",
+      "requestNewLink": "Demander un nouveau lien",
+      "requestNewLinkShort": "Demander un nouveau lien",
+      "resetFailed": "Impossible de réinitialiser votre mot de passe",
+      "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+      "goToLoginInline": "Aller à la connexion",
+      "loginLink": "Aller à la connexion"
+    },
+    "supportBubble": {
+      "closeAria": "Fermer",
+      "triggerAria": "Contacter l'assistance",
+      "title": "Besoin d'aide ? 💬",
+      "subtitle": "Nous vous répondons dès que possible",
+      "oooSubtitle": "Nous sommes absents du 1er au 10 septembre",
+      "success": "Merci ! Nous avons reçu votre message et nous vous répondrons bientôt.",
+      "oooSuccess": "Merci ! Nous avons reçu votre message. Nous sommes absents du 1er au 10 septembre et nous vous répondrons dès que possible, au plus tard le 11 septembre.",
+      "openThread": "Ouvrir votre conversation",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Votre nom",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "emailHint": "Pour que nous puissions vous répondre",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Décrivez votre problème…",
+      "submit": "Envoyer le message",
+      "fillAllFields": "Remplissez tous les champs",
+      "messageMinLength": "Le message doit contenir au moins 10 caractères",
+      "submitting": "Envoi…",
+      "sendFailed": "Impossible d'envoyer votre message. Réessayez.",
+      "genericError": "Un problème est survenu"
+    },
+    "contactForm": {
+      "fillRequired": "Tous les champs sont requis.",
+      "emailInvalid": "Saisissez une adresse e-mail valide.",
+      "messageTooShort": "Le message est trop court (au moins 5 caractères).",
+      "submitting": "Envoi…",
+      "submit": "Envoyer",
+      "genericError": "Un problème est survenu. Réessayez.",
+      "openThread": "Ouvrir votre conversation"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "L'e-mail et le mot de passe sont requis",
+        "emailRequired": "L'adresse e-mail est requise",
+        "accountBlocked": "Votre compte a été bloqué. Contactez l'administrateur.",
+        "emailVerificationRequired": "Vous devez confirmer votre adresse e-mail pour continuer",
+        "verificationTokenRequired": "Le jeton de confirmation est requis",
+        "invalidVerificationLink": "Lien de confirmation invalide ou expiré",
+        "resendVerificationRateLimit": "Vous avez déjà demandé plusieurs liens de confirmation. Réessayez dans une heure.",
+        "tokenAndPasswordRequired": "Le jeton et le mot de passe sont requis",
+        "invalidResetLink": "Lien de réinitialisation invalide ou expiré. Demandez-en un nouveau.",
+        "parentOnlyViewMode": "Seuls les parents peuvent modifier le mode d'affichage",
+        "parentOnlyUiViewMode": "Seuls les parents peuvent modifier le mode d'interface",
+        "parentOnlyTheme": "Seuls les parents peuvent modifier le thème",
+        "preferencesSaveFailed": "Impossible d'enregistrer les réglages",
+        "uiViewModeSaveFailed": "Impossible d'enregistrer le mode d'affichage",
+        "themeSaveFailed": "Impossible d'enregistrer le thème",
+        "userNotFound": "Utilisateur introuvable",
+        "unknownUserType": "Type d'utilisateur inconnu",
+        "registrationClosed": "Les inscriptions sont fermées pour le moment",
+        "invalidCountry": "Pays invalide",
+        "countryRequired": "Choisissez votre pays avant de créer un compte",
+        "registrationRequired": "REMPLACÉ — utilisez appleAccountCompletionRequired. Ne renvoyez pas vers l'inscription par e-mail et mot de passe.",
+        "appleAccountCompletionRequired": "Choisissez votre pays et acceptez les conditions pour terminer la création du compte. Le nom et l'e-mail viennent d'Apple.",
+        "familyNameRequired": "Le nom est requis pour créer un compte famille",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Les inscriptions depuis la Suède sont temporairement fermées.",
+          "MARKET_IE_CLOSED": "{{brand}} n'est pas encore disponible en Irlande.",
+          "MARKET_CA_CLOSED": "{{brand}} n'est pas encore disponible au Canada.",
+          "MARKET_FI_CLOSED": "{{brand}} n'est pas encore disponible en Finlande.",
+          "MARKET_NO_CLOSED": "{{brand}} n'est pas encore disponible en Norvège.",
+          "MARKET_DK_CLOSED": "{{brand}} n'est pas encore disponible au Danemark.",
+          "MARKET_EU_CLOSED": "{{brand}} n'est pas encore disponible dans votre pays. Nous vous préviendrons quand nous ouvrirons d'autres pays de l'UE.",
+          "MARKET_UK_CLOSED": "{{brand}} n'est pas encore disponible au Royaume-Uni.",
+          "MARKET_US_CLOSED": "{{brand}} n'est pas encore disponible aux États-Unis.",
+          "MARKET_OTHER_CLOSED": "{{brand}} n'est pas encore disponible dans votre pays.",
+          "MARKET_BILLING_NOT_READY": "Les achats ne sont pas encore disponibles dans ce pays, nous ne pouvons donc pas créer un compte que vous ne pourriez pas utiliser."
+        }
+      },
+      "success": {
+        "emailVerified": "Votre adresse e-mail est confirmée ! Vous pouvez vous connecter.",
+        "resendVerification": "Si le compte existe, un nouveau lien de confirmation sera envoyé",
+        "forgotPassword": "Si l'adresse e-mail existe, nous enverrons un lien"
+      }
+    },
+    "errors": {
+      "nameRequired": "Saisissez votre nom",
+      "emailRequired": "L'adresse e-mail est requise",
+      "emailInvalid": "Adresse e-mail invalide",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "usernameRequired": "L'identifiant est requis",
+      "pinRequired": "Le PIN est requis",
+      "pinInvalid": "Le PIN doit faire 4 chiffres",
+      "invalidCredentials": "E-mail ou mot de passe incorrect",
+      "accountLocked": "Votre compte est temporairement bloqué. Réessayez dans 15 minutes.",
+      "emailNotVerified": "Vous devez d'abord confirmer votre adresse e-mail",
+      "emailExists": "Un compte avec cette adresse e-mail existe déjà",
+      "tooManyAttempts": "Trop de tentatives. Attendez un instant et réessayez.",
+      "serverError": "Un problème est survenu. Réessayez plus tard.",
+      "invalidValues": "Valeurs invalides",
+      "invalidParams": "Paramètres d'URL invalides",
+      "invalidQuery": "Paramètres de requête invalides",
+      "parentPinInvalid": "PIN incorrect — réessayez",
+      "logoutFailed": "La déconnexion a échoué. Réessayez.",
+      "logoutRateLimited": "Trop de tentatives. Attendez un instant et réessayez.",
+      "handoffInvalid": "Impossible de rétablir la session adulte. Connectez-vous en tant que parent.",
+      "userNotFound": "Utilisateur introuvable",
+      "invalidPassword": "Mot de passe incorrect",
+      "tokenRequired": "Le jeton est requis",
+      "idTokenRequired": "idToken est requis",
+      "allFieldsRequired": "Tous les champs sont requis",
+      "messageTooShort": "Le message doit contenir au moins 10 caractères",
+      "serviceUnavailable": "Le service est temporairement indisponible",
+      "nameTooShort": "Le nom est requis (au moins 2 caractères)",
+      "roleRequired": "Le rôle est requis",
+      "consentRequired": "Vous devez accepter que nous conservions vos informations",
+      "refreshInvalid": "Le jeton de rafraîchissement est invalide ou expiré",
+      "authRequired": "Authentification requise",
+      "passwordTooShort6": "Le mot de passe doit contenir au moins 6 caractères"
+    }
+  },
+  "surveys": {
+    "thankYou": "Merci pour votre réponse !",
+    "errors": {
+      "unavailable": "Le questionnaire n'est pas disponible pour le moment",
+      "notFound": "Questionnaire introuvable",
+      "closed": "Le questionnaire est fermé",
+      "paused": "Le questionnaire est en pause",
+      "alreadyAnswered": "Vous avez déjà répondu à ce questionnaire",
+      "alreadySubmitted": "Le questionnaire a déjà été envoyé",
+      "questionIdRequired": "La question est requise",
+      "invalidQuestion": "Question invalide",
+      "maxSelections": "Vous pouvez en choisir {{max}} au maximum",
+      "invalidOption": "Option de réponse invalide",
+      "sessionNotFound": "Session introuvable",
+      "answerFirst": "Répondez d'abord au questionnaire",
+      "contestNotOpen": "Le tirage au sort n'est pas ouvert",
+      "contestClosed": "Le tirage au sort est fermé",
+      "ageRequired": "Vous devez avoir 18 ans ou plus pour participer",
+      "contestConsent": "Un consentement est requis pour participer au tirage",
+      "contestAlready": "Vous participez déjà au tirage",
+      "emailAlready": "Cette adresse participe déjà",
+      "idActionRequired": "Le questionnaire et l'action sont requis"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue, {{name}} !",
+    "todaySchedule": "Planning d'aujourd'hui",
+    "children": "Enfants",
+    "addChild": "Ajouter un enfant",
+    "settings": "Réglages",
+    "noChildren": "Vous n'avez pas encore ajouté d'enfant. Commencez par le premier !",
+    "stars": "Étoiles",
+    "streak": "Série"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Ma première étoile"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Salut {{name}} ! ⭐",
+    "today": "Aujourd'hui",
+    "now": "Maintenant",
+    "next": "Ensuite",
+    "later": "Plus tard",
+    "done": "C'est fait !",
+    "stars": "Mes étoiles",
+    "rewards": "Récompenses"
+  },
+  "sections": {
+    "morgon": "Matin",
+    "dag": "Journée",
+    "kvall": "Soir",
+    "natt": "Nuit"
+  },
+  "settings": {
+    "title": "Réglages",
+    "family": {
+      "title": "Réglages de la famille",
+      "timeDisplayMode": "Affichage de l'heure",
+      "morningStart": "Début du matin",
+      "morningEnd": "Fin du matin",
+      "dayStart": "Début de la journée",
+      "dayEnd": "Fin de la journée",
+      "eveningStart": "Début du soir",
+      "eveningEnd": "Fin du soir",
+      "nightStart": "Début de la nuit",
+      "nightEnd": "Fin de la nuit",
+      "streakStartDay": "Jour de début de la série",
+      "soundEnabled": "Son activé",
+      "save": "Enregistrer les réglages famille"
+    },
+    "language": {
+      "description": "Choisissez la langue de l'appli.",
+      "switchBack": "Revenir au suédois"
+    },
+    "invite": {
+      "title": "Inviter un parent",
+      "description": "Invitez un autre parent à voir et gérer les plannings des enfants. L'invitation est valable 7 jours.",
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "parent@email.com",
+      "selectChildren": "Choisissez les enfants auxquels le parent invité aura accès :",
+      "submit": "Envoyer l'invitation",
+      "pending": "Invitations en attente :"
+    },
+    "password": {
+      "title": "Changer le mot de passe",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmez le nouveau mot de passe",
+      "submit": "Changer le mot de passe",
+      "mismatch": "Les mots de passe ne correspondent pas"
+    },
+    "notifications": {
+      "title": "Réglages des notifications",
+      "weeklySummary": "Résumé de la semaine (dimanche à 21:00)",
+      "rewardRedemption": "Échange de récompense",
+      "emailEnabled": "Tous les e-mails, globalement",
+      "save": "Enregistrer les notifications"
+    },
+    "theme": {
+      "title": "Apparence",
+      "darkMode": "Mode sombre",
+      "darkModeDescription": "Activez le thème sombre pour un usage plus confortable quand la lumière est faible",
+      "colorBlind": "Thème daltonien",
+      "colorBlindDescription": "Ajuste les couleurs selon le type de daltonisme",
+      "colorBlindNone": "Aucun (par défaut)",
+      "colorBlindProtanopia": "Protanopie (rouge)",
+      "colorBlindDeuteranopia": "Deutéranopie (vert)",
+      "colorBlindTritanopia": "Tritanopie (bleu)"
+    },
+    "trustedDevices": {
+      "title": "Appareils de confiance",
+      "description": "Les appareils enfant peuvent ouvrir la vue enfant sans PIN après votre validation ici.",
+      "disabled": "Le mode appareil enfant n'est pas encore activé pour votre famille.",
+      "enrollHint": "Sur la tablette ou le téléphone de l'enfant : choisissez l'enfant et faites de cet appareil son appareil enfant.",
+      "enrollThisDevice": "En faire un appareil enfant",
+      "enrollSharedDevice": "En faire un appareil partagé",
+      "enrollFailed": "Impossible d'enregistrer cet appareil. Réessayez.",
+      "empty": "Aucun appareil de confiance enregistré.",
+      "revoke": "Retirer",
+      "revokeAll": "Retirer tous les appareils",
+      "revokeAllConfirm": "Tous les appareils de confiance seront déconnectés. Continuer ?",
+      "modeChild": "Appareil enfant",
+      "modeShared": "Appareil partagé",
+      "modeParent": "Appareil parent",
+      "unknownChild": "Enfant"
+    },
+    "thisDevice": {
+      "title": "Cet appareil",
+      "description": "Comment ce téléphone ou cette tablette doit ouvrir l'appli pour votre famille.",
+      "setupTitle": "Comment cet appareil sera-t-il utilisé ?",
+      "setupLead": "Vous pourrez changer cela plus tard dans Réglages.",
+      "setupLater": "Pas maintenant",
+      "openSettings": "Ouvrir les réglages",
+      "usageHeading": "Usage",
+      "usageParent": "Mon téléphone parent",
+      "usageShared": "Partagé avec les enfants",
+      "usageChild": "Appareil de l'enfant",
+      "startHeading": "S'ouvre sur",
+      "startParent": "Parent",
+      "startChoose": "Choisir un enfant",
+      "startParentFixed": "Cet appareil ouvre toujours la vue parent.",
+      "startChildFixed": "Cet appareil est lié à un seul enfant.",
+      "childrenHeading": "Enfants sur cet appareil",
+      "adultAccessHeading": "Accès adulte",
+      "adultPinSet": "Le PIN est défini",
+      "adultPinMissing": "Définissez un PIN dans Réglages",
+      "biometricIos": "Face ID ou Touch ID quand c'est possible",
+      "biometricAndroid": "Biométrie ou verrouillage de l'appareil quand c'est possible",
+      "biometricWeb": "PIN pour le mode adulte",
+      "widgetsHeading": "Widgets",
+      "widgetsLinked": "Les widgets de l'écran d'accueil sont liés au planning de l'enfant.",
+      "widgetsNone": "Aucun widget lié sur cet appareil.",
+      "changeStartHeading": "Changer le mode de démarrage",
+      "revokeThis": "Retirer l'accès de cet appareil",
+      "revokeConfirm": "Cet appareil devra être validé à nouveau pour que les enfants ouvrent l'appli sans PIN. Continuer ?",
+      "otherDevices": "Autres appareils de la famille",
+      "openForChild": "Ouvrir directement pour {{name}}",
+      "saveFailed": "Enregistrement impossible. Réessayez."
+    }
+  },
+  "common": {
+    "loading": "Chargement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "networkError": "Erreur réseau"
+  },
+  "categories": {
+    "title": "Catégories",
+    "subtitle": "Rangez vos activités par catégories",
+    "addCategory": "Ajouter une catégorie",
+    "editCategory": "Modifier la catégorie",
+    "categoryName": "Nom de la catégorie",
+    "categoryNamePlaceholder": "ex. Hygiène",
+    "noCategories": "Aucune catégorie pour le moment",
+    "defaultBadge": "Par défaut",
+    "deleteConfirm": "Voulez-vous vraiment supprimer cette catégorie ?",
+    "hasActivities": "Cette catégorie a des activités liées. Retirez d'abord les activités.",
+    "saved": "Catégorie enregistrée",
+    "deleted": "Catégorie supprimée"
+  },
+  "activities": {
+    "title": "Activités",
+    "subtitle": "Créez et gérez les modèles d'activités de votre famille",
+    "addActivity": "Ajouter une activité",
+    "editActivity": "Modifier l'activité",
+    "activityName": "Nom de l'activité",
+    "activityNamePlaceholder": "ex. Se brosser les dents",
+    "icon": "Icône",
+    "category": "Catégorie",
+    "noCategory": "Aucune catégorie",
+    "starValue": "Valeur en étoiles",
+    "starValueHelp": "Combien d'étoiles l'enfant gagne",
+    "favorite": "Marquer comme favori",
+    "favoriteHelp": "Les favoris apparaissent en premier dans le planning",
+    "noActivities": "Aucune activité pour le moment. Créez la première !",
+    "filterAll": "Toutes",
+    "favoritesFirst": "Favoris affichés en premier",
+    "saved": "Activité enregistrée",
+    "deleted": "Activité supprimée",
+    "deleteConfirm": "Voulez-vous vraiment supprimer cette activité ?",
+    "usedInSchedule": "Cette activité est utilisée dans un planning. Retirez-la d'abord de là."
+  },
+  "schedule": {
+    "title": "Planning de la semaine",
+    "subtitle": "Construisez un planning pour chaque enfant et chaque jour",
+    "selectChild": "Choisir un enfant",
+    "selectDay": "Choisir un jour",
+    "noChild": "Choisissez un enfant ci-dessus pour voir le planning",
+    "noScheduleForDay": "Pas de planning pour ce jour",
+    "createSchedule": "Créer un planning pour ce jour",
+    "addActivity": "Ajouter une activité",
+    "startTime": "Heure de début",
+    "endTime": "Heure de fin",
+    "section": "Moment",
+    "copyDay": "Copier le jour",
+    "copyDayTitle": "Copier le planning vers d'autres jours",
+    "copyFromDay": "Copier depuis",
+    "copyToDays": "Copier vers (un ou plusieurs)",
+    "copyToChild": "Copier vers un autre enfant",
+    "copyToChildTitle": "Copier tout le planning de la semaine vers",
+    "copyConfirm": "Copier",
+    "copied": "Planning copié !",
+    "deleteSchedule": "Supprimer le jour",
+    "deleteConfirm": "Vous êtes sûr ? Toutes les activités de ce jour seront retirées.",
+    "deleted": "Planning supprimé",
+    "activityAdded": "Activité ajoutée",
+    "activityRemoved": "Activité retirée",
+    "reordered": "Ordre mis à jour",
+    "days": {
+      "0": "Dimanche",
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi"
+    },
+    "daysShort": {
+      "0": "Dim",
+      "1": "Lun",
+      "2": "Mar",
+      "3": "Mer",
+      "4": "Jeu",
+      "5": "Ven",
+      "6": "Sam"
+    },
+    "sections": {
+      "morgon": "Matin",
+      "dag": "Journée",
+      "kvall": "Soir",
+      "natt": "Nuit"
+    }
+  },
+  "dailyLog": {
+    "title": "Journal du jour",
+    "subtitle": "Activités de la journée",
+    "today": "Aujourd'hui",
+    "prevDay": "Jour précédent",
+    "nextDay": "Jour suivant",
+    "selectDate": "Choisir une date",
+    "selectChild": "Choisir un enfant",
+    "noChild": "Choisissez un enfant ci-dessus pour voir le journal",
+    "noSchedule": "Pas de planning pour ce jour",
+    "noScheduleHint": "Ajoutez un planning de la semaine pour créer les journaux automatiquement.",
+    "loading": "Chargement du journal…",
+    "paused": "Journée en pause",
+    "pausedHint": "Ce jour est en pause (par exemple maladie ou congé).",
+    "pauseDay": "Mettre le jour en pause",
+    "unpauseDay": "Reprendre le jour",
+    "pauseConfirm": "Mettre ce jour en pause ? Les activités ne seront pas comptées.",
+    "dayPaused": "Journée en pause",
+    "dayUnpaused": "Journée reprise",
+    "markDone": "Marquer comme fait",
+    "markUndone": "Annuler",
+    "completed": "Fait",
+    "notCompleted": "Pas fait",
+    "completedAt": "Marqué fait à",
+    "stars": "étoiles",
+    "star": "étoile",
+    "progress": "{{completed}} activités faites sur {{total}}",
+    "allDone": "Toutes les activités sont faites ! 🎉",
+    "emptySection": "Aucune activité dans ce moment",
+    "history": "Historique",
+    "historyRange": "Choisir une plage de dates",
+    "historyFrom": "Du",
+    "historyTo": "Au",
+    "historyFetch": "Charger l'historique",
+    "historyEmpty": "Aucun journal pour la plage choisie",
+    "sections": {
+      "morgon": "Matin",
+      "dag": "Journée",
+      "kvall": "Soir",
+      "natt": "Nuit"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Confirmez votre e-mail — {{brand}}",
+      "title": "Bienvenue sur {{brand}} ! ⭐",
+      "body": "Touchez le bouton ci-dessous pour confirmer votre adresse e-mail :",
+      "button": "Confirmer l'e-mail",
+      "expiry": "Ce lien est valable {{hours}} heures."
+    },
+    "resetPassword": {
+      "subject": "Réinitialiser le mot de passe — {{brand}}",
+      "title": "Réinitialisez votre mot de passe",
+      "greeting": "Bonjour {{name}}",
+      "greetingGeneric": "Bonjour",
+      "body": "touchez ici pour choisir un nouveau mot de passe :",
+      "button": "Réinitialiser le mot de passe",
+      "expiry": "Ce lien est valable {{hours}} heure. Ignorez cet e-mail si vous n'avez pas demandé de réinitialisation."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} essaie de se connecter",
+      "title": "Tentative de connexion sur {{brand}}",
+      "body": "{{childName}} a saisi un mauvais PIN 3 fois sur {{brand}}.",
+      "inApp": "{{childName}} a essayé de se connecter avec un mauvais PIN 3 fois ({{time}})",
+      "help": "Vous pouvez aider avec le bon code ou réinitialiser le PIN dans l'appli.",
+      "button": "Ouvrir {{brand}}",
+      "footer": "Si ce n'était pas votre enfant, connectez-vous et changez le PIN dans les réglages de l'enfant."
+    },
+    "accountDeletionRequested": {
+      "subject": "Votre compte {{brand}} est marqué pour suppression",
+      "greeting": "Bonjour {{name}} !",
+      "intro": "Nous avons reçu une demande de suppression de votre compte et de toutes les données associées.",
+      "graceTitle": "⏳ Vos données seront supprimées définitivement dans 30 jours.",
+      "undo": "Pendant cette période, vous pouvez vous connecter et <strong>annuler la suppression</strong> si vous changez d'avis.",
+      "loginHint": "Si vous changez d'avis — connectez-vous à {{brand}} et vous verrez une option pour annuler.",
+      "footer": "Si c'était une erreur, vous pouvez ignorer cet e-mail. Vos données seront supprimées dans 30 jours, sauf si vous annulez.",
+      "contact": "Si vous avez des questions, écrivez-nous à {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Votre compte {{brand}} a été supprimé",
+      "greeting": "Bonjour {{name}}",
+      "intro": "Votre compte et toutes les données associées ont été supprimés définitivement de {{brand}}.",
+      "dataRemoved": "Toutes les familles, les enfants, les plannings, les activités et les étoiles ont été retirés.",
+      "thanks": "Nous espérons que {{brand}} vous a été utile.",
+      "return": "Si vous voulez créer un nouveau compte, vous êtes les bienvenus à tout moment sur {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Laissez votre enfant essayer la première étape ⭐",
+      "greeting": "Bonjour {{name}} !",
+      "body": "Le planning est prêt. Ensuite, laissez votre enfant se connecter avec son PIN — cela prend moins d'une minute.",
+      "button": "Continuer vers la connexion enfant"
+    },
+    "welcomeShell": {
+      "headerTitle": "Bienvenue ! 🌟",
+      "cta": "Ouvrir {{brand}} ⭐",
+      "footerIntro": "Vous recevez cet e-mail parce que vous venez de créer un compte sur {{brand}}.",
+      "unsubscribe": "Se désabonner"
+    },
+    "common": {
+      "genericParent": "Parent",
+      "genericInviter": "Quelqu'un",
+      "genericPedagogInviter": "Un parent",
+      "genericChild": "votre enfant",
+      "genericReward": "la récompense",
+      "genericYou": "vous",
+      "greetingNamed": "Bonjour {{name}}",
+      "greeting": "Bonjour",
+      "familyNamed": "la famille « {{familyName}} »",
+      "aFamily": "une famille",
+      "settingsNotifications": "Réglages → Notifications",
+      "settingsNotificationsHtml": "Réglages → <strong>Notifications</strong>"
+    },
+    "invite": {
+      "subject": "Vous êtes invité dans {{familyLabel}} sur {{brand}} ⭐",
+      "title": "Vous êtes invité ! ⭐",
+      "body": "{{greeting}}, {{inviterName}} vous invite dans {{familyLabel}} sur {{brand}}.",
+      "intro": "{{brand}} est un planning visuel du quotidien qui aide les enfants à comprendre leur journée, cocher les activités et collecter des étoiles.",
+      "ctaIntro": "Touchez ici pour créer votre mot de passe et activer votre compte :",
+      "button": "Activer le compte",
+      "footer": "Cette invitation est valable 7 jours. Ignorez cet e-mail si vous ne l'attendiez pas."
+    },
+    "pedagogInvite": {
+      "subject": "Vous êtes invité comme éducateur dans {{familyName}} ⭐",
+      "title": "Bienvenue en tant qu'éducateur ! ⭐",
+      "greetingNamed": "Bonjour {{name}},",
+      "greeting": "Bonjour,",
+      "body": "{{inviterName}} vous invite comme éducateur dans {{familyName}} sur {{brand}}.",
+      "intro": "En tant qu'éducateur, vous pouvez noter des observations et suivre le planning de l'enfant.",
+      "button": "Accepter l'invitation →",
+      "footer": "Cette invitation est valable 7 jours. Si vous n'attendiez pas cet e-mail, vous pouvez l'ignorer."
+    },
+    "winBack": {
+      "subject": "Reprendre le fil en une minute ⭐",
+      "greeting": "Bonjour {{name}} ! 👋",
+      "body1": "Le planning de {{childName}} est toujours là — ouvrez les activités d'aujourd'hui et cochez-les ensemble.",
+      "body2": "Une minute suffit pour repartir.",
+      "button": "Ouvrir le planning →",
+      "settingsHint": "Vous pouvez désactiver ces e-mails dans {{settingsLink}} de l'appli.",
+      "settingsLinkText": "Réglages → Notifications"
+    },
+    "activationProgramInvite": {
+      "subject": "Un démarrage en douceur pour les routines de {{childName}} ?",
+      "greeting": "Bonjour {{name}} !",
+      "body1": "Vous avez créé un compte et préparé le planning de {{childName}} — bravo.",
+      "body2": "Beaucoup de familles disent que le plus difficile n'est pas de commencer, mais de <strong>tenir la routine</strong> quand le quotidien reprend le dessus.",
+      "body3": "Vous pouvez maintenant essayer notre <strong>programme de démarrage en 7 jours</strong> : de courts pas quotidiens qui vous aident, en tant que parent, à garder le rythme. Le planning de votre enfant reste le même.",
+      "button": "Oui, aidez-nous pour la première semaine",
+      "footer": "Si vous ne voulez pas du guide, l'appli fonctionne comme d'habitude — tout ce que vous avez préparé est toujours là."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Votre routine vous attend — essayez-la ensemble ce soir ⭐",
+        "greeting": "Bonjour {{name}} !",
+        "body1": "Vous avez déjà un planning. Il reste à <strong>essayer la routine ensemble</strong> — laissez votre enfant se connecter et collecter la première étoile.",
+        "body2": "Cela prend environ deux minutes. Sans pression.",
+        "button": "Ouvrir l'accueil →"
+      },
+      "noSchema": {
+        "subject": "Lancez votre routine — quelques minutes suffisent ⭐",
+        "greeting": "Bonjour {{name}} !",
+        "body1": "Vous êtes inscrit — bon début ! L'étape suivante est de <strong>préparer votre planning</strong> pour que votre enfant sache à quoi s'attendre chaque jour.",
+        "body2": "Cela prend environ cinq minutes. Tout ce que vous avez déjà fait est toujours là si vous voulez continuer plus tard.",
+        "button": "Continuer la mise en route →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Vous êtes inscrit aux infolettres de {{brand}}",
+      "title": "Merci pour votre inscription ! ⭐",
+      "greetingNamed": "Bonjour {{name}},",
+      "greeting": "Bonjour,",
+      "body": "Vous êtes maintenant inscrit aux infolettres de {{brand}}, avec des conseils, des nouvelles et des mises à jour de l'appli.",
+      "settings": "Vous pouvez vous désabonner à tout moment dans <a href=\"{{settingsUrl}}\">Réglages</a> de l'appli, ou via le lien en bas de chaque infolettre.",
+      "signoff": "Bien à vous,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} veut échanger « {{rewardName}} » ⭐",
+      "title": "Récompense en attente d'accord ! 🎁",
+      "greeting": "Bonjour {{name}} !",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> veut échanger :",
+      "cost": "Coût : {{starCost}} étoiles",
+      "approveHint": "Connectez-vous à l'appli pour accepter ou refuser l'échange.",
+      "settingsHint": "Vous pouvez désactiver ces notifications dans {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mois",
+      "howTitle": "Comment ça marche :",
+      "how1": "Créez des plannings et des activités pour votre enfant",
+      "how2": "Laissez votre enfant collecter des étoiles chaque jour",
+      "how3": "Préparez des récompenses dans le coffre aux étoiles",
+      "footerIntro": "Vous recevez cet e-mail parce que vous venez de créer un compte sur {{brand}}.",
+      "openApp": "Ouvrir l'appli",
+      "trial": {
+        "subject": "Bienvenue sur {{brand}} – votre période gratuite a commencé !",
+        "headerTitle": "Votre période gratuite a commencé ! ⭐",
+        "intro": "Bienvenue ! Vous avez maintenant <strong>{{trialDays}} jours gratuits</strong> pour essayer toutes les fonctions de {{brand}} — sans carte.",
+        "pricing": "Après {{trialDays}} jours, cela coûte <strong>{{monthlyPrice}}</strong> — vous pouvez passer à l'offre quand vous voulez.",
+        "pricingOpen": "Après {{trialDays}} jours, vous choisissez si vous continuez avec un abonnement.",
+        "cta": "Essayer Premium ⭐",
+        "ctaHint": "Sans engagement — annulez quand vous voulez"
+      },
+      "complimentary": {
+        "subject": "Bienvenue sur {{brand}} – gratuit jusqu'au {{freeUntil}}",
+        "headerTitle": "Gratuit jusqu'au {{freeUntil}}",
+        "intro": "Bienvenue ! <strong>{{brand}} est gratuit jusqu'au {{freeUntil}}.</strong> Aucun abonnement ni moyen de paiement n'est requis. Cette offre ne devient pas automatiquement un abonnement payant.",
+        "pricing": "À partir du {{paidFrom}} vous pouvez choisir de continuer avec un abonnement. Rien n'est débité automatiquement à cause de cette offre.",
+        "cta": "Ouvrir l'appli",
+        "ctaHint": "Aucune carte requise. Cette offre ne devient pas automatiquement un abonnement."
+      },
+      "introYear": {
+        "subject": "Bienvenue sur {{brand}}",
+        "headerTitle": "Bienvenue ! ⭐",
+        "intro": "Bienvenue ! Vous pouvez utiliser les fonctions de {{brand}}.",
+        "pricing": "Aucun paiement n'est requis pour cette période.",
+        "cta": "Ouvrir l'appli",
+        "ctaHint": "Vous pouvez regarder Premium quand vous voulez"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Résumé de la semaine ⭐ — {{weekLabel}}",
+      "greeting": "Bonjour {{name}} ! 👋",
+      "intro": "Voici le résumé de la semaine pour <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} a collecté {{stars}} étoiles cette semaine !",
+      "sharePrompt": "Vous connaissez un autre parent que cela pourrait aider ?",
+      "shareWhatsApp": "Partager sur WhatsApp",
+      "shareFriend": "En parler à un ami",
+      "shareTextWithHighlight": "{{highlight}} Nous utilisons {{brand}} pour les routines de nos enfants — jetez un œil :",
+      "shareTextGeneric": "Nous utilisons {{brand}} pour les routines quotidiennes de nos enfants — jetez un œil :",
+      "starsEarned": "Étoiles gagnées",
+      "routinesCompleted": "Routines terminées",
+      "routinesOf": "{{completed}} sur {{total}} ({{pct}} %)",
+      "moodAverage": "Humeur (moyenne)",
+      "moodVeryHappy": "Très content 😄 ({{score}}/10)",
+      "moodHappy": "Content 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutre 😐 ({{score}}/10)",
+      "moodSad": "Triste 😔 ({{score}}/10)",
+      "encourageNoActivity": "Une nouvelle semaine arrive — essayez de cocher une routine ensemble, cela ne prend qu'un instant.",
+      "encourageProgress": "🌟 Continuez comme ça ! Chaque routine terminée construit des habitudes pour longtemps.",
+      "encourageSmallSteps": "🌟 Les petits pas comptent — essayez de cocher une routine ensemble cette semaine.",
+      "genericChildName": "Votre enfant"
+    },
+    "notificationFooter": {
+      "settingsLink": "Réglages → Notifications",
+      "optOutDefault": "Désactiver cette notification",
+      "optOutWeeklySummary": "Désactiver le résumé de la semaine"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Jour 1 — regardez ensemble",
+        "body": "Voici comment {{childName}} voit son planning — jetez un œil ensemble.",
+        "ctaLabel": "Montrer la vue enfant"
+      },
+      "2": {
+        "title": "Jour 2 — le point du matin",
+        "body": "Ouvrez l'accueil à un moment aujourd'hui — cela prend 30 secondes.",
+        "ctaLabel": "Ouvrir le planning"
+      },
+      "3": {
+        "title": "Jour 3 — fêtez une étoile",
+        "body": "{{childName}} a gagné une étoile ? Fêtez ça ensemble !",
+        "ctaLabel": "Voir le planning d'aujourd'hui",
+        "supportiveFallback": "La première semaine sert à démarrer — un coup d'œil suffit pour voir que le planning est prêt."
+      },
+      "4": {
+        "title": "Jour 4 — votre appli",
+        "body": "Quelque chose cloche ? Changez une activité si besoin.",
+        "ctaLabel": "Modifier le planning"
+      },
+      "5": {
+        "title": "Jour 5 — récompense",
+        "body": "Regardez le coffre aux étoiles — de quoi {{childName}} rêve ?",
+        "ctaLabel": "Ouvrir le coffre aux étoiles"
+      },
+      "6": {
+        "title": "Jour 6 — partager la charge",
+        "body": "Vous voulez partager la charge avec quelqu'un ?",
+        "ctaLabel": "Inviter quelqu'un",
+        "soloLabel": "Je m'en occupe !"
+      },
+      "7": {
+        "title": "Une semaine ! 🎉",
+        "body": "Bravo ! Comment s'est passée la semaine ?",
+        "ctaLabel": "Répondre à la question"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "C'est l'heure de « {{activityName}} » dans {{minutes}} minutes ! ⭐",
+      "body": "Rappel pour {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Gardez la routine 💫",
+      "day3Body": "Quelques jours ont passé — ouvrez le planning et offrez les étoiles d'aujourd'hui.",
+      "day7Title": "Une semaine depuis votre dernière visite",
+      "day7Body": "Le planning de votre enfant attend. Un coup d'œil suffit.",
+      "day14Title": "Vous nous manquez dans l'appli",
+      "day14Body": "Deux semaines sans activité — revenez et gardez la routine vivante."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} ne s'est pas connecté aujourd'hui",
+      "body": "Regardez le planning et aidez à remplir la journée !"
+    },
+    "starMilestone": {
+      "title": "{{childName}} a collecté {{milestone}} étoiles ! 🌟",
+      "bodyCongrats": "{{emoji}} Bravo à {{childName}} !",
+      "body100": "Vraiment super ! De nouveaux défis attendent !"
+    },
+    "backfillReminder": {
+      "title": "Le planning d'hier de {{childName}} manque",
+      "body": "Complétez hier pour que tout soit à jour !"
+    },
+    "custodyMorning": {
+      "title": "Aujourd'hui : {{childName}} est avec vous",
+      "body": "Le planning de la journée vous attend dans l'appli."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Passation demain — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} chez {{homeLabel}}",
+      "bodyPack": "🎒 Préparer le sac est dans le planning de demain.",
+      "bodyPrepare": "Pensez à préparer la passation de la semaine."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "a terminé {{activityName}} !",
+      "bodyBatch": "a terminé {{count}} activités !"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} étoiles pour {{childName}} !",
+      "body": "{{parentName}} a offert {{starCount}} {{starLabel}} à {{childName}} !"
+    },
+    "starLabelOne": "étoile",
+    "starLabelMany": "étoiles",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} veut échanger une récompense !",
+      "body": "{{childName}} demande : {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Bonjour ! Regardez le planning de {{childName}} — 30 secondes 🌅",
+      "day3Body": "{{childName}} a gagné une étoile aujourd'hui ? Fêtez ça ensemble ⭐",
+      "day4Body": "Quelque chose cloche ? Changez une activité ✏️",
+      "day5Body": "Regardez le coffre aux étoiles — de quoi {{childName}} rêve ? 🎁",
+      "day6Body": "Vous voulez partager la charge avec quelqu'un ? 👥",
+      "day7Body": "Bravo ! Comment s'est passée la semaine ?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Un problème est survenu.",
+          "rewardIdRequired": "reward_id est requis",
+          "childNotFound": "Enfant introuvable",
+          "rewardNotFound": "Récompense introuvable",
+          "requestNotFound": "Demande introuvable",
+          "pendingOnlyApprove": "On ne peut accepter qu'une demande en attente",
+          "pendingOnlyDeny": "On ne peut refuser qu'une demande en attente",
+          "childIdRequired": "child_id est requis",
+          "reasonRequired": "Le motif est requis",
+          "starCountRange": "Le nombre d'étoiles doit être entre 1 et 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id et goal_slug sont requis",
+          "childAccessDenied": "Vous n'avez pas accès à l'un des enfants choisis.",
+          "dismissFailed": "Impossible de fermer la question"
+        }
+      },
+      "success": {
+        "goalSet": "Objectif défini !"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Merci pour votre retour ! Nous lisons tout ce qui arrive.",
+    "contactAck": "Merci ! Nous avons reçu votre message.",
+    "export": {
+      "noData": "Aucune donnée",
+      "rateLimit": "Vous ne pouvez exporter vos données qu'une fois toutes les 24 heures. Réessayez dans {{hours}} heures.",
+      "notFound": "Utilisateur introuvable"
+    },
+    "account": {
+      "deletionPending": "Votre compte est marqué pour suppression. Vous avez 30 jours pour changer d'avis.",
+      "alreadyPending": "Votre compte est déjà marqué pour suppression."
+    }
+  },
+  "paywall": {
+    "title": "Premium {{brand}}",
+    "subtitle": "Accès complet pour toute votre famille",
+    "benefit1": "Toutes les routines et tous les plannings",
+    "benefit2": "Les étoiles et les fonctions de votre famille",
+    "benefit3": "Toutes vos données restent avec vous",
+    "webNoticeTitle": "Activez Premium dans l'appli",
+    "webNoticeBody": "Premium s'achète via l'App Store ou Google Play — pas sur le web.",
+    "webNoticeBodyAppleOnly": "Premium s'achète via l'App Store — pas sur le web. Android arrive bientôt.",
+    "downloadIphone": "Télécharger pour iPhone",
+    "downloadAndroid": "Télécharger pour Android",
+    "androidComingSoon": "Android arrive bientôt",
+    "loadingPrices": "Chargement des prix…",
+    "continue": "Continuer",
+    "restore": "Restaurer les achats",
+    "yearlyBadge": "Recommandé",
+    "yearlyPrice": "{{price}}/an",
+    "yearlySavings": "Économisez par rapport au paiement mensuel",
+    "yearlyTermsKnownTrial": "Essai gratuit de {{trialDays}} jours · puis {{price}}/an · renouvellement automatique",
+    "yearlyTermsConditionalTrial": "Essai gratuit de 14 jours pour les nouveaux abonnés éligibles · puis {{price}}/an · renouvellement automatique",
+    "yearlyTermsNoTrial": "{{price}}/an · renouvellement automatique",
+    "monthlyPrice": "{{price}}/mois",
+    "monthlyBlurb": "Abonnement mensuel souple pour votre famille.",
+    "monthlyTermsKnownTrial": "Essai gratuit de {{trialDays}} jours · puis {{price}}/mois · renouvellement automatique",
+    "monthlyTermsConditionalTrial": "Essai gratuit de 14 jours pour les nouveaux abonnés éligibles · puis {{price}}/mois · renouvellement automatique",
+    "monthlyTermsNoTrial": "{{price}}/mois · renouvellement automatique",
+    "autoRenewApple": "Votre abonnement se renouvelle automatiquement, sauf annulation. Le paiement est géré par l'App Store. Vous pouvez gérer ou annuler l'abonnement dans votre compte Apple.",
+    "autoRenewGoogle": "Votre abonnement se renouvelle automatiquement, sauf annulation. Le paiement est géré par Google Play. Vous pouvez gérer ou annuler l'abonnement dans votre compte Google.",
+    "termsLink": "Conditions",
+    "privacyLink": "Confidentialité",
+    "legal": "Vous pouvez annuler un essai gratuit avant la facturation, selon les règles de l'App Store ou de Google Play. Gérez ou annulez dans les réglages d'abonnement de la boutique.",
+    "legalAppleOnly": "Vous pouvez annuler un essai gratuit avant la facturation. Gérez ou annulez dans les réglages d'abonnement de l'App Store.",
+    "legalGoogleOnly": "Vous pouvez annuler un essai gratuit avant la facturation. Gérez ou annulez dans les réglages d'abonnement de Google Play.",
+    "giftCard": "J'ai une carte cadeau",
+    "giftCodeLabel": "Code cadeau",
+    "giftRedeem": "Utiliser la carte cadeau",
+    "limitedAccount": "Continuer avec un compte limité",
+    "statusOpening": "Ouverture du paiement…",
+    "statusRestoring": "Restauration des achats…",
+    "statusSuccess": "Premium est actif ! Bon retour.",
+    "statusCancelled": "Achat annulé.",
+    "statusFailed": "L'achat a échoué. Réessayez.",
+    "statusUnavailable": "Les abonnements ne peuvent pas être chargés pour le moment. Réessayez.",
+    "statusAndroidComingSoon": "Premium sur Android arrive bientôt.",
+    "statusNotNative": "Les achats ne sont pas disponibles ici. Utilisez l'appli.",
+    "restoreSuccess": "Achats restaurés ! Bon retour.",
+    "restoreNone": "Aucun achat actif à restaurer.",
+    "giftSuccess": "Carte cadeau utilisée !",
+    "giftFailed": "Impossible d'utiliser le code.",
+    "launchEnded": "L'accès de lancement est terminé. Abonnez-vous dans l'appli pour garder l'accès complet."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "à vous",
+      "subject": "Votre conversation d'assistance",
+      "text": "Bonjour {{name}} !\n\nNous avons reçu votre message. Suivez la conversation et répondez ici (une réponse e-mail classique ne nous est pas visible) :\n{{url}}\n\nBien à vous,\n{{fromName}}",
+      "htmlHi": "Bonjour {{name}} !",
+      "htmlReceived": "Nous avons reçu votre message.",
+      "openLink": "Ouvrir votre conversation",
+      "htmlHint": "pour suivre la conversation et répondre. Une réponse e-mail classique ne nous est pas visible.",
+      "htmlBye": "Bien à vous"
+    },
+    "reply": {
+      "subjectBug": "Re : votre signalement",
+      "subjectFeedback": "Re : votre retour",
+      "subjectLanguage": "Re : votre signalement de langue",
+      "subjectContact": "Re : votre message",
+      "text": "Bonjour {{name}} !\n\n{{reply}}\n\nLisez toute la conversation et répondez ici (une réponse e-mail classique ne nous est pas visible) :\n{{url}}\n\n---\nVotre message d'origine :\n{{original}}\n\nBien à vous,\n{{fromName}}",
+      "htmlHi": "Bonjour {{name}} !",
+      "openLink": "Ouvrir la conversation",
+      "htmlHint": "pour lire toute la conversation et répondre. Une réponse e-mail classique ne nous est pas visible.",
+      "originalLabel": "Votre message d'origine :",
+      "htmlBye": "Bien à vous"
+    },
+    "page": {
+      "title": "Votre conversation",
+      "intro": "Voici toute la conversation. Écrivez ci-dessous si vous voulez continuer. Une réponse e-mail classique n'apparaît pas ici.",
+      "you": "Vous",
+      "us": "Nous",
+      "empty": "Aucun message pour le moment.",
+      "label": "Écrivez-nous",
+      "placeholder": "Dites-nous ce qui se passe…",
+      "submit": "Envoyer",
+      "submitting": "Envoi…",
+      "needHuman": "J'ai besoin d'une personne",
+      "escalating": "Envoi…",
+      "caseRef": "Dossier {{ref}}",
+      "status": {
+        "new": "Reçu",
+        "read": "Lu",
+        "in_progress": "En cours",
+        "answered": "Répondu",
+        "archived": "Fermé"
+      }
+    },
+    "errors": {
+      "invalid": "Ce lien est invalide. Demandez-nous d'en envoyer un nouveau.",
+      "expired": "Ce lien a expiré. Demandez-nous d'en envoyer un nouveau.",
+      "revoked": "Ce lien ne fonctionne plus. Demandez-nous d'en envoyer un nouveau.",
+      "archived": "Ce dossier est fermé. Recontactez-nous si vous avez encore besoin d'aide.",
+      "legacySunset": "Ce lien est trop ancien. Contactez-nous et nous en enverrons un nouveau.",
+      "tooShort": "Écrivez au moins 10 caractères pour que nous comprenions ce qui se passe.",
+      "tooLong": "La réponse peut contenir 5000 caractères au maximum.",
+      "notFound": "Le dossier est introuvable.",
+      "rateLimit": "Trop de tentatives. Réessayez dans une heure.",
+      "generic": "Impossible d'ouvrir le dossier.",
+      "sendFailed": "L'envoi a échoué. Réessaie."
+    },
+    "success": {
+      "submitted": "Merci ! Nous avons reçu votre réponse.",
+      "escalated": "Merci. Une personne va regarder ce dossier."
+    }
+  },
+  "story": {
+    "someone": "Quelqu'un",
+    "anActivity": "une activité",
+    "activityWithStars": "{{name}} a terminé {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} a terminé {{activity}}",
+    "goalFallback": "objectif",
+    "goal": "La famille a atteint l'objectif : {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Paramètres des cookies",
+    "intro": "Nous utilisons des cookies pour les statistiques, le marketing et la personnalisation sur notre site.",
+    "manage": "Gérer les paramètres",
+    "manageHide": "Masquer les paramètres",
+    "deny": "Tout refuser",
+    "accept": "Tout accepter",
+    "save": "Enregistrer mes choix",
+    "necessaryLabel": "Nécessaires",
+    "necessaryDesc": "Indispensables pour que le site fonctionne.",
+    "analyticsLabel": "Statistiques",
+    "analyticsDesc": "Nous aident à comprendre comment le site est utilisé (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Affiche des annonces pertinentes et mesure les campagnes.",
+    "personalizationLabel": "Personnalisation",
+    "personalizationDesc": "Adapte le contenu et les recommandations."
+  },
+  "growthHelp": {
+    "reportProblem": "Signaler un problème",
+    "suggestedHelp": "Aide suggérée",
+    "reportThanks": "Merci — nous avons reçu ton signalement avec les détails techniques.",
+    "howChildStarts": "Comment l'enfant commence ?",
+    "needHelpLogin": "Besoin d'aide pour te connecter ?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Court commentaire facultatif (envoyé avec votre réponse)",
+    "notNow": "Pas maintenant",
+    "thanks": "Merci pour votre retour."
+  },
+  "growthReferral": {
+    "title": "Vous connaissez une autre famille qui veut des matins plus calmes ?",
+    "subtitle": "Partagez votre lien personnel — pas de spam de récompenses, juste un conseil.",
+    "copyLink": "Copier le lien",
+    "copied": "Copié",
+    "copyPrompt": "Copiez ce lien :",
+    "share": "Partager",
+    "shareText": "Nous utilisons {{brand}} pour les routines des enfants. Créez un compte gratuit : ",
+    "notNow": "Pas maintenant"
+  },
+  "legalReturn": {
+    "backToPremium": "Retour à Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Offre",
+    "dismiss": "Pas maintenant",
+    "interested": "Ça m'intéresse",
+    "interestedSub": "Dire que la suite m'intéresse",
+    "buyNow": "Acheter",
+    "reporting": {
+      "title": "Rapports",
+      "body": "Tu as enregistré des activités pendant deux semaines — veux-tu voir comment les choses évoluent ?"
+    },
+    "pedagog": {
+      "title": "Professionnel",
+      "body": "Veux-tu collaborer avec un professionnel ou un thérapeute autour du quotidien de l'enfant ?"
+    },
+    "teacch": {
+      "title": "Soutien en plus",
+      "body": "Ajoute un soutien visuel avec les sept questions — cela aide l'enfant à comprendre ce qui se passe."
+    }
+  }
+}

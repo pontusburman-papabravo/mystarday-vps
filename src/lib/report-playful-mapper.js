@@ -4,20 +4,22 @@
  * Does NOT own: DB queries, PDF rendering, HTML rendering.
  */
 
-const MONTHS_SV = ['januari','februari','mars','april','maj','juni',
-                   'juli','augusti','september','oktober','november','december'];
-const MONTHS_SV_SHORT = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+const { formatDayMonth, formatLocaleDate } = require('./locale-format');
+const { DEFAULT_LOCALE } = require('./locale');
+const { SECTION_ORDER, tr, sectionMeta } = require('./report-copy');
 
-function fmtDate(str) {
+function fmtDate(str, locale) {
   if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return d.getDate() + ' ' + MONTHS_SV_SHORT[d.getMonth()];
+  return formatDayMonth(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE);
 }
 
-function fmtDateUpper(str) {
+function fmtDateUpper(str, locale) {
   if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return (d.getDate() + ' ' + MONTHS_SV[d.getMonth()]).toUpperCase();
+  const label = formatLocaleDate(new Date(str + 'T00:00:00'), locale || DEFAULT_LOCALE, {
+    day: 'numeric',
+    month: 'long',
+  });
+  return label.toLocaleUpperCase(locale || DEFAULT_LOCALE);
 }
 
 function getISOWeek(date) {
@@ -31,7 +33,8 @@ function getISOWeek(date) {
  * @param {{ link, blocks, fields, dateFrom, dateTo }} opts
  * @returns {{ viewModel }} — ready for renderPlayfulReport()
  */
-function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
+function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo, locale }) {
+  const reportLocale = locale || DEFAULT_LOCALE;
   const vm = {};
 
   // Title
@@ -39,11 +42,11 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
   vm.childEmoji = (!link.anonymous && link.child_emoji) ? link.child_emoji : null;
   vm.anonymous = !!link.anonymous;
   vm.title = vm.childName
-    ? ('SAMMANFATTNING FÖR ' + vm.childName.toUpperCase())
-    : 'SAMMANFATTNING';
+    ? tr(reportLocale, 'pdfPlayfulTitleFor', { name: vm.childName.toLocaleUpperCase(reportLocale) })
+    : tr(reportLocale, 'pdfPlayfulTitle');
 
   // Period band
-  vm.period = fmtDateUpper(dateFrom) + ' – ' + fmtDateUpper(dateTo);
+  vm.period = fmtDateUpper(dateFrom, reportLocale) + ' – ' + fmtDateUpper(dateTo, reportLocale);
 
   // Stars medal
   vm.showStars = fields.includes('stars') && blocks.stars && blocks.stars.total != null;
@@ -68,9 +71,9 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
       if (pct <= worstPct) { worstPct = pct; worstDay = r.date; }
     });
     vm.avgPct = Math.round(sumPct / withData.length);
-    vm.bestDay = fmtDate(bestDay);
+    vm.bestDay = fmtDate(bestDay, reportLocale);
     vm.bestPct = bestPct;
-    vm.worstDay = fmtDate(worstDay);
+    vm.worstDay = fmtDate(worstDay, reportLocale);
     vm.worstPct = worstPct;
   }
 
@@ -109,18 +112,20 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
   // Section summary (dagdelar)
   vm.sections = [];
   if (fields.includes('section_summary') && blocks.section_summary) {
-    const sectionMap = { fm: 'Morgon', morgon: 'Morgon', em: 'Dag', dag: 'Dag', kvall: 'Kväll', evening: 'Kväll', natt: 'Natt' };
-    const order = ['Morgon', 'Dag', 'Kväll', 'Natt'];
     vm.sections = blocks.section_summary
-      .map(s => ({
-        label: sectionMap[s.section?.toLowerCase()] || s.section || 'Other',
-        pct: s.completion_pct || 0,
-        completed: s.completed || 0,
-        total: s.total || 0,
-      }))
+      .map(s => {
+        const meta = sectionMeta(s.section, reportLocale);
+        return {
+          id: meta.id,
+          label: meta.label,
+          pct: s.completion_pct || 0,
+          completed: s.completed || 0,
+          total: s.total || 0,
+        };
+      })
       .sort((a, b) => {
-        const ai = order.indexOf(a.label);
-        const bi = order.indexOf(b.label);
+        const ai = SECTION_ORDER.indexOf(a.id);
+        const bi = SECTION_ORDER.indexOf(b.id);
         return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
       });
   }
@@ -146,7 +151,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
         const sorted = [...data.dates].sort();
         const startD = new Date(sorted[0] + 'T00:00:00');
         const endD = new Date(sorted[sorted.length - 1] + 'T00:00:00');
-        const label = startD.getDate() + '–' + endD.getDate() + ' ' + MONTHS_SV_SHORT[endD.getMonth()];
+        const label = formatDayMonth(startD, reportLocale) + '–' + formatDayMonth(endD, reportLocale);
         const pct = Math.round((data.done / data.total) * 100);
         vm.weeks.push({ label, done: data.done, total: data.total, pct });
       });
@@ -158,10 +163,10 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
     Object.entries(blocks.activities).forEach(([date, items]) => {
       items.forEach(item => {
         if (item.parent_note) {
-          vm.notes.push({ date: fmtDate(date), text: item.parent_note, type: 'parent' });
+          vm.notes.push({ date: fmtDate(date, reportLocale), text: item.parent_note, type: 'parent' });
         }
         if (item.child_note) {
-          vm.notes.push({ date: fmtDate(date), text: item.child_note, type: 'child' });
+          vm.notes.push({ date: fmtDate(date, reportLocale), text: item.child_note, type: 'child' });
         }
       });
     });
@@ -176,7 +181,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
   vm.pedagogNotes = [];
   if (vm.showPedagog) {
     vm.pedagogNotes = blocks.pedagog_notes.slice(0, 3).map(n => ({
-      date: fmtDate(String(n.date)),
+      date: fmtDate(String(n.date), reportLocale),
       pedagog: n.pedagog_name || null,
       mood: n.mood ? n.mood + '/5' : null,
       notes: n.notes ? (n.notes.length > 80 ? n.notes.slice(0, 77) + '...' : n.notes) : null,
@@ -185,7 +190,7 @@ function mapReportToPlayful({ link, blocks, fields, dateFrom, dateTo }) {
 
   // Quote bubble
   vm.quote = vm.parentSummary
-    || (vm.avgPct > 0 ? 'Genomsnittligt genomförande: ' + vm.avgPct + '% under perioden.' : null);
+    || (vm.avgPct > 0 ? tr(reportLocale, 'quoteAverage', { pct: vm.avgPct }) : null);
 
   return vm;
 }

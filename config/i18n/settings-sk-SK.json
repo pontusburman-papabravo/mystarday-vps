@@ -1,0 +1,499 @@
+{
+  "pageTitle": "Nastavenia — {{brand}}",
+  "title": "Nastavenia",
+  "shellLead": "Profil, rodina a aplikácia",
+  "familySettings": "Nastavenia rodiny",
+  "groups": {
+    "profile": {
+      "title": "Profil a účet",
+      "sub": "Prihlásenie, PIN a účet"
+    },
+    "family": {
+      "title": "Rodina",
+      "sub": "Meno a jazyk. Ľudí spravuješ v Rodine."
+    },
+    "device": {
+      "title": "Toto zariadenie",
+      "sub": "Detský telefón, telefón dospelého alebo spoločný telefón"
+    },
+    "appearance": {
+      "title": "Vzhľad",
+      "sub": "Tmavý alebo svetlý vzhľad"
+    },
+    "app": {
+      "title": "Aplikácia",
+      "sub": "Upozornenia, push a súkromie"
+    },
+    "premium": {
+      "title": "Predplatné",
+      "sub": "Premium, nákupy a platby"
+    }
+  },
+  "appearance": {
+    "dark": "Tmavý",
+    "light": "Svetlý",
+    "backToSettings": "← Späť do nastavení"
+  },
+  "heroes": {
+    "planning": {
+      "title": "Plánovanie",
+      "sub": "Priprav obsah alebo naplánuj deťom týždeň."
+    },
+    "rewards": {
+      "title": "Odmeny",
+      "sub": "Hviezdy, odmeny a pokladnica."
+    },
+    "calendar": {
+      "title": "Kalendár",
+      "sub": "Mesačný pohľad pre všetky deti"
+    },
+    "activities": {
+      "title": "Aktivity",
+      "sub": "Spravuj aktivity detí"
+    },
+    "assignSchedule": {
+      "title": "Priradiť plán",
+      "sub": "Skopírovať plán dieťaťu"
+    },
+    "dailyLog": {
+      "title": "Dnes",
+      "sub": "Sleduj deň dieťaťa — hviezdy doplníš potom"
+    },
+    "treasureChest": {
+      "title": "Pokladnica",
+      "sub": "Odmeny a hviezdy"
+    },
+    "childSettings": {
+      "title": "Nastavenia dieťaťa",
+      "sub": "Pohľad, PIN a úpravy"
+    },
+    "familyChild": {
+      "title": "Nastavenia dieťaťa",
+      "sub": "Plán, pohľad, PIN a úpravy"
+    },
+    "notifications": {
+      "title": "Upozornenia",
+      "sub": "Pripomienky a správy"
+    },
+    "schedule": {
+      "title": "Týždenný plán",
+      "sub": "Naplánuj a prispôsob dni detí"
+    },
+    "library": {
+      "title": "Knižnica",
+      "sub": "Plány, aktivity a odmeny pre rodinu"
+    },
+    "family": {
+      "title": "Rodina",
+      "sub": "Deti, dospelí a pedagógovia"
+    }
+  },
+  "backToPlanning": "← Späť do plánovania",
+  "avatar": {
+    "title": "Profilová fotka",
+    "description": "Tvoju fotku dieťa uvidí medzi svojimi ľuďmi a na stránke Rodina.",
+    "changePhoto": "Zmeniť fotku",
+    "addPhoto": "Pridať fotku",
+    "removePhoto": "Odstrániť fotku",
+    "saved": "Profilová fotka je uložená!",
+    "removed": "Profilová fotka je odstránená",
+    "saveFailed": "Nepodarilo sa uložiť",
+    "removeFailed": "Nepodarilo sa odstrániť"
+  },
+  "nativeAccount": {
+    "title": "Účet",
+    "sub": "Prejdi na prihlásenie dieťaťa alebo sa z aplikácie úplne odhlás."
+  },
+  "account": {
+    "title": "Účet a prihlásenie",
+    "appleLinked": "Účet Apple je prepojený",
+    "googleLinked": "Účet Google je prepojený",
+    "appleLinkedOnIosHint": "Účet Apple je prepojený z iPhonu. Ak sa chceš prihlásiť tu, pridaj nižšie heslo.",
+    "googleLinkedElsewhereHint": "Účet Google je prepojený z iného zariadenia. Ak sa chceš prihlásiť tu, pridaj nižšie heslo.",
+    "newPassword": "Nové heslo",
+    "confirmPassword": "Potvrď heslo",
+    "minCharsPlaceholder": "Aspoň 8 znakov",
+    "repeatPasswordPlaceholder": "Zadaj heslo znova",
+    "savePassword": "Uložiť heslo",
+    "passwordForNonApple": "Na prihlásenie bez Apple",
+    "changePasswordHint": "Zmeň heslo, aby prístup k účtu ostal.",
+    "currentPassword": "Súčasné heslo",
+    "confirmNewPassword": "Potvrď nové heslo",
+    "changePassword": "Zmeniť heslo",
+    "linkApple": "Prepojiť účet Apple",
+    "unlinkApple": "Zrušiť prepojenie Apple",
+    "linkGoogle": "Prepojiť účet Google",
+    "unlinkGoogle": "Zrušiť prepojenie Google",
+    "changeEmail": "Zmeniť e-mail",
+    "newEmail": "Nový e-mail",
+    "yourPassword": "Tvoje heslo",
+    "confirmWithPassword": "Potvrdiť heslom",
+    "sendConfirmLink": "Poslať potvrdzovací odkaz",
+    "passwordsMismatch": "Heslá sa nezhodujú",
+    "passwordMinLength": "Heslo musí mať aspoň 8 znakov",
+    "saving": "Ukladá sa…",
+    "passwordNowActive": "✓ Heslo je aktívne",
+    "somethingWrong": "Niečo sa pokazilo. Skús to znova.",
+    "somethingWrongShort": "Niečo sa pokazilo",
+    "appleSignInUnavailable": "Prihlásenie cez Apple na tomto zariadení nie je dostupné.",
+    "googleSignInUnavailable": "Prihlásenie cez Google na tomto zariadení nie je dostupné.",
+    "linking": "Prepája sa…",
+    "appleAlreadyLinked": "Tento účet Apple je už prepojený s iným účtom.",
+    "googleAlreadyLinked": "Tento účet Google je už prepojený s iným účtom.",
+    "couldNotLinkApple": "Apple sa nepodarilo prepojiť:",
+    "couldNotLinkGoogle": "Google sa nepodarilo prepojiť:",
+    "tryAgain": "Skús to znova.",
+    "unlinkApplePrompt": "Zadaj heslo a zrušíš prepojenie Apple:",
+    "unlinkGooglePrompt": "Zadaj heslo a zrušíš prepojenie Google:",
+    "removing": "Odstraňuje sa…",
+    "couldNotUnlink": "Prepojenie sa nepodarilo zrušiť",
+    "invalidEmail": "Zadaj platný e-mail",
+    "sending": "Odosiela sa…",
+    "linkSentTo": "Odkaz je odoslaný na {{email}}",
+    "passwordChanged": "Heslo je zmenené!",
+    "linkAppleBtn": "🍎 Prepojiť účet Apple",
+    "linkGoogleBtn": "G Prepojiť účet Google",
+    "emailUpdated": "E-mail je aktualizovaný! Teraz sa prihlásiš novou adresou.",
+    "passwordSet": "Heslo je nastavené. Teraz sa prihlásiš e-mailom a heslom.",
+    "errors": {
+      "invalidAppleToken": "Neplatný token identity Apple",
+      "invalidGoogleToken": "Neplatný token identity Google",
+      "appleAlreadyLinkedThis": "Účet Apple je s týmto účtom už prepojený",
+      "googleAlreadyLinkedThis": "Účet Google je s týmto účtom už prepojený",
+      "passwordRequiredUnlink": "Na zrušenie prepojenia treba heslo",
+      "setPasswordBeforeUnlink": "Pred zrušením prepojenia si nastav heslo",
+      "emailPasswordRequired": "Treba nový e-mail a heslo",
+      "setPasswordBeforeEmail": "Pred zmenou e-mailu si nastav heslo",
+      "emailAlreadyRegistered": "Tento e-mail je už registrovaný na inom účte",
+      "emailChangeLinkInvalid": "Odkaz je neplatný alebo mu vypršala platnosť. Požiadaj o novú zmenu v Nastaveniach.",
+      "emailChangeLinkUsed": "Tento odkaz sa už použil. Požiadaj o novú zmenu v Nastaveniach.",
+      "emailChangeLinkExpired": "Platnosť odkazu vypršala. Požiadaj o novú zmenu v Nastaveniach.",
+      "passwordAlreadySet": "Heslo už existuje. Na zmenu použi „Zmeniť heslo“.",
+      "emailAllOff": "Všetky e-mailové upozornenia sú vypnuté. Zapneš ich v Nastaveniach → Upozornenia.",
+      "weeklyEmailOff": "Ďalšie týždenné súhrny na e-mail nepošleme. Zapneš ich v Nastaveniach → Upozornenia.",
+      "redeemEmailOff": "Keď dieťa chce vymeniť odmeny, ďalšie e-maily nepošleme. Zapneš ich v Nastaveniach → Upozornenia.",
+      "passwordCurrentAndNew": "Treba súčasné aj nové heslo",
+      "appleLinkLoginRequired": "Prepojenie účtu Apple vyžaduje prihlásenie",
+      "googleLinkLoginRequired": "Prepojenie účtu Google vyžaduje prihlásenie"
+    }
+  },
+  "toast": {
+    "saved": "Uložené!",
+    "savedCheck": "✅ Uložené!",
+    "saveFailedRetry": "Nepodarilo sa uložiť. Skús to znova.",
+    "networkError": "Chyba siete"
+  },
+  "parentPin": {
+    "title": "PIN kód",
+    "security": "Zabezpečenie",
+    "hasPinDescription": "Osobný PIN chráni rodičovský režim — deti bez tvojho PIN neopustia detský režim.",
+    "noPinDescription": "Nastav si vlastný 4-miestny PIN — deti bez tvojho PIN neopustia detský režim.",
+    "choosePin": "Vyber 4-miestny PIN",
+    "confirmPin": "Potvrď PIN",
+    "changePinBack": "← Zmeniť PIN",
+    "enterCurrentPin": "Zadaj súčasný PIN",
+    "forgotPin": "Zabudnutý PIN?",
+    "chooseNewPin": "Vyber nový PIN",
+    "confirmNewPin": "Potvrď nový PIN",
+    "forgotIntro": "Zadaj heslo a nastavíš nový PIN.",
+    "yourPassword": "Tvoje heslo",
+    "verify": "Overiť",
+    "keypadAria": "Číselná klávesnica",
+    "confirmKeypadAria": "Klávesnica na potvrdenie PIN",
+    "pinKeypadAria": "PIN klávesnica",
+    "newPinKeypadAria": "Klávesnica na nový PIN",
+    "confirmNewPinKeypadAria": "Klávesnica na potvrdenie nového PIN",
+    "pinsMismatch": "PIN kódy sa nezhodujú — skús to znova",
+    "pinNowActive": "✓ PIN je aktívny",
+    "wrongPin": "Nesprávny PIN — skús to znova",
+    "pinChanged": "✓ PIN je zmenený!",
+    "couldNotChangePin": "PIN sa nepodarilo zmeniť",
+    "sessionExpired": "Relácia vypršala — znova zadaj súčasný PIN",
+    "enterPassword": "Zadaj heslo",
+    "wrongPassword": "Nesprávne heslo"
+  },
+  "push": {
+    "title": "Push upozornenia",
+    "lead": "Dostaneš upozornenia na telefón — aj keď je aplikácia zatvorená.",
+    "unsupported": "Tento prehliadač nepodporuje push upozornenia.",
+    "toggleLabel": "Push upozornenia",
+    "toggleDescription": "Zapni a dostaneš upozornenia o aktivitách detí",
+    "toggleAria": "Prepnúť push upozornenia",
+    "perChildHeading": "Upozornenia pre každé dieťa",
+    "typesHeading": "Ktoré upozornenia?",
+    "typeScheduleTitle": "Pripomienka plánu",
+    "typeScheduleHint": "10 min pred aktivitou",
+    "typeScheduleAria": "Prepnúť pripomienku plánu",
+    "typeInactivityTitle": "Pripomienka nečinnosti",
+    "typeInactivityHint": "O 18:00, ak sa dieťa neprihlásilo",
+    "typeInactivityAria": "Prepnúť pripomienku nečinnosti",
+    "typeMilestoneTitle": "Míľnik hviezd",
+    "typeMilestoneHint": "Pri 10/25/50/100 hviezdach",
+    "typeMilestoneAria": "Prepnúť míľnik hviezd",
+    "typeBackfillTitle": "Pripomienka doplnenia",
+    "typeBackfillHint": "O 9:00, ak chýba včerajšok",
+    "typeBackfillAria": "Prepnúť pripomienku doplnenia",
+    "leadTimeLabel": "Pripomienka vopred",
+    "quietHoursLabel": "Tiché hodiny",
+    "quietHoursTo": "do",
+    "archiveTitle": "Archív upozornení",
+    "archiveHint": "Úspešné push upozornenia za posledných 7 dní",
+    "noChildren": "Žiadne prepojené deti.",
+    "childToggleAria": "Push pre {{name}}",
+    "saved": "✅ Uložené!",
+    "saveFailed": "Nepodarilo sa uložiť.",
+    "saveFailedRetry": "Nepodarilo sa uložiť. Skús to znova.",
+    "requestingPermission": "⏳ Žiadame o povolenie…",
+    "enabled": "✅ Push upozornenia sú zapnuté!",
+    "permissionDenied": "🚫 Povolenie zamietnuté. Zapni ho v prehliadači alebo v nastaveniach aplikácie.",
+    "iosNotInstalled": "Pridaj {{brand}} na plochu, aby push fungoval v Safari.",
+    "genericError": "Niečo sa pokazilo. Skús to znova.",
+    "disabled": "✅ Push upozornenia sú vypnuté.",
+    "errors": {
+      "unsupportedBrowser": "Tento prehliadač push nepodporuje",
+      "permissionDeniedApp": "Povolenie upozornení je v nastaveniach aplikácie zamietnuté.",
+      "pushPluginMissing": "V aplikácii chýba push plugin. Spusti npx cap sync ios a znova zostav.",
+      "platformMissing": "Podpora push na platforme chýba",
+      "permissionDeniedBrowser": "Povolenie upozornení je zamietnuté. Zapni ho v nastaveniach prehliadača.",
+      "permissionDenied": "Povolenie upozornení je zamietnuté",
+      "subscriptionFailed": "Prihlásenie na push zlyhalo",
+      "enableFailed": "Push upozornenia sa nepodarilo zapnúť",
+      "disableFailed": "Push upozornenia sa nepodarilo vypnúť",
+      "iosNotInstalled": "Pridaj aplikáciu na plochu, aby push fungoval v Safari.",
+      "notConfigured": "Push upozornenia nie sú nastavené",
+      "invalidSubscription": "Neplatné push prihlásenie",
+      "endpointRequired": "Treba endpoint",
+      "invalidToken": "Neplatný token",
+      "invalidPlatform": "Platforma musí byť iOS alebo Android",
+      "tokenRequired": "Treba token aj platformu",
+      "parentNotFound": "Rodič sa nenašiel"
+    }
+  },
+  "widget": {
+    "prompt": {
+      "title": "Pridať widget na plochu?",
+      "lead": "Ďalšiu aktivitu uvidíš na ploche — bez otvorenia aplikácie.",
+      "step1": "Ťukni na <strong class=\"text-navy\">Pripojiť widget</strong> tu v aplikácii.",
+      "step2": "Na ploche: podrž pozadie → ťukni na <strong class=\"text-navy\">+</strong> → vyhľadaj <strong class=\"text-navy\">{{brand}}</strong>.",
+      "neverAgain": "Už sa nepýtaj",
+      "connect": "Pripojiť widget",
+      "later": "Teraz nie",
+      "openSettings": "Otvoriť nastavenia"
+    },
+    "settings": {
+      "title": "Widgety a rýchly prístup",
+      "description": "Osobný widget = jedno dieťa. Rodinný widget = viac detí. Ak máš viac detí, vyber tu jedno.",
+      "childPickerLabel": "Ktoré dieťa má widget ukázať?",
+      "childFallbackName": "Dieťa",
+      "statusLabel": "Stav:",
+      "statusConnected": "Pripojené",
+      "statusReconnect": "Treba znova pripojiť",
+      "privacyLabel": "Súkromie:",
+      "privacyFull": "Plné",
+      "privacyLimited": "Obmedzené",
+      "reconnectBtn": "Znova pripojiť widget",
+      "guideBtn": "Ukázať návod na widget na ploche",
+      "connecting": "Pripája sa…",
+      "supportMissing": "Táto verzia widgety nepodporuje. Aktualizuj aplikáciu.",
+      "addChildFirst": "Najprv pridaj do rodiny dieťa, potom pripojíš widget.",
+      "loginRequired": "Na pripojenie widgetu treba prihlásenie.",
+      "success": "Hotovo! Pridaj widget na plochu (+ → {{brand}}), ak tam ešte nie je.",
+      "pickChild": "Vyber dieťa v zozname vyššie a skús to znova.",
+      "retryLater": "Teraz sa to nepodarilo pripojiť. Skús to o chvíľu.",
+      "networkError": "Teraz sa to nepodarilo pripojiť. Skontroluj sieť a skús to znova.",
+      "errors": {
+        "offlineUnavailable": "Widget pre rodinu ešte nie je zapnutý. Ak má byť, napíš podpore.",
+        "reauthRequired": "Reláciu treba obnoviť. Odhlás sa, prihlás sa a skús widget pripojiť znova.",
+        "nativeConfigureFailed": "Aplikácia neuložila prepojenie widgetu. Úplne ju zatvor a znova otvor.",
+        "notEnabled": "Widget nie je zapnutý alebo treba obnoviť reláciu. Odhlás sa a znova sa prihlás."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Nastavenia upozornení",
+    "weeklySummary": "Týždenný súhrn (nedeľa 21:00)",
+    "rewardRedemption": "Výmena odmien",
+    "newsletter": "E-mailový newsletter",
+    "emailGlobal": "Všetky e-maily naraz",
+    "save": "Uložiť nastavenia upozornení"
+  },
+  "reminders": {
+    "title": "Pripomienky",
+    "lead": "Nastav dennú pripomienku na kontrolu plánu.",
+    "daily": "Denná pripomienka",
+    "hint": "Pripomienka príde vo zvolenom čase vo zvolené dni",
+    "toggleAria": "Prepnúť pripomienku",
+    "time": "Čas",
+    "days": "Dni"
+  },
+  "familyName": {
+    "label": "Meno rodiny",
+    "placeholder": "napr. rodina Kováčovcov",
+    "autoFromParent": "Rodina {{name}}"
+  },
+  "sound": {
+    "label": "Zvuk zapnutý",
+    "hint": "Prehrá zvuk, keď dieťa odškrtne aktivitu v dennom pohľade."
+  },
+  "people": {
+    "adultsTitle": "👨‍👩‍👧 Dospelí a prístup",
+    "adultsBody": "Pozvi druhého rodiča a pozri, kto má prístup, v Rodine.",
+    "openFamily": "Otvoriť Rodinu",
+    "pedagogsTitle": "👩‍🏫 Pedagógovia",
+    "pedagogsBody": "Pozvánky a prístup pedagógov spravuješ v Rodine."
+  },
+  "dataExport": {
+    "title": "Moje údaje",
+    "body": "Stiahni si kópiu všetkých údajov ako CSV (súbor ZIP). Obsahuje profil, deti, plány, odmeny a históriu aktivít.",
+    "download": "Stiahnuť moje údaje",
+    "preparing": "Pripravuje sa sťahovanie…",
+    "started": "✅ Sťahovanie sa začalo!",
+    "rateLimited": "Export môžeš urobiť len raz za 24 hodín.",
+    "failed": "Niečo sa pokazilo. Skús to znova.",
+    "networkError": "Chyba siete. Skús to znova."
+  },
+  "deleteAccount": {
+    "title": "Vymazať účet",
+    "permanent": "⚠️ Trvalý krok",
+    "loading": "Načítava sa, čo sa stane…",
+    "storeBillingNote": "Ak máš predplatné cez App Store alebo Google Play, pri vymazaní účtu sa samo nezruší. Predplatné spravuješ alebo zrušíš v obchode.",
+    "button": "Vymazať môj účet",
+    "summarySelf": "Odstrániš vlastný účet a svoj prístup. Rodina, deti, plány a údaje ostatných dospelých zostanú. Nedá sa to vrátiť.",
+    "summaryLastAdmin": "Tento účet je posledný so správcovským prístupom. Celá rodina a všetky súvisiace údaje — deti, plány, aktivity, hviezdy a odmeny — sa hneď a natrvalo vymažú. Nedá sa to vrátiť.",
+    "modalTitleSelf": "Odísť z rodiny",
+    "modalTitleFamily": "Vymazať rodinu a účet",
+    "modalTitleFallback": "Natrvalo vymazať účet",
+    "leadSelf": "Odstrániš len vlastný účet a svoj prístup.",
+    "leadFamily": "Vymažeš celú rodinu a všetky súvisiace údaje.",
+    "sure": "Naozaj?",
+    "cannotUndo": "Nedá sa to vrátiť.",
+    "storeBillingModal": "Predplatné cez App Store alebo Google Play sa samo nezruší — spravuješ ho v obchode.",
+    "typeConfirmLabel": "Napíš {{token}} na potvrdenie",
+    "typeConfirmLabelHtml": "Napíš <strong>RADERA</strong> na potvrdenie",
+    "typeConfirmError": "Napíš {{token}} na potvrdenie.",
+    "confirmToken": "RADERA",
+    "cancel": "Zrušiť",
+    "confirmSelf": "Odísť z rodiny",
+    "confirmFamily": "Natrvalo vymazať všetko",
+    "deleting": "Maže sa...",
+    "deleted": "✅ Účet je vymazaný.",
+    "deleteFailed": "Pri mazaní sa niečo pokazilo.",
+    "networkError": "Chyba siete. Skús to znova.",
+    "bulletSelfAccount": "Tvoj rodičovský účet a tvoj prístup",
+    "bulletSelfOthersRemain": "Rodina, deti a ostatní dospelí zostávajú",
+    "bulletParentAccount": "Rodičovský účet",
+    "bulletAllChildren": "Všetky deti v rodine",
+    "bulletAllSchedules": "Všetky plány, aktivity a odmeny",
+    "bulletAllHistory": "Celá denná história a hviezdy"
+  },
+  "support": {
+    "title": "Technické údaje pre podporu",
+    "hint": "Skopíruje verziu aplikácie, cache a ladiace ID. Osobné údaje ani heslá sa nekopírujú.",
+    "copy": "Kopírovať technické údaje",
+    "copied": "Skopírované — vlož to do e-mailu podpore.",
+    "copyFailed": "Nepodarilo sa skopírovať. Skús to znova."
+  },
+  "legal": {
+    "privacy": "Zásady ochrany súkromia",
+    "terms": "Podmienky používania"
+  },
+  "consent": {
+    "title": "Súhlas a súkromie",
+    "lead": "Spravuj súkromie a voľby cookies.",
+    "change": "Zmeniť súhlas",
+    "empty": "Súhlas ešte nie je uložený.",
+    "modalTitle": "Súhlas a súkromie",
+    "aria": "Nastavenia súhlasu",
+    "intro": "Pomôž nám, aby bol {{brand}} ešte lepší. Cookies používame na to, aby sme videli, ako sa aplikácia používa, a aby sa k nám dostalo viac rodín. Ťukni na kategóriu a prepni ✓ Áno / ✗ Nie / — Neutrálne.",
+    "save": "Uložiť voľby",
+    "saving": "Ukladá sa…",
+    "skip": "Preskočiť",
+    "closing": "Zatvára sa…",
+    "analytics": "Analytika a zlepšovanie",
+    "analyticsDesc": "Pomáha nám vidieť, ako sa aplikácia používa, aby sme ju vedeli zlepšiť.",
+    "ads": "Marketing",
+    "adsDesc": "Zobrazuje reklamy šité na teba na Mete (Facebook/Instagram) a Google.",
+    "adUserData": "Údaje pre platformy",
+    "adUserDataDesc": "Zdieľa tvoje údaje s reklamnými platformami, aby sa zhoda zlepšila.",
+    "adPersonalization": "Prispôsobenie",
+    "adPersonalizationDesc": "Prispôsobí reklamy podľa tvojich záujmov a správania.",
+    "email": "E-mail a tipy",
+    "emailDesc": "E-maily s tipmi, novinkami a ponukami od {{brand}}."
+  },
+  "subscription": {
+    "title": "Predplatné",
+    "loading": "Načítava sa predplatné…",
+    "loadFailed": "Stav predplatného sa nepodarilo načítať.",
+    "restore": "Obnoviť nákupy",
+    "manage": "Spravovať predplatné",
+    "activate": "Aktivovať Premium",
+    "viewPlans": "Zobraziť predplatné",
+    "howToActivate": "Ako aktivovať Premium",
+    "webActivateHint": "Premium sa aktivuje v aplikácii pre iPhone alebo Android.",
+    "restoreSuccess": "Nákupy sú obnovené. Premium je aktívne.",
+    "restoreNone": "Nenašli sa nákupy na obnovenie.",
+    "restoreFailed": "Nákupy sa nepodarilo obnoviť.",
+    "launchHoldTitle": "Prístup pri štarte — platby ešte nebežia",
+    "launchHoldBody": "Aplikáciu môžeš ďalej používať. Kým sú platby vypnuté, predplatné netreba.",
+    "complimentaryTitle": "Zadarmo do 31. decembra 2026",
+    "complimentaryBody": "{{brand}} je zadarmo do 31. decembra 2026. Predplatné ani spôsob platby netreba. Táto ponuka sa sama nezmení na platené predplatné.",
+    "complimentaryBodyUntil": "Zadarmo do {{date}}. Predplatné ani spôsob platby netreba a ponuka sa sama nestane plateným predplatným. Od 1. januára 2027 sa rozhodneš, či sa predplatíš.",
+    "launchTitle": "Prístup pri štarte",
+    "launchBody": "Aplikáciu môžeš používať už teraz. Predplatné zatiaľ netreba.",
+    "launchBodyUntil": "Aplikáciu môžeš používať už teraz. Predplatné zatiaľ netreba. Platený štart: {{date}}.",
+    "noPremium": "Žiadne aktívne Premium",
+    "choosePlan": "Vyber Premium na mesiac alebo Premium na rok a odomkneš plný prístup.",
+    "billingNotLive": "Predplatné zatiaľ netreba. Platby ešte nebežia.",
+    "activateBody": "Aktivuj Premium a získaj plný prístup k aplikácii.",
+    "grandfatheredTitle": "Premium je natrvalo v cene",
+    "grandfatheredBody": "Rodina má plný prístup zadarmo.",
+    "trialTitle": "Premium – skúška zadarmo",
+    "ends": "Končí {{date}}",
+    "giftTitle": "Premium – darčeková karta",
+    "validUntil": "Platí do {{date}}",
+    "graceTitle": "Premium – platbu treba aktualizovať",
+    "graceBody": "Prístup stále funguje, no platbu treba opraviť v {{store}}.",
+    "activeTitle": "Premium – {{plan}} cez {{store}}",
+    "planYearly": "ročný plán",
+    "planMonthly": "mesačný plán"
+  },
+  "theme": {
+    "title": "Vzhľad",
+    "darkMode": "Tmavý režim",
+    "darkHint": "Zapni tmavý vzhľad, aby sa ti v tme používalo pohodlnejšie",
+    "toggleAria": "Prepnúť tmavý režim",
+    "colorBlind": "Vzhľad pre farbosleposť",
+    "colorBlindHint": "Upraví farby pre rôzne typy farbosleposti",
+    "colorNone": "Žiadna (predvolené)",
+    "protanopia": "Protanopia (nevidí červenú)",
+    "deuteranopia": "Deuteranopia (nevidí zelenú)",
+    "tritanopia": "Tritanopia (nevidí modrú)"
+  },
+  "viewMode": {
+    "dualAccess": "Máš prístup k rodičovskému aj pedagogickému pohľadu.",
+    "switchPedagog": "🌟 Prepnúť na pohľad pedagóga",
+    "switchParent": "👨‍👩‍👧 Prepnúť na pohľad rodiča"
+  },
+  "loadError": {
+    "title": "Nastavenia rodiny sa nepodarilo načítať",
+    "fallback": "Nastavenia rodiny sa teraz nepodarilo načítať.",
+    "retry": "Skús to znova",
+    "retryIn": "Skús to znova o {{seconds}} s"
+  },
+  "unsubscribe": {
+    "weekly": "Ďalšie týždenné súhrny na e-mail nepošleme. Zapneš ich v Nastaveniach → Upozornenia.",
+    "reward": "Keď dieťa chce vymeniť odmeny, ďalšie e-maily nepošleme. Zapneš ich v Nastaveniach → Upozornenia.",
+    "all": "Všetky e-mailové upozornenia sú vypnuté. Zapneš ich v Nastaveniach → Upozornenia.",
+    "invalidTitle": "Neplatný odkaz",
+    "invalidBody": "Odkaz je neplatný alebo mu vypršala platnosť.",
+    "errorTitle": "Niečo sa pokazilo",
+    "errorBody": "Skús to neskôr alebo choď do Nastavení v aplikácii."
+  },
+  "notifArchive": {
+    "retry": "Skús to znova",
+    "failedHidden": "Neúspešné alebo vypnuté odoslania sa tu nezobrazujú.",
+    "loading": "Načítava sa archív push správ…",
+    "loadError": "Archív push správ sa nepodarilo načítať. To neznamená, že nemáš žiadne upozornenia.",
+    "markAll": "Označiť všetko ako prečítané"
+  }
+}

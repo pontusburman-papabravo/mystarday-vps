@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Bez pripojenia</string>
+    <string name="native_offline_body">Skontroluj internet a skús to znova.</string>
+    <string name="camera_permission_rationale">[REDACTED] používa fotoaparát na profilovú fotku dieťaťa.</string>
+    <string name="photos_permission_rationale">[REDACTED] potrebuje prístup k fotkám, aby sa dala vybrať profilová fotka dieťaťa.</string>
+    <string name="notification_channel_routine_name">Pripomienky rutiny</string>
+    <string name="notification_channel_routine_desc">Pripomienky k plánu rodiny</string>
+</resources>

@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Skref {{current}} af {{total}}",
+    "back": "← Til baka",
+    "next": "Næsta skref →",
+    "continue": "Halda áfram →",
+    "save": "Vista",
+    "cancel": "Hætta við",
+    "loading": "Hleð…",
+    "genericError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+    "networkError": "Netvilla. Reyndu aftur.",
+    "closeAria": "Loka",
+    "childFallback": "Barnið þitt",
+    "addChildDone": "Búið! →",
+    "goForward": "Halda áfram →",
+    "finishing": "Klára…",
+    "recommended": "Mælt með",
+    "optional": "Valfrjálst"
+  },
+  "pageTitle": {
+    "welcome": "Velkomin — {{brand}}",
+    "ogTitle": "{{brand}} — Komdu þér af stað á 2 mínútum",
+    "ogDescription": "Settu upp vikuáætlun og verðlaun barnsins strax"
+  },
+  "verifyEmail": {
+    "title": "Staðfestu netfangið þitt",
+    "body": "Við sendum tölvupóst á {{email}}. Smelltu á tengilinn í póstinum til að virkja aðganginn.",
+    "resend": "Senda aftur",
+    "resendSending": "Sendi…",
+    "resendSuccess": "✓ Sent!",
+    "resendSent": "Sent",
+    "resendError": "Eitthvað fór úrskeiðis. Reyndu aftur."
+  },
+  "child": {
+    "title": "Segðu okkur frá barninu",
+    "lead": "Veldu nafn, emoji, afmæli og vikuáætlun sem passar við hversdagsrútínuna.",
+    "nameLabel": "Nafn barns",
+    "namePlaceholder": "t.d. Ella",
+    "birthdayLabel": "Afmæli",
+    "birthdayOptionalHint": "(valfrjálst — hjálpar okkur að stinga upp á réttri áætlun)",
+    "yearPlaceholder": "Ár",
+    "monthPlaceholder": "Mánuður",
+    "dayPlaceholder": "Dagur",
+    "birthYearAria": "Fæðingarár",
+    "birthMonthAria": "Fæðingarmánuður",
+    "birthDayAria": "Fæðingardagur",
+    "months": [
+      "Janúar",
+      "Febrúar",
+      "Mars",
+      "Apríl",
+      "Maí",
+      "Júní",
+      "Júlí",
+      "Ágúst",
+      "September",
+      "Október",
+      "Nóvember",
+      "Desember"
+    ],
+    "emojiLabel": "Veldu emoji",
+    "customEmojiPlaceholder": "Eða skrifaðu þitt eigið emoji…",
+    "emojiAriaLabel": "Veldu emoji {{emoji}}",
+    "avatarLabel": "Valfrjálst: prófílmynd",
+    "avatarHint": "Veldu mynd úr safninu eða taktu nýja.",
+    "avatarDefaultBtn": "✨ Sjálfgefin mynd",
+    "avatarPickBtn": "📷 Velja mynd",
+    "avatarLoading": "Hleð…",
+    "avatarPreparing": "Undirbý…",
+    "avatarUploadFailed": "Gat ekki hlaðið upp myndinni. Reyndu aftur.",
+    "avatarReadFailed": "Gat ekki lesið myndina",
+    "avatarAlt": "Prófílmynd barns",
+    "scheduleLabel": "Veldu vikuáætlun",
+    "templatesLoading": "Hleð áætlanir…",
+    "templatesLoadFailed": "Ekki tókst að sækja sniðmát áætlana núna.",
+    "templatesRetryBtn": "Reyna aftur",
+    "nextBtn": "Næsta skref →",
+    "creatingChild": "Bý til barn…",
+    "creatingSchedule": "Bý til áætlun…",
+    "nameRequired": "Sláðu inn nafn barnsins",
+    "emojiRequired": "Veldu emoji fyrir barnið",
+    "scheduleRequired": "Veldu vikuáætlun",
+    "childResumedToast": "Við fundum barnið frá síðast — höldum áfram með áætlunina.",
+    "avatarSaveFailedToast": "Barnið var búið til, en myndin vistaðist ekki. Þú getur bætt henni við undir Fjölskylda.",
+    "scheduleCreateFailed": "Ekki tókst að búa til áætlunina"
+  },
+  "activityGuide": {
+    "title": "Hvernig á appið að hjálpa {{childName}} með athafnir dagsins?",
+    "lead": "Þú getur breytt þessu hvenær sem er í stillingum barnsins.",
+    "stepLabel": "Skref {{current}} af {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Frjáls röð",
+        "description": "Barnið getur hakað við í hvaða röð sem er."
+      },
+      "one_at_a_time": {
+        "title": "Eitt í einu",
+        "description": "Appið hjálpar barninu að einbeita sér að næsta skrefi."
+      },
+      "time_and_order": {
+        "title": "Skýr tími og röð",
+        "description": "Appið hjálpar með næsta skref og teljara sem þú stillir fyrir hverja athöfn."
+      }
+    },
+    "continueBtn": "Halda áfram →",
+    "saving": "Vista…",
+    "selectError": "Veldu valkost",
+    "saveError": "Gat ekki vistað valið þitt"
+  },
+  "viewType": {
+    "title": "Hvaða sýn á {{childName}} að sjá?",
+    "lead": "Veldu hvernig áætlunin birtist þegar barnið skráir sig inn. Þú getur breytt þessu hvenær sem er í stillingum.",
+    "dayViewTitle": "Dagssýn",
+    "dayViewSubtitle": "Morgunn · Seinn morgunn · Eftirmiðdagur · Kvöld",
+    "timelineViewTitle": "Núna/næst/síðar",
+    "timelineViewSubtitle": "Sýnir aðeins það sem er að gerast akkúrat núna",
+    "timelineNow": "NÚNA",
+    "timelineNext": "NÆST",
+    "timelineThen": "SÍÐAR",
+    "mock": {
+      "wakeStretch": "Vakna og teygja sig",
+      "brushTeeth": "Bursta tennur",
+      "packBag": "Pakka tösku",
+      "preschool": "Fara á leikskóla",
+      "freePlay": "Frjáls leikur",
+      "dinner": "Kvöldmatur",
+      "bedtimeStory": "Kvöldsaga",
+      "preschoolShort": "Leikskóli",
+      "play": "Leika"
+    },
+    "dayViewHint": "Þú getur líka valið dagssýn ef barnið vill litakóðaða hluta dagsins.",
+    "skipHint": "Sleppirðu? Dagssýn er valin sjálfkrafa.",
+    "saving": "Vista val á sýn…"
+  },
+  "scheduleReady": {
+    "title": "Áætlun tilbúin!",
+    "subtitle": "Við höfum útbúið byrjunaráætlun fyrir {{childName}}.",
+    "subtitleWithTemplate": "Við höfum útbúið áætlunina {{templateName}} fyrir {{childName}}. Hún inniheldur lykilskrefin til að takast á við daginn sjálfstætt.",
+    "templateFallback": "Áætlun",
+    "daysWeek": "7 dagar / vika",
+    "daysMonFri": "mán–fös",
+    "daysMonFriWeekend": "mán–fös + helgi",
+    "socialProofTitle": "Vissirðu?",
+    "socialProofBody": "Sjónrænn stuðningur dregur oft úr hversdagsstressi um allt að 30% — og börn með skýrar rútínur sofna fyrr og vakna glaðari.",
+    "continueBtn": "Fullkomið, förum! →"
+  },
+  "rewards": {
+    "title": "Svona virka stjörnur",
+    "checkOff": "Haka við",
+    "star": "Stjarna",
+    "treasureChest": "Fjársjóðskistan",
+    "intro": "Við höfum sett inn skemmtileg verðlaun. Veldu þau sem {{childName}} getur unnið sér inn!",
+    "introWithCount": "Við höfum sett inn {{count}} skemmtileg verðlaun. Veldu þau sem {{childName}} getur unnið sér inn!",
+    "selectCount": {
+      "none": "Veldu að minnsta kosti 1 verðlaun (0 valin)",
+      "one": "{{count}} verðlaun valin ✓",
+      "other": "{{count}} verðlaun valin ✓"
+    },
+    "minOneError": "Veldu að minnsta kosti ein verðlaun til að halda áfram",
+    "saveBtn": "Vista verðlaun →",
+    "saving": "Vista verðlaun…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Auka saga",
+      "chooseDessert": "Velja eftirrétt",
+      "movieNight": "Myndakvöld",
+      "chooseDinner": "Velja kvöldmat",
+      "outing": "Ferðalag",
+      "bakeTogether": "Baka saman",
+      "familyGameNight": "Spilakvöld fjölskyldunnar",
+      "lateBedtime": "Vera lengur uppi",
+      "cinemaTrip": "Bíóferð"
+    }
+  },
+  "handoff": {
+    "title": "Svona skráir þú þig inn",
+    "lead": "{{childName}} skráir sig inn með nafni og PIN — engin lykilorð.",
+    "childLoginLabel": "Innskráning barns",
+    "usernameFallback": "notandanafn",
+    "pinLabel": "PIN",
+    "pinNote": "Skrifaðu PIN-númerið hjá þér — þú getur breytt því í stillingum.",
+    "pinResumeHint": "Notaðu PIN barnsins. Ef þú hefur gleymt því geturðu sett nýtt með hnappnum hér að neðan.",
+    "chooseCustomPin": "✏️ Veldu þitt eigið PIN",
+    "savePin": "Vista PIN",
+    "savingPin": "Vista…",
+    "pinMustBe4": "PIN þarf að vera 4 tölustafir",
+    "pinTooWeak": "Veldu sterkara PIN (ekki 1111, 2222 o.s.frv.)",
+    "pinSaveFailed": "Gat ekki vistað PIN",
+    "copyInfo": "📋 Afrita upplýsingar",
+    "copied": "✓ Afritað!",
+    "copyManual": "Afritaðu handvirkt:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nNotandanafn: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Senda í tölvupóst",
+    "emailSubject": "{{brand}} — Innskráning fyrir {{childName}}",
+    "emailBody": "Halló!\n\nHér eru innskráningarupplýsingar í {{brand}} fyrir {{childName}}:\n\nNotandanafn: {{username}}\nPIN: {{pin}}\n\nOpnaðu appið: {{appUrl}}/child-login\n\nBestu kveðjur,\n{{brand}}",
+    "emailFallbackAlert": "Innskráning fyrir {{childName}}:\nNotandanafn: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Setja upp sem app",
+    "installBody": "Bættu {{brand}} á heimaskjáinn — virkar eins og alvöru app, virkar án nets, engar appverslanir.",
+    "installInstructions": "iPhone: Deila → Bæta á heimaskjá · Android: ⋮ → Setja upp app",
+    "parentTipTitle": "Ráð fyrir þig sem foreldri",
+    "parentTipLead": "Settu þig niður saman í kvöld. Sýndu Fjársjóðskistuna",
+    "parentTipEmphasis": "fyrst",
+    "parentTipTail": "til að kveikja forvitni — og útskýrðu svo að appið er eigið kort {{childName}} fyrir daginn!",
+    "testChildLogin": "👶 Prófa innskráningu barns núna",
+    "continueAsParent": "Halda áfram sem foreldri →",
+    "skipConfirmTitle": "Sleppa innskráningu barns?",
+    "skipConfirmBody": "Barnið þarf PIN til að skrá sig inn sjálft. Ef þið prófið það ekki núna getur morgunninn orðið erfiðari — við sendum áminningu eftir 24 klukkustundir ef barnið hefur ekki prófað.",
+    "skipConfirmPrimary": "👶 Prófa innskráningu barns",
+    "skipConfirmSecondary": "Sleppa samt"
+  },
+  "parentPin": {
+    "setLater": "Setja PIN foreldris síðar",
+    "title": "Setja PIN foreldris",
+    "description": "4 stafa PIN sem aðeins þú þekkir verndar foreldrasvæðið — til dæmis þegar börn bæta við systkini eða þú skráir þig inn sem foreldri á tæki barnsins.",
+    "choosePin": "Veldu PIN-númerið þitt",
+    "confirmPin": "Staðfesta PIN",
+    "changeLater": "Þú getur breytt PIN síðar undir Fjölskylda og stillingar.",
+    "pinRequiredOrEmpty": "Sláðu inn 4 stafa PIN eða skildu reitina eftir tóma",
+    "pinRequiredForHandoff": "Settu 4 stafa PIN áður en barnið getur tekið við tækinu.",
+    "pinMismatch": "PIN-númerin stemma ekki",
+    "saveFailed": "Gat ekki vistað PIN",
+    "handoffRequired": "Á sameiginlegu tæki þarftu PIN fullorðins áður en barnið getur skráð sig inn.",
+    "saveAndContinue": "Vista og halda áfram"
+  },
+  "invite": {
+    "inviteLater": "Bjóða meðforeldri síðar",
+    "title": "Bjóða öðrum fullorðnum",
+    "namePlaceholder": "Nafn (t.d. Erik)",
+    "emailPlaceholder": "Netfang",
+    "whichChildren": "Hvaða börn á þessi aðili að sjá?",
+    "sendBtn": "📧 Senda boð",
+    "sending": "Sendi…",
+    "sent": "✓ Sent",
+    "skip": "Sleppa →",
+    "emailRequired": "Sláðu inn netfang",
+    "invalidEmail": "Ógilt netfang",
+    "success": "Boð sent á {{email}}! ✓",
+    "sendFailed": "Eitthvað fór úrskeiðis"
+  },
+  "complete": {
+    "title": "Næstum búið!",
+    "lead": "Láttu barnið prófa appið — þú getur boðið öðrum fullorðnum og sett PIN foreldris eftir fyrsta hakið.",
+    "tips": {
+      "editScheduleTitle": "Breyta áætluninni",
+      "editScheduleBody": "Farðu á Heim → ýttu á spjald barnsins → lagaðu athafnir að hversdeginum.",
+      "checkRewardsTitle": "Skoða verðlaunin",
+      "checkRewardsBody": "Í barnasýn — ýttu á stjörnuna — barnið sér hversu margar stjörnur hvert verðlaun þarf.",
+      "addChildrenTitle": "Bæta við fleiri börnum",
+      "addChildrenBody": "Hvert barn fær sína vikuáætlun og sínar stjörnur. Bættu öðru við með + á Heim."
+    },
+    "letChildStart": "👶 Láttu barnið byrja",
+    "letChildStartPlain": "Láttu barnið byrja",
+    "completeFailed": "Gat ekki klárað upphafið",
+    "completeFailedShort": "Gat ekki klárað",
+    "welcomeFooter": "Velkomin í {{brand}} — við erum glöð að þú sért hér! 🌟"
+  },
+  "weekend": {
+    "title": "Bæta við helgaráætlun?",
+    "body": "Vikudagaáætlunin er tilbúin fyrir mán–fös. Viltu rólega helgaráætlun fyrir laugardag og sunnudag?",
+    "scheduleLabel": "Helgaráætlun",
+    "satSun": "lau + sun",
+    "preview": {
+      "sleepIn": "Sofa lengur",
+      "breakfast": "Morgunmatur í ró",
+      "freePlay": "Frjáls leikur",
+      "outing": "Ferðalag / garður",
+      "familyActivity": "Fjölskylduathöfn",
+      "dinner": "Kvöldmatur"
+    },
+    "yesBtn": "✅ Já, bæta við helgaráætlun",
+    "yesLoading": "Bæti við…",
+    "noBtn": "Nei takk, ég fylli þetta út síðar",
+    "addFailed": "Gat ekki bætt við helgaráætlun"
+  },
+  "starter": {
+    "stepLabel": "Búa til áætlun {{current}} af {{total}}",
+    "slimTitle": "Rútínan er næstum tilbúin",
+    "fullTitle": "Búðu til fyrstu áætlunina",
+    "slimIntro": "Þrjár snöggar spurningar — svo er rútínan tilbúin.",
+    "birthdayHint": "Veldu fæðingardag barnsins — það hjálpar okkur að stinga upp á réttri áætlun.",
+    "fullIntro": "Svaraðu nokkrum spurningum — tekur innan við mínútu.",
+    "powerPathLead": "Viltu velja eða byggja þitt eigið?",
+    "chooseTemplate": "📋 Velja tilbúna áætlun",
+    "fullWizard": "✏️ Byggja og sérsníða upp á eigin spýtur (7 spurningar)",
+    "answerRequired": "Veldu eða fylltu út svar",
+    "showSchedule": "Sýna áætlun →",
+    "buttons": {
+      "next": "Næsta →"
+    },
+    "createRoutine": "Búa til rútínu →",
+    "creatingRoutine": "Bý til rútínu…",
+    "personalizing": "Sérsníð áætlun…",
+    "loading": "Hleð…",
+    "useSchedule": "Nota þessa áætlun →",
+    "saving": "Vista…",
+    "changeAnswers": "← Breyta svörum",
+    "removeStep": "Fjarlægja",
+    "previewHint": "Þú getur fjarlægt skref — bætt fleiri við í stillingum síðar.",
+    "previewForChild": "Fyrir {{childName}} · {{count}} athafnir",
+    "previewAiTail": " · ✨ AI-sérsniðið",
+    "defaultPlanTitle": "Áætlunin þín",
+    "slimSuccessTitle": "Rútínan er tilbúin",
+    "slimSuccessTonight": "Áætlunin er tilbúin. Sýndu {{childName}} Í dag á þessu tæki.",
+    "showChildToday": "Sýna Í dag barnsins",
+    "openingChildToday": "Opna Í dag barnsins…",
+    "hourglassOfferTitle": "Sjónrænt stundaglas",
+    "hourglassOfferBody": "Hjálpaðu barninu að sjá hversu mikill tími er eftir í athöfn.",
+    "hourglassEnableBtn": "Virkja stundaglas",
+    "hourglassEnabling": "Virkja…",
+    "hourglassEnabledMsg": "Stundaglas er virkt fyrir barnið.",
+    "hourglassEnableFailed": "Gat ekki virkjað stundaglas",
+    "goHome": "Fara á Heim →",
+    "openingHome": "Opna Heim…",
+    "customizeFirst": "Sérsníða áætlun fyrst",
+    "openingSchedule": "Opna áætlun…",
+    "nameRequired": "Sláðu inn nafn barnsins",
+    "templateFailed": "Gat ekki valið sniðmát",
+    "previewFailed": "Gat ekki sótt áætlun",
+    "childCreateFailed": "Gat ekki búið til barn",
+    "scheduleSaveFailed": "Gat ekki vistað áætlun",
+    "personalizeFailed": "Gat ekki sérsniðið áætlun",
+    "completeFailed": "Gat ekki klárað",
+    "packages": {
+      "morning-short": {
+        "name": "Stuttur morgunn"
+      },
+      "evening-routine": {
+        "name": "Kvöldrútína"
+      },
+      "preschool-day": {
+        "name": "Leikskóladagur"
+      },
+      "school-day": {
+        "name": "Skóladagur"
+      },
+      "weekend": {
+        "name": "Helgi"
+      },
+      "getting-ready": {
+        "name": "Stuttur morgunn"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Nafn barns",
+        "placeholder": "t.d. Ella"
+      },
+      "age_band": {
+        "label": "Hversu gamalt er barnið?",
+        "options": {
+          "3-5": "3–5 ára",
+          "6-8": "6–8 ára",
+          "9-12": "9–12 ára",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Hvaða rútínu viltu byrja á?",
+        "options": {
+          "morgon": "☀️ Morgunn",
+          "kvall": "🌙 Kvöld",
+          "efter-skola": "🏫 Eftir skóla",
+          "laxor": "📚 Heimanám",
+          "gora-sig-klar": "🎒 Undirbúa sig"
+        }
+      },
+      "main_challenge": {
+        "label": "Hvað er erfiðast núna?",
+        "options": {
+          "getting_started": "Að komast af stað",
+          "focus": "Að halda einbeitingu",
+          "conflicts": "Átök",
+          "forgetting": "Að gleyma skrefum",
+          "transitions": "Skipti"
+        }
+      },
+      "support_ui": {
+        "label": "Þarf barnið sérstaklega skýran stuðning?",
+        "options": {
+          "ja": "Já",
+          "lite": "Aðeins",
+          "nej": "Nei"
+        }
+      },
+      "length_ui": {
+        "label": "Hversu mörg skref viltu byrja með?",
+        "options": {
+          "kort": "Stutt (3–4)",
+          "normal": "Venjulegt (5)",
+          "detaljerad": "Ítarlegt (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Eitthvað mikilvægt sem við ættum að vita? (valfrjálst)",
+        "placeholder": "t.d. að bursta tennur er erfiðast"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rútína tilbúin",
+      "handoff": "Opnið barnasýn saman",
+      "child": "Barnið sér hvað gerist núna",
+      "done": "Búið!",
+      "star": "Fyrsta stjarnan ⭐"
+    },
+    "mock": {
+      "parentView": "Sýn foreldris",
+      "dailyRoutine": "Rútína dagsins",
+      "dress": "Klæðast",
+      "brushTeeth": "Bursta tennur",
+      "packBag": "Pakka tösku",
+      "tryChildMode": "👶 Prófa barnasýn",
+      "now": "Núna",
+      "markDone": "Merkja búið ✓",
+      "wellDone": "Vel gert!"
+    },
+    "ctaReady": "Til í að prófa?",
+    "ctaTryNow": "Prófa barnasýn núna",
+    "ctaLater": "Gera þetta síðar",
+    "loginTitle": "Opna sýn barnsins",
+    "loginLead": "Áætlunin er tilbúin. Réttu {{childName}} þetta tæki svo það sjái rútínuna sína.",
+    "usernameLabel": "Notandanafn",
+    "pinLabel": "PIN",
+    "loginHint": "Setjist saman — sama tæki eða annað, bæði virka.",
+    "copyLogin": "📋 Afrita innskráningu",
+    "copied": "✓ Afritað!",
+    "openChildMode": "Opna sýn barns",
+    "copyText": "{{childName}}\nOpnaðu sýn barnsins í appinu.",
+    "previewTitle": "Forskoðun — upphafsmyndband"
+  },
+  "firstStar": {
+    "title": "Gefðu fyrstu stjörnuna",
+    "lead": "Þrjú snögg skref — svo eruð þið virkilega komin af stað.",
+    "steps": {
+      "login": "Láttu barnið skrá sig inn með PIN",
+      "complete": "Merktu athöfn sem búna í barnasýn",
+      "celebrate": "Fagnaðu stjörnunni saman!"
+    },
+    "openChildLogin": "👶 Opna innskráningu barns",
+    "continueAsParent": "Halda áfram sem foreldri"
+  },
+  "activation": {
+    "finalStepLabel": "Síðasta skref",
+    "introTitle": "Hvernig viltu byrja?",
+    "introBody": "Þú hefur sett upp vikuáætlun barnsins — góð byrjun. Margar fjölskyldur finna að stærsta áskorunin er ekki að komast af stað, heldur að halda rútínunni fyrstu dagana þegar hversdagurinn tekur yfir. Veldu það sem hentar þér:",
+    "guidedBadge": "Mælt með",
+    "guidedTitle": "Halda rútínunni gangandi fyrstu vikuna",
+    "guidedBody": "Margar fjölskyldur kunna að meta smá stuðning eftir að áætlunin er tilbúin. Ekki af því að eitthvað sé að, heldur af því að nýjar venjur taka tíma að festast.",
+    "guidedBenefits": [
+      "Stuttar daglegar áminningar sem hjálpa þér að halda áfram",
+      "Sjáðu hvenær barnið klárar verkefni án auka nöldurs",
+      "Vikuáætlun barnsins er þegar tilbúin — við hjálpum rútínunni að virka",
+      "Hættu hvenær sem þú vilt"
+    ],
+    "guidedCta": "Já, hjálpið okkur fyrstu vikuna",
+    "directTitle": "Komast af stað strax",
+    "directBody": "Þér finnst þú til í að halda áfram sjálfstætt. Allt er til staðar og þú getur byrjað strax.",
+    "directBenefits": [
+      "Beint á Heim",
+      "Sama áætlun, stjörnur og verðlaun",
+      "Notaðu appið á þínum hraða"
+    ],
+    "directCta": "Við reddum þessu sjálf",
+    "footnote": "Hvort sem þú velur geturðu notað appið að fullu. Leiðsögnin gefur bara smá auka stuðning fyrstu vikuna.",
+    "saveFailed": "Gat ekki vistað valið þitt"
+  },
+  "loading": {
+    "buildingSchedule": "Byggi áætlunina þína…",
+    "takesSeconds": "Tekur aðeins nokkrar sekúndur!"
+  },
+  "templateGroups": {
+    "showActivities": "Sýna athafnir",
+    "loadingActivities": "Hleð...",
+    "activityCount": {
+      "one": "{{count}} athöfn",
+      "other": "{{count}} athafnir"
+    },
+    "forskola": {
+      "name": "Leikskóli",
+      "description": "Heill dagur — börn 2–5 ára"
+    },
+    "skola": {
+      "name": "Skóli",
+      "description": "Heill dagur — börn 6 ára og eldri"
+    },
+    "morgon": {
+      "name": "Morgunn",
+      "description": "Morgunrútína"
+    },
+    "dag": {
+      "name": "Dagur",
+      "description": "Athafnir yfir daginn"
+    },
+    "kvall": {
+      "name": "Kvöld",
+      "description": "Kvöldrútína"
+    },
+    "helg": {
+      "name": "Helgi",
+      "description": "Helgarrútína"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Vakna",
+        "Klæðast",
+        "Morgunmatur",
+        "Leikskóli",
+        "Leika",
+        "Kvöldmatur",
+        "Kvöldsaga"
+      ],
+      "skola": [
+        "Vakna",
+        "Morgunmatur",
+        "Pakka tösku",
+        "Skóli",
+        "Heimanám",
+        "Kvöldmatur",
+        "Kvöldsaga"
+      ],
+      "morgon": [
+        "Vakna",
+        "Klæðast",
+        "Bursta tennur",
+        "Morgunmatur",
+        "Pakka tösku"
+      ],
+      "dag": [
+        "Leikskóli",
+        "Leika úti",
+        "Millimál",
+        "Hádegismatur",
+        "Föndur"
+      ],
+      "kvall": [
+        "Kvöldmatur",
+        "Bursta tennur",
+        "Náttföt",
+        "Kvöldsaga",
+        "Sofa"
+      ],
+      "helg": [
+        "Vakna",
+        "Morgunmatur",
+        "Frjáls leikur",
+        "Ferðalag",
+        "Fjölskylduathöfn",
+        "Kvöldmatur"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Morgunn",
+    "lateMorning": "Seinn morgunn",
+    "afternoon": "Eftirmiðdagur",
+    "evening": "Kvöld"
+  },
+  "errors": {
+    "avatarUploadPath": "Prófílmynd er hlaðin upp með PUT /api/children/:id/avatar eftir að barnið er búið til",
+    "childNameRequired": "Nafn barns er nauðsynlegt",
+    "emojiRequired": "Veldu emoji fyrir barnið",
+    "invalidBirthday": "Ógild afmælisdagsetning",
+    "birthdayFuture": "Afmæli getur ekki verið í framtíðinni",
+    "invalidTemplate": "Ógilt val. Veldu gilda áætlun.",
+    "noActivities": "Engar athafnir fundust fyrir valda áætlun.",
+    "childIdRequired": "child_id er nauðsynlegt",
+    "noChildAccess": "Þú hefur ekki aðgang að þessu barni",
+    "weekendNotFound": "Helgaráætlun fannst ekki í safninu.",
+    "weekendEmpty": "Helgaráætlunin hefur engar athafnir.",
+    "rewardNameRequired": "Heiti verðlauna er nauðsynlegt",
+    "rewardCostMin": "Stjörnukostnaður þarf að vera að minnsta kosti 1",
+    "rewardsFetchFailed": "Gat ekki sótt verðlaun.",
+    "childCreateFailed": "Eitthvað fór úrskeiðis við að búa til barnið.",
+    "scheduleCreateFailed": "Eitthvað fór úrskeiðis við að búa til áætlunina.",
+    "weekendCreateFailed": "Eitthvað fór úrskeiðis við að búa til helgaráætlunina.",
+    "rewardCreateFailed": "Eitthvað fór úrskeiðis við að búa til verðlaunin.",
+    "generic": "Eitthvað fór úrskeiðis.",
+    "invalidViewType": "Ógilt view_type. Veldu day eða timeline.",
+    "notAllowed": "Ekki leyfilegt",
+    "invalidChoice": "Ógilt val.",
+    "activityGuideSaveFailed": "Gat ekki vistað val á athöfn.",
+    "pinMustBe4": "PIN þarf að vera nákvæmlega 4 tölustafir",
+    "pinTooWeak": "Veldu sterkara PIN",
+    "pinTaken": "Þetta PIN er þegar í notkun fyrir barn með sama nafn",
+    "pinUpdateFailed": "Gat ekki uppfært PIN.",
+    "handoffContextFailed": "Gat ekki sótt afhendingarsamhengi",
+    "templateGroupsFailed": "Gat ekki sótt áætlunarhópa.",
+    "schedulePreviewFailed": "Gat ekki sótt áætlun.",
+    "viewSaveFailed": "Gat ekki vistað val á sýn.",
+    "activationNotEnabled": "Virkjunarflæði er ekki virkt fyrir fjölskylduna þína",
+    "starterSuggestFailed": "Gat ekki valið sniðmát",
+    "starterPreviewFailed": "Gat ekki sótt forskoðun",
+    "starterPersonalizeFailed": "Gat ekki sérsniðið áætlun",
+    "scheduleNameRequired": "scheduleName er nauðsynlegt",
+    "templateNotFound": "Sniðmát fannst ekki",
+    "enrollChoiceUnavailable": "Valskjár er ekki tiltækur"
+  },
+  "starterPlan": {
+    "firstSchedule": "Fyrsta áætlunin þín"
+  }
+}

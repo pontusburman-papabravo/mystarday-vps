@@ -1,0 +1,605 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "{{current}} žingsnis iš {{total}}",
+    "back": "← Atgal",
+    "next": "Kitas žingsnis →",
+    "continue": "Tęsti →",
+    "save": "Išsaugoti",
+    "cancel": "Atšaukti",
+    "loading": "Įkeliama…",
+    "genericError": "Kažkas nutiko. Bandyk dar kartą.",
+    "networkError": "Tinklo klaida. Bandyk dar kartą.",
+    "closeAria": "Uždaryti",
+    "childFallback": "Tavo vaikas",
+    "addChildDone": "Atlikta! →",
+    "goForward": "Tęsti →",
+    "finishing": "Baigiama…",
+    "recommended": "Rekomenduojama",
+    "optional": "Nebūtina"
+  },
+  "pageTitle": {
+    "welcome": "Labas — {{brand}}",
+    "ogTitle": "{{brand}} — Pradėk per 2 minutes",
+    "ogDescription": "Iš karto paruošk vaiko planą ir apdovanojimus"
+  },
+  "verifyEmail": {
+    "title": "Patvirtink el. pašto adresą",
+    "body": "Išsiuntėme laišką adresu {{email}}. Spustelėk nuorodą laiške, kad suaktyvintum paskyrą.",
+    "resend": "Siųsti dar kartą",
+    "resendSending": "Siunčiama…",
+    "resendSuccess": "✓ Išsiųsta!",
+    "resendSent": "Išsiųsta",
+    "resendError": "Kažkas nutiko. Bandyk dar kartą."
+  },
+  "child": {
+    "title": "Papasakok apie vaiką",
+    "lead": "Pasirink vardą, jaustuką, gimtadienį ir planą, kuris tinka tavo kasdienybei.",
+    "nameLabel": "Vaiko vardas",
+    "namePlaceholder": "pvz. Ema",
+    "birthdayLabel": "Gimtadienis",
+    "birthdayOptionalHint": "(nebūtina — padeda pasiūlyti tinkamą planą)",
+    "yearPlaceholder": "Metai",
+    "monthPlaceholder": "Mėnuo",
+    "dayPlaceholder": "Diena",
+    "birthYearAria": "Gimimo metai",
+    "birthMonthAria": "Gimimo mėnuo",
+    "birthDayAria": "Gimimo diena",
+    "months": [
+      "Sausis",
+      "Vasaris",
+      "Kovas",
+      "Balandis",
+      "Gegužė",
+      "Birželis",
+      "Liepa",
+      "Rugpjūtis",
+      "Rugsėjis",
+      "Spalis",
+      "Lapkritis",
+      "Gruodis"
+    ],
+    "emojiLabel": "Pasirink jaustuką",
+    "customEmojiPlaceholder": "Arba įrašyk savo jaustuką…",
+    "emojiAriaLabel": "Pasirinkti jaustuką {{emoji}}",
+    "avatarLabel": "Nebūtina: profilio nuotrauka",
+    "avatarHint": "Pasirink nuotrauką iš bibliotekos arba nufotografuok naują.",
+    "avatarDefaultBtn": "✨ Numatyta nuotrauka",
+    "avatarPickBtn": "📷 Rinktis nuotrauką",
+    "avatarLoading": "Įkeliama…",
+    "avatarPreparing": "Ruošiama…",
+    "avatarUploadFailed": "Nepavyko įkelti nuotraukos. Bandyk dar kartą.",
+    "avatarReadFailed": "Nepavyko nuskaityti nuotraukos",
+    "avatarAlt": "Vaiko profilio nuotrauka",
+    "scheduleLabel": "Pasirink planą",
+    "templatesLoading": "Įkeliami planai…",
+    "templatesLoadFailed": "Planų šablonų dabar įkelti nepavyko.",
+    "templatesRetryBtn": "Bandyk dar kartą",
+    "nextBtn": "Kitas žingsnis →",
+    "creatingChild": "Kuriamas vaikas…",
+    "creatingSchedule": "Kuriamas planas…",
+    "nameRequired": "Įrašyk vaiko vardą",
+    "emojiRequired": "Pasirink vaikui jaustuką",
+    "scheduleRequired": "Pasirink planą",
+    "childResumedToast": "Radome vaiką iš praėjusio karto — tęsiame su planu.",
+    "avatarSaveFailedToast": "Vaikas sukurtas, bet nuotraukos išsaugoti nepavyko. Gali pridėti ją skiltyje Šeima.",
+    "scheduleCreateFailed": "Plano sukurti nepavyko"
+  },
+  "activityGuide": {
+    "title": "Kaip programėlė turi padėti vaikui {{childName}} su šiandienos veiklomis?",
+    "lead": "Tai bet kada galėsi pakeisti vaiko nustatymuose.",
+    "stepLabel": "{{current}} žingsnis iš {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Laisva tvarka",
+        "description": "Vaikas gali pažymėti bet kokia tvarka."
+      },
+      "one_at_a_time": {
+        "title": "Po vieną",
+        "description": "Programėlė padeda vaikui susitelkti į kitą žingsnį."
+      },
+      "time_and_order": {
+        "title": "Aiškus laikas ir tvarka",
+        "description": "Programėlė padeda su kitu žingsniu ir laikmačiu, kurį nustatai kiekvienai veiklai."
+      }
+    },
+    "continueBtn": "Tęsti →",
+    "saving": "Saugoma…",
+    "selectError": "Pasirink variantą",
+    "saveError": "Nepavyko išsaugoti pasirinkimo"
+  },
+  "viewType": {
+    "title": "Kurį vaizdą {{childName}} turi matyti?",
+    "lead": "Pasirink, kaip planas atrodo, kai vaikas prisijungia. Nustatymuose tai galėsi pakeisti bet kada.",
+    "dayViewTitle": "Dienos vaizdas",
+    "dayViewSubtitle": "Rytas · Vėlyvas rytas · Popietė · Vakaras",
+    "timelineViewTitle": "Dabar / Toliau / Vėliau",
+    "timelineViewSubtitle": "Rodo tik tai, kas vyksta dabar",
+    "timelineNow": "DABAR",
+    "timelineNext": "TOLIAU",
+    "timelineThen": "VĖLIAU",
+    "mock": {
+      "wakeStretch": "Kelkis ir pasirąžyk",
+      "brushTeeth": "Išsivalyk dantis",
+      "packBag": "Susidėk kuprinę",
+      "preschool": "Eik į darželį",
+      "freePlay": "Laisvas žaidimas",
+      "dinner": "Vakarienė",
+      "bedtimeStory": "Pasaka prieš miegą",
+      "preschoolShort": "Darželis",
+      "play": "Žaisk"
+    },
+    "dayViewHint": "Dienos vaizdą rinkis ir tada, jei vaikui labiau tinka spalvomis pažymėtos dienos dalys.",
+    "skipHint": "Praleidi? Automatiškai pasirenkamas dienos vaizdas.",
+    "saving": "Saugomas vaizdo pasirinkimas…"
+  },
+  "scheduleReady": {
+    "title": "Planas paruoštas!",
+    "subtitle": "Paruošėme pradinį planą vaikui {{childName}}.",
+    "subtitleWithTemplate": "Paruošėme {{templateName}} planą vaikui {{childName}}. Jame yra svarbiausi žingsniai, kad pavyktų savarankiškai.",
+    "templateFallback": "Planas",
+    "daysWeek": "7 dienos per savaitę",
+    "daysMonFri": "Pr–Pn",
+    "daysMonFriWeekend": "Pr–Pn + savaitgalis",
+    "socialProofTitle": "Ar žinojai?",
+    "socialProofBody": "Vaizdinė pagalba dažnai sumažina kasdienį stresą iki 30 % — o vaikai su aiškiomis rutinomis greičiau užmiega ir linksmesni keliasi.",
+    "continueBtn": "Puiku, pirmyn! →"
+  },
+  "rewards": {
+    "title": "Kaip veikia žvaigždės",
+    "checkOff": "Pažymėk",
+    "star": "Žvaigždė",
+    "treasureChest": "Lobių skrynia",
+    "intro": "Įrašėme smagių apdovanojimų. Pasirink tuos, kurių {{childName}} gali siekti!",
+    "introWithCount": "Įrašėme {{count}} smagių apdovanojimų. Pasirink tuos, kurių {{childName}} gali siekti!",
+    "selectCount": {
+      "none": "Pasirink bent 1 apdovanojimą (0 pasirinkta)",
+      "one": "{{count}} apdovanojimas pasirinktas ✓",
+      "few": "{{count}} apdovanojimai pasirinkti ✓",
+      "other": "{{count}} apdovanojimų pasirinkta ✓"
+    },
+    "minOneError": "Kad tęstum, pasirink bent vieną apdovanojimą",
+    "saveBtn": "Išsaugoti apdovanojimus →",
+    "saving": "Saugomi apdovanojimai…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Papildoma pasaka",
+      "chooseDessert": "Pasirink desertą",
+      "movieNight": "Filmų vakaras",
+      "chooseDinner": "Pasirink vakarienę",
+      "outing": "Išvyka",
+      "bakeTogether": "Kepkite kartu",
+      "familyGameNight": "Šeimos žaidimų vakaras",
+      "lateBedtime": "Vėlesnis miegas",
+      "cinemaTrip": "Kelionė į kiną"
+    }
+  },
+  "handoff": {
+    "title": "Kaip prisijungti",
+    "lead": "{{childName}} prisijungia vardu ir PIN — be slaptažodžių.",
+    "childLoginLabel": "Vaiko prisijungimas",
+    "usernameFallback": "naudotojo vardas",
+    "pinLabel": "PIN",
+    "pinNote": "Užsirašyk PIN — nustatymuose galėsi jį pakeisti.",
+    "pinResumeHint": "Naudok vaiko PIN. Jei pamiršai, naują gali nustatyti mygtuku žemiau.",
+    "chooseCustomPin": "✏️ Pasirink savo PIN",
+    "savePin": "Išsaugoti PIN",
+    "savingPin": "Saugoma…",
+    "pinMustBe4": "PIN turi būti 4 skaitmenys",
+    "pinTooWeak": "Pasirink stipresnį PIN (ne 1111, 2222 ir pan.)",
+    "pinSaveFailed": "Nepavyko išsaugoti PIN",
+    "copyInfo": "📋 Kopijuoti duomenis",
+    "copied": "✓ Nukopijuota!",
+    "copyManual": "Nukopijuok ranka:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nNaudotojo vardas: {{username}}\nPIN: {{pin}}\nProgramėlė: {{appUrl}}/child-login",
+    "emailLogin": "📧 Siųsti el. paštu",
+    "emailSubject": "{{brand}} — prisijungimas vaikui {{childName}}",
+    "emailBody": "Labas!\n\nŠtai {{brand}} prisijungimo duomenys vaikui {{childName}}:\n\nNaudotojo vardas: {{username}}\nPIN: {{pin}}\n\nAtidaryk programėlę: {{appUrl}}/child-login\n\nPagarbiai,\n{{brand}}",
+    "emailFallbackAlert": "Prisijungimas vaikui {{childName}}:\nNaudotojo vardas: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Įdiegti kaip programėlę",
+    "installBody": "Pridėk {{brand}} į pradžios ekraną — veikia kaip tikra programėlė, veikia ir be ryšio, be programėlių parduotuvių.",
+    "installInstructions": "iPhone: Bendrinti → Įtraukti į pradžios ekraną · Android: ⋮ → Įdiegti programėlę",
+    "parentTipTitle": "Patarimas tau kaip tėvui",
+    "parentTipLead": "Šįvakar atsisėsk kartu su vaiku. Pirmiausia parodyk lobių skrynią",
+    "parentTipEmphasis": "pirmiausia",
+    "parentTipTail": "kad sukeltum smalsumą — tada paaiškink, kad programėlė yra {{childName}} dienos žemėlapis!",
+    "testChildLogin": "👶 Išbandyk vaiko prisijungimą dabar",
+    "continueAsParent": "Tęsti kaip tėvas →",
+    "skipConfirmTitle": "Praleisti vaiko prisijungimą?",
+    "skipConfirmBody": "Vaikui reikia PIN, kad prisijungtų savarankiškai. Jei dabar neišbandysi, ryto rutina gali būti sunkesnė — priminsime po 24 valandų, jei vaikas dar nebus bandęs.",
+    "skipConfirmPrimary": "👶 Išbandyti vaiko prisijungimą",
+    "skipConfirmSecondary": "Vis tiek praleisti"
+  },
+  "parentPin": {
+    "setLater": "Tėvo PIN nustatysiu vėliau",
+    "title": "Nustatyk tėvo PIN",
+    "description": "4 skaitmenų PIN, kurį žinai tik tu, saugo tėvo sritį — pavyzdžiui, kai vaikai prideda brolį ar sesę arba prisijungi kaip tėvas vaiko įrenginyje.",
+    "choosePin": "Pasirink PIN",
+    "confirmPin": "Pakartok PIN",
+    "changeLater": "PIN vėliau galėsi pakeisti skiltyje Šeima ir nustatymai.",
+    "pinRequiredOrEmpty": "Įrašyk 4 skaitmenų PIN arba palik laukus tuščius",
+    "pinRequiredForHandoff": "Nustatyk 4 skaitmenų PIN, kol vaikas gali perimti įrenginį.",
+    "pinMismatch": "PIN nesutampa",
+    "saveFailed": "Nepavyko išsaugoti PIN",
+    "handoffRequired": "Bendrame įrenginyje reikia suaugusiojo PIN, kol vaikas gali prisijungti.",
+    "saveAndContinue": "Išsaugoti ir tęsti"
+  },
+  "invite": {
+    "inviteLater": "Kitą tėvą pakviesiu vėliau",
+    "title": "Pakviesk kitą suaugusį",
+    "namePlaceholder": "Vardas (pvz. Erikas)",
+    "emailPlaceholder": "El. pašto adresas",
+    "whichChildren": "Kuriuos vaikus šis žmogus turi matyti?",
+    "sendBtn": "📧 Siųsti kvietimą",
+    "sending": "Siunčiama…",
+    "sent": "✓ Išsiųsta",
+    "skip": "Praleisti →",
+    "emailRequired": "Įrašyk el. pašto adresą",
+    "invalidEmail": "Netinkamas el. pašto adresas",
+    "success": "Kvietimas išsiųstas adresu {{email}}! ✓",
+    "sendFailed": "Kažkas nutiko"
+  },
+  "complete": {
+    "title": "Beveik baigta!",
+    "lead": "Tegul vaikas išbando programėlę — kitus suaugusius ir tėvo PIN galėsi sutvarkyti po pirmo pažymėjimo.",
+    "tips": {
+      "editScheduleTitle": "Redaguok planą",
+      "editScheduleBody": "Eik į Pradžią → paliesk vaiko kortelę → pritaikyk veiklas kasdienybei.",
+      "checkRewardsTitle": "Peržiūrėk apdovanojimus",
+      "checkRewardsBody": "Vaiko vaizde — paliesk žvaigždę — vaikas mato, kiek žvaigždžių reikia kiekvienam apdovanojimui.",
+      "addChildrenTitle": "Pridėk daugiau vaikų",
+      "addChildrenBody": "Kiekvienas vaikas gauna savo planą ir žvaigždes. Kitą pridėk per + Pradžioje."
+    },
+    "letChildStart": "👶 Tegul vaikas pradeda",
+    "letChildStartPlain": "Tegul vaikas pradeda",
+    "completeFailed": "Nepavyko baigti pradžios",
+    "completeFailedShort": "Nepavyko baigti",
+    "welcomeFooter": "Smagu, kad esi {{brand}} — džiaugiamės, kad esi čia! 🌟"
+  },
+  "weekend": {
+    "title": "Pridėti savaitgalio planą?",
+    "body": "Darbo dienų planas paruoštas pirmadieniui–penktadieniui. Nori ramaus savaitgalio plano šeštadieniui ir sekmadieniui?",
+    "scheduleLabel": "Savaitgalio planas",
+    "satSun": "Št + Sk",
+    "preview": {
+      "sleepIn": "Pamiegok ilgiau",
+      "breakfast": "Pusryčiai ramiai",
+      "freePlay": "Laisvas žaidimas",
+      "outing": "Išvyka / parkas",
+      "familyActivity": "Šeimos veikla",
+      "dinner": "Vakarienė"
+    },
+    "yesBtn": "✅ Taip, pridėti savaitgalio planą",
+    "yesLoading": "Pridedama…",
+    "noBtn": "Ne, ačiū, užpildysiu vėliau",
+    "addFailed": "Nepavyko pridėti savaitgalio plano"
+  },
+  "starter": {
+    "stepLabel": "Kuriamas planas {{current}} iš {{total}}",
+    "slimTitle": "Rutina beveik paruošta",
+    "fullTitle": "Sukurk pirmą planą",
+    "slimIntro": "Trys trumpi klausimai — ir rutina paruošta.",
+    "birthdayHint": "Pasirink vaiko gimimo datą — padeda pasiūlyti tinkamą planą.",
+    "fullIntro": "Atsakyk į kelis klausimus — užtrunka mažiau nei minutę.",
+    "powerPathLead": "Nori rinktis arba kurti savarankiškai?",
+    "chooseTemplate": "📋 Rinktis paruoštą planą",
+    "fullWizard": "✏️ Kurti ir tinkinti savarankiškai (7 klausimai)",
+    "answerRequired": "Pasirink arba įrašyk atsakymą",
+    "showSchedule": "Rodyti planą →",
+    "buttons": {
+      "next": "Toliau →"
+    },
+    "createRoutine": "Sukurti rutiną →",
+    "creatingRoutine": "Kuriama rutina…",
+    "personalizing": "Tinkinamas planas…",
+    "loading": "Įkeliama…",
+    "useSchedule": "Naudoti šį planą →",
+    "saving": "Saugoma…",
+    "changeAnswers": "← Keisti atsakymus",
+    "removeStep": "Pašalinti",
+    "previewHint": "Žingsnius gali pašalinti — daugiau pridėsi nustatymuose vėliau.",
+    "previewForChild": "Vaikui {{childName}} · {{count}} veiklos",
+    "previewAiTail": " · ✨ pritaikyta su DI",
+    "defaultPlanTitle": "Tavo planas",
+    "slimSuccessTitle": "Rutina paruošta",
+    "slimSuccessTonight": "Planas paruoštas. Parodyk vaikui {{childName}} Šiandien šiame įrenginyje.",
+    "showChildToday": "Rodyti vaiko Šiandien",
+    "openingChildToday": "Atidaroma vaiko Šiandien…",
+    "hourglassOfferTitle": "Vaizdinis smėlio laikrodis",
+    "hourglassOfferBody": "Padėk vaikui matyti, kiek laiko liko veiklai.",
+    "hourglassEnableBtn": "Įjungti smėlio laikrodį",
+    "hourglassEnabling": "Įjungiama…",
+    "hourglassEnabledMsg": "Smėlio laikrodis vaikui įjungtas.",
+    "hourglassEnableFailed": "Nepavyko įjungti smėlio laikrodžio",
+    "goHome": "Eiti į Pradžią →",
+    "openingHome": "Atidaroma Pradžia…",
+    "customizeFirst": "Pirmiausia tinkinti planą",
+    "openingSchedule": "Atidaromas planas…",
+    "nameRequired": "Įrašyk vaiko vardą",
+    "templateFailed": "Nepavyko pasirinkti šablono",
+    "previewFailed": "Nepavyko įkelti plano",
+    "childCreateFailed": "Nepavyko sukurti vaiko",
+    "scheduleSaveFailed": "Nepavyko išsaugoti plano",
+    "personalizeFailed": "Nepavyko pritaikyti plano",
+    "completeFailed": "Nepavyko baigti",
+    "packages": {
+      "morning-short": {
+        "name": "Trumpas rytas"
+      },
+      "evening-routine": {
+        "name": "Vakaro rutina"
+      },
+      "preschool-day": {
+        "name": "Darželio diena"
+      },
+      "school-day": {
+        "name": "Mokyklos diena"
+      },
+      "weekend": {
+        "name": "Savaitgalis"
+      },
+      "getting-ready": {
+        "name": "Trumpas rytas"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Vaiko vardas",
+        "placeholder": "pvz. Ema"
+      },
+      "age_band": {
+        "label": "Kiek metų tavo vaikui?",
+        "options": {
+          "3-5": "3–5 metai",
+          "6-8": "6–8 metai",
+          "9-12": "9–12 metų",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Nuo kurios rutinos nori pradėti?",
+        "options": {
+          "morgon": "☀️ Rytas",
+          "kvall": "🌙 Vakaras",
+          "efter-skola": "🏫 Po pamokų",
+          "laxor": "📚 Namų darbai",
+          "gora-sig-klar": "🎒 Ruošimasis"
+        }
+      },
+      "main_challenge": {
+        "label": "Kas dabar sunkiausia?",
+        "options": {
+          "getting_started": "Pradėti",
+          "focus": "Išlaikyti dėmesį",
+          "conflicts": "Konfliktai",
+          "forgetting": "Pamiršti žingsniai",
+          "transitions": "Perėjimai"
+        }
+      },
+      "support_ui": {
+        "label": "Ar vaikui reikia ypač aiškios pagalbos?",
+        "options": {
+          "ja": "Taip",
+          "lite": "Šiek tiek",
+          "nej": "Ne"
+        }
+      },
+      "length_ui": {
+        "label": "Nuo kelių žingsnių nori pradėti?",
+        "options": {
+          "kort": "Trumpai (3–4)",
+          "normal": "Įprastai (5)",
+          "detaljerad": "Išsamiai (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Ar yra kas svarbaus, ką turėtume žinoti? (nebūtina)",
+        "placeholder": "pvz. dantis valytis sunkiausia"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutina paruošta",
+      "handoff": "Atidaryk vaiko režimą kartu",
+      "child": "Vaikas mato, kas vyksta dabar",
+      "done": "Atlikta!",
+      "star": "Pirma žvaigždė ⭐"
+    },
+    "mock": {
+      "parentView": "Tėvo vaizdas",
+      "dailyRoutine": "Šiandienos rutina",
+      "dress": "Apsirenk",
+      "brushTeeth": "Išsivalyk dantis",
+      "packBag": "Susidėk kuprinę",
+      "tryChildMode": "👶 Išbandyk vaiko režimą",
+      "now": "Dabar",
+      "markDone": "Pažymėk atlikta ✓",
+      "wellDone": "Puiku!"
+    },
+    "ctaReady": "Pasiruošęs išbandyti?",
+    "ctaTryNow": "Išbandyti vaiko režimą dabar",
+    "ctaLater": "Padarysiu vėliau",
+    "loginTitle": "Atidaryk vaiko vaizdą",
+    "loginLead": "Planas paruoštas. Duok {{childName}} šį įrenginį, kad pamatytų savo rutiną.",
+    "usernameLabel": "Naudotojo vardas",
+    "pinLabel": "PIN",
+    "loginHint": "Atsisėsk kartu — tinka ir tas pats, ir kitas įrenginys.",
+    "copyLogin": "📋 Kopijuoti prisijungimo duomenis",
+    "copied": "✓ Nukopijuota!",
+    "openChildMode": "Atidaryti vaiko vaizdą",
+    "copyText": "{{childName}}\nAtidaryk vaiko vaizdą programėlėje.",
+    "previewTitle": "Peržiūra — pradžios filmas"
+  },
+  "firstStar": {
+    "title": "Duok pirmą žvaigždę",
+    "lead": "Trys trumpi žingsniai — ir jau tikrai pradėjai.",
+    "steps": {
+      "login": "Tegul vaikas prisijungia savo PIN",
+      "complete": "Vaiko vaizde pažymėk veiklą atlikta",
+      "celebrate": "Pasidžiauk žvaigžde kartu!"
+    },
+    "openChildLogin": "👶 Atidaryti vaiko prisijungimą",
+    "continueAsParent": "Tęsti kaip tėvas"
+  },
+  "activation": {
+    "finalStepLabel": "Paskutinis žingsnis",
+    "introTitle": "Kaip nori pradėti?",
+    "introBody": "Vaiko planas jau sudėtas — gera pradžia. Daugeliui šeimų sunkiausia ne pradėti, o išlaikyti rutiną pirmomis dienomis, kai kasdienybė užima vietą. Pasirink, kas tau tinka:",
+    "guidedBadge": "Rekomenduojama",
+    "guidedTitle": "Išlaikyk rutiną pirmą savaitę",
+    "guidedBody": "Daugeliui šeimų po paruošto plano praverčia šiek tiek pagalbos. Ne todėl, kad kas nors negerai, o todėl, kad nauji įpročiai įsitvirtina ne iš karto.",
+    "guidedBenefits": [
+      "Trumpi kasdieniai priminimai, kad tęstum",
+      "Matai, kada vaikas atlieka užduotis, be papildomo raginimo",
+      "Vaiko planas jau sudėtas — padedame, kad rutina veiktų",
+      "Gali sustoti kada nori"
+    ],
+    "guidedCta": "Taip, noriu pagalbos pirmą savaitę",
+    "directTitle": "Pradėti iš karto",
+    "directBody": "Gali eiti savarankiškai. Viskas savo vietose ir gali pradėti tuoj pat.",
+    "directBenefits": [
+      "Tiesiai į Pradžią",
+      "Tas pats planas, žvaigždės ir apdovanojimai",
+      "Naudoji programėlę savo tempu"
+    ],
+    "directCta": "Susitvarkysime savarankiškai",
+    "footnote": "Kad ir ką pasirinktum, programėle gali naudotis visa apimtimi. Vedama pradžia tiesiog duoda šiek tiek papildomos pagalbos pirmą savaitę.",
+    "saveFailed": "Nepavyko išsaugoti pasirinkimo"
+  },
+  "loading": {
+    "buildingSchedule": "Kuriamas tavo planas…",
+    "takesSeconds": "Užtrunka tik kelias sekundes!"
+  },
+  "templateGroups": {
+    "showActivities": "Rodyti veiklas",
+    "loadingActivities": "Įkeliama...",
+    "activityCount": {
+      "one": "{{count}} veikla",
+      "few": "{{count}} veiklos",
+      "other": "{{count}} veiklų"
+    },
+    "forskola": {
+      "name": "Darželis",
+      "description": "Visa diena — vaikams 2–5 metų"
+    },
+    "skola": {
+      "name": "Mokykla",
+      "description": "Visa diena — vaikams nuo 6 metų"
+    },
+    "morgon": {
+      "name": "Rytas",
+      "description": "Ryto rutina"
+    },
+    "dag": {
+      "name": "Diena",
+      "description": "Dienos veiklos"
+    },
+    "kvall": {
+      "name": "Vakaras",
+      "description": "Vakaro rutina"
+    },
+    "helg": {
+      "name": "Savaitgalis",
+      "description": "Savaitgalio rutina"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Kelkis",
+        "Apsirenk",
+        "Pusryčiai",
+        "Darželis",
+        "Žaisk",
+        "Vakarienė",
+        "Pasaka prieš miegą"
+      ],
+      "skola": [
+        "Kelkis",
+        "Pusryčiai",
+        "Susidėk kuprinę",
+        "Mokykla",
+        "Namų darbai",
+        "Vakarienė",
+        "Pasaka prieš miegą"
+      ],
+      "morgon": [
+        "Kelkis",
+        "Apsirenk",
+        "Išsivalyk dantis",
+        "Pusryčiai",
+        "Susidėk kuprinę"
+      ],
+      "dag": [
+        "Darželis",
+        "Žaisk lauke",
+        "Užkandis",
+        "Pietūs",
+        "Darbeliai"
+      ],
+      "kvall": [
+        "Vakarienė",
+        "Išsivalyk dantis",
+        "Pižama",
+        "Pasaka prieš miegą",
+        "Miegok"
+      ],
+      "helg": [
+        "Kelkis",
+        "Pusryčiai",
+        "Laisvas žaidimas",
+        "Išvyka",
+        "Šeimos veikla",
+        "Vakarienė"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Rytas",
+    "lateMorning": "Vėlyvas rytas",
+    "afternoon": "Popietė",
+    "evening": "Vakaras"
+  },
+  "errors": {
+    "avatarUploadPath": "Profilio nuotrauka įkeliama per PUT /api/children/:id/avatar, kai vaikas jau sukurtas",
+    "childNameRequired": "Vaiko vardas būtinas",
+    "emojiRequired": "Pasirink vaikui jaustuką",
+    "invalidBirthday": "Netinkama gimimo data",
+    "birthdayFuture": "Gimtadienis negali būti ateityje",
+    "invalidTemplate": "Netinkamas pasirinkimas. Pasirink galiojantį planą.",
+    "noActivities": "Pasirinktam planui veiklų nerasta.",
+    "childIdRequired": "child_id būtinas",
+    "noChildAccess": "Neturi prieigos prie šio vaiko",
+    "weekendNotFound": "Savaitgalio planas bibliotekoje nerastas.",
+    "weekendEmpty": "Savaitgalio plane nėra veiklų.",
+    "rewardNameRequired": "Apdovanojimo pavadinimas būtinas",
+    "rewardCostMin": "Žvaigždžių kaina turi būti bent 1",
+    "rewardsFetchFailed": "Nepavyko gauti apdovanojimų.",
+    "childCreateFailed": "Kuriant vaiką kažkas nutiko.",
+    "scheduleCreateFailed": "Kuriant planą kažkas nutiko.",
+    "weekendCreateFailed": "Kuriant savaitgalio planą kažkas nutiko.",
+    "rewardCreateFailed": "Kuriant apdovanojimą kažkas nutiko.",
+    "generic": "Kažkas nutiko.",
+    "invalidViewType": "Netinkamas view_type. Pasirink day arba timeline.",
+    "notAllowed": "Neleidžiama",
+    "invalidChoice": "Netinkamas pasirinkimas.",
+    "activityGuideSaveFailed": "Nepavyko išsaugoti veiklos pasirinkimo.",
+    "pinMustBe4": "PIN turi būti lygiai 4 skaitmenys",
+    "pinTooWeak": "Pasirink stipresnį PIN",
+    "pinTaken": "Šis PIN jau naudojamas to paties vardo vaikui",
+    "pinUpdateFailed": "Nepavyko atnaujinti PIN.",
+    "handoffContextFailed": "Nepavyko gauti perdavimo konteksto",
+    "templateGroupsFailed": "Nepavyko gauti planų grupių.",
+    "schedulePreviewFailed": "Nepavyko gauti plano.",
+    "viewSaveFailed": "Nepavyko išsaugoti vaizdo pasirinkimo.",
+    "activationNotEnabled": "Vedama pradžia tavo šeimai neįjungta",
+    "starterSuggestFailed": "Nepavyko pasirinkti šablono",
+    "starterPreviewFailed": "Nepavyko gauti peržiūros",
+    "starterPersonalizeFailed": "Nepavyko pritaikyti plano",
+    "scheduleNameRequired": "scheduleName būtinas",
+    "templateNotFound": "Šablonas nerastas",
+    "enrollChoiceUnavailable": "Pasirinkimo ekranas nepasiekiamas"
+  },
+  "starterPlan": {
+    "firstSchedule": "Tavo pirmas planas"
+  }
+}

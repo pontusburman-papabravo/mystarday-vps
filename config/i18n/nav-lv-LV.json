@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Sākums",
+    "planning": "Plānošana",
+    "rewards": "Balvas",
+    "forYou": "Tev",
+    "family": "Ģimene"
+  },
+  "settings": "Iestatījumi",
+  "mainAria": "Galvenā navigācija",
+  "notifications": "Paziņojumi",
+  "share": "Dalīties",
+  "logout": "Iziet",
+  "switchUser": "Mainīt profilu",
+  "returnToChild": "Atpakaļ pie bērna",
+  "darkMode": "Tumšais režīms",
+  "lightMode": "Gaišais režīms",
+  "overview": "Kopsavilkums",
+  "dailyLog": "Šodien",
+  "weekSchedule": "Plāns",
+  "reports": "Pārskati",
+  "library": "Bibliotēka",
+  "libraryAdvanced": "📚 Bibliotēka (papildu)",
+  "pedagogNotes": "📝 Pedagoga piezīmes",
+  "treasureChest": "Dārgumu lāde",
+  "familySettings": "Ģimene un iestatījumi",
+  "capability": {
+    "subscription": "Abonements",
+    "reports": "Pārskati",
+    "samarbete": "Sadarbība ar pedagogu",
+    "barnStod": "Papildu atbalsts"
+  },
+  "header": {
+    "notifications": "Paziņojumi",
+    "settings": "Iestatījumi",
+    "share": "Dalīties",
+    "shareTitle": "Pastāsti par lietotni citai ģimenei!",
+    "shareAria": "Dalīties"
+  },
+  "avatar": {
+    "switchPedagog": "Pārslēgties uz pedagoga skatu",
+    "subscription": "Abonements",
+    "settings": "Iestatījumi",
+    "logout": "Iziet"
+  },
+  "mobile": {
+    "openMenu": "Atvērt izvēlni",
+    "darkModeTitle": "Tumšais režīms",
+    "darkModeAria": "Pārslēgt tumšo režīmu"
+  }
+}

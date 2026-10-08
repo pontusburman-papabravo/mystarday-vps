@@ -1,38 +1,37 @@
 import Foundation
 
+/// Widget copy comes from Localizable.strings in the widget bundle.
+/// A new public locale is a new .lproj, not a branch in this file.
 enum WidgetL10n {
-    private static var isEnglish: Bool {
-        let preferred = Locale.preferredLanguages.first ?? "sv"
-        return preferred.hasPrefix("en")
+    private static func text(_ key: String) -> String {
+        NSLocalizedString(key, tableName: nil, bundle: .main, value: key, comment: "")
     }
 
-    static var routineHeader: String { isEnglish ? "Next activity" : "Nästa aktivitet" }
-    static var loading: String { isEnglish ? "Loading…" : "Laddar…" }
-    static var actionDone: String { isEnglish ? "Done" : "Klar" }
-    static var actionOpenTimer: String { isEnglish ? "Open timer" : "Öppna timglas" }
-    static var actionShowSteps: String { isEnglish ? "Show steps" : "Visa steg" }
-    static var actionOpenApp: String { isEnglish ? "Open the app" : "Öppna appen" }
-    static var allDoneNeutral: String { isEnglish ? "All done for now ✓" : "Allt klart just nu ✓" }
-    static var allDoneMorning: String { isEnglish ? "Morning is done" : "Morgonen är klar" }
-    static var nothingNow: String { isEnglish ? "Nothing right now" : "Inget just nu" }
-    static var offline: String { isEnglish ? "No connection" : "Ingen nätverksanslutning" }
-    static var reauth: String { isEnglish ? "Sign in in the app" : "Logga in i appen" }
-    static var revoked: String { isEnglish ? "Device access revoked" : "Enheten har återkallats" }
-    static var switching: String { isEnglish ? "Switching child…" : "Byter barn…" }
-    static var switchChildPrev: String { isEnglish ? "Previous child" : "Föregående barn" }
-    static var switchChildNext: String { isEnglish ? "Next child" : "Nästa barn" }
-    static var feedbackDone: String { isEnglish ? "✓ Done!" : "✓ Klart!" }
-    static var genericNextStep: String { isEnglish ? "Next step" : "Nästa steg" }
+    static var routineHeader: String { text("widget_routine_header") }
+    static var loading: String { text("widget_loading") }
+    static var actionDone: String { text("widget_action_done") }
+    static var actionOpenTimer: String { text("widget_action_open_timer") }
+    static var actionShowSteps: String { text("widget_action_show_steps") }
+    static var actionOpenApp: String { text("widget_action_open_app") }
+    static var allDoneNeutral: String { text("widget_all_done_neutral") }
+    static var allDoneMorning: String { text("widget_all_done_morning") }
+    static var nothingNow: String { text("widget_nothing_now") }
+    static var offline: String { text("widget_offline") }
+    static var reauth: String { text("widget_reauth") }
+    static var revoked: String { text("widget_revoked") }
+    static var switching: String { text("widget_switching") }
+    static var switchChildPrev: String { text("widget_switch_child_prev") }
+    static var switchChildNext: String { text("widget_switch_child_next") }
+    static var feedbackDone: String { text("widget_feedback_done") }
+    static var genericNextStep: String { text("widget_generic_next_step") }
 
     static func progress(_ completed: Int, _ total: Int) -> String {
-        if isEnglish { return "\(completed)/\(total)" }
-        return "\(completed)/\(total)"
+        "\(completed)/\(total)"
     }
 
     static func starsAdded(_ n: Int) -> String { "⭐ +\(n)" }
 
     static func feedbackDoneFor(_ name: String) -> String {
-        if isEnglish { return "✓ Done for \(name)" }
-        return "✓ Klart för \(name)"
+        String(format: text("widget_feedback_done_for"), name)
     }
 }

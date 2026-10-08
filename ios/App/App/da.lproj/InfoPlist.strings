@@ -1,0 +1,4 @@
+/* App Store + system permission strings (da) */
+"CFBundleDisplayName" = "Min Stjärndag"; // pragma: allowlist secret
+"NSCameraUsageDescription" = "Min Stjärndag bruger kameraet, så du kan tage et profilbillede af dit barn. Billedet gemmes på familiekontoen og vises kun for jeres familie."; // pragma: allowlist secret
+"NSPhotoLibraryUsageDescription" = "Min Stjärndag har brug for adgang til dine billeder, så du kan vælge et eksisterende billede som dit barns profilbillede. For eksempel et foto fra sommeren, som så vises som avatar i skemaet."; // pragma: allowlist secret

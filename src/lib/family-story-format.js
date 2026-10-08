@@ -2,32 +2,26 @@
 
 /**
  * Format family_event row into story item for UI (pure, no DB).
- * System template copy is locale-aware; user names and activity titles are not translated.
+ * System template copy follows the locale bundle. User names stay as stored.
  * @param {object} row
- * @param {{ locale?: 'sv-SE'|'en-GB' }} [options]
+ * @param {{ locale?: string }} [options]
  */
+const { t } = require('./i18n');
+
 function formatStoryEvent(row, options = {}) {
-  const isEn = options.locale === 'en-GB';
+  const locale = options.locale;
   const payload = row.payload || {};
   let text = '';
   if (row.type === 'activity_contribution') {
-    const name = payload.childName || row.child_name || (isEn ? 'Someone' : 'Någon');
-    const activity = payload.activityName || (isEn ? 'an activity' : 'en aktivitet');
+    const name = payload.childName || row.child_name || t(locale, 'story.someone');
+    const activity = payload.activityName || t(locale, 'story.anActivity');
     const stars = payload.starValue || 0;
-    if (stars > 0) {
-      text = isEn
-        ? `${name} completed ${activity} (+${stars} ⭐)`
-        : `${name} klarade ${activity} (+${stars} ⭐)`;
-    } else {
-      text = isEn
-        ? `${name} completed ${activity}`
-        : `${name} klarade ${activity}`;
-    }
+    text = stars > 0
+      ? t(locale, 'story.activityWithStars', { name, activity, stars })
+      : t(locale, 'story.activity', { name, activity });
   } else if (row.type === 'project_completed') {
-    const title = payload.title || (isEn ? 'goal' : 'projekt');
-    text = isEn
-      ? `The family reached the goal: ${title} 🎉`
-      : `Familjen nådde målet: ${title} 🎉`;
+    const title = payload.title || t(locale, 'story.goalFallback');
+    text = t(locale, 'story.goal', { title });
   } else {
     text = payload.text || row.type;
   }
