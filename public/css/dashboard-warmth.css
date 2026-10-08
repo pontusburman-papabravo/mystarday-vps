@@ -26,11 +26,7 @@
 }
 
 .dash-summary-emoji { font-size: 28px; flex-shrink: 0; line-height: 1; }
-.dash-summary-text { flex: 1 1 12rem; min-width: 0; }
-@media (max-width: 360px) {
-  .dash-summary-text { flex-basis: 100%; }
-  .dash-summary-action { margin-left: 40px; }
-}
+.dash-summary-text { flex: 1 1 auto; min-width: 0; }
 .dash-summary-headline {
   font-family: inherit;
   font-weight: 700;
@@ -38,6 +34,7 @@
   color: #1B2340;
   margin: 0;
   line-height: 1.35;
+  overflow-wrap: break-word;
 }
 .dash-summary-sub {
   font-size: 12px;
@@ -58,6 +55,20 @@
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   white-space: nowrap;
+  max-width: 100%;
+}
+/* Phone widths keep the action on its own row. A nowrap button beside a
+   narrow text column paints over long words such as Finnish "seuraavasta". */
+@media (max-width: 640px) {
+  .dash-summary-text {
+    flex-basis: calc(100% - 52px);
+  }
+  .dash-summary-action {
+    flex: 0 0 auto;
+    margin-left: 40px;
+    width: auto;
+    white-space: normal;
+  }
 }
 .dash-summary-action:hover {
   border-color: #F5A623;

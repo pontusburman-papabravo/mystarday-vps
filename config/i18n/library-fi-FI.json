@@ -359,7 +359,7 @@
     },
     "filterAll": "Kaikki",
     "filterLabel": "Näytä",
-    "starsSub": "Yleiskatsaus lasta kohti",
+    "starsSub": "Lapsikohtainen yleiskatsaus",
     "proximity": {
       "readyFor": "Valmis palkintoon {{reward}}",
       "leftUntil": "{{gap}} jäljellä palkintoon {{reward}}",

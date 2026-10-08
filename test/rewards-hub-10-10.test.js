@@ -41,6 +41,11 @@ describe('Belöningar hub 10/10', () => {
     assert.match(src, /nearest_reward/);
     assert.match(src, /library\.rewardsHub\.sections\.starsChest/);
     assert.match(src, /library\.rewardsHub\.starsSub/);
+    const finnish = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/i18n/library-fi-FI.json'), 'utf8'));
+    assert.equal(finnish.rewardsHub.starsSub, 'Lapsikohtainen yleiskatsaus');
+    assert.equal(finnish.rewardsHub.starsSub.includes('lasta kohti'), false);
+    assert.match(src, /function proximityHtml/);
+    assert.match(src, /rewards-proximity-reward/);
     assert.match(src, /ingen syskonjämförelse/);
   });
 
