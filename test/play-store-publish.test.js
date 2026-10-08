@@ -7,6 +7,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { PACKAGE_NAME, languagePlan } = require('../src/lib/play-live-audit');
+const { pngSize } = require('../src/lib/locale-readiness');
+const { brandName } = require('../src/lib/public-html-placeholders');
 const { RELEASE_TRACK, classifyPlayRequest } = require('../src/lib/play-publisher-read');
 const {
   REVIEW_BEHAVIOR,
@@ -225,6 +227,64 @@ describe('Play store plan', () => {
     assert.equal(blocked.blocked.some((item) => item.locale === 'ga-IE' && item.reason === 'fallback'), true);
     assert.equal(blocked.blocked.some((item) => item.locale === 'is-IS' && item.reason === 'hidden'), true);
     assert.equal(blocked.blocked.some((item) => item.locale === 'fi-FI'), false);
+  });
+
+  it('publishes Finnish Play copy as My Starday and leaves live listings alone', () => {
+    const root = path.join(__dirname, '..');
+    const listing = JSON.parse(fs.readFileSync(path.join(root, 'store/google/fi-FI/listing.json'), 'utf8'));
+    const swedish = JSON.parse(fs.readFileSync(path.join(root, 'store/google/sv-SE/listing.json'), 'utf8'));
+    const english = JSON.parse(fs.readFileSync(path.join(root, 'store/google/en-GB/listing.json'), 'utf8'));
+    const iap = JSON.parse(fs.readFileSync(path.join(root, 'store/iap.json'), 'utf8'));
+    const markets = JSON.parse(fs.readFileSync(path.join(root, 'store/markets.json'), 'utf8'));
+    const swedishBrand = brandName();
+
+    assert.equal(listing.name, 'My Starday');
+    assert.notEqual(listing.name, swedishBrand);
+    assert.equal([...listing.shortDescription].length <= 80, true);
+    assert.match(listing.shortDescription, /Visuaaliset rutiinit/);
+    assert.equal(listing.fullDescription.includes('mahdollisiin askeliin'), false);
+    assert.equal(listing.fullDescription.includes('yksi perhekalenteri lisää'), false);
+    assert.equal(listing.fullDescription.includes(swedishBrand), false);
+    assert.equal((listing.fullDescription.match(/ADHD/g) || []).length, 2);
+    assert.equal((listing.fullDescription.match(/autism/g) || []).length, 2);
+    assert.match(listing.fullDescription, /Diagnoosia ei tarvita/);
+    assert.match(listing.fullDescription, /ei hoida ADHD:ta eikä autismia/);
+    assert.match(listing.fullDescription, /tähtiaarteessa/);
+    assert.match(listing.fullDescription, /PIN-koodilla/);
+    assert.match(swedish.shortDescription, /hela familjen/);
+    assert.equal(english.name, 'My Starday');
+    const monthly = iap.products.find((product) => product.id === 'premium_monthly');
+    assert.equal(monthly.google['fi-FI'].name, 'Premium kuukausittain');
+    assert.equal(monthly.google['sv-SE'].name, 'Premium månadsvis');
+    assert.equal(monthly.google['en-GB'].name, 'Premium monthly');
+    const finland = markets.markets.find((market) => market.id === 'FI');
+    assert.deepEqual(finland.appLocales, ['fi-FI', 'sv-SE']);
+
+    const phone = pngSize(path.join(root, 'store/screenshots/google/fi-FI/01-hem.png'));
+    const rewards = pngSize(path.join(root, 'store/screenshots/google/fi-FI/02-familj.png'));
+    const feature = pngSize(path.join(root, 'store/screenshots/google/fi-FI/feature.png'));
+    assert.deepEqual(phone, { width: 1080, height: 1920 });
+    assert.deepEqual(rewards, { width: 1080, height: 1920 });
+    assert.deepEqual(feature, { width: 1024, height: 500 });
+
+    const rows = languagePlan();
+    const finnish = buildPlan({
+      rows,
+      listings: new Map([
+        ['sv-SE', { language: 'sv-SE', title: swedishBrand, shortDescription: 'Live', fullDescription: 'Live', video: '' }],
+        ['en-GB', { language: 'en-GB', title: 'My Starday', shortDescription: 'Live', fullDescription: 'Live', video: '' }],
+      ]),
+      images: new Map(),
+      countries: readCountries(),
+      localesFilter: 'fi-FI',
+    });
+    assert.equal(finnish.changes.every((item) => item.locale === 'fi-FI'), true);
+    assert.equal(finnish.changes.some((item) => item.locale === 'sv-SE' || item.locale === 'en-GB'), false);
+    assert.deepEqual(finnish.protectedLocales.map((item) => item.locale), ['en-GB', 'sv-SE']);
+    assert.equal(finnish.changes.find((item) => item.field === 'title').to, 'My Starday');
+    assert.equal(finnish.changes.find((item) => item.field === 'fullDescription').to.includes(swedishBrand), false);
+    assert.equal(finnish.countries.observed.includes('FI'), true);
+    assert.equal(finnish.countries.restOfWorld, false);
   });
 
   it('reads a dry-run and deletes the edit without writing', async () => {
