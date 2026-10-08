@@ -18,6 +18,7 @@ const {
   buildPlan,
   countrySnapshot,
   renderPlanMarkdown,
+  reviewersApproved,
   runPlayStorePublish,
 } = require('../src/lib/play-store-plan');
 
@@ -281,6 +282,57 @@ describe('Play store plan', () => {
     assert.equal(stale.calls.some((call) => call.method === 'PUT' || call.url.includes(':commit')), false);
   });
 
+  it('sends the GitHub token to the approval check and blocks apply when the token is missing', async () => {
+    const seen = [];
+    const fetchImpl = async (url, options = {}) => {
+      seen.push({ method: options.method, url, authorization: options.headers && options.headers.authorization });
+      if (url.includes('/approvals')) {
+        return jsonResponse(200, [{ state: 'approved', environments: [{ name: 'store-publishing' }] }]);
+      }
+      if (options.method === 'POST' && String(url).endsWith('/edits')) return jsonResponse(200, { id: 'edit-1' });
+      if (options.method === 'GET' && String(url).endsWith('/listings')) return jsonResponse(200, { listings: [listing()] });
+      if (options.method === 'GET' && (String(url).endsWith('/phoneScreenshots') || String(url).endsWith('/featureGraphic'))) {
+        return jsonResponse(200, { images: [] });
+      }
+      if (String(url).includes('/countryAvailability/')) return jsonResponse(200, countriesBody());
+      if (options.method === 'PUT') return jsonResponse(200, { language: 'sv-SE' });
+      if (options.method === 'DELETE') return jsonResponse(200, {});
+      if (String(url).includes(':commit')) return jsonResponse(200, { id: 'edit-1' });
+      return jsonResponse(404, {});
+    };
+    const preview = await runPlayStorePublish({
+      mode: 'dry-run',
+      playToken: 'play-token',
+      fetchImpl,
+      locales: 'sv-SE',
+      rows: [swedishRow()],
+    });
+    assert.equal(preview.status, 'DRY_RUN');
+    assert.equal(seen.some((call) => call.method === 'PUT' || call.url.includes(':commit') || call.url.includes('/upload/') || call.url.includes('api.github.com')), false);
+
+    const gate = await reviewersApproved({
+      fetchImpl,
+      repo: 'octo/repo',
+      runId: '123',
+      token: 'approval-token',
+    });
+    assert.equal(gate.ok, true);
+    assert.equal(gate.reason, 'approved');
+    const approval = seen.find((call) => call.url.includes('/approvals'));
+    assert.equal(approval.authorization, 'Bearer approval-token');
+
+    const missingCalls = [];
+    const missing = await runPlayStorePublish(applyInput(async (url, options = {}) => {
+      missingCalls.push({ method: options.method, url });
+      return jsonResponse(500, {});
+    }, preview.plan.digest, { githubToken: '' }));
+    assert.equal(missing.status, 'APPLY_BLOCKED');
+    assert.equal(missing.blockReason, 'reviewers-unverified');
+    assert.equal(missing.published, false);
+    assert.equal(missing.committed, false);
+    assert.equal(missingCalls.length, 0);
+  });
+
   it('reports a committed edit as pending review and discards it when review is already open', async () => {
     const preview = await runPlayStorePublish({
       mode: 'dry-run',
@@ -445,7 +497,10 @@ describe('Play store publish workflow', () => {
     assert.match(workflow, /secrets\.GOOGLE_PLAY_PUBLISHER_JSON/);
     assert.doesNotMatch(workflow, /GOOGLE_PLAY_SERVICE_ACCOUNT_JSON/);
     assert.match(workflow, /refs\/heads\/main/);
+    assert.match(workflow, /contents: read/);
     assert.match(workflow, /actions: read/);
+    assert.doesNotMatch(workflow, /contents: write|actions: write|id-token: write|pull-requests: write/);
+    assert.match(workflow, /GITHUB_TOKEN: \$\{\{ github\.token \}\}/);
     assert.match(workflow, /if: always\(\)/);
     assert.doesNotMatch(workflow, /private_key|BEGIN PRIVATE|inappproducts|pricing/);
     assert.match(audit, /secrets\.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON/);

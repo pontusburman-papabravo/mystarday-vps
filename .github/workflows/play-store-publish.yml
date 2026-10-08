@@ -61,6 +61,7 @@ jobs:
       - name: Prepare or apply the store plan
         env:
           GOOGLE_PLAY_PUBLISHER_JSON: ${{ secrets.GOOGLE_PLAY_PUBLISHER_JSON }}
+          GITHUB_TOKEN: ${{ github.token }}
           PLAY_PUBLISH_MODE: ${{ inputs.mode }}
           PLAY_PUBLISH_CONFIRMATION: ${{ inputs.confirmation }}
           PLAY_PLAN_SHA256: ${{ inputs.plan_sha256 }}
