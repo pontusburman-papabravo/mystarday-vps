@@ -38,12 +38,20 @@
     }
   }
 
+  const LEGACY_CHOICE_LOCALES = [
+    { id: 'sv-SE', nativeName: 'Svenska' },
+    { id: 'en-GB', nativeName: 'English' },
+  ];
+
   function choiceLocales() {
     const i18n = window.I18n;
     if (i18n && typeof i18n.firstRunLocales === 'function') {
       const list = i18n.firstRunLocales();
       if (list && list.length) return list;
     }
+    // The language already on screen still counts before the catalog helper loads.
+    const lang = i18n && typeof i18n.getCurrentLang === 'function' ? i18n.getCurrentLang() : null;
+    if (LEGACY_CHOICE_LOCALES.some((locale) => locale.id === lang)) return LEGACY_CHOICE_LOCALES;
     return [];
   }
 
