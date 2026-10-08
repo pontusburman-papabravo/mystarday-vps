@@ -2,15 +2,16 @@
 
 const path = require('path');
 const fs = require('fs');
-const { experiencePackIdForLocale, resolveFamilyLocale } = require('../locale');
+const { resolveFamilyLocale, usesCanonicalLibrary } = require('../locale');
 const EN_TRANSLATIONS = require('../../../config/journey-en-GB-translations');
 
 function loadJsonFallback(locale = 'sv-SE') {
   try {
     const p = path.join(__dirname, '../../../config/journey-experience-registry.json');
     const data = JSON.parse(fs.readFileSync(p, 'utf8'));
-    if (resolveFamilyLocale(locale) === 'en-GB') {
-      return translateRegistryFallback(data);
+    const canonical = resolveFamilyLocale(locale);
+    if (!usesCanonicalLibrary(canonical)) {
+      return translateRegistryFallback(data, canonical);
     }
     return data;
   } catch {
@@ -18,12 +19,21 @@ function loadJsonFallback(locale = 'sv-SE') {
   }
 }
 
-/** Full en-GB fallback when DB registry empty — mirrors config/journey-en-GB-translations.js (migrations 0003+0004). */
-function translateRegistryFallback(svRegistry) {
+function journeyTranslationsFor(locale) {
+  const canonical = resolveFamilyLocale(locale);
+  const file = path.join(__dirname, `../../../config/journey-${canonical}-translations.js`);
+  if (fs.existsSync(file)) return require(file);
+  if (usesCanonicalLibrary(canonical)) return null;
+  return EN_TRANSLATIONS;
+}
+
+/** Locale file when present, otherwise the English journey copy. Swedish stays the canonical registry. */
+function translateRegistryFallback(svRegistry, locale = 'en-GB') {
+  const translations = journeyTranslationsFor(locale);
   const en = JSON.parse(JSON.stringify(svRegistry));
   for (const phase of Object.values(en.phases || {})) {
     for (const [experienceKey, exp] of Object.entries(phase)) {
-      const tr = EN_TRANSLATIONS[experienceKey];
+      const tr = translations[experienceKey];
       if (!tr) continue;
       exp.headline = tr[0];
       exp.body = tr[1] != null ? tr[1] : exp.body;

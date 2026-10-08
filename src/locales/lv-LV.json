@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Mierīga diena, zvaigzne pēc zvaigznes"
+  },
+  "language": {
+    "label": "Valoda",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Mainīt valodu",
+    "choice": {
+      "title": "Valoda",
+      "titleEn": "Valoda",
+      "description": "Valodu vari mainīt vēlāk Iestatījumos.",
+      "descriptionEn": "Valodu vari mainīt vēlāk Iestatījumos.",
+      "confirm": "Turpināt",
+      "required": "Izvēlies valodu, lai turpinātu",
+      "childNote": "Bērna skats ir ģimenes valodā.",
+      "childNoteEn": "Bērna skats ir ģimenes valodā."
+    },
+    "offer": {
+      "title": "{{brand}} tagad ir pieejams latviski",
+      "body": "{{brand}} ir pieejams arī latviski. Vecāka un bērna skats ir ģimenes valodā.",
+      "question": "Vai paliec pie zviedru valodas vai izmēģini latviešu?",
+      "staySwedish": "Palikt pie zviedru",
+      "tryEnglish": "Izmēģināt latviešu",
+      "remindLater": "Atgādināt vēlāk"
+    },
+    "legacyNotice": {
+      "body": "Līdzšinējās aktivitātes paliek savā valodā. Jaunas aktivitātes ir latviski.",
+      "dismiss": "Sapratu",
+      "dismissAria": "Aizvērt paziņojumu par valodu"
+    },
+    "reportIssue": "Ziņot par valodas problēmu",
+    "feedback": {
+      "typeLabel": "Valodas vai tulkojuma problēma",
+      "typeLabelEn": "Valodas vai tulkojuma problēma",
+      "titlePlaceholder": "Kas izskatās nepareizi?",
+      "visibleText": "Kādu tekstu tu redzēji?",
+      "suggestion": "Kā tam vajadzētu skanēt? (nav obligāti)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Kur dzīvo tava ģimene?",
+      "description": "To lietojam, lai rādītu pareizos noteikumus un privātuma informāciju. Tas ir atsevišķi no valodas izvēles.",
+      "label": "Valsts",
+      "hint": "",
+      "required": "Izvēlies valsti, lai turpinātu",
+      "closedEu": "{{brand}} tavā valstī vēl nav pieejams. Paziņosim, kad atvērsim vairāk ES tirgu.",
+      "closedIe": "{{brand}} Īrijā vēl nav pieejams.",
+      "closedCa": "{{brand}} Kanādā vēl nav pieejams.",
+      "closedFi": "{{brand}} Somijā vēl nav pieejams.",
+      "closedNo": "{{brand}} Norvēģijā vēl nav pieejams.",
+      "closedDk": "{{brand}} Dānijā vēl nav pieejams.",
+      "closedUk": "{{brand}} Apvienotajā Karalistē vēl nav pieejams.",
+      "closedUs": "{{brand}} Amerikas Savienotajās Valstīs vēl nav pieejams.",
+      "closedOther": "{{brand}} tavā valstī vēl nav pieejams.",
+      "euGroup": "Cita ES/EEZ valsts"
+    }
+  },
+  "nav": {
+    "login": "Pieslēgties",
+    "register": "Izveidot kontu",
+    "childLogin": "Bērna pieslēgšanās",
+    "dashboard": "Kopsavilkums",
+    "logout": "Iziet",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Vienkāršāka ikdiena visai ģimenei",
+      "ogDescription": "Veido un seko dienas plāniem, aktivitātēm un balvām"
+    },
+    "login": {
+      "title": "Pieslēgties",
+      "pageTitle": "Pieslēgties — {{brand}}",
+      "tagline": "Mirdzam kopā",
+      "subtitle": "Prieks tevi atkal redzēt {{brand}}",
+      "email": "E-pasta adrese",
+      "emailPlaceholder": "tu@epasts.lv",
+      "password": "Parole",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Pieslēgties",
+      "submitting": "Pieslēdzas…",
+      "forgotPassword": "Aizmirsi paroli?",
+      "noAccount": "Nav konta?",
+      "createAccount": "Izveidot kontu",
+      "childLogin": "Tu esi bērns?",
+      "childLoginLink": "Tu esi bērns? Pieslēdzies šeit",
+      "loginAsAdult": "Pieslēgties kā vecākam",
+      "orDivider": "vai",
+      "continueWithApple": "Turpināt ar Apple",
+      "continueWithGoogle": "Turpināt ar Google",
+      "apple_caption": "Pieejams tikai iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Ievadi gan e-pastu, gan paroli",
+      "genericError": "Kaut kas nogāja greizi. Mēģini vēlreiz.",
+      "mascotAlt": "Zvaigznes talismans",
+      "addChildBannerTitle": "👶 Pieslēdzies kā vecāks, lai pievienotu bērnu",
+      "addChildBannerBody": "«Es esmu bērns» šeit nepietiek — vajadzīgs vecāks vai pedagogs.",
+      "resetSuccessBannerTitle": "Parole saglabāta",
+      "resetSuccessBannerBody": "Pieslēdzies ar jauno paroli.",
+      "backToChildPicker": "← Atpakaļ pie bērnu izvēles",
+      "linking": {
+        "emailExists": "Konts ar šo e-pasta adresi jau pastāv.",
+        "promptApple": "Vai gribi piesaistīt savu Apple kontu esošajam kontam?",
+        "promptGoogle": "Vai gribi piesaistīt savu Google kontu esošajam kontam?",
+        "yes": "Jā, piesaistīt",
+        "cancel": "Atcelt",
+        "modalTitleApple": "Piesaistīt Apple kontu",
+        "modalTitleGoogle": "Piesaistīt Google kontu",
+        "modalIntroApple": "Ievadi paroli, lai pieslēgtos un pēc tam piesaistītu Apple kontu.",
+        "modalIntroGoogle": "Ievadi paroli, lai pieslēgtos un pēc tam piesaistītu Google kontu.",
+        "emailLabel": "E-pasts",
+        "passwordLabel": "Parole",
+        "passwordPlaceholder": "Tava parole",
+        "submit": "Piesaistīt",
+        "submitting": "Piesaista…",
+        "enterPassword": "Ievadi paroli.",
+        "wrongPassword": "Nepareiza parole.",
+        "failed": "Piesaistīšana neizdevās."
+      },
+      "apple": {
+        "unavailable": "Pieslēgšanās ar Apple šobrīd nav pieejama. Mēģini vēlreiz vai pieslēdzies ar e-pastu.",
+        "notEnabled": "Pieslēgšanās ar Apple nav ieslēgta. Atjaunini lietotni uz jaunāko versiju.",
+        "cancelled": "Pieslēgšanās ar Apple tika atcelta.",
+        "incomplete": "Pieslēgšanās ar Apple nepabeidzās. Mēģini vēlreiz vai pieslēdzies ar e-pastu un paroli.",
+        "rateLimited": "Pārāk daudz mēģinājumu. Pagaidi brīdi un mēģini vēlreiz.",
+        "genericError": "Ar Apple pieslēgšanos kaut kas nogāja greizi. Mēģini vēlreiz vai pieslēdzies ar e-pastu un paroli.",
+        "failed": "Pieslēgšanās ar Apple neizdevās. Mēģini vēlreiz vai pieslēdzies ar e-pastu un paroli.",
+        "signInFailed": "Pieslēgšanās ar Apple neizdevās.",
+        "completionTitle": "Pabeidz konta izveidi",
+        "completionBody": "Izvēlies valsti un pieņem noteikumus. Apple jau nodeva tavu vārdu un e-pastu — mēs tos vairs neprasīsim.",
+        "completionSubmit": "Turpināt ar to pašu Apple kontu"
+      },
+      "google": {
+        "emailConflictSettings": "Konts ar šo e-pasta adresi jau pastāv. Pieslēdzies un piesaisti Google Iestatījumos vai lieto paroli.",
+        "loginFailed": "Pieslēgšanās ar Google neizdevās.",
+        "signInFailed": "Pieslēgšanās ar Google neizdevās."
+      },
+      "verify": {
+        "title": "Apstiprini e-pasta adresi",
+        "body": "Tev jāapstiprina e-pasta adrese, lai turpinātu lietot {{brand}}. Pārbaudi iesūtni (un surogātpastu), vai ir vēstule no mums.",
+        "emailLabel": "E-pasta adrese:",
+        "resendBtn": "Sūtīt jaunu apstiprinājuma saiti",
+        "resendSending": "Sūta…",
+        "resendSuccess": "✅ Jauna apstiprinājuma saite nosūtīta! Pārbaudi iesūtni un surogātpastu.",
+        "resendError": "Kaut kas nogāja greizi. Mēģini vēlreiz.",
+        "spamHint": "Pārbaudi arī surogātpastu. Saite derīga 24 stundas."
+      }
+    },
+    "entry": {
+      "back": "Atpakaļ",
+      "backWithArrow": "← Atpakaļ",
+      "welcome": {
+        "ariaLabel": "Laipni lūdzam",
+        "headline": "Mierīgāka ikdiena ar skaidriem soļiem, plāniem un zvaigznēm",
+        "lead": "{{brand}} palīdz bērniem un ģimenēm ikdienas rutīnās ar vizuāliem plāniem, skaidriem soļiem un balvām, kas atvieglo dienu un dod vairāk patstāvības.",
+        "chipVisualSchedules": "Vizuāli plāni",
+        "chipStarsRewards": "Zvaigznes un balvas",
+        "chipMultipleUsers": "Vairāki bērni un pieaugušie",
+        "startBtn": "Sākt",
+        "existingBtn": "Man jau ir konts",
+        "howItWorksBtn": "Kā lietotne darbojas",
+        "firstRunHeadline": "Laipni lūdzam {{brand}}",
+        "firstRunCreateAccount": "Izveidot kontu",
+        "firstRunLogIn": "Pieslēgties",
+        "firstRunChildLink": "Es esmu bērns"
+      },
+      "role": {
+        "title": "Kas lietos lietotni tagad?",
+        "kidAria": "Es esmu bērns",
+        "kidLabel": "Es esmu bērns",
+        "kidSub": "Gribu redzēt savu plānu",
+        "kidAlt": "Bērns",
+        "parentAria": "Es esmu pieaugušais",
+        "parentLabel": "Es esmu pieaugušais",
+        "parentSub": "Gribu pieslēgties vai sākt",
+        "parentAlt": "Ģimene"
+      },
+      "adultStart": {
+        "ariaLabel": "Pieaugušā sākums",
+        "title": "Laipni lūdzam! Kā gribi turpināt?",
+        "existingLabel": "Man jau ir konts",
+        "existingSub": "Pieslēdzies ar Apple, Google vai e-pastu",
+        "newLabel": "Esmu šeit jauns",
+        "newSub": "Apskati, kā lietotne darbojas, un izveido bezmaksas kontu"
+      },
+      "signupIntro": {
+        "ariaLabel": "Sākt",
+        "title": "Sāc ar {{brand}}",
+        "sub": "Izveido bezmaksas kontu un saved bērna pirmo plānu ar skaidriem soļiem, zvaigznēm un mērķiem.",
+        "point1": "Vizuāli plāni, ko bērns saprot",
+        "point2": "Zvaigznes un balvas, kas iedvesmo",
+        "point3": "Vairāki bērni un pieaugušie vienā ģimenē",
+        "createBtn": "Izveidot bezmaksas kontu",
+        "existingBtn": "Man jau ir konts",
+        "founderNote": "Pamata versija pašlaik ir bez maksas."
+      },
+      "howItWorks": {
+        "title": "Kā lietotne darbojas",
+        "step1Title": "1. Bērns redz savu plānu soli pa solim",
+        "step1Body": "Vizuālas rutīnas padara ikdienu skaidru un paredzamu.",
+        "step2Title": "2. Bērns nopelna zvaigznes, kad aktivitātes ir paveiktas",
+        "step2Body": "Mazi panākumi veido motivāciju un patstāvību.",
+        "step3Title": "3. Pieaugušie seko progresam un veido rutīnas kopā",
+        "step3Body": "Vairāki bērni un pieaugušie var dalīt vienu ģimeni lietotnē.",
+        "close": "Aizvērt"
+      },
+      "noscript": "Vajadzīgs JavaScript — ieslēdz JavaScript, lai pieslēgtos."
+    },
+    "register": {
+      "title": "Izveidot kontu",
+      "pageTitle": "Izveidot kontu | {{brand}}",
+      "pageHeading": "Izveidot vecāka kontu",
+      "pageLead": "Izmēģini {{brand}} bez maksas. Vizuāls plāns ar attēlu atbalstu un zvaigžņu balvām palīdz bērnam saprast dienu, sekot rutīnām un kļūt patstāvīgākam.",
+      "pageLeadSecondary": "Ģimenēm, kas grib skaidrākas rutīnas, mierīgākas pārejas un mazāk mudināšanas ikdienā.",
+      "subtitle": "Sāc ar {{brand}}",
+      "nameLabel": "Tavs vārds",
+      "namePlaceholder": "piem. Anna",
+      "familyNameLabel": "Ģimenes nosaukums",
+      "familyNamePlaceholder": "piem. Bērziņu ģimene",
+      "familyNameAuto": "Izveidots automātiski no tava vārda",
+      "familyNameGenerated": "Izveidots automātiski — maini, ja gribi",
+      "familyNameEdited": "Labots",
+      "email": "E-pasta adrese",
+      "emailPlaceholder": "tu@epasts.lv",
+      "emailHelp": "Šeit nosūtīsim apstiprinājuma saiti",
+      "password": "Parole",
+      "passwordPlaceholder": "Vismaz 8 rakstzīmes",
+      "passwordHelp": "Jābūt vismaz 8 rakstzīmēm",
+      "confirmPassword": "Apstiprini paroli",
+      "confirmPasswordPlaceholder": "Atkārto paroli",
+      "submit": "Izveidot kontu",
+      "hasAccount": "Jau ir konts?",
+      "loginLink": "Pieslēdzies šeit",
+      "childLoginLink": "Tu esi bērns? Pieslēdzies šeit",
+      "gateHintLanguage": "Izvēlies valodu augšā, lai turpinātu reģistrāciju.",
+      "gateHintCountry": "Izvēlies valsti augšā, lai turpinātu reģistrāciju.",
+      "appleFromLoginHint": "Šim Apple ID vēl nav piesaistīts konts. Izvēlies valsti un pieņem noteikumus — vārds un e-pasts nāk no Apple. Vēl viena pieslēgšanās ar Apple nav vajadzīga.",
+      "appleOnlyPath": "Izveido kontu ar Apple. Vārds un e-pasts nāk no Apple — neaizpildi formu.",
+      "tagline": "Mierīga diena, zvaigzne pēc zvaigznes",
+      "orDivider": "vai",
+      "continueWithApple": "Reģistrēties ar Apple",
+      "continueWithGoogle": "Reģistrēties ar Google",
+      "validatingInvite": "Pārbauda uzaicinājumu...",
+      "inviteInvalid": "Nederīga vai novecojusi uzaicinājuma saite. Sazinies ar to, kurš tevi uzaicināja.",
+      "inviteValidateFailed": "Neizdevās pārbaudīt uzaicinājuma saiti. Mēģini vēlreiz.",
+      "familyNameSuffix": "{{name}} ģimene",
+      "termsRequired": "Tev jāpieņem lietošanas noteikumi un privātuma politika",
+      "success": "Konts izveidots! Pārbaudi e-pastu, lai apstiprinātu kontu.",
+      "termsPrefix": "Esmu izlasījis un pieņemu",
+      "termsLink": "Lietošanas noteikumus",
+      "termsAnd": "un",
+      "privacyLink": "Privātuma politiku",
+      "termsSuffix": ".",
+      "successTitle": "Konts izveidots! 🎉",
+      "successVerifyLine1": "Nosūtījām apstiprinājuma saiti uz tavu e-pasta adresi.",
+      "successVerifyLine2": "Pārbaudi iesūtni (un surogātpastu).",
+      "successGracePeriod": "Vari pieslēgties uzreiz, un tev ir 24 stundas, lai apstiprinātu e-pastu.",
+      "successLoginBtn": "Pieslēgties",
+      "inviteErrorDefault": "Nederīga uzaicinājuma saite.",
+      "appleEmailExists": "Konts ar šo e-pasta adresi jau pastāv. Pieslēdzies ar Apple vai lieto e-pastu un paroli.",
+      "webDownload": {
+        "title": "Lejupielādē lietotni",
+        "lead": "Jaunas ģimenes kontu veido lietotnē. Lejupielādē to no App Store vai Google Play.",
+        "appStoreAria": "Lejupielādēt App Store",
+        "playStoreAria": "Iegūt Google Play",
+        "hasAccount": "Jau ir konts?",
+        "loginLink": "Pieslēgties"
+      }
+    },
+    "parentGate": {
+      "title": "Vecāka slēdzene",
+      "hint": "Ievadi PIN, lai turpinātu",
+      "keypadAria": "PIN tastatūra",
+      "cancel": "Atcelt",
+      "forgotPinBackup": "Aizmirsi PIN? Pieslēdzies ar e-pastu vai Apple/Google",
+      "digitsEntered": "{{count}} no 4 cipariem",
+      "backspace": "Dzēst",
+      "confirm": "Apstiprināt",
+      "needFourDigits": "PIN jābūt 4 cipariem"
+    },
+    "childLogin": {
+      "title": "Čau! 👋",
+      "pageTitle": "Zvaigžņu pētnieks — {{brand}}",
+      "whoAreYou": "Kas tu esi?",
+      "selectProfile": "Izvēlies savu profilu un ievadi PIN.",
+      "back": "Atpakaļ",
+      "addChild": "Pievienot bērnu",
+      "notMe": "Es sevi neatrodu",
+      "subtitle": "Ieraksti lietotājvārdu un PIN",
+      "username": "Lietotājvārds",
+      "usernamePlaceholder": "Tavs lietotājvārds",
+      "pin": "PIN",
+      "pinPlaceholder": "4 cipari",
+      "submit": "Pieslēgties",
+      "parentLogin": "Tu esi vecāks?",
+      "parentLoginLink": "Pieslēdzies šeit",
+      "adultLogin": "Pieslēgties kā pieaugušajam",
+      "adultLoginShort": "Pieaugušais",
+      "forgotPassword": "Aizmirsi paroli?",
+      "emptyNoChildren": "Vēl nav reģistrēts neviens bērns.",
+      "nameHint": "Ieraksti savu vārdu, lai pieslēgtos",
+      "namePlaceholder": "Tavs vārds",
+      "continue": "Turpināt →",
+      "switchChild": "Mainīt bērnu",
+      "pinSub": "Ievadi savu kodu",
+      "attemptsLeft": "Atlikuši mēģinājumi",
+      "pinDotsAria": "PIN kods",
+      "lockoutWait": "Pagaidi brīdi",
+      "lockoutSoon": "Drīz varēsi mēģināt vēlreiz",
+      "welcome": "Laipni lūdzam!",
+      "redirecting": "Vedam tevi uz tavu skatu…",
+      "keypadAria": "Ciparu tastatūra",
+      "forgotPin": "Pajautā vecākam, ja aizmirsi kodu",
+      "needHelp": "Vajag palīdzību?",
+      "contactParent": "Sazinies ar vecāku"
+    },
+    "verify": {
+      "title": "Apstiprini e-pastu",
+      "pageTitle": "Apstiprināt e-pastu — {{brand}}",
+      "checkingTitle": "Apstiprina e-pastu",
+      "checkingBody": "Pagaidi, kamēr apstiprinām tavu e-pasta adresi...",
+      "checking": "Pārbauda...",
+      "success": "E-pasts ir apstiprināts! Tagad vari pieslēgties.",
+      "successTitle": "E-pasts apstiprināts!",
+      "welcomeMessage": "Tava e-pasta adrese ir apstiprināta. Laipni lūdzam {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Pāradresē pēc",
+      "redirectCountdownSuffix": "sekundēm...",
+      "error": "Apstiprinājuma saite ir nederīga vai novecojusi.",
+      "errorTitle": "Apstiprināšana neizdevās",
+      "verifyFailed": "Apstiprināšana neizdevās. Saite var būt novecojusi.",
+      "noToken": "Saitē netika atrasts apstiprinājuma tokens.",
+      "genericError": "Kaut kas nogāja greizi. Mēģini vēlreiz.",
+      "resendPrompt": "Ievadi e-pasta adresi, lai saņemtu jaunu apstiprinājuma saiti:",
+      "resendBtn": "Sūtīt jaunu saiti",
+      "resendSending": "Sūta...",
+      "resendRateLimit": "Tu jau esi pieprasījis vairākas saites. Mēģini vēlreiz pēc stundas.",
+      "resendSuccess": "✅ Ja konts pastāv, nosūtījām jaunu apstiprinājuma saiti. Pārbaudi iesūtni un surogātpastu!",
+      "resendEmailInvalid": "Ievadi derīgu e-pasta adresi.",
+      "needHelpPrefix": "Vajag palīdzību? Pārbaudi surogātpastu vai",
+      "contactUs": "sazinies ar mums",
+      "loginLink": "Uz pieslēgšanos"
+    },
+    "forgotPassword": {
+      "title": "Aizmirsta parole",
+      "pageTitle": "Aizmirsta parole — {{brand}}",
+      "heading": "Aizmirsi paroli?",
+      "lead": "Nekas traks! Nosūtīsim saiti, lai iestatītu jaunu paroli.",
+      "subtitle": "Ievadi e-pasta adresi, un mēs nosūtīsim atiestatīšanas saiti",
+      "email": "E-pasta adrese",
+      "emailPlaceholder": "tu@epasts.lv",
+      "emailHint": "Nosūtīsim drošu saiti paroles atiestatīšanai",
+      "submit": "Sūtīt atiestatīšanas saiti",
+      "sent": "Ja šī e-pasta adrese ir mūsu sistēmā, nosūtījām atiestatīšanas saiti.",
+      "successTitle": "Pārbaudi e-pastu!",
+      "successBody": "Nosūtījām saiti paroles atiestatīšanai. Pārbaudi iesūtni un surogātpastu.",
+      "orDivider": "vai",
+      "rememberPassword": "Atceries paroli?",
+      "backToLogin": "Atpakaļ uz pieslēgšanos",
+      "helpTitle": "Nesaņēmi e-pastu?",
+      "helpItem1": "Pārbaudi surogātpasta mapi",
+      "helpItem2": "Pārliecinies, ka ievadīji pareizo e-pasta adresi",
+      "helpItem3": "Mēģini vēlreiz pēc dažām minūtēm",
+      "helpItem4Suffix": "ja vajag palīdzību",
+      "contactSupport": "Sazināties ar atbalstu"
+    },
+    "resetPassword": {
+      "title": "Atiestatīt paroli",
+      "pageTitle": "Atiestatīt paroli — {{brand}}",
+      "subtitle": "Izvēlies jaunu paroli",
+      "password": "Jauna parole",
+      "passwordPlaceholder": "Vismaz 8 rakstzīmes",
+      "passwordHelp": "Jābūt vismaz 8 rakstzīmēm",
+      "confirmPassword": "Apstiprini paroli",
+      "confirmPasswordPlaceholder": "Atkārto paroli",
+      "submit": "Atiestatīt paroli",
+      "submitting": "Saglabā…",
+      "success": "Parole ir nomainīta! Tagad vari pieslēgties.",
+      "successRedirect": "Gatavs! Jaunā parole ir saglabāta.",
+      "alreadyUsed": "Parole jau bija nomainīta. Pieslēdzies ar jauno paroli.",
+      "error": "Atiestatīšanas saite ir nederīga vai novecojusi.",
+      "invalidLink": "Nederīga atiestatīšanas saite.",
+      "requestNewLink": "Pieprasīt jaunu atiestatīšanas saiti",
+      "requestNewLinkShort": "Pieprasīt jaunu saiti",
+      "resetFailed": "Paroli neizdevās atiestatīt",
+      "rememberPassword": "Atceries paroli?",
+      "goToLoginInline": "Uz pieslēgšanos",
+      "loginLink": "Uz pieslēgšanos"
+    },
+    "supportBubble": {
+      "closeAria": "Aizvērt",
+      "triggerAria": "Sazināties ar atbalstu",
+      "title": "Vajag palīdzību? 💬",
+      "subtitle": "Atbildēsim, cik ātri varēsim",
+      "oooSubtitle": "Mēs neesam klāt 1.–10. septembrī",
+      "success": "Paldies! Saņēmām tavu ziņu un drīz atbildēsim.",
+      "oooSuccess": "Paldies! Saņēmām tavu ziņu. Mēs neesam klāt 1.–10. septembrī un atbildēsim, cik ātri varēsim, vēlākais 11. septembrī.",
+      "openThread": "Atvērt savu sarunu",
+      "nameLabel": "Vārds",
+      "namePlaceholder": "Tavs vārds",
+      "emailLabel": "E-pasts",
+      "emailPlaceholder": "tu@example.com",
+      "emailHint": "Lai varam tev atbildēt",
+      "messageLabel": "Ziņa",
+      "messagePlaceholder": "Apraksti, kas notiek...",
+      "submit": "Sūtīt ziņu",
+      "fillAllFields": "Aizpildi visus laukus",
+      "messageMinLength": "Ziņai jābūt vismaz 10 rakstzīmēm",
+      "submitting": "Sūta...",
+      "sendFailed": "Neizdevās nosūtīt ziņu. Mēģini vēlreiz.",
+      "genericError": "Kaut kas nogāja greizi"
+    },
+    "contactForm": {
+      "fillRequired": "Visi lauki ir obligāti.",
+      "emailInvalid": "Ievadi derīgu e-pasta adresi.",
+      "messageTooShort": "Ziņa ir par īsu (vismaz 5 rakstzīmes).",
+      "submitting": "Sūta…",
+      "submit": "Sūtīt",
+      "genericError": "Kaut kas nogāja greizi. Mēģini vēlreiz.",
+      "openThread": "Atvērt savu sarunu"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "Vajadzīgs e-pasts un parole",
+        "emailRequired": "Vajadzīga e-pasta adrese",
+        "accountBlocked": "Tavs konts ir bloķēts. Sazinies ar administratoru.",
+        "emailVerificationRequired": "Tev jāapstiprina e-pasta adrese, lai turpinātu",
+        "verificationTokenRequired": "Vajadzīgs apstiprinājuma tokens",
+        "invalidVerificationLink": "Nederīga vai novecojusi apstiprinājuma saite",
+        "resendVerificationRateLimit": "Tu jau esi pieprasījis vairākas apstiprinājuma saites. Mēģini vēlreiz pēc stundas.",
+        "tokenAndPasswordRequired": "Vajadzīgs tokens un parole",
+        "invalidResetLink": "Nederīga vai novecojusi atiestatīšanas saite. Pieprasi jaunu.",
+        "parentOnlyViewMode": "Skata režīmu var mainīt tikai vecāki",
+        "parentOnlyUiViewMode": "Saskarnes skata režīmu var mainīt tikai vecāki",
+        "parentOnlyTheme": "Tēmu var mainīt tikai vecāki",
+        "preferencesSaveFailed": "Neizdevās saglabāt iestatījumus",
+        "uiViewModeSaveFailed": "Neizdevās saglabāt skata režīmu",
+        "themeSaveFailed": "Neizdevās saglabāt tēmu",
+        "userNotFound": "Lietotājs nav atrasts",
+        "unknownUserType": "Nezināms lietotāja veids",
+        "registrationClosed": "Reģistrācija pašlaik ir slēgta",
+        "invalidCountry": "Nederīga valsts",
+        "countryRequired": "Izvēlies valsti, pirms veido kontu",
+        "registrationRequired": "AIZSTĀTS — lieto appleAccountCompletionRequired. Nenovirzi uz reģistrāciju ar e-pastu un paroli.",
+        "appleAccountCompletionRequired": "Izvēlies valsti un pieņem noteikumus, lai pabeigtu konta izveidi. Vārds un e-pasts nāk no Apple.",
+        "familyNameRequired": "Vārds ir vajadzīgs, lai izveidotu ģimenes kontu",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Reģistrācija no Zviedrijas uz laiku ir slēgta.",
+          "MARKET_IE_CLOSED": "{{brand}} Īrijā vēl nav pieejams.",
+          "MARKET_CA_CLOSED": "{{brand}} Kanādā vēl nav pieejams.",
+          "MARKET_FI_CLOSED": "{{brand}} Somijā vēl nav pieejams.",
+          "MARKET_NO_CLOSED": "{{brand}} Norvēģijā vēl nav pieejams.",
+          "MARKET_DK_CLOSED": "{{brand}} Dānijā vēl nav pieejams.",
+          "MARKET_EU_CLOSED": "{{brand}} tavā valstī vēl nav pieejams. Paziņosim, kad atvērsim vairāk ES valstu.",
+          "MARKET_UK_CLOSED": "{{brand}} Apvienotajā Karalistē vēl nav pieejams.",
+          "MARKET_US_CLOSED": "{{brand}} Amerikas Savienotajās Valstīs vēl nav pieejams.",
+          "MARKET_OTHER_CLOSED": "{{brand}} tavā valstī vēl nav pieejams.",
+          "MARKET_BILLING_NOT_READY": "Pirkumi šajā valstī vēl nav pieejami, tāpēc nevaram izveidot kontu, ko tu nevarētu lietot."
+        }
+      },
+      "success": {
+        "emailVerified": "E-pasta adrese ir apstiprināta! Tagad vari pieslēgties.",
+        "resendVerification": "Ja konts pastāv, tiks nosūtīta jauna apstiprinājuma saite",
+        "forgotPassword": "Ja e-pasta adrese pastāv, nosūtīsim saiti"
+      }
+    },
+    "errors": {
+      "nameRequired": "Ievadi savu vārdu",
+      "emailRequired": "Vajadzīga e-pasta adrese",
+      "emailInvalid": "Nederīga e-pasta adrese",
+      "passwordRequired": "Vajadzīga parole",
+      "passwordTooShort": "Parolei jābūt vismaz 8 rakstzīmēm",
+      "passwordMismatch": "Paroles nesakrīt",
+      "usernameRequired": "Vajadzīgs lietotājvārds",
+      "pinRequired": "Vajadzīgs PIN",
+      "pinInvalid": "PIN jābūt 4 cipariem",
+      "invalidCredentials": "Nepareizs e-pasts vai parole",
+      "accountLocked": "Konts uz laiku ir bloķēts. Mēģini vēlreiz pēc 15 minūtēm.",
+      "emailNotVerified": "Vispirms jāapstiprina e-pasta adrese",
+      "emailExists": "Konts ar šo e-pasta adresi jau pastāv",
+      "tooManyAttempts": "Pārāk daudz mēģinājumu. Pagaidi brīdi un mēģini vēlreiz.",
+      "serverError": "Kaut kas nogāja greizi. Mēģini vēlāk.",
+      "invalidValues": "Nederīgas vērtības",
+      "invalidParams": "Nederīgi URL parametri",
+      "invalidQuery": "Nederīgi vaicājuma parametri",
+      "parentPinInvalid": "Nepareizs PIN — mēģini vēlreiz",
+      "logoutFailed": "Iziet neizdevās. Mēģini vēlreiz.",
+      "logoutRateLimited": "Pārāk daudz mēģinājumu. Pagaidi brīdi un mēģini vēlreiz.",
+      "handoffInvalid": "Neizdevās atjaunot pieaugušā sesiju. Pieslēdzies kā vecāks.",
+      "userNotFound": "Lietotājs nav atrasts",
+      "invalidPassword": "Nepareiza parole",
+      "tokenRequired": "Vajadzīgs tokens",
+      "idTokenRequired": "Vajadzīgs idToken",
+      "allFieldsRequired": "Visi lauki ir obligāti",
+      "messageTooShort": "Ziņai jābūt vismaz 10 rakstzīmēm",
+      "serviceUnavailable": "Pakalpojums uz laiku nav pieejams",
+      "nameTooShort": "Vajadzīgs vārds (vismaz 2 rakstzīmes)",
+      "roleRequired": "Vajadzīga loma",
+      "consentRequired": "Tev jāpiekrīt, ka glabājam tavus datus",
+      "refreshInvalid": "Atjaunošanas tokens ir nederīgs vai novecojis",
+      "authRequired": "Vajadzīga autentifikācija",
+      "passwordTooShort6": "Parolei jābūt vismaz 6 rakstzīmēm"
+    }
+  },
+  "surveys": {
+    "thankYou": "Paldies par atbildi!",
+    "errors": {
+      "unavailable": "Aptauja šobrīd nav pieejama",
+      "notFound": "Aptauja nav atrasta",
+      "closed": "Aptauja ir slēgta",
+      "paused": "Aptauja ir apturēta",
+      "alreadyAnswered": "Tu jau esi atbildējis uz šo aptauju",
+      "alreadySubmitted": "Aptauja jau ir iesniegta",
+      "questionIdRequired": "Vajadzīgs jautājums",
+      "invalidQuestion": "Nederīgs jautājums",
+      "maxSelections": "Vari izvēlēties ne vairāk kā {{max}}",
+      "invalidOption": "Nederīga atbildes iespēja",
+      "sessionNotFound": "Sesija nav atrasta",
+      "answerFirst": "Vispirms atbildi uz aptauju",
+      "contestNotOpen": "Loterija nav atvērta",
+      "contestClosed": "Loterija ir slēgta",
+      "ageRequired": "Lai piedalītos, tev jābūt vismaz 18 gadus vecam",
+      "contestConsent": "Lai piedalītos loterijā, vajadzīga piekrišana",
+      "contestAlready": "Tu jau esi pieteikts loterijai",
+      "emailAlready": "Šī adrese jau ir pieteikta",
+      "idActionRequired": "Vajadzīga aptauja un darbība"
+    }
+  },
+  "dashboard": {
+    "welcome": "Laipni lūdzam, {{name}}!",
+    "todaySchedule": "Šodienas plāns",
+    "children": "Bērni",
+    "addChild": "Pievienot bērnu",
+    "settings": "Iestatījumi",
+    "noChildren": "Tu vēl neesi pievienojis nevienu bērnu. Sāc ar pirmo bērnu!",
+    "stars": "Zvaigznes",
+    "streak": "Sērija"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Mana pirmā zvaigzne"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Čau, {{name}}! ⭐",
+    "today": "Šodien",
+    "now": "Tagad",
+    "next": "Pēc tam",
+    "later": "Vēlāk",
+    "done": "Gatavs!",
+    "stars": "Manas zvaigznes",
+    "rewards": "Balvas"
+  },
+  "sections": {
+    "morgon": "Rīts",
+    "dag": "Diena",
+    "kvall": "Vakars",
+    "natt": "Nakts"
+  },
+  "settings": {
+    "title": "Iestatījumi",
+    "family": {
+      "title": "Ģimenes iestatījumi",
+      "timeDisplayMode": "Laika rādīšanas režīms",
+      "morningStart": "Rīta sākums",
+      "morningEnd": "Rīta beigas",
+      "dayStart": "Dienas sākums",
+      "dayEnd": "Dienas beigas",
+      "eveningStart": "Vakara sākums",
+      "eveningEnd": "Vakara beigas",
+      "nightStart": "Nakts sākums",
+      "nightEnd": "Nakts beigas",
+      "streakStartDay": "Sērijas sākuma diena",
+      "soundEnabled": "Skaņa ieslēgta",
+      "save": "Saglabāt ģimenes iestatījumus"
+    },
+    "language": {
+      "description": "Izvēlies lietotnes valodu.",
+      "switchBack": "Atpakaļ uz zviedru valodu"
+    },
+    "invite": {
+      "title": "Uzaicināt vecāku",
+      "description": "Uzaicini otru vecāku skatīt un vadīt bērnu plānus. Uzaicinājums derīgs 7 dienas.",
+      "email": "E-pasta adrese",
+      "emailPlaceholder": "vecaks@epasts.lv",
+      "selectChildren": "Izvēlies, kuriem bērniem uzaicinātajam vecākam būs piekļuve:",
+      "submit": "Sūtīt uzaicinājumu",
+      "pending": "Gaidošie uzaicinājumi:"
+    },
+    "password": {
+      "title": "Mainīt paroli",
+      "current": "Pašreizējā parole",
+      "new": "Jauna parole",
+      "confirm": "Apstiprini jauno paroli",
+      "submit": "Mainīt paroli",
+      "mismatch": "Paroles nesakrīt"
+    },
+    "notifications": {
+      "title": "Paziņojumu iestatījumi",
+      "weeklySummary": "Nedēļas kopsavilkums (svētdien 21:00)",
+      "rewardRedemption": "Balvas izpirkšana",
+      "emailEnabled": "Visi e-pasti kopā",
+      "save": "Saglabāt paziņojumu iestatījumus"
+    },
+    "theme": {
+      "title": "Izskats",
+      "darkMode": "Tumšais režīms",
+      "darkModeDescription": "Ieslēdz tumšo tēmu ērtākai lietošanai vājā gaismā",
+      "colorBlind": "Krāsu redzes tēma",
+      "colorBlindDescription": "Pielāgo krāsas dažādiem krāsu redzes veidiem",
+      "colorBlindNone": "Nav (noklusējums)",
+      "colorBlindProtanopia": "Protanopija (sarkanā)",
+      "colorBlindDeuteranopia": "Deiteranopija (zaļā)",
+      "colorBlindTritanopia": "Tritanopija (zilā)"
+    },
+    "trustedDevices": {
+      "title": "Uzticamās ierīces",
+      "description": "Bērna ierīces var atvērt bērna skatu bez PIN, kad tu ierīci šeit apstiprini.",
+      "disabled": "Bērna ierīces režīms tavai ģimenei vēl nav ieslēgts.",
+      "enrollHint": "Bērna planšetē vai tālrunī: izvēlies bērnu un padari šo ierīci par viņa ierīci.",
+      "enrollThisDevice": "Padarīt par bērna ierīci",
+      "enrollSharedDevice": "Padarīt par kopīgu ģimenes ierīci",
+      "enrollFailed": "Neizdevās reģistrēt šo ierīci. Mēģini vēlreiz.",
+      "empty": "Nav reģistrētu uzticamo ierīču.",
+      "revoke": "Atsaukt",
+      "revokeAll": "Atsaukt visas ierīces",
+      "revokeAllConfirm": "Visas uzticamās ierīces tiks izrakstītas. Turpināt?",
+      "modeChild": "Bērna ierīce",
+      "modeShared": "Kopīga ierīce",
+      "modeParent": "Vecāka ierīce",
+      "unknownChild": "Bērns"
+    },
+    "thisDevice": {
+      "title": "Šī ierīce",
+      "description": "Kā šim tālrunim vai planšetei jāatver lietotne tavai ģimenei.",
+      "setupTitle": "Kā šo ierīci lietos?",
+      "setupLead": "To vari mainīt vēlāk Iestatījumos.",
+      "setupLater": "Ne tagad",
+      "openSettings": "Atvērt iestatījumus",
+      "usageHeading": "Lietošana",
+      "usageParent": "Mans vecāka tālrunis",
+      "usageShared": "Kopīgs ar bērniem",
+      "usageChild": "Bērna ierīce",
+      "startHeading": "Atveras kā",
+      "startParent": "Vecāks",
+      "startChoose": "Izvēlēties bērnu",
+      "startParentFixed": "Šī ierīce vienmēr atver vecāka skatu.",
+      "startChildFixed": "Šī ierīce ir piesaistīta vienam bērnam.",
+      "childrenHeading": "Bērni šajā ierīcē",
+      "adultAccessHeading": "Pieaugušā piekļuve",
+      "adultPinSet": "PIN ir iestatīts",
+      "adultPinMissing": "Iestati PIN Iestatījumos",
+      "biometricIos": "Face ID vai Touch ID, ja pieejams",
+      "biometricAndroid": "Biometrija vai ierīces slēdzene, ja pieejama",
+      "biometricWeb": "PIN pieaugušā režīmam",
+      "widgetsHeading": "Logrīki",
+      "widgetsLinked": "Sākuma ekrāna logrīki ir piesaistīti bērna plānam.",
+      "widgetsNone": "Šajā ierīcē nav piesaistītu logrīku.",
+      "changeStartHeading": "Mainīt sākuma režīmu",
+      "revokeThis": "Noņemt piekļuvi šai ierīcei",
+      "revokeConfirm": "Šī ierīce būs jāapstiprina vēlreiz, lai bērni varētu atvērt lietotni bez PIN. Turpināt?",
+      "otherDevices": "Citas ģimenes ierīces",
+      "openForChild": "Atvērt uzreiz {{name}}",
+      "saveFailed": "Neizdevās saglabāt. Mēģini vēlreiz."
+    }
+  },
+  "common": {
+    "loading": "Ielādē...",
+    "save": "Saglabāt",
+    "cancel": "Atcelt",
+    "delete": "Dzēst",
+    "edit": "Labot",
+    "back": "Atpakaļ",
+    "confirm": "Apstiprināt",
+    "yes": "Jā",
+    "no": "Nē",
+    "networkError": "Tīkla kļūda"
+  },
+  "categories": {
+    "title": "Kategorijas",
+    "subtitle": "Sakārto aktivitātes kategorijās",
+    "addCategory": "Pievienot kategoriju",
+    "editCategory": "Labot kategoriju",
+    "categoryName": "Kategorijas nosaukums",
+    "categoryNamePlaceholder": "piem. Higiēna",
+    "noCategories": "Vēl nav kategoriju",
+    "defaultBadge": "Noklusējums",
+    "deleteConfirm": "Vai tiešām gribi dzēst šo kategoriju?",
+    "hasActivities": "Šai kategorijai ir piesaistītas aktivitātes. Vispirms noņem aktivitātes.",
+    "saved": "Kategorija saglabāta",
+    "deleted": "Kategorija dzēsta"
+  },
+  "activities": {
+    "title": "Aktivitātes",
+    "subtitle": "Veido un pārvaldi aktivitāšu veidnes savai ģimenei",
+    "addActivity": "Pievienot aktivitāti",
+    "editActivity": "Labot aktivitāti",
+    "activityName": "Aktivitātes nosaukums",
+    "activityNamePlaceholder": "piem. Tīri zobus",
+    "icon": "Ikona",
+    "category": "Kategorija",
+    "noCategory": "Nav kategorijas",
+    "starValue": "Zvaigžņu vērtība",
+    "starValueHelp": "Cik zvaigžņu bērns nopelna",
+    "favorite": "Atzīmēt kā favorītu",
+    "favoriteHelp": "Favorīti plānā parādās pirmie",
+    "noActivities": "Vēl nav aktivitāšu. Izveido pirmo!",
+    "filterAll": "Visas",
+    "favoritesFirst": "Favorīti rādīti pirmie",
+    "saved": "Aktivitāte saglabāta",
+    "deleted": "Aktivitāte dzēsta",
+    "deleteConfirm": "Vai tiešām gribi dzēst šo aktivitāti?",
+    "usedInSchedule": "Šī aktivitāte ir plānā. Vispirms noņem to no turienes."
+  },
+  "schedule": {
+    "title": "Nedēļas plāns",
+    "subtitle": "Veido plānus katram bērnam un katrai dienai",
+    "selectChild": "Izvēlies bērnu",
+    "selectDay": "Izvēlies dienu",
+    "noChild": "Izvēlies bērnu augšā, lai redzētu plānu",
+    "noScheduleForDay": "Šai dienai nav plāna",
+    "createSchedule": "Izveidot plānu šai dienai",
+    "addActivity": "Pievienot aktivitāti",
+    "startTime": "Sākuma laiks",
+    "endTime": "Beigu laiks",
+    "section": "Sadaļa",
+    "copyDay": "Kopēt dienu",
+    "copyDayTitle": "Kopēt plānu uz citām dienām",
+    "copyFromDay": "Kopēt no",
+    "copyToDays": "Kopēt uz (izvēlies vienu vai vairākas)",
+    "copyToChild": "Kopēt citam bērnam",
+    "copyToChildTitle": "Kopēt visu nedēļas plānu uz",
+    "copyConfirm": "Kopēt",
+    "copied": "Plāns nokopēts!",
+    "deleteSchedule": "Dzēst dienu",
+    "deleteConfirm": "Vai tiešām? Visas šīs dienas aktivitātes tiks noņemtas.",
+    "deleted": "Plāns dzēsts",
+    "activityAdded": "Aktivitāte pievienota",
+    "activityRemoved": "Aktivitāte noņemta",
+    "reordered": "Secība atjaunināta",
+    "days": {
+      "0": "Svētdiena",
+      "1": "Pirmdiena",
+      "2": "Otrdiena",
+      "3": "Trešdiena",
+      "4": "Ceturtdiena",
+      "5": "Piektdiena",
+      "6": "Sestdiena"
+    },
+    "daysShort": {
+      "0": "Sv",
+      "1": "Pr",
+      "2": "Ot",
+      "3": "Tr",
+      "4": "Ce",
+      "5": "Pk",
+      "6": "Se"
+    },
+    "sections": {
+      "morgon": "Rīts",
+      "dag": "Diena",
+      "kvall": "Vakars",
+      "natt": "Nakts"
+    }
+  },
+  "dailyLog": {
+    "title": "Dienas pieraksts",
+    "subtitle": "Dienas aktivitātes",
+    "today": "Šodien",
+    "prevDay": "Iepriekšējā diena",
+    "nextDay": "Nākamā diena",
+    "selectDate": "Izvēlies datumu",
+    "selectChild": "Izvēlies bērnu",
+    "noChild": "Izvēlies bērnu augšā, lai redzētu pierakstu",
+    "noSchedule": "Šai dienai nav plāna",
+    "noScheduleHint": "Pievieno nedēļas plānu, lai dienas pieraksti veidotos paši.",
+    "loading": "Ielādē pierakstu...",
+    "paused": "Apturēta diena",
+    "pausedHint": "Šī diena ir apturēta (piemēram, slimības diena vai brīvdiena).",
+    "pauseDay": "Apturēt dienu",
+    "unpauseDay": "Atsākt dienu",
+    "pauseConfirm": "Apturēt šo dienu? Aktivitātes netiks skaitītas pret tevi.",
+    "dayPaused": "Diena apturēta",
+    "dayUnpaused": "Diena atsākta",
+    "markDone": "Atzīmēt kā paveiktu",
+    "markUndone": "Atsaukt",
+    "completed": "Paveikts",
+    "notCompleted": "Nav paveikts",
+    "completedAt": "Atzīmēts",
+    "stars": "zvaigznes",
+    "star": "zvaigzne",
+    "progress": "{{completed}} no {{total}} aktivitātēm paveiktas",
+    "allDone": "Visas aktivitātes paveiktas! 🎉",
+    "emptySection": "Šajā sadaļā nav aktivitāšu",
+    "history": "Vēsture",
+    "historyRange": "Izvēlies datumu diapazonu",
+    "historyFrom": "No",
+    "historyTo": "Līdz",
+    "historyFetch": "Ielādēt vēsturi",
+    "historyEmpty": "Izvēlētajā diapazonā pierakstu nav",
+    "sections": {
+      "morgon": "Rīts",
+      "dag": "Diena",
+      "kvall": "Vakars",
+      "natt": "Nakts"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Apstiprini e-pastu — {{brand}}",
+      "title": "Laipni lūdzam {{brand}}! ⭐",
+      "body": "Pieskaries pogai zemāk, lai apstiprinātu e-pasta adresi:",
+      "button": "Apstiprināt e-pastu",
+      "expiry": "Šī saite derīga {{hours}} stundas."
+    },
+    "resetPassword": {
+      "subject": "Atiestatīt paroli — {{brand}}",
+      "title": "Atiestati paroli",
+      "greeting": "Sveiki, {{name}}",
+      "greetingGeneric": "Sveiki",
+      "body": "spied šeit, lai iestatītu jaunu paroli:",
+      "button": "Atiestatīt paroli",
+      "expiry": "Šī saite derīga {{hours}} stundu. Ignorē šo e-pastu, ja nepieprasīji atiestatīšanu."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} mēģina pieslēgties",
+      "title": "Pieslēgšanās mēģinājums {{brand}}",
+      "body": "{{childName}} {{brand}} 3 reizes ievadīja nepareizu PIN.",
+      "inApp": "{{childName}} 3 reizes mēģināja pieslēgties ar nepareizu PIN ({{time}})",
+      "help": "Vari palīdzēt ar pareizo kodu vai atiestatīt PIN lietotnē.",
+      "button": "Atvērt {{brand}}",
+      "footer": "Ja tas nebija tavs bērns, pieslēdzies un nomaini PIN bērna iestatījumos."
+    },
+    "accountDeletionRequested": {
+      "subject": "Tavs {{brand}} konts ir atzīmēts dzēšanai",
+      "greeting": "Sveiki, {{name}}!",
+      "intro": "Saņēmām pieprasījumu dzēst tavu kontu un visus saistītos datus.",
+      "graceTitle": "⏳ Tavi dati tiks neatgriezeniski dzēsti pēc 30 dienām.",
+      "undo": "Šajā laikā vari pieslēgties un <strong>atcelt dzēšanu</strong>, ja pārdomā.",
+      "loginHint": "Ja pārdomā — pieslēdzies {{brand}}, un redzēsi iespēju atcelt.",
+      "footer": "Ja tā bija kļūda, vari šo e-pastu ignorēt. Dati tiks dzēsti pēc 30 dienām, ja neatcelsi.",
+      "contact": "Ja ir jautājumi, raksti mums uz {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Tavs {{brand}} konts ir dzēsts",
+      "greeting": "Sveiki, {{name}}",
+      "intro": "Tavs konts un visi saistītie dati tagad ir neatgriezeniski dzēsti no {{brand}}.",
+      "dataRemoved": "Visas ģimenes, bērni, plāni, aktivitātes un zvaigznes ir noņemti.",
+      "thanks": "Ceram, ka {{brand}} bija noderīgs, kamēr to lietoji.",
+      "return": "Ja gribi izveidot jaunu kontu, esi laipni gaidīts jebkurā laikā: {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Ļauj bērnam pamēģināt pirmo soli ⭐",
+      "greeting": "Sveiki, {{name}}!",
+      "body": "Plāns ir gatavs. Tālāk ļauj bērnam pieslēgties ar PIN — tas aizņem mazāk par minūti.",
+      "button": "Turpināt uz bērna pieslēgšanos"
+    },
+    "welcomeShell": {
+      "headerTitle": "Laipni lūdzam! 🌟",
+      "cta": "Atvērt {{brand}} ⭐",
+      "footerIntro": "Tu saņem šo e-pastu, jo nesen reģistrējies {{brand}}.",
+      "unsubscribe": "Atteikties"
+    },
+    "common": {
+      "genericParent": "Vecāks",
+      "genericInviter": "Kāds",
+      "genericPedagogInviter": "Vecāks",
+      "genericChild": "tavs bērns",
+      "genericReward": "balva",
+      "genericYou": "tu",
+      "greetingNamed": "Sveiki, {{name}}",
+      "greeting": "Sveiki",
+      "familyNamed": "ģimene „{{familyName}}”",
+      "aFamily": "ģimene",
+      "settingsNotifications": "Iestatījumi → Paziņojumi",
+      "settingsNotificationsHtml": "Iestatījumi → <strong>Paziņojumi</strong>"
+    },
+    "invite": {
+      "subject": "Tu esi uzaicināts uz {{familyLabel}} lietotnē {{brand}} ⭐",
+      "title": "Tu esi uzaicināts! ⭐",
+      "body": "{{greeting}}, {{inviterName}} tevi uzaicināja uz {{familyLabel}} lietotnē {{brand}}.",
+      "intro": "{{brand}} ir vizuāls dienas plāns, kas palīdz bērniem saprast dienu, atzīmēt aktivitātes un krāt zvaigznes.",
+      "ctaIntro": "Pieskaries šeit, lai izveidotu paroli un aktivizētu kontu:",
+      "button": "Aktivizēt kontu",
+      "footer": "Uzaicinājums derīgs 7 dienas. Ignorē šo e-pastu, ja necerēji uzaicinājumu."
+    },
+    "pedagogInvite": {
+      "subject": "Tu esi uzaicināts kā pedagogs ģimenē {{familyName}} ⭐",
+      "title": "Laipni lūdzam kā pedagogu! ⭐",
+      "greetingNamed": "Sveiki, {{name}},",
+      "greeting": "Sveiki,",
+      "body": "{{inviterName}} tevi uzaicināja kā pedagogu ģimenē {{familyName}} lietotnē {{brand}}.",
+      "intro": "Kā pedagogs vari pierakstīt novērojumus un sekot bērna plānam.",
+      "button": "Pieņemt uzaicinājumu →",
+      "footer": "Uzaicinājums derīgs 7 dienas. Ja necerēji šo e-pastu, vari to ignorēt."
+    },
+    "winBack": {
+      "subject": "Atgriezies ritmā vienā minūtē ⭐",
+      "greeting": "Sveiki, {{name}}! 👋",
+      "body1": "{{childName}} plāns joprojām ir šeit — atver šodienas aktivitātes un atzīmējiet tās kopā.",
+      "body2": "Lai atsāktu, vajag tikai minūti.",
+      "button": "Atvērt plānu →",
+      "settingsHint": "Šos e-pastus vari izslēgt sadaļā {{settingsLink}} lietotnē.",
+      "settingsLinkText": "Iestatījumi → Paziņojumi"
+    },
+    "activationProgramInvite": {
+      "subject": "Maigs sākums {{childName}} rutīnām?",
+      "greeting": "Sveiki, {{name}}!",
+      "body1": "Tu izveidoji kontu un sakārtoji {{childName}} plānu — labi padarīts.",
+      "body2": "Daudzas ģimenes saka, ka grūtākais nav sākt, bet <strong>noturēt rutīnu</strong>, kad ikdiena pārņem.",
+      "body3": "Tagad vari izmēģināt mūsu <strong>7 dienu iesildīšanās programmu</strong>: īsi dienas soļi, kas palīdz tev kā vecākam noturēt ritmu. Bērna plāns paliek tāds pats.",
+      "button": "Jā, palīdziet mums pirmajā nedēļā",
+      "footer": "Ja gidi negribi, lietotne strādā kā parasti — viss, ko sakārtoji, joprojām ir tur."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutīna gaida — izmēģiniet to kopā šovakar ⭐",
+        "greeting": "Sveiki, {{name}}!",
+        "body1": "Tev jau ir plāns. Atlicis <strong>izmēģināt rutīnu kopā</strong> — ļauj bērnam pieslēgties un savākt pirmo zvaigzni.",
+        "body2": "Tas aizņem apmēram divas minūtes. Bez spiediena.",
+        "button": "Atvērt Sākumu →"
+      },
+      "noSchema": {
+        "subject": "Sāc ar rutīnu — tikai dažas minūtes ⭐",
+        "greeting": "Sveiki, {{name}}!",
+        "body1": "Tu esi reģistrējies — labs sākums! Nākamais solis ir <strong>sakārtot plānu</strong>, lai bērns zina, ko katru dienu gaidīt.",
+        "body2": "Tas aizņem apmēram piecas minūtes. Viss, ko jau izdarīji, paliek, ja gribi turpināt vēlāk.",
+        "button": "Turpināt iepazīšanos →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Tu esi pieteicies jaunumiem no {{brand}}",
+      "title": "Paldies, ka pieteicies! ⭐",
+      "greetingNamed": "Sveiki, {{name}},",
+      "greeting": "Sveiki,",
+      "body": "Tagad tu saņemsi jaunumus no {{brand}} ar padomiem, ziņām un lietotnes atjauninājumiem.",
+      "settings": "Vari atteikties jebkurā laikā sadaļā <a href=\"{{settingsUrl}}\">Iestatījumi</a> lietotnē vai ar saiti katra jaunumu vēstules apakšā.",
+      "signoff": "Ar sveicieniem,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} grib izpirkt „{{rewardName}}” ⭐",
+      "title": "Balva gaida apstiprinājumu! 🎁",
+      "greeting": "Sveiki, {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> grib izpirkt:",
+      "cost": "Cena: {{starCost}} zvaigznes",
+      "approveHint": "Pieslēdzies lietotnē, lai apstiprinātu vai noraidītu izpirkšanu.",
+      "settingsHint": "Šos paziņojumus vari izslēgt sadaļā {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mēnesis",
+      "howTitle": "Kā tas darbojas:",
+      "how1": "Veido plānus un aktivitātes savam bērnam",
+      "how2": "Ļauj bērnam katru dienu krāt zvaigznes",
+      "how3": "Sakārto balvas Dārgumu lādē",
+      "footerIntro": "Tu saņem šo e-pastu, jo nesen reģistrējies {{brand}}.",
+      "openApp": "Atvērt lietotni",
+      "trial": {
+        "subject": "Laipni lūdzam {{brand}} — tavs bezmaksas periods ir sācies!",
+        "headerTitle": "Tavs bezmaksas periods ir sācies! ⭐",
+        "intro": "Laipni lūdzam! Tev tagad ir <strong>{{trialDays}} dienas bez maksas</strong>, lai izmēģinātu visas {{brand}} iespējas — karti nevajag.",
+        "pricing": "Pēc {{trialDays}} dienām tas maksā <strong>{{monthlyPrice}}</strong> — vari pāriet, kad gribi.",
+        "pricingOpen": "Pēc {{trialDays}} dienām tu izvēlies, vai turpināt ar abonementu.",
+        "cta": "Izmēģināt Premium ⭐",
+        "ctaHint": "Bez saistībām — atcel, kad gribi"
+      },
+      "complimentary": {
+        "subject": "Laipni lūdzam {{brand}} — bez maksas līdz {{freeUntil}}",
+        "headerTitle": "Bez maksas līdz {{freeUntil}}",
+        "intro": "Laipni lūdzam! <strong>{{brand}} ir bez maksas līdz {{freeUntil}}.</strong> Abonements vai maksāšanas veids nav vajadzīgs. Šis piedāvājums pats nekļūst par maksas abonementu.",
+        "pricing": "No {{paidFrom}} vari izvēlēties, vai turpināt ar abonementu. Šī piedāvājuma dēļ nekas netiek iekasēts automātiski.",
+        "cta": "Atvērt lietotni",
+        "ctaHint": "Karti nevajag. Šis piedāvājums pats nekļūst par abonementu."
+      },
+      "introYear": {
+        "subject": "Laipni lūdzam {{brand}}",
+        "headerTitle": "Laipni lūdzam! ⭐",
+        "intro": "Laipni lūdzam! Vari lietot {{brand}} iespējas.",
+        "pricing": "Par šo periodu maksa nav vajadzīga.",
+        "cta": "Atvērt lietotni",
+        "ctaHint": "Premium vari apskatīt, kad gribi"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Nedēļas kopsavilkums ⭐ — {{weekLabel}}",
+      "greeting": "Sveiki, {{name}}! 👋",
+      "intro": "Šeit ir nedēļas kopsavilkums par <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} šonedēļ savāca {{stars}} zvaigznes!",
+      "sharePrompt": "Pazīsti vēl kādu vecāku, kam tas varētu patikt?",
+      "shareWhatsApp": "Dalīties WhatsApp",
+      "shareFriend": "Pastāstīt draugam",
+      "shareTextWithHighlight": "{{highlight}} Mēs lietojam {{brand}} bērnu rutīnām – apskati:",
+      "shareTextGeneric": "Mēs lietojam {{brand}} bērnu ikdienas rutīnām – apskati:",
+      "starsEarned": "Nopelnītās zvaigznes",
+      "routinesCompleted": "Paveiktās rutīnas",
+      "routinesOf": "{{completed}} no {{total}} ({{pct}}%)",
+      "moodAverage": "Noskaņojums (vidēji)",
+      "moodVeryHappy": "Ļoti priecīgs 😄 ({{score}}/10)",
+      "moodHappy": "Priecīgs 🙂 ({{score}}/10)",
+      "moodNeutral": "Neitrāls 😐 ({{score}}/10)",
+      "moodSad": "Skumjš 😔 ({{score}}/10)",
+      "encourageNoActivity": "Nāks jauna nedēļa — pamēģiniet kopā atzīmēt vienu rutīnu, tas aizņem tikai mirkli.",
+      "encourageProgress": "🌟 Turpiniet tikpat labi! Katra paveiktā rutīna veido ieradumus uz ilgu laiku.",
+      "encourageSmallSteps": "🌟 Mazie soļi skaitās — šonedēļ pamēģiniet kopā atzīmēt vienu rutīnu.",
+      "genericChildName": "Tavs bērns"
+    },
+    "notificationFooter": {
+      "settingsLink": "Iestatījumi → Paziņojumi",
+      "optOutDefault": "Izslēgt šo paziņojumu",
+      "optOutWeeklySummary": "Izslēgt nedēļas kopsavilkumu"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "1. diena — paskaties kopā",
+        "body": "Tā {{childName}} redz savu plānu — paskaties kopā.",
+        "ctaLabel": "Rādīt bērna skatu"
+      },
+      "2": {
+        "title": "2. diena — rīta skats",
+        "body": "Kādubrīd šodien atver sākumu — tas aizņem 30 sekundes.",
+        "ctaLabel": "Atvērt plānu"
+      },
+      "3": {
+        "title": "3. diena — atzīmē zvaigzni",
+        "body": "Vai {{childName}} ir nopelnījis zvaigzni? Atzīmējiet to kopā!",
+        "ctaLabel": "Skatīt šodienas plānu",
+        "supportiveFallback": "Pirmā nedēļa ir par sākšanu — pietiek ielūkoties un redzēt, ka plāns ir gatavs."
+      },
+      "4": {
+        "title": "4. diena — tava lietotne",
+        "body": "Kaut kas nešķiet pareizi? Nomaini aktivitāti, ja vajag.",
+        "ctaLabel": "Labot plānu"
+      },
+      "5": {
+        "title": "5. diena — balva",
+        "body": "Paskaties Dārgumu lādē — par ko {{childName}} sapņo?",
+        "ctaLabel": "Atvērt Dārgumu lādi"
+      },
+      "6": {
+        "title": "6. diena — dalīt atbildību",
+        "body": "Gribi dalīt atbildību ar kādu?",
+        "ctaLabel": "Uzaicināt kādu",
+        "soloLabel": "Es tikšu galā!"
+      },
+      "7": {
+        "title": "Viena nedēļa! 🎉",
+        "body": "Apsveicam! Kāda bija nedēļa?",
+        "ctaLabel": "Atbildēt uz jautājumu"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Laiks „{{activityName}}” pēc {{minutes}} minūtēm! ⭐",
+      "body": "Atgādinājums {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Turi rutīnu 💫",
+      "day3Body": "Pagājušas dažas dienas — atver plānu un iedod šodienas zvaigznes.",
+      "day7Title": "Nedēļa, kopš biji iekšā",
+      "day7Body": "Bērna plāns gaida. Pietiek ar īsu ielūkošanos.",
+      "day14Title": "Mums tevis lietotnē pietrūkst",
+      "day14Body": "Divas nedēļas bez aktivitātes — ieej un turi rutīnu dzīvu."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} šodien nav pieslēdzies",
+      "body": "Paskaties plānā un palīdzi aizpildīt dienu!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} ir savācis {{milestone}} zvaigznes! 🌟",
+      "bodyCongrats": "{{emoji}} Apsveicam {{childName}}!",
+      "body100": "Pavisam brīnišķīgi! Gaida jauni izaicinājumi!"
+    },
+    "backfillReminder": {
+      "title": "{{childName}} vakardienas plāns nav aizpildīts",
+      "body": "Aizpildi vakardienu, lai viss ir kārtībā!"
+    },
+    "custodyMorning": {
+      "title": "Šodien: {{childName}} ir pie tevis",
+      "body": "Dienas plāns gaida lietotnē."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Nodošana rīt — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} vietā {{homeLabel}}",
+      "bodyPack": "🎒 Soma sakrāmšanai ir rītdienas plānā.",
+      "bodyPrepare": "Atceries sagatavoties nedēļas nodošanai."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "pabeidza {{activityName}}!",
+      "bodyBatch": "pabeidza {{count}} aktivitātes!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} zvaigznes {{childName}}!",
+      "body": "{{parentName}} iedeva {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "zvaigzni",
+    "starLabelMany": "zvaigznes",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} grib izpirkt balvu!",
+      "body": "{{childName}} lūdz: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Labrīt! Paskaties {{childName}} plānā — aizņem 30 sek 🌅",
+      "day3Body": "Vai {{childName}} šodien ir nopelnījis zvaigzni? Atzīmējiet kopā ⭐",
+      "day4Body": "Kaut kas nešķiet pareizi? Nomaini aktivitāti ✏️",
+      "day5Body": "Paskaties Dārgumu lādē — par ko {{childName}} sapņo? 🎁",
+      "day6Body": "Gribi dalīt atbildību ar kādu? 👥",
+      "day7Body": "Apsveicam! Kāda bija nedēļa?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Kaut kas nogāja greizi.",
+          "rewardIdRequired": "Vajadzīgs reward_id",
+          "childNotFound": "Bērns nav atrasts",
+          "rewardNotFound": "Balva nav atrasta",
+          "requestNotFound": "Pieprasījums nav atrasts",
+          "pendingOnlyApprove": "Var apstiprināt tikai gaidošu pieprasījumu",
+          "pendingOnlyDeny": "Var noraidīt tikai gaidošu pieprasījumu",
+          "childIdRequired": "Vajadzīgs child_id",
+          "reasonRequired": "Vajadzīgs iemesls",
+          "starCountRange": "Zvaigžņu skaitam jābūt no 1 līdz 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "Vajadzīgi child_id un goal_slug",
+          "childAccessDenied": "Tev nav piekļuves kādam no izvēlētajiem bērniem.",
+          "dismissFailed": "Neizdevās aizvērt jautājumu"
+        }
+      },
+      "success": {
+        "goalSet": "Mērķis iestatīts!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Paldies par atsauksmi! Mēs izlasām visu, kas pienāk.",
+    "contactAck": "Paldies! Saņēmām tavu ziņu.",
+    "export": {
+      "noData": "Nav datu",
+      "rateLimit": "Datus vari eksportēt tikai reizi 24 stundās. Mēģini vēlreiz pēc {{hours}} stundām.",
+      "notFound": "Lietotājs nav atrasts"
+    },
+    "account": {
+      "deletionPending": "Tavs konts ir atzīmēts dzēšanai. Tev ir 30 dienas, lai pārdomātu.",
+      "alreadyPending": "Tavs konts jau ir atzīmēts dzēšanai."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Pilna piekļuve visai ģimenei",
+    "benefit1": "Visas rutīnas un plāni",
+    "benefit2": "Zvaigznes un ģimenes iespējas",
+    "benefit3": "Visi tavi dati paliek pie tevis",
+    "webNoticeTitle": "Aktivizē Premium lietotnē",
+    "webNoticeBody": "Premium pērk App Store vai Google Play — ne tīmeklī.",
+    "webNoticeBodyAppleOnly": "Premium pērk App Store — ne tīmeklī. Android drīzumā.",
+    "downloadIphone": "Lejupielādēt iPhone",
+    "downloadAndroid": "Lejupielādēt Android",
+    "androidComingSoon": "Android drīzumā",
+    "loadingPrices": "Ielādē cenas…",
+    "continue": "Turpināt",
+    "restore": "Atjaunot pirkumus",
+    "yearlyBadge": "Ieteicams",
+    "yearlyPrice": "{{price}}/gadā",
+    "yearlySavings": "Ietaupi, salīdzinot ar mēneša maksu",
+    "yearlyTermsKnownTrial": "{{trialDays}} dienu bezmaksas izmēģinājums · pēc tam {{price}}/gadā · atjaunojas automātiski",
+    "yearlyTermsConditionalTrial": "14 dienu bezmaksas izmēģinājums jauniem abonentiem, kam tas pienākas · pēc tam {{price}}/gadā · atjaunojas automātiski",
+    "yearlyTermsNoTrial": "{{price}}/gadā · atjaunojas automātiski",
+    "monthlyPrice": "{{price}}/mēnesī",
+    "monthlyBlurb": "Elastīgs mēneša abonements tavai ģimenei.",
+    "monthlyTermsKnownTrial": "{{trialDays}} dienu bezmaksas izmēģinājums · pēc tam {{price}}/mēnesī · atjaunojas automātiski",
+    "monthlyTermsConditionalTrial": "14 dienu bezmaksas izmēģinājums jauniem abonentiem, kam tas pienākas · pēc tam {{price}}/mēnesī · atjaunojas automātiski",
+    "monthlyTermsNoTrial": "{{price}}/mēnesī · atjaunojas automātiski",
+    "autoRenewApple": "Abonements atjaunojas automātiski, ja to neatcel. Maksājumu apstrādā App Store. Abonementu vari pārvaldīt vai atcelt savā Apple kontā.",
+    "autoRenewGoogle": "Abonements atjaunojas automātiski, ja to neatcel. Maksājumu apstrādā Google Play. Abonementu vari pārvaldīt vai atcelt savā Google kontā.",
+    "termsLink": "Noteikumi",
+    "privacyLink": "Privātums",
+    "legal": "Bezmaksas izmēģinājumu vari atcelt pirms norēķina saskaņā ar App Store vai Google Play noteikumiem. Pārvaldi vai atcel veikala abonementa iestatījumos.",
+    "legalAppleOnly": "Bezmaksas izmēģinājumu vari atcelt pirms norēķina. Pārvaldi vai atcel App Store abonementa iestatījumos.",
+    "legalGoogleOnly": "Bezmaksas izmēģinājumu vari atcelt pirms norēķina. Pārvaldi vai atcel Google Play abonementa iestatījumos.",
+    "giftCard": "Man ir dāvanu karte",
+    "giftCodeLabel": "Dāvanu kods",
+    "giftRedeem": "Izpirkt dāvanu karti",
+    "limitedAccount": "Turpināt ar ierobežotu kontu",
+    "statusOpening": "Atver norēķinu…",
+    "statusRestoring": "Atjauno pirkumus…",
+    "statusSuccess": "Premium ir aktīvs! Prieks tevi redzēt.",
+    "statusCancelled": "Pirkums atcelts.",
+    "statusFailed": "Pirkums neizdevās. Mēģini vēlreiz.",
+    "statusUnavailable": "Abonementus šobrīd neizdodas ielādēt. Mēģini vēlreiz.",
+    "statusAndroidComingSoon": "Premium Android drīzumā.",
+    "statusNotNative": "Pirkumi šeit nav pieejami. Lieto lietotni.",
+    "restoreSuccess": "Pirkumi atjaunoti! Prieks tevi redzēt.",
+    "restoreNone": "Nav atrasti aktīvi pirkumi, ko atjaunot.",
+    "giftSuccess": "Dāvanu karte izpirkta!",
+    "giftFailed": "Kodu neizdevās izpirkt.",
+    "launchEnded": "Sākuma piekļuve ir beigusies. Abonē lietotnē, lai saglabātu pilnu piekļuvi."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "tev",
+      "subject": "Tava saruna ar atbalstu",
+      "text": "Sveiki, {{name}}!\n\nSaņēmām tavu ziņu. Seko sarunai un atbildi šeit (parasta e-pasta atbilde mums nav redzama):\n{{url}}\n\nAr sveicieniem,\n{{fromName}}",
+      "htmlHi": "Sveiki, {{name}}!",
+      "htmlReceived": "Saņēmām tavu ziņu.",
+      "openLink": "Atvērt savu sarunu",
+      "htmlHint": "lai sekotu sarunai un atbildētu. Parasta e-pasta atbilde mums nav redzama.",
+      "htmlBye": "Ar sveicieniem"
+    },
+    "reply": {
+      "subjectBug": "Atb.: Tavs kļūdas ziņojums",
+      "subjectFeedback": "Atb.: Tava atsauksme",
+      "subjectLanguage": "Atb.: Tavs valodas ziņojums",
+      "subjectContact": "Atb.: Tava ziņa",
+      "text": "Sveiki, {{name}}!\n\n{{reply}}\n\nIzlasī visu sarunu un atbildi šeit (parasta e-pasta atbilde mums nav redzama):\n{{url}}\n\n---\nTava sākotnējā ziņa:\n{{original}}\n\nAr sveicieniem,\n{{fromName}}",
+      "htmlHi": "Sveiki, {{name}}!",
+      "openLink": "Atvērt sarunu",
+      "htmlHint": "lai izlasītu visu sarunu un atbildētu. Parasta e-pasta atbilde mums nav redzama.",
+      "originalLabel": "Tava sākotnējā ziņa:",
+      "htmlBye": "Ar sveicieniem"
+    },
+    "page": {
+      "title": "Tava saruna",
+      "intro": "Šī ir visa saruna. Raksti zemāk, ja gribi turpināt. Parasta e-pasta atbilde šeit nav redzama.",
+      "you": "Tu",
+      "us": "Mēs",
+      "empty": "Vēl nav ziņu.",
+      "label": "Raksti mums",
+      "placeholder": "Pastāsti, kas notiek…",
+      "submit": "Sūtīt",
+      "submitting": "Sūta…",
+      "needHuman": "Man vajag vairāk palīdzības no cilvēka",
+      "escalating": "Sūta…",
+      "caseRef": "Lieta {{ref}}",
+      "status": {
+        "new": "Saņemts",
+        "read": "Izlasīts",
+        "in_progress": "Procesā",
+        "answered": "Atbildēts",
+        "archived": "Slēgts"
+      }
+    },
+    "errors": {
+      "invalid": "Šī saite ir nederīga. Palūdz mums nosūtīt jaunu atbildi.",
+      "expired": "Šī saite ir novecojusi. Palūdz mums nosūtīt jaunu.",
+      "revoked": "Šī saite vairs nedarbojas. Palūdz mums nosūtīt jaunu.",
+      "archived": "Šī lieta ir slēgta. Raksti vēlreiz, ja vajag vairāk palīdzības.",
+      "legacySunset": "Šī saite ir par vecu. Sazinies ar mums, un nosūtīsim jaunu.",
+      "tooShort": "Uzraksti vismaz 10 rakstzīmes, lai saprotam, kas notiek.",
+      "tooLong": "Atbilde var būt ne vairāk kā 5000 rakstzīmes.",
+      "notFound": "Lieta nav atrasta.",
+      "rateLimit": "Pārāk daudz mēģinājumu. Mēģini vēlreiz pēc stundas.",
+      "generic": "Neizdevās atvērt lietu.",
+      "sendFailed": "Neizdevās nosūtīt. Mēģini vēlreiz."
+    },
+    "success": {
+      "submitted": "Paldies! Saņēmām tavu atbildi.",
+      "escalated": "Paldies. Cilvēks paskatīsies šo lietu."
+    }
+  },
+  "story": {
+    "someone": "Kāds",
+    "anActivity": "aktivitāti",
+    "activityWithStars": "{{name}} pabeidza {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} pabeidza {{activity}}",
+    "goalFallback": "mērķis",
+    "goal": "Ģimene sasniedza mērķi: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Sīkdatņu iestatījumi",
+    "intro": "Mēs lietojam sīkdatnes statistikai, mārketingam un personalizācijai mūsu vietnē.",
+    "manage": "Pārvaldīt iestatījumus",
+    "manageHide": "Slēpt iestatījumus",
+    "deny": "Noraidīt visas",
+    "accept": "Pieņemt visas",
+    "save": "Saglabāt manu izvēli",
+    "necessaryLabel": "Nepieciešamās",
+    "necessaryDesc": "Vajadzīgas, lai vietne darbotos.",
+    "analyticsLabel": "Statistika",
+    "analyticsDesc": "Palīdz saprast, kā vietne tiek lietota (GA4).",
+    "marketingLabel": "Mārketings",
+    "marketingDesc": "Rāda atbilstošas reklāmas un mēra kampaņas.",
+    "personalizationLabel": "Personalizācija",
+    "personalizationDesc": "Pielāgo saturu un ieteikumus."
+  },
+  "growthHelp": {
+    "reportProblem": "Ziņot par problēmu",
+    "suggestedHelp": "Ieteiktā palīdzība",
+    "reportThanks": "Paldies — saņēmām ziņojumu ar tehniskajām detaļām.",
+    "howChildStarts": "Kā bērns sāk?",
+    "needHelpLogin": "Vajag palīdzību ar pieslēgšanos?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Īss komentārs (nav obligāts, tiek sūtīts kopā ar atbildi)",
+    "notNow": "Ne tagad",
+    "thanks": "Paldies par atsauksmi."
+  },
+  "growthReferral": {
+    "title": "Pazīsti citu ģimeni, kam vajag mierīgākus rītus?",
+    "subtitle": "Dalies ar savu saiti — bez balvu surogātpasta, tikai ieteikums.",
+    "copyLink": "Kopēt saiti",
+    "copied": "Nokopēts",
+    "copyPrompt": "Nokopē šo saiti:",
+    "share": "Dalīties",
+    "shareText": "Mēs lietojam {{brand}} bērnu rutīnām. Izveido bezmaksas kontu: ",
+    "notNow": "Ne tagad"
+  },
+  "legalReturn": {
+    "backToPremium": "Atpakaļ uz Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Paka",
+    "dismiss": "Ne tagad",
+    "interested": "Mani interesē",
+    "interestedSub": "Pieteikt interesi par to, kas nāks",
+    "buyNow": "Pirkt tagad",
+    "reporting": {
+      "title": "Pārskati",
+      "body": "Tu jau divas nedēļas pieraksti aktivitātes — gribi skaidrāk redzēt, kā ikdiena mainās?"
+    },
+    "pedagog": {
+      "title": "Pedagogs",
+      "body": "Vai gribi sadarboties ar pedagogu vai terapeitu par bērna ikdienu?"
+    },
+    "teacch": {
+      "title": "Papildu atbalsts",
+      "body": "Pievieno vizuālo atbalstu ar Septiņiem jautājumiem — tas palīdz bērnam saprast, kas notiek."
+    }
+  }
+}

@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Pomoc",
+    "openAria": "Otwórz pomoc",
+    "closeAria": "Zamknij pomoc"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Pomoc – Przegląd",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Przegląd",
+          "faqs": [
+            {
+              "q": "Do czego służą 3 szybkie przyciski u góry?",
+              "a": "<strong>⭐ Daj dodatkowe gwiazdki</strong> — daj dziecku dodatkowe gwiazdki ręcznie. <strong>📋 Jednorazowa czynność</strong> — dodaj tymczasową czynność na dziś. <strong>🏠 Dzień wolny</strong> — wstrzymuje plan dziecka na jeden dzień (na przykład choroba, święto)."
+            },
+            {
+              "q": "Jak odhaczyć czynność?",
+              "a": "Stuknij czynność na karcie dziecka — odhacza się od razu. Dziecko też może odhaczać w swoim <strong>widoku dziecka</strong>."
+            },
+            {
+              "q": "Czym jest zwarta karta dziecka?",
+              "a": "Karta dziecka pokazuje awatar, imię, saldo gwiazdek i pigułki części dnia w trybie zwartym. Rozwiń kartę, żeby zobaczyć więcej, link do planu i przycisk wstrzymania."
+            },
+            {
+              "q": "Czym jest dzień wolny?",
+              "a": "<strong>🏠 Dzień wolny</strong> wstrzymuje plan dziecka na wybrany dzień — dobrze, kiedy jest chore albo ma wolne. Dziecko widzi plan jako nieaktywny. Ten sam przycisk włącza dzień z powrotem."
+            },
+            {
+              "q": "Czym jest tryb wstrzymania?",
+              "a": "Stuknij ikonę pauzy (⏸) na karcie dziecka, żeby je wstrzymać. Czynności są nieaktywne i dziecko nie zbiera gwiazdek, dopóki nie wznowisz."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Gwiazdki",
+          "faqs": [
+            {
+              "q": "Jak dziecko zbiera gwiazdki?",
+              "a": "Każda ukończona czynność daje <strong>1 gwiazdkę</strong>. Dziecko odhacza w widoku dziecka — albo ty odhaczasz w Dziś, kiedy dopiero próbujecie. Dodatkowe gwiazdki dasz przyciskiem ⭐ nad kartami dzieci."
+            },
+            {
+              "q": "Jak działa skrzynia gwiazdek?",
+              "a": "Dziecko otwiera skrzynię gwiazdek przez kartę 💎 w widoku dziecka i widzi nagrody z ceną w gwiazdkach. Kiedy uzbiera dość, może poprosić o nagrodę — ty ją zatwierdzasz."
+            },
+            {
+              "q": "Jak dodać nagrody?",
+              "a": "Wejdź w <strong>Bibliotekę</strong> w menu → karta „Nagrody”. Dodaj własne nagrody, zmień koszt w gwiazdkach i wybierz, które dzieci je widzą."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plan",
+          "faqs": [
+            {
+              "q": "Jak dodać czynność?",
+              "a": "Wejdź w <strong>Plan tygodnia</strong> → wybierz dziecko → wybierz dzień → stuknij „+”, żeby dodać czynność z biblioteki. Możesz szukać wśród 63 czynności standardowych."
+            },
+            {
+              "q": "Jak skopiować plan na każdy dzień?",
+              "a": "W Planie tygodnia → „Kopiuj z…” → wybierz źródło (własny plan albo bibliotekę standardową) → zaznacz dni, na które chcesz skopiować."
+            },
+            {
+              "q": "Czym jest widok Dziś?",
+              "a": "Widok „Dziś” na Przeglądzie aktualizuje się sam, kiedy zmieniasz plan. Zmiany w Planie tygodnia widać od razu na Przeglądzie i w widoku dziecka."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Rodzina",
+          "faqs": [
+            {
+              "q": "Jak zaprosić innego dorosłego?",
+              "a": "Wejdź w <strong>Rodzina i ustawienia → Członkowie rodziny</strong> → stuknij „Zaproś”. Zaproszona osoba dostaje e-mail z linkiem do logowania."
+            },
+            {
+              "q": "Jak zobaczyć dzień dziecka?",
+              "a": "Otwórz <strong>Dziś</strong> w menu — tam są czynności na dziś tak, jak zobaczy je dziecko. Dobrze na pierwszy wieczór, zanim dziecko zaloguje się samo."
+            },
+            {
+              "q": "Jak dziecko się loguje?",
+              "a": "Kiedy będziecie gotowi: dziecko loguje się pod <strong>/child-login</strong> nazwą użytkownika i PIN-em. Dane znajdziesz w <strong>Rodzina i ustawienia → Dzieci</strong>."
+            },
+            {
+              "q": "Kontakt ze wsparciem",
+              "a": "Napisz do wsparcia — odpowiadamy w ciągu 24 godzin."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Pomoc – Nagrody",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrody",
+          "faqs": [
+            {
+              "q": "Jak działa system nagród?",
+              "a": "Dziecko zbiera gwiazdki, kończąc czynności. Kiedy saldo wystarczy na nagrodę, może poprosić o odbiór — ty zatwierdzasz albo odrzucasz."
+            },
+            {
+              "q": "Jak dodać nowe nagrody?",
+              "a": "Wejdź w <strong>Bibliotekę</strong> w menu → karta „Nagrody” → szukaj albo stuknij „+ Dodaj nagrodę”. Możesz też skopiować wprost z biblioteki standardowej."
+            },
+            {
+              "q": "Jak ustawić widoczność dla każdego dziecka?",
+              "a": "Kiedy tworzysz albo edytujesz nagrodę, wybierasz, które dzieci mają ją widzieć. Przydaje się przy nagrodach szytych na miarę."
+            },
+            {
+              "q": "Jak zatwierdzić prośbę o odbiór?",
+              "a": "Prośba dziecka pojawia się na Przeglądzie ze znacznikiem. Stuknij, żeby zatwierdzić. Gwiazdki schodzą same, a dziecko widzi zmianę od razu."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Gwiazdki",
+          "faqs": [
+            {
+              "q": "Jak dziecko zbiera gwiazdki?",
+              "a": "Każda ukończona czynność daje gwiazdki (domyślnie 1 gwiazdka na czynność). Dodatkowe gwiazdki dasz przyciskiem ⭐ na Przeglądzie."
+            },
+            {
+              "q": "Czym różni się saldo gwiazdek od postępu dnia?",
+              "a": "<strong>Saldo gwiazdek</strong> = całe zebrane saldo. <strong>Postęp dnia</strong> (pierścień wokół emoji) = ile czynności dziecko ukończyło dziś. To dwie osobne rzeczy."
+            },
+            {
+              "q": "Co się dzieje, kiedy nagroda jest odebrana?",
+              "a": "Gwiazdki schodzą same z konta dziecka. Dziecko widzi zmianę od razu w skrzyni gwiazdek. Historię widzisz na stronie Nagród."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Pomoc – Plan tygodnia",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Edytuj plan",
+          "faqs": [
+            {
+              "q": "Jak dodać czynność?",
+              "a": "Wybierz dzień → stuknij „+” → wyszukaj i wybierz czynność. Możesz wybrać <strong>kilka pór naraz</strong> (Rano + Wieczór), a czynność trafi do wszystkich."
+            },
+            {
+              "q": "Jak utworzyć nową czynność wprost w planie?",
+              "a": "Stuknij „+” → szukaj → jeśli nic nie pasuje, w oknie wyszukiwania pojawia się formularz „Utwórz nową”. Wpisz nazwę, emoji, wartość w gwiazdkach i ewentualne kroki."
+            },
+            {
+              "q": "Jak zmienić nazwę albo emoji czynności?",
+              "a": "Stuknij nazwę albo emoji czynności w planie → otwiera się okno edycji. Zmiany wchodzą same u wszystkich dzieci i we wszystkie dni."
+            },
+            {
+              "q": "Jak skopiować plan od innego dziecka?",
+              "a": "Stuknij „Kopiuj z…” → wybierz źródło → zaznacz dni tygodnia, na które chcesz skopiować. Wybierz, czy nadpisać to, co już jest."
+            },
+            {
+              "q": "Czy plan sam trafia do widoku dziecka?",
+              "a": "Tak. Zmiany w Planie tygodnia wchodzą od razu do widoku „Dziś” na Przeglądzie i do widoku dziecka — bez ręcznego odświeżania."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Biblioteka",
+          "faqs": [
+            {
+              "q": "Czym jest biblioteka standardowa?",
+              "a": "Biblioteka standardowa ma 63 gotowe czynności w 6 kategoriach i 5 szablonów planów. Stuknij „Szybkie wstawienie z biblioteki”, żeby dodać je do planu."
+            },
+            {
+              "q": "Jak skopiować plan standardowy?",
+              "a": "Na karcie Plan → „Kopiuj z…” → wybierz „Biblioteka standardowa” → wybierz plan → wybierz dni → kopiuj."
+            },
+            {
+              "q": "Dlaczego dziecko nie widzi żadnych czynności?",
+              "a": "Sprawdź, czy plan jest ustawiony dla właściwego dziecka i czy na dzisiejszy dzień są czynności. Pusty plan? Skopiuj z biblioteki standardowej, żeby szybko ruszyć."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Wskazówki",
+          "faqs": [
+            {
+              "q": "Jak ułożyć dobry plan rutyny?",
+              "a": "Zacznij od 3–5 stałych czynności (śniadanie, mycie zębów, lekcje). Ułóż je we właściwej kolejności. Dzieci szybko łapią rutynę, kiedy zostaje taka sama."
+            },
+            {
+              "q": "Czym są kroki przy czynnościach?",
+              "a": "Do czynności możesz dodać kroki (na przykład „Umyj ręce”, „Załóż piżamę” przy „Wieczornej rutynie”). Dziecko widzi je jako wskazówkę wizualną, ale odhacza całą czynność naraz."
+            },
+            {
+              "q": "Ile czynności na dzień?",
+              "a": "Polecamy 4–8 czynności. Za mało i nie ma rytmu, za dużo i robi się przytłaczająco. Zacznij od małego i dokładaj."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Pomoc – Rodzina i ustawienia",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Dzieci",
+          "faqs": [
+            {
+              "q": "Jak dodać dziecko?",
+              "a": "Wejdź na Przegląd → stuknij „+ Dodaj dziecko”. Wpisz imię, emoji i urodziny. Dziecko dostaje plan automatycznie według wieku."
+            },
+            {
+              "q": "Jak zmienić PIN dziecka?",
+              "a": "Stuknij kartę dziecka → karta „Ustawienia” → „Zmień PIN”. Wybierz nowy 4-cyfrowy PIN."
+            },
+            {
+              "q": "Dziecko ma robić czynności po kolei — czy da się to zmienić?",
+              "a": "Domyślnie odhaczanie jest swobodne. Żeby włączyć kolejność, wejdź w profil dziecka → karta <strong>Ustawienia</strong> → włącz <strong>TERAZ / DALEJ / PÓŹNIEJ</strong>."
+            },
+            {
+              "q": "Jak dziecko widzi swoje dane logowania?",
+              "a": "Stuknij kartę dziecka → karta „Ustawienia” → „Pokaż dane logowania”. Zobaczysz nazwę użytkownika i PIN dziecka."
+            },
+            {
+              "q": "Jak usunąć dziecko?",
+              "a": "Rodzina → wybierz dziecko → karta Ustawienia → „Usuń dziecko trwale”. Uwaga: cały plan, gwiazdki i historia nagród znikają i nie da się tego cofnąć."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Dorośli",
+          "faqs": [
+            {
+              "q": "Jak zaprosić innego dorosłego?",
+              "a": "Wejdź na kartę <strong>Członkowie rodziny</strong> → „Zaproś”. Zaproszona osoba dostaje e-mail z linkiem do utworzenia konta."
+            },
+            {
+              "q": "Czy mogę wybrać, które dzieci widzi dorosły?",
+              "a": "Tak. Przy wysyłaniu zaproszenia wybierasz, do których dzieci ma dostęp. Później zmienisz to w Członkowie rodziny → osoba → Dostęp do dzieci."
+            },
+            {
+              "q": "Jak usunąć członka rodziny?",
+              "a": "Stuknij osobę na liście członków rodziny → „Usuń”. Traci dostęp do rodziny od razu."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Ustawienia",
+          "faqs": [
+            {
+              "q": "Jak zmienić hasło?",
+              "a": "Wejdź w <strong>Ustawienia</strong> (⚙️) w menu → „Zmień hasło”. Potrzebujesz obecnego hasła."
+            },
+            {
+              "q": "Jak włączyć powiadomienia?",
+              "a": "Wejdź w Ustawienia → „Przypomnienia” → włącz powiadomienia i wybierz godziny. Powiadomienia potrzebują zgody przeglądarki."
+            },
+            {
+              "q": "Kontakt ze wsparciem",
+              "a": "Napisz do wsparcia — odpowiadamy w ciągu 24 godzin."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Pomoc – Czynności",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Zarządzaj",
+          "faqs": [
+            {
+              "q": "Czym jest czynność?",
+              "a": "<strong>Czynność</strong> to zadanie, które dziecko robi (na przykład „Umyj zęby”). Czynności dają 1–5 gwiazdek i mogą mieć kroki. Zbierasz je w bibliotece i dodajesz do planów dzieci."
+            },
+            {
+              "q": "Jak utworzyć nową czynność?",
+              "a": "Stuknij „+ Nowa czynność” → wpisz nazwę, kategorię (Higiena, Jedzenie, Zabawa i tak dalej), czas i wartość w gwiazdkach. Zapisz, a czynność trafi do biblioteki."
+            },
+            {
+              "q": "Jak dodać czynność do planu?",
+              "a": "Czynności mieszkają w bibliotece. Wejdź w Plan tygodnia → wybierz dzień → „+” → wybierz czynność, którą chcesz dodać."
+            },
+            {
+              "q": "Jak usunąć czynność ze wszystkich dni?",
+              "a": "Stuknij ✕ przy czynności → wybierz <strong>Każdy dzień tygodnia</strong>. Żeby usunąć tylko dziś albo jeden dzień tygodnia (na przykład każdy czwartek), są osobne opcje."
+            },
+            {
+              "q": "Jak edytować czynność?",
+              "a": "Stuknij czynność na liście → „Edytuj”. Zmiany wchodzą od razu w każdym planie, w którym czynność jest użyta."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorie",
+          "faqs": [
+            {
+              "q": "Do czego służą kategorie?",
+              "a": "Kategorie kolorują czynności w widoku dziecka. <strong>Higiena</strong>=niebieski, <strong>Jedzenie</strong>=żółty, <strong>Zabawa</strong>=zielony, <strong>Szkoła</strong>=fioletowy, <strong>Ruch</strong>=czerwony, <strong>Odpoczynek</strong>=szary, <strong>Razem</strong>=pomarańczowy."
+            },
+            {
+              "q": "Jak wybrać kategorię?",
+              "a": "Kiedy tworzysz albo edytujesz czynność, wybierz kategorię z listy. Weź tę, która najlepiej opisuje czynność."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Pomoc – Biblioteka",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Karty",
+          "faqs": [
+            {
+              "q": "Jakie karty są w bibliotece?",
+              "a": "<strong>Plany</strong> — twoje własne szablony planów. <strong>Czynności</strong> — biblioteka czynności z krokami. <strong>Nagrody</strong> — twoje własne nagrody. <strong>Biblioteka standardowa</strong> — 63 czynności, 15 nagród i 5 planów do skopiowania."
+            },
+            {
+              "q": "Jak kopiować z biblioteki standardowej?",
+              "a": "Wejdź na kartę „Biblioteka standardowa” → wybierz czynność albo nagrodę → stuknij przycisk 📥, żeby skopiować do biblioteki rodziny. Plany kopiuje się przez Plan tygodnia → „Kopiuj z…”."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Czynności",
+          "faqs": [
+            {
+              "q": "Jak utworzyć nową czynność?",
+              "a": "Stuknij „+ Nowa czynność” → wpisz nazwę, emoji (wybierz albo wpisz własne), wartość w gwiazdkach i ewentualne kroki → zapisz. Czynność zostaje w bibliotece dla całej rodziny."
+            },
+            {
+              "q": "Czym są kroki?",
+              "a": "Kroki to instrukcja krok po kroku pod czynnością (na przykład „Umyj ręce” przy „Higienie”). Dziecko widzi je jako wskazówkę, ale odhacza całą czynność jednym stuknięciem."
+            },
+            {
+              "q": "Jak edytować czynność?",
+              "a": "Stuknij nazwę czynności w planie — otwiera się okno edycji. Zmiany (nazwa, emoji, kroki) wchodzą same u wszystkich dzieci i we wszystkie dni."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Nagrody",
+          "faqs": [
+            {
+              "q": "Jak dodać nagrodę?",
+              "a": "Karta „Nagrody” → wyszukaj nagrodę → stuknij „+ Utwórz nową”, jeśli jej nie ma → wpisz nazwę, emoji, cenę w gwiazdkach → wybierz, które dzieci ją widzą → zapisz."
+            },
+            {
+              "q": "Jak szukać nagród?",
+              "a": "Pole wyszukiwania patrzy naraz w twoje nagrody I w bibliotekę standardową. Brak wyników? Przycisk „Utwórz [nazwa]” otwiera wypełniony formularz."
+            },
+            {
+              "q": "Czy dziecko może mieć prywatne nagrody?",
+              "a": "Tak. Przy tworzeniu nagrody wybierasz, które dzieci mają ją widzieć. Przydaje się przy nagrodach szytych na miarę."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Pomoc – Ustawienia",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Konto",
+          "faqs": [
+            {
+              "q": "Jak zmienić hasło?",
+              "a": "Wpisz obecne hasło i nowe hasło → stuknij „Zapisz”. Hasło musi mieć co najmniej 6 znaków."
+            },
+            {
+              "q": "Jak zmienić adres e-mail?",
+              "a": "Wpisz nowy adres e-mail → stuknij „Zapisz”. Nowy adres może wymagać potwierdzenia e-mailem."
+            },
+            {
+              "q": "Jak usunąć konto?",
+              "a": "Napisz do wsparcia w sprawie usunięcia konta. Zajmiemy się tym w ciągu 48 godzin."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Powiadomienia",
+          "faqs": [
+            {
+              "q": "Jak włączyć przypomnienia?",
+              "a": "Włącz przełącznik przy „Przypomnienia” → wybierz godzinę i dni. Przeglądarka musi zezwalać na powiadomienia."
+            },
+            {
+              "q": "Nie dostaję powiadomień, choć są włączone",
+              "a": "Sprawdź, czy przeglądarka zezwoliła na powiadomienia dla tej strony. Wejdź w ustawienia przeglądarki → Powiadomienia → znajdź tę stronę → Zezwól."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Pomoc – Kalendarz",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendarz",
+          "faqs": [
+            {
+              "q": "Co pokazuje kalendarz?",
+              "a": "Kalendarz daje przegląd miesiąca: czynności dziecka, odebrane nagrody i ważne wydarzenia."
+            },
+            {
+              "q": "Jak przechodzić między miesiącami?",
+              "a": "Stuknij strzałki (< >) obok nazwy miesiąca, żeby zmienić miesiąc."
+            },
+            {
+              "q": "Jak zobaczyć więcej o jednym dniu?",
+              "a": "Stuknij datę, żeby zobaczyć listę czynności i gwiazdek z tego dnia."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Pomoc – Dziennik dnia",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Dziennik",
+          "faqs": [
+            {
+              "q": "Czym jest dziennik dnia?",
+              "a": "Dziennik pokazuje dzień dziecka — czynności, odhaczenia i gwiazdki. Użyj go, żeby <strong>zobaczyć z wyprzedzeniem</strong>, co widzi dziecko, albo żeby uzupełnić później."
+            },
+            {
+              "q": "Jak filtrować dziennik?",
+              "a": "Wybierz dziecko w filtrze u góry, żeby pokazać dziennik tylko jednego dziecka. Możesz też filtrować po dacie."
+            },
+            {
+              "q": "Jak daleko wstecz mogę zajrzeć?",
+              "a": "Dziennik trzyma dane od dnia, w którym zaczęto korzystać z aplikacji. Przewiń albo wybierz datę, żeby zobaczyć starsze dane."
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Pomoc – Wybierz plan na dzień",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Przypisz plan",
+          "faqs": [
+            {
+              "q": "Czym jest „Wybierz plan na dzień”?",
+              "a": "Tutaj wybierasz, który plan tygodnia jest aktywny dla każdego dziecka i dnia. Przydaje się, kiedy rutyny w tygodniu i w weekend różnią się."
+            },
+            {
+              "q": "Czy dziecko może mieć inny plan w tygodniu i w weekend?",
+              "a": "Tak. Wybierz jeden plan na pon–pt i inny na sob–niedz. Stuknij dzień i wybierz plan."
+            },
+            {
+              "q": "Co się dzieje, jeśli dzień nie ma planu?",
+              "a": "Jeśli dzień nie ma przypisanego planu, dziecko nie widzi wtedy czynności. Upewnij się, że każdy dzień, którego chcesz używać, ma plan."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Panel admina",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Przegląd",
+          "faqs": [
+            {
+              "q": "Co mogę zrobić w panelu admina?",
+              "a": "Panel admina daje dostęp do wszystkich rodzin, użytkowników i danych systemu. Możesz oglądać statystyki, prowadzić konta i moderować treści."
+            },
+            {
+              "q": "Jak znaleźć konkretnego użytkownika?",
+              "a": "Użyj pola wyszukiwania u góry i szukaj po e-mailu albo imieniu. Stuknij rodzinę, żeby zobaczyć szczegóły."
+            },
+            {
+              "q": "Jak zarchiwizować rodzinę?",
+              "a": "Stuknij kartę rodziny → „Archiwizuj”. Zarchiwizowane rodziny da się przywrócić, ale do tego czasu są nieaktywne."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Wsparcie",
+          "faqs": [
+            {
+              "q": "Jak zobaczyć przychodzące wiadomości wsparcia?",
+              "a": "Na karcie „Skrzynka wsparcia” widać każdą wiadomość z formularza kontaktowego. Stuknij, żeby przeczytać całość i odpisać."
+            },
+            {
+              "q": "Jak oznaczyć sprawę jako rozwiązaną?",
+              "a": "Stuknij sprawę → „Oznacz jako rozwiązaną”. Rozwiązane sprawy znikają z widoku domyślnego, ale pokażesz je przez „Pokaż rozwiązane”."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Wsparcie dziecka — {{brand}}",
+    "loadError": "Nie udało się wczytać strony."
+  },
+  "supportSvar": {
+    "pageTitle": "Twoja sprawa",
+    "title": "Twoja sprawa",
+    "intro": "Oto cała rozmowa. Napisz poniżej, jeśli chcesz ją ciągnąć. Zwykła odpowiedź e-mail nie pojawia się tutaj.",
+    "sent": "Wysłano. Zobaczymy to w tej samej sprawie.",
+    "escalate": "Potrzebuję więcej pomocy od człowieka",
+    "placeholder": "Napisz, co się dzieje…"
+  }
+}

@@ -28,6 +28,12 @@ describe('child-read-aloud.js', () => {
     sandbox.window.getChildUiLocale = () => 'sv-SE';
     assert.equal(sandbox.window.ChildReadAloud.resolveReadAloudLang(), 'sv-SE');
 
+    sandbox.window.getChildUiLocale = () => 'de-DE';
+    assert.equal(sandbox.window.ChildReadAloud.resolveReadAloudLang(), 'de-DE');
+
+    sandbox.window.getChildUiLocale = () => 'fr-FR';
+    assert.equal(sandbox.window.ChildReadAloud.resolveReadAloudLang(), 'fr-FR');
+
     delete sandbox.window.getChildUiLocale;
     assert.equal(sandbox.window.ChildReadAloud.resolveReadAloudLang(), 'sv-SE');
   });

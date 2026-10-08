@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Tipps anzeigen",
+    "close": "Schließen",
+    "milestone": "Meilenstein",
+    "nextStep": "Nächster Schritt",
+    "tip": "Tipp",
+    "weekReflection": "Wochenrückblick",
+    "weekTogether": "Eine Woche zusammen",
+    "weekLabel": "Eine Woche",
+    "sjDay3Headline": "Zeit für {{name}} zum Ausprobieren",
+    "tips": {
+      "coach_consistency": [
+        "Halte die Routine kurz und klar — dein Kind baut die Gewohnheit Schritt für Schritt auf.",
+        "Freu dich über jeden Haken, auch bei den kleinen Dingen.",
+        "Lass dein Kind jeden Morgen selbst einloggen."
+      ],
+      "coach_evening": [
+        "Füge 2–3 ruhige Aktivitäten vor dem Schlafengehen hinzu.",
+        "Die gleiche Reihenfolge jeden Abend macht das Einschlafen leichter."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Neu",
+    "dismissAria": "Erklärung schließen",
+    "continueFallback": "Weiter",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Hier auf der Startseite zeigen wir dir jetzt einen klaren Vorschlag für den nächsten Schritt.",
+        "whatChanged": "Oben wurde eine Karte „Nächster Schritt“ hinzugefügt.",
+        "whyItMatters": "Du musst nicht mehr in Erinnerungen suchen — ein Vorschlag nach dem anderen."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lass dein Kind die Routine ausprobieren",
+      "body": "Öffnet gemeinsam den Kindermodus — es sieht sofort, was zu tun ist.",
+      "cta": "Kinderansicht öffnen"
+    },
+    "ADD_EVENING": {
+      "headline": "Abendroutine hinzufügen",
+      "body": "Mach das Zubettgehen genauso klar wie den Morgen.",
+      "cta": "Abend hinzufügen"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Den anderen Elternteil einladen",
+      "body": "Teilt die Routine, damit ihr gemeinsam dranbleiben könnt.",
+      "cta": "Einladen"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Mit einem kleinen Schritt beginnen",
+      "body": "Eure Routine ist noch da — nehmt heute eine Aktivität nach der anderen.",
+      "cta": "Wochenplan öffnen"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Routine anpassen",
+      "body": "Jetzt könnt ihr den Plan ganz nach euch gestalten.",
+      "cta": "Anpassen"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Den Fortschritt feiern",
+      "body": "Ihr habt einen wichtigen Schritt geschafft — nehmt euch einen Moment zusammen.",
+      "cta": "Deinem Kind zeigen"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Dein Kind hat eine Aktivität erledigt!",
+    "defaultChild": "Dein Kind",
+    "defaultActivity": "eine Aktivität",
+    "defaultCta": "Alles klar"
+  }
+}

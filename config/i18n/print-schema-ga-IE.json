@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Cruthaigh PDF — plean — {{brand}}",
+  "backLink": "← Ar ais go Pleanáil",
+  "heading": "📄 Cruthaigh PDF — plean",
+  "intro": "Roghnaigh páiste agus tréimhse. Taispeánann an réamhamharc an plean iomlán — scáláiltear an PDF go huathoibríoch le go n-oirfidh sé do leathanach A4 amháin i dtírdhreach.",
+  "pdfSave": {
+    "title": "Cá sábháiltear an PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Tar éis <em>Cruthaigh PDF</em>, osclaítear bileog roinnte — roghnaigh <strong>Save to Files</strong> agus fillteán (mar shampla iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Ríomhaire:</strong> Téann an PDF go dtí d’fhillteán <strong>Íoslódálacha</strong> (go minic ar chlé ag bun an bhrabhsálaí)."
+  },
+  "sections": {
+    "child": "Páiste",
+    "period": "Tréimhse",
+    "scope": "Cad ba cheart a bheith sa PDF?",
+    "startWeek": "Seachtain tosaigh"
+  },
+  "period": {
+    "1w": "1 seachtain",
+    "2w": "2 sheachtain",
+    "1m": "1 mhí"
+  },
+  "scope": {
+    "all": "Plean iomlán",
+    "my": "Mo laethanta amháin"
+  },
+  "weekNav": {
+    "prevAria": "An tseachtain roimhe seo",
+    "nextAria": "An chéad tseachtain eile",
+    "today": "An tseachtain seo"
+  },
+  "actions": {
+    "preview": "Réamhamharc",
+    "createPdf": "Cruthaigh PDF"
+  },
+  "preview": {
+    "heading": "Réamhamharc",
+    "hint": "Scrollaigh síos má tá go leor gníomhaíochtaí ar lá."
+  },
+  "pdfHelp": {
+    "title": "Conas an PDF a shábháil",
+    "closeAria": "Dún",
+    "ok": "Ceart go leor",
+    "introShare": "Tá an bhileog roinnte oscailte. Roghnaigh Save to Files leis an PDF a shábháil.",
+    "introPreview": "Osclaíodh an PDF sa bhrabhsálaí{{filename}}.",
+    "introDesktop": "Íoslódáladh an PDF{{filename}}.",
+    "filenameSuffix": " mar {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Ar an mbileog roinnte: scrollaigh agus tapáil <strong>Save to Files</strong>.",
+      "Roghnaigh fillteán (mar shampla <strong>iCloud Drive</strong> nó <strong>On My iPhone</strong>).",
+      "Tapáil <strong>Save</strong> ar dheis ag an mbarr.",
+      "Aimsigh an comhad níos déanaí san aip <strong>Files</strong>."
+    ],
+    "previewSteps": [
+      "Osclaíodh an PDF in amharc nua — tapáil <strong>Share</strong> (↑) ar dheis ag an mbarr.",
+      "Roghnaigh <strong>Save to Files</strong>.",
+      "Roghnaigh fillteán agus tapáil <strong>Save</strong>."
+    ],
+    "desktopSteps": [
+      "Oscail an fillteán <strong>Íoslódálacha</strong> ar do ríomhaire.",
+      "Lorg comhad a thosaíonn le <strong>{{prefix}}</strong> agus dáta an lae inniu."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plean",
+    "titleMyDays": "Mo laethanta",
+    "emptyCell": "–",
+    "childFallback": "Páiste",
+    "loadingPrint": "Ag ullmhú an chló…",
+    "iframeTitle": "Cló"
+  },
+  "filename": {
+    "prefixSchedule": "plean-na-seachtaine",
+    "prefixMyDays": "mo-laethanta",
+    "fallbackSlug": "paiste"
+  },
+  "toasts": {
+    "loadChildrenError": "Níorbh fhéidir na páistí a lódáil",
+    "selectChild": "Roghnaigh páiste ar dtús",
+    "loadingPreview": "Ag lódáil an réamhamhairc…",
+    "noMyDays": "Níl aon lá agatsa sa tréimhse roghnaithe",
+    "loadScheduleError": "Níorbh fhéidir an plean a lódáil",
+    "creatingPdf": "Ag cruthú an PDF…",
+    "pdfCancelled": "Sábháil an PDF curtha ar ceal",
+    "shareHint": "Roghnaigh Save to Files ar an mbileog roinnte",
+    "mobileSavedHint": "PDF réidh — sábháil é in Files",
+    "desktopSavedHint": "PDF sábháilte in Íoslódálacha",
+    "pdfLibsMissing": "Uirlisí PDF ar iarraidh — athlódáil an leathanach agus bain triail eile as",
+    "createPdfError": "Níorbh fhéidir an PDF a chruthú",
+    "shareAgain": "Tá an PDF réidh. Tapáil Cruthaigh PDF arís le háit a roghnú dó."
+  },
+  "empty": {
+    "noChildren": "Níl aon pháiste curtha leis fós.",
+    "goDashboard": "Téigh abhaile"
+  }
+}

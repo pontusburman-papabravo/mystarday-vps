@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">L-attività li jmiss</string>
+    <string name="widget_routine_description">Lesta l-pass li jmiss tar-rutina mingħajr ma tiftaħ l-app kollha.</string>
+    <string name="widget_cd_pictogram">Simbolu tal-attività</string>
+    <string name="widget_cd_complete">Immarka l-attività bħala lesta</string>
+    <string name="widget_cd_open_app">Iftaħ fl-app</string>
+    <string name="widget_action_complete">Lest</string>
+    <string name="widget_action_open_timer">Iftaħ it-tajmer</string>
+    <string name="widget_action_show_steps">Uri l-passi</string>
+    <string name="widget_action_open_app">Iftaħ l-app</string>
+    <string name="widget_loading">Qed jitgħabba…</string>
+    <string name="widget_all_done">Kollox lest illum!</string>
+    <string name="widget_nothing_now">Xejn bħalissa</string>
+    <string name="widget_offline">M\'hemmx konnessjoni</string>
+    <string name="widget_reauth">Idħol fl-app</string>
+    <string name="widget_revoked">L-aċċess tal-apparat tneħħa</string>
+    <string name="widget_switching">Qed nibdlu t-tifel…</string>
+    <string name="widget_feedback_done">✓ Lest!</string>
+    <string name="widget_feedback_done_for">✓ Lest għal %1$s</string>
+    <string name="widget_cd_child_prev">It-tifel ta\' qabel</string>
+    <string name="widget_cd_child_next">It-tifel li jmiss</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d minn %2$d lesti</string>
+    <string name="widget_private_activity">Il-pass li jmiss</string>
+    <string name="widget_configure_title">Agħżel il-wiġit</string>
+    <string name="widget_configure_personal">Personali (tifel wieħed)</string>
+    <string name="widget_configure_family">Familja (ibdel it-tifel)</string>
+    <string name="widget_configure_save">Issejvja</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

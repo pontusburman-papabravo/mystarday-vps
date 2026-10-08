@@ -415,17 +415,18 @@ async function runAcceptancePath(t, {
   }
 }
 
-describe('Finnish locale aliases never introduce a Finnish bundle', () => {
-  it('does not alias fi / fi-FI to sv-SE and has no Finnish bundle', () => {
+describe('Finnish locale resolves to fi-FI', () => {
+  it('does not alias fi / fi-FI to sv-SE and ships a Finnish bundle', () => {
     for (const raw of ['fi', 'fi-FI', 'fi-fi', 'fi_FI', 'fi_fi']) {
-      assert.equal(normalizeLocale(raw), null, raw);
+      assert.equal(normalizeLocale(raw), 'fi-FI', raw);
+      assert.notEqual(normalizeLocale(raw), 'sv-SE', raw);
     }
-    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,sv;q=0.8'), 'sv-SE');
-    assert.equal(parseAcceptLanguage('fi_FI'), null);
-    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi,en;q=0.5' }), 'en-GB');
-    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB']);
+    assert.equal(parseAcceptLanguage('fi-FI,fi;q=0.9,sv;q=0.8'), 'fi-FI');
+    assert.equal(parseAcceptLanguage('fi_FI'), 'fi-FI');
+    assert.equal(resolvePreAuthLocale({ acceptLanguage: 'fi,en;q=0.5' }), 'fi-FI');
+    assert.deepEqual([...SUPPORTED_LOCALES], ['sv-SE', 'en-GB', 'de-DE', 'fr-FR', 'nl-NL', 'da-DK', 'fi-FI', 'nb-NO', 'es-ES', 'it-IT', 'pt-PT', 'pl-PL', 'cs-CZ', 'sk-SK', 'sl-SI', 'hr-HR', 'hu-HU', 'ro-RO', 'bg-BG', 'el-GR', 'et-EE', 'lt-LT', 'lv-LV', 'is-IS', 'ga-IE', 'mt-MT']);
     assert.equal(fs.existsSync(path.join(__dirname, '../src/locales/fi.json')), false);
-    assert.equal(fs.existsSync(path.join(__dirname, '../src/locales/fi-FI.json')), false);
+    assert.equal(fs.existsSync(path.join(__dirname, '../src/locales/fi-FI.json')), true);
   });
 });
 

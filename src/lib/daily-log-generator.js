@@ -241,6 +241,8 @@ async function getOrGenerateDailyLog(childId, dateStr, client) {
   const items = await q.query(
     `SELECT dli.id, dli.daily_log_id, dli.activity_template_id, dli.is_once_task, dli.name, dli.icon,
             COALESCE(dli.image_url, at.image_url) AS image_url,
+            at.icon_key AS icon_key,
+            at.duration_seconds AS duration_seconds,
             dli.start_time, dli.end_time, dli.star_value, dli.completed, dli.completed_at,
             dli.sort_order, dli.child_sort_order, dli.section,
             COALESCE(at.feedback_for, 'both') AS feedback_for

@@ -6,6 +6,7 @@
  */
 
 const { isActivationFlagEnabled } = require('./activation-flags');
+const { usesLocaleFileContent } = require('./locale');
 const { evaluateStuckFamily } = require('./growth-stuck-classifier');
 const { FOLLOW_UP } = require('./growth-stuck-work-queue');
 const helpDb = require('../../db/growth-system-help');
@@ -123,7 +124,7 @@ const CONTENT = Object.freeze({
 });
 
 function isEnglish(locale) {
-  return locale === 'en-GB' || locale === 'en';
+  return usesLocaleFileContent(locale);
 }
 
 function buildHelpPayload(blockingStep, locale, opts = {}) {

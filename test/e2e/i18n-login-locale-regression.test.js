@@ -158,7 +158,7 @@ describe('login locale regression (browser + API)', () => {
 });
 
 describe('english_child_experience flag behavior', () => {
-  it('child dashboard stays Swedish when english_child_experience is OFF', async (t) => {
+  it('en-GB child dashboard stays English when english_child_experience is OFF', async (t) => {
     const ctx = await createE2eContext();
     if (ctx.skip) {
       t.skip(ctx.reason);
@@ -204,8 +204,8 @@ describe('english_child_experience flag behavior', () => {
       await sleep(2500);
 
       const childText = await getVisibleChromeText(page);
-      assert.match(childText, /Idag|Skattkammaren|Hej/i);
-      assert.doesNotMatch(childText, /\bToday\b|\bTreasure Chamber\b/i);
+      assert.match(childText, /\bToday\b|Treasure|Hello/i);
+      assert.doesNotMatch(childText, /Skattkammaren|\bIdag\b/i);
     } finally {
       await browser.close();
       await ctx.close();

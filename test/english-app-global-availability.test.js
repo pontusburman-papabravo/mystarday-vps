@@ -332,7 +332,7 @@ test('child experience gated when feature status dev (rollback path)', async (t)
     familyId = await createFamily(pg, 'en-GB');
 
     assert.equal(await isEnglishChildExperienceEnabled(familyId), false);
-    assert.equal(resolveChildUiLocale('en-GB', false), 'sv-SE');
+    assert.equal(resolveChildUiLocale('en-GB', false), 'en-GB');
 
     await pg.query(
       `INSERT INTO family_features (family_id, feature_slug) VALUES ($1, 'english_child_experience')

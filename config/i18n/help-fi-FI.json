@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Ohje",
+    "openAria": "Avaa ohje",
+    "closeAria": "Sulje ohje"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Ohje – yleisnäkymä",
+      "tabs": [
+        {
+          "id": "yleisnäkymä",
+          "label": "🏠 Yleisnäkymä",
+          "faqs": [
+            {
+              "q": "Mitä 3 pikanäppäintä ylhäällä tekevät?",
+              "a": "<strong>⭐ Anna bonustähdet</strong> — anna lapselle bonustähdet käsin. <strong>📋 Kerta-aktiviteetti</strong> — lisää väliaikainen aktiviteetti tälle päivälle. <strong>🏠 Vapaapäivä</strong> — tauottaa lapsen aikataulun päiväksi (esim. sairaana, loma)."
+            },
+            {
+              "q": "Miten merkitsen aktiviteetin?",
+              "a": "Napauta aktiviteettia lapsen kortissa — se merkitään heti. Lapsesi voi myös merkitä sen <strong>lapsen näkymässä</strong>."
+            },
+            {
+              "q": "Mikä on tiivis lapsikortti?",
+              "a": "Lapsikortti näyttää avattaren, nimen, tähtisaldon ja osiopillerit tiiviissä tilassa. Avaa kortti saadaksesi lisää tietoja, aikataululinkin ja taukopainikkeen."
+            },
+            {
+              "q": "Mikä vapaapäivä on?",
+              "a": "<strong>🏠 Vapaapäivä</strong> tauottaa lapsen aikataulun valituksi päiväksi — sopii, kun lapsi on sairaana tai lomalla. Lapsi näkee aikataulun ei-aktiivisena. Laita päivä takaisin päälle samalla painikkeella."
+            },
+            {
+              "q": "Mikä taukotila on?",
+              "a": "Napauta taukokuvaketta (⏸) lapsen kortissa tauottaaksesi lapsen. Aktiviteetit näkyvät ei-aktiivisina, eikä lapsi ansaitse tähtiä, ennen kuin jatkat."
+            }
+          ]
+        },
+        {
+          "id": "tähteä",
+          "label": "⭐ Tähdet",
+          "faqs": [
+            {
+              "q": "Miten lapsi ansaitsee tähtiä?",
+              "a": "Jokainen valmis aktiviteetti tuo <strong>1 tähden</strong>. Lapsi merkitsee lapsen näkymässä — tai sinä voit merkitä päivälokissa, kun kokeilet. Anna bonustähdet ⭐-painikkeella lapsikorttien yläpuolella."
+            },
+            {
+              "q": "Miten tähtiaarre toimii?",
+              "a": "Lapsi avaa tähtiaarteen 💎-välilehdeltä lapsen näkymässä ja näkee palkinnot tähtihinnoin. Kun tähtiä on tarpeeksi, hän voi pyytää palkintoa — sinä hyväksyt sen."
+            },
+            {
+              "q": "Miten lisään palkintoja?",
+              "a": "Siirry valikon kohtaan <strong>Kirjasto</strong> → välilehti \"Palkinnot\". Lisää omia palkintoja, muokkaa tähtihintaa ja valitse, mitkä lapset näkevät ne."
+            }
+          ]
+        },
+        {
+          "id": "aikataulu",
+          "label": "📅 Aikataulu",
+          "faqs": [
+            {
+              "q": "Miten lisään aktiviteetin?",
+              "a": "Siirry kohtaan <strong>Viikkoaikataulu</strong> → valitse lapsi → valitse päivä → napauta \"+\" lisätäksesi aktiviteetin kirjastosta. Voit hakea 63 vakioaktiviteetin joukosta."
+            },
+            {
+              "q": "Miten kopioin aikataulun joka päivälle?",
+              "a": "Viikkoaikataulussa → \"Kopioi kohteesta…\" → valitse lähde (oma aikataulusi tai vakiokirjasto) → rastita päivät, joille haluat kopioida."
+            },
+            {
+              "q": "Mikä Tänään-näkymä on?",
+              "a": "Yleisnäkymän \"Tänään\" päivittyy automaattisesti, kun muutat aikataulua. Viikkoaikataulun muutokset näkyvät heti yleisnäkymässä ja lapsesi näkymässä."
+            }
+          ]
+        },
+        {
+          "id": "perhe",
+          "label": "👨‍👩‍👧 Perhe",
+          "faqs": [
+            {
+              "q": "Miten kutsun toisen aikuisen?",
+              "a": "Siirry kohtaan <strong>Perhe ja asetukset → Perheenjäsenet</strong> → napauta \"Kutsu\". Kutsumasi henkilö saa sähköpostin, jossa on kirjautumislinkki."
+            },
+            {
+              "q": "Miten näen lapseni päivän?",
+              "a": "Avaa valikosta <strong>Päiväloki</strong> — siellä näet tämän päivän aktiviteetit niin kuin lapsesi näkee ne. Sopii ensimmäiseen iltaan, ennen kuin lapsi kirjautuu itse."
+            },
+            {
+              "q": "Miten lapsi kirjautuu?",
+              "a": "Kun olet valmis: lapsi kirjautuu osoitteessa <strong>/child-login</strong> käyttäjänimellä ja PIN-koodilla. Tiedot löytyvät kohdasta <strong>Perhe ja asetukset → Lapset</strong>."
+            },
+            {
+              "q": "Ota yhteyttä tukeen",
+              "a": "Lähetä sähköpostia osoitteeseen <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vastaamme 24 tunnin kuluessa."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Ohje – palkinnot",
+      "tabs": [
+        {
+          "id": "palkinnot",
+          "label": "🏆 Palkinnot",
+          "faqs": [
+            {
+              "q": "Miten palkintojärjestelmä toimii?",
+              "a": "Lapsi kerää tähtiä tekemällä aktiviteetteja. Kun tähtisaldo riittää palkintoon, hän voi pyytää sen lunastusta — sinä hyväksyt tai hylkäät."
+            },
+            {
+              "q": "Miten lisään uusia palkintoja?",
+              "a": "Siirry valikon kohtaan <strong>Kirjasto</strong> → välilehti \"Palkinnot\" → hae tai napauta \"+ Lisää palkinto\". Voit myös kopioida suoraan vakiokirjastosta."
+            },
+            {
+              "q": "Miten hallitsen näkyvyyttä lasta kohti?",
+              "a": "Kun luot tai muokkaat palkintoa, valitset, mitkä lapset näkevät sen. Kätevää räätälöidyille palkinnoille."
+            },
+            {
+              "q": "Miten hyväksyn lunastuspyynnön?",
+              "a": "Lapsen pyyntö näkyy yleisnäkymässä merkillä. Napauta hyväksyäksesi. Tähdet vähennetään automaattisesti, ja lapsi näkee muutoksen heti."
+            }
+          ]
+        },
+        {
+          "id": "tähteä",
+          "label": "⭐ Tähdet",
+          "faqs": [
+            {
+              "q": "Miten lapsi ansaitsee tähtiä?",
+              "a": "Jokainen valmis aktiviteetti tuo tähtiä (oletuksena 1 tähti aktiviteettia kohti). Voit myös antaa bonustähtiä ⭐-painikkeella yleisnäkymässä."
+            },
+            {
+              "q": "Mikä ero on tähtisaldolla ja päivän edistymisellä?",
+              "a": "<strong>Tähtisaldo</strong> = säästetty saldo yhteensä. <strong>Päivän edistyminen</strong> (rengas emojin ympärillä) = kuinka monta aktiviteettia lapsi sai tänään valmiiksi. Ne ovat erillisiä."
+            },
+            {
+              "q": "Mitä tapahtuu, kun palkinto lunastetaan?",
+              "a": "Tähdet vähennetään automaattisesti lapsen tililtä. Lapsi näkee muutoksen heti tähtiaarteessa. Näet historian Palkinnot-sivulla."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Ohje – viikkoaikataulu",
+      "tabs": [
+        {
+          "id": "muokkaa",
+          "label": "📅 Muokkaa aikataulua",
+          "faqs": [
+            {
+              "q": "Miten lisään aktiviteetin?",
+              "a": "Valitse päivä → napauta \"+\" → hae ja valitse aktiviteetti. Voit valita <strong>useita aikavälejä kerralla</strong> (aamu + ilta), ja aktiviteetti lisätään niihin kaikkiin."
+            },
+            {
+              "q": "Miten luon uuden aktiviteetin suoraan aikataulussa?",
+              "a": "Napauta \"+\" → hae → jos mikään ei täsmää, \"Luo uusi\" -lomake avautuu hakumodaalissa. Täytä nimi, emoji, tähtiarvo ja mahdolliset alavaiheet."
+            },
+            {
+              "q": "Miten muokkaan aktiviteetin nimeä tai emojia?",
+              "a": "Napauta aktiviteetin nimeä tai emojia aikataulussa → muokkausikkuna avautuu. Muutokset koskevat automaattisesti kaikkia lapsia ja päiviä."
+            },
+            {
+              "q": "Miten kopioin aikataulun toiselta lapselta?",
+              "a": "Napauta \"Kopioi kohteesta…\" → valitse lähde → rastita arkipäivät, joille haluat kopioida. Valitse, korvataanko nykyinen sisältö."
+            },
+            {
+              "q": "Synkronoituuko aikataulu automaattisesti lapsen näkymään?",
+              "a": "Kyllä! Viikkoaikataulun muutokset synkronoituvat heti yleisnäkymän \"Tänään\"-näkymään ja lapsesi näkymään — manuaalisia päivityksiä ei tarvita."
+            }
+          ]
+        },
+        {
+          "id": "kirjasto",
+          "label": "📚 Kirjasto",
+          "faqs": [
+            {
+              "q": "Mikä vakiokirjasto on?",
+              "a": "Vakiokirjastossa on 63 valmista aktiviteettia 6 kategoriassa ja 5 aikataulumallia. Napauta \"Pikalisäys kirjastosta\" lisätäksesi ne aikatauluun."
+            },
+            {
+              "q": "Miten kopioin vakioaikataulun?",
+              "a": "Aikataulu-välilehdellä → \"Kopioi kohteesta…\" → valitse \"Vakiokirjasto\" → valitse aikataulu → valitse päivät → kopioi."
+            },
+            {
+              "q": "Miksi lapseni ei näe aktiviteetteja?",
+              "a": "Tarkista, että aikataulu on oikealle lapselle ja että tämän päivän päivälle on aktiviteetteja. Tyhjä aikataulu? Kopioi vakiokirjastosta päästäksesi nopeasti alkuun."
+            }
+          ]
+        },
+        {
+          "id": "vinkit",
+          "label": "💡 Vinkkejä",
+          "faqs": [
+            {
+              "q": "Miten rakennan hyvän rutiiniaikataulun?",
+              "a": "Aloita 3–5 kiinteällä aktiviteetilla (aamiainen, hampaiden pesu, läksyt). Laita ne oikeaan järjestykseen. Lapset oppivat rutiinin nopeasti, kun se pysyy samana."
+            },
+            {
+              "q": "Mitä aktiviteettien alavaiheet ovat?",
+              "a": "Voit lisätä aktiviteetteihin alavaiheita (esim. \"Pese kädet\", \"Pue pyjama\" kohdan \"Iltarutiini\" alle). Lapsi näkee ne visuaalisena oppaana, mutta merkitsee koko aktiviteetin kerralla."
+            },
+            {
+              "q": "Kuinka monta aktiviteettia päivässä?",
+              "a": "Suositus: 4–8 aktiviteettia. Liian vähän, eikä virtausta synny; liian paljon, ja se tuntuu raskaalta. Aloita pienestä ja kasvata."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Ohje – perhe ja asetukset",
+      "tabs": [
+        {
+          "id": "lapset",
+          "label": "👶 Lapset",
+          "faqs": [
+            {
+              "q": "Miten lisään lapsen?",
+              "a": "Siirry yleisnäkymään → napauta \"+ Lisää lapsi\". Täytä nimi, emoji ja syntymäpäivä. Lapsi saa aikataulun automaattisesti iän mukaan."
+            },
+            {
+              "q": "Miten vaihdan lapseni PIN-koodin?",
+              "a": "Napauta lapsikorttia → välilehti \"Asetukset\" → \"Vaihda PIN\". Valitse uusi 4-numeroinen PIN."
+            },
+            {
+              "q": "Lapseni pitää tehdä aktiviteetit järjestyksessä — voinko muuttaa sitä?",
+              "a": "Oletus on vapaa merkintä. Ohjattua järjestystä varten siirry lapsen profiiliin → välilehti <strong>Asetukset</strong> → laita päälle <strong>NYT / SEURAAVAKSI / MYÖHEMMIN</strong>."
+            },
+            {
+              "q": "Miten lapseni näkee kirjautumistietonsa?",
+              "a": "Napauta lapsikorttia → välilehti \"Asetukset\" → \"Näytä kirjautumistiedot\". Näet lapsen käyttäjänimen ja PIN-koodin."
+            },
+            {
+              "q": "Miten poistan lapsen?",
+              "a": "Perhe → valitse lapsi → Asetukset-välilehti → \"Poista lapsi pysyvästi\". Huomaa: koko aikataulu, tähtihistoria ja palkintohistoria poistetaan, eikä sitä voi perua."
+            }
+          ]
+        },
+        {
+          "id": "aikuiset",
+          "label": "🔑 Aikuiset",
+          "faqs": [
+            {
+              "q": "Miten kutsun toisen aikuisen?",
+              "a": "Siirry välilehdelle <strong>Perheenjäsenet</strong> → \"Kutsu\". Kutsumasi henkilö saa sähköpostin, jossa on linkki tilin luomiseen."
+            },
+            {
+              "q": "Voinko valita, mitkä lapset aikuinen näkee?",
+              "a": "Kyllä! Valitset, mihin lapsiin hänellä on käyttöoikeus, kun lähetät kutsun. Voit muuttaa sitä myöhemmin kohdasta Perheenjäsenet → henkilö → Lapsen käyttöoikeus."
+            },
+            {
+              "q": "Miten poistan perheenjäsenen?",
+              "a": "Napauta henkilöä Perheenjäsenet-luettelossa → \"Poista\". Hän menettää pääsyn perheeseen heti."
+            }
+          ]
+        },
+        {
+          "id": "asetukset",
+          "label": "⚙️ Asetukset",
+          "faqs": [
+            {
+              "q": "Miten vaihdan salasanani?",
+              "a": "Siirry valikon kohtaan <strong>Asetukset</strong> (⚙️) → \"Vaihda salasana\". Tarvitset nykyisen salasanasi."
+            },
+            {
+              "q": "Miten laitan ilmoitukset päälle?",
+              "a": "Siirry asetuksiin → \"Muistutukset\" → laita ilmoitukset päälle ja valitse ajat. Ilmoitukset tarvitsevat selaimen luvan."
+            },
+            {
+              "q": "Ota yhteyttä tukeen",
+              "a": "Lähetä sähköpostia osoitteeseen <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vastaamme 24 tunnin kuluessa."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Ohje – aktiviteetit",
+      "tabs": [
+        {
+          "id": "hallitse",
+          "label": "📝 Hallitse",
+          "faqs": [
+            {
+              "q": "Mikä aktiviteetti on?",
+              "a": "<strong>Aktiviteetti</strong> on tehtävä, jonka lapsi tekee (esim. \"Pese hampaat\"). Aktiviteetit tuovat 1–5 tähteä ja niissä voi olla alavaiheita. Kerää ne kirjastoon ja lisää lasten aikatauluihin."
+            },
+            {
+              "q": "Miten luon uuden aktiviteetin?",
+              "a": "Napauta \"+ Uusi aktiviteetti\" → täytä nimi, kategoria (hygienia, ruoka, leikki jne.), kesto ja tähtiarvo. Tallenna, niin aktiviteetti lisätään kirjastoosi."
+            },
+            {
+              "q": "Miten lisään aktiviteetin aikatauluun?",
+              "a": "Aktiviteetit ovat kirjastossasi. Siirry viikkoaikatauluun → valitse päivä → \"+\" → valitse aktiviteetti, jonka haluat lisätä."
+            },
+            {
+              "q": "Miten poistan aktiviteetin joka päivältä?",
+              "a": "Napauta ✕ aktiviteetissa → valitse <strong>Jokainen viikonpäivä</strong>. Vain tämän päivän tai yhden arkipäivän (esim. joka torstai) poistoon on erilliset vaihtoehdot."
+            },
+            {
+              "q": "Miten muokkaan aktiviteettia?",
+              "a": "Napauta aktiviteettia luettelossa → \"Muokkaa\". Muutokset tulevat heti voimaan jokaisessa aikataulussa, jossa aktiviteettia käytetään."
+            }
+          ]
+        },
+        {
+          "id": "kategoriat",
+          "label": "🎨 Kategoriat",
+          "faqs": [
+            {
+              "q": "Mihin kategoriat ovat?",
+              "a": "Kategoriat värikoodaavat aktiviteetit lapsen näkymässä. <strong>Hygienia</strong>=sininen, <strong>Ruoka</strong>=keltainen, <strong>Leikki</strong>=vihreä, <strong>Koulu</strong>=violetti, <strong>Liike</strong>=punainen, <strong>Lepo</strong>=harmaa, <strong>Sosiaalinen</strong>=oranssi."
+            },
+            {
+              "q": "Miten valitsen kategorian?",
+              "a": "Kun luot tai muokkaat aktiviteettia, valitse kategoria pudotusvalikosta. Valitse se, joka kuvaa aktiviteettia parhaiten."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Ohje – kirjasto",
+      "tabs": [
+        {
+          "id": "välilehdet",
+          "label": "🗂️ Välilehdet",
+          "faqs": [
+            {
+              "q": "Mitkä välilehdet kirjastossa on?",
+              "a": "<strong>Aikataulut</strong> — omat aikataulumallisi. <strong>Aktiviteetit</strong> — aktiviteettikirjasto alavaiheineen. <strong>Palkinnot</strong> — omat palkintosi. <strong>Vakiokirjasto</strong> — 63 aktiviteettia, 15 palkintoa ja 5 aikataulua kopioitavaksi."
+            },
+            {
+              "q": "Miten kopioin vakiokirjastosta?",
+              "a": "Siirry välilehdelle \"Vakiokirjasto\" → valitse aktiviteetti tai palkinto → napauta 📥-painiketta kopioidaksesi perheen kirjastoon. Aikataulut kopioidaan kohdasta Viikkoaikataulu → \"Kopioi kohteesta…\"."
+            }
+          ]
+        },
+        {
+          "id": "aktiviteetit",
+          "label": "📝 Aktiviteetit",
+          "faqs": [
+            {
+              "q": "Miten luon uuden aktiviteetin?",
+              "a": "Napauta \"+ Uusi aktiviteetti\" → täytä nimi, emoji (valitse tai kirjoita oma), tähtiarvo ja mahdolliset alavaiheet → tallenna. Aktiviteetti tallennetaan kirjastoon koko perheelle."
+            },
+            {
+              "q": "Mitä alavaiheet ovat?",
+              "a": "Alavaiheet ovat vaiheittaisia ohjeita aktiviteetin alla (esim. \"Pese kädet\" kohdan \"Hygienia\" alla). Lapsi näkee ne oppaana, mutta merkitsee koko aktiviteetin yhdellä napautuksella."
+            },
+            {
+              "q": "Miten muokkaan aktiviteettia?",
+              "a": "Napauta aktiviteetin nimeä aikataulussa — muokkausikkuna avautuu. Muutokset (nimi, emoji, alavaiheet) koskevat automaattisesti kaikkia lapsia ja päiviä."
+            }
+          ]
+        },
+        {
+          "id": "palkinnot",
+          "label": "🏆 Palkinnot",
+          "faqs": [
+            {
+              "q": "Miten lisään palkinnon?",
+              "a": "Välilehti \"Palkinnot\" → hae palkintoa → napauta \"+ Luo uusi\", jos sitä ei ole → täytä nimi, emoji, tähtihinta → valitse, mitkä lapset näkevät sen → tallenna."
+            },
+            {
+              "q": "Miten haen palkintoja?",
+              "a": "Hakukenttä etsii omista palkinnoistasi JA vakiokirjastosta samaan aikaan. Ei osumia? Painike \"Luo [nimi]\" avaa esitäytetyn lomakkeen."
+            },
+            {
+              "q": "Voiko lapsella olla yksityisiä palkintoja?",
+              "a": "Kyllä! Kun luot palkinnon, valitset, mitkä lapset näkevät sen. Kätevää räätälöidyille palkinnoille."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Ohje – asetukset",
+      "tabs": [
+        {
+          "id": "tili",
+          "label": "👤 Tili",
+          "faqs": [
+            {
+              "q": "Miten vaihdan salasanani?",
+              "a": "Anna nykyinen salasanasi ja uusi salasana → napauta \"Tallenna\". Salasanassa on oltava vähintään 6 merkkiä."
+            },
+            {
+              "q": "Miten vaihdan sähköpostiosoitteeni?",
+              "a": "Anna uusi sähköpostiosoite → napauta \"Tallenna\". Uusi osoite pitää ehkä vahvistaa sähköpostitse."
+            },
+            {
+              "q": "Miten poistan tilini?",
+              "a": "Ota yhteyttä osoitteeseen <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> tilin poistamista varten. Hoidamme sen 48 tunnin kuluessa."
+            }
+          ]
+        },
+        {
+          "id": "ilmoitukset",
+          "label": "🔔 Ilmoitukset",
+          "faqs": [
+            {
+              "q": "Miten laitan muistutukset päälle?",
+              "a": "Laita kytkin päälle kohdassa \"Muistutukset\" → valitse aika ja päivät. Selaimen on sallittava ilmoitukset."
+            },
+            {
+              "q": "En saa ilmoituksia, vaikka ne ovat päällä",
+              "a": "Tarkista, että selain on sallinut ilmoitukset sivustolle. Siirry selaimen asetuksiin → Ilmoitukset → etsi [REDACTED].se → Salli."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Ohje – kalenteri",
+      "tabs": [
+        {
+          "id": "kalenteri",
+          "label": "📆 Kalenteri",
+          "faqs": [
+            {
+              "q": "Mitä kalenteri näyttää?",
+              "a": "Kalenteri antaa kuukausinäkymän lapsesi aktiviteeteista, lunastetuista palkinnoista ja tärkeistä tapahtumista."
+            },
+            {
+              "q": "Miten siirryn kuukausien välillä?",
+              "a": "Napauta nuolia (< >) kuukauden nimen vieressä vaihtaaksesi kuukautta."
+            },
+            {
+              "q": "Miten näen päivästä lisää?",
+              "a": "Napauta päivämäärää nähdäksesi yksityiskohtaisen luettelon sen päivän aktiviteeteista ja tähdistä."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Ohje – päiväloki",
+      "tabs": [
+        {
+          "id": "loki",
+          "label": "📖 Loki",
+          "faqs": [
+            {
+              "q": "Mikä päiväloki on?",
+              "a": "Loki näyttää lapsesi päivän — aktiviteetit, merkinnät ja tähdet. Käytä sitä <strong>esikatseluun</strong> siitä, mitä lapsi näkee, tai täyttämiseen jälkeenpäin."
+            },
+            {
+              "q": "Miten suodatan lokia?",
+              "a": "Valitse lapsi yläreunan suodattimesta näyttääksesi lokin vain yhdelle lapselle. Voit myös suodattaa päivämäärän mukaan."
+            },
+            {
+              "q": "Kuinka pitkälle taaksepäin voin katsoa?",
+              "a": "Loki säilyttää tiedot päivästä, jona aloitit käyttää [REDACTED]. Vieritä tai valitse päivä nähdäksesi vanhemmat tiedot. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Ohje – valitse aikataulu päivälle",
+      "tabs": [
+        {
+          "id": "määritä",
+          "label": "📅 Määritä aikataulu",
+          "faqs": [
+            {
+              "q": "Mikä \"Valitse aikataulu päivälle\" on?",
+              "a": "Täällä valitset, mikä viikkoaikataulu on käytössä kullekin lapselle ja päivälle. Kätevää, jos arkipäivillä ja viikonlopulla on eri rutiinit."
+            },
+            {
+              "q": "Voiko lapsella olla eri aikataulut arkisin ja viikonloppuisin?",
+              "a": "Kyllä! Valitse yksi aikataulu ma–pe ja toinen la–su. Napauta päivää ja valitse haluamasi aikataulu."
+            },
+            {
+              "q": "Mitä tapahtuu, jos päivää ei ole määritetty?",
+              "a": "Jos päivälle ei ole määritetty aikataulua, lapsi ei näe aktiviteetteja sinä päivänä. Varmista, että jokaisella käytettävällä päivällä on aikataulu."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Ylläpitopaneeli",
+      "tabs": [
+        {
+          "id": "yleisnäkymä",
+          "label": "🔧 Yleisnäkymä",
+          "faqs": [
+            {
+              "q": "Mitä voin tehdä ylläpitopaneelissa?",
+              "a": "Ylläpitopaneeli antaa pääsyn kaikkiin perheisiin, käyttäjiin ja järjestelmätietoihin. Voit katsoa tilastoja, hallita tilejä ja moderoida sisältöä."
+            },
+            {
+              "q": "Miten löydän tietyn käyttäjän?",
+              "a": "Käytä yläreunan hakukenttää hakeaksesi sähköpostilla tai nimellä. Napauta perhettä nähdäksesi tiedot."
+            },
+            {
+              "q": "Miten arkistoin perheen?",
+              "a": "Napauta perhekorttia → \"Arkistoi\". Arkistoidut perheet voi palauttaa, mutta ne pysyvät ei-aktiivisina siihen asti."
+            }
+          ]
+        },
+        {
+          "id": "tuki",
+          "label": "💬 Tuki",
+          "faqs": [
+            {
+              "q": "Miten näen saapuvat tukiviestit?",
+              "a": "Välilehdellä \"Tukilaatikko\" näet jokaisen yhteydenottolomakkeella lähetetyn viestin. Napauta lukeaksesi koko tekstin ja vastataksesi."
+            },
+            {
+              "q": "Miten merkitsen asian ratkaistuksi?",
+              "a": "Napauta asiaa → \"Merkitse ratkaistuksi\". Ratkaistut asiat suodattuvat pois oletusnäkymästä, mutta ne voi näyttää kohdasta \"Näytä ratkaistut\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Lapsen tuki — {{brand}}",
+    "loadError": "Sivua ei voitu ladata."
+  },
+  "supportSvar": {
+    "pageTitle": "Asiasi",
+    "title": "Asiasi",
+    "intro": "Tässä on koko keskustelu. Kirjoita alle, jos haluat jatkaa. Tavallinen sähköpostivastaus ei näy täällä.",
+    "sent": "Lähetetty. Näemme sen samassa asiassa.",
+    "escalate": "Tarvitsen lisää apua ihmiseltä",
+    "placeholder": "Kirjoita, mitä tapahtuu…"
+  }
+}

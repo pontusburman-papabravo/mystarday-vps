@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Aujourd’hui, {{child_name}} a fait un premier pas.",
+      "body_template": "Un petit geste du quotidien — et il compte beaucoup. Vous voyez que la routine fonctionne.",
+      "cta": "Je le vois"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Vous l’avez fait ensemble",
+      "body_template": "{{child_name}} s’est lancé. Vous l’avez vu. C’est ainsi que les habitudes grandissent.",
+      "cta": "Quel bonheur"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Quelque chose brille dans la Maison du matin…"
+    }
+  }
+}

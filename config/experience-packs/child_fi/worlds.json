@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Aamutalo",
+      "first_unlock_message": "Aamutalo odottaa sinua",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Aamutalo tietää, että olet täällä.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Pehmeä valo syttyy.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Ovi",
+          "always_active": true,
+          "ambient_message_sv": "Ovi hytkähtää vähän — kuin joku odottaisi ulkona.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Ulkona puutarha odottaa…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Puutarha",
+      "first_unlock_message": "Puutarha odottaa sinua",
+      "ambient_message_sv": "Ruoho liikkuu hitaasti tuulessa.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Polku",
+          "emoji": "🌿",
+          "ambient_message_sv": "Polku vie syvemmälle puutarhaan.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Polku vie lämpimään huoneeseen, joka on täynnä muistoja…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Kukkapenkki",
+          "emoji": "🪴",
+          "ambient_message_sv": "Multa tuntuu pehmeältä ja lämpimältä.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Taivas",
+          "emoji": "☁️",
+          "ambient_message_sv": "Pilvet liikkuvat hitaasti.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Muistihuone",
+      "first_unlock_message": "Tässä on se, mistä olet ollut ylpeä.",
+      "ambient_message_sv": "Täällä tuntuu lämpimältä ja turvalliselta.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Ikkuna",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Valo lankeaa pehmeästi sisään."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Muistiseinä",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Tässä riippuu se, mikä on sinulle tärkeää."
+        }
+      ]
+    }
+  ]
+}

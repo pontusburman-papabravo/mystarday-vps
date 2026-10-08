@@ -1,0 +1,11 @@
+{
+  "name": "{{brand}}",
+  "subtitle": "Visuaaliset rutiinit perheelle",
+  "keywords": "rutiini,aikataulu,ADHD,autismi,tähti,palkinto,perhe,lapsi",
+  "promotionalText": "Visuaalisia rutiineja lapsille, jotka tarvitsevat enemmän selkeyttä, etenkin ADHD:ssa ja autismissa.",
+  "description": "Ei vain yksi perhekalenteri lisää.\n\n{{brand}} auttaa lasta ymmärtämään päivän: mitä tapahtuu nyt, mitä tulee seuraavaksi ja mitä on jo tehty.\n\nSovellus on tehty perheille, jotka tarvitsevat arkeen enemmän rakennetta, ennakoitavuutta ja visuaalista tukea.\n\nLapselle, jolla on ADHD tai autismi, tai kenelle tahansa, jota selvemmät askeleet auttavat, {{brand}} jakaa päivän pieniin mahdollisiin askeliin.\n\nErityisen hyödyllinen perheille, joiden lapsella on ADHD, autismi tai muita neurokirjon tarpeita. Diagnoosia ei tarvita. {{brand}} ei hoida ADHD:ta eikä autismia.\n\nLapsi näkee visuaaliset rutiinit askel askeleelta ja tähtiä siitä, mikä on jo tehty. Vanhemmat tekevät aikataulun ja palkinnot ja voivat jakaa valitun raportin.\n\nKäyttöehdot (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+  "privacyPolicyUrl": { "host": "app", "path": "/en/privacy" },
+  "supportUrl": { "host": "app", "path": "/en/contact" },
+  "marketingUrl": { "host": "app", "path": "/en" },
+  "releaseNotes": "Suomi on nyt käytettävissä sovelluksessa. Rutiinit, raportit ja lapsen näkymä seuraavat perheen kieltä."
+}

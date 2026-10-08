@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1",
+  "experiences": {
+    "parent_ack_completion": {
+      "tone": "warm",
+      "headline_template": "Σήμερα, {{child_name}} έκανε το πρώτο βήμα.",
+      "body_template": "Κάτι μικρό της καθημερινότητας — και όμως σημαίνει πολλά. Τώρα ξέρεις ότι η ρουτίνα δουλεύει.",
+      "cta": "Το βλέπω"
+    },
+    "celebrate_first_success": {
+      "tone": "celebration",
+      "headline": "Μαζί τα καταφέρατε",
+      "body_template": "{{child_name}} ξεκίνησε. Το είδες. Έτσι μεγαλώνουν οι συνήθειες.",
+      "cta": "Τι όμορφα"
+    },
+    "child_first_completion": {
+      "tone": "whisper",
+      "world_hint": "Κάτι λαμπυρίζει στο Πρωινό σπίτι…"
+    }
+  }
+}

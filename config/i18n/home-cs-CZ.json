@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Domů — {{brand}}",
+  "greeting": {
+    "morning": "Dobré ráno!",
+    "afternoon": "Ahoj!",
+    "evening": "Dobrý večer!",
+    "default": "Ahoj!"
+  },
+  "sub": "Takhle dnes vypadá den.",
+  "status": {
+    "paused": "Dnes volno",
+    "allDone": "Vše hotové!",
+    "noSchedule": "Žádná rutina",
+    "progressDone": "{{done}}/{{total}} hotovo",
+    "emptyChildren": "Přidej dítě v Rodině, ať tady uvidíš stav.",
+    "loadError": "Stav dětí se nepodařilo načíst. To neznamená, že žádné nemáš.",
+    "retry": "Zkusit znovu",
+    "viewActivitiesAria": "{{name}} — zobrazit dnešní aktivity"
+  },
+  "ready": {
+    "title": "Připraveno na další aktivitu",
+    "childrenCount": "({{count}} dětí)"
+  },
+  "quickActions": {
+    "aria": "Rychlé akce",
+    "retroactive": "Doplnit později",
+    "onceTask": "Jednorázová aktivita",
+    "extraStars": "Hvězdy navíc",
+    "dayOff": "Volný den"
+  },
+  "dayOffModal": {
+    "title": "🏠 Volný den",
+    "subtitle": "Pozastaví rutinu dítěte na celý den",
+    "footer": "Ve volný den dítě aktivity odškrtávat nemusí",
+    "noChildren": "Žádné děti se nenašly",
+    "stateActive": "🟢 Rutina běží",
+    "statePaused": "⏸ Dnes volno",
+    "markDayOff": "🏠 Označit jako volný den",
+    "resumeSchedule": "▶ Obnovit rutinu",
+    "noScheduleTitle": "Na dnešek se rutina nevygenerovala",
+    "resumedToast": "Rutina je znovu zapnutá!",
+    "pausedToast": "🏠 Označeno jako volný den!",
+    "genericError": "Něco se pokazilo",
+    "networkError": "Chyba sítě"
+  },
+  "handoff": {
+    "title": "Má se dítě přihlásit?",
+    "sub": "Přepni na dětský pohled pomocí PINu.",
+    "childLogin": "👶 Dítě se přihlásí",
+    "changePin": "Změnit PIN dítěte",
+    "changePinAria": "Otevřít Rodinu a změnit PIN dítěte",
+    "parentLogout": "Odhlásit se",
+    "regionAria": "Přepnout na přihlášení dítěte",
+    "dismissTitle": "Zavřít",
+    "trusted": {
+      "title": "Otevřít dětský pohled?",
+      "sub": "Otevři pohled dítěte na tomhle zařízení.",
+      "childLogin": "Otevřít dětský pohled",
+      "regionAria": "Otevřít dětský pohled"
+    },
+    "pin": {
+      "title": "Má se dítě přihlásit?",
+      "sub": "Přepni na dětský pohled pomocí PINu.",
+      "childLogin": "Přihlásit se PINem dítěte",
+      "regionAria": "Přihlásit se PINem dítěte"
+    },
+    "postSchema": {
+      "title": "Další krok: nech dítě zkusit rutinu",
+      "sub": "Otevři s dítětem dětský režim — zabere to asi minutu.",
+      "childLogin": "Vyzkoušet dětský režim",
+      "regionAria": "Další krok: nech dítě zkusit rutinu",
+      "trusted": {
+        "title": "Další krok: otevři dětský pohled",
+        "sub": "Otevři s dítětem dětský režim — zabere to asi minutu.",
+        "childLogin": "Otevřít dětský pohled",
+        "regionAria": "Další krok: otevři dětský pohled"
+      },
+      "pin": {
+        "title": "Další krok: nech dítě zkusit rutinu",
+        "sub": "Otevři s dítětem dětský režim — zabere to asi minutu.",
+        "childLogin": "Přihlásit se PINem dítěte",
+        "regionAria": "Další krok: přihlásit se PINem dítěte"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Další krok k první povedené rutině",
+    "pinHint": "Dítě používá svůj PIN. Režim rodiče můžeš vrátit, až bude hotovo.",
+    "recovery": {
+      "fetchErrorHeadline": "Další krok se nepodařilo načíst",
+      "fetchErrorBody": "Vypadá to dočasně. Zkus to znovu, nebo zatím pokračuj bez průvodce.",
+      "retry": "Zkusit znovu",
+      "continueWithoutGuide": "Pokračovat bez průvodce",
+      "defer": "Později",
+      "deferError": "Volbu se teď nepodařilo uložit. Zkus to znovu.",
+      "retrying": "Zkouším znovu…",
+      "deferring": "Ukládám…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Založ profil dítěte",
+        "body": "Na start stačí jméno a jednoduchý PIN.",
+        "cta": "Pokračovat s dítětem"
+      },
+      "save_schedule": {
+        "headline": "Ulož jednoduchou první rutinu",
+        "body": "Vyber startovní plán — kdykoli ho můžeš změnit.",
+        "cta": "Vybrat startovní plán"
+      },
+      "child_access": {
+        "headline": "Otevři dětský pohled",
+        "body": "Nech dítě zkusit dnešní první aktivitu v dětském pohledu.",
+        "cta": "Otevřít dětský pohled"
+      },
+      "child_access_named": {
+        "headline": "Rutina pro {{name}} je připravená",
+        "body": "Dítě může začít, až se to bude hodit.",
+        "cta": "Otevřít dětský pohled"
+      },
+      "await_first_completion": {
+        "headline": "Čeká se na první aktivitu",
+        "body": "Dítě vidí rutinu v dětském pohledu. Když bude potřeba, pomoz se startem.",
+        "cta": "Otevřít dětský pohled"
+      },
+      "parent_ack": {
+        "headline": "Dítě dokončilo aktivitu!",
+        "body": "Potvrď to, ať se hvězda započte a můžete se radovat spolu.",
+        "cta": "Zobrazit aktivitu"
+      },
+      "celebrate_first_success": {
+        "headline": "První hvězda je hotová!",
+        "body": "Dobrá práce — rutina opravdu funguje.",
+        "cta": "Pokračovat"
+      },
+      "journey_coach": {
+        "headline": "Další krok",
+        "body": "Rutinu buduj vlastním tempem.",
+        "cta": "Pokračovat"
+      },
+      "engine_legacy": {
+        "headline": "Další krok",
+        "body": "Jdi podle navrženého dalšího kroku.",
+        "cta": "Pokračovat"
+      },
+      "continue_today": {
+        "headline": "{{name}} má dnes ještě rutinu",
+        "body": "Chceš navázat tam, kde se skončilo?",
+        "cta": "Pokračovat v rutině"
+      },
+      "welcome_back": {
+        "headline": "Vítej zpátky",
+        "body": "Další krok tu je, až ho budeš potřebovat — otevřít rutinu dítěte?",
+        "cta": "Otevřít dětský pohled"
+      },
+      "invite_adult": {
+        "headline": "Chce pomoct i další dospělý?",
+        "body": "Pozvi, až se to bude hodit — pořád to máš v rukou.",
+        "cta": "Pozvat dospělého"
+      },
+      "share_week": {
+        "headline": "Malý záblesk z týdne",
+        "body": "Sdílej jen když chceš — samo se nic nepublikuje.",
+        "cta": "Sdílet záblesk"
+      },
+      "refer_family": {
+        "headline": "Znáš rodinu, které by se rutiny hodily?",
+        "body": "Sdílej osobní odkaz — žádná odměna, jen tip.",
+        "cta": "Sdílet aplikaci"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Teď ne",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Tenhle týden jste v rutinách udělali kroky",
+        "body": "Klidný souhrn — jen pro tebe.",
+        "shareText": "Na dětské rutiny doma používáme {{brand}}. Když chceš zkusit jednoduchou rodinnou aplikaci."
+      },
+      "morning": {
+        "headline": "Několik rán tenhle týden šlo o něco klidněji",
+        "body": "Dobrá práce — sdílej jen když chceš.",
+        "shareText": "S jednoduchou aplikací na rutiny máme klidnější rána. Mohlo by to pomoct i tvé rodině."
+      },
+      "evening": {
+        "headline": "Večerní rutina tenhle týden několikrát fungovala",
+        "body": "Soukromý záblesk — žádné pořadí.",
+        "shareText": "Večerní rutiny jsou u nás o něco snazší. Když hledáš klidný nástroj."
+      },
+      "multi_child": {
+        "headline": "Děti tenhle týden v rutinách udělaly několik kroků",
+        "body": "Souhrn bez jmen a fotek.",
+        "shareText": "Na rutiny dětí používáme {{brand}}. Když to chceš zkusit:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Jsi mezi zakládajícími rodinami",
+    "body": "Jako jedna z prvních rodin máš doživotní přístup zdarma. Díky, že jsi s námi od začátku!"
+  },
+  "weekStory": {
+    "title": "Příběh tohohle týdne"
+  },
+  "starHistory": {
+    "title": "Týdenní pokrok",
+    "subtitle": "Posledních 8 týdnů",
+    "thisWeek": "{{count}} ⭐ tenhle týden",
+    "weekTooltip": "T{{week}}: {{count}} hvězd",
+    "diffUp": "+{{diff}} proti minulému týdnu",
+    "diffSame": "Stejně jako minulý týden",
+    "bestWeek": "🎉 Nejlepší týden pro {{name}}!"
+  },
+  "nav": {
+    "today": "Dnes",
+    "dailyLog": "Denní záznam",
+    "fillRetroactive": "📝 Doplnit později"
+  },
+  "readiness": {
+    "heading": "Potřebuje pozornost",
+    "warningsOnly": "Jen upozornění",
+    "loadError": "Nepodařilo se zkontrolovat, co potřebuje pozornost.",
+    "retry": "Zkusit znovu",
+    "items": {
+      "pendingInviteTitleOne": "1 čekající pozvánka pro druhého rodiče",
+      "pendingInviteTitleMany": "{{count}} čekajících pozvánek pro druhého rodiče",
+      "pendingInviteSub": "Spravuj v Rodině",
+      "pendingApprovalTitle": "{{name}} — {{count}} čekající žádost",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} čekajících žádostí",
+      "pendingApprovalSub": "Schval v Odměnách",
+      "incompleteDaysTitleOne": "{{name}} — 1 nedokončený den",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} nedokončených dní",
+      "incompleteDaysSub": "Doplň dodatečně",
+      "missingPinTitle": "{{name}} nemá PIN",
+      "missingPinSub": "Nastav PIN v profilu dítěte",
+      "pausedDayTitle": "{{name}} — dnes volno",
+      "pausedDaySub": "Otevřít Dnes",
+      "noScheduleTitle": "{{name}} — dnes žádná rutina",
+      "noScheduleSub": "Otevřít týdenní plán"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} chce uplatnit odměnu",
+    "pendingRewardSubOne": "Čeká na tebe jedna žádost",
+    "pendingRewardSubMany": "Čeká na tebe {{count}} žádostí",
+    "showRequest": "Zobrazit žádost",
+    "closeToReward": "{{name}} má k další odměně jen {{gap}}",
+    "starOne": "1 hvězda",
+    "starMany": "{{count}} hvězd",
+    "seeRewards": "Zobrazit odměny",
+    "starsTodayHeadline": "Děti dnes získaly {{count}}",
+    "starsTodaySubOne": "{{name}} je dnes získalo",
+    "starsTodaySubMany": "Děti je dnes získaly",
+    "tasksDoneHeadline": "{{name}} už dnes dokončilo {{count}}",
+    "taskOne": "1 úkol",
+    "taskMany": "{{count}} úkolů",
+    "tasksRemaining": "V dnešní rutině zbývá {{count}}",
+    "allActivitiesDone": "Všechny aktivity jsou hotové — paráda!",
+    "seeSchedule": "Zobrazit plán",
+    "nextActivityHeadline": "{{name}} je připravené na {{activity}}",
+    "nextActivitySub": "Další aktivita v rutině",
+    "openToday": "Otevřít Dnes",
+    "calmDayHeadline": "Klidný den — teď žádná rutina",
+    "calmDaySub": "Dobrá chvíle přidat aktivity nebo dát hvězdy navíc",
+    "defaultChild": "Tvoje dítě",
+    "pageTitleStars": "🌟 Dnešní hvězdy",
+    "pageTitleWelcome": "👋 Vítej zpátky",
+    "pageTitleProgress": "🌟 Dnešní pokrok rodiny",
+    "greetingFallback": "{{greeting}} Takhle dnes vypadá den",
+    "followChild": "Sleduj tady pokrok {{name}}",
+    "followChildren": "Sleduj tady pokrok dětí"
+  },
+  "childStats": {
+    "paused": "⏸ Dnes volno",
+    "allDone": "🌟 Dnes vše hotové!",
+    "tasksDoneOne": "🔥 Dnes hotový 1 úkol",
+    "tasksDoneMany": "🔥 Dnes hotovo {{count}} úkolů",
+    "noSchedule": "Dnes žádná rutina",
+    "todayProgress": "Dnes <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> celkem",
+    "starsTodayOne": "+1 hvězda dnes",
+    "starsTodayMany": "+{{count}} hvězd dnes",
+    "remaining": "Zbývá {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 K další odměně chybí 1 hvězda",
+    "rewardGapMany": "🎁 K další odměně chybí {{count}} hvězd"
+  },
+  "offline": {
+    "banner": "Offline — změny jsou uložené",
+    "lastUpdated": "· Naposledy aktualizováno {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Denní záznam",
+    "dailyLogSub": "Sleduj den dětí — hvězdy můžeš zapsat i potom"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Jak se daří {{goal}} teď?",
+      "sub": "Pro {{name}}",
+      "great": "Velké zlepšení",
+      "better": "O něco líp",
+      "same": "Beze změny",
+      "worse": "Nefunguje to",
+      "followUpBetter": "Co se zlepšilo?",
+      "followUpWorse": "Co chybí?",
+      "optional": "(volitelné)",
+      "send": "Odeslat",
+      "skip": "Přeskočit",
+      "dismissAria": "Zavřít",
+      "thanks": "Díky! Odpověď je uložená.",
+      "alreadyAnswered": "Díky! Vypadá to, že už je odpovězeno.",
+      "next": "Odpovědět na další",
+      "done": "Hotovo"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Přeskočit",
+    "next": "Další →",
+    "start": "🎉 Jdeme na to!",
+    "steps": {
+      "welcome": {
+        "title": "Vítej na přehledu!",
+        "body": "Tady vidíš den každého dítěte. Týdenní plán upravíš v Plánování."
+      },
+      "stars": {
+        "title": "Hvězdy a Pokladnice",
+        "body": "Každá hotová aktivita dá 1 hvězdu. Dítě hvězdy sbírá a v Pokladnici je mění za odměny."
+      },
+      "schedule": {
+        "title": "Týdenní plán a aktivity",
+        "body": "V menu v Plánování je knihovna aktivit a můžeš přidat vlastní odměny."
+      },
+      "family": {
+        "title": "Přidej další děti nebo dospělé",
+        "body": "Klepni na „+ Přidat dítě“ a přidej sourozence. V Rodině můžeš pozvat dalšího dospělého."
+      },
+      "help": {
+        "title": "Potřebuješ pomoc?",
+        "body": "Kdykoli klepni na ❓ vpravo dole — jsou tam otázky a tipy. Ať se den daří!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} se snaží přihlásit",
+    "body": "3 špatné pokusy o PIN — dítě možná potřebuje pomoc"
+  },
+  "shareSchedule": {
+    "notAvailable": "Sdílení na tomhle zařízení není",
+    "notSupported": "Sdílení na tomhle zařízení není",
+    "shared": "Sdíleno!",
+    "childNotFound": "Dítě se nenašlo",
+    "couldNotShare": "Nepodařilo se sdílet: {{message}}",
+    "routineToday": "Dnešní rutina pro {{name}}:",
+    "title": "Rutina pro {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Nová verze aplikace je připravená!",
+    "reloadNow": "Načíst hned",
+    "later": "Později",
+    "dismissAria": "Zavřít lištu aktualizace"
+  },
+  "pwa": {
+    "title": "Nainstaluj aplikaci kvůli push oznámením",
+    "iosLead": "Na iPhonu a iPadu musí být aplikace na ploše, ať push oznámení fungují.",
+    "iosStep1": "Klepni dole v Safari na Sdílet",
+    "iosStep2": "Zvol „Přidat na plochu“",
+    "iosStep3": "Otevři aplikaci z plochy a povol oznámení",
+    "iosArrowHint": "Animovaná šipka ukazuje na tlačítko Sdílet v prohlížeči",
+    "androidTitle": "Nainstaluj aplikaci, ať se s ní pracuje nejlíp",
+    "androidLead": "Nainstaluj aplikaci a dostávej připomínky do telefonu.",
+    "androidHomeLead": "Nainstaluj {{brand}} na plochu kvůli rychlému přístupu a push oznámením.",
+    "androidInstall": "Nainstalovat aplikaci",
+    "androidInstallBtn": "📲 Nainstalovat aplikaci",
+    "androidChromeFallback": "Klepni v Chromu na ⋮ (menu) → <strong>„Přidat na plochu“</strong>",
+    "desktopTitle": "Nainstalovat aplikaci",
+    "desktopLead": "Klepni na ikonu instalace (⊕) v adresním řádku, nebo použij menu prohlížeče.",
+    "dismissAria": "Zavřít"
+  },
+  "pushPrompt": {
+    "title": "Dostávej push oznámení o dětech",
+    "body": "Hned víš, když dítě odškrtne aktivitu nebo chce uplatnit odměnu.",
+    "later": "Později",
+    "enable": "Zapnout",
+    "enabledToast": "✅ Push oznámení jsou zapnutá!"
+  },
+  "globalFeedback": {
+    "fabAria": "Dát zpětnou vazbu",
+    "fabTitle": "Dát zpětnou vazbu",
+    "modalTitle": "Dát zpětnou vazbu",
+    "typeBug": "Nahlásit problém",
+    "typeSuggestion": "Návrh",
+    "typeLanguage": "Jazyk",
+    "titlePlaceholder": "Nadpis",
+    "messagePlaceholder": "Co se stalo?",
+    "cancel": "Zrušit",
+    "submit": "Odeslat hlášení",
+    "submitting": "Posílám...",
+    "validationRequired": "Vyplň všechna pole.",
+    "success": "Hlášení je odeslané.",
+    "errorGeneric": "Něco se pokazilo. Zkus to znovu."
+  },
+  "cards": {
+    "loadError": "Karty dětí se nepodařilo načíst. Potáhni dolů a obnov.",
+    "last": "Poslední:",
+    "next": "Další:",
+    "noActivitiesToday": "Na dnešek nejsou naplánované žádné aktivity",
+    "noRoutineToday": "Na dnešek není rutina",
+    "createActivity": "✨ Vytvoř aktivitu v plánu →",
+    "childNoActivities": "{{name}} ještě nemá aktivity — vytvoř tu první →",
+    "noRewards": "🎁 Zatím žádné odměny",
+    "addReward": "→ Přidat odměnu",
+    "pendingRequest": "{{count}} čekající žádost",
+    "pendingRequestMany": "{{count}} čekajících žádostí",
+    "pausedBadge": "POZASTAVENO",
+    "allDoneTitle": "Vše hotové!",
+    "statusNow": "TEĎ",
+    "statusNext": "POTOM",
+    "onceTask": "Jednorázová aktivita",
+    "markDone": "Označit jako hotové",
+    "unmark": "Zrušit označení",
+    "activityMarked": "✅ Hotovo!",
+    "activityUnmarked": "Označení zrušeno",
+    "fillDay": "Doplnit {{day}}",
+    "allActivitiesDone": "Dnes jsou všechny aktivity hotové!",
+    "last7Days": "Posledních 7 dní"
+  },
+  "approvals": {
+    "title": "Čekající žádosti",
+    "loading": "Načítám žádosti...",
+    "empty": "Žádné čekající žádosti! 🎉",
+    "loadError": "Žádosti se nepodařilo načíst.",
+    "wantsGoalChange": "Chce změnit cíl",
+    "goalChangeTo": "Na: {{name}}",
+    "wantsRedeem": "Chce uplatnit",
+    "approve": "Schválit",
+    "deny": "Zamítnout",
+    "requiresApproval": "Potřebuje schválení",
+    "requiresApprovalCount": "Potřebuje schválení ({{count}})",
+    "goalApproved": "🎯 Změna cíle je schválená!",
+    "redemptionApproved": "🎉 Uplatnění je schválené!",
+    "goalDenied": "Změna cíle je zamítnutá.",
+    "redemptionDenied": "Uplatnění je zamítnuté.",
+    "updateFailed": "Nepodařilo se aktualizovat",
+    "genericError": "Chyba",
+    "wantsGoalNamed": "{{name}} chce změnit cíl na {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Chce změnit cíl na {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} chce „{{reward}}“ ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Upravit dnešní čas",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Čas se nepodařilo upravit",
+    "undone": "Vráceno",
+    "undoFailed": "Nepodařilo se vrátit"
+  },
+  "loading": {
+    "initFailed": "Při načítání se něco pokazilo. Načti stránku znovu.",
+    "couldNotLoad": "Nepodařilo se načíst.",
+    "checkConnection": "Zkontroluj připojení k internetu",
+    "reloadPage": "Načíst stránku znovu"
+  },
+  "activationProgram": {
+    "exitConfirm": "Chceš ukončit 7denní program?",
+    "reflectionPlaceholder": "Volitelně: napiš víc…",
+    "send": "Odeslat",
+    "reflectionQuestion": "Usnadnila aplikace všední den?",
+    "previewEmpty": "Otevři přihlášení dítěte, ať uvidíš plán.",
+    "optOutTitle": "Ukončit program",
+    "skipToday": "Přeskočit dnešek",
+    "orOpenChildLogin": "Nebo otevři přihlášení dítěte",
+    "dayOf": "Den {{day}} z {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Dnešní pokrok rodiny",
+    "allChildren": "← Všechny děti",
+    "systemMsgFrom": "Zpráva z aplikace",
+    "systemMsgClose": "Zavřít ✕",
+    "sharingManage": "Klepni a spravuj sdílené přehledy",
+    "inviteTitle": "Pozvi druhého rodiče",
+    "inviteSub": "Ať se nemusíte ptát, co je v plánu",
+    "inviteBtn": "Pozvat",
+    "shareTitle": "Řekni to dál!",
+    "shareSub": "Pomoz další rodině dostat do dne víc řádu",
+    "shareBtn": "Sdílet",
+    "inviteModalTitle": "Pozvat druhého rodiče",
+    "inviteModalBody": "Partner dostane e-mail s přímým odkazem — žádné další aplikace, nic složitého.",
+    "inviteSentBody": "Partner se teď může přihlásit a vidět plán.",
+    "inviteDone": "Hotovo",
+    "supportPrefix": "🔒 Jsi v režimu podpory: zobrazují se data rodiny",
+    "supportSuffix": ". Data nejde měnit. Relace vyprší za",
+    "tourSkip": "Přeskočit",
+    "tourNext": "Další →",
+    "starTipsTitle": "Tip: jak fungují hvězdy",
+    "starTipsCollect": "• Dítě získá hvězdy, když se aktivity odškrtnou v dětském pohledu",
+    "starTipsExtra": "• Hvězdy navíc dáš z karty dítěte za snahu mimo plán",
+    "starTipsRewards": "• Hvězdy se počítají k uloženým odměnám — cíle nastavíš v Odměnách",
+    "starTipsEdit": "• Týdenní plán upravíš v Plánování",
+    "dayDragInner": "přetáhni záložku dne na jiný den a zkopíruj nebo prohoď",
+    "calViewDay": "Den",
+    "calViewWeek": "Týden",
+    "calViewMonth": "Měsíc",
+    "retroactiveFull": "📝 Doplnit později",
+    "extraStarsFull": "⭐ Dát hvězdy navíc",
+    "onceTaskFull": "📋 Jednorázová aktivita",
+    "dayOffFull": "🏠 Volný den",
+    "trialEndingTitle": "Zkušebnímu období zbývá den",
+    "trialEndingBody": "Zkušební období skončí do jednoho dne. Když chceš plný přístup, zvol předplatné v aplikaci. Všechna data zůstanou.",
+    "trialEndingChoose": "Zvolit v aplikaci",
+    "trialEndingClose": "Zavřít"
+  },
+  "helpPanel": {
+    "title": "❓ Jak to funguje?",
+    "tabSchema": "📅 Plán",
+    "tabStars": "⭐ Hvězdy",
+    "tabFamily": "👨‍👩‍👧 Rodina",
+    "tabAdults": "🔑 Další dospělí",
+    "tabTrouble": "🔧 Potíže",
+    "addActivityQ": "Jak přidám aktivitu?",
+    "addActivityA": "Klepni na Domů na kartu dítěte → vyber den → klepni na „+“ a přidej aktivitu z knihovny. Vlastní aktivity můžeš tvořit v <strong>Knihovně</strong>.",
+    "dragQ": "Jde aktivity táhnout a přesouvat?",
+    "dragA": "Ano. V plánu dítěte (klepni na kartu na Domů) podrž aktivitu a přetáhni ji, ať změníš pořadí. Aktivitu můžeš přetáhnout i na záložku jiného dne a zkopírovat ji.",
+    "copyQ": "Jak zkopíruju plán na každý den?",
+    "copyA": "V editoru plánu (tlačítko 📋) → zvol „Kopírovat na jiné dny“ a zkopíruj plán jednoho dne na zbytek týdne.",
+    "earnStarsQ": "Jak dítě získá hvězdy?",
+    "earnStarsA": "Každá hotová aktivita dá <strong>1 hvězdu</strong>. Dítě odškrtává v dětském pohledu. <strong>Hvězdy navíc</strong> můžeš dát z karty dítěte na Domů.",
+    "treasureQ": "Jak funguje Pokladnice?",
+    "treasureA": "V dětském pohledu klepni na ikonu ⭐ a uvidíš Pokladnici — seznam odměn a kolik hvězd stojí. Dítě může o odměnu požádat, až jich má dost.",
+    "retroQ": "Jak doplním hvězdy za dny, na které jsem zapomněl?",
+    "retroA": "Jdi na <strong>Dnes</strong> (menu ☰ → Dnes, nebo tlačítko <strong>Doplnit později</strong> na Domů). Vyber dítě, šipkami nebo kalendářem najdi správný den a odškrtni aktivity. Hvězdy se uloží se správným datem.",
+    "rewardsQ": "Jak přidám nebo upravím odměny?",
+    "rewardsA": "Jdi v menu na Odměny. Tam přidáš vlastní odměny, upravíš cenu ve hvězdách a zvolíš, které děti je uvidí.",
+    "siblingQ": "Jak přidám sourozence?",
+    "siblingA": "Na Domů klepni na <strong>„+ Přidat dítě“</strong>. Každé dítě má vlastní plán, aktivity a hvězdy.",
+    "childLoginQ": "Jak se dítě přihlásí?",
+    "childLoginA": "Prvních pár dní můžeš <strong>nahlédnout do dne dítěte</strong> přes Dnes. Až budeš chtít, dítě se přihlásí na <strong>/child-login</strong> uživatelským jménem a PINem — bez hesel. Údaje najdeš v <strong>Rodina a nastavení → Děti</strong>.",
+    "inviteAdultQ": "Jak pozvu dalšího dospělého?",
+    "inviteAdultA": "Jdi na <strong>Rodina a nastavení → Členové rodiny</strong> → klepni na „Pozvat“. Dostanou e-mail s odkazem, založí si účet a připojí se k rodině.",
+    "inviteSeeQ": "Uvidí pozvaný dospělý každé dítě?",
+    "inviteSeeA": "Při odeslání pozvánky zvolíš, která děti uvidí. Později to změníš v <strong>Členech rodiny</strong> → klepni na osobu → uprav přístup k dětem.",
+    "noActivitiesQ": "Dítě dnes nevidí žádné aktivity",
+    "noActivitiesA": "Zkontroluj, že plán je nastavený na správný den. Otevři plán dítěte (klepni na kartu) → vyber dnešek → podívej se, jestli tam aktivity jsou. Když je plán prázdný, použij „Kopírovat na jiné dny“.",
+    "forgotPinQ": "Zapomněl jsem PIN dítěte",
+    "forgotPinA": "Jdi na <strong>Rodina a nastavení → Děti</strong> → vyber dítě → klepni na „Změnit PIN“ a nastav nový.",
+    "innerOneStar": "1 hvězda",
+    "innerBonusStars": "hvězdy navíc",
+    "innerAddChild": "„+ Přidat dítě“",
+    "innerPreview": "nahlédnout do dne dítěte",
+    "innerFamilyMembersPath": "Rodina a nastavení → Členové rodiny",
+    "innerMembers": "Členové rodiny",
+    "innerFamilyChildren": "Rodina a nastavení → Děti",
+    "supportQ": "Kontaktovat podporu",
+    "supportLead": "Napiš nám na",
+    "supportTail": " — ozveme se do 24 hodin."
+  },
+  "journeyAck": {
+    "headline": "Dítě dokončilo aktivitu!",
+    "childFallback": "Tvoje dítě",
+    "activityFallback": "aktivitu",
+    "dismiss": "Vidím to"
+  },
+  "journeyCelebration": {
+    "headline": "Zvládli jste to spolu",
+    "body": "Dítě začalo — a ty to vidíš.",
+    "dismiss": "Paráda!"
+  },
+  "activationAha": {
+    "body": "Aniž bys musel připomínat.",
+    "dismiss": "Paráda!"
+  }
+}

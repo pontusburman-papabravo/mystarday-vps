@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Suunnittelu — {{brand}}",
+  "shell": {
+    "title": "Suunnittelu",
+    "lead": "Valitse viikko, aktiviteetit tai muuta.",
+    "logout": "Kirjaudu ulos"
+  },
+  "sections": {
+    "planWeek": "Suunnittele viikko",
+    "buildContent": "Rakenna sisältöä",
+    "other": "Muuta"
+  },
+  "primary": {
+    "week": { "title": "Viikko", "sub": "Päivälista lasten viikolle" },
+    "activities": { "title": "Aktiviteetit", "sub": "Kirjasto — luo ja muokkaa" },
+    "more": { "title": "Lisää", "sub": "Tulosteet, mallit ja muut työkalut" }
+  },
+  "more": {
+    "title": "Lisää",
+    "close": "Sulje"
+  },
+  "links": {
+    "library": { "title": "Kirjasto", "sub": "Luo aktiviteetteja ja palkintoja" },
+    "imageArchive": { "title": "Kuva-arkisto", "sub": "Omat kuvat — hammasharja, sänky, koulu" },
+    "templates": { "title": "Mallit", "sub": "Tallennetut aikataulut, joita voit käyttää uudelleen" },
+    "weekSchedule": { "title": "Viikkoaikataulu", "sub": "Muokkaa lapsesi viikkoa" },
+    "calendar": { "title": "Kalenteri", "sub": "Katso kuukausi ja erityispäivät" },
+    "custody": { "title": "Vuoroasumisen aikataulu", "sub": "Jaettu arki kahden kodin välillä" },
+    "dailyLog": { "title": "Tänään", "sub": "Katso ja muokkaa aiempia päiviä" },
+    "printSchema": { "title": "Luo PDF — aikataulu", "sub": "Tulosta aikataulu" },
+    "assignSchedule": { "title": "Liitä aikataulu", "sub": "Kopioi aikataulu lapselle" },
+    "reports": { "title": "Raportit", "sub": "Eteneminen ja jakaminen" },
+    "samarbete": { "title": "Yhteistyö kasvattajan kanssa", "sub": "Tee yhteistyötä kasvattajan kanssa" },
+    "barnStod": { "title": "Lisätuki", "sub": "Kuvituki ja TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Aloita",
+    "bodyBeforeLibrary": "Aloita ",
+    "libraryLink": "kirjastosta",
+    "bodyMiddle": ", jos haluat luoda aktiviteetteja. Siirry kohtaan ",
+    "forYouLink": "Sinulle",
+    "bodyAfter": ", jos haluat valmiin suosituksen."
+  }
+}

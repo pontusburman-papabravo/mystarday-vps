@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "En rolig dag, én stjerne om gangen"
+  },
+  "language": {
+    "label": "Språk",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Bytt språk",
+    "choice": {
+      "title": "Språk",
+      "titleEn": "Språk",
+      "description": "Du kan bytte språk senere i Innstillinger.",
+      "descriptionEn": "Du kan bytte språk senere i Innstillinger.",
+      "confirm": "Fortsett",
+      "required": "Velg et språk for å fortsette",
+      "childNote": "Barnevisningen følger familiens språk.",
+      "childNoteEn": "Barnevisningen følger familiens språk."
+    },
+    "offer": {
+      "title": "{{brand}} er nå tilgjengelig på norsk",
+      "body": "{{brand}} finnes nå også på norsk.",
+      "question": "Vil du bli på svensk eller prøve norsk?",
+      "staySwedish": "Bli på svensk",
+      "tryEnglish": "Prøv norsk",
+      "remindLater": "Minn meg på det senere"
+    },
+    "legacyNotice": {
+      "body": "Eksisterende aktiviteter beholder sitt opprinnelige språk. Nye aktiviteter bruker norsk.",
+      "dismiss": "Skjønner",
+      "dismissAria": "Lukk språkmeldingen"
+    },
+    "reportIssue": "Meld fra om et språkproblem",
+    "feedback": {
+      "typeLabel": "Språk eller oversettelse",
+      "typeLabelEn": "Språk eller oversettelse",
+      "titlePlaceholder": "Hva ser feil ut?",
+      "visibleText": "Hvilken tekst så du?",
+      "suggestion": "Hvordan bør det stå? (valgfritt)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Hvor bor familien din?",
+      "description": "Vi bruker dette for riktige vilkår og personvern. Det er atskilt fra språkvalget ditt.",
+      "label": "Land",
+      "hint": "",
+      "required": "Velg et land for å fortsette",
+      "closedEu": "{{brand}} er ikke tilgjengelig i landet ditt ennå. Vi sier fra når vi åpner flere EU-markeder.",
+      "closedIe": "{{brand}} er ikke tilgjengelig i Irland ennå.",
+      "closedCa": "{{brand}} er ikke tilgjengelig i Canada ennå.",
+      "closedFi": "{{brand}} er ikke tilgjengelig i Finland ennå.",
+      "closedNo": "{{brand}} er ikke tilgjengelig i Norge ennå.",
+      "closedDk": "{{brand}} er ikke tilgjengelig i Danmark ennå.",
+      "closedUk": "{{brand}} er ikke tilgjengelig i Storbritannia ennå.",
+      "closedUs": "{{brand}} er ikke tilgjengelig i USA ennå.",
+      "closedOther": "{{brand}} er ikke tilgjengelig i landet ditt ennå.",
+      "euGroup": "Annet EU/EØS-land"
+    }
+  },
+  "nav": {
+    "login": "Logg inn",
+    "register": "Opprett konto",
+    "childLogin": "Barnelogin",
+    "dashboard": "Oversikt",
+    "logout": "Logg ut",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Enklere hverdag for hele familien",
+      "ogDescription": "Lag og følg daglige planer, aktiviteter og belønninger"
+    },
+    "login": {
+      "title": "Logg inn",
+      "pageTitle": "Logg inn — {{brand}}",
+      "tagline": "Vi lyser sammen",
+      "subtitle": "Velkommen tilbake til {{brand}}",
+      "email": "E-postadresse",
+      "emailPlaceholder": "you@email.com",
+      "password": "Passord",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Logg inn",
+      "submitting": "Logger inn…",
+      "forgotPassword": "Glemt passord?",
+      "noAccount": "Har du ikke konto?",
+      "createAccount": "Opprett konto",
+      "childLogin": "Er du et barn?",
+      "childLoginLink": "Er du et barn? Logg inn her",
+      "loginAsAdult": "Logg inn som forelder",
+      "orDivider": "eller",
+      "continueWithApple": "Fortsett med Apple",
+      "continueWithGoogle": "Fortsett med Google",
+      "apple_caption": "Bare tilgjengelig på iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Skriv inn både e-post og passord",
+      "genericError": "Noe gikk galt. Prøv igjen.",
+      "mascotAlt": "Stjernemaskot",
+      "addChildBannerTitle": "👶 Logg inn som forelder for å legge til et barn",
+      "addChildBannerBody": "«Jeg er et barn» er ikke nok her — en forelder eller pedagog kreves.",
+      "resetSuccessBannerTitle": "Passord lagret",
+      "resetSuccessBannerBody": "Logg inn med det nye passordet.",
+      "backToChildPicker": "← Tilbake til barnevelgeren",
+      "linking": {
+        "emailExists": "En konto med denne e-postadressen finnes allerede.",
+        "promptApple": "Vil du koble Apple-kontoen til den eksisterende kontoen?",
+        "promptGoogle": "Vil du koble Google-kontoen til den eksisterende kontoen?",
+        "yes": "Ja, koble",
+        "cancel": "Avbryt",
+        "modalTitleApple": "Koble Apple-konto",
+        "modalTitleGoogle": "Koble Google-konto",
+        "modalIntroApple": "Skriv inn passordet for å logge inn, og koble deretter Apple-kontoen.",
+        "modalIntroGoogle": "Skriv inn passordet for å logge inn, og koble deretter Google-kontoen.",
+        "emailLabel": "E-post",
+        "passwordLabel": "Passord",
+        "passwordPlaceholder": "Passordet ditt",
+        "submit": "Koble",
+        "submitting": "Kobler…",
+        "enterPassword": "Skriv inn passordet.",
+        "wrongPassword": "Feil passord.",
+        "failed": "Koblingen feilet."
+      },
+      "apple": {
+        "unavailable": "Apple-innlogging er ikke tilgjengelig akkurat nå. Prøv igjen, eller logg inn med e-post.",
+        "notEnabled": "Apple-innlogging er ikke slått på. Oppdater appen til siste versjon.",
+        "cancelled": "Apple-innlogging ble avbrutt.",
+        "incomplete": "Apple-innlogging ble ikke fullført. Prøv igjen, eller logg inn med e-post og passord.",
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen.",
+        "genericError": "Noe gikk galt med Apple-innlogging. Prøv igjen, eller logg inn med e-post og passord.",
+        "failed": "Apple-innlogging feilet. Prøv igjen, eller logg inn med e-post og passord.",
+        "signInFailed": "Innlogging med Apple feilet.",
+        "completionTitle": "Fullfør opprettelsen av kontoen",
+        "completionBody": "Velg land og godta vilkårene. Apple har allerede gitt navn og e-post — vi spør ikke om dem igjen.",
+        "completionSubmit": "Fortsett med samme Apple-konto"
+      },
+      "google": {
+        "emailConflictSettings": "En konto med denne e-postadressen finnes allerede. Logg inn og koble Google i Innstillinger, eller bruk passord.",
+        "loginFailed": "Google-innlogging feilet.",
+        "signInFailed": "Innlogging med Google feilet."
+      },
+      "verify": {
+        "title": "Bekreft e-postadressen din",
+        "body": "Du må bekrefte e-postadressen for å fortsette å bruke {{brand}}. Sjekk innboksen (og søppelpost) for en e-post fra oss.",
+        "emailLabel": "E-postadresse:",
+        "resendBtn": "Send ny bekreftelseslenke",
+        "resendSending": "Sender…",
+        "resendSuccess": "✅ Ny bekreftelseslenke sendt! Sjekk innboksen og søppelpost.",
+        "resendError": "Noe gikk galt. Prøv igjen.",
+        "spamHint": "Sjekk også søppelpost. Lenken gjelder i 24 timer."
+      }
+    },
+    "entry": {
+      "back": "Tilbake",
+      "backWithArrow": "← Tilbake",
+      "welcome": {
+        "ariaLabel": "Velkommen",
+        "headline": "En roligere hverdag med tydelige steg, planer og stjerner",
+        "lead": "{{brand}} hjelper barn og familier med daglige rutiner gjennom visuelle planer, tydelige delsteg og belønninger som gjør det lettere å komme gjennom dagen mer selvstendig.",
+        "chipVisualSchedules": "Visuelle planer",
+        "chipStarsRewards": "Stjerner og belønninger",
+        "chipMultipleUsers": "Flere barn og voksne",
+        "startBtn": "Kom i gang",
+        "existingBtn": "Jeg har allerede konto",
+        "howItWorksBtn": "Slik virker appen",
+        "firstRunHeadline": "Velkommen til {{brand}}",
+        "firstRunCreateAccount": "Opprett konto",
+        "firstRunLogIn": "Logg inn",
+        "firstRunChildLink": "Jeg er et barn"
+      },
+      "role": {
+        "title": "Hvem skal bruke appen nå?",
+        "kidAria": "Jeg er et barn",
+        "kidLabel": "Jeg er et barn",
+        "kidSub": "Jeg vil se planen min",
+        "kidAlt": "Barn",
+        "parentAria": "Jeg er voksen",
+        "parentLabel": "Jeg er voksen",
+        "parentSub": "Jeg vil logge inn eller komme i gang",
+        "parentAlt": "Familie"
+      },
+      "adultStart": {
+        "ariaLabel": "Start for voksen",
+        "title": "Velkommen! Hvordan vil du fortsette?",
+        "existingLabel": "Jeg har allerede konto",
+        "existingSub": "Logg inn med Apple, Google eller e-post",
+        "newLabel": "Jeg er ny her",
+        "newSub": "Se hvordan appen virker, og opprett en gratis konto"
+      },
+      "signupIntro": {
+        "ariaLabel": "Kom i gang",
+        "title": "Kom i gang med {{brand}}",
+        "sub": "Opprett en gratis konto og bygg barnets første plan med tydelige steg, stjerner og mål.",
+        "point1": "Visuelle planer barnet forstår",
+        "point2": "Stjerner og belønninger som motiverer",
+        "point3": "Flere barn og voksne i samme familie",
+        "createBtn": "Opprett en gratis konto",
+        "existingBtn": "Jeg har allerede konto",
+        "founderNote": "Basis er inkludert gratis akkurat nå."
+      },
+      "howItWorks": {
+        "title": "Slik virker appen",
+        "step1Title": "1. Barnet ser planen steg for steg",
+        "step1Body": "Visuelle rutiner gjør hverdagen tydelig og forutsigbar.",
+        "step2Title": "2. Barnet tjener stjerner når aktivitetene er ferdige",
+        "step2Body": "Små seire bygger motivasjon og selvstendighet.",
+        "step3Title": "3. Voksne følger fremgangen og bygger rutiner sammen",
+        "step3Body": "Flere barn og voksne kan dele samme familie i appen.",
+        "close": "Lukk"
+      },
+      "noscript": "JavaScript kreves — slå på JavaScript for å bruke innlogging."
+    },
+    "register": {
+      "title": "Opprett konto",
+      "pageTitle": "Opprett konto | {{brand}}",
+      "pageHeading": "Opprett en foreldrekonto",
+      "pageLead": "Prøv {{brand}} gratis. En visuell plan med bildestøtte og stjernebelønninger som hjelper barnet å forstå dagen, følge rutiner og bli mer selvstendig.",
+      "pageLeadSecondary": "For familier som vil ha tydeligere rutiner, roligere overganger og mindre masing i hverdagen.",
+      "subtitle": "Kom i gang med {{brand}}",
+      "nameLabel": "Navnet ditt",
+      "namePlaceholder": "f.eks. Anna",
+      "familyNameLabel": "Familienavn",
+      "familyNamePlaceholder": "f.eks. Familien Hansen",
+      "familyNameAuto": "Lages automatisk fra navnet ditt",
+      "familyNameGenerated": "Laget automatisk — endre hvis du vil",
+      "familyNameEdited": "Endret",
+      "email": "E-postadresse",
+      "emailPlaceholder": "you@email.com",
+      "emailHelp": "Vi sender en bekreftelseslenke hit",
+      "password": "Passord",
+      "passwordPlaceholder": "Minst 8 tegn",
+      "passwordHelp": "Må være minst 8 tegn",
+      "confirmPassword": "Bekreft passord",
+      "confirmPasswordPlaceholder": "Gjenta passord",
+      "submit": "Opprett konto",
+      "hasAccount": "Har du allerede konto?",
+      "loginLink": "Logg inn her",
+      "childLoginLink": "Er du et barn? Logg inn her",
+      "gateHintLanguage": "Velg et språk over for å fortsette registreringen.",
+      "gateHintCountry": "Velg landet ditt over for å fortsette registreringen.",
+      "appleFromLoginHint": "Ingen konto er koblet til denne Apple-ID-en ennå. Velg land og godta vilkårene — navn og e-post kommer fra Apple. Du trenger ikke logge inn med Apple på nytt.",
+      "appleOnlyPath": "Opprett kontoen med Apple. Navn og e-post kommer fra Apple — ikke fyll ut skjemaet.",
+      "tagline": "En rolig dag, én stjerne om gangen",
+      "orDivider": "eller",
+      "continueWithApple": "Registrer deg med Apple",
+      "continueWithGoogle": "Registrer deg med Google",
+      "validatingInvite": "Sjekker invitasjon...",
+      "inviteInvalid": "Ugyldig eller utløpt invitasjonslenke. Kontakt personen som inviterte deg.",
+      "inviteValidateFailed": "Kunne ikke sjekke invitasjonslenken. Prøv igjen.",
+      "familyNameSuffix": "Familien til {{name}}",
+      "termsRequired": "Du må godta bruksvilkårene og personvernerklæringen",
+      "success": "Konto opprettet! Sjekk e-posten for å bekrefte kontoen.",
+      "termsPrefix": "Jeg har lest og godtar",
+      "termsLink": "Bruksvilkår",
+      "termsAnd": "og",
+      "privacyLink": "Personvernerklæring",
+      "termsSuffix": ".",
+      "successTitle": "Konto opprettet! 🎉",
+      "successVerifyLine1": "Vi har sendt en bekreftelseslenke til e-postadressen din.",
+      "successVerifyLine2": "Sjekk innboksen (og søppelpost).",
+      "successGracePeriod": "Du kan logge inn med en gang og har 24 timer på å bekrefte e-posten.",
+      "successLoginBtn": "Logg inn",
+      "inviteErrorDefault": "Ugyldig invitasjonslenke.",
+      "appleEmailExists": "En konto med denne e-postadressen finnes allerede. Logg inn med Apple i stedet, eller bruk e-post og passord.",
+      "webDownload": {
+        "title": "Hent appen",
+        "lead": "Nye familier oppretter konto i appen. Last den ned fra App Store eller Google Play.",
+        "appStoreAria": "Last ned i App Store",
+        "playStoreAria": "Hent den på Google Play",
+        "hasAccount": "Har du allerede konto?",
+        "loginLink": "Logg inn"
+      }
+    },
+    "parentGate": {
+      "title": "Foreldrelås",
+      "hint": "Skriv inn PIN-koden for å fortsette",
+      "keypadAria": "PIN-tastatur",
+      "cancel": "Avbryt",
+      "forgotPinBackup": "Glemt PIN? Logg inn med e-post eller Apple/Google",
+      "digitsEntered": "{{count}} av 4 siffer",
+      "backspace": "Slett",
+      "confirm": "Bekreft",
+      "needFourDigits": "PIN må være 4 siffer"
+    },
+    "childLogin": {
+      "title": "Hei! 👋",
+      "pageTitle": "Stjerneutforsker — {{brand}}",
+      "whoAreYou": "Hvem er du?",
+      "selectProfile": "Velg profilen din og skriv inn PIN-koden.",
+      "back": "Tilbake",
+      "addChild": "Legg til et barn",
+      "notMe": "Jeg finner ikke meg selv",
+      "subtitle": "Skriv brukernavn og PIN",
+      "username": "Brukernavn",
+      "usernamePlaceholder": "Brukernavnet ditt",
+      "pin": "PIN",
+      "pinPlaceholder": "4 siffer",
+      "submit": "Logg inn",
+      "parentLogin": "Er du en forelder?",
+      "parentLoginLink": "Logg inn her",
+      "adultLogin": "Logg inn som voksen",
+      "adultLoginShort": "Voksen",
+      "forgotPassword": "Glemt passord?",
+      "emptyNoChildren": "Ingen barn er registrert ennå.",
+      "nameHint": "Skriv navnet ditt for å logge inn",
+      "namePlaceholder": "Navnet ditt",
+      "continue": "Fortsett →",
+      "switchChild": "Bytt barn",
+      "pinSub": "Skriv inn koden din",
+      "attemptsLeft": "Forsøk igjen",
+      "pinDotsAria": "PIN-kode",
+      "lockoutWait": "Vent litt",
+      "lockoutSoon": "Du kan prøve igjen snart",
+      "welcome": "Velkommen!",
+      "redirecting": "Tar deg til oversikten…",
+      "keypadAria": "Talltastatur",
+      "forgotPin": "Spør en forelder hvis du har glemt koden",
+      "needHelp": "Trenger du hjelp?",
+      "contactParent": "Kontakt en forelder"
+    },
+    "verify": {
+      "title": "Bekreft e-posten din",
+      "pageTitle": "Bekreft e-post — {{brand}}",
+      "checkingTitle": "Bekrefter e-post",
+      "checkingBody": "Vent mens vi bekrefter e-postadressen din...",
+      "checking": "Sjekker...",
+      "success": "E-posten er bekreftet! Du kan logge inn nå.",
+      "successTitle": "E-post bekreftet!",
+      "welcomeMessage": "E-postadressen din er bekreftet. Velkommen til {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Sender deg videre om",
+      "redirectCountdownSuffix": "sekunder...",
+      "error": "Bekreftelseslenken er ugyldig eller utløpt.",
+      "errorTitle": "Bekreftelse feilet",
+      "verifyFailed": "Bekreftelsen feilet. Lenken kan ha utløpt.",
+      "noToken": "Ingen bekreftelsestoken ble funnet i lenken.",
+      "genericError": "Noe gikk galt. Prøv igjen.",
+      "resendPrompt": "Skriv inn e-postadressen for å få en ny bekreftelseslenke:",
+      "resendBtn": "Send ny lenke",
+      "resendSending": "Sender...",
+      "resendRateLimit": "Du har allerede bedt om flere lenker. Prøv igjen om en time.",
+      "resendSuccess": "✅ Hvis kontoen finnes, har vi sendt en ny bekreftelseslenke. Sjekk innboksen og søppelpost!",
+      "resendEmailInvalid": "Skriv inn en gyldig e-postadresse.",
+      "needHelpPrefix": "Trenger du hjelp? Sjekk søppelpost eller",
+      "contactUs": "kontakt oss",
+      "loginLink": "Gå til innlogging"
+    },
+    "forgotPassword": {
+      "title": "Glemt passord",
+      "pageTitle": "Glemt passord — {{brand}}",
+      "heading": "Glemt passord?",
+      "lead": "Ikke noe problem! Vi sender deg en lenke for å tilbakestille passordet.",
+      "subtitle": "Skriv inn e-postadressen, så sender vi en tilbakestillingslenke",
+      "email": "E-postadresse",
+      "emailPlaceholder": "you@email.com",
+      "emailHint": "Vi sender en sikker lenke for å tilbakestille passordet",
+      "submit": "Send tilbakestillingslenke",
+      "sent": "Hvis den e-postadressen finnes hos oss, har vi sendt en tilbakestillingslenke.",
+      "successTitle": "Sjekk e-posten!",
+      "successBody": "Vi har sendt en lenke for å tilbakestille passordet. Sjekk innboksen og søppelpost.",
+      "orDivider": "eller",
+      "rememberPassword": "Husker du passordet?",
+      "backToLogin": "Tilbake til innlogging",
+      "helpTitle": "Fikk du ikke e-post?",
+      "helpItem1": "Sjekk søppelpost",
+      "helpItem2": "Sjekk at du skrev riktig e-postadresse",
+      "helpItem3": "Prøv igjen om noen minutter",
+      "helpItem4Suffix": "hvis du trenger hjelp",
+      "contactSupport": "Kontakt support"
+    },
+    "resetPassword": {
+      "title": "Tilbakestill passord",
+      "pageTitle": "Tilbakestill passord — {{brand}}",
+      "subtitle": "Velg et nytt passord",
+      "password": "Nytt passord",
+      "passwordPlaceholder": "Minst 8 tegn",
+      "passwordHelp": "Må være minst 8 tegn",
+      "confirmPassword": "Bekreft passord",
+      "confirmPasswordPlaceholder": "Gjenta passord",
+      "submit": "Tilbakestill passord",
+      "submitting": "Lagrer…",
+      "success": "Passordet er endret! Du kan logge inn nå.",
+      "successRedirect": "Ferdig! Det nye passordet er lagret.",
+      "alreadyUsed": "Passordet var allerede endret. Logg inn med det nye passordet.",
+      "error": "Tilbakestillingslenken er ugyldig eller utløpt.",
+      "invalidLink": "Ugyldig tilbakestillingslenke.",
+      "requestNewLink": "Be om en ny tilbakestillingslenke",
+      "requestNewLinkShort": "Be om en ny lenke",
+      "resetFailed": "Passordet kunne ikke tilbakestilles",
+      "rememberPassword": "Husker du passordet?",
+      "goToLoginInline": "Gå til innlogging",
+      "loginLink": "Gå til innlogging"
+    },
+    "supportBubble": {
+      "closeAria": "Lukk",
+      "triggerAria": "Kontakt support",
+      "title": "Trenger du hjelp? 💬",
+      "subtitle": "Vi svarer så snart vi kan",
+      "oooSubtitle": "Vi er borte 1.–10. september",
+      "success": "Takk! Vi har mottatt meldingen og svarer snart.",
+      "oooSuccess": "Takk! Vi har mottatt meldingen. Vi er borte 1.–10. september og svarer så snart vi kan, senest 11. september.",
+      "openThread": "Åpne samtalen din",
+      "nameLabel": "Navn",
+      "namePlaceholder": "Navnet ditt",
+      "emailLabel": "E-post",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Så vi kan svare deg",
+      "messageLabel": "Melding",
+      "messagePlaceholder": "Beskriv saken...",
+      "submit": "Send melding",
+      "fillAllFields": "Fyll ut alle feltene",
+      "messageMinLength": "Meldingen må være minst 10 tegn",
+      "submitting": "Sender...",
+      "sendFailed": "Kunne ikke sende meldingen. Prøv igjen.",
+      "genericError": "Noe gikk galt"
+    },
+    "contactForm": {
+      "fillRequired": "Alle felt må fylles ut.",
+      "emailInvalid": "Skriv inn en gyldig e-postadresse.",
+      "messageTooShort": "Meldingen er for kort (minst 5 tegn).",
+      "submitting": "Sender…",
+      "submit": "Send",
+      "genericError": "Noe gikk galt. Prøv igjen.",
+      "openThread": "Åpne samtalen din"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "E-post og passord er påkrevd",
+        "emailRequired": "E-postadresse er påkrevd",
+        "accountBlocked": "Kontoen din er sperret. Kontakt administratoren.",
+        "emailVerificationRequired": "Du må bekrefte e-postadressen for å fortsette",
+        "verificationTokenRequired": "Bekreftelsestoken er påkrevd",
+        "invalidVerificationLink": "Ugyldig eller utløpt bekreftelseslenke",
+        "resendVerificationRateLimit": "Du har allerede bedt om flere bekreftelseslenker. Prøv igjen om en time.",
+        "tokenAndPasswordRequired": "Token og passord er påkrevd",
+        "invalidResetLink": "Ugyldig eller utløpt tilbakestillingslenke. Be om en ny.",
+        "parentOnlyViewMode": "Bare foreldre kan oppdatere visningsmodus",
+        "parentOnlyUiViewMode": "Bare foreldre kan oppdatere grensesnittmodus",
+        "parentOnlyTheme": "Bare foreldre kan oppdatere tema",
+        "preferencesSaveFailed": "Kunne ikke lagre innstillinger",
+        "uiViewModeSaveFailed": "Kunne ikke lagre visningsmodus",
+        "themeSaveFailed": "Kunne ikke lagre tema",
+        "userNotFound": "Fant ikke brukeren",
+        "unknownUserType": "Ukjent brukertype",
+        "registrationClosed": "Registrering er stengt akkurat nå",
+        "invalidCountry": "Ugyldig land",
+        "countryRequired": "Velg land før du oppretter konto",
+        "registrationRequired": "ERSTATTET — bruk appleAccountCompletionRequired. Ikke send videre til registrering med e-post og passord.",
+        "appleAccountCompletionRequired": "Velg land og godta vilkårene for å fullføre kontoen. Navn og e-post kommer fra Apple.",
+        "familyNameRequired": "Navn er påkrevd for å opprette en familiekonto",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Registrering fra Sverige er midlertidig stengt.",
+          "MARKET_IE_CLOSED": "{{brand}} er ikke tilgjengelig i Irland ennå.",
+          "MARKET_CA_CLOSED": "{{brand}} er ikke tilgjengelig i Canada ennå.",
+          "MARKET_FI_CLOSED": "{{brand}} er ikke tilgjengelig i Finland ennå.",
+          "MARKET_NO_CLOSED": "{{brand}} er ikke tilgjengelig i Norge ennå.",
+          "MARKET_DK_CLOSED": "{{brand}} er ikke tilgjengelig i Danmark ennå.",
+          "MARKET_EU_CLOSED": "{{brand}} er ikke tilgjengelig i landet ditt ennå. Vi sier fra når vi åpner flere EU-land.",
+          "MARKET_UK_CLOSED": "{{brand}} er ikke tilgjengelig i Storbritannia ennå.",
+          "MARKET_US_CLOSED": "{{brand}} er ikke tilgjengelig i USA ennå.",
+          "MARKET_OTHER_CLOSED": "{{brand}} er ikke tilgjengelig i landet ditt ennå.",
+          "MARKET_BILLING_NOT_READY": "Kjøp er ikke tilgjengelig i dette landet ennå, så vi kan ikke opprette en konto du ikke ville kunne bruke."
+        }
+      },
+      "success": {
+        "emailVerified": "E-postadressen er bekreftet! Du kan logge inn nå.",
+        "resendVerification": "Hvis kontoen finnes, sendes en ny bekreftelseslenke",
+        "forgotPassword": "Hvis e-postadressen finnes, sender vi en lenke"
+      }
+    },
+    "errors": {
+      "nameRequired": "Skriv inn navnet ditt",
+      "emailRequired": "E-postadresse er påkrevd",
+      "emailInvalid": "Ugyldig e-postadresse",
+      "passwordRequired": "Passord er påkrevd",
+      "passwordTooShort": "Passordet må være minst 8 tegn",
+      "passwordMismatch": "Passordene stemmer ikke",
+      "usernameRequired": "Brukernavn er påkrevd",
+      "pinRequired": "PIN er påkrevd",
+      "pinInvalid": "PIN må være 4 siffer",
+      "invalidCredentials": "Feil e-post eller passord",
+      "accountLocked": "Kontoen er midlertidig låst. Prøv igjen om 15 minutter.",
+      "emailNotVerified": "Du må bekrefte e-postadressen først",
+      "emailExists": "En konto med den e-postadressen finnes allerede",
+      "tooManyAttempts": "For mange forsøk. Vent litt og prøv igjen.",
+      "serverError": "Noe gikk galt. Prøv igjen senere.",
+      "invalidValues": "Ugyldige verdier",
+      "invalidParams": "Ugyldige URL-parametere",
+      "invalidQuery": "Ugyldige spørringsparametere",
+      "parentPinInvalid": "Feil PIN — prøv igjen",
+      "logoutFailed": "Utlogging feilet. Prøv igjen.",
+      "logoutRateLimited": "For mange forsøk. Vent litt og prøv igjen.",
+      "handoffInvalid": "Kunne ikke gjenopprette voksenøkten. Logg inn som forelder.",
+      "userNotFound": "Fant ikke brukeren",
+      "invalidPassword": "Feil passord",
+      "tokenRequired": "Token er påkrevd",
+      "idTokenRequired": "idToken er påkrevd",
+      "allFieldsRequired": "Alle felt er påkrevd",
+      "messageTooShort": "Meldingen må være minst 10 tegn",
+      "serviceUnavailable": "Tjenesten er midlertidig utilgjengelig",
+      "nameTooShort": "Navn er påkrevd (minst 2 tegn)",
+      "roleRequired": "Rolle er påkrevd",
+      "consentRequired": "Du må samtykke til at vi lagrer opplysningene dine",
+      "refreshInvalid": "Oppdateringstoken er ugyldig eller utløpt",
+      "authRequired": "Innlogging kreves",
+      "passwordTooShort6": "Passordet må være minst 6 tegn"
+    }
+  },
+  "surveys": {
+    "thankYou": "Takk for svaret!",
+    "errors": {
+      "unavailable": "Undersøkelsen er ikke tilgjengelig akkurat nå",
+      "notFound": "Fant ikke undersøkelsen",
+      "closed": "Undersøkelsen er stengt",
+      "paused": "Undersøkelsen er satt på pause",
+      "alreadyAnswered": "Du har allerede svart på denne undersøkelsen",
+      "alreadySubmitted": "Undersøkelsen er allerede sendt inn",
+      "questionIdRequired": "Spørsmål er påkrevd",
+      "invalidQuestion": "Ugyldig spørsmål",
+      "maxSelections": "Du kan velge maks {{max}}",
+      "invalidOption": "Ugyldig svaralternativ",
+      "sessionNotFound": "Fant ikke økten",
+      "answerFirst": "Svar på undersøkelsen først",
+      "contestNotOpen": "Trekningen er ikke åpen",
+      "contestClosed": "Trekningen er stengt",
+      "ageRequired": "Du må være 18 år eller eldre for å delta",
+      "contestConsent": "Samtykke kreves for å delta i trekningen",
+      "contestAlready": "Du er allerede med i trekningen",
+      "emailAlready": "Denne adressen er allerede påmeldt",
+      "idActionRequired": "Undersøkelse og handling er påkrevd"
+    }
+  },
+  "dashboard": {
+    "welcome": "Velkommen, {{name}}!",
+    "todaySchedule": "Dagens plan",
+    "children": "Barn",
+    "addChild": "Legg til barn",
+    "settings": "Innstillinger",
+    "noChildren": "Du har ikke lagt til noen barn ennå. Begynn med å legge til det første barnet!",
+    "stars": "Stjerner",
+    "streak": "Dager på rad"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Min første stjerne"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Hei {{name}}! ⭐",
+    "today": "I dag",
+    "now": "Nå",
+    "next": "Neste",
+    "later": "Senere",
+    "done": "Ferdig!",
+    "stars": "Stjernene mine",
+    "rewards": "Belønninger"
+  },
+  "sections": {
+    "morgon": "Morgen",
+    "dag": "Dag",
+    "kvall": "Kveld",
+    "natt": "Natt"
+  },
+  "settings": {
+    "title": "Innstillinger",
+    "family": {
+      "title": "Familieinnstillinger",
+      "timeDisplayMode": "Tidsvisning",
+      "morningStart": "Morgen start",
+      "morningEnd": "Morgen slutt",
+      "dayStart": "Dag start",
+      "dayEnd": "Dag slutt",
+      "eveningStart": "Kveld start",
+      "eveningEnd": "Kveld slutt",
+      "nightStart": "Natt start",
+      "nightEnd": "Natt slutt",
+      "streakStartDay": "Startdag for rekke",
+      "soundEnabled": "Lyd på",
+      "save": "Lagre familieinnstillinger"
+    },
+    "language": {
+      "description": "Velg språket i appen. Enkelte oversettelser kan fortsatt være ufullstendige.",
+      "switchBack": "Bytt tilbake til svensk"
+    },
+    "invite": {
+      "title": "Inviter en forelder",
+      "description": "Inviter en annen forelder til å se og styre barnas planer. Invitasjonen gjelder i 7 dager.",
+      "email": "E-postadresse",
+      "emailPlaceholder": "parent@email.com",
+      "selectChildren": "Velg hvilke barn den inviterte forelderen skal ha tilgang til:",
+      "submit": "Send invitasjon",
+      "pending": "Ventende invitasjoner:"
+    },
+    "password": {
+      "title": "Bytt passord",
+      "current": "Nåværende passord",
+      "new": "Nytt passord",
+      "confirm": "Bekreft nytt passord",
+      "submit": "Bytt passord",
+      "mismatch": "Passordene stemmer ikke"
+    },
+    "notifications": {
+      "title": "Varslingsinnstillinger",
+      "weeklySummary": "Ukesoppsummering (søndag kl. 21:00)",
+      "rewardRedemption": "Innløsning av belønning",
+      "emailEnabled": "Alle e-poster globalt",
+      "save": "Lagre varslingsinnstillinger"
+    },
+    "theme": {
+      "title": "Utseende",
+      "darkMode": "Mørk modus",
+      "darkModeDescription": "Slå på mørkt tema for mer behagelig bruk i svakt lys",
+      "colorBlind": "Tema for fargeblindhet",
+      "colorBlindDescription": "Justerer farger for ulike typer fargeblindhet",
+      "colorBlindNone": "Ingen (standard)",
+      "colorBlindProtanopia": "Protanopi (rødblind)",
+      "colorBlindDeuteranopia": "Deuteranopi (grønnblind)",
+      "colorBlindTritanopia": "Tritanopi (blåblind)"
+    },
+    "trustedDevices": {
+      "title": "Klarerte enheter",
+      "description": "Barneenheter kan åpne barnevisningen uten PIN etter at du godkjenner enheten her.",
+      "disabled": "Barneenhetsmodus er ikke slått på for familien din ennå.",
+      "enrollHint": "På barnets nettbrett eller telefon: velg barnet og gjør denne enheten til barnets enhet.",
+      "enrollThisDevice": "Gjør til barneenhet",
+      "enrollSharedDevice": "Gjør til delt familieenhet",
+      "enrollFailed": "Kunne ikke registrere denne enheten. Prøv igjen.",
+      "empty": "Ingen klarerte enheter er registrert.",
+      "revoke": "Trekk tilbake",
+      "revokeAll": "Trekk tilbake alle enheter",
+      "revokeAllConfirm": "Alle klarerte enheter logges ut. Fortsette?",
+      "modeChild": "Barneenhet",
+      "modeShared": "Delt enhet",
+      "modeParent": "Forelderenhet",
+      "unknownChild": "Barn"
+    },
+    "thisDevice": {
+      "title": "Denne enheten",
+      "description": "Hvordan denne telefonen eller nettbrettet skal åpne appen for familien.",
+      "setupTitle": "Hvordan skal denne enheten brukes?",
+      "setupLead": "Du kan endre dette senere i Innstillinger.",
+      "setupLater": "Ikke nå",
+      "openSettings": "Åpne innstillinger",
+      "usageHeading": "Bruk",
+      "usageParent": "Min telefon som forelder",
+      "usageShared": "Delt med barna",
+      "usageChild": "Barnets enhet",
+      "startHeading": "Starter som",
+      "startParent": "Forelder",
+      "startChoose": "Velg barn",
+      "startParentFixed": "Denne enheten åpner alltid foreldrevisningen.",
+      "startChildFixed": "Denne enheten er koblet til ett barn.",
+      "childrenHeading": "Barn på denne enheten",
+      "adultAccessHeading": "Voksentilgang",
+      "adultPinSet": "PIN er satt",
+      "adultPinMissing": "Sett en PIN i Innstillinger",
+      "biometricIos": "Face ID eller Touch ID når det er tilgjengelig",
+      "biometricAndroid": "Biometri eller enhetslås når det er tilgjengelig",
+      "biometricWeb": "PIN for voksenmodus",
+      "widgetsHeading": "Widgeter",
+      "widgetsLinked": "Widgeter på Hjem-skjermen er koblet til barnets plan.",
+      "widgetsNone": "Ingen widgeter er koblet på denne enheten.",
+      "changeStartHeading": "Endre startmodus",
+      "revokeThis": "Fjern tilgang for denne enheten",
+      "revokeConfirm": "Denne enheten må godkjennes på nytt før barna kan åpne appen uten PIN. Fortsette?",
+      "otherDevices": "Andre familieenheter",
+      "openForChild": "Åpne direkte for {{name}}",
+      "saveFailed": "Kunne ikke lagre. Prøv igjen."
+    }
+  },
+  "common": {
+    "loading": "Laster...",
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "delete": "Slett",
+    "edit": "Rediger",
+    "back": "Tilbake",
+    "confirm": "Bekreft",
+    "yes": "Ja",
+    "no": "Nei",
+    "networkError": "Nettverksfeil"
+  },
+  "categories": {
+    "title": "Kategorier",
+    "subtitle": "Sorter aktivitetene i kategorier",
+    "addCategory": "Legg til kategori",
+    "editCategory": "Rediger kategori",
+    "categoryName": "Kategorinavn",
+    "categoryNamePlaceholder": "f.eks. Hygiene",
+    "noCategories": "Ingen kategorier ennå",
+    "defaultBadge": "Standard",
+    "deleteConfirm": "Er du sikker på at du vil slette denne kategorien?",
+    "hasActivities": "Denne kategorien har aktiviteter koblet til seg. Fjern aktivitetene først.",
+    "saved": "Kategori lagret",
+    "deleted": "Kategori slettet"
+  },
+  "activities": {
+    "title": "Aktiviteter",
+    "subtitle": "Opprett og administrer aktivitetsmaler for familien",
+    "addActivity": "Legg til aktivitet",
+    "editActivity": "Rediger aktivitet",
+    "activityName": "Aktivitetsnavn",
+    "activityNamePlaceholder": "f.eks. Pusse tenner",
+    "icon": "Ikon",
+    "category": "Kategori",
+    "noCategory": "Ingen kategori",
+    "starValue": "Stjerneverdi",
+    "starValueHelp": "Hvor mange stjerner barnet tjener",
+    "favorite": "Merk som favoritt",
+    "favoriteHelp": "Favoritter vises først i planen",
+    "noActivities": "Ingen aktiviteter ennå. Lag den første aktiviteten!",
+    "filterAll": "Alle",
+    "favoritesFirst": "Favoritter vises først",
+    "saved": "Aktivitet lagret",
+    "deleted": "Aktivitet slettet",
+    "deleteConfirm": "Er du sikker på at du vil slette denne aktiviteten?",
+    "usedInSchedule": "Denne aktiviteten brukes i en plan. Fjern den derfra først."
+  },
+  "schedule": {
+    "title": "Ukeplan",
+    "subtitle": "Bygg planer for hvert barn og hver dag",
+    "selectChild": "Velg barn",
+    "selectDay": "Velg dag",
+    "noChild": "Velg et barn over for å se planen",
+    "noScheduleForDay": "Ingen plan for denne dagen",
+    "createSchedule": "Lag plan for denne dagen",
+    "addActivity": "Legg til aktivitet",
+    "startTime": "Starttid",
+    "endTime": "Sluttid",
+    "section": "Del",
+    "copyDay": "Kopier dag",
+    "copyDayTitle": "Kopier planen til andre dager",
+    "copyFromDay": "Kopier fra",
+    "copyToDays": "Kopier til (velg én eller flere)",
+    "copyToChild": "Kopier til et annet barn",
+    "copyToChildTitle": "Kopier hele ukeplanen til",
+    "copyConfirm": "Kopier",
+    "copied": "Plan kopiert!",
+    "deleteSchedule": "Slett dag",
+    "deleteConfirm": "Er du sikker? Alle aktiviteter for denne dagen fjernes.",
+    "deleted": "Plan slettet",
+    "activityAdded": "Aktivitet lagt til",
+    "activityRemoved": "Aktivitet fjernet",
+    "reordered": "Rekkefølge oppdatert",
+    "days": {
+      "0": "Søndag",
+      "1": "Mandag",
+      "2": "Tirsdag",
+      "3": "Onsdag",
+      "4": "Torsdag",
+      "5": "Fredag",
+      "6": "Lørdag"
+    },
+    "daysShort": {
+      "0": "søn",
+      "1": "man",
+      "2": "tir",
+      "3": "ons",
+      "4": "tor",
+      "5": "fre",
+      "6": "lør"
+    },
+    "sections": {
+      "morgon": "Morgen",
+      "dag": "Dag",
+      "kvall": "Kveld",
+      "natt": "Natt"
+    }
+  },
+  "dailyLog": {
+    "title": "Daglogg",
+    "subtitle": "Aktiviteter for dagen",
+    "today": "I dag",
+    "prevDay": "Forrige dag",
+    "nextDay": "Neste dag",
+    "selectDate": "Velg dato",
+    "selectChild": "Velg barn",
+    "noChild": "Velg et barn over for å se loggen",
+    "noSchedule": "Ingen plan for denne dagen",
+    "noScheduleHint": "Legg til en ukeplan for å lage automatiske daglogger.",
+    "loading": "Laster logg...",
+    "paused": "Dag på pause",
+    "pausedHint": "Denne dagen er satt på pause (for eksempel sykedag eller fri).",
+    "pauseDay": "Sett dagen på pause",
+    "unpauseDay": "Gjenoppta dagen",
+    "pauseConfirm": "Sette denne dagen på pause? Aktivitetene teller ikke mot deg.",
+    "dayPaused": "Dag satt på pause",
+    "dayUnpaused": "Dag gjenopptatt",
+    "markDone": "Merk som ferdig",
+    "markUndone": "Angre",
+    "completed": "Ferdig",
+    "notCompleted": "Ikke ferdig",
+    "completedAt": "Merket ferdig",
+    "stars": "stjerner",
+    "star": "stjerne",
+    "progress": "{{completed}} av {{total}} aktiviteter ferdig",
+    "allDone": "Alle aktiviteter ferdig! 🎉",
+    "emptySection": "Ingen aktiviteter i denne delen",
+    "history": "Historikk",
+    "historyRange": "Velg datoperiode",
+    "historyFrom": "Fra",
+    "historyTo": "Til",
+    "historyFetch": "Hent historikk",
+    "historyEmpty": "Ingen logger funnet for den valgte perioden",
+    "sections": {
+      "morgon": "Morgen",
+      "dag": "Dag",
+      "kvall": "Kveld",
+      "natt": "Natt"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Bekreft e-posten — {{brand}}",
+      "title": "Velkommen til {{brand}}! ⭐",
+      "body": "Trykk knappen under for å bekrefte e-postadressen:",
+      "button": "Bekreft e-post",
+      "expiry": "Denne lenken er gyldig i {{hours}} timer."
+    },
+    "resetPassword": {
+      "subject": "Tilbakestill passord — {{brand}}",
+      "title": "Tilbakestill passordet",
+      "greeting": "Hei {{name}}",
+      "greetingGeneric": "Hei",
+      "body": "trykk her for å sette et nytt passord:",
+      "button": "Tilbakestill passord",
+      "expiry": "Denne lenken er gyldig i {{hours}} time. Ignorer e-posten hvis du ikke ba om tilbakestilling."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} prøver å logge inn",
+      "title": "Innloggingsforsøk på {{brand}}",
+      "body": "{{childName}} skrev feil PIN 3 ganger på {{brand}}.",
+      "inApp": "{{childName}} prøvde å logge inn med feil PIN 3 ganger ({{time}})",
+      "help": "Du kan hjelpe med riktig kode eller tilbakestille PIN i appen.",
+      "button": "Åpne {{brand}}",
+      "footer": "Hvis dette ikke var barnet ditt, logg inn og endre PIN under barnets innstillinger."
+    },
+    "accountDeletionRequested": {
+      "subject": "{{brand}}-kontoen din er merket for sletting",
+      "greeting": "Hei {{name}}!",
+      "intro": "Vi har mottatt en forespørsel om å slette kontoen din og alle tilknyttede data.",
+      "graceTitle": "⏳ Dataene dine slettes permanent om 30 dager.",
+      "undo": "I denne perioden kan du logge inn og <strong>avbryte slettingen</strong> hvis du ombestemmer deg.",
+      "loginHint": "Hvis du ombestemmer deg — logg inn på {{brand}}, så ser du et valg for å avbryte.",
+      "footer": "Hvis dette var en feil, kan du ignorere e-posten. Dataene slettes om 30 dager hvis du ikke avbryter.",
+      "contact": "Hvis du har spørsmål, kontakt oss på {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "{{brand}}-kontoen din er slettet",
+      "greeting": "Hei {{name}}",
+      "intro": "Kontoen din og alle tilknyttede data er nå permanent slettet fra {{brand}}.",
+      "dataRemoved": "Alle familier, barn, planer, aktiviteter og stjerner er fjernet.",
+      "thanks": "Vi håper {{brand}} var til hjelp mens du brukte den.",
+      "return": "Hvis du vil opprette en ny konto, er du velkommen tilbake når som helst på {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "La barnet prøve det første steget ⭐",
+      "greeting": "Hei {{name}}!",
+      "body": "Planen er klar. Neste steg er å la barnet logge inn med PIN — det tar under et minutt.",
+      "button": "Fortsett til barnelogin"
+    },
+    "welcomeShell": {
+      "headerTitle": "Velkommen! 🌟",
+      "cta": "Åpne {{brand}} ⭐",
+      "footerIntro": "Du får denne e-posten fordi du nylig registrerte deg på {{brand}}.",
+      "unsubscribe": "Meld av"
+    },
+    "common": {
+      "genericParent": "Forelder",
+      "genericInviter": "Noen",
+      "genericPedagogInviter": "En forelder",
+      "genericChild": "barnet ditt",
+      "genericReward": "belønningen",
+      "genericYou": "du",
+      "greetingNamed": "Hei {{name}}",
+      "greeting": "Hei",
+      "familyNamed": "familien \"{{familyName}}\"",
+      "aFamily": "en familie",
+      "settingsNotifications": "Innstillinger → Varsler",
+      "settingsNotificationsHtml": "Innstillinger → <strong>Varsler</strong>"
+    },
+    "invite": {
+      "subject": "Du er invitert til {{familyLabel}} på {{brand}} ⭐",
+      "title": "Du er invitert! ⭐",
+      "body": "{{greeting}}, {{inviterName}} har invitert deg til {{familyLabel}} på {{brand}}.",
+      "intro": "{{brand}} er en visuell dagsplan som hjelper barn å forstå dagen, huke av aktiviteter og samle stjerner.",
+      "ctaIntro": "Trykk her for å lage passord og aktivere kontoen:",
+      "button": "Aktiver konto",
+      "footer": "Invitasjonen gjelder i 7 dager. Ignorer e-posten hvis du ikke ventet en invitasjon."
+    },
+    "pedagogInvite": {
+      "subject": "Du er invitert som pedagog i {{familyName}} ⭐",
+      "title": "Velkommen som pedagog! ⭐",
+      "greetingNamed": "Hei {{name}},",
+      "greeting": "Hei,",
+      "body": "{{inviterName}} har invitert deg som pedagog i {{familyName}} på {{brand}}.",
+      "intro": "Som pedagog kan du dokumentere observasjoner og følge barnets plan.",
+      "button": "Godta invitasjon →",
+      "footer": "Invitasjonen gjelder i 7 dager. Hvis du ikke ventet denne e-posten, kan du ignorere den."
+    },
+    "winBack": {
+      "subject": "Kom i gang igjen på ett minutt ⭐",
+      "greeting": "Hei {{name}}! 👋",
+      "body1": "Planen til {{childName}} ligger der fortsatt — åpne dagens aktiviteter og huk dem av sammen.",
+      "body2": "Det tar bare et minutt å komme i gang igjen.",
+      "button": "Åpne plan →",
+      "settingsHint": "Du kan slå av disse e-postene under {{settingsLink}} i appen.",
+      "settingsLinkText": "Innstillinger → Varsler"
+    },
+    "activationProgramInvite": {
+      "subject": "En rolig start på rutinene til {{childName}}?",
+      "greeting": "Hei {{name}}!",
+      "body1": "Du har opprettet konto og satt opp planen til {{childName}} — bra jobba.",
+      "body2": "Mange familier sier det vanskeligste ikke er å komme i gang, men å <strong>holde rutinen</strong> når hverdagen tar over.",
+      "body3": "Du kan nå prøve <strong>7-dagers oppstartsprogram</strong>: korte daglige steg som hjelper deg som forelder å holde flyten. Barnets plan forblir den samme.",
+      "button": "Ja, hjelp oss gjennom den første uken",
+      "footer": "Hvis du ikke vil ha guiden, virker appen som vanlig — alt du har satt opp, er fortsatt der."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rutinen venter — prøv den sammen i kveld ⭐",
+        "greeting": "Hei {{name}}!",
+        "body1": "Du har allerede en plan. Det som gjenstår, er å <strong>prøve rutinen sammen</strong> — la barnet logge inn og samle den første stjernen.",
+        "body2": "Det tar omtrent to minutter. Ingen press.",
+        "button": "Åpne Hjem →"
+      },
+      "noSchema": {
+        "subject": "Kom i gang med rutinen — bare noen minutter ⭐",
+        "greeting": "Hei {{name}}!",
+        "body1": "Du har registrert deg — fin start! Neste steg er å <strong>sette opp planen</strong> så barnet vet hva som venter hver dag.",
+        "body2": "Det tar omtrent fem minutter. Alt du allerede har gjort, ligger der hvis du vil fortsette senere.",
+        "button": "Fortsett oppstarten →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Du abonnerer på nyhetsbrev fra {{brand}}",
+      "title": "Takk for at du abonnerer! ⭐",
+      "greetingNamed": "Hei {{name}},",
+      "greeting": "Hei,",
+      "body": "Du abonnerer nå på nyhetsbrev fra {{brand}} med tips, nytt og oppdateringer i appen.",
+      "settings": "Du kan melde deg av når som helst under <a href=\"{{settingsUrl}}\">Innstillinger</a> i appen, eller via lenken nederst i hvert nyhetsbrev.",
+      "signoff": "Vennlig hilsen,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} vil hente \"{{rewardName}}\" ⭐",
+      "title": "Belønning venter på godkjenning! 🎁",
+      "greeting": "Hei {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> vil hente:",
+      "cost": "Kostnad: {{starCost}} stjerner",
+      "approveHint": "Logg inn i appen for å godkjenne eller avslå innløsningen.",
+      "settingsHint": "Du kan slå av disse varslene under {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "måned",
+      "howTitle": "Slik virker det:",
+      "how1": "Lag planer og aktiviteter for barnet",
+      "how2": "La barnet samle stjerner hver dag",
+      "how3": "Sett opp belønninger i stjernekisten",
+      "footerIntro": "Du får denne e-posten fordi du nylig registrerte deg på {{brand}}.",
+      "openApp": "Åpne appen",
+      "trial": {
+        "subject": "Velkommen til {{brand}} – gratisperioden har startet!",
+        "headerTitle": "Gratisperioden har startet! ⭐",
+        "intro": "Velkommen! Du har nå <strong>{{trialDays}} dager gratis</strong> til å prøve alle funksjoner i {{brand}} — uten kort.",
+        "pricing": "Etter {{trialDays}} dager koster det <strong>{{monthlyPrice}}</strong> — du kan oppgradere når du vil.",
+        "pricingOpen": "Etter {{trialDays}} dager velger du om du vil fortsette med et abonnement.",
+        "cta": "Prøv Premium ⭐",
+        "ctaHint": "Ingen binding — avslutt når du vil"
+      },
+      "complimentary": {
+        "subject": "Velkommen til {{brand}} – gratis til {{freeUntil}}",
+        "headerTitle": "Gratis til {{freeUntil}}",
+        "intro": "Velkommen! <strong>{{brand}} er gratis til {{freeUntil}}.</strong> Ingen abonnement eller betalingsmåte kreves. Dette tilbudet blir ikke automatisk et betalt abonnement.",
+        "pricing": "Fra {{paidFrom}} kan du velge om du vil fortsette med et abonnement. Ingenting trekkes automatisk på grunn av dette tilbudet.",
+        "cta": "Åpne appen",
+        "ctaHint": "Ingen kort kreves. Dette tilbudet blir ikke automatisk et abonnement."
+      },
+      "introYear": {
+        "subject": "Velkommen til {{brand}}",
+        "headerTitle": "Velkommen! ⭐",
+        "intro": "Velkommen! Du kan bruke funksjonene i {{brand}}.",
+        "pricing": "Ingen betaling kreves i denne perioden.",
+        "cta": "Åpne appen",
+        "ctaHint": "Du kan se på Premium når du vil"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Ukesoppsummering ⭐ — {{weekLabel}}",
+      "greeting": "Hei {{name}}! 👋",
+      "intro": "Her er ukesoppsummeringen for <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} samlet {{stars}} stjerner denne uken!",
+      "sharePrompt": "Kjenner du en annen forelder som ville likt dette?",
+      "shareWhatsApp": "Del på WhatsApp",
+      "shareFriend": "Fortell en venn",
+      "shareTextWithHighlight": "{{highlight}} Vi bruker {{brand}} til barnas rutiner – ta en titt:",
+      "shareTextGeneric": "Vi bruker {{brand}} til barnas daglige rutiner – ta en titt:",
+      "starsEarned": "Stjerner tjent",
+      "routinesCompleted": "Rutiner fullført",
+      "routinesOf": "{{completed}} av {{total}} ({{pct}}%)",
+      "moodAverage": "Humør (snitt)",
+      "moodVeryHappy": "Veldig glad 😄 ({{score}}/10)",
+      "moodHappy": "Glad 🙂 ({{score}}/10)",
+      "moodNeutral": "Nøytral 😐 ({{score}}/10)",
+      "moodSad": "Trist 😔 ({{score}}/10)",
+      "encourageNoActivity": "En ny uke kommer — prøv å huke av én rutine sammen, det tar bare et øyeblikk.",
+      "encourageProgress": "🌟 Fortsett den fine jobben! Hver fullført rutine bygger vaner for livet.",
+      "encourageSmallSteps": "🌟 Små steg teller — prøv å huke av én rutine sammen denne uken.",
+      "genericChildName": "Barnet ditt"
+    },
+    "notificationFooter": {
+      "settingsLink": "Innstillinger → Varsler",
+      "optOutDefault": "Slå av dette varslet",
+      "optOutWeeklySummary": "Slå av ukesoppsummering"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Dag 1 — se sammen",
+        "body": "Slik ser {{childName}} planen — ta en titt sammen.",
+        "ctaLabel": "Vis barneopplevelsen"
+      },
+      "2": {
+        "title": "Dag 2 — morgensjekk",
+        "body": "Åpne oversikten en gang i dag — det tar bare 30 sekunder.",
+        "ctaLabel": "Åpne plan"
+      },
+      "3": {
+        "title": "Dag 3 — feire en stjerne",
+        "body": "Har {{childName}} tjent en stjerne? Feire sammen!",
+        "ctaLabel": "Se dagens plan",
+        "supportiveFallback": "Den første uken handler om å komme i gang — det er nok å kikke inn og se at planen er klar."
+      },
+      "4": {
+        "title": "Dag 4 — appen din",
+        "body": "Noe som kjennes feil? Bytt en aktivitet hvis du trenger det.",
+        "ctaLabel": "Rediger plan"
+      },
+      "5": {
+        "title": "Dag 5 — belønning",
+        "body": "Sjekk stjernekisten — hva drømmer {{childName}} om?",
+        "ctaLabel": "Åpne stjernekisten"
+      },
+      "6": {
+        "title": "Dag 6 — del ansvaret",
+        "body": "Vil du dele ansvaret med noen?",
+        "ctaLabel": "Inviter noen",
+        "soloLabel": "Jeg gjør dette alene!"
+      },
+      "7": {
+        "title": "Én uke! 🎉",
+        "body": "Gratulerer! Hvordan var uken?",
+        "ctaLabel": "Svar på spørsmålet"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Tid for \"{{activityName}}\" om {{minutes}} minutter! ⭐",
+      "body": "Påminnelse for {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Hold rutinen i gang 💫",
+      "day3Body": "Det har gått noen dager — åpne planen og gi dagens stjerner.",
+      "day7Title": "En uke siden du var inne",
+      "day7Body": "Barnets plan venter. En rask titt er nok.",
+      "day14Title": "Vi savner deg i appen",
+      "day14Body": "To uker uten aktivitet — hopp inn og hold rutinen i live."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} har ikke logget inn i dag",
+      "body": "Sjekk planen og hjelp til med å fylle dagen!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} har samlet {{milestone}} stjerner! 🌟",
+      "bodyCongrats": "{{emoji}} Gratulerer til {{childName}}!",
+      "body100": "Helt utrolig! Nye utfordringer venter!"
+    },
+    "backfillReminder": {
+      "title": "Gårsdagens plan for {{childName}} mangler",
+      "body": "Fyll inn i går så alt er oppdatert!"
+    },
+    "custodyMorning": {
+      "title": "I dag: {{childName}} er hos deg",
+      "body": "Planen for dagen venter i appen."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Bytte i morgen — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} hos {{homeLabel}}",
+      "bodyPack": "🎒 Pakk sekken ligger i morgendagens plan.",
+      "bodyPrepare": "Husk å forberede ukebyttet."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "fullførte {{activityName}}!",
+      "bodyBatch": "fullførte {{count}} aktiviteter!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} stjerner til {{childName}}!",
+      "body": "{{parentName}} ga {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "stjerne",
+    "starLabelMany": "stjerner",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} vil hente en belønning!",
+      "body": "{{childName}} spør etter: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "God morgen! Sjekk planen til {{childName}} — tar 30 sek 🌅",
+      "day3Body": "Har {{childName}} tjent en stjerne i dag? Feire sammen ⭐",
+      "day4Body": "Noe som kjennes feil? Bytt en aktivitet ✏️",
+      "day5Body": "Sjekk stjernekisten — hva drømmer {{childName}} om? 🎁",
+      "day6Body": "Vil du dele ansvaret med noen? 👥",
+      "day7Body": "Gratulerer! Hvordan var uken?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Noe gikk galt.",
+          "rewardIdRequired": "reward_id er påkrevd",
+          "childNotFound": "Fant ikke barnet",
+          "rewardNotFound": "Fant ikke belønningen",
+          "requestNotFound": "Fant ikke forespørselen",
+          "pendingOnlyApprove": "Kan bare godkjenne en ventende forespørsel",
+          "pendingOnlyDeny": "Kan bare avslå en ventende forespørsel",
+          "childIdRequired": "child_id er påkrevd",
+          "reasonRequired": "Begrunnelse er påkrevd",
+          "starCountRange": "Antall stjerner må være mellom 1 og 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id og goal_slug er påkrevd",
+          "childAccessDenied": "Du har ikke tilgang til ett av de valgte barna.",
+          "dismissFailed": "Kunne ikke lukke spørsmålet"
+        }
+      },
+      "success": {
+        "goalSet": "Mål satt!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Takk for tilbakemeldingen! Vi leser alt som kommer inn.",
+    "contactAck": "Takk! Vi har mottatt meldingen din.",
+    "export": {
+      "noData": "Ingen data",
+      "rateLimit": "Du kan bare eksportere dataene dine én gang per 24 timer. Prøv igjen om {{hours}} timer.",
+      "notFound": "Fant ikke brukeren"
+    },
+    "account": {
+      "deletionPending": "Kontoen din er merket for sletting. Du har 30 dager på å ombestemme deg.",
+      "alreadyPending": "Kontoen din er allerede merket for sletting."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Full tilgang for hele familien",
+    "benefit1": "Alle rutiner og planer",
+    "benefit2": "Stjerner og familiens funksjoner",
+    "benefit3": "Alle dataene dine blir hos deg",
+    "webNoticeTitle": "Aktiver Premium i appen",
+    "webNoticeBody": "Premium kjøpes i App Store eller Google Play — ikke på nettet.",
+    "webNoticeBodyAppleOnly": "Premium kjøpes i App Store — ikke på nettet. Android kommer snart.",
+    "downloadIphone": "Last ned for iPhone",
+    "downloadAndroid": "Last ned for Android",
+    "androidComingSoon": "Android kommer snart",
+    "loadingPrices": "Laster priser…",
+    "continue": "Fortsett",
+    "restore": "Gjenopprett kjøp",
+    "yearlyBadge": "Anbefalt",
+    "yearlyPrice": "{{price}}/år",
+    "yearlySavings": "Spar sammenlignet med å betale månedlig",
+    "yearlyTermsKnownTrial": "{{trialDays}} dagers gratis prøveperiode · deretter {{price}}/år · fornyes automatisk",
+    "yearlyTermsConditionalTrial": "14 dagers gratis prøveperiode for nye abonnenter som kvalifiserer · deretter {{price}}/år · fornyes automatisk",
+    "yearlyTermsNoTrial": "{{price}}/år · fornyes automatisk",
+    "monthlyPrice": "{{price}}/måned",
+    "monthlyBlurb": "Fleksibelt månedsabonnement for familien.",
+    "monthlyTermsKnownTrial": "{{trialDays}} dagers gratis prøveperiode · deretter {{price}}/måned · fornyes automatisk",
+    "monthlyTermsConditionalTrial": "14 dagers gratis prøveperiode for nye abonnenter som kvalifiserer · deretter {{price}}/måned · fornyes automatisk",
+    "monthlyTermsNoTrial": "{{price}}/måned · fornyes automatisk",
+    "autoRenewApple": "Abonnementet fornyes automatisk hvis det ikke avsluttes. Betalingen håndteres av App Store. Du kan administrere eller avslutte abonnementet i Apple-kontoen din.",
+    "autoRenewGoogle": "Abonnementet fornyes automatisk hvis det ikke avsluttes. Betalingen håndteres av Google Play. Du kan administrere eller avslutte abonnementet i Google-kontoen din.",
+    "termsLink": "Vilkår",
+    "privacyLink": "Personvern",
+    "legal": "Du kan avslutte en gratis prøveperiode før trekk, etter reglene i App Store eller Google Play. Administrer eller avslutt i abonnementsinnstillingene i butikken.",
+    "legalAppleOnly": "Du kan avslutte en gratis prøveperiode før trekk. Administrer eller avslutt i abonnementsinnstillingene i App Store.",
+    "legalGoogleOnly": "Du kan avslutte en gratis prøveperiode før trekk. Administrer eller avslutt i abonnementsinnstillingene i Google Play.",
+    "giftCard": "Jeg har et gavekort",
+    "giftCodeLabel": "Gavekode",
+    "giftRedeem": "Løs inn gavekort",
+    "limitedAccount": "Fortsett med begrenset konto",
+    "statusOpening": "Åpner kassen…",
+    "statusRestoring": "Gjenoppretter kjøp…",
+    "statusSuccess": "Premium er aktivt! Velkommen tilbake.",
+    "statusCancelled": "Kjøpet ble avbrutt.",
+    "statusFailed": "Kjøpet feilet. Prøv igjen.",
+    "statusUnavailable": "Abonnementer kan ikke lastes akkurat nå. Prøv igjen.",
+    "statusAndroidComingSoon": "Premium på Android kommer snart.",
+    "statusNotNative": "Kjøp er ikke tilgjengelig her. Bruk appen.",
+    "restoreSuccess": "Kjøp gjenopprettet! Velkommen tilbake.",
+    "restoreNone": "Ingen aktive kjøp ble funnet å gjenopprette.",
+    "giftSuccess": "Gavekort innløst!",
+    "giftFailed": "Kunne ikke løse inn koden.",
+    "launchEnded": "Lanseringstilgangen er over. Abonner i appen for å beholde full tilgang."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "du",
+      "subject": "Supportsamtalen din",
+      "text": "Hei {{name}}!\n\nVi har mottatt meldingen din. Følg samtalen og skriv tilbake her (et vanlig e-postsvar er ikke synlig for oss):\n{{url}}\n\nVennlig hilsen,\n{{fromName}}",
+      "htmlHi": "Hei {{name}}!",
+      "htmlReceived": "Vi har mottatt meldingen din.",
+      "openLink": "Åpne samtalen din",
+      "htmlHint": "for å følge samtalen og skrive tilbake. Et vanlig e-postsvar er ikke synlig for oss.",
+      "htmlBye": "Vennlig hilsen"
+    },
+    "reply": {
+      "subjectBug": "Sv: Feilrapporten din",
+      "subjectFeedback": "Sv: Tilbakemeldingen din",
+      "subjectLanguage": "Sv: Språkrapporten din",
+      "subjectContact": "Sv: Meldingen din",
+      "text": "Hei {{name}}!\n\n{{reply}}\n\nLes hele samtalen og skriv tilbake her (et vanlig e-postsvar er ikke synlig for oss):\n{{url}}\n\n---\nDin opprinnelige melding:\n{{original}}\n\nVennlig hilsen,\n{{fromName}}",
+      "htmlHi": "Hei {{name}}!",
+      "openLink": "Åpne samtalen",
+      "htmlHint": "for å lese hele samtalen og skrive tilbake. Et vanlig e-postsvar er ikke synlig for oss.",
+      "originalLabel": "Din opprinnelige melding:",
+      "htmlBye": "Vennlig hilsen"
+    },
+    "page": {
+      "title": "Samtalen din",
+      "intro": "Dette er hele samtalen. Skriv under hvis du vil fortsette. Et vanlig e-postsvar vises ikke her.",
+      "you": "Du",
+      "us": "Oss",
+      "empty": "Ingen meldinger ennå.",
+      "label": "Skriv til oss",
+      "placeholder": "Fortell hva som skjer…",
+      "submit": "Send",
+      "submitting": "Sender…",
+      "needHuman": "Jeg trenger mer hjelp fra et menneske",
+      "escalating": "Sender…",
+      "caseRef": "Sak {{ref}}",
+      "status": {
+        "new": "Mottatt",
+        "read": "Lest",
+        "in_progress": "Under arbeid",
+        "answered": "Besvart",
+        "archived": "Lukket"
+      }
+    },
+    "errors": {
+      "invalid": "Denne lenken er ugyldig. Be oss sende et nytt svar.",
+      "expired": "Denne lenken er utløpt. Be oss sende en ny.",
+      "revoked": "Denne lenken virker ikke lenger. Be oss sende en ny.",
+      "archived": "Denne saken er lukket. Kontakt oss igjen hvis du trenger mer hjelp.",
+      "legacySunset": "Denne lenken er for gammel. Kontakt oss, så sender vi en ny.",
+      "tooShort": "Skriv minst 10 tegn så vi forstår hva som skjer.",
+      "tooLong": "Svaret kan være på maks 5000 tegn.",
+      "notFound": "Saken ble ikke funnet.",
+      "rateLimit": "For mange forsøk. Prøv igjen om en time.",
+      "generic": "Kunne ikke åpne saken.",
+      "sendFailed": "Kunne ikke sende. Prøv igjen."
+    },
+    "success": {
+      "submitted": "Takk! Vi har mottatt svaret ditt.",
+      "escalated": "Takk. Et menneske ser på denne saken."
+    }
+  },
+  "story": {
+    "someone": "Noen",
+    "anActivity": "en aktivitet",
+    "activityWithStars": "{{name}} fullførte {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} fullførte {{activity}}",
+    "goalFallback": "mål",
+    "goal": "Familien nådde målet: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Innstillinger for informasjonskapsler",
+    "intro": "Vi bruker informasjonskapsler til statistikk, markedsføring og tilpasning på nettstedet vårt.",
+    "manage": "Administrer innstillinger",
+    "manageHide": "Skjul innstillinger",
+    "deny": "Avvis alle",
+    "accept": "Godta alle",
+    "save": "Lagre valgene mine",
+    "necessaryLabel": "Nødvendige",
+    "necessaryDesc": "Trengs for at siden skal fungere.",
+    "analyticsLabel": "Statistikk",
+    "analyticsDesc": "Hjelper oss å forstå hvordan siden brukes (GA4).",
+    "marketingLabel": "Markedsføring",
+    "marketingDesc": "Viser relevante annonser og måler kampanjer.",
+    "personalizationLabel": "Tilpasning",
+    "personalizationDesc": "Tilpasser innhold og anbefalinger."
+  },
+  "growthHelp": {
+    "reportProblem": "Rapporter et problem",
+    "suggestedHelp": "Foreslått hjelp",
+    "reportThanks": "Takk — vi har mottatt rapporten med tekniske detaljer.",
+    "howChildStarts": "Hvordan starter barnet?",
+    "needHelpLogin": "Trenger du hjelp til innlogging?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Kort kommentar (sendes med svaret ditt)",
+    "notNow": "Ikke nå",
+    "thanks": "Takk for tilbakemeldingen."
+  },
+  "growthReferral": {
+    "title": "Kjenner dere en annen familie som trenger roligere morgener?",
+    "subtitle": "Del den personlige lenken — ingen belønningsspam, bare et tips.",
+    "copyLink": "Kopier lenke",
+    "copied": "Kopiert",
+    "copyPrompt": "Kopier denne lenken:",
+    "share": "Del",
+    "shareText": "Vi bruker {{brand}} til barnas rutiner. Opprett en gratis konto: ",
+    "notNow": "Ikke nå"
+  },
+  "legalReturn": {
+    "backToPremium": "Tilbake til Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakke",
+    "dismiss": "Ikke nå",
+    "interested": "Jeg er interessert",
+    "interestedSub": "Meld interesse for det som kommer",
+    "buyNow": "Kjøp nå",
+    "reporting": {
+      "title": "Rapporter",
+      "body": "Du har registrert aktiviteter i to uker — vil du se hvordan det utvikler seg?"
+    },
+    "pedagog": {
+      "title": "Pedagog",
+      "body": "Vil du samarbeide med en pedagog eller terapeut om hverdagen?"
+    },
+    "teacch": {
+      "title": "Ekstra støtte",
+      "body": "Legg til visuell støtte med de sju spørsmålene — det hjelper å forstå hva som skjer."
+    }
+  }
+}

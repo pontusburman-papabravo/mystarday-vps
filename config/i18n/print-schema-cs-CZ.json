@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Vytvořit PDF — plán — {{brand}}",
+  "backLink": "← Zpět na Plánování",
+  "heading": "📄 Vytvořit PDF — plán",
+  "intro": "Vyber dítě a období. Náhled ukáže celý plán — PDF se samo zmenší na jeden list A4 na šířku.",
+  "pdfSave": {
+    "title": "Kam se PDF uloží?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Po <em>Vytvořit PDF</em> se otevře sdílení — zvol <strong>Uložit do Souborů</strong> a vyber složku (třeba iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Počítač:</strong> PDF spadne do složky <strong>Stažené</strong> (často vlevo dole v prohlížeči)."
+  },
+  "sections": {
+    "child": "Dítě",
+    "period": "Období",
+    "scope": "Co má PDF obsahovat?",
+    "startWeek": "Počáteční týden"
+  },
+  "period": {
+    "1w": "1 týden",
+    "2w": "2 týdny",
+    "1m": "1 měsíc"
+  },
+  "scope": {
+    "all": "Celý plán",
+    "my": "Jen moje dny"
+  },
+  "weekNav": {
+    "prevAria": "Předchozí týden",
+    "nextAria": "Další týden",
+    "today": "Tento týden"
+  },
+  "actions": {
+    "preview": "Náhled",
+    "createPdf": "Vytvořit PDF"
+  },
+  "preview": {
+    "heading": "Náhled",
+    "hint": "Když má den hodně aktivit, posuň se dolů."
+  },
+  "pdfHelp": {
+    "title": "Jak PDF uložit",
+    "closeAria": "Zavřít",
+    "ok": "OK, rozumím",
+    "introShare": "Sdílení je otevřené. Zvol Uložit do Souborů a PDF se uloží.",
+    "introPreview": "PDF se otevřelo v prohlížeči{{filename}}.",
+    "introDesktop": "PDF se stáhlo{{filename}}.",
+    "filenameSuffix": " jako {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Ve sdílení: posuň se a klepni na <strong>Uložit do Souborů</strong>.",
+      "Vyber složku (třeba <strong>iCloud Drive</strong> nebo <strong>Na mém iPhonu</strong>).",
+      "Klepni vpravo nahoře na <strong>Uložit</strong>.",
+      "Soubor pak najdeš v aplikaci <strong>Soubory</strong>."
+    ],
+    "previewSteps": [
+      "PDF se otevřelo v novém pohledu — klepni vpravo nahoře na <strong>Sdílet</strong> (↑).",
+      "Zvol <strong>Uložit do Souborů</strong>.",
+      "Vyber složku a klepni na <strong>Uložit</strong>."
+    ],
+    "desktopSteps": [
+      "Otevři na počítači složku <strong>Stažené</strong>.",
+      "Hledej soubor, který začíná na <strong>{{prefix}}</strong> a dnešní datum."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plán",
+    "titleMyDays": "Moje dny",
+    "emptyCell": "–",
+    "childFallback": "Dítě",
+    "loadingPrint": "Připravuji tisk…",
+    "iframeTitle": "Tisk"
+  },
+  "filename": {
+    "prefixSchedule": "tydenni-plan",
+    "prefixMyDays": "moje-dny",
+    "fallbackSlug": "dite"
+  },
+  "toasts": {
+    "loadChildrenError": "Děti se nepodařilo načíst",
+    "selectChild": "Nejdřív vyber dítě",
+    "loadingPreview": "Načítám náhled…",
+    "noMyDays": "Ve zvoleném období nemáš žádné dny",
+    "loadScheduleError": "Plán se nepodařilo načíst",
+    "creatingPdf": "Vytvářím PDF…",
+    "pdfCancelled": "Uložení PDF je zrušené",
+    "shareHint": "Ve sdílení zvol Uložit do Souborů",
+    "mobileSavedHint": "PDF je připravené — ulož ho do Souborů",
+    "desktopSavedHint": "PDF je ve Stažených",
+    "pdfLibsMissing": "Chybí nástroje pro PDF — obnov stránku a zkus to znovu",
+    "createPdfError": "PDF se nepodařilo vytvořit",
+    "shareAgain": "PDF je připravené. Klepni znovu na Vytvořit PDF a vyber, kam ho uložit."
+  },
+  "empty": {
+    "noChildren": "Zatím tu není žádné dítě.",
+    "goDashboard": "Přejít na Domů"
+  }
+}

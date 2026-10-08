@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Plánování — {{brand}}",
+  "shell": {
+    "title": "Plánování",
+    "lead": "Vyber týden, aktivity, nebo něco dalšího.",
+    "logout": "Odhlásit se"
+  },
+  "sections": {
+    "planWeek": "Naplánuj týden",
+    "buildContent": "Sestav obsah",
+    "other": "Další"
+  },
+  "primary": {
+    "week": { "title": "Týden", "sub": "Seznam dní na týden tvých dětí" },
+    "activities": { "title": "Aktivity", "sub": "Knihovna — tvoř a upravuj" },
+    "more": { "title": "Další", "sub": "Tisk, šablony a další nástroje" }
+  },
+  "more": {
+    "title": "Další",
+    "close": "Zavřít"
+  },
+  "links": {
+    "library": { "title": "Knihovna", "sub": "Tvoř aktivity a odměny" },
+    "imageArchive": { "title": "Archiv obrázků", "sub": "Tvoje fotky — kartáček, postel, škola" },
+    "templates": { "title": "Šablony", "sub": "Uložené plány, které můžeš použít znovu" },
+    "weekSchedule": { "title": "Týdenní plán", "sub": "Uprav týden dítěte" },
+    "calendar": { "title": "Kalendář", "sub": "Měsíc a zvláštní dny" },
+    "custody": { "title": "Plán péče", "sub": "Střídavá péče mezi domácnostmi" },
+    "dailyLog": { "title": "Dnes", "sub": "Prohlédni a uprav minulé dny" },
+    "printSchema": { "title": "Vytvořit PDF — plán", "sub": "Vytiskni plán" },
+    "assignSchedule": { "title": "Přiřadit plán", "sub": "Zkopíruj plán dítěti" },
+    "reports": { "title": "Přehledy", "sub": "Pokrok a sdílení" },
+    "samarbete": { "title": "Spolupráce s pedagogem", "sub": "Spolupráce s pedagogem" },
+    "barnStod": { "title": "Podpora navíc", "sub": "Vizuální podpora a TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Začínáme",
+    "bodyBeforeLibrary": "Začni v ",
+    "libraryLink": "Knihovně",
+    "bodyMiddle": ", když chceš tvořit aktivity. Jdi na ",
+    "forYouLink": "Pro tebe",
+    "bodyAfter": ", když chceš hotové doporučení."
+  }
+}

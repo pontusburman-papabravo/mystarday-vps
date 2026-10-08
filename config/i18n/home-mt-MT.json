@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Id-dar — {{brand}}",
+  "greeting": {
+    "morning": "Bongu!",
+    "afternoon": "Ħelow!",
+    "evening": "Bonswa!",
+    "default": "Ħelow!"
+  },
+  "sub": "Hekk jidher il-jum.",
+  "status": {
+    "paused": "Jum ta' mistrieħ illum",
+    "allDone": "Kollox lest!",
+    "noSchedule": "L-ebda rutina",
+    "progressDone": "{{done}}/{{total}} lesti",
+    "emptyChildren": "Żid tifel taħt Familja biex tara l-qagħda hawn.",
+    "loadError": "Ma stajtx inġib il-qagħda tat-tfal. Dan ma jfissirx li m'għandekx tfal.",
+    "retry": "Erġa' pprova",
+    "viewActivitiesAria": "{{name}} — ara l-attivitajiet tal-lum"
+  },
+  "ready": {
+    "title": "Lest għall-attività li jmiss",
+    "childrenCount": "({{count}} tfal)"
+  },
+  "quickActions": {
+    "aria": "Għażliet malajr",
+    "retroactive": "Imla wara",
+    "onceTask": "Attività ta' darba",
+    "extraStars": "Stilel bonus",
+    "dayOff": "Jum ta' mistrieħ"
+  },
+  "dayOffModal": {
+    "title": "🏠 Jum ta' mistrieħ",
+    "subtitle": "Iwaqqaf ir-rutina tat-tifel għall-jum kollu",
+    "footer": "It-tifel m'għandux bżonn jimmarka l-attivitajiet f'jum ta' mistrieħ",
+    "noChildren": "Ma nstabux tfal",
+    "stateActive": "🟢 Rutina attiva",
+    "statePaused": "⏸ Jum ta' mistrieħ illum",
+    "markDayOff": "🏠 Immarka bħala jum ta' mistrieħ",
+    "resumeSchedule": "▶ Erġa' ibda r-rutina",
+    "noScheduleTitle": "Ma nħolqitx rutina għal illum",
+    "resumedToast": "Ir-rutina reġgħet bdiet!",
+    "pausedToast": "🏠 Immarkat bħala jum ta' mistrieħ!",
+    "genericError": "Xi ħaġa marret ħażin",
+    "networkError": "Żball fil-konnessjoni"
+  },
+  "handoff": {
+    "title": "Wasal iż-żmien li t-tifel jidħol?",
+    "sub": "Aqleb għall-vista tat-tifel bil-PIN.",
+    "childLogin": "👶 It-tifel jidħol",
+    "changePin": "Ibdel il-PIN tat-tifel",
+    "changePinAria": "Iftaħ Familja u ibdel il-PIN tat-tifel",
+    "parentLogout": "Oħroġ",
+    "regionAria": "Aqleb għad-dħul tat-tifel",
+    "dismissTitle": "Agħlaq",
+    "trusted": {
+      "title": "Wasal iż-żmien tiftaħ il-vista tat-tifel?",
+      "sub": "Iftaħ il-vista tat-tifel fuq dan l-apparat.",
+      "childLogin": "Iftaħ il-vista tat-tifel",
+      "regionAria": "Iftaħ il-vista tat-tifel"
+    },
+    "pin": {
+      "title": "Wasal iż-żmien li t-tifel jidħol?",
+      "sub": "Aqleb għall-vista tat-tifel bil-PIN.",
+      "childLogin": "Idħol bil-PIN tat-tifel",
+      "regionAria": "Idħol bil-PIN tat-tifel"
+    },
+    "postSchema": {
+      "title": "Il-pass li jmiss: Ħalli lit-tifel jipprova r-rutina",
+      "sub": "Iftaħ il-mod tat-tifel flimkien — jieħu madwar minuta.",
+      "childLogin": "Ipprova l-mod tat-tifel issa",
+      "regionAria": "Il-pass li jmiss: ħalli lit-tifel jipprova r-rutina",
+      "trusted": {
+        "title": "Il-pass li jmiss: Iftaħ il-vista tat-tifel",
+        "sub": "Iftaħ il-mod tat-tifel flimkien — jieħu madwar minuta.",
+        "childLogin": "Iftaħ il-vista tat-tifel",
+        "regionAria": "Il-pass li jmiss: iftaħ il-vista tat-tifel"
+      },
+      "pin": {
+        "title": "Il-pass li jmiss: Ħalli lit-tifel jipprova r-rutina",
+        "sub": "Iftaħ il-mod tat-tifel flimkien — jieħu madwar minuta.",
+        "childLogin": "Idħol bil-PIN tat-tifel",
+        "regionAria": "Il-pass li jmiss: idħol bil-PIN tat-tifel"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Il-pass li jmiss lejn l-ewwel rutina li taħdem",
+    "pinHint": "It-tifel juża l-PIN tiegħu. Tista' terġa' lura għall-mod tal-ġenitur meta jkun lest.",
+    "recovery": {
+      "fetchErrorHeadline": "Ma stajtx inġib il-pass li jmiss",
+      "fetchErrorBody": "Jidher temporanju. Erġa' pprova, jew kompli mingħajr il-gwida għalissa.",
+      "retry": "Erġa' pprova",
+      "continueWithoutGuide": "Kompli mingħajr gwida",
+      "defer": "Agħmilha wara",
+      "deferError": "Ma stajtx insalva l-għażla tiegħek issa. Erġa' pprova.",
+      "retrying": "Qed nerġa' nipprova…",
+      "deferring": "Qed nissejvja…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Oħloq il-profil tat-tifel",
+        "body": "Isem u PIN sempliċi biżżejjed biex tibda.",
+        "cta": "Kompli bit-tifel"
+      },
+      "save_schedule": {
+        "headline": "Issejvja l-ewwel rutina sempliċi",
+        "body": "Agħżel pjan tal-ġimgħa biex tibda — tista' tibdlu meta trid.",
+        "cta": "Agħżel pjan tal-ġimgħa biex tibda"
+      },
+      "child_access": {
+        "headline": "Iftaħ il-vista tat-tifel",
+        "body": "Ħalli lit-tifel jipprova l-ewwel attività tal-lum fil-vista tat-tifel.",
+        "cta": "Iftaħ il-vista tat-tifel"
+      },
+      "child_access_named": {
+        "headline": "Ir-rutina ta' {{name}} lesta",
+        "body": "It-tifel jista' jibda meta jaqbel lilek.",
+        "cta": "Iftaħ il-vista tat-tifel"
+      },
+      "await_first_completion": {
+        "headline": "Qed nistenna l-ewwel attività",
+        "body": "It-tifel jara r-rutina fil-vista tat-tifel. Għinu jibda jekk ikun hemm bżonn.",
+        "cta": "Iftaħ il-vista tat-tifel"
+      },
+      "parent_ack": {
+        "headline": "It-tifel lesta attività!",
+        "body": "Ikkonferma biex l-istilla tgħodd, u ċċelebra flimkien.",
+        "cta": "Ara l-attività"
+      },
+      "celebrate_first_success": {
+        "headline": "L-ewwel stilla lesta!",
+        "body": "Prosit — ir-rutina taħdem tassew.",
+        "cta": "Kompli"
+      },
+      "journey_coach": {
+        "headline": "Il-pass li jmiss",
+        "body": "Kompli ibni r-rutina bil-pass tiegħek.",
+        "cta": "Kompli"
+      },
+      "engine_legacy": {
+        "headline": "Il-pass li jmiss",
+        "body": "Segwi l-pass li jmiss li ssuġġerejna.",
+        "cta": "Kompli"
+      },
+      "continue_today": {
+        "headline": "{{name}} għad fadallu rutina illum",
+        "body": "Trid tkompli minn fejn waqaf?",
+        "cta": "Kompli r-rutina"
+      },
+      "welcome_back": {
+        "headline": "Merħba lura",
+        "body": "Il-pass li jmiss għadu hawn meta jkollok bżonnu — tiftaħ ir-rutina tat-tifel?",
+        "cta": "Iftaħ il-vista tat-tifel"
+      },
+      "invite_adult": {
+        "headline": "Trid adult ieħor jgħin ukoll?",
+        "body": "Stieden meta jaqbel lilek — int tibqa' tikkontrolla.",
+        "cta": "Stieden adult"
+      },
+      "share_week": {
+        "headline": "Ħaġa żgħira mill-ġimgħa",
+        "body": "Aqsam biss jekk trid — xejn ma jitpoġġa waħdu.",
+        "cta": "Aqsam il-ħaġa"
+      },
+      "refer_family": {
+        "headline": "Taf familja li tista' togħġobha r-rutini?",
+        "body": "Aqsam ħolqa personali — l-ebda premju, biss suġġeriment.",
+        "cta": "Aqsam l-app"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Mhux issa",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Għamilt passi fir-rutini din il-ġimgħa",
+        "body": "Taqsira kalma — għalik biss.",
+        "shareText": "Nużaw {{brand}} għar-rutini tat-tfal id-dar. Jekk trid tipprova app sempliċi għall-familja."
+      },
+      "morning": {
+        "headline": "Diversi filgħodu kienu ftit aktar kalmi din il-ġimgħa",
+        "body": "Prosit — aqsam biss jekk trid.",
+        "shareText": "Kellna filgħodu aktar kalmi b'app sempliċi għar-rutini. Jista' jgħin lill-familja tiegħek ukoll."
+      },
+      "evening": {
+        "headline": "Ir-rutina ta' filgħaxija ħadmet diversi drabi din il-ġimgħa",
+        "body": "Ħaġa privata — l-ebda klassifika.",
+        "shareText": "Ir-rutini ta' filgħaxija saru ftit eħfef f'darna. Jekk qed tfittex għodda kalma."
+      },
+      "multi_child": {
+        "headline": "It-tfal għamlu diversi passi fir-rutini tagħhom din il-ġimgħa",
+        "body": "Taqsira mingħajr ismijiet jew ritratti.",
+        "shareText": "Nużaw {{brand}} għar-rutini tat-tfal. Biex tipprovah:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Int membru fundatur",
+    "body": "Bħala waħda mill-ewwel familji, għandek aċċess għal dejjem b'xejn. Grazzi li kont magħna mill-bidu!"
+  },
+  "weekStory": {
+    "title": "L-istorja ta' din il-ġimgħa"
+  },
+  "starHistory": {
+    "title": "Il-progress tal-ġimgħa",
+    "subtitle": "L-aħħar 8 ġimgħat",
+    "thisWeek": "{{count}} ⭐ din il-ġimgħa",
+    "weekTooltip": "Ġ{{week}}: {{count}} stilel",
+    "diffUp": "+{{diff}} meta mqabbel mal-ġimgħa li għaddiet",
+    "diffSame": "L-istess bħall-ġimgħa li għaddiet",
+    "bestWeek": "🎉 L-aqwa ġimgħa ta' {{name}} s'issa!"
+  },
+  "nav": {
+    "today": "Illum",
+    "dailyLog": "Reġistru tal-jum",
+    "fillRetroactive": "📝 Imla wara"
+  },
+  "readiness": {
+    "heading": "Jeħtieġ attenzjoni",
+    "warningsOnly": "Twissijiet biss",
+    "loadError": "Ma stajtx niċċekkja x'jeħtieġ attenzjoni.",
+    "retry": "Erġa' pprova",
+    "items": {
+      "pendingInviteTitleOne": "Stedina waħda għal ġenitur ieħor qed tistenna",
+      "pendingInviteTitleMany": "{{count}} stedini għal ġenituri oħra qed jistennew",
+      "pendingInviteSub": "Immaniġġja f'Familja",
+      "pendingApprovalTitle": "{{name}} — {{count}} talba qed tistenna",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} talbiet qed jistennew",
+      "pendingApprovalSub": "Approva f'Premjijiet",
+      "incompleteDaysTitleOne": "{{name}} — jum wieħed mhux mimli",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} ijiem mhux mimlija",
+      "incompleteDaysSub": "Imla wara",
+      "missingPinTitle": "{{name}} m'għandux PIN",
+      "missingPinSub": "Issettja l-PIN fil-profil tat-tifel",
+      "pausedDayTitle": "{{name}} — jum ta' mistrieħ illum",
+      "pausedDaySub": "Iftaħ Illum",
+      "noScheduleTitle": "{{name}} — l-ebda rutina illum",
+      "noScheduleSub": "Iftaħ il-pjan tal-ġimgħa"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} irid jifdi premju",
+    "pendingRewardSubOne": "Talba waħda qed tistenniek",
+    "pendingRewardSubMany": "{{count}} talbiet qed jistennewk",
+    "showRequest": "Ara t-talba",
+    "closeToReward": "{{name}} għadu {{gap}} biss 'il bogħod mill-premju li jmiss",
+    "starOne": "stilla waħda",
+    "starMany": "{{count}} stilel",
+    "seeRewards": "Ara l-premjijiet",
+    "starsTodayHeadline": "It-tfal kisbu {{count}} illum",
+    "starsTodaySubOne": "{{name}} kisibhom illum",
+    "starsTodaySubMany": "It-tfal kisbuhom illum",
+    "tasksDoneHeadline": "{{name}} diġà lesta {{count}} illum",
+    "taskOne": "kompitu wieħed",
+    "taskMany": "{{count}} kompiti",
+    "tasksRemaining": "Fadal {{count}} fir-rutina tal-lum",
+    "allActivitiesDone": "L-attivitajiet kollha lesti — prosit!",
+    "seeSchedule": "Ara l-pjan",
+    "nextActivityHeadline": "{{name}} lest għal {{activity}}",
+    "nextActivitySub": "L-attività li jmiss fir-rutina",
+    "openToday": "Iftaħ Illum",
+    "calmDayHeadline": "Jum kalm — l-ebda rutina bħalissa",
+    "calmDaySub": "Mument tajjeb biex iżżid attivitajiet jew tagħti stilel bonus",
+    "defaultChild": "It-tifel tiegħek",
+    "pageTitleStars": "🌟 L-istilel tal-lum",
+    "pageTitleWelcome": "👋 Merħba lura",
+    "pageTitleProgress": "🌟 Il-progress tal-familja illum",
+    "greetingFallback": "{{greeting}} Hekk jidher illum",
+    "followChild": "Segwi l-progress ta' {{name}} hawn",
+    "followChildren": "Segwi l-progress tat-tfal hawn"
+  },
+  "childStats": {
+    "paused": "⏸ Jum ta' mistrieħ illum",
+    "allDone": "🌟 Kollox lest illum!",
+    "tasksDoneOne": "🔥 Kompitu wieħed lest illum",
+    "tasksDoneMany": "🔥 {{count}} kompiti lesti illum",
+    "noSchedule": "L-ebda rutina illum",
+    "todayProgress": "Illum <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> b'kollox",
+    "starsTodayOne": "+stilla waħda illum",
+    "starsTodayMany": "+{{count}} stilel illum",
+    "remaining": "Fadal {{count}} · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Stilla waħda biss sa l-premju li jmiss",
+    "rewardGapMany": "🎁 {{count}} stilel biss sa l-premju li jmiss"
+  },
+  "offline": {
+    "banner": "Mingħajr internet — il-bidliet tiegħek huma ssejvjati",
+    "lastUpdated": "· Aġġornat l-aħħar {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Reġistru tal-jum",
+    "dailyLogSub": "Segwi l-jum tat-tfal — imla l-istilel wara"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Kif sejjer {{goal}} s'issa?",
+      "sub": "Għal {{name}}",
+      "great": "Titjib kbir",
+      "better": "Ftit aħjar",
+      "same": "L-ebda differenza",
+      "worse": "Mhux qed jaħdem",
+      "followUpBetter": "X'tejjeb?",
+      "followUpWorse": "X'qed jonqos?",
+      "optional": "(mhux obbligatorju)",
+      "send": "Ibgħat",
+      "skip": "Aqbeż",
+      "dismissAria": "Agħlaq",
+      "thanks": "Grazzi! It-tweġiba tiegħek ġiet issejvjata.",
+      "alreadyAnswered": "Grazzi! Jidher li diġà weġibt.",
+      "next": "Wieġeb li jmiss",
+      "done": "Lest"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Aqbeż",
+    "next": "Li jmiss →",
+    "start": "🎉 Ejja!",
+    "steps": {
+      "welcome": {
+        "title": "Merħba fil-ħarsa ġenerali!",
+        "body": "Hawn tara l-jum ta' kull tifel. Ibdel il-pjan tal-ġimgħa f'Ippjanar."
+      },
+      "stars": {
+        "title": "Stilel u t-teżor",
+        "body": "Kull attività lesta tagħti stilla waħda. It-tifel jiġbor l-istilel u jifdihom għal premjijiet fit-teżor."
+      },
+      "schedule": {
+        "title": "Pjan tal-ġimgħa u attivitajiet",
+        "body": "Taħt Ippjanar fil-menu ssib il-librerija tal-attivitajiet u tista' żżid il-premjijiet tiegħek."
+      },
+      "family": {
+        "title": "Żid aktar tfal jew adulti",
+        "body": "Agħfas \"+ Żid tifel\" biex iżżid aħwa. Taħt Familja tista' tistieden adult ieħor."
+      },
+      "help": {
+        "title": "Għandek bżonn l-għajnuna?",
+        "body": "Agħfas il-buttuna ❓ fin-naħa t'isfel tal-lemin meta trid, għall-mistoqsijiet u s-suġġerimenti. Awguri bil-ġurnata tiegħek!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} qed jipprova jidħol",
+    "body": "3 tentattivi żbaljati tal-PIN — it-tifel jista' jkollu bżonn l-għajnuna"
+  },
+  "shareSchedule": {
+    "notAvailable": "Il-qsim mhux disponibbli fuq dan l-apparat",
+    "notSupported": "Ma tistax taqsam minn dan l-apparat",
+    "shared": "Maqsum!",
+    "childNotFound": "Ma stajtx insib lit-tifel",
+    "couldNotShare": "Ma stajtx naqsam: {{message}}",
+    "routineToday": "Ir-rutina ta' {{name}} illum:",
+    "title": "Ir-rutina ta' {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Verżjoni ġdida tal-app lesta!",
+    "reloadNow": "Erġa' tella' issa",
+    "later": "Aktar tard",
+    "dismissAria": "Agħlaq il-banner tal-aġġornament"
+  },
+  "pwa": {
+    "title": "Installa l-app għan-notifiki",
+    "iosLead": "Fuq iPhone/iPad l-app trid tkun fuq l-Iskrin Prinċipali biex jaslu n-notifiki.",
+    "iosStep1": "Agħfas il-buttuna Aqsam fil-qiegħ ta' Safari",
+    "iosStep2": "Agħżel \"Żid mal-Iskrin Prinċipali\"",
+    "iosStep3": "Iftaħ l-app mill-Iskrin Prinċipali u ħalli n-notifiki",
+    "iosArrowHint": "Vleġġa animata tindika l-buttuna Aqsam fil-brawżer tiegħek",
+    "androidTitle": "Installa l-app għall-aħjar esperjenza",
+    "androidLead": "Installa l-app biex tirċievi tfakkiriet fuq it-telefon.",
+    "androidHomeLead": "Installa {{brand}} fuq l-Iskrin Prinċipali għal aċċess malajr u notifiki.",
+    "androidInstall": "Installa l-app",
+    "androidInstallBtn": "📲 Installa l-app",
+    "androidChromeFallback": "Agħfas ⋮ (menu) f'Chrome → <strong>\"Żid mal-iskrin prinċipali\"</strong>",
+    "desktopTitle": "Installa l-app",
+    "desktopLead": "Agħfas l-ikona tal-installazzjoni (⊕) fil-kaxxa tal-indirizz jew uża l-menu tal-brawżer.",
+    "dismissAria": "Agħlaq"
+  },
+  "pushPrompt": {
+    "title": "Irċievi notifiki dwar it-tfal",
+    "body": "Kun af mill-ewwel meta tifel jimmarka attività jew irid jifdi premju.",
+    "later": "Aktar tard",
+    "enable": "Ixgħel",
+    "enabledToast": "✅ In-notifiki mixgħula!"
+  },
+  "globalFeedback": {
+    "fabAria": "Agħti rispons",
+    "fabTitle": "Agħti rispons",
+    "modalTitle": "Agħti rispons",
+    "typeBug": "Irrapporta problema",
+    "typeSuggestion": "Suġġeriment",
+    "typeLanguage": "Lingwa",
+    "titlePlaceholder": "Titlu",
+    "messagePlaceholder": "X'ġara?",
+    "cancel": "Ikkanċella",
+    "submit": "Ibgħat ir-rapport",
+    "submitting": "Qed jintbagħat...",
+    "validationRequired": "Imla l-oqsma kollha.",
+    "success": "Ir-rapport intbagħat.",
+    "errorGeneric": "Xi ħaġa marret ħażin. Erġa' pprova."
+  },
+  "cards": {
+    "loadError": "Ma stajtx inġib il-karti tat-tfal. Iġbed 'l isfel biex taġġorna.",
+    "last": "L-aħħar:",
+    "next": "Li jmiss:",
+    "noActivitiesToday": "L-ebda attività ppjanata illum",
+    "noRoutineToday": "L-ebda rutina għal illum",
+    "createActivity": "✨ Oħloq attività fil-pjan →",
+    "childNoActivities": "{{name}} għad m'għandux attivitajiet — oħloq l-ewwel waħda →",
+    "noRewards": "🎁 Għad m'hemmx premjijiet",
+    "addReward": "→ Żid premju",
+    "pendingRequest": "{{count}} talba qed tistenna",
+    "pendingRequestMany": "{{count}} talbiet qed jistennew",
+    "pausedBadge": "IMWAQQAF",
+    "allDoneTitle": "Kollox lest!",
+    "statusNow": "ISSA",
+    "statusNext": "LI JMISS",
+    "onceTask": "Attività ta' darba",
+    "markDone": "Immarka bħala lest",
+    "unmark": "Neħħi l-marka",
+    "activityMarked": "✅ Lest!",
+    "activityUnmarked": "Il-marka tneħħiet",
+    "fillDay": "Imla {{day}}",
+    "allActivitiesDone": "L-attivitajiet kollha lesti illum!",
+    "last7Days": "L-aħħar 7 ijiem"
+  },
+  "approvals": {
+    "title": "Talbiet li qed jistennew",
+    "loading": "Qed inġib it-talbiet...",
+    "empty": "L-ebda talba qed tistenna! 🎉",
+    "loadError": "Ma stajtx inġib it-talbiet.",
+    "wantsGoalChange": "Irid jibdel il-mira",
+    "goalChangeTo": "Lil: {{name}}",
+    "wantsRedeem": "Irid jifdi",
+    "approve": "Approva",
+    "deny": "Irrifjuta",
+    "requiresApproval": "Jeħtieġ approvazzjoni",
+    "requiresApprovalCount": "Jeħtieġ approvazzjoni ({{count}})",
+    "goalApproved": "🎯 Il-bidla tal-mira ġiet approvata!",
+    "redemptionApproved": "🎉 Il-fidja ġiet approvata!",
+    "goalDenied": "Il-bidla tal-mira ġiet irrifjutata.",
+    "redemptionDenied": "Il-fidja ġiet irrifjutata.",
+    "updateFailed": "Ma stajtx naġġorna",
+    "genericError": "Żball",
+    "wantsGoalNamed": "{{name}} irid jibdel il-mira għal {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Irid jibdel il-mira għal {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} irid \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Aġġusta l-ħin illum",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Ma stajtx naġġusta l-ħin",
+    "undone": "Mneħħi",
+    "undoFailed": "Ma stajtx inneħħi"
+  },
+  "loading": {
+    "initFailed": "Xi ħaġa marret ħażin waqt it-tagħbija. Erġa' tella' l-paġna.",
+    "couldNotLoad": "Ma stajtx intella'.",
+    "checkConnection": "Iċċekkja l-konnessjoni tal-internet",
+    "reloadPage": "Erġa' tella' l-paġna"
+  },
+  "activationProgram": {
+    "exitConfirm": "Trid tagħlaq il-programm ta' 7 ijiem?",
+    "reflectionPlaceholder": "Mhux obbligatorju: għidilna aktar…",
+    "send": "Ibgħat",
+    "reflectionQuestion": "L-app għamlitlek il-ħajja ta' kuljum eħfef?",
+    "previewEmpty": "Iftaħ id-dħul tat-tifel biex tara l-pjan.",
+    "optOutTitle": "Agħlaq il-programm",
+    "skipToday": "Aqbeż illum",
+    "orOpenChildLogin": "Jew iftaħ id-dħul tat-tifel",
+    "dayOf": "Jum {{day}} minn {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Il-progress tal-familja illum",
+    "allChildren": "← It-tfal kollha",
+    "systemMsgFrom": "Messaġġ mill-app",
+    "systemMsgClose": "Agħlaq ✕",
+    "sharingManage": "Agħfas biex timmaniġġja r-rapporti maqsuma",
+    "inviteTitle": "Stieden ġenitur ieħor",
+    "inviteSub": "Biex ma jkollkomx tistaqsu lil xulxin dwar il-pjan",
+    "inviteBtn": "Stieden",
+    "shareTitle": "Għid lil ħabib!",
+    "shareSub": "Għin familja oħra ssib struttura fil-ħajja ta' kuljum",
+    "shareBtn": "Aqsam",
+    "inviteModalTitle": "Stieden ġenitur ieħor",
+    "inviteModalBody": "Il-partner tiegħek jirċievi imejl b'ħolqa diretta — l-ebda app żejda, xejn ikkumplikat.",
+    "inviteSentBody": "Il-partner tiegħek issa jista' jidħol u jara l-pjan.",
+    "inviteDone": "Lest",
+    "supportPrefix": "🔒 Int fil-mod ta' appoġġ: qed nuri d-dejta tal-familja",
+    "supportSuffix": ". L-ebda dejta ma tista' tinbidel. Is-sessjoni tispiċċa fi",
+    "tourSkip": "Aqbeż",
+    "tourNext": "Li jmiss →",
+    "starTipsTitle": "Suġġerimenti: kif jaħdmu l-istilel",
+    "starTipsCollect": "• It-tifel jaqla' l-istilel meta l-attivitajiet jiġu mmarkati fil-vista tat-tifel",
+    "starTipsExtra": "• Agħti stilel bonus mill-karta tat-tifel għal sforz barra mill-pjan",
+    "starTipsRewards": "• L-istilel jgħoddu għall-premjijiet issejvjati — issettja l-miri f'Premjijiet",
+    "starTipsEdit": "• Ibdel il-pjan tal-ġimgħa f'Ippjanar",
+    "dayDragInner": "iġbed il-buttuna tal-jum fuq jum ieħor biex tikkopja jew tbiddel",
+    "calViewDay": "Jum",
+    "calViewWeek": "Ġimgħa",
+    "calViewMonth": "Xahar",
+    "retroactiveFull": "📝 Imla wara",
+    "extraStarsFull": "⭐ Agħti stilel bonus",
+    "onceTaskFull": "📋 Attività ta' darba",
+    "dayOffFull": "🏠 Jum ta' mistrieħ",
+    "trialEndingTitle": "Fadal jum wieħed mill-prova",
+    "trialEndingBody": "Il-prova tintemm fi żmien jum. Agħżel abbonament fl-app jekk trid iżżomm l-aċċess kollu. Id-dejta tiegħek tibqa'.",
+    "trialEndingChoose": "Agħżel fl-app",
+    "trialEndingClose": "Agħlaq"
+  },
+  "helpPanel": {
+    "title": "❓ Kif taħdem?",
+    "tabSchema": "📅 Pjan",
+    "tabStars": "⭐ Stilel",
+    "tabFamily": "👨‍👩‍👧 Familja",
+    "tabAdults": "🔑 Aktar adulti",
+    "tabTrouble": "🔧 Soluzzjoni ta' problemi",
+    "addActivityQ": "Kif inżid attività?",
+    "addActivityA": "Agħfas il-karta tat-tifel fuq Id-dar → agħżel jum → agħfas \"+\" biex iżżid attività mil-librerija tiegħek. Tista' wkoll toħloq l-attivitajiet tiegħek fil-<strong>Librerija</strong>.",
+    "dragQ": "Nista' niġbed u nmexxi l-attivitajiet?",
+    "dragA": "Iva! Fil-vista tal-pjan tat-tifel (agħfas karta fuq Id-dar) tista' tagħfas u tiġbed l-attivitajiet biex tibdel l-ordni. Tista' wkoll tiġbed attività fuq il-buttuna ta' jum ieħor biex tikkopjaha.",
+    "copyQ": "Kif nikkopja l-pjan għal kull jum?",
+    "copyA": "Fl-editur tal-pjan (buttuna 📋) → agħżel \"Ikkopja għal jiem oħra\" biex tikkopja l-pjan ta' jum wieħed għall-bqija tal-ġimgħa.",
+    "earnStarsQ": "Kif jaqla' l-istilel it-tifel?",
+    "earnStarsA": "Kull attività lesta tagħti <strong>stilla waħda</strong>. It-tifel jimmarka fil-vista tat-tifel. Tista' wkoll tagħti <strong>stilel bonus</strong> mill-karta tat-tifel fuq Id-dar.",
+    "treasureQ": "Kif jaħdem it-teżor?",
+    "treasureA": "Fil-vista tat-tifel, agħfas l-ikona ⭐ biex tara t-teżor — lista ta' premjijiet u kemm-il stilla jiswew. It-tifel jista' jitlob premju meta jkun ġabar biżżejjed.",
+    "retroQ": "Kif nimla l-istilel għal jiem li nsejt?",
+    "retroA": "Mur f'<strong>Illum</strong> (menu ☰ → Illum, jew il-buttuna <strong>Imla wara</strong> fuq Id-dar). Agħżel it-tifel, mur fil-jum it-tajjeb bil-vleġeġ jew bil-kalendarju, u mmarka l-attivitajiet. L-istilel jiġu ssejvjati bid-data t-tajba.",
+    "rewardsQ": "Kif inżid jew nibdel il-premjijiet?",
+    "rewardsA": "Mur f'Premjijiet fil-menu. Hemm tista' żżid il-premjijiet tiegħek, tibdel kemm-il stilla jiswew, u tagħżel liema tfal jarawhom.",
+    "siblingQ": "Kif inżid aħwa?",
+    "siblingA": "Fuq Id-dar → agħfas <strong>\"+ Żid tifel\"</strong>. Kull tifel ikollu l-pjan, l-attivitajiet u l-istilel tiegħu.",
+    "childLoginQ": "Kif jidħol it-tifel?",
+    "childLoginA": "Għall-ewwel jiem tista' tagħmel <strong>ħarsa lejn il-jum tat-tifel</strong> minn Illum. Meta tkunu lesti, it-tifel jidħol fuq <strong>/child-login</strong> bl-isem tal-utent u l-PIN — mingħajr kelma tas-sigurtà. Id-dettalji ssibhom taħt <strong>Familja u għażliet → Tfal</strong>.",
+    "inviteAdultQ": "Kif nistieden adult ieħor?",
+    "inviteAdultA": "Mur f'<strong>Familja u għażliet → Membri tal-familja</strong> → agħfas \"Stieden\". Jirċievu imejl b'ħolqa biex joħolqu l-kont tagħhom u jingħaqdu mal-familja.",
+    "inviteSeeQ": "L-adult mistieden jista' jara kull tifel?",
+    "inviteSeeA": "Int tagħżel liema tfal jista' jara meta tibgħat l-istedina. Tista' tibdel dan wara taħt <strong>Membri tal-familja</strong> → agħfas il-persuna → aġġusta l-aċċess tat-tfal.",
+    "noActivitiesQ": "It-tifel ma jara l-ebda attività illum",
+    "noActivitiesA": "Iċċekkja li l-pjan huwa ssettjat għall-jum it-tajjeb. Iftaħ il-pjan tat-tifel (agħfas il-karta) → agħżel illum → ara jekk hemmx attivitajiet. Jekk il-pjan vojt: uża \"Ikkopja għal jiem oħra\" biex timlieh.",
+    "forgotPinQ": "Insejt il-PIN tat-tifel",
+    "forgotPinA": "Mur f'<strong>Familja u għażliet → Tfal</strong> → agħżel it-tifel → agħfas \"Ibdel il-PIN\" biex tissettja PIN ġdid.",
+    "innerOneStar": "stilla waħda",
+    "innerBonusStars": "stilel bonus",
+    "innerAddChild": "\"+ Żid tifel\"",
+    "innerPreview": "ħarsa lejn il-jum tat-tifel",
+    "innerFamilyMembersPath": "Familja u għażliet → Membri tal-familja",
+    "innerMembers": "Membri tal-familja",
+    "innerFamilyChildren": "Familja u għażliet → Tfal",
+    "supportQ": "Ikkuntattja l-appoġġ",
+    "supportLead": "Iktbilna fuq",
+    "supportTail": " — inwieġbu fi żmien 24 siegħa."
+  },
+  "journeyAck": {
+    "headline": "It-tifel lesta attività!",
+    "childFallback": "It-tifel tiegħek",
+    "activityFallback": "attività",
+    "dismiss": "Rajt dan"
+  },
+  "journeyCelebration": {
+    "headline": "Għamiltuha flimkien",
+    "body": "It-tifel beda — u int rajt.",
+    "dismiss": "Prosit!"
+  },
+  "activationAha": {
+    "body": "Mingħajr ma kellek tfakkru.",
+    "dismiss": "Prosit!"
+  }
+}

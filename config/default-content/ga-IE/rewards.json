@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Am scáileáin breise",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Roghnaigh an dinnéar",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Bronntanas beag",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

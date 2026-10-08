@@ -7,6 +7,7 @@
  */
 
 const db = require('./db');
+const { usesLocaleFileContent } = require('./locale');
 const { isActivationFlagEnabled } = require('./activation-flags');
 const { getFamilyCommunicationState } = require('./journey/derived-state');
 const feedbackDb = require('../../db/growth-feedback');
@@ -97,7 +98,7 @@ async function loadActivationSnapshot(familyId) {
 }
 
 function buildPrompt(promptKey, locale) {
-  const en = locale === 'en-GB' || locale === 'en';
+  const en = usesLocaleFileContent(locale);
   if (promptKey === 'first_value' || promptKey === 'three_routine_days') {
     return {
       promptKey,

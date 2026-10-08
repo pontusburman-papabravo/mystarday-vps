@@ -58,11 +58,14 @@
       const value = I18n.t('child.' + key);
       if (value && value !== 'child.' + key) return value;
     }
+    const configured = (window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE';
     const lang = (window.I18n && typeof I18n.getCurrentLang === 'function' && I18n.getCurrentLang())
       || (document.documentElement && document.documentElement.lang)
-      || '';
-    if (lang === 'en-GB' || lang === 'en' || String(lang).indexOf('en') === 0) return fallbackEn;
-    return fallbackSv;
+      || configured;
+    const base = String(lang).split(/[-_]/)[0].toLowerCase();
+    const configuredBase = String(configured).split(/[-_]/)[0].toLowerCase();
+    if (base === configuredBase) return fallbackSv;
+    return fallbackEn;
   }
 
   function applyPickerHeadings(isSwitch) {
@@ -510,7 +513,7 @@
     const isSwitch = params.get('switch') === '1';
     const pickerI18nPromise = (window.initSharedDevicePickerI18n
       ? initSharedDevicePickerI18n()
-      : Promise.resolve('sv-SE'));
+      : Promise.resolve((window.I18n && I18n.DEFAULT_LOCALE) || 'sv-SE'));
 
     // Diagnostics-only (P1): if a flow id is still present, the picker is being
     // shown again mid/after a previous select-parent attempt for THIS device —

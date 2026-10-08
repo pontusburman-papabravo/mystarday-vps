@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Thuis",
+    "planning": "Planning",
+    "rewards": "Beloningen",
+    "forYou": "Voor jou",
+    "family": "Gezin"
+  },
+  "settings": "Instellingen",
+  "mainAria": "Hoofdnavigatie",
+  "notifications": "Meldingen",
+  "share": "Delen",
+  "logout": "Uitloggen",
+  "switchUser": "Profiel wisselen",
+  "returnToChild": "Terug naar kind",
+  "darkMode": "Donkere modus",
+  "lightMode": "Lichte modus",
+  "overview": "Overzicht",
+  "dailyLog": "Vandaag",
+  "weekSchedule": "Schema",
+  "reports": "Rapporten",
+  "library": "Bibliotheek",
+  "libraryAdvanced": "📚 Bibliotheek (uitgebreid)",
+  "pedagogNotes": "📝 Notities van de begeleider",
+  "treasureChest": "Sterrenkist",
+  "familySettings": "Gezin en instellingen",
+  "capability": {
+    "subscription": "Abonnement",
+    "reports": "Rapporten",
+    "samarbete": "Samenwerken met een begeleider",
+    "barnStod": "Extra ondersteuning"
+  },
+  "header": {
+    "notifications": "Meldingen",
+    "settings": "Instellingen",
+    "share": "Delen",
+    "shareTitle": "Vertel een gezin over de app!",
+    "shareAria": "Delen"
+  },
+  "avatar": {
+    "switchPedagog": "Naar de begeleidersweergave",
+    "subscription": "Abonnement",
+    "settings": "Instellingen",
+    "logout": "Uitloggen"
+  },
+  "mobile": {
+    "openMenu": "Menu openen",
+    "darkModeTitle": "Donkere modus",
+    "darkModeAria": "Donkere modus wisselen"
+  }
+}

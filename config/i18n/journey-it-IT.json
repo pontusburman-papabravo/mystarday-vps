@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Vedi i consigli",
+    "close": "Chiudi",
+    "milestone": "Traguardo",
+    "nextStep": "Passo successivo",
+    "tip": "Consiglio",
+    "weekReflection": "Sguardo sulla settimana",
+    "weekTogether": "Una settimana insieme",
+    "weekLabel": "Una settimana",
+    "sjDay3Headline": "È il momento che {{name}} provi",
+    "tips": {
+      "coach_consistency": [
+        "Tieni la routine breve e chiara — il tuo bambino costruisce l'abitudine un passo alla volta.",
+        "Festeggia ogni spunta, anche quelle piccole.",
+        "Lascia che il tuo bambino acceda da solo ogni mattina."
+      ],
+      "coach_evening": [
+        "Aggiungi 2–3 attività tranquille prima di dormire.",
+        "Lo stesso ordine ogni sera rende più facile addormentarsi."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nuovo",
+    "dismissAria": "Chiudi la spiegazione",
+    "continueFallback": "Continua",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Ora ti mostriamo un suggerimento chiaro per il passo successivo, qui in Casa.",
+        "whatChanged": "In alto c'è una scheda \"Passo successivo\".",
+        "whyItMatters": "Non devi cercare tra i promemoria — un suggerimento alla volta."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lascia che il tuo bambino provi la routine",
+      "body": "Apri insieme la vista del bambino — vede subito cosa fare.",
+      "cta": "Apri la vista del bambino"
+    },
+    "ADD_EVENING": {
+      "headline": "Aggiungi la routine della sera",
+      "body": "Rendi la nanna chiara come la mattina.",
+      "cta": "Aggiungi la sera"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Invita l'altro genitore",
+      "body": "Condividi la routine, per seguirla insieme.",
+      "cta": "Invita"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Parti da un piccolo passo",
+      "body": "La tua routine è ancora lì — oggi prendi un'attività alla volta.",
+      "cta": "Apri il piano"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Personalizza la tua routine",
+      "body": "Ora puoi fare tuo il piano.",
+      "cta": "Personalizza"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Festeggia i progressi",
+      "body": "Hai fatto un passo importante — prenditi un momento insieme.",
+      "cta": "Mostralo al tuo bambino"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Il tuo bambino ha completato un'attività!",
+    "defaultChild": "Il tuo bambino",
+    "defaultActivity": "un'attività",
+    "defaultCta": "Capito"
+  }
+}

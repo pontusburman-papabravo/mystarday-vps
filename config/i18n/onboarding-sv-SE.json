@@ -153,7 +153,7 @@
     "intro": "Vi har fyllt på med roliga belöningar. Välj de som {{childName}} ska få kämpa för!",
     "introWithCount": "Vi har fyllt på med {{count}} roliga belöningar. Välj de som {{childName}} ska få kämpa för!",
     "selectCount": {
-      "zero": "Välj minst 1 belöning (0 valda)",
+      "none": "Välj minst 1 belöning (0 valda)",
       "one": "{{count}} belöning vald ✓",
       "other": "{{count}} belöningar valda ✓"
     },

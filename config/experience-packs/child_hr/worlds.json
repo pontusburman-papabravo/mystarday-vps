@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Jutarnja kuća",
+      "first_unlock_message": "Jutarnja kuća te čeka",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Jutarnja kuća zna da si tu.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Pali se blago svjetlo.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Vrata",
+          "always_active": true,
+          "ambient_message_sv": "Vrata malo drhte — kao da netko čeka vani.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Vani te čeka vrt…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Vrt",
+      "first_unlock_message": "Vrt te čeka",
+      "ambient_message_sv": "Trava se polako miče na povjetarcu.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Staza",
+          "emoji": "🌿",
+          "ambient_message_sv": "Staza vodi dublje u vrt.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Staza vodi u toplu sobu punu sjećanja…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Gredica",
+          "emoji": "🪴",
+          "ambient_message_sv": "Zemlja je mekana i topla.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Nebo",
+          "emoji": "☁️",
+          "ambient_message_sv": "Oblaci se polako miču.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Soba sjećanja",
+      "first_unlock_message": "Ovdje je ono čime se ponosiš.",
+      "ambient_message_sv": "Ovdje je toplo i sigurno.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Prozor",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Svjetlo nježno ulazi."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Zid sjećanja",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Ovdje visi ono što ti je važno."
+        }
+      ]
+    }
+  ]
+}

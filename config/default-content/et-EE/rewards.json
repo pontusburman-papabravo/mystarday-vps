@@ -1,0 +1,5 @@
+[
+  { "name": "Lisaekraaniaeg", "icon": "📱", "star_cost": 5 },
+  { "name": "Vali õhtusöök", "icon": "🍕", "star_cost": 10 },
+  { "name": "Väike kingitus", "icon": "🎁", "star_cost": 20 }
+]

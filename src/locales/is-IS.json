@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Rólegur dagur, ein stjarna í einu"
+  },
+  "language": {
+    "label": "Tungumál",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Skipta um tungumál",
+    "choice": {
+      "title": "Tungumál",
+      "titleEn": "Tungumál",
+      "description": "Þú getur skipt um tungumál síðar í Stillingum.",
+      "descriptionEn": "Þú getur skipt um tungumál síðar í Stillingum.",
+      "confirm": "Áfram",
+      "required": "Veldu tungumál til að halda áfram",
+      "childNote": "Barnasýnin fylgir tungumáli fjölskyldunnar.",
+      "childNoteEn": "Barnasýnin fylgir tungumáli fjölskyldunnar."
+    },
+    "offer": {
+      "title": "{{brand}} er nú á íslensku",
+      "body": "{{brand}} er nú líka á íslensku. Foreldrasýn og barnasýn fylgja tungumáli fjölskyldunnar.",
+      "question": "Viltu vera áfram á sænsku eða prófa íslensku?",
+      "staySwedish": "Vera áfram á sænsku",
+      "tryEnglish": "Prófa íslensku",
+      "remindLater": "Minna mig á þetta síðar"
+    },
+    "legacyNotice": {
+      "body": "Núverandi athafnir halda upprunalegu tungumáli. Nýjar athafnir nota íslensku.",
+      "dismiss": "Skil",
+      "dismissAria": "Loka tungumálatilkynningu"
+    },
+    "reportIssue": "Tilkynna vandamál með tungumál",
+    "feedback": {
+      "typeLabel": "Vandamál með tungumál eða þýðingu",
+      "typeLabelEn": "Vandamál með tungumál eða þýðingu",
+      "titlePlaceholder": "Hvað lítur rangt út?",
+      "visibleText": "Hvaða texta sástu?",
+      "suggestion": "Hvernig ætti hann að hljóma? (valfrjálst)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Hvar býr fjölskyldan þín?",
+      "description": "Við notum þetta fyrir rétt hugtök og persónuvernd. Þetta er aðskilið frá tungumálavali þínu.",
+      "label": "Land",
+      "hint": "",
+      "required": "Veldu land til að halda áfram",
+      "closedEu": "{{brand}} er ekki í boði í landinu þínu enn. Við látum þig vita þegar við opnum fleiri ESB-markaði.",
+      "closedIe": "{{brand}} er ekki í boði á Írlandi enn.",
+      "closedCa": "{{brand}} er ekki í boði í Kanada enn.",
+      "closedFi": "{{brand}} er ekki í boði í Finnlandi enn.",
+      "closedNo": "{{brand}} er ekki í boði í Noregi enn.",
+      "closedDk": "{{brand}} er ekki í boði í Danmörku enn.",
+      "closedUk": "{{brand}} er ekki í boði í Bretlandi enn.",
+      "closedUs": "{{brand}} er ekki í boði í Bandaríkjunum enn.",
+      "closedOther": "{{brand}} er ekki í boði í landinu þínu enn.",
+      "euGroup": "Annað ESB/EES-land"
+    }
+  },
+  "nav": {
+    "login": "Skrá inn",
+    "register": "Stofna reikning",
+    "childLogin": "Innskráning barns",
+    "dashboard": "Yfirlit",
+    "logout": "Skrá út",
+    "admin": "Stjórnandi"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — einfaldara daglegt líf fyrir alla fjölskylduna",
+      "ogDescription": "Búðu til og fylgdu daglegum áætlunum, athöfnum og verðlaunum"
+    },
+    "login": {
+      "title": "Skrá inn",
+      "pageTitle": "Skrá inn — {{brand}}",
+      "tagline": "Við skínum saman",
+      "subtitle": "Velkomið aftur í {{brand}}",
+      "email": "Netfang",
+      "emailPlaceholder": "notandi@netfang.is",
+      "password": "Lykilorð",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Skrá inn",
+      "submitting": "Skrái inn…",
+      "forgotPassword": "Gleymt lykilorð?",
+      "noAccount": "Ertu ekki með reikning?",
+      "createAccount": "Stofna reikning",
+      "childLogin": "Ertu barn?",
+      "childLoginLink": "Ertu barn? Skráðu þig inn hér",
+      "loginAsAdult": "Skráðu þig inn sem foreldri",
+      "orDivider": "eða",
+      "continueWithApple": "Halda áfram með Apple",
+      "continueWithGoogle": "Halda áfram með Google",
+      "apple_caption": "Aðeins í boði á iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Sláðu inn bæði netfang og lykilorð",
+      "genericError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+      "mascotAlt": "Stjörnulukkudýr",
+      "addChildBannerTitle": "👶 Skráðu þig inn sem foreldri til að bæta við barni",
+      "addChildBannerBody": "«Ég er barn» nægir ekki hér — foreldri eða kennari þarf að gera þetta.",
+      "resetSuccessBannerTitle": "Lykilorð vistað",
+      "resetSuccessBannerBody": "Skráðu þig inn með nýja lykilorðinu.",
+      "backToChildPicker": "← Til baka í barnaval",
+      "linking": {
+        "emailExists": "Reikningur með þessu netfangi er þegar til.",
+        "promptApple": "Viltu tengja Apple-reikninginn við reikninginn sem er til?",
+        "promptGoogle": "Viltu tengja Google-reikninginn við reikninginn sem er til?",
+        "yes": "Já, tengja",
+        "cancel": "Hætta við",
+        "modalTitleApple": "Tengja Apple-reikning",
+        "modalTitleGoogle": "Tengja Google-reikning",
+        "modalIntroApple": "Sláðu inn lykilorðið til að skrá þig inn og tengja svo Apple-reikninginn.",
+        "modalIntroGoogle": "Sláðu inn lykilorðið til að skrá þig inn og tengja svo Google-reikninginn.",
+        "emailLabel": "Netfang",
+        "passwordLabel": "Lykilorð",
+        "passwordPlaceholder": "Lykilorðið þitt",
+        "submit": "Tengja",
+        "submitting": "Tengist…",
+        "enterPassword": "Sláðu inn lykilorðið.",
+        "wrongPassword": "Rangt lykilorð.",
+        "failed": "Tenging mistókst."
+      },
+      "apple": {
+        "unavailable": "Innskráning með Apple er ekki í boði núna. Reyndu aftur eða skráðu þig inn með netfangi.",
+        "notEnabled": "Innskráning með Apple er ekki virk. Uppfærðu appið í nýjustu útgáfu.",
+        "cancelled": "Hætt var við innskráningu með Apple.",
+        "incomplete": "Innskráning með Apple kláraðist ekki. Reyndu aftur eða skráðu þig inn með netfangi og lykilorði.",
+        "rateLimited": "Of margar tilraunir. Bíddu augnablik og reyndu aftur.",
+        "genericError": "Eitthvað fór úrskeiðis við innskráningu með Apple. Reyndu aftur eða skráðu þig inn með netfangi og lykilorði.",
+        "failed": "Innskráning með Apple mistókst. Reyndu aftur eða skráðu þig inn með netfangi og lykilorði.",
+        "signInFailed": "Innskráning með Apple mistókst.",
+        "completionTitle": "Kláraðu að stofna reikninginn",
+        "completionBody": "Veldu landið þitt og samþykktu skilmálana. Apple gaf þegar upp nafn og netfang — við biðjum ekki um þau aftur.",
+        "completionSubmit": "Halda áfram með sama Apple-reikningi"
+      },
+      "google": {
+        "emailConflictSettings": "Reikningur með þessu netfangi er þegar til. Skráðu þig inn og tengdu Google í Stillingum, eða notaðu lykilorð.",
+        "loginFailed": "Innskráning með Google mistókst.",
+        "signInFailed": "Innskráning með Google mistókst."
+      },
+      "verify": {
+        "title": "Staðfestu netfangið þitt",
+        "body": "Þú þarft að staðfesta netfangið til að halda áfram að nota {{brand}}. Athugaðu innhólfið (og ruslpóst) eftir tölvupósti frá okkur.",
+        "emailLabel": "Netfang:",
+        "resendBtn": "Senda nýjan staðfestingartengil",
+        "resendSending": "Sendi…",
+        "resendSuccess": "✅ Nýr staðfestingartengill sendur! Athugaðu innhólfið og ruslpóst.",
+        "resendError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+        "spamHint": "Athugaðu líka ruslpóstinn. Tengillinn gildir í 24 klukkustundir."
+      }
+    },
+    "entry": {
+      "back": "Til baka",
+      "backWithArrow": "← Til baka",
+      "welcome": {
+        "ariaLabel": "Velkomið",
+        "headline": "Rólegra daglegt líf með skýrum skrefum, áætlunum og stjörnum",
+        "lead": "{{brand}} hjálpar börnum og fjölskyldum með daglegar rútínur með sjónrænum áætlunum, skýrum undirskrefum og verðlaunum sem auðvelda að komast í gegnum daginn upp á eigin spýtur.",
+        "chipVisualSchedules": "Sjónrænar áætlanir",
+        "chipStarsRewards": "Stjörnur og verðlaun",
+        "chipMultipleUsers": "Mörg börn og fullorðnir",
+        "startBtn": "Komast af stað",
+        "existingBtn": "Ég er þegar með reikning",
+        "howItWorksBtn": "Hvernig appið virkar",
+        "firstRunHeadline": "Velkomið í {{brand}}",
+        "firstRunCreateAccount": "Stofna reikning",
+        "firstRunLogIn": "Skrá inn",
+        "firstRunChildLink": "Ég er barn"
+      },
+      "role": {
+        "title": "Hver ætlar að nota appið núna?",
+        "kidAria": "Ég er barn",
+        "kidLabel": "Ég er barn",
+        "kidSub": "Ég vil sjá áætlunina mína",
+        "kidAlt": "Barn",
+        "parentAria": "Ég er fullorðinn",
+        "parentLabel": "Ég er fullorðinn",
+        "parentSub": "Ég vil skrá mig inn eða komast af stað",
+        "parentAlt": "Fjölskylda"
+      },
+      "adultStart": {
+        "ariaLabel": "Byrjun fullorðins",
+        "title": "Velkomið! Hvernig viltu halda áfram?",
+        "existingLabel": "Ég er þegar með reikning",
+        "existingSub": "Skráðu þig inn með Apple, Google eða netfangi",
+        "newLabel": "Ég er nýr hér",
+        "newSub": "Sjáðu hvernig appið virkar og stofnaðu ókeypis reikning"
+      },
+      "signupIntro": {
+        "ariaLabel": "Komast af stað",
+        "title": "Komast af stað með {{brand}}",
+        "sub": "Stofnaðu ókeypis reikning og byggðu fyrstu áætlun barnsins með skýrum skrefum, stjörnum og markmiðum.",
+        "point1": "Sjónrænar áætlanir sem barnið skilur",
+        "point2": "Stjörnur og verðlaun sem hvetja",
+        "point3": "Mörg börn og fullorðnir í sömu fjölskyldu",
+        "createBtn": "Stofna ókeypis reikning",
+        "existingBtn": "Ég er þegar með reikning",
+        "founderNote": "Basic fylgir ókeypis eins og er."
+      },
+      "howItWorks": {
+        "title": "Hvernig appið virkar",
+        "step1Title": "1. Barnið sér áætlunina sína skref fyrir skref",
+        "step1Body": "Sjónrænar rútínur gera daglegt líf skýrt og fyrirsjáanlegt.",
+        "step2Title": "2. Barnið fær stjörnur þegar athafnir eru búnar",
+        "step2Body": "Smá afrek byggja upp hvatningu og sjálfstæði.",
+        "step3Title": "3. Fullorðnir fylgjast með framvindu og byggja rútínur saman",
+        "step3Body": "Mörg börn og fullorðnir geta deilt sömu fjölskyldu í appinu.",
+        "close": "Loka"
+      },
+      "noscript": "JavaScript þarf að vera virkt — kveiktu á JavaScript til að skrá þig inn."
+    },
+    "register": {
+      "title": "Stofna reikning",
+      "pageTitle": "Stofna reikning | {{brand}}",
+      "pageHeading": "Stofnaðu foreldrareikning",
+      "pageLead": "Prófaðu {{brand}} ókeypis. Sjónræn áætlun með myndstuðningi og stjörnuverðlaunum sem hjálpar barninu að skilja daginn, fylgja rútínum og verða sjálfstæðara.",
+      "pageLeadSecondary": "Fyrir fjölskyldur sem vilja skýrari rútínur, rólegri skipti milli athafna og minna nöldur í daglegu lífi.",
+      "subtitle": "Komast af stað með {{brand}}",
+      "nameLabel": "Nafnið þitt",
+      "namePlaceholder": "t.d. Anna",
+      "familyNameLabel": "Nafn fjölskyldu",
+      "familyNamePlaceholder": "t.d. Fjölskyldan Jónsdóttir",
+      "familyNameAuto": "Búið til sjálfkrafa út frá nafninu þínu",
+      "familyNameGenerated": "Búið til sjálfkrafa — breyttu ef þú vilt",
+      "familyNameEdited": "Breytt",
+      "email": "Netfang",
+      "emailPlaceholder": "notandi@netfang.is",
+      "emailHelp": "Við sendum staðfestingartengil hingað",
+      "password": "Lykilorð",
+      "passwordPlaceholder": "Að minnsta kosti 8 stafir",
+      "passwordHelp": "Þarf að vera að minnsta kosti 8 stafir",
+      "confirmPassword": "Staðfesta lykilorð",
+      "confirmPasswordPlaceholder": "Endurtaktu lykilorð",
+      "submit": "Stofna reikning",
+      "hasAccount": "Ertu þegar með reikning?",
+      "loginLink": "Skráðu þig inn hér",
+      "childLoginLink": "Ertu barn? Skráðu þig inn hér",
+      "gateHintLanguage": "Veldu tungumál hér fyrir ofan til að halda áfram skráningu.",
+      "gateHintCountry": "Veldu landið þitt hér fyrir ofan til að halda áfram skráningu.",
+      "appleFromLoginHint": "Enginn reikningur er tengdur þessu Apple-auðkenni enn. Veldu landið þitt og samþykktu skilmálana — nafn og netfang koma frá Apple. Önnur innskráning með Apple er ekki nauðsynleg.",
+      "appleOnlyPath": "Stofnaðu reikninginn með Apple. Nafn og netfang koma frá Apple — ekki fylla út eyðublaðið.",
+      "tagline": "Rólegur dagur, ein stjarna í einu",
+      "orDivider": "eða",
+      "continueWithApple": "Nýskráning með Apple",
+      "continueWithGoogle": "Nýskráning með Google",
+      "validatingInvite": "Sannreyni boð...",
+      "inviteInvalid": "Ógildur eða útrunninn boðstengill. Hafðu samband við þann sem bauð þér.",
+      "inviteValidateFailed": "Gat ekki sannreynt boðstengilinn. Reyndu aftur.",
+      "familyNameSuffix": "Fjölskylda {{name}}",
+      "termsRequired": "Þú þarft að samþykkja notkunarskilmála og persónuverndarstefnu",
+      "success": "Reikningur stofnaður! Athugaðu tölvupóstinn til að staðfesta reikninginn.",
+      "termsPrefix": "Ég hef lesið og samþykki",
+      "termsLink": "notkunarskilmálana",
+      "termsAnd": "og",
+      "privacyLink": "persónuverndarstefnuna",
+      "termsSuffix": ".",
+      "successTitle": "Reikningur stofnaður! 🎉",
+      "successVerifyLine1": "Við höfum sent staðfestingartengil á netfangið þitt.",
+      "successVerifyLine2": "Athugaðu innhólfið (og ruslpóst).",
+      "successGracePeriod": "Þú getur skráð þig inn strax og átt 24 klukkustundir til að staðfesta netfangið.",
+      "successLoginBtn": "Skrá inn",
+      "inviteErrorDefault": "Ógildur boðstengill.",
+      "appleEmailExists": "Reikningur með þessu netfangi er þegar til. Skráðu þig inn með Apple í staðinn, eða notaðu netfang og lykilorð.",
+      "webDownload": {
+        "title": "Sæktu appið",
+        "lead": "Nýjar fjölskyldur stofna reikning í appinu. Sæktu það í App Store eða Google Play.",
+        "appStoreAria": "Sækja í App Store",
+        "playStoreAria": "Sækja á Google Play",
+        "hasAccount": "Ertu þegar með reikning?",
+        "loginLink": "Skrá inn"
+      }
+    },
+    "parentGate": {
+      "title": "Foreldralás",
+      "hint": "Sláðu inn PIN til að halda áfram",
+      "keypadAria": "PIN-borð",
+      "cancel": "Hætta við",
+      "forgotPinBackup": "Gleymdirðu PIN? Skráðu þig inn með netfangi eða Apple/Google",
+      "digitsEntered": "{{count}} af 4 tölustöfum",
+      "backspace": "Eyða",
+      "confirm": "Staðfesta",
+      "needFourDigits": "PIN þarf að vera 4 tölustafir"
+    },
+    "childLogin": {
+      "title": "Halló! 👋",
+      "pageTitle": "Stjörnukönnuður — {{brand}}",
+      "whoAreYou": "Hver ert þú?",
+      "selectProfile": "Veldu prófílinn þinn og sláðu inn PIN.",
+      "back": "Til baka",
+      "addChild": "Bæta við barni",
+      "notMe": "Ég finn mig ekki",
+      "subtitle": "Sláðu inn notandanafn og PIN",
+      "username": "Notandanafn",
+      "usernamePlaceholder": "Notandanafnið þitt",
+      "pin": "PIN",
+      "pinPlaceholder": "4 tölustafir",
+      "submit": "Skrá inn",
+      "parentLogin": "Ertu foreldri?",
+      "parentLoginLink": "Skráðu þig inn hér",
+      "adultLogin": "Skráðu þig inn sem fullorðinn",
+      "adultLoginShort": "Fullorðinn",
+      "forgotPassword": "Gleymt lykilorð?",
+      "emptyNoChildren": "Engin börn skráð enn.",
+      "nameHint": "Sláðu inn nafnið þitt til að skrá þig inn",
+      "namePlaceholder": "Nafnið þitt",
+      "continue": "Áfram →",
+      "switchChild": "Skipta um barn",
+      "pinSub": "Sláðu inn kóðann þinn",
+      "attemptsLeft": "Tilraunir eftir",
+      "pinDotsAria": "PIN-kóði",
+      "lockoutWait": "Bíddu augnablik",
+      "lockoutSoon": "Þú getur reynt aftur bráðum",
+      "welcome": "Velkomið!",
+      "redirecting": "Fer með þig á yfirlitið…",
+      "keypadAria": "Talnaborð",
+      "forgotPin": "Biddu foreldri ef þú gleymdir kóðanum",
+      "needHelp": "Þarftu hjálp?",
+      "contactParent": "Hafa samband við foreldri"
+    },
+    "verify": {
+      "title": "Staðfestu netfangið",
+      "pageTitle": "Staðfesta netfang — {{brand}}",
+      "checkingTitle": "Staðfesti netfang",
+      "checkingBody": "Bíddu á meðan við staðfestum netfangið...",
+      "checking": "Athuga...",
+      "success": "Netfangið hefur verið staðfest! Þú getur nú skráð þig inn.",
+      "successTitle": "Netfang staðfest!",
+      "welcomeMessage": "Netfangið þitt hefur verið staðfest. Velkomið í {{brand}}! 🎉",
+      "redirectCountdownPrefix": "Áframsending eftir",
+      "redirectCountdownSuffix": "sekúndur...",
+      "error": "Staðfestingartengillinn er ógildur eða útrunninn.",
+      "errorTitle": "Staðfesting mistókst",
+      "verifyFailed": "Staðfesting mistókst. Tengillinn gæti verið útrunninn.",
+      "noToken": "Ekkert staðfestingartákn fannst í tenglinum.",
+      "genericError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+      "resendPrompt": "Sláðu inn netfangið til að fá nýjan staðfestingartengil:",
+      "resendBtn": "Senda nýjan tengil",
+      "resendSending": "Sendi...",
+      "resendRateLimit": "Þú hefur þegar beðið um nokkra tengla. Reyndu aftur eftir klukkustund.",
+      "resendSuccess": "✅ Ef reikningurinn er til höfum við sent nýjan staðfestingartengil. Athugaðu innhólfið og ruslpóst!",
+      "resendEmailInvalid": "Sláðu inn gilt netfang.",
+      "needHelpPrefix": "Þarftu hjálp? Athugaðu ruslpóst eða",
+      "contactUs": "hafðu samband við okkur",
+      "loginLink": "Fara í innskráningu"
+    },
+    "forgotPassword": {
+      "title": "Gleymt lykilorð",
+      "pageTitle": "Gleymt lykilorð — {{brand}}",
+      "heading": "Gleymt lykilorð?",
+      "lead": "Ekkert mál! Við sendum þér tengil til að endurstilla lykilorðið.",
+      "subtitle": "Sláðu inn netfangið og við sendum þér endurstillingartengil",
+      "email": "Netfang",
+      "emailPlaceholder": "notandi@netfang.is",
+      "emailHint": "Við sendum öruggan tengil til að endurstilla lykilorðið",
+      "submit": "Senda endurstillingartengil",
+      "sent": "Ef þetta netfang er í kerfinu höfum við sent endurstillingartengil.",
+      "successTitle": "Athugaðu tölvupóstinn!",
+      "successBody": "Við höfum sent tengil til að endurstilla lykilorðið. Athugaðu innhólfið og ruslpóst.",
+      "orDivider": "eða",
+      "rememberPassword": "Manstu lykilorðið?",
+      "backToLogin": "Til baka í innskráningu",
+      "helpTitle": "Fékkstu engan tölvupóst?",
+      "helpItem1": "Athugaðu ruslpóstmöppuna",
+      "helpItem2": "Gakktu úr skugga um að þú hafir slegið inn rétt netfang",
+      "helpItem3": "Reyndu aftur eftir nokkrar mínútur",
+      "helpItem4Suffix": "ef þú þarft hjálp",
+      "contactSupport": "Hafa samband við þjónustu"
+    },
+    "resetPassword": {
+      "title": "Endurstilla lykilorð",
+      "pageTitle": "Endurstilla lykilorð — {{brand}}",
+      "subtitle": "Veldu nýtt lykilorð",
+      "password": "Nýtt lykilorð",
+      "passwordPlaceholder": "Að minnsta kosti 8 stafir",
+      "passwordHelp": "Þarf að vera að minnsta kosti 8 stafir",
+      "confirmPassword": "Staðfesta lykilorð",
+      "confirmPasswordPlaceholder": "Endurtaktu lykilorð",
+      "submit": "Endurstilla lykilorð",
+      "submitting": "Vista…",
+      "success": "Lykilorðinu hefur verið breytt! Þú getur nú skráð þig inn.",
+      "successRedirect": "Búið! Nýja lykilorðið er vistað.",
+      "alreadyUsed": "Lykilorðinu var þegar breytt. Skráðu þig inn með nýja lykilorðinu.",
+      "error": "Endurstillingartengillinn er ógildur eða útrunninn.",
+      "invalidLink": "Ógildur endurstillingartengill.",
+      "requestNewLink": "Biðja um nýjan endurstillingartengil",
+      "requestNewLinkShort": "Biðja um nýjan tengil",
+      "resetFailed": "Ekki tókst að endurstilla lykilorðið",
+      "rememberPassword": "Manstu lykilorðið?",
+      "goToLoginInline": "Fara í innskráningu",
+      "loginLink": "Fara í innskráningu"
+    },
+    "supportBubble": {
+      "closeAria": "Loka",
+      "triggerAria": "Hafa samband við þjónustu",
+      "title": "Þarftu hjálp? 💬",
+      "subtitle": "Við svörum eins fljótt og við getum",
+      "oooSubtitle": "Við erum í fríi 1.–10. september",
+      "success": "Takk! Við fengum skilaboðin og svörum fljótlega.",
+      "oooSuccess": "Takk! Við fengum skilaboðin. Við erum í fríi 1.–10. september og svörum eins fljótt og við getum, í síðasta lagi 11. september.",
+      "openThread": "Opna samtalið þitt",
+      "nameLabel": "Nafn",
+      "namePlaceholder": "Nafnið þitt",
+      "emailLabel": "Netfang",
+      "emailPlaceholder": "you@example.com",
+      "emailHint": "Svo við getum svarað þér",
+      "messageLabel": "Skilaboð",
+      "messagePlaceholder": "Lýstu málinu...",
+      "submit": "Senda skilaboð",
+      "fillAllFields": "Fylltu út alla reiti",
+      "messageMinLength": "Skilaboð þurfa að vera að minnsta kosti 10 stafir",
+      "submitting": "Sendi...",
+      "sendFailed": "Gat ekki sent skilaboðin. Reyndu aftur.",
+      "genericError": "Eitthvað fór úrskeiðis"
+    },
+    "contactForm": {
+      "fillRequired": "Fylla þarf út alla reiti.",
+      "emailInvalid": "Sláðu inn gilt netfang.",
+      "messageTooShort": "Skilaboðin eru of stutt (að minnsta kosti 5 stafir).",
+      "submitting": "Sendi…",
+      "submit": "Senda",
+      "genericError": "Eitthvað fór úrskeiðis. Reyndu aftur.",
+      "openThread": "Opna samtalið þitt"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "Netfang og lykilorð eru nauðsynleg",
+        "emailRequired": "Netfang er nauðsynlegt",
+        "accountBlocked": "Reikningurinn þinn hefur verið læstur. Hafðu samband við stjórnanda.",
+        "emailVerificationRequired": "Þú þarft að staðfesta netfangið til að halda áfram",
+        "verificationTokenRequired": "Staðfestingartákn er nauðsynlegt",
+        "invalidVerificationLink": "Ógildur eða útrunninn staðfestingartengill",
+        "resendVerificationRateLimit": "Þú hefur þegar beðið um nokkra staðfestingartengla. Reyndu aftur eftir klukkustund.",
+        "tokenAndPasswordRequired": "Tákn og lykilorð eru nauðsynleg",
+        "invalidResetLink": "Ógildur eða útrunninn endurstillingartengill. Biddu um nýjan endurstillingartengil.",
+        "parentOnlyViewMode": "Aðeins foreldrar geta uppfært sýnarstillingu",
+        "parentOnlyUiViewMode": "Aðeins foreldrar geta uppfært sýn viðmóts",
+        "parentOnlyTheme": "Aðeins foreldrar geta uppfært þema",
+        "preferencesSaveFailed": "Gat ekki vistað stillingar",
+        "uiViewModeSaveFailed": "Gat ekki vistað sýnarstillingu",
+        "themeSaveFailed": "Gat ekki vistað þema",
+        "userNotFound": "Notandi fannst ekki",
+        "unknownUserType": "Óþekkt tegund notanda",
+        "registrationClosed": "Nýskráning er lokuð eins og er",
+        "invalidCountry": "Ógilt land",
+        "countryRequired": "Veldu landið þitt áður en þú stofnar reikning",
+        "registrationRequired": "ÚRELGT — notaðu appleAccountCompletionRequired. Ekki beina í skráningu með netfangi og lykilorði.",
+        "appleAccountCompletionRequired": "Veldu landið þitt og samþykktu skilmálana til að klára stofnun reiknings. Nafn og netfang koma frá Apple.",
+        "familyNameRequired": "Nafn er nauðsynlegt til að stofna fjölskyldureikning",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "Nýskráning frá Svíþjóð er tímabundið lokuð.",
+          "MARKET_IE_CLOSED": "{{brand}} er ekki í boði á Írlandi enn.",
+          "MARKET_CA_CLOSED": "{{brand}} er ekki í boði í Kanada enn.",
+          "MARKET_FI_CLOSED": "{{brand}} er ekki í boði í Finnlandi enn.",
+          "MARKET_NO_CLOSED": "{{brand}} er ekki í boði í Noregi enn.",
+          "MARKET_DK_CLOSED": "{{brand}} er ekki í boði í Danmörku enn.",
+          "MARKET_EU_CLOSED": "{{brand}} er ekki í boði í landinu þínu enn. Við látum þig vita þegar við opnum fleiri ESB-lönd.",
+          "MARKET_UK_CLOSED": "{{brand}} er ekki í boði í Bretlandi enn.",
+          "MARKET_US_CLOSED": "{{brand}} er ekki í boði í Bandaríkjunum enn.",
+          "MARKET_OTHER_CLOSED": "{{brand}} er ekki í boði í landinu þínu enn.",
+          "MARKET_BILLING_NOT_READY": "Kaup eru ekki í boði í þessu landi enn, svo við getum ekki stofnað reikning sem þú gætir ekki notað."
+        }
+      },
+      "success": {
+        "emailVerified": "Netfangið þitt hefur verið staðfest! Þú getur nú skráð þig inn.",
+        "resendVerification": "Ef reikningurinn er til verður nýr staðfestingartengill sendur",
+        "forgotPassword": "Ef netfangið er til sendum við tengil"
+      }
+    },
+    "errors": {
+      "nameRequired": "Sláðu inn nafnið þitt",
+      "emailRequired": "Netfang er nauðsynlegt",
+      "emailInvalid": "Ógilt netfang",
+      "passwordRequired": "Lykilorð er nauðsynlegt",
+      "passwordTooShort": "Lykilorð þarf að vera að minnsta kosti 8 stafir",
+      "passwordMismatch": "Lykilorðin stemma ekki",
+      "usernameRequired": "Notandanafn er nauðsynlegt",
+      "pinRequired": "PIN er nauðsynlegt",
+      "pinInvalid": "PIN þarf að vera 4 tölustafir",
+      "invalidCredentials": "Rangt netfang eða lykilorð",
+      "accountLocked": "Reikningurinn þinn er læstur í smá stund. Reyndu aftur eftir 15 mínútur.",
+      "emailNotVerified": "Þú þarft fyrst að staðfesta netfangið",
+      "emailExists": "Reikningur með þessu netfangi er þegar til",
+      "tooManyAttempts": "Of margar tilraunir. Bíddu augnablik og reyndu aftur.",
+      "serverError": "Eitthvað fór úrskeiðis. Reyndu aftur síðar.",
+      "invalidValues": "Ógild gildi",
+      "invalidParams": "Ógildar vefslóðarbreytur",
+      "invalidQuery": "Ógildar fyrirspurnarbreytur",
+      "parentPinInvalid": "Rangt PIN — reyndu aftur",
+      "logoutFailed": "Útskráning mistókst. Reyndu aftur.",
+      "logoutRateLimited": "Of margar tilraunir. Bíddu augnablik og reyndu aftur.",
+      "handoffInvalid": "Gat ekki endurheimt lotu fullorðins. Skráðu þig inn sem foreldri.",
+      "userNotFound": "Notandi fannst ekki",
+      "invalidPassword": "Rangt lykilorð",
+      "tokenRequired": "Tákn er nauðsynlegt",
+      "idTokenRequired": "idToken er nauðsynlegt",
+      "allFieldsRequired": "Fylla þarf út alla reiti",
+      "messageTooShort": "Skilaboðin þurfa að vera að minnsta kosti 10 stafir",
+      "serviceUnavailable": "Þjónustan er ekki tiltæk í augnablikinu",
+      "nameTooShort": "Nafn er nauðsynlegt (að minnsta kosti 2 stafir)",
+      "roleRequired": "Hlutverk er nauðsynlegt",
+      "consentRequired": "Þú þarft að samþykkja að við vistum upplýsingarnar þínar",
+      "refreshInvalid": "Endurnýjunartákn er ógilt eða útrunnið",
+      "authRequired": "Auðkenning nauðsynleg",
+      "passwordTooShort6": "Lykilorð þarf að vera að minnsta kosti 6 stafir"
+    }
+  },
+  "surveys": {
+    "thankYou": "Takk fyrir svarið!",
+    "errors": {
+      "unavailable": "Könnunin er ekki í boði núna",
+      "notFound": "Könnun fannst ekki",
+      "closed": "Könnuninni er lokað",
+      "paused": "Könnunin er í pásu",
+      "alreadyAnswered": "Þú hefur þegar svarað þessari könnun",
+      "alreadySubmitted": "Könnunin hefur þegar verið send inn",
+      "questionIdRequired": "Spurning er nauðsynleg",
+      "invalidQuestion": "Ógild spurning",
+      "maxSelections": "Þú getur valið í mesta lagi {{max}}",
+      "invalidOption": "Ógildur svarmöguleiki",
+      "sessionNotFound": "Lota fannst ekki",
+      "answerFirst": "Svaraðu könnuninni fyrst",
+      "contestNotOpen": "Útdrátturinn er ekki opinn",
+      "contestClosed": "Útdrættinum er lokað",
+      "ageRequired": "Þú þarft að vera 18 ára eða eldri til að taka þátt",
+      "contestConsent": "Samþykki er nauðsynlegt til að taka þátt í útdrættinum",
+      "contestAlready": "Þú ert þegar í útdrættinum",
+      "emailAlready": "Þetta netfang er þegar skráð",
+      "idActionRequired": "Könnun og aðgerð eru nauðsynleg"
+    }
+  },
+  "dashboard": {
+    "welcome": "Velkomið, {{name}}!",
+    "todaySchedule": "Áætlun dagsins",
+    "children": "Börn",
+    "addChild": "Bæta við barni",
+    "settings": "Stillingar",
+    "noChildren": "Þú hefur ekki bætt við neinu barni enn. Byrjaðu á að bæta við fyrsta barninu!",
+    "stars": "Stjörnur",
+    "streak": "Röð"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "Fyrsta stjarnan mín"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Hæ {{name}}! ⭐",
+    "today": "Í dag",
+    "now": "Núna",
+    "next": "Næst",
+    "later": "Síðar",
+    "done": "Búið!",
+    "stars": "Stjörnurnar mínar",
+    "rewards": "Verðlaun"
+  },
+  "sections": {
+    "morgon": "Morgunn",
+    "dag": "Dagur",
+    "kvall": "Kvöld",
+    "natt": "Nótt"
+  },
+  "settings": {
+    "title": "Stillingar",
+    "family": {
+      "title": "Stillingar fjölskyldu",
+      "timeDisplayMode": "Birting tíma",
+      "morningStart": "Upphaf morguns",
+      "morningEnd": "Lok morguns",
+      "dayStart": "Upphaf dags",
+      "dayEnd": "Lok dags",
+      "eveningStart": "Upphaf kvölds",
+      "eveningEnd": "Lok kvölds",
+      "nightStart": "Upphaf nætur",
+      "nightEnd": "Lok nætur",
+      "streakStartDay": "Upphafsdagur raðar",
+      "soundEnabled": "Hljóð á",
+      "save": "Vista stillingar fjölskyldu"
+    },
+    "language": {
+      "description": "Veldu tungumál appsins. Sumar þýðingar geta enn verið ófullgerðar.",
+      "switchBack": "Skipta aftur yfir á sænsku"
+    },
+    "invite": {
+      "title": "Bjóða foreldri",
+      "description": "Bjóddu öðru foreldri að skoða og sjá um vikuáætlanir barnanna. Boðið gildir í 7 daga.",
+      "email": "Netfang",
+      "emailPlaceholder": "foreldri@netfang.is",
+      "selectChildren": "Veldu hvaða börn foreldrið sem þú býður hefur aðgang að:",
+      "submit": "Senda boð",
+      "pending": "Boð í bið:"
+    },
+    "password": {
+      "title": "Breyta lykilorði",
+      "current": "Núverandi lykilorð",
+      "new": "Nýtt lykilorð",
+      "confirm": "Staðfesta nýtt lykilorð",
+      "submit": "Breyta lykilorði",
+      "mismatch": "Lykilorðin stemma ekki"
+    },
+    "notifications": {
+      "title": "Tilkynningastillingar",
+      "weeklySummary": "Vikuyfirlit (sunnudagur 21:00)",
+      "rewardRedemption": "Útleysing verðlauna",
+      "emailEnabled": "Allur tölvupóstur í heild",
+      "save": "Vista tilkynningastillingar"
+    },
+    "theme": {
+      "title": "Útlit",
+      "darkMode": "Dökkt þema",
+      "darkModeDescription": "Kveiktu á dökku þema fyrir þægilegri notkun í lítilli birtu",
+      "colorBlind": "Þema fyrir litblindu",
+      "colorBlindDescription": "Stillir liti fyrir mismunandi tegundir litblindu",
+      "colorBlindNone": "Ekkert (sjálfgefið)",
+      "colorBlindProtanopia": "Protanopia (rauðblinda)",
+      "colorBlindDeuteranopia": "Deuteranopia (grænblinda)",
+      "colorBlindTritanopia": "Tritanopia (bláblinda)"
+    },
+    "trustedDevices": {
+      "title": "Traust tæki",
+      "description": "Tæki barns geta opnað barnasýn án PIN eftir að þú samþykkir tækið hér.",
+      "disabled": "Tækjastilling barns er ekki virk fyrir fjölskylduna þína enn.",
+      "enrollHint": "Á spjaldtölvu eða síma barnsins: veldu barnið og gerðu þetta tæki að tæki þess.",
+      "enrollThisDevice": "Gera að tæki barns",
+      "enrollSharedDevice": "Gera að sameiginlegu fjölskyldutæki",
+      "enrollFailed": "Gat ekki skráð þetta tæki. Reyndu aftur.",
+      "empty": "Engin traust tæki skráð.",
+      "revoke": "Afturkalla",
+      "revokeAll": "Afturkalla öll tæki",
+      "revokeAllConfirm": "Öll traust tæki verða skráð út. Halda áfram?",
+      "modeChild": "Tæki barns",
+      "modeShared": "Sameiginlegt tæki",
+      "modeParent": "Tæki foreldris",
+      "unknownChild": "Barn"
+    },
+    "thisDevice": {
+      "title": "Þetta tæki",
+      "description": "Hvernig þessi sími eða spjaldtölva á að opna appið fyrir fjölskylduna.",
+      "setupTitle": "Hvernig verður þetta tæki notað?",
+      "setupLead": "Þú getur breytt þessu síðar í Stillingum.",
+      "setupLater": "Ekki núna",
+      "openSettings": "Opna stillingar",
+      "usageHeading": "Notkun",
+      "usageParent": "Síminn minn sem foreldri",
+      "usageShared": "Deilt með börnunum",
+      "usageChild": "Tæki barnsins",
+      "startHeading": "Opnast sem",
+      "startParent": "Foreldri",
+      "startChoose": "Velja barn",
+      "startParentFixed": "Þetta tæki opnar alltaf foreldrasýn.",
+      "startChildFixed": "Þetta tæki er tengt einu barni.",
+      "childrenHeading": "Börn á þessu tæki",
+      "adultAccessHeading": "Aðgangur fullorðins",
+      "adultPinSet": "PIN er sett",
+      "adultPinMissing": "Settu PIN í Stillingum",
+      "biometricIos": "Face ID eða Touch ID þegar það er í boði",
+      "biometricAndroid": "Lífkenni eða tækilás þegar það er í boði",
+      "biometricWeb": "PIN fyrir sýn fullorðins",
+      "widgetsHeading": "Græjur",
+      "widgetsLinked": "Græjur á heimaskjá eru tengdar vikuáætlun barnsins.",
+      "widgetsNone": "Engar græjur tengdar á þessu tæki.",
+      "changeStartHeading": "Breyta upphafsstillingu",
+      "revokeThis": "Fjarlægja aðgang fyrir þetta tæki",
+      "revokeConfirm": "Þetta tæki þarf að samþykkja aftur svo börn geti opnað appið án PIN. Halda áfram?",
+      "otherDevices": "Önnur tæki fjölskyldunnar",
+      "openForChild": "Opna beint fyrir {{name}}",
+      "saveFailed": "Gat ekki vistað. Reyndu aftur."
+    }
+  },
+  "common": {
+    "loading": "Hleð...",
+    "save": "Vista",
+    "cancel": "Hætta við",
+    "delete": "Eyða",
+    "edit": "Breyta",
+    "back": "Til baka",
+    "confirm": "Staðfesta",
+    "yes": "Já",
+    "no": "Nei",
+    "networkError": "Netvilla"
+  },
+  "categories": {
+    "title": "Flokkar",
+    "subtitle": "Skipuleggðu athafnirnar í flokka",
+    "addCategory": "Bæta við flokki",
+    "editCategory": "Breyta flokki",
+    "categoryName": "Heiti flokks",
+    "categoryNamePlaceholder": "t.d. Hreinlæti",
+    "noCategories": "Engir flokkar enn",
+    "defaultBadge": "Sjálfgefið",
+    "deleteConfirm": "Viltu örugglega eyða þessum flokki?",
+    "hasActivities": "Þessi flokkur er með tengdar athafnir. Fjarlægðu athafnirnar fyrst.",
+    "saved": "Flokkur vistaður",
+    "deleted": "Flokki eytt"
+  },
+  "activities": {
+    "title": "Athafnir",
+    "subtitle": "Búðu til og sýslaðu með athafnasnið fyrir fjölskylduna",
+    "addActivity": "Bæta við athöfn",
+    "editActivity": "Breyta athöfn",
+    "activityName": "Heiti athafnar",
+    "activityNamePlaceholder": "t.d. Bursta tennur",
+    "icon": "Tákn",
+    "category": "Flokkur",
+    "noCategory": "Enginn flokkur",
+    "starValue": "Stjörnugildi",
+    "starValueHelp": "Hversu margar stjörnur barnið fær",
+    "favorite": "Merkja sem uppáhald",
+    "favoriteHelp": "Uppáhald birtist fyrst í vikuáætluninni",
+    "noActivities": "Engar athafnir enn. Búðu til fyrstu athöfnina!",
+    "filterAll": "Allt",
+    "favoritesFirst": "Uppáhald birtist fyrst",
+    "saved": "Athöfn vistuð",
+    "deleted": "Athöfn eytt",
+    "deleteConfirm": "Viltu örugglega eyða þessari athöfn?",
+    "usedInSchedule": "Þessi athöfn er notuð í vikuáætlun. Fjarlægðu hana þaðan fyrst."
+  },
+  "schedule": {
+    "title": "Vikuáætlun",
+    "subtitle": "Búðu til vikuáætlanir fyrir hvert barn og hvern dag",
+    "selectChild": "Velja barn",
+    "selectDay": "Velja dag",
+    "noChild": "Veldu barn hér fyrir ofan til að sjá vikuáætlunina",
+    "noScheduleForDay": "Engin vikuáætlun fyrir þennan dag",
+    "createSchedule": "Búa til vikuáætlun fyrir þennan dag",
+    "addActivity": "Bæta við athöfn",
+    "startTime": "Upphafstími",
+    "endTime": "Lokatími",
+    "section": "Hluti",
+    "copyDay": "Afrita dag",
+    "copyDayTitle": "Afrita vikuáætlun á aðra daga",
+    "copyFromDay": "Afrita frá",
+    "copyToDays": "Afrita á (veldu einn eða fleiri)",
+    "copyToChild": "Afrita á annað barn",
+    "copyToChildTitle": "Afrita alla vikuáætlunina á",
+    "copyConfirm": "Afrita",
+    "copied": "Vikuáætlun afrituð!",
+    "deleteSchedule": "Eyða degi",
+    "deleteConfirm": "Ertu viss? Allar athafnir þessa dags verða fjarlægðar.",
+    "deleted": "Vikuáætlun eytt",
+    "activityAdded": "Athöfn bætt við",
+    "activityRemoved": "Athöfn fjarlægð",
+    "reordered": "Röð uppfærð",
+    "days": {
+      "0": "Sunnudagur",
+      "1": "Mánudagur",
+      "2": "Þriðjudagur",
+      "3": "Miðvikudagur",
+      "4": "Fimmtudagur",
+      "5": "Föstudagur",
+      "6": "Laugardagur"
+    },
+    "daysShort": {
+      "0": "sun",
+      "1": "mán",
+      "2": "þri",
+      "3": "mið",
+      "4": "fim",
+      "5": "fös",
+      "6": "lau"
+    },
+    "sections": {
+      "morgon": "Morgunn",
+      "dag": "Dagur",
+      "kvall": "Kvöld",
+      "natt": "Nótt"
+    }
+  },
+  "dailyLog": {
+    "title": "Dagbók",
+    "subtitle": "Athafnir dagsins",
+    "today": "Í dag",
+    "prevDay": "Fyrri dagur",
+    "nextDay": "Næsti dagur",
+    "selectDate": "Velja dagsetningu",
+    "selectChild": "Velja barn",
+    "noChild": "Veldu barn hér fyrir ofan til að sjá dagbókina",
+    "noSchedule": "Engin vikuáætlun fyrir þennan dag",
+    "noScheduleHint": "Bættu við vikuáætlun til að búa til sjálfvirkar dagbækur.",
+    "loading": "Hleð dagbók...",
+    "paused": "Dagur í pásu",
+    "pausedHint": "Þessi dagur er í pásu (t.d. veikindadagur eða frí).",
+    "pauseDay": "Setja dag í pásu",
+    "unpauseDay": "Taka pásu af degi",
+    "pauseConfirm": "Setja þennan dag í pásu? Athafnirnar teljast ekki á móti þér.",
+    "dayPaused": "Deigi haldið í pásu",
+    "dayUnpaused": "Pása tekin af degi",
+    "markDone": "Merkja sem búið",
+    "markUndone": "Afturkalla",
+    "completed": "Búið",
+    "notCompleted": "Ekki búið",
+    "completedAt": "Merkt búið klukkan",
+    "stars": "stjörnur",
+    "star": "stjarna",
+    "progress": "{{completed}} af {{total}} athöfnum búið",
+    "allDone": "Allar athafnir búnar! 🎉",
+    "emptySection": "Engar athafnir í þessum hluta",
+    "history": "Saga",
+    "historyRange": "Velja tímabil",
+    "historyFrom": "Frá",
+    "historyTo": "Til",
+    "historyFetch": "Sækja sögu",
+    "historyEmpty": "Engar færslur fundust fyrir valið tímabil",
+    "sections": {
+      "morgon": "Morgunn",
+      "dag": "Dagur",
+      "kvall": "Kvöld",
+      "natt": "Nótt"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Staðfestu netfangið — {{brand}}",
+      "title": "Velkomið í {{brand}}! ⭐",
+      "body": "Ýttu á hnappinn hér fyrir neðan til að staðfesta netfangið:",
+      "button": "Staðfesta netfang",
+      "expiry": "Þessi tengill gildir í {{hours}} klukkustundir."
+    },
+    "resetPassword": {
+      "subject": "Endurstilla lykilorð — {{brand}}",
+      "title": "Endurstilltu lykilorðið",
+      "greeting": "Hæ {{name}}",
+      "greetingGeneric": "Hæ",
+      "body": "ýttu hér til að setja nýtt lykilorð:",
+      "button": "Endurstilla lykilorð",
+      "expiry": "Þessi tengill gildir í {{hours}} klukkustund. Hunsaðu þennan tölvupóst ef þú baðst ekki um endurstillingu."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} er að reyna að skrá sig inn",
+      "title": "Innskráningartilraun á {{brand}}",
+      "body": "{{childName}} sló inn rangt PIN 3 sinnum í {{brand}}.",
+      "inApp": "{{childName}} reyndi að skrá sig inn með röngu PIN 3 sinnum ({{time}})",
+      "help": "Þú getur hjálpað með réttum kóða eða endurstillt PIN í appinu.",
+      "button": "Opna {{brand}}",
+      "footer": "Ef þetta var ekki barnið þitt skaltu skrá þig inn og breyta PIN undir stillingum barnsins."
+    },
+    "accountDeletionRequested": {
+      "subject": "Reikningurinn þinn hjá {{brand}} hefur verið merktur til eyðingar",
+      "greeting": "Hæ {{name}}!",
+      "intro": "Við höfum fengið beiðni um að eyða reikningnum þínum og öllum tengdum gögnum.",
+      "graceTitle": "⏳ Gögnin þín verða eytt varanlega eftir 30 daga.",
+      "undo": "Á þessu tímabili geturðu skráð þig inn og <strong>hætt við eyðinguna</strong> ef þú skiptir um skoðun.",
+      "loginHint": "Ef þú skiptir um skoðun — skráðu þig inn í {{brand}} og þú sérð möguleika á að hætta við.",
+      "footer": "Ef þetta var mistök geturðu hunsað þennan tölvupóst. Gögnin þín verða eytt eftir 30 daga nema þú hættir við.",
+      "contact": "Ef þú hefur spurningar skaltu hafa samband við okkur á {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "Reikningnum þínum hjá {{brand}} hefur verið eytt",
+      "greeting": "Hæ {{name}}",
+      "intro": "Reikningnum þínum og öllum tengdum gögnum hefur nú verið eytt varanlega úr {{brand}}.",
+      "dataRemoved": "Öllum fjölskyldum, börnum, vikuáætlunum, athöfnum og stjörnum hefur verið eytt.",
+      "thanks": "Við vonum að {{brand}} hafi komið að gagni á meðan þú notaðir það.",
+      "return": "Ef þú vilt stofna nýjan reikning máttu koma aftur hvenær sem er á {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Leyfðu barninu að prófa fyrsta skrefið ⭐",
+      "greeting": "Hæ {{name}}!",
+      "body": "Vikuáætlunin er tilbúin. Næst skráir barnið sig inn með PIN — það tekur innan við mínútu.",
+      "button": "Áfram í innskráningu barns"
+    },
+    "welcomeShell": {
+      "headerTitle": "Velkomið! 🌟",
+      "cta": "Opna {{brand}} ⭐",
+      "footerIntro": "Þú færð þennan tölvupóst vegna þess að þú skráðir þig nýlega í {{brand}}.",
+      "unsubscribe": "Afskrá"
+    },
+    "common": {
+      "genericParent": "Foreldri",
+      "genericInviter": "Einhver",
+      "genericPedagogInviter": "Foreldri",
+      "genericChild": "barnið þitt",
+      "genericReward": "verðlaunin",
+      "genericYou": "þú",
+      "greetingNamed": "Hæ {{name}}",
+      "greeting": "Hæ",
+      "familyNamed": "fjölskyldan „{{familyName}}“",
+      "aFamily": "fjölskylda",
+      "settingsNotifications": "Stillingar → Tilkynningar",
+      "settingsNotificationsHtml": "Stillingar → <strong>Tilkynningar</strong>"
+    },
+    "invite": {
+      "subject": "Þér er boðið í {{familyLabel}} á {{brand}} ⭐",
+      "title": "Þér hefur verið boðið! ⭐",
+      "body": "{{greeting}}, {{inviterName}} hefur boðið þér í {{familyLabel}} á {{brand}}.",
+      "intro": "{{brand}} er sjónræn dagleg áætlun sem hjálpar börnum að skilja daginn, haka við athafnir og safna stjörnum.",
+      "ctaIntro": "Ýttu hér til að búa til lykilorð og virkja reikninginn:",
+      "button": "Virkja reikning",
+      "footer": "Þetta boð gildir í 7 daga. Hunsaðu þennan tölvupóst ef þú áttir ekki von á boði."
+    },
+    "pedagogInvite": {
+      "subject": "Þér er boðið sem kennara í {{familyName}} ⭐",
+      "title": "Velkomið sem kennari! ⭐",
+      "greetingNamed": "Hæ {{name}},",
+      "greeting": "Hæ,",
+      "body": "{{inviterName}} hefur boðið þér sem kennara í {{familyName}} á {{brand}}.",
+      "intro": "Sem kennari geturðu skráð athuganir og fylgst með vikuáætlun barnsins.",
+      "button": "Samþykkja boð →",
+      "footer": "Þetta boð gildir í 7 daga. Ef þú áttir ekki von á þessum tölvupósti geturðu hunsað hann."
+    },
+    "winBack": {
+      "subject": "Komdu aftur á réttan kjöl á mínútu ⭐",
+      "greeting": "Hæ {{name}}! 👋",
+      "body1": "Vikuáætlun hjá {{childName}} er enn til staðar — opnaðu athafnir dagsins og hakið við þær saman.",
+      "body2": "Það tekur aðeins mínútu að komast aftur af stað.",
+      "button": "Opna vikuáætlun →",
+      "settingsHint": "Þú getur slökkt á þessum tölvupósti undir {{settingsLink}} í appinu.",
+      "settingsLinkText": "Stillingar → Tilkynningar"
+    },
+    "activationProgramInvite": {
+      "subject": "Mjúk byrjun á rútínum hjá {{childName}}?",
+      "greeting": "Hæ {{name}}!",
+      "body1": "Þú hefur stofnað reikning og sett upp vikuáætlun hjá {{childName}} — vel gert.",
+      "body2": "Margar fjölskyldur segja að erfiðast sé ekki að byrja heldur að <strong>halda rútínunni</strong> þegar daglegt líf tekur yfir.",
+      "body3": "Þú getur nú prófað <strong>7 daga byrjunaráætlunina</strong> okkar: stutt dagleg skref sem hjálpa þér sem foreldri að halda dampi. Vikuáætlun barnsins helst óbreytt.",
+      "button": "Já, hjálpið okkur í gegnum fyrstu vikuna",
+      "footer": "Ef þú vilt ekki leiðbeiningarnar virkar appið eins og venjulega — allt sem þú settir upp er enn til staðar."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "Rútínan þín bíður — prófið hana saman í kvöld ⭐",
+        "greeting": "Hæ {{name}}!",
+        "body1": "Þú ert þegar með vikuáætlun. Eftir er að <strong>prófa rútínuna saman</strong> — láttu barnið skrá sig inn og safna fyrstu stjörnunni.",
+        "body2": "Það tekur um tvær mínútur. Enginn þrýstingur.",
+        "button": "Opna Heim →"
+      },
+      "noSchema": {
+        "subject": "Komdu af stað með rútínuna — aðeins nokkrar mínútur ⭐",
+        "greeting": "Hæ {{name}}!",
+        "body1": "Þú hefur skráð þig — frábær byrjun! Næsta skref er að <strong>setja upp vikuáætlunina</strong> svo barnið viti hvað það á von á hverjum degi.",
+        "body2": "Það tekur um fimm mínútur. Allt sem þú hefur þegar gert er enn til staðar ef þú vilt halda áfram síðar.",
+        "button": "Halda áfram í kynningu →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Þú ert áskrifandi að fréttabréfum frá {{brand}}",
+      "title": "Takk fyrir að skrá þig! ⭐",
+      "greetingNamed": "Hæ {{name}},",
+      "greeting": "Hæ,",
+      "body": "Þú ert nú áskrifandi að fréttabréfum frá {{brand}} með ábendingum, fréttum og uppfærslum á appinu.",
+      "settings": "Þú getur afskráð þig hvenær sem er undir <a href=\"{{settingsUrl}}\">Stillingar</a> í appinu, eða með tenglinum neðst í hverju fréttabréfi.",
+      "signoff": "Bestu kveðjur,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} vill leysa út „{{rewardName}}“ ⭐",
+      "title": "Verðlaun bíða samþykkis! 🎁",
+      "greeting": "Hæ {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> vill leysa út:",
+      "cost": "Kostnaður: {{starCost}} stjörnur",
+      "approveHint": "Skráðu þig inn í appið til að samþykkja eða hafna útleysingunni.",
+      "settingsHint": "Þú getur slökkt á þessum tilkynningum undir {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mánuður",
+      "howTitle": "Svona virkar það:",
+      "how1": "Búðu til vikuáætlanir og athafnir fyrir barnið",
+      "how2": "Leyfðu barninu að safna stjörnum á hverjum degi",
+      "how3": "Settu upp verðlaun í Fjársjóðskistunni",
+      "footerIntro": "Þú færð þennan tölvupóst vegna þess að þú skráðir þig nýlega í {{brand}}.",
+      "openApp": "Opna appið",
+      "trial": {
+        "subject": "Velkomið í {{brand}} – ókeypis tímabilið þitt er hafið!",
+        "headerTitle": "Ókeypis tímabilið þitt er hafið! ⭐",
+        "intro": "Velkomið! Þú átt nú <strong>{{trialDays}} daga ókeypis</strong> til að prófa allt í {{brand}} — ekkert kort þarf.",
+        "pricing": "Eftir {{trialDays}} daga kostar það <strong>{{monthlyPrice}}</strong> — þú getur uppfært hvenær sem þú vilt.",
+        "pricingOpen": "Eftir {{trialDays}} daga velurðu hvort þú vilt halda áfram með áskrift.",
+        "cta": "Prófa Premium ⭐",
+        "ctaHint": "Engin binding — segðu upp hvenær sem þú vilt"
+      },
+      "complimentary": {
+        "subject": "Velkomið í {{brand}} – ókeypis til {{freeUntil}}",
+        "headerTitle": "Ókeypis til {{freeUntil}}",
+        "intro": "Velkomið! <strong>{{brand}} er ókeypis til {{freeUntil}}.</strong> Engin áskrift eða greiðslumáti er nauðsynlegur. Þetta tilboð verður ekki sjálfkrafa að greiddri áskrift.",
+        "pricing": "Frá {{paidFrom}} geturðu valið hvort þú vilt halda áfram með áskrift. Ekkert er innheimt sjálfkrafa vegna þessa tilboðs.",
+        "cta": "Opna appið",
+        "ctaHint": "Ekkert kort þarf. Þetta tilboð verður ekki sjálfkrafa að áskrift."
+      },
+      "introYear": {
+        "subject": "Velkomið í {{brand}}",
+        "headerTitle": "Velkomið! ⭐",
+        "intro": "Velkomið! Þú getur notað eiginleikana í {{brand}}.",
+        "pricing": "Engin greiðsla er nauðsynleg á þessu tímabili.",
+        "cta": "Opna appið",
+        "ctaHint": "Þú getur skoðað Premium hvenær sem þú vilt"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Vikuyfirlit ⭐ — {{weekLabel}}",
+      "greeting": "Hæ {{name}}! 👋",
+      "intro": "Hér er vikuyfirlitið fyrir <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} safnaði {{stars}} stjörnum í þessari viku!",
+      "sharePrompt": "Þekkirðu annað foreldri sem myndi vilja þetta?",
+      "shareWhatsApp": "Deila á WhatsApp",
+      "shareFriend": "Segja vini",
+      "shareTextWithHighlight": "{{highlight}} Við notum {{brand}} fyrir rútínur barnanna okkar – skoðaðu:",
+      "shareTextGeneric": "Við notum {{brand}} fyrir daglegar rútínur barnanna okkar – skoðaðu:",
+      "starsEarned": "Stjörnur unnar",
+      "routinesCompleted": "Rútínur kláraðar",
+      "routinesOf": "{{completed}} af {{total}} ({{pct}}%)",
+      "moodAverage": "Líðan (meðaltal)",
+      "moodVeryHappy": "Mjög ánægt 😄 ({{score}}/10)",
+      "moodHappy": "Ánægt 🙂 ({{score}}/10)",
+      "moodNeutral": "Hlutlaust 😐 ({{score}}/10)",
+      "moodSad": "Dapurlegt 😔 ({{score}}/10)",
+      "encourageNoActivity": "Ný vika er að koma — prófaðu að haka við eina rútínu saman, það tekur aðeins augnablik.",
+      "encourageProgress": "🌟 Haltu áfram góðu verki! Hver kláruð rútína byggir venjur fyrir lífið.",
+      "encourageSmallSteps": "🌟 Smá skref skipta máli — prófaðu að haka við eina rútínu saman í þessari viku.",
+      "genericChildName": "Barnið þitt"
+    },
+    "notificationFooter": {
+      "settingsLink": "Stillingar → Tilkynningar",
+      "optOutDefault": "Slökkva á þessari tilkynningu",
+      "optOutWeeklySummary": "Slökkva á vikuyfirliti"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Dagur 1 — skoðið saman",
+        "body": "Svona sér {{childName}} vikuáætlunina sína — skoðið hana saman.",
+        "ctaLabel": "Sýna barnasýn"
+      },
+      "2": {
+        "title": "Dagur 2 — morgunskoðun",
+        "body": "Opnaðu yfirlitið einhvern tíma í dag — það tekur aðeins 30 sekúndur.",
+        "ctaLabel": "Opna vikuáætlun"
+      },
+      "3": {
+        "title": "Dagur 3 — fagna stjörnu",
+        "body": "Hefur {{childName}} unnið sér inn stjörnu? Fagnið saman!",
+        "ctaLabel": "Sjá áætlun dagsins",
+        "supportiveFallback": "Fyrsta vikan snýst um að komast af stað — það nægir að kíkja inn og sjá að vikuáætlunin er tilbúin."
+      },
+      "4": {
+        "title": "Dagur 4 — appið þitt",
+        "body": "Eitthvað virkar ekki? Skiptu um athöfn ef þarf.",
+        "ctaLabel": "Breyta vikuáætlun"
+      },
+      "5": {
+        "title": "Dagur 5 — verðlaun",
+        "body": "Kíktu í Fjársjóðskistuna — hvað dreymir {{childName}} um?",
+        "ctaLabel": "Opna Fjársjóðskistuna"
+      },
+      "6": {
+        "title": "Dagur 6 — deila ábyrgð",
+        "body": "Viltu deila ábyrgð með einhverjum?",
+        "ctaLabel": "Bjóða einhverjum",
+        "soloLabel": "Ég geri þetta upp á eigin spýtur!"
+      },
+      "7": {
+        "title": "Ein vika! 🎉",
+        "body": "Til hamingju! Hvernig var vikan?",
+        "ctaLabel": "Svara spurningunni"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Tími fyrir „{{activityName}}“ eftir {{minutes}} mínútur! ⭐",
+      "body": "Áminning fyrir {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Haltu rútínunni gangandi 💫",
+      "day3Body": "Nokkrir dagar eru liðnir — opnaðu vikuáætlunina og gefðu stjörnur dagsins.",
+      "day7Title": "Vika síðan þú komst inn",
+      "day7Body": "Vikuáætlun barnsins bíður. Stutt innlit nægir.",
+      "day14Title": "Okkur vantar þig í appið",
+      "day14Body": "Tvær vikur án virkni — skoðaðu inn og haltu rútínunni lifandi."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} hefur ekki skráð sig inn í dag",
+      "body": "Skoðaðu vikuáætlunina og hjálpaðu til við að fylla daginn!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} hefur safnað {{milestone}} stjörnum! 🌟",
+      "bodyCongrats": "{{emoji}} Til hamingju með {{childName}}!",
+      "body100": "Algjörlega ótrúlegt! Nýjar áskoranir bíða!"
+    },
+    "backfillReminder": {
+      "title": "Vikuáætlun gærdagsins fyrir {{childName}} vantar",
+      "body": "Fylltu inn gærdaginn svo allt sé uppfært!"
+    },
+    "custodyMorning": {
+      "title": "Í dag: {{childName}} er hjá þér",
+      "body": "Vikuáætlun dagsins bíður í appinu."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Afhending á morgun — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} hjá {{homeLabel}}",
+      "bodyPack": "🎒 Pökkunartaskan er í vikuáætlun morgundagsins.",
+      "bodyPrepare": "Mundu að undirbúa vikulega afhendingu."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "kláraði {{activityName}}!",
+      "bodyBatch": "kláraði {{count}} athafnir!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} stjörnur fyrir {{childName}}!",
+      "body": "{{parentName}} gaf {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "stjörnu",
+    "starLabelMany": "stjörnur",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} vill leysa út verðlaun!",
+      "body": "{{childName}} biður um: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Góðan morgun! Skoðaðu vikuáætlun hjá {{childName}} — tekur 30 sek 🌅",
+      "day3Body": "Hefur {{childName}} unnið sér inn stjörnu í dag? Fagnið saman ⭐",
+      "day4Body": "Eitthvað virkar ekki? Skiptu um athöfn ✏️",
+      "day5Body": "Kíktu í Fjársjóðskistuna — hvað dreymir {{childName}} um? 🎁",
+      "day6Body": "Viltu deila ábyrgð með einhverjum? 👥",
+      "day7Body": "Til hamingju! Hvernig var vikan?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Eitthvað fór úrskeiðis.",
+          "rewardIdRequired": "reward_id er nauðsynlegt",
+          "childNotFound": "Barn fannst ekki",
+          "rewardNotFound": "Verðlaun fundust ekki",
+          "requestNotFound": "Beiðni fannst ekki",
+          "pendingOnlyApprove": "Aðeins hægt að samþykkja beiðni í bið",
+          "pendingOnlyDeny": "Aðeins hægt að hafna beiðni í bið",
+          "childIdRequired": "child_id er nauðsynlegt",
+          "reasonRequired": "Ástæða er nauðsynleg",
+          "starCountRange": "Fjöldi stjarna þarf að vera á milli 1 og 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id og goal_slug eru nauðsynleg",
+          "childAccessDenied": "Þú hefur ekki aðgang að einu af völdu börnunum.",
+          "dismissFailed": "Gat ekki lokað spurningunni"
+        }
+      },
+      "success": {
+        "goalSet": "Markmið sett!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Takk fyrir ábendinguna! Við lesum allt sem berst.",
+    "contactAck": "Takk! Við höfum fengið skilaboðin þín.",
+    "export": {
+      "noData": "Engin gögn",
+      "rateLimit": "Þú getur aðeins flutt út gögnin þín einu sinni á 24 klukkustunda fresti. Reyndu aftur eftir {{hours}} klukkustundir.",
+      "notFound": "Notandi fannst ekki"
+    },
+    "account": {
+      "deletionPending": "Reikningurinn þinn hefur verið merktur til eyðingar. Þú átt 30 daga til að skipta um skoðun.",
+      "alreadyPending": "Reikningurinn þinn er þegar merktur til eyðingar."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Fullur aðgangur fyrir alla fjölskylduna",
+    "benefit1": "Allar rútínur og vikuáætlanir",
+    "benefit2": "Stjörnur og eiginleikar fjölskyldunnar",
+    "benefit3": "Öll gögnin þín fylgja þér",
+    "webNoticeTitle": "Virkjaðu Premium í appinu",
+    "webNoticeBody": "Premium er keypt í gegnum App Store eða Google Play — ekki á vefnum.",
+    "webNoticeBodyAppleOnly": "Premium er keypt í gegnum App Store — ekki á vefnum. Android kemur bráðum.",
+    "downloadIphone": "Sækja fyrir iPhone",
+    "downloadAndroid": "Sækja fyrir Android",
+    "androidComingSoon": "Android kemur bráðum",
+    "loadingPrices": "Hleð verðum…",
+    "continue": "Áfram",
+    "restore": "Endurheimta kaup",
+    "yearlyBadge": "Mælt með",
+    "yearlyPrice": "{{price}}/ár",
+    "yearlySavings": "Sparaðu miðað við að greiða mánaðarlega",
+    "yearlyTermsKnownTrial": "{{trialDays}} daga ókeypis prufa · svo {{price}}/ár · endurnýjast sjálfkrafa",
+    "yearlyTermsConditionalTrial": "14 daga ókeypis prufa fyrir nýja áskrifendur sem eiga rétt á henni · svo {{price}}/ár · endurnýjast sjálfkrafa",
+    "yearlyTermsNoTrial": "{{price}}/ár · endurnýjast sjálfkrafa",
+    "monthlyPrice": "{{price}}/mánuður",
+    "monthlyBlurb": "Sveigjanleg mánaðarleg áskrift fyrir fjölskylduna.",
+    "monthlyTermsKnownTrial": "{{trialDays}} daga ókeypis prufa · svo {{price}}/mánuður · endurnýjast sjálfkrafa",
+    "monthlyTermsConditionalTrial": "14 daga ókeypis prufa fyrir nýja áskrifendur sem eiga rétt á henni · svo {{price}}/mánuður · endurnýjast sjálfkrafa",
+    "monthlyTermsNoTrial": "{{price}}/mánuður · endurnýjast sjálfkrafa",
+    "autoRenewApple": "Áskriftin endurnýjast sjálfkrafa nema henni sé sagt upp. App Store sér um greiðsluna. Þú getur stjórnað eða sagt upp áskriftinni á Apple-reikningnum þínum.",
+    "autoRenewGoogle": "Áskriftin endurnýjast sjálfkrafa nema henni sé sagt upp. Google Play sér um greiðsluna. Þú getur stjórnað eða sagt upp áskriftinni á Google-reikningnum þínum.",
+    "termsLink": "Skilmálar",
+    "privacyLink": "Persónuvernd",
+    "legal": "Þú getur sagt upp ókeypis prufu áður en innheimta hefst samkvæmt reglum App Store eða Google Play. Stjórnaðu eða segðu upp í áskriftarstillingum verslunarinnar.",
+    "legalAppleOnly": "Þú getur sagt upp ókeypis prufu áður en innheimta hefst. Stjórnaðu eða segðu upp í áskriftarstillingum App Store.",
+    "legalGoogleOnly": "Þú getur sagt upp ókeypis prufu áður en innheimta hefst. Stjórnaðu eða segðu upp í áskriftarstillingum Google Play.",
+    "giftCard": "Ég er með gjafakort",
+    "giftCodeLabel": "Gjafakóði",
+    "giftRedeem": "Leysa inn gjafakort",
+    "limitedAccount": "Halda áfram með takmarkaðan reikning",
+    "statusOpening": "Opna greiðslu…",
+    "statusRestoring": "Endurheimti kaup…",
+    "statusSuccess": "Premium er virkt! Velkomið aftur.",
+    "statusCancelled": "Hætt við kaup.",
+    "statusFailed": "Kaup mistókust. Reyndu aftur.",
+    "statusUnavailable": "Ekki tókst að hlaða áskriftum núna. Reyndu aftur.",
+    "statusAndroidComingSoon": "Premium á Android kemur bráðum.",
+    "statusNotNative": "Kaup eru ekki í boði hér. Notaðu appið.",
+    "restoreSuccess": "Kaup endurheimt! Velkomið aftur.",
+    "restoreNone": "Engin virk kaup fundust til að endurheimta.",
+    "giftSuccess": "Gjafakort leyst inn!",
+    "giftFailed": "Gat ekki leyst inn kóðann.",
+    "launchEnded": "Aðgangi að opnunartímabili er lokið. Gerðu áskrift í appinu til að halda fullum aðgangi."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "þú",
+      "subject": "Þjónustusamtalið þitt",
+      "text": "Hæ {{name}}!\n\nVið höfum fengið skilaboðin þín. Fylgdu samtalinu og skrifaðu til baka hér (venjulegt tölvupóstsvar sést ekki hjá okkur):\n{{url}}\n\nBestu kveðjur,\n{{fromName}}",
+      "htmlHi": "Hæ {{name}}!",
+      "htmlReceived": "Við höfum fengið skilaboðin þín.",
+      "openLink": "Opna samtalið þitt",
+      "htmlHint": "til að fylgja samtalinu og skrifa til baka. Venjulegt tölvupóstsvar sést ekki hjá okkur.",
+      "htmlBye": "Bestu kveðjur"
+    },
+    "reply": {
+      "subjectBug": "Re: Villutilkynningin þín",
+      "subjectFeedback": "Re: Ábendingin þín",
+      "subjectLanguage": "Re: Tungumálatilkynningin þín",
+      "subjectContact": "Re: Skilaboðin þín",
+      "text": "Hæ {{name}}!\n\n{{reply}}\n\nLestu allt samtalið og skrifaðu til baka hér (venjulegt tölvupóstsvar sést ekki hjá okkur):\n{{url}}\n\n---\nUpprunalegu skilaboðin þín:\n{{original}}\n\nBestu kveðjur,\n{{fromName}}",
+      "htmlHi": "Hæ {{name}}!",
+      "openLink": "Opna samtalið",
+      "htmlHint": "til að lesa allt samtalið og skrifa til baka. Venjulegt tölvupóstsvar sést ekki hjá okkur.",
+      "originalLabel": "Upprunalegu skilaboðin þín:",
+      "htmlBye": "Bestu kveðjur"
+    },
+    "page": {
+      "title": "Samtalið þitt",
+      "intro": "Þetta er allt samtalið. Skrifaðu hér fyrir neðan ef þú vilt halda áfram. Venjulegt tölvupóstsvar sést ekki hér.",
+      "you": "Þú",
+      "us": "Við",
+      "empty": "Engin skilaboð enn.",
+      "label": "Skrifaðu til okkar",
+      "placeholder": "Segðu okkur hvað er í gangi…",
+      "submit": "Senda",
+      "submitting": "Sendi…",
+      "needHuman": "Ég þarf meiri hjálp frá manneskju",
+      "escalating": "Sendi…",
+      "caseRef": "Mál {{ref}}",
+      "status": {
+        "new": "Móttekið",
+        "read": "Lesið",
+        "in_progress": "Í vinnslu",
+        "answered": "Svarað",
+        "archived": "Lokað"
+      }
+    },
+    "errors": {
+      "invalid": "Þessi tengill er ógildur. Biddu okkur um að senda nýtt svar.",
+      "expired": "Þessi tengill er útrunninn. Biddu okkur um að senda nýjan.",
+      "revoked": "Þessi tengill virkar ekki lengur. Biddu okkur um að senda nýjan.",
+      "archived": "Þessu máli er lokað. Hafðu samband aftur ef þú þarft meiri hjálp.",
+      "legacySunset": "Þessi tengill er of gamall. Hafðu samband og við sendum nýjan.",
+      "tooShort": "Skrifaðu að minnsta kosti 10 stafi svo við skiljum hvað er í gangi.",
+      "tooLong": "Svarið getur verið að hámarki 5000 stafir.",
+      "notFound": "Málið fannst ekki.",
+      "rateLimit": "Of margar tilraunir. Reyndu aftur eftir klukkustund.",
+      "generic": "Gat ekki opnað málið.",
+      "sendFailed": "Gat ekki sent. Reyndu aftur."
+    },
+    "success": {
+      "submitted": "Takk! Við höfum fengið svarið þitt.",
+      "escalated": "Takk. Manneskja mun skoða þetta mál."
+    }
+  },
+  "story": {
+    "someone": "Einhver",
+    "anActivity": "athöfn",
+    "activityWithStars": "{{name}} kláraði {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} kláraði {{activity}}",
+    "goalFallback": "markmið",
+    "goal": "Fjölskyldan náði markmiðinu: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Vafrakökustillingar",
+    "intro": "Við notum vafrakökur fyrir greiningu, markaðssetningu og sérsnið á vefnum okkar.",
+    "manage": "Stjórna stillingum",
+    "manageHide": "Fela stillingar",
+    "deny": "Hafna öllu",
+    "accept": "Samþykkja allt",
+    "save": "Vista valin mín",
+    "necessaryLabel": "Nauðsynlegt",
+    "necessaryDesc": "Nauðsynlegt til að síðan virki.",
+    "analyticsLabel": "Greining",
+    "analyticsDesc": "Hjálpar okkur að skilja hvernig síðan er notuð (GA4).",
+    "marketingLabel": "Markaðssetning",
+    "marketingDesc": "Sýnir viðeigandi auglýsingar og mælir herferðir.",
+    "personalizationLabel": "Sérsnið",
+    "personalizationDesc": "Aðlagar efni og tillögur."
+  },
+  "growthHelp": {
+    "reportProblem": "Tilkynna vandamál",
+    "suggestedHelp": "Tillögur að hjálp",
+    "reportThanks": "Takk — við fengum tilkynninguna með tæknilegum upplýsingum.",
+    "howChildStarts": "Hvernig byrjar barnið?",
+    "needHelpLogin": "Þarftu hjálp við innskráningu?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Stutt athugasemd að eigin vali (sendist með svarinu)",
+    "notNow": "Ekki núna",
+    "thanks": "Takk fyrir ábendinguna."
+  },
+  "growthReferral": {
+    "title": "Þekkirðu aðra fjölskyldu sem þarf rólegri morgna?",
+    "subtitle": "Deildu persónulega tenglinum þínum — enginn verðlaunapóstur, bara ábending.",
+    "copyLink": "Afrita tengil",
+    "copied": "Afritað",
+    "copyPrompt": "Afritaðu þennan tengil:",
+    "share": "Deila",
+    "shareText": "Við notum {{brand}} fyrir rútínur barna. Stofnaðu ókeypis reikning: ",
+    "notNow": "Ekki núna"
+  },
+  "legalReturn": {
+    "backToPremium": "Til baka í Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pakki",
+    "dismiss": "Ekki núna",
+    "interested": "Ég hef áhuga",
+    "interestedSub": "Skráðu áhuga á því sem kemur næst",
+    "buyNow": "Kaupa núna",
+    "reporting": {
+      "title": "Skýrslur",
+      "body": "Þú hefur skráð athafnir í tvær vikur — viltu skýrari sýn á hvernig hlutirnir breytast með tímanum?"
+    },
+    "pedagog": {
+      "title": "Kennari",
+      "body": "Viltu vinna með kennara eða meðferðaraðila að daglegu lífi barnsins?"
+    },
+    "teacch": {
+      "title": "Auka stuðningur",
+      "body": "Bættu við sjónrænum stuðningi með Sjö spurningunum — það hjálpar barninu að skilja hvað er í gangi."
+    }
+  }
+}

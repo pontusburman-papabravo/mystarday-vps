@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Näytä vinkit",
+    "close": "Sulje",
+    "milestone": "Merkkipaalu",
+    "nextStep": "Seuraava askel",
+    "tip": "Vinkki",
+    "weekReflection": "Viikon pohdinta",
+    "weekTogether": "Viikko yhdessä",
+    "weekLabel": "Yksi viikko",
+    "sjDay3Headline": "Aika antaa {{name}} kokeilla",
+    "tips": {
+      "coach_consistency": [
+        "Pidä rutiini lyhyenä ja selkeänä — lapsi rakentaa tavan askel kerrallaan.",
+        "Juhli jokaista merkintää, myös pieniä.",
+        "Anna lapsen kirjautua itse joka aamu."
+      ],
+      "coach_evening": [
+        "Lisää 2–3 rauhallista aktiviteettia ennen nukkumaanmenoa.",
+        "Sama järjestys joka ilta helpottaa nukahtamista."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Uutta",
+    "dismissAria": "Sulje selitys",
+    "continueFallback": "Jatka",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Näytämme nyt selkeän ehdotuksen seuraavasta askeleesta täällä Kodissa.",
+        "whatChanged": "Yläreunaan on lisätty Seuraava askel -kortti.",
+        "whyItMatters": "Sinun ei tarvitse etsiä muistutuksia — yksi ehdotus kerrallaan."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Anna lapsen kokeilla rutiinia",
+      "body": "Avaa lapsen näkymä yhdessä — lapsi näkee heti, mitä tehdä.",
+      "cta": "Avaa lapsen näkymä"
+    },
+    "ADD_EVENING": {
+      "headline": "Lisää iltarutiini",
+      "body": "Tee nukkumaanmenosta yhtä selkeä kuin aamusta.",
+      "cta": "Lisää ilta"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Kutsu toinen vanhempi",
+      "body": "Jaa rutiini, jotta sitä voi seurata yhdessä.",
+      "cta": "Kutsu"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Aloita yhdellä pienellä askeleella",
+      "body": "Rutiinisi on yhä täällä — tee tänään yksi aktiviteetti kerrallaan.",
+      "cta": "Avaa aikataulu"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Muokkaa rutiiniasi",
+      "body": "Nyt voit tehdä aikataulusta oman näköisesi.",
+      "cta": "Muokkaa"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Juhli edistymistä",
+      "body": "Olet ottanut tärkeän askeleen — pysähdy hetkeksi yhdessä.",
+      "cta": "Näytä lapselle"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Lapsesi teki aktiviteetin!",
+    "defaultChild": "Lapsesi",
+    "defaultActivity": "aktiviteetti",
+    "defaultCta": "Selvä"
+  }
+}

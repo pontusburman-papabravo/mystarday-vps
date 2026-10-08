@@ -2,7 +2,10 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const { loadLocales } = require('../src/lib/i18n');
 const { formatStoryEvent } = require('../src/lib/family-story-format');
+
+loadLocales();
 
 describe('family-hall formatStoryEvent', () => {
   it('formats activity_contribution with stars (sv-SE)', () => {

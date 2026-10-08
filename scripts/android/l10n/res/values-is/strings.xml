@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Engin tenging</string>
+    <string name="native_offline_body">Athugaðu nettenginguna og reyndu aftur.</string>
+    <string name="camera_permission_rationale">[REDACTED] notar myndavélina svo þú getir tekið prófílmynd af barninu.</string>
+    <string name="photos_permission_rationale">[REDACTED] þarf aðgang að myndunum þínum svo þú getir valið prófílmynd fyrir barnið.</string>
+    <string name="notification_channel_routine_name">Áminningar um rútínu</string>
+    <string name="notification_channel_routine_desc">Áminningar um vikuáætlun fjölskyldunnar</string>
+</resources>

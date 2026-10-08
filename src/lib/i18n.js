@@ -8,6 +8,7 @@ const {
   SUPPORTED_LOCALES,
   normalizeLocale,
   validateLocale,
+  intlLocaleTag,
 } = require('./locale');
 
 const locales = {};
@@ -164,7 +165,41 @@ function tWithBundles(lang, key, params = {}, bundles = locales) {
     return key;
   }
 
-  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(params[k] ?? ''));
+  return applyMessageParams(bundleKey, value, params);
+}
+
+function internationalBrandName() {
+  const en = locales['en-GB'];
+  const name = en && en.app && en.app.name;
+  if (typeof name === 'string' && name && !name.includes('{{')) return name;
+  return require('./public-html-placeholders').brandName();
+}
+
+function brandLabel(lang) {
+  const canonical = resolveBundleKey(lang, locales);
+  if (canonical === DEFAULT_LOCALE) return require('./public-html-placeholders').brandName();
+  return internationalBrandName();
+}
+
+function applyMessageParams(lang, value, params) {
+  const merged = { ...params };
+  if (merged.brand == null || merged.brand === '') merged.brand = brandLabel(lang);
+  return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(merged[k] ?? ''));
+}
+
+function substituteBrandTree(lang, node) {
+  if (typeof node === 'string') {
+    if (!node.includes('{{brand}}')) return node;
+    const brand = brandLabel(lang);
+    return node.replace(/\{\{brand\}\}/g, brand);
+  }
+  if (Array.isArray(node)) return node.map((item) => substituteBrandTree(lang, item));
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const [key, value] of Object.entries(node)) out[key] = substituteBrandTree(lang, value);
+    return out;
+  }
+  return node;
 }
 
 /**
@@ -179,7 +214,24 @@ function t(lang, key, params = {}) {
 }
 
 /**
- * Plural helper — keys at baseKey.one / baseKey.other
+ * CLDR plural category for this locale. Swedish and English stay one/other.
+ * Future languages can add zero/two/few/many keys; missing categories use `other`.
+ * @param {string} lang
+ * @param {number} count
+ * @returns {string}
+ */
+function pluralCategory(lang, count) {
+  const n = Number(count);
+  const canonical = intlLocaleTag(lang);
+  try {
+    return new Intl.PluralRules(canonical).select(Number.isFinite(n) ? n : 0);
+  } catch {
+    return n === 1 ? 'one' : 'other';
+  }
+}
+
+/**
+ * Plural helper. Looks up baseKey.<category>, then baseKey.other.
  * @param {string} lang
  * @param {string} baseKey
  * @param {number} count
@@ -187,8 +239,17 @@ function t(lang, key, params = {}) {
  * @returns {string}
  */
 function plural(lang, baseKey, count, params = {}) {
-  const suffix = Number(count) === 1 ? 'one' : 'other';
-  return t(lang, `${baseKey}.${suffix}`, { ...params, count });
+  const merged = { ...params, count };
+  const category = pluralCategory(lang, count);
+  const exactKey = `${baseKey}.${category}`;
+  const exact = t(lang, exactKey, merged);
+  if (exact !== exactKey) return exact;
+  if (category !== 'other') {
+    const otherKey = `${baseKey}.other`;
+    const other = t(lang, otherKey, merged);
+    if (other !== otherKey) return other;
+  }
+  return exact;
 }
 
 /**
@@ -206,9 +267,8 @@ function assembleLocale(lang, bundles = locales) {
 
   const canonicalKey = resolveBundleKey(CANONICAL_FALLBACK_LOCALE, bundles);
   const fallback = bundles[canonicalKey] || {};
-  if (bundleKey === canonicalKey) return { ...primary };
-
-  return deepMergeFallback(fallback, primary);
+  const merged = bundleKey === canonicalKey ? { ...primary } : deepMergeFallback(fallback, primary);
+  return substituteBrandTree(canonical, merged);
 }
 
 /**
@@ -262,17 +322,103 @@ function compareLocaleStructures() {
   };
 }
 
-function flattenKeys(obj, prefix = '') {
-  const keys = [];
+/**
+ * Grammar suffixes and optional blanks that are empty on purpose.
+ * New empty strings outside this set fail the contract.
+ */
+const ALLOW_EMPTY_TRANSLATIONS = new Set([
+  'market.choice.hint',
+  'child.checkoff.score.1',
+  'today.bump.movedOne',
+  'today.rating.labels[0]',
+  'today.emotions.sliderSuffixOne',
+  'today.emotions.sliderSuffixMany',
+]);
+
+/**
+ * Same key, different commercial sentence. Language must not own this copy.
+ * Kept visible so a new mismatch cannot hide next to it.
+ */
+const ALLOW_PLACEHOLDER_MISMATCH = new Set([]);
+
+function flattenLeaves(obj, prefix = '') {
+  const leaves = [];
+  if (Array.isArray(obj)) {
+    obj.forEach((item, index) => {
+      const pathKey = `${prefix}[${index}]`;
+      if (item && typeof item === 'object') leaves.push(...flattenLeaves(item, pathKey));
+      else leaves.push({ key: pathKey, value: item });
+    });
+    return leaves;
+  }
   for (const [k, v] of Object.entries(obj)) {
     const pathKey = prefix ? `${prefix}.${k}` : k;
-    if (v && typeof v === 'object' && !Array.isArray(v)) {
-      keys.push(...flattenKeys(v, pathKey));
+    if (Array.isArray(v) || (v && typeof v === 'object')) {
+      leaves.push(...flattenLeaves(v, pathKey));
     } else {
-      keys.push(pathKey);
+      leaves.push({ key: pathKey, value: v });
     }
   }
-  return keys;
+  return leaves;
+}
+
+function flattenKeys(obj, prefix = '') {
+  return flattenLeaves(obj, prefix).map((leaf) => leaf.key);
+}
+
+function placeholderNames(value) {
+  if (typeof value !== 'string') return [];
+  const names = [];
+  const re = /\{\{(\w+)\}\}/g;
+  let match = re.exec(value);
+  while (match) {
+    names.push(match[1]);
+    match = re.exec(value);
+  }
+  return names.sort();
+}
+
+/**
+ * Structural contract between sv-SE and en-GB.
+ * CI fails when keys, empties, or interpolation variables diverge.
+ * @param {Record<string, object>} [bundles]
+ * @returns {{ ok: boolean, errors: string[] }}
+ */
+function auditTranslationContract(bundles = locales) {
+  const sv = bundles['sv-SE'] || bundles.sv || {};
+  const en = bundles['en-GB'] || bundles.en || {};
+  const svLeaves = flattenLeaves(sv);
+  const enLeaves = flattenLeaves(en);
+  const svMap = new Map(svLeaves.map((leaf) => [leaf.key, leaf.value]));
+  const enMap = new Map(enLeaves.map((leaf) => [leaf.key, leaf.value]));
+  const errors = [];
+
+  for (const key of svMap.keys()) {
+    if (!enMap.has(key)) errors.push(`missing in en-GB: ${key}`);
+  }
+  for (const key of enMap.keys()) {
+    if (!svMap.has(key)) errors.push(`missing in sv-SE: ${key}`);
+  }
+
+  const shared = [...svMap.keys()].filter((key) => enMap.has(key));
+  for (const key of shared) {
+    for (const [label, value] of [['sv-SE', svMap.get(key)], ['en-GB', enMap.get(key)]]) {
+      if (value == null) errors.push(`null in ${label}: ${key}`);
+      else if (typeof value !== 'string') errors.push(`non-string in ${label}: ${key}`);
+      else if (value.trim() === '' && !ALLOW_EMPTY_TRANSLATIONS.has(key)) {
+        errors.push(`empty in ${label}: ${key}`);
+      }
+    }
+    const svPlaceholders = placeholderNames(svMap.get(key));
+    const enPlaceholders = placeholderNames(enMap.get(key));
+    if (!ALLOW_PLACEHOLDER_MISMATCH.has(key) && svPlaceholders.join('|') !== enPlaceholders.join('|')) {
+      errors.push(
+        `placeholder mismatch ${key}: sv-SE {{${svPlaceholders.join(',')}}} en-GB {{${enPlaceholders.join(',')}}}`
+      );
+    }
+  }
+
+  return { ok: errors.length === 0, errors };
 }
 
 module.exports = {
@@ -285,6 +431,12 @@ module.exports = {
   getAvailableLanguages,
   resolveBundleKey,
   compareLocaleStructures,
+  auditTranslationContract,
+  ALLOW_EMPTY_TRANSLATIONS,
+  ALLOW_PLACEHOLDER_MISMATCH,
+  pluralCategory,
   FRAGMENT_DOMAINS,
   FRAGMENT_NAMESPACE,
+  flattenLeaves,
+  placeholderNames,
 };

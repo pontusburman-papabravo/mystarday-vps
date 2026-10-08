@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planeamento — {{brand}}",
+  "shell": {
+    "title": "Planeamento",
+    "lead": "Escolhe a semana, as atividades ou mais.",
+    "logout": "Terminar sessão"
+  },
+  "sections": {
+    "planWeek": "Planear a semana",
+    "buildContent": "Criar conteúdo",
+    "other": "Outro"
+  },
+  "primary": {
+    "week": { "title": "A semana", "sub": "A lista dos dias da semana das crianças" },
+    "activities": { "title": "Atividades", "sub": "A biblioteca — criar e editar" },
+    "more": { "title": "Mais", "sub": "Impressão, modelos e outras ferramentas" }
+  },
+  "more": {
+    "title": "Mais",
+    "close": "Fechar"
+  },
+  "links": {
+    "library": { "title": "Biblioteca", "sub": "Criar atividades e recompensas" },
+    "imageArchive": { "title": "Coleção de imagens", "sub": "As tuas fotos — escova de dentes, cama, escola" },
+    "templates": { "title": "Modelos", "sub": "Horários guardados que podes voltar a usar" },
+    "weekSchedule": { "title": "Horário semanal", "sub": "Editar a semana da criança" },
+    "calendar": { "title": "Calendário", "sub": "Ver o mês e os dias especiais" },
+    "custody": { "title": "Horário de guarda", "sub": "Guarda partilhada entre casas" },
+    "dailyLog": { "title": "Hoje", "sub": "Ver e ajustar dias anteriores" },
+    "printSchema": { "title": "Criar PDF — horário", "sub": "Imprimir um horário" },
+    "assignSchedule": { "title": "Atribuir horário", "sub": "Copiar um horário para uma criança" },
+    "reports": { "title": "Relatórios", "sub": "Progresso e partilha" },
+    "samarbete": { "title": "Colaboração com o educador", "sub": "Trabalhar com um educador" },
+    "barnStod": { "title": "Apoio extra", "sub": "Apoio visual e TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Começar",
+    "bodyBeforeLibrary": "Começa na ",
+    "libraryLink": "Biblioteca",
+    "bodyMiddle": " se quiseres criar atividades. Vai a ",
+    "forYouLink": "Para ti",
+    "bodyAfter": " se quiseres uma sugestão já pronta."
+  }
+}

@@ -1,0 +1,8 @@
+[
+  { "key": "forskola", "name": "Escuela infantil", "sort_order": 0 },
+  { "key": "skola", "name": "Colegio", "sort_order": 1 },
+  { "key": "morgon", "name": "Mañana", "sort_order": 2 },
+  { "key": "dag", "name": "Día", "sort_order": 3 },
+  { "key": "kvall", "name": "Tarde", "sort_order": 4 },
+  { "key": "helg", "name": "Fin de semana", "sort_order": 5 }
+]

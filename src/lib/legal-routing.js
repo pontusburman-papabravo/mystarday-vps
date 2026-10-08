@@ -27,6 +27,8 @@ function resolveLegalRoutes(input = {}) {
     };
   }
 
+  // Swedish live documents exist for SE and FI. Locale picks that language.
+  // Country picks jurisdiction. en-GB is not a stand-in for Ireland or Canada.
   if (locale === 'sv-SE' && (countryCode === 'SE' || countryCode === 'FI')) {
     return {
       privacy: '/privacy',

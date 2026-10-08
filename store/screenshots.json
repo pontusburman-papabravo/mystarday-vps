@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "acceptPrimaryInheritance": false,
+  "note": "Live SE/IE/CA screenshots stay in the store consoles (live_external). A new locale is not store-ready until a screenshot set is present in the repo or a future decision sets acceptPrimaryInheritance.",
+  "sets": {
+    "apple": {
+      "sv": {
+        "status": "live_external"
+      },
+      "en-GB": {
+        "status": "live_external"
+      },
+      "de-DE": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/de-DE/01-heute.png",
+          "screenshots/apple/de-DE/02-stern.png",
+          "screenshots/apple/de-DE/03-belohnung.png"
+        ]
+      },
+      "fr-FR": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/fr-FR/01-idag.png",
+          "screenshots/apple/fr-FR/02-hem.png",
+          "screenshots/apple/fr-FR/03-beloning.png"
+        ]
+      },
+      "nl-NL": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/nl-NL/01-idag.png",
+          "screenshots/apple/nl-NL/02-hem.png",
+          "screenshots/apple/nl-NL/03-beloning.png"
+        ]
+      },
+      "da": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/da/01-idag.png",
+          "screenshots/apple/da/02-hem.png",
+          "screenshots/apple/da/03-beloning.png"
+        ]
+      },
+      "fi": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/fi/01-idag.png",
+          "screenshots/apple/fi/02-hem.png",
+          "screenshots/apple/fi/03-beloning.png"
+        ]
+      },
+      "no": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/no/01-idag.png",
+          "screenshots/apple/no/02-hem.png",
+          "screenshots/apple/no/03-beloning.png"
+        ]
+      },
+      "es-ES": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/es-ES/01-idag.png",
+          "screenshots/apple/es-ES/02-hem.png",
+          "screenshots/apple/es-ES/03-beloning.png"
+        ]
+      },
+      "it": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/it/01-idag.png",
+          "screenshots/apple/it/02-hem.png",
+          "screenshots/apple/it/03-beloning.png"
+        ]
+      },
+      "pt-PT": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/pt-PT/01-idag.png",
+          "screenshots/apple/pt-PT/02-hem.png",
+          "screenshots/apple/pt-PT/03-beloning.png"
+        ]
+      },
+      "pl": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/pl/01-idag.png",
+          "screenshots/apple/pl/02-hem.png",
+          "screenshots/apple/pl/03-beloning.png"
+        ]
+      },
+      "cs": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/cs/01-idag.png",
+          "screenshots/apple/cs/02-hem.png",
+          "screenshots/apple/cs/03-beloning.png"
+        ]
+      },
+      "sk": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/sk/01-idag.png",
+          "screenshots/apple/sk/02-hem.png",
+          "screenshots/apple/sk/03-beloning.png"
+        ]
+      },
+      "sl-SI": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/sl-SI/01-idag.png",
+          "screenshots/apple/sl-SI/02-hem.png",
+          "screenshots/apple/sl-SI/03-beloning.png"
+        ]
+      },
+      "hr": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/hr/01-idag.png",
+          "screenshots/apple/hr/02-hem.png",
+          "screenshots/apple/hr/03-beloning.png"
+        ]
+      },
+      "hu": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/hu/01-idag.png",
+          "screenshots/apple/hu/02-hem.png",
+          "screenshots/apple/hu/03-beloning.png"
+        ]
+      },
+      "ro": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/ro/01-idag.png",
+          "screenshots/apple/ro/02-hem.png",
+          "screenshots/apple/ro/03-beloning.png"
+        ]
+      },
+      "el": {
+        "status": "present",
+        "files": [
+          "screenshots/apple/el/01-idag.png",
+          "screenshots/apple/el/02-hem.png",
+          "screenshots/apple/el/03-beloning.png"
+        ]
+      }
+    },
+    "google": {
+      "sv-SE": {
+        "status": "live_external"
+      },
+      "en-GB": {
+        "status": "live_external"
+      },
+      "de-DE": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/de-DE/feature.png",
+        "files": [
+          "screenshots/google/de-DE/01-heute.png",
+          "screenshots/google/de-DE/02-familie.png"
+        ]
+      },
+      "fr-FR": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/fr-FR/feature.png",
+        "files": [
+          "screenshots/google/fr-FR/01-hem.png",
+          "screenshots/google/fr-FR/02-familj.png"
+        ]
+      },
+      "nl-NL": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/nl-NL/feature.png",
+        "files": [
+          "screenshots/google/nl-NL/01-hem.png",
+          "screenshots/google/nl-NL/02-familj.png"
+        ]
+      },
+      "da-DK": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/da-DK/feature.png",
+        "files": [
+          "screenshots/google/da-DK/01-hem.png",
+          "screenshots/google/da-DK/02-familj.png"
+        ]
+      },
+      "fi-FI": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/fi-FI/feature.png",
+        "files": [
+          "screenshots/google/fi-FI/01-hem.png",
+          "screenshots/google/fi-FI/02-familj.png"
+        ]
+      },
+      "no-NO": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/no-NO/feature.png",
+        "files": [
+          "screenshots/google/no-NO/01-hem.png",
+          "screenshots/google/no-NO/02-familj.png"
+        ]
+      },
+      "es-ES": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/es-ES/feature.png",
+        "files": [
+          "screenshots/google/es-ES/01-hem.png",
+          "screenshots/google/es-ES/02-familj.png"
+        ]
+      },
+      "it-IT": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/it-IT/feature.png",
+        "files": [
+          "screenshots/google/it-IT/01-hem.png",
+          "screenshots/google/it-IT/02-familj.png"
+        ]
+      },
+      "pt-PT": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/pt-PT/feature.png",
+        "files": [
+          "screenshots/google/pt-PT/01-hem.png",
+          "screenshots/google/pt-PT/02-familj.png"
+        ]
+      },
+      "pl-PL": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/pl-PL/feature.png",
+        "files": [
+          "screenshots/google/pl-PL/01-hem.png",
+          "screenshots/google/pl-PL/02-familj.png"
+        ]
+      },
+      "cs-CZ": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/cs-CZ/feature.png",
+        "files": [
+          "screenshots/google/cs-CZ/01-hem.png",
+          "screenshots/google/cs-CZ/02-familj.png"
+        ]
+      },
+      "sk": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/sk/feature.png",
+        "files": [
+          "screenshots/google/sk/01-hem.png",
+          "screenshots/google/sk/02-familj.png"
+        ]
+      },
+      "sl": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/sl/feature.png",
+        "files": [
+          "screenshots/google/sl/01-hem.png",
+          "screenshots/google/sl/02-familj.png"
+        ]
+      },
+      "hr": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/hr/feature.png",
+        "files": [
+          "screenshots/google/hr/01-hem.png",
+          "screenshots/google/hr/02-familj.png"
+        ]
+      },
+      "hu-HU": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/hu-HU/feature.png",
+        "files": [
+          "screenshots/google/hu-HU/01-hem.png",
+          "screenshots/google/hu-HU/02-familj.png"
+        ]
+      },
+      "ro": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/ro/feature.png",
+        "files": [
+          "screenshots/google/ro/01-hem.png",
+          "screenshots/google/ro/02-familj.png"
+        ]
+      },
+      "bg": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/bg/feature.png",
+        "files": [
+          "screenshots/google/bg/01-hem.png",
+          "screenshots/google/bg/02-familj.png"
+        ]
+      },
+      "el-GR": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/el-GR/feature.png",
+        "files": [
+          "screenshots/google/el-GR/01-hem.png",
+          "screenshots/google/el-GR/02-familj.png"
+        ]
+      },
+      "et": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/et/feature.png",
+        "files": [
+          "screenshots/google/et/01-hem.png",
+          "screenshots/google/et/02-familj.png"
+        ]
+      },
+      "lt": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/lt/feature.png",
+        "files": [
+          "screenshots/google/lt/01-hem.png",
+          "screenshots/google/lt/02-familj.png"
+        ]
+      },
+      "lv": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/lv/feature.png",
+        "files": [
+          "screenshots/google/lv/01-hem.png",
+          "screenshots/google/lv/02-familj.png"
+        ]
+      },
+      "is-IS": {
+        "status": "present",
+        "featureGraphic": "screenshots/google/is-IS/feature.png",
+        "files": [
+          "screenshots/google/is-IS/01-hem.png",
+          "screenshots/google/is-IS/02-familj.png"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Vis tips",
+    "close": "Luk",
+    "milestone": "Milepæl",
+    "nextStep": "Næste skridt",
+    "tip": "Tip",
+    "weekReflection": "Ugens refleksion",
+    "weekTogether": "En uge sammen",
+    "weekLabel": "En uge",
+    "sjDay3Headline": "Tid til at {{name}} prøver",
+    "tips": {
+      "coach_consistency": [
+        "Hold rutinen kort og tydelig — dit barn bygger vanen skridt for skridt.",
+        "Fejr hvert flueben, også de små.",
+        "Lad dit barn logge ind selv hver morgen."
+      ],
+      "coach_evening": [
+        "Tilføj 2–3 rolige aktiviteter før sengetid.",
+        "Den samme rækkefølge hver aften gør det lettere at falde i søvn."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Ny",
+    "dismissAria": "Luk forklaring",
+    "continueFallback": "Fortsæt",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Vi viser nu et tydeligt forslag til dit næste skridt her på Hjem.",
+        "whatChanged": "Et kort med \"Næste skridt\" er tilføjet øverst.",
+        "whyItMatters": "Du behøver ikke lede i påmindelser — ét forslag ad gangen."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Lad dit barn prøve sin rutine",
+      "body": "Åbn barnets visning sammen — barnet ser med det samme, hvad det skal gøre.",
+      "cta": "Åbn barnets visning"
+    },
+    "ADD_EVENING": {
+      "headline": "Tilføj aftenrutinen",
+      "body": "Gør sengetid lige så tydelig som morgenen.",
+      "cta": "Tilføj aften"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Inviter den anden forælder",
+      "body": "Del rutinen, så I kan følge med sammen.",
+      "cta": "Inviter"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Start med ét lille skridt",
+      "body": "Jeres rutine er der stadig — tag én aktivitet ad gangen i dag.",
+      "cta": "Åbn skema"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Tilpas jeres rutine",
+      "body": "Nu kan du gøre skemaet til jeres eget.",
+      "cta": "Tilpas"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Fejr fremgangen",
+      "body": "I har taget et vigtigt skridt — tag et øjeblik sammen.",
+      "cta": "Vis det til dit barn"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Dit barn gennemførte en aktivitet!",
+    "defaultChild": "Dit barn",
+    "defaultActivity": "en aktivitet",
+    "defaultCta": "Forstået"
+  }
+}

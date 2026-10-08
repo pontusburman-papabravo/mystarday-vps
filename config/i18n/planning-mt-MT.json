@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Ippjanar — {{brand}}",
+  "shell": {
+    "title": "Ippjanar",
+    "lead": "Agħżel il-ġimgħa, l-attivitajiet, jew aktar.",
+    "logout": "Oħroġ"
+  },
+  "sections": {
+    "planWeek": "Ippjana l-ġimgħa",
+    "buildContent": "Ibni l-kontenut",
+    "other": "Oħrajn"
+  },
+  "primary": {
+    "week": { "title": "Il-ġimgħa", "sub": "Il-lista tal-ġurnata għall-ġimgħa tat-tfal tiegħek" },
+    "activities": { "title": "Attivitajiet", "sub": "Il-librerija — oħloq u ibdel" },
+    "more": { "title": "Aktar", "sub": "Stampa, mudelli, u għodod oħra" }
+  },
+  "more": {
+    "title": "Aktar",
+    "close": "Agħlaq"
+  },
+  "links": {
+    "library": { "title": "Librerija", "sub": "Oħloq attivitajiet u premjijiet" },
+    "imageArchive": { "title": "Arkivju tar-ritratti", "sub": "Ir-ritratti tiegħek — xkupilja, sodda, skola" },
+    "templates": { "title": "Mudelli", "sub": "Pjanijiet salvati li tista' terġa' tuża" },
+    "weekSchedule": { "title": "Pjan tal-ġimgħa", "sub": "Ibdel il-ġimgħa tat-tifel tiegħek" },
+    "calendar": { "title": "Kalendarju", "sub": "Ara x-xahar u l-jiem speċjali" },
+    "custody": { "title": "Pjan tal-kustodja", "sub": "Kura maqsuma bejn id-djar" },
+    "dailyLog": { "title": "Illum", "sub": "Ara u aġġusta l-jiem ta' qabel" },
+    "printSchema": { "title": "Oħloq PDF — pjan", "sub": "Istampa pjan" },
+    "assignSchedule": { "title": "Assenja pjan", "sub": "Ikkopja pjan għal tifel" },
+    "reports": { "title": "Rapporti", "sub": "Progress u qsim" },
+    "samarbete": { "title": "Kollaborazzjoni mal-edukatur", "sub": "Aħdem ma' edukatur" },
+    "barnStod": { "title": "Appoġġ żejjed", "sub": "Appoġġ viżiv u TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Ibda",
+    "bodyBeforeLibrary": "Ibda fil-",
+    "libraryLink": "Librerija",
+    "bodyMiddle": " jekk trid toħloq attivitajiet. Mur f'",
+    "forYouLink": "Għalik",
+    "bodyAfter": " jekk trid rakkomandazzjoni lesta."
+  }
+}

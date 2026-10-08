@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Ħin żejjed tal-iskrin",
+    "icon": "📱",
+    "star_cost": 5
+  },
+  {
+    "name": "Agħżel iċ-ċena",
+    "icon": "🍕",
+    "star_cost": 10
+  },
+  {
+    "name": "Rigal żgħir",
+    "icon": "🎁",
+    "star_cost": 20
+  }
+]

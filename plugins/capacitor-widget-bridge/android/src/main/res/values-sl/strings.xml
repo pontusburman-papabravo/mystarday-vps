@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Naslednja dejavnost</string>
+    <string name="widget_routine_description">Dokončaj naslednji korak rutine, ne da bi odprl celotno aplikacijo.</string>
+    <string name="widget_cd_pictogram">Simbol dejavnosti</string>
+    <string name="widget_cd_complete">Označi dejavnost kot narejeno</string>
+    <string name="widget_cd_open_app">Odpri v aplikaciji</string>
+    <string name="widget_action_complete">Narejeno</string>
+    <string name="widget_action_open_timer">Odpri peščeno uro</string>
+    <string name="widget_action_show_steps">Pokaži korake</string>
+    <string name="widget_action_open_app">Odpri aplikacijo</string>
+    <string name="widget_loading">Nalagam…</string>
+    <string name="widget_all_done">Vse narejeno za danes!</string>
+    <string name="widget_nothing_now">Zdaj ni ničesar</string>
+    <string name="widget_offline">Ni povezave</string>
+    <string name="widget_reauth">Prijavi se v aplikaciji</string>
+    <string name="widget_revoked">Dostop naprave je preklican</string>
+    <string name="widget_switching">Menjam otroka…</string>
+    <string name="widget_feedback_done">✓ Narejeno!</string>
+    <string name="widget_feedback_done_for">✓ Narejeno za %1$s</string>
+    <string name="widget_cd_child_prev">Prejšnji otrok</string>
+    <string name="widget_cd_child_next">Naslednji otrok</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d od %2$d narejeno</string>
+    <string name="widget_private_activity">Naslednji korak</string>
+    <string name="widget_configure_title">Izberi pripomoček</string>
+    <string name="widget_configure_personal">Osebno (en otrok)</string>
+    <string name="widget_configure_family">Družina (zamenjaj otroka)</string>
+    <string name="widget_configure_save">Shrani</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

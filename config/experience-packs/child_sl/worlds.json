@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Jutranja hiša",
+      "first_unlock_message": "Jutranja hiša te čaka",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "Jutranja hiša ve, da si tukaj.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Prižge se mehka luč.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Vrata",
+          "always_active": true,
+          "ambient_message_sv": "Vrata se malo zatresijo — kot da nekdo čaka zunaj.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Zunaj te čaka vrt…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "Vrt",
+      "first_unlock_message": "Vrt te čaka",
+      "ambient_message_sv": "Trava se počasi premika v vetru.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Pot",
+          "emoji": "🌿",
+          "ambient_message_sv": "Pot vodi globlje v vrt.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Pot vodi v toplo sobo, polno spominov…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Greda",
+          "emoji": "🪴",
+          "ambient_message_sv": "Zemlja je mehka in topla.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Nebo",
+          "emoji": "☁️",
+          "ambient_message_sv": "Oblaki se premikajo počasi.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Soba spominov",
+      "first_unlock_message": "Tukaj je tisto, na kar si ponosen.",
+      "ambient_message_sv": "Tukaj je toplo in varno.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Okno",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "Svetloba mehko pada noter."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Stena spominov",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Tukaj visi tisto, kar ti je pomembno."
+        }
+      ]
+    }
+  ]
+}

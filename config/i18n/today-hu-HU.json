@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Ma — {{brand}}",
+  "shell": {
+    "headerTitle": "Ma",
+    "backToHome": "← Vissza a kezdőlapra",
+    "pdfHint": "PDF készítése napra, hétre vagy a saját napjaidra",
+    "printBtn": "📄 PDF készítése ▾",
+    "printDay": "📄 PDF készítése — nap",
+    "printWeek": "📅 PDF készítése — hét",
+    "printMyDays": "🏠 PDF készítése — saját napok",
+    "selectChildHeading": "Válassz gyereket",
+    "selectChildEmpty": "Válassz gyereket fent, hogy lásd a naplót",
+    "loadingChildren": "Betöltés…",
+    "tipsTitle": "Tippek: kövesd a tevékenységeket a Ma oldalon",
+    "tips1": "Jelöld késznek a tevékenységeket — a gyereked azonnal látja",
+    "tips2": "A gyerek nézetben egy koppintással kipipálhatók, és rögtön jár a csillag",
+    "tips3": "A dátumválasztóval visszagörgethetsz, és megnézheted, hogy ment a gyerekednek",
+    "tips4": "Állíts szünetet egy napra, ha a rutin más — csillag nem vész el",
+    "rateActivity": "Tevékenység értékelése",
+    "commentPlaceholder": "Megjegyzés (nem kötelező)…",
+    "cancel": "Mégse",
+    "save": "Mentés",
+    "moveUp": "Feljebb",
+    "moveDown": "Lejjebb",
+    "printWeekDocTitle": "Heti napirend — {{name}}",
+    "printMyDaysDocTitle": "Saját napok"
+  },
+  "childFallback": "Gyerek",
+  "noChildren": "Még nincs gyerek hozzáadva.",
+  "loading": "Betöltés…",
+  "retry": "Próbáld újra",
+  "errors": {
+    "signInRequired": "Lépj be, hogy lásd a Ma oldalt",
+    "loadChildren": "A gyerekeket nem sikerült betölteni",
+    "loadLog": "A naplót nem sikerült betölteni. Próbáld újra.",
+    "saveOrder": "A sorrendet nem sikerült menteni",
+    "updateActivity": "A tevékenységet nem sikerült frissíteni",
+    "undo": "A visszavonás nem sikerült",
+    "changeStatus": "Az állapotot nem sikerült módosítani",
+    "adjustTime": "Az időket nem sikerült igazítani",
+    "selectChild": "Először válassz gyereket",
+    "custodyDisabled": "A gondozási napirend nincs bekapcsolva",
+    "loadWeek": "A hetet nem sikerült betölteni",
+    "saveRating": "Az értékelést nem sikerült menteni",
+    "ratingScoreOrEmotion": "Válassz értékelést vagy hangulatkártyát",
+    "ratingScoreRange": "Az értékelés 1 és 10 között legyen",
+    "ratingInvalidEmotion": "Érvénytelen hangulatkártya",
+    "ratingActivityNotFound": "A tevékenység nem található",
+    "ratingNotAllowed": "Ennél a gyereknél ennél a tevékenységnél az értékelés nem engedélyezett",
+    "ratingParentScoreRange": "Az értékelés 1 és 5 között legyen",
+    "ratingParentDisabled": "A szülői értékelés ennél a tevékenységnél nincs bekapcsolva",
+    "dayPaused": "A nap szünetel",
+    "dailyLogItemRequired": "A daily_log_item_id kötelező",
+    "invalidTimerMinutes": "Érvénytelen perc. Engedett értékek: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Ma nincs tevékenység!",
+    "noScheduleDay": "Ezen a napon nincs rutin",
+    "addToWeekSchedule": "Adj tevékenységeket a heti napirendhez, hogy a napló magától készüljön.",
+    "noScheduleSelected": "A kiválasztott napra nincs rutin.",
+    "thisDay": "ez a nap",
+    "today": "ma",
+    "noChildrenTitle": "Nincs gyerek hozzáadva",
+    "addFirstChild": "A kezdéshez add hozzá az első gyereket a kezdőlapon!",
+    "goToDashboard": "Ugrás a kezdőlapra",
+    "goToWeekSchedule": "📅 Ugrás a heti napirendhez"
+  },
+  "nav": {
+    "prevWeek": "Előző hét",
+    "prevDay": "Előző nap",
+    "nextDay": "Következő nap",
+    "nextWeek": "Következő hét",
+    "pickDate": "Dátum választása",
+    "todayBtn": "Ma",
+    "undoBump": "Az utolsó időigazítás visszavonása"
+  },
+  "activity": {
+    "markDone": "Késznek jelölés",
+    "undoMark": "Jelölés visszavonása",
+    "rate": "⭐ Értékelés",
+    "setRating": "Értékelés megadása",
+    "changeRating": "Értékelés módosítása",
+    "dragReorder": "Húzd a sorrendhez",
+    "completeAllInSection": "Az összes kész a(z) {{section}} részben",
+    "completeAllBtn": "✅ Az összes kész",
+    "defaultName": "Tevékenység",
+    "undoneToast": "↩️ Visszavonva"
+  },
+  "pause": {
+    "confirmPause": "Szünetelteted ezt a napot? A tevékenységek nem számítanak hátránynak.",
+    "confirmUnpause": "Újraaktiválod ezt a napot?",
+    "pausedToast": "😴 A nap szünetel",
+    "unpausedToast": "✅ A nap újra aktív",
+    "dayTitle": "Szabadnap",
+    "banner": "Ez a nap szünetel (például betegség vagy pihenőnap). A tevékenységek nem számítanak hátránynak.",
+    "reactivate": "✅ Nap újraaktiválása",
+    "pauseBtn": "😴 Nap szüneteltetése (betegség / szabadnap)"
+  },
+  "bump": {
+    "noItems": "Nincs időpontos, kipipálatlan tevékenység, amit igazítani lehetne",
+    "moved": "⏩ {{count}} tevékenység{{suffix}} toltunk előre {{minutes}} perccel",
+    "movedOne": "et",
+    "movedMany": "et",
+    "undoToast": "↩️ Az időigazítás visszavonva",
+    "title": "Minden hátralévő előrébb tolása",
+    "adjustHint": "A kipipálatlan tevékenységek idejét igazítja",
+    "minutesTitle": "Előrébb {{minutes}} perccel",
+    "undoBtn": "↩ Visszavonás"
+  },
+  "retrofill": {
+    "title": "Rutin utólagos kitöltése",
+    "description": "Egy rutint utólag töltesz ki. Jelöld késznek a tevékenységeket — a helyes dátummal mentjük őket."
+  },
+  "rating": {
+    "childMood": "A gyerek hangulata",
+    "parentScore": "Szülői értékelés",
+    "noMoodCards": "Még nincs hangulatkártya",
+    "saved": "⭐ Értékelés mentve!",
+    "labels": [
+      "",
+      "Nehéz 😓",
+      "Oké 😐",
+      "Jó 😊",
+      "Szuper 😄",
+      "Fantasztikus! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiénia",
+    "mat": "Étkezés",
+    "skola": "Iskola",
+    "lek": "Játék",
+    "rorelse": "Mozgás",
+    "vila": "Pihenés",
+    "social": "Közösség"
+  },
+  "legend": {
+    "colorCoding": "Színkódolás:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Minden tevékenység kész!",
+    "completedOf": "{{completed}} / {{total}} tevékenység kész"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Kész: {{name}}",
+    "undo": "Visszavonás"
+  },
+  "emotions": {
+    "title": "💛 Mai hangulatok",
+    "noCards": "Még nincs hangulatkártya",
+    "sliderResponses": "Csúszka: {{count}} válasz{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "",
+    "sliderAvg": " (átlag {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Heti áttekintés készül…",
+    "preparingCustody": "Saját napok készülnek…",
+    "noMyDays": "Ezen a héten egyik nap sem a tiéd",
+    "weekScheduleTitle": "{{name}} — heti napirend",
+    "myDaysTitle": "{{name}} — saját napok"
+  }
+}

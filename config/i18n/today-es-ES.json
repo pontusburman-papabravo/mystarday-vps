@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Hoy — {{brand}}",
+  "shell": {
+    "headerTitle": "Hoy",
+    "backToHome": "← Volver a Inicio",
+    "pdfHint": "Crear PDF del día, de la semana o de mis días",
+    "printBtn": "📄 Crear PDF ▾",
+    "printDay": "📄 Crear PDF — día",
+    "printWeek": "📅 Crear PDF — semana",
+    "printMyDays": "🏠 Crear PDF — mis días",
+    "selectChildHeading": "Elige niño",
+    "selectChildEmpty": "Elige un niño arriba para ver el registro",
+    "loadingChildren": "Cargando…",
+    "tipsTitle": "Consejo: sigue las actividades en Hoy",
+    "tips1": "Marca las actividades como hechas: tu niño las ve al momento",
+    "tips2": "En la vista del niño se marcan con un toque y dan estrellas enseguida",
+    "tips3": "Vuelve atrás con el calendario para ver cómo le ha ido a tu niño",
+    "tips4": "Pausa un día cuando la rutina cambia: no se pierden estrellas",
+    "rateActivity": "Valorar la actividad",
+    "commentPlaceholder": "Comentario (opcional)…",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "printWeekDocTitle": "Horario semanal — {{name}}",
+    "printMyDaysDocTitle": "Mis días"
+  },
+  "childFallback": "Niño",
+  "noChildren": "Aún no hay niños añadidos.",
+  "loading": "Cargando…",
+  "retry": "Intentar de nuevo",
+  "errors": {
+    "signInRequired": "Inicia sesión para ver Hoy",
+    "loadChildren": "No se han podido cargar los niños",
+    "loadLog": "No se ha podido cargar el registro. Inténtalo de nuevo.",
+    "saveOrder": "No se ha podido guardar el orden",
+    "updateActivity": "No se ha podido actualizar la actividad",
+    "undo": "No se ha podido deshacer",
+    "changeStatus": "No se ha podido cambiar el estado",
+    "adjustTime": "No se han podido ajustar las horas",
+    "selectChild": "Elige primero un niño",
+    "custodyDisabled": "El horario de convivencia no está activado",
+    "loadWeek": "No se ha podido cargar la semana",
+    "saveRating": "No se ha podido guardar la valoración",
+    "ratingScoreOrEmotion": "Elige una valoración o una tarjeta de emoción",
+    "ratingScoreRange": "La valoración debe estar entre 1 y 10",
+    "ratingInvalidEmotion": "Tarjeta de emoción no válida",
+    "ratingActivityNotFound": "No se ha encontrado la actividad",
+    "ratingNotAllowed": "La valoración no está permitida para este niño en esta actividad",
+    "ratingParentScoreRange": "La valoración debe estar entre 1 y 5",
+    "ratingParentDisabled": "La valoración del adulto no está activada para esta actividad",
+    "dayPaused": "El día está en pausa",
+    "dailyLogItemRequired": "hace falta daily_log_item_id",
+    "invalidTimerMinutes": "Minutos no válidos. Valores permitidos: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "¡Hoy no hay actividades!",
+    "noScheduleDay": "No hay rutina este día",
+    "addToWeekSchedule": "Añade actividades al horario semanal para crear los registros solos.",
+    "noScheduleSelected": "No hay rutina para el día elegido.",
+    "thisDay": "este día",
+    "today": "hoy",
+    "noChildrenTitle": "No hay niños añadidos",
+    "addFirstChild": "¡Añade a tu primer niño en Inicio para empezar!",
+    "goToDashboard": "Ir a Inicio",
+    "goToWeekSchedule": "📅 Ir al horario semanal"
+  },
+  "nav": {
+    "prevWeek": "Semana anterior",
+    "prevDay": "Día anterior",
+    "nextDay": "Día siguiente",
+    "nextWeek": "Semana siguiente",
+    "pickDate": "Elegir fecha",
+    "todayBtn": "Hoy",
+    "undoBump": "Deshacer el último ajuste de hora"
+  },
+  "activity": {
+    "markDone": "Marcar como hecha",
+    "undoMark": "Deshacer la marca",
+    "rate": "⭐ Valorar",
+    "setRating": "Poner valoración",
+    "changeRating": "Cambiar valoración",
+    "dragReorder": "Arrastra para reordenar",
+    "completeAllInSection": "Completar todo en {{section}}",
+    "completeAllBtn": "✅ Marcar todo como hecho",
+    "defaultName": "Actividad",
+    "undoneToast": "↩️ Marca deshecha"
+  },
+  "pause": {
+    "confirmPause": "¿Pausar este día? Las actividades no contarán en negativo.",
+    "confirmUnpause": "¿Reactivar este día?",
+    "pausedToast": "😴 Día en pausa",
+    "unpausedToast": "✅ Día reactivado",
+    "dayTitle": "Día libre",
+    "banner": "Este día está en pausa (por ejemplo, enfermedad o festivo). Las actividades no cuentan en negativo.",
+    "reactivate": "✅ Reactivar el día",
+    "pauseBtn": "😴 Pausar este día (enfermedad / día libre)"
+  },
+  "bump": {
+    "noItems": "No hay actividades sin marcar con hora que ajustar",
+    "moved": "⏩ Adelantaste {{count}} actividad{{suffix}} {{minutes}} min",
+    "movedOne": "",
+    "movedMany": "es",
+    "undoToast": "↩️ Ajuste de hora deshecho",
+    "title": "Adelantar todo lo que viene",
+    "adjustHint": "Ajusta las horas de las actividades sin marcar",
+    "minutesTitle": "Adelantar {{minutes}} min",
+    "undoBtn": "↩ Deshacer"
+  },
+  "retrofill": {
+    "title": "Completar la rutina a posteriori",
+    "description": "Estás rellenando una rutina después. Marca las actividades como hechas: se guardan con la fecha correcta."
+  },
+  "rating": {
+    "childMood": "Ánimo del niño",
+    "parentScore": "Valoración del adulto",
+    "noMoodCards": "Aún no hay tarjetas de ánimo",
+    "saved": "¡Valoración guardada! ⭐",
+    "labels": [
+      "",
+      "Difícil 😓",
+      "Regular 😐",
+      "Bien 😊",
+      "Muy bien 😄",
+      "¡Genial! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Higiene",
+    "mat": "Comida",
+    "skola": "Colegio",
+    "lek": "Juego",
+    "rorelse": "Movimiento",
+    "vila": "Descanso",
+    "social": "Social"
+  },
+  "legend": {
+    "colorCoding": "Código de color:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 ¡Todas las actividades hechas!",
+    "completedOf": "{{completed}} de {{total}} actividades hechas"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Hecho: {{name}}",
+    "undo": "Deshacer"
+  },
+  "emotions": {
+    "title": "💛 Ánimos de hoy",
+    "noCards": "Aún no hay tarjetas de ánimo",
+    "sliderResponses": "Control: {{count}} respuesta{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "s",
+    "sliderAvg": " (media {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Preparando el resumen de la semana...",
+    "preparingCustody": "Preparando mis días…",
+    "noMyDays": "Ninguno de tus días esta semana",
+    "weekScheduleTitle": "{{name}} — Horario semanal",
+    "myDaysTitle": "{{name}} — Mis días"
+  }
+}

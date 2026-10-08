@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Tips tonen",
+    "close": "Sluiten",
+    "milestone": "Mijlpaal",
+    "nextStep": "Volgende stap",
+    "tip": "Tip",
+    "weekReflection": "Terugblik op de week",
+    "weekTogether": "Een week samen",
+    "weekLabel": "Eén week",
+    "sjDay3Headline": "Tijd voor {{name}} om het te proberen",
+    "tips": {
+      "coach_consistency": [
+        "Houd de routine kort en duidelijk — je kind bouwt de gewoonte stap voor stap op.",
+        "Vier elk vinkje, ook de kleine.",
+        "Laat je kind elke ochtend zelf inloggen."
+      ],
+      "coach_evening": [
+        "Voeg 2–3 rustige activiteiten toe voor het slapengaan.",
+        "Dezelfde volgorde elke avond maakt inslapen makkelijker."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nieuw",
+    "dismissAria": "Uitleg sluiten",
+    "continueFallback": "Verder",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "We tonen hier op Thuis nu een duidelijk voorstel voor je volgende stap.",
+        "whatChanged": "Bovenaan staat een kaart \"Volgende stap\".",
+        "whyItMatters": "Je hoeft niet door herinneringen te zoeken — één voorstel tegelijk."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Laat je kind de routine proberen",
+      "body": "Open samen de kindweergave — je kind ziet meteen wat er te doen is.",
+      "cta": "Kindweergave openen"
+    },
+    "ADD_EVENING": {
+      "headline": "Voeg de avondroutine toe",
+      "body": "Maak het slapengaan net zo duidelijk als de ochtend.",
+      "cta": "Avond toevoegen"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Nodig de andere ouder uit",
+      "body": "Deel de routine, zodat jullie samen kunnen volgen.",
+      "cta": "Uitnodigen"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Begin met één kleine stap",
+      "body": "Je routine blijft staan — doe vandaag één activiteit tegelijk.",
+      "cta": "Schema openen"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Pas je routine aan",
+      "body": "Nu kun je het schema van jezelf maken.",
+      "cta": "Aanpassen"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Vier de vooruitgang",
+      "body": "Je hebt een belangrijke stap gezet — neem even samen de tijd.",
+      "cta": "Laat het je kind zien"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Je kind heeft een activiteit afgerond!",
+    "defaultChild": "Je kind",
+    "defaultActivity": "een activiteit",
+    "defaultCta": "Begrepen"
+  }
+}

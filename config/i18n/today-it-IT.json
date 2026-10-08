@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Oggi — {{brand}}",
+  "shell": {
+    "headerTitle": "Oggi",
+    "backToHome": "← Torna a Casa",
+    "pdfHint": "Crea un PDF per il giorno, la settimana o i miei giorni",
+    "printBtn": "📄 Crea PDF ▾",
+    "printDay": "📄 Crea PDF — giorno",
+    "printWeek": "📅 Crea PDF — settimana",
+    "printMyDays": "🏠 Crea PDF — i miei giorni",
+    "selectChildHeading": "Scegli il bambino",
+    "selectChildEmpty": "Scegli un bambino qui sopra per vedere il diario",
+    "loadingChildren": "Caricamento…",
+    "tipsTitle": "Consiglio: segui le attività in Oggi",
+    "tips1": "Segna le attività come fatte — il tuo bambino le vede subito",
+    "tips2": "Nella vista del bambino le attività si spuntano con un tocco e le stelle arrivano subito",
+    "tips3": "Torna indietro con il calendario per vedere come è andata al tuo bambino",
+    "tips4": "Metti in pausa un giorno quando le routine sono diverse — nessuna stella va persa",
+    "rateActivity": "Valuta l'attività",
+    "commentPlaceholder": "Commento (facoltativo)…",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "printWeekDocTitle": "Piano della settimana — {{name}}",
+    "printMyDaysDocTitle": "I miei giorni"
+  },
+  "childFallback": "Bambino",
+  "noChildren": "Nessun bambino aggiunto.",
+  "loading": "Caricamento…",
+  "retry": "Riprova",
+  "errors": {
+    "signInRequired": "Accedi per vedere Oggi",
+    "loadChildren": "Impossibile caricare i bambini",
+    "loadLog": "Impossibile caricare il diario. Riprova.",
+    "saveOrder": "Impossibile salvare l'ordine",
+    "updateActivity": "Impossibile aggiornare l'attività",
+    "undo": "Impossibile annullare",
+    "changeStatus": "Impossibile cambiare lo stato",
+    "adjustTime": "Impossibile sistemare gli orari",
+    "selectChild": "Prima scegli un bambino",
+    "custodyDisabled": "Il piano di affido non è attivo",
+    "loadWeek": "Impossibile caricare la settimana",
+    "saveRating": "Impossibile salvare la valutazione",
+    "ratingScoreOrEmotion": "Scegli una valutazione o una carta emozione",
+    "ratingScoreRange": "La valutazione deve essere tra 1 e 10",
+    "ratingInvalidEmotion": "Carta emozione non valida",
+    "ratingActivityNotFound": "Attività non trovata",
+    "ratingNotAllowed": "La valutazione non è consentita per questo bambino su questa attività",
+    "ratingParentScoreRange": "La valutazione deve essere tra 1 e 5",
+    "ratingParentDisabled": "La valutazione del genitore non è attiva per questa attività",
+    "dayPaused": "Il giorno è in pausa",
+    "dailyLogItemRequired": "daily_log_item_id è obbligatorio",
+    "invalidTimerMinutes": "Minuti non validi. Valori ammessi: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Nessuna attività oggi!",
+    "noScheduleDay": "Nessuna routine in questo giorno",
+    "addToWeekSchedule": "Aggiungi attività al piano della settimana per creare i diari in automatico.",
+    "noScheduleSelected": "Nessuna routine per il giorno scelto.",
+    "thisDay": "questo giorno",
+    "today": "oggi",
+    "noChildrenTitle": "Nessun bambino aggiunto",
+    "addFirstChild": "Aggiungi il tuo primo bambino in Casa per iniziare!",
+    "goToDashboard": "Vai a Casa",
+    "goToWeekSchedule": "📅 Vai al piano della settimana"
+  },
+  "nav": {
+    "prevWeek": "Settimana precedente",
+    "prevDay": "Giorno precedente",
+    "nextDay": "Giorno successivo",
+    "nextWeek": "Settimana successiva",
+    "pickDate": "Scegli la data",
+    "todayBtn": "Oggi",
+    "undoBump": "Annulla l'ultimo spostamento di orario"
+  },
+  "activity": {
+    "markDone": "Segna come fatto",
+    "undoMark": "Annulla il segno",
+    "rate": "⭐ Valuta",
+    "setRating": "Metti una valutazione",
+    "changeRating": "Cambia valutazione",
+    "dragReorder": "Trascina per riordinare",
+    "completeAllInSection": "Completa tutto in {{section}}",
+    "completeAllBtn": "✅ Segna tutto come fatto",
+    "defaultName": "Attività",
+    "undoneToast": "↩️ Segno annullato"
+  },
+  "pause": {
+    "confirmPause": "Metti in pausa questo giorno? Le attività non contano in negativo.",
+    "confirmUnpause": "Riattivi questo giorno?",
+    "pausedToast": "😴 Giorno in pausa",
+    "unpausedToast": "✅ Giorno riattivato",
+    "dayTitle": "Giorno libero",
+    "banner": "Questo giorno è in pausa (per esempio malattia o vacanza). Le attività non contano in negativo.",
+    "reactivate": "✅ Riattiva il giorno",
+    "pauseBtn": "😴 Metti in pausa questo giorno (malattia / giorno libero)"
+  },
+  "bump": {
+    "noItems": "Nessuna attività non spuntata con un orario da spostare",
+    "moved": "⏩ {{count}} attività{{suffix}} in avanti di {{minutes}} min",
+    "movedOne": " spostata",
+    "movedMany": " spostate",
+    "undoToast": "↩️ Spostamento di orario annullato",
+    "title": "Sposta in avanti tutto ciò che arriva",
+    "adjustHint": "Sistema gli orari delle attività non spuntate",
+    "minutesTitle": "Sposta in avanti di {{minutes}} min",
+    "undoBtn": "↩ Annulla"
+  },
+  "retrofill": {
+    "title": "Completi la routine dopo",
+    "description": "Stai compilando una routine a posteriori. Segna le attività come fatte — vengono salvate con la data giusta."
+  },
+  "rating": {
+    "childMood": "Umore del bambino",
+    "parentScore": "Valutazione del genitore",
+    "noMoodCards": "Ancora nessuna carta umore",
+    "saved": "⭐ Valutazione salvata!",
+    "labels": [
+      "",
+      "Difficile 😓",
+      "Così così 😐",
+      "Bene 😊",
+      "Benissimo 😄",
+      "Fantastico! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Igiene",
+    "mat": "Pasti",
+    "skola": "Scuola",
+    "lek": "Gioco",
+    "rorelse": "Movimento",
+    "vila": "Riposo",
+    "social": "Insieme"
+  },
+  "legend": {
+    "colorCoding": "Codice colore:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Tutte le attività sono fatte!",
+    "completedOf": "{{completed}} su {{total}} attività fatte"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Spuntato: {{name}}",
+    "undo": "Annulla"
+  },
+  "emotions": {
+    "title": "💛 Umori di oggi",
+    "noCards": "Ancora nessuna carta umore",
+    "sliderResponses": "Cursore: {{count}} rispost{{suffix}}",
+    "sliderSuffixOne": "a",
+    "sliderSuffixMany": "e",
+    "sliderAvg": " (media {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Preparazione della settimana…",
+    "preparingCustody": "Preparazione dei miei giorni…",
+    "noMyDays": "Nessuno dei tuoi giorni questa settimana",
+    "weekScheduleTitle": "{{name}} — Piano della settimana",
+    "myDaysTitle": "{{name}} — I miei giorni"
+  }
+}

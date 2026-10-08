@@ -4,48 +4,6 @@
   "note": "Monotonic ratchet: hits may disappear, never grow without --force-raise. data-i18n Swedish inner HTML is pre-JS placeholder debt. Brand/site tokens in snippets are product copy, not credentials.",
   "hits": [
     {
-      "id": "435e1eb48c472f07",
-      "path": "public/images/child/activity-timer/hourglass.svg",
-      "rule": "svg-desc",
-      "snippet": "Ett varmt petrolfärgat timglas med gul sand som styrs av timerprogress."
-    },
-    {
-      "id": "d00bf620727a87d1",
-      "path": "public/img/stjarnadag-icons/navigation/familj.svg",
-      "rule": "svg-title",
-      "snippet": "Familj"
-    },
-    {
-      "id": "d6537e064f278997",
-      "path": "public/img/stjarnadag-icons/navigation/schema.svg",
-      "rule": "svg-title",
-      "snippet": "Schema"
-    },
-    {
-      "id": "ea5289c5df32c221",
-      "path": "public/img/stjarnadag-icons/parent/barn.svg",
-      "rule": "svg-title",
-      "snippet": "Barn"
-    },
-    {
-      "id": "db67a9e5848ec6cb",
-      "path": "public/img/stjarnadag-icons/parent/redigera-aktivitet.svg",
-      "rule": "svg-title",
-      "snippet": "Redigera Aktivitet"
-    },
-    {
-      "id": "cf0f9fda9363b051",
-      "path": "public/img/stjarnadag-icons/shared/redigera.svg",
-      "rule": "svg-title",
-      "snippet": "Redigera"
-    },
-    {
-      "id": "9d5c2bc4ed04a085",
-      "path": "public/img/stjarnadag-icons/shared/tillbaka.svg",
-      "rule": "svg-title",
-      "snippet": "Tillbaka"
-    },
-    {
       "id": "60d605ed8c0ab82a",
       "path": "src/lib/activation-program-runtime.js",
       "rule": "server-message",

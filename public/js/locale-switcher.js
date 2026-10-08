@@ -30,16 +30,39 @@
     );
   }
 
+  function selectorLocales() {
+    if (window.I18n && typeof I18n.selectorLocales === 'function') {
+      const list = I18n.selectorLocales();
+      if (list && list.length) return list;
+    }
+    return [];
+  }
+
+  /**
+   * english_app gates only the catalog row that asks for it (en-GB).
+   * Other public locales stay selectable when the flag is off.
+   */
+  function localeChangeAllowed(entry, featureEnabled) {
+    if (!entry || !entry.selectRequiresFeature) return true;
+    if (entry.selectRequiresFeature === 'english_app') return featureEnabled === true;
+    return true;
+  }
+
   function buildSwitcherHtml() {
+    const locales = selectorLocales();
+    const buttons = locales.map((locale) => {
+      const gated = locale.selectRequiresFeature
+        ? ` data-locale-gated="${escapeAttr(locale.selectRequiresFeature)}"`
+        : '';
+      return `
+          <button type="button" class="locale-switcher__option" data-locale-value="${escapeAttr(locale.id)}"${gated} aria-pressed="false">
+            <span>${escapeHtml(locale.nativeName)}</span>
+          </button>`;
+    }).join('');
     return `
       <div class="${SWITCHER_CLASS}" role="group" aria-label="${escapeAttr(I18n.t('language.switchAria'))}">
-        <div class="locale-switcher__track" data-locale-track>
-          <button type="button" class="locale-switcher__option" data-locale-value="sv-SE" aria-pressed="false">
-            <span data-i18n="language.sv-SE">Svenska</span>
-          </button>
-          <button type="button" class="locale-switcher__option" data-locale-value="en-GB" data-locale-en aria-pressed="false">
-            <span class="locale-switcher__en-label" data-i18n="language.en-GB">English</span>
-          </button>
+        <div class="locale-switcher__track" data-locale-track style="--locale-count:${locales.length}">
+          ${buttons}
         </div>
       </div>`;
   }
@@ -49,30 +72,35 @@
     const style = document.createElement('style');
     style.id = 'locale-switcher-styles';
     style.textContent = `
-      .locale-switcher { width: 100%; max-width: 20rem; margin: 0 auto; text-align: center; }
+      .locale-switcher { width: 100%; max-width: 22rem; margin: 0 auto; text-align: center; }
       .locale-switcher__track {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 0.25rem;
         padding: 0.25rem;
-        border-radius: 999px;
+        border-radius: 1rem;
         background: rgba(27, 35, 64, 0.06);
         border: 1px solid rgba(27, 35, 64, 0.08);
       }
       .locale-switcher__option {
+        flex: 1 1 6.25rem;
+        min-width: 0;
         min-height: 44px;
-        padding: 0.55rem 0.75rem;
+        padding: 0.4rem 0.55rem;
         border: none;
         border-radius: 999px;
         background: transparent;
         color: #5A6178;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
+        line-height: 1.15;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
+        text-align: center;
+        white-space: normal;
         transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
       }
       .locale-switcher__option[aria-pressed="true"] {
@@ -127,8 +155,9 @@
 
   async function applyLocaleChange(container, next, previous, englishOk) {
     if (_localeChangeInflight) return;
-    if (next === 'en-GB' && !englishOk) {
-      setSelected(container, 'sv-SE');
+    const nextEntry = selectorLocales().find((locale) => locale.id === next);
+    if (!localeChangeAllowed(nextEntry, englishOk)) {
+      setSelected(container, I18n.DEFAULT_LOCALE || 'sv-SE');
       return;
     }
 
@@ -208,15 +237,19 @@
     if (dark) root.classList.add('locale-switcher--dark', 'locale-switcher--compact');
     else root.classList.add('locale-switcher--compact');
 
-    const enBtn = container.querySelector('[data-locale-en]');
     const englishOk = await isEnglishAllowed();
-    if (!englishOk && enBtn) {
-      enBtn.disabled = true;
-      enBtn.hidden = true;
+    if (!englishOk) {
+      container.querySelectorAll('[data-locale-gated="english_app"]').forEach((btn) => {
+        btn.disabled = true;
+        btn.hidden = true;
+      });
     }
 
     let locale = I18n.getCurrentLang();
-    if (locale === 'en-GB' && !englishOk) locale = 'sv-SE';
+    const activeEntry = selectorLocales().find((item) => item.id === locale);
+    if (!localeChangeAllowed(activeEntry, englishOk)) {
+      locale = I18n.DEFAULT_LOCALE || 'sv-SE';
+    }
     setSelected(container, locale);
     I18n.apply(container);
 
@@ -241,5 +274,5 @@
     autoMount();
   });
 
-  window.LocaleSwitcher = { mount, autoMount };
+  window.LocaleSwitcher = { mount, autoMount, localeChangeAllowed };
 })();

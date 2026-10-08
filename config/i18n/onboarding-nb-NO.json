@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Steg {{current}} av {{total}}",
+    "back": "← Tilbake",
+    "next": "Neste steg →",
+    "continue": "Fortsett →",
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "loading": "Laster…",
+    "genericError": "Noe gikk galt. Prøv igjen.",
+    "networkError": "Nettverksfeil. Prøv igjen.",
+    "closeAria": "Lukk",
+    "childFallback": "Barnet ditt",
+    "addChildDone": "Ferdig! →",
+    "goForward": "Fortsett →",
+    "finishing": "Fullfører…",
+    "recommended": "Anbefalt",
+    "optional": "Valgfritt"
+  },
+  "pageTitle": {
+    "welcome": "Velkommen — {{brand}}",
+    "ogTitle": "{{brand}} — Kom i gang på 2 minutter",
+    "ogDescription": "Sett opp barnets plan og belønninger med en gang"
+  },
+  "verifyEmail": {
+    "title": "Bekreft e-postadressen din",
+    "body": "Vi sendte en e-post til {{email}}. Trykk på lenken i e-posten for å aktivere kontoen.",
+    "resend": "Send på nytt",
+    "resendSending": "Sender…",
+    "resendSuccess": "✓ Sendt!",
+    "resendSent": "Sendt",
+    "resendError": "Noe gikk galt. Prøv igjen."
+  },
+  "child": {
+    "title": "Fortell oss om barnet",
+    "lead": "Velg navn, emoji, bursdag og en plan som passer hverdagsrutinen.",
+    "nameLabel": "Barnets navn",
+    "namePlaceholder": "f.eks. Ella",
+    "birthdayLabel": "Bursdag",
+    "birthdayOptionalHint": "(valgfritt — hjelper oss å foreslå riktig plan)",
+    "yearPlaceholder": "År",
+    "monthPlaceholder": "Måned",
+    "dayPlaceholder": "Dag",
+    "birthYearAria": "Fødselsår",
+    "birthMonthAria": "Fødselsmåned",
+    "birthDayAria": "Fødselsdag",
+    "months": [
+      "Januar",
+      "Februar",
+      "Mars",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Desember"
+    ],
+    "emojiLabel": "Velg en emoji",
+    "customEmojiPlaceholder": "Eller skriv din egen emoji…",
+    "emojiAriaLabel": "Velg emoji {{emoji}}",
+    "avatarLabel": "Valgfritt: profilbilde",
+    "avatarHint": "Velg et bilde fra biblioteket, eller ta et nytt.",
+    "avatarDefaultBtn": "✨ Standardbilde",
+    "avatarPickBtn": "📷 Velg bilde",
+    "avatarLoading": "Laster…",
+    "avatarPreparing": "Forbereder…",
+    "avatarUploadFailed": "Kunne ikke laste opp bildet. Prøv igjen.",
+    "avatarReadFailed": "Kunne ikke lese bildet",
+    "avatarAlt": "Profilbilde av barnet",
+    "scheduleLabel": "Velg en plan",
+    "templatesLoading": "Laster planer…",
+    "templatesLoadFailed": "Planmalene kunne ikke lastes akkurat nå.",
+    "templatesRetryBtn": "Prøv igjen",
+    "nextBtn": "Neste steg →",
+    "creatingChild": "Oppretter barn…",
+    "creatingSchedule": "Oppretter plan…",
+    "nameRequired": "Skriv inn barnets navn",
+    "emojiRequired": "Velg en emoji for barnet",
+    "scheduleRequired": "Velg en plan",
+    "childResumedToast": "Vi fant barnet fra forrige gang — fortsetter med planen.",
+    "avatarSaveFailedToast": "Barnet er opprettet, men bildet kunne ikke lagres. Du kan legge det til under Familie.",
+    "scheduleCreateFailed": "Planen kunne ikke opprettes"
+  },
+  "activityGuide": {
+    "title": "Hvordan skal appen hjelpe {{childName}} med aktivitetene i dag?",
+    "lead": "Du kan endre dette når som helst i innstillingene til barnet.",
+    "stepLabel": "Steg {{current}} av {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Fri rekkefølge",
+        "description": "Barnet kan krysse av i hvilken rekkefølge det vil."
+      },
+      "one_at_a_time": {
+        "title": "Én ting om gangen",
+        "description": "Appen hjelper barnet å fokusere på neste steg."
+      },
+      "time_and_order": {
+        "title": "Tydelig tid og rekkefølge",
+        "description": "Appen hjelper med neste steg og en tidtaker du setter for hver aktivitet."
+      }
+    },
+    "continueBtn": "Fortsett →",
+    "saving": "Lagrer…",
+    "selectError": "Velg et alternativ",
+    "saveError": "Kunne ikke lagre valget"
+  },
+  "viewType": {
+    "title": "Hvilken visning skal {{childName}} se?",
+    "lead": "Velg hvordan planen vises når barnet logger inn. Du kan endre dette når som helst i innstillingene.",
+    "dayViewTitle": "Dagsvisning",
+    "dayViewSubtitle": "Morgen · Sen formiddag · Ettermiddag · Kveld",
+    "timelineViewTitle": "Nå/Neste/Senere-visning",
+    "timelineViewSubtitle": "Viser bare det som skjer akkurat nå",
+    "timelineNow": "NÅ",
+    "timelineNext": "NESTE",
+    "timelineThen": "SENERE",
+    "mock": {
+      "wakeStretch": "Stå opp og tøy deg",
+      "brushTeeth": "Pusse tenner",
+      "packBag": "Pakke vesken",
+      "preschool": "Gå i barnehagen",
+      "freePlay": "Fri lek",
+      "dinner": "Middag",
+      "bedtimeStory": "Godnattfortelling",
+      "preschoolShort": "Barnehage",
+      "play": "Leke"
+    },
+    "dayViewHint": "Du kan også velge Dagsvisning hvis barnet liker fargekodede deler av dagen.",
+    "skipHint": "Hopper du over? Dagsvisning velges automatisk.",
+    "saving": "Lagrer visningsvalg…"
+  },
+  "scheduleReady": {
+    "title": "Planen er klar!",
+    "subtitle": "Vi har laget en startplan for {{childName}}.",
+    "subtitleWithTemplate": "Vi har laget planen {{templateName}} for {{childName}}. Den har de viktigste stegene for å klare seg selv.",
+    "templateFallback": "Plan",
+    "daysWeek": "7 dager / uke",
+    "daysMonFri": "man–fre",
+    "daysMonFriWeekend": "man–fre + helg",
+    "socialProofTitle": "Visste du det?",
+    "socialProofBody": "Visuell støtte senker ofte hverdagsstress med opptil 30 % — og barn med tydelige rutiner sovner raskere og våkner gladere.",
+    "continueBtn": "Perfekt, da kjører vi! →"
+  },
+  "rewards": {
+    "title": "Slik virker stjerner",
+    "checkOff": "Kryss av",
+    "star": "Stjerne",
+    "treasureChest": "Stjernekiste",
+    "intro": "Vi har fylt inn morsomme belønninger. Velg dem {{childName}} kan jobbe mot!",
+    "introWithCount": "Vi har fylt inn {{count}} morsomme belønninger. Velg dem {{childName}} kan jobbe mot!",
+    "selectCount": {
+      "none": "Velg minst 1 belønning (0 valgt)",
+      "one": "{{count}} belønning valgt ✓",
+      "other": "{{count}} belønninger valgt ✓"
+    },
+    "minOneError": "Velg minst én belønning for å fortsette",
+    "saveBtn": "Lagre belønninger →",
+    "saving": "Lagrer belønninger…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Ekstra fortelling",
+      "chooseDessert": "Velge dessert",
+      "movieNight": "Filmkveld",
+      "chooseDinner": "Velge middag",
+      "outing": "Tur",
+      "bakeTogether": "Bake sammen",
+      "familyGameNight": "Familie-spillkveld",
+      "lateBedtime": "Være oppe sent",
+      "cinemaTrip": "Tur på kino"
+    }
+  },
+  "handoff": {
+    "title": "Slik logger dere inn",
+    "lead": "{{childName}} logger inn med navn og PIN — ingen passord.",
+    "childLoginLabel": "Barnelogin",
+    "usernameFallback": "brukernavn",
+    "pinLabel": "PIN",
+    "pinNote": "Noter PIN-koden — du kan endre den i innstillingene.",
+    "pinResumeHint": "Bruk PIN-koden til barnet. Hvis du har glemt den, kan du sette en ny med knappen under.",
+    "chooseCustomPin": "✏️ Velg din egen PIN",
+    "savePin": "Lagre PIN",
+    "savingPin": "Lagrer…",
+    "pinMustBe4": "PIN må være 4 sifre",
+    "pinTooWeak": "Velg en sterkere PIN (ikke 1111, 2222 og lignende)",
+    "pinSaveFailed": "Kunne ikke lagre PIN",
+    "copyInfo": "📋 Kopier detaljer",
+    "copied": "✓ Kopiert!",
+    "copyManual": "Kopier manuelt:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nBrukernavn: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Send på e-post",
+    "emailSubject": "{{brand}} — Innlogging for {{childName}}",
+    "emailBody": "Hei!\n\nHer er innloggingsdetaljene i {{brand}} for {{childName}}:\n\nBrukernavn: {{username}}\nPIN: {{pin}}\n\nÅpne appen: {{appUrl}}/child-login\n\nVennlig hilsen\n{{brand}}",
+    "emailFallbackAlert": "Innlogging for {{childName}}:\nBrukernavn: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Installer som app",
+    "installBody": "Legg {{brand}} på Hjem-skjermen — virker som en ekte app, virker uten nett, ingen appbutikker.",
+    "installInstructions": "iPhone: Del → Legg til på Hjem-skjerm · Android: ⋮ → Installer appen",
+    "parentTipTitle": "Et tips til deg som forelder",
+    "parentTipLead": "Sett dere ned sammen i kveld. Vis stjernekisten",
+    "parentTipEmphasis": "først",
+    "parentTipTail": "for å vekke nysgjerrighet — og forklar at appen er kartet til {{childName}} for dagen!",
+    "testChildLogin": "👶 Prøv barnelogin nå",
+    "continueAsParent": "Fortsett som forelder →",
+    "skipConfirmTitle": "Hoppe over barnelogin?",
+    "skipConfirmBody": "Barnet trenger PIN-koden for å logge inn selv. Uten å prøve nå kan morgenrutinen kjennes vanskeligere — vi sender en påminnelse om 24 timer hvis barnet ikke har prøvd ennå.",
+    "skipConfirmPrimary": "👶 Prøv barnelogin",
+    "skipConfirmSecondary": "Hopp over likevel"
+  },
+  "parentPin": {
+    "setLater": "Sett foreldre-PIN senere",
+    "title": "Sett foreldre-PIN",
+    "description": "En PIN på 4 sifre som bare du kjenner, beskytter forelderområdet — for eksempel når barn legger til et søsken, eller du logger inn som forelder på barnets enhet.",
+    "choosePin": "Velg PIN-koden din",
+    "confirmPin": "Bekreft PIN",
+    "changeLater": "Du kan endre PIN-koden senere under Familie og innstillinger.",
+    "pinRequiredOrEmpty": "Skriv inn en PIN på 4 sifre, eller la feltene stå tomme",
+    "pinRequiredForHandoff": "Sett en PIN på 4 sifre før barnet kan ta over enheten.",
+    "pinMismatch": "PIN-kodene er ikke like",
+    "saveFailed": "Kunne ikke lagre PIN",
+    "handoffRequired": "På en delt enhet trenger du en voksen-PIN før barnet kan logge inn.",
+    "saveAndContinue": "Lagre og fortsett"
+  },
+  "invite": {
+    "inviteLater": "Inviter medforelder senere",
+    "title": "Inviter en annen voksen",
+    "namePlaceholder": "Navn (f.eks. Erik)",
+    "emailPlaceholder": "E-postadresse",
+    "whichChildren": "Hvilke barn skal denne personen se?",
+    "sendBtn": "📧 Send invitasjon",
+    "sending": "Sender…",
+    "sent": "✓ Sendt",
+    "skip": "Hopp over →",
+    "emailRequired": "Skriv inn en e-postadresse",
+    "invalidEmail": "Ugyldig e-postadresse",
+    "success": "Invitasjon sendt til {{email}}! ✓",
+    "sendFailed": "Noe gikk galt"
+  },
+  "complete": {
+    "title": "Nesten ferdig!",
+    "lead": "La barnet prøve appen — du kan invitere andre voksne og sette en foreldre-PIN etter den første avkryssingen.",
+    "tips": {
+      "editScheduleTitle": "Rediger planen",
+      "editScheduleBody": "Gå til Hjem → trykk på barnets kort → tilpass aktivitetene til hverdagen.",
+      "checkRewardsTitle": "Sjekk belønningene",
+      "checkRewardsBody": "I barnevisningen — trykk på stjernen — barnet ser hvor mange stjerner hver belønning trenger.",
+      "addChildrenTitle": "Legg til flere barn",
+      "addChildrenBody": "Hvert barn får sin egen plan og stjerner. Legg til et til via + på Hjem."
+    },
+    "letChildStart": "👶 La barnet begynne",
+    "letChildStartPlain": "La barnet begynne",
+    "completeFailed": "Kunne ikke fullføre oppstarten",
+    "completeFailedShort": "Kunne ikke fullføre",
+    "welcomeFooter": "Velkommen til {{brand}} — så fint at du er her! 🌟"
+  },
+  "weekend": {
+    "title": "Legge til en helgeplan?",
+    "body": "Hverdagsplanen er klar for man–fre. Vil du ha en rolig helgeplan for lørdag og søndag?",
+    "scheduleLabel": "Helgeplan",
+    "satSun": "lør + søn",
+    "preview": {
+      "sleepIn": "Sove lenge",
+      "breakfast": "Frokost i ro og fred",
+      "freePlay": "Fri lek",
+      "outing": "Tur / park",
+      "familyActivity": "Familieaktivitet",
+      "dinner": "Middag"
+    },
+    "yesBtn": "✅ Ja, legg til helgeplan",
+    "yesLoading": "Legger til…",
+    "noBtn": "Nei takk, jeg fyller inn senere",
+    "addFailed": "Kunne ikke legge til helgeplan"
+  },
+  "starter": {
+    "stepLabel": "Lag plan {{current}} av {{total}}",
+    "slimTitle": "Rutinen er nesten klar",
+    "fullTitle": "Lag den første planen",
+    "slimIntro": "Tre raske spørsmål — så er rutinen klar.",
+    "birthdayHint": "Velg barnets fødselsdato — det hjelper oss å foreslå riktig plan.",
+    "fullIntro": "Svar på noen spørsmål — tar under ett minutt.",
+    "powerPathLead": "Vil du velge eller bygge selv?",
+    "chooseTemplate": "📋 Velg en ferdig plan",
+    "fullWizard": "✏️ Bygg og tilpass selv (7 spørsmål)",
+    "answerRequired": "Velg eller fyll inn et svar",
+    "showSchedule": "Vis plan →",
+    "buttons": {
+      "next": "Neste →"
+    },
+    "createRoutine": "Lag rutine →",
+    "creatingRoutine": "Lager rutine…",
+    "personalizing": "Tilpasser plan…",
+    "loading": "Laster…",
+    "useSchedule": "Bruk denne planen →",
+    "saving": "Lagrer…",
+    "changeAnswers": "← Endre svar",
+    "removeStep": "Fjern",
+    "previewHint": "Du kan fjerne steg — legg til flere i innstillingene senere.",
+    "previewForChild": "For {{childName}} · {{count}} aktiviteter",
+    "previewAiTail": " · ✨ AI-tilpasset",
+    "defaultPlanTitle": "Planen din",
+    "slimSuccessTitle": "Rutinen er klar",
+    "slimSuccessTonight": "Planen er klar. Vis {{childName}} I dag på denne enheten.",
+    "showChildToday": "Vis barnets I dag",
+    "openingChildToday": "Åpner barnets I dag…",
+    "hourglassOfferTitle": "Visuelt timeglass",
+    "hourglassOfferBody": "Hjelp barnet å se hvor mye tid som er igjen i en aktivitet.",
+    "hourglassEnableBtn": "Slå på timeglass",
+    "hourglassEnabling": "Slår på…",
+    "hourglassEnabledMsg": "Timeglass er slått på for barnet.",
+    "hourglassEnableFailed": "Kunne ikke slå på timeglass",
+    "goHome": "Gå til Hjem →",
+    "openingHome": "Åpner Hjem…",
+    "customizeFirst": "Tilpass planen først",
+    "openingSchedule": "Åpner plan…",
+    "nameRequired": "Skriv inn barnets navn",
+    "templateFailed": "Kunne ikke velge mal",
+    "previewFailed": "Kunne ikke laste planen",
+    "childCreateFailed": "Kunne ikke opprette barn",
+    "scheduleSaveFailed": "Kunne ikke lagre planen",
+    "personalizeFailed": "Kunne ikke tilpasse planen",
+    "completeFailed": "Kunne ikke fullføre",
+    "packages": {
+      "morning-short": {
+        "name": "Kort morgen"
+      },
+      "evening-routine": {
+        "name": "Kveldsrutine"
+      },
+      "preschool-day": {
+        "name": "Barnehage hverdag"
+      },
+      "school-day": {
+        "name": "Skole hverdag"
+      },
+      "weekend": {
+        "name": "Helg"
+      },
+      "getting-ready": {
+        "name": "Kort morgen"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "Barnets navn",
+        "placeholder": "f.eks. Ella"
+      },
+      "age_band": {
+        "label": "Hvor gammelt er barnet?",
+        "options": {
+          "3-5": "3–5 år",
+          "6-8": "6–8 år",
+          "9-12": "9–12 år",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Hvilken rutine vil du starte med?",
+        "options": {
+          "morgon": "☀️ Morgen",
+          "kvall": "🌙 Kveld",
+          "efter-skola": "🏫 Etter skolen",
+          "laxor": "📚 Lekser",
+          "gora-sig-klar": "🎒 Gjøre seg klar"
+        }
+      },
+      "main_challenge": {
+        "label": "Hva er vanskeligst akkurat nå?",
+        "options": {
+          "getting_started": "Å komme i gang",
+          "focus": "Å holde fokus",
+          "conflicts": "Konflikter",
+          "forgetting": "Å glemme steg",
+          "transitions": "Overganger"
+        }
+      },
+      "support_ui": {
+        "label": "Trenger barnet ekstra tydelig støtte?",
+        "options": {
+          "ja": "Ja",
+          "lite": "Litt",
+          "nej": "Nei"
+        }
+      },
+      "length_ui": {
+        "label": "Hvor mange steg vil du starte med?",
+        "options": {
+          "kort": "Kort (3–4)",
+          "normal": "Vanlig (5)",
+          "detaljerad": "Detaljert (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Noe viktig vi bør vite? (valgfritt)",
+        "placeholder": "f.eks. å pusse tenner er det vanskeligste"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "Rutinen er klar",
+      "handoff": "Åpne barnemodus sammen",
+      "child": "Barnet ser hva som skjer nå",
+      "done": "Ferdig!",
+      "star": "Første stjerne ⭐"
+    },
+    "mock": {
+      "parentView": "Foreldrevisning",
+      "dailyRoutine": "Rutinen i dag",
+      "dress": "Kle på deg",
+      "brushTeeth": "Pusse tenner",
+      "packBag": "Pakke vesken",
+      "tryChildMode": "👶 Prøv barnemodus",
+      "now": "Nå",
+      "markDone": "Merk ferdig ✓",
+      "wellDone": "Bra jobbet!"
+    },
+    "ctaReady": "Klar til å prøve?",
+    "ctaTryNow": "Prøv barnemodus nå",
+    "ctaLater": "Gjør det senere",
+    "loginTitle": "Åpne barnets visning",
+    "loginLead": "Planen er klar. Gi {{childName}} denne enheten, så barnet kan se rutinen sin.",
+    "usernameLabel": "Brukernavn",
+    "pinLabel": "PIN",
+    "loginHint": "Sett dere ned sammen — samme eller en annen enhet virker begge deler.",
+    "copyLogin": "📋 Kopier innloggingsdetaljer",
+    "copied": "✓ Kopiert!",
+    "openChildMode": "Åpne barnets visning",
+    "copyText": "{{childName}}\nÅpne barnets visning i appen.",
+    "previewTitle": "Forhåndsvisning — oppstartsfilm"
+  },
+  "firstStar": {
+    "title": "Gi den første stjernen",
+    "lead": "Tre raske steg — så er dere virkelig i gang.",
+    "steps": {
+      "login": "La barnet logge inn med PIN-koden sin",
+      "complete": "Merk en aktivitet som ferdig i barnevisningen",
+      "celebrate": "Feir stjernen sammen!"
+    },
+    "openChildLogin": "👶 Åpne barnelogin",
+    "continueAsParent": "Fortsett som forelder"
+  },
+  "activation": {
+    "finalStepLabel": "Siste steg",
+    "introTitle": "Hvordan vil du begynne?",
+    "introBody": "Du har satt opp barnets plan — en god start. Mange familier opplever at den største utfordringen ikke er å komme i gang, men å holde rutinen de første dagene når hverdagen tar over. Velg det som passer deg:",
+    "guidedBadge": "Anbefalt",
+    "guidedTitle": "Hold rutinen i gang den første uken",
+    "guidedBody": "Mange familier setter pris på litt støtte etter at planen er klar. Ikke fordi noe er galt, men fordi nye vaner trenger tid.",
+    "guidedBenefits": [
+      "Korte daglige påminnelser som hjelper deg å fortsette",
+      "Se når barnet fullfører oppgaver uten ekstra mas",
+      "Barnets plan er allerede satt — vi hjelper rutinen å virke",
+      "Stopp når du vil"
+    ],
+    "guidedCta": "Ja, hjelp oss den første uken",
+    "directTitle": "Kom i gang med en gang",
+    "directBody": "Du føler deg klar til å gå videre selv. Alt er på plass, og du kan starte med en gang.",
+    "directBenefits": [
+      "Rett til Hjem",
+      "Samme plan, stjerner og belønninger",
+      "Bruk appen i ditt eget tempo"
+    ],
+    "directCta": "Vi klarer oss selv",
+    "footnote": "Uansett hva du velger, kan du bruke appen fullt ut. Veiledet start gir bare litt ekstra støtte den første uken.",
+    "saveFailed": "Kunne ikke lagre valget"
+  },
+  "loading": {
+    "buildingSchedule": "Bygger planen din…",
+    "takesSeconds": "Tar bare noen sekunder!"
+  },
+  "templateGroups": {
+    "showActivities": "Vis aktiviteter",
+    "loadingActivities": "Laster...",
+    "activityCount": {
+      "one": "{{count}} aktivitet",
+      "other": "{{count}} aktiviteter"
+    },
+    "forskola": {
+      "name": "Barnehage",
+      "description": "Hel dag — barn 2–5 år"
+    },
+    "skola": {
+      "name": "Skole",
+      "description": "Hel dag — barn 6+ år"
+    },
+    "morgon": {
+      "name": "Morgen",
+      "description": "Morgenrutine"
+    },
+    "dag": {
+      "name": "Dag",
+      "description": "Aktiviteter på dagen"
+    },
+    "kvall": {
+      "name": "Kveld",
+      "description": "Kveldsrutine"
+    },
+    "helg": {
+      "name": "Helg",
+      "description": "Helgerutine"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Stå opp",
+        "Kle på deg",
+        "Frokost",
+        "Barnehage",
+        "Leke",
+        "Middag",
+        "Godnattfortelling"
+      ],
+      "skola": [
+        "Stå opp",
+        "Frokost",
+        "Pakke vesken",
+        "Skole",
+        "Lekser",
+        "Middag",
+        "Godnattfortelling"
+      ],
+      "morgon": [
+        "Stå opp",
+        "Kle på deg",
+        "Pusse tenner",
+        "Frokost",
+        "Pakke vesken"
+      ],
+      "dag": [
+        "Barnehage",
+        "Leke ute",
+        "Mellommåltid",
+        "Lunsj",
+        "Forming"
+      ],
+      "kvall": [
+        "Middag",
+        "Pusse tenner",
+        "Pyjamas",
+        "Godnattfortelling",
+        "Sove"
+      ],
+      "helg": [
+        "Stå opp",
+        "Frokost",
+        "Fri lek",
+        "Tur",
+        "Familieaktivitet",
+        "Middag"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Morgen",
+    "lateMorning": "Sen formiddag",
+    "afternoon": "Ettermiddag",
+    "evening": "Kveld"
+  },
+  "errors": {
+    "avatarUploadPath": "Profilbildet lastes opp via PUT /api/children/:id/avatar etter at barnet er opprettet",
+    "childNameRequired": "Barnets navn kreves",
+    "emojiRequired": "Velg en emoji for barnet",
+    "invalidBirthday": "Ugyldig bursdagsdato",
+    "birthdayFuture": "Bursdagen kan ikke ligge i fremtiden",
+    "invalidTemplate": "Ugyldig valg. Velg en gyldig plan.",
+    "noActivities": "Fant ingen aktiviteter for den valgte planen.",
+    "childIdRequired": "child_id er påkrevd",
+    "noChildAccess": "Du har ikke tilgang til dette barnet",
+    "weekendNotFound": "Fant ikke helgeplanen i biblioteket.",
+    "weekendEmpty": "Helgeplanen har ingen aktiviteter.",
+    "rewardNameRequired": "Belønningsnavn kreves",
+    "rewardCostMin": "Stjernekostnaden må være minst 1",
+    "rewardsFetchFailed": "Kunne ikke hente belønninger.",
+    "childCreateFailed": "Noe gikk galt da barnet skulle opprettes.",
+    "scheduleCreateFailed": "Noe gikk galt da planen skulle opprettes.",
+    "weekendCreateFailed": "Noe gikk galt da helgeplanen skulle opprettes.",
+    "rewardCreateFailed": "Noe gikk galt da belønningen skulle opprettes.",
+    "generic": "Noe gikk galt.",
+    "invalidViewType": "Ugyldig view_type. Velg dag eller tidslinje.",
+    "notAllowed": "Ikke tillatt",
+    "invalidChoice": "Ugyldig valg.",
+    "activityGuideSaveFailed": "Kunne ikke lagre aktivitetsvalget.",
+    "pinMustBe4": "PIN må være nøyaktig 4 sifre",
+    "pinTooWeak": "Velg en sterkere PIN",
+    "pinTaken": "Denne PIN-koden er allerede tatt for et barn med samme navn",
+    "pinUpdateFailed": "Kunne ikke oppdatere PIN.",
+    "handoffContextFailed": "Kunne ikke hente overleveringskontekst",
+    "templateGroupsFailed": "Kunne ikke hente plangrupper.",
+    "schedulePreviewFailed": "Kunne ikke hente planen.",
+    "viewSaveFailed": "Kunne ikke lagre visningsvalget.",
+    "activationNotEnabled": "Aktiveringsløpet er ikke slått på for familien din",
+    "starterSuggestFailed": "Kunne ikke velge mal",
+    "starterPreviewFailed": "Kunne ikke hente forhåndsvisning",
+    "starterPersonalizeFailed": "Kunne ikke tilpasse planen",
+    "scheduleNameRequired": "scheduleName er påkrevd",
+    "templateNotFound": "Fant ikke malen",
+    "enrollChoiceUnavailable": "Valgskjermen er ikke tilgjengelig"
+  },
+  "starterPlan": {
+    "firstSchedule": "Din første plan"
+  }
+}

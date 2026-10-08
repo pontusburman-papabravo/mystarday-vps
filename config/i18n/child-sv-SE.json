@@ -35,7 +35,10 @@
     "keypadBackspace": "Radera",
     "keypadAria": "Siffertavla",
     "pinDotsAria": "PIN-kod",
-    "lockoutSubMinutes": "Försök igen om {{minutes}} minut{{minuteSuffix}}",
+    "lockoutSubMinutes": {
+      "one": "Försök igen om {{count}} minut",
+      "other": "Försök igen om {{count}} minuter"
+    },
     "lockoutSubSeconds": "Bara {{seconds}} sekunder kvar!"
   },
   "sharedDevice": {
@@ -732,7 +735,15 @@
     "ariaMinutes": "Timer. {{count}} minuter kvar.",
     "ariaOneSecond": "Timer. 1 sekund kvar.",
     "ariaSeconds": "Timer. {{count}} sekunder kvar.",
-    "ariaMinutesAndSeconds": "Timer. {{minutes}} minut{{minutePlural}} och {{seconds}} sekund{{secondPlural}} kvar."
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} {{minuteWord}} och {{seconds}} {{secondWord}} kvar.",
+    "minuteUnit": {
+      "one": "minut",
+      "other": "minuter"
+    },
+    "secondUnit": {
+      "one": "sekund",
+      "other": "sekunder"
+    }
   },
   "helpBubble": {
     "title": "❓ Hjälp – Barnvyn",
@@ -906,5 +917,10 @@
   },
   "catalog": {
     "back": "Tillbaka"
+  },
+  "sessionGate": {
+    "title": "Logga in som barn för att se schemat",
+    "body": "Den här vyn kräver barnets PIN-kod.",
+    "cta": "Logga in som barn"
   }
 }

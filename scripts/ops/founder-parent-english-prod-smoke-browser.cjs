@@ -417,7 +417,7 @@ async function runBrowserSmoke() {
 
         scenarios.browser_sc3_child_separation = await runChildLocaleScenarioInFreshContext({
           ...localeScenarioBase,
-          expectedChildUiLocale: 'sv-SE',
+          expectedChildUiLocale: 'en-GB',
           expectedEnglishChildExperience: false,
           prepareServerState: (fid) => prepareSc3ServerState(vpsDb, fid),
           scenarioName: 'browser_sc3_child_separation',

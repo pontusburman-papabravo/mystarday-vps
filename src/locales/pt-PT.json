@@ -1,0 +1,1346 @@
+{
+  "app": {
+    "name": "{{brand}}",
+    "tagline": "Um dia calmo, uma estrela de cada vez"
+  },
+  "language": {
+    "label": "Idioma",
+    "sv-SE": "Svenska",
+    "en-GB": "English",
+    "switchAria": "Mudar de idioma",
+    "choice": {
+      "title": "Idioma",
+      "titleEn": "Idioma",
+      "description": "Podes mudar o idioma mais tarde nas Definições.",
+      "descriptionEn": "Podes mudar o idioma mais tarde nas Definições.",
+      "confirm": "Continuar",
+      "required": "Escolhe um idioma para continuar",
+      "childNote": "A vista da criança segue o idioma da família.",
+      "childNoteEn": "A vista da criança segue o idioma da família."
+    },
+    "offer": {
+      "title": "{{brand}} já está disponível em português",
+      "body": "{{brand}} também está disponível em português. A vista do adulto e a vista da criança seguem o idioma da família.",
+      "question": "Queres continuar em sueco ou experimentar português?",
+      "staySwedish": "Continuar em sueco",
+      "tryEnglish": "Experimentar português",
+      "remindLater": "Lembrar mais tarde"
+    },
+    "legacyNotice": {
+      "body": "As atividades já criadas ficam no idioma original. As atividades novas usam português.",
+      "dismiss": "Percebi",
+      "dismissAria": "Fechar o aviso de idioma"
+    },
+    "reportIssue": "Reportar um problema de idioma",
+    "feedback": {
+      "typeLabel": "Problema de idioma ou de tradução",
+      "typeLabelEn": "Problema de idioma ou de tradução",
+      "titlePlaceholder": "O que parece errado?",
+      "visibleText": "Que texto viste?",
+      "suggestion": "Como devia estar escrito? (opcional)"
+    }
+  },
+  "market": {
+    "choice": {
+      "title": "Onde vive a tua família?",
+      "description": "Usamos isto para os termos certos e a informação de privacidade. É independente da escolha de idioma.",
+      "label": "País",
+      "hint": "",
+      "required": "Escolhe um país para continuar",
+      "closedEu": "{{brand}} ainda não está disponível no teu país. Avisamos quando abrirmos mais mercados da UE.",
+      "closedIe": "{{brand}} ainda não está disponível na Irlanda.",
+      "closedCa": "{{brand}} ainda não está disponível no Canadá.",
+      "closedFi": "{{brand}} ainda não está disponível na Finlândia.",
+      "closedNo": "{{brand}} ainda não está disponível na Noruega.",
+      "closedDk": "{{brand}} ainda não está disponível na Dinamarca.",
+      "closedUk": "{{brand}} ainda não está disponível no Reino Unido.",
+      "closedUs": "{{brand}} ainda não está disponível nos Estados Unidos.",
+      "closedOther": "{{brand}} ainda não está disponível no teu país.",
+      "euGroup": "Outro país da UE/EEE"
+    }
+  },
+  "nav": {
+    "login": "Iniciar sessão",
+    "register": "Criar conta",
+    "childLogin": "Entrada da criança",
+    "dashboard": "Visão geral",
+    "logout": "Terminar sessão",
+    "admin": "Admin"
+  },
+  "auth": {
+    "meta": {
+      "ogTitle": "{{brand}} — Simplifica o dia a dia de toda a família",
+      "ogDescription": "Cria e segue horários, atividades e recompensas"
+    },
+    "login": {
+      "title": "Iniciar sessão",
+      "pageTitle": "Iniciar sessão — {{brand}}",
+      "tagline": "Brilhamos juntos",
+      "subtitle": "Bem-vindo de volta ao {{brand}}",
+      "email": "Endereço de e-mail",
+      "emailPlaceholder": "nome@email.com",
+      "password": "Palavra-passe",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Iniciar sessão",
+      "submitting": "A iniciar sessão…",
+      "forgotPassword": "Esqueceste-te da palavra-passe?",
+      "noAccount": "Ainda não tens conta?",
+      "createAccount": "Criar conta",
+      "childLogin": "És uma criança?",
+      "childLoginLink": "És uma criança? Entra aqui",
+      "loginAsAdult": "Iniciar sessão como adulto",
+      "orDivider": "ou",
+      "continueWithApple": "Continuar com a Apple",
+      "continueWithGoogle": "Continuar com o Google",
+      "apple_caption": "Disponível só em iOS",
+      "appleLoading": "Apple…",
+      "googleLoading": "Google…",
+      "fillEmailPassword": "Escreve o e-mail e a palavra-passe",
+      "genericError": "Algo correu mal. Tenta outra vez.",
+      "mascotAlt": "Mascote estrela",
+      "addChildBannerTitle": "👶 Inicia sessão como adulto para adicionares uma criança",
+      "addChildBannerBody": "«Sou uma criança» não chega aqui — é preciso um adulto ou um educador.",
+      "resetSuccessBannerTitle": "Palavra-passe guardada",
+      "resetSuccessBannerBody": "Inicia sessão com a palavra-passe nova.",
+      "backToChildPicker": "← Voltar à escolha da criança",
+      "linking": {
+        "emailExists": "Já existe uma conta com este endereço de e-mail.",
+        "promptApple": "Queres ligar a conta Apple à conta que já existe?",
+        "promptGoogle": "Queres ligar a conta Google à conta que já existe?",
+        "yes": "Sim, ligar",
+        "cancel": "Cancelar",
+        "modalTitleApple": "Ligar conta Apple",
+        "modalTitleGoogle": "Ligar conta Google",
+        "modalIntroApple": "Escreve a palavra-passe para iniciares sessão e depois ligares a conta Apple.",
+        "modalIntroGoogle": "Escreve a palavra-passe para iniciares sessão e depois ligares a conta Google.",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Palavra-passe",
+        "passwordPlaceholder": "A tua palavra-passe",
+        "submit": "Ligar",
+        "submitting": "A ligar…",
+        "enterPassword": "Escreve a palavra-passe.",
+        "wrongPassword": "Palavra-passe incorreta.",
+        "failed": "Não foi possível ligar."
+      },
+      "apple": {
+        "unavailable": "A entrada com a Apple não está disponível agora. Tenta outra vez ou entra com e-mail.",
+        "notEnabled": "A entrada com a Apple não está ativa. Atualiza a aplicação para a versão mais recente.",
+        "cancelled": "A entrada com a Apple foi cancelada.",
+        "incomplete": "A entrada com a Apple não terminou. Tenta outra vez ou entra com e-mail e palavra-passe.",
+        "rateLimited": "Demasiadas tentativas. Espera um momento e tenta outra vez.",
+        "genericError": "Algo correu mal na entrada com a Apple. Tenta outra vez ou entra com e-mail e palavra-passe.",
+        "failed": "A entrada com a Apple falhou. Tenta outra vez ou entra com e-mail e palavra-passe.",
+        "signInFailed": "A entrada com a Apple falhou.",
+        "completionTitle": "Acaba de criar a conta",
+        "completionBody": "Escolhe o país e aceita os termos. A Apple já deu o nome e o e-mail — não voltamos a pedi-los.",
+        "completionSubmit": "Continuar com a mesma conta Apple"
+      },
+      "google": {
+        "emailConflictSettings": "Já existe uma conta com este endereço de e-mail. Inicia sessão e liga o Google nas Definições, ou entra com palavra-passe.",
+        "loginFailed": "A entrada com o Google falhou.",
+        "signInFailed": "A entrada com o Google falhou."
+      },
+      "verify": {
+        "title": "Confirma o endereço de e-mail",
+        "body": "Tens de confirmar o endereço de e-mail para continuares a usar {{brand}}. Vê a caixa de entrada (e a pasta de lixo) à procura de um e-mail nosso.",
+        "emailLabel": "Endereço de e-mail:",
+        "resendBtn": "Enviar nova ligação de confirmação",
+        "resendSending": "A enviar…",
+        "resendSuccess": "✅ Nova ligação de confirmação enviada! Vê a caixa de entrada e a pasta de lixo.",
+        "resendError": "Algo correu mal. Tenta outra vez.",
+        "spamHint": "Vê também a pasta de lixo. A ligação vale 24 horas."
+      }
+    },
+    "entry": {
+      "back": "Voltar",
+      "backWithArrow": "← Voltar",
+      "welcome": {
+        "ariaLabel": "Boas-vindas",
+        "headline": "Um dia a dia mais calmo, com passos claros, horários e estrelas",
+        "lead": "{{brand}} ajuda crianças e famílias nas rotinas do dia, com horários visuais, passos claros e recompensas que tornam mais fácil atravessar o dia com mais autonomia.",
+        "chipVisualSchedules": "Horários visuais",
+        "chipStarsRewards": "Estrelas e recompensas",
+        "chipMultipleUsers": "Várias crianças e adultos",
+        "startBtn": "Começar",
+        "existingBtn": "Já tenho conta",
+        "howItWorksBtn": "Como funciona a aplicação",
+        "firstRunHeadline": "Bem-vindo ao {{brand}}",
+        "firstRunCreateAccount": "Criar conta",
+        "firstRunLogIn": "Iniciar sessão",
+        "firstRunChildLink": "Sou uma criança"
+      },
+      "role": {
+        "title": "Quem vai usar a aplicação agora?",
+        "kidAria": "Sou uma criança",
+        "kidLabel": "Sou uma criança",
+        "kidSub": "Quero ver o meu horário",
+        "kidAlt": "Criança",
+        "parentAria": "Sou um adulto",
+        "parentLabel": "Sou um adulto",
+        "parentSub": "Quero iniciar sessão ou começar",
+        "parentAlt": "Família"
+      },
+      "adultStart": {
+        "ariaLabel": "Início do adulto",
+        "title": "Bem-vindo! Como queres continuar?",
+        "existingLabel": "Já tenho conta",
+        "existingSub": "Entrar com Apple, Google ou e-mail",
+        "newLabel": "Sou novo aqui",
+        "newSub": "Ver como funciona a aplicação e criar uma conta gratuita"
+      },
+      "signupIntro": {
+        "ariaLabel": "Começar",
+        "title": "Começa com {{brand}}",
+        "sub": "Cria uma conta gratuita e monta o primeiro horário da criança, com passos claros, estrelas e objetivos.",
+        "point1": "Horários visuais que a criança percebe",
+        "point2": "Estrelas e recompensas que motivam",
+        "point3": "Várias crianças e adultos na mesma família",
+        "createBtn": "Criar uma conta gratuita",
+        "existingBtn": "Já tenho conta",
+        "founderNote": "O básico está incluído de graça, por agora."
+      },
+      "howItWorks": {
+        "title": "Como funciona a aplicação",
+        "step1Title": "1. A criança vê o horário passo a passo",
+        "step1Body": "As rotinas visuais tornam o dia a dia claro e previsível.",
+        "step2Title": "2. A criança ganha estrelas quando as atividades ficam feitas",
+        "step2Body": "Pequenas vitórias criam motivação e autonomia.",
+        "step3Title": "3. Os adultos acompanham o progresso e constroem rotinas juntos",
+        "step3Body": "Várias crianças e adultos podem partilhar a mesma família na aplicação.",
+        "close": "Fechar"
+      },
+      "noscript": "É preciso JavaScript — ativa o JavaScript para iniciares sessão."
+    },
+    "register": {
+      "title": "Criar conta",
+      "pageTitle": "Criar conta | {{brand}}",
+      "pageHeading": "Criar uma conta de adulto",
+      "pageLead": "Experimenta {{brand}} de graça. Um horário visual com apoio de imagens e recompensas em estrelas, que ajuda a criança a perceber o dia, seguir rotinas e ganhar autonomia.",
+      "pageLeadSecondary": "Para famílias que querem rotinas mais claras, transições mais calmas e menos insistência no dia a dia.",
+      "subtitle": "Começa com {{brand}}",
+      "nameLabel": "O teu nome",
+      "namePlaceholder": "p. ex. Ana",
+      "familyNameLabel": "Nome da família",
+      "familyNamePlaceholder": "p. ex. Família Silva",
+      "familyNameAuto": "Gerado a partir do teu nome",
+      "familyNameGenerated": "Gerado automaticamente — muda se quiseres",
+      "familyNameEdited": "Editado",
+      "email": "Endereço de e-mail",
+      "emailPlaceholder": "nome@email.com",
+      "emailHelp": "Enviamos uma ligação de confirmação para aqui",
+      "password": "Palavra-passe",
+      "passwordPlaceholder": "Pelo menos 8 caracteres",
+      "passwordHelp": "Tem de ter pelo menos 8 caracteres",
+      "confirmPassword": "Confirmar palavra-passe",
+      "confirmPasswordPlaceholder": "Repete a palavra-passe",
+      "submit": "Criar conta",
+      "hasAccount": "Já tens conta?",
+      "loginLink": "Entra aqui",
+      "childLoginLink": "És uma criança? Entra aqui",
+      "gateHintLanguage": "Escolhe um idioma em cima para continuares o registo.",
+      "gateHintCountry": "Escolhe o país em cima para continuares o registo.",
+      "appleFromLoginHint": "Ainda não há conta ligada a este ID Apple. Escolhe o país e aceita os termos — o nome e o e-mail vêm da Apple. Não é preciso outra entrada com a Apple.",
+      "appleOnlyPath": "Cria a conta com a Apple. O nome e o e-mail vêm da Apple — não preenchas o formulário.",
+      "tagline": "Um dia calmo, uma estrela de cada vez",
+      "orDivider": "ou",
+      "continueWithApple": "Criar conta com a Apple",
+      "continueWithGoogle": "Criar conta com o Google",
+      "validatingInvite": "A validar o convite...",
+      "inviteInvalid": "Ligação de convite inválida ou expirada. Contacta quem te convidou.",
+      "inviteValidateFailed": "Não foi possível validar a ligação de convite. Tenta outra vez.",
+      "familyNameSuffix": "{{name}}, família",
+      "termsRequired": "Tens de aceitar os termos de utilização e a política de privacidade",
+      "success": "Conta criada! Vê o e-mail para confirmares a conta.",
+      "termsPrefix": "Li e aceito os",
+      "termsLink": "Termos de utilização",
+      "termsAnd": "e a",
+      "privacyLink": "Política de privacidade",
+      "termsSuffix": ".",
+      "successTitle": "Conta criada! 🎉",
+      "successVerifyLine1": "Enviámos uma ligação de confirmação para o teu endereço de e-mail.",
+      "successVerifyLine2": "Vê a caixa de entrada (e a pasta de lixo).",
+      "successGracePeriod": "Podes iniciar sessão já e tens 24 horas para confirmar o e-mail.",
+      "successLoginBtn": "Iniciar sessão",
+      "inviteErrorDefault": "Ligação de convite inválida.",
+      "appleEmailExists": "Já existe uma conta com este endereço de e-mail. Entra com a Apple, ou usa e-mail e palavra-passe.",
+      "webDownload": {
+        "title": "Obter a aplicação",
+        "lead": "As famílias novas criam a conta na aplicação. Descarrega-a na App Store ou no Google Play.",
+        "appStoreAria": "Descarregar na App Store",
+        "playStoreAria": "Obter no Google Play",
+        "hasAccount": "Já tens conta?",
+        "loginLink": "Iniciar sessão"
+      }
+    },
+    "parentGate": {
+      "title": "Bloqueio do adulto",
+      "hint": "Introduz o PIN para continuar",
+      "keypadAria": "Teclado do PIN",
+      "cancel": "Cancelar",
+      "forgotPinBackup": "Esqueceste-te do PIN? Entra com e-mail ou Apple/Google",
+      "digitsEntered": "{{count}} de 4 dígitos",
+      "backspace": "Apagar",
+      "confirm": "Confirmar",
+      "needFourDigits": "O PIN tem de ter 4 dígitos"
+    },
+    "childLogin": {
+      "title": "Olá! 👋",
+      "pageTitle": "Explorador de estrelas — {{brand}}",
+      "whoAreYou": "Quem és?",
+      "selectProfile": "Escolhe o teu perfil e introduz o PIN.",
+      "back": "Voltar",
+      "addChild": "Adicionar uma criança",
+      "notMe": "Não me encontro",
+      "subtitle": "Escreve o nome de utilizador e o PIN",
+      "username": "Nome de utilizador",
+      "usernamePlaceholder": "O teu nome de utilizador",
+      "pin": "PIN",
+      "pinPlaceholder": "4 dígitos",
+      "submit": "Entrar",
+      "parentLogin": "És um adulto?",
+      "parentLoginLink": "Entra aqui",
+      "adultLogin": "Entrar como adulto",
+      "adultLoginShort": "Adulto",
+      "forgotPassword": "Esqueceste-te da palavra-passe?",
+      "emptyNoChildren": "Ainda não há crianças registadas.",
+      "nameHint": "Escreve o teu nome para entrares",
+      "namePlaceholder": "O teu nome",
+      "continue": "Continuar →",
+      "switchChild": "Mudar de criança",
+      "pinSub": "Introduz o teu código",
+      "attemptsLeft": "Tentativas que restam",
+      "pinDotsAria": "Código PIN",
+      "lockoutWait": "Espera um momento",
+      "lockoutSoon": "Podes tentar outra vez em breve",
+      "welcome": "Bem-vindo!",
+      "redirecting": "A levar-te para o teu painel…",
+      "keypadAria": "Teclado numérico",
+      "forgotPin": "Pede a um adulto se te esqueceste do código",
+      "needHelp": "Precisas de ajuda?",
+      "contactParent": "Contactar um adulto"
+    },
+    "verify": {
+      "title": "Confirmar o e-mail",
+      "pageTitle": "Confirmar e-mail — {{brand}}",
+      "checkingTitle": "A confirmar o e-mail",
+      "checkingBody": "Espera enquanto confirmamos o endereço de e-mail...",
+      "checking": "A verificar...",
+      "success": "O e-mail foi confirmado! Já podes iniciar sessão.",
+      "successTitle": "E-mail confirmado!",
+      "welcomeMessage": "O endereço de e-mail foi confirmado. Bem-vindo ao {{brand}}! 🎉",
+      "redirectCountdownPrefix": "A redirecionar em",
+      "redirectCountdownSuffix": "segundos...",
+      "error": "A ligação de confirmação é inválida ou expirou.",
+      "errorTitle": "A confirmação falhou",
+      "verifyFailed": "A confirmação falhou. A ligação pode ter expirado.",
+      "noToken": "Não encontrámos um token de confirmação na ligação.",
+      "genericError": "Algo correu mal. Tenta outra vez.",
+      "resendPrompt": "Escreve o endereço de e-mail para receberes uma ligação de confirmação nova:",
+      "resendBtn": "Enviar nova ligação",
+      "resendSending": "A enviar...",
+      "resendRateLimit": "Já pediste várias ligações. Tenta outra vez daqui a uma hora.",
+      "resendSuccess": "✅ Se a conta existir, enviámos uma ligação de confirmação nova. Vê a caixa de entrada e a pasta de lixo!",
+      "resendEmailInvalid": "Escreve um endereço de e-mail válido.",
+      "needHelpPrefix": "Precisas de ajuda? Vê a pasta de lixo ou",
+      "contactUs": "contacta-nos",
+      "loginLink": "Ir para iniciar sessão"
+    },
+    "forgotPassword": {
+      "title": "Palavra-passe esquecida",
+      "pageTitle": "Palavra-passe esquecida — {{brand}}",
+      "heading": "Esqueceste-te da palavra-passe?",
+      "lead": "Não faz mal! Enviamos uma ligação para redefinires a palavra-passe.",
+      "subtitle": "Escreve o endereço de e-mail e enviamos uma ligação de redefinição",
+      "email": "Endereço de e-mail",
+      "emailPlaceholder": "nome@email.com",
+      "emailHint": "Enviamos uma ligação segura para redefinires a palavra-passe",
+      "submit": "Enviar ligação de redefinição",
+      "sent": "Se esse endereço de e-mail estiver no sistema, enviámos uma ligação de redefinição.",
+      "successTitle": "Vê o teu e-mail!",
+      "successBody": "Enviámos uma ligação para redefinires a palavra-passe. Vê a caixa de entrada e a pasta de lixo.",
+      "orDivider": "ou",
+      "rememberPassword": "Lembras-te da palavra-passe?",
+      "backToLogin": "Voltar a iniciar sessão",
+      "helpTitle": "Não recebeste o e-mail?",
+      "helpItem1": "Vê a pasta de lixo ou de correio não solicitado",
+      "helpItem2": "Confirma que escreveste o endereço de e-mail certo",
+      "helpItem3": "Tenta outra vez daqui a uns minutos",
+      "helpItem4Suffix": "se precisares de ajuda",
+      "contactSupport": "Contactar o apoio"
+    },
+    "resetPassword": {
+      "title": "Redefinir palavra-passe",
+      "pageTitle": "Redefinir palavra-passe — {{brand}}",
+      "subtitle": "Escolhe uma palavra-passe nova",
+      "password": "Palavra-passe nova",
+      "passwordPlaceholder": "Pelo menos 8 caracteres",
+      "passwordHelp": "Tem de ter pelo menos 8 caracteres",
+      "confirmPassword": "Confirmar palavra-passe",
+      "confirmPasswordPlaceholder": "Repete a palavra-passe",
+      "submit": "Redefinir palavra-passe",
+      "submitting": "A guardar…",
+      "success": "A palavra-passe foi alterada! Já podes iniciar sessão.",
+      "successRedirect": "Feito! A palavra-passe nova está guardada.",
+      "alreadyUsed": "A palavra-passe já tinha sido alterada. Entra com a palavra-passe nova.",
+      "error": "A ligação de redefinição é inválida ou expirou.",
+      "invalidLink": "Ligação de redefinição inválida.",
+      "requestNewLink": "Pedir uma ligação de redefinição nova",
+      "requestNewLinkShort": "Pedir uma ligação nova",
+      "resetFailed": "Não foi possível redefinir a palavra-passe",
+      "rememberPassword": "Lembras-te da palavra-passe?",
+      "goToLoginInline": "Ir para iniciar sessão",
+      "loginLink": "Ir para iniciar sessão"
+    },
+    "supportBubble": {
+      "closeAria": "Fechar",
+      "triggerAria": "Contactar o apoio",
+      "title": "Precisas de ajuda? 💬",
+      "subtitle": "Respondemos assim que pudermos",
+      "oooSubtitle": "Estamos fora de 1 a 10 de setembro",
+      "success": "Obrigado! Recebemos a tua mensagem e respondemos em breve.",
+      "oooSuccess": "Obrigado! Recebemos a tua mensagem. Estamos fora de 1 a 10 de setembro e respondemos assim que pudermos, o mais tardar a 11 de setembro.",
+      "openThread": "Abrir a tua conversa",
+      "nameLabel": "Nome",
+      "namePlaceholder": "O teu nome",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "nome@example.com",
+      "emailHint": "Para podermos responder-te",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Descreve o que se passa...",
+      "submit": "Enviar mensagem",
+      "fillAllFields": "Preenche todos os campos",
+      "messageMinLength": "A mensagem tem de ter pelo menos 10 caracteres",
+      "submitting": "A enviar...",
+      "sendFailed": "Não foi possível enviar a mensagem. Tenta outra vez.",
+      "genericError": "Algo correu mal"
+    },
+    "contactForm": {
+      "fillRequired": "Todos os campos são obrigatórios.",
+      "emailInvalid": "Escreve um endereço de e-mail válido.",
+      "messageTooShort": "A mensagem é demasiado curta (pelo menos 5 caracteres).",
+      "submitting": "A enviar…",
+      "submit": "Enviar",
+      "genericError": "Algo correu mal. Tenta outra vez.",
+      "openThread": "Abrir a tua conversa"
+    },
+    "api": {
+      "errors": {
+        "emailAndPasswordRequired": "O e-mail e a palavra-passe são obrigatórios",
+        "emailRequired": "O endereço de e-mail é obrigatório",
+        "accountBlocked": "A conta foi bloqueada. Contacta o administrador.",
+        "emailVerificationRequired": "Tens de confirmar o endereço de e-mail para continuar",
+        "verificationTokenRequired": "O token de confirmação é obrigatório",
+        "invalidVerificationLink": "Ligação de confirmação inválida ou expirada",
+        "resendVerificationRateLimit": "Já pediste várias ligações de confirmação. Tenta outra vez daqui a uma hora.",
+        "tokenAndPasswordRequired": "O token e a palavra-passe são obrigatórios",
+        "invalidResetLink": "Ligação de redefinição inválida ou expirada. Pede uma ligação nova.",
+        "parentOnlyViewMode": "Só os adultos podem atualizar o modo de vista",
+        "parentOnlyUiViewMode": "Só os adultos podem atualizar o modo de vista da interface",
+        "parentOnlyTheme": "Só os adultos podem atualizar o tema",
+        "preferencesSaveFailed": "Não foi possível guardar as definições",
+        "uiViewModeSaveFailed": "Não foi possível guardar o modo de vista",
+        "themeSaveFailed": "Não foi possível guardar o tema",
+        "userNotFound": "Utilizador não encontrado",
+        "unknownUserType": "Tipo de utilizador desconhecido",
+        "registrationClosed": "O registo está fechado por agora",
+        "invalidCountry": "País inválido",
+        "countryRequired": "Escolhe o país antes de criares a conta",
+        "registrationRequired": "SUBSTITUÍDO — usa appleAccountCompletionRequired. Não redireciones para o registo com e-mail e palavra-passe.",
+        "appleAccountCompletionRequired": "Escolhe o país e aceita os termos para acabares de criar a conta. O nome e o e-mail vêm da Apple.",
+        "familyNameRequired": "O nome é obrigatório para criar uma conta de família",
+        "marketClosed": {
+          "MARKET_SE_CLOSED": "O registo a partir da Suécia está temporariamente fechado.",
+          "MARKET_IE_CLOSED": "{{brand}} ainda não está disponível na Irlanda.",
+          "MARKET_CA_CLOSED": "{{brand}} ainda não está disponível no Canadá.",
+          "MARKET_FI_CLOSED": "{{brand}} ainda não está disponível na Finlândia.",
+          "MARKET_NO_CLOSED": "{{brand}} ainda não está disponível na Noruega.",
+          "MARKET_DK_CLOSED": "{{brand}} ainda não está disponível na Dinamarca.",
+          "MARKET_EU_CLOSED": "{{brand}} ainda não está disponível no teu país. Avisamos quando abrirmos mais países da UE.",
+          "MARKET_UK_CLOSED": "{{brand}} ainda não está disponível no Reino Unido.",
+          "MARKET_US_CLOSED": "{{brand}} ainda não está disponível nos Estados Unidos.",
+          "MARKET_OTHER_CLOSED": "{{brand}} ainda não está disponível no teu país.",
+          "MARKET_BILLING_NOT_READY": "As compras ainda não estão disponíveis neste país, por isso não podemos criar uma conta que não conseguirias usar."
+        }
+      },
+      "success": {
+        "emailVerified": "O endereço de e-mail foi confirmado! Já podes iniciar sessão.",
+        "resendVerification": "Se a conta existir, será enviada uma ligação de confirmação nova",
+        "forgotPassword": "Se o endereço de e-mail existir, enviamos uma ligação"
+      }
+    },
+    "errors": {
+      "nameRequired": "Escreve o teu nome",
+      "emailRequired": "O endereço de e-mail é obrigatório",
+      "emailInvalid": "Endereço de e-mail inválido",
+      "passwordRequired": "A palavra-passe é obrigatória",
+      "passwordTooShort": "A palavra-passe tem de ter pelo menos 8 caracteres",
+      "passwordMismatch": "As palavras-passe não coincidem",
+      "usernameRequired": "O nome de utilizador é obrigatório",
+      "pinRequired": "O PIN é obrigatório",
+      "pinInvalid": "O PIN tem de ter 4 dígitos",
+      "invalidCredentials": "E-mail ou palavra-passe incorretos",
+      "accountLocked": "A conta está temporariamente bloqueada. Tenta outra vez daqui a 15 minutos.",
+      "emailNotVerified": "Primeiro tens de confirmar o endereço de e-mail",
+      "emailExists": "Já existe uma conta com esse endereço de e-mail",
+      "tooManyAttempts": "Demasiadas tentativas. Espera um momento e tenta outra vez.",
+      "serverError": "Algo correu mal. Tenta outra vez mais tarde.",
+      "invalidValues": "Valores inválidos",
+      "invalidParams": "Parâmetros de URL inválidos",
+      "invalidQuery": "Parâmetros de consulta inválidos",
+      "parentPinInvalid": "PIN errado — tenta outra vez",
+      "logoutFailed": "Não foi possível terminar a sessão. Tenta outra vez.",
+      "logoutRateLimited": "Demasiadas tentativas. Espera um momento e tenta outra vez.",
+      "handoffInvalid": "Não foi possível restaurar a sessão do adulto. Inicia sessão como adulto.",
+      "userNotFound": "Utilizador não encontrado",
+      "invalidPassword": "Palavra-passe incorreta",
+      "tokenRequired": "O token é obrigatório",
+      "idTokenRequired": "O idToken é obrigatório",
+      "allFieldsRequired": "Todos os campos são obrigatórios",
+      "messageTooShort": "A mensagem tem de ter pelo menos 10 caracteres",
+      "serviceUnavailable": "O serviço está temporariamente indisponível",
+      "nameTooShort": "O nome é obrigatório (pelo menos 2 caracteres)",
+      "roleRequired": "A função é obrigatória",
+      "consentRequired": "Tens de autorizar que guardemos os teus dados",
+      "refreshInvalid": "O token de atualização é inválido ou expirou",
+      "authRequired": "É preciso autenticação",
+      "passwordTooShort6": "A palavra-passe tem de ter pelo menos 6 caracteres"
+    }
+  },
+  "surveys": {
+    "thankYou": "Obrigado pela resposta!",
+    "errors": {
+      "unavailable": "O inquérito não está disponível agora",
+      "notFound": "Inquérito não encontrado",
+      "closed": "O inquérito está fechado",
+      "paused": "O inquérito está em pausa",
+      "alreadyAnswered": "Já respondeste a este inquérito",
+      "alreadySubmitted": "O inquérito já foi enviado",
+      "questionIdRequired": "A pergunta é obrigatória",
+      "invalidQuestion": "Pergunta inválida",
+      "maxSelections": "Podes escolher no máximo {{max}}",
+      "invalidOption": "Opção de resposta inválida",
+      "sessionNotFound": "Sessão não encontrada",
+      "answerFirst": "Responde primeiro ao inquérito",
+      "contestNotOpen": "O sorteio não está aberto",
+      "contestClosed": "O sorteio está fechado",
+      "ageRequired": "Tens de ter 18 anos ou mais para participar",
+      "contestConsent": "É preciso consentimento para participar no sorteio",
+      "contestAlready": "Já estás inscrito no sorteio",
+      "emailAlready": "Este endereço já está inscrito",
+      "idActionRequired": "O inquérito e a ação são obrigatórios"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo, {{name}}!",
+    "todaySchedule": "Horário de hoje",
+    "children": "Crianças",
+    "addChild": "Adicionar criança",
+    "settings": "Definições",
+    "noChildren": "Ainda não adicionaste nenhuma criança. Começa pela primeira!",
+    "stars": "Estrelas",
+    "streak": "Sequência"
+  },
+  "child": {
+    "firstStarStarter": {
+      "name": "A minha primeira estrela"
+    }
+  },
+  "childDashboard": {
+    "welcome": "Olá, {{name}}! ⭐",
+    "today": "Hoje",
+    "now": "Agora",
+    "next": "A seguir",
+    "later": "Mais tarde",
+    "done": "Feito!",
+    "stars": "As minhas estrelas",
+    "rewards": "Recompensas"
+  },
+  "sections": {
+    "morgon": "Manhã",
+    "dag": "Dia",
+    "kvall": "Tarde",
+    "natt": "Noite"
+  },
+  "settings": {
+    "title": "Definições",
+    "family": {
+      "title": "Definições da família",
+      "timeDisplayMode": "Modo de mostrar a hora",
+      "morningStart": "Início da manhã",
+      "morningEnd": "Fim da manhã",
+      "dayStart": "Início do dia",
+      "dayEnd": "Fim do dia",
+      "eveningStart": "Início da tarde",
+      "eveningEnd": "Fim da tarde",
+      "nightStart": "Início da noite",
+      "nightEnd": "Fim da noite",
+      "streakStartDay": "Dia de início da sequência",
+      "soundEnabled": "Som ligado",
+      "save": "Guardar definições da família"
+    },
+    "language": {
+      "description": "Escolhe o idioma da aplicação.",
+      "switchBack": "Voltar ao sueco"
+    },
+    "invite": {
+      "title": "Convidar um adulto",
+      "description": "Convida outro adulto a ver e gerir os horários das crianças. O convite vale 7 dias.",
+      "email": "Endereço de e-mail",
+      "emailPlaceholder": "adulto@email.com",
+      "selectChildren": "Escolhe a que crianças o adulto convidado pode aceder:",
+      "submit": "Enviar convite",
+      "pending": "Convites pendentes:"
+    },
+    "password": {
+      "title": "Mudar a palavra-passe",
+      "current": "Palavra-passe atual",
+      "new": "Palavra-passe nova",
+      "confirm": "Confirmar a palavra-passe nova",
+      "submit": "Mudar a palavra-passe",
+      "mismatch": "As palavras-passe não coincidem"
+    },
+    "notifications": {
+      "title": "Definições de notificações",
+      "weeklySummary": "Resumo semanal (domingo 21:00)",
+      "rewardRedemption": "Troca de recompensa",
+      "emailEnabled": "Todos os e-mails",
+      "save": "Guardar definições de notificações"
+    },
+    "theme": {
+      "title": "Aparência",
+      "darkMode": "Modo escuro",
+      "darkModeDescription": "Ativa o tema escuro para ser mais confortável com pouca luz",
+      "colorBlind": "Tema para daltonismo",
+      "colorBlindDescription": "Ajusta as cores a diferentes tipos de daltonismo",
+      "colorBlindNone": "Nenhum (predefinição)",
+      "colorBlindProtanopia": "Protanopia (dificuldade com o vermelho)",
+      "colorBlindDeuteranopia": "Deuteranopia (dificuldade com o verde)",
+      "colorBlindTritanopia": "Tritanopia (dificuldade com o azul)"
+    },
+    "trustedDevices": {
+      "title": "Dispositivos de confiança",
+      "description": "Os dispositivos da criança podem abrir a vista da criança sem PIN depois de aprovares o dispositivo aqui.",
+      "disabled": "O modo de dispositivo da criança ainda não está ativo na tua família.",
+      "enrollHint": "No tablet ou telemóvel da criança: escolhe a criança e torna este dispositivo o dispositivo dela.",
+      "enrollThisDevice": "Tornar dispositivo da criança",
+      "enrollSharedDevice": "Tornar dispositivo partilhado da família",
+      "enrollFailed": "Não foi possível registar este dispositivo. Tenta outra vez.",
+      "empty": "Não há dispositivos de confiança registados.",
+      "revoke": "Revogar",
+      "revokeAll": "Revogar todos os dispositivos",
+      "revokeAllConfirm": "Todos os dispositivos de confiança vão terminar sessão. Continuar?",
+      "modeChild": "Dispositivo da criança",
+      "modeShared": "Dispositivo partilhado",
+      "modeParent": "Dispositivo do adulto",
+      "unknownChild": "Criança"
+    },
+    "thisDevice": {
+      "title": "Este dispositivo",
+      "description": "Como este telemóvel ou tablet deve abrir a aplicação para a tua família.",
+      "setupTitle": "Como vai ser usado este dispositivo?",
+      "setupLead": "Podes mudar isto mais tarde nas Definições.",
+      "setupLater": "Agora não",
+      "openSettings": "Abrir definições",
+      "usageHeading": "Uso",
+      "usageParent": "O meu telemóvel de adulto",
+      "usageShared": "Partilhado com as crianças",
+      "usageChild": "Dispositivo da criança",
+      "startHeading": "Começa como",
+      "startParent": "Adulto",
+      "startChoose": "Escolher criança",
+      "startParentFixed": "Este dispositivo abre sempre a vista do adulto.",
+      "startChildFixed": "Este dispositivo está ligado a uma criança.",
+      "childrenHeading": "Crianças neste dispositivo",
+      "adultAccessHeading": "Acesso do adulto",
+      "adultPinSet": "O PIN está definido",
+      "adultPinMissing": "Define um PIN nas Definições",
+      "biometricIos": "Face ID ou Touch ID, quando estiver disponível",
+      "biometricAndroid": "Biometria ou bloqueio do dispositivo, quando estiver disponível",
+      "biometricWeb": "PIN para o modo de adulto",
+      "widgetsHeading": "Widgets",
+      "widgetsLinked": "Os widgets do ecrã principal estão ligados ao horário da criança.",
+      "widgetsNone": "Não há widgets ligados neste dispositivo.",
+      "changeStartHeading": "Mudar o modo de início",
+      "revokeThis": "Remover o acesso deste dispositivo",
+      "revokeConfirm": "Este dispositivo tem de ser aprovado outra vez para as crianças abrirem a aplicação sem PIN. Continuar?",
+      "otherDevices": "Outros dispositivos da família",
+      "openForChild": "Abrir diretamente para {{name}}",
+      "saveFailed": "Não foi possível guardar. Tenta outra vez."
+    }
+  },
+  "common": {
+    "loading": "A carregar...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Voltar",
+    "confirm": "Confirmar",
+    "yes": "Sim",
+    "no": "Não",
+    "networkError": "Erro de rede"
+  },
+  "categories": {
+    "title": "Categorias",
+    "subtitle": "Organiza as atividades em categorias",
+    "addCategory": "Adicionar categoria",
+    "editCategory": "Editar categoria",
+    "categoryName": "Nome da categoria",
+    "categoryNamePlaceholder": "p. ex. Higiene",
+    "noCategories": "Ainda não há categorias",
+    "defaultBadge": "Predefinição",
+    "deleteConfirm": "Tens a certeza de que queres eliminar esta categoria?",
+    "hasActivities": "Esta categoria tem atividades ligadas. Remove primeiro as atividades.",
+    "saved": "Categoria guardada",
+    "deleted": "Categoria eliminada"
+  },
+  "activities": {
+    "title": "Atividades",
+    "subtitle": "Cria e gere modelos de atividades para a tua família",
+    "addActivity": "Adicionar atividade",
+    "editActivity": "Editar atividade",
+    "activityName": "Nome da atividade",
+    "activityNamePlaceholder": "p. ex. Lavar os dentes",
+    "icon": "Ícone",
+    "category": "Categoria",
+    "noCategory": "Sem categoria",
+    "starValue": "Valor em estrelas",
+    "starValueHelp": "Quantas estrelas a criança ganha",
+    "favorite": "Marcar como favorito",
+    "favoriteHelp": "Os favoritos aparecem primeiro no horário",
+    "noActivities": "Ainda não há atividades. Cria a primeira!",
+    "filterAll": "Todas",
+    "favoritesFirst": "Favoritos mostrados primeiro",
+    "saved": "Atividade guardada",
+    "deleted": "Atividade eliminada",
+    "deleteConfirm": "Tens a certeza de que queres eliminar esta atividade?",
+    "usedInSchedule": "Esta atividade está num horário. Remove-a de lá primeiro."
+  },
+  "schedule": {
+    "title": "Horário semanal",
+    "subtitle": "Monta horários para cada criança e cada dia",
+    "selectChild": "Escolher criança",
+    "selectDay": "Escolher dia",
+    "noChild": "Escolhe uma criança em cima para veres o horário",
+    "noScheduleForDay": "Não há horário para este dia",
+    "createSchedule": "Criar horário para este dia",
+    "addActivity": "Adicionar atividade",
+    "startTime": "Hora de início",
+    "endTime": "Hora de fim",
+    "section": "Secção",
+    "copyDay": "Copiar dia",
+    "copyDayTitle": "Copiar o horário para outros dias",
+    "copyFromDay": "Copiar de",
+    "copyToDays": "Copiar para (escolhe um ou mais)",
+    "copyToChild": "Copiar para outra criança",
+    "copyToChildTitle": "Copiar o horário semanal completo para",
+    "copyConfirm": "Copiar",
+    "copied": "Horário copiado!",
+    "deleteSchedule": "Eliminar dia",
+    "deleteConfirm": "Tens a certeza? Todas as atividades deste dia vão ser removidas.",
+    "deleted": "Horário eliminado",
+    "activityAdded": "Atividade adicionada",
+    "activityRemoved": "Atividade removida",
+    "reordered": "Ordem atualizada",
+    "days": {
+      "0": "Domingo",
+      "1": "Segunda-feira",
+      "2": "Terça-feira",
+      "3": "Quarta-feira",
+      "4": "Quinta-feira",
+      "5": "Sexta-feira",
+      "6": "Sábado"
+    },
+    "daysShort": {
+      "0": "Dom",
+      "1": "Seg",
+      "2": "Ter",
+      "3": "Qua",
+      "4": "Qui",
+      "5": "Sex",
+      "6": "Sáb"
+    },
+    "sections": {
+      "morgon": "Manhã",
+      "dag": "Dia",
+      "kvall": "Tarde",
+      "natt": "Noite"
+    }
+  },
+  "dailyLog": {
+    "title": "Registo do dia",
+    "subtitle": "Atividades do dia",
+    "today": "Hoje",
+    "prevDay": "Dia anterior",
+    "nextDay": "Dia seguinte",
+    "selectDate": "Escolher data",
+    "selectChild": "Escolher criança",
+    "noChild": "Escolhe uma criança em cima para veres o registo",
+    "noSchedule": "Não há horário para este dia",
+    "noScheduleHint": "Adiciona um horário semanal para criar registos diários automáticos.",
+    "loading": "A carregar o registo...",
+    "paused": "Dia em pausa",
+    "pausedHint": "Este dia está em pausa (p. ex. doença ou folga).",
+    "pauseDay": "Pôr o dia em pausa",
+    "unpauseDay": "Retomar o dia",
+    "pauseConfirm": "Pôr este dia em pausa? As atividades não contam contra ti.",
+    "dayPaused": "Dia em pausa",
+    "dayUnpaused": "Dia retomado",
+    "markDone": "Marcar como feita",
+    "markUndone": "Desfazer",
+    "completed": "Feita",
+    "notCompleted": "Por fazer",
+    "completedAt": "Marcada como feita às",
+    "stars": "estrelas",
+    "star": "estrela",
+    "progress": "{{completed}} de {{total}} atividades feitas",
+    "allDone": "Todas as atividades feitas! 🎉",
+    "emptySection": "Não há atividades nesta secção",
+    "history": "Histórico",
+    "historyRange": "Escolher intervalo de datas",
+    "historyFrom": "De",
+    "historyTo": "Até",
+    "historyFetch": "Ver histórico",
+    "historyEmpty": "Não há registos no intervalo escolhido",
+    "sections": {
+      "morgon": "Manhã",
+      "dag": "Dia",
+      "kvall": "Tarde",
+      "natt": "Noite"
+    },
+    "sectionTimes": {
+      "morgon": "{{start}}–{{end}}",
+      "dag": "{{start}}–{{end}}",
+      "kvall": "{{start}}–{{end}}",
+      "natt": "{{start}}–{{end}}"
+    }
+  },
+  "email": {
+    "verify": {
+      "subject": "Confirma o e-mail — {{brand}}",
+      "title": "Bem-vindo ao {{brand}}! ⭐",
+      "body": "Toca no botão abaixo para confirmares o endereço de e-mail:",
+      "button": "Confirmar e-mail",
+      "expiry": "Esta ligação vale {{hours}} horas."
+    },
+    "resetPassword": {
+      "subject": "Redefinir palavra-passe — {{brand}}",
+      "title": "Redefine a palavra-passe",
+      "greeting": "Olá, {{name}}",
+      "greetingGeneric": "Olá",
+      "body": "toca aqui para definires uma palavra-passe nova:",
+      "button": "Redefinir palavra-passe",
+      "expiry": "Esta ligação vale {{hours}} hora. Ignora este e-mail se não pediste a redefinição."
+    },
+    "pinWarning": {
+      "subject": "⚠️ {{childName}} está a tentar entrar",
+      "title": "Tentativa de entrada no {{brand}}",
+      "body": "{{childName}} introduziu o PIN errado 3 vezes no {{brand}}.",
+      "inApp": "{{childName}} tentou entrar com o PIN errado 3 vezes ({{time}})",
+      "help": "Podes ajudar com o código certo ou redefinir o PIN na aplicação.",
+      "button": "Abrir {{brand}}",
+      "footer": "Se não foi a tua criança, inicia sessão e muda o PIN nas definições da criança."
+    },
+    "accountDeletionRequested": {
+      "subject": "A tua conta {{brand}} foi marcada para eliminação",
+      "greeting": "Olá, {{name}}!",
+      "intro": "Recebemos um pedido para eliminar a tua conta e todos os dados associados.",
+      "graceTitle": "⏳ Os teus dados vão ser eliminados de forma permanente dentro de 30 dias.",
+      "undo": "Durante este período podes iniciar sessão e <strong>cancelar a eliminação</strong> se mudares de ideias.",
+      "loginHint": "Se mudares de ideias — inicia sessão no {{brand}} e vês uma opção para cancelar.",
+      "footer": "Se isto foi um engano, podes ignorar este e-mail. Os dados são eliminados dentro de 30 dias, a menos que canceles.",
+      "contact": "Se tiveres perguntas, contacta-nos em {{supportEmail}}"
+    },
+    "accountDeleted": {
+      "subject": "A tua conta {{brand}} foi eliminada",
+      "greeting": "Olá, {{name}}",
+      "intro": "A tua conta e todos os dados associados foram eliminados de forma permanente do {{brand}}.",
+      "dataRemoved": "Todas as famílias, crianças, horários, atividades e estrelas foram removidos.",
+      "thanks": "Esperamos que {{brand}} tenha sido útil enquanto o usaste.",
+      "return": "Se quiseres criar uma conta nova, és bem-vindo quando quiseres em {{brandUrl}}"
+    },
+    "childHandoff": {
+      "subject": "Deixa a criança experimentar o primeiro passo ⭐",
+      "greeting": "Olá, {{name}}!",
+      "body": "O horário está pronto. A seguir, deixa a criança iniciar sessão com o PIN — leva menos de um minuto.",
+      "button": "Continuar para a entrada da criança"
+    },
+    "welcomeShell": {
+      "headerTitle": "Bem-vindo! 🌟",
+      "cta": "Abrir {{brand}} ⭐",
+      "footerIntro": "Recebes este e-mail porque te inscreveste no {{brand}}.",
+      "unsubscribe": "Cancelar a subscrição"
+    },
+    "common": {
+      "genericParent": "Adulto",
+      "genericInviter": "Alguém",
+      "genericPedagogInviter": "Um adulto",
+      "genericChild": "a criança",
+      "genericReward": "a recompensa",
+      "genericYou": "tu",
+      "greetingNamed": "Olá, {{name}}",
+      "greeting": "Olá",
+      "familyNamed": "a família «{{familyName}}»",
+      "aFamily": "uma família",
+      "settingsNotifications": "Definições → Notificações",
+      "settingsNotificationsHtml": "Definições → <strong>Notificações</strong>"
+    },
+    "invite": {
+      "subject": "Estás convidado para {{familyLabel}} no {{brand}} ⭐",
+      "title": "Foste convidado! ⭐",
+      "body": "{{greeting}}, {{inviterName}} convidou-te para {{familyLabel}} no {{brand}}.",
+      "intro": "{{brand}} é um horário visual do dia que ajuda as crianças a perceber o dia, marcar atividades e juntar estrelas.",
+      "ctaIntro": "Toca aqui para criares a palavra-passe e ativares a conta:",
+      "button": "Ativar conta",
+      "footer": "Este convite vale 7 dias. Ignora este e-mail se não esperavas um convite."
+    },
+    "pedagogInvite": {
+      "subject": "Estás convidado como educador em {{familyName}} ⭐",
+      "title": "Bem-vindo como educador! ⭐",
+      "greetingNamed": "Olá, {{name}},",
+      "greeting": "Olá,",
+      "body": "{{inviterName}} convidou-te como educador em {{familyName}} no {{brand}}.",
+      "intro": "Como educador podes registar observações e acompanhar o horário da criança.",
+      "button": "Aceitar convite →",
+      "footer": "Este convite vale 7 dias. Se não esperavas este e-mail, podes ignorá-lo."
+    },
+    "winBack": {
+      "subject": "Volta ao ritmo num minuto ⭐",
+      "greeting": "Olá, {{name}}! 👋",
+      "body1": "{{childName}}, o horário ainda está aqui — abre as atividades de hoje e marquem-nas juntos.",
+      "body2": "Leva só um minuto a retomar.",
+      "button": "Abrir o horário →",
+      "settingsHint": "Podes desligar estes e-mails em {{settingsLink}} na aplicação.",
+      "settingsLinkText": "Definições → Notificações"
+    },
+    "activationProgramInvite": {
+      "subject": "Um começo suave para as rotinas de {{childName}}?",
+      "greeting": "Olá, {{name}}!",
+      "body1": "Criaste a conta e montaste o horário de {{childName}}. Muito bem.",
+      "body2": "Muitas famílias dizem que o mais difícil não é começar, mas <strong>manter a rotina</strong> quando o dia a dia toma conta.",
+      "body3": "Podes agora experimentar o nosso <strong>programa de 7 dias para começar</strong>: passos curtos todos os dias que te ajudam, como adulto, a manter o ritmo. O horário da criança fica na mesma.",
+      "button": "Sim, ajudem-nos na primeira semana",
+      "footer": "Se não quiseres o guia, a aplicação funciona como sempre — tudo o que montaste continua aqui."
+    },
+    "activationNudge": {
+      "withSchema": {
+        "subject": "A rotina está à espera — experimentem-na juntos hoje à noite ⭐",
+        "greeting": "Olá, {{name}}!",
+        "body1": "Já tens um horário. Falta <strong>experimentar a rotina juntos</strong> — deixa a criança iniciar sessão e juntar a primeira estrela.",
+        "body2": "Leva cerca de dois minutos. Sem pressão.",
+        "button": "Abrir o Início →"
+      },
+      "noSchema": {
+        "subject": "Começa a rotina — só uns minutos ⭐",
+        "greeting": "Olá, {{name}}!",
+        "body1": "Criaste a conta — bom começo! O passo seguinte é <strong>montar o horário</strong> para a criança saber o que esperar em cada dia.",
+        "body2": "Leva cerca de cinco minutos. Tudo o que já fizeste continua aqui se quiseres continuar mais tarde.",
+        "button": "Continuar os primeiros passos →"
+      }
+    },
+    "newsletterConfirm": {
+      "subject": "Estás inscrito nas newsletters do {{brand}}",
+      "title": "Obrigado por te inscreveres! ⭐",
+      "greetingNamed": "Olá, {{name}},",
+      "greeting": "Olá,",
+      "body": "Estás agora inscrito nas newsletters do {{brand}} com dicas, novidades e atualizações da aplicação.",
+      "settings": "Podes cancelar a inscrição quando quiseres em <a href=\"{{settingsUrl}}\">Definições</a> na aplicação, ou pela ligação no fundo de cada newsletter.",
+      "signoff": "Cumprimentos,<br>{{brand}}"
+    },
+    "rewardRedemption": {
+      "subject": "{{childName}} quer trocar «{{rewardName}}» ⭐",
+      "title": "Recompensa à espera de aprovação! 🎁",
+      "greeting": "Olá, {{name}}!",
+      "wantsToRedeem": "{{childEmoji}} <strong>{{childName}}</strong> quer trocar:",
+      "cost": "Custo: {{starCost}} estrelas",
+      "approveHint": "Inicia sessão na aplicação para aprovares ou recusares a troca.",
+      "settingsHint": "Podes desligar estas notificações em {{settingsLink}}."
+    },
+    "trialWelcome": {
+      "headerBrand": "{{brand}}",
+      "perMonth": "mês",
+      "howTitle": "Como funciona:",
+      "how1": "Cria horários e atividades para a criança",
+      "how2": "Deixa a criança juntar estrelas todos os dias",
+      "how3": "Monta recompensas no cofre das estrelas",
+      "footerIntro": "Recebes este e-mail porque te inscreveste no {{brand}}.",
+      "openApp": "Abrir a aplicação",
+      "trial": {
+        "subject": "Bem-vindo ao {{brand}} – o período gratuito começou!",
+        "headerTitle": "O período gratuito começou! ⭐",
+        "intro": "Bem-vindo! Tens agora <strong>{{trialDays}} dias grátis</strong> para experimentar todas as funções do {{brand}} — sem cartão.",
+        "pricing": "Depois de {{trialDays}} dias custa <strong>{{monthlyPrice}}</strong> — podes mudar quando quiseres.",
+        "pricingOpen": "Depois de {{trialDays}} dias escolhes se queres continuar com uma subscrição.",
+        "cta": "Experimentar Premium ⭐",
+        "ctaHint": "Sem compromisso — cancela quando quiseres"
+      },
+      "complimentary": {
+        "subject": "Bem-vindo ao {{brand}} – grátis até {{freeUntil}}",
+        "headerTitle": "Grátis até {{freeUntil}}",
+        "intro": "Bem-vindo! <strong>{{brand}} é grátis até {{freeUntil}}.</strong> Não é precisa subscrição nem método de pagamento. Esta oferta não passa sozinha a uma subscrição paga.",
+        "pricing": "A partir de {{paidFrom}} podes escolher se queres continuar com uma subscrição. Nada é cobrado automaticamente por causa desta oferta.",
+        "cta": "Abrir a aplicação",
+        "ctaHint": "Sem cartão. Esta oferta não passa sozinha a uma subscrição."
+      },
+      "introYear": {
+        "subject": "Bem-vindo ao {{brand}}",
+        "headerTitle": "Bem-vindo! ⭐",
+        "intro": "Bem-vindo! Podes usar as funções do {{brand}}.",
+        "pricing": "Não é preciso pagamento neste período.",
+        "cta": "Abrir a aplicação",
+        "ctaHint": "Podes ver o Premium quando quiseres"
+      }
+    },
+    "weeklySummary": {
+      "subject": "Resumo semanal ⭐ — {{weekLabel}}",
+      "greeting": "Olá, {{name}}! 👋",
+      "intro": "Aqui está o resumo semanal de <strong>{{weekLabel}}</strong>.",
+      "highlight": "{{childEmoji}} {{childName}} juntou {{stars}} estrelas esta semana!",
+      "sharePrompt": "Conheces outro adulto que gostasse disto?",
+      "shareWhatsApp": "Partilhar no WhatsApp",
+      "shareFriend": "Contar a um amigo",
+      "shareTextWithHighlight": "{{highlight}} Usamos {{brand}} nas rotinas das crianças – vê aqui:",
+      "shareTextGeneric": "Usamos {{brand}} nas rotinas diárias das crianças – vê aqui:",
+      "starsEarned": "Estrelas ganhas",
+      "routinesCompleted": "Rotinas concluídas",
+      "routinesOf": "{{completed}} de {{total}} ({{pct}}%)",
+      "moodAverage": "Humor (média)",
+      "moodVeryHappy": "Muito contente 😄 ({{score}}/10)",
+      "moodHappy": "Contente 🙂 ({{score}}/10)",
+      "moodNeutral": "Neutro 😐 ({{score}}/10)",
+      "moodSad": "Triste 😔 ({{score}}/10)",
+      "encourageNoActivity": "Vem aí uma semana nova — experimentem marcar uma rotina juntos, leva só um momento.",
+      "encourageProgress": "🌟 Continuem assim! Cada rotina concluída constrói hábitos para a vida.",
+      "encourageSmallSteps": "🌟 Os passos pequenos contam — experimentem marcar uma rotina juntos esta semana.",
+      "genericChildName": "A criança"
+    },
+    "notificationFooter": {
+      "settingsLink": "Definições → Notificações",
+      "optOutDefault": "Desligar esta notificação",
+      "optOutWeeklySummary": "Desligar o resumo semanal"
+    }
+  },
+  "activationProgram": {
+    "days": {
+      "1": {
+        "title": "Dia 1 — olhem juntos",
+        "body": "É assim que {{childName}} vê o horário — vejam juntos.",
+        "ctaLabel": "Mostrar a vista da criança"
+      },
+      "2": {
+        "title": "Dia 2 — vista da manhã",
+        "body": "Abre o painel em algum momento de hoje — leva só 30 segundos.",
+        "ctaLabel": "Abrir o horário"
+      },
+      "3": {
+        "title": "Dia 3 — festejar uma estrela",
+        "body": "Já {{childName}} ganhou uma estrela? Festejem juntos!",
+        "ctaLabel": "Ver o horário de hoje",
+        "supportiveFallback": "A primeira semana é para arrancar — chega espreitar e ver que o horário está pronto."
+      },
+      "4": {
+        "title": "Dia 4 — a tua aplicação",
+        "body": "Algo parece fora do sítio? Troca uma atividade se for preciso.",
+        "ctaLabel": "Editar o horário"
+      },
+      "5": {
+        "title": "Dia 5 — recompensa",
+        "body": "Vê o cofre das estrelas — com o que é que {{childName}} sonha?",
+        "ctaLabel": "Abrir o cofre das estrelas"
+      },
+      "6": {
+        "title": "Dia 6 — partilhar a responsabilidade",
+        "body": "Queres partilhar a responsabilidade com alguém?",
+        "ctaLabel": "Convidar alguém",
+        "soloLabel": "Faço isto por minha conta!"
+      },
+      "7": {
+        "title": "Uma semana! 🎉",
+        "body": "Parabéns! Como correu a semana?",
+        "ctaLabel": "Responder à pergunta"
+      }
+    }
+  },
+  "push": {
+    "scheduleReminder": {
+      "title": "Está na hora de «{{activityName}}» dentro de {{minutes}} minutos! ⭐",
+      "body": "Lembrete para {{childName}}"
+    },
+    "retentionReengagement": {
+      "day3Title": "Mantém a rotina 💫",
+      "day3Body": "Já passaram uns dias — abre o horário e dá as estrelas de hoje.",
+      "day7Title": "Uma semana desde a última visita",
+      "day7Body": "O horário da criança está à espera. Uma vista rápida chega.",
+      "day14Title": "Temos saudades tuas na aplicação",
+      "day14Body": "Duas semanas sem atividade — entra e mantém a rotina viva."
+    },
+    "inactivityNudge": {
+      "title": "{{childName}} ainda não entrou hoje",
+      "body": "Vê o horário e ajuda a preencher o dia!"
+    },
+    "starMilestone": {
+      "title": "{{childName}} juntou {{milestone}} estrelas! 🌟",
+      "bodyCongrats": "{{emoji}} Parabéns a {{childName}}!",
+      "body100": "Mesmo incrível! Há desafios novos à espera!"
+    },
+    "backfillReminder": {
+      "title": "O horário de ontem de {{childName}} falta",
+      "body": "Preenche o dia de ontem para ficar tudo em dia!"
+    },
+    "custodyMorning": {
+      "title": "Hoje: {{childName}} está contigo",
+      "body": "O horário do dia está à espera na aplicação."
+    },
+    "custodyHandoff": {
+      "titlePrefix": "Entrega amanhã — {{childName}}",
+      "titleAtHome": "{{titlePrefix}} em {{homeLabel}}",
+      "bodyPack": "🎒 Preparar a mala está no horário de amanhã.",
+      "bodyPrepare": "Lembra-te de preparar a entrega semanal."
+    },
+    "activityComplete": {
+      "title": "⭐ {{childName}}",
+      "bodySingle": "concluiu {{activityName}}!",
+      "bodyBatch": "concluiu {{count}} atividades!"
+    },
+    "starGranted": {
+      "title": "🌟 {{starCount}} estrelas para {{childName}}!",
+      "body": "{{parentName}} deu a {{childName}} {{starCount}} {{starLabel}}!"
+    },
+    "starLabelOne": "estrela",
+    "starLabelMany": "estrelas",
+    "rewardRequest": {
+      "title": "🎁 {{childName}} quer trocar uma recompensa!",
+      "body": "{{childName}} pede: {{rewardName}}"
+    },
+    "activationProgram": {
+      "title": "{{brand}}",
+      "day2Body": "Bom dia! O horário de {{childName}}: 30 s 🌅",
+      "day3Body": "Já {{childName}} ganhou uma estrela hoje? Festejem juntos ⭐",
+      "day4Body": "Algo parece fora do sítio? Troca uma atividade ✏️",
+      "day5Body": "Vê o cofre das estrelas — com o que é que {{childName}} sonha? 🎁",
+      "day6Body": "Queres partilhar a responsabilidade com alguém? 👥",
+      "day7Body": "Parabéns! Como correu a semana?"
+    }
+  },
+  "parent": {
+    "api": {
+      "errors": {
+        "goals": {
+          "generic": "Algo correu mal.",
+          "rewardIdRequired": "reward_id é obrigatório",
+          "childNotFound": "Criança não encontrada",
+          "rewardNotFound": "Recompensa não encontrada",
+          "requestNotFound": "Pedido não encontrado",
+          "pendingOnlyApprove": "Só podes aprovar um pedido pendente",
+          "pendingOnlyDeny": "Só podes recusar um pedido pendente",
+          "childIdRequired": "child_id é obrigatório",
+          "reasonRequired": "O motivo é obrigatório",
+          "starCountRange": "O número de estrelas tem de ser entre 1 e 100"
+        },
+        "forDig": {
+          "childAndGoalRequired": "child_id e goal_slug são obrigatórios",
+          "childAccessDenied": "Não tens acesso a uma das crianças escolhidas.",
+          "dismissFailed": "Não foi possível fechar a pergunta"
+        }
+      },
+      "success": {
+        "goalSet": "Objetivo definido!"
+      }
+    }
+  },
+  "api": {
+    "feedbackAck": "Obrigado pelo feedback! Lemos tudo o que chega.",
+    "contactAck": "Obrigado! Recebemos a tua mensagem.",
+    "export": {
+      "noData": "Sem dados",
+      "rateLimit": "Só podes exportar os dados uma vez a cada 24 horas. Tenta outra vez dentro de {{hours}} horas.",
+      "notFound": "Utilizador não encontrado"
+    },
+    "account": {
+      "deletionPending": "A conta foi marcada para eliminação. Tens 30 dias para mudares de ideias.",
+      "alreadyPending": "A conta já está marcada para eliminação."
+    }
+  },
+  "paywall": {
+    "title": "{{brand}} Premium",
+    "subtitle": "Acesso completo para toda a família",
+    "benefit1": "Todas as rotinas e horários",
+    "benefit2": "Estrelas e as funções da tua família",
+    "benefit3": "Todos os teus dados ficam contigo",
+    "webNoticeTitle": "Ativa o Premium na aplicação",
+    "webNoticeBody": "O Premium compra-se na App Store ou no Google Play — não na web.",
+    "webNoticeBodyAppleOnly": "O Premium compra-se na App Store — não na web. Android em breve.",
+    "downloadIphone": "Descarregar para iPhone",
+    "downloadAndroid": "Descarregar para Android",
+    "androidComingSoon": "Android em breve",
+    "loadingPrices": "A carregar preços…",
+    "continue": "Continuar",
+    "restore": "Restaurar compras",
+    "yearlyBadge": "Recomendado",
+    "yearlyPrice": "{{price}}/ano",
+    "yearlySavings": "Poupa em relação ao pagamento mensal",
+    "yearlyTermsKnownTrial": "{{trialDays}}-dias grátis · depois {{price}}/ano · renova automaticamente",
+    "yearlyTermsConditionalTrial": "14 dias grátis para novos subscritores elegíveis · depois {{price}}/ano · renova automaticamente",
+    "yearlyTermsNoTrial": "{{price}}/ano · renova automaticamente",
+    "monthlyPrice": "{{price}}/mês",
+    "monthlyBlurb": "Subscrição mensal flexível para a tua família.",
+    "monthlyTermsKnownTrial": "{{trialDays}}-dias grátis · depois {{price}}/mês · renova automaticamente",
+    "monthlyTermsConditionalTrial": "14 dias grátis para novos subscritores elegíveis · depois {{price}}/mês · renova automaticamente",
+    "monthlyTermsNoTrial": "{{price}}/mês · renova automaticamente",
+    "autoRenewApple": "A subscrição renova automaticamente, a menos que a canceles. O pagamento é tratado pela App Store. Podes gerir ou cancelar a subscrição na conta Apple.",
+    "autoRenewGoogle": "A subscrição renova automaticamente, a menos que a canceles. O pagamento é tratado pelo Google Play. Podes gerir ou cancelar a subscrição na conta Google.",
+    "termsLink": "Termos",
+    "privacyLink": "Privacidade",
+    "legal": "Podes cancelar um período gratuito antes da cobrança, segundo as regras da App Store ou do Google Play. Gere ou cancela nas definições de subscrição da loja.",
+    "legalAppleOnly": "Podes cancelar um período gratuito antes da cobrança. Gere ou cancela nas definições de subscrição da App Store.",
+    "legalGoogleOnly": "Podes cancelar um período gratuito antes da cobrança. Gere ou cancela nas definições de subscrição do Google Play.",
+    "giftCard": "Tenho um cartão-presente",
+    "giftCodeLabel": "Código de presente",
+    "giftRedeem": "Resgatar cartão-presente",
+    "limitedAccount": "Continuar com conta limitada",
+    "statusOpening": "A abrir o pagamento…",
+    "statusRestoring": "A restaurar compras…",
+    "statusSuccess": "O Premium está ativo! Bem-vindo de volta.",
+    "statusCancelled": "Compra cancelada.",
+    "statusFailed": "A compra falhou. Tenta outra vez.",
+    "statusUnavailable": "Não é possível carregar as subscrições agora. Tenta outra vez.",
+    "statusAndroidComingSoon": "O Premium no Android chega em breve.",
+    "statusNotNative": "As compras não estão disponíveis aqui. Usa a aplicação.",
+    "restoreSuccess": "Compras restauradas! Bem-vindo de volta.",
+    "restoreNone": "Não encontrámos compras ativas para restaurar.",
+    "giftSuccess": "Cartão-presente resgatado!",
+    "giftFailed": "Não foi possível resgatar o código.",
+    "launchEnded": "O acesso de lançamento terminou. Subscreve na aplicação para manteres o acesso completo."
+  },
+  "support": {
+    "receipt": {
+      "greetingFallback": "olá",
+      "subject": "A tua conversa de apoio",
+      "text": "Olá, {{name}}!\n\nRecebemos a tua mensagem. Segue a conversa e responde aqui (uma resposta normal por e-mail não nos chega):\n{{url}}\n\nCumprimentos,\n{{fromName}}",
+      "htmlHi": "Olá, {{name}}!",
+      "htmlReceived": "Recebemos a tua mensagem.",
+      "openLink": "Abrir a tua conversa",
+      "htmlHint": "para seguires a conversa e responderes. Uma resposta normal por e-mail não nos chega.",
+      "htmlBye": "Cumprimentos"
+    },
+    "reply": {
+      "subjectBug": "Re: O teu relatório de erro",
+      "subjectFeedback": "Re: O teu feedback",
+      "subjectLanguage": "Re: O teu relatório de idioma",
+      "subjectContact": "Re: A tua mensagem",
+      "text": "Olá, {{name}}!\n\n{{reply}}\n\nLê a conversa completa e responde aqui (uma resposta normal por e-mail não nos chega):\n{{url}}\n\n---\nA tua mensagem original:\n{{original}}\n\nCumprimentos,\n{{fromName}}",
+      "htmlHi": "Olá, {{name}}!",
+      "openLink": "Abrir a conversa",
+      "htmlHint": "para leres a conversa completa e responderes. Uma resposta normal por e-mail não nos chega.",
+      "originalLabel": "A tua mensagem original:",
+      "htmlBye": "Cumprimentos"
+    },
+    "page": {
+      "title": "A tua conversa",
+      "intro": "Esta é a conversa completa. Escreve abaixo se quiseres continuar. Uma resposta normal por e-mail não aparece aqui.",
+      "you": "Tu",
+      "us": "Nós",
+      "empty": "Ainda não há mensagens.",
+      "label": "Escreve-nos",
+      "placeholder": "Conta-nos o que se passa…",
+      "submit": "Enviar",
+      "submitting": "A enviar…",
+      "needHuman": "Preciso de mais ajuda de uma pessoa",
+      "escalating": "A enviar…",
+      "caseRef": "Caso {{ref}}",
+      "status": {
+        "new": "Recebido",
+        "read": "Lido",
+        "in_progress": "Em curso",
+        "answered": "Respondido",
+        "archived": "Fechado"
+      }
+    },
+    "errors": {
+      "invalid": "Esta ligação é inválida. Pede-nos uma resposta nova.",
+      "expired": "Esta ligação expirou. Pede-nos uma nova.",
+      "revoked": "Esta ligação já não funciona. Pede-nos uma nova.",
+      "archived": "Este caso está fechado. Contacta-nos outra vez se precisares de mais ajuda.",
+      "legacySunset": "Esta ligação é demasiado antiga. Contacta-nos e enviamos uma nova.",
+      "tooShort": "Escreve pelo menos 10 caracteres para percebermos o que se passa.",
+      "tooLong": "A resposta pode ter no máximo 5000 caracteres.",
+      "notFound": "O caso não foi encontrado.",
+      "rateLimit": "Demasiadas tentativas. Tenta outra vez daqui a uma hora.",
+      "generic": "Não foi possível abrir o caso.",
+      "sendFailed": "Não foi possível enviar. Tenta novamente."
+    },
+    "success": {
+      "submitted": "Obrigado! Recebemos a tua resposta.",
+      "escalated": "Obrigado. Uma pessoa vai ver este caso."
+    }
+  },
+  "story": {
+    "someone": "Alguém",
+    "anActivity": "uma atividade",
+    "activityWithStars": "{{name}} concluiu {{activity}} (+{{stars}} ⭐)",
+    "activity": "{{name}} concluiu {{activity}}",
+    "goalFallback": "objetivo",
+    "goal": "A família chegou ao objetivo: {{title}} 🎉"
+  },
+  "cookie": {
+    "ariaLabel": "Definições de cookies",
+    "intro": "Usamos cookies para estatísticas, marketing e personalização no nosso site.",
+    "manage": "Gerir definições",
+    "manageHide": "Ocultar definições",
+    "deny": "Rejeitar tudo",
+    "accept": "Aceitar tudo",
+    "save": "Guardar as minhas escolhas",
+    "necessaryLabel": "Necessários",
+    "necessaryDesc": "São precisos para o site funcionar.",
+    "analyticsLabel": "Estatísticas",
+    "analyticsDesc": "Ajudam-nos a perceber como o site é usado (GA4).",
+    "marketingLabel": "Marketing",
+    "marketingDesc": "Mostra anúncios relevantes e mede campanhas.",
+    "personalizationLabel": "Personalização",
+    "personalizationDesc": "Adapta conteúdos e recomendações."
+  },
+  "growthHelp": {
+    "reportProblem": "Comunicar um problema",
+    "suggestedHelp": "Ajuda sugerida",
+    "reportThanks": "Obrigado — recebemos o teu relatório com os detalhes técnicos.",
+    "howChildStarts": "Como é que a criança começa?",
+    "needHelpLogin": "Precisas de ajuda para iniciar sessão?"
+  },
+  "growthFeedback": {
+    "commentPlaceholder": "Comentário curto opcional (enviado com a tua resposta)",
+    "notNow": "Agora não",
+    "thanks": "Obrigado pelo feedback."
+  },
+  "growthReferral": {
+    "title": "Conhecem outra família que precise de manhãs mais calmas?",
+    "subtitle": "Partilhem a vossa ligação pessoal — sem spam de prémios, só uma dica.",
+    "copyLink": "Copiar ligação",
+    "copied": "Copiado",
+    "copyPrompt": "Copia esta ligação:",
+    "share": "Partilhar",
+    "shareText": "Usamos {{brand}} para as rotinas das crianças. Cria uma conta grátis: ",
+    "notNow": "Agora não"
+  },
+  "legalReturn": {
+    "backToPremium": "Voltar ao Premium"
+  },
+  "packageInterest": {
+    "fallbackTitle": "Pacote",
+    "dismiss": "Agora não",
+    "interested": "Tenho interesse",
+    "interestedSub": "Registar interesse no que vem a seguir",
+    "buyNow": "Comprar agora",
+    "reporting": {
+      "title": "Relatórios",
+      "body": "Registaste atividades durante duas semanas — queres ver como o dia a dia evolui?"
+    },
+    "pedagog": {
+      "title": "Profissional",
+      "body": "Queres colaborar com um profissional ou terapeuta no dia a dia da criança?"
+    },
+    "teacch": {
+      "title": "Apoio extra",
+      "body": "Adiciona apoio visual com as sete perguntas — ajuda a criança a perceber o que está a acontecer."
+    }
+  }
+}

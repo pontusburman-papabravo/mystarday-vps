@@ -219,9 +219,11 @@ async function getByPublicId(publicId) {
       psl.label,
       psl.anonymous,
       c.name  AS child_name,
-      c.emoji AS child_emoji
+      c.emoji AS child_emoji,
+      f.preferred_locale AS preferred_locale
     FROM professional_share_link psl
     JOIN child c ON c.id = psl.child_id
+    JOIN family f ON f.id = c.family_id
     WHERE psl.public_id = $1
       AND psl.revoked_at IS NULL
       AND psl.expires_at > NOW()

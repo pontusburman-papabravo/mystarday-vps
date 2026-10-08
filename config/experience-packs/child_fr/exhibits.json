@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Un moment de fierté — un pas après l’autre, pas un mur de trophées"
+    },
+    "remembered_gift": {
+      "description": "Une récompense comme un souvenir chaleureux — pas une boutique"
+    },
+    "warm_echo": {
+      "description": "Des progrès en douceur, sans pression ni série"
+    }
+  }
+}

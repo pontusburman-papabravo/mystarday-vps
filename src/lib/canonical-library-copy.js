@@ -1,5 +1,6 @@
 'use strict';
 
+const { normalizeLocale, usesCanonicalLibrary } = require('./locale');
 const { loadAndValidateStandardLibraryManifest } = require('./standard-library-manifest');
 const { shouldCopySevenQuestions } = require('./standard-library-copy');
 const { normalizeSection } = require('./merge-schedule-section');
@@ -21,10 +22,12 @@ class CanonicalCopyError extends Error {
 
 function pickLocaleString(nameI18n, locale, fallback = '') {
   if (!nameI18n || typeof nameI18n !== 'object') return fallback;
-  if (locale === 'en-GB' || locale === 'en') {
-    return nameI18n['en-GB'] || nameI18n.sv || fallback;
-  }
-  return nameI18n.sv || nameI18n['en-GB'] || fallback;
+  const raw = locale == null ? '' : String(locale).trim();
+  const tag = normalizeLocale(raw);
+  if (tag && nameI18n[tag]) return nameI18n[tag];
+  if (raw && nameI18n[raw]) return nameI18n[raw];
+  if (!tag || usesCanonicalLibrary(tag)) return nameI18n.sv || nameI18n['en-GB'] || fallback;
+  return nameI18n['en-GB'] || nameI18n.sv || fallback;
 }
 
 function parseVariantsJson(raw) {

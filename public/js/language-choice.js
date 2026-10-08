@@ -38,12 +38,21 @@
     }
   }
 
+  function choiceLocales() {
+    const i18n = window.I18n;
+    if (i18n && typeof i18n.firstRunLocales === 'function') {
+      const list = i18n.firstRunLocales();
+      if (list && list.length) return list;
+    }
+    return [];
+  }
+
   function displayedLocale() {
     try {
       const i18n = window.I18n;
       if (!localeBundleReady() || typeof i18n.getCurrentLang !== 'function') return null;
       const lang = i18n.getCurrentLang();
-      if (lang === 'sv-SE' || lang === 'en-GB') return lang;
+      if (choiceLocales().some((locale) => locale.id === lang)) return lang;
     } catch (_) { /* ignore */ }
     return null;
   }
@@ -73,15 +82,28 @@
 
   function acceptDisplayedLocale() {
     const locale = displayedLocale() || suggestedLocale();
-    if (locale === 'sv-SE' || locale === 'en-GB') {
+    if (choiceLocales().some((entry) => entry.id === locale)) {
       markConfirmed(locale);
     }
     return locale;
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function buildHtml(selected) {
-    const svActive = selected === 'sv-SE' ? ' language-choice__btn--selected' : '';
-    const enActive = selected === 'en-GB' ? ' language-choice__btn--selected' : '';
+    const buttons = choiceLocales().map((locale) => {
+      const active = selected === locale.id ? ' language-choice__btn--selected' : '';
+      return `
+          <button type="button" class="language-choice__btn${active}" data-locale-choice="${escapeHtml(locale.id)}">
+            <span class="language-choice__label">${escapeHtml(locale.nativeName)}</span>
+          </button>`;
+    }).join('');
     return `
       <section class="language-choice" role="group" aria-labelledby="languageChoiceHeading">
         <h2 id="languageChoiceHeading" class="language-choice__title">
@@ -90,13 +112,7 @@
         <p class="language-choice__desc" data-i18n="language.choice.description">
           Du kan ändra språk senare i Inställningar.
         </p>
-        <div class="language-choice__buttons">
-          <button type="button" class="language-choice__btn${svActive}" data-locale-choice="sv-SE">
-            <span class="language-choice__label">Svenska</span>
-          </button>
-          <button type="button" class="language-choice__btn${enActive}" data-locale-choice="en-GB">
-            <span class="language-choice__label">English</span>
-          </button>
+        <div class="language-choice__buttons">${buttons}
         </div>
         <p class="language-choice__child-note" data-i18n="language.choice.childNote" hidden></p>
         <p class="language-choice__error" data-language-choice-error hidden role="alert"></p>
@@ -113,7 +129,7 @@
       .language-choice__desc { font-size: 0.8125rem; color: #5A6178; margin-bottom: 0.75rem; }
       .language-choice__buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
       .language-choice__btn {
-        min-width: 8.5rem; min-height: 44px; padding: 0.75rem 1rem; border-radius: 12px;
+        flex: 1 1 8.5rem; max-width: 100%; min-width: 0; min-height: 44px; padding: 0.75rem 1rem; border-radius: 12px;
         border: 2px solid #EDE7F6; background: #fff; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
         display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
       }
@@ -138,7 +154,12 @@
     const errorEl = container.querySelector('[data-language-choice-error]');
     let selected = selectedLocale;
 
-    if (selected === 'en-GB' && childNote) childNote.hidden = false;
+    function childPackGated(localeId) {
+      const entry = choiceLocales().find((locale) => locale.id === localeId);
+      return Boolean(entry && entry.experiencePackRequiresFlag);
+    }
+
+    if (childPackGated(selected) && childNote) childNote.hidden = false;
 
     if (!sessionStorage.getItem(VIEWED_SESSION_KEY)) {
       track('language_choice_viewed', { suggested_locale: suggestedLocale(), route: location.pathname });
@@ -146,7 +167,7 @@
       track('language_selected', {
         locale: selectedLocale,
         selection_source: 'displayed_locale',
-        beta_shown: selectedLocale === 'en-GB',
+        beta_shown: childPackGated(selectedLocale),
       });
     }
 
@@ -160,12 +181,12 @@
         markConfirmed(locale);
         await window.I18n.load(locale);
         window.I18n.apply(document);
-        if (childNote) childNote.hidden = locale !== 'en-GB';
+        if (childNote) childNote.hidden = !childPackGated(locale);
         if (errorEl) errorEl.hidden = true;
         track('language_selected', {
           locale,
           selection_source: 'active_choice',
-          beta_shown: locale === 'en-GB',
+          beta_shown: childPackGated(locale),
         });
         document.dispatchEvent(new CustomEvent('language-choice-confirmed', { detail: { locale } }));
       });

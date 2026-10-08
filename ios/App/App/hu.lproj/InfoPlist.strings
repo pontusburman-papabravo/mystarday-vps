@@ -1,0 +1,4 @@
+/* App Store + system permission strings (hu) */
+"CFBundleDisplayName" = "Min Stjärndag"; // pragma: allowlist secret
+"NSCameraUsageDescription" = "[REDACTED] a kamerát használja, hogy profilképet készíthess a gyerekedről az appban. A kép a családi fiókon marad, és csak a családotok látja."; // pragma: allowlist secret
+"NSPhotoLibraryUsageDescription" = "[REDACTED] hozzáférést kér a fotóidhoz, hogy egy meglévő képet válassz a gyereked profilképének. Például egy nyári fotót, ami aztán avatarként jelenik meg a napirendben."; // pragma: allowlist secret

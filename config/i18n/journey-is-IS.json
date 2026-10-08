@@ -1,0 +1,74 @@
+{
+  "coach": {
+    "showTips": "Sýna ráð",
+    "close": "Loka",
+    "milestone": "Áfangi",
+    "nextStep": "Næsta skref",
+    "tip": "Ráð",
+    "weekReflection": "Vikuleg íhugun",
+    "weekTogether": "Vika saman",
+    "weekLabel": "Ein vika",
+    "sjDay3Headline": "Tími fyrir {{name}} að prófa",
+    "tips": {
+      "coach_consistency": [
+        "Haltu rútínunni stuttri og skýrri — barnið byggir venjuna skref fyrir skref.",
+        "Fagnaðu hverju haki, líka þeim litlu.",
+        "Láttu barnið skrá sig inn sjálft á hverjum morgni."
+      ],
+      "coach_evening": [
+        "Bættu við 2–3 rólegum athöfnum fyrir svefn.",
+        "Sama röð á hverju kvöldi gerir það auðveldara að sofna."
+      ]
+    }
+  },
+  "coachChange": {
+    "badgeNew": "Nýtt",
+    "dismissAria": "Loka skýringu",
+    "continueFallback": "Halda áfram",
+    "releases": {
+      "coach_primary_v1": {
+        "userVisibleIntent": "Við sýnum nú skýra tillögu að næsta skrefi hér á Heim.",
+        "whatChanged": "Spjaldinu „Næsta skref“ hefur verið bætt við efst.",
+        "whyItMatters": "Þú þarft ekki að leita í áminningum — ein tillaga í einu."
+      }
+    }
+  },
+  "engineVoice": {
+    "SHOW_CHILD": {
+      "headline": "Láttu barnið prófa rútínuna sína",
+      "body": "Opnið barnasýnina saman — það sér strax hvað á að gera.",
+      "cta": "Opna barnasýn"
+    },
+    "ADD_EVENING": {
+      "headline": "Bæta við kvöldrútínu",
+      "body": "Gerðu háttatímann jafn skýran og morguninn.",
+      "cta": "Bæta við kvöldi"
+    },
+    "INVITE_CO_PARENT": {
+      "headline": "Bjóða hinu foreldrinu",
+      "body": "Deildu rútínunni svo þið getið fylgst með saman.",
+      "cta": "Bjóða"
+    },
+    "SIMPLIFY_ROUTINE": {
+      "headline": "Byrjaðu á einu litlu skrefi",
+      "body": "Rútínan er enn til staðar — taktu eina athöfn í einu í dag.",
+      "cta": "Opna vikuáætlun"
+    },
+    "CUSTOMIZE_ROUTINE": {
+      "headline": "Sérsníddu rútínuna",
+      "body": "Nú geturðu gert vikuáætlunina að þinni.",
+      "cta": "Sérsníða"
+    },
+    "TRIGGER_CELEBRATION": {
+      "headline": "Fagnaðu framförunum",
+      "body": "Þið hafið tekið mikilvægt skref — takið augnablik saman.",
+      "cta": "Sýna barninu"
+    }
+  },
+  "ack": {
+    "defaultHeadline": "Barnið kláraði athöfn!",
+    "defaultChild": "Barnið þitt",
+    "defaultActivity": "athöfn",
+    "defaultCta": "Allt í lagi"
+  }
+}

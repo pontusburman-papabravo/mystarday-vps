@@ -82,13 +82,69 @@
 
   if (tokenInput && !tokenInput.value) tokenInput.value = pathToken;
 
+  function rawBundle(key) {
+    if (!window.I18n || !I18n.locale) return null;
+    let value = I18n.locale;
+    for (const part of key.split('.')) value = value && value[part];
+    return typeof value === 'string' ? value : null;
+  }
+
+  function bundleCopy() {
+    const title = rawBundle('support.page.title');
+    const sendFailed = rawBundle('support.errors.sendFailed');
+    if (!title || !sendFailed) return null;
+    const status = {
+      new: rawBundle('support.page.status.new'),
+      read: rawBundle('support.page.status.read'),
+      in_progress: rawBundle('support.page.status.in_progress'),
+      answered: rawBundle('support.page.status.answered'),
+      archived: rawBundle('support.page.status.archived'),
+    };
+    if (Object.values(status).some((value) => !value)) return null;
+    return {
+      title: title,
+      intro: rawBundle('support.page.intro'),
+      you: rawBundle('support.page.you'),
+      us: rawBundle('support.page.us'),
+      empty: rawBundle('support.page.empty'),
+      label: rawBundle('support.page.label'),
+      placeholder: rawBundle('support.page.placeholder'),
+      submit: rawBundle('support.page.submit'),
+      submitting: rawBundle('support.page.submitting'),
+      needHuman: rawBundle('support.page.needHuman'),
+      escalating: rawBundle('support.page.escalating'),
+      caseRef: rawBundle('support.page.caseRef'),
+      success: rawBundle('support.success.submitted'),
+      escalated: rawBundle('support.success.escalated'),
+      invalid: rawBundle('support.errors.invalid'),
+      archived: rawBundle('support.errors.archived'),
+      tooShort: rawBundle('support.errors.tooShort'),
+      generic: rawBundle('support.errors.generic'),
+      sendFailed: sendFailed,
+      status: status,
+    };
+  }
+
   function copy() {
-    return STRINGS[locale] || STRINGS['sv-SE'];
+    const bundled = bundleCopy();
+    if (bundled && bundled.intro && bundled.caseRef) return bundled;
+    if (STRINGS[locale]) return STRINGS[locale];
+    if (locale && locale !== 'sv-SE') return STRINGS['en-GB'];
+    return STRINGS['sv-SE'];
+  }
+
+  async function ensureBundle() {
+    if (!window.I18n || typeof I18n.init !== 'function') return;
+    try {
+      await I18n.init(locale);
+    } catch (_) {
+      /* sv/en table remains the degraded path */
+    }
   }
 
   function applyChrome() {
     const c = copy();
-    document.documentElement.lang = locale === 'en-GB' ? 'en' : 'sv';
+    document.documentElement.lang = String(locale || 'sv-SE').toLowerCase();
     document.title = c.title;
     if (titleEl) titleEl.textContent = c.title;
     if (introEl) introEl.textContent = c.intro;
@@ -116,7 +172,7 @@
   function formatWhen(at) {
     const date = new Date(at);
     if (Number.isNaN(date.getTime())) return '';
-    return date.toLocaleString(locale === 'en-GB' ? 'en-GB' : 'sv-SE', {
+    return date.toLocaleString(locale || 'sv-SE', {
       dateStyle: 'short',
       timeStyle: 'short',
     });
@@ -163,7 +219,8 @@
         cache: 'no-store',
       });
       const data = await res.json().catch(function () { return {}; });
-      if (data.locale === 'en-GB' || data.locale === 'sv-SE') locale = data.locale;
+      if (typeof data.locale === 'string' && data.locale) locale = data.locale;
+      await ensureBundle();
       applyChrome();
       if (!res.ok) throw new Error(data.error || copy().generic);
       renderMeta(data);
@@ -203,7 +260,8 @@
         const data = await res.json().catch(function () { return {}; });
         if (!res.ok) throw new Error(data.error || copy().sendFailed);
         if (messageEl) messageEl.value = '';
-        if (data.locale === 'en-GB' || data.locale === 'sv-SE') locale = data.locale;
+        if (typeof data.locale === 'string' && data.locale) locale = data.locale;
+        await ensureBundle();
         applyChrome();
         renderMeta(data);
         renderThread(data.thread || []);

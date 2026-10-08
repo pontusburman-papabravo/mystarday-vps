@@ -767,18 +767,25 @@ function renderSchedule() {
   const sHtml = buildSectionCardsHtml(scheduleItems, renderItem);
 
   const dateLabel = getDayDateLabel();
+  const countLabel = window.ScheduleI18n
+    ? ScheduleI18n.activityCount(scheduleItems.length)
+    : (window.I18n ? I18n.plural('schedule.activityCount', scheduleItems.length) : hpt('schedule.activityCount.other', { count: scheduleItems.length }));
+  const dragHint = hpt('schedule.actions.dragCopyHint');
+  const copyDayLabel = hpt('schedule.editor.copyDay');
+  const copyChildLabel = hpt('schedule.editor.copyToChild');
+  const deleteDayLabel = hpt('schedule.editor.deleteDay');
   document.getElementById('scheduleContent').innerHTML = `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
         <h3 class="text-lg font-heading font-bold text-navy">${DAYS[currentDay]}${dateLabel ? ` <span class="text-text-soft font-normal text-base">${dateLabel}</span>` : ''} — ${child?escHtml(child.name):''}</h3>
-        <p class="text-sm text-text-soft">${scheduleItems.length} aktivitet${scheduleItems.length!==1?'er':''}
-          <span class="text-xs text-purple-400 ml-1">💡 Dra aktivitet till en dag-flik för att kopiera</span>
+        <p class="text-sm text-text-soft">${escHtml(countLabel)}
+          <span class="text-xs text-purple-400 ml-1">💡 ${escHtml(dragHint)}</span>
         </p>
       </div>
       <div class="flex gap-2 flex-wrap">
-        <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 Kopiera dag</button>
-        <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 Kopiera till barn</button>
-        <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ Ta bort dag</button>
+        <button onclick="openCopyDayModal()" class="px-4 py-2 bg-lavender hover:bg-purple-100 text-navy rounded-xl text-sm font-semibold">📋 ${escHtml(copyDayLabel)}</button>
+        <button onclick="openCopyChildModal()" class="px-4 py-2 bg-mint hover:bg-green-100 text-navy rounded-xl text-sm font-semibold">👶 ${escHtml(copyChildLabel)}</button>
+        <button onclick="confirmDeleteSchedule()" class="px-4 py-2 bg-coral hover:bg-red-200 text-navy rounded-xl text-sm font-semibold">🗑️ ${escHtml(deleteDayLabel)}</button>
       </div>
     </div>${sHtml}`;
   initDragDrop();

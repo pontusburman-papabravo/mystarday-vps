@@ -1,0 +1,226 @@
+[
+  {
+    "name": "Dúisigh",
+    "icon": "🛏️",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Cuir ort do chuid éadaí",
+    "icon": "🌟",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Scuab na fiacla",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Ith bricfeasta",
+    "icon": "🍳",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Naíolann/Scoil",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Imir amuigh",
+    "icon": "🛝",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Ceardaíocht",
+    "icon": "🎨",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Sneaic",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Imir",
+    "icon": "🧩",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Aclaíocht",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Dinnéar",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Scuab na fiacla (tráthnóna)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Pižama",
+    "icon": "🧸",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Scéal roimh chodladh",
+    "icon": "📕",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Codail",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 4,
+    "schema_type": "forskola"
+  },
+  {
+    "name": "Dúisigh agus cuir ort éadaí",
+    "icon": "🌅",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Bricfeasta",
+    "icon": "🥣",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Scuab na fiacla",
+    "icon": "🪥",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Pacáil an mála scoile",
+    "icon": "🎒",
+    "category": "Morning",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Scoil",
+    "icon": "🏫",
+    "category": "Late Morning",
+    "star_value": 2,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Sos agus súgradh",
+    "icon": "⚽",
+    "category": "Late Morning",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Sneaic",
+    "icon": "🍎",
+    "category": "Afternoon",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Obair bhaile",
+    "icon": "📚",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Gníomhaíocht iarscoile",
+    "icon": "🏃",
+    "category": "Afternoon",
+    "star_value": 2,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Dinnéar",
+    "icon": "🍽️",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 0,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Scuab na fiacla (tráthnóna)",
+    "icon": "🪥",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 1,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Léamh",
+    "icon": "📖",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 2,
+    "schema_type": "skola"
+  },
+  {
+    "name": "Codail",
+    "icon": "😴",
+    "category": "Evening",
+    "star_value": 1,
+    "sort_order": 3,
+    "schema_type": "skola"
+  }
+]

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_routine_label">Prochaine activité</string>
+    <string name="widget_routine_description">Termine la prochaine étape de la routine sans ouvrir toute l’app.</string>
+    <string name="widget_cd_pictogram">Symbole de l’activité</string>
+    <string name="widget_cd_complete">Marquer l’activité comme faite</string>
+    <string name="widget_cd_open_app">Ouvrir dans l’app</string>
+    <string name="widget_action_complete">Fait</string>
+    <string name="widget_action_open_timer">Ouvrir le sablier</string>
+    <string name="widget_action_show_steps">Voir les étapes</string>
+    <string name="widget_action_open_app">Ouvrir l’app</string>
+    <string name="widget_loading">Chargement…</string>
+    <string name="widget_all_done">Tout est fait pour aujourd’hui !</string>
+    <string name="widget_nothing_now">Rien pour le moment</string>
+    <string name="widget_offline">Pas de connexion</string>
+    <string name="widget_reauth">Connectez-vous dans l’app</string>
+    <string name="widget_revoked">Accès de l’appareil retiré</string>
+    <string name="widget_switching">Changement d’enfant…</string>
+    <string name="widget_feedback_done">✓ Fait !</string>
+    <string name="widget_feedback_done_for">✓ Fait pour %1$s</string>
+    <string name="widget_cd_child_prev">Enfant précédent</string>
+    <string name="widget_cd_child_next">Enfant suivant</string>
+    <string name="widget_feedback_stars">⭐ +%1$d</string>
+    <string name="widget_progress_fmt">%1$d sur %2$d faits</string>
+    <string name="widget_private_activity">Prochaine étape</string>
+    <string name="widget_configure_title">Choisir le widget</string>
+    <string name="widget_configure_personal">Personnel (un enfant)</string>
+    <string name="widget_configure_family">Famille (changer d’enfant)</string>
+    <string name="widget_configure_save">Enregistrer</string>
+    <string name="widget_api_base_url">__WIDGET_API_BASE_URL__</string>
+</resources>

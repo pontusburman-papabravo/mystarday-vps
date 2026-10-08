@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Início — {{brand}}",
+  "greeting": {
+    "morning": "Bom dia!",
+    "afternoon": "Olá!",
+    "evening": "Boa noite!",
+    "default": "Olá!"
+  },
+  "sub": "Eis como está o dia.",
+  "status": {
+    "paused": "Dia de folga hoje",
+    "allDone": "Tudo feito!",
+    "noSchedule": "Sem rotina",
+    "progressDone": "{{done}}/{{total}} feitas",
+    "emptyChildren": "Adiciona uma criança em Família para veres o estado aqui.",
+    "loadError": "Não foi possível carregar o estado das crianças. Isso não quer dizer que não tenhas crianças.",
+    "retry": "Tenta outra vez",
+    "viewActivitiesAria": "{{name}} — ver as atividades de hoje"
+  },
+  "ready": {
+    "title": "A postos para a próxima atividade",
+    "childrenCount": "({{count}} crianças)"
+  },
+  "quickActions": {
+    "aria": "Ações rápidas",
+    "retroactive": "Registar mais tarde",
+    "onceTask": "Atividade pontual",
+    "extraStars": "Estrelas extra",
+    "dayOff": "Dia de folga"
+  },
+  "dayOffModal": {
+    "title": "🏠 Dia de folga",
+    "subtitle": "Pausa a rotina da criança durante o dia todo",
+    "footer": "A criança não precisa de marcar atividades num dia de folga",
+    "noChildren": "Nenhuma criança encontrada",
+    "stateActive": "🟢 Rotina ativa",
+    "statePaused": "⏸ Dia de folga hoje",
+    "markDayOff": "🏠 Marcar como dia de folga",
+    "resumeSchedule": "▶ Retomar a rotina",
+    "noScheduleTitle": "Não há rotina gerada para hoje",
+    "resumedToast": "Rotina retomada!",
+    "pausedToast": "🏠 Marcado como dia de folga!",
+    "genericError": "Algo correu mal",
+    "networkError": "Erro de rede"
+  },
+  "handoff": {
+    "title": "Está na hora de a criança iniciar sessão?",
+    "sub": "Muda para a vista da criança com o PIN.",
+    "childLogin": "👶 A criança inicia sessão",
+    "changePin": "Mudar o PIN da criança",
+    "changePinAria": "Abrir Família e mudar o PIN da criança",
+    "parentLogout": "Terminar sessão",
+    "regionAria": "Mudar para o início de sessão da criança",
+    "dismissTitle": "Fechar",
+    "trusted": {
+      "title": "Está na hora de abrir a vista da criança?",
+      "sub": "Abre a vista da criança neste dispositivo.",
+      "childLogin": "Abrir vista da criança",
+      "regionAria": "Abrir vista da criança"
+    },
+    "pin": {
+      "title": "Está na hora de a criança iniciar sessão?",
+      "sub": "Muda para a vista da criança com o PIN.",
+      "childLogin": "Iniciar sessão com o PIN da criança",
+      "regionAria": "Iniciar sessão com o PIN da criança"
+    },
+    "postSchema": {
+      "title": "Próximo passo: deixa a criança experimentar a rotina",
+      "sub": "Abre o modo criança em conjunto — demora cerca de um minuto.",
+      "childLogin": "Experimentar o modo criança agora",
+      "regionAria": "Próximo passo: deixar a criança experimentar a rotina",
+      "trusted": {
+        "title": "Próximo passo: abrir a vista da criança",
+        "sub": "Abre o modo criança em conjunto — demora cerca de um minuto.",
+        "childLogin": "Abrir vista da criança",
+        "regionAria": "Próximo passo: abrir a vista da criança"
+      },
+      "pin": {
+        "title": "Próximo passo: deixa a criança experimentar a rotina",
+        "sub": "Abre o modo criança em conjunto — demora cerca de um minuto.",
+        "childLogin": "Iniciar sessão com o PIN da criança",
+        "regionAria": "Próximo passo: iniciar sessão com o PIN da criança"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Próximo passo até à primeira rotina bem-sucedida",
+    "pinHint": "A criança usa o PIN dela. Podes voltar ao modo de adulto quando terminar.",
+    "recovery": {
+      "fetchErrorHeadline": "Não conseguimos carregar o teu próximo passo",
+      "fetchErrorBody": "Parece temporário. Tenta outra vez ou continua sem o guia por agora.",
+      "retry": "Tenta outra vez",
+      "continueWithoutGuide": "Continuar sem guia",
+      "defer": "Fazer mais tarde",
+      "deferError": "Não foi possível guardar a tua escolha agora. Tenta outra vez.",
+      "retrying": "A tentar outra vez…",
+      "deferring": "A guardar…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Cria o perfil da criança",
+        "body": "Basta um nome e um PIN simples para começar.",
+        "cta": "Continuar com a criança"
+      },
+      "save_schedule": {
+        "headline": "Guarda uma primeira rotina simples",
+        "body": "Escolhe um horário inicial — podes mudá-lo quando quiseres.",
+        "cta": "Escolher horário inicial"
+      },
+      "child_access": {
+        "headline": "Abrir a vista da criança",
+        "body": "Deixa a criança experimentar a primeira atividade de hoje na vista da criança.",
+        "cta": "Abrir vista da criança"
+      },
+      "child_access_named": {
+        "headline": "{{name}}, a rotina está pronta",
+        "body": "A criança pode começar quando te der jeito.",
+        "cta": "Abrir vista da criança"
+      },
+      "await_first_completion": {
+        "headline": "À espera da primeira atividade",
+        "body": "A criança vê a rotina na vista da criança. Ajuda-a a começar, se for preciso.",
+        "cta": "Abrir vista da criança"
+      },
+      "parent_ack": {
+        "headline": "A criança completou uma atividade!",
+        "body": "Confirma para a estrela contar e poderem festejar juntos.",
+        "cta": "Ver atividade"
+      },
+      "celebrate_first_success": {
+        "headline": "Primeira estrela feita!",
+        "body": "Muito bem — a rotina funciona mesmo.",
+        "cta": "Continuar"
+      },
+      "journey_coach": {
+        "headline": "Próximo passo",
+        "body": "Continua a construir a rotina ao teu ritmo.",
+        "cta": "Continuar"
+      },
+      "engine_legacy": {
+        "headline": "Próximo passo",
+        "body": "Segue o próximo passo sugerido.",
+        "cta": "Continuar"
+      },
+      "continue_today": {
+        "headline": "{{name}} ainda tem rotina hoje",
+        "body": "Queres continuar de onde ficou?",
+        "cta": "Continuar a rotina"
+      },
+      "welcome_back": {
+        "headline": "Bem-vindo de volta",
+        "body": "O teu próximo passo continua aqui quando precisares — abrir a rotina da criança?",
+        "cta": "Abrir vista da criança"
+      },
+      "invite_adult": {
+        "headline": "Outro adulto também quer ajudar?",
+        "body": "Convida quando te der jeito — continuas no controlo.",
+        "cta": "Convidar um adulto"
+      },
+      "share_week": {
+        "headline": "Um pequeno destaque da semana",
+        "body": "Partilha só se quiseres — nada é publicado automaticamente.",
+        "cta": "Partilhar destaque"
+      },
+      "refer_family": {
+        "headline": "Conheces uma família que gostasse de rotinas?",
+        "body": "Partilha uma ligação pessoal — sem recompensa, só uma dica.",
+        "cta": "Partilhar a aplicação"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Agora não",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Deste passos nas rotinas esta semana",
+        "body": "Um resumo calmo — só para ti.",
+        "shareText": "Usamos o {{brand}} para as rotinas das crianças em casa. Se quiseres experimentar uma aplicação simples para a família."
+      },
+      "morning": {
+        "headline": "Várias manhãs correram um pouco melhor esta semana",
+        "body": "Muito bem — partilha só se quiseres.",
+        "shareText": "Temos tido manhãs mais calmas com uma aplicação simples de rotinas. Talvez ajude a tua família também."
+      },
+      "evening": {
+        "headline": "A rotina da tarde funcionou várias vezes esta semana",
+        "body": "Um destaque privado — sem classificação.",
+        "shareText": "As rotinas da tarde ficaram um pouco mais fáceis em nossa casa. Se procuras uma ferramenta calma."
+      },
+      "multi_child": {
+        "headline": "As crianças deram vários passos nas rotinas esta semana",
+        "body": "Resumo sem nomes nem fotos.",
+        "shareText": "Usamos o {{brand}} para as rotinas das crianças. Para experimentar:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 És membro fundador",
+    "body": "Como uma das primeiras famílias, tens acesso vitalício sem custo. Obrigado por estares connosco desde o início!"
+  },
+  "weekStory": {
+    "title": "A história desta semana"
+  },
+  "starHistory": {
+    "title": "Progresso semanal",
+    "subtitle": "Últimas 8 semanas",
+    "thisWeek": "{{count}} ⭐ esta semana",
+    "weekTooltip": "S{{week}}: {{count}} estrelas",
+    "diffUp": "+{{diff}} face à semana passada",
+    "diffSame": "Igual à semana passada",
+    "bestWeek": "🎉 {{name}}, a melhor semana até agora!"
+  },
+  "nav": {
+    "today": "Hoje",
+    "dailyLog": "Diário",
+    "fillRetroactive": "📝 Registar mais tarde"
+  },
+  "readiness": {
+    "heading": "Precisa de atenção",
+    "warningsOnly": "Só avisos",
+    "loadError": "Não foi possível verificar o que precisa de atenção.",
+    "retry": "Tenta outra vez",
+    "items": {
+      "pendingInviteTitleOne": "1 convite de outro adulto pendente",
+      "pendingInviteTitleMany": "{{count}} convites de outro adulto pendentes",
+      "pendingInviteSub": "Gerir em Família",
+      "pendingApprovalTitle": "{{name}} — {{count}} pedido pendente",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} pedidos pendentes",
+      "pendingApprovalSub": "Aprovar em Recompensas",
+      "incompleteDaysTitleOne": "{{name}} — 1 dia incompleto",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} dias incompletos",
+      "incompleteDaysSub": "Preencher depois",
+      "missingPinTitle": "{{name}} não tem PIN",
+      "missingPinSub": "Definir o PIN no perfil da criança",
+      "pausedDayTitle": "{{name}} — dia de folga hoje",
+      "pausedDaySub": "Abrir Hoje",
+      "noScheduleTitle": "{{name}} — sem rotina hoje",
+      "noScheduleSub": "Abrir o horário semanal"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} quer trocar uma recompensa",
+    "pendingRewardSubOne": "Há um pedido à tua espera",
+    "pendingRewardSubMany": "{{count}} pedidos estão à tua espera",
+    "showRequest": "Ver pedido",
+    "closeToReward": "{{name}} está só a {{gap}} da próxima recompensa",
+    "starOne": "1 estrela",
+    "starMany": "{{count}} estrelas",
+    "seeRewards": "Ver recompensas",
+    "starsTodayHeadline": "As crianças ganharam {{count}} hoje",
+    "starsTodaySubOne": "{{name}} ganhou-as hoje",
+    "starsTodaySubMany": "As crianças ganharam-nas hoje",
+    "tasksDoneHeadline": "{{name}} já completou {{count}} hoje",
+    "taskOne": "1 tarefa",
+    "taskMany": "{{count}} tarefas",
+    "tasksRemaining": "{{count}} por fazer na rotina de hoje",
+    "allActivitiesDone": "Todas as atividades feitas — muito bem!",
+    "seeSchedule": "Ver horário",
+    "nextActivityHeadline": "{{name}} pode começar {{activity}}",
+    "nextActivitySub": "Próxima atividade da rotina",
+    "openToday": "Abrir Hoje",
+    "calmDayHeadline": "Dia calmo — sem rotina agora",
+    "calmDaySub": "Um bom momento para adicionar atividades ou dar estrelas extra",
+    "defaultChild": "A tua criança",
+    "pageTitleStars": "🌟 Estrelas de hoje",
+    "pageTitleWelcome": "👋 Bem-vindo de volta",
+    "pageTitleProgress": "🌟 Progresso da família hoje",
+    "greetingFallback": "{{greeting}} Eis como está o dia",
+    "followChild": "Acompanha aqui o progresso de {{name}}.",
+    "followChildren": "Acompanha aqui o progresso das crianças"
+  },
+  "childStats": {
+    "paused": "⏸ Dia de folga hoje",
+    "allDone": "🌟 Tudo feito hoje!",
+    "tasksDoneOne": "🔥 1 tarefa feita hoje",
+    "tasksDoneMany": "🔥 {{count}} tarefas feitas hoje",
+    "noSchedule": "Sem rotina hoje",
+    "todayProgress": "Hoje <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> no total",
+    "starsTodayOne": "+1 estrela hoje",
+    "starsTodayMany": "+{{count}} estrelas hoje",
+    "remaining": "{{count}} por fazer · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Só falta 1 estrela para a próxima recompensa",
+    "rewardGapMany": "🎁 Só faltam {{count}} estrelas para a próxima recompensa"
+  },
+  "offline": {
+    "banner": "Sem ligação — as tuas alterações estão guardadas",
+    "lastUpdated": "· Última atualização {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Diário",
+    "dailyLogSub": "Acompanha o dia das crianças — regista as estrelas depois"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Como tem corrido {{goal}} até agora?",
+      "sub": "Para {{name}}",
+      "great": "Grande melhoria",
+      "better": "Um pouco melhor",
+      "same": "Sem diferença",
+      "worse": "Não está a resultar",
+      "followUpBetter": "O que melhorou?",
+      "followUpWorse": "O que falta?",
+      "optional": "(opcional)",
+      "send": "Enviar",
+      "skip": "Saltar",
+      "dismissAria": "Fechar",
+      "thanks": "Obrigado! A tua resposta ficou guardada.",
+      "alreadyAnswered": "Obrigado! Parece que já respondeste.",
+      "next": "Responder à seguinte",
+      "done": "Feito"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Saltar",
+    "next": "Seguinte →",
+    "start": "🎉 Vamos a isso!",
+    "steps": {
+      "welcome": {
+        "title": "Bem-vindo ao painel!",
+        "body": "Aqui vês o dia de cada criança. Edita o horário semanal em Planeamento."
+      },
+      "stars": {
+        "title": "Estrelas e cofre das estrelas",
+        "body": "Cada atividade concluída dá 1 estrela. A criança junta estrelas e troca-as por recompensas no cofre das estrelas."
+      },
+      "schedule": {
+        "title": "Horário semanal e atividades",
+        "body": "Em Planeamento, no menu, encontras a biblioteca de atividades e podes adicionar as tuas recompensas."
+      },
+      "family": {
+        "title": "Adiciona mais crianças ou adultos",
+        "body": "Toca em \"+ Adicionar criança\" para adicionar um irmão ou irmã. Em Família podes convidar outro adulto."
+      },
+      "help": {
+        "title": "Precisas de ajuda?",
+        "body": "Toca no botão ❓ em baixo à direita quando quiseres, para perguntas e dicas. Boa sorte com o {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} está a tentar iniciar sessão",
+    "body": "3 tentativas de PIN erradas — a criança pode precisar de ajuda"
+  },
+  "shareSchedule": {
+    "notAvailable": "A partilha não está disponível neste dispositivo",
+    "notSupported": "Não é possível partilhar neste dispositivo",
+    "shared": "Partilhado!",
+    "childNotFound": "Não foi possível encontrar a criança",
+    "couldNotShare": "Não foi possível partilhar: {{message}}",
+    "routineToday": "{{name}}: rotina de hoje",
+    "title": "{{name}}: rotina"
+  },
+  "swUpdate": {
+    "ready": "✨ Há uma nova versão da aplicação pronta!",
+    "reloadNow": "Recarregar agora",
+    "later": "Mais tarde",
+    "dismissAria": "Fechar o aviso de atualização"
+  },
+  "pwa": {
+    "title": "Instala a aplicação para receberes notificações push",
+    "iosLead": "No iPhone/iPad, a aplicação tem de estar no ecrã principal para as notificações push.",
+    "iosStep1": "Toca no botão Partilhar na parte de baixo do Safari",
+    "iosStep2": "Escolhe \"Adicionar ao ecrã principal\"",
+    "iosStep3": "Abre a aplicação a partir do ecrã principal e permite as notificações",
+    "iosArrowHint": "A seta animada aponta para o botão Partilhar no navegador",
+    "androidTitle": "Instala a aplicação para a melhor experiência",
+    "androidLead": "Instala a aplicação para receberes lembretes no telemóvel.",
+    "androidHomeLead": "Instala o {{brand}} no ecrã principal para acesso rápido e notificações push.",
+    "androidInstall": "Instalar aplicação",
+    "androidInstallBtn": "📲 Instalar aplicação",
+    "androidChromeFallback": "Toca em ⋮ (menu) no Chrome → <strong>\"Adicionar ao ecrã principal\"</strong>",
+    "desktopTitle": "Instalar a aplicação",
+    "desktopLead": "Toca no ícone de instalar (⊕) na barra de endereço ou usa o menu do navegador.",
+    "dismissAria": "Fechar"
+  },
+  "pushPrompt": {
+    "title": "Recebe notificações push sobre as crianças",
+    "body": "Ficas a saber logo quando uma criança marca uma atividade ou quer trocar uma recompensa.",
+    "later": "Mais tarde",
+    "enable": "Ativar",
+    "enabledToast": "✅ Notificações push ativadas!"
+  },
+  "globalFeedback": {
+    "fabAria": "Dar a tua opinião",
+    "fabTitle": "Dar a tua opinião",
+    "modalTitle": "Dar a tua opinião",
+    "typeBug": "Reportar um problema",
+    "typeSuggestion": "Sugestão",
+    "typeLanguage": "Idioma",
+    "titlePlaceholder": "Título",
+    "messagePlaceholder": "O que aconteceu?",
+    "cancel": "Cancelar",
+    "submit": "Enviar relatório",
+    "submitting": "A enviar...",
+    "validationRequired": "Preenche todos os campos.",
+    "success": "O teu relatório foi enviado.",
+    "errorGeneric": "Algo correu mal. Tenta outra vez."
+  },
+  "cards": {
+    "loadError": "Não foi possível carregar os cartões das crianças. Puxa para baixo para atualizar.",
+    "last": "Última:",
+    "next": "Seguinte:",
+    "noActivitiesToday": "Sem atividades planeadas para hoje",
+    "noRoutineToday": "Sem rotina para hoje",
+    "createActivity": "✨ Cria uma atividade no horário →",
+    "childNoActivities": "{{name}} ainda não tem atividades — cria a primeira →",
+    "noRewards": "🎁 Ainda sem recompensas",
+    "addReward": "→ Adicionar uma recompensa",
+    "pendingRequest": "{{count}} pedido pendente",
+    "pendingRequestMany": "{{count}} pedidos pendentes",
+    "pausedBadge": "EM PAUSA",
+    "allDoneTitle": "Tudo feito!",
+    "statusNow": "AGORA",
+    "statusNext": "A SEGUIR",
+    "onceTask": "Atividade pontual",
+    "markDone": "Marcar como feita",
+    "unmark": "Desmarcar",
+    "activityMarked": "✅ Feita!",
+    "activityUnmarked": "Desmarcada",
+    "fillDay": "Preenche {{day}}",
+    "allActivitiesDone": "Todas as atividades feitas hoje!",
+    "last7Days": "Últimos 7 dias"
+  },
+  "approvals": {
+    "title": "Pedidos pendentes",
+    "loading": "A carregar pedidos...",
+    "empty": "Sem pedidos pendentes! 🎉",
+    "loadError": "Não foi possível carregar os pedidos.",
+    "wantsGoalChange": "Quer mudar o objetivo",
+    "goalChangeTo": "Para: {{name}}",
+    "wantsRedeem": "Quer trocar",
+    "approve": "Aprovar",
+    "deny": "Recusar",
+    "requiresApproval": "Precisa de aprovação",
+    "requiresApprovalCount": "Precisa de aprovação ({{count}})",
+    "goalApproved": "🎯 Mudança de objetivo aprovada!",
+    "redemptionApproved": "🎉 Troca aprovada!",
+    "goalDenied": "Mudança de objetivo recusada.",
+    "redemptionDenied": "Troca recusada.",
+    "updateFailed": "Não foi possível atualizar",
+    "genericError": "Erro",
+    "wantsGoalNamed": "{{name}} quer mudar o objetivo para {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Quer mudar o objetivo para {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} quer \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Ajustar a hora hoje",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Não foi possível ajustar a hora",
+    "undone": "Desfeito",
+    "undoFailed": "Não foi possível desfazer"
+  },
+  "loading": {
+    "initFailed": "Algo correu mal ao carregar. Recarrega a página.",
+    "couldNotLoad": "Não foi possível carregar.",
+    "checkConnection": "Verifica a ligação à internet",
+    "reloadPage": "Recarregar a página"
+  },
+  "activationProgram": {
+    "exitConfirm": "Queres terminar o programa de 7 dias?",
+    "reflectionPlaceholder": "Opcional: conta-nos mais…",
+    "send": "Enviar",
+    "reflectionQuestion": "A aplicação tornou o dia a dia mais fácil?",
+    "previewEmpty": "Abre o início de sessão da criança para veres o horário.",
+    "optOutTitle": "Terminar programa",
+    "skipToday": "Saltar hoje",
+    "orOpenChildLogin": "Ou abre o início de sessão da criança",
+    "dayOf": "Dia {{day}} de {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Progresso da família hoje",
+    "allChildren": "← Todas as crianças",
+    "systemMsgFrom": "Mensagem da aplicação",
+    "systemMsgClose": "Fechar ✕",
+    "sharingManage": "Toca para gerir os relatórios partilhados",
+    "inviteTitle": "Convidar outro adulto",
+    "inviteSub": "Para não terem de se perguntar um ao outro sobre o horário",
+    "inviteBtn": "Convidar",
+    "shareTitle": "Conta a um amigo!",
+    "shareSub": "Ajuda outra família a pôr estrutura no dia a dia",
+    "shareBtn": "Partilhar",
+    "inviteModalTitle": "Convidar outro adulto",
+    "inviteModalBody": "A outra pessoa recebe um e-mail com uma ligação direta — sem aplicações extra, sem complicações.",
+    "inviteSentBody": "A outra pessoa já pode iniciar sessão e ver o horário.",
+    "inviteDone": "Feito",
+    "supportPrefix": "🔒 Estás em modo de apoio: a mostrar dados da família",
+    "supportSuffix": ". Não é possível alterar dados. A sessão expira em",
+    "tourSkip": "Saltar",
+    "tourNext": "Seguinte →",
+    "starTipsTitle": "Dicas: como funcionam as estrelas",
+    "starTipsCollect": "• A criança ganha estrelas quando as atividades são marcadas na vista da criança",
+    "starTipsExtra": "• Dá estrelas extra no cartão da criança pelo esforço fora do horário",
+    "starTipsRewards": "• As estrelas contam para as recompensas guardadas — define objetivos em Recompensas",
+    "starTipsEdit": "• Edita o horário semanal em Planeamento",
+    "dayDragInner": "arrasta um separador de dia para outro dia para copiar ou trocar",
+    "calViewDay": "Dia",
+    "calViewWeek": "Semana",
+    "calViewMonth": "Mês",
+    "retroactiveFull": "📝 Registar mais tarde",
+    "extraStarsFull": "⭐ Dar estrelas extra",
+    "onceTaskFull": "📋 Atividade pontual",
+    "dayOffFull": "🏠 Dia de folga",
+    "trialEndingTitle": "Falta um dia de período experimental",
+    "trialEndingBody": "O período experimental termina dentro de um dia. Escolhe uma subscrição na aplicação se quiseres manter o acesso completo. Todos os teus dados ficam.",
+    "trialEndingChoose": "Escolher na aplicação",
+    "trialEndingClose": "Fechar"
+  },
+  "helpPanel": {
+    "title": "❓ Como funciona?",
+    "tabSchema": "📅 Horário",
+    "tabStars": "⭐ Estrelas",
+    "tabFamily": "👨‍👩‍👧 Família",
+    "tabAdults": "🔑 Mais adultos",
+    "tabTrouble": "🔧 Resolução de problemas",
+    "addActivityQ": "Como adiciono uma atividade?",
+    "addActivityA": "Toca no cartão de uma criança em Início → escolhe um dia → toca em \"+\" para adicionar uma atividade da tua biblioteca. Também podes criar as tuas atividades em <strong>Biblioteca</strong>.",
+    "dragQ": "Posso arrastar e mover atividades?",
+    "dragA": "Sim! Na vista do horário da criança (toca num cartão em Início) podes premir e arrastar atividades para mudar a ordem. Também podes arrastar uma atividade para o separador de outro dia para a copiar.",
+    "copyQ": "Como copio o horário para todos os dias?",
+    "copyA": "No editor do horário (botão 📋) → escolhe \"Copiar para outros dias\" para copiar o horário de um dia para o resto da semana.",
+    "earnStarsQ": "Como é que a criança ganha estrelas?",
+    "earnStarsA": "Cada atividade concluída dá <strong>1 estrela</strong>. A criança marca na vista da criança. Também podes dar <strong>estrelas extra</strong> no cartão da criança em Início.",
+    "treasureQ": "Como funciona o cofre das estrelas?",
+    "treasureA": "Na vista da criança, toca no ícone ⭐ para veres o cofre das estrelas — uma lista de recompensas e quantas estrelas custam. A criança pode pedir uma recompensa quando tiver juntado o suficiente.",
+    "retroQ": "Como preencho as estrelas dos dias que esqueci?",
+    "retroA": "Vai a <strong>Hoje</strong> (menu ☰ → Hoje, ou o botão <strong>Registar mais tarde</strong> em Início). Escolhe a criança, vai ao dia certo com as setas ou o seletor de data e marca as atividades. As estrelas ficam guardadas com a data certa.",
+    "rewardsQ": "Como adiciono ou edito recompensas?",
+    "rewardsA": "Vai a Recompensas no menu. Aí podes adicionar as tuas recompensas, editar o custo em estrelas e escolher que crianças as veem.",
+    "siblingQ": "Como adiciono um irmão ou irmã?",
+    "siblingA": "Em Início → toca em <strong>\"+ Adicionar criança\"</strong>. Cada criança tem o seu horário, atividades e estrelas.",
+    "childLoginQ": "Como é que a criança inicia sessão?",
+    "childLoginA": "Nos primeiros dias podes <strong>pré-visualizar o dia da criança</strong> em Hoje. Quando estiveres pronto, a criança inicia sessão em <strong>/child-login</strong> com nome de utilizador e PIN — sem palavras-passe. Encontras os dados em <strong>Família e definições → Crianças</strong>.",
+    "inviteAdultQ": "Como convido outro adulto?",
+    "inviteAdultA": "Vai a <strong>Família e definições → Membros da família</strong> → toca em \"Convidar\". Recebem um e-mail com uma ligação para criar a própria conta e juntar-se à família.",
+    "inviteSeeQ": "O adulto convidado vê todas as crianças?",
+    "inviteSeeA": "Escolhes que crianças pode ver quando envias o convite. Podes mudar isso mais tarde em <strong>Membros da família</strong> → toca na pessoa → ajusta o acesso às crianças.",
+    "noActivitiesQ": "A criança não vê atividades hoje",
+    "noActivitiesA": "Confirma que o horário está definido para o dia certo. Abre o horário da criança (toca no cartão) → escolhe hoje → vê se há atividades. Se o horário estiver vazio: usa \"Copiar para outros dias\" para o preencher.",
+    "forgotPinQ": "Esqueci-me do PIN da criança",
+    "forgotPinA": "Vai a <strong>Família e definições → Crianças</strong> → escolhe a criança → toca em \"Mudar PIN\" para definires um PIN novo.",
+    "innerOneStar": "1 estrela",
+    "innerBonusStars": "estrelas extra",
+    "innerAddChild": "\"+ Adicionar criança\"",
+    "innerPreview": "pré-visualizar o dia da criança",
+    "innerFamilyMembersPath": "Família e definições → Membros da família",
+    "innerMembers": "Membros da família",
+    "innerFamilyChildren": "Família e definições → Crianças",
+    "supportQ": "Contactar o apoio",
+    "supportLead": "Escreve-nos para",
+    "supportTail": " — respondemos em 24 horas."
+  },
+  "journeyAck": {
+    "headline": "A criança completou uma atividade!",
+    "childFallback": "A tua criança",
+    "activityFallback": "uma atividade",
+    "dismiss": "Eu vi"
+  },
+  "journeyCelebration": {
+    "headline": "Fizeram-no juntos",
+    "body": "A criança começou — e tu viste.",
+    "dismiss": "Ótimo!"
+  },
+  "activationAha": {
+    "body": "Sem teres de lembrar.",
+    "dismiss": "Ótimo!"
+  }
+}

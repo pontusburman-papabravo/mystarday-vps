@@ -5,8 +5,9 @@
  * Data lives in config/default-content/<locale>/.
  */
 
+const fs = require('fs');
 const path = require('path');
-const { validateLocale } = require('../locale');
+const { validateLocale, DEFAULT_LOCALE, CANONICAL_FALLBACK_LOCALE } = require('../locale');
 
 const CONTENT_ROOT = path.join(__dirname, '../../../config/default-content');
 
@@ -54,32 +55,40 @@ function resolveTimeOffset(categoryName) {
 
 const localeCache = new Map();
 
+function directoryHasActivities(dir) {
+  return fs.existsSync(path.join(dir, 'activities.json'));
+}
+
+/**
+ * Requested locale files, then English for any non-default locale, then Swedish.
+ * A future language without its own seed files must not inherit Swedish copy.
+ */
+function resolveContentDirectory(canonical) {
+  const primary = path.join(CONTENT_ROOT, canonical);
+  if (directoryHasActivities(primary)) return { dir: primary, locale: canonical };
+  if (canonical !== DEFAULT_LOCALE) {
+    const english = path.join(CONTENT_ROOT, CANONICAL_FALLBACK_LOCALE);
+    if (directoryHasActivities(english)) return { dir: english, locale: CANONICAL_FALLBACK_LOCALE };
+  }
+  return { dir: path.join(CONTENT_ROOT, DEFAULT_LOCALE), locale: DEFAULT_LOCALE };
+}
+
 function loadLocaleFiles(locale) {
   const canonical = validateLocale(locale);
   if (localeCache.has(canonical)) {
     return localeCache.get(canonical);
   }
 
-  const baseDir = path.join(CONTENT_ROOT, canonical);
-  const fallbackDir = path.join(CONTENT_ROOT, 'sv-SE');
+  const resolved = resolveContentDirectory(canonical);
 
-  const readJson = (dir, filename) => {
-    try {
-      return require(path.join(dir, filename));
-    } catch (err) {
-      if (dir !== fallbackDir) {
-        return require(path.join(fallbackDir, filename));
-      }
-      throw err;
-    }
-  };
+  const readJson = (filename) => require(path.join(resolved.dir, filename));
 
-  const activities = readJson(baseDir, 'activities.json');
-  const categories = readJson(baseDir, 'categories.json');
-  const rewards = readJson(baseDir, 'rewards.json');
+  const activities = readJson('activities.json');
+  const categories = readJson('categories.json');
+  const rewards = readJson('rewards.json');
 
   const content = {
-    locale: canonical,
+    locale: resolved.locale,
     activities,
     categories,
     rewards,

@@ -26,7 +26,11 @@
 }
 
 .dash-summary-emoji { font-size: 28px; flex-shrink: 0; line-height: 1; }
-.dash-summary-text { flex: 1; min-width: 0; }
+.dash-summary-text { flex: 1 1 12rem; min-width: 0; }
+@media (max-width: 360px) {
+  .dash-summary-text { flex-basis: 100%; }
+  .dash-summary-action { margin-left: 40px; }
+}
 .dash-summary-headline {
   font-family: inherit;
   font-weight: 700;

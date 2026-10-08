@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Izveidot PDF — plāns — {{brand}}",
+  "backLink": "← Atpakaļ uz Plānošanu",
+  "heading": "📄 Izveidot PDF — plāns",
+  "intro": "Izvēlies bērnu un periodu. Priekšskatījums rāda visu plānu — PDF pats mērogojas, lai ietilptu vienā A4 lapā ainavorientācijā.",
+  "pdfSave": {
+    "title": "Kur PDF tiek saglabāts?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Pēc <em>Izveidot PDF</em> atveras dalīšanās lapa — izvēlies <strong>Saglabāt failos</strong> un mapi (piemēram, iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Dators:</strong> PDF nonāk mapē <strong>Lejupielādes</strong> (bieži pārlūka apakšējā kreisajā stūrī)."
+  },
+  "sections": {
+    "child": "Bērns",
+    "period": "Periods",
+    "scope": "Ko PDF iekļaut?",
+    "startWeek": "Sākuma nedēļa"
+  },
+  "period": {
+    "1w": "1 nedēļa",
+    "2w": "2 nedēļas",
+    "1m": "1 mēnesis"
+  },
+  "scope": {
+    "all": "Pilns plāns",
+    "my": "Tikai manas dienas"
+  },
+  "weekNav": {
+    "prevAria": "Iepriekšējā nedēļa",
+    "nextAria": "Nākamā nedēļa",
+    "today": "Šī nedēļa"
+  },
+  "actions": {
+    "preview": "Priekšskatījums",
+    "createPdf": "Izveidot PDF"
+  },
+  "preview": {
+    "heading": "Priekšskatījums",
+    "hint": "Ritinies uz leju, ja dienā ir daudz aktivitāšu."
+  },
+  "pdfHelp": {
+    "title": "Kā saglabāt PDF",
+    "closeAria": "Aizvērt",
+    "ok": "Labi, sapratu",
+    "introShare": "Dalīšanās lapa ir atvērta. Izvēlies Saglabāt failos, lai saglabātu PDF.",
+    "introPreview": "PDF atvērās pārlūkā{{filename}}.",
+    "introDesktop": "PDF tika lejupielādēts{{filename}}.",
+    "filenameSuffix": " kā {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Dalīšanās lapā: ritini un pieskaries <strong>Saglabāt failos</strong>.",
+      "Izvēlies mapi (piemēram, <strong>iCloud Drive</strong> vai <strong>Manā iPhone</strong>).",
+      "Augšā pa labi pieskaries <strong>Saglabāt</strong>.",
+      "Failu vēlāk atradīsi lietotnē <strong>Faili</strong>."
+    ],
+    "previewSteps": [
+      "PDF atvērās jaunā skatā — augšā pa labi pieskaries <strong>Dalīties</strong> (↑).",
+      "Izvēlies <strong>Saglabāt failos</strong>.",
+      "Izvēlies mapi un pieskaries <strong>Saglabāt</strong>."
+    ],
+    "desktopSteps": [
+      "Atver datorā mapi <strong>Lejupielādes</strong>.",
+      "Meklē failu, kas sākas ar <strong>{{prefix}}</strong> un šodienas datumu."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plāns",
+    "titleMyDays": "Manas dienas",
+    "emptyCell": "–",
+    "childFallback": "Bērns",
+    "loadingPrint": "Gatavo drukai…",
+    "iframeTitle": "Druka"
+  },
+  "filename": {
+    "prefixSchedule": "nedelas-plans",
+    "prefixMyDays": "manas-dienas",
+    "fallbackSlug": "berns"
+  },
+  "toasts": {
+    "loadChildrenError": "Neizdevās ielādēt bērnus",
+    "selectChild": "Vispirms izvēlies bērnu",
+    "loadingPreview": "Ielādē priekšskatījumu…",
+    "noMyDays": "Izvēlētajā periodā tev nav dienu",
+    "loadScheduleError": "Neizdevās ielādēt plānu",
+    "creatingPdf": "Veido PDF…",
+    "pdfCancelled": "PDF saglabāšana atcelta",
+    "shareHint": "Dalīšanās lapā izvēlies Saglabāt failos",
+    "mobileSavedHint": "PDF gatavs — saglabā to Failos",
+    "desktopSavedHint": "PDF saglabāts Lejupielādēs",
+    "pdfLibsMissing": "Trūkst PDF rīku — pārlādē lapu un mēģini vēlreiz",
+    "createPdfError": "Neizdevās izveidot PDF",
+    "shareAgain": "PDF ir gatavs. Pieskaries Izveidot PDF vēlreiz, lai izvēlētos, kur to saglabāt."
+  },
+  "empty": {
+    "noChildren": "Vēl nav pievienots neviens bērns.",
+    "goDashboard": "Uz Sākumu"
+  }
+}

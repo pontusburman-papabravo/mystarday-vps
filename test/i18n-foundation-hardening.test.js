@@ -27,7 +27,41 @@ describe('locale backward compatibility matrix', () => {
     ['en_gb', 'en-GB'],
     ['', null],
     [null, null],
-    ['fr-FR', null],
+    ['fr-FR', 'fr-FR'],
+    ['nl-NL', 'nl-NL'],
+    ['da-DK', 'da-DK'],
+    ['fi-FI', 'fi-FI'],
+    ['nb-NO', 'nb-NO'],
+    ['no', 'nb-NO'],
+    ['es-ES', 'es-ES'],
+    ['es', 'es-ES'],
+    ['it-IT', 'it-IT'],
+    ['pt-PT', 'pt-PT'],
+    ['pl-PL', 'pl-PL'],
+    ['cs-CZ', 'cs-CZ'],
+    ['cs', 'cs-CZ'],
+    ['sk-SK', 'sk-SK'],
+    ['sl-SI', 'sl-SI'],
+    ['hr-HR', 'hr-HR'],
+    ['hu-HU', 'hu-HU'],
+    ['ro-RO', 'ro-RO'],
+    ['bg-BG', 'bg-BG'],
+    ['bg', 'bg-BG'],
+    ['el-GR', 'el-GR'],
+    ['el', 'el-GR'],
+    ['et-EE', 'et-EE'],
+    ['et', 'et-EE'],
+    ['lt-LT', 'lt-LT'],
+    ['lt', 'lt-LT'],
+    ['lv-LV', 'lv-LV'],
+    ['lv', 'lv-LV'],
+    ['is-IS', 'is-IS'],
+    ['is', 'is-IS'],
+    ['ga-IE', 'ga-IE'],
+    ['ga', 'ga-IE'],
+    ['mt-MT', 'mt-MT'],
+    ['mt', 'mt-MT'],
+    ['xx-XX', null],
   ];
 
   for (const [input, expected] of cases) {
@@ -42,13 +76,13 @@ describe('locale backward compatibility matrix', () => {
   });
 });
 
-describe('experience pack gating', () => {
-  it('en-GB without english_child_experience stays on child_se', () => {
-    assert.equal(experiencePackIdForLocale('en-GB'), 'child_se');
-    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_se');
+describe('experience pack follows family locale', () => {
+  it('en-GB uses child_en even when english_child_experience is off', () => {
+    assert.equal(experiencePackIdForLocale('en-GB'), 'child_en');
+    assert.equal(experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: false }), 'child_en');
   });
 
-  it('en-GB with english_child_experience may use child_en', () => {
+  it('the child flag does not change the en-GB pack', () => {
     assert.equal(
       experiencePackIdForLocale('en-GB', { englishChildExperienceEnabled: true }),
       'child_en'
@@ -122,10 +156,31 @@ describe('GET /api/i18n legacy aliases', () => {
     assert.equal(body.app?.name, getLocale('sv-SE').app?.name);
   });
 
-  it('/api/i18n/invalid returns 400', async () => {
+  it('/api/i18n/fr-FR returns the French bundle', async () => {
     const { status, body } = await fetchLocale('fr-FR');
+    assert.equal(status, 200);
+    assert.equal(body.auth?.login?.title, 'Connexion');
+    assert.equal(body.auth?.login?.title, getLocale('fr-FR').auth?.login?.title);
+  });
+
+  it('/api/i18n/es-ES returns the Spanish bundle', async () => {
+    const { status, body } = await fetchLocale('es-ES');
+    assert.equal(status, 200);
+    assert.equal(body.auth?.login?.title, 'Entrar');
+    assert.equal(body.auth?.login?.title, getLocale('es-ES').auth?.login?.title);
+  });
+
+  it('/api/i18n/invalid returns 400', async () => {
+    const { status, body } = await fetchLocale('xx-XX');
     assert.equal(status, 400);
     assert.ok(body.supported);
+    assert.equal(body.supported.includes('ga-IE'), true);
+  });
+
+  it('/api/i18n/is-IS returns Icelandic without making it a selector locale', async () => {
+    const { status, body } = await fetchLocale('is-IS');
+    assert.equal(status, 200);
+    assert.equal(body.auth?.login?.title, 'Skrá inn');
   });
 });
 

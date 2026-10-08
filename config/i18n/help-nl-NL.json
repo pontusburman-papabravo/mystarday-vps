@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Help",
+    "openAria": "Help openen",
+    "closeAria": "Help sluiten"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Help – Overzicht",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Overzicht",
+          "faqs": [
+            {
+              "q": "Wat doen de 3 snelle knoppen bovenaan?",
+              "a": "<strong>⭐ Bonus-sterren geven</strong> — geef een kind handmatig bonus-sterren. <strong>📋 Eenmalige activiteit</strong> — voeg een tijdelijke activiteit toe voor vandaag. <strong>🏠 Vrije dag</strong> — pauzeert het schema van het kind voor een dag (bijvoorbeeld ziek of vrij)."
+            },
+            {
+              "q": "Hoe vink ik een activiteit af?",
+              "a": "Tik op de activiteit op de kindkaart — hij wordt meteen afgevinkt. Je kind kan ook afvinken in de <strong>kindweergave</strong>."
+            },
+            {
+              "q": "Wat is een compacte kindkaart?",
+              "a": "De kindkaart toont avatar, naam, sterrensaldo en dagdeel-pilletjes in de compacte weergave. Klap de kaart uit voor meer details, een link naar het schema en de pauzeknop."
+            },
+            {
+              "q": "Wat is Vrije dag?",
+              "a": "<strong>🏠 Vrije dag</strong> pauzeert het schema van het kind voor de gekozen dag — handig bij ziekte of vakantie. Het kind ziet het schema als inactief. Zet de dag weer aan met dezelfde knop."
+            },
+            {
+              "q": "Wat is de pauzestand?",
+              "a": "Tik op het pauzepictogram (⏸) op de kindkaart om een kind te pauzeren. Activiteiten worden inactief en het kind verdient geen sterren tot je weer verdergaat."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Sterren",
+          "faqs": [
+            {
+              "q": "Hoe verdient mijn kind sterren?",
+              "a": "Elke afgeronde activiteit levert <strong>1 ster</strong> op. Je kind vinkt af in de kindweergave — of jij vinkt af in Vandaag terwijl je het uitprobeert. Geef bonus-sterren met de ⭐-knop boven de kindkaarten."
+            },
+            {
+              "q": "Hoe werkt de sterrenkist?",
+              "a": "Je kind opent de sterrenkist via het 💎-tabblad in de kindweergave en ziet beloningen met een sterrenprijs. Als er genoeg sterren zijn, kan je kind een beloning vragen — jij keurt die goed."
+            },
+            {
+              "q": "Hoe voeg ik beloningen toe?",
+              "a": "Ga in het menu naar <strong>Bibliotheek</strong> → het tabblad \"Beloningen\". Voeg je eigen beloningen toe, pas de sterrenprijs aan en kies welke kinderen ze zien."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Schema",
+          "faqs": [
+            {
+              "q": "Hoe voeg ik een activiteit toe?",
+              "a": "Ga naar <strong>Weekschema</strong> → kies een kind → kies een dag → tik op \"+\" om een activiteit uit de bibliotheek toe te voegen. Je kunt zoeken tussen 63 standaardactiviteiten."
+            },
+            {
+              "q": "Hoe kopieer ik een schema naar elke dag?",
+              "a": "In Weekschema → \"Kopiëren van…\" → kies een bron (je eigen schema of de standaardbibliotheek) → vink de dagen aan waarnaar je wilt kopiëren."
+            },
+            {
+              "q": "Wat is de weergave Vandaag?",
+              "a": "De weergave \"Vandaag\" in Overzicht werkt automatisch bij als je het schema wijzigt. Wijzigingen in Weekschema zie je meteen in Overzicht en in de weergave van je kind."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Gezin",
+          "faqs": [
+            {
+              "q": "Hoe nodig ik een andere volwassene uit?",
+              "a": "Ga naar <strong>Gezin en instellingen → Gezinsleden</strong> → tik op \"Uitnodigen\". De persoon die je uitnodigt krijgt een e-mail met een inloglink."
+            },
+            {
+              "q": "Hoe zie ik de dag van mijn kind?",
+              "a": "Open <strong>Vandaag</strong> in het menu — daar zie je de activiteiten van vandaag zoals je kind ze ziet. Handig op de eerste avond, voordat je kind zelf inlogt."
+            },
+            {
+              "q": "Hoe logt mijn kind in?",
+              "a": "Als je er klaar voor bent: je kind logt in op <strong>/child-login</strong> met gebruikersnaam en pincode. De gegevens vind je onder <strong>Gezin en instellingen → Kinderen</strong>."
+            },
+            {
+              "q": "Contact met support",
+              "a": "Mail ons op <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — we reageren binnen 24 uur."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Help – Beloningen",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Beloningen",
+          "faqs": [
+            {
+              "q": "Hoe werkt het beloningssysteem?",
+              "a": "Je kind spaart sterren door activiteiten af te ronden. Als het sterrensaldo hoog genoeg is voor een beloning, kan je kind vragen om die in te wisselen — jij keurt goed of wijst af."
+            },
+            {
+              "q": "Hoe voeg ik nieuwe beloningen toe?",
+              "a": "Ga in het menu naar <strong>Bibliotheek</strong> → het tabblad \"Beloningen\" → zoek of tik op \"+ Beloning toevoegen\". Je kunt ook rechtstreeks kopiëren uit de standaardbibliotheek."
+            },
+            {
+              "q": "Hoe regel ik de zichtbaarheid per kind?",
+              "a": "Als je een beloning maakt of bewerkt, kies je welke kinderen hem zien. Handig voor beloningen die bij één kind passen."
+            },
+            {
+              "q": "Hoe keur ik een inwisselverzoek goed?",
+              "a": "Het verzoek van je kind verschijnt in Overzicht met een badge. Tik om goed te keuren. Sterren worden automatisch afgetrokken en je kind ziet de wijziging meteen."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Sterren",
+          "faqs": [
+            {
+              "q": "Hoe verdient mijn kind sterren?",
+              "a": "Elke afgeronde activiteit levert sterren op (standaard 1 ster per activiteit). Je kunt ook bonus-sterren geven met de ⭐-knop in Overzicht."
+            },
+            {
+              "q": "Wat is sterrensaldo versus voortgang van de dag?",
+              "a": "<strong>Sterrensaldo</strong> = het totale opgespaarde saldo. <strong>Voortgang van de dag</strong> (de ring om de emoji) = hoeveel activiteiten je kind vandaag heeft afgerond. Dat zijn twee verschillende dingen."
+            },
+            {
+              "q": "Wat gebeurt er als een beloning wordt ingewisseld?",
+              "a": "Sterren worden automatisch van het account van je kind afgetrokken. Je kind ziet de wijziging meteen in de sterrenkist. Jij ziet de geschiedenis op de pagina Beloningen."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Help – Weekschema",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Schema bewerken",
+          "faqs": [
+            {
+              "q": "Hoe voeg ik een activiteit toe?",
+              "a": "Kies een dag → tik op \"+\" → zoek en kies een activiteit. Je kunt <strong>meerdere dagdelen tegelijk</strong> kiezen (Ochtend + Avond) en de activiteit wordt aan al die dagdelen toegevoegd."
+            },
+            {
+              "q": "Hoe maak ik een nieuwe activiteit rechtstreeks in het schema?",
+              "a": "Tik op \"+\" → zoek → als niets past, verschijnt het formulier \"Nieuwe maken\" in het zoekvenster. Vul naam, emoji, sterrenwaarde en eventuele substappen in."
+            },
+            {
+              "q": "Hoe wijzig ik de naam of emoji van een activiteit?",
+              "a": "Tik op de naam of emoji van de activiteit in het schema → het bewerkvenster opent. Wijzigingen gelden automatisch voor alle kinderen en dagen."
+            },
+            {
+              "q": "Hoe kopieer ik een schema van een ander kind?",
+              "a": "Tik op \"Kopiëren van…\" → kies een bron → vink de weekdagen aan waarnaar je wilt kopiëren. Kies of bestaande inhoud wordt overschreven."
+            },
+            {
+              "q": "Synchroniseert het schema automatisch met de kindweergave?",
+              "a": "Ja! Wijzigingen in Weekschema komen meteen in de weergave \"Vandaag\" in Overzicht en in de weergave van je kind — je hoeft niets handmatig bij te werken."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliotheek",
+          "faqs": [
+            {
+              "q": "Wat is de standaardbibliotheek?",
+              "a": "De standaardbibliotheek heeft 63 kant-en-klare activiteiten in 6 categorieën en 5 schemasjablonen. Tik op \"Snel invoegen uit bibliotheek\" om ze aan het schema toe te voegen."
+            },
+            {
+              "q": "Hoe kopieer ik een standaardschema?",
+              "a": "Onder het tabblad Schema → \"Kopiëren van…\" → kies \"Standaardbibliotheek\" → kies een schema → kies dagen → kopieer."
+            },
+            {
+              "q": "Waarom ziet mijn kind geen activiteiten?",
+              "a": "Controleer of het schema bij het juiste kind hoort en of er activiteiten zijn voor de dag van vandaag. Leeg schema? Kopieer uit de standaardbibliotheek om snel te beginnen."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tips",
+          "faqs": [
+            {
+              "q": "Hoe bouw ik een goed routineschema?",
+              "a": "Begin met 3–5 vaste activiteiten (ontbijt, tanden poetsen, huiswerk). Zet ze in de juiste volgorde. Kinderen leren de routine snel als die hetzelfde blijft."
+            },
+            {
+              "q": "Wat zijn substappen bij activiteiten?",
+              "a": "Je kunt substappen aan activiteiten toevoegen (bijvoorbeeld \"Handen wassen\", \"Pyjama aantrekken\" onder \"Avondroutine\"). Je kind ziet ze als visuele hulp, maar vinkt de hele activiteit in één keer af."
+            },
+            {
+              "q": "Hoeveel activiteiten per dag?",
+              "a": "Aanbevolen: 4–8 activiteiten. Te weinig en er is geen ritme; te veel en het voelt overweldigend. Begin klein en bouw op."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Help – Gezin en instellingen",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Kinderen",
+          "faqs": [
+            {
+              "q": "Hoe voeg ik een kind toe?",
+              "a": "Ga naar Overzicht → tik op \"+ Kind toevoegen\". Vul naam, emoji en verjaardag in. Het kind krijgt automatisch een schema op basis van de leeftijd."
+            },
+            {
+              "q": "Hoe wijzig ik de pincode van mijn kind?",
+              "a": "Tik op de kindkaart → het tabblad \"Instellingen\" → \"Pincode wijzigen\". Kies een nieuwe pincode van 4 cijfers."
+            },
+            {
+              "q": "Mijn kind moet activiteiten op volgorde doen — kan ik dat aanpassen?",
+              "a": "Standaard mag je kind vrij afvinken. Voor een vaste volgorde ga je naar het profiel van je kind → het tabblad <strong>Instellingen</strong> → zet <strong>NU / HIERNA / LATER</strong> aan."
+            },
+            {
+              "q": "Hoe ziet mijn kind de inloggegevens?",
+              "a": "Tik op de kindkaart → het tabblad \"Instellingen\" → \"Inloggegevens tonen\". Je ziet de gebruikersnaam en pincode van je kind."
+            },
+            {
+              "q": "Hoe verwijder ik een kind?",
+              "a": "Gezin → kies een kind → tabblad Instellingen → \"Kind definitief verwijderen\". Let op: alle schema's, sterren en beloningsgeschiedenis worden verwijderd en dat kan niet ongedaan worden gemaakt."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Volwassenen",
+          "faqs": [
+            {
+              "q": "Hoe nodig ik een andere volwassene uit?",
+              "a": "Ga naar het tabblad <strong>Gezinsleden</strong> → \"Uitnodigen\". De persoon die je uitnodigt krijgt een e-mail met een link om een account te maken."
+            },
+            {
+              "q": "Kan ik kiezen welke kinderen een volwassene ziet?",
+              "a": "Ja! Je kiest welke kinderen toegankelijk zijn als je de uitnodiging stuurt. Later kun je dat wijzigen onder Gezinsleden → de persoon → Toegang tot kinderen."
+            },
+            {
+              "q": "Hoe verwijder ik een gezinslid?",
+              "a": "Tik op de persoon in de lijst Gezinsleden → \"Verwijderen\". Diegene verliest meteen toegang tot het gezin."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Instellingen",
+          "faqs": [
+            {
+              "q": "Hoe wijzig ik mijn wachtwoord?",
+              "a": "Ga in het menu naar <strong>Instellingen</strong> (⚙️) → \"Wachtwoord wijzigen\". Je hebt je huidige wachtwoord nodig."
+            },
+            {
+              "q": "Hoe zet ik meldingen aan?",
+              "a": "Ga naar Instellingen → \"Herinneringen\" → zet meldingen aan en kies tijden. Meldingen hebben toestemming van de browser nodig."
+            },
+            {
+              "q": "Contact met support",
+              "a": "Mail ons op <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — we reageren binnen 24 uur."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Help – Activiteiten",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Beheren",
+          "faqs": [
+            {
+              "q": "Wat is een activiteit?",
+              "a": "Een <strong>activiteit</strong> is een taak die je kind doet (bijvoorbeeld \"Tanden poetsen\"). Activiteiten leveren 1–5 sterren op en kunnen substappen hebben. Verzamel ze in je bibliotheek en voeg ze toe aan de schema's van kinderen."
+            },
+            {
+              "q": "Hoe maak ik een nieuwe activiteit?",
+              "a": "Tik op \"+ Nieuwe activiteit\" → vul naam, categorie (Hygiëne, Eten, Spelen, enzovoort), duur en sterrenwaarde in. Sla op en de activiteit komt in je bibliotheek."
+            },
+            {
+              "q": "Hoe voeg ik een activiteit toe aan het schema?",
+              "a": "Activiteiten staan in je bibliotheek. Ga naar Weekschema → kies een dag → \"+\" → kies de activiteit die je wilt toevoegen."
+            },
+            {
+              "q": "Hoe haal ik een activiteit van elke dag af?",
+              "a": "Tik op ✕ bij de activiteit → kies <strong>Elke dag van de week</strong>. Om alleen vandaag of één weekdag te verwijderen (bijvoorbeeld elke donderdag), zijn er aparte opties."
+            },
+            {
+              "q": "Hoe bewerk ik een activiteit?",
+              "a": "Tik op de activiteit in de lijst → \"Bewerken\". Wijzigingen gelden meteen in elk schema waarin de activiteit staat."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Categorieën",
+          "faqs": [
+            {
+              "q": "Waar zijn categorieën voor?",
+              "a": "Categorieën geven activiteiten een kleur in de kindweergave. <strong>Hygiëne</strong>=blauw, <strong>Eten</strong>=geel, <strong>Spelen</strong>=groen, <strong>School</strong>=paars, <strong>Bewegen</strong>=rood, <strong>Rust</strong>=grijs, <strong>Sociaal</strong>=oranje."
+            },
+            {
+              "q": "Hoe kies ik een categorie?",
+              "a": "Als je een activiteit maakt of bewerkt, kies je een categorie in de lijst. Kies de categorie die de activiteit het best beschrijft."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Help – Bibliotheek",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Tabbladen",
+          "faqs": [
+            {
+              "q": "Welke tabbladen zitten er in de bibliotheek?",
+              "a": "<strong>Schema's</strong> — je eigen schemasjablonen. <strong>Activiteiten</strong> — activiteitenbibliotheek met substappen. <strong>Beloningen</strong> — je eigen beloningen. <strong>Standaardbibliotheek</strong> — 63 activiteiten, 15 beloningen en 5 schema's om uit te kopiëren."
+            },
+            {
+              "q": "Hoe kopieer ik uit de standaardbibliotheek?",
+              "a": "Ga naar het tabblad \"Standaardbibliotheek\" → kies een activiteit of beloning → tik op de knop 📥 om te kopiëren naar de bibliotheek van je gezin. Schema's kopieer je via Weekschema → \"Kopiëren van…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Activiteiten",
+          "faqs": [
+            {
+              "q": "Hoe maak ik een nieuwe activiteit?",
+              "a": "Tik op \"+ Nieuwe activiteit\" → vul naam, emoji (kies of typ er zelf een), sterrenwaarde en eventuele substappen in → sla op. De activiteit wordt opgeslagen in de bibliotheek voor het hele gezin."
+            },
+            {
+              "q": "Wat zijn substappen?",
+              "a": "Substappen zijn stap-voor-stap-aanwijzingen onder een activiteit (bijvoorbeeld \"Handen wassen\" onder \"Hygiëne\"). Je kind ziet ze als hulp, maar vinkt de hele activiteit met één tik af."
+            },
+            {
+              "q": "Hoe bewerk ik een activiteit?",
+              "a": "Tik op de naam van de activiteit in het schema — het bewerkvenster opent. Wijzigingen (naam, emoji, substappen) gelden automatisch voor alle kinderen en dagen."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Beloningen",
+          "faqs": [
+            {
+              "q": "Hoe voeg ik een beloning toe?",
+              "a": "Het tabblad \"Beloningen\" → zoek een beloning → tik op \"+ Nieuwe maken\" als die er nog niet is → vul naam, emoji en sterrenprijs in → kies welke kinderen hem zien → sla op."
+            },
+            {
+              "q": "Hoe zoek ik naar beloningen?",
+              "a": "Het zoekveld kijkt tegelijk in je eigen beloningen EN de standaardbibliotheek. Geen treffers? De knop \"Maak [name]\" opent een vooraf ingevuld formulier."
+            },
+            {
+              "q": "Kan een kind eigen beloningen hebben?",
+              "a": "Ja! Als je de beloning maakt, kies je welke kinderen hem zien. Handig voor beloningen die bij één kind passen."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Help – Instellingen",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Account",
+          "faqs": [
+            {
+              "q": "Hoe wijzig ik mijn wachtwoord?",
+              "a": "Vul je huidige wachtwoord en je nieuwe wachtwoord in → tik op \"Opslaan\". Het wachtwoord moet minstens 6 tekens zijn."
+            },
+            {
+              "q": "Hoe wijzig ik mijn e-mailadres?",
+              "a": "Vul je nieuwe e-mailadres in → tik op \"Opslaan\". Je moet het nieuwe adres misschien per e-mail bevestigen."
+            },
+            {
+              "q": "Hoe verwijder ik mijn account?",
+              "a": "Neem contact op via <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> om je account te verwijderen. We regelen het binnen 48 uur."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Meldingen",
+          "faqs": [
+            {
+              "q": "Hoe zet ik herinneringen aan?",
+              "a": "Zet de schakelaar onder \"Herinneringen\" aan → kies tijd en dagen. Je browser moet meldingen toestaan."
+            },
+            {
+              "q": "Ik krijg geen meldingen, terwijl ze aan staan",
+              "a": "Controleer of je browser meldingen voor de site toestaat. Ga naar de browserinstellingen → Meldingen → zoek [REDACTED].se → Toestaan."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Help – Kalender",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalender",
+          "faqs": [
+            {
+              "q": "Wat toont de kalender?",
+              "a": "De kalender geeft een maandoverzicht van de activiteiten van je kind, ingewisselde beloningen en belangrijke momenten."
+            },
+            {
+              "q": "Hoe ga ik naar een andere maand?",
+              "a": "Tik op de pijlen (< >) naast de maandnaam om van maand te wisselen."
+            },
+            {
+              "q": "Hoe zie ik meer details van een dag?",
+              "a": "Tik op een datum om een lijst te zien van activiteiten en sterren voor die dag."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Help – Vandaag",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Logboek",
+          "faqs": [
+            {
+              "q": "Wat is het daglogboek?",
+              "a": "Het logboek toont de dag van je kind — activiteiten, vinkjes en sterren. Gebruik het om te <strong>bekijken</strong> wat je kind ziet, of om achteraf in te vullen."
+            },
+            {
+              "q": "Hoe filter ik het logboek?",
+              "a": "Kies een kind in het filter bovenaan om het logboek van één kind te zien. Je kunt ook op datum filteren."
+            },
+            {
+              "q": "Hoe ver terug kan ik kijken?",
+              "a": "Het logboek bewaart gegevens vanaf de dag dat je [REDACTED] bent gaan gebruiken. Scroll of kies een datum om oudere gegevens te zien. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Help – Schema per dag kiezen",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Schema toewijzen",
+          "faqs": [
+            {
+              "q": "Wat is \"Schema per dag kiezen\"?",
+              "a": "Hier kies je welk weekschema actief is voor elk kind en elke dag. Handig als je op doordeweekse dagen en in het weekend andere routines hebt."
+            },
+            {
+              "q": "Kan een kind op doordeweekse dagen een ander schema hebben dan in het weekend?",
+              "a": "Ja! Kies één schema voor ma–vr en een ander voor za–zo. Tik op de dag en kies het schema dat je wilt."
+            },
+            {
+              "q": "Wat gebeurt er als er geen dag is toegewezen?",
+              "a": "Als een dag geen schema heeft, ziet je kind die dag geen activiteiten. Zorg dat elke dag die je wilt gebruiken een schema heeft."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Beheerpaneel",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Overzicht",
+          "faqs": [
+            {
+              "q": "Wat kan ik in het beheerpaneel?",
+              "a": "Het beheerpaneel geeft je toegang tot alle gezinnen, gebruikers en systeemgegevens. Je kunt statistieken bekijken, accounts beheren en inhoud modereren."
+            },
+            {
+              "q": "Hoe vind ik een bepaalde gebruiker?",
+              "a": "Gebruik het zoekveld bovenaan om te zoeken op e-mail of naam. Tik op een gezin om de details te zien."
+            },
+            {
+              "q": "Hoe archiveer ik een gezin?",
+              "a": "Tik op de gezinskaart → \"Archiveren\". Gearchiveerde gezinnen kun je terugzetten, maar ze blijven inactief tot die tijd."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Support",
+          "faqs": [
+            {
+              "q": "Hoe zie ik binnenkomende supportberichten?",
+              "a": "Onder het tabblad \"Supportinbox\" zie je elk bericht dat via het contactformulier is verstuurd. Tik om de volledige tekst te lezen en te antwoorden."
+            },
+            {
+              "q": "Hoe markeer ik een zaak als opgelost?",
+              "a": "Tik op de zaak → \"Markeer als opgelost\". Opgeloste zaken verdwijnen uit de standaardweergave, maar je kunt ze tonen via \"Opgeloste tonen\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Ondersteuning voor kinderen — {{brand}}",
+    "loadError": "De pagina kon niet worden geladen."
+  },
+  "supportSvar": {
+    "pageTitle": "Jouw zaak",
+    "title": "Jouw zaak",
+    "intro": "Hier is het hele gesprek. Schrijf hieronder als je verder wilt. Een gewoon e-mailantwoord verschijnt hier niet.",
+    "sent": "Verstuurd. We zien het bij dezelfde zaak.",
+    "escalate": "Ik heb meer hulp van een persoon nodig",
+    "placeholder": "Schrijf wat er gebeurt…"
+  }
+}

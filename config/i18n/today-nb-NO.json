@@ -1,0 +1,164 @@
+{
+  "pageTitle": "I dag — {{brand}}",
+  "shell": {
+    "headerTitle": "I dag",
+    "backToHome": "← Tilbake til Hjem",
+    "pdfHint": "Lag PDF for dag, uke eller mine dager",
+    "printBtn": "📄 Lag PDF ▾",
+    "printDay": "📄 Lag PDF — dag",
+    "printWeek": "📅 Lag PDF — uke",
+    "printMyDays": "🏠 Lag PDF — mine dager",
+    "selectChildHeading": "Velg barn",
+    "selectChildEmpty": "Velg et barn ovenfor for å se loggen",
+    "loadingChildren": "Laster…",
+    "tipsTitle": "Tips: Følg aktivitetene i dag",
+    "tips1": "Merk aktiviteter som ferdige — barnet ser dem med en gang",
+    "tips2": "Aktiviteter krysses av i barnevisningen med ett trykk og gir stjerner med en gang",
+    "tips3": "Bla tilbake med datovelgeren for å se hvordan barnet har gjort det",
+    "tips4": "Sett en dag på pause når rutinene er annerledes — ingen stjerner går tapt",
+    "rateActivity": "Vurder aktivitet",
+    "commentPlaceholder": "Kommentar (valgfritt)…",
+    "cancel": "Avbryt",
+    "save": "Lagre",
+    "moveUp": "Flytt opp",
+    "moveDown": "Flytt ned",
+    "printWeekDocTitle": "Ukeplan — {{name}}",
+    "printMyDaysDocTitle": "Mine dager"
+  },
+  "childFallback": "Barn",
+  "noChildren": "Ingen barn er lagt til ennå.",
+  "loading": "Laster…",
+  "retry": "Prøv igjen",
+  "errors": {
+    "signInRequired": "Logg inn for å se i dag",
+    "loadChildren": "Kunne ikke laste barn",
+    "loadLog": "Kunne ikke laste loggen. Prøv igjen.",
+    "saveOrder": "Kunne ikke lagre rekkefølgen",
+    "updateActivity": "Kunne ikke oppdatere aktiviteten",
+    "undo": "Kunne ikke angre",
+    "changeStatus": "Kunne ikke endre status",
+    "adjustTime": "Kunne ikke justere tidene",
+    "selectChild": "Velg et barn først",
+    "custodyDisabled": "Samværsplanen er ikke slått på",
+    "loadWeek": "Kunne ikke laste uken",
+    "saveRating": "Kunne ikke lagre vurderingen",
+    "ratingScoreOrEmotion": "Velg en vurdering eller et humørkort",
+    "ratingScoreRange": "Vurderingen må være mellom 1 og 10",
+    "ratingInvalidEmotion": "Ugyldig humørkort",
+    "ratingActivityNotFound": "Fant ikke aktiviteten",
+    "ratingNotAllowed": "Vurdering er ikke tillatt for dette barnet på denne aktiviteten",
+    "ratingParentScoreRange": "Vurderingen må være mellom 1 og 5",
+    "ratingParentDisabled": "Foreldrevurdering er ikke slått på for denne aktiviteten",
+    "dayPaused": "Dagen er satt på pause",
+    "dailyLogItemRequired": "daily_log_item_id er påkrevd",
+    "invalidTimerMinutes": "Ugyldige minutter. Tillatte verdier: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Ingen aktiviteter i dag!",
+    "noScheduleDay": "Ingen rutine denne dagen",
+    "addToWeekSchedule": "Legg til aktiviteter i ukeplanen, så lages loggene automatisk.",
+    "noScheduleSelected": "Ingen rutine for den valgte dagen.",
+    "thisDay": "denne dagen",
+    "today": "i dag",
+    "noChildrenTitle": "Ingen barn lagt til",
+    "addFirstChild": "Legg til det første barnet på Hjem for å komme i gang!",
+    "goToDashboard": "Gå til Hjem",
+    "goToWeekSchedule": "📅 Gå til ukeplan"
+  },
+  "nav": {
+    "prevWeek": "Forrige uke",
+    "prevDay": "Forrige dag",
+    "nextDay": "Neste dag",
+    "nextWeek": "Neste uke",
+    "pickDate": "Velg dato",
+    "todayBtn": "I dag",
+    "undoBump": "Angre siste tidsjustering"
+  },
+  "activity": {
+    "markDone": "Merk som ferdig",
+    "undoMark": "Angre merking",
+    "rate": "⭐ Vurder",
+    "setRating": "Sett vurdering",
+    "changeRating": "Endre vurdering",
+    "dragReorder": "Dra for å endre rekkefølge",
+    "completeAllInSection": "Fullfør alle i {{section}}",
+    "completeAllBtn": "✅ Merk alle ferdige",
+    "defaultName": "Aktivitet",
+    "undoneToast": "↩️ Merket som ikke ferdig"
+  },
+  "pause": {
+    "confirmPause": "Sette denne dagen på pause? Aktiviteter teller ikke negativt.",
+    "confirmUnpause": "Aktivere denne dagen igjen?",
+    "pausedToast": "😴 Dagen er satt på pause",
+    "unpausedToast": "✅ Dagen er aktivert igjen",
+    "dayTitle": "Fridag",
+    "banner": "Denne dagen er satt på pause (for eksempel sykedag eller ferie). Aktiviteter teller ikke negativt.",
+    "reactivate": "✅ Aktiver dagen igjen",
+    "pauseBtn": "😴 Sett denne dagen på pause (sykedag / fridag)"
+  },
+  "bump": {
+    "noItems": "Ingen uavkryssede aktiviteter med klokkeslett å justere",
+    "moved": "⏩ Flyttet {{count}} aktivit{{suffix}} fram med {{minutes}} min",
+    "movedOne": "et",
+    "movedMany": "eter",
+    "undoToast": "↩️ Tidsjusteringen er angret",
+    "title": "Flytt alt som kommer framover",
+    "adjustHint": "Justerer tidene på aktiviteter som ikke er krysset av",
+    "minutesTitle": "Flytt fram {{minutes}} min",
+    "undoBtn": "↩ Angre"
+  },
+  "retrofill": {
+    "title": "Fyller inn rutinen i etterkant",
+    "description": "Du fyller inn en rutine i etterkant. Merk aktiviteter som ferdige — de lagres med riktig dato."
+  },
+  "rating": {
+    "childMood": "Barnets humør",
+    "parentScore": "Foreldrevurdering",
+    "noMoodCards": "Ingen humørkort ennå",
+    "saved": "⭐ Vurdering lagret!",
+    "labels": [
+      "",
+      "Vanskelig 😓",
+      "Greit 😐",
+      "Bra 😊",
+      "Kjempebra 😄",
+      "Fantastisk! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiene",
+    "mat": "Mat",
+    "skola": "Skole",
+    "lek": "Lek",
+    "rorelse": "Bevegelse",
+    "vila": "Hvile",
+    "social": "Sosialt"
+  },
+  "legend": {
+    "colorCoding": "Fargekoding:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Alle aktiviteter er ferdige!",
+    "completedOf": "{{completed}} av {{total}} aktiviteter er ferdige"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Krysset av: {{name}}",
+    "undo": "Angre"
+  },
+  "emotions": {
+    "title": "💛 Humør i dag",
+    "noCards": "Ingen humørkort ennå",
+    "sliderResponses": "Glidebryter: {{count}} respons{{suffix}}",
+    "sliderSuffixOne": "",
+    "sliderSuffixMany": "er",
+    "sliderAvg": " (snitt {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Forbereder ukeoversikt...",
+    "preparingCustody": "Forbereder mine dager…",
+    "noMyDays": "Ingen av dagene dine denne uken",
+    "weekScheduleTitle": "{{name}} — Ukeplan",
+    "myDaysTitle": "{{name}} — Mine dager"
+  }
+}

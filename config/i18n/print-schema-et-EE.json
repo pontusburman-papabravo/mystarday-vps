@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Loo PDF — plaan — {{brand}}",
+  "backLink": "← Tagasi planeerimisse",
+  "heading": "📄 Loo PDF — plaan",
+  "intro": "Vali laps ja periood. Eelvaade näitab kogu plaani — PDF mahutatakse automaatselt ühele A4 lehele rõhtselt.",
+  "pdfSave": {
+    "title": "Kuhu PDF salvestatakse?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Pärast <em>Loo PDF</em> avaneb jagamisleht — vali <strong>Salvesta failidesse</strong> ja vali kaust (nt iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Arvuti:</strong> PDF läheb kausta <strong>Allalaadimised</strong> (sageli brauseris all vasakul)."
+  },
+  "sections": {
+    "child": "Laps",
+    "period": "Periood",
+    "scope": "Mida PDF peaks sisaldama?",
+    "startWeek": "Algusnädal"
+  },
+  "period": {
+    "1w": "1 nädal",
+    "2w": "2 nädalat",
+    "1m": "1 kuu"
+  },
+  "scope": {
+    "all": "Kogu plaan",
+    "my": "Ainult minu päevad"
+  },
+  "weekNav": {
+    "prevAria": "Eelmine nädal",
+    "nextAria": "Järgmine nädal",
+    "today": "See nädal"
+  },
+  "actions": {
+    "preview": "Eelvaade",
+    "createPdf": "Loo PDF"
+  },
+  "preview": {
+    "heading": "Eelvaade",
+    "hint": "Keri alla, kui päeval on palju tegevusi."
+  },
+  "pdfHelp": {
+    "title": "Kuidas PDF salvestada",
+    "closeAria": "Sulge",
+    "ok": "Selge",
+    "introShare": "Jagamisleht on avatud. Vali Salvesta failidesse, et PDF salvestada.",
+    "introPreview": "PDF avanes brauseris{{filename}}.",
+    "introDesktop": "PDF laaditi alla{{filename}}.",
+    "filenameSuffix": " nimega {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "Jagamislehel: keri ja puuduta <strong>Salvesta failidesse</strong>.",
+      "Vali kaust (nt <strong>iCloud Drive</strong> või <strong>Minu iPhone’is</strong>).",
+      "Puuduta üleval paremal <strong>Salvesta</strong>.",
+      "Leiad faili hiljem rakendusest <strong>Failid</strong>."
+    ],
+    "previewSteps": [
+      "PDF avanes uues vaates — puuduta üleval paremal <strong>Jaga</strong> (↑).",
+      "Vali <strong>Salvesta failidesse</strong>.",
+      "Vali kaust ja puuduta <strong>Salvesta</strong>."
+    ],
+    "desktopSteps": [
+      "Ava arvutis kaust <strong>Allalaadimised</strong>.",
+      "Otsi faili, mis algab prefiksiga <strong>{{prefix}}</strong> ja tänase kuupäevaga."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plaan",
+    "titleMyDays": "Minu päevad",
+    "emptyCell": "–",
+    "childFallback": "Laps",
+    "loadingPrint": "Valmistan trükki…",
+    "iframeTitle": "Trükk"
+  },
+  "filename": {
+    "prefixSchedule": "nadalaplaan",
+    "prefixMyDays": "minu-paevad",
+    "fallbackSlug": "laps"
+  },
+  "toasts": {
+    "loadChildrenError": "Lapsi ei saanud laadida",
+    "selectChild": "Vali esmalt laps",
+    "loadingPreview": "Laadin eelvaadet…",
+    "noMyDays": "Valitud perioodis pole sinu päevi",
+    "loadScheduleError": "Plaani ei saanud laadida",
+    "creatingPdf": "Loon PDF-i…",
+    "pdfCancelled": "PDF-i salvestamine tühistati",
+    "shareHint": "Vali jagamislehel Salvesta failidesse",
+    "mobileSavedHint": "PDF on valmis — salvesta see Failidesse",
+    "desktopSavedHint": "PDF salvestati Allalaadimistesse",
+    "pdfLibsMissing": "PDF-i tööriistad puuduvad — laadi leht uuesti ja proovi veel",
+    "createPdfError": "PDF-i ei saanud luua",
+    "shareAgain": "PDF on valmis. Puuduta uuesti Loo PDF, et valida, kuhu see salvestada."
+  },
+  "empty": {
+    "noChildren": "Lapsi pole veel lisatud.",
+    "goDashboard": "Mine Kodu"
+  }
+}

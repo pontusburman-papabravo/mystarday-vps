@@ -10,6 +10,14 @@
 
   if (document.getElementById('supportBubbleRoot')) return;
 
+  function contactLocaleTag() {
+    if (window.I18n && typeof I18n.getCurrentLang === 'function') {
+      const lang = I18n.getCurrentLang();
+      if (lang) return lang;
+    }
+    return (document.documentElement && document.documentElement.lang) || '';
+  }
+
   function t(key, params) {
     if (typeof window.authT === 'function') return window.authT(key, params);
     if (window.I18n && typeof I18n.t === 'function') {
@@ -372,7 +380,7 @@
             name: name,
             email: email,
             message: message,
-            locale: (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0 ? 'en' : 'sv',
+            locale: contactLocaleTag(),
           }),
         });
 

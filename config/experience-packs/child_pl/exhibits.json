@@ -1,0 +1,21 @@
+{
+  "version": "1.1.0",
+  "worlds": [
+    {
+      "world_slug": "memory_hall",
+      "slot_schema_version": 1,
+      "slots": []
+    }
+  ],
+  "slot_types": {
+    "proud_moment": {
+      "description": "Chwila dumy — krok po kroku, bez ściany trofeów"
+    },
+    "remembered_gift": {
+      "description": "Nagroda jak ciepłe wspomnienie — bez sklepu"
+    },
+    "warm_echo": {
+      "description": "Spokojny postęp, bez presji i bez serii"
+    }
+  }
+}

@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Hilfe",
+    "openAria": "Hilfe öffnen",
+    "closeAria": "Hilfe schließen"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Hilfe – Übersicht",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Übersicht",
+          "faqs": [
+            {
+              "q": "Was machen die drei Schnellbuttons oben?",
+              "a": "<strong>⭐ Bonussterne geben</strong> — einem Kind manuell Bonussterne geben. <strong>📋 Einmalige Aktivität</strong> — eine temporäre Aktivität für heute hinzufügen. <strong>🏠 Freier Tag</strong> — pausiert den Plan des Kindes für einen Tag (z. B. krank oder Urlaub)."
+            },
+            {
+              "q": "Wie hake ich eine Aktivität ab?",
+              "a": "Tippe auf die Aktivität in der Kinderkarte — sie wird sofort abgehakt. Dein Kind kann auch in der <strong>Kinderansicht</strong> abhaken."
+            },
+            {
+              "q": "Was ist eine kompakte Kinderkarte?",
+              "a": "Die Kinderkarte zeigt Avatar, Name, Sternestand und Abschnitts-Chips im Kompaktmodus. Klappe die Karte auf für mehr Details, einen Link zum Plan und die Pause-Taste."
+            },
+            {
+              "q": "Was ist ein freier Tag?",
+              "a": "<strong>🏠 Freier Tag</strong> pausiert den Plan des Kindes für den gewählten Tag — ideal bei Krankheit oder Ferien. Das Kind sieht den Plan als inaktiv. Aktiviere den Tag wieder mit derselben Taste."
+            },
+            {
+              "q": "Was ist der Pausenmodus?",
+              "a": "Tippe auf das Pause-Symbol (⏸) auf der Kinderkarte, um ein Kind zu pausieren. Aktivitäten gelten als inaktiv und das Kind verdient keine Sterne, bis du fortsetzt."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Sterne",
+          "faqs": [
+            {
+              "q": "Wie verdient mein Kind Sterne?",
+              "a": "Jede erledigte Aktivität bringt <strong>1 Stern</strong>. Dein Kind hakt in der Kinderansicht ab — oder du kannst beim Ausprobieren unter <strong>Heute</strong> abhaken. Bonussterne gibst du mit der ⭐-Taste über den Kinderkarten."
+            },
+            {
+              "q": "Wie funktioniert die Schatztruhe?",
+              "a": "Dein Kind öffnet die Schatztruhe über den 💎-Tab in der Kinderansicht und sieht Belohnungen mit Sternepreisen. Hat es genug gespart, kann es eine Belohnung anfragen — du bestätigst sie."
+            },
+            {
+              "q": "Wie füge ich Belohnungen hinzu?",
+              "a": "Geh im Menü zu <strong>Bibliothek</strong> → Tab „Belohnungen“. Füge eigene Belohnungen hinzu, passe die Sternekosten an und wähle, welche Kinder sie sehen."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plan",
+          "faqs": [
+            {
+              "q": "Wie füge ich eine Aktivität hinzu?",
+              "a": "Geh zu <strong>Wochenplan</strong> → Kind wählen → Tag wählen → „+“ tippen, um eine Aktivität aus der Bibliothek hinzuzufügen. Du kannst unter 63 Standardaktivitäten suchen."
+            },
+            {
+              "q": "Wie kopiere ich einen Plan auf alle Tage?",
+              "a": "Im Wochenplan → „Kopieren von…“ → Quelle wählen (eigener Plan oder Standardbibliothek) → Tage ankreuzen, auf die kopiert werden soll."
+            },
+            {
+              "q": "Was ist die Heute-Ansicht?",
+              "a": "Die „Heute“-Ansicht in der Übersicht aktualisiert sich automatisch, wenn du den Plan änderst. Änderungen im Wochenplan erscheinen sofort in der Übersicht und in der Kinderansicht."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Familie",
+          "faqs": [
+            {
+              "q": "Wie lade ich eine andere erwachsene Person ein?",
+              "a": "Geh zu <strong>Familie & Einstellungen → Familienmitglieder</strong> → „Einladen“ tippen. Die eingeladene Person erhält eine E-Mail mit Anmeldelink."
+            },
+            {
+              "q": "Wie sehe ich den Tag meines Kindes?",
+              "a": "Öffne im Menü <strong>Heute</strong> — dort siehst du die heutigen Aktivitäten, wie dein Kind sie sehen wird. Ideal am ersten Abend, bevor dein Kind selbst einloggt."
+            },
+            {
+              "q": "Wie loggt sich mein Kind ein?",
+              "a": "Wenn ihr soweit seid: Dein Kind meldet sich unter <strong>/child-login</strong> mit Benutzernamen und PIN an. Die Daten findest du unter <strong>Familie & Einstellungen → Kinder</strong>."
+            },
+            {
+              "q": "Support kontaktieren",
+              "a": "Schreib uns an <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — wir antworten innerhalb von 24 Stunden."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Hilfe – Belohnungen",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Belohnungen",
+          "faqs": [
+            {
+              "q": "Wie funktioniert das Belohnungssystem?",
+              "a": "Dein Kind sammelt Sterne, wenn es Aktivitäten erledigt. Reicht der Sternestand für eine Belohnung, kann es eine Einlösung anfragen — du bestätigst oder lehnst ab."
+            },
+            {
+              "q": "Wie füge ich neue Belohnungen hinzu?",
+              "a": "Geh im Menü zu <strong>Bibliothek</strong> → Tab „Belohnungen“ → suchen oder „+ Belohnung hinzufügen“ tippen. Du kannst auch direkt aus der Standardbibliothek kopieren."
+            },
+            {
+              "q": "Wie steuere ich die Sichtbarkeit pro Kind?",
+              "a": "Beim Erstellen oder Bearbeiten einer Belohnung wählst du, welche Kinder sie sehen sollen. Praktisch für individuelle Belohnungen."
+            },
+            {
+              "q": "Wie bestätige ich eine Einlösungsanfrage?",
+              "a": "Die Anfrage deines Kindes erscheint in der Übersicht mit einem Hinweis. Tippe zum Bestätigen. Sterne werden automatisch abgezogen und dein Kind sieht die Änderung sofort."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Sterne",
+          "faqs": [
+            {
+              "q": "Wie verdient mein Kind Sterne?",
+              "a": "Jede erledigte Aktivität bringt Sterne (standardmäßig 1 Stern pro Aktivität). Bonussterne gibst du mit der ⭐-Taste in der Übersicht."
+            },
+            {
+              "q": "Was ist Sternestand vs. Tagesfortschritt?",
+              "a": "<strong>Sternestand</strong> = gespartes Guthaben insgesamt. <strong>Tagesfortschritt</strong> (der Ring um das Emoji) = wie viele Aktivitäten dein Kind heute erledigt hat. Das sind getrennte Werte."
+            },
+            {
+              "q": "Was passiert bei einer eingelösten Belohnung?",
+              "a": "Sterne werden automatisch vom Konto deines Kindes abgezogen. In der Schatztruhe sieht es die Änderung sofort. Die Historie findest du auf der Belohnungsseite."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Hilfe – Wochenplan",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Plan bearbeiten",
+          "faqs": [
+            {
+              "q": "Wie füge ich eine Aktivität hinzu?",
+              "a": "Tag wählen → „+“ tippen → suchen und Aktivität wählen. Du kannst <strong>mehrere Zeitfenster auf einmal</strong> wählen (Morgen + Abend) — die Aktivität wird in alle eingefügt."
+            },
+            {
+              "q": "Wie erstelle ich direkt im Plan eine neue Aktivität?",
+              "a": "„+“ tippen → suchen → wenn nichts passt, erscheint im Suchfenster „Neu erstellen“. Name, Emoji, Sternewert und optional Teilschritte ausfüllen."
+            },
+            {
+              "q": "Wie bearbeite ich Name oder Emoji einer Aktivität?",
+              "a": "Tippe im Plan auf Name oder Emoji der Aktivität → das Bearbeitungsfenster öffnet sich. Änderungen gelten automatisch für alle Kinder und Tage."
+            },
+            {
+              "q": "Wie kopiere ich einen Plan von einem anderen Kind?",
+              "a": "„Kopieren von…“ tippen → Quelle wählen → Wochentage ankreuzen. Wähle, ob vorhandener Inhalt überschrieben werden soll."
+            },
+            {
+              "q": "Synchronisiert sich der Plan automatisch mit der Kinderansicht?",
+              "a": "Ja! Änderungen im Wochenplan erscheinen sofort in der „Heute“-Ansicht der Übersicht und in der Kinderansicht — ohne manuelles Aktualisieren."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliothek",
+          "faqs": [
+            {
+              "q": "Was ist die Standardbibliothek?",
+              "a": "Die Standardbibliothek enthält 63 fertige Aktivitäten in 6 Kategorien und 5 Planvorlagen. Tippe „Schnell aus Bibliothek einfügen“, um sie in den Plan zu übernehmen."
+            },
+            {
+              "q": "Wie kopiere ich einen Standardplan?",
+              "a": "Unter dem Plan-Tab → „Kopieren von…“ → „Standardbibliothek“ → Plan wählen → Tage wählen → kopieren."
+            },
+            {
+              "q": "Warum sieht mein Kind keine Aktivitäten?",
+              "a": "Prüfe, ob der Plan für das richtige Kind gilt und ob es Aktivitäten für den heutigen Tag gibt. Leerer Plan? Kopiere aus der Standardbibliothek, um schnell zu starten."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tipps",
+          "faqs": [
+            {
+              "q": "Wie baue ich einen guten Routinenplan?",
+              "a": "Starte mit 3–5 festen Aktivitäten (Frühstück, Zähne putzen, Hausaufgaben). In der richtigen Reihenfolge. Kinder lernen die Routine schnell, wenn sie konstant bleibt."
+            },
+            {
+              "q": "Was sind Teilschritte bei Aktivitäten?",
+              "a": "Du kannst Teilschritte hinzufügen (z. B. „Hände waschen“, „Schlafanzug an“ unter „Abendroutine“). Dein Kind sieht sie als visuelle Hilfe, hakt aber die ganze Aktivität auf einmal ab."
+            },
+            {
+              "q": "Wie viele Aktivitäten pro Tag?",
+              "a": "Empfohlen: 4–8 Aktivitäten. Zu wenige bringen keinen Rhythmus; zu viele wirken überfordernd. Klein anfangen und ausbauen."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Hilfe – Familie & Einstellungen",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Kinder",
+          "faqs": [
+            {
+              "q": "Wie füge ich ein Kind hinzu?",
+              "a": "Geh zur Übersicht → „+ Kind hinzufügen“ tippen. Name, Emoji und Geburtstag eingeben. Das Kind erhält automatisch einen passenden Plan."
+            },
+            {
+              "q": "Wie ändere ich die PIN meines Kindes?",
+              "a": "Kinderkarte tippen → Tab „Einstellungen“ → „PIN ändern“. Neue vierstellige PIN wählen."
+            },
+            {
+              "q": "Mein Kind muss Aktivitäten der Reihe nach machen — kann ich das ändern?",
+              "a": "Standard ist freies Abhaken. Für eine geführte Reihenfolge: Profil des Kindes → Tab <strong>Einstellungen</strong> → <strong>NOW / NEXT / LATER</strong> aktivieren."
+            },
+            {
+              "q": "Wo sieht mein Kind seine Anmeldedaten?",
+              "a": "Kinderkarte tippen → Tab „Einstellungen“ → „Anmeldedaten anzeigen“. Du siehst Benutzernamen und PIN."
+            },
+            {
+              "q": "Wie entferne ich ein Kind?",
+              "a": "Familie → Kind wählen → Tab Einstellungen → „Kind endgültig löschen“. Hinweis: Gesamter Plan-, Stern- und Belohnungsverlauf wird gelöscht und kann nicht rückgängig gemacht werden."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Erwachsene",
+          "faqs": [
+            {
+              "q": "Wie lade ich eine andere erwachsene Person ein?",
+              "a": "Tab <strong>Familienmitglieder</strong> → „Einladen“. Die Person erhält eine E-Mail mit Link zur Kontoerstellung."
+            },
+            {
+              "q": "Kann ich wählen, welche Kinder eine erwachsene Person sieht?",
+              "a": "Ja! Beim Einladen wählst du den Kinderzugang. Später änderbar unter Familienmitglieder → Person → Kinderzugang."
+            },
+            {
+              "q": "Wie entferne ich ein Familienmitglied?",
+              "a": "Person in der Liste Familienmitglieder tippen → „Entfernen“. Der Zugang zur Familie endet sofort."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Einstellungen",
+          "faqs": [
+            {
+              "q": "Wie ändere ich mein Passwort?",
+              "a": "Im Menü <strong>Einstellungen</strong> (⚙️) → „Passwort ändern“. Du brauchst dein aktuelles Passwort."
+            },
+            {
+              "q": "Wie aktiviere ich Benachrichtigungen?",
+              "a": "Einstellungen → „Erinnerungen“ → Benachrichtigungen aktivieren und Zeiten wählen. Der Browser muss Benachrichtigungen erlauben."
+            },
+            {
+              "q": "Support kontaktieren",
+              "a": "Schreib uns an <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — wir antworten innerhalb von 24 Stunden."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Hilfe – Aktivitäten",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Verwalten",
+          "faqs": [
+            {
+              "q": "Was ist eine Aktivität?",
+              "a": "Eine <strong>Aktivität</strong> ist eine Aufgabe, die dein Kind erledigt (z. B. „Zähne putzen“). Aktivitäten geben 1–5 Sterne und können Teilschritte haben. Sammle sie in der Bibliothek und füge sie in die Pläne deiner Kinder ein."
+            },
+            {
+              "q": "Wie erstelle ich eine neue Aktivität?",
+              "a": "„+ Neue Aktivität“ tippen → Name, Kategorie (Hygiene, Essen, Spiel usw.), Dauer und Sternewert eingeben. Speichern — die Aktivität landet in deiner Bibliothek."
+            },
+            {
+              "q": "Wie füge ich eine Aktivität in den Plan ein?",
+              "a": "Aktivitäten liegen in deiner Bibliothek. Wochenplan → Tag wählen → „+“ → gewünschte Aktivität wählen."
+            },
+            {
+              "q": "Wie entferne ich eine Aktivität von allen Tagen?",
+              "a": "✕ bei der Aktivität tippen → <strong>Jeden Tag der Woche</strong> wählen. Nur heute oder einen Wochentag (z. B. jeden Donnerstag) entfernen geht separat."
+            },
+            {
+              "q": "Wie bearbeite ich eine Aktivität?",
+              "a": "Aktivität in der Liste tippen → „Bearbeiten“. Änderungen gelten sofort in jedem Plan, in dem die Aktivität vorkommt."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorien",
+          "faqs": [
+            {
+              "q": "Wozu sind Kategorien da?",
+              "a": "Kategorien färben Aktivitäten in der Kinderansicht. <strong>Hygiene</strong>=blau, <strong>Essen</strong>=gelb, <strong>Spiel</strong>=grün, <strong>Schule</strong>=lila, <strong>Bewegung</strong>=rot, <strong>Ruhe</strong>=grau, <strong>Soziales</strong>=orange."
+            },
+            {
+              "q": "Wie wähle ich eine Kategorie?",
+              "a": "Beim Erstellen oder Bearbeiten einer Aktivität wählst du eine Kategorie aus der Liste. Nimm die, die die Aktivität am besten beschreibt."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Hilfe – Bibliothek",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Tabs",
+          "faqs": [
+            {
+              "q": "Welche Tabs gibt es in der Bibliothek?",
+              "a": "<strong>Pläne</strong> — eigene Planvorlagen. <strong>Aktivitäten</strong> — Aktivitätsbibliothek mit Teilschritten. <strong>Belohnungen</strong> — eigene Belohnungen. <strong>Standardbibliothek</strong> — 63 Aktivitäten, 15 Belohnungen und 5 Pläne zum Kopieren."
+            },
+            {
+              "q": "Wie kopiere ich aus der Standardbibliothek?",
+              "a": "Tab „Standardbibliothek“ → Aktivität oder Belohnung wählen → 📥 tippen, um in die Familienbibliothek zu kopieren. Pläne kopierst du über Wochenplan → „Kopieren von…“."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Aktivitäten",
+          "faqs": [
+            {
+              "q": "Wie erstelle ich eine neue Aktivität?",
+              "a": "„+ Neue Aktivität“ tippen → Name, Emoji (wählen oder selbst eingeben), Sternewert und optional Teilschritte → speichern. Die Aktivität gilt für die ganze Familie."
+            },
+            {
+              "q": "Was sind Teilschritte?",
+              "a": "Teilschritte sind Anleitungen unter einer Aktivität (z. B. „Hände waschen“ unter „Hygiene“). Dein Kind sieht sie als Hilfe, hakt aber die ganze Aktivität mit einem Tipp ab."
+            },
+            {
+              "q": "Wie bearbeite ich eine Aktivität?",
+              "a": "Im Plan auf den Namen der Aktivität tippen — das Bearbeitungsfenster öffnet sich. Änderungen (Name, Emoji, Teilschritte) gelten für alle Kinder und Tage."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Belohnungen",
+          "faqs": [
+            {
+              "q": "Wie füge ich eine Belohnung hinzu?",
+              "a": "Tab „Belohnungen“ → suchen → falls nicht vorhanden „+ Neu erstellen“ → Name, Emoji, Sternepreis → sichtbare Kinder wählen → speichern."
+            },
+            {
+              "q": "Wie suche ich Belohnungen?",
+              "a": "Die Suche durchsucht gleichzeitig deine Belohnungen und die Standardbibliothek. Keine Treffer? „[Name] erstellen“ öffnet ein vorausgefülltes Formular."
+            },
+            {
+              "q": "Kann ein Kind private Belohnungen haben?",
+              "a": "Ja! Beim Erstellen wählst du, welche Kinder die Belohnung sehen. Praktisch für individuelle Belohnungen."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Hilfe – Einstellungen",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Konto",
+          "faqs": [
+            {
+              "q": "Wie ändere ich mein Passwort?",
+              "a": "Aktuelles und neues Passwort eingeben → „Speichern“ tippen. Das Passwort muss mindestens 6 Zeichen haben."
+            },
+            {
+              "q": "Wie ändere ich meine E-Mail-Adresse?",
+              "a": "Neue E-Mail-Adresse eingeben → „Speichern“ tippen. Du musst die neue Adresse eventuell per E-Mail bestätigen."
+            },
+            {
+              "q": "Wie lösche ich mein Konto?",
+              "a": "Schreib uns an <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> zur Kontolöschung. Wir erledigen das innerhalb von 48 Stunden."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Benachrichtigungen",
+          "faqs": [
+            {
+              "q": "Wie aktiviere ich Erinnerungen?",
+              "a": "Schalter unter „Erinnerungen“ aktivieren → Zeit und Tage wählen. Der Browser muss Benachrichtigungen erlauben."
+            },
+            {
+              "q": "Ich erhalte keine Benachrichtigungen, obwohl sie aktiv sind",
+              "a": "Prüfe, ob der Browser Benachrichtigungen für die Seite erlaubt. Browser-Einstellungen → Benachrichtigungen → [REDACTED].se → Zulassen."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Hilfe – Kalender",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalender",
+          "faqs": [
+            {
+              "q": "Was zeigt der Kalender?",
+              "a": "Der Kalender gibt eine Monatsübersicht über Aktivitäten, eingelöste Belohnungen und wichtige Ereignisse deines Kindes."
+            },
+            {
+              "q": "Wie wechsle ich zwischen Monaten?",
+              "a": "Tippe auf die Pfeile (< >) neben dem Monatsnamen."
+            },
+            {
+              "q": "Wie sehe ich mehr Details für einen Tag?",
+              "a": "Tippe auf ein Datum, um Aktivitäten und Sterne für diesen Tag in einer Liste zu sehen."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Hilfe – Heute",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Protokoll",
+          "faqs": [
+            {
+              "q": "Was ist das Tagesprotokoll?",
+              "a": "Das Protokoll zeigt den Tag deines Kindes — Aktivitäten, Häkchen und Sterne. Nutze es zur <strong>Vorschau</strong> der Kinderansicht oder zum Nachtragen."
+            },
+            {
+              "q": "Wie filtere ich das Protokoll?",
+              "a": "Wähle oben im Filter ein Kind, um nur dessen Protokoll zu sehen. Du kannst auch nach Datum filtern."
+            },
+            {
+              "q": "Wie weit kann ich zurückschauen?",
+              "a": "Das Protokoll speichert Daten ab dem Tag, an dem du [REDACTED] nutzt. Scrolle oder wähle ein Datum für ältere Einträge. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Hilfe – Plan pro Tag wählen",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Plan zuweisen",
+          "faqs": [
+            {
+              "q": "Was ist „Plan pro Tag wählen“?",
+              "a": "Hier wählst du, welcher Wochenplan für jedes Kind und jeden Tag aktiv ist. Praktisch bei unterschiedlichen Routinen an Wochentagen und am Wochenende."
+            },
+            {
+              "q": "Kann ein Kind unter der Woche und am Wochenende verschiedene Pläne haben?",
+              "a": "Ja! Einen Plan für Mo–Fr und einen anderen für Sa–So. Tippe auf den Tag und wähle den gewünschten Plan."
+            },
+            {
+              "q": "Was passiert, wenn kein Tag zugewiesen ist?",
+              "a": "Ohne zugewiesenen Plan sieht dein Kind an diesem Tag keine Aktivitäten. Weise jedem genutzten Tag einen Plan zu."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Admin-Bereich",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Übersicht",
+          "faqs": [
+            {
+              "q": "Was kann ich im Admin-Bereich tun?",
+              "a": "Der Admin-Bereich gibt Zugriff auf alle Familien, Nutzer und Systemdaten. Du kannst Statistiken sehen, Konten verwalten und Inhalte moderieren."
+            },
+            {
+              "q": "Wie finde ich einen bestimmten Nutzer?",
+              "a": "Nutze das Suchfeld oben für E-Mail oder Name. Tippe auf eine Familie für Details."
+            },
+            {
+              "q": "Wie archiviere ich eine Familie?",
+              "a": "Familienkarte tippen → „Archivieren“. Archivierte Familien können wiederhergestellt werden, bleiben bis dahin inaktiv."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Support",
+          "faqs": [
+            {
+              "q": "Wie sehe ich eingehende Support-Nachrichten?",
+              "a": "Unter „Support-Posteingang“ siehst du alle Nachrichten aus dem Kontaktformular. Tippen für den vollen Text und Antwort."
+            },
+            {
+              "q": "Wie markiere ich ein Anliegen als erledigt?",
+              "a": "Anliegen tippen → „Als erledigt markieren“. Erledigte Anliegen sind in der Standardansicht ausgeblendet, sichtbar über „Erledigte anzeigen“."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Extra Unterstützung — {{brand}}",
+    "loadError": "Seite konnte nicht geladen werden."
+  },
+  "supportSvar": {
+    "pageTitle": "Dein Anliegen",
+    "title": "Dein Anliegen",
+    "intro": "Hier ist der gesamte Verlauf. Schreib unten, wenn du weitermachen möchtest. Eine normale E-Mail-Antwort erscheint hier nicht.",
+    "sent": "Gesendet. Wir sehen es im gleichen Anliegen.",
+    "escalate": "Ich brauche mehr Hilfe von einer Person",
+    "placeholder": "Beschreibe, was passiert…"
+  }
+}

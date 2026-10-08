@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Hjelp",
+    "openAria": "Åpne hjelp",
+    "closeAria": "Lukk hjelp"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Hjelp – Oversikt",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Oversikt",
+          "faqs": [
+            {
+              "q": "Hva gjør de 3 hurtigknappene øverst?",
+              "a": "<strong>⭐ Gi ekstra stjerner</strong> — gi et barn ekstra stjerner manuelt. <strong>📋 Engangsaktivitet</strong> — legg til en midlertidig aktivitet for i dag. <strong>🏠 Fridag</strong> — setter barnets plan på pause for en dag (for eksempel sykedag eller ferie)."
+            },
+            {
+              "q": "Hvordan krysser jeg av en aktivitet?",
+              "a": "Trykk på aktiviteten på barnekortet — den krysses av med en gang. Barnet kan også krysse av i <strong>barnevisningen</strong>."
+            },
+            {
+              "q": "Hva er et kompakt barnekort?",
+              "a": "Barnekortet viser avatar, navn, stjernesaldo og delpiller i kompakt modus. Utvid kortet for flere detaljer, en lenke til planen og pauseknappen."
+            },
+            {
+              "q": "Hva er fridag?",
+              "a": "<strong>🏠 Fridag</strong> setter barnets plan på pause for den valgte dagen — praktisk når barnet er sykt eller har ferie. Barnet ser planen som inaktiv. Slå dagen på igjen med samme knapp."
+            },
+            {
+              "q": "Hva er pausemodus?",
+              "a": "Trykk pauseikonet (⏸) på barnekortet for å sette et barn på pause. Aktiviteter vises som inaktive, og barnet tjener ikke stjerner før du gjenopptar."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stjerner",
+          "faqs": [
+            {
+              "q": "Hvordan tjener barnet stjerner?",
+              "a": "Hver fullført aktivitet gir <strong>1 stjerne</strong>. Barnet krysser av i barnevisningen — eller du kan krysse av i Dagloggen mens dere prøver dere fram. Gi ekstra stjerner med ⭐-knappen over barnekortene."
+            },
+            {
+              "q": "Hvordan virker stjernekisten?",
+              "a": "Barnet åpner stjernekisten via 💎-fanen i barnevisningen og ser belønninger med stjernepriser. Når barnet har spart nok, kan det be om en belønning — du godkjenner den."
+            },
+            {
+              "q": "Hvordan legger jeg til belønninger?",
+              "a": "Gå til <strong>Bibliotek</strong> i menyen → fanen «Belønninger». Legg til egne belønninger, endre stjernekostnaden og velg hvilke barn som ser dem."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Plan",
+          "faqs": [
+            {
+              "q": "Hvordan legger jeg til en aktivitet?",
+              "a": "Gå til <strong>Ukeplan</strong> → velg barn → velg dag → trykk «+» for å legge til en aktivitet fra biblioteket. Du kan søke blant 63 standardaktiviteter."
+            },
+            {
+              "q": "Hvordan kopierer jeg en plan til hver dag?",
+              "a": "I Ukeplan → «Kopier fra…» → velg en kilde (din egen plan eller standardbiblioteket) → kryss av dagene du vil kopiere til."
+            },
+            {
+              "q": "Hva er visningen I dag?",
+              "a": "Visningen «I dag» på Oversikt oppdateres automatisk når du endrer planen. Endringer i Ukeplan vises med en gang på Oversikt og i barnets visning."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Familie",
+          "faqs": [
+            {
+              "q": "Hvordan inviterer jeg en annen voksen?",
+              "a": "Gå til <strong>Familie og innstillinger → Familiemedlemmer</strong> → trykk «Inviter». Personen du inviterer, får en e-post med en innloggingslenke."
+            },
+            {
+              "q": "Hvordan ser jeg barnets dag?",
+              "a": "Åpne <strong>Daglogg</strong> i menyen — der ser du aktivitetene i dag slik barnet vil se dem. Praktisk den første kvelden, før barnet logger inn selv."
+            },
+            {
+              "q": "Hvordan logger barnet inn?",
+              "a": "Når du er klar: barnet logger inn på <strong>/child-login</strong> med brukernavn og PIN. Du finner opplysningene under <strong>Familie og innstillinger → Barn</strong>."
+            },
+            {
+              "q": "Kontakt brukerstøtte",
+              "a": "Send e-post til <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vi svarer innen 24 timer."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Hjelp – Belønninger",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Belønninger",
+          "faqs": [
+            {
+              "q": "Hvordan virker belønningssystemet?",
+              "a": "Barnet samler stjerner ved å fullføre aktiviteter. Når stjernesaldoen rekker til en belønning, kan barnet be om å løse den inn — du godkjenner eller avslår."
+            },
+            {
+              "q": "Hvordan legger jeg til nye belønninger?",
+              "a": "Gå til <strong>Bibliotek</strong> i menyen → fanen «Belønninger» → søk eller trykk «+ Legg til belønning». Du kan også kopiere rett fra standardbiblioteket."
+            },
+            {
+              "q": "Hvordan styrer jeg synlighet per barn?",
+              "a": "Når du lager eller redigerer en belønning, velger du hvilke barn som skal se den. Praktisk for tilpassede belønninger per barn."
+            },
+            {
+              "q": "Hvordan godkjenner jeg en innløsningsforespørsel?",
+              "a": "Forespørselen fra barnet vises på Oversikt med et merke. Trykk for å godkjenne. Stjerner trekkes automatisk, og barnet ser endringen med en gang."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stjerner",
+          "faqs": [
+            {
+              "q": "Hvordan tjener barnet stjerner?",
+              "a": "Hver fullført aktivitet gir stjerner (1 stjerne per aktivitet som standard). Du kan også gi ekstra stjerner med ⭐-knappen på Oversikt."
+            },
+            {
+              "q": "Hva er stjernesaldo mot daglig fremgang?",
+              "a": "<strong>Stjernesaldo</strong> = samlet spart saldo. <strong>Daglig fremgang</strong> (ringen rundt emojien) = hvor mange aktiviteter barnet fullførte i dag. Dette er to ulike ting."
+            },
+            {
+              "q": "Hva skjer når en belønning løses inn?",
+              "a": "Stjerner trekkes automatisk fra barnets konto. Barnet ser endringen med en gang i stjernekisten. Du ser historikken på siden Belønninger."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Hjelp – Ukeplan",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Rediger plan",
+          "faqs": [
+            {
+              "q": "Hvordan legger jeg til en aktivitet?",
+              "a": "Velg dag → trykk «+» → søk og velg en aktivitet. Du kan velge <strong>flere tidsbolker samtidig</strong> (Morgen + Kveld), og aktiviteten legges til i alle."
+            },
+            {
+              "q": "Hvordan lager jeg en ny aktivitet rett i planen?",
+              "a": "Trykk «+» → søk → hvis ingenting treffer, vises skjemaet «Opprett ny» i søkemodalen. Fyll inn navn, emoji, stjerneverdi og eventuelle delsteg."
+            },
+            {
+              "q": "Hvordan endrer jeg navn eller emoji på en aktivitet?",
+              "a": "Trykk på aktivitetens navn eller emoji i planen → redigeringsvinduet åpnes. Endringer gjelder automatisk for alle barn og dager."
+            },
+            {
+              "q": "Hvordan kopierer jeg en plan fra et annet barn?",
+              "a": "Trykk «Kopier fra…» → velg kilde → kryss av ukedagene du vil kopiere til. Velg om eksisterende innhold skal overskrives."
+            },
+            {
+              "q": "Synkroniseres planen automatisk til barnevisningen?",
+              "a": "Ja! Endringer i Ukeplan synkroniseres med en gang til visningen «I dag» på Oversikt og til barnets visning — ingen manuell oppdatering trengs."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Bibliotek",
+          "faqs": [
+            {
+              "q": "Hva er standardbiblioteket?",
+              "a": "Standardbiblioteket har 63 ferdige aktiviteter i 6 kategorier og 5 planmaler. Trykk «Hurtiginnsetting fra bibliotek» for å legge dem i planen."
+            },
+            {
+              "q": "Hvordan kopierer jeg en standardplan?",
+              "a": "Under fanen Plan → «Kopier fra…» → velg «Standardbibliotek» → velg en plan → velg dager → kopier."
+            },
+            {
+              "q": "Hvorfor ser ikke barnet noen aktiviteter?",
+              "a": "Sjekk at planen er satt for riktig barn, og at det finnes aktiviteter for dagen i dag. Tom plan? Kopier fra standardbiblioteket for å komme raskt i gang."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Tips",
+          "faqs": [
+            {
+              "q": "Hvordan bygger jeg en god rutineplan?",
+              "a": "Start med 3–5 faste aktiviteter (frokost, pusse tenner, lekser). Sett dem i riktig rekkefølge. Barn lærer rutinen raskt når den er lik fra dag til dag."
+            },
+            {
+              "q": "Hva er delsteg på aktiviteter?",
+              "a": "Du kan legge til delsteg på aktiviteter (for eksempel «Vaske hendene», «Ta på pyjamas» under «Kveldsrutine»). Barnet ser dem som en visuell guide, men krysser av hele aktiviteten i ett trykk."
+            },
+            {
+              "q": "Hvor mange aktiviteter per dag?",
+              "a": "Anbefalt: 4–8 aktiviteter. For få gir ingen flyt; for mange kjennes overveldende. Start lite og bygg opp."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Hjelp – Familie og innstillinger",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Barn",
+          "faqs": [
+            {
+              "q": "Hvordan legger jeg til et barn?",
+              "a": "Gå til Oversikt → trykk «+ Legg til barn». Fyll inn navn, emoji og bursdag. Barnet får en plan automatisk ut fra alder."
+            },
+            {
+              "q": "Hvordan endrer jeg barnets PIN?",
+              "a": "Trykk på barnekortet → fanen «Innstillinger» → «Endre PIN». Velg en ny PIN på 4 sifre."
+            },
+            {
+              "q": "Barnet må gjøre aktiviteter i rekkefølge — kan jeg endre det?",
+              "a": "Standard er fri avkryssing. For styrt rekkefølge, gå til barnets profil → fanen <strong>Innstillinger</strong> → slå på <strong>NÅ / NESTE / SENERE</strong>."
+            },
+            {
+              "q": "Hvordan ser barnet innloggingsdetaljene sine?",
+              "a": "Trykk på barnekortet → fanen «Innstillinger» → «Vis innloggingsdetaljer». Du ser barnets brukernavn og PIN."
+            },
+            {
+              "q": "Hvordan fjerner jeg et barn?",
+              "a": "Familie → velg barn → fanen Innstillinger → «Slett barn for godt». Merk: all historikk for plan, stjerner og belønninger slettes og kan ikke angres."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Voksne",
+          "faqs": [
+            {
+              "q": "Hvordan inviterer jeg en annen voksen?",
+              "a": "Gå til fanen <strong>Familiemedlemmer</strong> → «Inviter». Personen du inviterer, får en e-post med en lenke for å opprette en konto."
+            },
+            {
+              "q": "Kan jeg velge hvilke barn en voksen ser?",
+              "a": "Ja! Du velger hvilke barn personen får tilgang til når du sender invitasjonen. Du kan endre det senere under Familiemedlemmer → personen → Tilgang til barn."
+            },
+            {
+              "q": "Hvordan fjerner jeg et familiemedlem?",
+              "a": "Trykk på personen i listen over familiemedlemmer → «Fjern». Personen mister tilgangen til familien med en gang."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Innstillinger",
+          "faqs": [
+            {
+              "q": "Hvordan endrer jeg passordet?",
+              "a": "Gå til <strong>Innstillinger</strong> (⚙️) i menyen → «Endre passord». Du trenger det nåværende passordet."
+            },
+            {
+              "q": "Hvordan slår jeg på varsler?",
+              "a": "Gå til Innstillinger → «Påminnelser» → slå på varsler og velg tidspunkt. Varsler krever tillatelse i nettleseren."
+            },
+            {
+              "q": "Kontakt brukerstøtte",
+              "a": "Send e-post til <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — vi svarer innen 24 timer."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Hjelp – Aktiviteter",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Administrer",
+          "faqs": [
+            {
+              "q": "Hva er en aktivitet?",
+              "a": "En <strong>aktivitet</strong> er en oppgave barnet gjør (for eksempel «Pusse tenner»). Aktiviteter gir 1–5 stjerner og kan ha delsteg. Samle dem i biblioteket og legg dem i barnas planer."
+            },
+            {
+              "q": "Hvordan lager jeg en ny aktivitet?",
+              "a": "Trykk «+ Ny aktivitet» → fyll inn navn, kategori (Hygiene, Mat, Lek og så videre), varighet og stjerneverdi. Lagre, så legges aktiviteten i biblioteket."
+            },
+            {
+              "q": "Hvordan legger jeg en aktivitet i planen?",
+              "a": "Aktiviteter ligger i biblioteket. Gå til Ukeplan → velg dag → «+» → velg aktiviteten du vil legge til."
+            },
+            {
+              "q": "Hvordan fjerner jeg en aktivitet fra hver dag?",
+              "a": "Trykk ✕ på aktiviteten → velg <strong>Hver dag i uken</strong>. For å fjerne bare i dag eller én ukedag (for eksempel hver torsdag), finnes egne valg."
+            },
+            {
+              "q": "Hvordan redigerer jeg en aktivitet?",
+              "a": "Trykk på aktiviteten i listen → «Rediger». Endringer gjelder med en gang i hver plan der aktiviteten brukes."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategorier",
+          "faqs": [
+            {
+              "q": "Hva brukes kategorier til?",
+              "a": "Kategorier fargekoder aktiviteter i barnevisningen. <strong>Hygiene</strong>=blå, <strong>Mat</strong>=gul, <strong>Lek</strong>=grønn, <strong>Skole</strong>=lilla, <strong>Bevegelse</strong>=rød, <strong>Hvile</strong>=grå, <strong>Sosialt</strong>=oransje."
+            },
+            {
+              "q": "Hvordan velger jeg en kategori?",
+              "a": "Når du lager eller redigerer en aktivitet, velger du en kategori i nedtrekkslisten. Velg den som beskriver aktiviteten best."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Hjelp – Bibliotek",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Faner",
+          "faqs": [
+            {
+              "q": "Hvilke faner finnes i biblioteket?",
+              "a": "<strong>Planer</strong> — dine egne planmaler. <strong>Aktiviteter</strong> — aktivitetsbibliotek med delsteg. <strong>Belønninger</strong> — dine egne belønninger. <strong>Standardbibliotek</strong> — 63 aktiviteter, 15 belønninger og 5 planer å kopiere fra."
+            },
+            {
+              "q": "Hvordan kopierer jeg fra standardbiblioteket?",
+              "a": "Gå til fanen «Standardbibliotek» → velg aktivitet eller belønning → trykk 📥-knappen for å kopiere til familiebiblioteket. Planer kopieres via Ukeplan → «Kopier fra…»."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Aktiviteter",
+          "faqs": [
+            {
+              "q": "Hvordan lager jeg en ny aktivitet?",
+              "a": "Trykk «+ Ny aktivitet» → fyll inn navn, emoji (velg eller skriv din egen), stjerneverdi og eventuelle delsteg → lagre. Aktiviteten lagres i biblioteket for hele familien."
+            },
+            {
+              "q": "Hva er delsteg?",
+              "a": "Delsteg er steg-for-steg-instrukser under en aktivitet (for eksempel «Vaske hendene» under «Hygiene»). Barnet ser dem som en guide, men krysser av hele aktiviteten med ett trykk."
+            },
+            {
+              "q": "Hvordan redigerer jeg en aktivitet?",
+              "a": "Trykk på aktivitetens navn i planen — redigeringsvinduet åpnes. Endringer (navn, emoji, delsteg) gjelder automatisk for alle barn og dager."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Belønninger",
+          "faqs": [
+            {
+              "q": "Hvordan legger jeg til en belønning?",
+              "a": "Fanen «Belønninger» → søk etter en belønning → trykk «+ Opprett ny» hvis den ikke finnes → fyll inn navn, emoji, stjernepris → velg hvilke barn som ser den → lagre."
+            },
+            {
+              "q": "Hvordan søker jeg etter belønninger?",
+              "a": "Søkefeltet leter i dine egne belønninger OG standardbiblioteket samtidig. Ingen treff? Knappen «Opprett [navn]» åpner et forhåndsutfylt skjema."
+            },
+            {
+              "q": "Kan et barn ha private belønninger?",
+              "a": "Ja! Når du lager belønningen, velger du hvilke barn som skal se den. Praktisk for tilpassede belønninger per barn."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Hjelp – Innstillinger",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Konto",
+          "faqs": [
+            {
+              "q": "Hvordan endrer jeg passordet?",
+              "a": "Skriv inn nåværende passord og det nye passordet → trykk «Lagre». Passordet må være minst 6 tegn."
+            },
+            {
+              "q": "Hvordan endrer jeg e-postadressen?",
+              "a": "Skriv inn den nye e-postadressen → trykk «Lagre». Du må kanskje bekrefte den nye adressen på e-post."
+            },
+            {
+              "q": "Hvordan sletter jeg kontoen?",
+              "a": "Kontakt oss på <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> for sletting av konto. Vi ordner det innen 48 timer."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Varsler",
+          "faqs": [
+            {
+              "q": "Hvordan slår jeg på påminnelser?",
+              "a": "Slå på bryteren under «Påminnelser» → velg tidspunkt og hvilke dager. Nettleseren må tillate varsler."
+            },
+            {
+              "q": "Jeg får ikke varsler selv om de er slått på",
+              "a": "Sjekk at nettleseren har tillatt varsler for nettstedet. Gå til nettleserinnstillinger → Varsler → finn [REDACTED].se → Tillat."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Hjelp – Kalender",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalender",
+          "faqs": [
+            {
+              "q": "Hva viser kalenderen?",
+              "a": "Kalenderen gir en månedsoversikt over barnets aktiviteter, innløste belønninger og viktige hendelser."
+            },
+            {
+              "q": "Hvordan bytter jeg måned?",
+              "a": "Trykk pilene (< >) ved siden av månedsnavnet for å bytte måned."
+            },
+            {
+              "q": "Hvordan ser jeg mer detaljer for en dag?",
+              "a": "Trykk på en dato for å se en detaljert liste over aktiviteter og stjerner for den dagen."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Hjelp – Daglogg",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Logg",
+          "faqs": [
+            {
+              "q": "Hva er dagloggen?",
+              "a": "Loggen viser barnets dag — aktiviteter, avkryssinger og stjerner. Bruk den til å <strong>forhåndsvise</strong> det barnet ser, eller til å fylle inn i etterkant."
+            },
+            {
+              "q": "Hvordan filtrerer jeg loggen?",
+              "a": "Velg et barn i filteret øverst for å vise loggen for bare ett barn. Du kan også filtrere på dato."
+            },
+            {
+              "q": "Hvor langt tilbake kan jeg se?",
+              "a": "Loggen tar vare på data fra dagen du begynte å bruke [REDACTED]. Bla eller velg en dato for å se eldre data. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Hjelp – Velg plan per dag",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Tildel plan",
+          "faqs": [
+            {
+              "q": "Hva er «Velg plan per dag»?",
+              "a": "Her velger du hvilken ukeplan som er aktiv for hvert barn og hver dag. Praktisk hvis dere har ulike rutiner på hverdager og i helgen."
+            },
+            {
+              "q": "Kan et barn ha ulike planer på hverdager og i helgen?",
+              "a": "Ja! Velg én plan for man–fre og en annen for lør–søn. Trykk på dagen og velg planen du vil ha."
+            },
+            {
+              "q": "Hva skjer hvis ingen dag er tildelt?",
+              "a": "Hvis ingen dag har en plan, ser barnet ingen aktiviteter den dagen. Sørg for at hver dag du vil bruke, har en plan."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Adminpanel",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Oversikt",
+          "faqs": [
+            {
+              "q": "Hva kan jeg gjøre i adminpanelet?",
+              "a": "Adminpanelet gir deg tilgang til alle familier, brukere og systemdata. Du kan se statistikk, administrere kontoer og moderere innhold."
+            },
+            {
+              "q": "Hvordan finner jeg en bestemt bruker?",
+              "a": "Bruk søkefeltet øverst for å søke på e-post eller navn. Trykk på en familie for å se detaljer."
+            },
+            {
+              "q": "Hvordan arkiverer jeg en familie?",
+              "a": "Trykk på familiekortet → «Arkiver». Arkiverte familier kan gjenopprettes, men er inaktive til da."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Brukerstøtte",
+          "faqs": [
+            {
+              "q": "Hvordan ser jeg innkommende støttehenvendelser?",
+              "a": "Under fanen «Støtteinnboks» ser du alle meldinger sendt via kontaktskjemaet. Trykk for å lese hele teksten og svare."
+            },
+            {
+              "q": "Hvordan markerer jeg en sak som løst?",
+              "a": "Trykk på saken → «Merk som løst». Løste saker filtreres bort fra standardvisningen, men kan vises via «Vis løste»."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Støtte til barn — {{brand}}",
+    "loadError": "Kunne ikke laste siden."
+  },
+  "supportSvar": {
+    "pageTitle": "Saken din",
+    "title": "Saken din",
+    "intro": "Her er hele samtalen. Skriv under hvis du vil fortsette. Et vanlig e-postsvar vises ikke her.",
+    "sent": "Sendt. Vi ser det på samme sak.",
+    "escalate": "Jeg trenger mer hjelp fra et menneske",
+    "placeholder": "Skriv hva som skjer…"
+  }
+}

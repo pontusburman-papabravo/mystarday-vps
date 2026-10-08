@@ -56,7 +56,7 @@
   function applyStaticI18n() {
     if (!window.I18n) return;
     I18n.apply(document);
-    document.documentElement.lang = (I18n.lang || 'sv-SE').toLowerCase().startsWith('en') ? 'en' : 'sv';
+    document.documentElement.lang = (I18n.lang || I18n.DEFAULT_LOCALE || 'sv-SE').toLowerCase();
   }
 
   function applyAutoRenewCopy() {

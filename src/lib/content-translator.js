@@ -1,11 +1,13 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const db = require('./db');
-const maps = require('../../config/family-content-locale/sv-to-en.json');
-const { normalizeLocale } = require('./locale');
+const { normalizeLocale, usesCanonicalLibrary, contentMapFile } = require('./locale');
 
 const MEMORY_CACHE_MAX = 1000;
 const memoryCache = new Map();
+const contentMapCache = new Map();
 
 function isRemoteTranslationEnabled() {
   if (process.env.CONTENT_TRANSLATION_REMOTE === 'false') return false;
@@ -25,13 +27,40 @@ function rememberInMemory(key, value) {
   memoryCache.set(key, value);
 }
 
-function staticLookup(text, targetLocale) {
-  if (targetLocale !== 'en-GB' || !text) return null;
-  return maps.activities[text]
-    || maps.rewards[text]
-    || maps.schedules?.[text]
-    || maps.scheduleDescriptions?.[text]
+function localeContentMap(targetLocale) {
+  const target = normalizeLocale(targetLocale);
+  if (!target || usesCanonicalLibrary(target)) return null;
+  const fileName = contentMapFile(target);
+  const cacheKey = `${target}::${fileName || ''}`;
+  if (contentMapCache.has(cacheKey)) return contentMapCache.get(cacheKey);
+  if (!fileName) {
+    contentMapCache.set(cacheKey, null);
+    return null;
+  }
+  const file = path.join(__dirname, '../../config/family-content-locale', fileName);
+  let table = null;
+  if (fs.existsSync(file)) {
+    try {
+      table = JSON.parse(fs.readFileSync(file, 'utf8'));
+    } catch (_) {
+      table = null;
+    }
+  }
+  contentMapCache.set(cacheKey, table);
+  return table;
+}
+
+function lookupInMap(table, text) {
+  if (!table || !text) return null;
+  return table.activities?.[text]
+    || table.rewards?.[text]
+    || table.schedules?.[text]
+    || table.scheduleDescriptions?.[text]
     || null;
+}
+
+function staticLookup(text, targetLocale) {
+  return lookupInMap(localeContentMap(targetLocale), text);
 }
 
 function looksAlreadyEnglish(text) {
@@ -98,8 +127,7 @@ async function translateContentText(text, targetLocale, sourceLocale = 'sv-SE') 
   if (!text) return text;
   const target = normalizeLocale(targetLocale) || targetLocale;
   const source = normalizeLocale(sourceLocale) || sourceLocale;
-  if (target !== 'en-GB' || source === target) return text;
-
+  if (!target || usesCanonicalLibrary(target) || source === target) return text;
   const key = cacheKey(source, target, text);
   if (memoryCache.has(key)) return memoryCache.get(key);
 
@@ -108,6 +136,7 @@ async function translateContentText(text, targetLocale, sourceLocale = 'sv-SE') 
     rememberInMemory(key, staticHit);
     return staticHit;
   }
+  if (target !== 'en-GB') return text;
 
   try {
     const dbHit = await lookupDbCache(source, target, text);
@@ -142,7 +171,10 @@ async function translateContentText(text, targetLocale, sourceLocale = 'sv-SE') 
  */
 async function buildContentTranslator(texts, targetLocale, sourceLocale = 'sv-SE') {
   const target = normalizeLocale(targetLocale) || targetLocale;
-  if (target !== 'en-GB') {
+  if (!target || usesCanonicalLibrary(target)) {
+    return (text) => text;
+  }
+  if (target !== 'en-GB' && !localeContentMap(target)) {
     return (text) => text;
   }
 
@@ -167,5 +199,6 @@ module.exports = {
   buildContentTranslator,
   clearTranslationMemoryCache,
   staticLookup,
+  localeContentMap,
   looksAlreadyEnglish,
 };

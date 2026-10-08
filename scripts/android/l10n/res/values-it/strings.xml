@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string>
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Nessuna connessione</string>
+    <string name="native_offline_body">Controlla la connessione internet e riprova.</string>
+    <string name="camera_permission_rationale">[REDACTED] usa la fotocamera così puoi scattare una foto profilo per tuo figlio.</string>
+    <string name="photos_permission_rationale">[REDACTED] ha bisogno di accedere alle tue foto per scegliere una foto profilo di tuo figlio.</string>
+    <string name="notification_channel_routine_name">Promemoria della routine</string>
+    <string name="notification_channel_routine_desc">Promemoria sul piano della famiglia</string>
+</resources>

@@ -1,0 +1,164 @@
+{
+  "pageTitle": "Dnes — {{brand}}",
+  "shell": {
+    "headerTitle": "Dnes",
+    "backToHome": "← Späť na Domov",
+    "pdfHint": "Vytvor PDF na deň, týždeň alebo moje dni",
+    "printBtn": "📄 Vytvoriť PDF ▾",
+    "printDay": "📄 Vytvoriť PDF — deň",
+    "printWeek": "📅 Vytvoriť PDF — týždeň",
+    "printMyDays": "🏠 Vytvoriť PDF — moje dni",
+    "selectChildHeading": "Vyber dieťa",
+    "selectChildEmpty": "Vyber dieťa hore a uvidíš záznam",
+    "loadingChildren": "Načítava sa…",
+    "tipsTitle": "Tip: Sleduj aktivity v Dnes",
+    "tips1": "Označ aktivity ako hotové — dieťa ich vidí hneď",
+    "tips2": "V detskom pohľade sa aktivity odškrtnú jedným klepnutím a hviezdy prídu hneď",
+    "tips3": "Posuň sa späť výberom dátumu a pozri, ako dieťaťu šlo",
+    "tips4": "Pozastav deň, keď je rutina iná — žiadne hviezdy sa nestratia",
+    "rateActivity": "Ohodnoť aktivitu",
+    "commentPlaceholder": "Komentár (voliteľné)…",
+    "cancel": "Zrušiť",
+    "save": "Uložiť",
+    "moveUp": "Posunúť hore",
+    "moveDown": "Posunúť dole",
+    "printWeekDocTitle": "Týždenný plán — {{name}}",
+    "printMyDaysDocTitle": "Moje dni"
+  },
+  "childFallback": "Dieťa",
+  "noChildren": "Zatiaľ nie sú pridané žiadne deti.",
+  "loading": "Načítava sa…",
+  "retry": "Skús znova",
+  "errors": {
+    "signInRequired": "Prihlás sa, nech uvidíš Dnes",
+    "loadChildren": "Deti sa nepodarilo načítať",
+    "loadLog": "Záznam sa nepodarilo načítať. Skús znova.",
+    "saveOrder": "Poradie sa nepodarilo uložiť",
+    "updateActivity": "Aktivitu sa nepodarilo upraviť",
+    "undo": "Nepodarilo sa vrátiť späť",
+    "changeStatus": "Stav sa nepodarilo zmeniť",
+    "adjustTime": "Časy sa nepodarilo upraviť",
+    "selectChild": "Najprv vyber dieťa",
+    "custodyDisabled": "Plán starostlivosti nie je zapnutý",
+    "loadWeek": "Týždeň sa nepodarilo načítať",
+    "saveRating": "Hodnotenie sa nepodarilo uložiť",
+    "ratingScoreOrEmotion": "Vyber hodnotenie alebo kartu nálady",
+    "ratingScoreRange": "Hodnotenie musí byť od 1 do 10",
+    "ratingInvalidEmotion": "Neplatná karta nálady",
+    "ratingActivityNotFound": "Aktivita sa nenašla",
+    "ratingNotAllowed": "Pri tejto aktivite a tomto dieťati hodnotenie nie je povolené",
+    "ratingParentScoreRange": "Hodnotenie musí byť od 1 do 5",
+    "ratingParentDisabled": "Hodnotenie rodiča pri tejto aktivite nie je zapnuté",
+    "dayPaused": "Deň je pozastavený",
+    "dailyLogItemRequired": "daily_log_item_id je povinné",
+    "invalidTimerMinutes": "Neplatné minúty. Povolené hodnoty: 5, 10, 15, 30."
+  },
+  "empty": {
+    "noActivitiesToday": "Dnes žiadne aktivity!",
+    "noScheduleDay": "V tento deň nie je rutina",
+    "addToWeekSchedule": "Pridaj aktivity do týždenného plánu, aby sa záznamy tvorili samy.",
+    "noScheduleSelected": "Na zvolený deň nie je rutina.",
+    "thisDay": "tento deň",
+    "today": "dnes",
+    "noChildrenTitle": "Žiadne deti nie sú pridané",
+    "addFirstChild": "Pridaj prvé dieťa na Domove a môžeš začať!",
+    "goToDashboard": "Prejsť na Domov",
+    "goToWeekSchedule": "📅 Prejsť na týždenný plán"
+  },
+  "nav": {
+    "prevWeek": "Predchádzajúci týždeň",
+    "prevDay": "Predchádzajúci deň",
+    "nextDay": "Ďalší deň",
+    "nextWeek": "Ďalší týždeň",
+    "pickDate": "Vybrať dátum",
+    "todayBtn": "Dnes",
+    "undoBump": "Vrátiť poslednú úpravu času"
+  },
+  "activity": {
+    "markDone": "Označiť ako hotové",
+    "undoMark": "Zrušiť označenie",
+    "rate": "⭐ Ohodnotiť",
+    "setRating": "Nastaviť hodnotenie",
+    "changeRating": "Zmeniť hodnotenie",
+    "dragReorder": "Potiahni a zmeň poradie",
+    "completeAllInSection": "Dokončiť všetko v časti {{section}}",
+    "completeAllBtn": "✅ Označiť všetko ako hotové",
+    "defaultName": "Aktivita",
+    "undoneToast": "↩️ Označenie zrušené"
+  },
+  "pause": {
+    "confirmPause": "Pozastaviť tento deň? Aktivity sa nepočítajú negatívne.",
+    "confirmUnpause": "Znova zapnúť tento deň?",
+    "pausedToast": "😴 Deň pozastavený",
+    "unpausedToast": "✅ Deň znova zapnutý",
+    "dayTitle": "Voľný deň",
+    "banner": "Tento deň je pozastavený (napr. choroba alebo voľno). Aktivity sa nepočítajú negatívne.",
+    "reactivate": "✅ Znova zapnúť deň",
+    "pauseBtn": "😴 Pozastaviť tento deň (choroba / voľno)"
+  },
+  "bump": {
+    "noItems": "Nie sú žiadne neodškrtnuté aktivity s časom na úpravu",
+    "moved": "⏩ Posunuté {{count}} aktivit{{suffix}} o {{minutes}} min",
+    "movedOne": "u",
+    "movedMany": "y",
+    "undoToast": "↩️ Úprava času vrátená",
+    "title": "Posunúť všetko, čo ešte čaká",
+    "adjustHint": "Upraví časy neodškrtnutých aktivít",
+    "minutesTitle": "Posunúť o {{minutes}} min",
+    "undoBtn": "↩ Späť"
+  },
+  "retrofill": {
+    "title": "Dopĺňaš rutinu spätne",
+    "description": "Dopĺňaš rutinu dodatočne. Označ aktivity ako hotové — uložia sa so správnym dátumom."
+  },
+  "rating": {
+    "childMood": "Nálada dieťaťa",
+    "parentScore": "Hodnotenie rodiča",
+    "noMoodCards": "Zatiaľ nie sú karty nálady",
+    "saved": "⭐ Hodnotenie uložené!",
+    "labels": [
+      "",
+      "Ťažké 😓",
+      "Ujde to 😐",
+      "Dobré 😊",
+      "Skvelé 😄",
+      "Úžasné! 🌟"
+    ]
+  },
+  "categories": {
+    "hygien": "Hygiena",
+    "mat": "Jedlo",
+    "skola": "Škola",
+    "lek": "Hra",
+    "rorelse": "Pohyb",
+    "vila": "Oddych",
+    "social": "Spolu"
+  },
+  "legend": {
+    "colorCoding": "Farby:"
+  },
+  "progress": {
+    "percent": "{{pct}}%",
+    "allDone": "🎉 Všetky aktivity hotové!",
+    "completedOf": "{{completed}} z {{total}} aktivít hotových"
+  },
+  "snackbar": {
+    "checkedOff": "✅ Odškrtnuté: {{name}}",
+    "undo": "Späť"
+  },
+  "emotions": {
+    "title": "💛 Nálady dnes",
+    "noCards": "Zatiaľ nie sú karty nálady",
+    "sliderResponses": "Posuvník: {{count}} odpove{{suffix}}",
+    "sliderSuffixOne": "ď",
+    "sliderSuffixMany": "de",
+    "sliderAvg": " (priem. {{avg}})"
+  },
+  "weekOverview": {
+    "preparing": "Pripravuje sa prehľad týždňa...",
+    "preparingCustody": "Pripravujú sa moje dni…",
+    "noMyDays": "Tento týždeň nemáš žiadne svoje dni",
+    "weekScheduleTitle": "{{name}} — Týždenný plán",
+    "myDaysTitle": "{{name}} — Moje dni"
+  }
+}

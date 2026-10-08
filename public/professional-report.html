@@ -873,7 +873,7 @@
       html += '<div class="day-block-content">';
 
       if (!hasData) {
-        html += '<div style="color:var(--text-2);font-size:13px;font-style:italic;padding:8px 0;">Ingen data registrerad</div>';
+        html += '<div style="color:var(--text-2);font-size:13px;font-style:italic;padding:8px 0;">' + t('reports.professional.emptyRegistered') + '</div>';
       } else {
         items.forEach(function(item) {
           html += '<div class="activity-row">';
@@ -1040,11 +1040,11 @@
     // Counts table
     if (data.counts && data.counts.length > 0) {
       html += '<div class="table-wrap"><table>';
-      html += '<thead><tr><th>Status</th><th style="text-align:center">Antal</th></tr></thead><tbody>';
+      html += '<thead><tr><th>' + t('reports.professional.colStatus') + '</th><th style="text-align:center">' + t('reports.professional.colCount') + '</th></tr></thead><tbody>';
       data.counts.forEach(function(r) {
         var label = r.status === 'approved' ? t('reports.professional.approved') :
                     r.status === 'pending'  ? t('reports.professional.pending') :
-                    r.status === 'denied'  ? 'Avslagna ✗'  : esc(r.status);
+                    r.status === 'denied'  ? t('reports.professional.denied')  : esc(r.status);
         var badge = r.status === 'approved' ? 'status-approved' :
                      r.status === 'pending'  ? 'status-pending'  :
                      r.status === 'denied'  ? 'status-rejected' : '';
@@ -1065,7 +1065,7 @@
                      r.status === 'denied'  ? 'status-rejected' : '';
         var label = r.status === 'approved' ? t('reports.professional.approvedOne') :
                     r.status === 'pending'  ? t('reports.professional.pending') :
-                    r.status === 'denied'  ? 'Avslagen ✗'  : esc(r.status);
+                    r.status === 'denied'  ? t('reports.professional.denied')  : esc(r.status);
         var dateStr = '';
         if (r.created_at) {
           var d = new Date(r.created_at);
@@ -1090,9 +1090,9 @@
       var label = '';
       var lvl   = parseInt(r.level);
       if (lvl >= 4) { face = '😊'; label = t('reports.professional.veryHappy'); }
-      else if (lvl >= 3) { face = '🙂'; label = 'Glad'; }
-      else if (lvl >= 2) { face = '😐'; label = 'Okej'; }
-      else { face = '😔'; label = 'Ledsen'; }
+      else if (lvl >= 3) { face = '🙂'; label = t('reports.professional.emotionHappy'); }
+      else if (lvl >= 2) { face = '😐'; label = t('reports.professional.emotionOkay'); }
+      else { face = '😔'; label = t('reports.professional.emotionSad'); }
       html += '<div class="emotion-day">';
       html += '<span class="emotion-date">' + fmtDate(r.date) + '</span>';
       html += '<span class="emotion-face">' + face + '</span>';
@@ -1103,7 +1103,7 @@
   }
 
   function renderEmpty() {
-    return '<div class="empty-state">Ingen data i perioden</div>';
+    return '<div class="empty-state">' + t('reports.professional.emptyPeriod') + '</div>';
   }
 
   /**
@@ -1389,6 +1389,11 @@
 
       var json = await res.json().catch(function() { return null; });
       if (!json) { showError(t('reports.professional.noData'), t('reports.professional.tryLater')); return; }
+      if (json.locale && window.I18n && typeof I18n.init === 'function') {
+        await I18n.init(json.locale);
+        if (typeof I18n.apply === 'function') I18n.apply();
+        applyBranding();
+      }
       renderReport(json);
     } catch (err) {
       console.error('[fetchReport]', err);
@@ -1543,7 +1548,7 @@
 
     // Header: MIN STJÄRNDAG ⭐
     h += '<div style="text-align:center;margin-bottom:8px;">';
-    h += '<span style="font-size:28px;font-weight:900;letter-spacing:4px;color:#1C2340;">MIN STJÄRNDAG ⭐</span>';
+    h += '<span style="font-size:28px;font-weight:900;letter-spacing:4px;color:#1C2340;">' + esc(brandName().toUpperCase()) + ' ⭐</span>';
     h += '</div>';
 
     // Title
@@ -1569,16 +1574,16 @@
     // Stat pills
     h += '<div style="display:flex;flex-direction:column;gap:10px;">';
     if (vm.avgPct > 0) {
-      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">📊 Genomsnitt: <strong>' + vm.avgPct + '%</strong></div>';
+      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">📊 ' + t('reports.professional.pdfAverageShort') + ': <strong>' + vm.avgPct + '%</strong></div>';
     }
     if (vm.bestDay) {
-      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">🌟 Bästa: <strong>' + esc(vm.bestDay) + ' (' + vm.bestPct + '%)</strong></div>';
+      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">🌟 ' + t('reports.professional.pdfBestShort') + ': <strong>' + esc(vm.bestDay) + ' (' + vm.bestPct + '%)</strong></div>';
     }
     if (vm.worstDay) {
-      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">📉 Sämsta: <strong>' + esc(vm.worstDay) + ' (' + vm.worstPct + '%)</strong></div>';
+      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">📉 ' + t('reports.professional.pdfWorstShort') + ': <strong>' + esc(vm.worstDay) + ' (' + vm.worstPct + '%)</strong></div>';
     }
     if (vm.daysWithData > 0) {
-      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">☀️ Dagar med data: <strong>' + vm.daysWithData + '</strong></div>';
+      h += '<div style="background:white;border-radius:20px;padding:10px 24px;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,0.08);">☀️ ' + t('reports.professional.pdfDaysShort') + ': <strong>' + vm.daysWithData + '</strong></div>';
     }
     h += '</div>';
     h += '</div>';
@@ -1586,7 +1591,7 @@
     // Parent summary
     if (vm.parentSummary) {
       h += '<div style="background:white;border-radius:16px;padding:18px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">📋 SAMMANFATTNING</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">📋 ' + t('reports.professional.pdfPlayfulSummary') + '</div>';
       h += '<div style="font-size:16px;color:#1C2340;font-style:italic;line-height:1.5;">"' + esc(vm.parentSummary.length > 200 ? vm.parentSummary.slice(0,197)+'...' : vm.parentSummary) + '"</div>';
       h += '</div>';
     }
@@ -1594,7 +1599,7 @@
     // Rewards
     if (vm.showRewards && vm.rewardsCounts.length > 0) {
       h += '<div style="background:white;border-radius:16px;padding:14px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">🎁 BELÖNINGAR</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">🎁 ' + t('reports.professional.pdfPlayfulRewards') + '</div>';
       h += '<div style="font-size:16px;">' + vm.rewardsCounts.map(function(r){ return esc(r.count + ' ' + r.label); }).join(' · ') + '</div>';
       h += '</div>';
     }
@@ -1602,12 +1607,12 @@
     // Top 5
     if (vm.top5.length > 0) {
       h += '<div style="background:white;border-radius:16px;padding:14px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:8px;">🏆 TOPP 5 AKTIVITETER</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:8px;">🏆 ' + t('reports.professional.pdfPlayfulTop') + '</div>';
       vm.top5.forEach(function(a, i) {
         h += '<div style="font-size:15px;padding:4px 0;display:flex;align-items:center;gap:8px;">';
         h += '<span style="font-weight:800;color:#E8944A;">' + (i+1) + '.</span>';
         h += '<span>' + esc(a.name) + '</span>';
-        h += '<span style="color:#5A6378;margin-left:auto;">' + a.done + ' ggr</span>';
+        h += '<span style="color:#5A6378;margin-left:auto;">' + (window.I18n && I18n.plural ? I18n.plural('reports.professional.times', a.done) : a.done) + '</span>';
         h += '</div>';
       });
       h += '</div>';
@@ -1616,11 +1621,11 @@
     // Section cards (dagdelar)
     if (vm.sections.length > 0) {
       h += '<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">';
-      var sectionColors = { Morgon:'#FEF3C7', Dag:'#DBEAFE', Kväll:'#E9D5FF', Natt:'#E0E7FF' };
-      var sectionIcons = { Morgon:'🌅', Dag:'☀️', Kväll:'🌙', Natt:'🌃' };
+      var sectionColors = { morning:'#FEF3C7', day:'#DBEAFE', evening:'#E9D5FF', night:'#E0E7FF' };
+      var sectionIcons = { morning:'🌅', day:'☀️', evening:'🌙', night:'🌃' };
       vm.sections.forEach(function(s) {
-        var bg = sectionColors[s.label] || '#F3F4F6';
-        var icon = sectionIcons[s.label] || '📌';
+        var bg = sectionColors[s.id] || '#F3F4F6';
+        var icon = sectionIcons[s.id] || '📌';
         h += '<div style="background:' + bg + ';border-radius:14px;padding:14px 20px;min-width:140px;text-align:center;">';
         h += '<div style="font-size:28px;">' + icon + '</div>';
         h += '<div style="font-size:14px;font-weight:700;">' + esc(s.label) + '</div>';
@@ -1633,7 +1638,7 @@
     // Weekly table
     if (vm.weeks.length > 0) {
       h += '<div style="background:white;border-radius:16px;padding:14px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:8px;">📅 VECKOVIS</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:8px;">📅 ' + t('reports.professional.pdfPlayfulWeekly') + '</div>';
       vm.weeks.forEach(function(w) {
         h += '<div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid #F0EDE6;">';
         h += '<span style="font-size:14px;min-width:100px;">' + esc(w.label) + '</span>';
@@ -1649,7 +1654,7 @@
     // Notes
     if (vm.notes.length > 0) {
       h += '<div style="background:white;border-radius:16px;padding:14px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">📝 ANTECKNINGAR</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#E8944A;margin-bottom:6px;">📝 ' + t('reports.professional.pdfPlayfulNotes') + '</div>';
       vm.notes.forEach(function(n) {
         h += '<div style="font-size:14px;padding:4px 0;"><strong>' + esc(n.date) + ':</strong> ' + esc(n.text) + '</div>';
       });
@@ -1659,7 +1664,7 @@
     // Pedagog notes
     if (vm.showPedagog && vm.pedagogNotes.length > 0) {
       h += '<div style="background:white;border-radius:16px;padding:14px 24px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">';
-      h += '<div style="font-size:14px;font-weight:700;color:#7C3AED;margin-bottom:6px;">👩‍🏫 PEDAGOGANTECKNINGAR</div>';
+      h += '<div style="font-size:14px;font-weight:700;color:#7C3AED;margin-bottom:6px;">👩‍🏫 ' + t('reports.professional.pdfPlayfulPedagog') + '</div>';
       vm.pedagogNotes.forEach(function(n) {
         h += '<div style="font-size:14px;padding:4px 0;">';
         h += '<strong>' + esc(n.date) + '</strong>';

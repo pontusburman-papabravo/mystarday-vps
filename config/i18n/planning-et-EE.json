@@ -1,0 +1,44 @@
+{
+  "pageTitle": "Planeerimine — {{brand}}",
+  "shell": {
+    "title": "Planeerimine",
+    "lead": "Vali nädal, tegevused või muu.",
+    "logout": "Logi välja"
+  },
+  "sections": {
+    "planWeek": "Planeeri nädal",
+    "buildContent": "Koosta sisu",
+    "other": "Muu"
+  },
+  "primary": {
+    "week": { "title": "Nädal", "sub": "Laste nädala päevaloend" },
+    "activities": { "title": "Tegevused", "sub": "Kogu — loo ja muuda" },
+    "more": { "title": "Rohkem", "sub": "Trükk, mallid ja muud tööriistad" }
+  },
+  "more": {
+    "title": "Rohkem",
+    "close": "Sulge"
+  },
+  "links": {
+    "library": { "title": "Kogu", "sub": "Loo tegevusi ja auhindu" },
+    "imageArchive": { "title": "Pildiarhiiv", "sub": "Sinu fotod — hambahari, voodi, kool" },
+    "templates": { "title": "Mallid", "sub": "Salvestatud plaanid, mida saad uuesti kasutada" },
+    "weekSchedule": { "title": "Nädalaplaan", "sub": "Muuda lapse nädalat" },
+    "calendar": { "title": "Kalender", "sub": "Vaata kuud ja eripäevi" },
+    "custody": { "title": "Hooldusplaan", "sub": "Jagatud hooldus kahe kodu vahel" },
+    "dailyLog": { "title": "Täna", "sub": "Vaata ja kohanda varasemaid päevi" },
+    "printSchema": { "title": "Loo PDF — plaan", "sub": "Prindi plaan" },
+    "assignSchedule": { "title": "Määra plaan", "sub": "Kopeeri plaan lapsele" },
+    "reports": { "title": "Aruanded", "sub": "Edenemine ja jagamine" },
+    "samarbete": { "title": "Koostöö pedagoogiga", "sub": "Tööta koos pedagoogiga" },
+    "barnStod": { "title": "Lisatugi", "sub": "Visuaalne tugi ja TEACCH" }
+  },
+  "gettingStarted": {
+    "title": "Alusta",
+    "bodyBeforeLibrary": "Alusta ",
+    "libraryLink": "Kogust",
+    "bodyMiddle": ", kui soovid tegevusi luua. Mine ",
+    "forYouLink": "Sulle",
+    "bodyAfter": ", kui soovid valmis soovitust."
+  }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">[REDACTED]</string> 
+    <string name="title_activity_main">[REDACTED]</string>
+    <string name="native_offline_title">Geen verbinding</string>
+    <string name="native_offline_body">Controleer je internetverbinding en probeer het opnieuw.</string>
+    <string name="camera_permission_rationale">[REDACTED] gebruikt de camera zodat je een profielfoto voor je kind kunt maken.</string>
+    <string name="photos_permission_rationale">[REDACTED] heeft toegang tot je foto’s nodig zodat je een profielfoto voor je kind kunt kiezen.</string>
+    <string name="notification_channel_routine_name">Routineherinneringen</string>
+    <string name="notification_channel_routine_desc">Herinneringen over het schema van het gezin</string>
+</resources>

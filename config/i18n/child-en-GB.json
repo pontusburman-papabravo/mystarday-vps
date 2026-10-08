@@ -35,7 +35,10 @@
     "keypadBackspace": "Delete",
     "keypadAria": "Number pad",
     "pinDotsAria": "PIN code",
-    "lockoutSubMinutes": "Try again in {{minutes}} minute{{minuteSuffix}}",
+    "lockoutSubMinutes": {
+      "one": "Try again in {{count}} minute",
+      "other": "Try again in {{count}} minutes"
+    },
     "lockoutSubSeconds": "Only {{seconds}} seconds left!"
   },
   "sharedDevice": {
@@ -732,7 +735,15 @@
     "ariaMinutes": "Timer. {{count}} minutes left.",
     "ariaOneSecond": "Timer. 1 second left.",
     "ariaSeconds": "Timer. {{count}} seconds left.",
-    "ariaMinutesAndSeconds": "Timer. {{minutes}} minute{{minutePlural}} and {{seconds}} second{{secondPlural}} left."
+    "ariaMinutesAndSeconds": "Timer. {{minutes}} {{minuteWord}} and {{seconds}} {{secondWord}} left.",
+    "minuteUnit": {
+      "one": "minute",
+      "other": "minutes"
+    },
+    "secondUnit": {
+      "one": "second",
+      "other": "seconds"
+    }
   },
   "helpBubble": {
     "title": "❓ Help – Child view",
@@ -906,5 +917,10 @@
   },
   "catalog": {
     "back": "Back"
+  },
+  "sessionGate": {
+    "title": "Log in as the child to see the plan",
+    "body": "This view needs the child's PIN.",
+    "cta": "Log in as the child"
   }
 }

@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Početna — {{brand}}",
+  "greeting": {
+    "morning": "Dobro jutro!",
+    "afternoon": "Bok!",
+    "evening": "Dobra večer!",
+    "default": "Bok!"
+  },
+  "sub": "Evo kako izgleda dan.",
+  "status": {
+    "paused": "Danas slobodan dan",
+    "allDone": "Sve gotovo!",
+    "noSchedule": "Nema rutine",
+    "progressDone": "{{done}}/{{total}} gotovo",
+    "emptyChildren": "Dodaj dijete u Obitelji da ovdje vidiš status.",
+    "loadError": "Status djece nije bilo moguće učitati. To ne znači da nemaš djece.",
+    "retry": "Pokušaj ponovno",
+    "viewActivitiesAria": "{{name}} — pogledaj današnje aktivnosti"
+  },
+  "ready": {
+    "title": "Spremno za sljedeću aktivnost",
+    "childrenCount": "({{count}} djece)"
+  },
+  "quickActions": {
+    "aria": "Brze radnje",
+    "retroactive": "Unesi kasnije",
+    "onceTask": "Jednokratna aktivnost",
+    "extraStars": "Dodatne zvjezdice",
+    "dayOff": "Slobodan dan"
+  },
+  "dayOffModal": {
+    "title": "🏠 Slobodan dan",
+    "subtitle": "Pauzira rutinu djeteta za cijeli dan",
+    "footer": "Na slobodan dan dijete ne mora označavati aktivnosti",
+    "noChildren": "Nema pronađene djece",
+    "stateActive": "🟢 Rutina je aktivna",
+    "statePaused": "⏸ Danas slobodan dan",
+    "markDayOff": "🏠 Označi kao slobodan dan",
+    "resumeSchedule": "▶ Nastavi rutinu",
+    "noScheduleTitle": "Za danas nije stvorena rutina",
+    "resumedToast": "Rutina je nastavljena!",
+    "pausedToast": "🏠 Označeno kao slobodan dan!",
+    "genericError": "Nešto je pošlo po krivu",
+    "networkError": "Greška mreže"
+  },
+  "handoff": {
+    "title": "Vrijeme da se dijete prijavi?",
+    "sub": "Prijeđi na dječji prikaz s PIN-om.",
+    "childLogin": "👶 Dijete se prijavljuje",
+    "changePin": "Promijeni PIN djeteta",
+    "changePinAria": "Otvori Obitelj i promijeni PIN djeteta",
+    "parentLogout": "Odjavi se",
+    "regionAria": "Prijeđi na prijavu djeteta",
+    "dismissTitle": "Zatvori",
+    "trusted": {
+      "title": "Vrijeme da otvoriš dječji prikaz?",
+      "sub": "Otvori prikaz djeteta na ovom uređaju.",
+      "childLogin": "Otvori dječji prikaz",
+      "regionAria": "Otvori dječji prikaz"
+    },
+    "pin": {
+      "title": "Vrijeme da se dijete prijavi?",
+      "sub": "Prijeđi na dječji prikaz s PIN-om.",
+      "childLogin": "Prijavi se PIN-om djeteta",
+      "regionAria": "Prijavi se PIN-om djeteta"
+    },
+    "postSchema": {
+      "title": "Sljedeći korak: neka dijete isproba svoju rutinu",
+      "sub": "Zajedno otvorite dječji način — traje oko minute.",
+      "childLogin": "Isprobaj dječji način sada",
+      "regionAria": "Sljedeći korak: neka dijete isproba svoju rutinu",
+      "trusted": {
+        "title": "Sljedeći korak: otvori dječji prikaz",
+        "sub": "Zajedno otvorite dječji način — traje oko minute.",
+        "childLogin": "Otvori dječji prikaz",
+        "regionAria": "Sljedeći korak: otvori dječji prikaz"
+      },
+      "pin": {
+        "title": "Sljedeći korak: neka dijete isproba svoju rutinu",
+        "sub": "Zajedno otvorite dječji način — traje oko minute.",
+        "childLogin": "Prijavi se PIN-om djeteta",
+        "regionAria": "Sljedeći korak: prijavi se PIN-om djeteta"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Sljedeći korak prema prvoj uspješnoj rutini",
+    "pinHint": "Dijete koristi svoj PIN. Roditeljski način možeš vratiti kad završi.",
+    "recovery": {
+      "fetchErrorHeadline": "Sljedeći korak nije bilo moguće učitati",
+      "fetchErrorBody": "Ovo izgleda privremeno. Pokušaj ponovno ili nastavi zasad bez vodiča.",
+      "retry": "Pokušaj ponovno",
+      "continueWithoutGuide": "Nastavi bez vodiča",
+      "defer": "Kasnije",
+      "deferError": "Odabir sada nije bilo moguće spremiti. Pokušaj ponovno.",
+      "retrying": "Pokušavam ponovno…",
+      "deferring": "Spremam…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Stvori profil djeteta",
+        "body": "Ime i jednostavan PIN dovoljni su za početak.",
+        "cta": "Nastavi s djetetom"
+      },
+      "save_schedule": {
+        "headline": "Spremi jednostavnu prvu rutinu",
+        "body": "Odaberi početni raspored — možeš ga promijeniti bilo kada.",
+        "cta": "Odaberi početni raspored"
+      },
+      "child_access": {
+        "headline": "Otvori dječji prikaz",
+        "body": "Neka dijete isproba prvu današnju aktivnost u dječjem prikazu.",
+        "cta": "Otvori dječji prikaz"
+      },
+      "child_access_named": {
+        "headline": "Rutina za {{name}} je spremna",
+        "body": "Dijete može krenuti kad vama odgovara.",
+        "cta": "Otvori dječji prikaz"
+      },
+      "await_first_completion": {
+        "headline": "Čekamo prvu aktivnost",
+        "body": "Dijete vidi svoju rutinu u dječjem prikazu. Pomozi mu krenuti ako treba.",
+        "cta": "Otvori dječji prikaz"
+      },
+      "parent_ack": {
+        "headline": "Dijete je dovršilo aktivnost!",
+        "body": "Potvrdi da se zvjezdica računa i da možete proslaviti zajedno.",
+        "cta": "Pogledaj aktivnost"
+      },
+      "celebrate_first_success": {
+        "headline": "Prva zvjezdica je tu!",
+        "body": "Bravo — rutina stvarno radi.",
+        "cta": "Nastavi"
+      },
+      "journey_coach": {
+        "headline": "Sljedeći korak",
+        "body": "Nastavi graditi rutinu svojim tempom.",
+        "cta": "Nastavi"
+      },
+      "engine_legacy": {
+        "headline": "Sljedeći korak",
+        "body": "Slijedi predloženi sljedeći korak.",
+        "cta": "Nastavi"
+      },
+      "continue_today": {
+        "headline": "{{name}} danas još ima rutine",
+        "body": "Želiš li nastaviti ondje gdje je stalo?",
+        "cta": "Nastavi rutinu"
+      },
+      "welcome_back": {
+        "headline": "Dobro došao natrag",
+        "body": "Sljedeći korak je tu kad ti zatreba — otvoriti rutinu djeteta?",
+        "cta": "Otvori dječji prikaz"
+      },
+      "invite_adult": {
+        "headline": "Želi li još jedna odrasla osoba pomoći?",
+        "body": "Pozovi kad ti odgovara — ti ostaješ taj koji odlučuje.",
+        "cta": "Pozovi odraslu osobu"
+      },
+      "share_week": {
+        "headline": "Mali trenutak iz tjedna",
+        "body": "Podijeli samo ako želiš — ništa se ne objavljuje samo.",
+        "cta": "Podijeli trenutak"
+      },
+      "refer_family": {
+        "headline": "Znaš li obitelj kojoj bi rutine dobro došle?",
+        "body": "Podijeli osobnu poveznicu — bez nagrade, samo savjet.",
+        "cta": "Podijeli aplikaciju"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ne sada",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Ovaj tjedan napravili ste korake u rutinama",
+        "body": "Mirni sažetak — samo za tebe.",
+        "shareText": "Koristimo {{brand}} za dječje rutine kod kuće. Ako želiš isprobati jednostavnu obiteljsku aplikaciju."
+      },
+      "morning": {
+        "headline": "Nekoliko jutara ovaj tjedan prošlo je malo mirnije",
+        "body": "Bravo — podijeli samo ako želiš.",
+        "shareText": "Imali smo mirnija jutra uz jednostavnu aplikaciju za rutine. Možda pomogne i tvojoj obitelji."
+      },
+      "evening": {
+        "headline": "Večernja rutina ovaj tjedan je uspjela nekoliko puta",
+        "body": "Privatni trenutak — bez rang-lista.",
+        "shareText": "Večernje rutine kod nas su postale malo lakše. Ako tražiš miran alat."
+      },
+      "multi_child": {
+        "headline": "Djeca su ovaj tjedan napravila nekoliko koraka u rutinama",
+        "body": "Sažetak bez imena i fotografija.",
+        "shareText": "Koristimo {{brand}} za dječje rutine. Za probu:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Osnivač si",
+    "body": "Kao jedna od prvih obitelji imaš doživotni pristup bez naknade. Hvala što si s nama od početka!"
+  },
+  "weekStory": {
+    "title": "Priča ovog tjedna"
+  },
+  "starHistory": {
+    "title": "Tjedni napredak",
+    "subtitle": "Zadnjih 8 tjedana",
+    "thisWeek": "{{count}} ⭐ ovaj tjedan",
+    "weekTooltip": "T{{week}}: {{count}} zvjezdica",
+    "diffUp": "+{{diff}} u odnosu na prošli tjedan",
+    "diffSame": "Isto kao prošli tjedan",
+    "bestWeek": "🎉 Najbolji tjedan dosad za {{name}}!"
+  },
+  "nav": {
+    "today": "Danas",
+    "dailyLog": "Dnevnik",
+    "fillRetroactive": "📝 Unesi kasnije"
+  },
+  "readiness": {
+    "heading": "Treba pažnju",
+    "warningsOnly": "Samo upozorenja",
+    "loadError": "Nije bilo moguće provjeriti što treba pažnju.",
+    "retry": "Pokušaj ponovno",
+    "items": {
+      "pendingInviteTitleOne": "1 pozivnica za drugog roditelja na čekanju",
+      "pendingInviteTitleMany": "{{count}} pozivnica za drugog roditelja na čekanju",
+      "pendingInviteSub": "Upravljaj u Obitelji",
+      "pendingApprovalTitle": "{{name}} — {{count}} zahtjev na čekanju",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} zahtjeva na čekanju",
+      "pendingApprovalSub": "Odobri u Nagradama",
+      "incompleteDaysTitleOne": "{{name}} — 1 nedovršen dan",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} nedovršenih dana",
+      "incompleteDaysSub": "Dopuni naknadno",
+      "missingPinTitle": "{{name}} nema PIN",
+      "missingPinSub": "Postavi PIN u profilu djeteta",
+      "pausedDayTitle": "{{name}} — danas slobodan dan",
+      "pausedDaySub": "Otvori Danas",
+      "noScheduleTitle": "{{name}} — danas nema rutine",
+      "noScheduleSub": "Otvori tjedni raspored"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} želi iskoristiti nagradu",
+    "pendingRewardSubOne": "Jedan zahtjev te čeka",
+    "pendingRewardSubMany": "{{count}} zahtjeva te čeka",
+    "showRequest": "Pogledaj zahtjev",
+    "closeToReward": "{{name}} je samo {{gap}} od sljedeće nagrade",
+    "starOne": "1 zvjezdica",
+    "starMany": "{{count}} zvjezdica",
+    "seeRewards": "Pogledaj nagrade",
+    "starsTodayHeadline": "Djeca su danas zaradila {{count}}",
+    "starsTodaySubOne": "{{name}} ih je danas zaradio",
+    "starsTodaySubMany": "Djeca su ih danas zaradila",
+    "tasksDoneHeadline": "{{name}} je danas već dovršio {{count}}",
+    "taskOne": "1 zadatak",
+    "taskMany": "{{count}} zadataka",
+    "tasksRemaining": "{{count}} preostalo u današnjoj rutini",
+    "allActivitiesDone": "Sve aktivnosti gotove — bravo!",
+    "seeSchedule": "Pogledaj raspored",
+    "nextActivityHeadline": "{{name}} je spreman za {{activity}}",
+    "nextActivitySub": "Sljedeća aktivnost u rutini",
+    "openToday": "Otvori Danas",
+    "calmDayHeadline": "Miran dan — trenutačno nema rutine",
+    "calmDaySub": "Dobar trenutak da dodaš aktivnosti ili daš dodatne zvjezdice",
+    "defaultChild": "Tvoje dijete",
+    "pageTitleStars": "🌟 Današnje zvjezdice",
+    "pageTitleWelcome": "👋 Dobro došao natrag",
+    "pageTitleProgress": "🌟 Obiteljski napredak danas",
+    "greetingFallback": "{{greeting}} Evo kako danas izgleda",
+    "followChild": "Prati napredak za {{name}} ovdje",
+    "followChildren": "Prati napredak djece ovdje"
+  },
+  "childStats": {
+    "paused": "⏸ Danas slobodan dan",
+    "allDone": "🌟 Danas sve gotovo!",
+    "tasksDoneOne": "🔥 1 zadatak gotov danas",
+    "tasksDoneMany": "🔥 {{count}} zadataka gotovo danas",
+    "noSchedule": "Danas nema rutine",
+    "todayProgress": "Danas <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> ukupno",
+    "starsTodayOne": "+1 zvjezdica danas",
+    "starsTodayMany": "+{{count}} zvjezdica danas",
+    "remaining": "{{count}} preostalo · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Još samo 1 zvjezdica do sljedeće nagrade",
+    "rewardGapMany": "🎁 Još samo {{count}} zvjezdica do sljedeće nagrade"
+  },
+  "offline": {
+    "banner": "Nema mreže — promjene su spremljene",
+    "lastUpdated": "· Zadnje ažurirano {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Dnevnik",
+    "dailyLogSub": "Prati dan djece — zvjezdice unesi naknadno"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Kako je {{goal}} prošlo?",
+      "sub": "Za {{name}}",
+      "great": "Veliko poboljšanje",
+      "better": "Malo bolje",
+      "same": "Bez razlike",
+      "worse": "Ne pomaže",
+      "followUpBetter": "Što je bolje?",
+      "followUpWorse": "Što nedostaje?",
+      "optional": "(neobavezno)",
+      "send": "Pošalji",
+      "skip": "Preskoči",
+      "dismissAria": "Zatvori",
+      "thanks": "Hvala! Odgovor je spremljen.",
+      "alreadyAnswered": "Hvala! Izgleda da si već odgovorio.",
+      "next": "Odgovori na sljedeće",
+      "done": "Gotovo"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Preskoči",
+    "next": "Dalje →",
+    "start": "🎉 Idemo!",
+    "steps": {
+      "welcome": {
+        "title": "Dobrodošao na početnu!",
+        "body": "Ovdje vidiš dan svakog djeteta. Tjedni raspored uređuješ u Planiranju."
+      },
+      "stars": {
+        "title": "Zvjezdice i škrinja s blagom",
+        "body": "Svaka dovršena aktivnost donosi 1 zvjezdicu. Dijete skuplja zvjezdice i mijenja ih za nagrade u škrinji s blagom."
+      },
+      "schedule": {
+        "title": "Tjedni raspored i aktivnosti",
+        "body": "U Planiranju u izborniku nalaziš biblioteku aktivnosti i možeš dodati vlastite nagrade."
+      },
+      "family": {
+        "title": "Dodaj još djece ili odraslih",
+        "body": "Dodirni „+ Dodaj dijete” da dodaš brata ili sestru. U Obitelji možeš pozvati još jednu odraslu osobu."
+      },
+      "help": {
+        "title": "Trebaš pomoć?",
+        "body": "Dodirni gumb ❓ dolje desno bilo kada za pitanja i savjete. Sretno s {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} pokušava se prijaviti",
+    "body": "3 netočna pokušaja PIN-a — dijete možda treba pomoć"
+  },
+  "shareSchedule": {
+    "notAvailable": "Dijeljenje nije dostupno na ovom uređaju",
+    "notSupported": "Dijeljenje nije dostupno na ovom uređaju",
+    "shared": "Podijeljeno!",
+    "childNotFound": "Dijete nije pronađeno",
+    "couldNotShare": "Nije bilo moguće podijeliti: {{message}}",
+    "routineToday": "Rutina za {{name}} danas:",
+    "title": "Rutina za {{name}}"
+  },
+  "swUpdate": {
+    "ready": "✨ Nova verzija aplikacije je spremna!",
+    "reloadNow": "Učitaj ponovno",
+    "later": "Kasnije",
+    "dismissAria": "Zatvori traku ažuriranja"
+  },
+  "pwa": {
+    "title": "Instaliraj aplikaciju za push obavijesti",
+    "iosLead": "Na iPhoneu/iPadu aplikacija mora biti na početnom zaslonu za push obavijesti.",
+    "iosStep1": "Dodirni gumb Dijeli na dnu Safarija",
+    "iosStep2": "Odaberi „Dodaj na početni zaslon”",
+    "iosStep3": "Otvori aplikaciju s početnog zaslona i dopusti obavijesti",
+    "iosArrowHint": "Animirana strelica pokazuje na gumb Dijeli u pregledniku",
+    "androidTitle": "Instaliraj aplikaciju za najbolje iskustvo",
+    "androidLead": "Instaliraj aplikaciju da dobiješ podsjetnike na telefon.",
+    "androidHomeLead": "Instaliraj {{brand}} na početni zaslon za brzi pristup i push obavijesti.",
+    "androidInstall": "Instaliraj aplikaciju",
+    "androidInstallBtn": "📲 Instaliraj aplikaciju",
+    "androidChromeFallback": "Dodirni ⋮ (izbornik) u Chromeu → <strong>„Dodaj na početni zaslon”</strong>",
+    "desktopTitle": "Instaliraj aplikaciju",
+    "desktopLead": "Dodirni ikonu instalacije (⊕) u adresnoj traci ili koristi izbornik preglednika.",
+    "dismissAria": "Zatvori"
+  },
+  "pushPrompt": {
+    "title": "Dobivaj push obavijesti o djeci",
+    "body": "Odmah saznaj kad dijete označi aktivnost ili želi iskoristiti nagradu.",
+    "later": "Kasnije",
+    "enable": "Uključi",
+    "enabledToast": "✅ Push obavijesti su uključene!"
+  },
+  "globalFeedback": {
+    "fabAria": "Pošalji povratnu informaciju",
+    "fabTitle": "Pošalji povratnu informaciju",
+    "modalTitle": "Pošalji povratnu informaciju",
+    "typeBug": "Prijavi problem",
+    "typeSuggestion": "Prijedlog",
+    "typeLanguage": "Jezik",
+    "titlePlaceholder": "Naslov",
+    "messagePlaceholder": "Što se dogodilo?",
+    "cancel": "Odustani",
+    "submit": "Pošalji prijavu",
+    "submitting": "Šaljem...",
+    "validationRequired": "Ispuni sva polja.",
+    "success": "Prijava je poslana.",
+    "errorGeneric": "Nešto je pošlo po krivu. Pokušaj ponovno."
+  },
+  "cards": {
+    "loadError": "Kartice djece nije bilo moguće učitati. Povuci prema dolje za osvježavanje.",
+    "last": "Zadnje:",
+    "next": "Sljedeće:",
+    "noActivitiesToday": "Danas nema planiranih aktivnosti",
+    "noRoutineToday": "Danas nema rutine",
+    "createActivity": "✨ Stvori aktivnost u rasporedu →",
+    "childNoActivities": "{{name}} još nema aktivnosti — stvori prvu →",
+    "noRewards": "🎁 Još nema nagrada",
+    "addReward": "→ Dodaj nagradu",
+    "pendingRequest": "{{count}} zahtjev na čekanju",
+    "pendingRequestMany": "{{count}} zahtjeva na čekanju",
+    "pausedBadge": "PAUZIRANO",
+    "allDoneTitle": "Sve gotovo!",
+    "statusNow": "SADA",
+    "statusNext": "SLJEDEĆE",
+    "onceTask": "Jednokratna aktivnost",
+    "markDone": "Označi kao gotovo",
+    "unmark": "Poništi oznaku",
+    "activityMarked": "✅ Gotovo!",
+    "activityUnmarked": "Oznaka poništena",
+    "fillDay": "Ispuni {{day}}",
+    "allActivitiesDone": "Sve današnje aktivnosti su gotove!",
+    "last7Days": "Zadnjih 7 dana"
+  },
+  "approvals": {
+    "title": "Zahtjevi na čekanju",
+    "loading": "Učitavanje zahtjeva...",
+    "empty": "Nema zahtjeva na čekanju! 🎉",
+    "loadError": "Zahtjeve nije bilo moguće učitati.",
+    "wantsGoalChange": "Želi promijeniti cilj",
+    "goalChangeTo": "Na: {{name}}",
+    "wantsRedeem": "Želi iskoristiti",
+    "approve": "Odobri",
+    "deny": "Odbij",
+    "requiresApproval": "Treba odobrenje",
+    "requiresApprovalCount": "Treba odobrenje ({{count}})",
+    "goalApproved": "🎯 Promjena cilja je odobrena!",
+    "redemptionApproved": "🎉 Iskorištavanje je odobreno!",
+    "goalDenied": "Promjena cilja je odbijena.",
+    "redemptionDenied": "Iskorištavanje je odbijeno.",
+    "updateFailed": "Nije bilo moguće ažurirati",
+    "genericError": "Greška",
+    "wantsGoalNamed": "{{name}} želi promijeniti cilj na {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Želi promijeniti cilj na {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} želi „{{reward}}” ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Prilagodi vrijeme danas",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Vrijeme nije bilo moguće prilagoditi",
+    "undone": "Poništeno",
+    "undoFailed": "Nije bilo moguće poništiti"
+  },
+  "loading": {
+    "initFailed": "Nešto je pošlo po krivu pri učitavanju. Učitaj stranicu ponovno.",
+    "couldNotLoad": "Nije bilo moguće učitati.",
+    "checkConnection": "Provjeri internetsku vezu",
+    "reloadPage": "Učitaj stranicu ponovno"
+  },
+  "activationProgram": {
+    "exitConfirm": "Želiš li završiti program od 7 dana?",
+    "reflectionPlaceholder": "Neobavezno: reci nam više…",
+    "send": "Pošalji",
+    "reflectionQuestion": "Je li aplikacija olakšala svakodnevicu?",
+    "previewEmpty": "Otvori prijavu djeteta da vidiš raspored.",
+    "optOutTitle": "Završi program",
+    "skipToday": "Preskoči danas",
+    "orOpenChildLogin": "Ili otvori prijavu djeteta",
+    "dayOf": "Dan {{day}} od {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Obiteljski napredak danas",
+    "allChildren": "← Sva djeca",
+    "systemMsgFrom": "Poruka iz aplikacije",
+    "systemMsgClose": "Zatvori ✕",
+    "sharingManage": "Dodirni za upravljanje dijeljenim izvješćima",
+    "inviteTitle": "Pozovi drugog roditelja",
+    "inviteSub": "Da se ne morate pitati o rasporedu",
+    "inviteBtn": "Pozovi",
+    "shareTitle": "Reci prijatelju!",
+    "shareSub": "Pomozi drugoj obitelji da unese red u svakodnevicu",
+    "shareBtn": "Podijeli",
+    "inviteModalTitle": "Pozovi drugog roditelja",
+    "inviteModalBody": "Partner dobiva e-poštu s izravnom poveznicom — bez dodatnih aplikacija, ništa komplicirano.",
+    "inviteSentBody": "Partner se sada može prijaviti i vidjeti raspored.",
+    "inviteDone": "Gotovo",
+    "supportPrefix": "🔒 U načinu podrške si: prikazuju se podaci obitelji",
+    "supportSuffix": ". Podatke nije moguće mijenjati. Sesija istječe za",
+    "tourSkip": "Preskoči",
+    "tourNext": "Dalje →",
+    "starTipsTitle": "Savjet: kako rade zvjezdice",
+    "starTipsCollect": "• Dijete zarađuje zvjezdice kad se aktivnosti označe u dječjem prikazu",
+    "starTipsExtra": "• Dodatne zvjezdice daj s kartice djeteta za trud izvan rasporeda",
+    "starTipsRewards": "• Zvjezdice se broje prema spremljenim nagradama — ciljeve postavi u Nagradama",
+    "starTipsEdit": "• Tjedni raspored uređuješ u Planiranju",
+    "dayDragInner": "povuci karticu dana na drugi dan da kopiraš ili zamijeniš",
+    "calViewDay": "Dan",
+    "calViewWeek": "Tjedan",
+    "calViewMonth": "Mjesec",
+    "retroactiveFull": "📝 Unesi kasnije",
+    "extraStarsFull": "⭐ Daj dodatne zvjezdice",
+    "onceTaskFull": "📋 Jednokratna aktivnost",
+    "dayOffFull": "🏠 Slobodan dan",
+    "trialEndingTitle": "Ostao je jedan dan probe",
+    "trialEndingBody": "Proba završava unutar jednog dana. Odaberi pretplatu u aplikaciji ako želiš zadržati puni pristup. Svi podaci ostaju.",
+    "trialEndingChoose": "Odaberi u aplikaciji",
+    "trialEndingClose": "Zatvori"
+  },
+  "helpPanel": {
+    "title": "❓ Kako radi?",
+    "tabSchema": "📅 Raspored",
+    "tabStars": "⭐ Zvjezdice",
+    "tabFamily": "👨‍👩‍👧 Obitelj",
+    "tabAdults": "🔑 Više odraslih",
+    "tabTrouble": "🔧 Pomoć",
+    "addActivityQ": "Kako dodati aktivnost?",
+    "addActivityA": "Dodirni karticu djeteta na Početnoj → odaberi dan → dodirni „+” da dodaš aktivnost iz biblioteke. Vlastite aktivnosti možeš stvoriti i u <strong>Biblioteci</strong>.",
+    "dragQ": "Mogu li povlačiti i premještati aktivnosti?",
+    "dragA": "Da! U prikazu rasporeda djeteta (dodirni karticu na Početnoj) možeš pritisnuti i povući aktivnosti da promijeniš redoslijed. Aktivnost možeš povući i na karticu drugog dana da je kopiraš.",
+    "copyQ": "Kako kopirati raspored na svaki dan?",
+    "copyA": "U uređivaču rasporeda (gumb 📋) → odaberi „Kopiraj na druge dane” da kopiraš raspored jednog dana na ostatak tjedna.",
+    "earnStarsQ": "Kako dijete zarađuje zvjezdice?",
+    "earnStarsA": "Svaka dovršena aktivnost daje <strong>1 zvjezdicu</strong>. Dijete označava u dječjem prikazu. <strong>Dodatne zvjezdice</strong> možeš dati i s kartice djeteta na Početnoj.",
+    "treasureQ": "Kako radi Škrinja s blagom?",
+    "treasureA": "U dječjem prikazu dodirni ikonu ⭐ da vidiš Škrinju s blagom — popis nagrada i koliko zvjezdica koštaju. Dijete može zatražiti nagradu kad ih skupi dovoljno.",
+    "retroQ": "Kako unijeti zvjezdice za dane koje sam zaboravio?",
+    "retroA": "Idi na <strong>Danas</strong> (izbornik ☰ → Danas ili gumb <strong>Unesi kasnije</strong> na Početnoj). Odaberi dijete, dođi do pravog dana strelicama ili odabirom datuma i označi aktivnosti. Zvjezdice se spremaju s točnim datumom.",
+    "rewardsQ": "Kako dodati ili urediti nagrade?",
+    "rewardsA": "Idi na Nagrade u izborniku. Tamo možeš dodati vlastite nagrade, urediti cijenu u zvjezdicama i odabrati koja djeca ih vide.",
+    "siblingQ": "Kako dodati brata ili sestru?",
+    "siblingA": "Na Početnoj → dodirni <strong>„+ Dodaj dijete”</strong>. Svako dijete dobiva vlastiti raspored, aktivnosti i zvjezdice.",
+    "childLoginQ": "Kako se dijete prijavljuje?",
+    "childLoginA": "Prvih dana možeš <strong>pregledati dan djeteta</strong> preko Danas. Kad budeš spreman, dijete se prijavljuje na <strong>/child-login</strong> korisničkim imenom i PIN-om — bez lozinki. Podatke nalaziš u <strong>Obitelj i postavke → Djeca</strong>.",
+    "inviteAdultQ": "Kako pozvati još jednu odraslu osobu?",
+    "inviteAdultA": "Idi na <strong>Obitelj i postavke → Članovi obitelji</strong> → dodirni „Pozovi”. Dobivaju e-poštu s poveznicom da stvore vlastiti račun i pridruže se obitelji.",
+    "inviteSeeQ": "Može li pozvana odrasla osoba vidjeti svu djecu?",
+    "inviteSeeA": "Pri slanju pozivnice biraš koju djecu može vidjeti. To kasnije možeš promijeniti u <strong>Članovi obitelji</strong> → dodirni osobu → prilagodi pristup djeci.",
+    "noActivitiesQ": "Dijete danas ne vidi aktivnosti",
+    "noActivitiesA": "Provjeri je li raspored postavljen za pravi dan. Otvori raspored djeteta (dodirni karticu djeteta) → odaberi danas → vidi ima li aktivnosti. Ako je raspored prazan: upotrijebi „Kopiraj na druge dane” da ga popuniš.",
+    "forgotPinQ": "Zaboravio sam PIN djeteta",
+    "forgotPinA": "Idi na <strong>Obitelj i postavke → Djeca</strong> → odaberi dijete → dodirni „Promijeni PIN” da postaviš novi.",
+    "innerOneStar": "1 zvjezdica",
+    "innerBonusStars": "dodatne zvjezdice",
+    "innerAddChild": "„+ Dodaj dijete”",
+    "innerPreview": "pregledati dan djeteta",
+    "innerFamilyMembersPath": "Obitelj i postavke → Članovi obitelji",
+    "innerMembers": "Članovi obitelji",
+    "innerFamilyChildren": "Obitelj i postavke → Djeca",
+    "supportQ": "Kontaktiraj podršku",
+    "supportLead": "Piši nam na",
+    "supportTail": " — odgovaramo unutar 24 sata."
+  },
+  "journeyAck": {
+    "headline": "Dijete je dovršilo aktivnost!",
+    "childFallback": "Tvoje dijete",
+    "activityFallback": "aktivnost",
+    "dismiss": "Vidio sam"
+  },
+  "journeyCelebration": {
+    "headline": "Uspjeli ste zajedno",
+    "body": "Dijete je krenulo — i ti si to vidio.",
+    "dismiss": "Super!"
+  },
+  "activationAha": {
+    "body": "Bez da ga moraš podsjećati.",
+    "dismiss": "Super!"
+  }
+}

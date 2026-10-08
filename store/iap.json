@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "note": "Display names only. Prices and trial rules stay in market commercial policy.",
+  "products": [
+    {
+      "id": "premium_monthly",
+      "apple": {
+        "sv": {
+          "name": "Premium månadsvis",
+          "description": "Månadsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium monthly",
+          "description": "Monthly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium monatlich",
+          "description": "Monatliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium mensuel",
+          "description": "Premium mensuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium maandelijks",
+          "description": "Maandelijks Premium in de app."
+        },
+        "da": {
+          "name": "Premium månedligt",
+          "description": "Månedligt Premium i appen."
+        },
+        "fi": {
+          "name": "Premium kuukausittain",
+          "description": "Kuukausittainen Premium sovelluksessa."
+        },
+        "no": {
+          "name": "Premium månedlig",
+          "description": "Månedlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium mensual",
+          "description": "Premium mensual en la app."
+        },
+        "it": {
+          "name": "Premium mensile",
+          "description": "Premium mensile nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium mensal",
+          "description": "Premium mensal na app."
+        },
+        "pl": {
+          "name": "Premium miesięcznie",
+          "description": "Miesięczny Premium w aplikacji."
+        },
+        "cs": {
+          "name": "Premium měsíčně",
+          "description": "Měsíční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium mesačne",
+          "description": "Mesačný Premium v aplikácii."
+        },
+        "sl-SI": {
+          "name": "Premium mesečno",
+          "description": "Mesečni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium mjesečno",
+          "description": "Mjesečni Premium u aplikaciji."
+        },
+        "hu": {
+          "name": "Premium havonta",
+          "description": "Havi Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium lunar",
+          "description": "Premium lunar în aplicație."
+        },
+        "el": {
+          "name": "Premium μηνιαία",
+          "description": "Μηνιαίο Premium στην εφαρμογή."
+        }
+      },
+      "google": {
+        "sv-SE": {
+          "name": "Premium månadsvis",
+          "description": "Månadsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium monthly",
+          "description": "Monthly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium monatlich",
+          "description": "Monatliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium mensuel",
+          "description": "Premium mensuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium maandelijks",
+          "description": "Maandelijks Premium in de app."
+        },
+        "da-DK": {
+          "name": "Premium månedligt",
+          "description": "Månedligt Premium i appen."
+        },
+        "fi-FI": {
+          "name": "Premium kuukausittain",
+          "description": "Kuukausittainen Premium sovelluksessa."
+        },
+        "no-NO": {
+          "name": "Premium månedlig",
+          "description": "Månedlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium mensual",
+          "description": "Premium mensual en la app."
+        },
+        "it-IT": {
+          "name": "Premium mensile",
+          "description": "Premium mensile nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium mensal",
+          "description": "Premium mensal na app."
+        },
+        "pl-PL": {
+          "name": "Premium miesięcznie",
+          "description": "Miesięczny Premium w aplikacji."
+        },
+        "cs-CZ": {
+          "name": "Premium měsíčně",
+          "description": "Měsíční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium mesačne",
+          "description": "Mesačný Premium v aplikácii."
+        },
+        "sl": {
+          "name": "Premium mesečno",
+          "description": "Mesečni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium mjesečno",
+          "description": "Mjesečni Premium u aplikaciji."
+        },
+        "hu-HU": {
+          "name": "Premium havonta",
+          "description": "Havi Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium lunar",
+          "description": "Premium lunar în aplicație."
+        },
+        "bg": {
+          "name": "Premium месечно",
+          "description": "Месечен Premium в приложението."
+        },
+        "el-GR": {
+          "name": "Premium μηνιαία",
+          "description": "Μηνιαίο Premium για όλη την οικογένεια: ρουτίνες, αστέρια και ανταμοιβές."
+        },
+        "et": {
+          "name": "Premium kuus",
+          "description": "Igakuine Premium rakenduses."
+        },
+        "lt": {
+          "name": "Premium mėnesiui",
+          "description": "Mėnesinis Premium programėlėje."
+        },
+        "lv": {
+          "name": "Premium mēnesī",
+          "description": "Mēneša Premium lietotnē."
+        },
+        "is-IS": {
+          "name": "Premium mánaðarlega",
+          "description": "Mánaðarlegt Premium í appinu."
+        }
+      }
+    },
+    {
+      "id": "premium_annual",
+      "apple": {
+        "sv": {
+          "name": "Premium årsvis",
+          "description": "Årsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium yearly",
+          "description": "Yearly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium jährlich",
+          "description": "Jährliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium annuel",
+          "description": "Premium annuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium jaarlijks",
+          "description": "Jaarlijks Premium in de app."
+        },
+        "da": {
+          "name": "Premium årligt",
+          "description": "Årligt Premium i appen."
+        },
+        "fi": {
+          "name": "Premium vuodeksi",
+          "description": "Vuosittainen Premium sovelluksessa."
+        },
+        "no": {
+          "name": "Premium årlig",
+          "description": "Årlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium anual",
+          "description": "Premium anual en la app."
+        },
+        "it": {
+          "name": "Premium annuale",
+          "description": "Premium annuale nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium anual",
+          "description": "Premium anual na app."
+        },
+        "pl": {
+          "name": "Premium rocznie",
+          "description": "Roczny Premium w aplikacji."
+        },
+        "cs": {
+          "name": "Premium ročně",
+          "description": "Roční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium ročne",
+          "description": "Ročný Premium v aplikácii."
+        },
+        "sl-SI": {
+          "name": "Premium letno",
+          "description": "Letni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium godišnje",
+          "description": "Godišnji Premium u aplikaciji."
+        },
+        "hu": {
+          "name": "Premium évente",
+          "description": "Éves Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium anual",
+          "description": "Premium anual în aplicație."
+        },
+        "el": {
+          "name": "Premium ετήσια",
+          "description": "Ετήσιο Premium στην εφαρμογή."
+        }
+      },
+      "google": {
+        "sv-SE": {
+          "name": "Premium årsvis",
+          "description": "Årsvis Premium i appen."
+        },
+        "en-GB": {
+          "name": "Premium yearly",
+          "description": "Yearly Premium in the app."
+        },
+        "de-DE": {
+          "name": "Premium jährlich",
+          "description": "Jährliches Premium in der App."
+        },
+        "fr-FR": {
+          "name": "Premium annuel",
+          "description": "Premium annuel dans l’app."
+        },
+        "nl-NL": {
+          "name": "Premium jaarlijks",
+          "description": "Jaarlijks Premium in de app."
+        },
+        "da-DK": {
+          "name": "Premium årligt",
+          "description": "Årligt Premium i appen."
+        },
+        "fi-FI": {
+          "name": "Premium vuodeksi",
+          "description": "Vuosittainen Premium sovelluksessa."
+        },
+        "no-NO": {
+          "name": "Premium årlig",
+          "description": "Årlig Premium i appen."
+        },
+        "es-ES": {
+          "name": "Premium anual",
+          "description": "Premium anual en la app."
+        },
+        "it-IT": {
+          "name": "Premium annuale",
+          "description": "Premium annuale nell’app."
+        },
+        "pt-PT": {
+          "name": "Premium anual",
+          "description": "Premium anual na app."
+        },
+        "pl-PL": {
+          "name": "Premium rocznie",
+          "description": "Roczny Premium w aplikacji."
+        },
+        "cs-CZ": {
+          "name": "Premium ročně",
+          "description": "Roční Premium v aplikaci."
+        },
+        "sk": {
+          "name": "Premium ročne",
+          "description": "Ročný Premium v aplikácii."
+        },
+        "sl": {
+          "name": "Premium letno",
+          "description": "Letni Premium v aplikaciji."
+        },
+        "hr": {
+          "name": "Premium godišnje",
+          "description": "Godišnji Premium u aplikaciji."
+        },
+        "hu-HU": {
+          "name": "Premium évente",
+          "description": "Éves Premium az alkalmazásban."
+        },
+        "ro": {
+          "name": "Premium anual",
+          "description": "Premium anual în aplicație."
+        },
+        "bg": {
+          "name": "Premium годишно",
+          "description": "Годишен Premium в приложението."
+        },
+        "el-GR": {
+          "name": "Premium ετήσια",
+          "description": "Ετήσιο Premium για όλη την οικογένεια: ρουτίνες, αστέρια και ανταμοιβές."
+        },
+        "et": {
+          "name": "Premium aastas",
+          "description": "Aastane Premium rakenduses."
+        },
+        "lt": {
+          "name": "Premium metams",
+          "description": "Metinis Premium programėlėje."
+        },
+        "lv": {
+          "name": "Premium gadā",
+          "description": "Gada Premium lietotnē."
+        },
+        "is-IS": {
+          "name": "Premium árlega",
+          "description": "Árlegt Premium í appinu."
+        }
+      }
+    }
+  ]
+}

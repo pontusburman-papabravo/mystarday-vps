@@ -1,0 +1,84 @@
+{
+  "version": "1.0.6",
+  "worlds": [
+    {
+      "world_slug": "routine_home",
+      "display_name_sv": "Reggeli ház",
+      "first_unlock_message": "A Reggeli ház rád vár",
+      "unlock_feedback": {
+        "routine_home_welcome_mat": {
+          "child_message": "A Reggeli ház tudja, hogy itt vagy.",
+          "visual_token": "welcome_mat_glow"
+        },
+        "routine_home_first_light": {
+          "child_message": "Egy lágy fény gyullad.",
+          "visual_token": "morning_light_warm"
+        }
+      },
+      "ambient_props": [
+        {
+          "prop_id": "door",
+          "label_sv": "Az ajtó",
+          "always_active": true,
+          "ambient_message_sv": "Az ajtó egy kicsit megremeg — mintha valaki kint várna.",
+          "gate_to_world": "garden",
+          "gate_message_sv": "Kint a kert vár…",
+          "gate_feature_slug": "garden_playable"
+        }
+      ]
+    },
+    {
+      "world_slug": "garden",
+      "display_name_sv": "A kert",
+      "first_unlock_message": "A kert rád vár",
+      "ambient_message_sv": "A fű lassan mozdul a szélben.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "garden_path",
+          "label_sv": "Az ösvény",
+          "emoji": "🌿",
+          "ambient_message_sv": "Az ösvény beljebb visz a kertbe.",
+          "hotspot_class": "gd-hotspot--path",
+          "gate_to_world": "memory_hall",
+          "gate_message_sv": "Az ösvény egy meleg, emlékekkel teli szobához vezet…",
+          "gate_feature_slug": "memory_hall_playable"
+        },
+        {
+          "scenery_id": "garden_bed",
+          "label_sv": "Virágágyás",
+          "emoji": "🪴",
+          "ambient_message_sv": "A föld puha és meleg.",
+          "hotspot_class": "gd-hotspot--bed",
+          "living_slot_id": "bed_1"
+        },
+        {
+          "scenery_id": "garden_sky",
+          "label_sv": "Az ég",
+          "emoji": "☁️",
+          "ambient_message_sv": "A felhők lassan úsznak.",
+          "hotspot_class": "gd-hotspot--sky"
+        }
+      ]
+    },
+    {
+      "world_slug": "memory_hall",
+      "display_name_sv": "Emlékszoba",
+      "first_unlock_message": "Itt van, amire büszke voltál.",
+      "ambient_message_sv": "Itt meleg van és biztonságos.",
+      "ambient_scenery": [
+        {
+          "scenery_id": "memory_hall_window",
+          "label_sv": "Az ablak",
+          "hotspot_class": "mu-hotspot--window",
+          "ambient_message_sv": "A fény halkan esik be."
+        },
+        {
+          "scenery_id": "memory_hall_wall",
+          "label_sv": "Emlékfal",
+          "hotspot_class": "mu-hotspot--wall",
+          "ambient_message_sv": "Itt lóg az, ami fontos neked."
+        }
+      ]
+    }
+  ]
+}

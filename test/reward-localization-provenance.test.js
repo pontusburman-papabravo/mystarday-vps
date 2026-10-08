@@ -71,8 +71,8 @@ describe('reward localization provenance (RC-1)', () => {
     assert.equal(resolveChildUiLocale('en-GB', true), 'en-GB');
   });
 
-  it('7. en-GB + child experience off → child content locale sv-SE', () => {
-    assert.equal(resolveChildUiLocale('en-GB', false), 'sv-SE');
+  it('7. en-GB child content locale stays en-GB when the child flag is off', () => {
+    assert.equal(resolveChildUiLocale('en-GB', false), 'en-GB');
   });
 
   it('8. sv-SE family → no reward display localization', async () => {

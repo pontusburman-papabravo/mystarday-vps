@@ -11,11 +11,22 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { expectedIosLanguages } = require('./sync-native-locales');
 
 const appDir = path.join(process.cwd(), 'ios', 'App', 'App');
 const infoPlistPath = path.join(appDir, 'Info.plist');
 
 const APP_NAME = 'Min Stjärndag'; // pragma: allowlist secret
+
+const DE_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} nutzt die Kamera, damit du ein Profilfoto für dein Kind aufnehmen kannst. Das Foto wird im Familienkonto gespeichert und nur eurer Familie gezeigt.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} braucht Zugriff auf deine Fotos, damit du ein vorhandenes Bild als Profilfoto für dein Kind wählen kannst. Zum Beispiel ein Foto aus dem Sommeralbum, das dann als Avatar im Tagesplan erscheint.`,
+};
 
 const EN_USAGE = {
   NSCameraUsageDescription:
@@ -29,6 +40,84 @@ const SV_USAGE = {
     `${APP_NAME} använder kameran så att du som förälder kan ta en ny profilbild till ditt barn i appen. Bilden sparas på familjekontot och visas bara för er familj.`,
   NSPhotoLibraryUsageDescription:
     `${APP_NAME} behöver tillgång till dina foton så att du kan välja en befintlig bild som ditt barns profilbild. Till exempel kan du välja ett foto från albumet ”Sommarlov” så visas det som ditt barns avatar i dagschemat.`,
+};
+
+const FR_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} utilise l’appareil photo pour que vous puissiez prendre une photo de profil pour votre enfant. La photo est enregistrée sur le compte familial et n’est montrée qu’à votre famille.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} a besoin d’accéder à vos photos pour que vous puissiez choisir une image existante comme photo de profil de votre enfant. Par exemple une photo de l’été, qui apparaît ensuite comme avatar dans le planning.`,
+};
+
+const NL_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} gebruikt de camera zodat je een profielfoto voor je kind kunt maken. De foto wordt op het gezinsaccount bewaard en alleen aan jullie gezin getoond.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} heeft toegang tot je foto’s nodig zodat je een bestaande foto als profielfoto voor je kind kunt kiezen. Bijvoorbeeld een foto uit de zomer, die daarna als avatar in het schema staat.`,
+};
+
+const DA_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} bruger kameraet, så du kan tage et profilbillede af dit barn. Billedet gemmes på familiekontoen og vises kun for jeres familie.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} har brug for adgang til dine billeder, så du kan vælge et eksisterende billede som dit barns profilbillede. For eksempel et foto fra sommeren, som så vises som avatar i skemaet.`,
+};
+
+const FI_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} käyttää kameraa, jotta voit ottaa lapsellesi profiilikuvan. Kuva tallennetaan perhetilille ja näytetään vain teidän perheellenne.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} tarvitsee pääsyn kuviisi, jotta voit valita olemassa olevan kuvan lapsesi profiilikuvaksi. Esimerkiksi kesäkuvan, joka näkyy sitten avatarina aikataulussa.`,
+};
+
+const NB_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} bruker kameraet så du kan ta et profilbilde av barnet ditt. Bildet lagres på familiekontoen og vises bare for familien deres.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} trenger tilgang til bildene dine så du kan velge et eksisterende bilde som barnets profilbilde. For eksempel et sommerbilde, som deretter vises som avatar i planen.`,
+};
+
+const ES_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa la cámara para que puedas hacer una foto de perfil de tu hijo. La foto se guarda en la cuenta familiar y solo la ve vuestra familia.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} necesita acceso a tus fotos para que puedas elegir una imagen que ya tienes como foto de perfil de tu hijo. Por ejemplo una foto del verano, que luego aparece como avatar en el horario.`,
+};
+
+const IT_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa la fotocamera così puoi scattare una foto profilo per tuo figlio. La foto resta sull'account di famiglia e la vede solo la vostra famiglia.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} ha bisogno di accedere alle tue foto così puoi scegliere un'immagine già presente come foto profilo di tuo figlio. Per esempio una foto dell'estate, che poi compare come avatar nel piano.`,
+};
+
+const PT_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} usa a câmara para tirares uma foto de perfil da tua criança. A foto fica na conta da família e só a vossa família a vê.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} precisa de acesso às tuas fotos para escolheres uma imagem que já tens como foto de perfil da tua criança. Por exemplo uma foto do verão, que depois aparece como avatar no horário.`,
+};
+
+const PL_USAGE = {
+  NSCameraUsageDescription:
+    `${APP_NAME} używa aparatu, żeby zrobić zdjęcie profilowe dziecka. Zdjęcie zostaje na koncie rodziny i widzi je tylko wasza rodzina.`,
+  NSPhotoLibraryUsageDescription:
+    `${APP_NAME} potrzebuje dostępu do zdjęć, żeby wybrać istniejące zdjęcie jako zdjęcie profilowe dziecka. Na przykład zdjęcie z lata, które potem widać jako awatar w planie.`,
+};
+
+const USAGE_BY_IOS = {
+  sv: SV_USAGE,
+  'en-GB': EN_USAGE,
+  de: DE_USAGE,
+  fr: FR_USAGE,
+  nl: NL_USAGE,
+  da: DA_USAGE,
+  fi: FI_USAGE,
+  nb: NB_USAGE,
+  'es-ES': ES_USAGE,
+  it: IT_USAGE,
+  'pt-PT': PT_USAGE,
+  pl: PL_USAGE,
 };
 
 /** App only reads photos; never saves to the library. No ATT — no cross-app tracking. */
@@ -138,8 +227,9 @@ for (const key of REMOVE_KEYS) {
   content = removePlistKey(content, key);
 }
 
+const iosLanguages = expectedIosLanguages();
 content = upsertPlistKey(content, 'CFBundleDevelopmentRegion', 'sv');
-content = upsertPlistStringArray(content, 'CFBundleLocalizations', ['sv', 'en-GB']);
+content = upsertPlistStringArray(content, 'CFBundleLocalizations', iosLanguages);
 
 // Base Info.plist = development language (Swedish)
 for (const [key, value] of Object.entries(SV_USAGE)) {
@@ -153,10 +243,15 @@ if (content !== before) {
   console.log('Info.plist localization keys unchanged.');
 }
 
-const svPath = writeSwedishInfoPlistStrings();
-const enPath = writeEnGbInfoPlistStrings();
-console.log(`Wrote ${path.relative(process.cwd(), svPath)}`);
-console.log(`Wrote ${path.relative(process.cwd(), enPath)}`);
+for (const lang of iosLanguages) {
+  const usage = USAGE_BY_IOS[lang];
+  if (!usage) {
+    console.error(`No InfoPlist usage strings for iOS language ${lang}`);
+    process.exit(1);
+  }
+  const written = writeInfoPlistStrings(`${lang}.lproj`, usage, `/* App Store + system permission strings (${lang}) */`);
+  console.log(`Wrote ${path.relative(process.cwd(), written)}`);
+}
 if (removeEnglishLproj()) {
   console.log('Removed ios/App/App/en.lproj (legacy Capacitor English folder).');
 }

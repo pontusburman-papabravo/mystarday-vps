@@ -1,0 +1,603 @@
+{
+  "common": {
+    "brand": "{{brand}}",
+    "stepLabel": "Lépés {{current}} / {{total}}",
+    "back": "← Vissza",
+    "next": "Következő lépés →",
+    "continue": "Tovább →",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "loading": "Betöltés…",
+    "genericError": "Valami hiba történt. Próbáld újra.",
+    "networkError": "Hálózati hiba. Próbáld újra.",
+    "closeAria": "Bezárás",
+    "childFallback": "A gyereked",
+    "addChildDone": "Kész! →",
+    "goForward": "Tovább →",
+    "finishing": "Befejezés…",
+    "recommended": "Ajánlott",
+    "optional": "Választható"
+  },
+  "pageTitle": {
+    "welcome": "Üdvözöllek — {{brand}}",
+    "ogTitle": "{{brand}} — Kezdd el 2 perc alatt",
+    "ogDescription": "Állítsd be azonnal a gyerek napirendjét és jutalmait"
+  },
+  "verifyEmail": {
+    "title": "Erősítsd meg az e-mail-címed",
+    "body": "Küldtünk egy e-mailt ide: {{email}}. Kattints a linkre az e-mailben a fiók aktiválásához.",
+    "resend": "Újraküldés",
+    "resendSending": "Küldés…",
+    "resendSuccess": "✓ Elküldve!",
+    "resendSent": "Elküldve",
+    "resendError": "Valami hiba történt. Próbáld újra."
+  },
+  "child": {
+    "title": "Mesélj a gyerekedről",
+    "lead": "Válassz nevet, emojit, születésnapot és egy napirendet, amely illik a mindennapjaitokhoz.",
+    "nameLabel": "A gyerek neve",
+    "namePlaceholder": "pl. Nóra",
+    "birthdayLabel": "Születésnap",
+    "birthdayOptionalHint": "(választható — segít a megfelelő napirendet javasolni)",
+    "yearPlaceholder": "Év",
+    "monthPlaceholder": "Hónap",
+    "dayPlaceholder": "Nap",
+    "birthYearAria": "Születési év",
+    "birthMonthAria": "Születési hónap",
+    "birthDayAria": "Születési nap",
+    "months": [
+      "Január",
+      "Február",
+      "Március",
+      "Április",
+      "Május",
+      "Június",
+      "Július",
+      "Augusztus",
+      "Szeptember",
+      "Október",
+      "November",
+      "December"
+    ],
+    "emojiLabel": "Válassz emojit",
+    "customEmojiPlaceholder": "Vagy írd be a saját emojidat…",
+    "emojiAriaLabel": "Emoji választása: {{emoji}}",
+    "avatarLabel": "Választható: profilfotó",
+    "avatarHint": "Válassz fotót a könyvtáradból, vagy készíts újat.",
+    "avatarDefaultBtn": "✨ Alapértelmezett kép",
+    "avatarPickBtn": "📷 Fotó választása",
+    "avatarLoading": "Betöltés…",
+    "avatarPreparing": "Előkészítés…",
+    "avatarUploadFailed": "A fotót nem sikerült feltölteni. Próbáld újra.",
+    "avatarReadFailed": "A képet nem sikerült beolvasni",
+    "avatarAlt": "A gyerek profilfotója",
+    "scheduleLabel": "Válassz napirendet",
+    "templatesLoading": "Napirendek betöltése…",
+    "templatesLoadFailed": "A napirend-sablonokat most nem sikerült betölteni.",
+    "templatesRetryBtn": "Próbáld újra",
+    "nextBtn": "Következő lépés →",
+    "creatingChild": "Gyerek létrehozása…",
+    "creatingSchedule": "Napirend létrehozása…",
+    "nameRequired": "Írd be a gyerek nevét",
+    "emojiRequired": "Válassz emojit a gyereknek",
+    "scheduleRequired": "Válassz napirendet",
+    "childResumedToast": "Megtaláltuk a gyereket a múltkorról — a napirenddel folytatjuk.",
+    "avatarSaveFailedToast": "A gyerek létrejött, de a fotót nem sikerült menteni. A Család alatt hozzáadhatod.",
+    "scheduleCreateFailed": "A napirendet nem sikerült létrehozni"
+  },
+  "activityGuide": {
+    "title": "Hogyan segítsen az app {{childName}} számára a mai tevékenységekben?",
+    "lead": "Ezt bármikor módosíthatod a gyerek beállításaiban.",
+    "stepLabel": "Lépés {{current}} / {{total}}",
+    "options": {
+      "free_order": {
+        "title": "Szabad sorrend",
+        "description": "A gyerek bármilyen sorrendben kipipálhatja a dolgokat."
+      },
+      "one_at_a_time": {
+        "title": "Egyszerre egy dolog",
+        "description": "Az app segít a gyereknek a következő lépésre figyelni."
+      },
+      "time_and_order": {
+        "title": "Tiszta idő és sorrend",
+        "description": "Az app segít a következő lépésben, és egy időzítővel, amelyet te állítasz be minden tevékenységhez."
+      }
+    },
+    "continueBtn": "Tovább →",
+    "saving": "Mentés…",
+    "selectError": "Válassz egy lehetőséget",
+    "saveError": "A választást nem sikerült menteni"
+  },
+  "viewType": {
+    "title": "Melyik nézetet lássa {{childName}} belépéskor?",
+    "lead": "Válaszd ki, hogyan jelenjen meg a napirend, amikor a gyerek belép. Ezt a beállításokban bármikor módosíthatod.",
+    "dayViewTitle": "Napi nézet",
+    "dayViewSubtitle": "Reggel · Késő délelőtt · Délután · Este",
+    "timelineViewTitle": "Most/Következő/Később nézet",
+    "timelineViewSubtitle": "Csak azt mutatja, ami most történik",
+    "timelineNow": "MOST",
+    "timelineNext": "KÖVETKEZŐ",
+    "timelineThen": "KÉSŐBB",
+    "mock": {
+      "wakeStretch": "Ébredés és nyújtózás",
+      "brushTeeth": "Fogmosás",
+      "packBag": "Táska pakolása",
+      "preschool": "Irány az óvoda",
+      "freePlay": "Szabad játék",
+      "dinner": "Vacsora",
+      "bedtimeStory": "Esti mese",
+      "preschoolShort": "Óvoda",
+      "play": "Játék"
+    },
+    "dayViewHint": "A napi nézetet is választhatod, ha a gyerek a színkódolt napszakokat szereti.",
+    "skipHint": "Kihagyod? A napi nézet automatikusan kiválasztódik.",
+    "saving": "Nézetválasztás mentése…"
+  },
+  "scheduleReady": {
+    "title": "A napirend kész!",
+    "subtitle": "Készítettünk egy kezdő napirendet neki: {{childName}}.",
+    "subtitleWithTemplate": "Elkészítettük a(z) {{templateName}} napirendet neki: {{childName}}. Benne vannak a fontos lépések, hogy egyedül is menjen.",
+    "templateFallback": "Napirend",
+    "daysWeek": "7 nap / hét",
+    "daysMonFri": "Hétfő–péntek",
+    "daysMonFriWeekend": "Hétfő–péntek + hétvége",
+    "socialProofTitle": "Tudtad?",
+    "socialProofBody": "A vizuális támogatás gyakran akár 30%-kal csökkenti a mindennapi stresszt — és a tiszta rutinnal a gyerekek gyorsabban elalszanak, és vidámabban ébrednek.",
+    "continueBtn": "Szuper, indulás! →"
+  },
+  "rewards": {
+    "title": "Így működnek a csillagok",
+    "checkOff": "Kipipálás",
+    "star": "Csillag",
+    "treasureChest": "Kincsesláda",
+    "intro": "Vidám jutalmakat töltöttünk be. Válaszd ki azokat, amelyekért {{childName}} dolgozhat!",
+    "introWithCount": "{{count}} vidám jutalmat töltöttünk be. Válaszd ki azokat, amelyekért {{childName}} dolgozhat!",
+    "selectCount": {
+      "none": "Válassz legalább 1 jutalmat (0 kiválasztva)",
+      "one": "{{count}} jutalom kiválasztva ✓",
+      "other": "{{count}} jutalom kiválasztva ✓"
+    },
+    "minOneError": "A folytatáshoz válassz legalább egy jutalmat",
+    "saveBtn": "Jutalmak mentése →",
+    "saving": "Jutalmak mentése…",
+    "starCost": "{{count}} ⭐",
+    "fallback": {
+      "extraStory": "Extra mese",
+      "chooseDessert": "Desszert választása",
+      "movieNight": "Filmest",
+      "chooseDinner": "Vacsora választása",
+      "outing": "Kirándulás",
+      "bakeTogether": "Közös sütés",
+      "familyGameNight": "Családi játékest",
+      "lateBedtime": "Később alvás",
+      "cinemaTrip": "Mozi"
+    }
+  },
+  "handoff": {
+    "title": "Így léptek be",
+    "lead": "{{childName}} névvel és PIN-kóddal lép be — jelszó nélkül.",
+    "childLoginLabel": "Gyerek belépés",
+    "usernameFallback": "felhasználónév",
+    "pinLabel": "PIN",
+    "pinNote": "Jegyezd meg a PIN-kódot — a beállításokban módosíthatod.",
+    "pinResumeHint": "Használd a gyerek PIN-kódját. Ha elfelejtetted, az alábbi gombbal újat állíthatsz be.",
+    "chooseCustomPin": "✏️ Saját PIN választása",
+    "savePin": "PIN mentése",
+    "savingPin": "Mentés…",
+    "pinMustBe4": "A PIN 4 számjegy legyen",
+    "pinTooWeak": "Válassz erősebb PIN-kódot (ne 1111, 2222 stb.)",
+    "pinSaveFailed": "A PIN-kódot nem sikerült menteni",
+    "copyInfo": "📋 Adatok másolása",
+    "copied": "✓ Másolva!",
+    "copyManual": "Másold kézzel:\n\n{{text}}",
+    "copyLoginText": "{{brand}} — {{childName}}\nFelhasználónév: {{username}}\nPIN: {{pin}}\nApp: {{appUrl}}/child-login",
+    "emailLogin": "📧 Küldés e-mailben",
+    "emailSubject": "{{brand}} — Belépés neki: {{childName}}",
+    "emailBody": "Szia!\n\nItt vannak a belépési adatok a {{brand}} alkalmazáshoz, neki: {{childName}}:\n\nFelhasználónév: {{username}}\nPIN: {{pin}}\n\nNyisd meg az appot: {{appUrl}}/child-login\n\nÜdv,\n{{brand}}",
+    "emailFallbackAlert": "Belépés neki: {{childName}}:\nFelhasználónév: {{username}}\nPIN: {{pin}}",
+    "installTitle": "Telepítés appként",
+    "installBody": "Tedd a {{brand}} alkalmazást a kezdőképernyőre — úgy működik, mint egy igazi app, offline is megy, áruház nélkül.",
+    "installInstructions": "iPhone: Megosztás → Hozzáadás a kezdőképernyőhöz · Android: ⋮ → App telepítése",
+    "parentTipTitle": "Egy tipp neked, szülőként",
+    "parentTipLead": "Üljetek le együtt ma este. Mutasd meg először a Kincsesládát",
+    "parentTipEmphasis": "először",
+    "parentTipTail": ", hogy felkeltse a kíváncsiságot — aztán mondd el, hogy az app {{childName}} saját térképe a naphoz!",
+    "testChildLogin": "👶 Gyerek belépés kipróbálása most",
+    "continueAsParent": "Tovább szülőként →",
+    "skipConfirmTitle": "Kihagyod a gyerek belépését?",
+    "skipConfirmBody": "A gyereknek a PIN-kód kell az önálló belépéshez. Ha most nem próbáljátok ki, a reggeli rutin nehezebbnek tűnhet — 24 óra múlva emlékeztetőt küldünk, ha a gyerek még nem próbálta.",
+    "skipConfirmPrimary": "👶 Gyerek belépés kipróbálása",
+    "skipConfirmSecondary": "Kihagyás így is"
+  },
+  "parentPin": {
+    "setLater": "Szülői PIN később",
+    "title": "Szülői PIN beállítása",
+    "description": "Egy 4 számjegyű PIN, amelyet csak te ismersz, védi a szülői területet — például amikor a gyerekek testvért adnak hozzá, vagy szülőként lépsz be a gyerek eszközén.",
+    "choosePin": "Válaszd ki a PIN-kódod",
+    "confirmPin": "PIN megerősítése",
+    "changeLater": "A PIN-kódot később a Család és beállítások alatt módosíthatod.",
+    "pinRequiredOrEmpty": "Írj be 4 számjegyű PIN-kódot, vagy hagyd üresen a mezőket",
+    "pinRequiredForHandoff": "Állíts be 4 számjegyű PIN-kódot, mielőtt a gyerek átveszi az eszközt.",
+    "pinMismatch": "A PIN-kódok nem egyeznek",
+    "saveFailed": "A PIN-kódot nem sikerült menteni",
+    "handoffRequired": "Közös eszközön felnőtt PIN kell, mielőtt a gyerek beléphet.",
+    "saveAndContinue": "Mentés és tovább"
+  },
+  "invite": {
+    "inviteLater": "Társ-szülő meghívása később",
+    "title": "Hívj meg egy másik felnőttet",
+    "namePlaceholder": "Név (pl. Gábor)",
+    "emailPlaceholder": "E-mail-cím",
+    "whichChildren": "Melyik gyerekeket láthatja ez a személy?",
+    "sendBtn": "📧 Meghívó küldése",
+    "sending": "Küldés…",
+    "sent": "✓ Elküldve",
+    "skip": "Kihagyás →",
+    "emailRequired": "Adj meg egy e-mail-címet",
+    "invalidEmail": "Érvénytelen e-mail-cím",
+    "success": "A meghívó elküldve ide: {{email}}! ✓",
+    "sendFailed": "Valami hiba történt"
+  },
+  "complete": {
+    "title": "Majdnem kész!",
+    "lead": "Hadd próbálja ki a gyerek az appot — más felnőtteket az első kipipálás után hívhatsz meg, és akkor állíthatod be a szülői PIN-kódot is.",
+    "tips": {
+      "editScheduleTitle": "Napirend szerkesztése",
+      "editScheduleBody": "Menj a Kezdőlapra → koppints a gyerek kártyájára → igazítsd a tevékenységeket a mindennapjaitokhoz.",
+      "checkRewardsTitle": "Nézd meg a jutalmakat",
+      "checkRewardsBody": "A gyerek nézetben — koppints a csillagra — a gyerek látja, hány csillag kell az egyes jutalmakhoz.",
+      "addChildrenTitle": "További gyerekek hozzáadása",
+      "addChildrenBody": "Minden gyerek saját napirendet és csillagokat kap. A Kezdőlap + jelével adhatsz hozzá másikat."
+    },
+    "letChildStart": "👶 Hadd kezdje a gyerek",
+    "letChildStartPlain": "Hadd kezdje a gyerek",
+    "completeFailed": "A bevezetést nem sikerült befejezni",
+    "completeFailedShort": "Nem sikerült befejezni",
+    "welcomeFooter": "Üdv a {{brand}} alkalmazásban — örülünk, hogy itt vagy! 🌟"
+  },
+  "weekend": {
+    "title": "Hozzáadsz egy hétvégi napirendet?",
+    "body": "A hétköznapi napirend hétfőtől péntekig kész. Szeretnél egy lazább hétvégi napirendet szombatra és vasárnapra?",
+    "scheduleLabel": "Hétvégi napirend",
+    "satSun": "Szo + V",
+    "preview": {
+      "sleepIn": "Tovább alvás",
+      "breakfast": "Nyugodt reggeli",
+      "freePlay": "Szabad játék",
+      "outing": "Kirándulás / park",
+      "familyActivity": "Családi tevékenység",
+      "dinner": "Vacsora"
+    },
+    "yesBtn": "✅ Igen, hétvégi napirend hozzáadása",
+    "yesLoading": "Hozzáadás…",
+    "noBtn": "Köszönöm, nem, később töltöm ki",
+    "addFailed": "A hétvégi napirendet nem sikerült hozzáadni"
+  },
+  "starter": {
+    "stepLabel": "Napirend készítése {{current}} / {{total}}",
+    "slimTitle": "A rutinod majdnem kész",
+    "fullTitle": "Hozd létre az első napirendet",
+    "slimIntro": "Három gyors kérdés — aztán a rutin kész.",
+    "birthdayHint": "Válaszd ki a gyerek születési dátumát — segít a megfelelő napirendet javasolni.",
+    "fullIntro": "Válaszolj néhány kérdésre — egy percnél kevesebb.",
+    "powerPathLead": "Magad szeretnéd választani vagy építeni?",
+    "chooseTemplate": "📋 Kész napirend választása",
+    "fullWizard": "✏️ Építsd és szabd magad (7 kérdés)",
+    "answerRequired": "Válassz vagy írj be egy választ",
+    "showSchedule": "Napirend mutatása →",
+    "buttons": {
+      "next": "Tovább →"
+    },
+    "createRoutine": "Rutin létrehozása →",
+    "creatingRoutine": "Rutin létrehozása…",
+    "personalizing": "Napirend igazítása…",
+    "loading": "Betöltés…",
+    "useSchedule": "Ennek a napirendnek a használata →",
+    "saving": "Mentés…",
+    "changeAnswers": "← Válaszok módosítása",
+    "removeStep": "Eltávolítás",
+    "previewHint": "Lépéseket kivehetsz — később a beállításokban adhatsz hozzá.",
+    "previewForChild": "Neki: {{childName}} · {{count}} tevékenység",
+    "previewAiTail": " · ✨ egyedileg igazítva",
+    "defaultPlanTitle": "A napirended",
+    "slimSuccessTitle": "A rutinod kész",
+    "slimSuccessTonight": "A napirend kész. Mutasd meg {{childName}} számára a Mát ezen az eszközön.",
+    "showChildToday": "A gyerek Mai napjának mutatása",
+    "openingChildToday": "A gyerek Mai napja nyílik…",
+    "hourglassOfferTitle": "Vizuális homokóra",
+    "hourglassOfferBody": "Segíts a gyereknek látni, mennyi idő van hátra egy tevékenységből.",
+    "hourglassEnableBtn": "Homokóra bekapcsolása",
+    "hourglassEnabling": "Bekapcsolás…",
+    "hourglassEnabledMsg": "A homokóra be van kapcsolva a gyereknek.",
+    "hourglassEnableFailed": "A homokórát nem sikerült bekapcsolni",
+    "goHome": "Irány a Kezdőlap →",
+    "openingHome": "A Kezdőlap nyílik…",
+    "customizeFirst": "Először a napirend igazítása",
+    "openingSchedule": "A napirend nyílik…",
+    "nameRequired": "Írd be a gyerek nevét",
+    "templateFailed": "A sablont nem sikerült kiválasztani",
+    "previewFailed": "A napirendet nem sikerült betölteni",
+    "childCreateFailed": "A gyereket nem sikerült létrehozni",
+    "scheduleSaveFailed": "A napirendet nem sikerült menteni",
+    "personalizeFailed": "A napirendet nem sikerült igazítani",
+    "completeFailed": "Nem sikerült befejezni",
+    "packages": {
+      "morning-short": {
+        "name": "Rövid reggel"
+      },
+      "evening-routine": {
+        "name": "Esti rutin"
+      },
+      "preschool-day": {
+        "name": "Óvodai hétköznap"
+      },
+      "school-day": {
+        "name": "Iskolai hétköznap"
+      },
+      "weekend": {
+        "name": "Hétvége"
+      },
+      "getting-ready": {
+        "name": "Rövid reggel"
+      }
+    },
+    "questions": {
+      "child_name": {
+        "label": "A gyerek neve",
+        "placeholder": "pl. Nóra"
+      },
+      "age_band": {
+        "label": "Hány éves a gyereked?",
+        "options": {
+          "3-5": "3–5 év",
+          "6-8": "6–8 év",
+          "9-12": "9–12 év",
+          "13+": "13+"
+        }
+      },
+      "routine_type_ui": {
+        "label": "Melyik rutinnal szeretnél kezdeni?",
+        "options": {
+          "morgon": "☀️ Reggel",
+          "kvall": "🌙 Este",
+          "efter-skola": "🏫 Iskola után",
+          "laxor": "📚 Házi feladat",
+          "gora-sig-klar": "🎒 Készülődés"
+        }
+      },
+      "main_challenge": {
+        "label": "Mi a legnehezebb most?",
+        "options": {
+          "getting_started": "Elindulás",
+          "focus": "Figyelem megtartása",
+          "conflicts": "Konfliktusok",
+          "forgetting": "Lépések elfelejtése",
+          "transitions": "Átmenetek"
+        }
+      },
+      "support_ui": {
+        "label": "A gyerekednek extra tiszta támogatás kell?",
+        "options": {
+          "ja": "Igen",
+          "lite": "Egy kicsit",
+          "nej": "Nem"
+        }
+      },
+      "length_ui": {
+        "label": "Hány lépéssel szeretnél kezdeni?",
+        "options": {
+          "kort": "Rövid (3–4)",
+          "normal": "Normál (5)",
+          "detaljerad": "Részletes (6–7)"
+        }
+      },
+      "free_text": {
+        "label": "Van valami fontos, amit tudnunk kell? (választható)",
+        "placeholder": "pl. a fogmosás a legnehezebb rész"
+      }
+    }
+  },
+  "handoffFilm": {
+    "scenes": {
+      "routine": "A rutin kész",
+      "handoff": "Nyissátok meg együtt a gyerek módot",
+      "child": "A gyerek látja, mi történik most",
+      "done": "Kész!",
+      "star": "Első csillag ⭐"
+    },
+    "mock": {
+      "parentView": "Szülői nézet",
+      "dailyRoutine": "A mai rutin",
+      "dress": "Öltözés",
+      "brushTeeth": "Fogmosás",
+      "packBag": "Táska pakolása",
+      "tryChildMode": "👶 Gyerek mód kipróbálása",
+      "now": "Most",
+      "markDone": "Megjelölés késznek ✓",
+      "wellDone": "Szép munka!"
+    },
+    "ctaReady": "Készen állsz kipróbálni?",
+    "ctaTryNow": "Gyerek mód kipróbálása most",
+    "ctaLater": "Később",
+    "loginTitle": "Nyisd meg a gyerek nézetét",
+    "loginLead": "A napirend kész. Add oda {{childName}} számára ezt az eszközt, hogy lássa a rutint.",
+    "usernameLabel": "Felhasználónév",
+    "pinLabel": "PIN",
+    "loginHint": "Üljetek le együtt — ugyanaz az eszköz vagy egy másik is jó.",
+    "copyLogin": "📋 Belépési adatok másolása",
+    "copied": "✓ Másolva!",
+    "openChildMode": "A gyerek nézetének megnyitása",
+    "copyText": "{{childName}}\nNyisd meg a gyerek nézetét az appban.",
+    "previewTitle": "Előnézet — bevezető film"
+  },
+  "firstStar": {
+    "title": "Add meg az első csillagot",
+    "lead": "Három gyors lépés — aztán tényleg elindultatok.",
+    "steps": {
+      "login": "Hadd lépjen be a gyerek a PIN-kódjával",
+      "complete": "Jelölj meg egy tevékenységet késznek a gyerek nézetben",
+      "celebrate": "Ünnepeljétek együtt a csillagot!"
+    },
+    "openChildLogin": "👶 Gyerek belépés megnyitása",
+    "continueAsParent": "Tovább szülőként"
+  },
+  "activation": {
+    "finalStepLabel": "Utolsó lépés",
+    "introTitle": "Hogyan szeretnél kezdeni?",
+    "introBody": "Beállítottad a gyerek napirendjét — jó kezdés. Sok családnál a legnagyobb kihívás nem az elindulás, hanem a rutin megtartása az első napokban, amikor a mindennapok átveszik a helyet. Válaszd azt, ami hozzátok illik:",
+    "guidedBadge": "Ajánlott",
+    "guidedTitle": "Tartsátok a rutint az első héten",
+    "guidedBody": "Sok család értékeli a kis támogatást, miután a napirend kész. Nem azért, mert valami baj van, hanem mert az új szokásoknak idő kell, hogy megüljenek.",
+    "guidedBenefits": [
+      "Rövid napi emlékeztetők, hogy folytassátok",
+      "Lásd, amikor a gyerek elvégez egy feladatot, extra noszogatás nélkül",
+      "A gyerek napirendje már megvan — mi segítünk, hogy a rutin működjön",
+      "Bármikor leállíthatod"
+    ],
+    "guidedCta": "Igen, segítsetek az első héten",
+    "directTitle": "Azonnali indulás",
+    "directBody": "Úgy érzed, egyedül is készen állsz. Minden a helyén van, és rögtön kezdhettek.",
+    "directBenefits": [
+      "Egyenesen a Kezdőlapra",
+      "Ugyanaz a napirend, a csillagok és a jutalmak",
+      "Használd az appot a saját tempódban"
+    ],
+    "directCta": "Egyedül is megoldjuk",
+    "footnote": "Bármelyiket választod, az appot teljesen használhatod. Az irányított kezdés csak egy kis extra támogatást ad az első héten.",
+    "saveFailed": "A választást nem sikerült menteni"
+  },
+  "loading": {
+    "buildingSchedule": "A napirended készül…",
+    "takesSeconds": "Csak néhány másodperc!"
+  },
+  "templateGroups": {
+    "showActivities": "Tevékenységek mutatása",
+    "loadingActivities": "Betöltés…",
+    "activityCount": {
+      "one": "{{count}} tevékenység",
+      "other": "{{count}} tevékenység"
+    },
+    "forskola": {
+      "name": "Óvoda",
+      "description": "Egész nap — 2–5 éves gyerekeknek"
+    },
+    "skola": {
+      "name": "Iskola",
+      "description": "Egész nap — 6 éves kortól"
+    },
+    "morgon": {
+      "name": "Reggel",
+      "description": "Reggeli rutin"
+    },
+    "dag": {
+      "name": "Nap",
+      "description": "Nappali tevékenységek"
+    },
+    "kvall": {
+      "name": "Este",
+      "description": "Esti rutin"
+    },
+    "helg": {
+      "name": "Hétvége",
+      "description": "Hétvégi rutin"
+    },
+    "previewFallback": {
+      "forskola": [
+        "Ébredés",
+        "Öltözés",
+        "Reggeli",
+        "Óvoda",
+        "Játék",
+        "Vacsora",
+        "Esti mese"
+      ],
+      "skola": [
+        "Ébredés",
+        "Reggeli",
+        "Táska pakolása",
+        "Iskola",
+        "Házi feladat",
+        "Vacsora",
+        "Esti mese"
+      ],
+      "morgon": [
+        "Ébredés",
+        "Öltözés",
+        "Fogmosás",
+        "Reggeli",
+        "Táska pakolása"
+      ],
+      "dag": [
+        "Óvoda",
+        "Játék kint",
+        "Uzsonna",
+        "Ebéd",
+        "Kézműveskedés"
+      ],
+      "kvall": [
+        "Vacsora",
+        "Fogmosás",
+        "Pizsama",
+        "Esti mese",
+        "Alvás"
+      ],
+      "helg": [
+        "Ébredés",
+        "Reggeli",
+        "Szabad játék",
+        "Kirándulás",
+        "Családi tevékenység",
+        "Vacsora"
+      ]
+    }
+  },
+  "sections": {
+    "morning": "Reggel",
+    "lateMorning": "Késő délelőtt",
+    "afternoon": "Délután",
+    "evening": "Este"
+  },
+  "errors": {
+    "avatarUploadPath": "A profilfotó a gyerek létrehozása után töltődik fel: PUT /api/children/:id/avatar",
+    "childNameRequired": "A gyerek neve kötelező",
+    "emojiRequired": "Válassz emojit a gyereknek",
+    "invalidBirthday": "Érvénytelen születési dátum",
+    "birthdayFuture": "A születésnap nem lehet a jövőben",
+    "invalidTemplate": "Érvénytelen választás. Válassz érvényes napirendet.",
+    "noActivities": "A kiválasztott napirendhez nem található tevékenység.",
+    "childIdRequired": "A child_id kötelező",
+    "noChildAccess": "Ehhez a gyerekhez nincs hozzáférésed",
+    "weekendNotFound": "A hétvégi napirend nem található a könyvtárban.",
+    "weekendEmpty": "A hétvégi napirendben nincs tevékenység.",
+    "rewardNameRequired": "A jutalom neve kötelező",
+    "rewardCostMin": "A csillagár legalább 1 legyen",
+    "rewardsFetchFailed": "A jutalmakat nem sikerült lekérni.",
+    "childCreateFailed": "Hiba történt a gyerek létrehozásakor.",
+    "scheduleCreateFailed": "Hiba történt a napirend létrehozásakor.",
+    "weekendCreateFailed": "Hiba történt a hétvégi napirend létrehozásakor.",
+    "rewardCreateFailed": "Hiba történt a jutalom létrehozásakor.",
+    "generic": "Valami hiba történt.",
+    "invalidViewType": "Érvénytelen view_type. Válassz napi vagy idővonal nézetet.",
+    "notAllowed": "Nem engedélyezett",
+    "invalidChoice": "Érvénytelen választás.",
+    "activityGuideSaveFailed": "A tevékenységválasztást nem sikerült menteni.",
+    "pinMustBe4": "A PIN pontosan 4 számjegy legyen",
+    "pinTooWeak": "Válassz erősebb PIN-kódot",
+    "pinTaken": "Ez a PIN már foglalt egy ugyanilyen nevű gyereknél",
+    "pinUpdateFailed": "A PIN-kódot nem sikerült frissíteni.",
+    "handoffContextFailed": "Az átadási adatokat nem sikerült lekérni",
+    "templateGroupsFailed": "A napirendcsoportokat nem sikerült lekérni.",
+    "schedulePreviewFailed": "A napirendet nem sikerült lekérni.",
+    "viewSaveFailed": "A nézetválasztást nem sikerült menteni.",
+    "activationNotEnabled": "Az aktiválási folyamat nincs bekapcsolva a családotoknak",
+    "starterSuggestFailed": "A sablont nem sikerült kiválasztani",
+    "starterPreviewFailed": "Az előnézetet nem sikerült lekérni",
+    "starterPersonalizeFailed": "A napirendet nem sikerült igazítani",
+    "scheduleNameRequired": "A scheduleName kötelező",
+    "templateNotFound": "A sablon nem található",
+    "enrollChoiceUnavailable": "A választóképernyő nem érhető el"
+  },
+  "starterPlan": {
+    "firstSchedule": "Az első napirended"
+  }
+}

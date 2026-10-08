@@ -1,0 +1,5 @@
+[
+  { "name": "Tempo de ecrã extra", "icon": "📱", "star_cost": 5 },
+  { "name": "Escolher o jantar", "icon": "🍕", "star_cost": 10 },
+  { "name": "Pequena prenda", "icon": "🎁", "star_cost": 20 }
+]

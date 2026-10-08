@@ -28,6 +28,9 @@ const { validateChildLoginBody } = require('../../middleware/validate-child-logi
 const { avatarApiFields } = require('../../lib/avatar-api');
 const { resolveParentFamilyIdFromCookies } = require('../../lib/parent-session-family');
 const { parseDuration } = require('./session');
+const { t } = require('../../lib/i18n');
+const { intlLocaleTag } = require('../../lib/locale');
+const { resolveCommunicationLocale } = require('../../lib/communication-locale');
 
 const router = express.Router();
 
@@ -122,7 +125,16 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
       if (attemptCount === 3) {
         try {
           // In-app notification via system_messages (visible in parent dashboard)
-          const msg = `${child.name} har försökt logga in med fel PIN-kod 3 gånger (${new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })})`;
+          const familyLocale = await db.query(
+            'SELECT preferred_locale FROM family WHERE id = $1',
+            [child.family_id]
+          );
+          const noticeLocale = resolveCommunicationLocale(familyLocale.rows[0] && familyLocale.rows[0].preferred_locale);
+          const time = new Date().toLocaleTimeString(intlLocaleTag(noticeLocale), {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          const msg = t(noticeLocale, 'email.pinWarning.inApp', { childName: child.name, time });
           await createSystemMessage(child.family_id, msg);
           await pinLockout.recordNotification(child.id, child.family_id, 'in_app');
 
@@ -145,7 +157,6 @@ router.post('/child-login', childLoginLimiter, validateChildLoginBody, async (re
             );
             if (parentResult.rows[0]?.email) {
               if (process.env.EMAIL_ENABLED !== 'false') {
-                const { resolveCommunicationLocale } = require('../../lib/communication-locale');
                 const locale = resolveCommunicationLocale(parentResult.rows[0].preferred_locale);
                 sendPinWarningEmail(parentResult.rows[0].email, child.name, locale).catch(() => {});
               }

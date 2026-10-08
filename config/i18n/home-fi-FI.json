@@ -1,0 +1,569 @@
+{
+  "pageTitle": "Koti — {{brand}}",
+  "greeting": {
+    "morning": "Hyvää huomenta!",
+    "afternoon": "Hei!",
+    "evening": "Hyvää iltaa!",
+    "default": "Hei!"
+  },
+  "sub": "Tältä päivä näyttää.",
+  "status": {
+    "paused": "Vapaapäivä tänään",
+    "allDone": "Kaikki tehty!",
+    "noSchedule": "Ei rutiinia",
+    "progressDone": "{{done}}/{{total}} tehty",
+    "emptyChildren": "Lisää lapsi kohtaan Perhe, niin näet tilanteen täällä.",
+    "loadError": "Lasten tilannetta ei voitu ladata. Se ei tarkoita, ettei lapsia olisi.",
+    "retry": "Yritä uudelleen",
+    "viewActivitiesAria": "{{name}} — katso aktiviteetit tänään"
+  },
+  "ready": {
+    "title": "Valmis seuraavaan aktiviteettiin",
+    "childrenCount": "({{count}} lasta)"
+  },
+  "quickActions": {
+    "aria": "Pikatoiminnot",
+    "retroactive": "Kirjaa myöhemmin",
+    "onceTask": "Kertaluontoinen aktiviteetti",
+    "extraStars": "Bonustähdet",
+    "dayOff": "Vapaapäivä"
+  },
+  "dayOffModal": {
+    "title": "🏠 Vapaapäivä",
+    "subtitle": "Keskeyttää lapsen rutiinin koko päiväksi",
+    "footer": "Lapsen ei tarvitse merkitä aktiviteetteja vapaapäivänä",
+    "noChildren": "Lapsia ei löytynyt",
+    "stateActive": "🟢 Rutiini käynnissä",
+    "statePaused": "⏸ Vapaapäivä tänään",
+    "markDayOff": "🏠 Merkitse vapaapäiväksi",
+    "resumeSchedule": "▶ Jatka rutiinia",
+    "noScheduleTitle": "Tälle päivälle ei ole luotu rutiinia",
+    "resumedToast": "Rutiini jatkuu!",
+    "pausedToast": "🏠 Merkitty vapaapäiväksi!",
+    "genericError": "Jokin meni pieleen",
+    "networkError": "Verkkovirhe"
+  },
+  "handoff": {
+    "title": "Onko aika lapsen kirjautua?",
+    "sub": "Vaihda lapsen näkymään PIN-koodilla.",
+    "childLogin": "👶 Lapsi kirjautuu",
+    "changePin": "Vaihda lapsen PIN",
+    "changePinAria": "Avaa Perhe ja vaihda lapsen PIN",
+    "parentLogout": "Kirjaudu ulos",
+    "regionAria": "Vaihda lapsen kirjautumiseen",
+    "dismissTitle": "Sulje",
+    "trusted": {
+      "title": "Onko aika avata lapsen näkymä?",
+      "sub": "Avaa lapsen näkymä tällä laitteella.",
+      "childLogin": "Avaa lapsen näkymä",
+      "regionAria": "Avaa lapsen näkymä"
+    },
+    "pin": {
+      "title": "Onko aika lapsen kirjautua?",
+      "sub": "Vaihda lapsen näkymään PIN-koodilla.",
+      "childLogin": "Kirjaudu lapsen PIN-koodilla",
+      "regionAria": "Kirjaudu lapsen PIN-koodilla"
+    },
+    "postSchema": {
+      "title": "Seuraava askel: anna lapsen kokeilla rutiinia",
+      "sub": "Avaa lapsen näkymä yhdessä — se vie noin minuutin.",
+      "childLogin": "Kokeile lapsen näkymää nyt",
+      "regionAria": "Seuraava askel: anna lapsen kokeilla rutiiniaan",
+      "trusted": {
+        "title": "Seuraava askel: avaa lapsen näkymä",
+        "sub": "Avaa lapsen näkymä yhdessä — se vie noin minuutin.",
+        "childLogin": "Avaa lapsen näkymä",
+        "regionAria": "Seuraava askel: avaa lapsen näkymä"
+      },
+      "pin": {
+        "title": "Seuraava askel: anna lapsen kokeilla rutiinia",
+        "sub": "Avaa lapsen näkymä yhdessä — se vie noin minuutin.",
+        "childLogin": "Kirjaudu lapsen PIN-koodilla",
+        "regionAria": "Seuraava askel: kirjaudu lapsen PIN-koodilla"
+      }
+    }
+  },
+  "firstSuccess": {
+    "coachAria": "Seuraava askel kohti ensimmäistä onnistunutta rutiinia",
+    "pinHint": "Lapsi käyttää omaa PIN-koodiaan. Voit palauttaa vanhemman tilan, kun lapsi on valmis.",
+    "recovery": {
+      "fetchErrorHeadline": "Seuraavaa askelta ei voitu ladata",
+      "fetchErrorBody": "Tämä näyttää tilapäiseltä. Yritä uudelleen tai jatka toistaiseksi ilman opasta.",
+      "retry": "Yritä uudelleen",
+      "continueWithoutGuide": "Jatka ilman opasta",
+      "defer": "Tee myöhemmin",
+      "deferError": "Valintaa ei voitu tallentaa juuri nyt. Yritä uudelleen.",
+      "retrying": "Yritetään uudelleen…",
+      "deferring": "Tallennetaan…"
+    },
+    "actions": {
+      "create_child": {
+        "headline": "Luo lapsen profiili",
+        "body": "Nimi ja yksinkertainen PIN riittävät alkuun.",
+        "cta": "Jatka lapsen kanssa"
+      },
+      "save_schedule": {
+        "headline": "Tallenna yksinkertainen ensimmäinen rutiini",
+        "body": "Valitse aloitusaikataulu — voit vaihtaa sitä milloin tahansa.",
+        "cta": "Valitse aloitusaikataulu"
+      },
+      "child_access": {
+        "headline": "Avaa lapsen näkymä",
+        "body": "Anna lapsen kokeilla ensimmäistä aktiviteettia tänään lapsen näkymässä.",
+        "cta": "Avaa lapsen näkymä"
+      },
+      "child_access_named": {
+        "headline": "{{name}}n rutiini on valmis",
+        "body": "Lapsi voi aloittaa, kun sinulle sopii.",
+        "cta": "Avaa lapsen näkymä"
+      },
+      "await_first_completion": {
+        "headline": "Odotetaan ensimmäistä aktiviteettia",
+        "body": "Lapsi näkee rutiininsa lapsen näkymässä. Auta alkuun, jos tarvitsee.",
+        "cta": "Avaa lapsen näkymä"
+      },
+      "parent_ack": {
+        "headline": "Lapsesi teki aktiviteetin!",
+        "body": "Vahvista, jotta tähti lasketaan ja onnistumista voi juhlia yhdessä.",
+        "cta": "Katso aktiviteetti"
+      },
+      "celebrate_first_success": {
+        "headline": "Ensimmäinen tähti on valmis!",
+        "body": "Hienosti tehty — rutiini toimii oikeasti.",
+        "cta": "Jatka"
+      },
+      "journey_coach": {
+        "headline": "Seuraava askel",
+        "body": "Rakenna rutiinia omassa tahdissasi.",
+        "cta": "Jatka"
+      },
+      "engine_legacy": {
+        "headline": "Seuraava askel",
+        "body": "Seuraa ehdotettua seuraavaa askelta.",
+        "cta": "Jatka"
+      },
+      "continue_today": {
+        "headline": "{{name}} on yhä rutiinia jäljellä tänään",
+        "body": "Haluatko jatkaa siitä, mihin jäätiin?",
+        "cta": "Jatka rutiinia"
+      },
+      "welcome_back": {
+        "headline": "Tervetuloa takaisin",
+        "body": "Seuraava askel on yhä täällä, kun tarvitset sitä — avataanko lapsen rutiini?",
+        "cta": "Avaa lapsen näkymä"
+      },
+      "invite_adult": {
+        "headline": "Haluaisiko toinen aikuinen auttaa?",
+        "body": "Kutsu, kun sinulle sopii — sinä pysyt ohjaksissa.",
+        "cta": "Kutsu aikuinen"
+      },
+      "share_week": {
+        "headline": "Pieni nosto viikosta",
+        "body": "Jaa vain, jos haluat — mitään ei julkaista automaattisesti.",
+        "cta": "Jaa nosto"
+      },
+      "refer_family": {
+        "headline": "Tunnetko perheen, jolle rutiinit voisivat sopia?",
+        "body": "Jaa henkilökohtainen linkki — ei palkintoa, vain vinkki.",
+        "cta": "Jaa sovellus"
+      }
+    }
+  },
+  "growth": {
+    "dismissNotNow": "Ei nyt",
+    "weeklyHighlight": {
+      "generic": {
+        "headline": "Otit askeleita rutiineissasi tällä viikolla",
+        "body": "Rauhallinen kooste — vain sinulle.",
+        "shareText": "Käytämme sovellusta {{brand}} lasten rutiineihin kotona. Jos haluat kokeilla yksinkertaista perhesovellusta."
+      },
+      "morning": {
+        "headline": "Useampi aamu sujui tällä viikolla vähän pehmeämmin",
+        "body": "Hienosti tehty — jaa vain, jos haluat.",
+        "shareText": "Meillä aamut ovat olleet rauhallisempia yksinkertaisella rutiinisovelluksella. Siitä voi olla apua sinunkin perheellesi."
+      },
+      "evening": {
+        "headline": "Iltarutiini toimi useamman kerran tällä viikolla",
+        "body": "Yksityinen nosto — ei sijoituksia.",
+        "shareText": "Iltarutiinit helpottuivat meillä vähän. Jos etsit rauhallista työkalua."
+      },
+      "multi_child": {
+        "headline": "Lapsesi ottivat useita askeleita rutiineissaan tällä viikolla",
+        "body": "Kooste ilman nimiä tai kuvia.",
+        "shareText": "Käytämme sovellusta {{brand}} lasten rutiineihin. Kokeile:"
+      }
+    }
+  },
+  "founderBanner": {
+    "title": "🎉 Olet perustajajäsen",
+    "body": "Yhtenä ensimmäisistä perheistä sinulla on elinikäinen käyttöoikeus ilman maksua. Kiitos, että olet ollut mukana alusta asti!"
+  },
+  "weekStory": {
+    "title": "Tämän viikon tarina"
+  },
+  "starHistory": {
+    "title": "Viikon eteneminen",
+    "subtitle": "Viimeiset 8 viikkoa",
+    "thisWeek": "{{count}} ⭐ tällä viikolla",
+    "weekTooltip": "V{{week}}: {{count}} tähteä",
+    "diffUp": "+{{diff}} viime viikkoon verrattuna",
+    "diffSame": "Sama kuin viime viikolla",
+    "bestWeek": "🎉 {{name}}n paras viikko tähän asti!"
+  },
+  "nav": {
+    "today": "Tänään",
+    "dailyLog": "Päiväloki",
+    "fillRetroactive": "📝 Kirjaa myöhemmin"
+  },
+  "readiness": {
+    "heading": "Tarvitsee huomiota",
+    "warningsOnly": "Vain varoitukset",
+    "loadError": "Ei voitu tarkistaa, mikä tarvitsee huomiota.",
+    "retry": "Yritä uudelleen",
+    "items": {
+      "pendingInviteTitleOne": "1 odottava kutsu toiselle vanhemmalle",
+      "pendingInviteTitleMany": "{{count}} odottavaa kutsua toiselle vanhemmalle",
+      "pendingInviteSub": "Hallitse kohdassa Perhe",
+      "pendingApprovalTitle": "{{name}} — {{count}} odottava pyyntö",
+      "pendingApprovalTitleMany": "{{name}} — {{count}} odottavaa pyyntöä",
+      "pendingApprovalSub": "Hyväksy kohdassa Palkinnot",
+      "incompleteDaysTitleOne": "{{name}} — 1 keskeneräinen päivä",
+      "incompleteDaysTitleMany": "{{name}} — {{count}} keskeneräistä päivää",
+      "incompleteDaysSub": "Täytä jälkikäteen",
+      "missingPinTitle": "{{name}} ei ole saanut PIN-koodia",
+      "missingPinSub": "Aseta PIN lapsen profiilissa",
+      "pausedDayTitle": "{{name}} — vapaapäivä tänään",
+      "pausedDaySub": "Avaa Tänään",
+      "noScheduleTitle": "{{name}} — ei rutiinia tänään",
+      "noScheduleSub": "Avaa viikkoaikataulu"
+    }
+  },
+  "summary": {
+    "pendingRewardHeadline": "{{name}} haluaa lunastaa palkinnon",
+    "pendingRewardSubOne": "Yksi pyyntö odottaa sinua",
+    "pendingRewardSubMany": "{{count}} pyyntöä odottaa sinua",
+    "showRequest": "Katso pyyntö",
+    "closeToReward": "{{name}} on vain {{gap}} päässä seuraavasta palkinnosta",
+    "starOne": "1 tähti",
+    "starMany": "{{count}} tähteä",
+    "seeRewards": "Katso palkinnot",
+    "starsTodayHeadline": "Lapset ansaitsivat {{count}} tänään",
+    "starsTodaySubOne": "{{name}} ansaitsi ne tänään",
+    "starsTodaySubMany": "Lapset ansaitsivat ne tänään",
+    "tasksDoneHeadline": "{{name}} on jo tehnyt {{count}} tänään",
+    "taskOne": "1 tehtävä",
+    "taskMany": "{{count}} tehtävää",
+    "tasksRemaining": "{{count}} jäljellä rutiinissa tänään",
+    "allActivitiesDone": "Kaikki aktiviteetit tehty — hienoa!",
+    "seeSchedule": "Katso aikataulu",
+    "nextActivityHeadline": "{{name}} on valmis aktiviteettiin {{activity}}",
+    "nextActivitySub": "Seuraava aktiviteetti rutiinissa",
+    "openToday": "Avaa Tänään",
+    "calmDayHeadline": "Rauhallinen päivä — ei rutiinia juuri nyt",
+    "calmDaySub": "Hyvä hetki lisätä aktiviteetteja tai antaa bonustähtiä",
+    "defaultChild": "Lapsesi",
+    "pageTitleStars": "🌟 Tähdet tänään",
+    "pageTitleWelcome": "👋 Tervetuloa takaisin",
+    "pageTitleProgress": "🌟 Perheen eteneminen tänään",
+    "greetingFallback": "{{greeting}} Tältä tänään näyttää",
+    "followChild": "Seuraa edistymistä täällä: {{name}}",
+    "followChildren": "Seuraa lasten edistymistä täällä"
+  },
+  "childStats": {
+    "paused": "⏸ Vapaapäivä tänään",
+    "allDone": "🌟 Kaikki tehty tänään!",
+    "tasksDoneOne": "🔥 1 tehtävä tehty tänään",
+    "tasksDoneMany": "🔥 {{count}} tehtävää tehty tänään",
+    "noSchedule": "Ei rutiinia tänään",
+    "todayProgress": "Tänään <strong>{{done}}/{{total}}</strong>",
+    "totalStars": "⭐ <span class=\"dash-stars-num\">{{count}}</span> yhteensä",
+    "starsTodayOne": "+1 tähti tänään",
+    "starsTodayMany": "+{{count}} tähteä tänään",
+    "remaining": "{{count}} jäljellä · {{done}}/{{total}}",
+    "rewardGapOne": "🎁 Enää 1 tähti seuraavaan palkintoon",
+    "rewardGapMany": "🎁 Enää {{count}} tähteä seuraavaan palkintoon"
+  },
+  "offline": {
+    "banner": "Offline — muutoksesi on tallennettu",
+    "lastUpdated": "· Päivitetty viimeksi {{time}}"
+  },
+  "hubs": {
+    "dailyLogTitle": "Päiväloki",
+    "dailyLogSub": "Seuraa lasten päivää — kirjaa tähdet jälkikäteen"
+  },
+  "forDig": {
+    "outcome": {
+      "title": "Miten tavoite {{goal}} on sujunut?",
+      "sub": "Lapselle {{name}}",
+      "great": "Iso parannus",
+      "better": "Vähän paremmin",
+      "same": "Ei eroa",
+      "worse": "Ei toimi",
+      "followUpBetter": "Mikä parani?",
+      "followUpWorse": "Mitä puuttuu?",
+      "optional": "(valinnainen)",
+      "send": "Lähetä",
+      "skip": "Ohita",
+      "dismissAria": "Sulje",
+      "thanks": "Kiitos! Vastauksesi on tallennettu.",
+      "alreadyAnswered": "Kiitos! Näyttää siltä, että vastasit jo.",
+      "next": "Vastaa seuraavaan",
+      "done": "Tehty"
+    }
+  },
+  "dashboardTour": {
+    "skip": "Ohita",
+    "next": "Seuraava →",
+    "start": "🎉 Mennään!",
+    "steps": {
+      "welcome": {
+        "title": "Tervetuloa yleiskatsaukseen!",
+        "body": "Täällä näet jokaisen lapsen päivän. Muokkaa viikkoaikataulua kohdassa Suunnittelu."
+      },
+      "stars": {
+        "title": "Tähdet ja tähtiaarre",
+        "body": "Jokainen tehty aktiviteetti tuo 1 tähden. Lapsi kerää tähtiä ja vaihtaa ne palkintoihin tähtiaarteessa."
+      },
+      "schedule": {
+        "title": "Viikkoaikataulu ja aktiviteetit",
+        "body": "Valikosta kohdasta Suunnittelu löydät aktiviteettikirjaston ja voit lisätä omia palkintoja."
+      },
+      "family": {
+        "title": "Lisää lapsia tai aikuisia",
+        "body": "Napauta \"+ Lisää lapsi\" lisätäksesi sisaruksen. Kohdassa Perhe voit kutsua toisen aikuisen."
+      },
+      "help": {
+        "title": "Tarvitsetko apua?",
+        "body": "Napauta ❓-painiketta oikeasta alakulmasta milloin tahansa, niin näet kysymykset ja vinkit. Onnea matkaan sovelluksessa {{brand}}!"
+      }
+    }
+  },
+  "pinWarning": {
+    "title": "{{name}} yrittää kirjautua",
+    "body": "3 väärää PIN-yritystä — lapsi saattaa tarvita apua"
+  },
+  "shareSchedule": {
+    "notAvailable": "Jakaminen ei ole käytettävissä tällä laitteella",
+    "notSupported": "Jako ei ole käytettävissä tällä laitteella",
+    "shared": "Jaettu!",
+    "childNotFound": "Lasta ei löytynyt",
+    "couldNotShare": "Jako ei onnistunut: {{message}}",
+    "routineToday": "{{name}}n rutiini tänään:",
+    "title": "{{name}}n rutiini"
+  },
+  "swUpdate": {
+    "ready": "✨ Sovelluksen uusi versio on valmis!",
+    "reloadNow": "Lataa uudelleen nyt",
+    "later": "Myöhemmin",
+    "dismissAria": "Sulje päivitysilmoitus"
+  },
+  "pwa": {
+    "title": "Asenna sovellus, jotta saat push-ilmoituksia",
+    "iosLead": "iPhonella ja iPadilla sovelluksen pitää olla Koti-valikossa, jotta push-ilmoitukset toimivat.",
+    "iosStep1": "Napauta Jaa-painiketta Safarin alareunassa",
+    "iosStep2": "Valitse \"Lisää Koti-valikkoon\"",
+    "iosStep3": "Avaa sovellus Koti-valikosta ja salli ilmoitukset",
+    "iosArrowHint": "Animoitu nuoli osoittaa selaimesi Jaa-painiketta",
+    "androidTitle": "Asenna sovellus parasta kokemusta varten",
+    "androidLead": "Asenna sovellus, niin saat muistutuksia puhelimeen.",
+    "androidHomeLead": "Asenna {{brand}} Koti-valikkoon, niin pääset nopeasti ja saat push-ilmoituksia.",
+    "androidInstall": "Asenna sovellus",
+    "androidInstallBtn": "📲 Asenna sovellus",
+    "androidChromeFallback": "Napauta ⋮ (valikko) Chromessa → <strong>\"Lisää Koti-valikkoon\"</strong>",
+    "desktopTitle": "Asenna sovellus",
+    "desktopLead": "Napauta asennuskuvaketta (⊕) osoiterivillä tai käytä selaimen valikkoa.",
+    "dismissAria": "Sulje"
+  },
+  "pushPrompt": {
+    "title": "Saa push-ilmoituksia lapsistasi",
+    "body": "Tiedät heti, kun lapsi merkitsee aktiviteetin tai haluaa lunastaa palkinnon.",
+    "later": "Myöhemmin",
+    "enable": "Laita päälle",
+    "enabledToast": "✅ Push-ilmoitukset käytössä!"
+  },
+  "globalFeedback": {
+    "fabAria": "Anna palautetta",
+    "fabTitle": "Anna palautetta",
+    "modalTitle": "Anna palautetta",
+    "typeBug": "Ilmoita ongelmasta",
+    "typeSuggestion": "Ehdotus",
+    "typeLanguage": "Kieli",
+    "titlePlaceholder": "Otsikko",
+    "messagePlaceholder": "Mitä tapahtui?",
+    "cancel": "Peruuta",
+    "submit": "Lähetä ilmoitus",
+    "submitting": "Lähetetään...",
+    "validationRequired": "Täytä kaikki kentät.",
+    "success": "Ilmoituksesi on lähetetty.",
+    "errorGeneric": "Jokin meni pieleen. Yritä uudelleen."
+  },
+  "cards": {
+    "loadError": "Lapsikortteja ei voitu ladata. Vedä alas päivittääksesi.",
+    "last": "Edellinen:",
+    "next": "Seuraava:",
+    "noActivitiesToday": "Ei suunniteltuja aktiviteetteja tänään",
+    "noRoutineToday": "Ei rutiinia tänään",
+    "createActivity": "✨ Luo aktiviteetti aikatauluun →",
+    "childNoActivities": "{{name}} ei ole vielä saanut aktiviteetteja — luo ensimmäinen →",
+    "noRewards": "🎁 Ei vielä palkintoja",
+    "addReward": "→ Lisää palkinto",
+    "pendingRequest": "{{count}} odottava pyyntö",
+    "pendingRequestMany": "{{count}} odottavaa pyyntöä",
+    "pausedBadge": "TAUKO",
+    "allDoneTitle": "Kaikki tehty!",
+    "statusNow": "NYT",
+    "statusNext": "SEURAAVA",
+    "onceTask": "Kertaluontoinen aktiviteetti",
+    "markDone": "Merkitse tehdyksi",
+    "unmark": "Poista merkintä",
+    "activityMarked": "✅ Valmis!",
+    "activityUnmarked": "Merkintä poistettu",
+    "fillDay": "Täytä {{day}}",
+    "allActivitiesDone": "Kaikki aktiviteetit tehty tänään!",
+    "last7Days": "Viimeiset 7 päivää"
+  },
+  "approvals": {
+    "title": "Odottavat pyynnöt",
+    "loading": "Ladataan pyyntöjä...",
+    "empty": "Ei odottavia pyyntöjä! 🎉",
+    "loadError": "Pyyntöjä ei voitu ladata.",
+    "wantsGoalChange": "Haluaa vaihtaa tavoitetta",
+    "goalChangeTo": "Kohde: {{name}}",
+    "wantsRedeem": "Haluaa lunastaa",
+    "approve": "Hyväksy",
+    "deny": "Hylkää",
+    "requiresApproval": "Tarvitsee hyväksynnän",
+    "requiresApprovalCount": "Tarvitsee hyväksynnän ({{count}})",
+    "goalApproved": "🎯 Tavoitteen vaihto hyväksytty!",
+    "redemptionApproved": "🎉 Lunastus hyväksytty!",
+    "goalDenied": "Tavoitteen vaihto hylättiin.",
+    "redemptionDenied": "Lunastus hylättiin.",
+    "updateFailed": "Ei voitu päivittää",
+    "genericError": "Virhe",
+    "wantsGoalNamed": "{{name}} haluaa vaihtaa tavoitteen palkintoon {{reward}} {{icon}}",
+    "wantsGoalAnon": "🎯 Haluaa vaihtaa tavoitteen palkintoon {{reward}} {{icon}}",
+    "wantsRedeemNamed": "{{name}} haluaa palkinnon \"{{reward}}\" ({{cost}} ⭐)",
+    "wantsRedeemAnon": "🎁 {{reward}} (⭐ {{cost}})"
+  },
+  "timeAdjust": {
+    "heading": "⏱ Säädä aikaa tänään",
+    "plusMinutes": "+{{minutes}} min",
+    "failed": "Aikaa ei voitu siirtää",
+    "undone": "Peruttu",
+    "undoFailed": "Peruutus ei onnistunut"
+  },
+  "loading": {
+    "initFailed": "Jokin meni pieleen latauksessa. Lataa sivu uudelleen.",
+    "couldNotLoad": "Ei voitu ladata.",
+    "checkConnection": "Tarkista verkkoyhteys",
+    "reloadPage": "Lataa sivu uudelleen"
+  },
+  "activationProgram": {
+    "exitConfirm": "Haluatko lopettaa 7 päivän ohjelman?",
+    "reflectionPlaceholder": "Valinnainen: kerro lisää…",
+    "send": "Lähetä",
+    "reflectionQuestion": "Onko sovellus helpottanut arkea?",
+    "previewEmpty": "Avaa lapsen kirjautuminen, niin näet aikataulun.",
+    "optOutTitle": "Lopeta ohjelma",
+    "skipToday": "Ohita tänään",
+    "orOpenChildLogin": "Tai avaa lapsen kirjautuminen",
+    "dayOf": "Päivä {{day}} / {{total}}"
+  },
+  "dash": {
+    "heading": "🌟 Perheen eteneminen tänään",
+    "allChildren": "← Kaikki lapset",
+    "systemMsgFrom": "Viesti sovellukselta",
+    "systemMsgClose": "Sulje ✕",
+    "sharingManage": "Napauta hallitaksesi jaettuja raportteja",
+    "inviteTitle": "Kutsu toinen vanhempi",
+    "inviteSub": "Jotta sinun ei tarvitse kysyä aikataulusta toiselta",
+    "inviteBtn": "Kutsu",
+    "shareTitle": "Kerro kaverille!",
+    "shareSub": "Auta toista perhettä saamaan rytmi arkeen",
+    "shareBtn": "Jaa",
+    "inviteModalTitle": "Kutsu toinen vanhempi",
+    "inviteModalBody": "Kumppanisi saa sähköpostin, jossa on suora linkki — ei ylimääräisiä sovelluksia, ei säätöä.",
+    "inviteSentBody": "Kumppanisi voi nyt kirjautua ja nähdä aikataulun.",
+    "inviteDone": "Tehty",
+    "supportPrefix": "🔒 Olet tukitilassa: näytetään perheen tietoja",
+    "supportSuffix": ". Tietoja ei voi muuttaa. Istunto päättyy",
+    "tourSkip": "Ohita",
+    "tourNext": "Seuraava →",
+    "starTipsTitle": "Vinkkejä: näin tähdet toimivat",
+    "starTipsCollect": "• Lapsi saa tähtiä, kun aktiviteetit merkitään lapsen näkymässä",
+    "starTipsExtra": "• Anna bonustähtiä lapsen kortista, kun lapsi tekee jotain aikataulun ulkopuolella",
+    "starTipsRewards": "• Tähdet kerryttävät tallennettuja palkintoja — aseta tavoitteet kohdassa Palkinnot",
+    "starTipsEdit": "• Muokkaa viikkoaikataulua kohdassa Suunnittelu",
+    "dayDragInner": "vedä päivävälilehti toisen päivän päälle kopioidaksesi tai vaihtaaksesi",
+    "calViewDay": "Päivä",
+    "calViewWeek": "Viikko",
+    "calViewMonth": "Kuukausi",
+    "retroactiveFull": "📝 Kirjaa myöhemmin",
+    "extraStarsFull": "⭐ Anna bonustähtiä",
+    "onceTaskFull": "📋 Kertaluontoinen aktiviteetti",
+    "dayOffFull": "🏠 Vapaapäivä",
+    "trialEndingTitle": "Kokeilua jäljellä yksi päivä",
+    "trialEndingBody": "Kokeilu päättyy vuorokauden sisällä. Valitse tilaus sovelluksessa, jos haluat pitää täyden käyttöoikeuden. Kaikki tietosi säilyvät.",
+    "trialEndingChoose": "Valitse sovelluksessa",
+    "trialEndingClose": "Sulje"
+  },
+  "helpPanel": {
+    "title": "❓ Miten tämä toimii?",
+    "tabSchema": "📅 Aikataulu",
+    "tabStars": "⭐ Tähdet",
+    "tabFamily": "👨‍👩‍👧 Perhe",
+    "tabAdults": "🔑 Lisää aikuisia",
+    "tabTrouble": "🔧 Vianetsintä",
+    "addActivityQ": "Miten lisään aktiviteetin?",
+    "addActivityA": "Napauta lapsen korttia Kodissa → valitse päivä → napauta \"+\", niin lisäät aktiviteetin kirjastosta. Voit myös luoda omia aktiviteetteja kohdassa <strong>Kirjasto</strong>.",
+    "dragQ": "Voinko vetää ja siirtää aktiviteetteja?",
+    "dragA": "Kyllä! Lapsen aikataulunäkymässä (napauta korttia Kodissa) voit painaa ja vetää aktiviteetteja vaihtaaksesi järjestystä. Voit myös vetää aktiviteetin toisen päivän välilehdelle kopioidaksesi sen.",
+    "copyQ": "Miten kopioin aikataulun joka päivälle?",
+    "copyA": "Aikataulueditorissa (📋-painike) → valitse \"Kopioi muille päiville\", niin kopioit yhden päivän aikataulun loppuviikolle.",
+    "earnStarsQ": "Miten lapsi ansaitsee tähtiä?",
+    "earnStarsA": "Jokainen tehty aktiviteetti antaa <strong>1 tähden</strong>. Lapsi merkitsee lapsen näkymässä. Voit myös antaa <strong>bonustähtiä</strong> lapsen kortista Kodissa.",
+    "treasureQ": "Miten tähtiaarre toimii?",
+    "treasureA": "Lapsen näkymässä napauta ⭐-kuvaketta, niin näet tähtiaarteen — listan palkinnoista ja siitä, montako tähteä ne maksavat. Lapsi voi pyytää palkintoa, kun tähtiä on tarpeeksi.",
+    "retroQ": "Miten täytän tähdet päiville, jotka unohdin?",
+    "retroA": "Siirry kohtaan <strong>Tänään</strong> (☰-valikko → Tänään tai <strong>Kirjaa myöhemmin</strong> -painike Kodissa). Valitse lapsi, selaa oikeaan päivään nuolilla tai päivämäärävalitsimella ja merkitse aktiviteetit. Tähdet tallentuvat oikealle päivälle.",
+    "rewardsQ": "Miten lisään tai muokkaan palkintoja?",
+    "rewardsA": "Siirry valikosta kohtaan Palkinnot. Siellä voit lisätä omia palkintoja, muokata tähden hintaa ja valita, ketkä lapset näkevät ne.",
+    "siblingQ": "Miten lisään sisaruksen?",
+    "siblingA": "Kodissa → napauta <strong>\"+ Lisää lapsi\"</strong>. Jokainen lapsi saa oman aikataulun, aktiviteetit ja tähdet.",
+    "childLoginQ": "Miten lapsi kirjautuu?",
+    "childLoginA": "Ensimmäisinä päivinä voit <strong>esikatsella lapsen päivää</strong> kohdassa Tänään. Kun olet valmis, lapsi kirjautuu osoitteessa <strong>/child-login</strong> käyttäjänimellä ja PIN-koodilla — ei salasanoja. Tiedot löytyvät kohdasta <strong>Perhe ja asetukset → Lapset</strong>.",
+    "inviteAdultQ": "Miten kutsun toisen aikuisen?",
+    "inviteAdultA": "Siirry kohtaan <strong>Perhe ja asetukset → Perheenjäsenet</strong> → napauta \"Kutsu\". Hän saa sähköpostin, jossa on linkki oman tilin luontiin ja perheeseen liittymiseen.",
+    "inviteSeeQ": "Näkeekö kutsuttu aikuinen jokaisen lapsen?",
+    "inviteSeeA": "Valitset kutsua lähettäessäsi, keiden lasten tiedot hän näkee. Voit vaihtaa sitä myöhemmin kohdassa <strong>Perheenjäsenet</strong> → napauta henkilöä → säädä lasten käyttöoikeutta.",
+    "noActivitiesQ": "Lapseni ei näe aktiviteetteja tänään",
+    "noActivitiesA": "Tarkista, että aikataulu on oikealle päivälle. Avaa lapsen aikataulu (napauta lapsen korttia) → valitse tänään → katso, onko aktiviteetteja. Jos aikataulu on tyhjä, täytä se komennolla \"Kopioi muille päiville\".",
+    "forgotPinQ": "Olen unohtanut lapsen PIN-koodin",
+    "forgotPinA": "Siirry kohtaan <strong>Perhe ja asetukset → Lapset</strong> → valitse lapsi → napauta \"Vaihda PIN\", niin asetat uuden PIN-koodin.",
+    "innerOneStar": "1 tähti",
+    "innerBonusStars": "bonustähdet",
+    "innerAddChild": "\"+ Lisää lapsi\"",
+    "innerPreview": "esikatsele lapsen päivää",
+    "innerFamilyMembersPath": "Perhe ja asetukset → Perheenjäsenet",
+    "innerMembers": "Perheenjäsenet",
+    "innerFamilyChildren": "Perhe ja asetukset → Lapset",
+    "supportQ": "Ota yhteyttä tukeen",
+    "supportLead": "Lähetä meille sähköpostia osoitteeseen",
+    "supportTail": " — vastaamme 24 tunnin sisällä."
+  },
+  "journeyAck": {
+    "headline": "Lapsesi teki aktiviteetin!",
+    "childFallback": "Lapsesi",
+    "activityFallback": "aktiviteetti",
+    "dismiss": "Näin sen"
+  },
+  "journeyCelebration": {
+    "headline": "Se onnistui yhdessä",
+    "body": "Lapsesi aloitti — ja sinä näit sen.",
+    "dismiss": "Hienoa!"
+  },
+  "activationAha": {
+    "body": "Ilman että sinun tarvitsee muistuttaa.",
+    "dismiss": "Hienoa!"
+  }
+}

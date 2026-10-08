@@ -1,0 +1,532 @@
+{
+  "chrome": {
+    "openTitle": "Għajnuna",
+    "openAria": "Iftaħ l-għajnuna",
+    "closeAria": "Agħlaq l-għajnuna"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "❓ Għajnuna – Ħarsa ġenerali",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🏠 Ħarsa ġenerali",
+          "faqs": [
+            {
+              "q": "X'jagħmlu t-3 buttuni ta' malajr fuq nett?",
+              "a": "<strong>⭐ Agħti stilel bonus</strong> — agħti stilel bonus lit-tifel bl-idejn. <strong>📋 Attività ta' darba</strong> — żid attività temporanja għal illum. <strong>🏠 Jum ta' mistrieħ</strong> — iwaqqaf il-pjan tat-tifel għal jum (pereżempju mard jew btala)."
+            },
+            {
+              "q": "Kif nittikka attività?",
+              "a": "Agħfas l-attività fuq il-karta tat-tifel — tittikka minnufih. It-tifel jista' jittikka wkoll fil-<strong>vista tat-tifel</strong>."
+            },
+            {
+              "q": "X'inhi karta tat-tifel kompatta?",
+              "a": "Il-karta tat-tifel turi r-ritratt, l-isem, il-bilanċ tal-istilel u l-pilloli tat-taqsimiet fil-mod kompatt. Iftaħ il-karta għal aktar dettalji, ħolqa għall-pjan u l-buttuna tal-waqfien."
+            },
+            {
+              "q": "X'inhu Jum ta' mistrieħ?",
+              "a": "<strong>🏠 Jum ta' mistrieħ</strong> iwaqqaf il-pjan tat-tifel għall-jum magħżul — tajjeb meta jkun marid jew fuq btala. It-tifel jara l-pjan bħala mhux attiv. Erġa' ixgħel il-jum bl-istess buttuna."
+            },
+            {
+              "q": "X'inhu l-mod imwaqqaf?",
+              "a": "Agħfas l-ikona tal-waqfien (⏸) fuq il-karta tat-tifel biex twaqqfu. L-attivitajiet jidhru mhux attivi u t-tifel ma jaqlax stilel sakemm terġa' tkompli."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stilel",
+          "faqs": [
+            {
+              "q": "Kif jaqla' l-istilel it-tifel tiegħi?",
+              "a": "Kull attività lesta tagħti <strong>stilla waħda</strong>. It-tifel jittikka fil-vista tat-tifel — jew tista' tittikka fil-Ġurnal tal-jum waqt li tkun qed tipprova. Agħti stilel bonus bil-buttuna ⭐ fuq il-karti tat-tfal."
+            },
+            {
+              "q": "Kif jaħdem It-teżor?",
+              "a": "It-tifel tiegħek jiftaħ It-teżor mit-tab 💎 fil-vista tat-tifel u jara l-premjijiet bil-prezz fi stilel. Meta jkollu biżżejjed, jista' jitlob premju — int tapprovah."
+            },
+            {
+              "q": "Kif inżid premjijiet?",
+              "a": "Mur fil-<strong>Librerija</strong> mill-menu → it-tab \"Premjijiet\". Żid il-premjijiet tiegħek, ibdel il-prezz fi stilel u agħżel liema tfal jarawhom."
+            }
+          ]
+        },
+        {
+          "id": "schedule",
+          "label": "📅 Pjan tal-ġimgħa",
+          "faqs": [
+            {
+              "q": "Kif inżid attività?",
+              "a": "Mur fil-<strong>Pjan tal-ġimgħa</strong> → agħżel tifel → agħżel jum → agħfas \"+\" biex iżżid attività mil-librerija. Tista' tfittex fost 63 attività standard."
+            },
+            {
+              "q": "Kif nikkopja pjan għal kull jum?",
+              "a": "Fil-Pjan tal-ġimgħa → \"Ikkopja minn…\" → agħżel sors (il-pjan tiegħek jew il-librerija standard) → ittikkja l-jiem li trid tikkopja għalihom."
+            },
+            {
+              "q": "X'inhi l-vista Illum?",
+              "a": "Il-vista \"Illum\" fil-Ħarsa ġenerali tiġġedded waħedha meta tibdel il-pjan. Il-bidliet fil-Pjan tal-ġimgħa jidhru minnufih fil-Ħarsa ġenerali u fil-vista tat-tifel."
+            }
+          ]
+        },
+        {
+          "id": "family",
+          "label": "👨‍👩‍👧 Familja",
+          "faqs": [
+            {
+              "q": "Kif nistieden adult ieħor?",
+              "a": "Mur f'<strong>Familja u għażliet → Membri tal-familja</strong> → agħfas \"Stieden\". Il-persuna li tistieden tirċievi imejl b'ħolqa biex tidħol."
+            },
+            {
+              "q": "Kif nara l-jum tat-tifel tiegħi?",
+              "a": "Iftaħ il-<strong>Ġurnal tal-jum</strong> mill-menu — hemmhekk tara l-attivitajiet tal-lum kif jarahom it-tifel. Tajjeb fl-ewwel filgħaxija, qabel it-tifel jidħol waħdu."
+            },
+            {
+              "q": "Kif jidħol it-tifel tiegħi?",
+              "a": "Meta tkun lest: it-tifel jidħol fuq <strong>/child-login</strong> bl-isem tal-utent u l-PIN. Id-dettalji ssibhom taħt <strong>Familja u għażliet → Tfal</strong>."
+            },
+            {
+              "q": "Ikkuntattja l-għajnuna",
+              "a": "Iktbilna fuq <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — inwieġbu fi żmien 24 siegħa."
+            }
+          ]
+        }
+      ]
+    },
+    "skattkammaren": {
+      "title": "❓ Għajnuna – Premjijiet",
+      "tabs": [
+        {
+          "id": "rewards",
+          "label": "🏆 Premjijiet",
+          "faqs": [
+            {
+              "q": "Kif jaħdem is-sistema tal-premjijiet?",
+              "a": "It-tifel jiġbor stilel billi jlesti l-attivitajiet. Meta l-bilanċ tal-istilel ikun biżżejjed għal premju, jista' jitlob li jifdih — int tapprova jew tirrifjuta."
+            },
+            {
+              "q": "Kif inżid premjijiet ġodda?",
+              "a": "Mur fil-<strong>Librerija</strong> mill-menu → it-tab \"Premjijiet\" → fittex jew agħfas \"+ Żid premju\". Tista' tikkopja wkoll direttament mil-librerija standard."
+            },
+            {
+              "q": "Kif nikkontrolla min minn uliedi jarah?",
+              "a": "Meta toħloq jew tibdel premju, tagħżel liema tfal għandhom jarawh. Tajjeb għal premjijiet magħmula għal kull tifel."
+            },
+            {
+              "q": "Kif napprova talba biex jinfeda premju?",
+              "a": "It-talba tat-tifel tidher fil-Ħarsa ġenerali b'tikketta. Agħfas biex tapprova. L-istilel jitnaqqsu waħedhom u t-tifel jara l-bidla minnufih."
+            }
+          ]
+        },
+        {
+          "id": "stars",
+          "label": "⭐ Stilel",
+          "faqs": [
+            {
+              "q": "Kif jaqla' l-istilel it-tifel tiegħi?",
+              "a": "Kull attività lesta tagħti stilel (stilla waħda għal kull attività, b'mod normali). Tista' tagħti wkoll stilel bonus bil-buttuna ⭐ fil-Ħarsa ġenerali."
+            },
+            {
+              "q": "X'inhi d-differenza bejn il-bilanċ tal-istilel u l-progress tal-jum?",
+              "a": "<strong>Bilanċ tal-istilel</strong> = il-bilanċ totali maħżun. <strong>Progress tal-jum</strong> (iċ-ċirku madwar l-emoji) = kemm-il attività lesta t-tifel illum. Huma żewġ ħwejjeġ separati."
+            },
+            {
+              "q": "X'jiġri meta premju jinfeda?",
+              "a": "L-istilel jitnaqqsu waħedhom mill-kont tat-tifel. It-tifel jara l-bidla minnufih f'It-teżor. Int tara l-istorja fil-paġna tal-Premjijiet."
+            }
+          ]
+        }
+      ]
+    },
+    "schedule": {
+      "title": "❓ Għajnuna – Pjan tal-ġimgħa",
+      "tabs": [
+        {
+          "id": "edit",
+          "label": "📅 Ibdel il-pjan",
+          "faqs": [
+            {
+              "q": "Kif inżid attività?",
+              "a": "Agħżel jum → agħfas \"+\" → fittex u agħżel attività. Tista' tagħżel <strong>aktar minn ħin wieħed f'daqqa</strong> (Filgħodu + Filgħaxija) u l-attività tiżdied fihom kollha."
+            },
+            {
+              "q": "Kif noħloq attività ġdida direttament fil-pjan?",
+              "a": "Agħfas \"+\" → fittex → jekk xejn ma jaqbel, tidher il-formola \"Oħloq ġdida\" fit-tieqa tat-tiftix. Imla l-isem, l-emoji, il-valur fi stilel u l-passi żgħar jekk hemm."
+            },
+            {
+              "q": "Kif nibdel l-isem jew l-emoji ta' attività?",
+              "a": "Agħfas l-isem jew l-emoji tal-attività fil-pjan → tinfetaħ it-tieqa tal-bidla. Il-bidliet japplikaw waħedhom għat-tfal u l-jiem kollha."
+            },
+            {
+              "q": "Kif nikkopja pjan minn tifel ieħor?",
+              "a": "Agħfas \"Ikkopja minn…\" → agħżel is-sors → ittikkja l-jiem tal-ġimgħa li trid tikkopja għalihom. Agħżel jekk tridx tikteb fuq dak li diġà hemm."
+            },
+            {
+              "q": "Il-pjan jiġi aġġornat waħdu fil-vista tat-tifel?",
+              "a": "Iva! Il-bidliet fil-Pjan tal-ġimgħa jidhru minnufih fil-vista \"Illum\" tal-Ħarsa ġenerali u fil-vista tat-tifel — m'hemmx bżonn ta' aġġornament bl-idejn."
+            }
+          ]
+        },
+        {
+          "id": "library",
+          "label": "📚 Librerija",
+          "faqs": [
+            {
+              "q": "X'inhi l-librerija standard?",
+              "a": "Il-librerija standard għandha 63 attività lesta f'6 kategoriji u 5 mudelli ta' pjan. Agħfas \"Daħħal malajr mil-librerija\" biex iżżidhom fil-pjan."
+            },
+            {
+              "q": "Kif nikkopja pjan standard?",
+              "a": "Taħt it-tab tal-Pjan → \"Ikkopja minn…\" → agħżel \"Librerija standard\" → agħżel pjan → agħżel il-jiem → ikkopja."
+            },
+            {
+              "q": "Għaliex it-tifel tiegħi ma jarax attivitajiet?",
+              "a": "Iċċekkja li l-pjan huwa għat-tifel it-tajjeb u li hemm attivitajiet għall-jum tal-lum. Pjan vojt? Ikkopja mil-librerija standard biex tibda malajr."
+            }
+          ]
+        },
+        {
+          "id": "tips",
+          "label": "💡 Pariri",
+          "faqs": [
+            {
+              "q": "Kif nibni pjan ta' rutina tajjeb?",
+              "a": "Ibda bi 3–5 attivitajiet fissi (kolazzjon, taħsel snienek, xogħol tad-dar). Poġġihom fl-ordni t-tajjeb. It-tfal jitgħallmu r-rutina malajr meta tibqa' l-istess."
+            },
+            {
+              "q": "X'inhuma l-passi żgħar fuq l-attivitajiet?",
+              "a": "Tista' żżid passi żgħar mal-attivitajiet (pereżempju \"Aħsel idejk\", \"Ilbes il-piġama\" taħt \"Rutina ta' filgħaxija\"). It-tifel jarahom bħala gwida viżiva imma jittikka l-attività kollha f'daqqa."
+            },
+            {
+              "q": "Kemm-il attività kuljum?",
+              "a": "Rakkomandat: 4–8 attivitajiet. Ftit wisq u ma jkunx hemm fluss; ħafna wisq u tħossok mgħobbi. Ibda żgħir u żid."
+            }
+          ]
+        }
+      ]
+    },
+    "family": {
+      "title": "❓ Għajnuna – Familja u għażliet",
+      "tabs": [
+        {
+          "id": "children",
+          "label": "👶 Tfal",
+          "faqs": [
+            {
+              "q": "Kif inżid tifel?",
+              "a": "Mur fil-Ħarsa ġenerali → agħfas \"+ Żid tifel\". Imla l-isem, l-emoji u t-twelid. It-tifel jieħu pjan awtomatikament skont l-età."
+            },
+            {
+              "q": "Kif nibdel il-PIN tat-tifel tiegħi?",
+              "a": "Agħfas il-karta tat-tifel → it-tab \"Għażliet\" → \"Ibdel il-PIN\". Agħżel PIN ġdid ta' 4 ċifri."
+            },
+            {
+              "q": "It-tifel tiegħi jrid jagħmel l-attivitajiet fl-ordni — nista' nibdel dan?",
+              "a": "B'mod normali jista' jittikka kif irid. Għal ordni ggwidata, mur fil-profil tat-tifel → it-tab <strong>Għażliet</strong> → ixgħel <strong>ISSA / LI JMISS / AKTAR TARD</strong>."
+            },
+            {
+              "q": "Kif jara t-tifel tiegħi d-dettalji tad-dħul?",
+              "a": "Agħfas il-karta tat-tifel → it-tab \"Għażliet\" → \"Uri d-dettalji tad-dħul\". Tara l-isem tal-utent u l-PIN tat-tifel."
+            },
+            {
+              "q": "Kif inneħħi tifel?",
+              "a": "Familja → agħżel tifel → tab Għażliet → \"Ħassar it-tifel għal kollox\". Nota: il-pjan, l-istilel u l-istorja tal-premjijiet kollha jitħassru u ma jistgħux jerġgħu lura."
+            }
+          ]
+        },
+        {
+          "id": "adults",
+          "label": "🔑 Adulti",
+          "faqs": [
+            {
+              "q": "Kif nistieden adult ieħor?",
+              "a": "Mur fit-tab <strong>Membri tal-familja</strong> → \"Stieden\". Il-persuna li tistieden tirċievi imejl b'ħolqa biex toħloq kont."
+            },
+            {
+              "q": "Nista' nagħżel liema tfal jara adult?",
+              "a": "Iva! Tagħżel liema tfal jista' jara meta tibgħat l-istedina. Tista' tibdel dan aktar tard taħt Membri tal-familja → il-persuna → Aċċess għat-tfal."
+            },
+            {
+              "q": "Kif inneħħi membru tal-familja?",
+              "a": "Agħfas il-persuna fil-lista tal-Membri tal-familja → \"Neħħi\". Jitilfu l-aċċess għall-familja minnufih."
+            }
+          ]
+        },
+        {
+          "id": "settings",
+          "label": "⚙️ Għażliet",
+          "faqs": [
+            {
+              "q": "Kif nibdel l-kelma tas-sigurtà tiegħi?",
+              "a": "Mur fil-<strong>Għażliet</strong> (⚙️) mill-menu → \"Ibdel l-kelma tas-sigurtà\". Ikollok bżonn l-kelma tas-sigurtà attwali."
+            },
+            {
+              "q": "Kif nixgħel in-notifiki?",
+              "a": "Mur fl-Għażliet → \"Tfakkiriet\" → ixgħel in-notifiki u agħżel il-ħinijiet. In-notifiki jeħtieġu permess tal-brawżer."
+            },
+            {
+              "q": "Ikkuntattja l-għajnuna",
+              "a": "Iktbilna fuq <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> — inwieġbu fi żmien 24 siegħa."
+            }
+          ]
+        }
+      ]
+    },
+    "activities": {
+      "title": "❓ Għajnuna – Attivitajiet",
+      "tabs": [
+        {
+          "id": "manage",
+          "label": "📝 Immaniġġja",
+          "faqs": [
+            {
+              "q": "X'inhi attività?",
+              "a": "<strong>Attività</strong> hija biċċa xogħol li jagħmel it-tifel (pereżempju \"Aħsel snienek\"). L-attivitajiet jagħtu 1–5 stilel u jista' jkollhom passi żgħar. Iġborhom fil-librerija u żidhom fil-pjanijiet tat-tfal."
+            },
+            {
+              "q": "Kif noħloq attività ġdida?",
+              "a": "Agħfas \"+ Attività ġdida\" → imla l-isem, il-kategorija (Iġjene, Ikel, Logħob, eċċ.), it-tul u l-valur fi stilel. Issejvja u l-attività tiżdied fil-librerija tiegħek."
+            },
+            {
+              "q": "Kif inżid attività fil-pjan?",
+              "a": "L-attivitajiet joqogħdu fil-librerija tiegħek. Mur fil-Pjan tal-ġimgħa → agħżel jum → \"+\" → agħżel l-attività li trid iżżid."
+            },
+            {
+              "q": "Kif inneħħi attività minn kull jum?",
+              "a": "Agħfas ✕ fuq l-attività → agħżel <strong>Kull jum tal-ġimgħa</strong>. Biex tneħħi biss illum jew jum wieħed tal-ġimgħa (pereżempju kull Ħamis), hemm għażliet separati."
+            },
+            {
+              "q": "Kif nibdel attività?",
+              "a": "Agħfas l-attività fil-lista → \"Ibdel\". Il-bidliet japplikaw minnufih f'kull pjan fejn tintuża l-attività."
+            }
+          ]
+        },
+        {
+          "id": "categories",
+          "label": "🎨 Kategoriji",
+          "faqs": [
+            {
+              "q": "Għal xiex huma l-kategoriji?",
+              "a": "Il-kategoriji jagħtu kulur lill-attivitajiet fil-vista tat-tifel. <strong>Iġjene</strong>=blu, <strong>Ikel</strong>=isfar, <strong>Logħob</strong>=aħdar, <strong>Skola</strong>=vjola, <strong>Moviment</strong>=aħmar, <strong>Mistrieħ</strong>=griż, <strong>Soċjali</strong>=oranġjo."
+            },
+            {
+              "q": "Kif nagħżel kategorija?",
+              "a": "Meta toħloq jew tibdel attività, agħżel kategorija mil-lista. Agħżel dik li tiddeskrivi l-attività l-aħjar."
+            }
+          ]
+        }
+      ]
+    },
+    "library": {
+      "title": "❓ Għajnuna – Librerija",
+      "tabs": [
+        {
+          "id": "tabs",
+          "label": "🗂️ Taqsimiet",
+          "faqs": [
+            {
+              "q": "Liema taqsimiet hemm fil-librerija?",
+              "a": "<strong>Pjanijiet</strong> — il-mudelli tal-pjan tiegħek. <strong>Attivitajiet</strong> — librerija tal-attivitajiet bil-passi żgħar. <strong>Premjijiet</strong> — il-premjijiet tiegħek. <strong>Librerija standard</strong> — 63 attività, 15-il premju u 5 pjanijiet li tista' tikkopja."
+            },
+            {
+              "q": "Kif nikkopja mil-librerija standard?",
+              "a": "Mur fit-tab \"Librerija standard\" → agħżel attività jew premju → agħfas il-buttuna 📥 biex tikkopja fil-librerija tal-familja. Il-pjanijiet jiġu kkupjati mill-Pjan tal-ġimgħa → \"Ikkopja minn…\"."
+            }
+          ]
+        },
+        {
+          "id": "activities",
+          "label": "📝 Attivitajiet",
+          "faqs": [
+            {
+              "q": "Kif noħloq attività ġdida?",
+              "a": "Agħfas \"+ Attività ġdida\" → imla l-isem, l-emoji (agħżel jew ikteb tiegħek), il-valur fi stilel u l-passi żgħar jekk hemm → issejvja. L-attività tinżamm fil-librerija għall-familja kollha."
+            },
+            {
+              "q": "X'inhuma l-passi żgħar?",
+              "a": "Il-passi żgħar huma struzzjonijiet pass pass taħt attività (pereżempju \"Aħsel idejk\" taħt \"Iġjene\"). It-tifel jarahom bħala gwida imma jittikka l-attività kollha b'taptipa waħda."
+            },
+            {
+              "q": "Kif nibdel attività?",
+              "a": "Agħfas l-isem tal-attività fil-pjan — tinfetaħ it-tieqa tal-bidla. Il-bidliet (isem, emoji, passi żgħar) japplikaw waħedhom għat-tfal u l-jiem kollha."
+            }
+          ]
+        },
+        {
+          "id": "rewards",
+          "label": "🏆 Premjijiet",
+          "faqs": [
+            {
+              "q": "Kif inżid premju?",
+              "a": "It-tab \"Premjijiet\" → fittex premju → agħfas \"+ Oħloq ġdid\" jekk ma jeżistix → imla l-isem, l-emoji, il-prezz fi stilel → agħżel liema tfal jarawh → issejvja."
+            },
+            {
+              "q": "Kif infittex premjijiet?",
+              "a": "Il-kaxxa tat-tiftix tħares fil-premjijiet tiegħek U fil-librerija standard fl-istess ħin. Xejn ma jaqbel? Il-buttuna \"Oħloq [name]\" tiftaħ formola diġà mimlija."
+            },
+            {
+              "q": "Jista' tifel ikollu premjijiet privati?",
+              "a": "Iva! Meta toħloq il-premju, tagħżel liema tfal għandhom jarawh. Tajjeb għal premjijiet magħmula għal kull tifel."
+            }
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "title": "❓ Għajnuna – Għażliet",
+      "tabs": [
+        {
+          "id": "account",
+          "label": "👤 Kont",
+          "faqs": [
+            {
+              "q": "Kif nibdel l-kelma tas-sigurtà tiegħi?",
+              "a": "Daħħal l-kelma tas-sigurtà attwali u l-kelma tas-sigurtà il-ġdida → agħfas \"Issejvja\". Il-kelma tas-sigurtà trid tkun mill-inqas 6 karattri."
+            },
+            {
+              "q": "Kif nibdel l-indirizz tal-imejl tiegħi?",
+              "a": "Daħħal l-indirizz tal-imejl il-ġdid → agħfas \"Issejvja\". Jista' jkun li trid tivverifika l-indirizz il-ġdid b'imejl."
+            },
+            {
+              "q": "Kif inħassar il-kont tiegħi?",
+              "a": "Ikkuntattjana fuq <a href=\"mailto:[REDACTED]\" style=\"color:#F5A623;font-weight:600;\">[REDACTED]</a> biex tħassar il-kont. Nieħdu ħsiebha fi żmien 48 siegħa."
+            }
+          ]
+        },
+        {
+          "id": "notifications",
+          "label": "🔔 Notifiki",
+          "faqs": [
+            {
+              "q": "Kif nixgħel it-tfakkiriet?",
+              "a": "Ixgħel is-swiċċ taħt \"Tfakkiriet\" → agħżel il-ħin u liema jiem. Il-brawżer tiegħek irid jippermetti n-notifiki."
+            },
+            {
+              "q": "M'iniex nirċievi notifiki minkejja li mixgħula",
+              "a": "Iċċekkja li l-brawżer ippermetta n-notifiki għas-sit. Mur fl-għażliet tal-brawżer → Notifiki → sib [REDACTED].se → Ippermetti."
+            }
+          ]
+        }
+      ]
+    },
+    "calendar": {
+      "title": "❓ Għajnuna – Kalendarju",
+      "tabs": [
+        {
+          "id": "calendar",
+          "label": "📆 Kalendarju",
+          "faqs": [
+            {
+              "q": "X'juri l-kalendarju?",
+              "a": "Il-kalendarju jagħtik ħarsa tax-xahar tal-attivitajiet tat-tifel, il-premjijiet mifdija u l-ġrajjiet importanti."
+            },
+            {
+              "q": "Kif nimxi bejn ix-xhur?",
+              "a": "Agħfas il-vleġeġ (< >) ħdejn l-isem tax-xahar biex tibdel ix-xahar."
+            },
+            {
+              "q": "Kif nara aktar dettall għal jum?",
+              "a": "Agħfas data biex tara lista dettaljata tal-attivitajiet u l-istilel ta' dak il-jum."
+            }
+          ]
+        }
+      ]
+    },
+    "daily-log": {
+      "title": "❓ Għajnuna – Ġurnal tal-jum",
+      "tabs": [
+        {
+          "id": "log",
+          "label": "📖 Ġurnal",
+          "faqs": [
+            {
+              "q": "X'inhu l-ġurnal tal-jum?",
+              "a": "Il-ġurnal juri l-jum tat-tifel — attivitajiet, tikki u stilel. Użah biex <strong>tara minn qabel</strong> x'jara t-tifel, jew biex timla wara."
+            },
+            {
+              "q": "Kif niffiltra l-ġurnal?",
+              "a": "Agħżel tifel fil-filtru fuq nett biex tara l-ġurnal ta' tifel wieħed biss. Tista' tiffiltra wkoll bid-data."
+            },
+            {
+              "q": "Kemm nista' nara lura?",
+              "a": "Il-ġurnal iżomm id-data mill-jum li bdejt tuża [REDACTED]. Skrollja jew agħżel data biex tara data eqdem. // pragma: allowlist secret"
+            }
+          ]
+        }
+      ]
+    },
+    "assign-schedule": {
+      "title": "❓ Għajnuna – Agħżel pjan għal kull jum",
+      "tabs": [
+        {
+          "id": "assign",
+          "label": "📅 Assenja pjan",
+          "faqs": [
+            {
+              "q": "X'inhu \"Agħżel pjan għal kull jum\"?",
+              "a": "Hawn tagħżel liema pjan tal-ġimgħa huwa attiv għal kull tifel u jum. Tajjeb jekk għandek rutini differenti fil-ġimgħa u fi tmiem il-ġimgħa."
+            },
+            {
+              "q": "Jista' tifel ikollu pjanijiet differenti fil-ġimgħa u fi tmiem il-ġimgħa?",
+              "a": "Iva! Agħżel pjan għal Tnejn–Ġimgħa u ieħor għal Sibt–Ħadd. Agħfas il-jum u agħżel il-pjan li trid."
+            },
+            {
+              "q": "X'jiġri jekk l-ebda jum mhuwiex assenjat?",
+              "a": "Jekk l-ebda jum m'għandu pjan assenjat, it-tifel ma jarax attivitajiet dakinhar. Ara li kull jum li trid tuża għandu pjan assenjat."
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "title": "❓ Pannell tal-admin",
+      "tabs": [
+        {
+          "id": "overview",
+          "label": "🔧 Ħarsa ġenerali",
+          "faqs": [
+            {
+              "q": "X'nista' nagħmel fil-pannell tal-admin?",
+              "a": "Il-pannell tal-admin jagħtik aċċess għall-familji, l-utenti u d-data tas-sistema kollha. Tista' tara statistika, timmaniġġja kontijiet u timmodera l-kontenut."
+            },
+            {
+              "q": "Kif insib utent partikolari?",
+              "a": "Uża l-kaxxa tat-tiftix fuq nett biex tfittex bl-imejl jew bl-isem. Agħfas familja biex tara d-dettalji."
+            },
+            {
+              "q": "Kif narkivja familja?",
+              "a": "Agħfas il-karta tal-familja → \"Arkit\". Familji arkivjati jistgħu jerġgħu lura imma jibqgħu mhux attivi sa dakinhar."
+            }
+          ]
+        },
+        {
+          "id": "support",
+          "label": "💬 Għajnuna",
+          "faqs": [
+            {
+              "q": "Kif nara l-messaġġi tal-għajnuna li jaslu?",
+              "a": "Taħt it-tab \"Kaxxa tal-għajnuna\" tara kull messaġġ mibgħut mill-formola tal-kuntatt. Agħfas biex taqra t-test kollu u twieġeb."
+            },
+            {
+              "q": "Kif nimmarka każ bħala solvut?",
+              "a": "Agħfas il-każ → \"Immarka bħala solvut\". Il-każijiet solvuti joħorġu mill-vista normali imma tista' turihom b'\"Uri s-solvuti\"."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "barnStod": {
+    "pageTitle": "Appoġġ għat-tifel — {{brand}}",
+    "loadError": "Il-paġna ma tellgħetx."
+  },
+  "supportSvar": {
+    "pageTitle": "Il-każ tiegħek",
+    "title": "Il-każ tiegħek",
+    "intro": "Hawn il-konversazzjoni kollha. Ikteb hawn taħt jekk trid tkompli. Tweġiba normali bl-imejl ma tidhirx hawn.",
+    "sent": "Intbagħat. Narawh fuq l-istess każ.",
+    "escalate": "Għandi bżonn aktar għajnuna minn persuna",
+    "placeholder": "Ikteb x'qed jiġri…"
+  }
+}

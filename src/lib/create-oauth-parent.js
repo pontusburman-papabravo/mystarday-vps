@@ -7,6 +7,7 @@ const { createNewsletterSubscription } = require('./newsletter-subscribe');
 const { seedFamilyStarterActivitiesFromCanonicalDb } = require('./standard-library-family-seed');
 const { loadDefaultContent } = require('./default-content');
 const { enableEnglishAppForFamily } = require('./i18n-enable-english');
+const { usesCanonicalLibrary, shouldEnableEnglishAppOnRegister } = require('./locale');
 const { buildAutoFamilyName } = require('./registration-market-context');
 const { signupCohortAt } = require('./signup-clock');
 
@@ -61,7 +62,7 @@ async function seedDefaultActivities(client, familyId, familyLocale = 'sv-SE') {
     categoryMap[cat.key] = catResult.rows[0].id;
   }
 
-  if (familyLocale === 'sv-SE') {
+  if (usesCanonicalLibrary(familyLocale)) {
     const canonicalCount = await client.query(
       `SELECT COUNT(*)::int AS count FROM default_activity_template WHERE canonical_id IS NOT NULL`
     );
@@ -159,7 +160,7 @@ async function createParentFromOAuth(opts) {
     const familyId = familyResult.rows[0].id;
     const familyCreatedAt = familyResult.rows[0].created_at;
 
-    if (familyLocale === 'en-GB') {
+    if (shouldEnableEnglishAppOnRegister(familyLocale)) {
       await enableEnglishAppForFamily(familyId, { client });
     }
 

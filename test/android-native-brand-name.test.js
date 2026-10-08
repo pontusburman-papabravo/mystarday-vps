@@ -23,6 +23,7 @@ describe('Android native brand name (Play launcher / Billing sheet)', () => {
     const {
       swedishBrandName,
       englishBrandName,
+      brandNameForResDir,
       applyNativeBrandToStringsXml,
       assertAndroidStringsHaveRealBrand,
       BRAND_PLACEHOLDER,
@@ -30,6 +31,9 @@ describe('Android native brand name (Play launcher / Billing sheet)', () => {
 
     assert.equal(swedishBrandName().includes('REDACTED'), false);
     assert.equal(englishBrandName(), 'My Starday');
+    assert.equal(brandNameForResDir('values'), swedishBrandName());
+    assert.equal(brandNameForResDir('values-sv'), swedishBrandName());
+    assert.equal(brandNameForResDir('values-de'), englishBrandName());
     assert.equal(swedishBrandName().startsWith('Min '), true);
     assert.ok(swedishBrandName().length >= 10);
 

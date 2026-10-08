@@ -1,0 +1,96 @@
+{
+  "pageTitle": "Utwórz PDF — plan — {{brand}}",
+  "backLink": "← Wróć do Planowania",
+  "heading": "📄 Utwórz PDF — plan",
+  "intro": "Wybierz dziecko i okres. Podgląd pokazuje cały plan — PDF sam się skaluje, żeby zmieścić się na jednej kartce A4 w poziomie.",
+  "pdfSave": {
+    "title": "Gdzie zapisuje się PDF?",
+    "mobile": "<strong class=\"text-navy\">iPhone/iPad:</strong> Po <em>Utwórz PDF</em> otwiera się arkusz udostępniania — wybierz <strong>Zachowaj w Plikach</strong> i wskaż folder (np. iCloud Drive).",
+    "desktop": "<strong class=\"text-navy\">Komputer:</strong> PDF trafia do folderu <strong>Pobrane</strong> (często na dole po lewej w przeglądarce)."
+  },
+  "sections": {
+    "child": "Dziecko",
+    "period": "Okres",
+    "scope": "Co ma zawierać PDF?",
+    "startWeek": "Tydzień początkowy"
+  },
+  "period": {
+    "1w": "1 tydzień",
+    "2w": "2 tygodnie",
+    "1m": "1 miesiąc"
+  },
+  "scope": {
+    "all": "Cały plan",
+    "my": "Tylko moje dni"
+  },
+  "weekNav": {
+    "prevAria": "Poprzedni tydzień",
+    "nextAria": "Następny tydzień",
+    "today": "Ten tydzień"
+  },
+  "actions": {
+    "preview": "Podgląd",
+    "createPdf": "Utwórz PDF"
+  },
+  "preview": {
+    "heading": "Podgląd",
+    "hint": "Przewiń w dół, jeśli dzień ma wiele czynności."
+  },
+  "pdfHelp": {
+    "title": "Jak zapisać PDF",
+    "closeAria": "Zamknij",
+    "ok": "OK, rozumiem",
+    "introShare": "Arkusz udostępniania jest otwarty. Wybierz Zachowaj w Plikach, żeby zapisać PDF.",
+    "introPreview": "PDF otworzył się w przeglądarce{{filename}}.",
+    "introDesktop": "PDF został pobrany{{filename}}.",
+    "filenameSuffix": " jako {{name}}",
+    "filenameParen": " ({{name}})",
+    "shareSteps": [
+      "W arkuszu udostępniania: przewiń i stuknij <strong>Zachowaj w Plikach</strong>.",
+      "Wybierz folder (np. <strong>iCloud Drive</strong> albo <strong>Na moim iPhonie</strong>).",
+      "Stuknij <strong>Zachowaj</strong> w prawym górnym rogu.",
+      "Plik znajdziesz później w aplikacji <strong>Pliki</strong>."
+    ],
+    "previewSteps": [
+      "PDF otworzył się w nowym widoku — stuknij <strong>Udostępnij</strong> (↑) w prawym górnym rogu.",
+      "Wybierz <strong>Zachowaj w Plikach</strong>.",
+      "Wskaż folder i stuknij <strong>Zachowaj</strong>."
+    ],
+    "desktopSteps": [
+      "Otwórz folder <strong>Pobrane</strong> na komputerze.",
+      "Szukaj pliku, który zaczyna się od <strong>{{prefix}}</strong> i ma dzisiejszą datę."
+    ]
+  },
+  "layout": {
+    "titleSchedule": "Plan",
+    "titleMyDays": "Moje dni",
+    "emptyCell": "–",
+    "childFallback": "Dziecko",
+    "loadingPrint": "Przygotowanie wydruku…",
+    "iframeTitle": "Wydruk"
+  },
+  "filename": {
+    "prefixSchedule": "plan-tygodnia",
+    "prefixMyDays": "moje-dni",
+    "fallbackSlug": "dziecko"
+  },
+  "toasts": {
+    "loadChildrenError": "Nie udało się wczytać dzieci",
+    "selectChild": "Najpierw wybierz dziecko",
+    "loadingPreview": "Wczytywanie podglądu…",
+    "noMyDays": "W wybranym okresie nie ma twoich dni",
+    "loadScheduleError": "Nie udało się wczytać planu",
+    "creatingPdf": "Tworzenie PDF…",
+    "pdfCancelled": "Zapis PDF anulowany",
+    "shareHint": "W arkuszu udostępniania wybierz Zachowaj w Plikach",
+    "mobileSavedHint": "PDF gotowy — zapisz go w Plikach",
+    "desktopSavedHint": "PDF zapisany w Pobranych",
+    "pdfLibsMissing": "Brakuje narzędzi PDF — odśwież stronę i spróbuj ponownie",
+    "createPdfError": "Nie udało się utworzyć PDF",
+    "shareAgain": "PDF jest gotowy. Stuknij Utwórz PDF jeszcze raz, żeby wybrać, gdzie go zapisać."
+  },
+  "empty": {
+    "noChildren": "Nie dodano jeszcze dzieci.",
+    "goDashboard": "Przejdź do Startu"
+  }
+}

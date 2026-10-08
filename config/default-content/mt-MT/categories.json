@@ -1,0 +1,32 @@
+[
+  {
+    "key": "forskola",
+    "name": "Pre-skola",
+    "sort_order": 0
+  },
+  {
+    "key": "skola",
+    "name": "Skola",
+    "sort_order": 1
+  },
+  {
+    "key": "morgon",
+    "name": "Filgħodu",
+    "sort_order": 2
+  },
+  {
+    "key": "dag",
+    "name": "Jum",
+    "sort_order": 3
+  },
+  {
+    "key": "kvall",
+    "name": "Filgħaxija",
+    "sort_order": 4
+  },
+  {
+    "key": "helg",
+    "name": "Tmiem il-ġimgħa",
+    "sort_order": 5
+  }
+]

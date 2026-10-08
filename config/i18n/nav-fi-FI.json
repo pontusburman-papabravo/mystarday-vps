@@ -1,0 +1,51 @@
+{
+  "primary": {
+    "home": "Koti",
+    "planning": "Suunnittelu",
+    "rewards": "Palkinnot",
+    "forYou": "Sinulle",
+    "family": "Perhe"
+  },
+  "settings": "Asetukset",
+  "mainAria": "Päänavigaatio",
+  "notifications": "Ilmoitukset",
+  "share": "Jaa",
+  "logout": "Kirjaudu ulos",
+  "switchUser": "Vaihda profiilia",
+  "returnToChild": "Takaisin lapselle",
+  "darkMode": "Tumma tila",
+  "lightMode": "Vaalea tila",
+  "overview": "Yleiskatsaus",
+  "dailyLog": "Tänään",
+  "weekSchedule": "Aikataulu",
+  "reports": "Raportit",
+  "library": "Kirjasto",
+  "libraryAdvanced": "📚 Kirjasto (laajennettu)",
+  "pedagogNotes": "📝 Kasvattajan muistiinpanot",
+  "treasureChest": "Tähtiaarre",
+  "familySettings": "Perhe ja asetukset",
+  "capability": {
+    "subscription": "Tilaus",
+    "reports": "Raportit",
+    "samarbete": "Yhteistyö kasvattajan kanssa",
+    "barnStod": "Lisätuki"
+  },
+  "header": {
+    "notifications": "Ilmoitukset",
+    "settings": "Asetukset",
+    "share": "Jaa",
+    "shareTitle": "Kerro perheelle sovelluksesta!",
+    "shareAria": "Jaa"
+  },
+  "avatar": {
+    "switchPedagog": "Vaihda kasvattajan näkymään",
+    "subscription": "Tilaus",
+    "settings": "Asetukset",
+    "logout": "Kirjaudu ulos"
+  },
+  "mobile": {
+    "openMenu": "Avaa valikko",
+    "darkModeTitle": "Tumma tila",
+    "darkModeAria": "Vaihda tummaa tilaa"
+  }
+}

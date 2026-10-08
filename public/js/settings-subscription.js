@@ -17,8 +17,12 @@
       } else if (typeof I18n.getLocale === 'function' && I18n.getLocale()) {
         raw = I18n.getLocale();
       }
+      if (typeof I18n._normalize === 'function') {
+        return I18n._normalize(raw) || I18n.DEFAULT_LOCALE || 'sv-SE';
+      }
     }
-    return String(raw).toLowerCase().indexOf('en') === 0 ? 'en-GB' : 'sv-SE';
+    const tag = String(raw || '').trim();
+    return tag || 'sv-SE';
   }
 
   function formatDate(iso) {
