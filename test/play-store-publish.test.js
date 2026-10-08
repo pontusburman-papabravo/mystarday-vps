@@ -2,6 +2,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -86,6 +87,7 @@ function applyInput(fetchImpl, planSha256, extra = {}) {
     mode: 'apply',
     confirmation: CONFIRMATION,
     planSha256,
+    locales: 'sv-SE',
     ref: 'refs/heads/main',
     repo: 'octo/repo',
     runId: '123',
@@ -94,6 +96,15 @@ function applyInput(fetchImpl, planSha256, extra = {}) {
     fetchImpl,
     rows: [swedishRow()],
     ...extra,
+  };
+}
+
+function readCountries() {
+  return {
+    status: 'READ',
+    observed: ['CA', 'FI', 'IE', 'SE'],
+    restOfWorld: false,
+    fiObserved: 'present',
   };
 }
 
@@ -143,26 +154,76 @@ describe('Play store plan', () => {
     assert.equal(countrySnapshot({ ok: true, body: null }).status, 'UNKNOWN');
   });
 
-  it('classifies fallback, hidden, and invalid screenshots without a country change', () => {
-    const plan = buildPlan({
-      rows: languagePlan(undefined, 'Brand'),
+  it('publishes nothing until a locale is named, and keeps Swedish and English out of that plan', () => {
+    const rows = languagePlan(undefined, 'Brand');
+    const countries = readCountries();
+    const open = buildPlan({
+      rows,
       listings: new Map(),
       images: new Map(),
-      countries: {
-        status: 'READ',
-        observed: ['CA', 'FI', 'IE', 'SE'],
-        restOfWorld: false,
-        fiObserved: 'present',
-      },
+      countries,
     });
-    assert.equal(plan.countries.fiObserved, 'present');
-    assert.equal(plan.blocked.some((item) => item.locale === 'ga-IE' && item.reason === 'fallback'), true);
-    assert.equal(plan.blocked.some((item) => item.locale === 'mt-MT' && item.reason === 'fallback'), true);
-    assert.equal(plan.blocked.some((item) => item.locale === 'is-IS' && item.reason === 'hidden'), true);
-    assert.equal(plan.blocked.some((item) => item.locale === 'bg-BG' && item.reason === 'bad-dimensions'), true);
-    assert.equal(plan.changes.some((item) => item.locale === 'fi-FI' && item.kind === 'text' && item.risk === 'new-listing'), true);
-    assert.equal(plan.changes.some((item) => item.locale === 'is-IS' || item.locale === 'ga-IE'), false);
-    assert.equal(plan.changes.every((item) => item.kind === 'text' || item.kind === 'images'), true);
+    assert.equal(open.applyAllowed, false);
+    assert.equal(open.blockReason, 'scope-required');
+    assert.equal(open.changes.length, 0);
+    assert.equal(open.blocked.length, 0);
+    assert.deepEqual(open.candidates.map((item) => item.locale), ['fi-FI', 'fr-FR']);
+    assert.equal(open.candidates.every((item) => item.publish === false), true);
+    assert.equal(open.protectedLocales.length, 0);
+
+    const liveSwedish = new Map([['sv-SE', listing()]]);
+    const protectedPlan = buildPlan({ rows, listings: liveSwedish, images: new Map(), countries });
+    assert.equal(protectedPlan.changes.some((item) => item.locale === 'sv-SE'), false);
+    assert.equal(protectedPlan.protectedLocales.some((item) => item.locale === 'sv-SE' && item.publish === false), true);
+    assert.equal(protectedPlan.digest, buildPlan({
+      rows,
+      listings: new Map([['sv-SE', { ...listing(), title: 'Annat' }]]),
+      images: new Map(),
+      countries,
+    }).digest);
+
+    const named = buildPlan({
+      rows: [swedishRow()],
+      listings: liveSwedish,
+      images: new Map(),
+      countries,
+      localesFilter: 'sv-SE',
+    });
+    assert.equal(named.changes.some((item) => item.field === 'title' && item.risk === 'replaces-live-text'), true);
+    assert.match(renderPlanMarkdown({ status: 'DRY_RUN', plan: named, livePublicationVerified: false }), /ersätter svensk eller engelsk text/);
+  });
+
+  it('lets an explicit fi-FI plan ignore missing languages, and refuses invalid screenshots', () => {
+    const rows = languagePlan(undefined, 'Brand');
+    const countries = readCountries();
+    const finnish = buildPlan({
+      rows,
+      listings: new Map(),
+      images: new Map(),
+      countries,
+      localesFilter: 'fi-FI',
+    });
+    assert.equal(finnish.applyAllowed, true);
+    assert.equal(finnish.blockReason, null);
+    assert.equal(finnish.changes.some((item) => item.locale === 'fi-FI' && item.kind === 'text' && item.risk === 'new-listing'), true);
+    assert.equal(finnish.changes.every((item) => item.locale === 'fi-FI'), true);
+    assert.equal(finnish.blocked.some((item) => item.locale === 'de-DE' || item.locale === 'bg-BG'), false);
+    assert.equal(finnish.candidates.some((item) => item.locale === 'fr-FR' && item.publish === false), true);
+    assert.equal(finnish.digest, buildPlan({
+      rows,
+      listings: new Map([['de-DE', { language: 'de-DE', title: 'X', shortDescription: 'Y', fullDescription: 'Z', video: '' }]]),
+      images: new Map(),
+      countries,
+      localesFilter: 'fi-FI',
+    }).digest);
+
+    const blocked = buildPlan({ rows, listings: new Map(), images: new Map(), countries, localesFilter: 'bg-BG,ga-IE,is-IS' });
+    assert.equal(blocked.applyAllowed, false);
+    assert.equal(blocked.changes.length, 0);
+    assert.equal(blocked.blocked.some((item) => item.locale === 'bg-BG' && item.reason === 'bad-dimensions'), true);
+    assert.equal(blocked.blocked.some((item) => item.locale === 'ga-IE' && item.reason === 'fallback'), true);
+    assert.equal(blocked.blocked.some((item) => item.locale === 'is-IS' && item.reason === 'hidden'), true);
+    assert.equal(blocked.blocked.some((item) => item.locale === 'fi-FI'), false);
   });
 
   it('reads a dry-run and deletes the edit without writing', async () => {
@@ -171,6 +232,7 @@ describe('Play store plan', () => {
       mode: 'dry-run',
       playToken: 'play-token',
       fetchImpl,
+      locales: 'sv-SE',
       rows: [swedishRow()],
     });
     assert.equal(report.status, 'DRY_RUN');
@@ -224,6 +286,7 @@ describe('Play store plan', () => {
       mode: 'dry-run',
       playToken: 'play-token',
       fetchImpl: playFetch().fetchImpl,
+      locales: 'sv-SE',
       rows: [swedishRow()],
     });
     const applied = playFetch();
@@ -284,7 +347,13 @@ describe('Play store plan', () => {
       if (options.method === 'DELETE') return jsonResponse(200, {});
       return jsonResponse(404, {});
     };
-    const dry = await runPlayStorePublish({ mode: 'dry-run', playToken: 'play-token', fetchImpl: dryFetch, rows: [imageRow] });
+    const dry = await runPlayStorePublish({
+      mode: 'dry-run',
+      playToken: 'play-token',
+      fetchImpl: dryFetch,
+      locales: 'sv-SE',
+      rows: [imageRow],
+    });
     assert.equal(dry.plan.changes.some((change) => change.kind === 'images'), true);
     assert.equal(dryCalls.some((call) => call.url.includes('/upload/') || call.url.includes(':commit')), false);
     const applyCalls = [];
@@ -312,6 +381,54 @@ describe('Play store plan', () => {
     assert.equal(uploads.length, 2);
     assert.equal(uploads.every((call) => call.type === 'image/png' && call.url.includes('uploadType=media')), true);
     assert.equal(applyCalls.some((call) => call.method === 'DELETE' && call.url.endsWith('/edits/edit-9')), false);
+  });
+
+  it('does not upload images that already match, or images whose hashes were not verified', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'play-publish-match-'));
+    const phone = path.join(dir, 'phone.png');
+    const feature = path.join(dir, 'feature.png');
+    function png(file, width, height) {
+      const buf = Buffer.alloc(24);
+      buf[0] = 0x89;
+      buf.write('PNG', 1, 'ascii');
+      buf.writeUInt32BE(width, 16);
+      buf.writeUInt32BE(height, 20);
+      fs.writeFileSync(file, buf);
+      return crypto.createHash('sha256').update(buf).digest('hex');
+    }
+    const phoneHash = png(phone, 1080, 1920);
+    const featureHash = png(feature, 1024, 500);
+    const imageRow = {
+      ...swedishRow(),
+      expected: { title: 'Other', shortDescription: 'Kort', fullDescription: 'Lang' },
+      screenshotExpectation: { status: 'present', files: [phone], featureGraphic: feature },
+    };
+    const matched = buildPlan({
+      rows: [imageRow],
+      listings: new Map([['sv-SE', listing()]]),
+      images: new Map([['sv-SE', {
+        phone: { unreadable: false, ids: ['p1'], sha256: [phoneHash], sha256Complete: true, count: 1 },
+        feature: { unreadable: false, ids: ['f1'], sha256: [featureHash], sha256Complete: true, count: 1 },
+      }]]),
+      countries: readCountries(),
+      localesFilter: 'sv-SE',
+    });
+    assert.equal(matched.changes.some((item) => item.kind === 'images'), false);
+    assert.equal(matched.applyAllowed, false);
+    assert.equal(matched.blockReason, 'no-changes');
+
+    const counted = buildPlan({
+      rows: [imageRow],
+      listings: new Map([['sv-SE', listing()]]),
+      images: new Map([['sv-SE', {
+        phone: { unreadable: false, ids: ['p1'], sha256: [], sha256Complete: false, count: 1 },
+        feature: { unreadable: false, ids: ['f1'], sha256: [], sha256Complete: false, count: 1 },
+      }]]),
+      countries: readCountries(),
+      localesFilter: 'sv-SE',
+    });
+    assert.equal(counted.changes.some((item) => item.kind === 'images'), false);
+    assert.equal(counted.blocked.some((item) => item.reason === 'images-not-verified'), true);
   });
 });
 

@@ -12,7 +12,14 @@ const fs = require('fs');
 const path = require('path');
 const appCatalog = require('../../config/locale-catalog.json');
 const { pngSize } = require('./locale-readiness');
-const { countryCodes, languagePlan, normalizeText, PACKAGE_NAME } = require('./play-live-audit');
+const {
+  countryCodes,
+  judgeScreenshotSet,
+  judgeText,
+  languagePlan,
+  PACKAGE_NAME,
+  phoneDimensionProblem,
+} = require('./play-live-audit');
 const { createPlayReader } = require('./play-publisher-read');
 const { createPlayWriter, FULL_MAX, SHORT_MAX, TITLE_MAX } = require('./play-publisher-write');
 
@@ -27,17 +34,12 @@ const TEXT_LIMITS = Object.freeze({
 const MAX_PHONE = 8;
 const FEATURE_WIDTH = 1024;
 const FEATURE_HEIGHT = 500;
+const FUTURE_CANDIDATES = Object.freeze(['fi-FI', 'fr-FR']);
+const PROTECTED_LIVE = Object.freeze(['sv-SE', 'en-GB']);
 
 function appAvailability(appLocale) {
   const row = (appCatalog.locales || []).find((locale) => locale.id === appLocale);
   return row && row.availability ? row.availability : 'UNKNOWN';
-}
-
-function phoneProblem(width, height) {
-  if (width < 320 || height < 320) return 'below-minimum';
-  if (width > 3840 || height > 3840) return 'above-maximum';
-  if (Math.max(width, height) > Math.min(width, height) * 2) return 'aspect-over-2-to-1';
-  return null;
 }
 
 function defaultReadLocal(file) {
@@ -50,23 +52,30 @@ function defaultReadLocal(file) {
 }
 
 function imageFacts(result) {
-  if (result && result.status === 404) return { unreadable: false, ids: [], sha256: [] };
+  if (result && result.status === 404) {
+    return { unreadable: false, ids: [], sha256: [], sha256Complete: true, count: 0 };
+  }
   if (!result || !result.ok || !result.body || !Array.isArray(result.body.images)) {
-    return { unreadable: true, ids: [], sha256: [] };
+    return { unreadable: true, ids: [], sha256: [], sha256Complete: false, count: 0 };
   }
   const ids = [];
   const sha256 = [];
+  let complete = true;
   for (const image of result.body.images) {
     if (!image || typeof image.id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(image.id)) {
-      return { unreadable: true, ids: [], sha256: [] };
-    }
-    if (typeof image.sha256 !== 'string' || !/^[0-9a-f]{64}$/i.test(image.sha256)) {
-      return { unreadable: true, ids: [], sha256: [] };
+      return { unreadable: true, ids: [], sha256: [], sha256Complete: false, count: 0 };
     }
     ids.push(image.id);
-    sha256.push(image.sha256.toLowerCase());
+    if (typeof image.sha256 === 'string' && /^[0-9a-f]{64}$/i.test(image.sha256)) sha256.push(image.sha256.toLowerCase());
+    else complete = false;
   }
-  return { unreadable: false, ids, sha256 };
+  return {
+    unreadable: false,
+    ids,
+    sha256: complete ? sha256 : [],
+    sha256Complete: complete,
+    count: ids.length,
+  };
 }
 
 function countrySnapshot(result) {
@@ -107,7 +116,7 @@ function localSet(expectation, readLocal) {
       problems.push({ file, problem: info && info.problem ? info.problem : 'missing' });
       continue;
     }
-    const problem = phoneProblem(info.width, info.height);
+    const problem = phoneDimensionProblem(info.width, info.height);
     if (problem) problems.push({ file, problem, width: info.width, height: info.height });
     else files.push(info);
   }
@@ -118,8 +127,6 @@ function localSet(expectation, readLocal) {
     else if (info.width !== FEATURE_WIDTH || info.height !== FEATURE_HEIGHT) {
       problems.push({ file: expectation.featureGraphic, problem: 'not-1024x500', width: info.width, height: info.height });
     } else feature = info;
-  } else {
-    problems.push({ file: 'featureGraphic', problem: 'missing' });
   }
   if ((expectation.files || []).length > MAX_PHONE) problems.push({ problem: 'too-many-screenshots' });
   return { files, feature, problems };
@@ -128,10 +135,10 @@ function localSet(expectation, readLocal) {
 function textChanges(row, live) {
   const changes = [];
   const blocked = [];
-  const brand = row.brand;
+  const judged = judgeText(row.expected || {}, live, row.brand);
   for (const field of Object.keys(TEXT_LIMITS)) {
-    const want = normalizeText(row.expected ? row.expected[field] : '', brand);
-    const got = live ? normalizeText(live[field], brand) : '';
+    const detail = judged.fields[field] || { expected: '', live: null, status: 'MISSING' };
+    const want = detail.expected || '';
     if (!want) {
       blocked.push({ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'missing-repo-text', field });
       continue;
@@ -140,42 +147,86 @@ function textChanges(row, live) {
       blocked.push({ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'over-limit', field });
       continue;
     }
-    if (want === got) continue;
+    if (detail.status === 'MATCH') continue;
+    const liveText = live ? (detail.live || '') : null;
     changes.push({
       id: `${row.googleLocale}:${field}`,
       locale: row.appLocale,
       googleLocale: row.googleLocale,
       kind: 'text',
       field,
-      from: live ? got : null,
+      from: live ? liveText : null,
       to: want,
-      risk: live ? (got ? 'replaces-live-text' : 'fills-empty') : 'new-listing',
+      risk: live ? (liveText ? 'replaces-live-text' : 'fills-empty') : 'new-listing',
     });
   }
   return { changes, blocked };
 }
 
+function countsForJudge(liveFacts) {
+  if (!liveFacts) {
+    return {
+      unreadable: false,
+      complete: true,
+      counts: {
+        phoneScreenshots: 0,
+        featureGraphic: 0,
+        phoneSha256: [],
+        featureSha256: [],
+        sha256Complete: true,
+      },
+    };
+  }
+  const phone = liveFacts.phone;
+  const feature = liveFacts.feature;
+  if (!phone || !feature || phone.unreadable || feature.unreadable) {
+    return { unreadable: true, complete: false, counts: null };
+  }
+  const complete = phone.sha256Complete === true && feature.sha256Complete === true;
+  const phoneCount = typeof phone.count === 'number' ? phone.count : phone.ids.length;
+  const featureCount = typeof feature.count === 'number' ? feature.count : feature.ids.length;
+  return {
+    unreadable: false,
+    complete,
+    counts: {
+      phoneScreenshots: phoneCount,
+      featureGraphic: featureCount,
+      phoneSha256: complete ? phone.sha256 : [],
+      featureSha256: complete ? feature.sha256 : [],
+      sha256Complete: complete,
+    },
+  };
+}
+
 function imageChange(row, liveFacts, readLocal) {
   const expectation = row.screenshotExpectation;
-  if (!expectation || expectation.status === 'live_external') {
-    return { blocked: [{ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'images-not-in-repo' }] };
+  const blockedItem = (reason, extra) => ({ locale: row.appLocale, googleLocale: row.googleLocale, reason, ...extra });
+  if (!expectation || expectation.status !== 'present') {
+    return { blocked: [blockedItem('images-not-in-repo')] };
   }
-  if (expectation.status !== 'present') {
-    return { blocked: [{ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'images-not-in-repo' }] };
+  const judged = countsForJudge(liveFacts);
+  const verdict = judgeScreenshotSet({
+    expectation,
+    counts: judged.counts,
+    unreadable: judged.unreadable,
+  });
+  if (verdict.status === 'UNKNOWN') return { blocked: [blockedItem('images-unreadable')] };
+  if (verdict.dimensions === 'INVALID') {
+    return { blocked: [blockedItem('bad-dimensions', { problems: verdict.dimensionProblems })] };
   }
+  if (verdict.status === 'COUNT_MATCH') return { blocked: [blockedItem('images-not-verified')] };
+  if (verdict.status === 'CONTENT_MATCH') return { changes: [] };
+  if (verdict.status !== 'MISSING' && verdict.status !== 'DRIFT' && verdict.status !== 'CONTENT_DRIFT') {
+    return { blocked: [blockedItem('images-not-verified')] };
+  }
+  if (!judged.complete) return { blocked: [blockedItem('images-unreadable')] };
   const local = localSet(expectation, readLocal);
-  if (local.problems.length) {
-    return { blocked: [{ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'bad-dimensions', problems: local.problems }] };
-  }
+  if (local.problems.length) return { blocked: [blockedItem('bad-dimensions', { problems: local.problems })] };
   const changes = [];
-  for (const [imageType, localItems, remote] of [
-    ['phoneScreenshots', local.files, liveFacts ? liveFacts.phone : null],
-    ['featureGraphic', local.feature ? [local.feature] : [], liveFacts ? liveFacts.feature : null],
+  for (const [imageType, localItems, from] of [
+    ['phoneScreenshots', local.files, judged.counts.phoneSha256],
+    ['featureGraphic', local.feature ? [local.feature] : [], judged.counts.featureSha256],
   ]) {
-    if (liveFacts && remote && remote.unreadable) {
-      return { blocked: [{ locale: row.appLocale, googleLocale: row.googleLocale, reason: 'images-unreadable', imageType }] };
-    }
-    const from = remote && !remote.unreadable ? remote.sha256 : [];
     const to = localItems.map((item) => item.sha256);
     if (sameList(from, to)) continue;
     changes.push({
@@ -234,7 +285,7 @@ function stable(value) {
 
 function digestOf(plan) {
   const body = stable({
-    schema: 1,
+    schema: plan.schema,
     packageName: plan.packageName,
     locales: plan.locales,
     countries: plan.countries,
@@ -260,34 +311,56 @@ function buildPlan({
   const changes = [];
   const blocked = [];
   const unknown = selected ? selected.filter((locale) => !known.has(locale)) : [];
+  const selectedSet = selected ? new Set(selected) : null;
   for (const locale of unknown) blocked.push({ locale, googleLocale: null, reason: 'unknown-locale' });
   for (const row of rows) {
-    if (selected && !selected.includes(row.appLocale)) continue;
+    if (!selectedSet || !selectedSet.has(row.appLocale)) continue;
     const result = considerRow(row, listings, images, readLocal);
     for (const change of result.changes || []) changes.push(change);
     for (const item of result.blocked || []) blocked.push(item);
   }
   changes.sort((a, b) => a.id.localeCompare(b.id));
   blocked.sort((a, b) => `${a.locale}:${a.reason}:${a.field || ''}`.localeCompare(`${b.locale}:${b.reason}:${b.field || ''}`));
-  let applyAllowed = countries.status === 'READ' && unknown.length === 0;
-  let blockReason = null;
-  if (countries.status !== 'READ') {
-    applyAllowed = false;
-    blockReason = 'countries-unknown';
-  } else if (unknown.length) {
-    applyAllowed = false;
-    blockReason = 'unknown-locale';
-  } else if (changes.length === 0) {
-    applyAllowed = false;
-    blockReason = 'no-changes';
+  const candidates = [];
+  const protectedLocales = [];
+  for (const row of rows) {
+    const chosen = Boolean(selectedSet && selectedSet.has(row.appLocale));
+    if (!chosen && FUTURE_CANDIDATES.includes(row.appLocale)) {
+      const result = considerRow(row, listings, images, readLocal);
+      candidates.push({
+        locale: row.appLocale,
+        googleLocale: row.googleLocale,
+        publish: false,
+        ready: (result.changes || []).length > 0,
+      });
+    }
+    if (!chosen && PROTECTED_LIVE.includes(row.appLocale) && row.googleLocale && listings.get(row.googleLocale)) {
+      protectedLocales.push({
+        locale: row.appLocale,
+        googleLocale: row.googleLocale,
+        publish: false,
+        reason: 'protected-live-text',
+      });
+    }
   }
+  candidates.sort((a, b) => a.locale.localeCompare(b.locale));
+  protectedLocales.sort((a, b) => a.locale.localeCompare(b.locale));
+  let applyAllowed = false;
+  let blockReason = null;
+  if (countries.status !== 'READ') blockReason = 'countries-unknown';
+  else if (unknown.length) blockReason = 'unknown-locale';
+  else if (!selected) blockReason = 'scope-required';
+  else if (changes.length === 0) blockReason = 'no-changes';
+  else applyAllowed = true;
   const plan = {
-    schema: 1,
+    schema: 2,
     packageName,
-    locales: selected || ['*'],
+    locales: selected || [],
     countries,
     changes,
     blocked,
+    candidates,
+    protectedLocales,
     applyAllowed,
     blockReason,
   };
@@ -314,6 +387,9 @@ function reasonText(reason) {
     'unknown-locale': 'Språkkoden finns inte i repositoryt.',
     'countries-unknown': 'Länderna kunde inte läsas. Inget skrivs.',
     'no-changes': 'Det finns inga tillåtna ändringar.',
+    'scope-required': 'Ingen språklista är vald. fi-FI och fr-FR publiceras inte förrän de anges.',
+    'images-not-verified': 'Bilderna är inte verifierade med hash. Befintliga bilder ersätts inte.',
+    'protected-live-text': 'Befintlig svensk eller engelsk text lämnas orörd tills språket anges.',
   };
   return labels[reason] || reason;
 }
@@ -357,7 +433,17 @@ function renderPlanMarkdown(report) {
     lines.push(`- SHA-256: ${plan.digest}`);
     lines.push(`- Apply tillåtet: ${plan.applyAllowed ? 'yes' : 'no'}`);
     if (plan.blockReason) lines.push(`- Orsak: ${reasonText(plan.blockReason)}`);
-    lines.push(`- Lokaler: ${plan.locales.join(', ')}`);
+    lines.push(`- Lokaler: ${plan.locales.length ? plan.locales.join(', ') : 'inga'}`);
+    if (plan.protectedLocales && plan.protectedLocales.length) {
+      lines.push(`- Skyddade listningar lämnas orörda: ${plan.protectedLocales.map((item) => item.locale).join(', ')}`);
+    }
+    if (plan.candidates && plan.candidates.length) {
+      const names = plan.candidates.map((item) => (item.ready ? item.locale : `${item.locale} (inte redo)`));
+      lines.push(`- Framtida språk, inte med i planen: ${names.join(', ')}`);
+    }
+    if (plan.changes.some((change) => change.risk === 'replaces-live-text' && (change.locale === 'sv-SE' || change.locale === 'en-GB'))) {
+      lines.push('- Varning: planen ersätter svensk eller engelsk text som redan finns i Play.');
+    }
     lines.push('');
     lines.push('## Ändringar');
     lines.push('');

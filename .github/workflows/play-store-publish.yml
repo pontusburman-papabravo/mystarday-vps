@@ -19,7 +19,7 @@ on:
         type: string
         default: ''
       locales:
-        description: Optional app locales, comma-separated. Empty includes every eligible difference.
+        description: App locales to include, comma-separated. Empty publishes nothing. sv-SE and en-GB change only when named.
         type: string
         default: ''
 
