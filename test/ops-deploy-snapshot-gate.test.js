@@ -582,6 +582,19 @@ describe('migration-aware snapshot compare', () => {
     }
   });
 
+  test('family locale BCP 47 check has a schema-only deploy contract', async () => {
+    const { loadMigrationSnapshotContract, aggregateMigrationContracts } = await import(
+      '../scripts/ops/lib/migration-snapshot-manifest.mjs'
+    );
+    const name = '1810540000000_family_locale_bcp47_check';
+    const contract = loadMigrationSnapshotContract(name, REPO_ROOT);
+    assert.ok(contract, name);
+    assert.equal(contract.backwardCompatible, true);
+    assert.equal(contract.schemaOnly, true);
+    const { missing } = aggregateMigrationContracts([name], REPO_ROOT);
+    assert.deepEqual(missing, []);
+  });
+
   test('schedule_apply_operation migrations have schema-only deploy contracts (Phase 1A post-merge hotfix)', async () => {
     // Regression for the merge #1093 deploy failure: these two migrations were missing from
     // the registry, so the deploy-time post-migration snapshot compare failed with

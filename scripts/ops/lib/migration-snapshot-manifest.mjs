@@ -144,6 +144,11 @@ export const MIGRATION_SNAPSHOT_REGISTRY = {
       { key: 'activation_onboarding_handoff_film_v1', before: true, after: false },
     ],
   },
+  // CHECK-only locale widening. Do not edit the applied migration file.
+  '1810540000000_family_locale_bcp47_check': {
+    backwardCompatible: true,
+    schemaOnly: true,
+  },
 };
 
 /**
