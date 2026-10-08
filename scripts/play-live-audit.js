@@ -14,6 +14,8 @@ const {
   SCREENSHOT_COMPARISON,
   SCREENSHOT_COMPARISON_NOTE,
   SYNC_WITH_RELEASE,
+  finishReport,
+  renderAuditMarkdown,
   runPlayLiveAudit,
   redactValue,
 } = require('../src/lib/play-live-audit');
@@ -26,10 +28,20 @@ function argValue(flag) {
   return process.argv[index + 1] || null;
 }
 
+function markdownPath(file) {
+  return file.endsWith('.json') ? file.replace(/\.json$/, '.md') : `${file}.md`;
+}
+
 function writeReport(file, report) {
-  const safe = redactValue(report);
+  const safe = redactValue(finishReport(report));
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(safe, null, 2)}\n`);
+  const markdown = renderAuditMarkdown(safe);
+  fs.writeFileSync(markdownPath(file), markdown);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
+  }
+  return safe;
 }
 
 function summaryLine(report) {
@@ -37,7 +49,9 @@ function summaryLine(report) {
   return [
     'play-live-audit',
     `auth=${report.auth}`,
+    `ready=${report.listingContentReady === true ? 'yes' : 'no'}`,
     `match=${counts.MATCH || 0}`,
+    `count_match=${counts.COUNT_MATCH || 0}`,
     `drift=${counts.DRIFT || 0}`,
     `missing=${counts.MISSING || 0}`,
     `unknown=${counts.UNKNOWN || 0}`,
@@ -86,18 +100,19 @@ async function main() {
       forbidden: [],
       languages: [],
       markets: { action: 'none', status: 'UNKNOWN', fiObserved: 'UNKNOWN', restOfWorld: null, [SYNC_WITH_RELEASE]: null },
-      summary: { MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
+      summary: { MATCH: 0, COUNT_MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
+      listingContentReady: false,
     };
-    writeReport(out, report);
-    console.error('play-live-audit auth=MISSING_SECRET');
+    const saved = writeReport(out, report);
+    console.error(summaryLine(saved));
     process.exit(1);
   }
   try {
     const token = await accessToken(raw);
     const report = await runPlayLiveAudit({ packageName, token });
-    writeReport(out, report);
-    console.log(summaryLine(report));
-    if (report.auth !== 'OK') process.exit(1);
+    const saved = writeReport(out, report);
+    console.log(summaryLine(saved));
+    if (saved.listingContentReady !== true) process.exit(1);
   } catch (error) {
     const report = {
       packageName,
@@ -111,10 +126,11 @@ async function main() {
       forbidden: [],
       languages: [],
       markets: { action: 'none', status: 'UNKNOWN', fiObserved: 'UNKNOWN', restOfWorld: null, [SYNC_WITH_RELEASE]: null },
-      summary: { MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
+      summary: { MATCH: 0, COUNT_MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
+      listingContentReady: false,
     };
-    writeReport(out, report);
-    console.error('play-live-audit auth=FAILED');
+    const saved = writeReport(out, report);
+    console.error(summaryLine(saved));
     process.exit(1);
   }
 }
