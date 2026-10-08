@@ -544,10 +544,12 @@ function renderAuditMarkdown(report) {
   lines.push('## Länder');
   lines.push('');
   lines.push(`- Status: ${markets.status || 'UNKNOWN'}`);
-  lines.push(`- Observerade: ${(markets.observed || []).join(', ') || 'okänt'}`);
+  const observedLabel = (markets.observed || []).join(', ');
+  lines.push(`- Observerade: ${observedLabel.length ? observedLabel : 'unknown'}`);
   lines.push(`- Repository live: ${(markets.repoLive || []).join(', ') || 'inga'}`);
   lines.push(`- Finland observerat: ${markets.fiObserved || 'UNKNOWN'}`);
-  lines.push(`- restOfWorld: ${markets.restOfWorld == null ? 'okänt' : String(markets.restOfWorld)}`);
+  const restLabel = markets.restOfWorld == null ? 'unknown' : String(markets.restOfWorld);
+  lines.push(`- restOfWorld: ${restLabel}`);
   lines.push(`- Åtgärd: ${markets.action || 'none'}`);
   if (markets.acceptedDifference) {
     lines.push('- Finland är öppet utöver repositoryts live-lista. Lämna Finland öppet.');
