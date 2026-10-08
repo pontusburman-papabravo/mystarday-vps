@@ -5,15 +5,19 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const {
+  RELEASE_TRACK,
   classifyPlayRequest,
   createPlayReader,
 } = require('../src/lib/play-publisher-read');
 const {
   PACKAGE_NAME,
+  SCREENSHOT_COMPARISON,
+  SYNC_WITH_RELEASE,
   languagePlan,
   judgeLanguage,
   judgeMarkets,
   judgeScreenshots,
+  readTrackCountryAvailability,
   runPlayLiveAudit,
   redactValue,
 } = require('../src/lib/play-live-audit');
@@ -71,7 +75,9 @@ describe('Play read client', () => {
     assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/listings`), 'listings');
     assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/listings/sv-SE/phoneScreenshots`), 'images');
     assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/listings/bg/featureGraphic`), 'images');
-    assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/countryAvailability`), 'countries');
+    assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/countryAvailability/${RELEASE_TRACK}`), 'countries');
+    assert.equal(classifyPlayRequest('GET', `${base}/edits/edit-1/countryAvailability`), null);
+    assert.equal(classifyPlayRequest('PUT', `${base}/edits/edit-1/countryAvailability/${RELEASE_TRACK}`), null);
     assert.equal(classifyPlayRequest('DELETE', `${base}/edits/edit-1`), 'edit-delete');
   });
 });
@@ -106,6 +112,7 @@ describe('Play listing comparison', () => {
       counts: { phoneScreenshots: 2, featureGraphic: 1 },
     });
     assert.equal(match.status, 'MATCH');
+    assert.equal(match.screenshotComparison, SCREENSHOT_COMPARISON);
     const drift = judgeLanguage(row, {
       listing: { language: 'sv-SE', title: 'Other', shortDescription: 'Kort', fullDescription: 'Lång' },
       counts: { phoneScreenshots: 2, featureGraphic: 1 },
@@ -135,7 +142,7 @@ describe('Play listing comparison', () => {
     assert.equal(markets.fiObserved, 'present');
     assert.equal(markets.fiStoreAvailability, 'KEEP_OPEN');
     assert.equal(markets.action, 'none');
-    const worldwide = judgeMarkets(['CA', 'IE', 'SE'], ['CA', 'IE', 'SE'], false, { includeRestOfWorld: true });
+    const worldwide = judgeMarkets(['CA', 'IE', 'SE'], ['CA', 'IE', 'SE'], false, { restOfWorld: true });
     assert.equal(worldwide.status, 'DRIFT');
     assert.equal(worldwide.fiObserved, 'present');
     assert.equal(worldwide.action, 'none');
@@ -209,7 +216,12 @@ describe('Play audit run', () => {
     assert.equal(report.edit.committed, false);
     assert.equal(report.edit.deleted, true);
     assert.equal(report.languages[0].status, 'UNKNOWN');
+    assert.equal(report.languages[0].screenshotComparison, 'count');
     assert.equal(report.fiStoreAvailability, 'KEEP_OPEN');
+    assert.equal(report.markets.status, 'UNKNOWN');
+    assert.equal(report.markets.fiObserved, 'UNKNOWN');
+    assert.equal(report.markets.restOfWorld, null);
+    assert.equal(report.writes.availabilityChange, false);
     assert.deepEqual(report.forbidden, [{
       method: 'GET',
       path: `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/edit-1/listings`,
@@ -230,8 +242,12 @@ describe('Play audit run', () => {
       }
       if (url.endsWith('/phoneScreenshots')) return jsonResponse(200, { images: [{ id: 'p1' }] });
       if (url.endsWith('/featureGraphic')) return jsonResponse(200, { images: [{ id: 'f1' }] });
-      if (url.endsWith('/countryAvailability')) {
-        return jsonResponse(200, { countries: [{ countryCode: 'se' }, { countryCode: 'ie' }, { countryCode: 'ca' }] });
+      if (url.endsWith(`/countryAvailability/${RELEASE_TRACK}`)) {
+        return jsonResponse(200, {
+          [SYNC_WITH_RELEASE]: false,
+          countries: [{ countryCode: 'se' }, { countryCode: 'ie' }, { countryCode: 'ca' }],
+          restOfWorld: false,
+        });
       }
       if (options.method === 'DELETE') return jsonResponse(200, {});
       return jsonResponse(404, {});
@@ -254,8 +270,129 @@ describe('Play audit run', () => {
     assert.equal(report.languages[0].status, 'MATCH');
     assert.equal(report.languages[0].mapping, 'fallback');
     assert.equal(report.markets.status, 'MATCH');
+    assert.equal(report.markets.restOfWorld, false);
+    assert.equal(report.markets[SYNC_WITH_RELEASE], false);
     assert.equal(report.markets.fiObserved, 'absent');
     assert.equal(report.markets.action, 'none');
     assert.equal(report.writes.commit, false);
+    assert.equal(report.writes.availabilityChange, false);
+    assert.equal(report.screenshotComparison, 'count');
+    assert.match(report.screenshotComparisonNote, /count and presence only/);
+  });
+});
+
+describe('Play release-track country availability', () => {
+  const repoLive = ['CA', 'IE', 'SE'];
+
+  function auditCountries(status, body) {
+    const calls = [];
+    const fetchImpl = async (url, options) => {
+      calls.push({ method: options.method, url, body: options.body || null });
+      if (options.method === 'POST' && url.endsWith('/edits')) return jsonResponse(200, { id: 'edit-9' });
+      if (options.method === 'GET' && url.endsWith('/listings')) return jsonResponse(200, { listings: [] });
+      if (options.method === 'GET' && url.endsWith(`/countryAvailability/${RELEASE_TRACK}`)) {
+        return jsonResponse(status, body);
+      }
+      if (options.method === 'DELETE') return jsonResponse(200, {});
+      return jsonResponse(500, { error: { code: 500 } });
+    };
+    return runPlayLiveAudit({
+      packageName: PACKAGE_NAME,
+      token: 'test-token',
+      fetchImpl,
+      plan: [],
+      repoLive,
+    }).then((report) => ({ report, calls }));
+  }
+
+  function assertReadOnly(calls, report) {
+    assert.equal(calls.some((call) => call.url.endsWith(`/countryAvailability/${RELEASE_TRACK}`)), true);
+    assert.equal(calls.some((call) => call.url.endsWith('/countryAvailability')), false);
+    assert.equal(calls.some((call) => call.method === 'PUT' || call.method === 'PATCH'), false);
+    assert.equal(calls.some((call) => call.url.includes('commit')), false);
+    assert.equal(report.writes.availabilityChange, false);
+    assert.equal(report.markets.action, 'none');
+    assert.equal(report.fiStoreAvailability, 'KEEP_OPEN');
+    assert.equal(report.edit.committed, false);
+  }
+
+  it('reads an explicit country list', async () => {
+    const { report, calls } = await auditCountries(200, {
+      [SYNC_WITH_RELEASE]: false,
+      countries: [{ countryCode: 'CA' }, { countryCode: 'IE' }, { countryCode: 'SE' }],
+      restOfWorld: false,
+    });
+    assertReadOnly(calls, report);
+    assert.equal(report.markets.status, 'MATCH');
+    assert.equal(report.markets.restOfWorld, false);
+    assert.equal(report.markets[SYNC_WITH_RELEASE], false);
+    assert.equal(report.markets.fiObserved, 'absent');
+    assert.deepEqual(report.markets.observed, ['CA', 'IE', 'SE']);
+  });
+
+  it('treats restOfWorld as open, including Finland, and ignores includeRestOfWorld', async () => {
+    const parsed = readTrackCountryAvailability({
+      [SYNC_WITH_RELEASE]: false,
+      countries: [{ countryCode: 'CA' }, { countryCode: 'IE' }, { countryCode: 'SE' }],
+      restOfWorld: false,
+      includeRestOfWorld: true,
+    });
+    assert.equal(parsed.restOfWorld, false);
+    const { report, calls } = await auditCountries(200, {
+      [SYNC_WITH_RELEASE]: true,
+      countries: [{ countryCode: 'CA' }, { countryCode: 'IE' }, { countryCode: 'SE' }],
+      restOfWorld: true,
+    });
+    assertReadOnly(calls, report);
+    assert.equal(report.markets.status, 'DRIFT');
+    assert.equal(report.markets.restOfWorld, true);
+    assert.equal(report.markets[SYNC_WITH_RELEASE], true);
+    assert.equal(report.markets.fiObserved, 'present');
+  });
+
+  it('reports Finland when the release track lists it and does not change availability', async () => {
+    const { report, calls } = await auditCountries(200, {
+      [SYNC_WITH_RELEASE]: true,
+      countries: [
+        { countryCode: 'CA' },
+        { countryCode: 'FI' },
+        { countryCode: 'IE' },
+        { countryCode: 'SE' },
+      ],
+      restOfWorld: false,
+    });
+    assertReadOnly(calls, report);
+    assert.equal(report.markets.status, 'DRIFT');
+    assert.equal(report.markets.fiObserved, 'present');
+    assert.equal(report.markets.restOfWorld, false);
+    assert.equal(report.markets[SYNC_WITH_RELEASE], true);
+    assert.deepEqual(report.markets.observed, ['CA', 'FI', 'IE', 'SE']);
+  });
+
+  it('keeps a forbidden or failed country read unknown instead of closed', async () => {
+    const forbidden = await auditCountries(403, { error: { code: 403, message: 'The caller does not have permission' } });
+    assertReadOnly(forbidden.calls, forbidden.report);
+    assert.equal(forbidden.report.markets.status, 'UNKNOWN');
+    assert.equal(forbidden.report.markets.fiObserved, 'UNKNOWN');
+    assert.equal(forbidden.report.markets.observed, null);
+    assert.equal(forbidden.report.markets.restOfWorld, null);
+    assert.equal(forbidden.report.markets[SYNC_WITH_RELEASE], null);
+    assert.deepEqual(forbidden.report.forbidden.at(-1), {
+      method: 'GET',
+      path: `/androidpublisher/v3/applications/${PACKAGE_NAME}/edits/edit-9/countryAvailability/${RELEASE_TRACK}`,
+      status: 403,
+    });
+
+    const failed = await auditCountries(500, { error: { code: 500 } });
+    assertReadOnly(failed.calls, failed.report);
+    assert.equal(failed.report.markets.status, 'UNKNOWN');
+    assert.equal(failed.report.markets.fiObserved, 'UNKNOWN');
+    assert.equal(failed.report.markets.restOfWorld, null);
+    assert.equal(failed.report.forbidden.length, 0);
+
+    const empty = await auditCountries(200, null);
+    assert.equal(empty.report.markets.status, 'UNKNOWN');
+    assert.equal(empty.report.markets.fiObserved, 'UNKNOWN');
+    assert.equal(empty.report.markets.restOfWorld, null);
   });
 });

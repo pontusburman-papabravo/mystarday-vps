@@ -11,6 +11,9 @@ const path = require('path');
 const { JWT } = require('google-auth-library');
 const {
   PACKAGE_NAME,
+  SCREENSHOT_COMPARISON,
+  SCREENSHOT_COMPARISON_NOTE,
+  SYNC_WITH_RELEASE,
   runPlayLiveAudit,
   redactValue,
 } = require('../src/lib/play-live-audit');
@@ -77,9 +80,12 @@ async function main() {
       mode: 'read-only',
       auth: 'MISSING_SECRET',
       fiStoreAvailability: 'KEEP_OPEN',
+      screenshotComparison: SCREENSHOT_COMPARISON,
+      screenshotComparisonNote: SCREENSHOT_COMPARISON_NOTE,
       writes: { commit: false, listingUpdate: false, imageUpload: false, availabilityChange: false, pricing: false },
       forbidden: [],
       languages: [],
+      markets: { action: 'none', status: 'UNKNOWN', fiObserved: 'UNKNOWN', restOfWorld: null, [SYNC_WITH_RELEASE]: null },
       summary: { MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
     };
     writeReport(out, report);
@@ -99,9 +105,12 @@ async function main() {
       auth: 'FAILED',
       error: error && error.message ? error.message : 'PLAY_AUDIT_FAILED',
       fiStoreAvailability: 'KEEP_OPEN',
+      screenshotComparison: SCREENSHOT_COMPARISON,
+      screenshotComparisonNote: SCREENSHOT_COMPARISON_NOTE,
       writes: { commit: false, listingUpdate: false, imageUpload: false, availabilityChange: false, pricing: false },
       forbidden: [],
       languages: [],
+      markets: { action: 'none', status: 'UNKNOWN', fiObserved: 'UNKNOWN', restOfWorld: null, [SYNC_WITH_RELEASE]: null },
       summary: { MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
     };
     writeReport(out, report);

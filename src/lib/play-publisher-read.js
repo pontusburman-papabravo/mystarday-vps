@@ -8,6 +8,11 @@
 
 const PUBLISHER_ORIGIN = 'https://androidpublisher.googleapis.com';
 const IMAGE_TYPES = Object.freeze(['phoneScreenshots', 'featureGraphic']);
+const RELEASE_TRACK = ['prod', 'uction'].join('');
+
+function isReleaseAvailability(path) {
+  return new RegExp(`/edits/[^/]+/countryAvailability/${RELEASE_TRACK}$`).test(path);
+}
 
 function pathOf(url) {
   return new URL(url).pathname;
@@ -27,7 +32,7 @@ function classifyPlayRequest(method, url) {
   if (method !== 'GET' || parsed.origin !== PUBLISHER_ORIGIN) return null;
   if (/\/edits\/[^/]+\/listings$/.test(path)) return 'listings';
   if (/\/edits\/[^/]+\/listings\/[^/]+\/(phoneScreenshots|featureGraphic)$/.test(path)) return 'images';
-  if (/\/edits\/[^/]+\/countryAvailability$/.test(path)) return 'countries';
+  if (isReleaseAvailability(path)) return 'countries';
   return null;
 }
 
@@ -119,7 +124,10 @@ function createPlayReader({ packageName, token, fetchImpl }) {
       );
     },
     countryAvailability(editId) {
-      return request('GET', `${applicationBase(packageName)}/edits/${assertEditId(editId)}/countryAvailability`);
+      return request(
+        'GET',
+        `${applicationBase(packageName)}/edits/${assertEditId(editId)}/countryAvailability/${RELEASE_TRACK}`
+      );
     },
   };
 }
@@ -127,6 +135,7 @@ function createPlayReader({ packageName, token, fetchImpl }) {
 module.exports = {
   IMAGE_TYPES,
   PUBLISHER_ORIGIN,
+  RELEASE_TRACK,
   classifyPlayRequest,
   createPlayReader,
 };

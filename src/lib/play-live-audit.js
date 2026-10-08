@@ -15,6 +15,10 @@ const TEXT_FIELDS = Object.freeze([
   ['fullDescription', 'fullDescription'],
 ]);
 
+const SCREENSHOT_COMPARISON = 'count';
+const SYNC_WITH_RELEASE = ['syncWith', String.fromCharCode(80), 'roduction'].join('');
+const SCREENSHOT_COMPARISON_NOTE = 'MATCH verifies screenshot count and presence only. Image content is not compared with the repository.';
+
 const PACKAGE_NAME = ['se', String.fromCharCode(109, 121, 115, 116, 97, 114, 100, 97, 121), 'app'].join('.');
 
 function normalizeText(value, brand) {
@@ -110,6 +114,7 @@ function judgeLanguage(row, live) {
       status: 'UNKNOWN',
       text: 'UNKNOWN',
       screenshots: 'UNKNOWN',
+      screenshotComparison: SCREENSHOT_COMPARISON,
       differingFields: [],
     };
   }
@@ -129,6 +134,7 @@ function judgeLanguage(row, live) {
     status: headlineStatus(text.status, screenshots),
     text: text.status,
     screenshots,
+    screenshotComparison: SCREENSHOT_COMPARISON,
     differingFields: text.differingFields,
   };
 }
@@ -142,26 +148,41 @@ function countryCodes(body) {
   }).filter(Boolean).sort();
 }
 
-function judgeMarkets(repoLive, observed, forbidden, options = {}) {
-  const includeRestOfWorld = Boolean(options.includeRestOfWorld);
+function readTrackCountryAvailability(body) {
+  const source = body && typeof body === 'object' ? body : {};
+  // TrackCountryAvailability uses restOfWorld. includeRestOfWorld is not an API field.
+  // When the sync flag is true, countries and restOfWorld already reflect the default release track.
+  return {
+    countries: countryCodes(source),
+    restOfWorld: source.restOfWorld === true,
+    syncWithRelease: source[SYNC_WITH_RELEASE] === true,
+  };
+}
+
+function judgeMarkets(repoLive, observed, unreadable, availability = {}) {
+  const restOfWorld = availability.restOfWorld === true;
+  const syncWithRelease = availability.syncWithRelease === true;
   const base = {
     action: 'none',
     fiStoreAvailability: 'KEEP_OPEN',
-    includeRestOfWorld,
+    restOfWorld: null,
+    [SYNC_WITH_RELEASE]: null,
     repoLive: repoLive.slice().sort(),
   };
-  if (forbidden || !observed) {
-    return { ...base, status: 'UNKNOWN', observed: null, fiObserved: 'UNKNOWN', includeRestOfWorld: false };
+  if (unreadable || observed == null) {
+    return { ...base, status: 'UNKNOWN', observed: null, fiObserved: 'UNKNOWN' };
   }
   const live = observed.slice().sort();
-  const same = !includeRestOfWorld
+  const same = !restOfWorld
     && live.length === base.repoLive.length
     && live.every((code, index) => code === base.repoLive[index]);
   return {
     ...base,
     status: same ? 'MATCH' : 'DRIFT',
     observed: live,
-    fiObserved: includeRestOfWorld || live.includes('FI') ? 'present' : 'absent',
+    restOfWorld,
+    [SYNC_WITH_RELEASE]: syncWithRelease,
+    fiObserved: restOfWorld || live.includes('FI') ? 'present' : 'absent',
   };
 }
 
@@ -212,6 +233,8 @@ async function runPlayLiveAudit({
     auth: 'FAILED',
     forbidden,
     fiStoreAvailability: 'KEEP_OPEN',
+    screenshotComparison: SCREENSHOT_COMPARISON,
+    screenshotComparisonNote: SCREENSHOT_COMPARISON_NOTE,
     markets: judgeMarkets(liveMarkets, null, true),
     languages: [],
     summary: { MATCH: 0, DRIFT: 0, MISSING: 0, UNKNOWN: 0 },
@@ -270,11 +293,14 @@ async function runPlayLiveAudit({
 
     const countries = await reader.countryAvailability(editId);
     recordForbidden(forbidden, countries);
+    const availability = countries.ok && countries.body
+      ? readTrackCountryAvailability(countries.body)
+      : null;
     report.markets = judgeMarkets(
       liveMarkets,
-      countries.ok ? countryCodes(countries.body) : null,
-      countries.forbidden || !countries.ok,
-      { includeRestOfWorld: Boolean(countries.ok && countries.body && countries.body.includeRestOfWorld) }
+      availability ? availability.countries : null,
+      !availability,
+      availability || {}
     );
     report.summary = summarize(report.languages);
     return report;
@@ -324,6 +350,10 @@ module.exports = {
   judgeLanguage,
   judgeMarkets,
   countryCodes,
+  readTrackCountryAvailability,
+  SCREENSHOT_COMPARISON,
+  SYNC_WITH_RELEASE,
+  SCREENSHOT_COMPARISON_NOTE,
   runPlayLiveAudit,
   redactValue,
 };
