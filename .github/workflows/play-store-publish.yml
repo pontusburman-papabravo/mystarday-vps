@@ -1,0 +1,78 @@
+name: Google Play store publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: dry-run previews. apply commits only after the plan hash and confirmation.
+        type: choice
+        options:
+          - dry-run
+          - apply
+        default: dry-run
+      confirmation:
+        description: Required for apply. Type PUBLISH_APPROVED_PLAN
+        type: string
+        default: ''
+      plan_sha256:
+        description: SHA-256 printed by the dry-run
+        type: string
+        default: ''
+      locales:
+        description: Optional app locales, comma-separated. Empty includes every eligible difference.
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: play-store-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Dry-run or apply store listing plan
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: store-publishing
+    timeout-minutes: 30
+    steps:
+      - name: Allow only a manual run from main
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "PLAY_PUBLISH_REF_BLOCKED"
+            exit 2
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --include=dev
+
+      - name: Prepare or apply the store plan
+        env:
+          GOOGLE_PLAY_PUBLISHER_JSON: ${{ secrets.GOOGLE_PLAY_PUBLISHER_JSON }}
+          PLAY_PUBLISH_MODE: ${{ inputs.mode }}
+          PLAY_PUBLISH_CONFIRMATION: ${{ inputs.confirmation }}
+          PLAY_PLAN_SHA256: ${{ inputs.plan_sha256 }}
+          PLAY_LOCALES: ${{ inputs.locales }}
+        run: node scripts/play-store-publish.js --out artifacts/play-store-plan.json
+
+      - name: Upload plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-store-plan
+          path: |
+            artifacts/play-store-plan.json
+            artifacts/play-store-plan.md
+          if-no-files-found: error
