@@ -1,0 +1,55 @@
+name: Apple App Store Connect verify
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-connect-verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Read-only App Store Connect access check
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: store-publishing
+    timeout-minutes: 15
+    steps:
+      - name: Allow only a manual run from main
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "APPLE_CONNECT_REF_BLOCKED"
+            exit 2
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --include=dev
+
+      - name: Verify App Store Connect read access
+        env:
+          APP_STORE_CONNECT_API_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: node scripts/apple-connect-verify.js --out artifacts/apple-connect-verify.json
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-connect-verify
+          path: |
+            artifacts/apple-connect-verify.json
+            artifacts/apple-connect-verify.md
+          if-no-files-found: error

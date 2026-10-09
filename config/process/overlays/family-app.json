@@ -369,6 +369,9 @@
         "scripts/android/**",
         "scripts/build-android*.mjs",
         "scripts/prepare-*-native.mjs",
+        "scripts/apple-connect-verify.js",
+        "src/lib/app-store-connect-read.js",
+        ".github/workflows/apple-connect-verify.yml",
         "public/js/platform.js",
         "public/js/platform-theme.js",
         "public/sw.js",
@@ -381,7 +384,8 @@
         "test/android-app-links-patch.test.js",
         "test/android-aab-release-gate.test.js",
         "test/android-native-brand-name.test.js",
-        "test/native-startup-family.test.js"
+        "test/native-startup-family.test.js",
+        "test/apple-connect-verify.test.js"
       ],
       "testGlobs": [
         "test/*ios*.test.js",
@@ -393,7 +397,8 @@
         "test/android-aab*.test.js",
         "test/native-bridge*.test.js",
         "test/platform-runtime*.test.js",
-        "test/i18n-native-shell.test.js"
+        "test/i18n-native-shell.test.js",
+        "test/apple-connect-verify.test.js"
       ]
     },
     "family-authz": {
