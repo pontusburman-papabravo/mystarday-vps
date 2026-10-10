@@ -12,6 +12,8 @@ const { assertAppleRequest, getCollection } = require('../src/lib/app-store-conn
 const {
   EXPECTED_APP_ID,
   collectAppleLiveAudit,
+  exitCodeForAudit,
+  renderAuditMarkdown,
   selectAppInfos,
   selectVersions,
 } = require('../src/lib/apple-live-audit');
@@ -118,6 +120,52 @@ describe('Apple read allowlist', () => {
     assert.equal(page.listComplete, false);
     assert.equal(page.data.length, 2);
     assert.equal(page.appleError.code, 'APPLE_CONNECT_URL_BLOCKED');
+  });
+
+  it('marks a repeated pagination URL incomplete and does not treat a bad body as a complete list', async () => {
+    const first = 'https://api.appstoreconnect.apple.com/v1/apps?limit=1';
+    const second = 'https://api.appstoreconnect.apple.com/v1/apps?cursor=b';
+    let calls = 0;
+    const cycle = await getCollection(first, {
+      token: 'test-token',
+      fetchImpl: async (url) => {
+        calls += 1;
+        if (url === first) {
+          return jsonResponse(200, { data: [{ id: '1' }], links: { next: second } });
+        }
+        return jsonResponse(200, { data: [{ id: '2' }], links: { next: first } });
+      },
+    });
+    assert.equal(calls, 2);
+    assert.equal(cycle.listComplete, false);
+    assert.equal(cycle.data.length, 2);
+    assert.equal(cycle.appleError.code, 'APPLE_CONNECT_PAGINATION_CYCLE');
+
+    const repeated = await getCollection(first, {
+      token: 'test-token',
+      fetchImpl: async () => jsonResponse(200, { data: [{ id: '1' }], links: { next: first } }),
+    });
+    assert.equal(repeated.listComplete, false);
+    assert.equal(repeated.appleError.code, 'APPLE_CONNECT_PAGINATION_CYCLE');
+
+    const empty = await getCollection(first, {
+      token: 'test-token',
+      fetchImpl: async () => jsonResponse(200, { data: [] }),
+    });
+    assert.equal(empty.ok, true);
+    assert.equal(empty.listComplete, true);
+    assert.deepEqual(empty.data, []);
+
+    for (const body of [{}, { data: null }, { data: {} }, [], { data: [], links: { next: 5 } }]) {
+      const bad = await getCollection(first, {
+        token: 'test-token',
+        fetchImpl: async () => jsonResponse(200, body),
+      });
+      assert.equal(bad.listComplete, false, JSON.stringify(body));
+      assert.equal(bad.ok, false);
+      assert.equal(bad.appleError.code, 'INVALID_COLLECTION');
+      assert.deepEqual(bad.data, []);
+    }
   });
 
   it('retries 429 and classifies 401 separately from 403', async () => {
@@ -389,6 +437,45 @@ describe('Apple live audit collection', () => {
     assert.equal(forbidden.authResult, 'authenticated');
     assert.equal(forbidden.versions.liveSelection, 'unreadable');
     assert.equal(forbidden.versions.live, null);
+    assert.equal(exitCodeForAudit(forbidden), 1);
+    assert.match(renderAuditMarkdown(forbidden), /INCOMPLETE/);
+    assert.equal(exitCodeForAudit({ classification: 'ok' }), 0);
+    assert.equal(exitCodeForAudit({ classification: 'partial' }), 1);
+
+    const cycled = await collectAppleLiveAudit({
+      env: credentials(pem),
+      fetchImpl: async (url) => {
+        if (String(url).includes('/v1/apps?')) {
+          return jsonResponse(200, {
+            data: [{ id: '999', attributes: { bundleId: 'other.app', name: 'Other' } }],
+            links: { next: String(url) },
+          });
+        }
+        return jsonResponse(200, { data: [] });
+      },
+    });
+    assert.equal(cycled.classification, 'partial');
+    assert.equal(cycled.appsListComplete, false);
+    assert.equal(exitCodeForAudit(cycled), 1);
+
+    const infoCycle = await collectAppleLiveAudit({
+      env: credentials(pem),
+      fetchImpl: async (url) => {
+        const target = String(url);
+        if (target.includes('/v1/apps?')) return jsonResponse(200, { data: [appResource()] });
+        if (target.includes('/appInfos')) {
+          return jsonResponse(200, {
+            data: [{ id: '10', attributes: { state: 'READY_FOR_DISTRIBUTION' } }],
+            links: { next: target },
+          });
+        }
+        return jsonResponse(200, { data: [] });
+      },
+    });
+    assert.equal(infoCycle.classification, 'partial');
+    assert.equal(infoCycle.appInfos.liveSelection, 'unreadable');
+    assert.equal(infoCycle.appInfos.live, null);
+    assert.equal(exitCodeForAudit(infoCycle), 1);
   });
 });
 
@@ -408,6 +495,8 @@ describe('apple-live-audit workflow', () => {
     assert.match(workflow, /contents: read/);
     assert.match(workflow, /apple-live-audit\.json/);
     assert.match(workflow, /apple-store-plan\.json/);
+    assert.match(workflow, /if: always\(\)/);
+    assert.doesNotMatch(workflow, /continue-on-error/);
     assert.doesNotMatch(workflow, /play-store-publish|play-publisher|GOOGLE_PLAY|APPLE_SIGN_IN|method:\s*'POST'/);
     assert.match(verify, /apple-connect-verify\.js/);
     assert.doesNotMatch(verify, /apple-live-audit/);

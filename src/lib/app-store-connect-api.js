@@ -142,6 +142,31 @@ async function getJson(url, options) {
   };
 }
 
+function collectionShape(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body) || !Array.isArray(body.data)) return null;
+  const links = body.links;
+  if (links == null) return { rows: body.data, next: '' };
+  if (typeof links !== 'object' || Array.isArray(links)) return null;
+  if (!Object.prototype.hasOwnProperty.call(links, 'next') || links.next == null || links.next === '') {
+    return { rows: body.data, next: '' };
+  }
+  if (typeof links.next !== 'string') return null;
+  return { rows: body.data, next: links.next };
+}
+
+function incompleteCollection(rows, pagesRead, code, title) {
+  return {
+    ok: code === 'APPLE_CONNECT_PAGINATION_CYCLE',
+    status: code === 'APPLE_CONNECT_URL_BLOCKED' ? null : 200,
+    classification: 'api_error',
+    authResult: code === 'APPLE_CONNECT_URL_BLOCKED' ? 'request_failed' : 'authenticated',
+    data: rows,
+    pagesRead,
+    listComplete: false,
+    appleError: { code, title, detail: null },
+  };
+}
+
 async function getCollection(url, options) {
   const rows = [];
   const seen = new Set();
@@ -153,42 +178,25 @@ async function getCollection(url, options) {
     try {
       parsed = assertAppleGet(current);
     } catch (error) {
-      return {
-        ok: false,
-        status: null,
-        classification: 'api_error',
-        authResult: 'request_failed',
-        data: rows,
+      return incompleteCollection(
+        rows,
         pagesRead,
-        listComplete: false,
-        appleError: { code: error.code || 'APPLE_CONNECT_URL_BLOCKED', title: 'Stopped before a non-read URL', detail: null },
-      };
+        error.code || 'APPLE_CONNECT_URL_BLOCKED',
+        'Stopped before a non-read URL',
+      );
     }
     const key = parsed.origin + parsed.pathname + parsed.search;
     if (seen.has(key)) {
-      return {
-        ok: true,
-        status: 200,
-        classification: 'ok',
-        authResult: 'authenticated',
-        data: rows,
+      return incompleteCollection(
+        rows,
         pagesRead,
-        listComplete: true,
-        appleError: null,
-      };
+        'APPLE_CONNECT_PAGINATION_CYCLE',
+        'Stopped on a repeated pagination URL',
+      );
     }
     seen.add(key);
     if (pagesRead >= pageCap) {
-      return {
-        ok: true,
-        status: 200,
-        classification: 'ok',
-        authResult: 'authenticated',
-        data: rows,
-        pagesRead,
-        listComplete: false,
-        appleError: null,
-      };
+      return incompleteCollection(rows, pagesRead, 'INCOMPLETE_LIST', 'Stopped at the page cap');
     }
     const page = await getJson(current, options);
     pagesRead += 1;
@@ -200,13 +208,17 @@ async function getCollection(url, options) {
         listComplete: false,
       };
     }
-    const data = page.body && Array.isArray(page.body.data) ? page.body.data : [];
-    rows.push(...data);
-    const next = page.body && page.body.links && typeof page.body.links.next === 'string'
-      ? page.body.links.next
-      : '';
-    current = next;
-    if (!current) {
+    const shape = collectionShape(page.body);
+    if (!shape) {
+      return incompleteCollection(
+        rows,
+        pagesRead,
+        'INVALID_COLLECTION',
+        'App Store Connect returned a collection without a data array',
+      );
+    }
+    rows.push(...shape.rows);
+    if (!shape.next) {
       return {
         ok: true,
         status: 200,
@@ -218,17 +230,9 @@ async function getCollection(url, options) {
         appleError: null,
       };
     }
+    current = shape.next;
   }
-  return {
-    ok: true,
-    status: 200,
-    classification: 'ok',
-    authResult: 'authenticated',
-    data: rows,
-    pagesRead,
-    listComplete: true,
-    appleError: null,
-  };
+  return incompleteCollection(rows, pagesRead, 'INCOMPLETE_LIST', 'Pagination ended without a complete collection');
 }
 
 function scrubReport(report, secrets) {

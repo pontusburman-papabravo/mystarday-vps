@@ -38,6 +38,7 @@ jobs:
         run: npm ci --legacy-peer-deps --include=dev
 
       - name: Read App Store Connect and compare with the repo
+        # Exit 0 only for classification ok. Partial reads fail the job; artifacts still upload.
         env:
           APP_STORE_CONNECT_API_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

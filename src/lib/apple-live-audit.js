@@ -173,6 +173,15 @@ function failure(resource, result) {
   };
 }
 
+function incompleteList(resource, result) {
+  return {
+    resource,
+    status: result && result.status != null ? result.status : 200,
+    classification: 'api_error',
+    code: result && result.appleError && result.appleError.code ? result.appleError.code : 'INCOMPLETE_LIST',
+  };
+}
+
 async function readLocalizations(url, mapRow, options, partialFailures, resource) {
   const page = await getCollection(url, options);
   options.pagesRead += page.pagesRead || 0;
@@ -180,6 +189,7 @@ async function readLocalizations(url, mapRow, options, partialFailures, resource
     partialFailures.push(failure(resource, page));
     return { rows: [], listComplete: false, blocked: page };
   }
+  if (page.listComplete !== true) partialFailures.push(incompleteList(resource, page));
   return {
     rows: page.data.map(mapRow),
     listComplete: page.listComplete === true,
@@ -215,6 +225,7 @@ async function readScreenshotSets(localization, options, partialFailures) {
   }
   const sets = [];
   let complete = setsPage.listComplete === true;
+  if (!complete) partialFailures.push(incompleteList(`screenshot-sets:${localization.locale}`, setsPage));
   for (const set of setsPage.data) {
     const displayType = set.attributes && typeof set.attributes.screenshotDisplayType === 'string'
       ? set.attributes.screenshotDisplayType
@@ -248,7 +259,10 @@ async function readScreenshotSets(localization, options, partialFailures) {
       listComplete: shots.listComplete === true,
       screenshots: shots.data.map((shot, index) => publicScreenshot(shot, index)),
     });
-    if (shots.listComplete !== true) complete = false;
+    if (shots.listComplete !== true) {
+      complete = false;
+      partialFailures.push(incompleteList(`screenshots:${localization.locale}:${displayType}`, shots));
+    }
   }
   return { listComplete: complete, sets };
 }
@@ -389,15 +403,18 @@ async function collectAppleLiveAudit(options = {}) {
     nameMatch: nameMatchesExpected(attributes.name || ''),
   } : null;
 
+  const appsComplete = apps.listComplete === true;
+  if (!appsComplete) partialFailures.push(incompleteList('apps', apps));
   if (!app || !app.bundleMatch || !app.idMatch) {
     return scrubReport(emptyAudit(config, {
-      classification: 'app_not_accessible',
+      classification: appsComplete ? 'app_not_accessible' : 'partial',
       authResult: 'authenticated',
       httpStatus: 200,
       app,
       listedAppCount: apps.data.length,
-      appsListComplete: apps.listComplete === true,
+      appsListComplete: appsComplete,
       pagesRead: call.pagesRead,
+      partialFailures,
     }), secrets);
   }
 
@@ -424,15 +441,17 @@ async function collectAppleLiveAudit(options = {}) {
       partialFailures: [failure('app-infos', infos)],
     }), secrets);
   }
-  const infoSelection = infos.ok ? selectAppInfos(infos.data) : null;
+  const infosComplete = infos.ok && infos.listComplete === true;
+  const infoSelection = infosComplete ? selectAppInfos(infos.data) : null;
   const appInfos = {
-    observed: infos.ok ? infoSelection.observed : [],
-    liveSelection: infos.ok ? infoSelection.live.selection : 'unreadable',
-    editableSelection: infos.ok ? infoSelection.editable.selection : 'unreadable',
+    observed: infos.ok ? infos.data.map(summaryInfo) : [],
+    liveSelection: infosComplete ? infoSelection.live.selection : 'unreadable',
+    editableSelection: infosComplete ? infoSelection.editable.selection : 'unreadable',
     live: null,
     editable: null,
   };
   if (!infos.ok) partialFailures.push(failure('app-infos', infos));
+  else if (!infosComplete) partialFailures.push(incompleteList('app-infos', infos));
 
   const versionsPage = await getCollection(
     `${APPLE_ORIGIN()}/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=200`,
@@ -462,12 +481,7 @@ async function collectAppleLiveAudit(options = {}) {
   };
   if (!versionsPage.ok) partialFailures.push(failure('app-store-versions', versionsPage));
   if (versionsPage.ok && versionsPage.listComplete !== true) {
-    partialFailures.push({
-      resource: 'app-store-versions',
-      status: 200,
-      classification: 'api_error',
-      code: 'INCOMPLETE_LIST',
-    });
+    partialFailures.push(incompleteList('app-store-versions', versionsPage));
   }
 
   if (infoSelection && infoSelection.live.resource) {
@@ -552,8 +566,13 @@ async function collectAppleLiveAudit(options = {}) {
 function renderAuditMarkdown(report) {
   const live = report.versions && report.versions.live;
   const editable = report.versions && report.versions.editable;
+  const complete = report.classification === 'ok';
   const lines = [
     '# Apple Live Audit',
+    '',
+    complete
+      ? 'Complete read-only GET against api.appstoreconnect.apple.com. No store changes.'
+      : 'INCOMPLETE: this is not a fully approved live audit. Missing or unreadable Apple data is not a complete store picture.',
     '',
     'Read-only GET against api.appstoreconnect.apple.com. No store changes.',
     '',
@@ -586,8 +605,8 @@ function renderAuditMarkdown(report) {
 }
 
 function exitCodeForAudit(report) {
-  if (report.classification === 'ok' || report.classification === 'partial') return 0;
-  if (report.classification === 'config_missing' || report.classification === 'config_invalid') return 2;
+  if (report && report.classification === 'ok') return 0;
+  if (report && (report.classification === 'config_missing' || report.classification === 'config_invalid')) return 2;
   return 1;
 }
 

@@ -360,6 +360,7 @@ function buildAppleStorePlan(audit, options = {}) {
     readOnly: true,
     applyAllowed: false,
     blockReason: 'read-only-dry-run',
+    auditClassification: audit && audit.classification ? audit.classification : 'unknown',
     liveVersion: audit && audit.versions && audit.versions.live
       ? { id: audit.versions.live.id, versionString: audit.versions.live.versionString, appStoreState: audit.versions.live.appStoreState }
       : null,
@@ -403,6 +404,10 @@ function digestOf(plan) {
 function renderPlanMarkdown(plan) {
   const lines = [
     '# Apple store dry-run',
+    '',
+    plan.auditClassification === 'ok'
+      ? 'Read-only comparison of a complete audit. applyAllowed is false. No Apple write is described as done.'
+      : `INCOMPLETE: audit classification is ${plan.auditClassification || 'unknown'}. This dry-run is not a fully approved live picture.`,
     '',
     'Read-only comparison. applyAllowed is false. No Apple write is described as done.',
     '',
