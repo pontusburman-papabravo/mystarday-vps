@@ -1,0 +1,58 @@
+name: Apple Live Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-live-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Read-only Apple listing audit and dry-run
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: store-publishing
+    timeout-minutes: 30
+    steps:
+      - name: Allow only a manual run from main
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "APPLE_AUDIT_REF_BLOCKED"
+            exit 2
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --include=dev
+
+      - name: Read App Store Connect and compare with the repo
+        # Exit 0 only for classification ok. Partial reads fail the job; artifacts still upload.
+        env:
+          APP_STORE_CONNECT_API_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: node scripts/apple-live-audit.js --out-dir artifacts
+
+      - name: Upload audit and dry-run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-live-audit
+          path: |
+            artifacts/apple-live-audit.json
+            artifacts/apple-live-audit.md
+            artifacts/apple-store-plan.json
+            artifacts/apple-store-plan.md
+          if-no-files-found: error

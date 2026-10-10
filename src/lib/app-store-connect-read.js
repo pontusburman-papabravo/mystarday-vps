@@ -474,8 +474,12 @@ module.exports = {
   AUDIENCE,
   TOKEN_TTL_SEC,
   assertReadOnlyRequest,
+  assessConfig,
   createAppStoreConnectToken,
   exitCodeForReport,
+  nameMatchesExpected,
+  readCredentials,
+  redactText,
   renderReportMarkdown,
   verifyAppStoreConnectAccess,
 };
