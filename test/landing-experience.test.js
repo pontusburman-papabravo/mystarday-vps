@@ -122,6 +122,7 @@ test('store URLs stay market-correct across language and country changes', () =>
     publicStores('SE'),
   ];
 
+  assert.equal(APPLE_APP_STORE_SHORT_URL, 'https://apple.co/4v2ESuH');
   assert.equal(seSwedish.ios_url, APPLE_APP_STORE_SHORT_URL);
   assert.equal(seEnglish.ios_url, APPLE_APP_STORE_SHORT_URL);
   assert.equal(ireland.ios_url, APPLE_APP_STORE_IE_URL);
