@@ -17,7 +17,7 @@ const COPY_FALLBACK_LOCALE = 'en-GB';
 /** @type {Record<string, { headline: string, duration: string, noPaymentMethod: string, noAutoCharge: string, after: string, remaining: string, endsOn: string, ended: string, title: string }>} */
 const COPY = {
   'en-GB': {
-    title: '12 months of Premium, free',
+    title: '12 months of Premium free',
     headline: 'Be one of the first 25 families in your country and get 12 months of Premium free.',
     duration: 'Premium is free for 12 months, starting the day your family receives the offer.',
     noPaymentMethod: 'No payment method is needed.',

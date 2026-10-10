@@ -141,12 +141,12 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <meta property="og:type" content="website">
   <meta property="og:url" content="${escapeHtml(canonical)}">
   <meta property="og:locale" content="${escapeHtml(OG_LOCALE[locale.code] || 'en_IE')}">
-  <link rel="stylesheet" href="/css/landing.css?v=21">
+  <link rel="stylesheet" href="/css/landing.css?v=24">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   ${jsonLd(page, canonical)}
 </head>
-<body class="seo-article-page locale-page">
+<body class="seo-article-page locale-page has-landing-choice">
   <header class="en-market-top">
     <a class="en-market-brand" href="${escapeHtml(locale.pathPrefix || '/')}">${escapeHtml(chrome.home)}</a>
     <nav class="en-market-lang" aria-label="${escapeHtml(chrome.languageLabel)}" data-public-lang-switcher="1">
@@ -156,6 +156,20 @@ function renderLocaleDocument(localeCode, page, pathname) {
   </header>
   <main class="landing-section--white">
     <article class="seo-article en-market-inner">
+      <div class="landing-choice" data-landing-choice>
+        <div class="landing-choice__field">
+          <span class="landing-choice__label" id="landingCountryLabel" data-landing-country-label>${escapeHtml(chrome.marketLabel || 'Country')}</span>
+          <button type="button" class="landing-choice__button" data-landing-country-button aria-haspopup="listbox" aria-expanded="false" aria-controls="landingCountryList"></button>
+          <ul class="landing-choice__list" id="landingCountryList" data-landing-country-list role="listbox" aria-labelledby="landingCountryLabel" hidden></ul>
+        </div>
+        <div class="landing-choice__field">
+          <span class="landing-choice__label" id="landingLanguageLabel" data-landing-language-label>${escapeHtml(chrome.languageLabel || 'Language')}</span>
+          <button type="button" class="landing-choice__button" data-landing-language-button aria-haspopup="listbox" aria-expanded="false" aria-controls="landingLanguageList">${escapeHtml(locale.nativeName)}</button>
+          <ul class="landing-choice__list" id="landingLanguageList" data-landing-language-list role="listbox" aria-labelledby="landingLanguageLabel" hidden></ul>
+        </div>
+        <p class="landing-choice__hint" data-landing-choice-hint></p>
+      </div>
+      <div id="landingOffer" class="landing-offer" data-landing-offer hidden></div>
       <h1>${h1}</h1>
       ${page.body}
       ${faqHtml(page)}
@@ -166,6 +180,8 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <script src="/js/public-locale-alternates.js?v=1"></script>
   <script src="/js/public-lang-switcher.js?v=5"></script>
   <script src="/js/landing-events.js?v=9"></script>
+  <script src="/js/landing-choice-guards.js?v=1"></script>
+  <script src="/js/landing-experience.js?v=5"></script>
 </body>
 </html>`;
 }

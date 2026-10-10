@@ -96,6 +96,9 @@ const ALLOWED_CLIENT_EVENTS = new Set([
   'app_store_click',
   'play_store_click',
   'landing_view',
+  'landing_country_select',
+  'landing_language_select',
+  'landing_offer_cta',
   'store_cta_clicked',
   // SEO guide articles (public/js/article-events.js)
   'article_cta_register',

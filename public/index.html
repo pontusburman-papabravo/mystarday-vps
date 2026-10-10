@@ -7,7 +7,7 @@
   <title>Bildschema-app för barn – rutiner, bildstöd &amp; belöningar | Min Stjärndag</title> <!-- pragma: allowlist secret -->
   <meta name="description" content="Min Stjärndag är en bildschema-app för barn. Med bildstöd och rutiner ser barnet vad som händer nu och härnäst. Särskilt bra för barn som behöver tydlighet."> <!-- pragma: allowlist secret -->
   <meta property="og:title" content="Min Stjärndag — Bildschema-app för barn – rutiner, bildstöd och belöningar"> <!-- pragma: allowlist secret -->
-  <meta property="og:description" content="Visuella scheman och bildstöd som hjälper barn att följa rutiner själva. Nya familjer provar i 14 dagar, sedan abonnemang i appen.">
+  <meta property="og:description" content="Visuella scheman och bildstöd som hjälper barn att följa rutiner själva. I Sverige provar nya familjer i 14 dagar, sedan abonnemang i appen. Andra länder följer erbjudandet för valt land.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="sv_SE">
   <meta property="og:image" content="__SITE_URL__/og-image.png">
@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=18">
+  <link rel="stylesheet" href="/css/landing.css?v=24">
   <link rel="stylesheet" href="/css/icon-system.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
@@ -50,7 +50,7 @@
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": [
-      { "@type": "Question", "name": "Vad kostar appen?", "acceptedAnswer": { "@type": "Answer", "text": "Nya familjer från 3 oktober 2026 provar appen i 14 dagar utan kort. Därefter väljer ni abonnemang i appen via App Store eller Google Play, 59 kr per månad eller 590 kr per år. Familjer som redan har konto behåller sitt erbjudande." }},
+      { "@type": "Question", "name": "Vad kostar appen?", "acceptedAnswer": { "@type": "Answer", "text": "I Sverige provar nya familjer från 3 oktober 2026 appen i 14 dagar. Därefter väljer ni abonnemang i appen via App Store eller Google Play, 59 kr per månad eller 590 kr per år. Familjer som redan har konto behåller sitt erbjudande. Övriga länder ser sitt eget erbjudande på sidan." }},
       { "@type": "Question", "name": "Är det här rätt för barn med ADHD eller autism?", "acceptedAnswer": { "@type": "Answer", "text": "Min Stjärndag är inte byggd kring en diagnos, men passar ofta bra för barn som behöver tydlig struktur, bildstöd, förutsägbarhet eller mer motivation i vardagen." }},
       { "@type": "Question", "name": "Vad händer med stjärnorna om vi missar en dag?", "acceptedAnswer": { "@type": "Answer", "text": "Ingenting negativt. Fokus ligger på motivation och framsteg – inte på straff eller skuld." }},
       { "@type": "Question", "name": "Kan flera vuxna använda appen tillsammans?", "acceptedAnswer": { "@type": "Answer", "text": "Ja, tanken är att flera vuxna runt barnet ska kunna hjälpas åt och se samma struktur." }},
@@ -60,7 +60,7 @@
   }
   </script>
 </head>
-<body class="platform-web landing-page">
+<body class="platform-web landing-page has-landing-choice">
 
 <div id="landing-stars-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
 <div id="landing-clouds-container" aria-hidden="true" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></div>
@@ -87,10 +87,10 @@
   </a>
   <div class="landing-nav__links">
     <a href="#sa-fungerar-det" class="landing-nav__link">Så fungerar det</a>
-    <a href="#for-vilka" class="landing-nav__link">För familjer som behöver struktur</a>
-    <a href="#skattkammaren" class="landing-nav__link">Skattkammaren</a>
-    <a href="/pedagoger-och-terapeuter" class="landing-nav__link">För pedagoger &amp; terapeuter</a>
-    <a href="/resurser" class="landing-nav__link" data-track="two_track_resurser_click">Gratis PDF</a>
+    <a href="#for-vilka" class="landing-nav__link landing-nav__link--later">För familjer som behöver struktur</a>
+    <a href="#skattkammaren" class="landing-nav__link landing-nav__link--later">Skattkammaren</a>
+    <a href="/pedagoger-och-terapeuter" class="landing-nav__link landing-nav__link--later">För pedagoger &amp; terapeuter</a>
+    <a href="/resurser" class="landing-nav__link landing-nav__link--later" data-track="two_track_resurser_click">Gratis PDF</a>
     <a href="#faq" class="landing-nav__link">FAQ</a>
   </div>
   <div class="landing-nav__actions">
@@ -169,29 +169,26 @@
 <section class="landing-hero landing-section--dark" id="toppen">
   <div class="landing-hero__grid">
     <div class="landing-hero__copy">
-      <div class="hero-launch-card" id="app-store" aria-label="Skolstart 2026">
-        <img src="/apple-touch-icon.png" alt="Appikon" class="hero-launch-card__icon" width="72" height="72">
-        <div class="hero-launch-card__text">
-          <span class="hero-launch-card__tag">Skolstart 2026</span>
-          <strong class="hero-launch-card__title">En enklare skolstart hemma</strong>
-          <span class="hero-launch-card__hook">Morgon. Skola. Kväll.</span>
-          <p class="hero-launch-card__body">Färdiga rutiner, tydliga steg och stjärnor som hjälper barnet att se vad som händer nu — och vad som kommer sen. Mer självständighet, färre påminnelser.</p>
-        </div>
-        <div class="store-badges store-badges--hero-card hero-launch-card__stores">
-          <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Hämta i App Store">
-            <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
-          </a>
-          <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Hämta i Google Play">
-            <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
-          </a>
-        </div>
-      </div>
-      <p class="campaign-home-offer">
-        <span class="campaign-home-offer__text">14 dagar gratis från 3 oktober. Därefter väljer ni abonnemang i appen.</span>
-      </p>
       <h1>Visuella scheman och stjärnor som hjälper barn att klara vardagen – utan tjat</h1>
-      <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p>
-      <div class="landing-hero__ctas">
+      <p class="landing-hero__sub">Min Stjärndag hjälper barn att förstå vad som händer nu, vad som kommer sen och varför det är värt att försöka. Du bygger rutinerna, barnet följer sitt schema steg för steg i sin egen vy och tjänar stjärnor till Skattkammaren när aktiviteter blir klara.</p> <!-- pragma: allowlist secret -->
+      <div class="landing-choice" data-landing-choice>
+        <div class="landing-choice__field">
+          <span class="landing-choice__label" id="landingCountryLabel" data-landing-country-label>Land</span>
+          <button type="button" class="landing-choice__button" data-landing-country-button aria-haspopup="listbox" aria-expanded="false" aria-controls="landingCountryList">Välj land</button>
+          <ul class="landing-choice__list" id="landingCountryList" data-landing-country-list role="listbox" aria-labelledby="landingCountryLabel" hidden></ul>
+        </div>
+        <div class="landing-choice__field">
+          <span class="landing-choice__label" id="landingLanguageLabel" data-landing-language-label>Språk</span>
+          <button type="button" class="landing-choice__button" data-landing-language-button aria-haspopup="listbox" aria-expanded="false" aria-controls="landingLanguageList">Svenska</button>
+          <ul class="landing-choice__list" id="landingLanguageList" data-landing-language-list role="listbox" aria-labelledby="landingLanguageLabel" hidden></ul>
+        </div>
+        <p class="landing-choice__hint" data-landing-choice-hint></p>
+      </div>
+      <div id="landingOffer" class="landing-offer" data-landing-offer hidden></div>
+            <p class="campaign-home-offer" data-static-market-offer="SE">
+        <span class="campaign-home-offer__text">I Sverige: 14 dagar gratis från 3 oktober. Därefter väljer ni abonnemang i appen.</span>
+      </p>
+            <div class="landing-hero__ctas">
         <div class="store-badges store-badges--hero-cta landing-hero__store-badges" aria-label="Ladda ner appen">
           <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Hämta i App Store">
             <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
@@ -218,11 +215,28 @@
       </div>
       <div class="landing-hero__trust">
         <span class="trust-chip">Barnets egen vy med PIN</span>
-        <span class="trust-chip">Finns på App Store och Google Play</span>
+        <span class="trust-chip" data-store-trust>Finns på App Store och Google Play</span>
         <span class="trust-chip">Fungerar som app i mobilen</span>
       </div>
-      <p class="landing-hero__micro">14 dagars provperiod för nya familjer · Obegränsat antal barn</p>
-    </div>
+      <p class="landing-hero__micro" data-static-market-offer="SE">I Sverige: 14 dagars provperiod för nya familjer · Obegränsat antal barn</p>
+          <div class="hero-launch-card" id="app-store" aria-label="Skolstart 2026">
+              <img src="/apple-touch-icon.png" alt="Appikon" class="hero-launch-card__icon" width="72" height="72">
+              <div class="hero-launch-card__text">
+                <span class="hero-launch-card__tag">Skolstart 2026</span>
+                <strong class="hero-launch-card__title">En enklare skolstart hemma</strong>
+                <span class="hero-launch-card__hook">Morgon. Skola. Kväll.</span>
+                <p class="hero-launch-card__body">Färdiga rutiner, tydliga steg och stjärnor som hjälper barnet att se vad som händer nu — och vad som kommer sen. Mer självständighet, färre påminnelser.</p>
+              </div>
+              <div class="store-badges store-badges--hero-card hero-launch-card__stores">
+                <a href="https://apple.co/4v2ESuH" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" aria-label="Hämta i App Store">
+                  <img src="/img/app-store-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+                </a>
+                <a href="__PLAY_STORE_URL__" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="play_store_click" aria-label="Hämta i Google Play">
+                  <img src="/img/google-play-badge-sv.svg" alt="" class="store-badge" width="140" height="47">
+                </a>
+              </div>
+            </div>
+</div>
     <div class="landing-hero__visual">
       <div class="hero-mockup" aria-label="Exempel på barnets vy">
         <div class="hero-mockup__badge">Exempel</div>
@@ -648,7 +662,7 @@
           <li><span class="feature-list__icon">📋</span><div><strong>Färdiga mallar</strong><span>Kom igång snabbare med exempelrutiner som går att anpassa efter ert barn.</span></div></li>
           <li><span class="feature-list__icon">🤝</span><div><strong>Dela med pedagog eller annan vuxen</strong><span>Visa framsteg och rutiner när det behövs – utan att ge bort hela kontot.</span></div></li>
         </ul>
-        <p style="font-size:0.85rem;color:var(--text-3);">14 dagar gratis för nya familjer från 3 oktober. Därefter abonnemang i appen. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
+        <p style="font-size:0.85rem;color:var(--text-3);">I Sverige: 14 dagar gratis för nya familjer från 3 oktober. Därefter abonnemang i appen. Andra länder följer erbjudandet högst upp. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
       </div>
       <div class="feature-split__visual feature-split__visual--stack">
         <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_87240/images/d751d655-c91d-4304-83a5-e25391431534.png" alt="Förälderns dagschema" loading="lazy" width="280" height="600">
@@ -663,8 +677,8 @@
   <div class="landing-inner">
     <div class="founder-block">
       <span class="section-eyebrow">Kom igång</span>
-      <h2>14 dagar gratis, sedan abonnemang i appen</h2>
-      <p class="founder-block__intro">Nya familjer från 3 oktober 2026 provar hela appen i 14 dagar utan kort. Därefter väljer ni månad eller år i appen via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande.</p>
+      <h2>I Sverige: 14 dagar, sedan abonnemang i appen</h2>
+      <p class="founder-block__intro">Nya familjer i Sverige från 3 oktober 2026 provar hela appen i 14 dagar. Därefter väljer ni månad eller år i appen via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande. Erbjudandet för andra länder visas högst upp.</p>
       <ul class="founder-block__list">
         <li>Obegränsat antal barn</li>
         <li>Barnets egen vy med PIN</li>
@@ -674,7 +688,7 @@
         <li>Familjeinbjudan</li>
       </ul>
       <a href="#app-store" class="btn-primary" data-track="founder_signup_click">Hämta appen</a>
-      <p class="founder-block__note">Efter provperioden kostar Premium 59 kr/månad eller 590 kr/år. Valet görs i appen, inte på webben. Extra stöd och andra tillägg går inte att köpa ännu. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
+      <p class="founder-block__note">I Sverige kostar Premium efter provperioden 59 kr/månad eller 590 kr/år. Valet görs i appen, inte på webben. Extra stöd och andra tillägg går inte att köpa ännu. <a href="/pricing-info" class="btn-ghost-link">Läs om pris och tillgång →</a></p>
     </div>
   </div>
 </section>
@@ -689,7 +703,7 @@
     <div class="faq-list">
       <div class="faq-item" data-faq="kostnad">
         <button type="button" class="faq-question" aria-expanded="false">Vad kostar Min Stjärndag?<span class="faq-icon">+</span></button>
-        <div class="faq-answer"><div class="faq-answer-inner">Nya familjer från 3 oktober får 14 dagar gratis, utan kort. Sedan väljer ni abonnemang i appen: 59 kr/månad eller 590 kr/år via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande.</div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">I Sverige får nya familjer från 3 oktober 14 dagar. Sedan väljer ni abonnemang i appen: 59 kr/månad eller 590 kr/år via App Store eller Google Play. Familjer som redan har konto behåller sitt erbjudande. Andra länder följer erbjudandet för det land ni väljer.</div></div>
       </div>
       <div class="faq-item" data-faq="adhd-autism">
         <button type="button" class="faq-question" aria-expanded="false">Är det här rätt för barn med ADHD eller autism?<span class="faq-icon">+</span></button>
@@ -719,7 +733,7 @@
 <!-- 12. FINAL CTA -->
 <section class="final-cta landing-section--dark" id="kom-igang">
   <h2>Redo för en lugnare vardag?</h2>
-  <p>Hämta appen och prova i 14 dagar. Därefter väljer ni abonnemang i appen.</p>
+  <p>Hämta appen. I Sverige provar nya familjer i 14 dagar. Därefter väljer ni abonnemang i appen.</p>
   <a href="#app-store" class="btn-primary" data-track="final_signup_click">Hämta appen</a>
   <div class="final-cta__login-row">
     <a href="/login" class="final-cta__login" data-track="nav_login_click">Logga in som förälder</a>
@@ -732,7 +746,7 @@
 <footer class="landing-footer">
   <div class="landing-footer__cta">
     <h3>Hämta appen</h3>
-    <p>14 dagar gratis för nya familjer från 3 oktober. Därefter abonnemang i appen.</p>
+    <p>I Sverige: 14 dagar för nya familjer från 3 oktober. Därefter abonnemang i appen.</p>
     <a href="#app-store" class="btn-primary" data-track="footer_signup_click">Hämta appen</a>
   </div>
   <div class="landing-footer__grid">
@@ -859,6 +873,8 @@
 </script>
 <!-- ===== SCRIPTS ===== -->
 <script src="/js/landing-nav.js?v=1"></script>
+<script src="/js/landing-choice-guards.js?v=1"></script>
+<script src="/js/landing-experience.js?v=5"></script>
 <script src="/js/icon-system.js?v=1"></script>
 <script src="/js/landing-share.js?v=1"></script>
 <script src="/js/landing-faq.js?v=1"></script>

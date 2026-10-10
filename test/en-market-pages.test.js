@@ -50,7 +50,9 @@ function runRedirect(host, url = '/') {
 test('neutral /en is the English product page, not an Ireland page', () => {
   assert.equal(isEnglishContentIndexable('/en'), true);
   assert.match(EN_HTML, /<h1>Not just another family calendar\.<\/h1>/);
-  assert.match(EN_HTML, /Currently available in selected markets/);
+  assert.match(EN_HTML, /Available in selected markets/);
+  assert.match(EN_HTML, /data-landing-country-button/);
+  assert.match(EN_HTML, /data-static-market-offer="IE CA"/);
   assert.match(EN_HTML, /href="\/en\/ie"/);
   assert.match(EN_HTML, /href="\/en\/ca"/);
   assert.doesNotMatch(EN_HTML, /Now in Ireland/);
@@ -129,7 +131,8 @@ test('English market routes answer and keep UTM off the canonical URL', async ()
     const neutral = await fetch(`${http.baseUrl}/en`, { redirect: 'manual' });
     assert.equal(neutral.status, 200);
     const neutralHtml = await neutral.text();
-    assert.match(neutralHtml, /Currently available in selected markets/);
+    assert.match(neutralHtml, /Available in selected markets/);
+    assert.match(neutralHtml, /data-landing-country-button/);
     assert.doesNotMatch(neutralHtml, /Now in Ireland/);
     assert.doesNotMatch(neutralHtml, /name="robots" content="noindex/);
 

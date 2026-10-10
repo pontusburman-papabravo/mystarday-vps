@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1055: International landing country and language choices
  * v1054: Per-country registration gates; signup uses the server decision
  * v1053: First-25 launch offer copy, shown only from live server places
  * v1052: Home summary action wraps under the headline on phones
@@ -389,7 +390,7 @@
 // stjarndag-v1048: plural categories come from Intl.PluralRules
 // stjarndag-v1047: Bulgarian, Greek, Estonian, Lithuanian, and Latvian app locales
 // stjarndag-v1051: Land the 26-locale app stack on the release branch
-const CACHE_NAME = 'stjarndag-v1054';
+const CACHE_NAME = 'stjarndag-v1058';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host
@@ -829,6 +830,8 @@ const CACHE_NAME = 'stjarndag-v1054';
 // stjarndag-v1050: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v1052: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // stjarndag-v1054: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
+// stjarndag-v1058: landing header, offer contrast, and compact hero
+// stjarndag-v1055: Fas 9 — Tailwind build pipeline (CDN → tailwind.build.css)
 // v311: Fas 8 finish — dashboard-dnd/activity-modal + schedule F3a-F3c + child-dashboard-rewards
 // v310: F2d dashboard-views.js — timeline + side-by-side views extracted from dashboard.js
 // v309: F2f dashboard-approvals.js — give-stars modal + request panel extracted from dashboard.js

@@ -38,7 +38,10 @@ describe('Ireland /en conversion funnel', () => {
     assert.doesNotMatch(EN_HTML, /id="waitlist"/);
     assert.doesNotMatch(EN_HTML, /landing-waitlist\.js/);
     assert.match(EN_HTML, /id="get-the-app"/);
-    assert.match(visible, /Currently available in selected markets/);
+    assert.match(visible, /Available in selected markets/);
+    assert.match(EN_HTML, /data-landing-country-button/);
+    assert.match(EN_HTML, /data-static-market-offer="IE CA"/);
+    assert.doesNotMatch(visible, /Currently available in Ireland/);
     assert.doesNotMatch(visible, /Now in Ireland/);
   });
 

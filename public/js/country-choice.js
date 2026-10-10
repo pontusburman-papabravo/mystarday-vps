@@ -219,6 +219,26 @@
     });
   }
 
+  function landingSuggestionCode() {
+    try {
+      const params = new URLSearchParams(location.search);
+      const fromQuery = String(params.get('residence') || '').trim().toUpperCase();
+      if (/^[A-Z]{2}$/.test(fromQuery)) return fromQuery;
+      const stored = localStorage.getItem('sd_landing_country');
+      if (stored && /^[A-Z]{2}$/.test(stored)) return stored;
+    } catch (_) { /* ignore */ }
+    return '';
+  }
+
+  function showLandingSuggestion(container, confirmedCode) {
+    if (confirmedCode) return;
+    const code = landingSuggestionCode();
+    const hint = container.querySelector('.country-choice__hint');
+    if (!hint || !code) return;
+    hint.hidden = false;
+    hint.textContent = 'The previous page suggested ' + code + '. Choose the country of residence here. Language does not confirm it.';
+  }
+
   async function mount(container) {
     if (!container || container.dataset.countryChoiceMounted) return;
     injectStyles();
@@ -230,6 +250,7 @@
     container.dataset.countryChoiceMounted = '1';
     container.innerHTML = buildHtml(restorableCode);
     if (window.I18n && typeof window.I18n.apply === 'function') window.I18n.apply(container);
+    showLandingSuggestion(container, restorableCode);
 
     const select = container.querySelector('#countryChoiceSelect');
     const hint = container.querySelector('.country-choice__hint');
