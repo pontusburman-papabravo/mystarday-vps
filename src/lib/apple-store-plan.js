@@ -104,7 +104,7 @@ function versionReadable(audit, detail, selection) {
   if (audit.classification === 'app_not_accessible' || audit.classification === 'config_missing' || audit.classification === 'config_invalid') {
     return false;
   }
-  return selection === 'one' && detail && detail.localizationListComplete === true;
+  return (selection === 'one' || selection === 'current') && detail && detail.localizationListComplete === true;
 }
 
 function languageCatalog(catalog = loadStoreCatalog()) {
