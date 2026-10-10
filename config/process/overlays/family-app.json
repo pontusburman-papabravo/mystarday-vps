@@ -375,7 +375,12 @@
         "public/js/platform.js",
         "public/js/platform-theme.js",
         "public/sw.js",
-        "config/cache-version.json"
+        "config/cache-version.json",
+        "scripts/apple-live-audit.js",
+        "src/lib/app-store-connect-api.js",
+        "src/lib/apple-live-audit.js",
+        "src/lib/apple-store-plan.js",
+        ".github/workflows/apple-live-audit.yml"
       ],
       "l1Tests": [
         "test/native-bridge-contract.test.js",
@@ -385,7 +390,8 @@
         "test/android-aab-release-gate.test.js",
         "test/android-native-brand-name.test.js",
         "test/native-startup-family.test.js",
-        "test/apple-connect-verify.test.js"
+        "test/apple-connect-verify.test.js",
+        "test/apple-live-audit.test.js"
       ],
       "testGlobs": [
         "test/*ios*.test.js",
@@ -398,7 +404,8 @@
         "test/native-bridge*.test.js",
         "test/platform-runtime*.test.js",
         "test/i18n-native-shell.test.js",
-        "test/apple-connect-verify.test.js"
+        "test/apple-connect-verify.test.js",
+        "test/apple-live-audit.test.js"
       ]
     },
     "family-authz": {
