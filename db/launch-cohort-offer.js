@@ -228,6 +228,8 @@ async function listLaunchCohortFamilies(countryCode) {
 /**
  * Public acquisition view. Remaining places are included only from the ledger
  * while a place can still be assigned. Otherwise the count is null.
+ * The landing page may pass includeFullLedger so a filled offer can say
+ * how many places were assigned, without changing this public payload.
  */
 function hiddenPublicCohort(countryCode, excluded) {
   return {
@@ -243,7 +245,7 @@ function hiddenPublicCohort(countryCode, excluded) {
   };
 }
 
-async function describePublicLaunchCohortOffer(countryCode, locale) {
+async function describePublicLaunchCohortOffer(countryCode, locale, options) {
   const cc = normalizeCountryCode(countryCode);
   const excluded = isLaunchCohortExcludedCountry(cc);
   if (!cc || excluded || !isLaunchCohortEligibleCountry(cc)) {
@@ -267,21 +269,27 @@ async function describePublicLaunchCohortOffer(countryCode, locale) {
     console.error('[launch-cohort] market gate read failed:', err.message);
     throw err;
   }
-  const countsVisible = marketOpen === true
+  const includeFullLedger = options && options.includeFullLedger === true;
+  const assignable = marketOpen === true
     && enabled === true
-    && Number.isInteger(remaining);
-  const show = countsVisible && remaining > 0;
-  const phase = show ? 'active' : (countsVisible ? 'full' : 'hidden');
+    && Number.isInteger(remaining)
+    && remaining > 0;
+  const full = marketOpen === true
+    && enabled === true
+    && Number.isInteger(remaining)
+    && remaining === 0;
+  const countsVisible = assignable || (includeFullLedger && full);
+  const phase = assignable ? 'active' : (includeFullLedger && full ? 'full' : 'hidden');
   return {
     country_code: cc,
     excluded: false,
-    show,
+    show: assignable,
     offer_enabled: enabled,
     phase,
     slot_limit: countsVisible ? LAUNCH_COHORT_SLOT_LIMIT : null,
     slots_assigned: countsVisible ? Number(row.assigned_count) : null,
     slots_remaining: countsVisible ? remaining : null,
-    copy: countsVisible ? describeLaunchCohortAcquisition(locale, show ? remaining : null) : null,
+    copy: assignable ? describeLaunchCohortAcquisition(locale, remaining) : null,
   };
 }
 

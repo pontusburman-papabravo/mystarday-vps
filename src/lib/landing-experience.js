@@ -345,7 +345,7 @@ async function loadLandingExperience(countryCode, locale) {
   }
   const [readiness, cohort] = await Promise.all([
     evaluatePublicSignupReadiness(cc),
-    describePublicLaunchCohortOffer(cc, locale),
+    describePublicLaunchCohortOffer(cc, locale, { includeFullLedger: true }),
   ]);
   const commercial = describeCommercialOfferCopy(cc, { createdAt: new Date(), locale });
   return presentLandingExperience({
