@@ -57,7 +57,8 @@
     });
     const irelandWelcome = document.querySelector('.hero-launch-card[data-hero-launch="ireland"]');
     const heroBody = document.querySelector('.hero-launch-card__body');
-    if (heroBody && !irelandWelcome) {
+    // The landing offer card owns country-specific commercial text.
+    if (heroBody && !irelandWelcome && !document.getElementById('landingOffer')) {
       heroBody.innerHTML = 'The app is live on the App Store for iPhone and iPad, and on Google Play for Android. Free until 31 December 2026. No payment required during the free period. It does not automatically become a subscription.';
     }
     document.querySelectorAll('.faq-answer-inner, .faq-answer').forEach((el) => {
@@ -139,6 +140,7 @@
 
   function renderStrip(state) {
     if (hasIrelandWelcome()) return;
+    if (document.getElementById('landingOffer')) return;
     let strip = document.getElementById('landingMarketState');
     if (!strip) {
       strip = document.createElement('p');

@@ -152,6 +152,13 @@
   async function mount(container) {
     if (!container || container.dataset.languageChoiceMounted) return;
     injectStyles();
+    const loggedIn = window.Auth && typeof window.Auth.isLoggedIn === 'function' && window.Auth.isLoggedIn();
+    if (!loggedIn && window.I18n && typeof window.I18n.load === 'function') {
+      try {
+        const display = new URLSearchParams(location.search).get('display_locale');
+        if (display && window.I18n._normalize(display)) await window.I18n.load(display);
+      } catch (_) { /* keep the page language */ }
+    }
     await window.I18n.init();
     const selectedLocale = acceptDisplayedLocale();
     container.dataset.languageChoiceMounted = '1';

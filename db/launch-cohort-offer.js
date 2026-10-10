@@ -229,20 +229,25 @@ async function listLaunchCohortFamilies(countryCode) {
  * Public acquisition view. Remaining places are included only from the ledger
  * while a place can still be assigned. Otherwise the count is null.
  */
+function hiddenPublicCohort(countryCode, excluded) {
+  return {
+    country_code: countryCode,
+    excluded: excluded === true,
+    show: false,
+    offer_enabled: false,
+    phase: 'hidden',
+    slots_remaining: null,
+    slots_assigned: null,
+    slot_limit: null,
+    copy: null,
+  };
+}
+
 async function describePublicLaunchCohortOffer(countryCode, locale) {
   const cc = normalizeCountryCode(countryCode);
   const excluded = isLaunchCohortExcludedCountry(cc);
   if (!cc || excluded || !isLaunchCohortEligibleCountry(cc)) {
-    return {
-      country_code: cc,
-      excluded,
-      show: false,
-      offer_enabled: false,
-      slots_remaining: null,
-      slots_assigned: null,
-      slot_limit: null,
-      copy: null,
-    };
+    return hiddenPublicCohort(cc, excluded);
   }
   let row = null;
   let flagOn = false;
@@ -251,16 +256,7 @@ async function describePublicLaunchCohortOffer(countryCode, locale) {
     row = await getLaunchCohortConfig(cc);
   } catch (err) {
     console.error('[launch-cohort] public read failed:', err.message);
-    return {
-      country_code: cc,
-      excluded: false,
-      show: false,
-      offer_enabled: false,
-      slots_remaining: null,
-      slots_assigned: null,
-      slot_limit: null,
-      copy: null,
-    };
+    throw err;
   }
   const enabled = flagOn && row && row.enabled === true;
   const remaining = row ? Math.max(0, Number(row.slot_limit) - Number(row.assigned_count)) : null;
@@ -269,21 +265,23 @@ async function describePublicLaunchCohortOffer(countryCode, locale) {
     marketOpen = await isMarketOpenForRegistration(cc);
   } catch (err) {
     console.error('[launch-cohort] market gate read failed:', err.message);
-    marketOpen = false;
+    throw err;
   }
-  const show = marketOpen === true
+  const countsVisible = marketOpen === true
     && enabled === true
-    && Number.isInteger(remaining)
-    && remaining > 0;
+    && Number.isInteger(remaining);
+  const show = countsVisible && remaining > 0;
+  const phase = show ? 'active' : (countsVisible ? 'full' : 'hidden');
   return {
     country_code: cc,
     excluded: false,
     show,
     offer_enabled: enabled,
-    slot_limit: show ? LAUNCH_COHORT_SLOT_LIMIT : null,
-    slots_assigned: show ? Number(row.assigned_count) : null,
-    slots_remaining: show ? remaining : null,
-    copy: show ? describeLaunchCohortAcquisition(locale, remaining) : null,
+    phase,
+    slot_limit: countsVisible ? LAUNCH_COHORT_SLOT_LIMIT : null,
+    slots_assigned: countsVisible ? Number(row.assigned_count) : null,
+    slots_remaining: countsVisible ? remaining : null,
+    copy: countsVisible ? describeLaunchCohortAcquisition(locale, show ? remaining : null) : null,
   };
 }
 

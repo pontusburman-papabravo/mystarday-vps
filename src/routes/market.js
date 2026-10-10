@@ -34,6 +34,7 @@ const {
   describeIrelandLaunchOffer,
 } = require('../lib/ireland-launch-offer');
 const { describePublicLaunchCohortOffer } = require('../../db/launch-cohort-offer');
+const { loadLandingExperience } = require('../lib/landing-experience');
 
 const router = express.Router();
 
@@ -163,6 +164,24 @@ router.get('/legal-routes', (req, res) => {
   } catch (err) {
     console.error('[MARKET] legal-routes error:', err);
     sendApiError(res, 500, 'MARKET_LEGAL_FAILED');
+  }
+});
+
+// GET /api/market/landing-experience?country_code=FI&locale=en-GB
+// Country choice on the marketing page. Counts only while the launch offer is open.
+router.get('/landing-experience', async (req, res) => {
+  try {
+    const countryCode = normalizeCountryCode(req.query.country_code);
+    const locale = req.query.locale || req.query.preferred_locale || null;
+    const body = await loadLandingExperience(countryCode, locale);
+    res.set('Cache-Control', 'public, max-age=30');
+    res.json(body);
+  } catch (err) {
+    if (err.status === 400) {
+      return sendApiError(res, 400, err.apiCode || 'MARKET_COUNTRY_UNKNOWN');
+    }
+    console.error('[MARKET] landing-experience error:', err);
+    sendApiError(res, 500, 'MARKET_STATUS_FAILED');
   }
 });
 
