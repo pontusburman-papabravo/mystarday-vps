@@ -191,11 +191,12 @@ describe('computed 14-day trial clock (A4/A5)', () => {
   });
 });
 
-describe('NL remains prepare-only (no market_nl_open in this PR)', () => {
-  it('NL still routes through market_eu_open, which stays a bulk-EU debt key', () => {
-    assert.equal(GATE_KEYS.NL, undefined);
-    assert.equal(COUNTRY_SPECIFIC_GATE_KEYS.NL, undefined);
-    assert.equal(gateKeyForCountry('NL'), GATE_KEYS.EU);
+describe('NL has its own closed gate', () => {
+  it('NL uses market_nl_open and does not follow market_eu_open', () => {
+    assert.equal(GATE_KEYS.NL, 'market_nl_open');
+    assert.equal(COUNTRY_SPECIFIC_GATE_KEYS.NL, 'market_nl_open');
+    assert.equal(gateKeyForCountry('NL'), 'market_nl_open');
+    assert.notEqual(gateKeyForCountry('NL'), GATE_KEYS.EU);
     assert.equal(GATE_KEYS.EU, 'market_eu_open');
   });
 });

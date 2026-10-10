@@ -7,7 +7,7 @@
  */
 
 const db = require('../src/lib/db');
-const { normalizeCountryCode } = require('../src/lib/market-region');
+const { normalizeCountryCode, isMarketOpenForRegistration } = require('../src/lib/market-region');
 const {
   LAUNCH_COHORT_FLAG_KEY,
   LAUNCH_COHORT_SLOT_LIMIT,
@@ -264,7 +264,17 @@ async function describePublicLaunchCohortOffer(countryCode, locale) {
   }
   const enabled = flagOn && row && row.enabled === true;
   const remaining = row ? Math.max(0, Number(row.slot_limit) - Number(row.assigned_count)) : null;
-  const show = enabled === true && Number.isInteger(remaining) && remaining > 0;
+  let marketOpen = false;
+  try {
+    marketOpen = await isMarketOpenForRegistration(cc);
+  } catch (err) {
+    console.error('[launch-cohort] market gate read failed:', err.message);
+    marketOpen = false;
+  }
+  const show = marketOpen === true
+    && enabled === true
+    && Number.isInteger(remaining)
+    && remaining > 0;
   return {
     country_code: cc,
     excluded: false,

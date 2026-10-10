@@ -18,6 +18,10 @@ When `launch_cohort_offer_v1` is on and that country's `market_launch_cohort_con
 
 Sweden, Ireland, and Canada are excluded in code and in database checks. The offer cannot be enabled for them.
 
+The eligible set is 27 countries. The cap is 25 families in each, so at most 675 families.
+
+Registration and the public offer use the same per-country gate. `market_eu_open` remains in the database, default off, and is not a registration opener. Existing flags keep their meaning: `market_se_open` and `market_ca_open` default on; `market_ie_open`, `market_fi_open`, `market_no_open`, and `market_dk_open` default off. Every other target country has `market_<iso>_open`, inserted off. A missing flag fails closed. If an environment had turned the bulk flag on, those countries close until their own flag is turned on. This decision does not turn any flag on. Public offer copy is hidden while that country's registration gate is closed.
+
 ## POS
 
 Constitution 2: no surprise charge. Constitution 5: a signup that cannot be used is refused. R-02: stars are not for sale.

@@ -315,6 +315,14 @@ test('first 25 launch cohort slots are atomic and leave SE, IE and CA unchanged'
     assert.equal(hidden.slots_remaining, null);
     await db.query(`UPDATE feature_flag SET enabled = true WHERE key = $1`, [FLAG]);
     await db.query(`UPDATE market_launch_cohort_config SET enabled = true, assigned_count = 24 WHERE country_code = 'FR'`);
+    const closedGate = await cohortDb.describePublicLaunchCohortOffer('FR', 'fr-FR');
+    assert.equal(closedGate.show, false);
+    assert.equal(closedGate.slots_remaining, null);
+    await db.query(
+      `INSERT INTO feature_flag (key, enabled, description)
+       VALUES ('market_fr_open', true, 'test')
+       ON CONFLICT (key) DO UPDATE SET enabled = true`
+    );
     const shown = await cohortDb.describePublicLaunchCohortOffer('FR', 'fr-FR');
     assert.equal(shown.show, true);
     assert.equal(shown.slots_remaining, 1);

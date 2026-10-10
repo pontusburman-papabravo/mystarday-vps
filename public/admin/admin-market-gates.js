@@ -3,10 +3,8 @@
 //   GET /api/admin/market-registration-status  (server truth for the table)
 //   PUT /api/admin/feature-flags/:key           (the only write path — no parallel endpoint)
 //
-// Each row toggles exactly one country-specific gate key (market_se_open, market_ie_open,
-// market_fi_open, market_no_open, market_dk_open, market_uk_open, market_us_open,
-// market_other_open). market_eu_open is intentionally never rendered here — per-country
-// gates are the primary launch control for EEA markets now, not the aggregate EU flag.
+// Each row toggles exactly the gate key the server returns for that country.
+// market_eu_open is never rendered and never written.
 
 const MARKET_GATE_LABELS_SV = {
   SE: 'Sverige',
@@ -18,16 +16,42 @@ const MARKET_GATE_LABELS_SV = {
   GB: 'Storbritannien',
   US: 'USA',
   ZZ: 'Övrigt',
+  AT: 'Österrike',
+  BE: 'Belgien',
+  BG: 'Bulgarien',
+  HR: 'Kroatien',
+  CY: 'Cypern',
+  CZ: 'Tjeckien',
+  EE: 'Estland',
+  FR: 'Frankrike',
+  DE: 'Tyskland',
+  GR: 'Grekland',
+  HU: 'Ungern',
+  IS: 'Island',
+  IT: 'Italien',
+  LV: 'Lettland',
+  LI: 'Liechtenstein',
+  LT: 'Litauen',
+  LU: 'Luxemburg',
+  MT: 'Malta',
+  NL: 'Nederländerna',
+  PL: 'Polen',
+  PT: 'Portugal',
+  RO: 'Rumänien',
+  SK: 'Slovakien',
+  SI: 'Slovenien',
+  ES: 'Spanien',
+  CH: 'Schweiz',
 };
 
 let marketGatesToggleInFlight = false;
 
-function marketGateCountryLabel(code) {
-  return MARKET_GATE_LABELS_SV[code] || code;
+function marketGateCountryLabel(code, serverLabel) {
+  return MARKET_GATE_LABELS_SV[code] || serverLabel || code;
 }
 
 function renderMarketGatesRow(m) {
-  const countryLabel = marketGateCountryLabel(m.code);
+  const countryLabel = marketGateCountryLabel(m.code, m.label);
   const disabledAttr = marketGatesToggleInFlight ? 'disabled' : '';
   return `
     <tr>

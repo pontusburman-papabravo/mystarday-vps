@@ -40,12 +40,12 @@ getMarketConfig()     →  timezone, currency, locale defaults, legal routes
 | IE | `market_ie_open` | **OFF** | Staged; independent of `market_eu_open` |
 | NO | `market_no_open` | OFF | Reserved for later wave |
 | DK | `market_dk_open` | OFF | Reserved for later wave |
-| Other EU/EEA (e.g. DE) | `market_eu_open` | OFF | Bulk fallback |
+| Other registration countries (e.g. DE, AT, FR, NL) | `market_<iso>_open` | OFF | One flag per country. `market_eu_open` is retained and off, and opens nobody |
 | GB | `market_uk_open` | OFF | UK work not in this PR |
 | US | `market_us_open` | OFF | Unchanged |
 | ZZ / OTHER | `market_other_open` | OFF | Unchanged |
 
-**Override rule:** Explicit country gate wins over aggregate. Example: `market_eu_open=OFF` + `market_ie_open=ON` → IE registration allowed.
+**Rule:** Each country uses only its own flag. A missing flag fails closed. `market_eu_open` does not admit a country.
 
 **Public API:** `GET /api/market/registration-gates` exposes boolean flags including `market_ie_open`.
 

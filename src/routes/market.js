@@ -12,6 +12,8 @@ const {
   deriveMarketRegion,
   normalizeCountryCode,
   getMarketRegistrationStatus,
+  readMarketGateFlag,
+  GATE_KEYS,
 } = require('../lib/market-region');
 const { getMarketConfig } = require('../lib/market-config');
 const { resolveLegalRoutes } = require('../lib/legal-routing');
@@ -19,13 +21,11 @@ const { REGISTRATION_COUNTRIES } = require('../../config/market-countries');
 const { isEnglishAppGlobalEnabled } = require('../lib/english-app-global-flag');
 const {
   isPublicBillingUsable,
-  evaluateSignupCompleteness,
+  evaluatePublicSignupReadiness,
 } = require('../lib/market-launch-invariants');
 const {
   getPaymentStartAt,
   getPaymentStartAtForCountry,
-  getLifetimeFreeUntil,
-  isMarketBillingReady,
 } = require('../lib/payment-settings');
 const { resolvePublicLaunchStates } = require('../lib/public-launch-state');
 const {
@@ -40,73 +40,52 @@ const router = express.Router();
 // GET /api/market/registration-gates
 router.get('/registration-gates', async (req, res) => {
   try {
+    const codes = REGISTRATION_COUNTRIES.map((entry) => entry.code);
+    const now = new Date();
     const [
-      se, ie, ca, fi, no, dk, eu, uk, us, other,
-      publicBillingUsable, sePaymentStartAt, iePaymentStartAt, fiPaymentStartAt, englishAvailable, lifetimeFreeUntil,
+      readinessEntries,
+      publicBillingUsable,
+      sePaymentStartAt,
+      iePaymentStartAt,
+      fiPaymentStartAt,
+      englishAvailable,
       irelandFreeUntil,
+      euBulkOpen,
     ] = await Promise.all([
-      isMarketOpenForRegistration('SE'),
-      isMarketOpenForRegistration('IE'),
-      isMarketOpenForRegistration('CA'),
-      isMarketOpenForRegistration('FI'),
-      isMarketOpenForRegistration('NO'),
-      isMarketOpenForRegistration('DK'),
-      isMarketOpenForRegistration('DE'),
-      isMarketOpenForRegistration('GB'),
-      isMarketOpenForRegistration('US'),
-      isMarketOpenForRegistration('ZZ'),
+      Promise.all(codes.map(async (code) => [code, await evaluatePublicSignupReadiness(code, { now })])),
       isPublicBillingUsable(),
       getPaymentStartAt(),
       getPaymentStartAtForCountry('IE'),
       getPaymentStartAtForCountry('FI'),
       isEnglishAppGlobalEnabled(),
-      getLifetimeFreeUntil(),
       getIrelandFreeUntil(),
+      readMarketGateFlag(GATE_KEYS.EU),
     ]);
-    const now = new Date();
-    const paymentStartByCountry = {
-      SE: sePaymentStartAt,
-      IE: iePaymentStartAt,
-      FI: fiPaymentStartAt,
-    };
-    const marketBillingReadyByCountry = {};
-    for (const code of ['SE', 'IE', 'CA', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ']) {
-      marketBillingReadyByCountry[code] = await isMarketBillingReady(code, now);
-    }
     const signupAllowed = {};
-    for (const [code, open] of [
-      ['SE', se], ['IE', ie], ['CA', ca], ['FI', fi], ['NO', no], ['DK', dk],
-      ['DE', eu], ['GB', uk], ['US', us], ['ZZ', other],
-    ]) {
-      signupAllowed[code] = evaluateSignupCompleteness({
-        countryCode: code,
-        marketOpen: open,
-        publicBillingUsable,
-        marketBillingReady: marketBillingReadyByCountry[code],
-        paymentStartAt: paymentStartByCountry[code],
-        lifetimeFreeUntil,
-        irelandFreeUntil,
-        now,
-      }).allowed;
+    const openByCode = {};
+    for (const [code, readiness] of readinessEntries) {
+      signupAllowed[code] = readiness.allowed === true;
+      openByCode[code] = readiness.marketOpen === true;
     }
     res.json({
-      market_se_open: se,
-      market_ie_open: ie,
-      market_ca_open: ca,
-      market_fi_open: fi,
-      market_no_open: no,
-      market_dk_open: dk,
-      market_eu_open: eu,
-      market_uk_open: uk,
-      market_us_open: us,
-      market_other_open: other,
+      market_se_open: openByCode.SE === true,
+      market_ie_open: openByCode.IE === true,
+      market_ca_open: openByCode.CA === true,
+      market_fi_open: openByCode.FI === true,
+      market_no_open: openByCode.NO === true,
+      market_dk_open: openByCode.DK === true,
+      // The bulk flag's own value. It does not open Germany or any other country.
+      market_eu_open: euBulkOpen === true,
+      market_uk_open: openByCode.GB === true,
+      market_us_open: openByCode.US === true,
+      market_other_open: openByCode.ZZ === true,
       public_billing_usable: publicBillingUsable,
       english_available: englishAvailable,
       signup_allowed: signupAllowed,
       launch_state: resolvePublicLaunchStates({
         signupAllowedByCountry: signupAllowed,
         publicBillingUsable,
-        countryCodes: ['SE', 'IE', 'CA', 'FI', 'NO', 'DK', 'DE', 'GB', 'US', 'ZZ'],
+        countryCodes: codes,
       }),
       payment_start_at: {
         SE: sePaymentStartAt ? sePaymentStartAt.toISOString() : null,

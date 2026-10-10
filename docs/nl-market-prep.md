@@ -9,7 +9,7 @@ Three layers stay separate:
 | Layer | NL now |
 |-------|--------|
 | **Prepare** | This document. Gap analysis and gate definition. |
-| **Build** | Not started. No `market_nl_open` key. No NL storefront launch. |
+| **Build** | `market_nl_open` exists and defaults off. No NL storefront launch. |
 | **Open** | Only after **NL's own gates** pass + explicit founder approval. Not after IE D30. |
 
 UK stays **parked**. Localization / `de-DE` waits on exportable First Success from IE and/or NL.
@@ -18,13 +18,13 @@ UK stays **parked**. Localization / `de-DE` waits on exportable First Success fr
 
 ## 1. Current routing (FACT)
 
-NL is a known registration country (`config/market-countries.js`) but has **no per-country gate**.
+NL is a known registration country (`config/market-countries.js`) with its own gate.
 
 ```
-gateKeyForCountry('NL') → market_eu_open
+gateKeyForCountry('NL') → market_nl_open
 ```
 
-`market_eu_open` is a bulk EU switch. Turning it on would also admit DE, FR, ES, AT and other EEA codes without their own keys. That is **technical debt**, not a rollout tool.
+`market_nl_open` defaults off. `market_eu_open` stays off and does not open NL, Germany, France, Austria, or any other country.
 
 Other live facts:
 
@@ -35,7 +35,7 @@ Other live facts:
 | Currency | EUR via EU defaults | Local store `priceString`; portal targets stay €5.99 / €59.99 |
 | Locale | `en-GB` is supported; no `nl-NL` bundle | First NL test **may** use `en-GB`. `nl-NL` is not a prerequisite. |
 | Legal | English EEA routes (`/en/eea/*`) | NL-specific legal review before ads / store open |
-| Signup | Closed while `market_eu_open` is OFF | Own `market_nl_open`, default OFF |
+| Signup | Closed while `market_nl_open` is OFF | Keep `market_nl_open` off until an explicit open |
 | Analytics | Funnel can filter `country_code=NL` | Use it. Do not mix with SE. |
 
 ---
@@ -61,8 +61,8 @@ Do **not** treat IE D30, IE paid-conversion, or a localization platform as NL op
 
 ## 3. Out of scope until a later GO
 
-- Implementing `market_nl_open` / a migration that inserts that flag
-- Flipping `market_eu_open` to “let NL in”
+- Turning `market_nl_open` on
+- Flipping `market_eu_open` (it does not admit a country)
 - `nl-NL` UI bundle
 - UK / GBP / Children’s Code work
 - `de-DE` / AT (those wait on export signal, not on this prep doc)

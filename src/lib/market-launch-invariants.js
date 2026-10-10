@@ -198,7 +198,7 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     publicBillingUsable = await isPublicBillingUsable();
     marketBillingReady = await isMarketBillingReady(countryCode, now);
   }
-  return evaluateSignupCompleteness({
+  const decision = evaluateSignupCompleteness({
     countryCode,
     marketOpen,
     publicBillingUsable,
@@ -208,6 +208,7 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     launchCohortAssignable,
     now,
   });
+  return { ...decision, marketOpen: marketOpen === true };
 }
 
 module.exports = {

@@ -6,7 +6,7 @@ Normative decision: [ADR-026](adr/ADR-026-launch-cohort-offer.md).
 
 ## What a family gets
 
-The first 25 eligible families in an enabled country get Premium for 12 calendar months, counted from the moment the place is assigned.
+The first 25 eligible families in an enabled country get Premium for 12 calendar months, counted from the moment the place is assigned. There are 27 eligible countries, so the offer covers at most 675 families.
 
 - No payment method is stored.
 - Nothing is charged automatically when the period ends.
@@ -45,9 +45,11 @@ Their policies stay:
 
 ## Eligible countries
 
-Seeded disabled: AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, NO, IS.
+27 countries, seeded disabled: AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, NO, IS.
 
-Not seeded and not eligible: GB, CH, LI, US, and any other country.
+At most 25 families per country, and at most 675 families in total.
+
+Not seeded and not eligible: GB, CH, LI, US, and any other country. Sweden, Ireland, and Canada are excluded above.
 
 ## Activate and deactivate
 
@@ -73,7 +75,7 @@ Disabling the flag or the country stops new assignments. It does not change rows
 Public copy:
 
 - `GET /api/market/launch-cohort-offer?country_code=DE&locale=de-DE`
-- `slots_remaining` is an integer only while a place can still be assigned. Otherwise it is null. The register page prints a count only in that case.
+- `slots_remaining` is an integer only while a place can still be assigned and that country's registration gate is open. Otherwise it is null, and `show` is false. The register page prints a count only in that case. A closed country does not show the offer, even if the country row is enabled and places remain.
 
 A signed-in family sees its own end date on `GET /api/subscription/status` as `launch_cohort`. Settings uses that copy and does not offer "manage subscription" during the free period. After the period, the paywall explains that nothing was charged.
 
@@ -82,4 +84,4 @@ A signed-in family sees its own end date on `GET /api/subscription/status` as `l
 1. Set `launch_cohort_offer_v1` to false, and/or set the country `enabled` to false. Existing grants continue until `expires_at`.
 2. Migration `1810560000000_launch_cohort_offer` down deletes cohort entitlement rows and drops the ledger. Use that only to remove the feature, not to pause a country.
 
-Do not open `market_eu_open` as a shortcut. Each country gate stays separate.
+Each country has its own registration flag (`market_fi_open`, `market_de_open`, and the same pattern for the other countries). `market_eu_open` stays off and does not open any country. A missing country flag fails closed. Opening one country does not open another.
