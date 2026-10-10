@@ -637,7 +637,7 @@ test('registration from US blocked when market_us_open is OFF', async (t) => {
   }
 });
 
-test('registration from DE blocked when market_eu_open is OFF', async (t) => {
+test('registration from DE stays blocked when only market_eu_open is ON', async (t) => {
   const db = await setupTestDb();
   if (db.skip) {
     t.skip('No real DATABASE_URL');
@@ -651,8 +651,10 @@ test('registration from DE blocked when market_eu_open is OFF', async (t) => {
   try {
     await pg.query(`
       INSERT INTO feature_flag (key, enabled, description)
-      VALUES ('market_eu_open', false, 'test')
-      ON CONFLICT (key) DO UPDATE SET enabled = false
+      VALUES
+        ('market_eu_open', true, 'test'),
+        ('market_de_open', false, 'test')
+      ON CONFLICT (key) DO UPDATE SET enabled = EXCLUDED.enabled
     `);
 
     const email = uniqueEmail();

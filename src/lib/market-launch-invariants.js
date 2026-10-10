@@ -40,6 +40,7 @@ const {
   getIrelandFreeUntil,
   isIrelandComplimentaryActive,
 } = require('./ireland-launch-offer');
+const { isLaunchCohortExcludedCountry } = require('./launch-cohort-offer');
 
 const BILLING_NOT_READY_CODE = 'MARKET_BILLING_NOT_READY';
 
@@ -116,6 +117,13 @@ function evaluateSignupCompleteness(input) {
     }
     return { allowed: true, reason: 'post_complimentary', code: null };
   }
+  if (
+    input.launchCohortAssignable === true
+    && policy.entitlement === ENTITLEMENT.TRIAL
+    && !isLaunchCohortExcludedCountry(countryCode)
+  ) {
+    return { allowed: true, reason: 'launch_cohort_available', code: null };
+  }
   if (policy.requiresBillingReady) {
     const marketBillingReady = input.marketBillingReady === true;
     if (!input.publicBillingUsable || !marketBillingReady) {
@@ -166,9 +174,23 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     now,
     freeUntil: irelandFreeUntil || DEFAULT_IRELAND_FREE_UNTIL,
   });
+  let launchCohortAssignable = false;
+  if (
+    policy.entitlement === ENTITLEMENT.TRIAL
+    && !grandfatherEligible
+    && !isLaunchCohortExcludedCountry(countryCode)
+  ) {
+    try {
+      const { isLaunchCohortAssignable } = require('../../db/launch-cohort-offer');
+      launchCohortAssignable = await isLaunchCohortAssignable(countryCode);
+    } catch (err) {
+      console.error('[market-launch] launch cohort probe failed:', err.message);
+      launchCohortAssignable = false;
+    }
+  }
   let publicBillingUsable = false;
   let marketBillingReady = false;
-  const billingRequired = !grandfatherEligible && (
+  const billingRequired = !grandfatherEligible && !launchCohortAssignable && (
     policy.requiresBillingReady
     || (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL && !complimentaryActive)
   );
@@ -176,15 +198,17 @@ async function evaluatePublicSignupReadiness(countryCode, opts = {}) {
     publicBillingUsable = await isPublicBillingUsable();
     marketBillingReady = await isMarketBillingReady(countryCode, now);
   }
-  return evaluateSignupCompleteness({
+  const decision = evaluateSignupCompleteness({
     countryCode,
     marketOpen,
     publicBillingUsable,
     marketBillingReady,
     lifetimeFreeUntil,
     irelandFreeUntil,
+    launchCohortAssignable,
     now,
   });
+  return { ...decision, marketOpen: marketOpen === true };
 }
 
 module.exports = {

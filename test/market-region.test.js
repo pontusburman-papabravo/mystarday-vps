@@ -65,8 +65,23 @@ describe('gateKeyForCountry', () => {
     assert.equal(gateKeyForCountry('DK'), GATE_KEYS.DK);
   });
 
-  it('DE uses market_eu_open', () => {
-    assert.equal(gateKeyForCountry('DE'), GATE_KEYS.EU);
+  it('DE uses its own gate and not market_eu_open', () => {
+    assert.equal(gateKeyForCountry('DE'), 'market_de_open');
+    assert.notEqual(gateKeyForCountry('DE'), GATE_KEYS.EU);
+    assert.equal(GATE_KEYS.EU, 'market_eu_open');
+  });
+
+  it('opening DE does not share a gate with AT or FR', () => {
+    const de = gateKeyForCountry('DE');
+    const at = gateKeyForCountry('AT');
+    const fr = gateKeyForCountry('FR');
+    assert.equal(de, 'market_de_open');
+    assert.equal(at, 'market_at_open');
+    assert.equal(fr, 'market_fr_open');
+    assert.notEqual(de, at);
+    assert.notEqual(de, fr);
+    assert.notEqual(at, fr);
+    assert.notEqual(de, GATE_KEYS.EU);
   });
 
   it('GB uses market_uk_open', () => {

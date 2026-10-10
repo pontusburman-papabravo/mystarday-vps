@@ -40,8 +40,16 @@
     return key;
   }
 
-  function describePremium(premium, paidTransition, billingUiEnabled, nativePurchaseEligible) {
+  function describePremium(premium, paidTransition, billingUiEnabled, nativePurchaseEligible, launchCohort) {
     const transition = paidTransition || {};
+    const cohortCopy = launchCohort && launchCohort.copy;
+    if (premium && premium.source === 'launch_cohort' && premium.active && cohortCopy) {
+      return {
+        title: cohortCopy.title,
+        body: cohortCopy.ends_on || cohortCopy.no_auto_charge || '',
+        cta: null,
+      };
+    }
     if (premium && premium.source === 'complimentary') {
       const until = formatDate(premium.expires_at);
       return {
@@ -72,6 +80,15 @@
       };
     }
     if (!premium || !premium.active) {
+      if (launchCohort && launchCohort.grant_expired === true && cohortCopy && cohortCopy.ended) {
+        return {
+          title: cohortCopy.title,
+          body: cohortCopy.ended,
+          cta: (nativePurchaseEligible === true || billingUiEnabled === true)
+            ? { href: '/paywall', label: spt('settings.subscription.activate') }
+            : null,
+        };
+      }
       if (nativePurchaseEligible === true) {
         return {
           title: spt('settings.subscription.noPremium'),
@@ -191,7 +208,8 @@
         premium,
         status.paid_transition,
         status.billing_ui_enabled,
-        nativePurchaseEligible
+        nativePurchaseEligible,
+        status.launch_cohort
       );
       const billingUiEnabled = status.billing_ui_enabled === true;
       const nativeSdkOnDevice = isNative() && (nativePurchaseEligible || nativeRestoreEligible)

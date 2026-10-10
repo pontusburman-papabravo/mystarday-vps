@@ -37,6 +37,7 @@ function describePaidTransition(input = {}) {
     || accessKind === 'intro_year'
     || accessKind === 'trial'
     || accessKind === 'complimentary'
+    || accessKind === 'launch_cohort'
   ) {
     return { kind: PAID_TRANSITION_KINDS.NONE, cutoff_at: cutoffIso, hold_active: false };
   }

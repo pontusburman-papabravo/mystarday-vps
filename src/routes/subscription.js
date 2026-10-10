@@ -25,6 +25,8 @@ const {
 } = require('../lib/package-interest-constants');
 const { COMPONENT_PRICE_MAP } = require('../../config/subscription-components');
 const { resolveFamilyEntitlements } = require('../lib/family-entitlements');
+const { getLaunchCohortGrantByFamily } = require('../../db/launch-cohort-offer');
+const { describeLaunchCohortFamilyCopy } = require('../lib/launch-cohort-offer-copy');
 const { resolveSubscriptionUiVisibility } = require('../lib/subscription-ui-visibility');
 
 const router = express.Router();
@@ -152,8 +154,40 @@ router.get('/status', requireParent, async (req, res) => {
       ? Math.max(0, Math.ceil((new Date(premium.expires_at) - new Date()) / 86400000))
       : null;
 
+    let launch_cohort = null;
+    const cohortGrant = await getLaunchCohortGrantByFamily(familyId);
+    if (cohortGrant) {
+      const expiresMs = new Date(cohortGrant.expires_at).getTime();
+      const grantExpired = Number.isFinite(expiresMs) && Date.now() >= expiresMs;
+      const winning = premium.source === 'launch_cohort';
+      const mode = winning
+        ? 'winning'
+        : (grantExpired && !premium.active ? 'ended' : 'stored');
+      launch_cohort = {
+        active: winning,
+        grant_expired: grantExpired,
+        country_code: cohortGrant.country_code,
+        slot_number: Number(cohortGrant.slot_number),
+        starts_at: cohortGrant.starts_at,
+        expires_at: cohortGrant.expires_at,
+        auto_converts: false,
+        payment_method_required: false,
+        copy: describeLaunchCohortFamilyCopy(
+          { expires_at: cohortGrant.expires_at, metadata: { time_zone: cohortGrant.time_zone } },
+          cohortGrant.preferred_locale,
+          { mode, timeZone: cohortGrant.time_zone }
+        ),
+      };
+    }
+
+    const tier = premium.is_grandfathered
+      ? 'lifetime_free'
+      : (premium.source === 'launch_cohort'
+        ? 'trial'
+        : (premium.active ? (premium.trial ? 'trial' : 'paid') : 'expired'));
+
     res.json({
-      tier: premium.is_grandfathered ? 'lifetime_free' : (premium.active ? (premium.trial ? 'trial' : 'paid') : 'expired'),
+      tier,
       premium,
       access_kind: access_kind || (premium.active ? (premium.is_grandfathered ? 'grandfathered' : 'paid') : 'limited'),
       requires_paywall: !!requires_paywall,
@@ -183,6 +217,7 @@ router.get('/status', requireParent, async (req, res) => {
         yearly: STORE_PRODUCT_YEARLY,
       },
       web_purchase_supported: false,
+      launch_cohort,
     });
   } catch (err) {
     console.error('[SUBSCRIPTION] status error:', err);

@@ -7,7 +7,7 @@
  */
 
 const db = require('./db');
-const { EU_EEA_ISO_CODES } = require('../../config/market-countries');
+const { EU_EEA_ISO_CODES, REGISTRATION_COUNTRIES } = require('../../config/market-countries');
 
 const MARKET_REGIONS = Object.freeze({
   EU: 'EU',
@@ -16,6 +16,23 @@ const MARKET_REGIONS = Object.freeze({
   OTHER: 'OTHER',
 });
 
+/**
+ * EU/EEA registration countries that previously shared market_eu_open.
+ * Each gets market_<iso>_open. Switzerland and Liechtenstein are in the
+ * registration list and get their own keys so the bulk flag cannot open them.
+ * Sweden, Ireland, Canada, Finland, Norway and Denmark keep their existing keys.
+ */
+const INDIVIDUAL_GATE_COUNTRY_CODES = Object.freeze([
+  'AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'EE', 'ES', 'FR', 'GR', 'HR',
+  'HU', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO',
+  'SI', 'SK',
+]);
+
+const individualGateKeys = {};
+for (const code of INDIVIDUAL_GATE_COUNTRY_CODES) {
+  individualGateKeys[code] = `market_${code.toLowerCase()}_open`;
+}
+
 const GATE_KEYS = Object.freeze({
   SE: 'market_se_open',
   IE: 'market_ie_open',
@@ -23,11 +40,18 @@ const GATE_KEYS = Object.freeze({
   FI: 'market_fi_open',
   NO: 'market_no_open',
   DK: 'market_dk_open',
+  /** Retained in the database. Default off. Not a registration opener. */
   EU: 'market_eu_open',
   UK: 'market_uk_open',
   US: 'market_us_open',
   OTHER: 'market_other_open',
+  ...individualGateKeys,
 });
+
+const individualGateDefaults = {};
+for (const code of INDIVIDUAL_GATE_COUNTRY_CODES) {
+  individualGateDefaults[GATE_KEYS[code]] = false;
+}
 
 /** Default when feature_flag row is missing (Sweden and Canada open; other markets fail closed). */
 const GATE_DEFAULTS = Object.freeze({
@@ -41,6 +65,7 @@ const GATE_DEFAULTS = Object.freeze({
   market_uk_open: false,
   market_us_open: false,
   market_other_open: false,
+  ...individualGateDefaults,
 });
 
 const KNOWN_COUNTRY_CODES = new Set([
@@ -51,7 +76,7 @@ const KNOWN_COUNTRY_CODES = new Set([
   'ZZ',
 ]);
 
-/** Countries with explicit per-country gates (staged EEA rollout). */
+/** One registration flag per country. market_eu_open is intentionally absent. */
 const COUNTRY_SPECIFIC_GATE_KEYS = Object.freeze({
   SE: GATE_KEYS.SE,
   IE: GATE_KEYS.IE,
@@ -62,6 +87,7 @@ const COUNTRY_SPECIFIC_GATE_KEYS = Object.freeze({
   GB: GATE_KEYS.UK,
   US: GATE_KEYS.US,
   ZZ: GATE_KEYS.OTHER,
+  ...individualGateKeys,
 });
 
 function normalizeCountryCode(input) {
@@ -89,7 +115,11 @@ function gateKeyForCountry(countryCode) {
   const code = normalizeCountryCode(countryCode) || 'SE';
   if (COUNTRY_SPECIFIC_GATE_KEYS[code]) return COUNTRY_SPECIFIC_GATE_KEYS[code];
   const region = deriveMarketRegion(code);
-  if (region === MARKET_REGIONS.EU) return GATE_KEYS.EU;
+  if (region === MARKET_REGIONS.EU) {
+    // Unknown EU/EEA code: its own key. A missing row fails closed.
+    // market_eu_open is never the opener.
+    return `market_${code.toLowerCase()}_open`;
+  }
   if (region === MARKET_REGIONS.UK) return GATE_KEYS.UK;
   if (region === MARKET_REGIONS.US) return GATE_KEYS.US;
   return GATE_KEYS.OTHER;
@@ -111,8 +141,9 @@ async function readMarketGateFlag(key) {
 }
 
 /**
- * Whether new registration is allowed for this country.
- * Per-country gates (IE/NO/DK) override the aggregate EU gate.
+ * Whether the country's own registration flag is on.
+ * A missing flag fails closed, except Sweden and Canada whose defaults are open.
+ * market_eu_open does not admit any country.
  */
 async function isMarketOpenForRegistration(countryCode) {
   const code = normalizeCountryCode(countryCode);
@@ -177,17 +208,12 @@ function resolveRegistrationCountry({
 
 /** @typedef {{ code: string, label: string, gateKey: string, marketRegion: string }} MarketRegistrationStatusRow */
 
-const MARKET_STATUS_COUNTRIES = Object.freeze([
-  { code: 'SE', label: 'Sweden' },
-  { code: 'IE', label: 'Ireland' },
-  { code: 'CA', label: 'Canada' },
-  { code: 'FI', label: 'Finland' },
-  { code: 'NO', label: 'Norway' },
-  { code: 'DK', label: 'Denmark' },
-  { code: 'GB', label: 'United Kingdom' },
-  { code: 'US', label: 'United States' },
-  { code: 'ZZ', label: 'Other' },
-]);
+const MARKET_STATUS_COUNTRIES = Object.freeze(
+  REGISTRATION_COUNTRIES.map((entry) => ({
+    code: entry.code,
+    label: (entry.labels && entry.labels['en-GB']) || entry.code,
+  }))
+);
 
 /**
  * Effective registration gate state for admin/ops dashboards.
@@ -214,12 +240,14 @@ module.exports = {
   MARKET_REGIONS,
   GATE_KEYS,
   GATE_DEFAULTS,
+  INDIVIDUAL_GATE_COUNTRY_CODES,
   COUNTRY_SPECIFIC_GATE_KEYS,
   MARKET_STATUS_COUNTRIES,
   normalizeCountryCode,
   deriveMarketRegion,
   isKnownRegistrationCountryCode,
   gateKeyForCountry,
+  readMarketGateFlag,
   isMarketOpenForRegistration,
   marketClosedCode,
   marketClosedMessage,

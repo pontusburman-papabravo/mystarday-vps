@@ -147,58 +147,29 @@
     document.head.appendChild(style);
   }
 
-  let gateMap = {
-    SE: true,
-    IE: false,
-    CA: true,
-    FI: false,
-    NO: false,
-    DK: false,
-    EU: false,
-    UK: false,
-    US: false,
-    OTHER: false,
-  };
+  // Before the server answers, only the two default-open markets look selectable.
+  // After /api/market/registration-gates, signup_allowed is the only decision.
+  // A missing country fails closed. There is no shared EU bucket.
+  let signupAllowed = null;
+  const DEFAULT_SIGNUP = { SE: true, CA: true };
 
   async function loadGates() {
     try {
       const res = await fetch('/api/market/registration-gates');
       if (!res.ok) return;
       const data = await res.json();
-      const signup = data.signup_allowed || null;
-      function canSignup(code, marketOpen, seDefaultOpen) {
-        if (signup && Object.prototype.hasOwnProperty.call(signup, code)) {
-          return signup[code] === true;
-        }
-        return seDefaultOpen ? marketOpen !== false : marketOpen === true;
+      if (data && data.signup_allowed && typeof data.signup_allowed === 'object') {
+        signupAllowed = data.signup_allowed;
       }
-      gateMap = {
-        SE: canSignup('SE', data.market_se_open, true),
-        IE: canSignup('IE', data.market_ie_open, false),
-        CA: canSignup('CA', data.market_ca_open, true),
-        FI: canSignup('FI', data.market_fi_open, false),
-        NO: canSignup('NO', data.market_no_open, false),
-        DK: canSignup('DK', data.market_dk_open, false),
-        EU: canSignup('DE', data.market_eu_open, false),
-        UK: canSignup('GB', data.market_uk_open, false),
-        US: canSignup('US', data.market_us_open, false),
-        OTHER: canSignup('ZZ', data.market_other_open, false),
-      };
     } catch (_) { /* keep defaults */ }
   }
 
   function isCountryOpen(code) {
-    if (code === 'SE') return gateMap.SE;
-    if (code === 'IE') return gateMap.IE;
-    if (code === 'CA') return gateMap.CA;
-    if (code === 'FI') return gateMap.FI;
-    if (code === 'NO') return gateMap.NO;
-    if (code === 'DK') return gateMap.DK;
-    if (code === 'GB') return gateMap.UK;
-    if (code === 'US') return gateMap.US;
-    if (code === 'ZZ') return gateMap.OTHER;
-    if (code && code !== 'SE') return gateMap.EU;
-    return false;
+    if (!code) return false;
+    if (signupAllowed && Object.prototype.hasOwnProperty.call(signupAllowed, code)) {
+      return signupAllowed[code] === true;
+    }
+    return DEFAULT_SIGNUP[code] === true;
   }
 
   function closedMarketMessage(code) {

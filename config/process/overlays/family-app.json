@@ -16,7 +16,7 @@
     "Apple App Store / TestFlight",
     "Google Play",
     "RevenueCat",
-    "production feature flags / app_settings"
+    "released feature flags / app_settings"
   ],
   "productPrinciples": [
     "family adaptability",
@@ -125,6 +125,10 @@
         "db/family-entitlements.js",
         "src/lib/market-commercial-policy.js",
         "src/lib/market-launch-invariants.js",
+        "src/lib/launch-cohort-offer.js",
+        "src/lib/launch-cohort-offer-copy.js",
+        "db/launch-cohort-offer.js",
+        "src/routes/admin/launch-cohort-offer.js",
         "src/lib/payment-settings.js",
         "src/routes/admin/family-premium-grant.js",
         "src/routes/iap.js",
@@ -168,7 +172,9 @@
         "test/payment-go-live-apply.test.js",
         "test/paid-rollout-runtime-gate.test.js",
         "test/admin-premium-grant.test.js",
-        "test/market-commercial-policy.test.js"
+        "test/market-commercial-policy.test.js",
+        "test/market-launch-cohort-offer.test.js",
+        "test/market-launch-cohort-offer.integration.test.js"
       ]
     },
     "i18n-markets-legal": {
@@ -180,6 +186,10 @@
         "src/lib/market-config.js",
         "src/lib/market-commercial-policy.js",
         "src/lib/market-launch-invariants.js",
+        "src/lib/launch-cohort-offer.js",
+        "src/lib/launch-cohort-offer-copy.js",
+        "db/launch-cohort-offer.js",
+        "public/js/launch-cohort-offer.js",
         "public/en.html",
         "public/js/landing-events.js",
         "public/js/landing-market-state.js",
