@@ -433,14 +433,12 @@
     let appLocale = web;
     let languages = [];
 
-    let countryControls;
-    let languageControls;
-    countryControls = bindList(countryButton, countryList, {
+    const countryControls = bindList(countryButton, countryList, {
       search: true,
-      onOpen: function () { if (languageControls) languageControls.close(false); },
+      onOpen: function () { languageControls.close(false); },
     });
-    languageControls = bindList(languageButton, languageList, {
-      onOpen: function () { if (countryControls) countryControls.close(false); },
+    const languageControls = bindList(languageButton, languageList, {
+      onOpen: function () { countryControls.close(false); },
     });
     const requestGuard = guards().createLandingRequestGuard();
     mountOfferTracking();

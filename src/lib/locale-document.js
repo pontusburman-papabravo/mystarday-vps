@@ -181,7 +181,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <script src="/js/public-lang-switcher.js?v=5"></script>
   <script src="/js/landing-events.js?v=9"></script>
   <script src="/js/landing-choice-guards.js?v=1"></script>
-  <script src="/js/landing-experience.js?v=4"></script>
+  <script src="/js/landing-experience.js?v=5"></script>
 </body>
 </html>`;
 }
