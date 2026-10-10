@@ -17,9 +17,16 @@ const APPLE_ORIGIN = 'https://api.appstoreconnect.apple.com';
 const MAX_PAGES = 10;
 const MAX_RETRIES = 4;
 const MAX_RETRY_DELAY_MS = 20000;
-const ID_RE = /^[A-Za-z0-9]+$/;
+const ID_RE = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+const ID_PATH = '[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*';
 
-const ALLOWED_PATH = /^\/v1\/(?:apps(?:\/[A-Za-z0-9]+(?:\/(?:appInfos|appStoreVersions))?)?|appInfos\/[A-Za-z0-9]+(?:\/appInfoLocalizations)?|appStoreVersions\/[A-Za-z0-9]+(?:\/appStoreVersionLocalizations)?|appStoreVersionLocalizations\/[A-Za-z0-9]+(?:\/appScreenshotSets)?|appScreenshotSets\/[A-Za-z0-9]+(?:\/appScreenshots)?)$/;
+const ALLOWED_PATH = new RegExp(
+  `^/v1/(?:apps(?:/${ID_PATH}(?:/(?:appInfos|appStoreVersions))?)?`
+  + `|appInfos/${ID_PATH}(?:/appInfoLocalizations)?`
+  + `|appStoreVersions/${ID_PATH}(?:/appStoreVersionLocalizations)?`
+  + `|appStoreVersionLocalizations/${ID_PATH}(?:/appScreenshotSets)?`
+  + `|appScreenshotSets/${ID_PATH}(?:/appScreenshots)?)$`,
+);
 
 function assertAppleRequest(method, urlString) {
   if (String(method || '').toUpperCase() !== 'GET') {

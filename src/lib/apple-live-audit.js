@@ -40,9 +40,34 @@ function stateOf(resource) {
 }
 
 function pickSingular(resources) {
-  if (!resources || resources.length === 0) return { selection: 'none', resource: null };
-  if (resources.length > 1) return { selection: 'ambiguous', resource: null, candidates: resources.map(summaryVersion) };
-  return { selection: 'one', resource: resources[0] };
+  if (!resources || resources.length === 0) return { selection: 'none', resource: null, historical: [] };
+  if (resources.length > 1) return { selection: 'ambiguous', resource: null, candidates: resources.map(summaryVersion), historical: [] };
+  return { selection: 'one', resource: resources[0], historical: [] };
+}
+
+function createdMs(resource) {
+  const raw = resource && resource.attributes ? resource.attributes.createdDate : '';
+  const ms = Date.parse(raw || '');
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function pickCurrentLive(resources) {
+  if (!resources || resources.length === 0) return { selection: 'none', resource: null, historical: [] };
+  if (resources.length === 1) return { selection: 'one', resource: resources[0], historical: [] };
+  const dated = resources.map((resource) => ({ resource, ms: createdMs(resource) }));
+  if (dated.some((item) => item.ms == null)) {
+    return { selection: 'ambiguous', resource: null, candidates: resources.map(summaryVersion), historical: [] };
+  }
+  const newest = Math.max(...dated.map((item) => item.ms));
+  const winners = dated.filter((item) => item.ms === newest);
+  if (winners.length !== 1) {
+    return { selection: 'ambiguous', resource: null, candidates: resources.map(summaryVersion), historical: [] };
+  }
+  return {
+    selection: 'current',
+    resource: winners[0].resource,
+    historical: dated.filter((item) => item.resource !== winners[0].resource).map((item) => summaryVersion(item.resource)),
+  };
 }
 
 function summaryVersion(resource) {
@@ -73,7 +98,7 @@ function selectVersions(resources) {
     const platform = resource && resource.attributes ? resource.attributes.platform : 'IOS';
     return !platform || platform === 'IOS';
   });
-  const live = pickSingular(selectByState(ios, LIVE_VERSION_STATES));
+  const live = pickCurrentLive(selectByState(ios, LIVE_VERSION_STATES));
   const editable = pickSingular(selectByState(ios, EDITABLE_VERSION_STATES));
   return {
     observed: ios.map(summaryVersion),
@@ -476,6 +501,7 @@ async function collectAppleLiveAudit(options = {}) {
     observed: versionsPage.ok ? versionsPage.data.map(summaryVersion) : [],
     liveSelection: versionSelection ? versionSelection.live.selection : 'unreadable',
     editableSelection: versionSelection ? versionSelection.editable.selection : 'unreadable',
+    historicalLive: versionSelection && Array.isArray(versionSelection.live.historical) ? versionSelection.live.historical : [],
     live: null,
     editable: null,
   };
@@ -584,6 +610,7 @@ function renderAuditMarkdown(report) {
     `- Bundle match: ${report.app ? String(report.app.bundleMatch) : 'no app'}`,
     `- Live version selection: ${report.versions.liveSelection}`,
     `- Live version: ${live ? `${live.versionString} ${live.appStoreState}` : 'none'}`,
+    `- Historical live versions kept out of the comparison: ${report.versions.historicalLive && report.versions.historicalLive.length ? report.versions.historicalLive.map((version) => version.versionString).join(', ') : 'none'}`,
     `- Editable version selection: ${report.versions.editableSelection}`,
     `- Editable version: ${editable ? `${editable.versionString} ${editable.appStoreState}` : 'none'}`,
     `- Locales on the live version or live app info: ${report.appleLocales.length ? report.appleLocales.join(', ') : 'none'}`,

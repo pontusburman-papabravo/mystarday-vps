@@ -74,6 +74,8 @@ describe('Apple read allowlist', () => {
       'https://api.appstoreconnect.apple.com/v1/appStoreVersions/20/appStoreVersionLocalizations',
       'https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations/30/appScreenshotSets',
       'https://api.appstoreconnect.apple.com/v1/appScreenshotSets/40/appScreenshots?cursor=next',
+      'https://api.appstoreconnect.apple.com/v1/appInfos/3a1adfa1-80ae-4e08-b4b9-7875448f347b/appInfoLocalizations',
+      'https://api.appstoreconnect.apple.com/v1/appStoreVersions/6d590f9d-84c6-4ff8-b848-aa20b3384966/appStoreVersionLocalizations',
     ];
     for (const url of allowed) assert.equal(assertAppleRequest('GET', url).pathname.startsWith('/v1/'), true);
     for (const method of ['POST', 'PATCH', 'PUT', 'DELETE']) {
@@ -86,6 +88,8 @@ describe('Apple read allowlist', () => {
       `https://api.appstoreconnect.apple.com/v1/apps/${EXPECTED_APP_ID}/customerReviews`,
       'https://api.appstoreconnect.apple.com/v1/users',
       'https://example.com/v1/apps',
+      'https://api.appstoreconnect.apple.com/v1/appInfos/3a1adfa1--80ae/appInfoLocalizations',
+      'https://api.appstoreconnect.apple.com/v1/appInfos/-3a1adfa1/appInfoLocalizations',
     ]) {
       assert.throws(() => assertAppleRequest('GET', url), (error) => error.code === 'APPLE_CONNECT_URL_BLOCKED');
     }
@@ -216,6 +220,19 @@ describe('Apple version selection', () => {
     ]);
     assert.equal(ambiguous.live.selection, 'ambiguous');
     assert.equal(ambiguous.live.resource, null);
+    const current = selectVersions([
+      { id: 'old', attributes: { platform: 'IOS', appStoreState: 'READY_FOR_SALE', versionString: '1.4.5', createdDate: '2026-09-16T04:58:46-07:00' } },
+      { id: 'new', attributes: { platform: 'IOS', appStoreState: 'READY_FOR_SALE', versionString: '1.4.6', createdDate: '2026-09-28T02:18:11-07:00' } },
+    ]);
+    assert.equal(current.live.selection, 'current');
+    assert.equal(current.live.resource.id, 'new');
+    assert.deepEqual(current.live.historical.map((version) => version.versionString), ['1.4.5']);
+    const tied = selectVersions([
+      { id: 'a', attributes: { platform: 'IOS', appStoreState: 'READY_FOR_SALE', versionString: '1', createdDate: '2026-09-28T02:18:11Z' } },
+      { id: 'b', attributes: { platform: 'IOS', appStoreState: 'READY_FOR_SALE', versionString: '2', createdDate: '2026-09-28T02:18:11Z' } },
+    ]);
+    assert.equal(tied.live.selection, 'ambiguous');
+    assert.equal(tied.live.resource, null);
     const infos = selectAppInfos([
       { id: 'published', attributes: { state: 'READY_FOR_DISTRIBUTION' } },
       { id: 'editing', attributes: { state: 'PREPARE_FOR_SUBMISSION' } },
@@ -476,6 +493,51 @@ describe('Apple live audit collection', () => {
     assert.equal(infoCycle.appInfos.liveSelection, 'unreadable');
     assert.equal(infoCycle.appInfos.live, null);
     assert.equal(exitCodeForAudit(infoCycle), 1);
+  });
+
+  it('reads the newest READY_FOR_SALE version and a UUID app info', async () => {
+    const pem = generatePem();
+    const calls = [];
+    const infoId = '3a1adfa1-80ae-4e08-b4b9-7875448f347b';
+    const liveId = '6d590f9d-84c6-4ff8-b848-aa20b3384966';
+    const oldId = 'db186738-c68a-4e20-97fa-11b0a810af7d';
+    const audit = await collectAppleLiveAudit({
+      env: credentials(pem),
+      fetchImpl: async (url) => {
+        const target = String(url);
+        calls.push(target);
+        if (target.includes('/v1/apps?')) return jsonResponse(200, { data: [appResource()] });
+        if (target.includes('/appInfos?')) {
+          return jsonResponse(200, { data: [{ id: infoId, attributes: { state: 'READY_FOR_SALE' } }] });
+        }
+        if (target.includes(`/appInfos/${infoId}/appInfoLocalizations`)) {
+          return jsonResponse(200, { data: [{ id: 'infoloc', attributes: { locale: 'sv', name: 'Namn', subtitle: 'Underrad', privacyPolicyUrl: 'https://example.com/privacy' } }] });
+        }
+        if (target.includes('/appStoreVersions?')) {
+          return jsonResponse(200, {
+            data: [
+              { id: oldId, attributes: { platform: 'IOS', versionString: '1.4.5', appStoreState: 'READY_FOR_SALE', createdDate: '2026-09-16T04:58:46-07:00' } },
+              { id: liveId, attributes: { platform: 'IOS', versionString: '1.4.6', appStoreState: 'READY_FOR_SALE', createdDate: '2026-09-28T02:18:11-07:00' } },
+            ],
+          });
+        }
+        if (target.includes(`/appStoreVersions/${liveId}/appStoreVersionLocalizations`)) {
+          return jsonResponse(200, { data: [{ id: 'verloc', attributes: { locale: 'sv', description: 'Hej' } }] });
+        }
+        if (target.includes('/appScreenshotSets')) return jsonResponse(200, { data: [] });
+        return jsonResponse(404, { errors: [{ code: 'NOT_FOUND', title: 'missing' }] });
+      },
+    });
+    assert.equal(calls.some((url) => url.includes(oldId)), false);
+    assert.equal(audit.classification, 'ok');
+    assert.equal(audit.versions.liveSelection, 'current');
+    assert.equal(audit.versions.live.versionString, '1.4.6');
+    assert.equal(audit.versions.editableSelection, 'none');
+    assert.equal(audit.versions.editable, null);
+    assert.deepEqual(audit.versions.historicalLive.map((version) => version.versionString), ['1.4.5']);
+    assert.equal(audit.appInfos.live.localizations[0].locale, 'sv');
+    assert.equal(audit.appleLocales.includes('sv'), true);
+    assert.equal(exitCodeForAudit(audit), 0);
   });
 });
 
