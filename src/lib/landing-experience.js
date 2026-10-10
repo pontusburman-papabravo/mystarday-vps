@@ -165,8 +165,9 @@ function publicStores(countryCode) {
   let iosUrl = null;
   let androidUrl = null;
   if (ios === 'available') {
-    iosUrl = (market && market.appleUrl)
-      || (countryCode === 'SE' ? APPLE_APP_STORE_SHORT_URL : APPLE_APP_STORE_GEO_NEUTRAL_URL);
+    iosUrl = countryCode === 'SE'
+      ? APPLE_APP_STORE_SHORT_URL
+      : ((market && market.appleUrl) || APPLE_APP_STORE_GEO_NEUTRAL_URL);
     if (!iosUrl) ios = 'unknown';
   }
   if (android === 'available') {

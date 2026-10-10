@@ -4,6 +4,13 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
+const {
+  APPLE_APP_STORE_SHORT_URL,
+  APPLE_APP_STORE_IE_URL,
+  APPLE_APP_STORE_CA_URL,
+  getPlayStoreUrl,
+  getIrelandPlayStoreUrl,
+} = require('../config/store-links');
 const { describeCommercialOfferCopy } = require('../src/lib/commercial-offer-copy');
 const { describeLaunchCohortAcquisition } = require('../src/lib/launch-cohort-offer-copy');
 const {
@@ -101,6 +108,38 @@ test('Sweden in English keeps the 14-day price and no launch counter', () => {
   assert.equal(body.stores.android, 'available');
   assert.equal(body.copy.stores_note, null);
   assert.equal(body.stores.catalog_activation, 'live');
+});
+
+test('store URLs stay market-correct across language and country changes', () => {
+  const seSwedish = view('SE', 'sv-SE').stores;
+  const seEnglish = view('SE', 'en-GB').stores;
+  const ireland = view('IE', 'en-GB').stores;
+  const canada = view('CA', 'en-GB').stores;
+  const finland = view('FI', 'en-GB').stores;
+  const sequence = [
+    publicStores('SE'),
+    publicStores('IE'),
+    publicStores('SE'),
+  ];
+
+  assert.equal(APPLE_APP_STORE_SHORT_URL, 'https://apple.co/4v2ESuH');
+  assert.equal(seSwedish.ios_url, APPLE_APP_STORE_SHORT_URL);
+  assert.equal(seEnglish.ios_url, APPLE_APP_STORE_SHORT_URL);
+  assert.equal(ireland.ios_url, APPLE_APP_STORE_IE_URL);
+  assert.equal(canada.ios_url, APPLE_APP_STORE_CA_URL);
+  assert.equal(canada.android, 'unavailable');
+  assert.equal(canada.android_url, null);
+  assert.equal(finland.ios, 'unavailable');
+  assert.equal(finland.android, 'unavailable');
+  assert.equal(finland.ios_url, null);
+  assert.equal(finland.android_url, null);
+
+  assert.equal(sequence[0].ios_url, APPLE_APP_STORE_SHORT_URL);
+  assert.equal(sequence[1].ios_url, APPLE_APP_STORE_IE_URL);
+  assert.equal(sequence[2].ios_url, APPLE_APP_STORE_SHORT_URL);
+  assert.equal(sequence[0].android_url, getPlayStoreUrl());
+  assert.equal(sequence[1].android_url, getIrelandPlayStoreUrl());
+  assert.equal(sequence[2].android_url, getPlayStoreUrl());
 });
 
 test('Canada in French uses the complimentary period and an explicit English fallback', () => {
