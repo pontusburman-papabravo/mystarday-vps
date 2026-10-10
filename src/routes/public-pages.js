@@ -176,7 +176,7 @@ router.get('/en/resources/pdf/:filename', (req, res, next) => {
 router.get('/pedagoger-och-terapeuter', async (req, res) => {
   const allowed = await hasAccess(null, 'professionell_landingssida');
   if (!allowed) return res.redirect('/');
-  res.sendFile(path.join(__dirname, '../../public', 'pedagoger-och-terapeuter.html'));
+  return sendPublicHtml('pedagoger-och-terapeuter.html')(req, res);
 });
 
 // ── Additional public pages moved from server.js ──
