@@ -9,6 +9,7 @@ const { describeLaunchCohortAcquisition } = require('../src/lib/launch-cohort-of
 const {
   presentLandingExperience,
   publicStores,
+  resolveStoreAvailability,
 } = require('../src/lib/landing-experience');
 
 const NOW = new Date('2026-10-10T12:00:00.000Z');
@@ -55,6 +56,9 @@ test('Finland in Swedish shows the live places and not Sweden’s price', () => 
   assert.equal(body.commercial.monthly_price, null);
   assert.equal(body.commercial.currency === 'SEK', false);
   assert.equal(body.stores.ios, 'unavailable');
+  assert.equal(body.stores.android, 'unavailable');
+  assert.equal(body.stores.catalog_activation, 'planned');
+  assert.match(body.copy.stores_note, /inte tillgängliga|not available/i);
 });
 
 test('Finland in English keeps the same country and places', () => {
@@ -78,6 +82,7 @@ test('Germany in English stays closed and does not borrow another country’s of
   assert.equal(body.launch_cohort.slots_remaining, null);
   assert.equal(body.launch_cohort.slots_assigned, null);
   assert.match(body.copy.coming_soon_body, /Germany/);
+  assert.equal(body.copy.cta, null);
   assert.equal(body.copy.commercial_text, null);
   assert.doesNotMatch(JSON.stringify(body.copy), /59/);
   assert.doesNotMatch(JSON.stringify(body.copy), /Ireland/);
@@ -94,6 +99,8 @@ test('Sweden in English keeps the 14-day price and no launch counter', () => {
   assert.equal(body.launch_cohort.slots_remaining, null);
   assert.equal(body.stores.ios, 'available');
   assert.equal(body.stores.android, 'available');
+  assert.equal(body.copy.stores_note, null);
+  assert.equal(body.stores.catalog_activation, 'live');
 });
 
 test('Canada in French uses the complimentary period and an explicit English fallback', () => {
@@ -107,6 +114,9 @@ test('Canada in French uses the complimentary period and an explicit English fal
   assert.equal(body.stores.ios, 'available');
   assert.equal(body.stores.android, 'unavailable');
   assert.equal(body.stores.android_url, null);
+  assert.equal(body.stores.catalog_activation, 'live');
+  assert.match(body.copy.stores_note, /verified|verifierad/i);
+  assert.doesNotMatch(body.stores.ios_url || '', /play\.google\.com/);
 });
 
 test('a full offer shows the ordinary terms only when registration is possible', () => {
@@ -140,14 +150,44 @@ test('a hidden offer never publishes a place count', () => {
   assert.equal(body.launch_cohort.slot_limit, null);
 });
 
+test('Ireland keeps the complimentary period and both verified store links', () => {
+  const body = view('IE', 'en-GB');
+  assert.equal(body.commercial.entitlement, 'complimentary_until');
+  assert.match(body.copy.commercial_text, /Ireland/);
+  assert.doesNotMatch(body.copy.commercial_text, /59/);
+  assert.equal(body.stores.ios, 'available');
+  assert.equal(body.stores.android, 'available');
+  assert.match(body.stores.android_url, /gl=IE/);
+  assert.equal(body.copy.stores_note, null);
+});
+
+test('catalog live is not enough to call a store available', () => {
+  assert.equal(resolveStoreAvailability('live', null), 'unknown');
+  assert.equal(resolveStoreAvailability('planned', null), 'unavailable');
+  assert.equal(resolveStoreAvailability(null, null), 'unknown');
+  assert.equal(resolveStoreAvailability('live', 'unavailable'), 'unavailable');
+  const missing = publicStores('GB');
+  assert.equal(missing.ios, 'unknown');
+  assert.equal(missing.android, 'unknown');
+  assert.equal(missing.ios_url, null);
+  assert.equal(missing.android_url, null);
+});
+
 test('the landing page does not confirm residence or rewrite a family locale', () => {
   const js = fs.readFileSync(path.join(__dirname, '../public/js/landing-experience.js'), 'utf8');
+  const guards = fs.readFileSync(path.join(__dirname, '../public/js/landing-choice-guards.js'), 'utf8');
   assert.doesNotMatch(js, /sd_country_confirmed/);
   assert.doesNotMatch(js, /sd_preferred_locale/);
   assert.doesNotMatch(js, /preferred_locale/);
-  assert.match(js, /residence_explicit', '0'/);
+  assert.match(guards, /residence_explicit', '0'/);
   assert.match(js, /landing-nav__lang/);
   assert.match(js, /showLoadError/);
+  assert.match(js, /LandingChoiceGuards/);
+  assert.match(js, /requestGuard/);
+  assert.doesNotMatch(js, /#waitlist/);
+  assert.doesNotMatch(js, /utm_campaign',\s*'launch_cohort_offer_v1'/);
+  assert.doesNotMatch(guards, /params\.set\('utm_/);
+  assert.match(guards, /landing_offer/);
   assert.doesNotMatch(js, /18 of 25/);
 });
 

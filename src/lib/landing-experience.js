@@ -52,10 +52,10 @@ const CHROME = Object.freeze({
     cohortTitle: '12 months of Premium, free',
     ctaCohort: 'Get 12 months free',
     ctaRegister: 'Create an account',
-    ctaClosed: 'Join the waitlist',
     ctaBilling: 'Payment is not available yet',
     confirmResidence: 'You still confirm the country of residence when you create the account.',
     storesUnavailable: 'The App Store and Google Play listings are not available for this country yet. Web registration still follows the country gate.',
+    storesPartial: 'A download button is shown only where the listing is verified. The other store stays hidden.',
     storesUnknown: 'Store availability for this country is not confirmed, so download buttons stay hidden.',
     loadError: 'The offer could not be loaded. This page is not stating how many places are left.',
   }),
@@ -85,10 +85,10 @@ const CHROME = Object.freeze({
     cohortTitle: '12 månader Premium utan kostnad',
     ctaCohort: 'Få 12 månader utan kostnad',
     ctaRegister: 'Skapa konto',
-    ctaClosed: 'Ställ dig på väntelistan',
     ctaBilling: 'Betalning är inte tillgänglig ännu',
     confirmResidence: 'Du bekräftar fortfarande bosättningsland när kontot skapas.',
     storesUnavailable: 'App Store och Google Play är inte tillgängliga för det här landet ännu. Webbregistrering följer ändå landets grind.',
+    storesPartial: 'En nedladdningsknapp visas bara där butiken är verifierad. Den andra butiken visas inte.',
     storesUnknown: 'Butikens tillgänglighet för det här landet är inte bekräftad, så nedladdningsknapparna visas inte.',
     loadError: 'Erbjudandet kunde inte hämtas. Sidan säger inget om hur många platser som finns kvar.',
   }),
@@ -131,35 +131,67 @@ function landingLanguages() {
     });
 }
 
+/**
+ * Verified storefront distribution. `store/markets.json` activation is the
+ * catalog plan, not proof that Apple or Google distribute the app.
+ * SE: the short link and Play package already published on the Swedish pages.
+ * IE: App Store and Play listings verified externally 2026-08-31
+ *     (docs/ie-fi-billing-external-matrix.md).
+ * CA: the same Apple track on the Canada storefront (config/store-links.js).
+ *     Google Play stays off; web-markets marks it `soon`.
+ * Do not add a country without that kind of evidence.
+ */
+const VERIFIED_STORE_DISTRIBUTION = Object.freeze({
+  SE: Object.freeze({ ios: 'available', android: 'available' }),
+  IE: Object.freeze({ ios: 'available', android: 'available' }),
+  CA: Object.freeze({ ios: 'available', android: 'unavailable' }),
+});
+
+function resolveStoreAvailability(catalogActivation, verifiedState) {
+  if (verifiedState === 'available' || verifiedState === 'unavailable') return verifiedState;
+  if (!catalogActivation) return 'unknown';
+  if (catalogActivation !== 'live') return 'unavailable';
+  return 'unknown';
+}
+
 function publicStores(countryCode) {
   const rows = Array.isArray(storeMarkets.markets) ? storeMarkets.markets : [];
-  const row = rows.find((item) => item.id === countryCode);
-  if (!row || !row.activation) {
-    return { ios: 'unknown', android: 'unknown', ios_url: null, android_url: null };
-  }
-  if (row.activation !== 'live') {
-    return { ios: 'unavailable', android: 'unavailable', ios_url: null, android_url: null };
-  }
+  const row = rows.find((item) => item.id === countryCode) || null;
+  const verified = VERIFIED_STORE_DISTRIBUTION[countryCode] || null;
   const market = marketByCode(countryCode);
-  let iosUrl = countryCode === 'SE' ? APPLE_APP_STORE_SHORT_URL : APPLE_APP_STORE_GEO_NEUTRAL_URL;
-  let android = 'available';
-  let androidUrl = getPlayStoreUrl();
-  if (market) {
-    if (market.appleUrl) iosUrl = market.appleUrl;
-    const play = playUrlForMarket(market);
-    if (!play) {
-      android = 'unavailable';
-      androidUrl = null;
-    } else {
-      androidUrl = play;
-    }
+  const catalogActivation = row && row.activation ? row.activation : null;
+  let ios = resolveStoreAvailability(catalogActivation, verified && verified.ios);
+  let android = resolveStoreAvailability(catalogActivation, verified && verified.android);
+  let iosUrl = null;
+  let androidUrl = null;
+  if (ios === 'available') {
+    iosUrl = (market && market.appleUrl)
+      || (countryCode === 'SE' ? APPLE_APP_STORE_SHORT_URL : APPLE_APP_STORE_GEO_NEUTRAL_URL);
+    if (!iosUrl) ios = 'unknown';
+  }
+  if (android === 'available') {
+    androidUrl = market ? playUrlForMarket(market) : getPlayStoreUrl();
+    if (!androidUrl) android = 'unknown';
   }
   return {
-    ios: 'available',
+    ios,
     android,
-    ios_url: iosUrl,
-    android_url: androidUrl,
+    ios_url: ios === 'available' ? iosUrl : null,
+    android_url: android === 'available' ? androidUrl : null,
+    catalog_activation: catalogActivation,
   };
+}
+
+function storesNote(strings, stores) {
+  const ios = stores && stores.ios;
+  const android = stores && stores.android;
+  const anyAvailable = ios === 'available' || android === 'available';
+  const anyUnknown = ios === 'unknown' || android === 'unknown';
+  if (ios === 'available' && android === 'available') return null;
+  if (anyUnknown && !anyAvailable) return strings.storesUnknown;
+  if (anyAvailable) return strings.storesPartial;
+  if (ios === 'unavailable' && android === 'unavailable') return strings.storesUnavailable;
+  return strings.storesUnknown;
 }
 
 function commercialText(strings, facts, country, countryCode) {
@@ -275,11 +307,15 @@ function presentLandingExperience(input) {
       after: phase === 'active' && cohort.copy && cohort.copy.after
         ? cohort.copy.after
         : (phase === 'active' ? strings.afterMonths : null),
-      cta: status === 'launch_cohort'
-        ? strings.ctaCohort
-        : (signupAllowed ? strings.ctaRegister : (status === 'coming_soon' ? strings.ctaClosed : strings.ctaBilling)),
+      cta: status === 'coming_soon'
+        ? null
+        : (status === 'launch_cohort'
+          ? strings.ctaCohort
+          : (signupAllowed ? strings.ctaRegister : strings.ctaBilling)),
       confirm_residence: strings.confirmResidence,
+      stores_note: storesNote(strings, input.stores || {}),
       stores_unavailable: strings.storesUnavailable,
+      stores_partial: strings.storesPartial,
       stores_unknown: strings.storesUnknown,
       load_error: strings.loadError,
     },
@@ -326,6 +362,7 @@ async function loadLandingExperience(countryCode, locale) {
 module.exports = {
   CHROME_FALLBACK,
   landingLanguages,
+  resolveStoreAvailability,
   publicStores,
   presentLandingExperience,
   loadLandingExperience,

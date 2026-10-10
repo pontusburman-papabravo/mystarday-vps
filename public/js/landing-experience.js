@@ -113,26 +113,31 @@
     });
   }
 
+  function storedUtm() {
+    if (window.UtmCapture && typeof window.UtmCapture.get === 'function') {
+      return window.UtmCapture.get() || {};
+    }
+    return {};
+  }
+
+  function guards() {
+    if (!window.LandingChoiceGuards) throw new Error('landing guards');
+    return window.LandingChoiceGuards;
+  }
+
   function registerHref(payload, country, appLocale) {
     const web = pageWebLocale();
     const base = web === 'sv' ? '/register' : '/en/register';
-    const params = new URLSearchParams();
-    if (country) {
-      params.set('residence', country);
-      params.set('residence_explicit', '0');
-    }
     const loggedIn = window.Auth && typeof window.Auth.isLoggedIn === 'function' && window.Auth.isLoggedIn();
-    if (!loggedIn && appLocale) params.set('display_locale', appLocale);
-    if (payload && payload.status === 'launch_cohort') {
-      params.set('utm_source', 'landing');
-      params.set('utm_medium', 'offer');
-      params.set('utm_campaign', 'launch_cohort_offer_v1');
-    }
-    const existing = queryParams();
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (key) {
-      if (!params.get(key) && existing.get(key)) params.set(key, existing.get(key));
+    const params = guards().registerSearch({
+      country: country,
+      appLocale: !loggedIn && appLocale ? appLocale : '',
+      status: payload && payload.status,
+      searchParams: queryParams(),
+      stored: storedUtm(),
     });
-    return base + '?' + params.toString();
+    const qs = params.toString();
+    return qs ? base + '?' + qs : base;
   }
 
   function renderOffer(payload, country, appLocale) {
@@ -188,19 +193,17 @@
       if (copy.premium_what) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.premium_what) + '</p>');
     }
     const stores = payload.stores || {};
-    if (stores.ios === 'unknown' || stores.android === 'unknown') {
-      parts.push('<p class="landing-offer__note">' + escapeHtml(copy.stores_unknown) + '</p>');
-    } else if (stores.ios !== 'available' || stores.android !== 'available') {
-      parts.push('<p class="landing-offer__note">' + escapeHtml(copy.stores_unavailable) + '</p>');
+    if (copy.stores_note) {
+      parts.push('<p class="landing-offer__note">' + escapeHtml(copy.stores_note) + '</p>');
     }
-    if (payload.signup_allowed && status !== 'coming_soon') {
+    if (payload.signup_allowed && status !== 'coming_soon' && copy.cta) {
       const href = registerHref(payload, country, appLocale);
-      parts.push('<a class="btn-primary landing-offer__cta" href="' + escapeHtml(href) + '" data-landing-register>' + escapeHtml(copy.cta) + '</a>');
+      const offer = payload.status === 'launch_cohort' ? guards().LAUNCH_OFFER : '';
+      parts.push('<a class="btn-primary landing-offer__cta" href="' + escapeHtml(href) + '" data-landing-register'
+        + (offer ? ' data-landing-offer="' + escapeHtml(offer) + '"' : '')
+        + ' data-landing-country="' + escapeHtml(country || '') + '">' + escapeHtml(copy.cta) + '</a>');
       parts.push('<p class="landing-offer__note">' + escapeHtml(copy.confirm_residence) + '</p>');
-    } else if (status === 'coming_soon') {
-      const wait = pageWebLocale() === 'sv' ? '/#waitlist' : '/en#waitlist';
-      parts.push('<a class="btn-secondary landing-offer__cta" href="' + wait + '">' + escapeHtml(copy.cta) + '</a>');
-    } else if (copy.cta) {
+    } else if (copy.cta && status !== 'coming_soon') {
       parts.push('<p class="landing-offer__note">' + escapeHtml(copy.cta) + '</p>');
     }
     mount.hidden = false;
@@ -213,6 +216,21 @@
     return pageWebLocale() === 'sv'
       ? 'Erbjudandet kunde inte hämtas. Sidan säger inget om hur många platser som finns kvar.'
       : 'The offer could not be loaded. This page is not stating how many places are left.';
+  }
+
+  function mountOfferTracking() {
+    const mount = document.getElementById('landingOffer');
+    if (!mount || mount.dataset.offerTrack === '1') return;
+    mount.dataset.offerTrack = '1';
+    mount.addEventListener('click', function (event) {
+      const link = event.target && event.target.closest ? event.target.closest('[data-landing-offer]') : null;
+      if (!link) return;
+      track('landing_offer_cta', {
+        landing_offer: link.getAttribute('data-landing-offer'),
+        country_code: link.getAttribute('data-landing-country') || null,
+        web_locale: pageWebLocale(),
+      });
+    });
   }
 
   function showLoadError(message) {
@@ -328,6 +346,8 @@
 
     const countryControls = bindList(countryButton, countryList);
     const languageControls = bindList(languageButton, languageList);
+    const requestGuard = guards().createLandingRequestGuard();
+    mountOfferTracking();
 
     function countryItems() {
       return [{ value: '', label: '…' }].concat(countries.map(function (entry) {
@@ -342,7 +362,7 @@
         return;
       }
       track('landing_language_select', { web_locale: next.code, country_code: country || null });
-      const nextParams = new URLSearchParams();
+      const nextParams = guards().preservedCampaignParams(queryParams(), storedUtm());
       if (country) {
         nextParams.set('residence', country);
         nextParams.set('residence_explicit', explicit ? '1' : '0');
@@ -383,11 +403,22 @@
     }
 
     async function refresh() {
+      const ticket = requestGuard.next();
+      const requestedCountry = country;
       let url = '/api/market/landing-experience?locale=' + encodeURIComponent(web);
-      if (country) url += '&country_code=' + encodeURIComponent(country);
-      const res = await fetch(url, { credentials: 'same-origin' });
+      if (requestedCountry) url += '&country_code=' + encodeURIComponent(requestedCountry);
+      let res;
+      try {
+        res = await fetch(url, { credentials: 'same-origin', signal: ticket.signal });
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        if (!ticket.current()) return;
+        throw err;
+      }
+      if (!ticket.current() || requestedCountry !== country) return;
       if (!res.ok) throw new Error('offer');
       const payload = await res.json();
+      if (!ticket.current() || requestedCountry !== country) return;
       languages = payload.languages || languages;
       const current = languages.filter(function (item) { return item.code === web; })[0];
       if (payload.display_locale) appLocale = payload.display_locale;
