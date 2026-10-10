@@ -159,14 +159,12 @@ function iosPlatform() {
 }
 
 describe('CountryChoice public registration gate', () => {
-  it('default market gates remain fail-closed except SE', () => {
+  it('default market gates remain fail-closed except SE and CA', () => {
     const src = fs.readFileSync(path.join(ROOT, 'public/js/country-choice.js'), 'utf8');
-    assert.match(src, /SE:\s*true/);
-    assert.match(src, /IE:\s*false/);
-    assert.match(src, /FI:\s*false/);
-    assert.match(src, /UK:\s*false/);
-    assert.match(src, /US:\s*false/);
-    assert.match(src, /OTHER:\s*false/);
+    assert.match(src, /DEFAULT_SIGNUP = \{ SE: true, CA: true \}/);
+    assert.match(src, /return DEFAULT_SIGNUP\[code\] === true/);
+    assert.doesNotMatch(src, /gateMap\.EU/);
+    assert.doesNotMatch(src, /market_eu_open/);
   });
 
   it('never visually pre-selects a suggested country', () => {
