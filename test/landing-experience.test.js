@@ -68,7 +68,7 @@ test('Finland in English keeps the same country and places', () => {
   });
   assert.equal(body.country_code, 'FI');
   assert.equal(body.launch_cohort.slots_remaining, 1);
-  assert.match(body.copy.remaining_label, /1 of 25/);
+  assert.match(body.copy.remaining_label, /1 of 25 places remaining/);
   assert.equal(body.copy_locale, 'en-GB');
 });
 
@@ -205,6 +205,11 @@ test('language pages keep their canonical and hreflang', () => {
   assert.match(en, /data-static-market-offer="IE CA"[^>]*>Ireland and Canada: no subscription is created automatically/);
   const css = fs.readFileSync(path.join(__dirname, '../public/css/landing.css'), 'utf8');
   assert.match(css, /a\.store-badge-link\[hidden\]\s*\{\s*display:\s*none;/);
+  assert.match(css, /\.landing-section--dark \.landing-offer h2/);
+  assert.match(css, /\.landing-nav__link--later/);
+  assert.match(en, /landing-nav__link--later/);
+  assert.match(en, /data-hero-launch="markets"/);
+  assert.match(en, /Selected markets/);
   assert.doesNotMatch(en, /14-day trial/i);
   assert.match(sv, /data-landing-country-button/);
   assert.match(en, /data-landing-language-button/);

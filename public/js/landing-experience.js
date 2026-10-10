@@ -140,75 +140,105 @@
     return qs ? base + '?' + qs : base;
   }
 
+  function detailsHtml(lines) {
+    const body = lines.filter(function (line) { return line; });
+    if (!body.length) return '';
+    const summary = pageWebLocale() === 'sv' ? 'Om erbjudandet' : 'Offer details';
+    return '<details class="landing-offer__details"><summary>' + escapeHtml(summary) + '</summary>'
+      + body.map(function (line) {
+        return '<p class="landing-offer__text">' + escapeHtml(line) + '</p>';
+      }).join('')
+      + '</details>';
+  }
+
+  function progressHtml(copy, cohort) {
+    if (!copy.progress_label || !cohort || cohort.slot_limit == null) return '';
+    const width = cohort.slot_limit
+      ? Math.max(0, Math.min(100, (Number(cohort.slots_assigned) / Number(cohort.slot_limit)) * 100))
+      : 0;
+    return '<div class="landing-offer__track" role="progressbar" aria-valuemin="0" aria-valuemax="'
+      + escapeHtml(cohort.slot_limit) + '" aria-valuenow="' + escapeHtml(cohort.slots_assigned)
+      + '" aria-label="' + escapeHtml(copy.progress_label) + '"><span style="width:' + width + '%"></span></div>';
+  }
+
+  function ctaHtml(payload, country, appLocale, copy) {
+    if (payload.signup_allowed && payload.status !== 'coming_soon' && copy.cta) {
+      const href = registerHref(payload, country, appLocale);
+      const offer = payload.status === 'launch_cohort' ? guards().LAUNCH_OFFER : '';
+      return '<a class="btn-primary landing-offer__cta" href="' + escapeHtml(href) + '" data-landing-register'
+        + (offer ? ' data-landing-offer="' + escapeHtml(offer) + '"' : '')
+        + ' data-landing-country="' + escapeHtml(country || '') + '">' + escapeHtml(copy.cta) + '</a>';
+    }
+    if (copy.cta && payload.status !== 'coming_soon') {
+      return '<p class="landing-offer__status" role="status">' + escapeHtml(copy.cta) + '</p>';
+    }
+    return '';
+  }
+
   function renderOffer(payload, country, appLocale) {
     const mount = document.getElementById('landingOffer');
     if (!mount) return;
     const copy = payload && payload.copy ? payload.copy : {};
     if (!country) {
       mount.hidden = false;
-      mount.innerHTML = '<p class="landing-offer__title">' + escapeHtml(copy.choose_country || 'Choose country') + '</p>'
-        + '<p class="landing-offer__text">' + escapeHtml(copy.explicit_hint || '') + '</p>';
+      mount.innerHTML = '<p class="landing-offer__title">' + escapeHtml(copy.choose_country || 'Choose country') + '</p>';
       return;
     }
     const status = payload.status;
+    const cohort = payload.launch_cohort || {};
     const parts = [];
     if (copy.fallback_notice) {
       parts.push('<p class="landing-offer__fallback" role="note">' + escapeHtml(copy.fallback_notice) + '</p>');
     }
     if (status === 'coming_soon') {
       parts.push('<p class="landing-offer__kicker">' + escapeHtml(copy.coming_soon_title) + '</p>');
-      parts.push('<p class="landing-offer__title">' + escapeHtml(payload.country_name || '') + '</p>');
+      parts.push('<h2 class="landing-offer__title">' + escapeHtml(payload.country_name || '') + '</h2>');
       parts.push('<p class="landing-offer__text">' + escapeHtml(copy.coming_soon_body) + '</p>');
     } else if (status === 'launch_cohort') {
-      const cohort = payload.launch_cohort || {};
-      const width = cohort.slot_limit ? Math.max(0, Math.min(100, (cohort.slots_assigned / cohort.slot_limit) * 100)) : 0;
-      parts.push('<p class="landing-offer__kicker">' + escapeHtml(copy.cohort_title) + '</p>');
-      parts.push('<h2 class="landing-offer__title">' + escapeHtml(copy.cohort_headline || copy.cohort_title) + '</h2>');
-      parts.push('<p class="landing-offer__text">' + escapeHtml(copy.for_country) + '</p>');
+      parts.push('<h2 class="landing-offer__title">' + escapeHtml(copy.cohort_title) + '</h2>');
+      if (payload.country_name) {
+        parts.push('<p class="landing-offer__country">' + escapeHtml(payload.country_name) + '</p>');
+      }
       if (copy.remaining_label) {
         parts.push('<p class="landing-offer__remaining">' + escapeHtml(copy.remaining_label) + '</p>');
       }
-      if (copy.progress_label && cohort.slot_limit != null) {
-        parts.push('<div class="landing-offer__track" role="progressbar" aria-valuemin="0" aria-valuemax="'
-          + escapeHtml(cohort.slot_limit) + '" aria-valuenow="' + escapeHtml(cohort.slots_assigned)
-          + '" aria-label="' + escapeHtml(copy.progress_label) + '"><span style="width:' + width + '%"></span></div>');
-        parts.push('<p class="landing-offer__progress">' + escapeHtml(copy.progress_label) + '</p>');
+      parts.push(progressHtml(copy, cohort));
+      if (copy.no_auto_charge) {
+        parts.push('<p class="landing-offer__text">' + escapeHtml(copy.no_auto_charge) + '</p>');
       }
-      parts.push('<p class="landing-offer__text">' + escapeHtml(copy.premium_what) + '</p>');
-      if (copy.premium_why) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.premium_why) + '</p>');
-      if (copy.no_payment_method || copy.no_auto_charge) {
-        parts.push('<p class="landing-offer__text">' + escapeHtml(copy.no_payment_method || '') + ' ' + escapeHtml(copy.no_auto_charge || '') + '</p>');
-      }
-      if (copy.after) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.after) + '</p>');
-      if (copy.not_reserved) parts.push('<p class="landing-offer__note">' + escapeHtml(copy.not_reserved) + '</p>');
     } else if (status === 'ordinary_after_full' || status === 'full_unavailable') {
       parts.push('<p class="landing-offer__kicker">' + escapeHtml(copy.full_title) + '</p>');
-      parts.push('<p class="landing-offer__title">' + escapeHtml(copy.full_body) + '</p>');
-      if (copy.progress_label) parts.push('<p class="landing-offer__progress">' + escapeHtml(copy.progress_label) + '</p>');
-      if (copy.commercial_text) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.commercial_text) + '</p>');
-      if (copy.premium_what) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.premium_what) + '</p>');
+      parts.push('<h2 class="landing-offer__title">' + escapeHtml(payload.country_name || '') + '</h2>');
+      if (copy.remaining_label) {
+        parts.push('<p class="landing-offer__remaining">' + escapeHtml(copy.remaining_label) + '</p>');
+      } else if (copy.full_body) {
+        parts.push('<p class="landing-offer__remaining">' + escapeHtml(copy.full_body) + '</p>');
+      }
+      parts.push(progressHtml(copy, cohort));
+      if (copy.commercial_text) {
+        parts.push('<p class="landing-offer__text">' + escapeHtml(copy.commercial_text) + '</p>');
+      }
     } else if (status === 'ordinary' || status === 'open_unavailable') {
-      parts.push('<p class="landing-offer__kicker">' + escapeHtml(payload.country_name || '') + '</p>');
-      parts.push('<p class="landing-offer__title">' + escapeHtml(copy.commercial_text || '') + '</p>');
-      if (copy.premium_what) parts.push('<p class="landing-offer__text">' + escapeHtml(copy.premium_what) + '</p>');
+      parts.push('<h2 class="landing-offer__title">' + escapeHtml(payload.country_name || '') + '</h2>');
+      if (copy.commercial_text) {
+        parts.push('<p class="landing-offer__text">' + escapeHtml(copy.commercial_text) + '</p>');
+      }
     }
-    const stores = payload.stores || {};
     if (copy.stores_note) {
       parts.push('<p class="landing-offer__note">' + escapeHtml(copy.stores_note) + '</p>');
     }
-    if (payload.signup_allowed && status !== 'coming_soon' && copy.cta) {
-      const href = registerHref(payload, country, appLocale);
-      const offer = payload.status === 'launch_cohort' ? guards().LAUNCH_OFFER : '';
-      parts.push('<a class="btn-primary landing-offer__cta" href="' + escapeHtml(href) + '" data-landing-register'
-        + (offer ? ' data-landing-offer="' + escapeHtml(offer) + '"' : '')
-        + ' data-landing-country="' + escapeHtml(country || '') + '">' + escapeHtml(copy.cta) + '</a>');
-      parts.push('<p class="landing-offer__note">' + escapeHtml(copy.confirm_residence) + '</p>');
-    } else if (copy.cta && status !== 'coming_soon') {
-      parts.push('<p class="landing-offer__note">' + escapeHtml(copy.cta) + '</p>');
+    parts.push(ctaHtml(payload, country, appLocale, copy));
+    const extra = [];
+    if (status === 'launch_cohort') {
+      extra.push(copy.cohort_headline, copy.for_country, copy.cohort_duration, copy.premium_what, copy.premium_why, copy.no_payment_method, copy.after, copy.not_reserved, copy.confirm_residence);
+    } else if (status === 'ordinary' || status === 'open_unavailable' || status === 'ordinary_after_full' || status === 'full_unavailable') {
+      extra.push(copy.premium_what, copy.confirm_residence);
+      if (copy.remaining_label) extra.push(copy.full_body);
     }
+    parts.push(detailsHtml(extra));
     mount.hidden = false;
     mount.innerHTML = parts.join('');
-    setStores(stores);
+    setStores(payload.stores || {});
     hideStaticOffers();
   }
 
@@ -264,40 +294,99 @@
     });
   }
 
-  function bindList(button, list) {
-    function close() {
+  function bindList(button, list, options) {
+    const withSearch = Boolean(options && options.search);
+    let panel = list.closest('.landing-choice__panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.className = 'landing-choice__panel';
+      panel.hidden = true;
+      list.parentNode.insertBefore(panel, list);
+      panel.appendChild(list);
+    }
+    let search = panel.querySelector('.landing-choice__search');
+    if (withSearch && !search) {
+      search = document.createElement('input');
+      search.type = 'search';
+      search.className = 'landing-choice__search';
+      search.autocomplete = 'off';
+      search.setAttribute('aria-label', pageWebLocale() === 'sv' ? 'Sök land' : 'Search countries');
+      search.setAttribute('aria-controls', list.id);
+      panel.insertBefore(search, list);
+      search.addEventListener('input', function () {
+        const query = search.value.trim().toLowerCase();
+        Array.prototype.forEach.call(list.querySelectorAll('li'), function (item) {
+          const text = (item.textContent || '').toLowerCase();
+          item.hidden = Boolean(query) && text.indexOf(query) === -1;
+        });
+      });
+      search.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          const first = visibleOptions()[0];
+          if (first) first.focus();
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          close(true);
+        }
+      });
+    }
+
+    function visibleOptions() {
+      return Array.prototype.filter.call(list.querySelectorAll('button'), function (item) {
+        return !item.parentElement.hidden;
+      });
+    }
+
+    function close(restore) {
+      panel.hidden = true;
       list.hidden = true;
       button.setAttribute('aria-expanded', 'false');
+      if (restore) button.focus();
     }
+
     function open() {
+      if (options && typeof options.onOpen === 'function') options.onOpen();
+      panel.hidden = false;
       list.hidden = false;
       button.setAttribute('aria-expanded', 'true');
-      const current = list.querySelector('[aria-selected="true"]') || list.querySelector('button');
-      if (current) current.focus();
+      if (search) {
+        search.value = '';
+        Array.prototype.forEach.call(list.querySelectorAll('li'), function (item) { item.hidden = false; });
+        search.focus();
+      } else {
+        const current = list.querySelector('[aria-selected="true"]') || list.querySelector('button');
+        if (current) current.focus();
+      }
     }
+
     button.addEventListener('click', function () {
-      if (list.hidden) open();
-      else close();
+      if (panel.hidden) open();
+      else close(false);
     });
     button.addEventListener('keydown', function (event) {
       if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         open();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        close(true);
       }
     });
-    list.addEventListener('keydown', function (event) {
-      const buttons = Array.prototype.slice.call(list.querySelectorAll('button'));
+    panel.addEventListener('keydown', function (event) {
+      if (event.target === search) return;
+      const buttons = visibleOptions();
       const index = buttons.indexOf(document.activeElement);
       if (event.key === 'Escape') {
         event.preventDefault();
-        close();
-        button.focus();
+        close(true);
       } else if (event.key === 'ArrowDown') {
         event.preventDefault();
         if (buttons[index + 1]) buttons[index + 1].focus();
       } else if (event.key === 'ArrowUp') {
         event.preventDefault();
-        if (buttons[index - 1]) buttons[index - 1].focus();
+        if (index <= 0 && search) search.focus();
+        else if (buttons[index - 1]) buttons[index - 1].focus();
       } else if (event.key === 'Home') {
         event.preventDefault();
         if (buttons[0]) buttons[0].focus();
@@ -310,9 +399,9 @@
       }
     });
     document.addEventListener('click', function (event) {
-      const bar = button.closest('[data-landing-choice]');
-      if (bar && bar.contains(event.target)) return;
-      close();
+      const field = button.parentElement;
+      if (field && field.contains(event.target)) return;
+      close(false);
     });
     return { open: open, close: close };
   }
@@ -344,8 +433,15 @@
     let appLocale = web;
     let languages = [];
 
-    const countryControls = bindList(countryButton, countryList);
-    const languageControls = bindList(languageButton, languageList);
+    let countryControls;
+    let languageControls;
+    countryControls = bindList(countryButton, countryList, {
+      search: true,
+      onOpen: function () { if (languageControls) languageControls.close(false); },
+    });
+    languageControls = bindList(languageButton, languageList, {
+      onOpen: function () { if (countryControls) countryControls.close(false); },
+    });
     const requestGuard = guards().createLandingRequestGuard();
     mountOfferTracking();
 
@@ -428,7 +524,10 @@
         if (countryLabel) countryLabel.textContent = payload.copy.country_label;
         if (languageLabel) languageLabel.textContent = payload.copy.language_label;
         const hint = document.querySelector('[data-landing-choice-hint]');
-        if (hint) hint.textContent = explicit ? payload.copy.explicit_hint : payload.copy.suggested_hint;
+        if (hint) {
+          hint.textContent = explicit ? '' : (payload.copy.suggested_hint || '');
+          hint.hidden = !hint.textContent;
+        }
       }
       languageButton.textContent = current ? current.native_name : web;
       optionButtons(languageList, languages.map(function (item) {

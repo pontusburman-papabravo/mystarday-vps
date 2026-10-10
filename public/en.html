@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/login-magic.css?v=137">
-  <link rel="stylesheet" href="/css/landing.css?v=23">
+  <link rel="stylesheet" href="/css/landing.css?v=24">
   <link rel="stylesheet" href="/css/icon-system.css?v=1">
   <link rel="stylesheet" href="/css/mobile-nav.css?v=2.13.0">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
@@ -90,10 +90,10 @@
   </a>
   <div class="landing-nav__links">
     <a href="#sa-fungerar-det" class="landing-nav__link">How it works</a>
-    <a href="#for-vilka" class="landing-nav__link">For families who need structure</a>
-    <a href="#skattkammaren" class="landing-nav__link">Treasure Chamber</a>
-    <a href="/en/educators-and-therapists" class="landing-nav__link">For educators &amp; therapists</a>
-    <a href="/en/resources" class="landing-nav__link" data-track="two_track_resurser_click">Free PDFs</a>
+    <a href="#for-vilka" class="landing-nav__link landing-nav__link--later">For families who need structure</a>
+    <a href="#skattkammaren" class="landing-nav__link landing-nav__link--later">Treasure Chamber</a>
+    <a href="/en/educators-and-therapists" class="landing-nav__link landing-nav__link--later">For educators &amp; therapists</a>
+    <a href="/en/resources" class="landing-nav__link landing-nav__link--later" data-track="two_track_resurser_click">Free PDFs</a>
     <a href="#faq" class="landing-nav__link">FAQ</a>
   </div>
   <div class="landing-nav__actions">
@@ -173,6 +173,8 @@
 <section class="landing-hero landing-section--dark" id="toppen">
   <div class="landing-hero__grid">
     <div class="landing-hero__copy">
+      <h1>Not just another family calendar.</h1>
+      <p class="landing-hero__sub">My Starday helps children understand what is happening now, what comes next and what they have already achieved. Clear, visual routines — especially helpful for families with ADHD, autism or a need for extra structure.</p>
       <div class="landing-choice" data-landing-choice>
         <div class="landing-choice__field">
           <span class="landing-choice__label" id="landingCountryLabel" data-landing-country-label>Country</span>
@@ -187,30 +189,7 @@
         <p class="landing-choice__hint" data-landing-choice-hint></p>
       </div>
       <div id="landingOffer" class="landing-offer" data-landing-offer hidden></div>
-      <div class="hero-launch-card" id="app-store" data-hero-launch="markets" aria-label="Selected markets">
-        <img src="/apple-touch-icon.png" alt="App icon" class="hero-launch-card__icon" width="72" height="72">
-        <div class="hero-launch-card__text">
-          <span class="hero-launch-card__tag">Selected markets</span>
-          <strong class="hero-launch-card__title">Visual routines for children</strong>
-          <span class="hero-launch-card__hook">Morning. School. Evening.</span>
-          <p class="hero-launch-card__body" data-static-market-offer="IE CA">Ireland and Canada: Free until 31 December 2026. No payment required during the free period. It does not turn into a subscription by itself.</p>
-          <p class="landing-market-switch" data-en-market-links>
-            <a href="/en/ie">Ireland</a>
-            <a href="/en/ca">Canada</a>
-          </p>
-        </div>
-        <div class="store-badges store-badges--hero-card hero-launch-card__stores">
-          <a href="https://apps.apple.com/app/id6774493098" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" data-store-placement="hero" aria-label="Download on the App Store">
-            <img src="/img/app-store-badge-en.svg" alt="" class="store-badge" width="140" height="47">
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=se.mystarday.app&hl=en&gl=IE" class="store-badge-link" data-store-cta="play" target="_blank" rel="noopener noreferrer" data-track="play_store_click" data-market="IE" data-store-placement="hero" aria-label="Get it on Google Play"> <!-- pragma: allowlist secret -->
-            <img src="/img/google-play-badge-en.svg" alt="" class="store-badge" width="140" height="47">
-          </a>
-        </div>
-      </div>
-      <h1>Not just another family calendar.</h1>
-      <p class="landing-hero__sub">My Starday helps children understand what is happening now, what comes next and what they have already achieved. Clear, visual routines — especially helpful for families with ADHD, autism or a need for extra structure.</p>
-      <div class="landing-hero__ctas">
+            <div class="landing-hero__ctas">
         <p class="landing-hero__offer" data-static-market-offer="IE CA">Ireland and Canada: Free until 31 December 2026. No payment required during the free period.</p>
         <p class="landing-hero__reassurance" data-static-market-offer="IE CA">Ireland and Canada: no subscription is created automatically. From 1 January 2027, you can choose whether to continue.</p>
         <div class="store-badges store-badges--hero-cta landing-hero__store-badges" aria-label="Download the app">
@@ -242,7 +221,28 @@
         <span class="trust-chip">Works as an app on your phone</span>
       </div>
       <p class="landing-hero__micro" data-static-market-offer="IE CA">Ireland and Canada: Free until 31 December 2026. No payment required during the free period. Unlimited children.</p>
-    </div>
+          <div class="hero-launch-card" id="app-store" data-hero-launch="markets" aria-label="Selected markets">
+              <img src="/apple-touch-icon.png" alt="App icon" class="hero-launch-card__icon" width="72" height="72">
+              <div class="hero-launch-card__text">
+                <span class="hero-launch-card__tag">Selected markets</span>
+                <strong class="hero-launch-card__title">Visual routines for children</strong>
+                <span class="hero-launch-card__hook">Morning. School. Evening.</span>
+                <p class="hero-launch-card__body" data-static-market-offer="IE CA">Ireland and Canada: Free until 31 December 2026. No payment required during the free period. It does not turn into a subscription by itself.</p>
+                <p class="landing-market-switch" data-en-market-links>
+                  <a href="/en/ie">Ireland</a>
+                  <a href="/en/ca">Canada</a>
+                </p>
+              </div>
+              <div class="store-badges store-badges--hero-card hero-launch-card__stores">
+                <a href="https://apps.apple.com/app/id6774493098" class="store-badge-link" target="_blank" rel="noopener noreferrer" data-track="app_store_click" data-store-placement="hero" aria-label="Download on the App Store">
+                  <img src="/img/app-store-badge-en.svg" alt="" class="store-badge" width="140" height="47">
+                </a>
+                <a href="https://play.google.com/store/apps/details?id=se.mystarday.app&hl=en&gl=IE" class="store-badge-link" data-store-cta="play" target="_blank" rel="noopener noreferrer" data-track="play_store_click" data-market="IE" data-store-placement="hero" aria-label="Get it on Google Play"> <!-- pragma: allowlist secret -->
+                  <img src="/img/google-play-badge-en.svg" alt="" class="store-badge" width="140" height="47">
+                </a>
+              </div>
+            </div>
+</div>
     <div class="landing-hero__visual">
       <div class="hero-mockup" aria-label="Example of the child's view">
         <div class="hero-mockup__badge">Example</div>
@@ -822,7 +822,7 @@
 <script src="/js/landing-magic-bg.js?v=1"></script>
 <script src="/js/landing-market-state.js?v=7"></script>
 <script src="/js/landing-choice-guards.js?v=1"></script>
-<script src="/js/landing-experience.js?v=3"></script>
+<script src="/js/landing-experience.js?v=4"></script>
 <script src="/js/sw-register.js?v=2.13.0"></script>
 </body>
 </html>

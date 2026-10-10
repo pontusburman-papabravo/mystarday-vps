@@ -141,7 +141,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <meta property="og:type" content="website">
   <meta property="og:url" content="${escapeHtml(canonical)}">
   <meta property="og:locale" content="${escapeHtml(OG_LOCALE[locale.code] || 'en_IE')}">
-  <link rel="stylesheet" href="/css/landing.css?v=23">
+  <link rel="stylesheet" href="/css/landing.css?v=24">
   <link rel="stylesheet" href="/css/seo-article.css?v=2">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   ${jsonLd(page, canonical)}
@@ -181,7 +181,7 @@ function renderLocaleDocument(localeCode, page, pathname) {
   <script src="/js/public-lang-switcher.js?v=5"></script>
   <script src="/js/landing-events.js?v=9"></script>
   <script src="/js/landing-choice-guards.js?v=1"></script>
-  <script src="/js/landing-experience.js?v=3"></script>
+  <script src="/js/landing-experience.js?v=4"></script>
 </body>
 </html>`;
 }
