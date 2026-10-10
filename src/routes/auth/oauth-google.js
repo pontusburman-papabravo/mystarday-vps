@@ -116,9 +116,16 @@ router.post('/google', appleLoginLimiter, async (req, res) => {
       localeSelectionSource: registrationCtx.localeSelectionSource,
       englishBetaOfferState: registrationCtx.englishBetaOfferState,
       countrySelectionSource: registrationCtx.countryResolved.country_selection_source,
+      cohortBypass: marketGate.readiness && marketGate.readiness.reason === 'launch_cohort_available',
     });
     return completeLogin(req, res, newParent, 'parent', { isNewAccount: true, authSource: 'google_login' });
   } catch (err) {
+    if (err && err.code === 'MARKET_BILLING_NOT_READY') {
+      return res.status(403).json({
+        error: 'Purchases are not available in this country yet, so we cannot create an account you cannot use.',
+        code: 'MARKET_BILLING_NOT_READY',
+      });
+    }
     console.error('[AUTH] Google Sign In error:', err);
     sendApiError(res, 500, 'GENERIC_SERVER_ERROR');
   }

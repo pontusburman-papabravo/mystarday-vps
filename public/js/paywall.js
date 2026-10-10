@@ -450,8 +450,11 @@
         window.location.href = '/dashboard';
         return;
       }
-      if (status.paid_transition && status.paid_transition.kind === 'paywall') {
-        const sub = document.getElementById('paywallSubtitle');
+      const cohort = status.launch_cohort;
+      const sub = document.getElementById('paywallSubtitle');
+      if (cohort && cohort.grant_expired === true && cohort.copy && cohort.copy.ended) {
+        if (sub) sub.textContent = cohort.copy.ended;
+      } else if (status.paid_transition && status.paid_transition.kind === 'paywall') {
         if (sub) sub.textContent = t('paywall.launchEnded');
       }
     } catch (_) { /* continue */ }

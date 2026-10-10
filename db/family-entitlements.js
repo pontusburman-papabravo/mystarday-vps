@@ -226,6 +226,36 @@ async function upsertGiftEntitlement(familyId, payload, { client = null } = {}) 
   return rows[0];
 }
 
+async function upsertLaunchCohort(familyId, {
+  client = null,
+  startsAt,
+  expiresAt,
+  metadata = {},
+} = {}) {
+  const q = client ? client.query.bind(client) : db.query.bind(db);
+  const { rows } = await q(
+    `INSERT INTO family_entitlements (
+       family_id, entitlement_key, source, source_reference, status,
+       starts_at, expires_at, metadata
+     )
+     VALUES ($1, $2, 'launch_cohort', 'first_25_12_months', 'active', $3, $4, $5::jsonb)
+     ON CONFLICT DO NOTHING
+     RETURNING *`,
+    [familyId, PREMIUM_ENTITLEMENT_KEY, startsAt, expiresAt, JSON.stringify(metadata)]
+  );
+  if (rows[0]) return rows[0];
+  const existing = await q(
+    `SELECT * FROM family_entitlements
+     WHERE family_id = $1
+       AND entitlement_key = $2
+       AND source = 'launch_cohort'
+       AND revoked_at IS NULL
+     LIMIT 1`,
+    [familyId, PREMIUM_ENTITLEMENT_KEY]
+  );
+  return existing.rows[0] || null;
+}
+
 module.exports = {
   listByFamily,
   listActiveByFamily,
@@ -237,4 +267,5 @@ module.exports = {
   upsertAdminGrant,
   revokeAdminGrants,
   upsertGiftEntitlement,
+  upsertLaunchCohort,
 };

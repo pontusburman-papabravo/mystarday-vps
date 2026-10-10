@@ -1,5 +1,6 @@
 /**
  * Min Stjärndag — Service Worker v392 // pragma: allowlist secret
+ * v1053: First-25 launch offer copy, shown only from live server places
  * v1052: Home summary action wraps under the headline on phones
  * v1051: Land the 26-locale app stack on the release branch
  * v1050: Icelandic, Irish, and Maltese app packs stay registered
@@ -387,7 +388,7 @@
 // stjarndag-v1048: plural categories come from Intl.PluralRules
 // stjarndag-v1047: Bulgarian, Greek, Estonian, Lithuanian, and Latvian app locales
 // stjarndag-v1051: Land the 26-locale app stack on the release branch
-const CACHE_NAME = 'stjarndag-v1052';
+const CACHE_NAME = 'stjarndag-v1053';
 // stjarndag-v1012: English paywall locale, OG image, closed-market signup
 // stjarndag-v1011: hide iOS date/time chrome; edit rewards by id
 // stjarndag-v1010: Ireland complimentary until 31 Dec 2026, IE store links, English canonical host

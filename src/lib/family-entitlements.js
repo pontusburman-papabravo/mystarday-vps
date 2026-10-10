@@ -16,6 +16,7 @@ const {
   introYearExpiresAt,
   isFamilyEligibleForPrebillingAccess,
   isPrebillingAccessActive,
+  isMarketBillingReady,
 } = require('./payment-settings');
 const { isPublicBillingUsable } = require('./market-launch-invariants');
 const { appendPaymentAudit } = require('./payment-audit');
@@ -31,6 +32,7 @@ const {
   getIrelandFreeUntil,
   isIrelandComplimentaryActive,
 } = require('./ireland-launch-offer');
+const { claimLaunchCohortSlot } = require('../../db/launch-cohort-offer');
 
 const STORE_SOURCES = new Set(['apple', 'google']);
 const ACTIVE_STORE_STATUSES = new Set(['trial', 'active', 'grace_period']);
@@ -73,6 +75,13 @@ function isRowActive(row, nowMs) {
     }
     return row.status === 'gift' || row.status === 'active';
   }
+  if (row.source === 'launch_cohort') {
+    if (row.starts_at) {
+      const start = new Date(row.starts_at).getTime();
+      if (Number.isFinite(start) && start > nowMs) return false;
+    }
+    return row.status === 'active';
+  }
   if (STORE_SOURCES.has(row.source)) {
     return ACTIVE_STORE_STATUSES.has(row.status) || row.status === 'gift';
   }
@@ -92,6 +101,7 @@ function buildPremiumFromRow(row) {
   let label = 'Premium';
   if (isGrandfathered) label = 'Premium ingår permanent';
   else if (row.source === 'intro_year') label = 'Premium – första året ingår';
+  else if (row.source === 'launch_cohort') label = 'Premium – 12 månader utan kostnad';
   else if (row.source === 'gift') label = 'Premium – presentkort';
   else if (trial) label = 'Premium – gratis provperiod';
   else if (row.source === 'prebilling') label = 'Premium – lanseringsperiod';
@@ -182,6 +192,7 @@ function accessKindFromPremium(premium) {
   if (!premium || !premium.active) return 'limited';
   if (premium.is_grandfathered || premium.source === 'grandfathered') return 'grandfathered';
   if (premium.source === 'intro_year') return 'intro_year';
+  if (premium.source === 'launch_cohort') return 'launch_cohort';
   if (premium.source === 'trial') return 'trial';
   if (premium.source === 'complimentary') return 'complimentary';
   if (premium.source === 'prebilling') return 'prebilling';
@@ -189,7 +200,7 @@ function accessKindFromPremium(premium) {
 }
 
 function pickWinner(rows, nowMs) {
-  const order = ['grandfathered', 'admin', 'apple', 'google', 'gift', 'intro_year'];
+  const order = ['grandfathered', 'admin', 'apple', 'google', 'gift', 'intro_year', 'launch_cohort'];
   const active = rows.filter((r) => isRowActive(r, nowMs));
   for (const source of order) {
     const match = active.find((r) => r.source === source);
@@ -286,6 +297,7 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     if (inserted) workingRows = [...workingRows, inserted];
   }
 
+  const hasLaunchCohortRow = workingRows.some((r) => r.source === 'launch_cohort' && !r.revoked_at);
   const winner = pickWinner(workingRows, nowMs);
   const premium = winner ? buildPremiumFromRow(winner) : emptyPremium();
   const paymentStartIso = paymentStartAt ? paymentStartAt.toISOString() : null;
@@ -353,10 +365,13 @@ async function resolveFamilyEntitlements(familyId, now = new Date(), opts = {}) 
     }, { now, publicBillingUsable });
   }
 
+  // A stored launch cohort replaces the 14-day trial for that family.
+  // When the stored period ends, access becomes limited. No automatic charge.
   if (
     !premium.active &&
     familyRow &&
-    trialAccessActive
+    trialAccessActive &&
+    !hasLaunchCohortRow
   ) {
     const expiresAt = trialEndsAt(familyRow.created_at, {
       timeZone: familyTimeZone,
@@ -436,7 +451,12 @@ async function syncLegacyFamilyMirror(familyId, premium, { client = null } = {})
     return;
   }
 
-  if (premium.source === 'prebilling' || premium.source === 'trial' || premium.source === 'complimentary') {
+  if (
+    premium.source === 'prebilling'
+    || premium.source === 'trial'
+    || premium.source === 'complimentary'
+    || premium.source === 'launch_cohort'
+  ) {
     await q(
       `UPDATE family SET is_lifetime_free = false, subscription_status = 'none', updated_at = NOW()
        WHERE id = $1`,
@@ -488,6 +508,7 @@ async function syncSubscriptionComponentsMirror(familyId, premium, { client = nu
   else if (premium.source === 'prebilling') tier = 'trial';
   else if (premium.source === 'trial') tier = 'trial';
   else if (premium.source === 'complimentary') tier = 'trial';
+  else if (premium.source === 'launch_cohort') tier = 'trial';
   else if (premium.source === 'intro_year') tier = 'trial';
   else if (premium.active && premium.trial) tier = 'trial';
   else if (premium.active && premium.source === 'gift') tier = 'paid';
@@ -497,7 +518,8 @@ async function syncSubscriptionComponentsMirror(familyId, premium, { client = nu
     premium.trial ||
     premium.source === 'intro_year' ||
     premium.source === 'trial' ||
-    premium.source === 'complimentary'
+    premium.source === 'complimentary' ||
+    premium.source === 'launch_cohort'
   ) && premium.expires_at
     ? premium.expires_at
     : null;
@@ -526,7 +548,55 @@ async function syncMirrorsFromResolver(familyId, opts = {}) {
   return premium;
 }
 
-async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, { client = null } = {}) {
+async function grantLaunchCohortOnCreate(familyId, familyCreatedAt, countryCode, { client = null } = {}) {
+  if (!client) return { granted: false, reason: 'no_transaction' };
+  const claim = await claimLaunchCohortSlot(client, {
+    familyId,
+    countryCode,
+    grantedAt: familyCreatedAt,
+  });
+  if (!claim.granted) return claim;
+
+  const grant = claim.grant;
+  const metadata = {
+    country_code: grant.country_code,
+    slot_number: Number(grant.slot_number),
+    offer: 'first_25_12_months',
+    auto_converts: false,
+    payment_method_required: false,
+    time_zone: grant.time_zone,
+  };
+  const row = await entitlementsDb.upsertLaunchCohort(familyId, {
+    client,
+    startsAt: grant.starts_at,
+    expiresAt: grant.expires_at,
+    metadata,
+  });
+  const premium = buildPremiumFromRow(row || {
+    source: 'launch_cohort',
+    status: 'active',
+    granted_at: grant.granted_at,
+    starts_at: grant.starts_at,
+    expires_at: grant.expires_at,
+    metadata,
+  });
+  await syncAllLegacyMirrors(familyId, premium, { client });
+  if (!claim.idempotent) {
+    await appendPaymentAudit({
+      familyId,
+      source: 'launch_cohort',
+      eventType: 'launch_cohort_granted',
+      status: 'active',
+      amountMinor: null,
+      currency: null,
+      store: null,
+      metadata,
+    }, client);
+  }
+  return { granted: true, idempotent: claim.idempotent === true, grant, premium };
+}
+
+async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, { client = null, cohortBypass = false } = {}) {
   const grandfatherRow = await grantGrandfatheredOnCreate(familyId, familyCreatedAt, {
     client,
     countryCode,
@@ -544,6 +614,27 @@ async function syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, country
   }
 
   const policy = getMarketCommercialPolicy(countryCode, { createdAt: familyCreatedAt });
+  if (client && policy.entitlement === ENTITLEMENT.TRIAL) {
+    const cohort = await grantLaunchCohortOnCreate(familyId, familyCreatedAt, countryCode, { client });
+    if (cohort && cohort.granted) {
+      return { kind: 'launch_cohort', grant: cohort.grant, premium: cohort.premium };
+    }
+    if (
+      cohortBypass
+      && policy.entitlement === ENTITLEMENT.TRIAL
+      && policy.requiresBillingReady
+    ) {
+      const publicBillingUsable = await isPublicBillingUsable();
+      const marketBillingReady = publicBillingUsable
+        ? await isMarketBillingReady(countryCode, familyCreatedAt || new Date())
+        : false;
+      if (!publicBillingUsable || !marketBillingReady) {
+        const err = new Error('MARKET_BILLING_NOT_READY');
+        err.code = 'MARKET_BILLING_NOT_READY';
+        throw err;
+      }
+    }
+  }
   if (policy.entitlement === ENTITLEMENT.COMPLIMENTARY_UNTIL) {
     const freeUntil = await getIrelandFreeUntil();
     if (isIrelandComplimentaryActive({ countryCode, now: new Date(), freeUntil })) {

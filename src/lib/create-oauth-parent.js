@@ -122,9 +122,10 @@ async function createParentFromOAuth(opts) {
     timezone,
     localeSelectionSource,
     englishBetaOfferState,
-    countrySelectionSource,
-    familyName = null,
-  } = opts;
+  countrySelectionSource,
+  familyName = null,
+  cohortBypass = false,
+} = opts;
   const client = await db.getClient();
 
   try {
@@ -179,7 +180,10 @@ async function createParentFromOAuth(opts) {
     await client.query('INSERT INTO notification_preference (parent_id) VALUES ($1)', [parent.id]);
     await createNewsletterSubscription(client, parent.id, parent.email);
 
-    await syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, { client });
+    await syncCreatedFamilyAccessMirrors(familyId, familyCreatedAt, countryCode, {
+      client,
+      cohortBypass: cohortBypass === true,
+    });
 
     await client.query('COMMIT');
     await runOAuthSignupSideEffects(familyId, parent, displayName, email, attribution);

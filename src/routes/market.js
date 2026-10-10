@@ -33,6 +33,7 @@ const {
   describeComplimentaryLaunchOffer,
   describeIrelandLaunchOffer,
 } = require('../lib/ireland-launch-offer');
+const { describePublicLaunchCohortOffer } = require('../../db/launch-cohort-offer');
 
 const router = express.Router();
 
@@ -183,6 +184,20 @@ router.get('/legal-routes', (req, res) => {
   } catch (err) {
     console.error('[MARKET] legal-routes error:', err);
     sendApiError(res, 500, 'MARKET_LEGAL_FAILED');
+  }
+});
+
+// GET /api/market/launch-cohort-offer?country_code=DE&locale=de-DE
+// Remaining places come only from the ledger, and only while a place can still be assigned.
+router.get('/launch-cohort-offer', async (req, res) => {
+  try {
+    const countryCode = normalizeCountryCode(req.query.country_code);
+    const locale = req.query.locale || req.query.preferred_locale || null;
+    const offer = await describePublicLaunchCohortOffer(countryCode, locale);
+    res.json(offer);
+  } catch (err) {
+    console.error('[MARKET] launch-cohort-offer error:', err);
+    sendApiError(res, 500, 'MARKET_CONFIG_FAILED');
   }
 });
 
